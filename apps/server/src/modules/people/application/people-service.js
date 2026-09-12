@@ -81,8 +81,46 @@ export async function listPeople(
     : []
   const hasAccess = new Set(activeMemberships.map((membership) => membership.personId))
 
+  // @req FR-193 — who can reach this Business but is not on its roster.
+  //
+  // Every summary figure above is roster-derived, `withSystemAccessCount`
+  // included: it counts Employment rows whose person also holds a Membership.
+  // That is the right definition for a roster column and a misleading one on
+  // an empty roster — a Business with three live Memberships and no Employment
+  // rows reported "System access 0", which reads as "nobody can get in" when
+  // the truth is "nobody has an employment record yet". Observed on production
+  // 2026-09-12, where the ADR-078 backfill found no `employeeRef` values to
+  // carry over and left the directory empty.
+  //
+  // So the gap is named rather than left to be inferred from a zero: these are
+  // the people an owner most likely needs to create a record for, which also
+  // gives the empty state something to act on. Queried independently of the
+  // roster — the same ACTIVE, this-Business-or-tenant-wide test `resolveViewer`
+  // would apply — never by subtracting one count from another.
+  const rosterPersonIds = new Set(employments.map((employment) => employment.personId))
+  const businessMemberships = await db.membership.findMany({
+    where: {
+      tenantId: business.tenantId,
+      status: 'ACTIVE',
+      OR: [{ businessId }, { businessId: null }],
+    },
+    select: { personId: true, person: { select: { id: true, code: true, displayName: true, email: true } } },
+  })
+  const accessWithoutEmployment = [
+    ...new Map(
+      businessMemberships
+        .filter((membership) => !rosterPersonIds.has(membership.personId) && membership.person)
+        .map((membership) => [membership.personId, membership.person]),
+    ).values(),
+  ]
+
   return {
-    business: { id: business.id, code: business.code, name: business.name },
+    // `tenantId` is exposed so the create form can name the scope it is writing
+    // into. It is not a trust boundary: `createEmployment` re-reads the Business
+    // and refuses a mismatched tenant, so a client that sends the wrong one is
+    // rejected rather than believed.
+    business: { id: business.id, code: business.code, name: business.name, tenantId: business.tenantId },
+    accessWithoutEmployment,
     people: employments.map((employment) => ({
       employmentId: employment.id,
       person: employment.person,
@@ -101,6 +139,11 @@ export async function listPeople(
       onLeaveCount: employments.filter((employment) => employment.status === 'ON_LEAVE').length,
       endedCount: employments.filter((employment) => employment.status === 'ENDED').length,
       withSystemAccessCount: employments.filter((employment) => hasAccess.has(employment.personId)).length,
+      // Deliberately NOT folded into `withSystemAccessCount`: that figure
+      // answers "how many of these employees can log in", this one answers
+      // "how many people can log in and are missing from this list". Summing
+      // them would produce a number answering neither.
+      accessWithoutEmploymentCount: accessWithoutEmployment.length,
     },
   }
 }

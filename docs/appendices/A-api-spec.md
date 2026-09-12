@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.64.0b |
+| **Version** | 1.65.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-12 |
 
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=250 -->
+<!-- api-spec-counts: route_handlers=252 -->
 
 ### Desktop browser/QR pairing (FR-144, 2026-09-08)
 
@@ -73,7 +73,9 @@ the tables below are the human contract and status authority.
 | GET | `/api/profile` | resolved local account, linked identity state, and local session boundary |
 | PATCH/DELETE | `/api/workspaces/[id]` | แก้ไข / archive workspace |
 | GET | `/api/business/strategy?businessId=` | Business-scoped Roadmap, two/three ordered goal horizons, and goal progress read model (FR-041) |
-| GET | `/api/people?businessId=` | viewer-filtered Business People Directory over Person/Membership (FR-042) |
+| GET | `/api/people?businessId=` | viewer-filtered Business People Directory over Employment, with system access derived from Membership (FR-042, FR-193) |
+| POST | `/api/people/employment` | create an Employment record — an HR fact that grants no access of its own (FR-193, BR-034) |
+| PATCH | `/api/people/employment/[employmentId]` | one named `action`: `on_leave`, `reinstate`, or `end` (which requires a `reason`). ENDED is terminal — a re-hire is a new row, never a reopened one (FR-193, ADR-078 D1) |
 
 ## Business Strategy mutation (FR-059)
 
@@ -765,6 +767,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.65.0b | 2026-09-12 | candidate | FR-193 (ADR-078 D1): added the Employment WRITE path, which had been declared and built as a service and then left unreachable — `POST /api/people/employment` and `PATCH /api/people/employment/[employmentId]` (`on_leave` / `reinstate` / `end`, the last requiring a reason). `employment-service.js` shipped all four operations in 1.63.0b-era work and no route imported it, so the People Directory could only show rows the ADR-078 backfill created — and on production that was none, because no `Membership.employeeRef` values existed to carry over. The page told the owner to add a record and offered no control that wrote one. Route handler count 250 -> 252 | working-tree | Claude Opus 5 |
 | 1.64.0b | 2026-09-12 | candidate | FR-198 / FR-199 (ADR-080): added the access-review read surface that had no route — `GET /api/platform/access-history?businessId=\|tenantId=\|personId=` (the event stream for one scope, authority `ownsBusiness`/`ownsTenant`/self/operator, 404-shaped identically for unowned and nonexistent per SEC-001) and `GET /api/platform/businesses/[businessId]/grants` (current-state roster with provenance). Route handler count 248 -> 250 | working-tree | Claude Opus 5 |
 | 1.63.0b | 2026-09-12 | candidate | FR-191 / FR-192 (ADR-077): added the grant-withdrawal surface that did not exist — `POST /api/platform/users/memberships/{id}/lifecycle` (suspend / reinstate / revoke) and `POST /api/platform/users/offboard`. Before this, `Membership.status` had no writer anywhere in the repository, so removing someone's access meant SQL against production (`.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md`). Route handler count 246 -> 248 (242 before this pair of branches; FR-094/095/096 took it to 246 in 1.62.0b) | working-tree | Claude Opus 5 |
 | 1.62.0b | 2026-09-12 | candidate | FR-094/FR-095/FR-096: added MFA TOTP and step-up session assurance endpoints — `POST /api/auth/mfa/totp/enroll`, `POST /api/auth/mfa/totp/verify`, `GET/DELETE /api/auth/mfa/factors`, and `POST /api/auth/step-up`. Route handler count 242 -> 246 | working-tree | Antigravity |
