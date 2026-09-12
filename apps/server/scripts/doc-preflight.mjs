@@ -1589,6 +1589,57 @@ const MEMBERSHIP_WRITER_BASELINE = path.join(SPEC_PACK, '.membership-writer-base
   }
 }
 
+// ---- Check 21: edge-id-ambiguity -----------------------------------------
+//
+// `apps/edge` is scanned by doc-graph.mjs now, and an id written there binds to
+// a root requirement only when it cannot mean anything else — root-declared and
+// absent from Edge's own registry. Edge brought 46 ids from the repository it
+// was imported out of (ADR-062), and the numbers overlap while the statements
+// do not: Edge FR-004 is `send <template> --group <alias>`, Server FR-004 is
+// Workstream CRUD.
+//
+// The skip is correct and it is also invisible, which is the part that needs a
+// check. Without one, an annotation that reads like a claim about a root
+// requirement silently contributes nothing, and nobody learns which ones. This
+// reports the count rather than failing: these ids were minted years and a
+// repository apart, ADR-039 forbids renumbering either side, and the fix for
+// each is a deliberate act — declare the Edge id in the root registry under a
+// new number, or accept it as Edge-scoped forever.
+{
+  const edgeGraph = workspacePath(ROOT, 'apps', 'edge', 'docs', '.doc-graph.json')
+  const edgeSrc = workspacePath(ROOT, 'apps', 'edge', 'src')
+  if (existsSync(edgeGraph) && existsSync(edgeSrc)) {
+    const edgeOwn = new Set(
+      JSON.parse(read(edgeGraph)).nodes.filter((n) => n.type === 'requirement').map((n) => n.id.slice(4)),
+    )
+    const rootDeclared = new Set(
+      [...read(path.join(SPEC_PACK, 'PRD-SDD-v1.0.md')).matchAll(/^\|\s*((?:FR|NFR|BR|SEC|SDD)-\d+)/gm)].map((m) => m[1]),
+    )
+    const ambiguous = new Map()
+    // `walk` takes one extension, so the TypeScript sources Edge is written in
+    // need their own passes rather than an array.
+    const edgeFiles = ['.ts', '.tsx', '.js', '.jsx'].flatMap((ext) => walk(edgeSrc, ext))
+    for (const file of edgeFiles) {
+      for (const m of read(file).matchAll(/@req\s+([A-Z]+-\d+(?:\s*,\s*[A-Z]+-\d+)*)/g)) {
+        for (const id of m[1].split(/\s*,\s*/)) {
+          if (rootDeclared.has(id) && edgeOwn.has(id)) {
+            ambiguous.set(id, (ambiguous.get(id) ?? 0) + 1)
+          }
+        }
+      }
+    }
+    if (ambiguous.size) {
+      const total = [...ambiguous.values()].reduce((sum, n) => sum + n, 0)
+      const worst = [...ambiguous.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8)
+        .map(([id, n]) => `${id}×${n}`).join(', ')
+      add('info', 'edge-id-ambiguity',
+        `${total} @req annotation(s) in apps/edge name an id both registries declare, so they bind to neither`,
+        `${ambiguous.size} distinct id(s): ${worst}`, ['apps/edge/src'],
+        'Renumber in the ROOT registry and re-annotate, or leave Edge-scoped — never let one number carry two statements')
+    }
+  }
+}
+
 // ---- Check 19: a declared state that nothing writes (ratchet) -------------
 // ADR-045 D3 declared `ACTIVE | PENDING | SUSPENDED | REVOKED` for Membership.
 // FR-095 promised that suspension denies the next request. `resolve-viewer.js`

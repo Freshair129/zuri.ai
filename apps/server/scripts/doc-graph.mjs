@@ -310,6 +310,22 @@ function build() {
   const prd = workspacePath(ROOT, 'docs', 'PRD-SDD-v1.0.md')
   const reqs = requirementNodes(prd)
   nodes.push(...reqs)
+  // The two id namespaces, kept apart on purpose. `rootDeclaredIds` is what
+  // this registry declares; `edgeOwnIds` is what Edge brought with it from
+  // `Freshair129/zuri-edge-device` and still owns. ADR-039 forbids renumbering
+  // either side, so the overlap is permanent and has to be reasoned about
+  // rather than resolved. Read from Edge's own committed graph — the same
+  // source `monorepo-graph.mjs` treats as Edge's registry of record — so the
+  // two agree about what Edge owns instead of each parsing its PRD separately.
+  const rootDeclaredIds = new Set(reqs.map((r) => r.id.slice(4)))
+  const edgeGraphPath = workspacePath(ROOT, 'apps', 'edge', 'docs', '.doc-graph.json')
+  const edgeOwnIds = new Set(
+    existsSync(edgeGraphPath)
+      ? JSON.parse(read(edgeGraphPath)).nodes
+          .filter((n) => n.type === 'requirement')
+          .map((n) => n.id.slice(4))
+      : [],
+  )
   for (const r of reqs) addEdge(r.id, 'doc:PRD-SDD-v1.0', 'specifies', 'prd-registry')
   // A retired rule must be answerable as "replaced by what" from the graph, not
   // only from prose — the same obligation the lineage guard already puts on a
@@ -372,12 +388,30 @@ function build() {
   }
 
   // Tests first, so @tested names can be resolved to real test nodes.
-  const testFiles = walk(workspacePath(ROOT, 'tests'), ['.test.js', '.spec.js'])
+  //
+  // Edge's tests are walked alongside Server's for one concrete reason: its
+  // source files carry `@tested` pointing at `tests/unit/*.test.ts`, and with
+  // only Server's tree scanned every one of those resolved to a node that did
+  // not exist — 41 dangling edges the moment Edge source became visible. A
+  // dangling edge is not a cosmetic defect here; `doc-code-symlink` reports it
+  // and the traceability matrix shows the requirement as unverified.
+  const testFiles = [
+    ...walk(workspacePath(ROOT, 'tests'), ['.test.js', '.spec.js']),
+    ...walk(workspacePath(ROOT, 'apps', 'edge', 'tests'), ['.test.ts', '.test.js', '.spec.ts', '.spec.js']),
+  ]
+  const edgeTestRoot = workspacePath(ROOT, 'apps', 'edge', 'tests')
   for (const file of testFiles) {
     const body = read(file)
     nodes.push({ id: `test:${rel(file)}`, type: 'test', path: rel(file), hash: hash(body), status: 'current' })
-    // A requirement id named inside a test verifies it directly.
-    for (const r of new Set(body.match(ID_LIST) || [])) addEdge(`test:${rel(file)}`, `req:${r}`, 'verifies', 'test-reference')
+    // A requirement id named inside a test verifies it directly — but an id
+    // named inside an EDGE test is subject to the same collision rule as an
+    // Edge source annotation: Edge's own FR-004 must not be read as evidence
+    // for Server's.
+    const named = new Set(body.match(ID_LIST) || [])
+    const verifies = file.startsWith(edgeTestRoot)
+      ? [...named].filter((r) => rootDeclaredIds.has(r) && !edgeOwnIds.has(r))
+      : [...named]
+    for (const r of verifies) addEdge(`test:${rel(file)}`, `req:${r}`, 'verifies', 'test-reference')
   }
   const testNodes = nodes.filter((n) => n.type === 'test')
   const resolveTest = (name) => {
@@ -387,7 +421,23 @@ function build() {
   }
 
   // Code + annotations (seed lives outside src but carries FR-016).
-  const codeFiles = [...walk(workspacePath(ROOT, 'src'), ['.js', '.jsx']), ...walk(workspacePath(ROOT, 'prisma'), ['.js'])]
+  //
+  // `apps/edge` is walked too, and that is newer than the rest of this block.
+  // Edge arrived as a snapshot import (ADR-062) whose accounting lives in
+  // `monorepo-graph.mjs`, which only knows the 599 files named in
+  // `docs/migrations/monorepo/source-manifest.json`. Everything added to Edge
+  // since — 38 files at the time of writing, including the whole GenesisRAG17
+  // client — was invisible to every graph in the repository. The visible cost:
+  // FR-189 is declared in the root registry and annotated in ten `apps/edge`
+  // files, and `docs/FEATURE-MAP.md` reported it `🔜 planned · code — · tests —`.
+  // Governance said the work had not started while it was running in production.
+  const edgeCodeFiles = walk(workspacePath(ROOT, 'apps', 'edge', 'src'), ['.js', '.jsx', '.ts', '.tsx'])
+  const codeFiles = [
+    ...walk(workspacePath(ROOT, 'src'), ['.js', '.jsx']),
+    ...walk(workspacePath(ROOT, 'prisma'), ['.js']),
+    ...edgeCodeFiles,
+  ]
+  const isEdgeFile = new Set(edgeCodeFiles.map((f) => f))
   for (const file of codeFiles) {
     const body = read(file)
     const ann = annotationsOf(body)
@@ -406,7 +456,21 @@ function build() {
         ...(ann.tested.length ? { '@tested': ann.tested } : {}),
       },
     })
-    for (const r of ann.req) addEdge(id, `req:${r}`, 'implements', 'annotation')
+    // An id written inside `apps/edge` binds to a ROOT requirement only when it
+    // cannot mean anything else. Edge carries its own registry of 46 ids minted
+    // in the repository it came from, and the numbers overlap while the
+    // statements do not: Edge FR-004 is `send <template> --group <alias>`,
+    // Server FR-004 is Workstream CRUD. Binding blindly would file Edge's
+    // delivery-intent work as evidence for Workstream CRUD — a false trace,
+    // which is worse than the missing one this change exists to fix.
+    //
+    // So: root-declared AND absent from Edge's own registry. FR-189 qualifies
+    // (root-only). FR-004 does not, and stays unbound exactly as before — no
+    // regression, and `edgeScopedInRoot` below reports it rather than guessing.
+    const bindable = isEdgeFile.has(file)
+      ? ann.req.filter((r) => rootDeclaredIds.has(r) && !edgeOwnIds.has(r))
+      : ann.req
+    for (const r of bindable) addEdge(id, `req:${r}`, 'implements', 'annotation')
     for (const s of ann.spec) {
       // @spec points at a design decision or constraint, not a feature.
       if (s.endsWith('.md')) addEdge(id, `doc:${path.basename(s, '.md')}`, 'references', 'annotation')

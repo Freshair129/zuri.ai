@@ -40,7 +40,7 @@
     "readyFeatureCount": 108,
     "requirementCount": 199,
     "verifiedRequirementCount": 188,
-    "progressPercent": 94.5,
+    "progressPercent": 94.9,
     "gapCount": 25,
     "gaps": [
       {
@@ -180,7 +180,9 @@
         "severity": "medium",
         "check": "requirements",
         "summary": "FR-189 is planned",
-        "evidence": []
+        "evidence": [
+          "apps/edge/tests/unit/genesisrag17-edge.test.ts"
+        ]
       },
       {
         "domain": "line-oa-studio",
@@ -302,7 +304,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-051",
@@ -321,7 +323,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-053",
@@ -377,7 +379,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 9
+          "testCount": 11
         },
         {
           "id": "FR-096",
@@ -426,7 +428,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-147",
@@ -454,7 +456,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 6
+          "testCount": 9
         },
         {
           "id": "FR-171",
@@ -723,7 +725,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 16
+          "testCount": 17
         }
       ],
       "checks": {
@@ -1071,7 +1073,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 9
+          "testCount": 11
         },
         {
           "id": "FR-097",
@@ -1474,7 +1476,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-146",
@@ -1816,7 +1818,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-071",
@@ -1977,7 +1979,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 8
+          "testCount": 9
         }
       ],
       "checks": {
@@ -2409,7 +2411,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-054",
@@ -2528,14 +2530,17 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-189",
           "declared": "planned",
           "status": "planned",
           "codeCount": 0,
-          "testCount": 0
+          "testCount": 1,
+          "evidence": [
+            "apps/edge/tests/unit/genesisrag17-edge.test.ts"
+          ]
         }
       ],
       "checks": {
@@ -2664,7 +2669,9 @@
           "severity": "medium",
           "check": "requirements",
           "summary": "FR-189 is planned",
-          "evidence": []
+          "evidence": [
+            "apps/edge/tests/unit/genesisrag17-edge.test.ts"
+          ]
         }
       ],
       "details": {
@@ -2692,7 +2699,7 @@
       ],
       "featureCount": 14,
       "readyFeatureCount": 11,
-      "progressPercent": 89.5
+      "progressPercent": 93.7
     },
     "line-oa-studio": {
       "status": "partial",
@@ -2737,7 +2744,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 9
+          "testCount": 11
         },
         {
           "id": "FR-146",
@@ -2758,7 +2765,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 6
+          "testCount": 9
         },
         {
           "id": "FR-151",
@@ -4167,7 +4174,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-146",
@@ -4188,7 +4195,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 6
+          "testCount": 9
         },
         {
           "id": "FR-151",
@@ -5406,10 +5413,12 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 9
+          "testCount": 11
         }
       ],
       "evidence": [
+        "apps/edge/tests/unit/delivery.test.ts",
+        "apps/edge/tests/unit/line-delivery-receipt.test.ts",
         "apps/server/src/app/(pm)/customer/conversations/page.jsx",
         "apps/server/src/app/(pm)/customer/line-crm/page.jsx",
         "apps/server/src/app/(pm)/customer/page.jsx",
@@ -6218,10 +6227,11 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 19,
-          "testCount": 16
+          "testCount": 17
         }
       ],
       "evidence": [
+        "apps/edge/tests/unit/edge-extraction-secrecy.test.ts",
         "apps/server/src/app/api/agent/heartbeat/route.js",
         "apps/server/src/app/api/assets/evidence/[id]/extract/route.js",
         "apps/server/src/app/api/assets/evidence/[id]/extraction-job/route.js",
@@ -6480,11 +6490,15 @@
           "id": "FR-150",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 6
+          "codeCount": 8,
+          "testCount": 9
         }
       ],
       "evidence": [
+        "apps/edge/src/conversation/executor.ts",
+        "apps/edge/tests/unit/conversation-worker.test.ts",
+        "apps/edge/tests/unit/desktop-package.test.ts",
+        "apps/edge/tests/unit/genesisrag17-edge.test.ts",
         "apps/server/src/app/(pm)/line-oa/edge-connection/page.jsx",
         "apps/server/src/app/(pm)/line-oa/live-crm/page.jsx",
         "apps/server/src/app/(pm)/line-oa/page.jsx",
@@ -7346,12 +7360,12 @@
         "project-manager"
       ],
       "useCase": "Approved 2026-09-11 (ADR-075); Phase 1 (FR-187) implemented in PR #324; Phase 2 gate open with contract revision 2: SmartGift's catalog data would enter the governed 17-stage pipeline through one adapter instead of three separate writers, so an agent's product answer can finally name the published generation and citation it came from",
-      "progressPercent": 66.7,
+      "progressPercent": 93.3,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-026 registry status is approved",
-        "FR-189 is planned"
+        "FR-189 is partial"
       ],
       "requirements": [
         {
@@ -7366,17 +7380,24 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-189",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 6,
+          "testCount": 1
         }
       ],
       "evidence": [
+        "apps/edge/src/conversation/executor.ts",
+        "apps/edge/src/rag/genesisrag17/msp-stdio.ts",
+        "apps/edge/src/rag/genesisrag17/published-rag.ts",
+        "apps/edge/src/rag/genesisrag17/record-store.ts",
+        "apps/edge/src/rag/genesisrag17/settings.ts",
+        "apps/edge/src/rag/genesisrag17/types.ts",
+        "apps/edge/tests/unit/genesisrag17-edge.test.ts",
         "apps/server/src/app/api/knowledge/ingestions/route.js",
         "apps/server/src/modules/knowledge/genesisrag17-source.js",
         "apps/server/src/modules/knowledge/genesisrag17-structured-record.js",
@@ -9849,10 +9870,11 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
-          "testCount": 7
+          "testCount": 8
         }
       ],
       "evidence": [
+        "apps/edge/tests/unit/stack.test.ts",
         "apps/server/src/app/api/agent/line-webhook/route.js",
         "apps/server/tests/integration/agent-webhook-route.test.js",
         "apps/server/tests/integration/line-oa-cross-repo-round-trip.test.js",
@@ -9922,10 +9944,11 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 16
+          "testCount": 17
         }
       ],
       "evidence": [
+        "apps/edge/tests/unit/stack.test.ts",
         "apps/server/src/app/api/agent/line-webhook/route.js",
         "apps/server/src/modules/agent/line-binding-resolver.js",
         "apps/server/src/modules/agent/line-channel-binding.js",
