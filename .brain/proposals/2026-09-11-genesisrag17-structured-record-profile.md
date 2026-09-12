@@ -55,7 +55,7 @@ acceptance note cites, is summarised here.
 | C-4 | Chunking | parser-2 emits one DESCRIPTIVE chunk per record, carrying exactly one mention, plus one CLAIM chunk per relation whose whole text is the canonical JSON triple (§B, §D.3). `rule_v1` is unchanged. |
 | C-5 | Temporal | Every claim chunk carries exactly one ISO-8601 date, the catalog version date; if the manifest has none, no claim chunk carries a date, so a batch is never mixed (C-10). It never carries `updatedAt`. Descriptive chunks carry no date, and rendered text avoids temporal-language phrases (§E). |
 | C-6 | Stage 8 recognizer | A pinned `genesisrag17-structured-recognizer-1` is the only exception to the `defaultRecognizer`-only guard. Its `resolutionKey` is the SmartGift code verbatim (§C). |
-| C-7 | Unknown relations | Every relation the fixture emits maps to a v2 predicate with valid endpoints, or else it is HELD. One record in the fixture is deliberately held, to prove a documented WARN/no-publish result (§D.4). |
+| C-7 | Unknown relations | Every relation the fixture emits maps to a v2 predicate with valid endpoints. For a catalog source the enforcement point is Stage 2, not Stage 17: parser-2 mirrors GKS's hold guards, so a record that would be held is refused before a batch exists. Stage 17's WARN/no-publish path stays GKS's behaviour for anything that reaches it (§D.4). Restated in rev 2.1 after the acceptance run. |
 | C-8 | Fixtures/tests | The shared corpus lives at zuri-ai:apps/server/tests/fixtures/genesisrag17/smartgift-catalog/ (commit 87184a97, re-pinned at implementation). Each repo also keeps local cases (§I). Metrics are unchanged. |
 | C-9 | Changes per repo | zuri-ai: source/parser/recognizer, acceptance tests and doc pins. MSP: none. GKS: contracts, core table, gate and docs. Worker: version check, predicate table and `entityKind()`, plus tests (§F, §G). |
 | C-10 | Mixed-temporal lane count (pre-existing) | GKS expects `facts.length` bitemporal objects unless every fact is `not_applicable`; the worker counts only `mapped` rows. A mixed generation fails the Stage 17 graph dimension. C-5 keeps catalog batches uniform, so Phase 2 does not depend on it. Fixed GKS-side in Genesis-Knowledge-System PR #6 (merged `f72e3160`, 2026-09-11). |
@@ -263,8 +263,18 @@ gks-core/src/pipeline.mjs:536). The flow doc says "Stage17 รับ PASS เท
 So one unmappable relation blocks publication of the whole run. Per C-7:
 
 - every relation the fixture emits maps to a v2 predicate with valid endpoint types;
-- the fixture set also includes one record that is expected to be HELD, and its test proves
-  that the run ends as a documented WARN/no-publish, never a false PASS.
+- **for a catalog source the enforcement point is Stage 2, not Stage 17** (restated in rev 2.1,
+  after the acceptance run). `genesisrag17-parser-2` mirrors each guard GKS would hold on — the
+  same endpoint under `norm_v1`, negation, a question mark, a second ISO date, temporal language —
+  so a record that would be held never reaches Stage 9. The four-process acceptance run
+  (zuri-ai PR #335, merged `895ffaad`) recorded the refusal as terminal and documented:
+  evidence rows `[[1,'SUCCEEDED'],[2,'FAILED']]` with `GENESISRAG17_STRUCTURED_RECORD_INVALID`,
+  no Stage 9 batch, no GKS decision, no publication receipt, the run `FAILED` and the previously
+  published generation still resolving its citations. That is the "never a false PASS" property
+  this item exists for;
+- Stage 17's WARN/no-publish path is unchanged and still covers everything that does reach GKS
+  with a non-empty `held`: prose sources through `-parser-1`, and any future producer that does
+  not pre-check. Only the catalog profile moves the guard upstream.
 
 ## E. Stage 12 — catalog version validity (temporal)
 
@@ -392,7 +402,7 @@ This profile needs the same shape of coverage, scoped to the new boundary:
 | Stage 10/11 `ontology_v2` | `HAS_COMPONENT`/`PRICED_AT`/`IN_CATEGORY` each produce a `facts[]` entry with correct endpoint types at 0.85 (`structured`) | Unrecognized predicate → `unknown_predicate`; wrong endpoint type → `invalid_endpoint`; the run ends WARN/no-publish, not a crash or false PASS | n/a | n/a | n/a | n/a |
 | Stage 12 temporal | Claim chunk with one embedded ISO date → `status: "mapped"` | Chunk with no date-shaped text → explicit `"not_applicable"` (not `"unmapped"`) | n/a | n/a | n/a | n/a |
 | Stage 13 worker | `ontology_v2` decision with each new predicate/type accepted and written | `ontology_v1` decision still accepted; unsupported version → `DECISION_VERSION_INVALID` | n/a | n/a | n/a | n/a |
-| Stage 17 gate | A full SmartGift fixture run reaches PASS with `allowPublication: true` | The deliberately held record reaches WARN/no-publish, and the run's evidence explains why (§D.4, C-7) | n/a | n/a | n/a | Cross-tenant SmartGift catalogs isolate like the existing two-tenant test (genesisrag17-e2e.test.js:455) |
+| Stage 17 gate | A full SmartGift fixture run reaches PASS with `allowPublication: true` | A record that would be held is refused at Stage 2 with `GENESISRAG17_STRUCTURED_RECORD_INVALID`: run `FAILED`, no batch, no decision, no publication receipt, prior generation untouched (§D.4, C-7). GKS's WARN/no-publish path stays covered by the prose suite | n/a | n/a | n/a | Cross-tenant SmartGift catalogs isolate like the existing two-tenant test (genesisrag17-e2e.test.js:455) |
 
 **Per-repo local tests (C-8).** No repo's tests import another repo, so each keeps its own
 cases alongside the shared corpus:
@@ -467,5 +477,6 @@ cases alongside the shared corpus:
 
 | Version | Date | Status | Summary | Agent |
 |---|---|---|---|---|
+| rev 2.1 | 2026-09-13 | PROPOSAL rev 2.1 — C-7 restated after the acceptance run | The four-process acceptance run (zuri-ai PR #335) showed `genesisrag17-parser-2` mirrors every GKS hold guard at Stage 2, so for a catalog source the C-7 record is refused there and the Stage 17 WARN variant is unreachable. C-7, §D.4 and the §I Stage 17 row now describe that terminal Stage 2 refusal and keep WARN/no-publish as GKS's behaviour for sources that reach it. Wording only; no code and no behaviour change | Claude Opus 5 |
 | rev 2 | 2026-09-11 | PROPOSAL rev 2 — owner approved Option A; four-repo acceptance pending | Four-repo review outcome recorded (O-1..O-3, C-1..C-9). The fact shape crosses to the worker, so this is a four-repo change and the worker changes too. The vocabulary drops `PACKAGED_AS`/`OFFER` and adds `PRICE_TIER`. Chunking is one descriptive chunk plus one claim chunk per relation. Adds the inferred-hold path, the temporal rendering rules, the supported-version set with accept-before-produce rollout, worker Stage 13 changes, per-repo tests and the resolved open items. Citations re-pinned to `origin/main` commits and line numbers corrected | Claude Opus 5 |
 | rev 1 | 2026-09-11 | PROPOSAL — not approved | Initial proposal | Claude Sonnet 5 |
