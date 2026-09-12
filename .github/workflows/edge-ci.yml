@@ -52,7 +52,46 @@ jobs:
       - name: Build
         run: npm run build
 
+  # Detect if apps/edge or edge-ci was modified.
+  # Desktop builds Rust/Tauri on windows-latest (~15-20 min) and is only needed
+  # when Edge code changed, saving significant CI time and Windows runner quota.
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      edge: ${{ steps.filter.outputs.edge }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: filter
+        shell: bash
+        run: |
+          set -uo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base='${{ github.event.pull_request.base.sha }}'
+            head='${{ github.event.pull_request.head.sha }}'
+          else
+            base='${{ github.event.before }}'
+            head='${{ github.sha }}'
+          fi
+          case "$base" in
+            ''|0000000000000000000000000000000000000000)
+              echo "edge=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
+          esac
+          if ! changed=$(git diff --name-only "$base" "$head" 2>&1); then
+            echo "edge=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "Changed files in diff:"; echo "$changed"
+          if echo "$changed" | grep -qE "^(apps/edge/|\.github/workflows/edge-ci\.yml)"; then
+            echo "edge=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "edge=false" >> "$GITHUB_OUTPUT"
+          fi
+
   desktop:
+    needs: [changes, edge-verify]
+    if: github.event_name == 'push' || needs.changes.outputs.edge == 'true'
     runs-on: windows-latest
     timeout-minutes: 20
     steps:

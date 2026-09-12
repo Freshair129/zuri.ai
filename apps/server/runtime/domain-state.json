@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-12T06:07:14.340Z",
+  "generatedAt": "2026-09-12T06:09:23.430Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",

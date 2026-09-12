@@ -68,14 +68,14 @@ describe('CRM conversation inbox (FR-091)', () => {
     foreignConversationId = foreign.conversationId
   })
 
-  it('lists the tenant of the open Business, not that Business alone (BR-001)', async () => {
+  it('lists tenant-shared conversations alongside the open Business, but hides other businesses (BR-001)', async () => {
     const result = await getConversationInbox({ viewer: ownerOf(busA1.id, busA2.id), businessId: busA1.id })
     const ids = result.conversations.map((row) => row.id)
 
-    // The tenant-shared conversation belongs to no Business at all. A Business-scoped
-    // query would have dropped it — and it is the common case, not the exception.
+    // The tenant-shared conversation belongs to no Business at all and is visible.
+    // Conversations owned by another Business (busA2) do not leak into busA1.
     expect(ids).toContain(sharedConversationId)
-    expect(ids).toContain(ownedConversationId)
+    expect(ids).not.toContain(ownedConversationId)
     expect(ids).not.toContain(foreignConversationId)
     expect(result.scope.tenantId).toBe(tenantA.id)
   })
@@ -103,7 +103,7 @@ describe('CRM conversation inbox (FR-091)', () => {
   })
 
   it('labels a conversation no Business owns rather than leaving it blank', async () => {
-    const result = await getConversationInbox({ viewer: ownerOf(busA1.id, busA2.id), businessId: busA1.id })
+    const result = await getConversationInbox({ viewer: ownerOf(busA1.id, busA2.id), businessId: busA2.id })
     const shared = result.conversations.find((row) => row.id === sharedConversationId)
     const owned = result.conversations.find((row) => row.id === ownedConversationId)
     expect(shared.businessId).toBeNull()

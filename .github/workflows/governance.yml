@@ -196,7 +196,18 @@ jobs:
 
       - run: npm ci
 
-      - run: npx playwright install --with-deps chromium
+      - name: Cache Playwright browser binaries
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~\AppData\Local\ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('apps/server/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
 
       # Kept as its own job so an e2e failure is attributable, and because the
       # full suite is the only thing that catches cross-spec interference — a

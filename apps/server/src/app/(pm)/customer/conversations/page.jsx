@@ -371,7 +371,7 @@ export default function ConversationInboxPage() {
 
       <p className="flex items-center gap-2 text-[10px] text-muted">
         <MessageSquare className="h-3 w-3" aria-hidden />
-        ขอบเขต: tenant ของ {inbox.data.scope.businessName} — ธุรกิจใน tenant เดียวกันแชร์ CRM ได้ (BR-001)
+        ขอบเขต: {inbox.data.scope.businessName} (รวมบทสนทนาส่วนกลางของ tenant)
       </p>
     </div>
   )
