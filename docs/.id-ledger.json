@@ -664,6 +664,7 @@
     "ADR-078",
     "ADR-079",
     "ADR-080",
+    "ADR-081",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -8361,6 +8362,19 @@
       "history": [
         {
           "anchor": "audit events carry their own scope and an owner can read",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-081": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-081-GENERATED-VIEWS-ARE-BUILT-NOT-COMMITTED.md",
+      "status": "current",
+      "statement_digest": "7927b1bf5516df7d3bf590efe0a3bd32402360b85229a11f7aef6d3189c0d50a",
+      "history": [
+        {
+          "anchor": "generated views are built not committed the monorepo",
           "since": "2026-09-12",
           "reason": "declared"
         }
