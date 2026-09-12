@@ -9,7 +9,7 @@
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 23,
+    "info": 24,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -255,6 +255,17 @@
     },
     {
       "id": "I23",
+      "severity": "info",
+      "check": "edge-id-ambiguity",
+      "title": "45 @req annotation(s) in apps/edge name an id both registries declare, so they bind to neither",
+      "details": "37 distinct id(s): SEC-005×3, BR-010×3, FR-008×2, SDD-007×2, BR-008×2, BR-009×2, SDD-010×1, SDD-006×1",
+      "files": [
+        "apps/edge/src"
+      ],
+      "action": "Renumber in the ROOT registry and re-annotate, or leave Edge-scoped — never let one number carry two statements"
+    },
+    {
+      "id": "I24",
       "severity": "info",
       "check": "unreachable-state",
       "title": "5 declared state(s) are unreachable (accepted debt)",

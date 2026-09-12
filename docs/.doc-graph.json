@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2759,
-    "total_edges": 11317,
+    "total_nodes": 2875,
+    "total_edges": 11352,
     "dangling_edges": 0,
     "node_types": {
       "document": 232,
@@ -16,8 +16,8 @@
       "route": 351,
       "model": 149,
       "requirement": 380,
-      "test": 647,
-      "code_file": 827
+      "test": 722,
+      "code_file": 868
     },
     "coverage": {
       "requirements": 380,
@@ -25,7 +25,7 @@
       "fr_with_tests": "100% (188/188)",
       "rules_anchored_in_code": "96% (151/157)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 827,
+      "annotated_code_files": 868,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -61,6 +61,569 @@
     "removed": []
   },
   "nodes": [
+    {
+      "id": "code:apps/edge/src/answer/respond.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/answer/respond.ts",
+      "hash": "912d68a9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "SDD-010"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/cards/index.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/cards/index.ts",
+      "hash": "dcd201b4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "SDD-006"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/catalog/store.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/catalog/store.ts",
+      "hash": "14404a59",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "SDD-016"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/cli/commands.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/cli/commands.ts",
+      "hash": "9774e526",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-003",
+          "FR-004",
+          "FR-005",
+          "FR-008",
+          "FR-007"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/cli/index.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/cli/index.ts",
+      "hash": "11618270",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-001",
+          "FR-002",
+          "SDD-001"
+        ],
+        "@spec": [
+          "FR-093",
+          "FR-143"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/config/index.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/config/index.ts",
+      "hash": "297d7df6",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "SDD-007",
+          "SEC-005",
+          "BR-007"
+        ],
+        "@spec": [
+          "FR-143",
+          "FR-144"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/config/secret.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/config/secret.ts",
+      "hash": "776f3850",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "SEC-005",
+          "SDD-007"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/conversation/contract.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/conversation/contract.ts",
+      "hash": "43e046f7",
+      "status": "current",
+      "annotations": {
+        "@spec": [
+          "FR-150"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/conversation/executor.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/conversation/executor.ts",
+      "hash": "35eeb088",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-150",
+          "FR-189"
+        ],
+        "@tested": [
+          "tests/unit/genesisrag17-edge.test.ts"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/conversation/worker.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/conversation/worker.ts",
+      "hash": "51375268",
+      "status": "current",
+      "annotations": {
+        "@spec": [
+          "FR-150"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/delivery/outbox.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/delivery/outbox.ts",
+      "hash": "00b3c9c1",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "SDD-011",
+          "NFR-004",
+          "BR-005"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/delivery/worker.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/delivery/worker.ts",
+      "hash": "6af0e8f9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "BR-008",
+          "BR-010"
+        ],
+        "@spec": [
+          "FR-093"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/evidence/builder.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/evidence/builder.ts",
+      "hash": "1848931f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "SDD-005",
+          "NFR-005"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/history/admin-auth.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/history/admin-auth.ts",
+      "hash": "1edf6183",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "BR-009"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/history/archive.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/history/archive.ts",
+      "hash": "c9ae62ff",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "BR-010"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/history/webhook-server.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/history/webhook-server.ts",
+      "hash": "012ba80c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "BR-009",
+          "BR-008",
+          "SDD-012",
+          "BR-010"
+        ],
+        "@spec": [
+          "FR-093"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/identity/registry.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/identity/registry.ts",
+      "hash": "c1a8998b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "SDD-009"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/line-poc/client.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/line-poc/client.ts",
+      "hash": "99929a7b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "SDD-013"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/line-poc/targets.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/line-poc/targets.ts",
+      "hash": "aa8831a6",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-008"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/mcp/pricing-server.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/mcp/pricing-server.ts",
+      "hash": "5e0bd6ae",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "SDD-015"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/plugin/auth.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/plugin/auth.ts",
+      "hash": "a47f3a2b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-001",
+          "FR-002",
+          "SEC-002",
+          "BR-006"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/plugin/contract.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/plugin/contract.ts",
+      "hash": "1c2ef6aa",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-003",
+          "FR-004"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/plugin/sdk.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/plugin/sdk.ts",
+      "hash": "f85796d9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-003"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/pricing/engine.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/pricing/engine.ts",
+      "hash": "205f0dd2",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "SDD-014"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/queries/duckdb.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/queries/duckdb.ts",
+      "hash": "d7b45755",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "BR-001"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/queries/registry.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/queries/registry.ts",
+      "hash": "9a52bfc3",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "BR-002",
+          "SDD-004",
+          "SEC-002"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/rag/catalog-manifest.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/rag/catalog-manifest.ts",
+      "hash": "67d49484",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-001",
+          "FR-002",
+          "FR-003"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/rag/genesis-rag.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/rag/genesis-rag.ts",
+      "hash": "619d0c52",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-004",
+          "FR-005",
+          "NFR-002",
+          "SEC-001"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/rag/genesisrag17/msp-stdio.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/rag/genesisrag17/msp-stdio.ts",
+      "hash": "2da972c2",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-189"
+        ],
+        "@tested": [
+          "tests/unit/genesisrag17-edge.test.ts"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/rag/genesisrag17/published-rag.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/rag/genesisrag17/published-rag.ts",
+      "hash": "6080a21d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-189"
+        ],
+        "@tested": [
+          "tests/unit/genesisrag17-edge.test.ts"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/rag/genesisrag17/record-store.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/rag/genesisrag17/record-store.ts",
+      "hash": "036094b8",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-189"
+        ],
+        "@tested": [
+          "tests/unit/genesisrag17-edge.test.ts"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/rag/genesisrag17/settings.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/rag/genesisrag17/settings.ts",
+      "hash": "e934a32d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-189"
+        ],
+        "@tested": [
+          "tests/unit/genesisrag17-edge.test.ts"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/rag/genesisrag17/types.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/rag/genesisrag17/types.ts",
+      "hash": "e5e69adf",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-189"
+        ],
+        "@tested": [
+          "tests/unit/genesisrag17-edge.test.ts"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/rag/taxonomy-projection-store.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/rag/taxonomy-projection-store.ts",
+      "hash": "9a202e9e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "NFR-002"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/rag/taxonomy-projection.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/rag/taxonomy-projection.ts",
+      "hash": "bc788660",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-005"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/rag/taxonomy-report.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/rag/taxonomy-report.ts",
+      "hash": "4e329126",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-004"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/rag/taxonomy-serving.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/rag/taxonomy-serving.ts",
+      "hash": "5aef2c4a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "NFR-003"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/rag/taxonomy.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/rag/taxonomy.ts",
+      "hash": "95caf52b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-001",
+          "FR-002",
+          "FR-003",
+          "NFR-001"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/safety/redact.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/safety/redact.ts",
+      "hash": "0a1d8aef",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "NFR-001",
+          "SEC-004",
+          "SDD-008"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/stack/stack-client.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/stack/stack-client.ts",
+      "hash": "db84e2e2",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "SEC-005",
+          "SDD-017"
+        ],
+        "@spec": [
+          "FR-052",
+          "NFR-017",
+          "FR-093"
+        ]
+      }
+    },
+    {
+      "id": "code:apps/edge/src/zuri-api/client.ts",
+      "type": "code_file",
+      "path": "apps/edge/src/zuri-api/client.ts",
+      "hash": "5a9c1391",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "SDD-002"
+        ]
+      }
+    },
     {
       "id": "code:prisma/seed.js",
       "type": "code_file",
@@ -28104,6 +28667,531 @@
       "status": "current"
     },
     {
+      "id": "test:apps/edge/tests/contract/edge-extraction-candidate.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/contract/edge-extraction-candidate.test.ts",
+      "hash": "833847a3",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/contract/plugin-platform.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/contract/plugin-platform.test.ts",
+      "hash": "9608e40a",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/contract/zuri-api.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/contract/zuri-api.test.ts",
+      "hash": "8a87660d",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/integration/desktop-worker.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/integration/desktop-worker.test.ts",
+      "hash": "56018a7b",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/integration/genesis-ingest.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/integration/genesis-ingest.test.ts",
+      "hash": "5db7f7ae",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/integration/v4-store.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/integration/v4-store.test.ts",
+      "hash": "8799d711",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/replay/line-chat.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/replay/line-chat.test.ts",
+      "hash": "526d82c0",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/admin-auth.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/admin-auth.test.ts",
+      "hash": "705bae45",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/answer.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/answer.test.ts",
+      "hash": "6fcd1ab3",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/cards.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/cards.test.ts",
+      "hash": "187e4f1e",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/catalog-embedding-candidate-resolution.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/catalog-embedding-candidate-resolution.test.ts",
+      "hash": "77c36d17",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/catalog-identity.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/catalog-identity.test.ts",
+      "hash": "6067f616",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/catalog-store.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/catalog-store.test.ts",
+      "hash": "1ffec0f2",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/catalog-user-logic-review.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/catalog-user-logic-review.test.ts",
+      "hash": "5eae4d50",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/client-persistence.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/client-persistence.test.ts",
+      "hash": "d99e9b49",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/commands.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/commands.test.ts",
+      "hash": "9854b0d4",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/config-reload.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/config-reload.test.ts",
+      "hash": "2caee185",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/config.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/config.test.ts",
+      "hash": "f845eb2e",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/conversation-worker.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/conversation-worker.test.ts",
+      "hash": "8d2c0855",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/conversation.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/conversation.test.ts",
+      "hash": "07599630",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/delivery.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/delivery.test.ts",
+      "hash": "fdd5b639",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/desktop-package.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/desktop-package.test.ts",
+      "hash": "8a11f14c",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/desktop-worker.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/desktop-worker.test.ts",
+      "hash": "bb21f3b0",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/edge-extraction-client.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/edge-extraction-client.test.ts",
+      "hash": "fb6bbf77",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/edge-extraction-contract.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/edge-extraction-contract.test.ts",
+      "hash": "11ab79ef",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/edge-extraction-extractor.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/edge-extraction-extractor.test.ts",
+      "hash": "97532607",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/edge-extraction-secrecy.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/edge-extraction-secrecy.test.ts",
+      "hash": "7dd2a4c0",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/edge-extraction-worker.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/edge-extraction-worker.test.ts",
+      "hash": "7f467c6a",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/evidence.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/evidence.test.ts",
+      "hash": "b6ef5189",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/genesis-rag.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/genesis-rag.test.ts",
+      "hash": "06e643eb",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/genesis-readiness.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/genesis-readiness.test.ts",
+      "hash": "9a397d1a",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/genesis-taxonomy-projection-store.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/genesis-taxonomy-projection-store.test.ts",
+      "hash": "74d5b1a8",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/genesis-taxonomy-projection.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/genesis-taxonomy-projection.test.ts",
+      "hash": "aa6590a4",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/genesis-taxonomy-report.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/genesis-taxonomy-report.test.ts",
+      "hash": "f48b18c4",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/genesis-taxonomy-serving.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/genesis-taxonomy-serving.test.ts",
+      "hash": "e8d3bf95",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/genesis-taxonomy.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/genesis-taxonomy.test.ts",
+      "hash": "8726e30e",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/genesisrag17-edge.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/genesisrag17-edge.test.ts",
+      "hash": "07ef9b8e",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/headless.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/headless.test.ts",
+      "hash": "ee9b0a84",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/heartbeat.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/heartbeat.test.ts",
+      "hash": "f6a01f20",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/history.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/history.test.ts",
+      "hash": "f1b701bb",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/identity.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/identity.test.ts",
+      "hash": "d28b5f2b",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/line-delivery-receipt.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/line-delivery-receipt.test.ts",
+      "hash": "e691020a",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/line-poc.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/line-poc.test.ts",
+      "hash": "49cc877c",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/model-fallback.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/model-fallback.test.ts",
+      "hash": "8b02ab6c",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/model-port.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/model-port.test.ts",
+      "hash": "efe0105e",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/model-warmer.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/model-warmer.test.ts",
+      "hash": "8f62bde5",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/outbound-archive.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/outbound-archive.test.ts",
+      "hash": "7f1ef1ec",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/plugin-auth.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/plugin-auth.test.ts",
+      "hash": "5ba287db",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/pricing-page-contract.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/pricing-page-contract.test.ts",
+      "hash": "5bf78946",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/pricing-service.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/pricing-service.test.ts",
+      "hash": "d8dbfca3",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/pricing.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/pricing.test.ts",
+      "hash": "79dd5b8b",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/push-targets.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/push-targets.test.ts",
+      "hash": "897ba450",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/queries.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/queries.test.ts",
+      "hash": "58eedaf8",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/redact.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/redact.test.ts",
+      "hash": "cc51d28a",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/stack.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/stack.test.ts",
+      "hash": "7fe2b830",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-adr-guard.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-adr-guard.test.ts",
+      "hash": "1a2a084e",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-answer-tools.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-answer-tools.test.ts",
+      "hash": "3b286dd5",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-build-graph.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-build-graph.test.ts",
+      "hash": "a4f57159",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-clients.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-clients.test.ts",
+      "hash": "cc6f87ac",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-config.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-config.test.ts",
+      "hash": "036927a5",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-eval-cli.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-eval-cli.test.ts",
+      "hash": "86015763",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-eval-metrics.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-eval-metrics.test.ts",
+      "hash": "41a0cfe6",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-flex-modelcard.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-flex-modelcard.test.ts",
+      "hash": "094892df",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-flowaccount.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-flowaccount.test.ts",
+      "hash": "540945b4",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-format-cards.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-format-cards.test.ts",
+      "hash": "214e335d",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-graph-snapshot.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-graph-snapshot.test.ts",
+      "hash": "a8e22daf",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-ingest.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-ingest.test.ts",
+      "hash": "bf87a5e0",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-paths.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-paths.test.ts",
+      "hash": "ccc1db28",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-persona-rules.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-persona-rules.test.ts",
+      "hash": "c4848be5",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-query-parser.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-query-parser.test.ts",
+      "hash": "443bce3a",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-querysets.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-querysets.test.ts",
+      "hash": "ccf902fc",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-schema.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-schema.test.ts",
+      "hash": "07cdbae8",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-search.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-search.test.ts",
+      "hash": "94b0ef11",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-sku.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-sku.test.ts",
+      "hash": "771c39f2",
+      "status": "current"
+    },
+    {
+      "id": "test:apps/edge/tests/unit/v4-upstream-projection.test.ts",
+      "type": "test",
+      "path": "apps/edge/tests/unit/v4-upstream-projection.test.ts",
+      "hash": "94b7ef28",
+      "status": "current"
+    },
+    {
       "id": "test:tests/acceptance/genesisrag17-e2e.test.js",
       "type": "test",
       "path": "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
@@ -32634,6 +33722,132 @@
     }
   ],
   "edges": [
+    {
+      "from": "code:apps/edge/src/cli/index.ts",
+      "to": "req:FR-093",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:apps/edge/src/cli/index.ts",
+      "to": "req:FR-143",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:apps/edge/src/config/index.ts",
+      "to": "req:FR-143",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:apps/edge/src/config/index.ts",
+      "to": "req:FR-144",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:apps/edge/src/conversation/contract.ts",
+      "to": "req:FR-150",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:apps/edge/src/conversation/executor.ts",
+      "to": "req:FR-150",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:apps/edge/src/conversation/executor.ts",
+      "to": "req:FR-189",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:apps/edge/src/conversation/worker.ts",
+      "to": "req:FR-150",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:apps/edge/src/delivery/worker.ts",
+      "to": "req:FR-093",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:apps/edge/src/history/webhook-server.ts",
+      "to": "req:FR-093",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:apps/edge/src/rag/genesisrag17/msp-stdio.ts",
+      "to": "req:FR-189",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:apps/edge/src/rag/genesisrag17/published-rag.ts",
+      "to": "req:FR-189",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:apps/edge/src/rag/genesisrag17/record-store.ts",
+      "to": "req:FR-189",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:apps/edge/src/rag/genesisrag17/settings.ts",
+      "to": "req:FR-189",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:apps/edge/src/rag/genesisrag17/types.ts",
+      "to": "req:FR-189",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:apps/edge/src/stack/stack-client.ts",
+      "to": "req:FR-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:apps/edge/src/stack/stack-client.ts",
+      "to": "req:FR-093",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:apps/edge/src/stack/stack-client.ts",
+      "to": "req:NFR-017",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
     {
       "from": "code:prisma/seed.js",
       "to": "req:FR-016",
@@ -72470,6 +73684,125 @@
       "type": "relates",
       "status": "current",
       "source": "control-block"
+    },
+    {
+      "from": "test:apps/edge/tests/unit/conversation-worker.test.ts",
+      "to": "req:FR-150",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:apps/edge/tests/unit/delivery.test.ts",
+      "to": "req:FR-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:apps/edge/tests/unit/desktop-package.test.ts",
+      "to": "req:FR-150",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:apps/edge/tests/unit/edge-extraction-secrecy.test.ts",
+      "to": "req:FR-144",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:apps/edge/tests/unit/genesisrag17-edge.test.ts",
+      "to": "code:apps/edge/src/conversation/executor.ts",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:apps/edge/tests/unit/genesisrag17-edge.test.ts",
+      "to": "code:apps/edge/src/rag/genesisrag17/msp-stdio.ts",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:apps/edge/tests/unit/genesisrag17-edge.test.ts",
+      "to": "code:apps/edge/src/rag/genesisrag17/published-rag.ts",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:apps/edge/tests/unit/genesisrag17-edge.test.ts",
+      "to": "code:apps/edge/src/rag/genesisrag17/record-store.ts",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:apps/edge/tests/unit/genesisrag17-edge.test.ts",
+      "to": "code:apps/edge/src/rag/genesisrag17/settings.ts",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:apps/edge/tests/unit/genesisrag17-edge.test.ts",
+      "to": "code:apps/edge/src/rag/genesisrag17/types.ts",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:apps/edge/tests/unit/genesisrag17-edge.test.ts",
+      "to": "req:FR-150",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:apps/edge/tests/unit/genesisrag17-edge.test.ts",
+      "to": "req:FR-188",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:apps/edge/tests/unit/genesisrag17-edge.test.ts",
+      "to": "req:FR-189",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:apps/edge/tests/unit/line-delivery-receipt.test.ts",
+      "to": "req:FR-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:apps/edge/tests/unit/stack.test.ts",
+      "to": "req:FR-050",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:apps/edge/tests/unit/stack.test.ts",
+      "to": "req:FR-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:apps/edge/tests/unit/stack.test.ts",
+      "to": "req:NFR-017",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/acceptance/genesisrag17-e2e.test.js",
