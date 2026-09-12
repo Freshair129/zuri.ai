@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-11T09:03:42.447Z",
+  "generatedAt": "2026-09-12T06:07:14.340Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,12 +37,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 131,
-    "readyFeatureCount": 107,
-    "requirementCount": 189,
-    "verifiedRequirementCount": 178,
+    "featureCount": 132,
+    "readyFeatureCount": 108,
+    "requirementCount": 190,
+    "verifiedRequirementCount": 179,
     "progressPercent": 94.2,
-    "gapCount": 25,
+    "gapCount": 26,
     "gaps": [
       {
         "domain": "agent",
@@ -182,6 +182,16 @@
         "check": "requirements",
         "summary": "FR-189 is planned",
         "evidence": []
+      },
+      {
+        "domain": "line-oa-studio",
+        "id": "API-OPENAPI-001",
+        "severity": "high",
+        "check": "httpApi",
+        "summary": "API route is not represented in the machine-readable OpenAPI generator",
+        "evidence": [
+          "/api/line-oa/accounts/[id]/transport-health"
+        ]
       },
       {
         "domain": "line-oa-studio",
@@ -1037,7 +1047,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-078",
@@ -1307,7 +1317,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-062",
@@ -2644,7 +2654,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-080",
@@ -2715,6 +2725,13 @@
           "status": "verified",
           "codeCount": 4,
           "testCount": 18
+        },
+        {
+          "id": "FR-190",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 3
         }
       ],
       "checks": {
@@ -2731,17 +2748,26 @@
           }
         },
         "httpApi": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/appendices/A-api-spec.md",
             "src/modules/project-manager/api-docs/openapi.js"
           ],
-          "gaps": [],
+          "gaps": [
+            {
+              "id": "API-OPENAPI-001",
+              "severity": "high",
+              "summary": "API route is not represented in the machine-readable OpenAPI generator",
+              "evidence": [
+                "/api/line-oa/accounts/[id]/transport-health"
+              ]
+            }
+          ],
           "details": {
-            "routes": 17,
-            "inventoried": 17,
+            "routes": 18,
+            "inventoried": 18,
             "openApiPaths": 238,
-            "missingFromOpenApi": 0
+            "missingFromOpenApi": 1
           }
         },
         "mcp": {
@@ -2795,7 +2821,7 @@
           "details": {
             "mutations": 14,
             "guardedMutations": 9,
-            "reads": 10,
+            "reads": 11,
             "unguardedReads": 0
           }
         },
@@ -2818,6 +2844,7 @@
         "docs/domains/line-oa-studio/features/FR-151-line-oa-rich-menu.md",
         "docs/domains/line-oa-studio/features/FR-152-line-oa-rich-menu-publish-jobs.md",
         "docs/domains/line-oa-studio/features/FR-153-line-oa-liff-app-registry.md",
+        "docs/domains/line-oa-studio/features/FR-190-line-transport-health.md",
         "docs/domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md",
         "docs/domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md",
         "docs/domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md",
@@ -2835,6 +2862,15 @@
       ],
       "gaps": [
         {
+          "id": "API-OPENAPI-001",
+          "severity": "high",
+          "check": "httpApi",
+          "summary": "API route is not represented in the machine-readable OpenAPI generator",
+          "evidence": [
+            "/api/line-oa/accounts/[id]/transport-health"
+          ]
+        },
+        {
           "id": "AUTH-001",
           "severity": "high",
           "check": "authorization",
@@ -2842,18 +2878,19 @@
         }
       ],
       "details": {
-        "routes": 27,
-        "apiRoutes": 17,
+        "routes": 28,
+        "apiRoutes": 18,
         "pageRoutes": 10,
         "ownedModels": 6,
-        "featureNotes": 11
+        "featureNotes": 12
       },
       "featureIds": [
         "FEAT-018",
-        "FEAT-019"
+        "FEAT-019",
+        "FR-190"
       ],
-      "featureCount": 2,
-      "readyFeatureCount": 0,
+      "featureCount": 3,
+      "readyFeatureCount": 1,
       "progressPercent": 100
     },
     "market-intelligence": {
@@ -2864,7 +2901,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-092",
@@ -3736,7 +3773,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-062",
@@ -9737,7 +9774,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 36
+          "testCount": 37
         }
       ],
       "evidence": [
@@ -9775,6 +9812,7 @@
         "apps/server/tests/unit/fr060-business-home-visibility.test.js",
         "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
+        "apps/server/tests/unit/fr190-line-transport-health.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/line-oa-account-routes.test.js",
         "apps/server/tests/unit/line-oa-liff-app-routes.test.js",
@@ -12085,6 +12123,42 @@
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/commerce-billing-domain.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js"
+      ]
+    },
+    {
+      "id": "FR-190",
+      "title": "Server-owned LINE transport reports its own reachability, so a silent channel is visible instead of inferred — for every LineOaAccount with serverEnabled the server derives the age of the last inbound delivery it recorded (from existing Integration evidence and LineConversationJob rows; no new column, no migration) and classifies it OK, QUIET or SILENT against configurable thresholds, and separately asks LINE for the channel configured webhook endpoint and compares it with this deployment own account route, classifying MATCHED, MISMATCHED, DISABLED or UNKNOWN. GET /api/line-oa/accounts/{id}/transport-health answers states, timestamps and durations only — never channel credentials and never the other endpoint contents — the LINE OA console shows the state beside the account, and the existing server worker tick logs one structured warning per account while a state is not OK. Read-only: no writes, no new process, and no automatic change to provider configuration.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-190"
+      ],
+      "primaryDomain": "line-oa-studio",
+      "contributorDomains": [
+        "line-oa-studio"
+      ],
+      "useCase": "Tell a silent LINE channel from a misrouted one: how long a serverEnabled account has gone without an inbound delivery, and whether the webhook endpoint LINE has configured is still this deployment own account route.",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-190",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 3
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/api/line-oa/accounts/[id]/transport-health/route.js",
+        "apps/server/src/app/api/line-oa/worker/route.js",
+        "apps/server/src/modules/line-oa-studio/application/line-transport-health.js",
+        "apps/server/src/modules/line-oa-studio/domain/transport-health.js",
+        "apps/server/tests/integration/line-admission-reconciler.test.js",
+        "apps/server/tests/integration/server-line-jobs.test.js",
+        "apps/server/tests/unit/fr190-line-transport-health.test.js"
       ]
     }
   ]
