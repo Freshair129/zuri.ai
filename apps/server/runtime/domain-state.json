@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-12T11:50:45.588Z",
+  "generatedAt": "2026-09-12T12:05:35.409Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -1005,7 +1005,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 18
+          "testCount": 20
         }
       ],
       "checks": {
@@ -4612,7 +4612,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 18
+          "testCount": 20
         }
       ],
       "checks": {
@@ -7732,11 +7732,12 @@
           "id": "FR-194",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 8,
-          "testCount": 18
+          "codeCount": 9,
+          "testCount": 20
         }
       ],
       "evidence": [
+        "apps/server/prisma/seed.js",
         "apps/server/src/lib/validation/entities.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/commerce/application/billing-invoice-service.js",
@@ -7749,7 +7750,9 @@
         "apps/server/src/modules/people/components/PeopleDirectory.jsx",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/modules/project-manager/application/scope-service.js",
+        "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr186-billing-pos.spec.js",
+        "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/domain-visibility-server.test.js",

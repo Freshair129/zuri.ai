@@ -8,12 +8,13 @@
       "id": "code:prisma/seed.js",
       "type": "code_file",
       "path": "apps/server/prisma/seed.js",
-      "hash": "33bc15ef",
+      "hash": "cc7a6d18",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-016",
           "FR-041",
+          "FR-194",
           "FR-087",
           "FR-088",
           "FR-089",
@@ -35510,6 +35511,13 @@
     {
       "from": "code:prisma/seed.js",
       "to": "req:FR-089",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:prisma/seed.js",
+      "to": "req:FR-194",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -75073,6 +75081,13 @@
     },
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:NFR-007",
       "type": "verifies",
       "status": "current",
@@ -77125,6 +77140,13 @@
     {
       "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-194",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
