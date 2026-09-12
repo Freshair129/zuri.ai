@@ -26947,6 +26947,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/acceptance/genesisrag17-smartgift.test.js",
+      "type": "test",
+      "path": "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
+      "hash": "e8b8745c",
+      "status": "current"
+    },
+    {
       "id": "test:tests/acceptance/knowledge-admission-native.test.js",
       "type": "test",
       "path": "apps/server/tests/acceptance/knowledge-admission-native.test.js",
@@ -72603,6 +72610,20 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/acceptance/genesisrag17-smartgift.test.js",
+      "to": "req:FR-187",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/acceptance/genesisrag17-smartgift.test.js",
+      "to": "req:FR-188",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/acceptance/knowledge-admission-native.test.js",
       "to": "code:src/instrumentation.js",
       "type": "tests",
@@ -112282,7 +112303,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2651,
+    "server_nodes": 2652,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,
