@@ -1,6 +1,6 @@
 import { resolveAuthorizationContext } from './authorization-context'
 
-// @req FR-094, FR-096, FR-098
+// @req FR-094, FR-096, FR-097, FR-098
 // @spec ADR-045, SDD-052, BR-020, SEC-018
 // @tested tests/unit/identity/agent-tool-authorizer.test.js
 
@@ -18,7 +18,7 @@ export const TOOL_PERMISSION_MAP = Object.freeze({
 /**
  * Authorize an agent tool call before execution.
  * Enforces strict fail-closed boundary, prevents tool argument scope-widening,
- * and ensures caller has valid tenant/business membership.
+ * and ensures caller has valid tenant/business membership and verified identity.
  */
 export async function authorizeAgentToolExecution({
   toolName,
@@ -30,6 +30,16 @@ export async function authorizeAgentToolExecution({
     return {
       allowed: false,
       reason: 'AUTHENTICATION_REQUIRED',
+      authorizedArgs: null,
+    }
+  }
+
+  // Channel Identity Verification Guard (FR-097, SEC-018)
+  // An unverified channel user (e.g. from LINE OA) must not invoke tools or staff capabilities.
+  if (viewer.identityVerified === false || (viewer.channelIdentity && viewer.channelIdentity.status !== 'ACTIVE')) {
+    return {
+      allowed: false,
+      reason: 'IDENTITY_PENDING',
       authorizedArgs: null,
     }
   }

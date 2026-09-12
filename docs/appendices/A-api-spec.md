@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.60.0b |
+| **Version** | 1.61.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-12 |
 
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=239 -->
+<!-- api-spec-counts: route_handlers=242 -->
 
 ### Desktop browser/QR pairing (FR-144, 2026-09-08)
 
@@ -117,6 +117,19 @@ session capability or seeded-owner authentication fallback exists.
 The historical FR-044 routing slice did not choose an auth provider; its current
 credential implementation is governed by FR-046 and ADR-017. Hosted OIDC, LINE Login,
 account recovery, MFA and device management remain separate identity work.
+
+## Verified channel onboarding and identity binding (FR-097 / ADR-045)
+
+Verified channel onboarding and link token lifecycle binding external channel users
+(such as LINE OA accounts) to canonical Tenant Person identities. Until an identity is
+verified, channel users remain in `PENDING` status and sensitive agent tool executions
+fail-closed (`IDENTITY_PENDING`).
+
+| Method | Path | Contract |
+|---|---|---|
+| POST | `/api/identity/link-tokens` | Issues a single-use time-bounded (`ttlSeconds`, default 900) link token for a tenant/person. Requires authenticated viewer session (`401 AUTHENTICATION_REQUIRED`). Returns `{ token, tokenId, expiresAt }`. |
+| POST | `/api/identity/link-tokens/redeem` | Single-use bearer token redemption binding channel account (LINE user) to canonical Person identity (`merge: true` re-points existing unlinked principal). Activates `ChannelIdentity` (`ACTIVE`, sets `verifiedAt` and `linkedAt`). Returns 400 if expired, already consumed, or invalid. |
+| GET | `/api/identity/channel-identities` | Query verification status of a channel identity for given `tenantId` and `providerSubject` (optional `channelAccountId`, `channel='LINE'`). Returns `{ found, id, personId, status, verified, verifiedAt, linkedAt, revokedAt }`. |
 
 ## Plugin authentication and capability discovery (FR-123 / ADR-052)
 
@@ -734,6 +747,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.61.0b | 2026-09-12 | candidate | FR-097: added verified channel onboarding and identity binding endpoints — `POST /api/identity/link-tokens`, `POST /api/identity/link-tokens/redeem`, and `GET /api/identity/channel-identities`. Single-use time-bounded link tokens with fail-closed channel identity verification before agent tool execution. Route handler count 239 -> 242 | working-tree | Antigravity |
 | 1.60.0b | 2026-09-12 | candidate | FR-190: added `GET /api/line-oa/accounts/[id]/transport-health` — silence and endpoint-agreement states for a serverEnabled LINE account, read-only. Route handler count 238 -> 239 | working-tree | CLAUDE |
 | 1.57.0b | 2026-09-11 | candidate | Reconcile SCM, receipt reads and approved Billing/POS routes: 231 handlers | working-tree | RWANG |
 | 1.56.0b | 2026-09-11 | candidate | FR-186/FR-183: registered the Business-scoped billing configuration, preview/issue/read document routes and POS catalogue/checkout routes; the current route-handler marker is 216. Preview remains non-persistent, issue persists an immutable THB snapshot with idempotency, and POS leaves payment PENDING until the existing verifier acts | working-tree | RWANG |
