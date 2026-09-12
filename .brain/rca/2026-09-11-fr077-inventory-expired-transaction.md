@@ -59,8 +59,15 @@ so any future non-200 names its own cause.
 
 ## Not changed (follow-ups)
 
-- `project-roadmap-read-model.js` and `projects-dashboard-read-model.js` use the same
-  `db.$transaction(read)` construct and have the same failure mode.
+- ~~`project-roadmap-read-model.js` and `projects-dashboard-read-model.js` use the same
+  `db.$transaction(read)` construct and have the same failure mode.~~ Done: both were
+  reproduced with the same stall harness (each answered 400 with the identical
+  "expired transaction" message) and changed the same way. FR-068/FR-070 (SDD-039,
+  ADR-028, ADR-029) and FR-086 (SDD-047, ADR-036) were checked first and neither asks for a
+  single snapshot: their only transactional requirement is the *write* commit path, and
+  SDD-047 states outright that it follows SDD-045's discipline. Covered by
+  `tests/integration/project-roadmap-stall.test.js` and
+  `tests/integration/projects-dashboard-stall.test.js`.
 - `handle()` classifies Prisma engine messages by keyword, so a server-side transaction or
   timeout error can surface as 400. Mapping Prisma client errors explicitly (500) would keep
   infrastructure failures from reading as validation errors.

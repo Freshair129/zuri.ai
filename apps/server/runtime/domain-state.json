@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-11T09:03:42.447Z",
+  "generatedAt": "2026-09-12T04:39:53.285Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -3778,7 +3778,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-069",
@@ -3792,7 +3792,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-071",
@@ -3834,7 +3834,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 7
+          "testCount": 9
         },
         {
           "id": "FR-078",
@@ -3862,7 +3862,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-087",
@@ -4788,7 +4788,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-069",
@@ -4802,7 +4802,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -4825,6 +4825,7 @@
         "apps/server/tests/integration/import-target-authorization.test.js",
         "apps/server/tests/integration/plan-import.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
+        "apps/server/tests/integration/project-roadmap-stall.test.js",
         "apps/server/tests/integration/project-roadmap.test.js",
         "apps/server/tests/integration/work-listing-scope.test.js",
         "apps/server/tests/unit/authorization-seam-list-routes.test.js",
@@ -4963,7 +4964,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 7
+          "testCount": 9
         }
       ],
       "evidence": [
@@ -4973,6 +4974,8 @@
         "apps/server/tests/e2e/fr077-project-inventory.spec.js",
         "apps/server/tests/integration/project-inventory-stall.test.js",
         "apps/server/tests/integration/project-inventory.test.js",
+        "apps/server/tests/integration/project-roadmap-stall.test.js",
+        "apps/server/tests/integration/projects-dashboard-stall.test.js",
         "apps/server/tests/unit/e2e-reconnecting-request.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/project-inventory-read-model.test.js",
@@ -5131,7 +5134,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-087",
@@ -5186,6 +5189,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/project-core.test.js",
+        "apps/server/tests/integration/projects-dashboard-stall.test.js",
         "apps/server/tests/integration/projects-dashboard.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",

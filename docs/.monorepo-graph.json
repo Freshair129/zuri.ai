@@ -14701,7 +14701,7 @@
       "id": "code:src/modules/project-manager/application/project-roadmap-read-model.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/project-roadmap-read-model.js",
-      "hash": "0afafca5",
+      "hash": "11b7a446",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14714,7 +14714,8 @@
         ],
         "@tested": [
           "tests/unit/project-roadmap-read-model.test.js",
-          "tests/integration/project-roadmap.test.js"
+          "tests/integration/project-roadmap.test.js",
+          "tests/integration/project-roadmap-stall.test.js"
         ]
       }
     },
@@ -14786,7 +14787,7 @@
       "id": "code:src/modules/project-manager/application/projects-dashboard-read-model.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/projects-dashboard-read-model.js",
-      "hash": "b3e7e431",
+      "hash": "0e102985",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14799,7 +14800,8 @@
         ],
         "@tested": [
           "tests/unit/projects-dashboard-read-model.test.js",
-          "tests/integration/projects-dashboard.test.js"
+          "tests/integration/projects-dashboard.test.js",
+          "tests/integration/projects-dashboard-stall.test.js"
         ]
       }
     },
@@ -28221,10 +28223,24 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/project-roadmap-stall.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/project-roadmap-stall.test.js",
+      "hash": "cf504111",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/project-roadmap.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/project-roadmap.test.js",
       "hash": "11ebed37",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/projects-dashboard-stall.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/projects-dashboard-stall.test.js",
+      "hash": "b626d97c",
       "status": "current"
     },
     {
@@ -87310,6 +87326,41 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/project-roadmap-stall.test.js",
+      "to": "code:src/modules/project-manager/application/project-roadmap-read-model.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/project-roadmap-stall.test.js",
+      "to": "req:FR-068",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-roadmap-stall.test.js",
+      "to": "req:FR-070",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-roadmap-stall.test.js",
+      "to": "req:FR-077",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/project-roadmap-stall.test.js",
+      "to": "req:SDD-039",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/project-roadmap.test.js",
       "to": "code:src/app/api/projects/[id]/roadmap/route.js",
       "type": "tests",
@@ -87343,6 +87394,48 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/projects-dashboard-stall.test.js",
+      "to": "code:src/modules/project-manager/application/projects-dashboard-read-model.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/projects-dashboard-stall.test.js",
+      "to": "req:FR-077",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/projects-dashboard-stall.test.js",
+      "to": "req:FR-086",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/projects-dashboard-stall.test.js",
+      "to": "req:SDD-045",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/projects-dashboard-stall.test.js",
+      "to": "req:SDD-047",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/projects-dashboard-stall.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/projects-dashboard.test.js",
@@ -112282,7 +112375,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2651,
+    "server_nodes": 2653,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,
