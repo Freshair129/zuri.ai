@@ -4996,6 +4996,24 @@
       }
     },
     {
+      "id": "code:src/app/api/line-oa/accounts/[id]/transport-health/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/line-oa/accounts/[id]/transport-health/route.js",
+      "hash": "1b72ccaf",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-190"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/fr190-line-transport-health.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/line-oa/accounts/[id]/webhook/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/line-oa/accounts/[id]/webhook/route.js",
@@ -5223,12 +5241,13 @@
       "id": "code:src/app/api/line-oa/worker/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/line-oa/worker/route.js",
-      "hash": "974e98a2",
+      "hash": "c4cfe9b1",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
-          "FR-150"
+          "FR-150",
+          "FR-190"
         ],
         "@spec": [
           "SEC-001"
@@ -12249,6 +12268,24 @@
       }
     },
     {
+      "id": "code:src/modules/line-oa-studio/application/line-transport-health.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/application/line-transport-health.js",
+      "hash": "143db9e7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-190"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/fr190-line-transport-health.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/line-oa-studio/application/server-line-rich-menu-runtime.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/server-line-rich-menu-runtime.js",
@@ -12342,6 +12379,21 @@
         ],
         "@tested": [
           "tests/unit/line-oa-rich-menu-domain.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/domain/transport-health.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/domain/transport-health.js",
+      "hash": "36499c5c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-190"
+        ],
+        "@tested": [
+          "tests/unit/fr190-line-transport-health.test.js"
         ]
       }
     },
@@ -16372,9 +16424,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.59.0b",
+      "version": "1.60.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "23c6beb2",
+      "hash": "f4982f0d",
       "status": "current"
     },
     {
@@ -18437,7 +18489,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.184.0b",
       "doc_status": "Draft",
-      "hash": "6f98eb15",
+      "hash": "e5c6c156",
       "status": "current"
     },
     {
@@ -18473,7 +18525,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "284f7a12",
+      "hash": "852d2ab4",
       "status": "current"
     },
     {
@@ -22273,9 +22325,9 @@
       "family": "FR",
       "label": "Server-owned LINE transport reports its own reachability, so a silent channel is visible instead of inferred — for every LineOaAccount with serverEnabled the server derives the age of the last inbound delivery it recorded (from existing Integration evidence and LineConversationJob rows; no new column, no migration) and classifies it OK, QUIET or SILENT against configurable thresholds, and separately asks LINE for the channel configured webhook endpoint and compares it with this deployment own account route, classifying MATCHED, MISMATCHED, DISABLED or UNKNOWN. GET /api/line-oa/accounts/{id}/transport-health answers states, timestamps and durations only — never channel credentials and never the other endpoint contents — the LINE OA console shows the state beside the account, and the existing server worker tick logs one structured warning per account while a state is not OK. Read-only: no writes, no new process, and no automatic change to provider configuration.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
-      "declared": "planned",
-      "status": "planned",
-      "row_text": "Server-owned LINE transport reports its own reachability, so a silent channel is visible instead of inferred — for every LineOaAccount with serverEnabled the server derives the age of the last inbound delivery it recorded (from existing Integration evidence and LineConversationJob rows; no new column, no migration) and classifies it OK, QUIET or SILENT against configurable thresholds, and separately asks LINE for the channel configured webhook endpoint and compares it with this deployment own account route, classifying MATCHED, MISMATCHED, DISABLED or UNKNOWN. GET /api/line-oa/accounts/{id}/transport-health answers states, timestamps and durations only — never channel credentials and never the other endpoint contents — the LINE OA console shows the state beside the account, and the existing server worker tick logs one structured warning per account while a state is not OK. Read-only: no writes, no new process, and no automatic change to provider configuration. 🔜 declared 2026-09-12 — no code yet; motivated by the 2026-09-11 outage RCA, where an eleven-hour 503 and then a provider console pointing at another application were both invisible to /api/health "
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Server-owned LINE transport reports its own reachability, so a silent channel is visible instead of inferred — for every LineOaAccount with serverEnabled the server derives the age of the last inbound delivery it recorded (from existing Integration evidence and LineConversationJob rows; no new column, no migration) and classifies it OK, QUIET or SILENT against configurable thresholds, and separately asks LINE for the channel configured webhook endpoint and compares it with this deployment own account route, classifying MATCHED, MISMATCHED, DISABLED or UNKNOWN. GET /api/line-oa/accounts/{id}/transport-health answers states, timestamps and durations only — never channel credentials and never the other endpoint contents — the LINE OA console shows the state beside the account, and the existing server worker tick logs one structured warning per account while a state is not OK. Read-only: no writes, no new process, and no automatic change to provider configuration. 🟠 implemented locally 2026-09-12 (owner thresholds 6h/24h, hourly endpoint probe, paused accounts excluded) — `line-oa-studio/domain/transport-health.js` (pure classifiers), `application/line-transport-health.js` (read plus hourly-cached probe and a sweep), `GET /api/line-oa/accounts/{id}/transport-health`, and the existing worker tick carries the hourly sweep; 23 unit tests. Console badge NOT built yet, so the state is reachable by API and by log line, not from the LINE OA page "
     },
     {
       "id": "req:NFR-001",
@@ -24831,6 +24883,14 @@
       "kind": "api",
       "route": "/api/line-oa/accounts/[id]/jobs",
       "path": "apps/server/src/app/api/line-oa/accounts/[id]/jobs/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/line-oa/accounts/[id]/transport-health",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/line-oa/accounts/[id]/transport-health",
+      "path": "apps/server/src/app/api/line-oa/accounts/[id]/transport-health/route.js",
       "status": "current"
     },
     {
@@ -29489,6 +29549,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/fr142-health-route.test.js",
       "hash": "672f37f4",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr190-line-transport-health.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/fr190-line-transport-health.test.js",
+      "hash": "481f6cdb",
       "status": "current"
     },
     {
@@ -41856,6 +41923,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/line-oa/accounts/[id]/transport-health/route.js",
+      "to": "req:FR-190",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/accounts/[id]/transport-health/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/line-oa/accounts/[id]/webhook/route.js",
       "to": "req:FR-081",
       "type": "follows",
@@ -42089,6 +42170,13 @@
     {
       "from": "code:src/app/api/line-oa/worker/route.js",
       "to": "req:FR-150",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/worker/route.js",
+      "to": "req:FR-190",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -52377,6 +52465,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/line-oa-studio/application/line-transport-health.js",
+      "to": "req:FR-190",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-transport-health.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/line-oa-studio/application/server-line-rich-menu-runtime.js",
       "to": "req:FR-152",
       "type": "implements",
@@ -52435,6 +52537,13 @@
     {
       "from": "code:src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
       "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/domain/transport-health.js",
+      "to": "req:FR-190",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -68435,6 +68544,13 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/line-oa/accounts/[id]/transport-health",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/line-oa/accounts/[id]/webhook",
       "to": "domain:line-oa-studio",
       "type": "owned_by",
@@ -83535,6 +83651,13 @@
     },
     {
       "from": "test:tests/integration/line-admission-reconciler.test.js",
+      "to": "req:FR-190",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-admission-reconciler.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -87638,6 +87761,13 @@
     {
       "from": "test:tests/integration/server-line-jobs.test.js",
       "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "req:FR-190",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -97760,6 +97890,48 @@
     {
       "from": "test:tests/unit/fr142-health-route.test.js",
       "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr190-line-transport-health.test.js",
+      "to": "code:src/app/api/line-oa/accounts/[id]/transport-health/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr190-line-transport-health.test.js",
+      "to": "code:src/modules/line-oa-studio/application/line-transport-health.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr190-line-transport-health.test.js",
+      "to": "code:src/modules/line-oa-studio/domain/transport-health.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr190-line-transport-health.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr190-line-transport-health.test.js",
+      "to": "req:FR-190",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr190-line-transport-health.test.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -112335,7 +112507,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2653,
+    "server_nodes": 2658,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,
