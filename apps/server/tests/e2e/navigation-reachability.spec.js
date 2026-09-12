@@ -102,19 +102,19 @@ test.describe('navigation reachability', () => {
     })
   }
 
-  test('reaches the Space list by browsing and by search', async ({ page }) => {
+  test('reaches the Workspace list by browsing and by search', async ({ page }) => {
     await chooseBusiness(page)
 
-    // Browse: from the resource list whose rows already carry a Space column.
+    // Browse: from the resource list whose rows already carry a Workspace column.
     await page.goto('/projects')
-    await page.getByRole('link', { name: 'Spaces' }).click()
+    await page.getByRole('link', { name: 'Workspaces' }).click()
     await expect(page).toHaveURL(/\/workspaces$/)
-    await expect(page.getByRole('heading', { name: 'Spaces' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Workspaces' })).toBeVisible()
 
     // Search: the palette indexes it as a resource, not as a sidebar capability.
     await page.goto('/overview')
     await page.getByRole('button', { name: /Open command palette/i }).click()
-    await page.getByLabel('Command palette search').fill('Spaces')
+    await page.getByLabel('Command palette search').fill('Workspaces')
     await page.keyboard.press('Enter')
     await expect(page).toHaveURL(/\/workspaces$/)
   })

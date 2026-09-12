@@ -26,7 +26,7 @@ export default function Breadcrumb() {
 
   const crumbs = []
   if (scope.currentPortfolio) {
-    crumbs.push({ label: scope.currentPortfolio.name, eyebrow: 'Workspace', href: shellRoot, switcher: true })
+    crumbs.push({ label: scope.currentPortfolio.name, eyebrow: 'Group', href: shellRoot, switcher: true })
   } else {
     crumbs.push({ label: view.allLabel, href: shellRoot, switcher: true })
   }

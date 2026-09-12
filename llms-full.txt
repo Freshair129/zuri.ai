@@ -5263,6 +5263,7 @@ boundary. Bodies are not inlined — follow the link for the reasoning.
 - [ADR-073 — GenesisRAG17 isolated execution and publication](docs/decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)
 - [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost](docs/decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md)
 - [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](docs/decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md)
+- [ADR-076 — ERP-Canonical Organizational Hierarchy and Scope Vocabulary Alignment](docs/decisions/ADR-076-ERP-CANONICAL-ORGANIZATIONAL-HIERARCHY-AND-SCOPE-VOCABULARY-ALIGNMENT.md)
 
 # Not inlined
 

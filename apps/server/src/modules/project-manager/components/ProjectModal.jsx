@@ -12,7 +12,7 @@ import { PROJECT_PRIORITIES } from '@/lib/validation/enums'
 import { projectStatusOptions, unrecognizedProjectStatus } from './project-status-options'
 import { api, useFetch } from './useApi'
 
-export default function ProjectModal({ open, onClose, workspaces = [], project, defaultWorkspaceId, workspaceLabel = 'Space', onSaved }) {
+export default function ProjectModal({ open, onClose, workspaces = [], project, defaultWorkspaceId, workspaceLabel = 'Workspace', onSaved }) {
   const [form, setForm] = useState(() => ({
     name: project?.name || '',
     description: project?.description || '',
