@@ -7,6 +7,7 @@
 import prisma from '@/lib/db'
 import { AUTH_SESSION_COOKIE, hashSessionToken, verifySessionToken } from './auth-service'
 import { hasOperatorGrant } from './operator-bootstrap'
+import { hasSuperadminGrant } from './superadmin-grant'
 
 // Exported because FR-123's consent gate has to bind its anti-CSRF and signed
 // request tokens to *this* session, and therefore has to read the same cookie
@@ -37,6 +38,7 @@ function normalizeTrustedSession(value) {
     state: 'AUTHENTICATED',
     principalId: value.principalId,
     platformGrant: value.platformGrant === true,
+    ...(value.superadminGrant === true ? { superadminGrant: true } : {}),
     sessionId: typeof value.sessionId === 'string' ? value.sessionId : null,
   }
 }
@@ -89,6 +91,8 @@ export function createSessionPort({ readTrustedSession = async () => null, env =
           // does not exist (test doubles, pre-migration databases) this reads
           // false — the pre-FR-107 behavior, never a widened one.
           platformGrant: await hasOperatorGrant(session.principalId, db),
+          // @req FR-200 — never take this capability from cookie claims or headers.
+          ...(await hasSuperadminGrant(session.principalId, db) ? { superadminGrant: true } : {}),
           sessionId: session.sessionId ?? `legacy-${session.issuedAt}-${session.expiresAt}`,
         }
       }

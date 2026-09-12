@@ -52,7 +52,7 @@ describe('listPeople', () => {
     // reporting "System access 0" as though nobody could sign in.
     expect(data.summary).toEqual({
       peopleCount: 2, activeCount: 1, onLeaveCount: 1, endedCount: 0,
-      withSystemAccessCount: 1, accessWithoutEmploymentCount: 0,
+      withSystemAccessCount: 1, accessWithoutEmploymentCount: 0, accessMemberCount: 0,
     })
   })
 

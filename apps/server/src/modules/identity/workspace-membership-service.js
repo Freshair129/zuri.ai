@@ -64,6 +64,9 @@ export async function assertWorkspaceAdminAuthority(viewer, portfolioId, db) {
   if (typeof personId !== 'string' || !personId) throw failure(401, 'AUTH_REQUIRED')
   if (typeof portfolioId !== 'string' || !portfolioId) throw failure(404, 'Workspace not found')
 
+  // @req FR-200 — includes empty Portfolios, using only enumerated real ids.
+  if (viewer.isSuperadmin === true && viewer.ownedPortfolioIds?.includes(portfolioId)) return
+
   const ownerMembership = await db.workspaceMembership.findFirst({
     where: { portfolioId, personId, role: 'OWNER', status: 'ACTIVE' },
     select: { id: true },

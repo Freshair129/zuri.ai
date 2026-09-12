@@ -80,59 +80,64 @@ export default function PeopleDirectory({ directoryOnly = false }) {
       <PageHeader
         eyebrow="HR / People"
         title={directoryOnly ? 'People Directory' : `${scope.shell.activeBusiness?.name || 'Business'} People`}
-        subtitle="Business workforce records, separate from project assignment and delivery capacity."
+        subtitle="Members with access to this Business and their separate employment records."
       />
       {loading && <LoadingCard />}
       {error && <ErrorState detail={error} retry={reload} />}
       {!loading && !error && data && (
         <>
           <div className="mb-4 grid grid-cols-4 gap-3 max-md:grid-cols-2">
-            <Kpi label="People" value={data.summary.peopleCount} meta="employed in this Business" />
+            <Kpi label="Employment" value={data.summary.peopleCount} meta="employment records in this Business" />
             <Kpi label="Active" value={data.summary.activeCount} meta="currently working" />
             <Kpi label="On leave" value={data.summary.onLeaveCount} meta="temporarily away" />
-            {/* The meta says "of the people listed" on purpose. This counts
-                roster rows whose person also holds a Membership, so on an empty
-                roster it reads 0 even when people can sign in — which is what
-                the card said on production while three Memberships were live.
-                The count below it names those people instead of leaving the
-                zero to be misread. */}
             <Kpi
-              label="System access"
-              value={data.summary.withSystemAccessCount}
-              meta="of the people listed, has a live Membership"
+              label="Members with access"
+              value={data.summary.accessMemberCount}
+              meta="via organization or Business membership"
             />
           </div>
 
-          {data.summary.accessWithoutEmploymentCount > 0 && (
             <Card>
-              <SectionTitle caption="These people can sign in to this Business but have no employment record, so they are not on the roster above. Access and employment are separate facts (BR-034) — this is a prompt, not a problem to fix blindly.">
-                {data.summary.accessWithoutEmploymentCount} with access, not on the roster
+              <SectionTitle caption="Members with organization-wide access or access to this Business. Employment can be added separately when needed.">
+                Members with access ({data.summary.accessMemberCount})
               </SectionTitle>
-              <ul className="flex flex-wrap gap-2">
-                {data.accessWithoutEmployment.map((person) => (
-                  <li key={person.id}>
-                    <button
-                      type="button"
-                      className="btn btn-ghost text-xs"
-                      onClick={() => setDraft({ personId: person.id, displayName: person.displayName, employmentType: 'EMPLOYEE', title: '', employeeNo: '' })}
-                    >
-                      <UserPlus size={12} aria-hidden /> {person.displayName}
-                    </button>
+              {data.accessMembers.length === 0 ? (
+                <EmptyState title="No members with access" hint="Members granted access to this Business or its organization will appear here." />
+              ) : <ul className="divide-y divide-[var(--border)]">
+                {data.accessMembers.map(({ person, hasOpenEmployment, employmentStatus }) => (
+                  <li key={person.id} className="flex flex-wrap items-center justify-between gap-3 py-3">
+                    <span className="text-xs">
+                      <span className="block font-bold">{person.displayName}</span>
+                      <span className="block text-muted">{person.email || person.code}</span>
+                    </span>
+                    <span className="flex items-center gap-3 text-xs">
+                      <span className="text-muted">{hasOpenEmployment ? `Employment: ${employmentStatus}` : 'No open Employment'}</span>
+                      {!hasOpenEmployment && data.canManageEmployment && (
+                        <button
+                          type="button"
+                          disabled={busy}
+                          className="btn btn-ghost text-xs"
+                          aria-label={`Add Employment for ${person.displayName}`}
+                          onClick={() => setDraft({ personId: person.id, displayName: person.displayName, employmentType: 'EMPLOYEE', title: '', employeeNo: '' })}
+                        >
+                          <UserPlus size={12} aria-hidden /> Add Employment
+                        </button>
+                      )}
+                    </span>
                   </li>
                 ))}
-              </ul>
+              </ul>}
             </Card>
-          )}
 
           {actionError && <ErrorState detail={actionError} retry={() => setActionError(null)} />}
 
           <Card>
-            <SectionTitle caption="Employment records; project assignment lives in Development > Project Team. System access is a separate Membership grant, shown here but never the roster's source">
-              People Directory
+            <SectionTitle caption="Current and past employment records. Changes here do not change a member's system access.">
+              Employment
             </SectionTitle>
             {data.people.length === 0 ? (
               <EmptyState
-                title="No people in this Business"
+                title="No Employment records in this Business"
                 hint={
                   data.summary.accessWithoutEmploymentCount > 0
                     ? 'Nobody has an employment record yet. The people with access are listed above — pick one to create their record.'

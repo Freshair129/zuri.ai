@@ -1,5 +1,6 @@
 import prisma from '@/lib/db'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
+import { ownsBusiness } from '@/modules/identity/viewer-authority'
 
 // @req FR-042 - People Directory is a Business-scoped workforce view.
 // @req FR-193 - the roster is built from `Employment` (who works here), never
@@ -67,52 +68,34 @@ export async function listPeople(
   // what `resolveViewer` itself would grant a session from. A SUSPENDED or
   // REVOKED Membership — or no Membership at all — answers false, and the
   // Employment row is still listed either way (BR-034).
-  const personIds = [...new Set(employments.map((employment) => employment.personId))]
-  const activeMemberships = personIds.length
-    ? await db.membership.findMany({
-        where: {
-          personId: { in: personIds },
-          tenantId: business.tenantId,
-          status: 'ACTIVE',
-          OR: [{ businessId }, { businessId: null }],
-        },
-        select: { personId: true },
-      })
-    : []
-  const hasAccess = new Set(activeMemberships.map((membership) => membership.personId))
-
-  // @req FR-193 — who can reach this Business but is not on its roster.
-  //
-  // Every summary figure above is roster-derived, `withSystemAccessCount`
-  // included: it counts Employment rows whose person also holds a Membership.
-  // That is the right definition for a roster column and a misleading one on
-  // an empty roster — a Business with three live Memberships and no Employment
-  // rows reported "System access 0", which reads as "nobody can get in" when
-  // the truth is "nobody has an employment record yet". Observed on production
-  // 2026-09-12, where the ADR-078 backfill found no `employeeRef` values to
-  // carry over and left the directory empty.
-  //
-  // So the gap is named rather than left to be inferred from a zero: these are
-  // the people an owner most likely needs to create a record for, which also
-  // gives the empty state something to act on. Queried independently of the
-  // roster — the same ACTIVE, this-Business-or-tenant-wide test `resolveViewer`
-  // would apply — never by subtracting one count from another.
-  const rosterPersonIds = new Set(employments.map((employment) => employment.personId))
+  // @req FR-193 — members stay visible after Employment is added. Read live
+  // Memberships independently, then annotate them with the open HR record.
+  // An ended record remains history and allows a new Employment on re-hire.
+  const openEmploymentByPerson = new Map(employments
+    .filter((employment) => employment.endAt == null)
+    .map((employment) => [employment.personId, employment]))
   const businessMemberships = await db.membership.findMany({
     where: {
       tenantId: business.tenantId,
       status: 'ACTIVE',
+      person: { accessDisabledAt: null },
       OR: [{ businessId }, { businessId: null }],
+      AND: [{ OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] }],
     },
     select: { personId: true, person: { select: { id: true, code: true, displayName: true, email: true } } },
   })
-  const accessWithoutEmployment = [
-    ...new Map(
-      businessMemberships
-        .filter((membership) => !rosterPersonIds.has(membership.personId) && membership.person)
-        .map((membership) => [membership.personId, membership.person]),
-    ).values(),
-  ]
+  const hasAccess = new Set(businessMemberships.map((membership) => membership.personId))
+  const accessMembers = [...new Map(businessMemberships
+    .filter((membership) => membership.person)
+    .map((membership) => [membership.personId, membership.person])).values()]
+    .map((person) => ({
+      person,
+      hasOpenEmployment: openEmploymentByPerson.has(person.id),
+      employmentStatus: openEmploymentByPerson.get(person.id)?.status ?? null,
+    }))
+    .sort((a, b) => a.person.displayName.localeCompare(b.person.displayName))
+  const accessWithoutEmployment = accessMembers
+    .filter((member) => !member.hasOpenEmployment).map((member) => member.person)
 
   return {
     // `tenantId` is exposed so the create form can name the scope it is writing
@@ -120,6 +103,8 @@ export async function listPeople(
     // and refuses a mismatched tenant, so a client that sends the wrong one is
     // rejected rather than believed.
     business: { id: business.id, code: business.code, name: business.name, tenantId: business.tenantId },
+    canManageEmployment: ownsBusiness(viewer, businessId),
+    accessMembers,
     accessWithoutEmployment,
     people: employments.map((employment) => ({
       employmentId: employment.id,
@@ -139,10 +124,7 @@ export async function listPeople(
       onLeaveCount: employments.filter((employment) => employment.status === 'ON_LEAVE').length,
       endedCount: employments.filter((employment) => employment.status === 'ENDED').length,
       withSystemAccessCount: employments.filter((employment) => hasAccess.has(employment.personId)).length,
-      // Deliberately NOT folded into `withSystemAccessCount`: that figure
-      // answers "how many of these employees can log in", this one answers
-      // "how many people can log in and are missing from this list". Summing
-      // them would produce a number answering neither.
+      accessMemberCount: accessMembers.length,
       accessWithoutEmploymentCount: accessWithoutEmployment.length,
     },
   }

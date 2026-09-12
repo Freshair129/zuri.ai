@@ -38,8 +38,8 @@
     "domainCount": 14,
     "featureCount": 136,
     "readyFeatureCount": 108,
-    "requirementCount": 199,
-    "verifiedRequirementCount": 188,
+    "requirementCount": 200,
+    "verifiedRequirementCount": 189,
     "progressPercent": 94.9,
     "gapCount": 25,
     "gaps": [
@@ -1546,7 +1546,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 18
+          "testCount": 20
         },
         {
           "id": "FR-195",
@@ -1582,6 +1582,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 6
+        },
+        {
+          "id": "FR-200",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 12
         }
       ],
       "checks": {
@@ -1716,6 +1723,7 @@
         "docs/domains/identity/features/FR-197-operator-access-lifecycle.md",
         "docs/domains/identity/features/FR-198-audit-scope-and-evidence.md",
         "docs/domains/identity/features/FR-199-access-history-read-models.md",
+        "docs/domains/identity/features/FR-200-explicit-superadmin.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -1758,7 +1766,7 @@
         "apiRoutes": 22,
         "pageRoutes": 8,
         "ownedModels": 19,
-        "featureNotes": 25
+        "featureNotes": 26
       },
       "featureIds": [
         "FEAT-010",
@@ -1787,7 +1795,7 @@
       ],
       "featureCount": 23,
       "readyFeatureCount": 18,
-      "progressPercent": 96.8
+      "progressPercent": 96.9
     },
     "integration": {
       "status": "partial",
@@ -4412,7 +4420,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 18
+          "testCount": 20
         },
         {
           "id": "FR-194",
@@ -7538,7 +7546,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 18
+          "testCount": 20
         },
         {
           "id": "FR-194",
@@ -7566,6 +7574,7 @@
         "apps/server/src/modules/project-manager/application/scope-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr186-billing-pos.spec.js",
+        "apps/server/tests/e2e/fr193-access-members.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -7575,6 +7584,7 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr183-pos.test.js",
         "apps/server/tests/integration/fr186-billing.test.js",
+        "apps/server/tests/integration/fr193-access-members.test.js",
         "apps/server/tests/integration/fr193-employment-lifecycle.test.js",
         "apps/server/tests/integration/fr193-employment-write-path.test.js",
         "apps/server/tests/integration/fr194-legal-entity-tax-branch.test.js",
@@ -7598,11 +7608,12 @@
       "id": "FEAT-029",
       "title": "Access Invite, Segregation of Duties and Operator Lifecycle — a Business/Tenant-level invitation that becomes a real `Membership` grant on acceptance, bound to the accepting session rather than the invited address (generalising FR-067's Workspace-only `WorkspaceInvite`); segregation of duties as a write-time role-conflict refusal (with a Tenant-owner override) and a transaction-time self-verification refusal an OWNER does not bypass; and an operator grant that expires, that a standing operator can issue as a fresh row on renewal, and whose use reading the audit stream or a backup is itself recorded (ADR-079, 2026-09-12)",
       "kind": "bundle",
-      "registryStatus": "implemented",
+      "registryStatus": "implemented; FR-200 building",
       "requirementIds": [
         "FR-195",
         "FR-196",
-        "FR-197"
+        "FR-197",
+        "FR-200"
       ],
       "primaryDomain": "identity",
       "contributorDomains": [
@@ -7616,7 +7627,7 @@
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-029 registry status is implemented"
+        "FEAT-029 registry status is implemented; FR-200 building"
       ],
       "requirements": [
         {
@@ -7639,6 +7650,13 @@
           "progressPercent": 100,
           "codeCount": 5,
           "testCount": 11
+        },
+        {
+          "id": "FR-200",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 5,
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -7647,12 +7665,16 @@
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/commerce/application/payment-service.js",
         "apps/server/src/modules/commerce/domain/commerce.js",
+        "apps/server/src/modules/identity/access-history-service.js",
         "apps/server/src/modules/identity/access-invite-service.js",
         "apps/server/src/modules/identity/onboarding-service.js",
         "apps/server/src/modules/identity/operator-bootstrap.js",
         "apps/server/src/modules/identity/operator-use.js",
         "apps/server/src/modules/identity/rbac-service.js",
         "apps/server/src/modules/identity/rbac.js",
+        "apps/server/src/modules/identity/resolve-viewer.js",
+        "apps/server/src/modules/identity/session-port.js",
+        "apps/server/src/modules/identity/superadmin-grant.js",
         "apps/server/src/modules/identity/workspace-membership-service.js",
         "apps/server/src/modules/procurement/application/goods-receipt-service.js",
         "apps/server/src/modules/procurement/domain/procurement.js",
@@ -7669,21 +7691,28 @@
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/superadmin-access.test.js",
         "apps/server/tests/integration/workspace-collaboration-roster.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
+        "apps/server/tests/unit/access-history-service.test.js",
         "apps/server/tests/unit/audit-page.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/commerce-domain.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/fr046-session-port.test.js",
+        "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
+        "apps/server/tests/unit/iam-session.test.js",
+        "apps/server/tests/unit/manage-superadmin-cli.test.js",
         "apps/server/tests/unit/onboarding-service.test.js",
         "apps/server/tests/unit/operator-bootstrap.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/procurement-domain.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/viewer-gate.test.js",
         "apps/server/tests/unit/workspace-invite-service.test.js"
       ]
     },

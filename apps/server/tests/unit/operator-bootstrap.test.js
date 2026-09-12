@@ -153,7 +153,8 @@ describe('hasOperatorGrant → session port', () => {
     findFirst.mockResolvedValue(null)
     const second = await sessionPort.read({ headers: { cookie: `zuri_session=${token}` } })
     expect(second).toMatchObject({ state: 'AUTHENTICATED', platformGrant: false })
-    expect(findFirst).toHaveBeenCalledTimes(2)
+    // FR-200 adds a separate live SUPERADMIN lookup without changing OPERATOR.
+    expect(findFirst.mock.calls.filter(([query]) => query.where.capability === 'OPERATOR')).toHaveLength(2)
   })
 })
 

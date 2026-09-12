@@ -9,9 +9,9 @@ source: v2-native
 
 | Field | Value |
 |---|---|
-| **Version** | 1.0.0 |
+| **Version** | 1.1.0 |
 | **Status** | Implemented |
-| **Date** | 2026-09-12 |
+| **Date** | 2026-09-13 |
 | **Relates to** | ADR-078 D1, ADR-037 D1, BR-034, FR-042 |
 
 ## The defect
@@ -112,6 +112,26 @@ after the backfill runs.
 
 ## Acceptance
 
+### Separate access members and Employment (owner-approved 2026-09-13)
+
+HR shows a permanent, Business-scoped access-member list alongside the
+Employment roster. Include enabled people with ACTIVE, unexpired Memberships
+for this Business or its Tenant-wide scope; deduplicate people with both grants.
+Exclude other Businesses/Tenants and suspended, revoked or expired grants.
+This list describes Membership access, not the installation's platform operators.
+
+Members remain in the access list after an Employment is created. Show their
+open Employment status; when none is open, offer the existing owner-authorized
+create flow. Ended records stay in the Employment history, and re-hiring creates
+a new row. Creating or ending Employment never changes Membership. The member
+count counts distinct access members independently of the Employment count.
+Keep `accessWithoutEmployment` as the subset without an open Employment for
+existing API consumers; add `accessMembers` for the full list.
+
+Verification covers both grant scopes, deduplication, disabled/expired/revoked
+exclusion, cross-Business isolation, membership persistence after create/end,
+and the UI create-and-refresh flow. No schema change is required.
+
 | ID | Criterion |
 |---|---|
 | AC-193.1 | `people-service.js`'s roster (`GET /api/people`) is built from `Employment`, not `Membership` |
@@ -121,3 +141,10 @@ after the backfill runs.
 | AC-193.5 | Ending an `Employment` writes no change to any `Membership` row, and vice versa |
 | AC-193.6 | Only one OPEN (`endAt IS NULL`) `Employment` may exist per `(personId, businessId)` at a time; a second attempt refuses `409 EMPLOYMENT_ALREADY_OPEN` |
 | AC-193.7 | `assertTenantMember` (renamed from `assertEmployee` in `rbac-service.js`) checks `Membership`, and its name says so |
+| AC-193.8 | HR displays all live access members of the selected Business separately from Employment; creating Employment does not remove the member from that list |
+| AC-193.9 | An owner can add Employment for a listed member without an open Employment, including a re-hire; the operation leaves Membership unchanged |
+
+## Version diff
+
+1.0.0 → 1.1.0: replace the temporary missing-employment prompt with a permanent
+access-member list and independent count, retaining the existing Employment lifecycle.
