@@ -1,0 +1,15 @@
+{
+  "_comment": [
+    "Accepted debt for preflight Check 20 (membership-writer, ADR-077 D8).",
+    "Files outside apps/server/src/modules/identity/ that write Membership —",
+    "the row resolveViewer reads to decide what anyone may see and own.",
+    "It had three writers in two lanes, which is why half the live grants in",
+    "production carry no MEMBERSHIP audit event naming who created them",
+    "(.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md).",
+    "This list is EMPTY and must stay that way. It exists so the check has the",
+    "same shape as the other ratchets, not because there is debt to carry.",
+    "Adding an entry to silence a finding defeats the check; call",
+    "grantBusinessMembership or the lifecycle services in identity instead."
+  ],
+  "files": []
+}

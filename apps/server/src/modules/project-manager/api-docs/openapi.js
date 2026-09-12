@@ -162,6 +162,11 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/identity/link-tokens', ['POST']],
   ['/api/identity/link-tokens/redeem', ['POST']],
   ['/api/identity/channel-identities', ['GET']],
+  // @req FR-094, FR-095 — Multi-Factor Authentication (TOTP) and session step-up elevation (ADR-045).
+  ['/api/auth/mfa/totp/enroll', ['POST']],
+  ['/api/auth/mfa/totp/verify', ['POST']],
+  ['/api/auth/mfa/factors', ['GET', 'DELETE']],
+  ['/api/auth/step-up', ['POST']],
 ]
 
 const zRouteInventoryRequest = z.record(z.string(), z.unknown()).openapi({
