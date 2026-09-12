@@ -153,6 +153,10 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-191 — the withdrawal half of a grant's life (ADR-077 D2).
   ['/api/platform/users/memberships/{id}/lifecycle', ['POST']],
   ['/api/platform/users/offboard', ['POST']], ['/api/teams', ['GET', 'POST']], ['/api/teams/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/teams/{id}/members', ['POST', 'DELETE']], ['/api/viewer', ['GET']],
+  // @req FR-199 — access history a Business owner can read for their own
+  // scope (ADR-080), and the current-state grant roster for one Business.
+  ['/api/platform/access-history', ['GET']],
+  ['/api/platform/businesses/{businessId}/grants', ['GET']],
   // @req FR-123 — the plugin authorization boundary (ADR-052).
   // GET renders the consent screen (it redirects there and mints nothing);
   // POST is the consent form's own submission and the only path that mints.

@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.38.0b"
+version: "1.39.0b"
 status: active
-last_update: "2026-09-11T06:21:00+07:00,RWANG"
+last_update: "2026-09-12T18:00:00+07:00,Claude Opus 5"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -59,6 +59,9 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-025 | SmartGift SCM — the located, costed, promisable ledger: where stock is across nine supply-chain buckets from a Chinese factory to a customer's lobby, what a unit cost landed in satang with the single-drop truck absorbed into it, the two work orders that turn blank hardware into branded components and branded components into a finished gift set (with a declared scrap allowance and an irreversible customer lock), the shelf-life guard that refuses a power-bank lot too long in storage, Available-to-Promise net of quote and order reservations, six agent tools over all of it on the existing Gate E / Gate F registries, and a strict physical stocktake that reconciles counts through the same append-only ledger (ADR-074) | FR-174, FR-175, FR-176, FR-177, FR-178, FR-179, FR-180, FR-181, FR-182, FR-184 | building |
 | FEAT-026 | SmartGift Catalog Convergence — converging the three independent writers of SmartGift product-catalog data into GenesisBlockDB (SmartGift's own 5-stage ETL direct write, `apps/edge` Genesis RAG v4's direct sibling-checkout read/serve, and the unactivated 17-stage pipeline) onto one entry path: a structured-record source adapter before Stage 1, SmartGift recast as a source producer keyed by its own SHA-256 registry, Zero-PII enforced at Stage 5 classify, a structured parser profile and `ontology_v2` contract for catalog facts, and edge reading the published generation through MSP with v4 as a time-boxed transitional fallback (ADR-075, approved 2026-09-11; Phase 1 authorized) | FR-187, FR-188, FR-189 | approved |
 | FEAT-027 | Access Grant Lifecycle — making a `Membership` a withdrawable grant rather than a membership fact: provenance and an end on the row, suspend/reinstate/revoke/offboard services with mandatory reasons and last-owner guards, an explicit scope grammar shared with `RoleBinding`, referential invariants moved from application convention into the database, erasure refusing while grants are live, one writer in identity, and an `unreachable-state` preflight check so a declared state that nothing writes fails the build (ADR-077, 2026-09-12) | FR-191, FR-192 | declared |
+| FEAT-030 | Audit Access Evidence — closing the read-side gap ADR-077's lifecycle assumed was already open: `AuditEvent` gains seven nullable columns (`tenantId`, `businessId`, `reason`, `beforeJson`, `afterJson`, `requestId`, `sessionId`) so scope and the change made are queryable rather than living only inside `payloadJson` for whichever writer happened to include them, and identity gains `listAccessHistory` (a Business/Tenant owner, oneself, or the operator reads the event stream for their own scope, 404-shaped identically for unowned and nonexistent) and `listBusinessAccess` (the current grant roster with provenance) — the access review a reason on every FR-191 transition is only worth writing if someone can read it back (ADR-080, 2026-09-12) | FR-198, FR-199 | implemented |
+
+Version diff 1.38.0b → 1.39.0b (2026-09-12): FEAT-030 declared and implemented in the same change — audit events carry queryable scope (FR-198) and identity gains the two read models an access review needs (FR-199), under ADR-080. Closes the gap ADR-077's grant lifecycle assumed was already open.
 
 Version diff 1.13.0b → 1.14.0b (2026-09-01): FEAT-015 is building with local domain, validation, schema, backup, pipeline and dashboard foundations. Provider-backed OCR/Vision, LINE binary handoff, live Google Sheet sync, Procurement/Finance adapters and Project Inventory projection are not claimed live.
 
@@ -791,6 +794,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FEAT-027",
     "primaryDomain": "identity",
     "useCase": "An owner removes someone's access from the product instead of asking for SQL: suspend, reinstate, revoke or offboard a person with a stated reason, the dependent role bindings following and the evidence that the grant existed surviving the withdrawal"
+  },
+  {
+    "id": "FEAT-030",
+    "primaryDomain": "identity",
+    "useCase": "An owner reads who has access to their own Business right now, who granted it and why, and what changed and when — the access review a reason on every access-grant transition was only ever worth writing for"
   }
 ]
 ```

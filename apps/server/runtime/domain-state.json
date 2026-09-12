@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-12T09:21:54.214Z",
+  "generatedAt": "2026-09-12T10:15:34.082Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,10 +37,10 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 133,
+    "featureCount": 134,
     "readyFeatureCount": 108,
-    "requirementCount": 192,
-    "verifiedRequirementCount": 179,
+    "requirementCount": 194,
+    "verifiedRequirementCount": 181,
     "progressPercent": 94.1,
     "gapCount": 28,
     "gaps": [
@@ -592,7 +592,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 244,
+            "openApiPaths": 246,
             "missingFromOpenApi": 0
           }
         },
@@ -847,7 +847,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 244,
+            "openApiPaths": 246,
             "missingFromOpenApi": 0
           }
         },
@@ -1024,7 +1024,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 244,
+            "openApiPaths": 246,
             "missingFromOpenApi": 0
           }
         },
@@ -1685,6 +1685,20 @@
             "apps/server/tests/unit/plan-schema.test.js",
             "apps/server/tests/unit/viewer-gate.test.js"
           ]
+        },
+        {
+          "id": "FR-198",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 5
+        },
+        {
+          "id": "FR-199",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 6
         }
       ],
       "checks": {
@@ -1710,7 +1724,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 244,
+            "openApiPaths": 246,
             "missingFromOpenApi": 0
           }
         },
@@ -1814,6 +1828,8 @@
         "docs/domains/identity/features/FR-144-edge-device-credential.md",
         "docs/domains/identity/features/FR-191-access-grant-lifecycle.md",
         "docs/domains/identity/features/FR-192-membership-scope-grammar.md",
+        "docs/domains/identity/features/FR-198-audit-scope-and-evidence.md",
+        "docs/domains/identity/features/FR-199-access-history-read-models.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -1917,11 +1933,12 @@
         "apiRoutes": 18,
         "pageRoutes": 8,
         "ownedModels": 18,
-        "featureNotes": 20
+        "featureNotes": 22
       },
       "featureIds": [
         "FEAT-010",
         "FEAT-027",
+        "FEAT-030",
         "FR-021",
         "FR-022",
         "FR-031",
@@ -1942,9 +1959,9 @@
         "FR-122",
         "FR-123"
       ],
-      "featureCount": 21,
+      "featureCount": 22,
       "readyFeatureCount": 18,
-      "progressPercent": 94.6
+      "progressPercent": 95
     },
     "integration": {
       "status": "partial",
@@ -2162,7 +2179,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 244,
+            "openApiPaths": 246,
             "missingFromOpenApi": 0
           }
         },
@@ -2430,7 +2447,7 @@
           "details": {
             "routes": 30,
             "inventoried": 30,
-            "openApiPaths": 244,
+            "openApiPaths": 246,
             "missingFromOpenApi": 0
           }
         },
@@ -2978,7 +2995,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 244,
+            "openApiPaths": 246,
             "missingFromOpenApi": 0
           }
         },
@@ -3137,7 +3154,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 244,
+            "openApiPaths": 246,
             "missingFromOpenApi": 0
           }
         },
@@ -3298,7 +3315,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 244,
+            "openApiPaths": 246,
             "missingFromOpenApi": 0
           }
         },
@@ -3459,7 +3476,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 244,
+            "openApiPaths": 246,
             "missingFromOpenApi": 0
           }
         },
@@ -3594,7 +3611,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 244,
+            "openApiPaths": 246,
             "missingFromOpenApi": 0
           }
         },
@@ -4578,6 +4595,20 @@
             "apps/server/tests/unit/project-team-service.test.js",
             "apps/server/tests/unit/viewer-gate.test.js"
           ]
+        },
+        {
+          "id": "FR-198",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 5
+        },
+        {
+          "id": "FR-199",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 6
         }
       ],
       "checks": {
@@ -4610,9 +4641,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 126,
-            "inventoried": 126,
-            "openApiPaths": 244,
+            "routes": 128,
+            "inventoried": 128,
+            "openApiPaths": 246,
             "missingFromOpenApi": 0
           }
         },
@@ -4680,7 +4711,7 @@
           "details": {
             "mutations": 101,
             "guardedMutations": 99,
-            "reads": 59,
+            "reads": 61,
             "unguardedReads": 2
           }
         },
@@ -4828,8 +4859,8 @@
         }
       ],
       "details": {
-        "routes": 171,
-        "apiRoutes": 126,
+        "routes": 173,
+        "apiRoutes": 128,
         "pageRoutes": 45,
         "ownedModels": 29,
         "featureNotes": 31
@@ -7648,6 +7679,64 @@
         "apps/server/tests/unit/profile-permission-service.test.js",
         "apps/server/tests/unit/project-team-service.test.js",
         "apps/server/tests/unit/viewer-gate.test.js"
+      ]
+    },
+    {
+      "id": "FEAT-030",
+      "title": "Audit Access Evidence — closing the read-side gap ADR-077's lifecycle assumed was already open: `AuditEvent` gains seven nullable columns (`tenantId`, `businessId`, `reason`, `beforeJson`, `afterJson`, `requestId`, `sessionId`) so scope and the change made are queryable rather than living only inside `payloadJson` for whichever writer happened to include them, and identity gains `listAccessHistory` (a Business/Tenant owner, oneself, or the operator reads the event stream for their own scope, 404-shaped identically for unowned and nonexistent) and `listBusinessAccess` (the current grant roster with provenance) — the access review a reason on every FR-191 transition is only worth writing if someone can read it back (ADR-080, 2026-09-12)",
+      "kind": "bundle",
+      "registryStatus": "implemented",
+      "requirementIds": [
+        "FR-198",
+        "FR-199"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "identity",
+        "project-manager"
+      ],
+      "useCase": "An owner reads who has access to their own Business right now, who granted it and why, and what changed and when — the access review a reason on every access-grant transition was only ever worth writing for",
+      "progressPercent": 100,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-030 registry status is implemented"
+      ],
+      "requirements": [
+        {
+          "id": "FR-198",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 3,
+          "testCount": 5
+        },
+        {
+          "id": "FR-199",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 5,
+          "testCount": 6
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/(pm)/platform/users/page.jsx",
+        "apps/server/src/app/api/platform/access-history/route.js",
+        "apps/server/src/app/api/platform/businesses/[businessId]/grants/route.js",
+        "apps/server/src/modules/identity/access-history-service.js",
+        "apps/server/src/modules/identity/membership-grant-service.js",
+        "apps/server/src/modules/identity/membership-lifecycle-service.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/src/modules/project-manager/application/audit.js",
+        "apps/server/tests/integration/fr198-fr199-audit-access-evidence.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/plan-import.test.js",
+        "apps/server/tests/integration/project-core.test.js",
+        "apps/server/tests/unit/access-history-service.test.js",
+        "apps/server/tests/unit/fr062-permissions-read-scope.test.js",
+        "apps/server/tests/unit/membership-grant-service.test.js",
+        "apps/server/tests/unit/membership-lifecycle-service.test.js",
+        "apps/server/tests/unit/platform-users-view.test.js",
+        "apps/server/tests/unit/profile-permission-service.test.js"
       ]
     },
     {

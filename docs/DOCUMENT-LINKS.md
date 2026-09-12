@@ -587,6 +587,7 @@ Source: [ADR-017 — Production viewer session and viewer-scoped entry read mode
 
 Backlinks:
 
+- [ADR-080 — Audit events carry their own scope, and an owner can read their own access history](decisions/ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE.md) (references)
 - [ADR-027 — Profile-first and Workspace-first onboarding](decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md) (relates)
 - [ADR-045 — Canonical Identity and Access Management Boundary](decisions/ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT.md) (relates)
 - [ADR-047 — SoT data plane: a Tenant-bound service-account key, not an operator grant](decisions/ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY.md) (relates)
@@ -682,6 +683,7 @@ Backlinks:
 - [ADR-054 — The Legacy ERD Is Prior Art for CRM Conversation Intelligence](decisions/ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md) (references)
 - [ADR-055 — Asset Management is a first-class Zuri domain for the physical asset lifecycle](decisions/ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY.md) (references)
 - [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md) (references)
+- [ADR-080 — Audit events carry their own scope, and an owner can read their own access history](decisions/ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE.md) (references)
 - [Document link metadata](GOVERNANCE-LINK-METADATA.md) (relates)
 - [ADR-026 — Agent Topology for the Visual Office](decisions/ADR-026-AGENT-TOPOLOGY-FOR-THE-VISUAL-OFFICE.md) (relates)
 - [ADR-028 — Human-visible execution roadmap and shared plan intake](decisions/ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md) (relates)
@@ -736,6 +738,7 @@ Backlinks:
 - [ADR-015 — Minimal entry, demo login, and Business Routing before BusinessShell](decisions/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md) (references)
 - [ADR-033 — Customer scope and Product Owner authority](decisions/ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY.md) (references)
 - [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md) (references)
+- [ADR-080 — Audit events carry their own scope, and an owner can read their own access history](decisions/ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE.md) (references)
 - [ADR-011 — Context bar and Business scope ceiling](decisions/ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md) (relates)
 - [ADR-028 — Human-visible execution roadmap and shared plan intake](decisions/ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md) (relates)
 - [ADR-045 — Canonical Identity and Access Management Boundary](decisions/ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT.md) (relates)
@@ -1073,6 +1076,7 @@ Backlinks:
 - [แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop](roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md) (references)
 - [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md) (references)
 - [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost](decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md) (references)
+- [ADR-080 — Audit events carry their own scope, and an owner can read their own access history](decisions/ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE.md) (references)
 - [ADR-047 — SoT data plane: a Tenant-bound service-account key, not an operator grant](decisions/ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY.md) (relates)
 
 ## ADR-046 — SoT pipeline: interim serving on :8888, and decisions leave by pull
@@ -1666,6 +1670,24 @@ Backlinks:
 
 - [FR-191 — Access grant lifecycle](domains/identity/features/FR-191-access-grant-lifecycle.md) (references)
 - [FR-192 — Membership scope grammar and referential invariants](domains/identity/features/FR-192-membership-scope-grammar.md) (references)
+- [ADR-080 — Audit events carry their own scope, and an owner can read their own access history](decisions/ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE.md) (relates)
+
+## ADR-080 — Audit events carry their own scope, and an owner can read their own access history
+
+Source: [ADR-080 — Audit events carry their own scope, and an owner can read their own access history](decisions/ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE.md)
+
+- references: [FR-198 — Audit events carry their own scope and the change they made](domains/identity/features/FR-198-audit-scope-and-evidence.md)
+- references: [FR-199 — A Business owner can read the access history of their own scope](domains/identity/features/FR-199-access-history-read-models.md)
+- references: [ADR-017 — Production viewer session and viewer-scoped entry read model](decisions/ADR-017-PRODUCTION-VIEWER-SESSION-AND-ENTRY-READ-MODEL.md)
+- references: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
+- references: [ADR-027 — Profile-first and Workspace-first onboarding](decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md)
+- references: [ADR-045 — Canonical Identity and Access Management Boundary](decisions/ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT.md)
+- relates: [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md)
+
+Backlinks:
+
+- [FR-198 — Audit events carry their own scope and the change they made](domains/identity/features/FR-198-audit-scope-and-evidence.md) (references)
+- [FR-199 — A Business owner can read the access history of their own scope](domains/identity/features/FR-199-access-history-read-models.md) (references)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 
@@ -2176,6 +2198,26 @@ Source: [FR-192 — Membership scope grammar and referential invariants](domains
 
 - references: [FR-191 — Access grant lifecycle](domains/identity/features/FR-191-access-grant-lifecycle.md)
 - references: [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md)
+
+## FR-198 — Audit events carry their own scope and the change they made
+
+Source: [FR-198 — Audit events carry their own scope and the change they made](domains/identity/features/FR-198-audit-scope-and-evidence.md)
+
+- references: [ADR-080 — Audit events carry their own scope, and an owner can read their own access history](decisions/ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE.md)
+
+Backlinks:
+
+- [ADR-080 — Audit events carry their own scope, and an owner can read their own access history](decisions/ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE.md) (references)
+
+## FR-199 — A Business owner can read the access history of their own scope
+
+Source: [FR-199 — A Business owner can read the access history of their own scope](domains/identity/features/FR-199-access-history-read-models.md)
+
+- references: [ADR-080 — Audit events carry their own scope, and an owner can read their own access history](decisions/ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE.md)
+
+Backlinks:
+
+- [ADR-080 — Audit events carry their own scope, and an owner can read their own access history](decisions/ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE.md) (references)
 
 ## Domain — integration
 
