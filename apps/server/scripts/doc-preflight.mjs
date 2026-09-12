@@ -546,7 +546,18 @@ const VIEWER_EXEMPT = new Set([
   // move was to restructure the test around the guard — and each time that would
   // have documented a workaround and weakened the real signal everywhere else
   // (.brain/rca/2026-08-17-a-guard-that-teaches-a-workaround.md).
-  const membershipRow = /personId|membershipId|domainKeysJson|employeeRef|branchId|tenantId/
+  //
+  // Fourth widening, 2026-09-12, same shape as the first three and with the same
+  // proof. `grantBusinessMembership({ …, role: 'MEMBER', domainKeys: [...],
+  // grantSource: 'ADMIN', scopeType: 'BUSINESS' })` is a Membership mutation
+  // payload (FR-191); the `role:` sat on a line carrying `domainKeys` rather
+  // than `domainKeysJson`, and an `expect(...visibleBusinessIds)` assertion ten
+  // lines away supplied the viewer-field half. None of `domainKeys`,
+  // `grantSource` or `scopeType` has ever appeared on a viewer — `resolveViewer`
+  // emits `visibleDomains` and `domainsByBusinessId` — so suppressing them is
+  // provable, not a fudge. Widening here rather than restructuring the test is
+  // this script's own instruction in the CRITICAL below.
+  const membershipRow = /personId|membershipId|domainKeysJson|domainKeys|grantSource|scopeType|employeeRef|branchId|tenantId/
   // A call to the sanctioned factory is the behaviour this check exists to
   // produce, so its own argument list must never be the evidence against a file.
   // `makeViewer({ visibleBusinessIds: [], ownedBusinessIds: [], role: 'MEMBER' })`
@@ -1513,6 +1524,82 @@ const SCHEMA_MIGRATION_BASELINE = path.join(SPEC_PACK, '.schema-migration-baseli
         `schema-migration drift checked: ${drift.checked.columns} column(s) across ${drift.checked.models} model(s) against ${drift.checked.migrations} migration(s)`,
         'every declared column outside the baseline is created by a migration', [],
         'No action — recorded so this check\'s reach is visible rather than assumed')
+    }
+  }
+}
+
+// ---- Check 19: a declared state that nothing writes (ratchet) -------------
+// ADR-045 D3 declared `ACTIVE | PENDING | SUSPENDED | REVOKED` for Membership.
+// FR-095 promised that suspension denies the next request. `resolve-viewer.js`
+// and `authorization-context.js` both filtered on it. Every READER was built —
+// and for four months no service assigned any value but the default, so an
+// owner could not remove anyone's access and nothing in the repository said so
+// (.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md).
+//
+// Every other check here asks whether code is accounted for by a document. This
+// one asks the inverse, which is the question that gap needed: whether a value
+// the documents promise is reachable in code at all. A read filter over a
+// column nothing writes passes review, passes tests, and does nothing.
+//
+// Deliberately crude, and that is the point — it greps for the value as a
+// quoted string anywhere under src/. A service that computes a status name
+// rather than naming it literally will be missed, which is a false negative we
+// accept; the alternative is a dataflow analysis nobody maintains. What it
+// catches is the shape that actually occurred: a vocabulary declared in
+// enums.js that no file outside the registry ever mentions.
+//
+// @spec ADR-077 D7
+const STATE_BASELINE = path.join(SPEC_PACK, '.unreachable-state-baseline.json')
+{
+  const enumsFile = path.join(ROOT, 'src/lib/validation/enums.js')
+  if (existsSync(enumsFile)) {
+    const enumsSrc = read(enumsFile)
+    // `export const FOO_STATUSES = ['A', 'B']` — status vocabularies only. A
+    // registry of roles or kinds is a different question: nothing branches on
+    // the absence of one.
+    const vocabularies = [...enumsSrc.matchAll(/export const ([A-Z0-9_]*STATUSES)\s*=\s*\[([^\]]*)\]/g)]
+      .map(([, name, body]) => ({
+        name,
+        values: [...body.matchAll(/'([A-Z_]+)'/g)].map(([, v]) => v),
+      }))
+      .filter((v) => v.values.length)
+
+    const sources = walk(path.join(ROOT, 'src'), '.js')
+      .concat(walk(path.join(ROOT, 'src'), '.jsx'))
+      .filter((f) => !f.includes(path.sep + 'validation' + path.sep))
+    const corpus = sources.map((f) => read(f)).join('\n')
+
+    const unreachable = []
+    for (const vocabulary of vocabularies) {
+      for (const value of vocabulary.values) {
+        // A value is reachable when some file outside the registry names it as
+        // a literal. Assignment versus comparison is not distinguished: a value
+        // only ever compared against is still a value some branch depends on,
+        // and the question here is whether the vocabulary is live at all.
+        if (!new RegExp("['\"`]" + value + "['\"`]").test(corpus)) {
+          unreachable.push(vocabulary.name + '.' + value)
+        }
+      }
+    }
+
+    const baseline = existsSync(STATE_BASELINE) ? JSON.parse(read(STATE_BASELINE)).states || [] : []
+    const known = new Set(baseline)
+    const introduced = unreachable.filter((v) => !known.has(v))
+    if (introduced.length) {
+      add('critical', 'unreachable-state', `${introduced.length} declared state(s) that no code names`,
+        introduced.join(', '), [rel(enumsFile)],
+        'Build the service that produces the value, or remove it from the vocabulary — never widen .unreachable-state-baseline.json to silence this')
+    }
+    const repaid = baseline.filter((v) => !unreachable.includes(v))
+    if (repaid.length) {
+      add('info', 'unreachable-state', `${repaid.length} baseline state(s) are now reachable`, repaid.join(', '), [rel(STATE_BASELINE)],
+        'Remove them from .unreachable-state-baseline.json so the ratchet keeps its ground')
+    }
+    const remaining = unreachable.length - introduced.length
+    if (remaining) {
+      add('info', 'unreachable-state', `${remaining} declared state(s) are unreachable (accepted debt)`,
+        `baseline: ${rel(STATE_BASELINE)}`, [rel(STATE_BASELINE)],
+        'Build their writers as the requirements land; the baseline may only shrink')
     }
   }
 }

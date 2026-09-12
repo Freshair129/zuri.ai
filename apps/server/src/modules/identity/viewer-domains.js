@@ -50,7 +50,12 @@ export function buildDomainsByBusiness({ memberships = [], tenantBusinesses = []
 
   for (const membership of memberships) {
     const keys = membership.role === 'OWNER' ? VIEWER_DOMAINS : parseDomainKeys(membership.domainKeysJson)
-    if (membership.businessId) {
+    // @req FR-192 — the same tenant-wide test `resolve-viewer.js` uses, and for
+    // the same reason: a null `businessId` was an intent expressed as an
+    // absence, and this function is where that absence silently became the
+    // broadest grant in the system (ADR-077 D3). `businessId` is still
+    // consulted so rows written before the migration resolve unchanged.
+    if (membership.scopeType !== 'TENANT' && membership.businessId) {
       grant(membership.businessId, keys)
       continue
     }

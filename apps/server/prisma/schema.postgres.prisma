@@ -44,80 +44,80 @@ model Tenant {
   updatedAt   DateTime @updatedAt
   version     Int      @default(1)
 
-  portfolio                 Portfolio                  @relation(fields: [portfolioId], references: [id])
-  businesses                Business[]
-  workspaces                Workspace[]
-  memberships               Membership[]
-  externalIdentities        ExternalIdentity[]
-  channelIdentities         ChannelIdentity[]
-  identityLinkTokens        IdentityLinkToken[]
-  customers                 Customer[]
-  roleBindings              RoleBinding[]
-  customerImportBatches     CustomerImportBatch[]
-  customerImportReviewCases CustomerImportReviewCase[]
-  localWorkspaceMounts      LocalWorkspaceMount[]
-  fileAssets                FileAsset[]
-  integrationConnections    IntegrationConnection[]
-  ingestionRuns             IngestionRun[]
-  rawExternalRecords        RawExternalRecord[]
-  syncCursors               SyncCursor[]
-  externalEntityRefs        ExternalEntityRef[]
-  deadLetterRecords         DeadLetterRecord[]
-  pipelineRuns              PipelineRun[]
-  sotDecisions              SotDecision[]
-  sotDataPlaneKeys          SotDataPlaneKey[]
-  apiAccessKeys             ApiAccessKey[]
-  registeredAssets          RegisteredAsset[]
-  assetIntakes              AssetIntake[]
-  assetLots                 AssetLot[]
-  edgeDeviceCredentials     EdgeDeviceCredential[]
-  assetExtractionJobs       AssetExtractionJob[]
-  lineOaAccounts            LineOaAccount[]
-  lineOaRichMenus           LineOaRichMenu[]
-  lineOaLiffApps            LineOaLiffApp[]
-  inventoryCategories       InventoryCategory[]
-  productFamilies           ProductFamily[]
-  factories                 Factory[]
-  productMasters            ProductMaster[]
-  products                  Product[]
-  productLots               ProductLot[]
-  serialUnits               SerialUnit[]
-  productBundles            ProductBundle[]
-  stockMovements            StockMovement[]
-  productRecipes            ProductRecipe[]
+  portfolio                  Portfolio                   @relation(fields: [portfolioId], references: [id])
+  businesses                 Business[]
+  workspaces                 Workspace[]
+  memberships                Membership[]
+  externalIdentities         ExternalIdentity[]
+  channelIdentities          ChannelIdentity[]
+  identityLinkTokens         IdentityLinkToken[]
+  customers                  Customer[]
+  roleBindings               RoleBinding[]
+  customerImportBatches      CustomerImportBatch[]
+  customerImportReviewCases  CustomerImportReviewCase[]
+  localWorkspaceMounts       LocalWorkspaceMount[]
+  fileAssets                 FileAsset[]
+  integrationConnections     IntegrationConnection[]
+  ingestionRuns              IngestionRun[]
+  rawExternalRecords         RawExternalRecord[]
+  syncCursors                SyncCursor[]
+  externalEntityRefs         ExternalEntityRef[]
+  deadLetterRecords          DeadLetterRecord[]
+  pipelineRuns               PipelineRun[]
+  sotDecisions               SotDecision[]
+  sotDataPlaneKeys           SotDataPlaneKey[]
+  apiAccessKeys              ApiAccessKey[]
+  registeredAssets           RegisteredAsset[]
+  assetIntakes               AssetIntake[]
+  assetLots                  AssetLot[]
+  edgeDeviceCredentials      EdgeDeviceCredential[]
+  assetExtractionJobs        AssetExtractionJob[]
+  lineOaAccounts             LineOaAccount[]
+  lineOaRichMenus            LineOaRichMenu[]
+  lineOaLiffApps             LineOaLiffApp[]
+  inventoryCategories        InventoryCategory[]
+  productFamilies            ProductFamily[]
+  factories                  Factory[]
+  productMasters             ProductMaster[]
+  products                   Product[]
+  productLots                ProductLot[]
+  serialUnits                SerialUnit[]
+  productBundles             ProductBundle[]
+  stockMovements             StockMovement[]
+  productRecipes             ProductRecipe[]
   marketingOperationsIntakes MarketingOperationsIntake[]
-  salesTasks                SalesTask[]
-  salesOrders               SalesOrder[]
-  payments                  Payment[]
-  suppliers                 Supplier[]
-  purchaseOrders            PurchaseOrder[]
-  goodsReceipts             GoodsReceipt[]
-  warehouseLocations        WarehouseLocation[]
-  customizationWorkOrders   CustomizationWorkOrder[]
-  kittingWorkOrders         KittingWorkOrder[]
-  stockReservations         StockReservation[]
-  billingProfiles           BusinessBillingProfile[]
-  commerceDocuments         CommerceDocument[]
-  commerceDocumentSequences CommerceDocumentSequence[]
-  inventoryLedgerFences     InventoryLedgerFence[]
-  inventoryStocktakes       InventoryStocktake[]
+  salesTasks                 SalesTask[]
+  salesOrders                SalesOrder[]
+  payments                   Payment[]
+  suppliers                  Supplier[]
+  purchaseOrders             PurchaseOrder[]
+  goodsReceipts              GoodsReceipt[]
+  warehouseLocations         WarehouseLocation[]
+  customizationWorkOrders    CustomizationWorkOrder[]
+  kittingWorkOrders          KittingWorkOrder[]
+  stockReservations          StockReservation[]
+  billingProfiles            BusinessBillingProfile[]
+  commerceDocuments          CommerceDocument[]
+  commerceDocumentSequences  CommerceDocumentSequence[]
+  inventoryLedgerFences      InventoryLedgerFence[]
+  inventoryStocktakes        InventoryStocktake[]
+
+  marketingPlans            MarketingPlan[]
+  marketingInitiatives      MarketingInitiative[]
+  marketingContentBriefs    MarketingContentBrief[]
+  marketingBroadcastIntents MarketingBroadcastIntent[]
 
   @@index([portfolioId])
-
-  marketingPlans MarketingPlan[]
-  marketingInitiatives MarketingInitiative[]
-  marketingContentBriefs MarketingContentBrief[]
-  marketingBroadcastIntents MarketingBroadcastIntent[]
 }
 
 model LegalEntity {
-  id          String   @id @default(uuid())
-  code        String   @unique
-  portfolioId String
-  legalName   String
+  id           String   @id @default(uuid())
+  code         String   @unique
+  portfolioId  String
+  legalName    String
   legalAddress String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   portfolio   Portfolio               @relation(fields: [portfolioId], references: [id])
   identifiers LegalEntityIdentifier[]
@@ -142,106 +142,106 @@ model LegalEntityIdentifier {
 }
 
 model Business {
-  id            String   @id @default(uuid())
-  code          String   @unique
-  tenantId      String
-  legalEntityId String?
-  name          String
-  status        String   @default("ACTIVE")
+  id               String   @id @default(uuid())
+  code             String   @unique
+  tenantId         String
+  legalEntityId    String?
+  name             String
+  status           String   @default("ACTIVE")
   // @req FR-169 — feature capabilities this Business has turned on, keyed by
   // name (`{"physicalStock": true}`). A capability differs from a domain grant
   // (Membership.domainKeysJson): a grant says WHO may open a module, a
   // capability says whether the module APPLIES to this Business at all. Absent
   // keys default per-capability in code, never here, so adding a new
   // capability is never a migration.
-  capabilitiesJson String @default("{}")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  version       Int      @default(1)
+  capabilitiesJson String   @default("{}")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  version          Int      @default(1)
 
-  tenant                    Tenant                     @relation(fields: [tenantId], references: [id])
-  legalEntity               LegalEntity?               @relation(fields: [legalEntityId], references: [id])
-  branches                  Branch[]
-  workspaces                Workspace[]
-  memberships               Membership[]
+  tenant                     Tenant                      @relation(fields: [tenantId], references: [id])
+  legalEntity                LegalEntity?                @relation(fields: [legalEntityId], references: [id])
+  branches                   Branch[]
+  workspaces                 Workspace[]
+  memberships                Membership[]
   // @req FR-089 — Teams are Business-scoped (ADR-037 D2).
-  teams                     Team[]
-  customers                 Customer[]
-  roleBindings              RoleBinding[]
-  customerImportBatches     CustomerImportBatch[]
-  customerImportReviewCases CustomerImportReviewCase[]
-  roadmaps                  BusinessRoadmap[]
-  goals                     BusinessGoal[]
-  projects                  Project[]
-  localWorkspaceMounts      LocalWorkspaceMount[]
-  fileAssets                FileAsset[]
-  integrationConnections    IntegrationConnection[]
-  ingestionRuns             IngestionRun[]
-  rawExternalRecords        RawExternalRecord[]
-  syncCursors               SyncCursor[]
-  externalEntityRefs        ExternalEntityRef[]
-  deadLetterRecords         DeadLetterRecord[]
-  repositories              Repository[]
-  pipelineRuns              PipelineRun[]
-  sotDecisions              SotDecision[]
-  registeredAssets          RegisteredAsset[]
-  assetIntakes              AssetIntake[]
-  assetLots                 AssetLot[]
-  edgeDeviceCredentials     EdgeDeviceCredential[]
-  assetExtractionJobs       AssetExtractionJob[]
-  lineOaAccounts            LineOaAccount[]
-  lineOaRichMenus           LineOaRichMenu[]
-  lineOaLiffApps            LineOaLiffApp[]
-  inventoryCategories       InventoryCategory[]
-  productFamilies           ProductFamily[]
-  factories                 Factory[]
-  productMasters            ProductMaster[]
-  products                  Product[]
-  productLots               ProductLot[]
-  serialUnits               SerialUnit[]
-  productBundles            ProductBundle[]
-  stockMovements            StockMovement[]
-  productRecipes            ProductRecipe[]
+  teams                      Team[]
+  customers                  Customer[]
+  roleBindings               RoleBinding[]
+  customerImportBatches      CustomerImportBatch[]
+  customerImportReviewCases  CustomerImportReviewCase[]
+  roadmaps                   BusinessRoadmap[]
+  goals                      BusinessGoal[]
+  projects                   Project[]
+  localWorkspaceMounts       LocalWorkspaceMount[]
+  fileAssets                 FileAsset[]
+  integrationConnections     IntegrationConnection[]
+  ingestionRuns              IngestionRun[]
+  rawExternalRecords         RawExternalRecord[]
+  syncCursors                SyncCursor[]
+  externalEntityRefs         ExternalEntityRef[]
+  deadLetterRecords          DeadLetterRecord[]
+  repositories               Repository[]
+  pipelineRuns               PipelineRun[]
+  sotDecisions               SotDecision[]
+  registeredAssets           RegisteredAsset[]
+  assetIntakes               AssetIntake[]
+  assetLots                  AssetLot[]
+  edgeDeviceCredentials      EdgeDeviceCredential[]
+  assetExtractionJobs        AssetExtractionJob[]
+  lineOaAccounts             LineOaAccount[]
+  lineOaRichMenus            LineOaRichMenu[]
+  lineOaLiffApps             LineOaLiffApp[]
+  inventoryCategories        InventoryCategory[]
+  productFamilies            ProductFamily[]
+  factories                  Factory[]
+  productMasters             ProductMaster[]
+  products                   Product[]
+  productLots                ProductLot[]
+  serialUnits                SerialUnit[]
+  productBundles             ProductBundle[]
+  stockMovements             StockMovement[]
+  productRecipes             ProductRecipe[]
   marketingOperationsIntakes MarketingOperationsIntake[]
-  salesTasks                SalesTask[]
-  salesOrders               SalesOrder[]
-  payments                  Payment[]
-  suppliers                 Supplier[]
-  purchaseOrders            PurchaseOrder[]
-  goodsReceipts             GoodsReceipt[]
-  warehouseLocations        WarehouseLocation[]
-  customizationWorkOrders   CustomizationWorkOrder[]
-  kittingWorkOrders         KittingWorkOrder[]
-  stockReservations         StockReservation[]
-  billingProfile            BusinessBillingProfile?
-  commerceDocuments         CommerceDocument[]
-  commerceDocumentSequences CommerceDocumentSequence[]
-  inventoryLedgerFences     InventoryLedgerFence[]
-  inventoryStocktakes       InventoryStocktake[]
+  salesTasks                 SalesTask[]
+  salesOrders                SalesOrder[]
+  payments                   Payment[]
+  suppliers                  Supplier[]
+  purchaseOrders             PurchaseOrder[]
+  goodsReceipts              GoodsReceipt[]
+  warehouseLocations         WarehouseLocation[]
+  customizationWorkOrders    CustomizationWorkOrder[]
+  kittingWorkOrders          KittingWorkOrder[]
+  stockReservations          StockReservation[]
+  billingProfile             BusinessBillingProfile?
+  commerceDocuments          CommerceDocument[]
+  commerceDocumentSequences  CommerceDocumentSequence[]
+  inventoryLedgerFences      InventoryLedgerFence[]
+  inventoryStocktakes        InventoryStocktake[]
+
+  marketingPlans            MarketingPlan[]
+  marketingInitiatives      MarketingInitiative[]
+  marketingContentBriefs    MarketingContentBrief[]
+  marketingBroadcastIntents MarketingBroadcastIntent[]
 
   @@index([tenantId])
-
-  marketingPlans MarketingPlan[]
-  marketingInitiatives MarketingInitiative[]
-  marketingContentBriefs MarketingContentBrief[]
-  marketingBroadcastIntents MarketingBroadcastIntent[]
 }
 
 model Branch {
-  id         String   @id @default(uuid())
-  code       String   @unique
-  tenantId   String
-  businessId String
-  name       String
-  address    String?
+  id            String   @id @default(uuid())
+  code          String   @unique
+  tenantId      String
+  businessId    String
+  name          String
+  address       String?
   taxBranchCode String?
-  status     String   @default("ACTIVE")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  status        String   @default("ACTIVE")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  business       Business               @relation(fields: [businessId], references: [id])
-  memberships    Membership[]
-  assetLocations AssetLocationHistory[]
+  business          Business               @relation(fields: [businessId], references: [id])
+  memberships       Membership[]
+  assetLocations    AssetLocationHistory[]
   commerceDocuments CommerceDocument[]
 
   @@index([tenantId])
@@ -249,27 +249,34 @@ model Branch {
 }
 
 model Person {
-  id                 String    @id @default(uuid())
-  code               String    @unique
-  displayName        String
-  email              String?
+  id                   String    @id @default(uuid())
+  code                 String    @unique
+  displayName          String
+  email                String?
   // @req FR-122 — What the Profile step collects about the person themselves.
   // Nullable here and required at the profile boundary instead, because Person
   // rows exist that can never supply them: the seed, FR-107's operator
   // bootstrap, and every Person FR-023's LINE ingest creates from a lineUserId
   // on first contact, which has a channel subject and nothing else. A NOT NULL
   // on these columns would make that intake path unwritable.
-  firstName          String?
-  lastName           String?
-  phone              String?
+  firstName            String?
+  lastName             String?
+  phone                String?
   // @req FR-066 — Profile completion marker: an identity step over Person
   // (ADR-027 D1), never an authorization grant (BR-016). Null = the person has
   // not finished the profile-first onboarding step yet.
-  profileCompletedAt DateTime?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  profileCompletedAt   DateTime?
+  // @req FR-191 — a redacted person whose password still works is not
+  // erased (SEC-026). Set by erasure and by an operator disabling an
+  // account; `authenticateUser` refuses while it is non-null.
+  accessDisabledAt     DateTime?
+  accessDisabledReason String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
   memberships                   Membership[]
+  membershipsGranted            Membership[]                   @relation("MembershipGrantedBy")
+  membershipsRevoked            Membership[]                   @relation("MembershipRevokedBy")
   credential                    PersonCredential?
   passwordResetTokens           PasswordResetToken[]
   teamMemberships               TeamMembership[]
@@ -489,29 +496,76 @@ model PluginSession {
   @@index([authorizationCodeId])
 }
 
+// @req FR-191, FR-192 — a grant, not a membership fact: who has access, who
+// gave it and why, until when, and when and why it ended. Before ADR-077 the
+// row answered only the first of those, which is why access could be created
+// and never withdrawn
+// (.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md).
+// @spec ADR-077 D1-D5, ADR-045 D3, BR-033, SDD-092
+// @tested tests/unit/membership-lifecycle-service.test.js,
+//   tests/integration/fr191-access-grant-lifecycle.test.js
 model Membership {
-  id             String   @id @default(uuid())
+  id             String  @id @default(uuid())
   personId       String
   tenantId       String
+  // @req FR-192 — scope is a declared value. `businessId IS NULL` used to MEAN
+  // "every Business in this Tenant" to `buildDomainsByBusiness` while meaning
+  // "refuse" to `assertMembershipBusinessOwned`: one layer honoured a wildcard
+  // the other could not see. The CHECK that binds these two columns lives in
+  // the Supabase migration, which is the only place Prisma cannot express it.
+  scopeType      String  @default("BUSINESS")
   businessId     String?
   branchId       String?
   employeeRef    String?
-  role           String   @default("OWNER")
-  status         String   @default("ACTIVE")
-  domainKeysJson String   @default("[]")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  version        Int      @default(1)
+  // Default MEMBER, not OWNER (ADR-077 D5). Every current writer passes a role
+  // explicitly, so this changes nothing for them; what it removes is an INSERT
+  // that omits the column — a migration, a seed, a psql session — minting an
+  // owner. Default deny is the only defensible default for an authority column.
+  role           String  @default("MEMBER")
+  status         String  @default("ACTIVE")
+  domainKeysJson String  @default("[]")
+
+  // @req FR-191 — provenance on the row, not only in the audit stream. An
+  // access review asks "who gave this" of current state, and the stream cannot
+  // answer it for rows that already exist: production holds twelve grants and
+  // six MEMBERSHIP_ADDED events, the rest written by services that audit under
+  // PROJECT and BUSINESS (ADR-077 D1).
+  grantedByPersonId String?
+  grantReason       String?
+  grantSource       String    @default("ADMIN")
+  // Read by `resolveViewer`, written by nothing yet. It exists so access
+  // recertification can be added later without a second migration against live
+  // authority data (ADR-077 Consequences), and is recorded as accepted debt in
+  // docs/.unreachable-state-baseline.json under this ADR's own D7 rule.
+  expiresAt         DateTime?
+  suspendedAt       DateTime?
+  revokedAt         DateTime?
+  revokedByPersonId String?
+  revokeReason      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  version   Int      @default(1)
 
   person   Person    @relation(fields: [personId], references: [id], onDelete: Cascade)
   tenant   Tenant    @relation(fields: [tenantId], references: [id])
-  business Business? @relation(fields: [businessId], references: [id])
+  // @req FR-192 — Restrict, not the optional-relation default of SetNull. The
+  // null that cascade wrote was not an absence: it was the tenant-wide
+  // wildcard, so deleting one Business promoted its members to the whole group
+  // and its owners to `ownsTenant` — which FR-074(b) makes the authority to
+  // create more Businesses.
+  business Business? @relation(fields: [businessId], references: [id], onDelete: Restrict)
   branch   Branch?   @relation(fields: [branchId], references: [id])
+
+  grantedBy Person? @relation("MembershipGrantedBy", fields: [grantedByPersonId], references: [id], onDelete: SetNull)
+  revokedBy Person? @relation("MembershipRevokedBy", fields: [revokedByPersonId], references: [id], onDelete: SetNull)
 
   @@index([personId])
   @@index([personId, status])
   @@index([tenantId])
   @@index([tenantId, status])
+  @@index([businessId, status])
+  @@index([expiresAt, status])
 }
 
 // @req FR-095 — the signed cookie is transport only; the live session row is
@@ -566,18 +620,25 @@ model ChannelIdentity {
 }
 
 model RoleBinding {
-  id         String    @id @default(uuid())
-  personId   String
-  tenantId   String
-  businessId String
-  roleKey    String
-  scopeType  String    @default("BUSINESS")
-  status     String    @default("ACTIVE")
-  assignedBy String?
-  version    Int       @default(1)
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  revokedAt  DateTime?
+  id                    String    @id @default(uuid())
+  personId              String
+  tenantId              String
+  businessId            String
+  roleKey               String
+  scopeType             String    @default("BUSINESS")
+  // @req FR-191 — why this binding is not active. Set when a Membership
+  // suspension or revocation cascaded to it, so reinstating that Membership
+  // restores exactly the bindings it took down and leaves alone one that was
+  // suspended in its own right. Without the tag, reinstating a person would
+  // silently re-grant a capability somebody had deliberately removed.
+  // @spec ADR-077 D2
+  cascadeOfMembershipId String?
+  status                String    @default("ACTIVE")
+  assignedBy            String?
+  version               Int       @default(1)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  revokedAt             DateTime?
 
   person   Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
   tenant   Tenant   @relation(fields: [tenantId], references: [id])
@@ -604,14 +665,16 @@ model Workspace {
 
   portfolio Portfolio? @relation(fields: [portfolioId], references: [id])
   tenant    Tenant?    @relation(fields: [tenantId], references: [id])
-  business  Business?  @relation(fields: [businessId], references: [id])
+  // @req FR-192 — Restrict: a Space that silently loses its Business goes
+  // read-only (ADR-027 D8.2), which is a data loss wearing a UI bug's clothes.
+  business  Business?  @relation(fields: [businessId], references: [id], onDelete: Restrict)
   projects  Project[]
+
+  marketingHandoffs MarketingHandoff[]
 
   @@index([portfolioId])
   @@index([tenantId])
   @@index([businessId])
-
-  marketingHandoffs MarketingHandoff[]
 }
 
 // @req FR-043 - direct Business owner plus Development Space context.
@@ -644,7 +707,9 @@ model Project {
   updatedAt   DateTime  @updatedAt
   version     Int       @default(1)
 
-  business           Business?                @relation(fields: [businessId], references: [id])
+  // @req FR-192 — Restrict, for the reason ADR-014 D2 gives: businessId is
+  // the Project's real owner, and losing it is not a nullable condition.
+  business           Business?                @relation(fields: [businessId], references: [id], onDelete: Restrict)
   workspace          Workspace                @relation(fields: [workspaceId], references: [id])
   pic                Person?                  @relation("ProjectPic", fields: [picPersonId], references: [id])
   workstreams        Workstream[]
@@ -658,13 +723,13 @@ model Project {
   teams              ProjectTeam[]
   assetAllocations   AssetProjectAllocation[]
 
+  marketingHandoffs MarketingHandoff[]
+
   @@index([businessId])
   @@index([workspaceId])
   @@index([status])
   @@index([priority])
   @@index([picPersonId])
-
-  marketingHandoffs MarketingHandoff[]
 }
 
 // @req FR-089 — a Team records who works together. It is an organisational
@@ -1104,14 +1169,14 @@ model FileAsset {
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
 
-  tenant        Tenant          @relation(fields: [tenantId], references: [id])
-  business      Business        @relation(fields: [businessId], references: [id])
-  project       Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  workItem      WorkItem?       @relation(fields: [workItemId], references: [id], onDelete: SetNull)
-  links         FileLink[]
-  assetEvidence AssetEvidence[]
+  tenant                 Tenant                  @relation(fields: [tenantId], references: [id])
+  business               Business                @relation(fields: [businessId], references: [id])
+  project                Project?                @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  workItem               WorkItem?               @relation(fields: [workItemId], references: [id], onDelete: SetNull)
+  links                  FileLink[]
+  assetEvidence          AssetEvidence[]
   lineOaRichMenuVersions LineOaRichMenuVersion[]
-  paymentSlips  Payment[]
+  paymentSlips           Payment[]
 
   @@index([tenantId])
   @@index([businessId])
@@ -1642,10 +1707,10 @@ model Conversation {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  customer Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  messages Message[]
-  analyses ConversationAnalysis[]
-  salesTasks SalesTask[]
+  customer    Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  messages    Message[]
+  analyses    ConversationAnalysis[]
+  salesTasks  SalesTask[]
   salesOrders SalesOrder[]
 
   // @spec BR-002, SEC-001 — a provider thread id is envelope data, not a key. Scoping
@@ -1665,8 +1730,8 @@ model Message {
   externalMessageId String?
   createdAt         DateTime @default(now())
 
-  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  lineJob LineConversationJob?
+  conversation Conversation         @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  lineJob      LineConversationJob?
 
   // @spec BR-002, SEC-001 — scoped to the conversation that owns the message rather
   // than to a tenant column: a Message has no tenant of its own, and denormalising one
@@ -1993,7 +2058,7 @@ model KnowledgeRawArtifact {
   receivedAt          DateTime
   createdAt           DateTime @default(now())
 
-  rawExternalRecord RawExternalRecord @relation(fields: [rawExternalRecordId], references: [id])
+  rawExternalRecord RawExternalRecord         @relation(fields: [rawExternalRecordId], references: [id])
   parsedArtifacts   KnowledgeParsedArtifact[]
 
   @@unique([portfolioId, tenantId, businessId, workspaceId, agentId, visibility, sourceId, version, contentHash, pipelineVersion])
@@ -2068,29 +2133,29 @@ model KnowledgeChunk {
 // @spec ADR-073, docs/plans/GENESISRAG17-CONTRACT.md
 // @tested tests/unit/genesisrag17-lineage-repository.test.js
 model GenesisRag17IngestionIntent {
-  id               String   @id
-  intentKey        String   @unique
-  runId            String
-  executionRunId   String   @unique
-  scopeJson        String
-  requestJson      String
-  derivationJson   String
-  rawArtifactId    String
-  sourceId         String
-  documentId       String
-  version          String
-  contentHash      String
-  portfolioId      String
-  tenantId         String
-  businessId       String
-  workspaceId      String
-  agentId          String
-  visibility       String
-  status           String   @default("PENDING")
-  nextStageNumber  Int      @default(1)
-  lastErrorJson    String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  id              String   @id
+  intentKey       String   @unique
+  runId           String
+  executionRunId  String   @unique
+  scopeJson       String
+  requestJson     String
+  derivationJson  String
+  rawArtifactId   String
+  sourceId        String
+  documentId      String
+  version         String
+  contentHash     String
+  portfolioId     String
+  tenantId        String
+  businessId      String
+  workspaceId     String
+  agentId         String
+  visibility      String
+  status          String   @default("PENDING")
+  nextStageNumber Int      @default(1)
+  lastErrorJson   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   @@index([tenantId, status])
   @@index([executionRunId, status])
@@ -2241,20 +2306,20 @@ model GenesisRag17EvidenceCursor {
 // @spec ADR-072, SEC-001, SEC-008
 // @tested tests/integration/knowledge-admission.integration.test.js, tests/integration/knowledge-corpus.test.js
 model KnowledgeCorpus {
-  id          String   @id @default(uuid())
-  corpusKey   String   @unique
+  id          String    @id @default(uuid())
+  corpusKey   String    @unique
   portfolioId String
   tenantId    String
   businessId  String
   projectId   String?
-  workspaceId String   @default("")
+  workspaceId String    @default("")
   scopeJson   String
   policyJson  String
-  status      String   @default("ACTIVE")
-  generation  Int      @default(0)
-  version     Int      @default(1)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  status      String    @default("ACTIVE")
+  generation  Int       @default(0)
+  version     Int       @default(1)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
 
   sources     KnowledgeSource[]
@@ -2265,21 +2330,21 @@ model KnowledgeCorpus {
 }
 
 model KnowledgeSource {
-  id                String   @id @default(uuid())
+  id                String    @id @default(uuid())
   corpusId          String
   sourceKey         String
   kind              String
   title             String
   fileAssetId       String?
-  desiredRevision   Int      @default(0)
+  desiredRevision   Int       @default(0)
   activeIngestionId String?
-  version           Int      @default(1)
+  version           Int       @default(1)
   revokedAt         DateTime?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
   deletedAt         DateTime?
 
-  corpus     KnowledgeCorpus @relation(fields: [corpusId], references: [id], onDelete: Restrict)
+  corpus     KnowledgeCorpus      @relation(fields: [corpusId], references: [id], onDelete: Restrict)
   ingestions KnowledgeIngestion[]
 
   @@unique([corpusId, sourceKey])
@@ -2287,19 +2352,19 @@ model KnowledgeSource {
 }
 
 model KnowledgeIngestion {
-  id                 String   @id @default(uuid())
+  id                 String    @id @default(uuid())
   corpusId           String
   sourceId           String
   revision           Int
   sourceVersion      String
   contentHash        String
   content            String
-  sourceMetaJson     String   @default("{}")
-  idempotencyKey     String   @unique
+  sourceMetaJson     String    @default("{}")
+  idempotencyKey     String    @unique
   requestHash        String
   submittedById      String?
-  status             String   @default("QUEUED")
-  executionRunId     String?  @unique
+  status             String    @default("QUEUED")
+  executionRunId     String?   @unique
   rawArtifactId      String?
   parsedArtifactId   String?
   snapshotId         String?
@@ -2307,11 +2372,11 @@ model KnowledgeIngestion {
   receiptHash        String?
   claimToken         String?
   leaseExpiresAt     DateTime?
-  attempts           Int      @default(0)
+  attempts           Int       @default(0)
   failureCode        String?
-  version            Int      @default(1)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  version            Int       @default(1)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   corpus KnowledgeCorpus @relation(fields: [corpusId], references: [id], onDelete: Restrict)
   source KnowledgeSource @relation(fields: [sourceId], references: [id], onDelete: Restrict)
@@ -2465,11 +2530,11 @@ model RawExternalRecord {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
-  tenant       Tenant                @relation(fields: [tenantId], references: [id])
-  business     Business?             @relation(fields: [businessId], references: [id])
-  connection   IntegrationConnection @relation(fields: [connectionId], references: [id])
-  ingestionRun IngestionRun?         @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
-  deadLetters  DeadLetterRecord[]
+  tenant               Tenant                @relation(fields: [tenantId], references: [id])
+  business             Business?             @relation(fields: [businessId], references: [id])
+  connection           IntegrationConnection @relation(fields: [connectionId], references: [id])
+  ingestionRun         IngestionRun?         @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+  deadLetters          DeadLetterRecord[]
   knowledgeRawArtifact KnowledgeRawArtifact?
 
   @@index([tenantId, entityType])
@@ -2759,31 +2824,31 @@ model AssetExtractionJob {
 // carries tenantId and businessId.
 // @tested tests/unit/line-oa-account-schema-contract.test.js, tests/integration/fr146-line-oa-account.test.js
 model LineOaAccount {
-  id                      String    @id @default(uuid())
+  id                      String                @id @default(uuid())
   code                    String
   tenantId                String
   businessId              String
-  integrationConnectionId String    @unique
+  integrationConnectionId String                @unique
   bindingCode             String?
   displayName             String
   basicId                 String?
-  status                  String    @default("DRAFT")
-  transportMode           String    @default("CLOUD")
+  status                  String                @default("DRAFT")
+  transportMode           String                @default("CLOUD")
   // @req FR-149, FR-150 — transport ownership and compute placement are independent.
-  serverEnabled           Boolean   @default(false)
-  executionMode           String    @default("SERVER")
-  modelAccess             String    @default("LOCAL_ONLY")
-  allowDelayedPush         Boolean   @default(false)
-  transportEpoch          Int       @default(1)
+  serverEnabled           Boolean               @default(false)
+  executionMode           String                @default("SERVER")
+  modelAccess             String                @default("LOCAL_ONLY")
+  allowDelayedPush        Boolean               @default(false)
+  transportEpoch          Int                   @default(1)
   conversationJobs        LineConversationJob[]
   richMenuJobs            LineOaRichMenuJob[]
   liffApps                LineOaLiffApp[]
-  isDefaultForBusiness    Boolean   @default(false)
-  botProfileJson          String    @default("{}")
+  isDefaultForBusiness    Boolean               @default(false)
+  botProfileJson          String                @default("{}")
   archivedAt              DateTime?
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
-  version                 Int       @default(1)
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+  version                 Int                   @default(1)
 
   tenant     Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business   Business              @relation(fields: [businessId], references: [id], onDelete: Cascade)
@@ -2850,8 +2915,8 @@ model LineOaRichMenuVersion {
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
-  richMenu LineOaRichMenu @relation(fields: [richMenuId], references: [id], onDelete: Cascade)
-  image    FileAsset?     @relation(fields: [imageFileAssetId], references: [id], onDelete: SetNull)
+  richMenu LineOaRichMenu      @relation(fields: [richMenuId], references: [id], onDelete: Cascade)
+  image    FileAsset?          @relation(fields: [imageFileAssetId], references: [id], onDelete: SetNull)
   jobs     LineOaRichMenuJob[]
 
   @@unique([richMenuId, versionNumber])
@@ -2921,8 +2986,8 @@ model LineOaRichMenuJob {
   updatedAt          DateTime  @updatedAt
   version            Int       @default(1)
 
-  account  LineOaAccount         @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  richMenu LineOaRichMenu        @relation(fields: [richMenuId], references: [id], onDelete: Cascade)
+  account     LineOaAccount         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  richMenu    LineOaRichMenu        @relation(fields: [richMenuId], references: [id], onDelete: Cascade)
   menuVersion LineOaRichMenuVersion @relation(fields: [richMenuVersionId], references: [id], onDelete: Cascade)
 
   @@index([status, availableAt])
@@ -2934,49 +2999,50 @@ model LineOaRichMenuJob {
 // @spec ADR-061, SEC-001 — internal identities, scoped account, cascaded with CRM erasure.
 // @tested tests/integration/server-line-jobs.test.js
 model LineConversationJob {
-  id                 String   @id @default(uuid())
-  accountId          String
-  inboundMessageId   String   @unique
-  eventId            String
-  tenantId           String
-  businessId         String
-  executionId        String?
-  channelAccountId   String
-  transportEpoch     Int
-  executionMode      String
-  modelAccess        String
-  audienceKind       String   @default("DIRECT")
-  allowDelayedPush   Boolean  @default(false)
-  recipientId        String
-  sourceUserId       String
-  sealedReplyToken   String?
-  replyExpiresAt     DateTime?
-  status             String   @default("QUEUED")
-  answerText         String?
-  sendMethod         String?
-  retryKey           String   @unique @default(uuid())
-  attempts           Int      @default(0)
-  availableAt        DateTime @default(now())
-  expiresAt          DateTime
-  firstSendAt        DateTime?
-  claimantId         String?
-  leaseExpiresAt     DateTime?
-  providerRequestId  String?
-  providerMessageId  String?
-  acceptedAt         DateTime?
-  errorCode          String?
-  memorySyncOptIn    Boolean  @default(false)
-  memoryDeliveryState String  @default("NONE")
-  memoryDeliveryAttempts Int  @default(0)
+  id                          String    @id @default(uuid())
+  accountId                   String
+  inboundMessageId            String    @unique
+  eventId                     String
+  tenantId                    String
+  businessId                  String
+  executionId                 String?
+  channelAccountId            String
+  transportEpoch              Int
+  executionMode               String
+  modelAccess                 String
+  audienceKind                String    @default("DIRECT")
+  allowDelayedPush            Boolean   @default(false)
+  recipientId                 String
+  sourceUserId                String
+  sealedReplyToken            String?
+  replyExpiresAt              DateTime?
+  status                      String    @default("QUEUED")
+  answerText                  String?
+  sendMethod                  String?
+  retryKey                    String    @unique @default(uuid())
+  attempts                    Int       @default(0)
+  availableAt                 DateTime  @default(now())
+  expiresAt                   DateTime
+  firstSendAt                 DateTime?
+  claimantId                  String?
+  leaseExpiresAt              DateTime?
+  providerRequestId           String?
+  providerMessageId           String?
+  acceptedAt                  DateTime?
+  errorCode                   String?
+  memorySyncOptIn             Boolean   @default(false)
+  memoryDeliveryState         String    @default("NONE")
+  memoryDeliveryAttempts      Int       @default(0)
   memoryDeliveryNextAttemptAt DateTime?
-  memoryDeliveryLeaseUntil DateTime?
-  correlationId      String
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  version            Int      @default(1)
+  memoryDeliveryLeaseUntil    DateTime?
+  correlationId               String
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @updatedAt
+  version                     Int       @default(1)
 
   account LineOaAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  inbound Message @relation(fields: [inboundMessageId], references: [id], onDelete: Cascade)
+  inbound Message       @relation(fields: [inboundMessageId], references: [id], onDelete: Cascade)
+
   @@unique([accountId, eventId])
   @@index([status, executionMode, availableAt])
   @@index([tenantId, businessId, status])
@@ -3000,12 +3066,12 @@ model MarketingPlan {
   updatedAt       DateTime  @updatedAt
   deletedAt       DateTime?
 
-  tenant    Tenant                 @relation(fields: [tenantId], references: [id])
-  business  Business               @relation(fields: [businessId], references: [id])
-  revisions MarketingPlanVersion[]
-  reviews   MarketingReview[]
-  decisions MarketingDecision[]
-  handoffs  MarketingHandoff[]
+  tenant     Tenant                 @relation(fields: [tenantId], references: [id])
+  business   Business               @relation(fields: [businessId], references: [id])
+  revisions  MarketingPlanVersion[]
+  reviews    MarketingReview[]
+  decisions  MarketingDecision[]
+  handoffs   MarketingHandoff[]
   initiative MarketingInitiative?
 
   @@unique([businessId, code])
@@ -3125,78 +3191,82 @@ model MarketingInitiative {
 // @spec SDD-088, SEC-001
 // @tested tests/integration/marketing-content.test.js
 model MarketingContentBrief {
-  id String @id @default(uuid())
-  tenantId String
-  businessId String
-  code String
-  title String
-  status String @default("OPEN")
-  currentRevision Int @default(1)
-  version Int @default(1)
-  createdBy String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
-  tenant Tenant @relation(fields: [tenantId], references: [id])
-  business Business @relation(fields: [businessId], references: [id])
-  revisions MarketingContentVersion[]
-  reviews MarketingContentReview[]
-  decisions MarketingContentDecision[]
+  id              String                     @id @default(uuid())
+  tenantId        String
+  businessId      String
+  code            String
+  title           String
+  status          String                     @default("OPEN")
+  currentRevision Int                        @default(1)
+  version         Int                        @default(1)
+  createdBy       String
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+  deletedAt       DateTime?
+  tenant          Tenant                     @relation(fields: [tenantId], references: [id])
+  business        Business                   @relation(fields: [businessId], references: [id])
+  revisions       MarketingContentVersion[]
+  reviews         MarketingContentReview[]
+  decisions       MarketingContentDecision[]
+
   @@unique([businessId, code])
   @@index([tenantId, businessId, status])
 }
 
 // @req FR-157 — creative intent and exact owner references are immutable.
 model MarketingContentVersion {
-  id String @id @default(uuid())
-  briefId String
-  revision Int
+  id          String                     @id @default(uuid())
+  briefId     String
+  revision    Int
   payloadJson String
   payloadHash String
-  createdBy String
-  createdAt DateTime @default(now())
-  brief MarketingContentBrief @relation(fields: [briefId], references: [id])
-  reviews MarketingContentReview[]
-  decisions MarketingContentDecision[]
+  createdBy   String
+  createdAt   DateTime                   @default(now())
+  brief       MarketingContentBrief      @relation(fields: [briefId], references: [id])
+  reviews     MarketingContentReview[]
+  decisions   MarketingContentDecision[]
+
   @@unique([briefId, revision])
 }
 
 // @req FR-157 — independent review binds exact content and rights findings.
 model MarketingContentReview {
-  id String @id @default(uuid())
-  briefId String
+  id               String                     @id @default(uuid())
+  briefId          String
   contentVersionId String
-  payloadHash String
-  sequence Int
-  verdict String
-  rationale String
-  rightsConfirmed Boolean @default(false)
-  brandConfirmed Boolean @default(false)
-  reviewerId String
-  createdAt DateTime @default(now())
-  brief MarketingContentBrief @relation(fields: [briefId], references: [id])
-  contentVersion MarketingContentVersion @relation(fields: [contentVersionId], references: [id])
-  decisions MarketingContentDecision[]
+  payloadHash      String
+  sequence         Int
+  verdict          String
+  rationale        String
+  rightsConfirmed  Boolean                    @default(false)
+  brandConfirmed   Boolean                    @default(false)
+  reviewerId       String
+  createdAt        DateTime                   @default(now())
+  brief            MarketingContentBrief      @relation(fields: [briefId], references: [id])
+  contentVersion   MarketingContentVersion    @relation(fields: [contentVersionId], references: [id])
+  decisions        MarketingContentDecision[]
+
   @@unique([briefId, sequence])
   @@index([briefId, createdAt])
 }
 
 // @req FR-157 — decisions and revocations preserve exact acceptance history.
 model MarketingContentDecision {
-  id String @id @default(uuid())
-  briefId String
+  id               String                  @id @default(uuid())
+  briefId          String
   contentVersionId String
-  payloadHash String
-  sequence Int
-  reviewId String?
-  verdict String
-  rationale String
-  actorId String
-  expiresAt DateTime?
-  createdAt DateTime @default(now())
-  brief MarketingContentBrief @relation(fields: [briefId], references: [id])
-  contentVersion MarketingContentVersion @relation(fields: [contentVersionId], references: [id])
-  review MarketingContentReview? @relation(fields: [reviewId], references: [id])
+  payloadHash      String
+  sequence         Int
+  reviewId         String?
+  verdict          String
+  rationale        String
+  actorId          String
+  expiresAt        DateTime?
+  createdAt        DateTime                @default(now())
+  brief            MarketingContentBrief   @relation(fields: [briefId], references: [id])
+  contentVersion   MarketingContentVersion @relation(fields: [contentVersionId], references: [id])
+  review           MarketingContentReview? @relation(fields: [reviewId], references: [id])
+
   @@unique([briefId, sequence])
   @@index([briefId, createdAt])
 }
@@ -3206,21 +3276,21 @@ model MarketingContentDecision {
 // @spec SDD-089, SEC-001, SEC-003
 // @tested tests/integration/marketing-operations.test.js
 model MarketingOperationsIntake {
-  id                  String   @id @default(uuid())
-  tenantId            String
-  businessId          String
-  title               String
-  capability          String
-  objective           String
-  requiredAt          DateTime?
-  evidenceReference   String?
-  responsibleOwnerId  String?
-  status              String   @default("NEW")
-  version             Int      @default(1)
-  createdBy           String
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  deletedAt           DateTime?
+  id                 String    @id @default(uuid())
+  tenantId           String
+  businessId         String
+  title              String
+  capability         String
+  objective          String
+  requiredAt         DateTime?
+  evidenceReference  String?
+  responsibleOwnerId String?
+  status             String    @default("NEW")
+  version            Int       @default(1)
+  createdBy          String
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
 
   tenant   Tenant   @relation(fields: [tenantId], references: [id])
   business Business @relation(fields: [businessId], references: [id])
@@ -3234,21 +3304,21 @@ model MarketingOperationsIntake {
 // @spec FR-157, FR-159, FR-160, FR-103, SEC-001, SEC-003
 // @tested tests/integration/marketing-broadcast-intent.test.js
 model MarketingBroadcastIntent {
-  id              String   @id @default(uuid())
+  id              String    @id @default(uuid())
   tenantId        String
   businessId      String
   code            String
-  status          String   @default("PLANNING")
-  currentRevision Int      @default(1)
-  version         Int      @default(1)
+  status          String    @default("PLANNING")
+  currentRevision Int       @default(1)
+  version         Int       @default(1)
   idempotencyKey  String
   createdBy       String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
   deletedAt       DateTime?
 
-  tenant    Tenant                          @relation(fields: [tenantId], references: [id])
-  business  Business                        @relation(fields: [businessId], references: [id])
+  tenant    Tenant                            @relation(fields: [tenantId], references: [id])
+  business  Business                          @relation(fields: [businessId], references: [id])
   revisions MarketingBroadcastIntentVersion[]
 
   @@unique([businessId, idempotencyKey])
@@ -3272,6 +3342,7 @@ model MarketingBroadcastIntentVersion {
 
   @@unique([intentId, revision])
 }
+
 // ── Inventory (คลังสินค้า) — FR-154 catalogue identity, FR-155 stock ledger ──
 // @req FR-154 — catalogue identity: category → family → master → product (SKU),
 //   the factory that makes it and the bundle that packs several SKUs. Every row
@@ -3408,9 +3479,9 @@ model Product {
   //   order it may ever be issued for, and nothing but an explicit ADJUSTMENT
   //   write-off releases it (BR-028). Both are null for every other kind.
   // @spec ADR-074 D4
-  itemKind               String    @default("RAW_COMPONENT")
-  dedicatedCustomerId    String?
-  dedicatedSalesOrderId  String?
+  itemKind              String  @default("RAW_COMPONENT")
+  dedicatedCustomerId   String?
+  dedicatedSalesOrderId String?
 
   // @req FR-177 — the accounting system's item code for a tradeable finished
   //   set: `[MODEL]-[COUNT]([PACKAGE])`, e.g. TMS06-4(P-16). It cannot be
@@ -3420,7 +3491,7 @@ model Product {
   //   the same Chinese factory model names — which is a normal thing for two
   //   Tenants to do. An attribute, unique per Tenant, never a key (BR-002).
   // @spec ADR-074 D5, BR-032
-  flowAccountSku         String?
+  flowAccountSku String?
 
   // @req FR-179 — storage ageing: a lot is *due* for maintenance at
   //   `maintenanceIntervalDays` and *refused* past `maxStorageDays`, both
@@ -3431,17 +3502,17 @@ model Product {
   maintenanceIntervalDays Int?
   maxStorageDays          Int?
 
-  tenant        Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  business      Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  productMaster ProductMaster       @relation(fields: [productMasterId], references: [id])
-  lots          ProductLot[]
-  serialUnits   SerialUnit[]
-  bundleItems   ProductBundleItem[]
-  movements     StockMovement[]
-  recipes       ProductRecipe[]
-  recipeLines   ProductRecipeLine[]
-  salesOrderLines SalesOrderLine[]
-  purchaseOrderLines PurchaseOrderLine[]
+  tenant                    Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business                  Business                 @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  productMaster             ProductMaster            @relation(fields: [productMasterId], references: [id])
+  lots                      ProductLot[]
+  serialUnits               SerialUnit[]
+  bundleItems               ProductBundleItem[]
+  movements                 StockMovement[]
+  recipes                   ProductRecipe[]
+  recipeLines               ProductRecipeLine[]
+  salesOrderLines           SalesOrderLine[]
+  purchaseOrderLines        PurchaseOrderLine[]
   customizationRawOrders    CustomizationWorkOrder[] @relation("CustomizationRawProduct")
   customizationOutputOrders CustomizationWorkOrder[] @relation("CustomizationOutputProduct")
   kittingWorkOrders         KittingWorkOrder[]
@@ -3454,16 +3525,16 @@ model Product {
 }
 
 model ProductLot {
-  id             String    @id @default(uuid())
-  code           String
-  tenantId       String
-  businessId     String
-  productId      String
-  factoryId      String?
-  manufacturedAt DateTime?
-  expiresAt      DateTime?
-  receivedQty    Int       @default(0)
-  status         String    @default("OPEN")
+  id               String    @id @default(uuid())
+  code             String
+  tenantId         String
+  businessId       String
+  productId        String
+  factoryId        String?
+  manufacturedAt   DateTime?
+  expiresAt        DateTime?
+  receivedQty      Int       @default(0)
+  status           String    @default("OPEN")
   // @req FR-179 — the last time this batch was restored by the operation its
   //   product declares (a power bank recharged to storage voltage, an
   //   instrument recalibrated). Null means never: the clock then runs from
@@ -3471,9 +3542,9 @@ model ProductLot {
   //   age and is therefore never refused for age.
   // @spec ADR-074 D7, BR-030
   lastMaintainedAt DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  version        Int       @default(1)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  version          Int       @default(1)
 
   tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business    Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
@@ -3581,11 +3652,11 @@ model StockMovement {
   salesOrderId     String?
   workOrderId      String?
 
-  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  business   Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
-  lot        ProductLot? @relation(fields: [lotId], references: [id], onDelete: SetNull)
-  serialUnit SerialUnit? @relation(fields: [serialUnitId], references: [id], onDelete: SetNull)
+  tenant         Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business       Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product        Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  lot            ProductLot?        @relation(fields: [lotId], references: [id], onDelete: SetNull)
+  serialUnit     SerialUnit?        @relation(fields: [serialUnitId], references: [id], onDelete: SetNull)
   sourceLocation WarehouseLocation? @relation("StockMovementSourceLocation", fields: [sourceLocationId], references: [id], onDelete: SetNull)
   targetLocation WarehouseLocation? @relation("StockMovementTargetLocation", fields: [targetLocationId], references: [id], onDelete: SetNull)
 
@@ -3608,12 +3679,12 @@ model StockMovement {
 //   tests/integration/fr184-inventory-stocktake-backup.test.js
 
 model InventoryLedgerFence {
-  id                String   @id @default(uuid())
-  tenantId          String
-  businessId        String
-  mutationRevision  Int      @default(0)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id               String   @id @default(uuid())
+  tenantId         String
+  businessId       String
+  mutationRevision Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
@@ -3656,33 +3727,33 @@ model InventoryStocktake {
 // @tested tests/integration/fr156-inventory-recipe.test.js
 
 model ProductRecipe {
-  id         String    @id @default(uuid())
-  code       String
-  tenantId   String
-  businessId String
-  productId  String
-  name       String
-  batchSize  Int
-  yieldQty   Int
-  unit       String    @default("EA")
-  notes      String?
+  id                   String    @id @default(uuid())
+  code                 String
+  tenantId             String
+  businessId           String
+  productId            String
+  name                 String
+  batchSize            Int
+  yieldQty             Int
+  unit                 String    @default("EA")
+  notes                String?
   // @req FR-177 — the loss this bill of materials expects, as a fraction in
   //   [0, 0.20]. The gross issue for a net requirement Q is
   //   `ceil(Q × (1 + scrapAllowanceFactor))`, so the buffer leaves the shelf
   //   with the rest rather than being fetched mid-line. Default 0: every
   //   recipe written before ADR-074 explodes exactly as it always did.
   // @spec ADR-074 D5, BR-029
-  scrapAllowanceFactor Float @default(0)
-  status     String    @default("ACTIVE")
-  archivedAt DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  version    Int       @default(1)
+  scrapAllowanceFactor Float     @default(0)
+  status               String    @default("ACTIVE")
+  archivedAt           DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  version              Int       @default(1)
 
-  tenant   Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  business Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  product  Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
-  lines    ProductRecipeLine[]
+  tenant            Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business          Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product           Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  lines             ProductRecipeLine[]
   kittingWorkOrders KittingWorkOrder[]
 
   @@unique([tenantId, code])
@@ -3751,37 +3822,37 @@ model WarehouseLocation {
 }
 
 model CustomizationWorkOrder {
-  id                String    @id @default(uuid())
-  code              String
-  tenantId          String
-  businessId        String
-  salesOrderId      String?
-  customerId        String?
-  rawProductId      String
-  outputProductId   String?
-  technique         String
-  logoArtworkUrl    String?
-  pantoneColorsJson String?
-  plannedQty        Int
-  issuedQty         Int       @default(0)
-  completedQty      Int       @default(0)
-  scrapQty          Int       @default(0)
-  scrapAllowanceFactor Float  @default(0.02)
-  setupCostSatang   Int       @default(0)
-  runCostSatang     Int       @default(0)
-  status            String    @default("DRAFT")
-  wipLocationId     String?
-  scrapLocationId   String?
-  sourceLocationId  String?
-  scheduledDate     DateTime?
-  startedAt         DateTime?
-  completedAt       DateTime?
-  cancelledAt       DateTime?
-  notes             String?
-  createdByPersonId String?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  version           Int       @default(1)
+  id                   String    @id @default(uuid())
+  code                 String
+  tenantId             String
+  businessId           String
+  salesOrderId         String?
+  customerId           String?
+  rawProductId         String
+  outputProductId      String?
+  technique            String
+  logoArtworkUrl       String?
+  pantoneColorsJson    String?
+  plannedQty           Int
+  issuedQty            Int       @default(0)
+  completedQty         Int       @default(0)
+  scrapQty             Int       @default(0)
+  scrapAllowanceFactor Float     @default(0.02)
+  setupCostSatang      Int       @default(0)
+  runCostSatang        Int       @default(0)
+  status               String    @default("DRAFT")
+  wipLocationId        String?
+  scrapLocationId      String?
+  sourceLocationId     String?
+  scheduledDate        DateTime?
+  startedAt            DateTime?
+  completedAt          DateTime?
+  cancelledAt          DateTime?
+  notes                String?
+  createdByPersonId    String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  version              Int       @default(1)
 
   tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
@@ -3942,26 +4013,26 @@ model SalesTask {
 // @tested tests/integration/fr186-billing.test.js, tests/integration/fr183-pos.test.js
 
 model BusinessBillingProfile {
-  id                     String   @id @default(uuid())
-  tenantId               String
-  businessId             String   @unique
-  vatRegistered          Boolean  @default(false)
-  vatRateBps             Int?
-  vatTreatment           String?
-  taxPolicyVersion       String?
-  taxEffectiveAt         DateTime?
-  taxVerifiedAt          DateTime?
-  nonVatDocumentPolicy   String?
-  walkInDocumentPolicy   String?
-  promptPayProvider      String?
-  promptPayTargetType    String?
-  promptPayTarget        String?
-  promptPayActive        Boolean  @default(false)
-  promptPayVerifiedAt    DateTime?
-  active                 Boolean  @default(true)
-  version                Int      @default(1)
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
+  id                   String    @id @default(uuid())
+  tenantId             String
+  businessId           String    @unique
+  vatRegistered        Boolean   @default(false)
+  vatRateBps           Int?
+  vatTreatment         String?
+  taxPolicyVersion     String?
+  taxEffectiveAt       DateTime?
+  taxVerifiedAt        DateTime?
+  nonVatDocumentPolicy String?
+  walkInDocumentPolicy String?
+  promptPayProvider    String?
+  promptPayTargetType  String?
+  promptPayTarget      String?
+  promptPayActive      Boolean   @default(false)
+  promptPayVerifiedAt  DateTime?
+  active               Boolean   @default(true)
+  version              Int       @default(1)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
   tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
@@ -3970,14 +4041,14 @@ model BusinessBillingProfile {
 }
 
 model CommerceDocumentSequence {
-  id            String   @id @default(uuid())
-  tenantId      String
-  businessId    String
-  documentType  String
-  calendarYear  Int
-  lastSequence  Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String   @id @default(uuid())
+  tenantId     String
+  businessId   String
+  documentType String
+  calendarYear Int
+  lastSequence Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
@@ -4007,11 +4078,11 @@ model CommerceDocument {
 
   // Issued evidence survives ordinary source deletion attempts; parent removal
   // is refused while a document still anchors the record.
-  tenant   Tenant       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  business Business     @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  tenant   Tenant     @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business Business   @relation(fields: [businessId], references: [id], onDelete: Restrict)
   // Issued evidence keeps its order anchor; deleting the source order is refused.
-  order   SalesOrder    @relation(fields: [orderId], references: [id], onDelete: Restrict)
-  branch  Branch        @relation(fields: [branchId], references: [id], onDelete: Restrict)
+  order    SalesOrder @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  branch   Branch     @relation(fields: [branchId], references: [id], onDelete: Restrict)
 
   @@unique([businessId, idempotencyKey])
   @@unique([businessId, documentNumber])
@@ -4056,12 +4127,12 @@ model SalesOrder {
   updatedAt         DateTime  @updatedAt
   version           Int       @default(1)
 
-  tenant       Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  business     Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  customer     Customer?        @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  conversation Conversation?    @relation(fields: [conversationId], references: [id], onDelete: SetNull)
-  lines        SalesOrderLine[]
-  payments     Payment[]
+  tenant            Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business          Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customer          Customer?          @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  conversation      Conversation?      @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  lines             SalesOrderLine[]
+  payments          Payment[]
   commerceDocuments CommerceDocument[]
 
   @@unique([tenantId, code])

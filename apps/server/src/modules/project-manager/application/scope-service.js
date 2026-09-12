@@ -9,6 +9,7 @@ import {
   zBranchInput,
   zWorkspaceInput,
 } from '@/lib/validation/entities'
+import { grantBusinessMembership } from '@/modules/identity/membership-grant-service'
 import { recordAudit } from './audit'
 import { activeWorkstream } from './active-filters'
 import { assertWorkspaceWritable, requireViewer } from './project-authorization'
@@ -228,9 +229,21 @@ export async function createBusinessInGroup(input, { viewer } = {}) {
     // the Tenant they just provisioned, which is what lets them go on to add a
     // second Business to it under FR-074(b). `domainKeysJson` stays at its
     // default because an OWNER Membership derives every domain from the role.
-    await tx.membership.create({
-      data: { personId: viewer.principal.id, tenantId: tenant.id, role: 'OWNER' },
-    })
+    // @req FR-191 — identity owns the row (ADR-077 D8). The authority is still
+    // decided here, by construction: this principal just created the Tenant.
+    // What moves is the writing, so the grant carries provenance
+    // (`grantSource: 'SELF_PROVISION'`) and lands under the MEMBERSHIP audit
+    // family instead of only inside this BUSINESS/CREATED event.
+    await grantBusinessMembership({
+      personId: viewer.principal.id,
+      tenantId: tenant.id,
+      businessId: null,
+      scopeType: 'TENANT',
+      role: 'OWNER',
+      grantSource: 'SELF_PROVISION',
+      reason: `founder of ${business.code}`,
+      actorId: viewer.principal.id,
+    }, { db: tx })
     await recordAudit(tx, {
       entityType: 'BUSINESS',
       entityId: business.id,

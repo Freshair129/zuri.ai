@@ -110,6 +110,37 @@ export const KNOWLEDGE_SENSITIVITY_LEVELS = ['PUBLIC', 'INTERNAL', 'CONFIDENTIAL
 export const WORKSPACE_SCOPE_TYPES = ['PORTFOLIO', 'TENANT', 'BUSINESS']
 export const MEMBERSHIP_ROLES = ['OWNER', 'MEMBER']
 
+// @req FR-191 — the lifecycle ADR-045 D3 declared and nothing could write.
+// Until ADR-077 this vocabulary existed only in prose: `resolve-viewer.js` and
+// `authorization-context.js` both filtered on `status === 'ACTIVE'`, and no
+// service anywhere assigned any other value, so a read filter stood in for a
+// control that was never built
+// (.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md).
+//
+// One vocabulary for every grant-shaped table, not three. `RoleBinding`
+// already used ACTIVE/SUSPENDED/REVOKED and `Membership` used a free string;
+// `WorkspaceMembership` keeps its own ACTIVE/REMOVED because it is a different
+// contract (BR-016) and renaming its values would move a subject.
+export const ACCESS_STATUSES = ['PENDING', 'ACTIVE', 'SUSPENDED', 'REVOKED']
+export const MEMBERSHIP_STATUSES = ACCESS_STATUSES
+export const ROLE_BINDING_STATUSES = ACCESS_STATUSES
+// A grant that is still capable of granting. `REVOKED` is terminal and
+// `PENDING` has not started, so neither reaches the resolver; both still
+// occupy the row, which is why the partial unique indexes key off this set
+// rather than off `ACTIVE` alone.
+export const LIVE_ACCESS_STATUSES = ACCESS_STATUSES.filter((s) => s !== 'REVOKED')
+
+// @req FR-191 — how a grant came to exist, so that a null `grantedByPersonId`
+// is legible. `MIGRATION` means "predates ADR-077 and its author is
+// unrecoverable", which is a different statement from "nobody granted it".
+export const MEMBERSHIP_GRANT_SOURCES = ['ADMIN', 'INVITE', 'SELF_PROVISION', 'SEED', 'MIGRATION']
+
+// @req FR-192 — scope is a declared value, never the meaning of a null.
+// `Membership` uses TENANT and BUSINESS; `RoleBinding` adds BRANCH (ADR-077 D3,
+// extending ADR-033 D3 rather than superseding it).
+export const MEMBERSHIP_SCOPE_TYPES = ['TENANT', 'BUSINESS']
+export const ROLE_BINDING_SCOPE_TYPES = ['TENANT', 'BUSINESS', 'BRANCH']
+
 // Derived subsets — a genuine filter over an enum is named here, next to its
 // source, and imported, rather than hand-copied at each call site (CLAUDE.md;
 // .brain/rca/2026-08-17-a-prose-rule-is-not-a-gate.md). Computed from the
@@ -349,6 +380,10 @@ export const zMilestoneStatus = z.enum(MILESTONE_STATUSES)
 export const zGateStatus = z.enum(GATE_STATUSES)
 export const zWorkspaceScopeType = z.enum(WORKSPACE_SCOPE_TYPES)
 export const zMembershipRole = z.enum(MEMBERSHIP_ROLES)
+export const zMembershipStatus = z.enum(MEMBERSHIP_STATUSES)
+export const zMembershipScopeType = z.enum(MEMBERSHIP_SCOPE_TYPES)
+export const zMembershipGrantSource = z.enum(MEMBERSHIP_GRANT_SOURCES)
+export const zRoleBindingScopeType = z.enum(ROLE_BINDING_SCOPE_TYPES)
 export const zChannel = z.enum(CHANNELS)
 export const zMessageDirection = z.enum(MESSAGE_DIRECTIONS)
 export const zCustomerLifecycle = z.enum(CUSTOMER_LIFECYCLE)

@@ -693,6 +693,7 @@ Backlinks:
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) (relates)
 - [ADR-062 — Candidate Server/Edge monorepo with independent releases](decisions/ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md) (relates)
 - [ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management](decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md) (relates)
+- [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md) (relates)
 
 ## ADR-026 — Agent Topology for the Visual Office
 
@@ -734,6 +735,7 @@ Backlinks:
 - [ADR-011 — Context bar and Business scope ceiling](decisions/ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md) (references)
 - [ADR-015 — Minimal entry, demo login, and Business Routing before BusinessShell](decisions/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md) (references)
 - [ADR-033 — Customer scope and Product Owner authority](decisions/ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY.md) (references)
+- [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md) (references)
 - [ADR-011 — Context bar and Business scope ceiling](decisions/ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md) (relates)
 - [ADR-028 — Human-visible execution roadmap and shared plan intake](decisions/ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md) (relates)
 - [ADR-045 — Canonical Identity and Access Management Boundary](decisions/ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT.md) (relates)
@@ -1652,6 +1654,19 @@ Backlinks:
 
 - [Canonical ERP Organizational Hierarchy & Data Architecture](architecture/ERP-ORGANIZATIONAL-HIERARCHY.md) (relates)
 
+## ADR-077 — Membership is a grant with a lifecycle, not a membership fact
+
+Source: [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md)
+
+- references: [FR-191 — Access grant lifecycle](domains/identity/features/FR-191-access-grant-lifecycle.md)
+- references: [ADR-027 — Profile-first and Workspace-first onboarding](decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md)
+- relates: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
+
+Backlinks:
+
+- [FR-191 — Access grant lifecycle](domains/identity/features/FR-191-access-grant-lifecycle.md) (references)
+- [FR-192 — Membership scope grammar and referential invariants](domains/identity/features/FR-192-membership-scope-grammar.md) (references)
+
 ## Deploying zuri-ai with Docker Compose + ngrok
 
 Source: [Deploying zuri-ai with Docker Compose + ngrok](deployment/docker-ngrok.md)
@@ -2143,6 +2158,24 @@ Source: [FR-123 — Plugin authentication and capability discovery](domains/iden
 Backlinks:
 
 - [ADR-052 — Canonical Plugin Authorization-Code and Token Boundary](decisions/ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY.md) (relates)
+
+## FR-191 — Access grant lifecycle
+
+Source: [FR-191 — Access grant lifecycle](domains/identity/features/FR-191-access-grant-lifecycle.md)
+
+- references: [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md)
+
+Backlinks:
+
+- [FR-192 — Membership scope grammar and referential invariants](domains/identity/features/FR-192-membership-scope-grammar.md) (references)
+- [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md) (references)
+
+## FR-192 — Membership scope grammar and referential invariants
+
+Source: [FR-192 — Membership scope grammar and referential invariants](domains/identity/features/FR-192-membership-scope-grammar.md)
+
+- references: [FR-191 — Access grant lifecycle](domains/identity/features/FR-191-access-grant-lifecycle.md)
+- references: [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md)
 
 ## Domain — integration
 

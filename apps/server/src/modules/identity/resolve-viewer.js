@@ -27,6 +27,18 @@ export { VIEWER_DOMAINS }
 
 const unique = (values) => [...new Set(values.filter(Boolean))]
 
+// @req FR-192 — a tenant-wide grant is the one that says so. `!businessId` was
+// the old test, and it was a reading of a null rather than a reading of an
+// intent: the same null meant "every Business here" to this resolver and
+// "refuse" to `assertMembershipBusinessOwned` (ADR-077 D3). Both columns are
+// consulted so a row written before the migration, or by a fixture that predates
+// it, still resolves the way it always did.
+const isTenantWide = (membership) => membership.scopeType === 'TENANT' || !membership.businessId
+
+// @req FR-191 — an expired grant grants nothing, and expiring writes no row:
+// the decision is recomputed per request like every other one (NFR-019).
+const isExpired = (membership, now) => Boolean(membership.expiresAt) && new Date(membership.expiresAt).getTime() <= now
+
 // @req FR-061 — the flat field is the UNION across visible Businesses: "may
 // this principal see this domain *anywhere*". It is retained because
 // `GET /api/entry` publishes it under a strict contract (FR-046) on a surface
@@ -115,6 +127,9 @@ export async function resolveViewer({
   principalId = null,
   platformGrant = false,
   db = prisma,
+  // Injectable so a test can place a grant's expiry on either side of the line
+  // without sleeping, the same seam `operator-bootstrap` already uses.
+  now = Date.now(),
 } = {}) {
   if (!principalId) {
     throw new Error('Viewer principal is required')
@@ -157,11 +172,21 @@ export async function resolveViewer({
   // visibleBusinessIds, no ownedBusinessIds, no ownedTenantIds and no domain —
   // the same discipline that keeps FR-089's TeamMembership out of this resolver.
   // @tested tests/integration/workspace-onboarding-flow.test.js
-  const memberships = await db.membership.findMany({
+  //
+  // @req FR-191 — a grant is admitted only while it is ACTIVE *and* unexpired.
+  // The expiry half is filtered here rather than in SQL because the dev
+  // datasource is SQLite and the production one is Postgres; one predicate in
+  // JavaScript is one behaviour, where two dialect-specific `where` fragments
+  // would be two. Nothing sets `expiresAt` from a surface yet (ADR-077
+  // Consequences) — the reader exists so that recertification can be added
+  // without a second migration against live authority data.
+  // @spec ADR-077 D2, BR-033
+  const membershipRows = await db.membership.findMany({
     where: { personId: principal.id, status: 'ACTIVE' },
-    select: { tenantId: true, businessId: true, role: true, status: true, domainKeysJson: true, version: true },
+    select: { tenantId: true, businessId: true, scopeType: true, role: true, status: true, domainKeysJson: true, expiresAt: true, version: true },
   })
-  const tenantWideIds = unique(memberships.filter((membership) => !membership.businessId).map((membership) => membership.tenantId))
+  const memberships = membershipRows.filter((membership) => !isExpired(membership, now))
+  const tenantWideIds = unique(memberships.filter(isTenantWide).map((membership) => membership.tenantId))
   const tenantBusinesses = tenantWideIds.length
     ? await db.business.findMany({ where: { tenantId: { in: tenantWideIds } }, select: { id: true, tenantId: true } })
     : []
@@ -175,7 +200,7 @@ export async function resolveViewer({
   // A MEMBER membership elsewhere must never land here just because `role` above
   // is a global 'OWNER'|'MEMBER' label and that Business is already visible.
   const ownerMemberships = memberships.filter((membership) => membership.role === 'OWNER')
-  const ownerTenantWideIds = unique(ownerMemberships.filter((membership) => !membership.businessId).map((membership) => membership.tenantId))
+  const ownerTenantWideIds = unique(ownerMemberships.filter(isTenantWide).map((membership) => membership.tenantId))
   const ownedBusinessIds = unique([
     ...ownerMemberships.map((membership) => membership.businessId),
     ...tenantBusinesses.filter((business) => ownerTenantWideIds.includes(business.tenantId)).map((business) => business.id),

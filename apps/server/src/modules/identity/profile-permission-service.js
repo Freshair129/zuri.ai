@@ -7,6 +7,7 @@ import { DOMAINS } from '@/config/domains'
 import { zMembershipRole } from '@/lib/validation/enums'
 import { resolveViewer } from './resolve-viewer'
 import { ownsBusiness } from './viewer-authority'
+import { grantBusinessMembership } from './membership-grant-service'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 
 const DOMAIN_KEYS = DOMAINS.map((domain) => domain.key)
@@ -26,6 +27,10 @@ const zMembershipInvite = z.object({
   businessId: z.string().min(1),
   identifier: z.string().trim().min(1),
   domainKeys: z.array(z.enum(DOMAIN_KEYS)).default([]),
+  // @req FR-191 — optional here and mandatory on every *withdrawal*
+  // (ADR-077 D2). Granting access to a colleague is routine and self-evident
+  // from the roster; taking it away is the act an access review asks about.
+  reason: z.string().trim().max(500).optional(),
 })
 
 function parseDomainKeys(json) {
@@ -233,28 +238,24 @@ export async function addBusinessMembership(input, { db = prisma, resolve = reso
     throw error
   }
 
-  const created = await db.membership.create({
-    data: {
-      personId: person.id,
-      tenantId: business.tenantId,
-      businessId: business.id,
-      role: 'MEMBER',
-      status: 'ACTIVE',
-      domainKeysJson: JSON.stringify(data.domainKeys),
-    },
-  })
-  await recordAudit(db, {
-    entityType: 'MEMBERSHIP',
-    entityId: created.id,
-    action: 'MEMBERSHIP_ADDED',
-    payload: {
-      businessId: business.id,
-      personId: person.id,
-      role: 'MEMBER',
-      domainKeys: data.domainKeys,
-    },
+  // @req FR-191 — one creation path (ADR-077 D8). Authority was proved above;
+  // the row's shape, its provenance and its MEMBERSHIP_GRANTED event come from
+  // the shared grant service, so this surface and the two in project-manager
+  // cannot produce differently-shaped grants.
+  const created = await grantBusinessMembership({
+    personId: person.id,
+    tenantId: business.tenantId,
+    businessId: business.id,
+    scopeType: 'BUSINESS',
+    role: 'MEMBER',
+    domainKeys: data.domainKeys,
+    grantSource: 'ADMIN',
+    reason: data.reason ?? null,
     actorId: viewer.principal.id,
-  })
+    // FR-038's history is keyed to this action name; the shared service emits
+    // it instead of a second event beside its own.
+    action: 'MEMBERSHIP_ADDED',
+  }, { db })
   // Shaped exactly like a `listUserPermissions` row, so the page can render the
   // result without a second row shape to keep in step. No `email`, for the same
   // reason the list omits it.

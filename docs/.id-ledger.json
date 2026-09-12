@@ -118,6 +118,7 @@
     "BR-030",
     "BR-031",
     "BR-032",
+    "BR-033",
     "FR-001",
     "FR-002",
     "FR-003",
@@ -308,6 +309,8 @@
     "FR-188",
     "FR-189",
     "FR-190",
+    "FR-191",
+    "FR-192",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -421,6 +424,7 @@
     "SDD-089",
     "SDD-090",
     "SDD-091",
+    "SDD-092",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -446,6 +450,7 @@
     "SEC-023",
     "SEC-024",
     "SEC-025",
+    "SEC-026",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -472,6 +477,7 @@
     "FEAT-024",
     "FEAT-025",
     "FEAT-026",
+    "FEAT-027",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -636,6 +642,7 @@
     "ADR-074",
     "ADR-075",
     "ADR-076",
+    "ADR-077",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -1069,6 +1076,19 @@
       ],
       "statement_digest_reviewed_at": "2026-09-10",
       "statement_digest_reason": "Same correction as FR-177: the FlowAccount item code is stored as Product.flowAccountSku, unique per Tenant, rather than as an installation-unique ExternalRef row. The rule itself is unchanged — the code is an external identifier, an attribute and never a key."
+    },
+    "BR-033": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "0d5abb6ff7153207c914fcdc19bc079715d5bf71236b32c63701abe85d85c11a",
+      "history": [
+        {
+          "anchor": "a grant is withdrawn only by an explicit act that records",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
     },
     "FR-001": {
       "family": "FR",
@@ -3627,6 +3647,32 @@
         }
       ]
     },
+    "FR-191": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "87bfd12ee4349b4c3950859d040f2a5c164338f297925525cca35f3335ac826e",
+      "history": [
+        {
+          "anchor": "an access grant can be withdrawn by a named person for a",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-192": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b29c94a25d51f63f30f56222f02d30d594b2cefbf9a8b725a99b6feeb7462723",
+      "history": [
+        {
+          "anchor": "the scope of a grant is a declared value never the meaning",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -5118,6 +5164,19 @@
         }
       ]
     },
+    "SDD-092": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "87aa3d5366aca76c95207134c687bcc31fd2a515596d8214c6ee512c758531e9",
+      "history": [
+        {
+          "anchor": "authorization invariants are held by the database not by",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -5449,6 +5508,19 @@
         {
           "anchor": "device credential and evidence download boundary failing",
           "since": "2026-09-03",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-026": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4e8b3d40db08c464d54bff0bad4232ecf72698e12eea426dd9d2b7503b534993",
+      "history": [
+        {
+          "anchor": "erasure is downstream of offboarding and never a substitute",
+          "since": "2026-09-12",
           "reason": "declared"
         }
       ]
@@ -5815,6 +5887,19 @@
       ],
       "statement_digest_reviewed_at": "2026-09-10",
       "statement_digest_reason": "Owner approved ADR-075 on 2026-09-11; FEAT-026 statement changed only its status wording from proposed to approved, subject unchanged"
+    },
+    "FEAT-027": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "6e915d37882b56c092a48f914419cc390b11659f39f1470eb3f854f044826247",
+      "history": [
+        {
+          "anchor": "access grant lifecycle",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
     },
     "RSK-001": {
       "family": "RSK",
@@ -7969,6 +8054,19 @@
       "history": [
         {
           "anchor": "erp canonical organizational hierarchy and scope vocabulary",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-077": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md",
+      "status": "current",
+      "statement_digest": "26b079ca1f7b425c7e2e3dff0bed41e8aeb18981b0f86389a8af3a0798592448",
+      "history": [
+        {
+          "anchor": "membership is a grant with a lifecycle not a membership fact",
           "since": "2026-09-12",
           "reason": "declared"
         }
