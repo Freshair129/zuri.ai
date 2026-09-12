@@ -11,6 +11,25 @@ on:
   pull_request:
   push:
     branches: [main]
+  # 02:00 Asia/Bangkok. A full e2e run on `main`, on a clock rather than on a
+  # commit.
+  #
+  # What this does NOT exist for: "specs the selector never picks would never
+  # run". They do — a push to `main` sets `forceAll` and runs every spec, so
+  # each merge already exercises the whole suite.
+  #
+  # It exists for the failures that arrive with no commit at all: a Playwright
+  # browser build refreshed under a restored cache, a `windows-latest` runner
+  # image rolled forward, a transitive dependency republished. Those land
+  # between merges and, on a quiet week, would first be seen by whoever opens
+  # the next pull request — who would reasonably read it as their own breakage.
+  # A dated nightly result says whether `main` was already red.
+  #
+  # Only `e2e` runs here; `verify` is skipped below, because nothing it checks
+  # (tests, build, the governance chain, the freshness gates) can change while
+  # the tree does not.
+  schedule:
+    - cron: '0 19 * * *'
 
 jobs:
   # Which parts of the tree changed. The e2e suite takes 7-8 minutes and cannot
@@ -44,6 +63,16 @@ jobs:
         shell: bash
         run: |
           set -uo pipefail
+          # A scheduled run has no diff to classify — there is no new commit,
+          # which is the whole point of it. It would reach the same answer by
+          # accident (`github.event.before` is empty on a schedule, and the
+          # no-usable-base case below fails open), but an accident is not a
+          # decision: say it here so the log states the reason.
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "scheduled run — exercising the full suite against main"
+            echo "code=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             base='${{ github.event.pull_request.base.sha }}'
             head='${{ github.event.pull_request.head.sha }}'
@@ -81,6 +110,11 @@ jobs:
           fi
 
   verify:
+    # The nightly run is about the environment, not the tree: on a schedule the
+    # commit is whatever `main` already merged and verified, so re-running the
+    # tests, the build and the governance chain would spend ~14 minutes to
+    # re-derive an answer that is committed in the repository.
+    if: github.event_name != 'schedule'
     # windows-latest, not ubuntu: `src/modules/project-manager/local-files/`
     # hardcodes `path.win32` in three files, deliberately — mounted-root
     # containment has to reason about drive letters, UNC paths and
@@ -173,7 +207,31 @@ jobs:
     # Skipped when the diff touches only `docs/` and `.brain/` — see the
     # `changes` job for why that decision is safe in the direction it fails.
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    # NOT on pull requests, by decision (2026-09-12).
+    #
+    # e2e has never been a required check — branch protection asks for
+    # `changes`, `verify` and `edge-verify` — so on a pull request it could
+    # only ever inform, never gate. What it actually did was take 24 and 41
+    # minutes on two concurrent PRs, long enough that both were cancelled by
+    # hand before finishing. A check nobody waits for is not a check.
+    #
+    # Making it *targeted* does not rescue it either, and the numbers say why:
+    # the warm-up alone measured 918s on windows-latest (recorded in
+    # tests/e2e/warmup.setup.js), so even a run of three specs cannot finish
+    # much under twenty minutes. The cost is the environment, not the specs.
+    #
+    # So the suite moves to where a slow honest answer is still useful: every
+    # push to `main`, which already forces the full run, plus the nightly
+    # schedule above. A break is therefore caught just after the merge that
+    # caused it rather than just before — accepted deliberately, because the
+    # alternative on offer was not "caught earlier" but "cancelled".
+    #
+    # Consequence worth stating: with PRs excluded, both remaining triggers
+    # force the full suite, so the selective mapping in
+    # `scripts/ci-select-e2e.mjs` no longer narrows anything in CI. It stays
+    # because `npm run test:e2e:changed` — the local loop this was really
+    # costing — is now its main consumer.
+    if: github.event_name != 'pull_request' && needs.changes.outputs.code == 'true'
     # windows-latest, not ubuntu: `src/modules/project-manager/local-files/`
     # hardcodes `path.win32` in three files, deliberately — mounted-root
     # containment has to reason about drive letters, UNC paths and
@@ -221,8 +279,15 @@ jobs:
           else
             changed=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || true)
           fi
+          # `--all` on a schedule, stated rather than inferred. The selector
+          # also forces everything when GITHUB_REF is refs/heads/main, which a
+          # scheduled run happens to satisfy — but that coupling is invisible
+          # here, and a future change to the default branch's ref handling
+          # should not quietly turn the nightly run into a targeted one.
+          select_args=''
+          if [ "${{ github.event_name }}" = "schedule" ]; then select_args='--all'; fi
           echo "Determining impacted e2e targets from changed files..."
-          printf '%s\n' "$changed" | node scripts/ci-select-e2e.mjs >> "$GITHUB_OUTPUT"
+          printf '%s\n' "$changed" | node scripts/ci-select-e2e.mjs $select_args >> "$GITHUB_OUTPUT"
 
       - name: Run targeted end-to-end tests
         if: steps.select-e2e.outputs.skip != 'true'
