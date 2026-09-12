@@ -84,7 +84,7 @@ describe('FR-074 scope creation authorization', () => {
       expect(await prisma.tenant.count()).toBe(tenantsBefore)
 
       const entityError = await refusalFrom(() =>
-        createLegalEntity({ portfolioId: portfolio.id, legalName: 'No Ltd', code: 'LE-AZS-NO' }, { viewer: businessOwner }),
+        createLegalEntity({ tenantId: tenant.id, legalName: 'No Ltd', code: 'LE-AZS-NO' }, { viewer: businessOwner }),
       )
       expect(entityError.status).toBe(403)
 

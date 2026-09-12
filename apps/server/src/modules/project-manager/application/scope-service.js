@@ -4,6 +4,7 @@ import {
   zPortfolioInput,
   zTenantInput,
   zLegalEntityInput,
+  zTaxRegistrationBranchInput,
   zBusinessInput,
   zBusinessInGroupInput,
   zBranchInput,
@@ -123,16 +124,26 @@ export async function createTenant(input, { viewer } = {}) {
   return tenant
 }
 
+/**
+ * @req FR-194 — a LegalEntity now sits under Tenant, not Portfolio (ADR-078
+ * D1). What did NOT change here is who may create one: it stays an operator
+ * primitive. ADR-078 only repairs the isolation defect (a LegalEntity used to
+ * carry no Tenant at all); it does not decide that Tenant ownership should be
+ * enough authority to mint a legal entity, and widening that without an
+ * explicit decision is exactly the kind of authority creep this repository's
+ * ADRs exist to name rather than slip in quietly.
+ */
 export async function createLegalEntity(input, { viewer } = {}) {
   const data = zLegalEntityInput.parse(input)
-  // @req FR-075 — a LegalEntity hangs off a Portfolio, above every Tenant.
+  // @req FR-075 — unchanged: a LegalEntity is installation-controlled master
+  // data, not a self-service write.
   assertOperator(viewer, 'Creating a LegalEntity')
   const code = data.code || (await uniqueHumanCode('LE', data.legalName, codeExists('legalEntity')))
   const entity = await prisma.legalEntity.create({
     data: {
       code,
       legalName: data.legalName,
-      portfolioId: data.portfolioId,
+      tenantId: data.tenantId,
       identifiers: data.identifiers
         ? { create: data.identifiers.map((i) => ({ country: i.country || 'TH', type: i.type, value: i.value })) }
         : undefined,
@@ -143,6 +154,40 @@ export async function createLegalEntity(input, { viewer } = {}) {
   return entity
 }
 
+/**
+ * @req FR-194 — one of a LegalEntity's own VAT branch registrations
+ * (ประมวลรัษฎากร ม.86, ภ.พ.20). Authorized the same way as the LegalEntity it
+ * hangs off: a Tenant-scoped record, so Tenant ownership is what governs it —
+ * unlike LegalEntity creation itself (kept operator-only above), registering
+ * an *additional* branch of an entity the Tenant's owner already administers
+ * is the same authority `createBranch` already grants for an operating site.
+ */
+export async function createTaxRegistrationBranch(input, { viewer } = {}) {
+  const data = zTaxRegistrationBranchInput.parse(input)
+  const legalEntity = await prisma.legalEntity.findUnique({
+    where: { id: data.legalEntityId },
+    select: { id: true, tenantId: true },
+  })
+  if (!legalEntity) throw refusal(404, 'LegalEntity not found')
+  requireViewer(viewer, 'createTaxRegistrationBranch')
+  if (!ownsTenant(viewer, legalEntity.tenantId)) throw refusal(404, 'LegalEntity not found')
+  const branch = await prisma.taxRegistrationBranch.create({
+    data: {
+      legalEntityId: data.legalEntityId,
+      branchCode: data.branchCode,
+      name: data.name,
+      address: data.address,
+    },
+  })
+  await recordAudit(prisma, {
+    entityType: 'TAX_REGISTRATION_BRANCH',
+    entityId: branch.id,
+    action: 'CREATED',
+    payload: { legalEntityId: data.legalEntityId, branchCode: data.branchCode },
+  })
+  return branch
+}
+
 export async function createBusiness(input, { viewer } = {}) {
   const data = zBusinessInput.parse(input)
   // @req FR-074(b) — a Business is created *inside* a Tenant, so the Tenant is
@@ -150,6 +195,15 @@ export async function createBusiness(input, { viewer } = {}) {
   // refusal cannot be used to discover which Tenant ids exist.
   requireViewer(viewer, 'createBusiness')
   if (!ownsTenant(viewer, data.tenantId)) throw refusal(404, 'Tenant not found')
+  // @req FR-194 — a Business may only reference a LegalEntity in its own
+  // Tenant. The Supabase migration holds this as a composite FK for Postgres
+  // (ADR-078 D1); SQLite has no compound-FK equivalent for `prisma db push` to
+  // enforce, so this check is what makes the invariant real in dev and tests
+  // too, not only in production.
+  if (data.legalEntityId) {
+    const legalEntity = await prisma.legalEntity.findUnique({ where: { id: data.legalEntityId }, select: { tenantId: true } })
+    if (!legalEntity || legalEntity.tenantId !== data.tenantId) throw refusal(422, 'LEGAL_ENTITY_TENANT_MISMATCH')
+  }
   const code = data.code || (await uniqueHumanCode('BUS', data.name, codeExists('business')))
   const business = await prisma.business.create({
     data: {
@@ -276,7 +330,15 @@ export async function createBranch(input, { viewer } = {}) {
   }
   const code = data.code || (await uniqueHumanCode('BR', data.name, codeExists('branch')))
   const branch = await prisma.branch.create({
-    data: { code, name: data.name, tenantId: data.tenantId, businessId: data.businessId },
+    data: {
+      code,
+      name: data.name,
+      tenantId: data.tenantId,
+      businessId: data.businessId,
+      // @req FR-194 — defaults to SITE at the schema level too; passed through
+      // explicitly here only when the caller names one.
+      ...(data.kind ? { kind: data.kind } : {}),
+    },
   })
   await recordAudit(prisma, { entityType: 'BRANCH', entityId: branch.id, action: 'CREATED', payload: { code } })
   return branch

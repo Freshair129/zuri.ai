@@ -14,6 +14,8 @@ import {
   zWorkspaceScopeType,
   zConversationAnalysisContactType,
   zConversationAnalysisState,
+  zBranchKind,
+  zEmploymentType,
 } from './enums'
 
 const zDate = z.coerce.date()
@@ -32,9 +34,11 @@ export const zTenantInput = z.object({
   status: z.string().optional(),
 })
 
+// @req FR-194 — LegalEntity sits under Tenant, not Portfolio (ADR-078 D1): a
+// Business may only reference a LegalEntity in its own Tenant.
 export const zLegalEntityInput = z.object({
   code: z.string().min(1).optional(),
-  portfolioId: z.string().min(1),
+  tenantId: z.string().min(1),
   legalName: z.string().min(1),
   identifiers: z
     .array(
@@ -45,6 +49,15 @@ export const zLegalEntityInput = z.object({
       })
     )
     .optional(),
+})
+
+// @req FR-194 — one of the legal entity's own VAT branch registrations
+// (ประมวลรัษฎากร ม.86, ภ.พ.20). `00000` is head office.
+export const zTaxRegistrationBranchInput = z.object({
+  legalEntityId: z.string().min(1),
+  branchCode: z.string().regex(/^[0-9]{5}$/, 'branchCode must be 5 digits'),
+  name: z.string().min(1),
+  address: z.string().min(1),
 })
 
 export const zBusinessInput = z.object({
@@ -189,6 +202,22 @@ export const zBranchInput = z.object({
   tenantId: z.string().min(1),
   businessId: z.string().min(1),
   name: z.string().min(1),
+  // @req FR-194 — what the Branch IS; defaults to SITE so every call site that
+  // predates this column keeps creating exactly what it created before.
+  kind: zBranchKind.optional(),
+})
+
+// @req FR-193 — Employment is an HR assignment, never an access grant
+// (ADR-078 D1); nothing here resembles a role or a domain key.
+export const zEmploymentInput = z.object({
+  personId: z.string().min(1),
+  tenantId: z.string().min(1),
+  businessId: z.string().min(1),
+  branchId: z.string().min(1).nullish(),
+  employeeNo: z.string().min(1).nullish(),
+  title: z.string().min(1).nullish(),
+  employmentType: zEmploymentType.optional(),
+  startAt: z.coerce.date().nullish(),
 })
 
 export const zWorkspaceInput = z.object({

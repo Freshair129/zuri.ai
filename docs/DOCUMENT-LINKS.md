@@ -603,6 +603,7 @@ Backlinks:
 - [ADR-023 — Agent vault: private epistemic memory, and why it is not the doc-graph](decisions/ADR-023-AGENT-VAULT-AND-EPISTEMIC-MEMORY.md) (references)
 - [ADR-033 — Customer scope and Product Owner authority](decisions/ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY.md) (references)
 - [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md) (references)
+- [ADR-078 — Employment is not Membership, and a legal entity lives inside a Tenant](decisions/ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY.md) (references)
 - [ADR-030 — Supabase data pipeline observability and replay](decisions/ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY.md) (relates)
 
 ## ADR-020 — Controlled LINE binding activation and receipt
@@ -682,6 +683,7 @@ Backlinks:
 - [ADR-054 — The Legacy ERD Is Prior Art for CRM Conversation Intelligence](decisions/ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md) (references)
 - [ADR-055 — Asset Management is a first-class Zuri domain for the physical asset lifecycle](decisions/ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY.md) (references)
 - [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md) (references)
+- [ADR-078 — Employment is not Membership, and a legal entity lives inside a Tenant](decisions/ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY.md) (references)
 - [Document link metadata](GOVERNANCE-LINK-METADATA.md) (relates)
 - [ADR-026 — Agent Topology for the Visual Office](decisions/ADR-026-AGENT-TOPOLOGY-FOR-THE-VISUAL-OFFICE.md) (relates)
 - [ADR-028 — Human-visible execution roadmap and shared plan intake](decisions/ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md) (relates)
@@ -918,6 +920,7 @@ Source: [ADR-037 — Team is an organisational grouping, never an authority](dec
 Backlinks:
 
 - [Marketing — Multi-agent Team & Refinement](change-requests/marketing/MARKETING-TEAM-REFINEMENT.md) (references)
+- [ADR-078 — Employment is not Membership, and a legal entity lives inside a Tenant](decisions/ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY.md) (references)
 
 ## ADR-038 — Market Intelligence is a first-class Zuri domain inside the Modular Monolith
 
@@ -1666,6 +1669,18 @@ Backlinks:
 
 - [FR-191 — Access grant lifecycle](domains/identity/features/FR-191-access-grant-lifecycle.md) (references)
 - [FR-192 — Membership scope grammar and referential invariants](domains/identity/features/FR-192-membership-scope-grammar.md) (references)
+- [ADR-078 — Employment is not Membership, and a legal entity lives inside a Tenant](decisions/ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY.md) (relates)
+
+## ADR-078 — Employment is not Membership, and a legal entity lives inside a Tenant
+
+Source: [ADR-078 — Employment is not Membership, and a legal entity lives inside a Tenant](decisions/ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY.md)
+
+- references: [FR-193 — Employment: an HR record separate from the access grant](domains/project-manager/features/FR-193-employment-record.md)
+- references: [FR-194 — LegalEntity under Tenant, and TaxRegistrationBranch split from Branch](domains/project-manager/features/FR-194-legal-entity-and-tax-branch.md)
+- references: [ADR-018 — Supabase production tenant isolation](decisions/ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION.md)
+- references: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
+- references: [ADR-037 — Team is an organisational grouping, never an authority](decisions/ADR-037-TEAM-IS-AN-ORGANISATIONAL-GROUPING-NOT-AN-AUTHORITY.md)
+- relates: [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 
@@ -3111,6 +3126,22 @@ Backlinks:
 - [FR-069 — Plan Blueprint and Human/Agent intake with stable references](domains/project-manager/features/FR-069-plan-blueprint-and-intake.md) (references)
 - [ADR-028 — Human-visible execution roadmap and shared plan intake](decisions/ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md) (relates)
 - [ADR-029 — Stable identity bindings for execution plans, tags, domains and supporting references](decisions/ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS.md) (relates)
+
+## FR-193 — Employment: an HR record separate from the access grant
+
+Source: [FR-193 — Employment: an HR record separate from the access grant](domains/project-manager/features/FR-193-employment-record.md)
+
+Backlinks:
+
+- [ADR-078 — Employment is not Membership, and a legal entity lives inside a Tenant](decisions/ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY.md) (references)
+
+## FR-194 — LegalEntity under Tenant, and TaxRegistrationBranch split from Branch
+
+Source: [FR-194 — LegalEntity under Tenant, and TaxRegistrationBranch split from Branch](domains/project-manager/features/FR-194-legal-entity-and-tax-branch.md)
+
+Backlinks:
+
+- [ADR-078 — Employment is not Membership, and a legal entity lives inside a Tenant](decisions/ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY.md) (references)
 
 ## ERP module map — where each module the owner names lives
 

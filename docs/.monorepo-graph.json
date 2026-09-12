@@ -5945,6 +5945,29 @@
       }
     },
     {
+      "id": "code:src/app/api/platform/users/memberships/[id]/lifecycle/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/platform/users/memberships/[id]/lifecycle/route.js",
+      "hash": "52b6f36a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-046",
+          "FR-191"
+        ],
+        "@spec": [
+          "SDD-024",
+          "SEC-008",
+          "BR-033",
+          "SEC-001",
+          "SEC-003"
+        ],
+        "@tested": [
+          "tests/integration/fr191-access-grant-lifecycle.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/platform/users/memberships/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/platform/users/memberships/route.js",
@@ -5965,6 +5988,28 @@
         "@tested": [
           "tests/unit/fr046-api-ui-contract.test.js",
           "tests/integration/fr038-business-membership-add.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/platform/users/offboard/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/platform/users/offboard/route.js",
+      "hash": "bf7567fb",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-046",
+          "FR-191"
+        ],
+        "@spec": [
+          "SDD-024",
+          "SEC-008",
+          "SEC-003",
+          "SEC-026"
+        ],
+        "@tested": [
+          "tests/integration/fr191-access-grant-lifecycle.test.js"
         ]
       }
     },
@@ -6665,7 +6710,7 @@
       "id": "code:src/app/api/scope/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/scope/route.js",
-      "hash": "83ef3646",
+      "hash": "f5ede6d1",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7771,10 +7816,12 @@
       "id": "code:src/lib/validation/entities.js",
       "type": "code_file",
       "path": "apps/server/src/lib/validation/entities.js",
-      "hash": "167fec82",
+      "hash": "df89e0ba",
       "status": "current",
       "annotations": {
         "@req": [
+          "FR-194",
+          "FR-193",
           "FR-087",
           "FR-088",
           "FR-073"
@@ -7788,13 +7835,17 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "apps/server/src/lib/validation/enums.js",
-      "hash": "b828ad30",
+      "hash": "f3517d4b",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
           "FR-087",
           "FR-111",
+          "FR-193",
+          "FR-194",
+          "FR-191",
+          "FR-192",
           "FR-133",
           "FR-134",
           "FR-135",
@@ -9268,15 +9319,18 @@
       "id": "code:src/modules/commerce/application/billing-invoice-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/commerce/application/billing-invoice-service.js",
-      "hash": "a8db7021",
+      "hash": "fa380076",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-186"
+          "FR-186",
+          "FR-194"
         ],
         "@spec": [
           "BR-001",
           "BR-002",
+          "BR-034",
+          "SDD-093",
           "SEC-001"
         ],
         "@tested": [
@@ -9329,11 +9383,12 @@
       "id": "code:src/modules/commerce/application/pos-cashier-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/commerce/application/pos-cashier-service.js",
-      "hash": "6eed4de7",
+      "hash": "be644e73",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-183"
+          "FR-183",
+          "FR-194"
         ],
         "@spec": [
           "BR-001",
@@ -9388,11 +9443,12 @@
       "id": "code:src/modules/commerce/components/BillingWorkspace.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/commerce/components/BillingWorkspace.jsx",
-      "hash": "5f3f478d",
+      "hash": "57ed497c",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-186"
+          "FR-186",
+          "FR-194"
         ],
         "@spec": [
           "BR-001",
@@ -9448,11 +9504,12 @@
       "id": "code:src/modules/commerce/domain/billing.js",
       "type": "code_file",
       "path": "apps/server/src/modules/commerce/domain/billing.js",
-      "hash": "5ffed4a2",
+      "hash": "1a72795f",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-186"
+          "FR-186",
+          "FR-194"
         ],
         "@spec": [
           "BR-001",
@@ -9756,14 +9813,15 @@
       "id": "code:src/modules/identity/auth-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/auth-service.js",
-      "hash": "77836ff8",
+      "hash": "36fca334",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-046",
           "FR-095",
           "FR-120",
-          "FR-104"
+          "FR-104",
+          "FR-191"
         ],
         "@spec": [
           "SDD-024",
@@ -9784,7 +9842,7 @@
       "id": "code:src/modules/identity/authorization-context.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/authorization-context.js",
-      "hash": "57e6fc4c",
+      "hash": "b0f95249",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9985,12 +10043,13 @@
       "id": "code:src/modules/identity/erase-principal.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/erase-principal.js",
-      "hash": "2e873de4",
+      "hash": "17c37e11",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-022",
-          "FR-095"
+          "FR-095",
+          "FR-191"
         ],
         "@spec": [
           "SEC-003"
@@ -10076,6 +10135,49 @@
         ],
         "@tested": [
           "tests/unit/fr046-auth-route.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/membership-grant-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/identity/membership-grant-service.js",
+      "hash": "e2181a9f",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-191",
+          "FR-192"
+        ],
+        "@spec": [
+          "BR-033",
+          "SEC-003",
+          "SDD-092"
+        ],
+        "@tested": [
+          "tests/unit/membership-grant-service.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/membership-lifecycle-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/identity/membership-lifecycle-service.js",
+      "hash": "788b3d08",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-191"
+        ],
+        "@spec": [
+          "BR-033",
+          "SEC-003",
+          "SEC-026",
+          "SDD-092",
+          "NFR-019"
+        ],
+        "@tested": [
+          "tests/unit/membership-lifecycle-service.test.js"
         ]
       }
     },
@@ -10293,11 +10395,12 @@
       "id": "code:src/modules/identity/profile-permission-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/profile-permission-service.js",
-      "hash": "414c655a",
+      "hash": "50577eee",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-038",
+          "FR-191",
           "FR-062"
         ],
         "@spec": [
@@ -10319,11 +10422,12 @@
       "id": "code:src/modules/identity/rbac-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/rbac-service.js",
-      "hash": "a209f04a",
+      "hash": "be6ca6e1",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-076"
+          "FR-076",
+          "FR-193"
         ],
         "@tested": [
           "tests/unit/fr076-product-owner-business-assignment.test.js"
@@ -10400,13 +10504,15 @@
       "id": "code:src/modules/identity/resolve-viewer.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/resolve-viewer.js",
-      "hash": "7ae264ce",
+      "hash": "54e8a0be",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-031",
           "FR-038",
           "FR-061",
+          "FR-192",
+          "FR-191",
           "FR-076",
           "SDD-034",
           "FR-074",
@@ -10417,7 +10523,8 @@
           "FR-031",
           "ADR-008 §D4, docs/features/FR-031-viewer-gate.md",
           "SDD-017",
-          "SDD-034"
+          "SDD-034",
+          "BR-033"
         ],
         "@tested": [
           "tests/unit/viewer-gate.test.js",
@@ -10573,11 +10680,12 @@
       "id": "code:src/modules/identity/viewer-domains.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/viewer-domains.js",
-      "hash": "bc65fe05",
+      "hash": "e8fa962f",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-061"
+          "FR-061",
+          "FR-192"
         ],
         "@spec": [
           "SDD-034",
@@ -14126,18 +14234,40 @@
       }
     },
     {
+      "id": "code:src/modules/people/application/employment-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/people/application/employment-service.js",
+      "hash": "288e5d74",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-193"
+        ],
+        "@spec": [
+          "BR-034",
+          "SDD-093"
+        ],
+        "@tested": [
+          "tests/integration/fr193-employment-lifecycle.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/people/application/people-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/people/application/people-service.js",
-      "hash": "0e13bdf2",
+      "hash": "df7b41a5",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
+          "FR-193",
           "FR-061"
         ],
         "@spec": [
           "BR-001",
+          "BR-034",
+          "SDD-093",
           "SEC-003"
         ],
         "@tested": [
@@ -14150,11 +14280,12 @@
       "id": "code:src/modules/people/components/PeopleDirectory.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/people/components/PeopleDirectory.jsx",
-      "hash": "e68b5fb0",
+      "hash": "b1e10f1f",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-042"
+          "FR-042",
+          "FR-193"
         ],
         "@spec": [
           "SDD-020"
@@ -14322,7 +14453,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "888138ef",
+      "hash": "62596ec6",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14356,6 +14487,7 @@
           "FR-109",
           "FR-106",
           "FR-038",
+          "FR-191",
           "FR-123",
           "FR-097"
         ],
@@ -14411,7 +14543,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
-      "hash": "b408d85d",
+      "hash": "2060d089",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14422,11 +14554,13 @@
           "FR-078",
           "FR-045",
           "FR-075",
+          "FR-194",
           "FR-186",
           "FR-081",
           "FR-092",
           "FR-146",
           "FR-153",
+          "FR-193",
           "FR-090",
           "FR-095",
           "FR-107",
@@ -14898,11 +15032,12 @@
       "id": "code:src/modules/project-manager/application/project-team-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/project-team-service.js",
-      "hash": "fbaeef92",
+      "hash": "e6c1a99f",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-036"
+          "FR-036",
+          "FR-191"
         ],
         "@spec": [
           "SDD-015",
@@ -14970,7 +15105,7 @@
       "id": "code:src/modules/project-manager/application/scope-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/scope-service.js",
-      "hash": "7942a090",
+      "hash": "0b2a7d77",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14979,7 +15114,9 @@
           "FR-074",
           "FR-075",
           "BR-001",
-          "FR-020"
+          "FR-194",
+          "FR-020",
+          "FR-191"
         ],
         "@spec": [
           "BR-001",
@@ -16512,7 +16649,7 @@
       "title": "Appendix A — API Specification",
       "version": "1.61.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "5870a82c",
+      "hash": "640bbf74",
       "status": "current"
     },
     {
@@ -16564,9 +16701,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.34.0b",
+      "version": "1.35.0b",
       "doc_status": "Draft",
-      "hash": "f35caeca",
+      "hash": "a7400dbd",
       "status": "current"
     },
     {
@@ -16946,7 +17083,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.36.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "4d6130a5",
+      "hash": "a022e42d",
       "status": "current"
     },
     {
@@ -17949,6 +18086,46 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-191-access-grant-lifecycle",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-191-access-grant-lifecycle.md",
+      "title": "FR-191 — Access grant lifecycle",
+      "version": "1.0.0",
+      "doc_status": "Declared (2026-09-12) — implemented by [ADR-077](../../../decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md) D1/D2/D6/D8",
+      "hash": "98833e65",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-192-membership-scope-grammar",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-192-membership-scope-grammar.md",
+      "title": "FR-192 — Membership scope grammar and referential invariants",
+      "version": "1.0.0",
+      "doc_status": "Declared (2026-09-12) — implemented by [ADR-077](../../../decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md) D3/D4/D5",
+      "hash": "affaca15",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-193-employment-record",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-193-employment-record.md",
+      "title": "FR-193 — Employment: an HR record separate from the access grant",
+      "version": "1.0.0",
+      "doc_status": "Implemented",
+      "hash": "1940b6d7",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-194-legal-entity-and-tax-branch",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-194-legal-entity-and-tax-branch.md",
+      "title": "FR-194 — LegalEntity under Tenant, and TaxRegistrationBranch split from Branch",
+      "version": "1.0.0",
+      "doc_status": "Implemented",
+      "hash": "1690cce3",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -18583,7 +18760,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.184.0b",
       "doc_status": "Draft",
-      "hash": "e5c6c156",
+      "hash": "a055f4ee",
       "status": "current"
     },
     {
@@ -18619,7 +18796,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "852d2ab4",
+      "hash": "25e462f7",
       "status": "current"
     },
     {
@@ -18970,6 +19147,7 @@
         "ExternalIdentity",
         "IdentityLinkToken",
         "ExternalRef",
+        "Membership",
         "RoleBinding",
         "PersonCredential",
         "PasswordResetToken",
@@ -19002,7 +19180,7 @@
       "modules": [
         "identity"
       ],
-      "hash": "bdccd952",
+      "hash": "82e69fcc",
       "status": "current"
     },
     {
@@ -19245,8 +19423,10 @@
         "Tenant",
         "LegalEntity",
         "LegalEntityIdentifier",
+        "TaxRegistrationBranch",
         "Business",
         "Branch",
+        "Employment",
         "Workspace",
         "Project",
         "BusinessRoadmap",
@@ -19268,7 +19448,6 @@
         "LocalWorkspaceMount",
         "FileAsset",
         "FileLink",
-        "Membership",
         "AuditEvent",
         "PlanImportReceipt"
       ],
@@ -19288,7 +19467,7 @@
         "business",
         "people"
       ],
-      "hash": "6b25bc0a",
+      "hash": "28376287",
       "status": "current"
     },
     {
@@ -19474,6 +19653,20 @@
       "status": "current"
     },
     {
+      "id": "feat:FEAT-027",
+      "type": "feature",
+      "label": "Access Grant Lifecycle — making a `Membership` a withdrawable grant rather than a membership fact: provenance and an end on the row, suspend/reinstate/revoke/offboard services with mandatory reasons and last-owner guards, an explicit scope grammar shared with `RoleBinding`, referential invariants moved from application convention into the database, erasure refusing while grants are live, one writer in identity, and an `unreachable-state` preflight check so a declared state that nothing writes fails the build (ADR-077, 2026-09-12)",
+      "declared": "declared",
+      "status": "current"
+    },
+    {
+      "id": "feat:FEAT-028",
+      "type": "feature",
+      "label": "Org Employment & Legal Entity — separating \"who works here\" from \"who may log in here\": a new `Employment` HR assignment record (title, type, lifecycle status) that `resolveViewer` never reads, with system access shown as a column derived FROM `Membership` rather than the reverse; and moving `LegalEntity` from `Portfolio` to `Tenant` so a Business can only reference a legal entity within its own isolation boundary, splitting its VAT branch registrations into `TaxRegistrationBranch` so an operating site (a warehouse, say) is never asked to carry a tax identity it does not have (ADR-078, 2026-09-12)",
+      "declared": "implemented",
+      "status": "current"
+    },
+    {
       "id": "model:AgentTraceEvent",
       "type": "model",
       "status": "current"
@@ -19630,6 +19823,11 @@
     },
     {
       "id": "model:EdgeDeviceCredential",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Employment",
       "type": "model",
       "status": "current"
     },
@@ -20154,6 +20352,11 @@
       "status": "current"
     },
     {
+      "id": "model:TaxRegistrationBranch",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:Team",
       "type": "model",
       "status": "current"
@@ -20522,6 +20725,26 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "A tradeable finished set carries the FlowAccount normalized item code — `^[A-Z0-9]+-[0-9]+\\([A-Z0-9_-]+\\)$`: factory model, item count, package code (`TMS06-4(P-16)` is a four-item set in box P-16) — and a kitting work order is refused when its output has none, or one that does not match. The code is an **external** identifier and is stored as an attribute, never a key (BR-002): `Product.flowAccountSku`, unique per `(tenantId, flowAccountSku)`. It is not `Product.code`, whose FR-154 pattern deliberately has no room for parentheses, and not an `ExternalRef` row, because that table is unique installation-wide and two Tenants may legitimately sell a set the same factory model names. Components and packaging carry no such code at all, because they are never synchronised to FlowAccount. FR-177; ADR-074 D5; BR-002 "
+    },
+    {
+      "id": "req:BR-033",
+      "type": "requirement",
+      "family": "BR",
+      "label": "A grant is withdrawn only by an explicit act that records who withdrew it and why. No referential action, cascade or other database side effect may change the scope of a grant, and none may widen one: a parent row whose deletion would reshape a grant must be refused until the grant is withdrawn. A status vocabulary that a resolver branches on must have a service that writes each of its values — a read filter over a column nothing writes is not an implemented control.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "A grant is withdrawn only by an explicit act that records who withdrew it and why. No referential action, cascade or other database side effect may change the scope of a grant, and none may widen one: a parent row whose deletion would reshape a grant must be refused until the grant is withdrawn. A status vocabulary that a resolver branches on must have a service that writes each of its values — a read filter over a column nothing writes is not an implemented control. FR-191, FR-192; ADR-077 D2/D4/D7; `.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md` "
+    },
+    {
+      "id": "req:BR-034",
+      "type": "requirement",
+      "family": "BR",
+      "label": "An HR assignment record and an access grant are two different facts and neither derives the other. Ending an Employment writes no change to any Membership row, and revoking a Membership writes no change to any Employment row; an owner who wants both performs both acts, each separately audited. A LegalEntity is owned by exactly one Tenant, and a Business may reference a LegalEntity only within its own Tenant — no ancestor's deletion or update may cross that boundary. A VAT branch code belongs to the legal entity's own tax registration, never to an operating site; a site may exist, and issue every document type that does not require one, with no tax registration linked at all.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "An HR assignment record and an access grant are two different facts and neither derives the other. Ending an Employment writes no change to any Membership row, and revoking a Membership writes no change to any Employment row; an owner who wants both performs both acts, each separately audited. A LegalEntity is owned by exactly one Tenant, and a Business may reference a LegalEntity only within its own Tenant — no ancestor's deletion or update may cross that boundary. A VAT branch code belongs to the legal entity's own tax registration, never to an operating site; a site may exist, and issue every document type that does not require one, with no tax registration linked at all. FR-193, FR-194; ADR-078 D1, D2 "
     },
     {
       "id": "req:FR-001",
@@ -22424,6 +22647,46 @@
       "row_text": "Server-owned LINE transport reports its own reachability, so a silent channel is visible instead of inferred — for every LineOaAccount with serverEnabled the server derives the age of the last inbound delivery it recorded (from existing Integration evidence and LineConversationJob rows; no new column, no migration) and classifies it OK, QUIET or SILENT against configurable thresholds, and separately asks LINE for the channel configured webhook endpoint and compares it with this deployment own account route, classifying MATCHED, MISMATCHED, DISABLED or UNKNOWN. GET /api/line-oa/accounts/{id}/transport-health answers states, timestamps and durations only — never channel credentials and never the other endpoint contents — the LINE OA console shows the state beside the account, and the existing server worker tick logs one structured warning per account while a state is not OK. Read-only: no writes, no new process, and no automatic change to provider configuration. 🟠 implemented locally 2026-09-12 (owner thresholds 6h/24h, hourly endpoint probe, paused accounts excluded) — `line-oa-studio/domain/transport-health.js` (pure classifiers), `application/line-transport-health.js` (read plus hourly-cached probe and a sweep), `GET /api/line-oa/accounts/{id}/transport-health`, and the existing worker tick carries the hourly sweep; 23 unit tests. Console badge NOT built yet, so the state is reachable by API and by log line, not from the LINE OA page "
     },
     {
+      "id": "req:FR-191",
+      "type": "requirement",
+      "family": "FR",
+      "label": "An access grant can be withdrawn by a named person, for a stated reason, without destroying the evidence that it existed. `Membership` carries its own provenance (`grantedByPersonId`, `grantReason`, `grantSource`, `expiresAt`) and its own end (`revokedAt`, `revokedByPersonId`, `revokeReason`), and identity exposes `suspendMembership`, `reinstateMembership`, `revokeMembership` and `offboardPerson` — each requiring a reason, each cascading to the dependent RoleBinding rows, each refusing 409 LAST_OWNER rather than leaving a Business with no live owner. A revoked grant is never deleted; a partial unique index excludes it so the same scope can be granted again as a new row. `resolveViewer` additionally denies a grant past its `expiresAt`. Authority is `ownsBusiness` for a BUSINESS-scoped grant and `ownsTenant` for a TENANT-scoped one, which makes the broadest grant in the system administrable for the first time. `Membership` is written only from `src/modules/identity/`, enforced by a preflight ratchet.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "An access grant can be withdrawn by a named person, for a stated reason, without destroying the evidence that it existed. `Membership` carries its own provenance (`grantedByPersonId`, `grantReason`, `grantSource`, `expiresAt`) and its own end (`revokedAt`, `revokedByPersonId`, `revokeReason`), and identity exposes `suspendMembership`, `reinstateMembership`, `revokeMembership` and `offboardPerson` — each requiring a reason, each cascading to the dependent RoleBinding rows, each refusing 409 LAST_OWNER rather than leaving a Business with no live owner. A revoked grant is never deleted; a partial unique index excludes it so the same scope can be granted again as a new row. `resolveViewer` additionally denies a grant past its `expiresAt`. Authority is `ownsBusiness` for a BUSINESS-scoped grant and `ownsTenant` for a TENANT-scoped one, which makes the broadest grant in the system administrable for the first time. `Membership` is written only from `src/modules/identity/`, enforced by a preflight ratchet. 🔜 declared 2026-09-12 — ADR-077 D1/D2/D8; closes the defect class in `.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md` "
+    },
+    {
+      "id": "req:FR-192",
+      "type": "requirement",
+      "family": "FR",
+      "label": "The scope of a grant is a declared value, never the meaning of a null, and no database side effect may change it. `Membership.scopeType` is TENANT or BUSINESS held by a CHECK against `businessId`; `RoleBinding` takes the same grammar (TENANT, BUSINESS, BRANCH), extending ADR-033 D3 rather than superseding it. `ON DELETE RESTRICT` replaces `ON DELETE SET NULL` on `Membership.businessId`, `Workspace.businessId` and `Project.businessId`, because the null that cascade wrote was read by `buildDomainsByBusiness` as every Business in the Tenant — deleting one Business promoted its members to the whole group and its owners to `ownsTenant`. Tenant ancestry becomes a database invariant via `Business UNIQUE (id, tenantId)` and composite foreign keys; one live grant per person per scope becomes two partial unique indexes; and `Membership.role` defaults to MEMBER instead of OWNER.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "The scope of a grant is a declared value, never the meaning of a null, and no database side effect may change it. `Membership.scopeType` is TENANT or BUSINESS held by a CHECK against `businessId`; `RoleBinding` takes the same grammar (TENANT, BUSINESS, BRANCH), extending ADR-033 D3 rather than superseding it. `ON DELETE RESTRICT` replaces `ON DELETE SET NULL` on `Membership.businessId`, `Workspace.businessId` and `Project.businessId`, because the null that cascade wrote was read by `buildDomainsByBusiness` as every Business in the Tenant — deleting one Business promoted its members to the whole group and its owners to `ownsTenant`. Tenant ancestry becomes a database invariant via `Business UNIQUE (id, tenantId)` and composite foreign keys; one live grant per person per scope becomes two partial unique indexes; and `Membership.role` defaults to MEMBER instead of OWNER. 🔜 declared 2026-09-12 — ADR-077 D3/D4/D5; preconditions verified on production 2026-09-12 and re-run at apply time "
+    },
+    {
+      "id": "req:FR-193",
+      "type": "requirement",
+      "family": "FR",
+      "label": "`Employment` is a new HR assignment record — `personId`, `tenantId`, `businessId`, optional `branchId`, `employeeNo` (was `Membership.employeeRef`), `title`, `employmentType` (EMPLOYEE / CONTRACTOR / INTERN / OWNER_OPERATOR) and a lifecycle status (ACTIVE / ON_LEAVE / ENDED) — separate from `Membership`'s access grant (ADR-078 D1). Before this, `people-service.js` built the HR roster by reading `Membership` directly, so a shareholder's tenant-wide OWNER grant read as an employee, a suspended staff member vanished from the roster instead of showing suspended, a consultant with access but no employment could not be distinguished from staff, and the LINE-originated Persons who hold no Membership at all could never appear. `resolveViewer` and the rest of `src/modules/identity/` never read `Employment` (ADR-037 D1's discipline, applied here); `people-service.js` now derives one column, `hasSystemAccess`, FROM `Membership`, never the reverse. `Membership.employeeRef` and `Membership.branchId` are dropped in the same migration that backfills them into `Employment`, after the backfill runs; a tenant-wide grant with an `employeeRef` (production's one such row) is not backfilled, because standard HR has no group-level employment — the migration names the skipped row instead of guessing a Business for it.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "`Employment` is a new HR assignment record — `personId`, `tenantId`, `businessId`, optional `branchId`, `employeeNo` (was `Membership.employeeRef`), `title`, `employmentType` (EMPLOYEE / CONTRACTOR / INTERN / OWNER_OPERATOR) and a lifecycle status (ACTIVE / ON_LEAVE / ENDED) — separate from `Membership`'s access grant (ADR-078 D1). Before this, `people-service.js` built the HR roster by reading `Membership` directly, so a shareholder's tenant-wide OWNER grant read as an employee, a suspended staff member vanished from the roster instead of showing suspended, a consultant with access but no employment could not be distinguished from staff, and the LINE-originated Persons who hold no Membership at all could never appear. `resolveViewer` and the rest of `src/modules/identity/` never read `Employment` (ADR-037 D1's discipline, applied here); `people-service.js` now derives one column, `hasSystemAccess`, FROM `Membership`, never the reverse. `Membership.employeeRef` and `Membership.branchId` are dropped in the same migration that backfills them into `Employment`, after the backfill runs; a tenant-wide grant with an `employeeRef` (production's one such row) is not backfilled, because standard HR has no group-level employment — the migration names the skipped row instead of guessing a Business for it. 🟢 implemented 2026-09-12 — ADR-078 D1; `employment-service.js` (create / on-leave / reinstate / end); `people-service.js` reads Employment; `rbac-service.js`'s `assertEmployee` renamed to `assertTenantMember` (it checked Membership, not employment) "
+    },
+    {
+      "id": "req:FR-194",
+      "type": "requirement",
+      "family": "FR",
+      "label": "`LegalEntity` moves from `portfolioId` to `tenantId` (ADR-078 D2) — before this it carried no Tenant column at all, which put it above the BR-001 isolation boundary: two Businesses in different Tenants could share one legal entity, and a tenant-scoped RLS policy had no column to filter on. `Business.legalEntityId` now has a composite FK to `LegalEntity(id, tenantId)`, so a Business may only reference a LegalEntity in its own Tenant; `createBusiness` carries the same check in application code for the SQLite dev/test path a compound FK cannot express there. `TaxRegistrationBranch` (`legalEntityId`, `branchCode`, `name`, `address`) is split out of `Branch.taxBranchCode`: a VAT branch code (ประมวลรัษฎากร ม.86, ภ.พ.20) is a fact about the legal entity's own tax registration, not about an operating site — a warehouse Branch has none, and `Branch` gains `kind` (SITE / WAREHOUSE / KITCHEN / OFFICE) to say what it IS independently of that. `billing-invoice-service.js` reads `branch.taxRegistrationBranch.branchCode`, refuses `422 BILLING_TAX_BRANCH_NOT_CONFIGURED` when a TAX_INVOICE/ABB_TAX_INVOICE has none and `422 BILLING_TAX_BRANCH_MISMATCH` when the linked one belongs to a different LegalEntity than the Business; the old application-code portfolio comparison is retired, while the `409 BILLING_SHARED_LEGAL_ENTITY` refusal for two Businesses sharing one LegalEntity stays correct and unchanged.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "`LegalEntity` moves from `portfolioId` to `tenantId` (ADR-078 D2) — before this it carried no Tenant column at all, which put it above the BR-001 isolation boundary: two Businesses in different Tenants could share one legal entity, and a tenant-scoped RLS policy had no column to filter on. `Business.legalEntityId` now has a composite FK to `LegalEntity(id, tenantId)`, so a Business may only reference a LegalEntity in its own Tenant; `createBusiness` carries the same check in application code for the SQLite dev/test path a compound FK cannot express there. `TaxRegistrationBranch` (`legalEntityId`, `branchCode`, `name`, `address`) is split out of `Branch.taxBranchCode`: a VAT branch code (ประมวลรัษฎากร ม.86, ภ.พ.20) is a fact about the legal entity's own tax registration, not about an operating site — a warehouse Branch has none, and `Branch` gains `kind` (SITE / WAREHOUSE / KITCHEN / OFFICE) to say what it IS independently of that. `billing-invoice-service.js` reads `branch.taxRegistrationBranch.branchCode`, refuses `422 BILLING_TAX_BRANCH_NOT_CONFIGURED` when a TAX_INVOICE/ABB_TAX_INVOICE has none and `422 BILLING_TAX_BRANCH_MISMATCH` when the linked one belongs to a different LegalEntity than the Business; the old application-code portfolio comparison is retired, while the `409 BILLING_SHARED_LEGAL_ENTITY` refusal for two Businesses sharing one LegalEntity stays correct and unchanged. 🟢 implemented 2026-09-12 — ADR-078 D2/D3; migration `20260912130000_org_employment_legal_entity.sql`; production row counts for LegalEntity/Branch could not be independently re-confirmed from this session (no reachable credential) — the migration re-asserts the \"zero rows\" precondition and aborts otherwise "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -23554,6 +23817,26 @@
       "row_text": "An agent tool is a thin adapter over an application service and adds no authority of its own: each SmartGift tool takes the caller's already-resolved viewer, calls the same exported service a page or route would call, and returns its result — no direct Prisma query, no scope assembled from tool arguments, no Business id the caller did not already prove. The split across the two existing registries is by effect, not by convenience: read tools land in the Gate E `createToolRegistry` (which refuses anything not `readOnly: true`) and write actions in the Gate F `createWriteToolRegistry`, where the two irreversible dispatches declare `HIGH` sensitivity so the action gate demands step-up. Tool JSON schemas are generated from the same Zod contracts the services parse, so a tool cannot advertise a shape the service would reject. FR-181; ADR-074 D9; ADR-007 §P6, §P7 "
     },
     {
+      "id": "req:SDD-092",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "Authorization invariants are held by the database, not by application convention: scope shape and status vocabulary by CHECK, one live grant per person per scope by partial unique indexes excluding REVOKED, Tenant ancestry by composite foreign keys against `Business (id, tenantId)`, and parent deletion by RESTRICT. Provenance columns live on the grant row rather than only in the append-only stream, because an access review queries current state and because two of the three historical writers audited under other entity types, leaving half of the live grants with no MEMBERSHIP event naming their author.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Authorization invariants are held by the database, not by application convention: scope shape and status vocabulary by CHECK, one live grant per person per scope by partial unique indexes excluding REVOKED, Tenant ancestry by composite foreign keys against `Business (id, tenantId)`, and parent deletion by RESTRICT. Provenance columns live on the grant row rather than only in the append-only stream, because an access review queries current state and because two of the three historical writers audited under other entity types, leaving half of the live grants with no MEMBERSHIP event naming their author. FR-191, FR-192; ADR-077 D1/D3/D4; ADR-018 context item 5 "
+    },
+    {
+      "id": "req:SDD-093",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "`Employment` is additive and unconnected by foreign key to `Membership`; the only place the two meet is `people-service.js`, which reads Employment for the roster and derives one column, `hasSystemAccess`, from a live (ACTIVE) Membership scoped to the same Business or tenant-wide. `resolveViewer` and every file under `src/modules/identity/` reference neither model nor column of Employment, enforced by a source-text scan (ADR-037 D1's discipline, extended). `LegalEntity` carries `tenantId` in place of `portfolioId`, held by `UNIQUE(id, tenantId)` and a composite FK from `Business.legalEntityId`; SQLite dev/test has no compound-FK equivalent, so `createBusiness` — the row's one writer — carries the same ancestry check in application code. `TaxRegistrationBranch` is `@@unique([legalEntityId, branchCode])`; `Branch.taxRegistrationBranchId` is nullable and `Restrict`, so an operating site with no tax registration is a complete, valid row.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "`Employment` is additive and unconnected by foreign key to `Membership`; the only place the two meet is `people-service.js`, which reads Employment for the roster and derives one column, `hasSystemAccess`, from a live (ACTIVE) Membership scoped to the same Business or tenant-wide. `resolveViewer` and every file under `src/modules/identity/` reference neither model nor column of Employment, enforced by a source-text scan (ADR-037 D1's discipline, extended). `LegalEntity` carries `tenantId` in place of `portfolioId`, held by `UNIQUE(id, tenantId)` and a composite FK from `Business.legalEntityId`; SQLite dev/test has no compound-FK equivalent, so `createBusiness` — the row's one writer — carries the same ancestry check in application code. `TaxRegistrationBranch` is `@@unique([legalEntityId, branchCode])`; `Branch.taxRegistrationBranchId` is nullable and `Restrict`, so an operating site with no tax registration is a complete, valid row. FR-193, FR-194; ADR-078 D1, D2, D3 "
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -23802,6 +24085,16 @@
       "declared": "planned",
       "status": "planned",
       "row_text": "Device credential and evidence-download boundary, failing closed: the raw `edgk_` key exists only in the mint response — persisted as SHA-256 only, absent from list responses, logs, audit payloads and the reference poller; mint/list/revoke refuse a Business the viewer does not own with the same 404 a nonexistent Business gets; `resolveEdgeDeviceContext` answers one generic 401 for missing, malformed, unknown, revoked or foreign-prefix credentials; `GET /api/edge/extraction-jobs/{id}/evidence` serves bytes only to the device holding a live lease on that job and never a bucket URL, signed link or storage credential (ADR-041 D3); and a device may neither read nor complete a job outside its own Business. 🔜 FR-143 / FR-144 / ADR-059 security gate — declared 2026-09-04 "
+    },
+    {
+      "id": "req:SEC-026",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Erasure is downstream of offboarding and never a substitute for it: `erasePrincipal` refuses 409 PRINCIPAL_HAS_LIVE_GRANTS while the principal holds any non-revoked Membership, RoleBinding or PlatformGrant in the tenant being erased, and where it does proceed it deletes `PersonCredential` and sets `Person.accessDisabledAt`, because a redacted person whose password still works is not erased. Erasure never revokes grants itself — that would make a data-subject request an administrative act with no named author and bury the moment authority ended inside a deliberately redacted trail.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Erasure is downstream of offboarding and never a substitute for it: `erasePrincipal` refuses 409 PRINCIPAL_HAS_LIVE_GRANTS while the principal holds any non-revoked Membership, RoleBinding or PlatformGrant in the tenant being erased, and where it does proceed it deletes `PersonCredential` and sets `Person.accessDisabledAt`, because a redacted person whose password still works is not erased. Erasure never revokes grants itself — that would make a data-subject request an administrative act with no named author and bury the moment authority ended inside a deliberately redacted trail. 🔜 FR-191 / ADR-077 D6 — declared 2026-09-12; replaces the prior behaviour where erasure counted memberships to decide whether to redact the Person and ended none "
     },
     {
       "id": "route:api:/api/agent/heartbeat",
@@ -25369,6 +25662,22 @@
       "kind": "api",
       "route": "/api/platform/users/memberships",
       "path": "apps/server/src/app/api/platform/users/memberships/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/platform/users/memberships/[id]/lifecycle",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/users/memberships/[id]/lifecycle",
+      "path": "apps/server/src/app/api/platform/users/memberships/[id]/lifecycle/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/platform/users/offboard",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/platform/users/offboard",
+      "path": "apps/server/src/app/api/platform/users/offboard/route.js",
       "status": "current"
     },
     {
@@ -27144,6 +27453,22 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE",
+      "type": "adr",
+      "path": "docs/decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md",
+      "title": "ADR-077 — Membership is a grant with a lifecycle, not a membership fact",
+      "hash": "e783f475",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY",
+      "type": "adr",
+      "path": "docs/decisions/ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY.md",
+      "title": "ADR-078 — Employment is not Membership, and a legal entity lives inside a Tenant",
+      "hash": "76495c1d",
+      "status": "current"
+    },
+    {
       "id": "test:tests/acceptance/genesisrag17-e2e.test.js",
       "type": "test",
       "path": "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
@@ -27357,7 +27682,7 @@
       "id": "test:tests/e2e/fr186-billing-pos.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr186-billing-pos.spec.js",
-      "hash": "cb3b8ca0",
+      "hash": "70bcf77d",
       "status": "current"
     },
     {
@@ -27700,7 +28025,7 @@
       "id": "test:tests/integration/fr074-scope-creation-authorization.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
-      "hash": "bb1a19fc",
+      "hash": "98ea71af",
       "status": "current"
     },
     {
@@ -27994,7 +28319,28 @@
       "id": "test:tests/integration/fr186-billing.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr186-billing.test.js",
-      "hash": "fbb0aa57",
+      "hash": "f8a79e93",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr191-access-grant-lifecycle.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
+      "hash": "8afc18fa",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr193-employment-lifecycle.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr193-employment-lifecycle.test.js",
+      "hash": "91761829",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr194-legal-entity-tax-branch.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr194-legal-entity-tax-branch.test.js",
+      "hash": "36db24fc",
       "status": "current"
     },
     {
@@ -28351,7 +28697,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
-      "hash": "f303e665",
+      "hash": "27d385c8",
       "status": "current"
     },
     {
@@ -28841,7 +29187,7 @@
       "id": "test:tests/unit/authorization-seam-list-routes.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/authorization-seam-list-routes.test.js",
-      "hash": "6db10248",
+      "hash": "3323ad9e",
       "status": "current"
     },
     {
@@ -29366,7 +29712,7 @@
       "id": "test:tests/unit/fr036-team-authorization.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/fr036-team-authorization.test.js",
-      "hash": "401ee2fb",
+      "hash": "f25431ad",
       "status": "current"
     },
     {
@@ -29724,6 +30070,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/fr190-line-transport-health.test.js",
       "hash": "481f6cdb",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr193-employment-not-authorization.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/fr193-employment-not-authorization.test.js",
+      "hash": "dcccf5ec",
       "status": "current"
     },
     {
@@ -30588,6 +30941,20 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/membership-grant-service.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/membership-grant-service.test.js",
+      "hash": "82b19efb",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/membership-lifecycle-service.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/membership-lifecycle-service.test.js",
+      "hash": "428cdfde",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/migration-version-uniqueness.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/migration-version-uniqueness.test.js",
@@ -30738,7 +31105,7 @@
       "id": "test:tests/unit/people-service.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/people-service.test.js",
-      "hash": "bb70d97f",
+      "hash": "f464b20d",
       "status": "current"
     },
     {
@@ -43232,6 +43599,55 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/platform/users/memberships/[id]/lifecycle/route.js",
+      "to": "req:BR-033",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/memberships/[id]/lifecycle/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/memberships/[id]/lifecycle/route.js",
+      "to": "req:FR-191",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/memberships/[id]/lifecycle/route.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/memberships/[id]/lifecycle/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/memberships/[id]/lifecycle/route.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/memberships/[id]/lifecycle/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/platform/users/memberships/route.js",
       "to": "req:FR-038",
       "type": "implements",
@@ -43276,6 +43692,48 @@
     {
       "from": "code:src/app/api/platform/users/memberships/route.js",
       "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/offboard/route.js",
+      "to": "req:FR-046",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/offboard/route.js",
+      "to": "req:FR-191",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/offboard/route.js",
+      "to": "req:SDD-024",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/offboard/route.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/offboard/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/platform/users/offboard/route.js",
+      "to": "req:SEC-026",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -46095,6 +46553,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/lib/validation/entities.js",
+      "to": "req:FR-193",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/entities.js",
+      "to": "req:FR-194",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/lib/validation/enums.js",
       "to": "req:BR-004",
       "type": "follows",
@@ -46181,6 +46653,34 @@
     {
       "from": "code:src/lib/validation/enums.js",
       "to": "req:FR-165",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:FR-191",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:FR-192",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:FR-193",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:FR-194",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -48413,8 +48913,29 @@
     },
     {
       "from": "code:src/modules/commerce/application/billing-invoice-service.js",
+      "to": "req:BR-034",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/commerce/application/billing-invoice-service.js",
       "to": "req:FR-186",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/commerce/application/billing-invoice-service.js",
+      "to": "req:FR-194",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/commerce/application/billing-invoice-service.js",
+      "to": "req:SDD-093",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -48504,6 +49025,13 @@
     },
     {
       "from": "code:src/modules/commerce/application/pos-cashier-service.js",
+      "to": "req:FR-194",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/commerce/application/pos-cashier-service.js",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -48581,6 +49109,13 @@
     },
     {
       "from": "code:src/modules/commerce/components/BillingWorkspace.jsx",
+      "to": "req:FR-194",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/commerce/components/BillingWorkspace.jsx",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -48652,6 +49187,13 @@
     {
       "from": "code:src/modules/commerce/domain/billing.js",
       "to": "req:FR-186",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/commerce/domain/billing.js",
+      "to": "req:FR-194",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -49141,6 +49683,13 @@
     },
     {
       "from": "code:src/modules/identity/auth-service.js",
+      "to": "req:FR-191",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/auth-service.js",
       "to": "req:SDD-024",
       "type": "follows",
       "status": "current",
@@ -49442,6 +49991,13 @@
     },
     {
       "from": "code:src/modules/identity/erase-principal.js",
+      "to": "req:FR-191",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/erase-principal.js",
       "to": "req:SEC-003",
       "type": "follows",
       "status": "current",
@@ -49527,6 +50083,83 @@
     {
       "from": "code:src/modules/identity/login-error-copy.js",
       "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/membership-grant-service.js",
+      "to": "req:BR-033",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/membership-grant-service.js",
+      "to": "req:FR-191",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/membership-grant-service.js",
+      "to": "req:FR-192",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/membership-grant-service.js",
+      "to": "req:SDD-092",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/membership-grant-service.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/membership-lifecycle-service.js",
+      "to": "req:BR-033",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/membership-lifecycle-service.js",
+      "to": "req:FR-191",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/membership-lifecycle-service.js",
+      "to": "req:NFR-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/membership-lifecycle-service.js",
+      "to": "req:SDD-092",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/membership-lifecycle-service.js",
+      "to": "req:SEC-003",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/membership-lifecycle-service.js",
+      "to": "req:SEC-026",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -49820,6 +50453,13 @@
     },
     {
       "from": "code:src/modules/identity/profile-permission-service.js",
+      "to": "req:FR-191",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/profile-permission-service.js",
       "to": "req:SDD-017",
       "type": "follows",
       "status": "current",
@@ -49849,6 +50489,13 @@
     {
       "from": "code:src/modules/identity/rbac-service.js",
       "to": "req:FR-076",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/rbac-service.js",
+      "to": "req:FR-193",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -49995,6 +50642,13 @@
     },
     {
       "from": "code:src/modules/identity/resolve-viewer.js",
+      "to": "req:BR-033",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-viewer.js",
       "to": "req:FR-031",
       "type": "implements",
       "status": "current",
@@ -50045,6 +50699,20 @@
     {
       "from": "code:src/modules/identity/resolve-viewer.js",
       "to": "req:FR-076",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-viewer.js",
+      "to": "req:FR-191",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/resolve-viewer.js",
+      "to": "req:FR-192",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -50269,6 +50937,13 @@
     {
       "from": "code:src/modules/identity/viewer-domains.js",
       "to": "req:FR-061",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/viewer-domains.js",
+      "to": "req:FR-192",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -54985,8 +55660,36 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/people/application/employment-service.js",
+      "to": "req:BR-034",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/application/employment-service.js",
+      "to": "req:FR-193",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/application/employment-service.js",
+      "to": "req:SDD-093",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/people/application/people-service.js",
       "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/application/people-service.js",
+      "to": "req:BR-034",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -55007,6 +55710,20 @@
     },
     {
       "from": "code:src/modules/people/application/people-service.js",
+      "to": "req:FR-193",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/application/people-service.js",
+      "to": "req:SDD-093",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/application/people-service.js",
       "to": "req:SEC-003",
       "type": "follows",
       "status": "current",
@@ -55015,6 +55732,13 @@
     {
       "from": "code:src/modules/people/components/PeopleDirectory.jsx",
       "to": "req:FR-042",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/components/PeopleDirectory.jsx",
+      "to": "req:FR-193",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -55468,6 +56192,13 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-191",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/project-manager/application/active-filters.js",
       "to": "req:BR-004",
       "type": "follows",
@@ -55841,6 +56572,20 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-186",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-193",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-194",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -56645,6 +57390,13 @@
     },
     {
       "from": "code:src/modules/project-manager/application/project-team-service.js",
+      "to": "req:FR-191",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/project-team-service.js",
       "to": "req:SDD-015",
       "type": "follows",
       "status": "current",
@@ -56793,6 +57545,20 @@
     {
       "from": "code:src/modules/project-manager/application/scope-service.js",
       "to": "req:FR-075",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/scope-service.js",
+      "to": "req:FR-191",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/scope-service.js",
+      "to": "req:FR-194",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -61229,6 +61995,27 @@
       "status": "current"
     },
     {
+      "from": "doc:FR-191-access-grant-lifecycle",
+      "to": "spec:ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-192-membership-scope-grammar",
+      "to": "doc:FR-191-access-grant-lifecycle",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-192-membership-scope-grammar",
+      "to": "spec:ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:full-schema",
       "to": "doc:B-db-schema",
       "type": "references",
@@ -64267,6 +65054,34 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-027",
+      "to": "req:FR-191",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-027",
+      "to": "req:FR-192",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-028",
+      "to": "req:FR-193",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-028",
+      "to": "req:FR-194",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
       "from": "model:AgentTraceEvent",
       "to": "domain:agent",
       "type": "owned_by",
@@ -64486,6 +65301,13 @@
     {
       "from": "model:EdgeDeviceCredential",
       "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Employment",
+      "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -64877,7 +65699,7 @@
     },
     {
       "from": "model:Membership",
-      "to": "domain:project-manager",
+      "to": "domain:identity",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -65219,6 +66041,13 @@
       "source": "charter"
     },
     {
+      "from": "model:TaxRegistrationBranch",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:Team",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -65514,6 +66343,20 @@
     },
     {
       "from": "req:BR-032",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-033",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-034",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -66878,6 +67721,34 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-191",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-192",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-193",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-194",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -67669,6 +68540,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-092",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-093",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -67852,6 +68737,13 @@
     },
     {
       "from": "req:SEC-025",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-026",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -69216,7 +70108,21 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/platform/users/memberships/[id]/lifecycle",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/platform/users/memberships",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/platform/users/offboard",
       "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
@@ -73094,6 +74000,69 @@
       "status": "current"
     },
     {
+      "from": "spec:ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE",
+      "to": "doc:FR-191-access-grant-lifecycle",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE",
+      "to": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY",
+      "to": "doc:FR-193-employment-record",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY",
+      "to": "doc:FR-194-legal-entity-and-tax-branch",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY",
+      "to": "spec:ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY",
+      "to": "spec:ADR-037-TEAM-IS-AN-ORGANISATIONAL-GROUPING-NOT-AN-AUTHORITY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY",
+      "to": "spec:ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
       "from": "test:tests/acceptance/genesisrag17-e2e.test.js",
       "to": "code:src/platform/integrations/core/genesisrag17-publication.js",
       "type": "tests",
@@ -74825,6 +75794,13 @@
     {
       "from": "test:tests/e2e/fr186-billing-pos.spec.js",
       "to": "req:FR-186",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr186-billing-pos.spec.js",
+      "to": "req:FR-194",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -77183,6 +78159,20 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -77659,6 +78649,27 @@
     },
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -77967,6 +78978,13 @@
     },
     {
       "from": "test:tests/integration/crm-customer-erasure.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-customer-erasure.test.js",
       "to": "req:SDD-048",
       "type": "verifies",
       "status": "current",
@@ -78016,6 +79034,13 @@
     },
     {
       "from": "test:tests/integration/domain-visibility-server.test.js",
+      "to": "req:BR-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/domain-visibility-server.test.js",
       "to": "req:FR-042",
       "type": "verifies",
       "status": "current",
@@ -78044,6 +79069,13 @@
     },
     {
       "from": "test:tests/integration/domain-visibility-server.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/domain-visibility-server.test.js",
       "to": "req:SDD-024",
       "type": "verifies",
       "status": "current",
@@ -78055,6 +79087,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/domain-visibility-server.test.js",
+      "to": "req:SDD-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/domain-visibility-server.test.js",
@@ -79640,6 +80679,20 @@
     },
     {
       "from": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -79791,6 +80844,20 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr074-scope-creation-authorization.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr074-scope-creation-authorization.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/fr074-scope-creation-authorization.test.js",
@@ -80166,6 +81233,20 @@
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:FR-186",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-194",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -82972,6 +84053,13 @@
     },
     {
       "from": "test:tests/integration/fr183-pos.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr183-pos.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -83189,7 +84277,147 @@
     },
     {
       "from": "test:tests/integration/fr186-billing.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr186-billing.test.js",
       "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr191-access-grant-lifecycle.test.js",
+      "to": "code:src/app/api/platform/users/memberships/[id]/lifecycle/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr191-access-grant-lifecycle.test.js",
+      "to": "code:src/app/api/platform/users/offboard/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr191-access-grant-lifecycle.test.js",
+      "to": "req:BR-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr191-access-grant-lifecycle.test.js",
+      "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr191-access-grant-lifecycle.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr191-access-grant-lifecycle.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr191-access-grant-lifecycle.test.js",
+      "to": "req:FR-192",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr191-access-grant-lifecycle.test.js",
+      "to": "req:NFR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr191-access-grant-lifecycle.test.js",
+      "to": "req:SDD-024",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr191-access-grant-lifecycle.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr191-access-grant-lifecycle.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr191-access-grant-lifecycle.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr191-access-grant-lifecycle.test.js",
+      "to": "req:SEC-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr193-employment-lifecycle.test.js",
+      "to": "code:src/modules/people/application/employment-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr193-employment-lifecycle.test.js",
+      "to": "req:BR-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr193-employment-lifecycle.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr193-employment-lifecycle.test.js",
+      "to": "req:SDD-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr194-legal-entity-tax-branch.test.js",
+      "to": "req:BR-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr194-legal-entity-tax-branch.test.js",
+      "to": "req:FR-194",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -83435,6 +84663,13 @@
     {
       "from": "test:tests/integration/identity-erase.test.js",
       "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/identity-erase.test.js",
+      "to": "req:FR-191",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -85065,6 +86300,20 @@
     },
     {
       "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -85611,6 +86860,20 @@
     },
     {
       "from": "test:tests/integration/marketing-backup.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-backup.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -86109,6 +87372,20 @@
     {
       "from": "test:tests/integration/marketing-content-backup.test.js",
       "to": "req:FR-186",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-194",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -86871,6 +88148,13 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
@@ -86928,6 +88212,13 @@
     {
       "from": "test:tests/integration/password-reset-flow.test.js",
       "to": "req:FR-120",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/password-reset-flow.test.js",
+      "to": "req:FR-191",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -88173,6 +89464,20 @@
     },
     {
       "from": "test:tests/integration/scope-and-isolation.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/scope-and-isolation.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/scope-and-isolation.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -88300,6 +89605,13 @@
     {
       "from": "test:tests/integration/server-line-jobs.test.js",
       "to": "req:FR-190",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "req:FR-191",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -88845,6 +90157,13 @@
     },
     {
       "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:BR-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
       "to": "req:FR-031",
       "type": "verifies",
       "status": "current",
@@ -88905,6 +90224,20 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:FR-192",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/workspace-onboarding-flow.test.js",
@@ -89056,6 +90389,34 @@
     {
       "from": "test:tests/integration/xlsx-intake.test.js",
       "to": "req:FR-165",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:FR-192",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:FR-194",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -91449,6 +92810,13 @@
     },
     {
       "from": "test:tests/unit/auth-service.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/auth-service.test.js",
       "to": "req:SDD-024",
       "type": "verifies",
       "status": "current",
@@ -92800,6 +94168,13 @@
     },
     {
       "from": "test:tests/unit/commerce-billing-domain.test.js",
+      "to": "req:BR-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/commerce-billing-domain.test.js",
       "to": "req:FR-183",
       "type": "verifies",
       "status": "current",
@@ -92811,6 +94186,20 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/commerce-billing-domain.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/commerce-billing-domain.test.js",
+      "to": "req:SDD-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/commerce-billing-domain.test.js",
@@ -93179,6 +94568,34 @@
     {
       "from": "test:tests/unit/conversation-analysis-contract.test.js",
       "to": "req:FR-165",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:FR-192",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:FR-194",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -94942,6 +96359,13 @@
     },
     {
       "from": "test:tests/unit/fr036-team-authorization.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr036-team-authorization.test.js",
       "to": "req:SDD-015",
       "type": "verifies",
       "status": "current",
@@ -95678,6 +97102,20 @@
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-186",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-194",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -96496,6 +97934,13 @@
     },
     {
       "from": "test:tests/unit/fr046-auth-route.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr046-auth-route.test.js",
       "to": "req:SDD-022",
       "type": "verifies",
       "status": "current",
@@ -97189,6 +98634,13 @@
     },
     {
       "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "req:BR-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
       "to": "req:FR-031",
       "type": "verifies",
       "status": "current",
@@ -97266,6 +98718,20 @@
     },
     {
       "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
+      "to": "req:FR-192",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr061-per-business-domain-visibility.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -97323,6 +98789,13 @@
     {
       "from": "test:tests/unit/fr062-permissions-read-scope.test.js",
       "to": "req:FR-106",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr062-permissions-read-scope.test.js",
+      "to": "req:FR-191",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -97417,6 +98890,13 @@
       "type": "tests",
       "status": "current",
       "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:BR-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
@@ -97519,6 +98999,27 @@
     {
       "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
       "to": "req:FR-166",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:FR-192",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:FR-193",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -98504,6 +100005,20 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/fr193-employment-not-authorization.test.js",
+      "to": "req:BR-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr193-employment-not-authorization.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/gate-cap-rounding.test.js",
       "to": "req:BR-006",
       "type": "verifies",
@@ -98996,6 +100511,13 @@
     {
       "from": "test:tests/unit/iam-session.test.js",
       "to": "req:FR-120",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/iam-session.test.js",
+      "to": "req:FR-191",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -103852,6 +105374,111 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/membership-grant-service.test.js",
+      "to": "code:src/modules/identity/membership-grant-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/membership-grant-service.test.js",
+      "to": "req:BR-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/membership-grant-service.test.js",
+      "to": "req:FR-038",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/membership-grant-service.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/membership-grant-service.test.js",
+      "to": "req:FR-192",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/membership-grant-service.test.js",
+      "to": "req:SDD-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/membership-grant-service.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/membership-lifecycle-service.test.js",
+      "to": "code:src/modules/identity/membership-lifecycle-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/membership-lifecycle-service.test.js",
+      "to": "req:BR-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/membership-lifecycle-service.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/membership-lifecycle-service.test.js",
+      "to": "req:NFR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/membership-lifecycle-service.test.js",
+      "to": "req:SDD-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/membership-lifecycle-service.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/membership-lifecycle-service.test.js",
+      "to": "req:SEC-003",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/membership-lifecycle-service.test.js",
+      "to": "req:SEC-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/migration-version-uniqueness.test.js",
       "to": "req:FR-030",
       "type": "verifies",
@@ -104497,6 +106124,13 @@
     },
     {
       "from": "test:tests/unit/password-reset-service.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/password-reset-service.test.js",
       "to": "req:SDD-024",
       "type": "verifies",
       "status": "current",
@@ -104547,6 +106181,13 @@
     {
       "from": "test:tests/unit/people-directory.test.js",
       "to": "req:FR-042",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/people-directory.test.js",
+      "to": "req:FR-193",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -104623,6 +106264,13 @@
     },
     {
       "from": "test:tests/unit/people-service.test.js",
+      "to": "req:BR-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/people-service.test.js",
       "to": "req:FR-042",
       "type": "verifies",
       "status": "current",
@@ -104641,6 +106289,20 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/people-service.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/people-service.test.js",
+      "to": "req:SDD-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/people-service.test.js",
@@ -105184,6 +106846,34 @@
     {
       "from": "test:tests/unit/plan-schema.test.js",
       "to": "req:FR-165",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:FR-192",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:FR-194",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -106912,6 +108602,13 @@
     },
     {
       "from": "test:tests/unit/profile-permission-service.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/profile-permission-service.test.js",
       "to": "req:SDD-017",
       "type": "verifies",
       "status": "current",
@@ -107725,6 +109422,13 @@
     {
       "from": "test:tests/unit/project-team-service.test.js",
       "to": "req:FR-046",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/project-team-service.test.js",
+      "to": "req:FR-191",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -110293,6 +111997,13 @@
     },
     {
       "from": "test:tests/unit/viewer-gate.test.js",
+      "to": "req:BR-033",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/viewer-gate.test.js",
       "to": "req:FR-031",
       "type": "verifies",
       "status": "current",
@@ -110343,6 +112054,20 @@
     {
       "from": "test:tests/unit/viewer-gate.test.js",
       "to": "req:FR-076",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/viewer-gate.test.js",
+      "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/viewer-gate.test.js",
+      "to": "req:FR-192",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -113081,7 +114806,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2673,
+    "server_nodes": 2705,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

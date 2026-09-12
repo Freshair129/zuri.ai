@@ -110,6 +110,22 @@ export const KNOWLEDGE_SENSITIVITY_LEVELS = ['PUBLIC', 'INTERNAL', 'CONFIDENTIAL
 export const WORKSPACE_SCOPE_TYPES = ['PORTFOLIO', 'TENANT', 'BUSINESS']
 export const MEMBERSHIP_ROLES = ['OWNER', 'MEMBER']
 
+// @req FR-193 — Employment is an HR assignment record, distinct from
+// Membership's access grant (ADR-078; the same separation SAP SU01/PA and
+// Oracle FND_USER/PER_ALL_ASSIGNMENTS_F draw). `ACTIVE` is the only value the
+// FR-193 backfill writes; `ON_LEAVE` and `ENDED` are assigned by
+// `employment-service.js` (setEmploymentOnLeave / endEmployment) so the
+// vocabulary is reachable from the day it is declared (ADR-077 D7 discipline).
+export const EMPLOYMENT_STATUSES = ['ACTIVE', 'ON_LEAVE', 'ENDED']
+// A registry of kinds, not statuses — nothing branches on the absence of one
+// (the same distinction the ADR-077 D7 preflight check draws).
+export const EMPLOYMENT_TYPES = ['EMPLOYEE', 'CONTRACTOR', 'INTERN', 'OWNER_OPERATOR']
+
+// @req FR-194 — a Branch's operating purpose. `SITE` is the default and covers
+// today's undifferentiated Branch rows; the others exist so a warehouse or a
+// kitchen can be named as what it is instead of overloading `name` text.
+export const BRANCH_KINDS = ['SITE', 'WAREHOUSE', 'KITCHEN', 'OFFICE']
+
 // @req FR-191 — the lifecycle ADR-045 D3 declared and nothing could write.
 // Until ADR-077 this vocabulary existed only in prose: `resolve-viewer.js` and
 // `authorization-context.js` both filtered on `status === 'ACTIVE'`, and no
@@ -367,6 +383,14 @@ export const SUPPLIER_ACTIONS = ['UPDATE', 'ARCHIVE']
 export const PURCHASE_ORDER_STATUSES = ['DRAFT', 'SENT', 'RECEIVED', 'SHORT_CLOSED', 'CANCELLED']
 export const PURCHASE_ORDER_ACTIONS = ['UPDATE', 'SEND', 'CLOSE', 'CANCEL']
 
+// @req FR-194 — LegalEntity moves under Tenant (ADR-078); its lifecycle is the
+// same shape every other master-data record in this schema uses.
+export const LEGAL_ENTITY_STATUSES = ['ACTIVE', 'ARCHIVED']
+// @req FR-194 — a legal entity's VAT branch registrations (ประมวลรัษฎากร ม.86,
+// ภ.พ.20), split out of `Branch` because a branch code belongs to the legal
+// entity's tax registration, not to an operating site (ADR-078).
+export const TAX_REGISTRATION_BRANCH_STATUSES = ['ACTIVE', 'ARCHIVED']
+
 export const zExecutionMode = z.enum(EXECUTION_MODES)
 export const zProgressStrategy = z.enum(PROGRESS_STRATEGIES)
 export const zDependencyType = z.enum(DEPENDENCY_TYPES)
@@ -445,6 +469,11 @@ export const zSupplierStatus = z.enum(SUPPLIER_STATUSES)
 export const zSupplierAction = z.enum(SUPPLIER_ACTIONS)
 export const zPurchaseOrderStatus = z.enum(PURCHASE_ORDER_STATUSES)
 export const zPurchaseOrderAction = z.enum(PURCHASE_ORDER_ACTIONS)
+export const zLegalEntityStatus = z.enum(LEGAL_ENTITY_STATUSES)
+export const zTaxRegistrationBranchStatus = z.enum(TAX_REGISTRATION_BRANCH_STATUSES)
+export const zBranchKind = z.enum(BRANCH_KINDS)
+export const zEmploymentStatus = z.enum(EMPLOYMENT_STATUSES)
+export const zEmploymentType = z.enum(EMPLOYMENT_TYPES)
 export const zRoadmapStatus = z.enum(ROADMAP_STATUSES)
 export const zGoalStatus = z.enum(GOAL_STATUSES)
 export const zGoalPriority = z.enum(GOAL_PRIORITIES)
