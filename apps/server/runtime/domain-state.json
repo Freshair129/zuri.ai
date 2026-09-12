@@ -2799,8 +2799,8 @@
           "id": "FR-190",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 4
+          "codeCount": 6,
+          "testCount": 7
         }
       ],
       "checks": {
@@ -12650,19 +12650,24 @@
           "id": "FR-190",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 4
+          "codeCount": 6,
+          "testCount": 7
         }
       ],
       "evidence": [
         "apps/server/src/app/api/line-oa/accounts/[id]/transport-health/route.js",
         "apps/server/src/app/api/line-oa/worker/route.js",
         "apps/server/src/modules/line-oa-studio/application/line-transport-health.js",
+        "apps/server/src/modules/line-oa-studio/domain/transport-health-presentation.js",
         "apps/server/src/modules/line-oa-studio/domain/transport-health.js",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
         "apps/server/tests/integration/line-admission-reconciler.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
-        "apps/server/tests/unit/fr190-line-transport-health.test.js"
+        "apps/server/tests/unit/fr190-line-transport-health.test.js",
+        "apps/server/tests/unit/fr190-settings-chip-render.test.js",
+        "apps/server/tests/unit/fr190-transport-health-presentation.test.js",
+        "apps/server/tests/unit/line-oa-settings-consolidation.test.js"
       ]
     }
   ]
