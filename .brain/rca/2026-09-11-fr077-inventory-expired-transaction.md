@@ -68,6 +68,18 @@ so any future non-200 names its own cause.
   SDD-047 states outright that it follows SDD-045's discipline. Covered by
   `tests/integration/project-roadmap-stall.test.js` and
   `tests/integration/projects-dashboard-stall.test.js`.
-- `handle()` classifies Prisma engine messages by keyword, so a server-side transaction or
+- ~~`handle()` classifies Prisma engine messages by keyword, so a server-side transaction or
   timeout error can surface as 400. Mapping Prisma client errors explicitly (500) would keep
-  infrastructure failures from reading as validation errors.
+  infrastructure failures from reading as validation errors.~~ Done: `handle()` now classifies
+  Prisma's own error types before sniffing the message, so P2028 and a malformed query answer
+  500 rather than 400. P2025 keeps its 404 (the one Prisma code that describes the request),
+  and a status a service set deliberately still wins. Matched by error `name`, not
+  `instanceof`: this app builds two Prisma clients and their error classes are distinct
+  constructors, so an `instanceof` fix would have worked in test and been absent in
+  production. Covered by `tests/unit/api-error-mapping.test.js`.
+
+  Two call sites had already worked around the symptom by raising their interactive
+  transaction timeouts — `line-server-provisioning-service.js` ("surfaced to the browser as a
+  400 with no field to blame") and `line-conversation-jobs.js`. Those timeouts are left as
+  they are: they were chosen for the work those transactions do, and this change only stops
+  the failure from being misreported.
