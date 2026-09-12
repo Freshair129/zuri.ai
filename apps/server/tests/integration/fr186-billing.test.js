@@ -16,14 +16,16 @@ import { makeOperatorViewer } from '../factories/viewer'
 
 const NOW = new Date('2026-09-06T03:00:00Z')
 const DOMAINS = ['projects', 'platform', 'commerce']
-let tenant, business, otherBusiness, legalEntity, branch, owner, member, order
+let tenant, business, otherBusiness, legalEntity, taxRegistrationBranch, branch, owner, member, order
 
 describe('FR-186 durable Commerce billing documents', () => {
   beforeAll(async () => {
     const portfolio = await createPortfolio({ code: 'PF-FR186', name: 'Billing Group' })
     tenant = await createTenant({ portfolioId: portfolio.id, code: 'TNT-FR186', name: 'Billing Tenant' })
+    // @req FR-194 — LegalEntity is Tenant-scoped (ADR-078 D1); TaxRegistrationBranch
+    // is the legal entity's own VAT branch registration, linked onto the Branch.
     legalEntity = await createLegalEntity({
-      portfolioId: portfolio.id,
+      tenantId: tenant.id,
       code: 'LE-FR186',
       legalName: 'Billing Fixture Co., Ltd.',
       identifiers: [{ country: 'TH', type: 'TH_TAX_ID', value: '0105560000000' }],
@@ -35,7 +37,8 @@ describe('FR-186 durable Commerce billing documents', () => {
     member = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [], visibleDomains: DOMAINS })
     await prisma.legalEntity.update({ where: { id: legalEntity.id }, data: { legalAddress: '99 Fixture Road, Bangkok' } })
     await prisma.legalEntityIdentifier.updateMany({ where: { legalEntityId: legalEntity.id }, data: { verifiedAt: new Date('2026-01-02T00:00:00Z') } })
-    await prisma.branch.update({ where: { id: branch.id }, data: { address: '99 Fixture Road, Bangkok', taxBranchCode: '00000' } })
+    taxRegistrationBranch = await prisma.taxRegistrationBranch.create({ data: { legalEntityId: legalEntity.id, branchCode: '00000', name: 'Head Office', address: '99 Fixture Road, Bangkok' } })
+    await prisma.branch.update({ where: { id: branch.id }, data: { address: '99 Fixture Road, Bangkok', taxRegistrationBranchId: taxRegistrationBranch.id } })
     order = await createOrder({ businessId: business.id, lines: [{ description: 'Fixture item', qty: 1, unitPrice: 107 }] }, { viewer: owner, now: NOW })
   })
 
@@ -43,14 +46,14 @@ describe('FR-186 durable Commerce billing documents', () => {
 
   it('keeps profile unavailable until the owner configures authoritative issuer and tax/recipient values', async () => {
     expect((await getBillingProfile(business.id, { viewer: member })).status).toBe('UNAVAILABLE')
-    await expect(updateBillingProfile(business.id, { legalAddress: '99 Fixture Road, Bangkok', branchId: branch.id, branchAddress: '99 Fixture Road, Bangkok', taxBranchCode: '00000' }, { viewer: member })).rejects.toMatchObject({ status: 404 })
+    await expect(updateBillingProfile(business.id, { legalAddress: '99 Fixture Road, Bangkok', branchId: branch.id, branchAddress: '99 Fixture Road, Bangkok', taxRegistrationBranchId: taxRegistrationBranch.id }, { viewer: member })).rejects.toMatchObject({ status: 404 })
     await updateBillingProfile(business.id, { vatRegistered: false, nonVatDocumentPolicy: null, walkInDocumentPolicy: 'ALLOW_ANONYMOUS_RECEIPT' }, { viewer: owner })
     await expect(previewBillingDocument({ orderId: order.id, branchId: branch.id, documentType: 'RECEIPT', buyer: { source: 'ANONYMOUS_WALK_IN' } }, { viewer: owner, now: NOW })).rejects.toMatchObject({ status: 422, message: 'BILLING_NON_VAT_POLICY_NOT_CONFIGURED' })
     const configured = await updateBillingProfile(business.id, {
       legalAddress: '99 Fixture Road, Bangkok',
       branchId: branch.id,
       branchAddress: '99 Fixture Road, Bangkok',
-      taxBranchCode: '00000',
+      taxRegistrationBranchId: taxRegistrationBranch.id,
       vatRegistered: true,
       vatRateBps: 700,
       vatTreatment: 'INCLUSIVE',

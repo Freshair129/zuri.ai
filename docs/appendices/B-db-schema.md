@@ -40,10 +40,12 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | AgentTraceEvent | tenantId, businessId, turnId, executionId?, kind, idempotencyKey, payloadJson, occurredAt, createdAt, version | FR-171 / ADR-070 scoped append-only execution evidence; exact context and output snapshots, retention tombstones; no provider credentials. Restored after LineConversationJob. |
 | Portfolio | code, name | รากของเครือ (BR-001) |
 | Tenant | portfolioId, status | ขอบเขต isolation + การแชร์ข้อมูล |
-| LegalEntity / LegalEntityIdentifier | portfolioId; (country,type,value) unique | external identifier ไม่ใช่ PK (BR-002) |
+| LegalEntity / LegalEntityIdentifier | tenantId (was portfolioId); (country,type,value) unique | FR-194/ADR-078 — moved under Tenant so a Business can only reference one in its own Tenant (composite FK); external identifier ไม่ใช่ PK (BR-002) |
+| TaxRegistrationBranch | legalEntityId, (legalEntityId,branchCode) unique | FR-194/ADR-078 — the legal entity's own VAT branch registration (ภ.พ.20); split out of `Branch.taxBranchCode` |
 | Business | tenantId, legalEntityId? | ธุรกิจปฏิบัติการ |
-| Branch | tenantId, businessId | tenantId ต้องตรงกับ business (tested) |
-| Person / Membership | tenant, business?, branch?, role, status, domainKeysJson, version | local canonical identity; only ACTIVE Membership contributes authority; MEMBER domain allow-list, OWNER/DEV role grant (FR-038, FR-094) |
+| Branch | tenantId, businessId, kind, taxRegistrationBranchId? | tenantId ต้องตรงกับ business (tested); FR-194 — `kind` (SITE/WAREHOUSE/KITCHEN/OFFICE), optional link to its LegalEntity's TaxRegistrationBranch (replaces `taxBranchCode`) |
+| Employment | personId, tenantId, businessId, branchId?, employeeNo?, title?, employmentType, status | FR-193/ADR-078 — HR assignment record, separate from Membership's access grant; `resolveViewer` never reads it |
+| Person / Membership | tenant, business?, role, status, domainKeysJson, version | local canonical identity; only ACTIVE Membership contributes authority; MEMBER domain allow-list, OWNER/DEV role grant (FR-038, FR-094); FR-193 moved `branchId`/`employeeRef` off this row into `Employment` |
 | Session | personId, tokenHash, status, assurance, expiresAt, revokedAt?, lastSeenAt, version | persisted server-side session authority; cookie/signature is transport only (FR-095) |
 | ChannelIdentity | personId, tenantId, channel, channelAccountId, providerSubject, status, verifiedAt?, linkedAt?, revokedAt?, version | namespaced channel binding; PENDING/ACTIVE/REVOKED lifecycle, additive compatibility contract beside ExternalIdentity (FR-094, FR-097) |
 | RoleBinding | personId, tenantId, businessId? (nullable — TENANT scope has none, FR-192/ADR-079), roleKey, scopeType, sodOverrideReason? (FR-196), status, assignedBy, revokedAt | generic Business- or Tenant-scoped RBAC binding; `PRODUCT_OWNER` is the current Product role (FR-076); TENANT scope is now resolved by `resolveViewer` (ADR-079 D4) |
@@ -499,3 +501,13 @@ factory may both name their four-item set `TMS06-4(P-16)`, and only a per-Tenant
 constraint lets them.
 
 Version diff 1.33.0b → 1.34.0b: add InventoryLedgerFence and InventoryStocktake; 146 models are now declared. No production migration was applied.
+
+Version diff 1.34.0b → 1.35.0b (2026-09-12, FR-193/FR-194, ADR-078): add `Employment`
+(HR assignment record, separate from `Membership`'s access grant — `resolveViewer`
+never reads it) and `TaxRegistrationBranch` (a LegalEntity's own VAT branch
+registration, split out of `Branch.taxBranchCode`); `LegalEntity.portfolioId`
+becomes `tenantId` with a composite FK from `Business.legalEntityId`; `Branch`
+gains `kind` and `taxRegistrationBranchId`, loses `taxBranchCode`; `Membership`
+loses `branchId`/`employeeRef` (backfilled into `Employment` first). 148 models
+are now declared. Migration `20260912130000_org_employment_legal_entity.sql`
+written and NOT applied.

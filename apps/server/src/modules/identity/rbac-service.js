@@ -45,7 +45,12 @@ async function assertTargetBusiness(db, tenantId, businessId) {
   return business
 }
 
-async function assertEmployee(db, personId, tenantId, businessId) {
+// @req FR-193 — renamed from `assertEmployee`: this checks Membership, which is
+// access ("who can log in here"), never employment ("who works here",
+// FR-193's `Employment` model). The old name conflated the two questions ADR-078
+// D1 keeps separate — it never read an employment record, only Membership, so
+// its own name was already wrong about what it did.
+async function assertTenantMember(db, personId, tenantId, businessId) {
   const person = await db.person.findUnique({ where: { id: personId }, select: { id: true } })
   if (!person) throw accessError('Person not found', 404)
 
@@ -57,7 +62,7 @@ async function assertEmployee(db, personId, tenantId, businessId) {
     },
     select: { id: true },
   })
-  if (!membership) throw accessError('Person is not an employee of the Tenant/Business', 403)
+  if (!membership) throw accessError('Person is not a member of the Tenant/Business', 403)
 }
 
 function requireBusinessOwner(viewer, businessId) {
@@ -131,7 +136,7 @@ export async function assignRoleBinding(
   const actorId = requireBusinessOwner(viewer, businessId)
 
   await assertTargetBusiness(db, tenantId, businessId)
-  await assertEmployee(db, personId, tenantId, businessId)
+  await assertTenantMember(db, personId, tenantId, businessId)
 
   const override = await assertNoConflict(db, { personId, tenantId, roleKey, viewer, sodOverride })
 

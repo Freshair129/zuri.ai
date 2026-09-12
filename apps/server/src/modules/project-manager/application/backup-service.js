@@ -147,7 +147,11 @@ function hasMemoryPendingCheckpoint(snapshot, job) {
 
 // Parents precede children for restore; reverse order is used for deletion.
 const SNAPSHOT_MODELS = [
-  'portfolio', 'integrationProvider', 'tenant', 'legalEntity', 'legalEntityIdentifier', 'business', 'branch',
+  'portfolio', 'integrationProvider', 'tenant', 'legalEntity', 'legalEntityIdentifier',
+  // @req FR-194 — a legal entity's own VAT branch registrations restore after
+  // it and before any Business/Branch that could reference one.
+  'taxRegistrationBranch',
+  'business', 'branch',
   // @req FR-186 — issuer/tax/PromptPay settings are Business-owned operating
   // configuration, while the LegalEntity and Branch identity above remain the
   // authoritative seller records.  The profile and numbering sequence must
@@ -175,7 +179,11 @@ const SNAPSHOT_MODELS = [
   // plus projectGoal and roleBinding below, were absent from this list until the
   // coverage check below started deriving it from the schema.
   'businessRoadmap', 'businessRoadmapHorizon', 'businessGoal',
-  'person', 'customerImportBatch', 'customerImportReviewCase', 'membership', 'roleBinding',
+  'person',
+  // @req FR-193 — the HR assignment record; restores after Person, Tenant,
+  // Business and Branch (all above), all of which it references.
+  'employment',
+  'customerImportBatch', 'customerImportReviewCase', 'membership', 'roleBinding',
   // @req FR-090 — both hang off Person, so they restore after it and delete
   // before it. A snapshot that omitted them would silently drop the credential
   // a person logs in with, which is the class of loss this list exists to stop.

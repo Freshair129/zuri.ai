@@ -90,7 +90,6 @@ export async function resolveAuthorizationContext({
       id: true,
       tenantId: true,
       businessId: true,
-      branchId: true,
       role: true,
       status: true,
       domainKeysJson: true,

@@ -119,6 +119,7 @@
     "BR-031",
     "BR-032",
     "BR-033",
+    "BR-034",
     "BR-035",
     "FR-001",
     "FR-002",
@@ -312,6 +313,8 @@
     "FR-190",
     "FR-191",
     "FR-192",
+    "FR-193",
+    "FR-194",
     "FR-195",
     "FR-196",
     "FR-197",
@@ -429,6 +432,7 @@
     "SDD-090",
     "SDD-091",
     "SDD-092",
+    "SDD-093",
     "SDD-094",
     "SEC-001",
     "SEC-002",
@@ -484,6 +488,7 @@
     "FEAT-025",
     "FEAT-026",
     "FEAT-027",
+    "FEAT-028",
     "FEAT-029",
     "RSK-001",
     "RSK-002",
@@ -650,6 +655,7 @@
     "ADR-075",
     "ADR-076",
     "ADR-077",
+    "ADR-078",
     "ADR-079",
     "ZV2-CR-001",
     "ZV2-CR-002",
@@ -1093,6 +1099,19 @@
       "history": [
         {
           "anchor": "a grant is withdrawn only by an explicit act that records",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-034": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1d33dc0ed96dd2b38592cd251c98def7f01b4fd919f2f16ba573c7499466ea36",
+      "history": [
+        {
+          "anchor": "an hr assignment record and an access grant are two",
           "since": "2026-09-12",
           "reason": "declared"
         }
@@ -3694,6 +3713,32 @@
         }
       ]
     },
+    "FR-193": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "63543f562234dd68675e193bc48aa9df7dae08013d35d548678a697ac0848fe6",
+      "history": [
+        {
+          "anchor": "employment is a new hr assignment record",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-194": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "50a4c768b4dfb1c0f937296577103892f310b485f1e702f1e287ce5b6fc34a8b",
+      "history": [
+        {
+          "anchor": "legalentity moves from portfolioid to tenantid adr 078 d2",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
     "FR-195": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3731,9 +3776,7 @@
           "since": "2026-09-12",
           "reason": "declared"
         }
-      ],
-      "statement_digest_reviewed_at": "2026-09-12",
-      "statement_digest_reason": "Removed an overclaim: the row said OPERATOR_ACTION is written for denied attempts included, and the code refuses before it writes, so a denial records nothing. Adds that the restore path records its use inside the transaction, after the re-insert, because a record written beforehand is deleted by the wipe it is recording (SEC-027)."
+      ]
     },
     "NFR-001": {
       "family": "NFR",
@@ -5239,6 +5282,19 @@
         }
       ]
     },
+    "SDD-093": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "0f6fa6b297a98e1ffff9d001dedcf62f3a21ce96f2bff9fa6986deb5ed56eb9c",
+      "history": [
+        {
+          "anchor": "employment is additive and unconnected by foreign key to",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
     "SDD-094": {
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -5250,9 +5306,7 @@
           "since": "2026-09-12",
           "reason": "declared"
         }
-      ],
-      "statement_digest_reviewed_at": "2026-09-12",
-      "statement_digest_reason": "Replaced 'every ACTIVE Business the Tenant holds today' with wording that says the expansion is evaluated at each request and therefore reaches Businesses created after the grant. The behaviour is unchanged; 'today' read as a snapshot and the resolver has never taken one."
+      ]
     },
     "SEC-001": {
       "family": "SEC",
@@ -5986,6 +6040,19 @@
       "history": [
         {
           "anchor": "access grant lifecycle",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-028": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "8578cc8655e49a89e08aba3bca4921e11c14c5271a3128d869b8c21c2329efce",
+      "history": [
+        {
+          "anchor": "org employment legal entity",
           "since": "2026-09-12",
           "reason": "declared"
         }
@@ -8170,6 +8237,19 @@
       "history": [
         {
           "anchor": "membership is a grant with a lifecycle not a membership fact",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-078": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY.md",
+      "status": "current",
+      "statement_digest": "511c334240626d5f5ea6d73eda00812c926a9295123e81e26a4248972b61cce4",
+      "history": [
+        {
+          "anchor": "employment is not membership and a legal entity lives",
           "since": "2026-09-12",
           "reason": "declared"
         }

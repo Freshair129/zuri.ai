@@ -48,10 +48,14 @@ async function main() {
   }
 
   // Legal entity for Business 01 (identifiers are external IDs, not PKs).
+  // @req FR-194 — Tenant-scoped, not Portfolio-scoped (ADR-078 D1): a legal
+  // entity is a party inside one isolation boundary, so it cannot hang off the
+  // Portfolio above several of them. Business 01 lives in TNT-001, and the
+  // Business->LegalEntity ancestry guard requires the two to share a tenant.
   const legalEntity = await prisma.legalEntity.upsert({
     where: { code: 'LE-001' },
     update: {},
-    create: { code: 'LE-001', legalName: 'Business 01 Co., Ltd.', portfolioId: portfolio.id },
+    create: { code: 'LE-001', legalName: 'Business 01 Co., Ltd.', tenantId: tenants['TNT-001'].id },
   })
   await prisma.legalEntityIdentifier.upsert({
     where: { country_type_value: { country: 'TH', type: 'TH_TAX_ID', value: '0105500000001' } },
