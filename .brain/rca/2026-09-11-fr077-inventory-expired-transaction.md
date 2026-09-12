@@ -59,8 +59,27 @@ so any future non-200 names its own cause.
 
 ## Not changed (follow-ups)
 
-- `project-roadmap-read-model.js` and `projects-dashboard-read-model.js` use the same
-  `db.$transaction(read)` construct and have the same failure mode.
-- `handle()` classifies Prisma engine messages by keyword, so a server-side transaction or
+- ~~`project-roadmap-read-model.js` and `projects-dashboard-read-model.js` use the same
+  `db.$transaction(read)` construct and have the same failure mode.~~ Done: both were
+  reproduced with the same stall harness (each answered 400 with the identical
+  "expired transaction" message) and changed the same way. FR-068/FR-070 (SDD-039,
+  ADR-028, ADR-029) and FR-086 (SDD-047, ADR-036) were checked first and neither asks for a
+  single snapshot: their only transactional requirement is the *write* commit path, and
+  SDD-047 states outright that it follows SDD-045's discipline. Covered by
+  `tests/integration/project-roadmap-stall.test.js` and
+  `tests/integration/projects-dashboard-stall.test.js`.
+- ~~`handle()` classifies Prisma engine messages by keyword, so a server-side transaction or
   timeout error can surface as 400. Mapping Prisma client errors explicitly (500) would keep
-  infrastructure failures from reading as validation errors.
+  infrastructure failures from reading as validation errors.~~ Done: `handle()` now classifies
+  Prisma's own error types before sniffing the message, so P2028 and a malformed query answer
+  500 rather than 400. P2025 keeps its 404 (the one Prisma code that describes the request),
+  and a status a service set deliberately still wins. Matched by error `name`, not
+  `instanceof`: this app builds two Prisma clients and their error classes are distinct
+  constructors, so an `instanceof` fix would have worked in test and been absent in
+  production. Covered by `tests/unit/api-error-mapping.test.js`.
+
+  Two call sites had already worked around the symptom by raising their interactive
+  transaction timeouts — `line-server-provisioning-service.js` ("surfaced to the browser as a
+  400 with no field to blame") and `line-conversation-jobs.js`. Those timeouts are left as
+  they are: they were chosen for the work those transactions do, and this change only stops
+  the failure from being misreported.

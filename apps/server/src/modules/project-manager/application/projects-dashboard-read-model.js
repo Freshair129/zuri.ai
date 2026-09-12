@@ -12,7 +12,7 @@ import { rollupProject } from '../progress/rollup'
 // `GET /api/projects/overview`: the KPI band, the enriched list rows and the
 // Top-5-by-priority panel in a single response.
 // @spec SDD-047, ADR-036, SEC-001, SDD-045, ADR-034
-// @tested tests/unit/projects-dashboard-read-model.test.js, tests/integration/projects-dashboard.test.js
+// @tested tests/unit/projects-dashboard-read-model.test.js, tests/integration/projects-dashboard.test.js, tests/integration/projects-dashboard-stall.test.js
 //
 // **Why this file exists at all.** A progress bar on every row means one
 // `/api/progress/project/{id}` call per project — an N+1 across the page's main
@@ -641,5 +641,12 @@ export async function getProjectsDashboard({
     const source = await readDashboardSources(tx, scope.where, { limit: query.limit })
     return buildProjectsDashboardReadModel({ ...source, scope, limit: query.limit })
   }
-  return typeof db.$transaction === 'function' ? db.$transaction(read) : read(db)
+  // Read directly, never inside an interactive transaction. Prisma expires an interactive
+  // transaction 5 s after it starts in wall time, so any event-loop stall while it was open
+  // (a Next dev compile in e2e, GC or CPU pressure in production) failed the next query with
+  // "Transaction already closed ... cannot be executed on an expired transaction", which the
+  // API error mapper reports as HTTP 400. SDD-047 asks for a read-only DTO authorized before
+  // composition, not a single snapshot; the progress route already authorizes and then reads
+  // without a transaction. See .brain/rca/2026-09-11-fr077-inventory-expired-transaction.md.
+  return read(db)
 }
