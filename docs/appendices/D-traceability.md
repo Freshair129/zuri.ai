@@ -11,7 +11,7 @@
 > annotations in the source, from requirement ids named inside tests, and from
 > transitive test → code → requirement paths.
 
-**Coverage** — FR with code **100% (186/186)** · FR with tests **100% (186/186)** ·
+**Coverage** — FR with code **100% (188/188)** · FR with tests **100% (188/188)** ·
 rules anchored in code **96% (151/157)** · annotated source files **825**
 
 ## Functional requirements

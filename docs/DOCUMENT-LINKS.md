@@ -1699,6 +1699,7 @@ Source: [ADR-078 — Employment is not Membership, and a legal entity lives insi
 - references: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
 - references: [ADR-037 — Team is an organisational grouping, never an authority](decisions/ADR-037-TEAM-IS-AN-ORGANISATIONAL-GROUPING-NOT-AN-AUTHORITY.md)
 - relates: [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md)
+- supersedes: [req:FR-194](PRD-SDD-v1.0.md)
 
 ## ADR-079 — Access invite, segregation of duties, and the operator lifecycle
 
