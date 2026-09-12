@@ -8,9 +8,9 @@
   },
   "summary": {
     "critical": 0,
-    "warning": 3,
+    "warning": 0,
     "info": 23,
-    "overall": "WARN"
+    "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
   "findings": [
@@ -147,40 +147,7 @@
       "action": "Inherited spec pack — add a control block at its next revision"
     },
     {
-      "id": "W13",
-      "severity": "warning",
-      "check": "cross-reference",
-      "title": "Broken link → ADR-033-GENERIC-ROLE-REGISTRY-AND-BINDINGS.md",
-      "details": "in ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md",
-      "files": [
-        "docs/decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md"
-      ],
-      "action": "Fix the path or remove the link"
-    },
-    {
-      "id": "W14",
-      "severity": "warning",
-      "check": "cross-reference",
-      "title": "Broken link → ADR-037-TEAMS-ARE-GROUPING-NOT-AUTHORIZATION.md",
-      "details": "in ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md",
-      "files": [
-        "docs/decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md"
-      ],
-      "action": "Fix the path or remove the link"
-    },
-    {
-      "id": "W15",
-      "severity": "warning",
-      "check": "cross-reference",
-      "title": "Broken link → ADR-045-SESSION-AND-PRINCIPAL-RESOLUTION.md",
-      "details": "in ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md",
-      "files": [
-        "docs/decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md"
-      ],
-      "action": "Fix the path or remove the link"
-    },
-    {
-      "id": "I16",
+      "id": "I13",
       "severity": "info",
       "check": "enum-copy",
       "title": "1 baseline entr(ies) no longer copy an enum",
@@ -191,7 +158,7 @@
       "action": "Remove them from .enum-copy-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I17",
+      "id": "I14",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",
@@ -202,7 +169,7 @@
       "action": "A silent failure is indistinguishable from success; the baseline may only shrink"
     },
     {
-      "id": "I18",
+      "id": "I15",
       "severity": "info",
       "check": "id-stability",
       "title": "567 id(s) pinned across 10 families",
@@ -213,7 +180,7 @@
       "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
     },
     {
-      "id": "I19",
+      "id": "I16",
       "severity": "info",
       "check": "roadmap-evidence",
       "title": "1 roadmap reference(s) name a document that no longer exists (accepted debt)",
@@ -224,7 +191,7 @@
       "action": "Repoint or retire them; the baseline may only shrink"
     },
     {
-      "id": "I20",
+      "id": "I17",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "1 baseline requirement(s) now have a roadmap row",
@@ -235,7 +202,7 @@
       "action": "Remove them from .roadmap-coverage-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I21",
+      "id": "I18",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "22 delivered requirement(s) carry no roadmap row (accepted debt)",
@@ -246,7 +213,7 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "I22",
+      "id": "I19",
       "severity": "info",
       "check": "table-integrity",
       "title": "table integrity checked in 370 document(s)",
@@ -257,7 +224,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I23",
+      "id": "I20",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",
@@ -269,7 +236,7 @@
       "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     },
     {
-      "id": "I24",
+      "id": "I21",
       "severity": "info",
       "check": "audit-entity-type",
       "title": "audit entityType checked in 90 file(s) that write audit events",
@@ -278,7 +245,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I25",
+      "id": "I22",
       "severity": "info",
       "check": "schema-migration-drift",
       "title": "schema-migration drift checked: 2033 column(s) across 146 model(s) against 67 migration(s)",
@@ -287,7 +254,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I26",
+      "id": "I23",
       "severity": "info",
       "check": "unreachable-state",
       "title": "5 declared state(s) are unreachable (accepted debt)",
