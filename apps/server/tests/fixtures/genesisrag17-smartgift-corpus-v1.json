@@ -1,0 +1,371 @@
+{
+  "fixtureVersion": "smartgift-catalog-corpus-v1",
+  "req": "FR-188",
+  "spec": "ADR-075",
+  "contract": ".brain/proposals/2026-09-11-genesisrag17-structured-record-profile.md (revision 2, C-4/C-5/C-7/C-8)",
+  "purpose": "Benchmark corpus for the SmartGift four-process acceptance: one benchmark fixture per admitted record, because a GenesisBlock generation holds exactly the chunks of the decision that produced it.",
+  "generatedFrom": "apps/server/tests/fixtures/genesisrag17/smartgift-catalog (records copied verbatim); expectedChunks and relevantTexts are the genesisrag17-parser-2 rendering and are re-derived and asserted by the acceptance suite.",
+  "catalogFileName": "smartgift-catalog-acceptance.json",
+  "heldCatalogFileName": "smartgift-catalog-acceptance-held.json",
+  "ontologyVersion": "ontology_v2",
+  "expectedSemanticTypes": [
+    "Product",
+    "PACKAGE",
+    "CATEGORY",
+    "PRICE_TIER"
+  ],
+  "expectedPredicates": [
+    "IN_CATEGORY",
+    "PRICED_AT",
+    "HAS_COMPONENT"
+  ],
+  "records": [
+    {
+      "category": "eco-friendly",
+      "code": "PM-TMB",
+      "dimensionsCm": {
+        "height": 21,
+        "length": 8,
+        "width": 8
+      },
+      "entityType": "ProductMaster",
+      "externalId": "PM-TMB",
+      "flowaccountModelCode": "BW00-0",
+      "nameEn": "Thermal Tumbler SUS316",
+      "nameTh": "แก้วทัมเบลอร์เก็บอุณหภูมิ (Tumbler SUS316)",
+      "priceTiersThb": [
+        {
+          "minQty": 1,
+          "unitPriceThb": 320
+        },
+        {
+          "minQty": 10,
+          "unitPriceThb": 290
+        },
+        {
+          "minQty": 20,
+          "unitPriceThb": 270
+        },
+        {
+          "minQty": 50,
+          "unitPriceThb": 250
+        },
+        {
+          "minQty": 100,
+          "unitPriceThb": 230
+        },
+        {
+          "minQty": 300,
+          "unitPriceThb": 215
+        },
+        {
+          "minQty": 500,
+          "unitPriceThb": 200
+        },
+        {
+          "minQty": 1000,
+          "unitPriceThb": 185
+        }
+      ],
+      "productFamily": "PF-DRINKWARE",
+      "provenance": {
+        "supplementUpstreamFile": "data-pipeline/02_prepared/smartgift_catalog_master.json",
+        "upstreamFile": "data-pipeline/02_prepared/ProductMaster.json",
+        "upstreamRecordId": "pm:PM-TMB"
+      },
+      "srpPriceThbQty1": 320,
+      "unitWeightKg": 0.35
+    },
+    {
+      "category": "eco-friendly",
+      "code": "PM-BOTTLE-LED",
+      "dimensionsCm": {
+        "height": 23,
+        "length": 7,
+        "width": 7
+      },
+      "entityType": "ProductMaster",
+      "externalId": "PM-BOTTLE-LED",
+      "flowaccountModelCode": "TDK01-1",
+      "nameEn": "Smart LED Temperature Thermos Bottle",
+      "nameTh": "กระบอกน้ำสแตนเลสบอกอุณหภูมิหน้าจอ Smart LED",
+      "priceTiersThb": [
+        {
+          "minQty": 1,
+          "unitPriceThb": 290
+        },
+        {
+          "minQty": 10,
+          "unitPriceThb": 260
+        },
+        {
+          "minQty": 20,
+          "unitPriceThb": 240
+        },
+        {
+          "minQty": 50,
+          "unitPriceThb": 220
+        },
+        {
+          "minQty": 100,
+          "unitPriceThb": 200
+        },
+        {
+          "minQty": 300,
+          "unitPriceThb": 185
+        },
+        {
+          "minQty": 500,
+          "unitPriceThb": 170
+        },
+        {
+          "minQty": 1000,
+          "unitPriceThb": 155
+        }
+      ],
+      "productFamily": "PF-DRINKWARE",
+      "provenance": {
+        "supplementUpstreamFile": "data-pipeline/02_prepared/smartgift_catalog_master.json",
+        "upstreamFile": "data-pipeline/02_prepared/ProductMaster.json",
+        "upstreamRecordId": "pm:PM-BOTTLE-LED"
+      },
+      "srpPriceThbQty1": 290,
+      "unitWeightKg": 0.32
+    },
+    {
+      "entityType": "PriceListEntry",
+      "externalId": "PM-TMB@qty100",
+      "productExternalId": "PM-TMB",
+      "provenance": {
+        "upstreamFile": "data-pipeline/02_prepared/pricelist_master.json",
+        "upstreamRecordId": "SRP-PM-TMB-100"
+      },
+      "qty": 100,
+      "srpSource": "master_declared",
+      "srpUnitPriceThb": 230
+    },
+    {
+      "code": "PKG-NY-2027-REACH-OPS",
+      "componentSrpQty1TotalThb": 610,
+      "components": [
+        {
+          "productExternalId": "PM-TMB",
+          "qty": 1,
+          "srpQty1Thb": 320
+        },
+        {
+          "productExternalId": "PM-BOTTLE-LED",
+          "qty": 1,
+          "srpQty1Thb": 290
+        }
+      ],
+      "entityType": "BundleOffer",
+      "externalId": "PKG-NY-2027-REACH-OPS",
+      "flowaccountOfferCode": "SG-OFFER-NY-2027-REACH-OPS",
+      "giftTier": "Reach",
+      "nameTh": "ชุด Fresh Start Essentials สำหรับทีมปฏิบัติการ",
+      "occasion": "new_year_2027",
+      "offerPriceTiersThb": [],
+      "provenance": {
+        "upstreamFile": "data-pipeline/02_prepared/BundleOffer.json",
+        "upstreamRecordId": "bundle:smartgift-new_year_2027-reach-operations"
+      },
+      "recipientSegment": "Operations"
+    }
+  ],
+  "benchmarks": [
+    {
+      "externalId": "PM-TMB",
+      "entityType": "ProductMaster",
+      "fixtureVersion": "smartgift-catalog-corpus-v1:PM-TMB",
+      "expectedChunks": [
+        {
+          "kind": "descriptive",
+          "predicate": null,
+          "text": "ProductMaster PM-TMB\nnameEn: Thermal Tumbler SUS316\nnameTh: แก้วทัมเบลอร์เก็บอุณหภูมิ (Tumbler SUS316)\ncategory: eco-friendly\nproductFamily: PF-DRINKWARE\nflowaccountModelCode: BW00-0\ndimensionsCm: length 8 x width 8 x height 21\nunitWeightKg: 0.35\nsrpPriceThbQty1: 320\npriceTiersThb: qty 1 = 320 THB; qty 10 = 290 THB; qty 20 = 270 THB; qty 50 = 250 THB; qty 100 = 230 THB; qty 300 = 215 THB; qty 500 = 200 THB; qty 1000 = 185 THB"
+        },
+        {
+          "kind": "claim",
+          "predicate": "IN_CATEGORY",
+          "text": "{\"object\":\"eco-friendly\",\"predicate\":\"IN_CATEGORY\",\"subject\":\"PM-TMB\"}"
+        }
+      ],
+      "expectedPredicates": [
+        "IN_CATEGORY"
+      ],
+      "queries": [
+        {
+          "query": "Thermal Tumbler SUS316 stainless steel drinkware product record",
+          "relevantTexts": [
+            "ProductMaster PM-TMB\nnameEn: Thermal Tumbler SUS316\nnameTh: แก้วทัมเบลอร์เก็บอุณหภูมิ (Tumbler SUS316)\ncategory: eco-friendly\nproductFamily: PF-DRINKWARE\nflowaccountModelCode: BW00-0\ndimensionsCm: length 8 x width 8 x height 21\nunitWeightKg: 0.35\nsrpPriceThbQty1: 320\npriceTiersThb: qty 1 = 320 THB; qty 10 = 290 THB; qty 20 = 270 THB; qty 50 = 250 THB; qty 100 = 230 THB; qty 300 = 215 THB; qty 500 = 200 THB; qty 1000 = 185 THB"
+          ]
+        },
+        {
+          "query": "PM-TMB IN_CATEGORY eco-friendly",
+          "relevantTexts": [
+            "{\"object\":\"eco-friendly\",\"predicate\":\"IN_CATEGORY\",\"subject\":\"PM-TMB\"}"
+          ]
+        }
+      ]
+    },
+    {
+      "externalId": "PM-BOTTLE-LED",
+      "entityType": "ProductMaster",
+      "fixtureVersion": "smartgift-catalog-corpus-v1:PM-BOTTLE-LED",
+      "expectedChunks": [
+        {
+          "kind": "descriptive",
+          "predicate": null,
+          "text": "ProductMaster PM-BOTTLE-LED\nnameEn: Smart LED Temperature Thermos Bottle\nnameTh: กระบอกน้ำสแตนเลสบอกอุณหภูมิหน้าจอ Smart LED\ncategory: eco-friendly\nproductFamily: PF-DRINKWARE\nflowaccountModelCode: TDK01-1\ndimensionsCm: length 7 x width 7 x height 23\nunitWeightKg: 0.32\nsrpPriceThbQty1: 290\npriceTiersThb: qty 1 = 290 THB; qty 10 = 260 THB; qty 20 = 240 THB; qty 50 = 220 THB; qty 100 = 200 THB; qty 300 = 185 THB; qty 500 = 170 THB; qty 1000 = 155 THB"
+        },
+        {
+          "kind": "claim",
+          "predicate": "IN_CATEGORY",
+          "text": "{\"object\":\"eco-friendly\",\"predicate\":\"IN_CATEGORY\",\"subject\":\"PM-BOTTLE-LED\"}"
+        }
+      ],
+      "expectedPredicates": [
+        "IN_CATEGORY"
+      ],
+      "queries": [
+        {
+          "query": "Smart LED Temperature Thermos Bottle specification and price tiers",
+          "relevantTexts": [
+            "ProductMaster PM-BOTTLE-LED\nnameEn: Smart LED Temperature Thermos Bottle\nnameTh: กระบอกน้ำสแตนเลสบอกอุณหภูมิหน้าจอ Smart LED\ncategory: eco-friendly\nproductFamily: PF-DRINKWARE\nflowaccountModelCode: TDK01-1\ndimensionsCm: length 7 x width 7 x height 23\nunitWeightKg: 0.32\nsrpPriceThbQty1: 290\npriceTiersThb: qty 1 = 290 THB; qty 10 = 260 THB; qty 20 = 240 THB; qty 50 = 220 THB; qty 100 = 200 THB; qty 300 = 185 THB; qty 500 = 170 THB; qty 1000 = 155 THB"
+          ]
+        },
+        {
+          "query": "PM-BOTTLE-LED IN_CATEGORY eco-friendly",
+          "relevantTexts": [
+            "{\"object\":\"eco-friendly\",\"predicate\":\"IN_CATEGORY\",\"subject\":\"PM-BOTTLE-LED\"}"
+          ]
+        }
+      ]
+    },
+    {
+      "externalId": "PM-TMB@qty100",
+      "entityType": "PriceListEntry",
+      "fixtureVersion": "smartgift-catalog-corpus-v1:PM-TMB@qty100",
+      "expectedChunks": [
+        {
+          "kind": "descriptive",
+          "predicate": null,
+          "text": "PriceListEntry PM-TMB:qty100:23000\nexternalId: PM-TMB@qty100\nitem: PM-TMB\nqty: 100\nsrpUnitPriceThb: 230\nsrpSource: master_declared"
+        },
+        {
+          "kind": "claim",
+          "predicate": "PRICED_AT",
+          "text": "{\"object\":\"PM-TMB:qty100:23000\",\"predicate\":\"PRICED_AT\",\"subject\":\"PM-TMB\"}"
+        }
+      ],
+      "expectedPredicates": [
+        "PRICED_AT"
+      ],
+      "queries": [
+        {
+          "query": "PriceListEntry srpUnitPriceThb 230 for qty 100 master_declared",
+          "relevantTexts": [
+            "PriceListEntry PM-TMB:qty100:23000\nexternalId: PM-TMB@qty100\nitem: PM-TMB\nqty: 100\nsrpUnitPriceThb: 230\nsrpSource: master_declared"
+          ]
+        },
+        {
+          "query": "PM-TMB PRICED_AT PM-TMB:qty100:23000",
+          "relevantTexts": [
+            "{\"object\":\"PM-TMB:qty100:23000\",\"predicate\":\"PRICED_AT\",\"subject\":\"PM-TMB\"}"
+          ]
+        }
+      ]
+    },
+    {
+      "externalId": "PKG-NY-2027-REACH-OPS",
+      "entityType": "BundleOffer",
+      "fixtureVersion": "smartgift-catalog-corpus-v1:PKG-NY-2027-REACH-OPS",
+      "expectedChunks": [
+        {
+          "kind": "descriptive",
+          "predicate": null,
+          "text": "BundleOffer PKG-NY-2027-REACH-OPS\nnameTh: ชุด Fresh Start Essentials สำหรับทีมปฏิบัติการ\noccasion: new_year_2027\ngiftTier: Reach\nrecipientSegment: Operations\nflowaccountOfferCode: SG-OFFER-NY-2027-REACH-OPS\ncomponentSrpQty1TotalThb: 610\ncomponents: PM-TMB x1 srp 320 THB; PM-BOTTLE-LED x1 srp 290 THB"
+        },
+        {
+          "kind": "claim",
+          "predicate": "HAS_COMPONENT",
+          "text": "{\"object\":\"PM-TMB\",\"predicate\":\"HAS_COMPONENT\",\"subject\":\"PKG-NY-2027-REACH-OPS\"}"
+        },
+        {
+          "kind": "claim",
+          "predicate": "HAS_COMPONENT",
+          "text": "{\"object\":\"PM-BOTTLE-LED\",\"predicate\":\"HAS_COMPONENT\",\"subject\":\"PKG-NY-2027-REACH-OPS\"}"
+        }
+      ],
+      "expectedPredicates": [
+        "HAS_COMPONENT"
+      ],
+      "queries": [
+        {
+          "query": "Fresh Start Essentials new_year_2027 Reach bundle for Operations",
+          "relevantTexts": [
+            "BundleOffer PKG-NY-2027-REACH-OPS\nnameTh: ชุด Fresh Start Essentials สำหรับทีมปฏิบัติการ\noccasion: new_year_2027\ngiftTier: Reach\nrecipientSegment: Operations\nflowaccountOfferCode: SG-OFFER-NY-2027-REACH-OPS\ncomponentSrpQty1TotalThb: 610\ncomponents: PM-TMB x1 srp 320 THB; PM-BOTTLE-LED x1 srp 290 THB"
+          ]
+        },
+        {
+          "query": "PKG-NY-2027-REACH-OPS HAS_COMPONENT PM-TMB",
+          "relevantTexts": [
+            "{\"object\":\"PM-TMB\",\"predicate\":\"HAS_COMPONENT\",\"subject\":\"PKG-NY-2027-REACH-OPS\"}"
+          ]
+        },
+        {
+          "query": "PKG-NY-2027-REACH-OPS HAS_COMPONENT PM-BOTTLE-LED",
+          "relevantTexts": [
+            "{\"object\":\"PM-BOTTLE-LED\",\"predicate\":\"HAS_COMPONENT\",\"subject\":\"PKG-NY-2027-REACH-OPS\"}"
+          ]
+        }
+      ]
+    }
+  ],
+  "held": {
+    "reason": "C-7 — one record deliberately expected not to publish. Its IN_CATEGORY relation names a category whose norm_v1 key equals the record code, which GKS would resolve to one entity and hold as invalid_endpoint. genesisrag17-parser-2 mirrors that guard at Stage 2, so the real chain refuses it there: the documented outcome is a terminal Stage 2 failure and no publication, never a false PASS.",
+    "record": {
+      "entityType": "ProductMaster",
+      "externalId": "PM-HELD-SELF",
+      "code": "PM-HELD-SELF",
+      "nameTh": "สินค้าตัวอย่างที่จับคู่ความสัมพันธ์ไม่ได้",
+      "nameEn": "Deliberately unmappable catalog record",
+      "category": "PM HELD SELF",
+      "productFamily": "PF-DRINKWARE",
+      "flowaccountModelCode": null,
+      "priceTiersThb": [],
+      "provenance": {
+        "upstreamFile": "data-pipeline/02_prepared/ProductMaster.json",
+        "upstreamRecordId": "pm:PM-HELD-SELF"
+      }
+    },
+    "expected": {
+      "code": "GENESISRAG17_STRUCTURED_RECORD_INVALID",
+      "status": 422,
+      "message": "SmartGift relation names the same code as subject and object"
+    }
+  },
+  "sourceFixture": {
+    "fixtureVersion": "smartgift-catalog-v1",
+    "files": [
+      {
+        "file": "products.json",
+        "recordCount": 5,
+        "sha256": "7864f2ff687a1d930ef8e810239757e1386ae951320ee6bd277ced11e883f82b",
+        "sizeBytes": 6754
+      },
+      {
+        "file": "bundles.json",
+        "recordCount": 2,
+        "sha256": "baea81296c68232620564899c67342442d672f33ed53a280f1d7233e641b29c7",
+        "sizeBytes": 2016
+      },
+      {
+        "file": "pricelist.json",
+        "recordCount": 15,
+        "sha256": "591d88fd5b9806d007632e38f11830e6b6ca8537c1709f973360864e8d3228c5",
+        "sizeBytes": 5130
+      }
+    ]
+  }
+}

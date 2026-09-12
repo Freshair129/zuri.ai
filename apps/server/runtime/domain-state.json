@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-12T05:17:05.405Z",
+  "generatedAt": "2026-09-12T06:02:20.945Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -1898,14 +1898,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-188",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 7
+          "testCount": 8
         }
       ],
       "checks": {
@@ -2449,14 +2449,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-188",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-189",
@@ -4289,7 +4289,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 13
+          "testCount": 14
         }
       ],
       "checks": {
@@ -7177,14 +7177,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-188",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-189",
@@ -7205,6 +7205,7 @@
         "apps/server/src/modules/knowledge/structured-record-policy.js",
         "apps/server/src/modules/project-manager/mcp/transport.js",
         "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
+        "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
         "apps/server/tests/acceptance/knowledge-admission-native.test.js",
         "apps/server/tests/integration/genesisrag17-parser-2.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",

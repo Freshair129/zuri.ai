@@ -1,0 +1,167 @@
+{
+  "phase": "ADR-075 Phase 2 acceptance — SmartGift structured records (contract revision 2, C-8)",
+  "schemaVersion": "genesisrag17.v1",
+  "fixtureVersion": "smartgift-catalog-corpus-v1",
+  "nodeVersion": "v24.19.0",
+  "thresholds": {
+    "recallAt5": 0.8,
+    "mrr": 0.65,
+    "citationCorrectness": 1,
+    "crossTenantLeaks": 0
+  },
+  "published": [
+    {
+      "externalId": "PM-TMB",
+      "runId": "3281c63b-1b9f-41ee-aa5b-09bd9247a4de",
+      "snapshotId": "snap-e4bb2d8c1f843a0fe8be1e9bdd8182aa",
+      "generation": "g17-f55341b64c28a6fbec17761797ffc1fa",
+      "benchmark": {
+        "fixtureVersion": "smartgift-catalog-corpus-v1:PM-TMB",
+        "queryCount": 2,
+        "recallAt5": 1,
+        "mrr": 1,
+        "citationCorrectness": 1,
+        "crossTenantLeaks": 0
+      },
+      "ontologyVersion": "ontology_v2",
+      "predicates": [
+        "IN_CATEGORY"
+      ],
+      "semanticTypes": [
+        "Product",
+        "CATEGORY"
+      ]
+    },
+    {
+      "externalId": "PM-BOTTLE-LED",
+      "runId": "1f2f2c5f-7898-4399-b419-0de269396e07",
+      "snapshotId": "snap-ee60890cf3ba3df439265dfb97f9f090",
+      "generation": "g17-3486422fa5e7ec36d0956bb75cbc55ab",
+      "benchmark": {
+        "fixtureVersion": "smartgift-catalog-corpus-v1:PM-BOTTLE-LED",
+        "queryCount": 2,
+        "recallAt5": 1,
+        "mrr": 1,
+        "citationCorrectness": 1,
+        "crossTenantLeaks": 0
+      },
+      "ontologyVersion": "ontology_v2",
+      "predicates": [
+        "IN_CATEGORY"
+      ],
+      "semanticTypes": [
+        "Product",
+        "CATEGORY"
+      ]
+    },
+    {
+      "externalId": "PM-TMB@qty100",
+      "runId": "d537afb7-2cfc-4541-aa93-bf6960d00c25",
+      "snapshotId": "snap-75038686831c85ccad537d06e00d6052",
+      "generation": "g17-e87e5b16dc515712722f523256530702",
+      "benchmark": {
+        "fixtureVersion": "smartgift-catalog-corpus-v1:PM-TMB@qty100",
+        "queryCount": 2,
+        "recallAt5": 1,
+        "mrr": 0.75,
+        "citationCorrectness": 1,
+        "crossTenantLeaks": 0
+      },
+      "ontologyVersion": "ontology_v2",
+      "predicates": [
+        "PRICED_AT"
+      ],
+      "semanticTypes": [
+        "PRICE_TIER",
+        "Product"
+      ]
+    },
+    {
+      "externalId": "PKG-NY-2027-REACH-OPS",
+      "runId": "7d0bae15-d311-49fe-8f07-bc5fa3996421",
+      "snapshotId": "snap-9c59176bc3756ec666af97b895c3e1d0",
+      "generation": "g17-9ef474a1f4ff0d1b2a6db39a629d734d",
+      "benchmark": {
+        "fixtureVersion": "smartgift-catalog-corpus-v1:PKG-NY-2027-REACH-OPS",
+        "queryCount": 3,
+        "recallAt5": 1,
+        "mrr": 1,
+        "citationCorrectness": 1,
+        "crossTenantLeaks": 0
+      },
+      "ontologyVersion": "ontology_v2",
+      "predicates": [
+        "HAS_COMPONENT"
+      ],
+      "semanticTypes": [
+        "PACKAGE",
+        "Product"
+      ]
+    }
+  ],
+  "chains": [
+    {
+      "chunk": "kpa_370c1e22b8eff698e81a1c4bcfeed9c4536accb4b8509038:chunk:0",
+      "parsedArtifact": "kpa_370c1e22b8eff698e81a1c4bcfeed9c4536accb4b8509038",
+      "rawArtifact": "kra_1fc08a4986e305e8027f1736d30b3bdce2ab1e1c4977b35f",
+      "rawExternalRecord": "b852073b-7bf1-4718-9d81-71b63af492c3",
+      "source": "76713c18-c395-4466-a9d9-101ea1a230d3"
+    },
+    {
+      "chunk": "kpa_370c1e22b8eff698e81a1c4bcfeed9c4536accb4b8509038:chunk:2",
+      "parsedArtifact": "kpa_370c1e22b8eff698e81a1c4bcfeed9c4536accb4b8509038",
+      "rawArtifact": "kra_1fc08a4986e305e8027f1736d30b3bdce2ab1e1c4977b35f",
+      "rawExternalRecord": "b852073b-7bf1-4718-9d81-71b63af492c3",
+      "source": "76713c18-c395-4466-a9d9-101ea1a230d3"
+    },
+    {
+      "chunk": "kpa_370c1e22b8eff698e81a1c4bcfeed9c4536accb4b8509038:chunk:1",
+      "parsedArtifact": "kpa_370c1e22b8eff698e81a1c4bcfeed9c4536accb4b8509038",
+      "rawArtifact": "kra_1fc08a4986e305e8027f1736d30b3bdce2ab1e1c4977b35f",
+      "rawExternalRecord": "b852073b-7bf1-4718-9d81-71b63af492c3",
+      "source": "76713c18-c395-4466-a9d9-101ea1a230d3"
+    },
+    {
+      "chunk": "kpa_370c1e22b8eff698e81a1c4bcfeed9c4536accb4b8509038:chunk:1",
+      "parsedArtifact": "kpa_370c1e22b8eff698e81a1c4bcfeed9c4536accb4b8509038",
+      "rawArtifact": "kra_1fc08a4986e305e8027f1736d30b3bdce2ab1e1c4977b35f",
+      "rawExternalRecord": "b852073b-7bf1-4718-9d81-71b63af492c3",
+      "source": "76713c18-c395-4466-a9d9-101ea1a230d3"
+    },
+    {
+      "chunk": "kpa_370c1e22b8eff698e81a1c4bcfeed9c4536accb4b8509038:chunk:2",
+      "parsedArtifact": "kpa_370c1e22b8eff698e81a1c4bcfeed9c4536accb4b8509038",
+      "rawArtifact": "kra_1fc08a4986e305e8027f1736d30b3bdce2ab1e1c4977b35f",
+      "rawExternalRecord": "b852073b-7bf1-4718-9d81-71b63af492c3",
+      "source": "76713c18-c395-4466-a9d9-101ea1a230d3"
+    },
+    {
+      "chunk": "kpa_370c1e22b8eff698e81a1c4bcfeed9c4536accb4b8509038:chunk:0",
+      "parsedArtifact": "kpa_370c1e22b8eff698e81a1c4bcfeed9c4536accb4b8509038",
+      "rawArtifact": "kra_1fc08a4986e305e8027f1736d30b3bdce2ab1e1c4977b35f",
+      "rawExternalRecord": "b852073b-7bf1-4718-9d81-71b63af492c3",
+      "source": "76713c18-c395-4466-a9d9-101ea1a230d3"
+    },
+    {
+      "chunk": "kpa_370c1e22b8eff698e81a1c4bcfeed9c4536accb4b8509038:chunk:2",
+      "parsedArtifact": "kpa_370c1e22b8eff698e81a1c4bcfeed9c4536accb4b8509038",
+      "rawArtifact": "kra_1fc08a4986e305e8027f1736d30b3bdce2ab1e1c4977b35f",
+      "rawExternalRecord": "b852073b-7bf1-4718-9d81-71b63af492c3",
+      "source": "76713c18-c395-4466-a9d9-101ea1a230d3"
+    },
+    {
+      "chunk": "kpa_370c1e22b8eff698e81a1c4bcfeed9c4536accb4b8509038:chunk:1",
+      "parsedArtifact": "kpa_370c1e22b8eff698e81a1c4bcfeed9c4536accb4b8509038",
+      "rawArtifact": "kra_1fc08a4986e305e8027f1736d30b3bdce2ab1e1c4977b35f",
+      "rawExternalRecord": "b852073b-7bf1-4718-9d81-71b63af492c3",
+      "source": "76713c18-c395-4466-a9d9-101ea1a230d3"
+    },
+    {
+      "chunk": "kpa_370c1e22b8eff698e81a1c4bcfeed9c4536accb4b8509038:chunk:0",
+      "parsedArtifact": "kpa_370c1e22b8eff698e81a1c4bcfeed9c4536accb4b8509038",
+      "rawArtifact": "kra_1fc08a4986e305e8027f1736d30b3bdce2ab1e1c4977b35f",
+      "rawExternalRecord": "b852073b-7bf1-4718-9d81-71b63af492c3",
+      "source": "76713c18-c395-4466-a9d9-101ea1a230d3"
+    }
+  ]
+}
