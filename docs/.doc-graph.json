@@ -3,7 +3,7 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2654,
+    "total_nodes": 2655,
     "total_edges": 10776,
     "dangling_edges": 0,
     "node_types": {
@@ -16,7 +16,7 @@
       "route": 337,
       "model": 146,
       "requirement": 359,
-      "test": 624,
+      "test": 625,
       "code_file": 801
     },
     "coverage": {
@@ -28795,6 +28795,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/ci-code-changes.test.js",
       "hash": "c54d9a8f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/ci-select-e2e.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/ci-select-e2e.test.js",
+      "hash": "90f7ee8c",
       "status": "current"
     },
     {
