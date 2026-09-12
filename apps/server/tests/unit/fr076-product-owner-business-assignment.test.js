@@ -103,7 +103,12 @@ describe('FR-076 generic RoleBinding lifecycle', () => {
       membership: { findFirst: vi.fn().mockResolvedValue({ id: 'membership-etoh', businessId: null, tenantId: 't-etoh' }) },
       business: { findUnique: vi.fn().mockResolvedValue({ id: 'b-smartgift', tenantId: 't-etoh', status: 'ACTIVE' }) },
       roleBinding: {
-        findUnique: vi.fn().mockResolvedValue(null),
+        // @req FR-192/ADR-077 D3 — `assignRoleBinding` looks up an existing
+        // binding with `findFirst` now: `businessId` became nullable to admit
+        // a TENANT-scoped row, which retired the compound-unique index
+        // `findUnique` used to key on.
+        findFirst: vi.fn().mockResolvedValue(null),
+        findMany: vi.fn().mockResolvedValue([]),
         create: vi.fn().mockResolvedValue({ id: 'binding-1', personId: 'p-product', tenantId: 't-etoh', businessId: 'b-smartgift', roleKey: ROLE_PRODUCT_OWNER, scopeType: 'BUSINESS', status: 'ACTIVE' }),
         update: vi.fn().mockResolvedValue({ id: 'binding-1', businessId: 'b-smartgift', tenantId: 't-etoh', roleKey: ROLE_PRODUCT_OWNER, status: 'REVOKED' }),
         ...overrides.roleBinding,

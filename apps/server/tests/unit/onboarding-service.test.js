@@ -36,7 +36,7 @@ function mockDb({
       findMany: vi.fn().mockResolvedValue(workspaceMemberships),
       create: vi.fn(async ({ data }) => { created.workspaceMemberships.push(data); return { id: 'wm-1', ...data } }),
     },
-    workspaceInvite: { findMany: vi.fn().mockResolvedValue(invites) },
+    accessInvite: { findMany: vi.fn().mockResolvedValue(invites) },
     portfolio: {
       findUnique: vi.fn().mockResolvedValue(null),
       create: vi.fn(async ({ data }) => { created.portfolios.push(data); return { id: 'pf-new', ...data } }),
@@ -169,7 +169,7 @@ describe('getOnboardingState — the FR-066 journey routing answer', () => {
     ])
     // The query itself is scoped: PENDING, unexpired, and addressed to this
     // person by id or verified profile email — never a broad inventory.
-    const where = db.workspaceInvite.findMany.mock.calls[0][0].where
+    const where = db.accessInvite.findMany.mock.calls[0][0].where
     expect(where.status).toBe('PENDING')
     expect(where.OR).toEqual([{ targetPersonId: 'per-1' }, { invitedEmail: 'new@example.com' }])
     expect(where.expiresAt.gt).toBeInstanceOf(Date)

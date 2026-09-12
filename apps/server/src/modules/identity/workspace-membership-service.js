@@ -56,7 +56,10 @@ const GENERIC_INVITE_REFUSAL = 'INVALID_OR_EXPIRED_INVITE'
  * Refuses with the same 404 an absent Workspace produces, so an authorization
  * error can never confirm that a hidden Workspace exists (ADR-027 D9).
  */
-async function assertWorkspaceAdminAuthority(viewer, portfolioId, db) {
+// @req FR-195 — exported so access-invite-service.js can reuse the exact same
+// PORTFOLIO-scope authority predicate for the generalised AccessInvite mint,
+// rather than a second copy of it.
+export async function assertWorkspaceAdminAuthority(viewer, portfolioId, db) {
   const personId = viewer?.principal?.id
   if (typeof personId !== 'string' || !personId) throw failure(401, 'AUTH_REQUIRED')
   if (typeof portfolioId !== 'string' || !portfolioId) throw failure(404, 'Workspace not found')
@@ -112,8 +115,13 @@ export async function mintWorkspaceInvite({
   const raw = randomBytes(32).toString('hex')
   const expiresAt = new Date(now + WORKSPACE_INVITE_TTL_MS)
 
-  const invite = await db.workspaceInvite.create({
+  const invite = await db.accessInvite.create({
     data: {
+      // @req FR-195 — this table generalised to AccessInvite; every row this
+      // file writes is PORTFOLIO scope (BR-016's Workspace collaboration
+      // layer). TENANT/BUSINESS scope invites are minted by
+      // access-invite-service.js.
+      scopeType: 'PORTFOLIO',
       portfolioId,
       invitedByPersonId: viewer.principal.id,
       targetPersonId: targetPersonId || null,
@@ -157,7 +165,7 @@ export async function acceptWorkspaceInvite({ token, personId, db = prisma, now 
     throw failure(400, GENERIC_INVITE_REFUSAL)
   }
 
-  const invite = await db.workspaceInvite.findUnique({
+  const invite = await db.accessInvite.findUnique({
     where: { tokenHash: hashWorkspaceInviteToken(token) },
   })
   if (!invite || invite.status !== 'PENDING' || invite.expiresAt <= new Date(now)) {
@@ -172,7 +180,7 @@ export async function acceptWorkspaceInvite({ token, personId, db = prisma, now 
   if (!person) throw failure(400, GENERIC_INVITE_REFUSAL)
 
   return db.$transaction(async (tx) => {
-    const claimed = await tx.workspaceInvite.updateMany({
+    const claimed = await tx.accessInvite.updateMany({
       where: { id: invite.id, status: 'PENDING' },
       data: { status: 'ACCEPTED', acceptedAt: new Date(now), acceptedByPersonId: personId },
     })
@@ -231,14 +239,14 @@ export async function acceptWorkspaceInvite({ token, personId, db = prisma, now 
  */
 export async function revokeWorkspaceInvite({ viewer, inviteId, db = prisma, now = Date.now() } = {}) {
   if (typeof inviteId !== 'string' || !inviteId) throw failure(404, 'Invite not found')
-  const invite = await db.workspaceInvite.findUnique({
+  const invite = await db.accessInvite.findUnique({
     where: { id: inviteId },
     select: { id: true, portfolioId: true, status: true },
   })
   if (!invite) throw failure(404, 'Invite not found')
   await assertWorkspaceAdminAuthority(viewer, invite.portfolioId, db)
 
-  const revoked = await db.workspaceInvite.updateMany({
+  const revoked = await db.accessInvite.updateMany({
     where: { id: invite.id, status: 'PENDING' },
     data: { status: 'REVOKED', revokedAt: new Date(now) },
   })
@@ -311,7 +319,7 @@ export async function listWorkspaceCollaboration({ viewer, portfolioId, db = pri
         person: { select: { id: true, code: true, displayName: true } },
       },
     }),
-    db.workspaceInvite.findMany({
+    db.accessInvite.findMany({
       where: { portfolioId, status: 'PENDING' },
       orderBy: { createdAt: 'asc' },
       select: {

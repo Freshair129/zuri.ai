@@ -587,6 +587,7 @@ Source: [ADR-017 — Production viewer session and viewer-scoped entry read mode
 
 Backlinks:
 
+- [ADR-079 — Access invite, segregation of duties, and the operator lifecycle](decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md) (references)
 - [ADR-027 — Profile-first and Workspace-first onboarding](decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md) (relates)
 - [ADR-045 — Canonical Identity and Access Management Boundary](decisions/ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT.md) (relates)
 - [ADR-047 — SoT data plane: a Tenant-bound service-account key, not an operator grant](decisions/ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY.md) (relates)
@@ -738,6 +739,7 @@ Backlinks:
 - [ADR-015 — Minimal entry, demo login, and Business Routing before BusinessShell](decisions/ADR-015-ENTRY-LANDING-LOGIN-AND-BUSINESS-ROUTING.md) (references)
 - [ADR-033 — Customer scope and Product Owner authority](decisions/ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY.md) (references)
 - [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md) (references)
+- [ADR-079 — Access invite, segregation of duties, and the operator lifecycle](decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md) (references)
 - [ADR-011 — Context bar and Business scope ceiling](decisions/ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md) (relates)
 - [ADR-028 — Human-visible execution roadmap and shared plan intake](decisions/ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md) (relates)
 - [ADR-045 — Canonical Identity and Access Management Boundary](decisions/ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT.md) (relates)
@@ -867,6 +869,7 @@ Backlinks:
 - [FR-076 — Product Owner Business role binding](domains/identity/features/FR-076-product-owner-business-assignment.md) (references)
 - [Zuri Workspace System — the scope model, stated once](zuri_workspace_system.md) (references)
 - [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md) (references)
+- [ADR-079 — Access invite, segregation of duties, and the operator lifecycle](decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md) (references)
 - [ADR-045 — Canonical Identity and Access Management Boundary](decisions/ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT.md) (relates)
 
 ## ADR-034 — Project Inventory read model boundary
@@ -1461,6 +1464,7 @@ Backlinks:
 - [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md) (references)
 - [ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management](decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md) (references)
 - [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost](decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md) (references)
+- [ADR-079 — Access invite, segregation of duties, and the operator lifecycle](decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md) (references)
 
 ## ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts
 
@@ -1468,6 +1472,7 @@ Source: [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods 
 
 - references: [ADR-024 — zuri-ai Is a Standalone Product; the Replace-by-Reuse Program Is Retired](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)
 - references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
+- references: [ADR-079 — Access invite, segregation of duties, and the operator lifecycle](decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md)
 - relates: [ADR-054 — The Legacy ERD Is Prior Art for CRM Conversation Intelligence](decisions/ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md)
 
 Backlinks:
@@ -1477,6 +1482,7 @@ Backlinks:
 - [Domain — procurement](domains/procurement/CHARTER.md) (references)
 - [ADR-069 — SCM is a parent domain over Warehouse, Inventory, Procurement and Order Management](decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md) (references)
 - [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost](decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md) (references)
+- [ADR-079 — Access invite, segregation of duties, and the operator lifecycle](decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md) (references)
 
 ## ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported
 
@@ -1676,6 +1682,7 @@ Backlinks:
 - [FR-191 — Access grant lifecycle](domains/identity/features/FR-191-access-grant-lifecycle.md) (references)
 - [FR-192 — Membership scope grammar and referential invariants](domains/identity/features/FR-192-membership-scope-grammar.md) (references)
 - [ADR-078 — Employment is not Membership, and a legal entity lives inside a Tenant](decisions/ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY.md) (relates)
+- [ADR-079 — Access invite, segregation of duties, and the operator lifecycle](decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md) (relates)
 
 ## ADR-078 — Employment is not Membership, and a legal entity lives inside a Tenant
 
@@ -1687,6 +1694,28 @@ Source: [ADR-078 — Employment is not Membership, and a legal entity lives insi
 - references: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
 - references: [ADR-037 — Team is an organisational grouping, never an authority](decisions/ADR-037-TEAM-IS-AN-ORGANISATIONAL-GROUPING-NOT-AN-AUTHORITY.md)
 - relates: [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md)
+
+## ADR-079 — Access invite, segregation of duties, and the operator lifecycle
+
+Source: [ADR-079 — Access invite, segregation of duties, and the operator lifecycle](decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md)
+
+- references: [FR-195 — AccessInvite: a scoped invitation that becomes a grant on acceptance](domains/identity/features/FR-195-access-invite.md)
+- references: [FR-196 — Segregation of duties: role conflicts, and self-verification refused at the transaction](domains/identity/features/FR-196-segregation-of-duties.md)
+- references: [FR-197 — Operator access is time-boxed, issuable, and its use is recorded](domains/identity/features/FR-197-operator-access-lifecycle.md)
+- references: [ADR-017 — Production viewer session and viewer-scoped entry read model](decisions/ADR-017-PRODUCTION-VIEWER-SESSION-AND-ENTRY-READ-MODEL.md)
+- references: [ADR-027 — Profile-first and Workspace-first onboarding](decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md)
+- references: [ADR-033 — Customer scope and Product Owner authority](decisions/ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY.md)
+- references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
+- references: [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md)
+- relates: [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md)
+
+Backlinks:
+
+- [FR-192 — Membership scope grammar and referential invariants](domains/identity/features/FR-192-membership-scope-grammar.md) (references)
+- [FR-195 — AccessInvite: a scoped invitation that becomes a grant on acceptance](domains/identity/features/FR-195-access-invite.md) (references)
+- [FR-196 — Segregation of duties: role conflicts, and self-verification refused at the transaction](domains/identity/features/FR-196-segregation-of-duties.md) (references)
+- [FR-197 — Operator access is time-boxed, issuable, and its use is recorded](domains/identity/features/FR-197-operator-access-lifecycle.md) (references)
+- [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md) (references)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 
@@ -2147,6 +2176,7 @@ Source: [FR-066 — Profile-first Workspace onboarding](domains/identity/feature
 
 Source: [FR-067 — Workspace invitation and scoped membership](domains/identity/features/FR-067-workspace-invitation-and-scoped-membership.md)
 
+- references: [FR-195 — AccessInvite: a scoped invitation that becomes a grant on acceptance](domains/identity/features/FR-195-access-invite.md)
 - references: [ADR-027 — Profile-first and Workspace-first onboarding](decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md)
 
 Backlinks:
@@ -2197,6 +2227,38 @@ Source: [FR-192 — Membership scope grammar and referential invariants](domains
 
 - references: [FR-191 — Access grant lifecycle](domains/identity/features/FR-191-access-grant-lifecycle.md)
 - references: [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md)
+- references: [ADR-079 — Access invite, segregation of duties, and the operator lifecycle](decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md)
+
+## FR-195 — AccessInvite: a scoped invitation that becomes a grant on acceptance
+
+Source: [FR-195 — AccessInvite: a scoped invitation that becomes a grant on acceptance](domains/identity/features/FR-195-access-invite.md)
+
+- references: [ADR-079 — Access invite, segregation of duties, and the operator lifecycle](decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md)
+
+Backlinks:
+
+- [FR-067 — Workspace invitation and scoped membership](domains/identity/features/FR-067-workspace-invitation-and-scoped-membership.md) (references)
+- [ADR-079 — Access invite, segregation of duties, and the operator lifecycle](decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md) (references)
+
+## FR-196 — Segregation of duties: role conflicts, and self-verification refused at the transaction
+
+Source: [FR-196 — Segregation of duties: role conflicts, and self-verification refused at the transaction](domains/identity/features/FR-196-segregation-of-duties.md)
+
+- references: [ADR-079 — Access invite, segregation of duties, and the operator lifecycle](decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md)
+
+Backlinks:
+
+- [ADR-079 — Access invite, segregation of duties, and the operator lifecycle](decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md) (references)
+
+## FR-197 — Operator access is time-boxed, issuable, and its use is recorded
+
+Source: [FR-197 — Operator access is time-boxed, issuable, and its use is recorded](domains/identity/features/FR-197-operator-access-lifecycle.md)
+
+- references: [ADR-079 — Access invite, segregation of duties, and the operator lifecycle](decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md)
+
+Backlinks:
+
+- [ADR-079 — Access invite, segregation of duties, and the operator lifecycle](decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md) (references)
 
 ## Domain — integration
 

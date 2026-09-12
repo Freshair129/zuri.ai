@@ -48,7 +48,7 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | Person / Membership | tenant, business?, role, status, domainKeysJson, version | local canonical identity; only ACTIVE Membership contributes authority; MEMBER domain allow-list, OWNER/DEV role grant (FR-038, FR-094); FR-193 moved `branchId`/`employeeRef` off this row into `Employment` |
 | Session | personId, tokenHash, status, assurance, expiresAt, revokedAt?, lastSeenAt, version | persisted server-side session authority; cookie/signature is transport only (FR-095) |
 | ChannelIdentity | personId, tenantId, channel, channelAccountId, providerSubject, status, verifiedAt?, linkedAt?, revokedAt?, version | namespaced channel binding; PENDING/ACTIVE/REVOKED lifecycle, additive compatibility contract beside ExternalIdentity (FR-094, FR-097) |
-| RoleBinding | personId, tenantId, businessId, roleKey, scopeType, status, assignedBy, revokedAt | generic Business-scoped RBAC binding; `PRODUCT_OWNER` is the current Product role (FR-076) |
+| RoleBinding | personId, tenantId, businessId? (nullable — TENANT scope has none, FR-192/ADR-079), roleKey, scopeType, sodOverrideReason? (FR-196), status, assignedBy, revokedAt | generic Business- or Tenant-scoped RBAC binding; `PRODUCT_OWNER` is the current Product role (FR-076); TENANT scope is now resolved by `resolveViewer` (ADR-079 D4) |
 | Workspace | scopeType (PORTFOLIO/TENANT/BUSINESS) + denormalized ancestor ids | ต้องมี scope ชัดเจน |
 | Project | businessId?, workspaceId, type, status, priority?, picPersonId?, startAt/targetAt | direct Business owner; schema Workspace is Development Space; null owner only for explicit shared work; soft delete. `priority` (FR-087) and `picPersonId` (FR-088) are both nullable at rest — every row predates them, and unset is a state the Dashboard renders honestly rather than defaulting |
 | PlanImportReceipt | idempotencyKey, payloadHash, executionRunId, executionStepId?, attemptId?, correlationId, projectId | server-owned PlanEnvelope commit receipt; stable trace/idempotency boundary; never accepts client-generated execution IDs |
@@ -58,9 +58,9 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | PluginInstallation | installationId unique, clientId, status | FR-123 / ADR-052 — durable public-client installation binding for a first-party plugin; holds no device secret and no raw token. Deleting a row cascades to its codes and sessions, which is what a snapshot restore relies on |
 | PluginAuthorizationCode | codeHash unique, clientId, redirectUri, codeChallenge(+Method), pluginInstallationId, personId, expiresAt, consumedAt?, revokedAt? | FR-123 / ADR-052 — one-time PKCE S256 authorization code with a 60-second life. The raw code is never persisted; consumption is an atomic conditional update on `consumedAt IS NULL`, which is what makes single-use hold under concurrent redemption rather than merely under sequential reads |
 | PluginSession | tokenHash unique, clientId, pluginInstallationId, personId, authorizationCodeId?, expiresAt, revokedAt?, lastUsedAt? | FR-123 / ADR-052 — 15-minute opaque plugin bearer session; the raw token is never persisted. `authorizationCodeId` exists solely so that replaying a consumed code can revoke the session that code already minted (RFC 9700 §4.1.1); the reference is nullable, but maintenance retains the code while a linked session is both unrevoked and unexpired, preserving replay revocation |
-| PlatformGrant | personId+capability unique, status, grantedByPersonId?, revokedAt? | FR-107 — server-held store behind FR-075 `isOperator`; resolved per request by the session port, revocation effective next request |
+| PlatformGrant | personId+capability unique while status='ACTIVE' (FR-197/ADR-079 — was unconditional), status, grantedByPersonId?, grantReason?, expiresAt?, standing, revokedAt? | FR-107/FR-197 — server-held store behind FR-075 `isOperator`; resolved per request by the session port honouring `expiresAt`, revocation effective next request; `standing` flags the bootstrap grant; a renewal is a fresh row, the prior one superseded |
 | WorkspaceMembership | portfolioId, personId (unique pair), role, status, invitedByPersonId?, version | FR-067 — Workspace collaboration grant keyed by `portfolioId` (the top-level Workspace IS schema Portfolio, ADR-027 §D2; never schema Workspace = Space). A distinct authority layer (BR-016): `resolveViewer` never reads it |
-| WorkspaceInvite | portfolioId, invitedByPersonId, targetPersonId?, invitedEmail?, role, status, tokenHash unique, expiresAt, acceptedByPersonId?, acceptedAt?, revokedAt? | FR-067 — single-use, expiring Workspace invite; `tokenHash` is the SHA-256 digest only (SEC-014), the raw token is returned exactly once at mint. EXPIRED is derived from `expiresAt`, never persisted |
+| AccessInvite | scopeType (PORTFOLIO/TENANT/BUSINESS), portfolioId?, tenantId?, businessId?, invitedByPersonId, targetPersonId?, invitedEmail?, invitedLineUserId?, role, domainKeysJson, reason?, status, tokenHash unique, expiresAt, acceptedByPersonId?, acceptedAt?, acceptedMembershipId?, revokedAt?, revokedByPersonId? | FR-195/ADR-079 — renamed from WorkspaceInvite (FR-067), generalised to all three authority layers: PORTFOLIO scope is unchanged FR-067 behaviour (creates a WorkspaceMembership); TENANT/BUSINESS scope creates a real Membership via `grantBusinessMembership` on acceptance, bound to the accepting session. `tokenHash` is the SHA-256 digest only (SEC-014), the raw token is returned exactly once at mint. EXPIRED is derived from `expiresAt`, never persisted |
 | Workstream | projectId, executionMode, laneId?, progressStrategy, progressWeight, progressCache, viewConfigJson | หัวใจของ 7 โหมด · `laneId` (FR-090) is live on every row on Supabase |
 | WorkContainer | workstreamId, parentId (hierarchy), subtype, metadataJson | SPRINT/MIGRATION_STAGE/… |
 | WorkItem | workstreamId, containerId?, subtype, weight, numericValue, probability, metricDataJson, metadataJson | atomic ทุกโหมด |
@@ -229,13 +229,16 @@ and continues numbering. The Supabase SQL is written and **not applied**.
 
 ## Product Owner RBAC role (FR-076 / ADR-033)
 
-`RoleBinding { personId→Person, tenantId→Tenant, businessId→Business, roleKey,
-scopeType, status, assignedBy?, version, createdAt, updatedAt, revokedAt? }`
-is the generic responsibility relation. The current supported scope is
-`BUSINESS`; `roleKey=PRODUCT_OWNER` expands through the identity role registry
-to Product permissions. `status` is `ACTIVE`, `SUSPENDED` or `REVOKED`.
-`tenantId` and `businessId` are both persisted for scoped queries, while the
-service rejects a mismatch against `Business.tenantId`. The relation is
+`RoleBinding { personId→Person, tenantId→Tenant, businessId?→Business, roleKey,
+scopeType, sodOverrideReason?, status, assignedBy?, version, createdAt, updatedAt, revokedAt? }`
+is the generic responsibility relation. `assignRoleBinding` (the write path)
+still only issues `BUSINESS` scope; `roleKey=PRODUCT_OWNER` expands through the
+identity role registry to Product permissions. `resolveViewer` additionally
+resolves a `TENANT`-scoped row (FR-192/ADR-079 D4), expanding it to every
+ACTIVE Business the named Tenant holds today — `businessId` is `NULL` for such
+a row, which is why it became nullable. `status` is `ACTIVE`, `SUSPENDED` or
+`REVOKED`. `tenantId` and `businessId` are both persisted for scoped queries,
+while the service rejects a mismatch against `Business.tenantId`. The relation is
 many-to-many and does not change `Membership.role`, platform authority or
 import authority. Changes append an `AuditEvent` without secrets or customer
 content.
