@@ -155,6 +155,8 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | AssetLocationHistory | registeredAssetId, branchId?, locationCode/name, isPrimary, effectiveFrom/effectiveTo?, version | FR-135 — append-only effective location intervals beneath an optional existing Branch |
 | AssetProjectAllocation | registeredAssetId, projectId, workstreamId?, quantity, exclusive, status, effectiveFrom/effectiveTo?, version | FR-135 / ADR-055 — Asset-owned allocation history; Project Inventory is a future read projection |
 | AssetDepreciationCandidate | intakeId?, registeredAssetId?, method, acquisition/residual string amounts, currency, usefulLifeMonths, startDate, calculationVersion, scheduleJson, status, review actor, version | FR-136 — deterministic preview/review evidence only; no capitalization book, journal or posting authority |
+| MfaFactor | id, personId → Person (Cascade), type (TOTP / SMS), secret, label?, status (PENDING / ACTIVE / REVOKED), verifiedAt?, revokedAt?, version | FR-094, FR-095 / ADR-045 — canonical multi-factor authentication factors; secret encrypted/protected |
+| PasskeyCredential | id, personId → Person (Cascade), credentialId (unique), publicKey, counter, deviceLabel?, aaguid?, transports?, status (ACTIVE / REVOKED), lastUsedAt?, revokedAt?, version | FR-094, FR-095 / ADR-045 — FIDO2 / WebAuthn passkey public key credential; counter replay protection |
 
 Version diff 1.13.0b → 1.14.0b (2026-09-02): added the nine Asset Management
 foundation models and snapshot-coverage contract. The additive local migration and

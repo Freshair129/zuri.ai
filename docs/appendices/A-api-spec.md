@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.62.0b |
+| **Version** | 1.63.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-12 |
 
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=246 -->
+<!-- api-spec-counts: route_handlers=252 -->
 
 ### Desktop browser/QR pairing (FR-144, 2026-09-08)
 
@@ -32,6 +32,23 @@ Error shape คือ
 | POST | `/api/edge/pairing/start` | Anonymous bounded five-minute request; device ID and label; separate browser approval fragment and private Desktop polling secret. Mints no credential. | 400 invalid input; 429 rate/capacity; 503 origin unavailable |
 | POST | `/api/edge/pairing/approve` | Browser session plus same-origin JSON required; inspect lists governable Businesses; owner approves one Business or denies; no raw key returned. | 401 session; 403 origin; 404 Business authority; 409 already decided; 410 expired |
 | POST | `/api/edge/pairing/poll` | Initiating Desktop bearer only; pending state or cancellation; approved request reserves one redemption, refreshes owner authority and transactionally mints the existing credential. Returns raw key once. | 410 unavailable/used; 429 polling; 403 authority lost; 503 redemption failed |
+
+### Enterprise IAM MFA & WebAuthn Passkeys (FR-094, FR-095, FR-096, 2026-09-12)
+
+| Method | Route | Contract | Failure |
+|---|---|---|---|
+| POST | `/api/auth/mfa/totp/enroll` | Authenticated viewer initiates RFC 6238 TOTP enrollment; returns secret and provisioning URI. | 401 auth; 400 validation; 404 person |
+| POST | `/api/auth/mfa/totp/verify` | Confirms pending factor with initial 6-digit code; elevates session to AAL2. | 401 auth; 400 invalid code; 404 factor |
+| GET | `/api/auth/mfa/factors` | Lists registered MFA factors (secrets redacted). | 401 auth |
+| DELETE | `/api/auth/mfa/factors` | Revokes registered MFA factor. | 401 auth; 400 validation; 404 factor |
+| POST | `/api/auth/step-up` | Re-verifies MFA factor to elevate session assurance to AAL2. | 401 auth; 400 invalid code |
+| POST | `/api/auth/webauthn/register/options` | Authenticated viewer requests WebAuthn creation options and challenge. | 401 auth |
+| POST | `/api/auth/webauthn/register/verify` | Completes passkey registration, verifies attestation, stores PasskeyCredential, elevates session. | 401 auth; 400 invalid response/challenge; 409 already registered |
+| POST | `/api/auth/webauthn/login/options` | Requests passkey assertion options and challenge (optionally filtered by email). | 400 validation |
+| POST | `/api/auth/webauthn/login/verify` | Verifies passkey assertion signature, creates new AAL2 session, and sets cookie. | 400 invalid response; 401 invalid credentials |
+| GET | `/api/auth/webauthn/credentials` | Lists active passkeys for authenticated Person. | 401 auth |
+| DELETE | `/api/auth/webauthn/credentials` | Revokes registered passkey credential. | 401 auth; 400 validation; 404 passkey |
+| POST | `/api/auth/webauthn/step-up` | Re-asserts passkey to elevate existing session assurance to AAL2. | 401 auth; 400 verification failure; 403 forbidden |
 
 Pending capabilities are process-local and capacity bounded; restart/replica change
 requires a fresh request. No database migration or production activation is claimed.

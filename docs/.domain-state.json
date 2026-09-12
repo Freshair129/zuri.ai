@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-12T08:39:14.390Z",
+  "generatedAt": "2026-09-12T09:54:55.086Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -488,7 +488,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 246,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -743,7 +743,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 246,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -920,7 +920,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 246,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -1362,15 +1362,15 @@
           "id": "FR-094",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 9,
-          "testCount": 16
+          "codeCount": 19,
+          "testCount": 19
         },
         {
           "id": "FR-095",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 12,
-          "testCount": 30
+          "codeCount": 22,
+          "testCount": 33
         },
         {
           "id": "FR-096",
@@ -1541,9 +1541,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 22,
-            "inventoried": 22,
-            "openApiPaths": 246,
+            "routes": 28,
+            "inventoried": 28,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -1585,8 +1585,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 18,
-            "present": 18
+            "models": 19,
+            "present": 19
           }
         },
         "authorization": {
@@ -1602,9 +1602,9 @@
             }
           ],
           "details": {
-            "mutations": 19,
-            "guardedMutations": 15,
-            "reads": 6,
+            "mutations": 25,
+            "guardedMutations": 21,
+            "reads": 7,
             "unguardedReads": 0
           }
         },
@@ -1683,10 +1683,10 @@
         }
       ],
       "details": {
-        "routes": 30,
-        "apiRoutes": 22,
+        "routes": 36,
+        "apiRoutes": 28,
         "pageRoutes": 8,
-        "ownedModels": 18,
+        "ownedModels": 19,
         "featureNotes": 18
       },
       "featureIds": [
@@ -1931,7 +1931,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 246,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -2199,7 +2199,7 @@
           "details": {
             "routes": 30,
             "inventoried": 30,
-            "openApiPaths": 246,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -2747,7 +2747,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 246,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -2906,7 +2906,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 246,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -3067,7 +3067,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 246,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -3188,7 +3188,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 30
+          "testCount": 33
         },
         {
           "id": "FR-105",
@@ -3228,7 +3228,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 246,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -3363,7 +3363,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 246,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -3920,14 +3920,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 16
+          "testCount": 19
         },
         {
           "id": "FR-095",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 30
+          "testCount": 33
         },
         {
           "id": "FR-097",
@@ -4347,7 +4347,7 @@
           "details": {
             "routes": 124,
             "inventoried": 124,
-            "openApiPaths": 246,
+            "openApiPaths": 252,
             "missingFromOpenApi": 0
           }
         },
@@ -5361,15 +5361,15 @@
           "id": "FR-094",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
-          "testCount": 16
+          "codeCount": 21,
+          "testCount": 19
         },
         {
           "id": "FR-095",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 17,
-          "testCount": 30
+          "codeCount": 27,
+          "testCount": 33
         },
         {
           "id": "FR-096",
@@ -5400,6 +5400,12 @@
         "apps/server/src/app/api/auth/mfa/totp/enroll/route.js",
         "apps/server/src/app/api/auth/mfa/totp/verify/route.js",
         "apps/server/src/app/api/auth/step-up/route.js",
+        "apps/server/src/app/api/auth/webauthn/credentials/route.js",
+        "apps/server/src/app/api/auth/webauthn/login/options/route.js",
+        "apps/server/src/app/api/auth/webauthn/login/verify/route.js",
+        "apps/server/src/app/api/auth/webauthn/register/options/route.js",
+        "apps/server/src/app/api/auth/webauthn/register/verify/route.js",
+        "apps/server/src/app/api/auth/webauthn/step-up/route.js",
         "apps/server/src/app/api/identity/channel-identities/route.js",
         "apps/server/src/app/api/identity/link-tokens/redeem/route.js",
         "apps/server/src/app/api/identity/link-tokens/route.js",
@@ -5422,11 +5428,15 @@
         "apps/server/src/modules/identity/erase-principal.js",
         "apps/server/src/modules/identity/link-line-identity.js",
         "apps/server/src/modules/identity/mfa-service.js",
+        "apps/server/src/modules/identity/passkey-service.js",
         "apps/server/src/modules/identity/resolve-line-identity.js",
         "apps/server/src/modules/identity/session-assurance.js",
         "apps/server/src/modules/identity/session-port.js",
         "apps/server/src/modules/identity/sign-out.js",
         "apps/server/src/modules/identity/totp.js",
+        "apps/server/src/modules/identity/webauthn-cbor.js",
+        "apps/server/src/modules/identity/webauthn-challenge.js",
+        "apps/server/src/modules/identity/webauthn.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr044-entry-routing.spec.js",
@@ -5456,6 +5466,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/mfa-totp-lifecycle.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/passkey-lifecycle.test.js",
         "apps/server/tests/integration/password-reset-flow.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/unit/auth-service.test.js",
@@ -5470,6 +5481,8 @@
         "apps/server/tests/unit/identity/agent-tool-authorizer.test.js",
         "apps/server/tests/unit/identity/session-assurance.test.js",
         "apps/server/tests/unit/identity/totp.test.js",
+        "apps/server/tests/unit/identity/webauthn-cbor.test.js",
+        "apps/server/tests/unit/identity/webauthn.test.js",
         "apps/server/tests/unit/line-binding-resolver.test.js",
         "apps/server/tests/unit/line-channel-binding.test.js",
         "apps/server/tests/unit/operator-bootstrap.test.js",

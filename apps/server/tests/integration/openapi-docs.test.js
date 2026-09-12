@@ -158,8 +158,9 @@ describe('OpenAPI document', () => {
       // FR-097 adds identity link tokens and channel identity queries: three paths,
       // three operations (POST /api/identity/link-tokens, POST /api/identity/link-tokens/redeem, GET /api/identity/channel-identities).
       // FR-094/FR-095/FR-096 adds MFA and step-up authentication: four paths, five operations.
-      pathCount: 246,
-      operationCount: 336,
+      // FR-094/FR-095 adds WebAuthn Passkeys: six paths, seven operations (252 / 343).
+      pathCount: 252,
+      operationCount: 343,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

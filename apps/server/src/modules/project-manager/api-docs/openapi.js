@@ -164,6 +164,13 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/auth/mfa/totp/verify', ['POST']],
   ['/api/auth/mfa/factors', ['GET', 'DELETE']],
   ['/api/auth/step-up', ['POST']],
+  // @req FR-094, FR-095 — FIDO2 WebAuthn Passkey authentication and lifecycle (ADR-045).
+  ['/api/auth/webauthn/register/options', ['POST']],
+  ['/api/auth/webauthn/register/verify', ['POST']],
+  ['/api/auth/webauthn/login/options', ['POST']],
+  ['/api/auth/webauthn/login/verify', ['POST']],
+  ['/api/auth/webauthn/credentials', ['GET', 'DELETE']],
+  ['/api/auth/webauthn/step-up', ['POST']],
 ]
 
 const zRouteInventoryRequest = z.record(z.string(), z.unknown()).openapi({

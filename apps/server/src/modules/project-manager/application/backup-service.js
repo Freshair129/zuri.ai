@@ -174,8 +174,8 @@ const SNAPSHOT_MODELS = [
   // a person logs in with, which is the class of loss this list exists to stop.
   // @req FR-095 — a persisted session is a child of Person and must survive a
   // portable restore; raw token material is never exported by the model.
-  // @req FR-094 — MFA factors hang off Person and must survive restore to prevent lockout.
-  'session', 'personCredential', 'passwordResetToken', 'mfaFactor',
+  // @req FR-094, FR-095 — MFA factors and Passkey credentials hang off Person and must survive restore to prevent lockout.
+  'session', 'personCredential', 'passwordResetToken', 'mfaFactor', 'passkeyCredential',
   // @req FR-107 — an operator grant hangs off Person; a snapshot that omitted
   // it would restore an installation with no operator (or silently drop one).
   'platformGrant',

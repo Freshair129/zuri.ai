@@ -2672,6 +2672,126 @@
       }
     },
     {
+      "id": "code:src/app/api/auth/webauthn/credentials/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/auth/webauthn/credentials/route.js",
+      "hash": "7a97e434",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-095"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/integration/passkey-lifecycle.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/auth/webauthn/login/options/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/auth/webauthn/login/options/route.js",
+      "hash": "b7caab98",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-095"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/integration/passkey-lifecycle.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/auth/webauthn/login/verify/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/auth/webauthn/login/verify/route.js",
+      "hash": "ca817fbe",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-095"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/integration/passkey-lifecycle.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/auth/webauthn/register/options/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/auth/webauthn/register/options/route.js",
+      "hash": "f3fc63e9",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-095"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/integration/passkey-lifecycle.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/auth/webauthn/register/verify/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/auth/webauthn/register/verify/route.js",
+      "hash": "288f69cd",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-095"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/integration/passkey-lifecycle.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/auth/webauthn/step-up/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/auth/webauthn/step-up/route.js",
+      "hash": "fe730b4e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-095"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/integration/passkey-lifecycle.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/backup/export/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/backup/export/route.js",
@@ -9837,7 +9957,7 @@
       "id": "code:src/modules/identity/auth-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/auth-service.js",
-      "hash": "77836ff8",
+      "hash": "2a259763",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10238,6 +10358,26 @@
         ],
         "@tested": [
           "tests/unit/operator-bootstrap.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/passkey-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/identity/passkey-service.js",
+      "hash": "b0f654fb",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-095"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/integration/passkey-lifecycle.test.js"
         ]
       }
     },
@@ -10728,6 +10868,66 @@
         ],
         "@tested": [
           "tests/unit/fr061-per-business-domain-visibility.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/webauthn-cbor.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/identity/webauthn-cbor.js",
+      "hash": "23e766c5",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-095"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/unit/identity/webauthn-cbor.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/webauthn-challenge.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/identity/webauthn-challenge.js",
+      "hash": "fca84843",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-095"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/unit/identity/webauthn.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/webauthn.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/identity/webauthn.js",
+      "hash": "1c8ceb35",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-095"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/unit/identity/webauthn.test.js"
         ]
       }
     },
@@ -14464,7 +14664,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "76bb84e5",
+      "hash": "1cb13129",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14555,7 +14755,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
-      "hash": "8f8cbef1",
+      "hash": "8e4edd1b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -16655,9 +16855,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.62.0b",
+      "version": "1.63.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "4fdc4273",
+      "hash": "eddcffc9",
       "status": "current"
     },
     {
@@ -16711,7 +16911,7 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.34.0b",
       "doc_status": "Draft",
-      "hash": "c92dd863",
+      "hash": "f2fe3936",
       "status": "current"
     },
     {
@@ -19129,7 +19329,8 @@
         "PluginAuthorizationCode",
         "PluginSession",
         "EdgeDeviceCredential",
-        "MfaFactor"
+        "MfaFactor",
+        "PasskeyCredential"
       ],
       "owns_routes": [
         "src/app/(entry)/**",
@@ -19148,7 +19349,7 @@
       "modules": [
         "identity"
       ],
-      "hash": "77e4a209",
+      "hash": "9bb2e4f9",
       "status": "current"
     },
     {
@@ -20071,6 +20272,11 @@
     },
     {
       "id": "model:Milestone",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:PasskeyCredential",
       "type": "model",
       "status": "current"
     },
@@ -24224,6 +24430,54 @@
       "kind": "api",
       "route": "/api/auth/step-up",
       "path": "apps/server/src/app/api/auth/step-up/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/auth/webauthn/credentials",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/auth/webauthn/credentials",
+      "path": "apps/server/src/app/api/auth/webauthn/credentials/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/auth/webauthn/login/options",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/auth/webauthn/login/options",
+      "path": "apps/server/src/app/api/auth/webauthn/login/options/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/auth/webauthn/login/verify",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/auth/webauthn/login/verify",
+      "path": "apps/server/src/app/api/auth/webauthn/login/verify/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/auth/webauthn/register/options",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/auth/webauthn/register/options",
+      "path": "apps/server/src/app/api/auth/webauthn/register/options/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/auth/webauthn/register/verify",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/auth/webauthn/register/verify",
+      "path": "apps/server/src/app/api/auth/webauthn/register/verify/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/auth/webauthn/step-up",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/auth/webauthn/step-up",
+      "path": "apps/server/src/app/api/auth/webauthn/step-up/route.js",
       "status": "current"
     },
     {
@@ -28541,7 +28795,14 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
-      "hash": "466d7598",
+      "hash": "227f1fe5",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/passkey-lifecycle.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/passkey-lifecycle.test.js",
+      "hash": "a3fbb0d5",
       "status": "current"
     },
     {
@@ -30047,6 +30308,20 @@
       "type": "test",
       "path": "apps/server/tests/unit/identity/totp.test.js",
       "hash": "8735d2b7",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/identity/webauthn-cbor.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/identity/webauthn-cbor.test.js",
+      "hash": "b7fd13ac",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/identity/webauthn.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/identity/webauthn.test.js",
+      "hash": "26cb3d14",
       "status": "current"
     },
     {
@@ -38789,6 +39064,174 @@
     },
     {
       "from": "code:src/app/api/auth/step-up/route.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/credentials/route.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/credentials/route.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/credentials/route.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/credentials/route.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/login/options/route.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/login/options/route.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/login/options/route.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/login/options/route.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/login/verify/route.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/login/verify/route.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/login/verify/route.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/login/verify/route.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/register/options/route.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/register/options/route.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/register/options/route.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/register/options/route.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/register/verify/route.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/register/verify/route.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/register/verify/route.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/register/verify/route.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/step-up/route.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/step-up/route.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/step-up/route.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/webauthn/step-up/route.js",
       "to": "req:SEC-018",
       "type": "follows",
       "status": "current",
@@ -49967,6 +50410,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/passkey-service.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/passkey-service.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/passkey-service.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/passkey-service.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/password-reset-copy.js",
       "to": "req:FR-104",
       "type": "implements",
@@ -50704,6 +51175,90 @@
     {
       "from": "code:src/modules/identity/viewer-domains.js",
       "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/webauthn-cbor.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/webauthn-cbor.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/webauthn-cbor.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/webauthn-cbor.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/webauthn-challenge.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/webauthn-challenge.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/webauthn-challenge.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/webauthn-challenge.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/webauthn.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/webauthn.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/webauthn.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/webauthn.js",
+      "to": "req:SEC-018",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -65339,6 +65894,13 @@
       "source": "charter"
     },
     {
+      "from": "model:PasskeyCredential",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:PasswordResetToken",
       "to": "domain:identity",
       "type": "owned_by",
@@ -68532,6 +69094,48 @@
     },
     {
       "from": "route:api:/api/auth/step-up",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/auth/webauthn/credentials",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/auth/webauthn/login/options",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/auth/webauthn/login/verify",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/auth/webauthn/register/options",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/auth/webauthn/register/verify",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/auth/webauthn/step-up",
       "to": "domain:identity",
       "type": "owned_by",
       "status": "current",
@@ -87501,6 +88105,83 @@
       "source": "transitive"
     },
     {
+      "from": "test:tests/integration/passkey-lifecycle.test.js",
+      "to": "code:src/app/api/auth/webauthn/credentials/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/passkey-lifecycle.test.js",
+      "to": "code:src/app/api/auth/webauthn/login/options/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/passkey-lifecycle.test.js",
+      "to": "code:src/app/api/auth/webauthn/login/verify/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/passkey-lifecycle.test.js",
+      "to": "code:src/app/api/auth/webauthn/register/options/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/passkey-lifecycle.test.js",
+      "to": "code:src/app/api/auth/webauthn/register/verify/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/passkey-lifecycle.test.js",
+      "to": "code:src/app/api/auth/webauthn/step-up/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/passkey-lifecycle.test.js",
+      "to": "code:src/modules/identity/passkey-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/passkey-lifecycle.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/passkey-lifecycle.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/passkey-lifecycle.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/passkey-lifecycle.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/integration/password-reset-flow.test.js",
       "to": "code:src/modules/identity/auth-service.js",
       "type": "tests",
@@ -99777,6 +100458,83 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/identity/webauthn-cbor.test.js",
+      "to": "code:src/modules/identity/webauthn-cbor.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/identity/webauthn-cbor.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/identity/webauthn-cbor.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/identity/webauthn-cbor.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/identity/webauthn-cbor.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/identity/webauthn.test.js",
+      "to": "code:src/modules/identity/webauthn-challenge.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/identity/webauthn.test.js",
+      "to": "code:src/modules/identity/webauthn.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/identity/webauthn.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/identity/webauthn.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/identity/webauthn.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/identity/webauthn.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/ids.test.js",
@@ -113768,7 +114526,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2688,
+    "server_nodes": 2708,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

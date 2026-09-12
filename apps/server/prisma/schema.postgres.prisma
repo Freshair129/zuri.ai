@@ -297,6 +297,7 @@ model Person {
   assetResponsibilities         AssetResponsibility[]
   salesTasksAssigned            SalesTask[]                    @relation("SalesTaskAssignee")
   mfaFactors                    MfaFactor[]
+  passkeyCredentials            PasskeyCredential[]
 }
 
 // @req FR-107 — the server-held store behind FR-075's `isOperator` capability.
@@ -559,6 +560,30 @@ model MfaFactor {
   person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 
   @@index([personId, status])
+}
+
+// @req FR-094, FR-095 — FIDO2 WebAuthn Passkey credentials for canonical principals.
+// @spec ADR-045 D2, D5, SDD-052, SEC-018
+model PasskeyCredential {
+  id             String    @id @default(uuid())
+  personId       String
+  credentialId   String    @unique
+  publicKey      String
+  counter        Int       @default(0)
+  deviceLabel    String?
+  aaguid         String?
+  transports     String?
+  status         String    @default("ACTIVE")
+  lastUsedAt     DateTime?
+  revokedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  version        Int       @default(1)
+
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId, status])
+  @@index([credentialId])
 }
 
 // @req FR-094 — external channel subjects are namespaced attributes, never
