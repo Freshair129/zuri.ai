@@ -148,10 +148,16 @@ already gives. Deleting a Business becomes an operation that must withdraw its
 grants first — which is now possible, because D2 built the withdrawal.
 
 Ancestry becomes a database invariant: `Business` gains
-`UNIQUE (id, tenantId)`, and `Membership`, `RoleBinding` and `Branch` reference
-it by the composite key. This repays the debt ADR-018 recorded and removes the
-per-read ancestry check from being the only thing standing between a
-cross-tenant row and a resolver that trusts it.
+`UNIQUE (id, tenantId)`, and **`Membership`** references it by the composite
+key. This repays the part of the debt ADR-018 recorded that this decision is
+about, and removes the per-read ancestry check from being the only thing
+standing between a cross-tenant row and a resolver that trusts it.
+
+`RoleBinding` and `Branch` carry the same debt and are **not** repaid here.
+Naming them in this paragraph would claim an invariant the migration does not
+create — the shape this decision exists to stop one level up. `Business (id,
+tenantId)` is the half they need and it now exists, so repaying them is a
+migration with no design left in it.
 
 Two partial unique indexes replace the absent constraint:
 
@@ -208,7 +214,8 @@ separately-audited act the identity charter already claims it is.
 `docs/domains/identity/CHARTER.md` takes ownership of the model and
 `docs/domains/project-manager/CHARTER.md` releases it, resolving an ADR-025 D3
 violation that both charters currently document as a known fact. A preflight
-ratchet keeps `membership.create|update|delete` inside
+ratchet — Check 20, `membership-writer`, sibling to D7's Check 19 and built
+in the same change rather than asserted — keeps `membership.create|update|delete` inside
 `apps/server/src/modules/identity/`.
 
 ## Consequences

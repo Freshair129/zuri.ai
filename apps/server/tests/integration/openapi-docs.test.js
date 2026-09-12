@@ -157,6 +157,7 @@ describe('OpenAPI document', () => {
       // operation (GET /api/line-oa/accounts/{id}/transport-health).
       // FR-097 adds identity link tokens and channel identity queries: three paths,
       // three operations (POST /api/identity/link-tokens, POST /api/identity/link-tokens/redeem, GET /api/identity/channel-identities).
+      // FR-094/FR-095/FR-096 adds MFA and step-up authentication: four paths, five operations.
       // FR-191 adds the grant-withdrawal surface that had no route at all: two
       // paths, two operations (POST /api/platform/users/memberships/{id}/lifecycle,
       // which carries suspend, reinstate and revoke as one action parameter
@@ -165,8 +166,9 @@ describe('OpenAPI document', () => {
       // two operations (GET /api/platform/access-history, scoped by exactly one
       // of businessId/tenantId/personId, and GET
       // /api/platform/businesses/{businessId}/grants, the current-state roster).
-      pathCount: 246,
-      operationCount: 335,
+      // 242 + 4 (MFA) + 2 (FR-191) + 2 (FR-199) = 250; 331 + 5 + 2 + 2 = 340.
+      pathCount: 250,
+      operationCount: 340,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

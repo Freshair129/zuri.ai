@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-12T10:36:30.718Z",
+  "generatedAt": "2026-09-12T11:54:03.712Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -489,7 +489,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 14
+          "testCount": 17
         },
         {
           "id": "FR-097",
@@ -592,7 +592,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 246,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -847,7 +847,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 246,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -1024,7 +1024,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 246,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -1466,22 +1466,22 @@
           "id": "FR-094",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 5
+          "codeCount": 9,
+          "testCount": 16
         },
         {
           "id": "FR-095",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 27
+          "codeCount": 12,
+          "testCount": 31
         },
         {
           "id": "FR-096",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 14
+          "codeCount": 5,
+          "testCount": 17
         },
         {
           "id": "FR-097",
@@ -1722,9 +1722,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 18,
-            "inventoried": 18,
-            "openApiPaths": 246,
+            "routes": 22,
+            "inventoried": 22,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -1766,8 +1766,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 18,
-            "present": 18
+            "models": 19,
+            "present": 19
           }
         },
         "authorization": {
@@ -1783,9 +1783,9 @@
             }
           ],
           "details": {
-            "mutations": 15,
-            "guardedMutations": 11,
-            "reads": 5,
+            "mutations": 19,
+            "guardedMutations": 15,
+            "reads": 6,
             "unguardedReads": 0
           }
         },
@@ -1929,10 +1929,10 @@
         }
       ],
       "details": {
-        "routes": 26,
-        "apiRoutes": 18,
+        "routes": 30,
+        "apiRoutes": 22,
         "pageRoutes": 8,
-        "ownedModels": 18,
+        "ownedModels": 19,
         "featureNotes": 22
       },
       "featureIds": [
@@ -2179,7 +2179,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 246,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -2447,7 +2447,7 @@
           "details": {
             "routes": 30,
             "inventoried": 30,
-            "openApiPaths": 246,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -2995,7 +2995,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 246,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -3154,7 +3154,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 246,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -3315,7 +3315,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 246,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -3436,7 +3436,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 27
+          "testCount": 31
         },
         {
           "id": "FR-105",
@@ -3476,7 +3476,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 246,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -3611,7 +3611,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 246,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -4164,11 +4164,18 @@
           "testCount": 32
         },
         {
+          "id": "FR-094",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 16
+        },
+        {
           "id": "FR-095",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 27
+          "codeCount": 5,
+          "testCount": 31
         },
         {
           "id": "FR-097",
@@ -4643,7 +4650,7 @@
           "details": {
             "routes": 128,
             "inventoried": 128,
-            "openApiPaths": 246,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -5697,22 +5704,22 @@
           "id": "FR-094",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 2,
-          "testCount": 5
+          "codeCount": 11,
+          "testCount": 16
         },
         {
           "id": "FR-095",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 9,
-          "testCount": 27
+          "codeCount": 17,
+          "testCount": 31
         },
         {
           "id": "FR-096",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 14
+          "codeCount": 9,
+          "testCount": 17
         },
         {
           "id": "FR-097",
@@ -5732,6 +5739,10 @@
       "evidence": [
         "apps/server/src/app/api/agent/line-webhook/route.js",
         "apps/server/src/app/api/auth/logout/route.js",
+        "apps/server/src/app/api/auth/mfa/factors/route.js",
+        "apps/server/src/app/api/auth/mfa/totp/enroll/route.js",
+        "apps/server/src/app/api/auth/mfa/totp/verify/route.js",
+        "apps/server/src/app/api/auth/step-up/route.js",
         "apps/server/src/app/api/identity/channel-identities/route.js",
         "apps/server/src/app/api/identity/link-tokens/redeem/route.js",
         "apps/server/src/app/api/identity/link-tokens/route.js",
@@ -5753,9 +5764,12 @@
         "apps/server/src/modules/identity/channel-identity.js",
         "apps/server/src/modules/identity/erase-principal.js",
         "apps/server/src/modules/identity/link-line-identity.js",
+        "apps/server/src/modules/identity/mfa-service.js",
         "apps/server/src/modules/identity/resolve-line-identity.js",
+        "apps/server/src/modules/identity/session-assurance.js",
         "apps/server/src/modules/identity/session-port.js",
         "apps/server/src/modules/identity/sign-out.js",
+        "apps/server/src/modules/identity/totp.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr044-entry-routing.spec.js",
@@ -5784,6 +5798,7 @@
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/mfa-totp-lifecycle.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/password-reset-flow.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
@@ -5797,6 +5812,8 @@
         "apps/server/tests/unit/fr046-session-port.test.js",
         "apps/server/tests/unit/iam-session.test.js",
         "apps/server/tests/unit/identity/agent-tool-authorizer.test.js",
+        "apps/server/tests/unit/identity/session-assurance.test.js",
+        "apps/server/tests/unit/identity/totp.test.js",
         "apps/server/tests/unit/line-binding-resolver.test.js",
         "apps/server/tests/unit/line-channel-binding.test.js",
         "apps/server/tests/unit/operator-bootstrap.test.js",
