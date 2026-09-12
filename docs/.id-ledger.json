@@ -307,6 +307,7 @@
     "FR-187",
     "FR-188",
     "FR-189",
+    "FR-190",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -3608,6 +3609,19 @@
         {
           "anchor": "edge answers smartgift catalog queries from the published",
           "since": "2026-09-10",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-190": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4368cdc5cea0727209bf518faf352199c9cd3df31e5d2f6e04c5390f2ed6ec9c",
+      "history": [
+        {
+          "anchor": "server owned line transport reports its own reachability so",
+          "since": "2026-09-12",
           "reason": "declared"
         }
       ]

@@ -1540,3 +1540,10 @@
 - **Code:** —
 - **Follows:** —
 - **Tests:** —
+
+### FR-190 — Server-owned LINE transport reports its own reachability, so a silent channel is visible instead of inferred — for every LineOaAccount with serverEnabled the server derives the age of the last inbound delivery it recorded (from existing Integration evidence and LineConversationJob rows; no new column, no migration) and classifies it OK, QUIET or SILENT against configurable thresholds, and separately asks LINE for the channel configured webhook endpoint and compares it with this deployment own account route, classifying MATCHED, MISMATCHED, DISABLED or UNKNOWN. GET /api/line-oa/accounts/{id}/transport-health answers states, timestamps and durations only — never channel credentials and never the other endpoint contents — the LINE OA console shows the state beside the account, and the existing server worker tick logs one structured warning per account while a state is not OK. Read-only: no writes, no new process, and no automatic change to provider configuration.
+
+- **Status:** planned
+- **Code:** —
+- **Follows:** —
+- **Tests:** —

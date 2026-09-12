@@ -3,11 +3,11 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2651,
-    "total_edges": 10768,
+    "total_nodes": 2653,
+    "total_edges": 10773,
     "dangling_edges": 0,
     "node_types": {
-      "document": 221,
+      "document": 222,
       "appendix": 4,
       "adr": 75,
       "domain": 14,
@@ -15,12 +15,12 @@
       "feature": 26,
       "route": 337,
       "model": 146,
-      "requirement": 359,
+      "requirement": 360,
       "test": 623,
       "code_file": 801
     },
     "coverage": {
-      "requirements": 359,
+      "requirements": 360,
       "fr_with_code": "100% (178/178)",
       "fr_with_tests": "100% (178/178)",
       "rules_anchored_in_code": "96% (140/146)",
@@ -37,7 +37,8 @@
         "FR-128",
         "FR-131",
         "FR-132",
-        "FR-189"
+        "FR-189",
+        "FR-190"
       ],
       "fr_without_code": [],
       "fr_without_tests": [],
@@ -16857,7 +16858,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.36.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "08d93103",
+      "hash": "4d6130a5",
       "status": "current"
     },
     {
@@ -17852,6 +17853,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-190-line-transport-health",
+      "type": "document",
+      "path": "docs/domains/line-oa-studio/features/FR-190-line-transport-health.md",
+      "title": "LINE transport reachability",
+      "hash": "eee9749a",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -18486,7 +18495,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.184.0b",
       "doc_status": "Draft",
-      "hash": "d6665a36",
+      "hash": "6f98eb15",
       "status": "current"
     },
     {
@@ -22315,6 +22324,16 @@
       "declared": "planned",
       "status": "planned",
       "row_text": "Edge answers SmartGift catalog queries from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as a transitional fallback (ADR-075 D7, proposed) — the edge query path becomes source caller → MSP credential/scope check → worker loopback query → one published generation → citation (the existing post-Stage-17 query flow), instead of `apps/edge`'s v4 pipeline re-deriving and serving its own store directly from a sibling checkout's file (`apps/edge/src/rag/v4/paths.ts` `defaultUpstream`) with no MSP/GKS mediation. v4 remains available only as an explicit, time-boxed fallback during the Phase 4 shadow-then-cutover and is sunset on an owner-set date; it is never a second production write path into GenesisBlockDB. 🔜 approved 2026-09-11 (ADR-075 approved); fallback window set 2026-09-11 (120 days after cutover or end of the New Year 2027 season, whichever is later) — Phase 4 needs its own gate; no code, no cutover "
+    },
+    {
+      "id": "req:FR-190",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Server-owned LINE transport reports its own reachability, so a silent channel is visible instead of inferred — for every LineOaAccount with serverEnabled the server derives the age of the last inbound delivery it recorded (from existing Integration evidence and LineConversationJob rows; no new column, no migration) and classifies it OK, QUIET or SILENT against configurable thresholds, and separately asks LINE for the channel configured webhook endpoint and compares it with this deployment own account route, classifying MATCHED, MISMATCHED, DISABLED or UNKNOWN. GET /api/line-oa/accounts/{id}/transport-health answers states, timestamps and durations only — never channel credentials and never the other endpoint contents — the LINE OA console shows the state beside the account, and the existing server worker tick logs one structured warning per account while a state is not OK. Read-only: no writes, no new process, and no automatic change to provider configuration.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "planned",
+      "status": "planned",
+      "row_text": "Server-owned LINE transport reports its own reachability, so a silent channel is visible instead of inferred — for every LineOaAccount with serverEnabled the server derives the age of the last inbound delivery it recorded (from existing Integration evidence and LineConversationJob rows; no new column, no migration) and classifies it OK, QUIET or SILENT against configurable thresholds, and separately asks LINE for the channel configured webhook endpoint and compares it with this deployment own account route, classifying MATCHED, MISMATCHED, DISABLED or UNKNOWN. GET /api/line-oa/accounts/{id}/transport-health answers states, timestamps and durations only — never channel credentials and never the other endpoint contents — the LINE OA console shows the state beside the account, and the existing server worker tick logs one structured warning per account while a state is not OK. Read-only: no writes, no new process, and no automatic change to provider configuration. 🔜 declared 2026-09-12 — no code yet; motivated by the 2026-09-11 outage RCA, where an eleven-hour 503 and then a provider console pointing at another application were both invisible to /api/health "
     },
     {
       "id": "req:NFR-001",
@@ -57470,6 +57489,34 @@
       "status": "current"
     },
     {
+      "from": "doc:FR-190-line-transport-health",
+      "to": "req:FR-142",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-190-line-transport-health",
+      "to": "req:FR-146",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-190-line-transport-health",
+      "to": "req:FR-149",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-190-line-transport-health",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
       "from": "doc:full-schema",
       "to": "doc:B-db-schema",
       "type": "references",
@@ -63106,6 +63153,13 @@
     },
     {
       "from": "req:FR-189",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-190",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
