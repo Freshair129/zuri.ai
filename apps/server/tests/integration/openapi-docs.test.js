@@ -153,8 +153,10 @@ describe('OpenAPI document', () => {
       // FR-184 adds three stocktake paths and three operations. FR-185 adds
       // four Marketing planning/projection paths and six operations. FR-186/183
       // add six paths and seven operations.
-      pathCount: 238,
-      operationCount: 327,
+      // FR-190 adds the LINE transport reachability read: one path, one
+      // operation (GET /api/line-oa/accounts/{id}/transport-health).
+      pathCount: 239,
+      operationCount: 328,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

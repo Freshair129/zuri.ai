@@ -1360,6 +1360,7 @@ Backlinks:
 - [FR-149 — Server-owned LINE conversation transport](domains/line-oa-studio/features/FR-149-server-line-transport.md) (relates)
 - [FR-150 — Optional Edge conversation execution](domains/line-oa-studio/features/FR-150-optional-edge-execution.md) (relates)
 - [FR-171 — Execution Trace & Replay v0.3](domains/agent/features/FR-171-execution-trace-and-replay.md) (relates)
+- [LINE transport reachability](domains/line-oa-studio/features/FR-190-line-transport-health.md) (relates)
 - [FR-148-P1 — Account-scoped CRM conversations](domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md) (relates)
 - [FR-148-P2 — Account-scoped CRM conversations](domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md) (relates)
 - [FR-149-P1 — Server-owned LINE conversation transport](domains/integration/features/PHASE-FR-149-P1-server-line-transport.md) (relates)
@@ -2686,6 +2687,15 @@ Backlinks:
 - [FR-150-P3 — Optional Edge conversation execution](domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md) (relates)
 - [FEAT-019 — Domain-owned execution phases](roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) (relates)
 - [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) (relates)
+
+## LINE transport reachability
+
+Source: [LINE transport reachability](domains/line-oa-studio/features/FR-190-line-transport-health.md)
+
+- references: [req:FR-142](PRD-SDD-v1.0.md)
+- references: [req:FR-146](PRD-SDD-v1.0.md)
+- references: [req:FR-149](PRD-SDD-v1.0.md)
+- relates: [ADR-061 — Server-owned LINE and optional Edge execution](decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md)
 
 ## FR-148-P1 — Account-scoped CRM conversations
 

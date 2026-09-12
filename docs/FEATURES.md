@@ -780,6 +780,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FEAT-026",
     "primaryDomain": "knowledge",
     "useCase": "Approved 2026-09-11 (ADR-075); Phase 1 (FR-187) implemented in PR #324; Phase 2 gate open with contract revision 2: SmartGift's catalog data would enter the governed 17-stage pipeline through one adapter instead of three separate writers, so an agent's product answer can finally name the published generation and citation it came from"
+  },
+  {
+    "id": "FR-190",
+    "primaryDomain": "line-oa-studio",
+    "useCase": "Tell a silent LINE channel from a misrouted one: how long a serverEnabled account has gone without an inbound delivery, and whether the webhook endpoint LINE has configured is still this deployment own account route."
   }
 ]
 ```

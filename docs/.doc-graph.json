@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2655,
-    "total_edges": 10776,
+    "total_nodes": 2662,
+    "total_edges": 10797,
     "dangling_edges": 0,
     "node_types": {
-      "document": 222,
+      "document": 223,
       "appendix": 4,
       "adr": 76,
       "domain": 14,
       "roadmap": 45,
       "feature": 26,
-      "route": 337,
+      "route": 338,
       "model": 146,
-      "requirement": 359,
-      "test": 625,
-      "code_file": 801
+      "requirement": 360,
+      "test": 626,
+      "code_file": 804
     },
     "coverage": {
-      "requirements": 359,
-      "fr_with_code": "100% (178/178)",
-      "fr_with_tests": "100% (178/178)",
+      "requirements": 360,
+      "fr_with_code": "100% (179/179)",
+      "fr_with_tests": "100% (179/179)",
       "rules_anchored_in_code": "96% (140/146)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 801,
+      "annotated_code_files": 804,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -5053,6 +5053,24 @@
       }
     },
     {
+      "id": "code:src/app/api/line-oa/accounts/[id]/transport-health/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/line-oa/accounts/[id]/transport-health/route.js",
+      "hash": "1b72ccaf",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-190"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/fr190-line-transport-health.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/line-oa/accounts/[id]/webhook/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/line-oa/accounts/[id]/webhook/route.js",
@@ -5280,12 +5298,13 @@
       "id": "code:src/app/api/line-oa/worker/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/line-oa/worker/route.js",
-      "hash": "974e98a2",
+      "hash": "5baf3143",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-149",
-          "FR-150"
+          "FR-150",
+          "FR-190"
         ],
         "@spec": [
           "SEC-001"
@@ -12306,6 +12325,24 @@
       }
     },
     {
+      "id": "code:src/modules/line-oa-studio/application/line-transport-health.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/application/line-transport-health.js",
+      "hash": "143db9e7",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-190"
+        ],
+        "@spec": [
+          "SEC-001"
+        ],
+        "@tested": [
+          "tests/unit/fr190-line-transport-health.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/line-oa-studio/application/server-line-rich-menu-runtime.js",
       "type": "code_file",
       "path": "apps/server/src/modules/line-oa-studio/application/server-line-rich-menu-runtime.js",
@@ -12399,6 +12436,21 @@
         ],
         "@tested": [
           "tests/unit/line-oa-rich-menu-domain.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/line-oa-studio/domain/transport-health.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/line-oa-studio/domain/transport-health.js",
+      "hash": "36499c5c",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-190"
+        ],
+        "@tested": [
+          "tests/unit/fr190-line-transport-health.test.js"
         ]
       }
     },
@@ -14244,7 +14296,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "c807eff7",
+      "hash": "86953382",
       "status": "current",
       "annotations": {
         "@req": [
@@ -16429,9 +16481,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.59.0b",
+      "version": "1.60.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "23c6beb2",
+      "hash": "f4982f0d",
       "status": "current"
     },
     {
@@ -16865,7 +16917,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.36.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "08d93103",
+      "hash": "4d6130a5",
       "status": "current"
     },
     {
@@ -17860,6 +17912,14 @@
       "status": "current"
     },
     {
+      "id": "doc:FR-190-line-transport-health",
+      "type": "document",
+      "path": "docs/domains/line-oa-studio/features/FR-190-line-transport-health.md",
+      "title": "LINE transport reachability",
+      "hash": "eee9749a",
+      "status": "current"
+    },
+    {
       "id": "doc:full-schema",
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
@@ -18494,7 +18554,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.184.0b",
       "doc_status": "Draft",
-      "hash": "d6665a36",
+      "hash": "e5c6c156",
       "status": "current"
     },
     {
@@ -18530,7 +18590,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "284f7a12",
+      "hash": "852d2ab4",
       "status": "current"
     },
     {
@@ -22325,6 +22385,16 @@
       "row_text": "Edge answers SmartGift catalog queries from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as a transitional fallback (ADR-075 D7, proposed) — the edge query path becomes source caller → MSP credential/scope check → worker loopback query → one published generation → citation (the existing post-Stage-17 query flow), instead of `apps/edge`'s v4 pipeline re-deriving and serving its own store directly from a sibling checkout's file (`apps/edge/src/rag/v4/paths.ts` `defaultUpstream`) with no MSP/GKS mediation. v4 remains available only as an explicit, time-boxed fallback during the Phase 4 shadow-then-cutover and is sunset on an owner-set date; it is never a second production write path into GenesisBlockDB. 🔜 approved 2026-09-11 (ADR-075 approved); fallback window set 2026-09-11 (120 days after cutover or end of the New Year 2027 season, whichever is later) — Phase 4 needs its own gate; no code, no cutover "
     },
     {
+      "id": "req:FR-190",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Server-owned LINE transport reports its own reachability, so a silent channel is visible instead of inferred — for every LineOaAccount with serverEnabled the server derives the age of the last inbound delivery it recorded (from existing Integration evidence and LineConversationJob rows; no new column, no migration) and classifies it OK, QUIET or SILENT against configurable thresholds, and separately asks LINE for the channel configured webhook endpoint and compares it with this deployment own account route, classifying MATCHED, MISMATCHED, DISABLED or UNKNOWN. GET /api/line-oa/accounts/{id}/transport-health answers states, timestamps and durations only — never channel credentials and never the other endpoint contents — the LINE OA console shows the state beside the account, and the existing server worker tick logs one structured warning per account while a state is not OK. Read-only: no writes, no new process, and no automatic change to provider configuration.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Server-owned LINE transport reports its own reachability, so a silent channel is visible instead of inferred — for every LineOaAccount with serverEnabled the server derives the age of the last inbound delivery it recorded (from existing Integration evidence and LineConversationJob rows; no new column, no migration) and classifies it OK, QUIET or SILENT against configurable thresholds, and separately asks LINE for the channel configured webhook endpoint and compares it with this deployment own account route, classifying MATCHED, MISMATCHED, DISABLED or UNKNOWN. GET /api/line-oa/accounts/{id}/transport-health answers states, timestamps and durations only — never channel credentials and never the other endpoint contents — the LINE OA console shows the state beside the account, and the existing server worker tick logs one structured warning per account while a state is not OK. Read-only: no writes, no new process, and no automatic change to provider configuration. 🟠 implemented locally 2026-09-12 (owner thresholds 6h/24h, hourly endpoint probe, paused accounts excluded) — `line-oa-studio/domain/transport-health.js` (pure classifiers), `application/line-transport-health.js` (read plus hourly-cached probe and a sweep), `GET /api/line-oa/accounts/{id}/transport-health`, and the existing worker tick carries the hourly sweep; 23 unit tests. Console badge NOT built yet, so the state is reachable by API and by log line, not from the LINE OA page "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -24878,6 +24948,14 @@
       "kind": "api",
       "route": "/api/line-oa/accounts/[id]/jobs",
       "path": "apps/server/src/app/api/line-oa/accounts/[id]/jobs/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/line-oa/accounts/[id]/transport-health",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/line-oa/accounts/[id]/transport-health",
+      "path": "apps/server/src/app/api/line-oa/accounts/[id]/transport-health/route.js",
       "status": "current"
     },
     {
@@ -28213,7 +28291,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
-      "hash": "2cb0ec0b",
+      "hash": "b7c7abe1",
       "status": "current"
     },
     {
@@ -29558,6 +29636,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/fr142-health-route.test.js",
       "hash": "672f37f4",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr190-line-transport-health.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/fr190-line-transport-health.test.js",
+      "hash": "481f6cdb",
       "status": "current"
     },
     {
@@ -38593,6 +38678,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/line-oa/accounts/[id]/transport-health/route.js",
+      "to": "req:FR-190",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/accounts/[id]/transport-health/route.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/line-oa/accounts/[id]/webhook/route.js",
       "to": "req:FR-081",
       "type": "follows",
@@ -38826,6 +38925,13 @@
     {
       "from": "code:src/app/api/line-oa/worker/route.js",
       "to": "req:FR-150",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/line-oa/worker/route.js",
+      "to": "req:FR-190",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -49114,6 +49220,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/line-oa-studio/application/line-transport-health.js",
+      "to": "req:FR-190",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/application/line-transport-health.js",
+      "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/line-oa-studio/application/server-line-rich-menu-runtime.js",
       "to": "req:FR-152",
       "type": "implements",
@@ -49172,6 +49292,13 @@
     {
       "from": "code:src/modules/line-oa-studio/domain/line-oa-rich-menu.js",
       "to": "req:FR-151",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/line-oa-studio/domain/transport-health.js",
+      "to": "req:FR-190",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -57521,6 +57648,34 @@
       "status": "current"
     },
     {
+      "from": "doc:FR-190-line-transport-health",
+      "to": "req:FR-142",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-190-line-transport-health",
+      "to": "req:FR-146",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-190-line-transport-health",
+      "to": "req:FR-149",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-190-line-transport-health",
+      "to": "spec:ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
       "from": "doc:full-schema",
       "to": "doc:B-db-schema",
       "type": "references",
@@ -63163,6 +63318,13 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-190",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -65152,6 +65314,13 @@
     },
     {
       "from": "route:api:/api/line-oa/accounts/[id]/jobs",
+      "to": "domain:line-oa-studio",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/line-oa/accounts/[id]/transport-health",
       "to": "domain:line-oa-studio",
       "type": "owned_by",
       "status": "current",
@@ -80293,6 +80462,13 @@
     },
     {
       "from": "test:tests/integration/line-admission-reconciler.test.js",
+      "to": "req:FR-190",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-admission-reconciler.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -83051,6 +83227,13 @@
     },
     {
       "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-190",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:SDD-042",
       "type": "verifies",
       "status": "current",
@@ -84396,6 +84579,13 @@
     {
       "from": "test:tests/integration/server-line-jobs.test.js",
       "to": "req:FR-171",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/server-line-jobs.test.js",
+      "to": "req:FR-190",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -94518,6 +94708,48 @@
     {
       "from": "test:tests/unit/fr142-health-route.test.js",
       "to": "req:SEC-009",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr190-line-transport-health.test.js",
+      "to": "code:src/app/api/line-oa/accounts/[id]/transport-health/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr190-line-transport-health.test.js",
+      "to": "code:src/modules/line-oa-studio/application/line-transport-health.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr190-line-transport-health.test.js",
+      "to": "code:src/modules/line-oa-studio/domain/transport-health.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/fr190-line-transport-health.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr190-line-transport-health.test.js",
+      "to": "req:FR-190",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr190-line-transport-health.test.js",
+      "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
