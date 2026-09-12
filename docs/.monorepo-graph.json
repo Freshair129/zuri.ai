@@ -28784,6 +28784,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/unit/ci-select-e2e.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/ci-select-e2e.test.js",
+      "hash": "90f7ee8c",
+      "status": "current"
+    },
+    {
       "id": "test:tests/unit/command-palette-index.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/command-palette-index.test.js",
@@ -112544,7 +112551,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2658,
+    "server_nodes": 2659,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,
