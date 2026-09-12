@@ -41,10 +41,12 @@ export async function POST(request) {
   // report ABOUT the transport, so a failed sweep must not fail the tick that carries
   // the work. It rides this tick because a second process to say "nothing arrived" is
   // exactly the kind of thing nobody restarts after a reboot.
-  let health
   if (Date.now() - lastHealthSweepAt >= HEALTH_SWEEP_INTERVAL_MS) {
     lastHealthSweepAt = Date.now()
-    try { health = await sweepLineTransportHealth({}) } catch { health = { scanned: 0, warned: 0, error: true } }
+    // The counts stay out of the response on purpose: this body is a contract the
+    // ticker and its tests read, and a health sweep is not part of the work it
+    // reports. The finding leaves as a log line instead.
+    try { await sweepLineTransportHealth({}) } catch { /* reported by its own log line, never fatal */ }
   }
   let reconciled
   try {
@@ -56,6 +58,6 @@ export async function POST(request) {
     const ports = serverLinePorts()
     const result = await runLineConversationWorker({ ...ports,
       answer: createServerLineAnswer({ threadMemory: ports.threadMemory }) })
-    return NextResponse.json({ ...result, reconciled, ...(health ? { health } : {}) })
+    return NextResponse.json({ ...result, reconciled })
   } catch { return NextResponse.json({ error: 'LINE_WORKER_UNAVAILABLE' }, { status: 503 }) }
 }

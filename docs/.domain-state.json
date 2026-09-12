@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-12T06:09:23.430Z",
+  "generatedAt": "2026-09-12T07:01:08.745Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -42,7 +42,7 @@
     "requirementCount": 190,
     "verifiedRequirementCount": 179,
     "progressPercent": 94.2,
-    "gapCount": 26,
+    "gapCount": 25,
     "gaps": [
       {
         "domain": "agent",
@@ -182,16 +182,6 @@
         "check": "requirements",
         "summary": "FR-189 is planned",
         "evidence": []
-      },
-      {
-        "domain": "line-oa-studio",
-        "id": "API-OPENAPI-001",
-        "severity": "high",
-        "check": "httpApi",
-        "summary": "API route is not represented in the machine-readable OpenAPI generator",
-        "evidence": [
-          "/api/line-oa/accounts/[id]/transport-health"
-        ]
       },
       {
         "domain": "line-oa-studio",
@@ -498,7 +488,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 238,
+            "openApiPaths": 239,
             "missingFromOpenApi": 0
           }
         },
@@ -753,7 +743,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 238,
+            "openApiPaths": 239,
             "missingFromOpenApi": 0
           }
         },
@@ -930,7 +920,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 238,
+            "openApiPaths": 239,
             "missingFromOpenApi": 0
           }
         },
@@ -1553,7 +1543,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 238,
+            "openApiPaths": 239,
             "missingFromOpenApi": 0
           }
         },
@@ -1908,14 +1898,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-188",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 7
+          "testCount": 8
         }
       ],
       "checks": {
@@ -1941,7 +1931,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 238,
+            "openApiPaths": 239,
             "missingFromOpenApi": 0
           }
         },
@@ -2209,7 +2199,7 @@
           "details": {
             "routes": 30,
             "inventoried": 30,
-            "openApiPaths": 238,
+            "openApiPaths": 239,
             "missingFromOpenApi": 0
           }
         },
@@ -2459,14 +2449,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-188",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-189",
@@ -2731,7 +2721,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 3
+          "testCount": 4
         }
       ],
       "checks": {
@@ -2748,26 +2738,17 @@
           }
         },
         "httpApi": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/appendices/A-api-spec.md",
             "src/modules/project-manager/api-docs/openapi.js"
           ],
-          "gaps": [
-            {
-              "id": "API-OPENAPI-001",
-              "severity": "high",
-              "summary": "API route is not represented in the machine-readable OpenAPI generator",
-              "evidence": [
-                "/api/line-oa/accounts/[id]/transport-health"
-              ]
-            }
-          ],
+          "gaps": [],
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 238,
-            "missingFromOpenApi": 1
+            "openApiPaths": 239,
+            "missingFromOpenApi": 0
           }
         },
         "mcp": {
@@ -2862,15 +2843,6 @@
       ],
       "gaps": [
         {
-          "id": "API-OPENAPI-001",
-          "severity": "high",
-          "check": "httpApi",
-          "summary": "API route is not represented in the machine-readable OpenAPI generator",
-          "evidence": [
-            "/api/line-oa/accounts/[id]/transport-health"
-          ]
-        },
-        {
           "id": "AUTH-001",
           "severity": "high",
           "check": "authorization",
@@ -2934,7 +2906,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 238,
+            "openApiPaths": 239,
             "missingFromOpenApi": 0
           }
         },
@@ -3095,7 +3067,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 238,
+            "openApiPaths": 239,
             "missingFromOpenApi": 0
           }
         },
@@ -3256,7 +3228,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 238,
+            "openApiPaths": 239,
             "missingFromOpenApi": 0
           }
         },
@@ -3391,7 +3363,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 238,
+            "openApiPaths": 239,
             "missingFromOpenApi": 0
           }
         },
@@ -4326,7 +4298,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 13
+          "testCount": 14
         }
       ],
       "checks": {
@@ -4361,7 +4333,7 @@
           "details": {
             "routes": 121,
             "inventoried": 121,
-            "openApiPaths": 238,
+            "openApiPaths": 239,
             "missingFromOpenApi": 0
           }
         },
@@ -7214,14 +7186,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-188",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-189",
@@ -7242,6 +7214,7 @@
         "apps/server/src/modules/knowledge/structured-record-policy.js",
         "apps/server/src/modules/project-manager/mcp/transport.js",
         "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
+        "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
         "apps/server/tests/acceptance/knowledge-admission-native.test.js",
         "apps/server/tests/integration/genesisrag17-parser-2.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
@@ -12148,7 +12121,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 3
+          "testCount": 4
         }
       ],
       "evidence": [
@@ -12157,6 +12130,7 @@
         "apps/server/src/modules/line-oa-studio/application/line-transport-health.js",
         "apps/server/src/modules/line-oa-studio/domain/transport-health.js",
         "apps/server/tests/integration/line-admission-reconciler.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/unit/fr190-line-transport-health.test.js"
       ]

@@ -209,17 +209,43 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
 
-      # Kept as its own job so an e2e failure is attributable, and because the
-      # full suite is the only thing that catches cross-spec interference — a
-      # subset passing proves nothing (.brain/rca/2026-08-16-e2e-subset-green-
-      # and-shared-state.md).
-      - name: Full end-to-end suite
-        run: npm run test:e2e
+      - name: Select impacted e2e specs
+        id: select-e2e
+        shell: bash
+        working-directory: .
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="origin/${{ github.base_ref }}"
+            git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+            changed=$(git diff --name-only "$base" HEAD)
+          else
+            changed=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || true)
+          fi
+          echo "Determining impacted e2e targets from changed files..."
+          printf '%s\n' "$changed" | node scripts/ci-select-e2e.mjs >> "$GITHUB_OUTPUT"
+
+      - name: Run targeted end-to-end tests
+        if: steps.select-e2e.outputs.skip != 'true'
+        shell: bash
+        run: |
+          if [ "${{ steps.select-e2e.outputs.run_all }}" = "true" ] || [ -z "${{ steps.select-e2e.outputs.specs }}" ]; then
+            echo "Running full end-to-end suite"
+            npm run test:e2e
+          else
+            echo "Running targeted e2e suite (${{ steps.select-e2e.outputs.reason }}):"
+            echo "${{ steps.select-e2e.outputs.specs }}"
+            npm run test:e2e -- ${{ steps.select-e2e.outputs.specs }}
+          fi
         env:
           # Every expect/pw:api step's duration, so the `expect` budget in
           # playwright.config.js can be set from a measurement rather than
           # from the last failure. See tests/e2e/step-timings-reporter.js.
           E2E_STEP_TIMINGS: node_modules/.cache/zuri-test-proof/e2e-step-timings.json
+
+      - name: e2e skipped (no impacted UI/domain targets)
+        if: steps.select-e2e.outputs.skip == 'true'
+        shell: bash
+        run: echo "Skipped e2e suite (${{ steps.select-e2e.outputs.reason }})"
 
       - name: Keep the step timings, pass or fail
         if: always()

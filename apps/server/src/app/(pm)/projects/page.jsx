@@ -200,7 +200,7 @@ function ProjectsDashboardInner() {
         actions={
           <>
             <Link href="/workspaces" className="btn flex items-center gap-1">
-              <LayoutGrid size={13} aria-hidden /> Spaces
+              <LayoutGrid size={13} aria-hidden /> Workspaces
             </Link>
             <Link href="/projects/new" className="btn btn-primary flex items-center gap-1">
               <Plus size={13} aria-hidden /> New project

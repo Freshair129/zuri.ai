@@ -1,6 +1,8 @@
 // @req FR-110 — isolated, non-skipping native four-tier acceptance.
-// @spec ADR-073
-// @tested tests/acceptance/genesisrag17-e2e.test.js
+// @req FR-188 — the same command runs the SmartGift structured-record
+// acceptance; both suites are listed in vitest.ki17.config.js (ADR-075).
+// @spec ADR-073, ADR-075
+// @tested tests/acceptance/genesisrag17-e2e.test.js, tests/acceptance/genesisrag17-smartgift.test.js
 import { spawnSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import path from 'node:path'

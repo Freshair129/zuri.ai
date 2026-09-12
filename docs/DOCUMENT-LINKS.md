@@ -93,6 +93,18 @@ Source: [Database Schema — Full ERD Reference](architecture/database-erd/full-
 - references: [Appendix B — Database Schema Summary](appendices/B-db-schema.md)
 - references: [Database Migration Notes — SQLite → PostgreSQL](DB-MIGRATION-NOTES.md)
 
+## Canonical ERP Organizational Hierarchy & Data Architecture
+
+Source: [Canonical ERP Organizational Hierarchy & Data Architecture](architecture/ERP-ORGANIZATIONAL-HIERARCHY.md)
+
+- relates: [ADR-008 — Business-centric shell, dual scope lens (ERP ⇄ PM), and entry flow](decisions/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md)
+- relates: [ADR-011 — Context bar and Business scope ceiling](decisions/ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md)
+- relates: [ADR-076 — ERP-Canonical Organizational Hierarchy and Scope Vocabulary Alignment](decisions/ADR-076-ERP-CANONICAL-ORGANIZATIONAL-HIERARCHY-AND-SCOPE-VOCABULARY-ALIGNMENT.md)
+
+Backlinks:
+
+- [ADR-076 — ERP-Canonical Organizational Hierarchy and Scope Vocabulary Alignment](decisions/ADR-076-ERP-CANONICAL-ORGANIZATIONAL-HIERARCHY-AND-SCOPE-VOCABULARY-ALIGNMENT.md) (references)
+
 ## CR-014 — Asset Management Domain Product Requirements (PRD)
 
 Source: [CR-014 — Asset Management Domain Product Requirements (PRD)](change-requests/CR-014-ASSET-MANAGEMENT-DOMAIN.md)
@@ -421,9 +433,11 @@ Backlinks:
 - [SITEMAP — V2 Domain Navigation (V1-style, Business-bound)](SITEMAP-DOMAIN-NAV.md) (references)
 - [ADR-011 — Context bar and Business scope ceiling](decisions/ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md) (references)
 - [ADR-055 — Asset Management is a first-class Zuri domain for the physical asset lifecycle](decisions/ADR-055-ASSET-MANAGEMENT-DOMAIN-AND-PHYSICAL-ASSET-LIFECYCLE-BOUNDARY.md) (references)
+- [Canonical ERP Organizational Hierarchy & Data Architecture](architecture/ERP-ORGANIZATIONAL-HIERARCHY.md) (relates)
 - [ADR-009 — Self-governance: doc-graph lineage, the IR boundary, and dogfooding the PM](decisions/ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY.md) (relates)
 - [ADR-010: Zuri Heritage Design System and V1-Compatible Migration](decisions/ADR-010-ZURI-HERITAGE-DESIGN-SYSTEM.md) (relates)
 - [ADR-012 — Project Work views and dependency boundary](decisions/ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY.md) (relates)
+- [ADR-076 — ERP-Canonical Organizational Hierarchy and Scope Vocabulary Alignment](decisions/ADR-076-ERP-CANONICAL-ORGANIZATIONAL-HIERARCHY-AND-SCOPE-VOCABULARY-ALIGNMENT.md) (relates)
 
 ## ADR-009 — Self-governance: doc-graph lineage, the IR boundary, and dogfooding the PM
 
@@ -475,7 +489,9 @@ Backlinks:
 - [ADR-014 - Project Business Ownership and Space Context](decisions/ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT.md) (references)
 - [ADR-027 — Profile-first and Workspace-first onboarding](decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md) (references)
 - [ADR-033 — Customer scope and Product Owner authority](decisions/ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY.md) (references)
+- [Canonical ERP Organizational Hierarchy & Data Architecture](architecture/ERP-ORGANIZATIONAL-HIERARCHY.md) (relates)
 - [ADR-012 — Project Work views and dependency boundary](decisions/ADR-012-PROJECT-WORK-VIEWS-AND-DEPENDENCY-BOUNDARY.md) (relates)
+- [ADR-076 — ERP-Canonical Organizational Hierarchy and Scope Vocabulary Alignment](decisions/ADR-076-ERP-CANONICAL-ORGANIZATIONAL-HIERARCHY-AND-SCOPE-VOCABULARY-ALIGNMENT.md) (relates)
 
 ## ADR-012 — Project Work views and dependency boundary
 
@@ -1623,6 +1639,18 @@ Backlinks:
 - [FR-189 — edge reads the published GenesisRAG17 generation (Phase 4, default off)](domains/knowledge/features/FR-189-edge-published-generation.md) (references)
 - [GenesisRAG17 on the edge device: Phase 3 deployment design](plans/GENESISRAG17-EDGE-DEPLOYMENT.md) (references)
 - [ADR-073 — GenesisRAG17 isolated execution and publication](decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) (references)
+
+## ADR-076 — ERP-Canonical Organizational Hierarchy and Scope Vocabulary Alignment
+
+Source: [ADR-076 — ERP-Canonical Organizational Hierarchy and Scope Vocabulary Alignment](decisions/ADR-076-ERP-CANONICAL-ORGANIZATIONAL-HIERARCHY-AND-SCOPE-VOCABULARY-ALIGNMENT.md)
+
+- references: [Canonical ERP Organizational Hierarchy & Data Architecture](architecture/ERP-ORGANIZATIONAL-HIERARCHY.md)
+- relates: [ADR-008 — Business-centric shell, dual scope lens (ERP ⇄ PM), and entry flow](decisions/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md)
+- relates: [ADR-011 — Context bar and Business scope ceiling](decisions/ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING.md)
+
+Backlinks:
+
+- [Canonical ERP Organizational Hierarchy & Data Architecture](architecture/ERP-ORGANIZATIONAL-HIERARCHY.md) (relates)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 

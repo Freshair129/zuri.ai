@@ -3,20 +3,20 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2658,
-    "total_edges": 10788,
+    "total_nodes": 2662,
+    "total_edges": 10797,
     "dangling_edges": 0,
     "node_types": {
-      "document": 222,
+      "document": 223,
       "appendix": 4,
-      "adr": 75,
+      "adr": 76,
       "domain": 14,
       "roadmap": 45,
       "feature": 26,
       "route": 338,
       "model": 146,
       "requirement": 360,
-      "test": 624,
+      "test": 626,
       "code_file": 804
     },
     "coverage": {
@@ -1856,7 +1856,7 @@
       "id": "code:src/app/(pm)/projects/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/projects/page.jsx",
-      "hash": "3c81cbc9",
+      "hash": "9492dfe8",
       "status": "current",
       "annotations": {
         "@req": [
@@ -1970,7 +1970,7 @@
       "id": "code:src/app/(pm)/workspaces/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/workspaces/page.jsx",
-      "hash": "d8e868f8",
+      "hash": "a50f8146",
       "status": "current",
       "annotations": {
         "@req": [
@@ -5298,7 +5298,7 @@
       "id": "code:src/app/api/line-oa/worker/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/line-oa/worker/route.js",
-      "hash": "c4cfe9b1",
+      "hash": "5baf3143",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7105,7 +7105,7 @@
       "id": "code:src/components/layouts/Breadcrumb.jsx",
       "type": "code_file",
       "path": "apps/server/src/components/layouts/Breadcrumb.jsx",
-      "hash": "3a8d8a5b",
+      "hash": "8f16c88d",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7173,7 +7173,7 @@
       "id": "code:src/components/layouts/CommandPalette.jsx",
       "type": "code_file",
       "path": "apps/server/src/components/layouts/CommandPalette.jsx",
-      "hash": "dc81c2cd",
+      "hash": "86d4b7ad",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7328,7 +7328,7 @@
       "id": "code:src/components/layouts/Topbar.jsx",
       "type": "code_file",
       "path": "apps/server/src/components/layouts/Topbar.jsx",
-      "hash": "f06400ab",
+      "hash": "9a532863",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7451,7 +7451,7 @@
       "id": "code:src/config/scope-views.js",
       "type": "code_file",
       "path": "apps/server/src/config/scope-views.js",
-      "hash": "828e368f",
+      "hash": "3bd1ecf7",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14296,7 +14296,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "c807eff7",
+      "hash": "86953382",
       "status": "current",
       "annotations": {
         "@req": [
@@ -15186,7 +15186,7 @@
       "id": "code:src/modules/project-manager/components/ProjectModal.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/components/ProjectModal.jsx",
-      "hash": "eca35f24",
+      "hash": "1d3f17d8",
       "status": "current",
       "annotations": {
         "@req": [
@@ -16848,6 +16848,14 @@
       "version": "1.1.0",
       "doc_status": "Accepted — hand-maintained; every row must name a lane that exists or say \"not chartered\"",
       "hash": "8d3b59f5",
+      "status": "current"
+    },
+    {
+      "id": "doc:ERP-ORGANIZATIONAL-HIERARCHY",
+      "type": "document",
+      "path": "docs/architecture/ERP-ORGANIZATIONAL-HIERARCHY.md",
+      "title": "Canonical ERP Organizational Hierarchy & Data Architecture",
+      "hash": "a611652b",
       "status": "current"
     },
     {
@@ -27075,10 +27083,25 @@
       "status": "current"
     },
     {
+      "id": "spec:ADR-076-ERP-CANONICAL-ORGANIZATIONAL-HIERARCHY-AND-SCOPE-VOCABULARY-ALIGNMENT",
+      "type": "adr",
+      "path": "docs/decisions/ADR-076-ERP-CANONICAL-ORGANIZATIONAL-HIERARCHY-AND-SCOPE-VOCABULARY-ALIGNMENT.md",
+      "title": "ADR-076 — ERP-Canonical Organizational Hierarchy and Scope Vocabulary Alignment",
+      "hash": "44e6e716",
+      "status": "current"
+    },
+    {
       "id": "test:tests/acceptance/genesisrag17-e2e.test.js",
       "type": "test",
       "path": "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
       "hash": "fdb0749b",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/acceptance/genesisrag17-smartgift.test.js",
+      "type": "test",
+      "path": "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
+      "hash": "e8b8745c",
       "status": "current"
     },
     {
@@ -27316,7 +27339,7 @@
       "id": "test:tests/e2e/navigation-reachability.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/navigation-reachability.spec.js",
-      "hash": "5de44954",
+      "hash": "6f48636f",
       "status": "current"
     },
     {
@@ -28268,7 +28291,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
-      "hash": "2cb0ec0b",
+      "hash": "b7c7abe1",
       "status": "current"
     },
     {
@@ -28758,7 +28781,7 @@
       "id": "test:tests/unit/breadcrumb-switcher.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/breadcrumb-switcher.test.js",
-      "hash": "ffa81b51",
+      "hash": "b5abec75",
       "status": "current"
     },
     {
@@ -28850,6 +28873,13 @@
       "type": "test",
       "path": "apps/server/tests/unit/ci-code-changes.test.js",
       "hash": "c54d9a8f",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/ci-select-e2e.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/ci-select-e2e.test.js",
+      "hash": "90f7ee8c",
       "status": "current"
     },
     {
@@ -31145,7 +31175,7 @@
       "id": "test:tests/unit/scope-view-context.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/scope-view-context.test.js",
-      "hash": "0a6f4793",
+      "hash": "52e3a45c",
       "status": "current"
     },
     {
@@ -56057,6 +56087,27 @@
       "status": "current"
     },
     {
+      "from": "doc:ERP-ORGANIZATIONAL-HIERARCHY",
+      "to": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:ERP-ORGANIZATIONAL-HIERARCHY",
+      "to": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "doc:ERP-ORGANIZATIONAL-HIERARCHY",
+      "to": "spec:ADR-076-ERP-CANONICAL-ORGANIZATIONAL-HIERARCHY-AND-SCOPE-VOCABULARY-ALIGNMENT",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
       "from": "doc:EXECUTION-MODES",
       "to": "doc:FR-069-plan-blueprint-and-intake",
       "type": "references",
@@ -69448,6 +69499,27 @@
       "status": "current"
     },
     {
+      "from": "spec:ADR-076-ERP-CANONICAL-ORGANIZATIONAL-HIERARCHY-AND-SCOPE-VOCABULARY-ALIGNMENT",
+      "to": "doc:ERP-ORGANIZATIONAL-HIERARCHY",
+      "type": "references",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-076-ERP-CANONICAL-ORGANIZATIONAL-HIERARCHY-AND-SCOPE-VOCABULARY-ALIGNMENT",
+      "to": "spec:ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-076-ERP-CANONICAL-ORGANIZATIONAL-HIERARCHY-AND-SCOPE-VOCABULARY-ALIGNMENT",
+      "to": "spec:ADR-011-CONTEXT-BAR-AND-BUSINESS-SCOPE-CEILING",
+      "type": "relates",
+      "source": "metadata",
+      "status": "current"
+    },
+    {
       "from": "test:tests/acceptance/genesisrag17-e2e.test.js",
       "to": "code:src/platform/integrations/core/genesisrag17-publication.js",
       "type": "tests",
@@ -69492,6 +69564,20 @@
     {
       "from": "test:tests/acceptance/genesisrag17-e2e.test.js",
       "to": "req:NFR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/acceptance/genesisrag17-smartgift.test.js",
+      "to": "req:FR-187",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/acceptance/genesisrag17-smartgift.test.js",
+      "to": "req:FR-188",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -83135,6 +83221,13 @@
     {
       "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-186",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-190",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
