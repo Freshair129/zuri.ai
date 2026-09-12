@@ -4,7 +4,7 @@
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
     "total_nodes": 2707,
-    "total_edges": 11028,
+    "total_edges": 11031,
     "dangling_edges": 0,
     "node_types": {
       "document": 227,
@@ -27563,7 +27563,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md",
       "title": "ADR-077 — Membership is a grant with a lifecycle, not a membership fact",
-      "hash": "e783f475",
+      "hash": "e77ee105",
       "status": "current"
     },
     {
@@ -70811,6 +70811,27 @@
     {
       "from": "spec:ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE",
       "to": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE",
+      "to": "spec:ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE",
+      "to": "spec:ADR-037-TEAM-IS-AN-ORGANISATIONAL-GROUPING-NOT-AN-AUTHORITY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE",
+      "to": "spec:ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT",
       "type": "references",
       "source": "markdown",
       "status": "current"

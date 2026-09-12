@@ -867,6 +867,7 @@ Backlinks:
 
 - [FR-076 — Product Owner Business role binding](domains/identity/features/FR-076-product-owner-business-assignment.md) (references)
 - [Zuri Workspace System — the scope model, stated once](zuri_workspace_system.md) (references)
+- [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md) (references)
 - [ADR-045 — Canonical Identity and Access Management Boundary](decisions/ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT.md) (relates)
 
 ## ADR-034 — Project Inventory read model boundary
@@ -921,6 +922,7 @@ Source: [ADR-037 — Team is an organisational grouping, never an authority](dec
 Backlinks:
 
 - [Marketing — Multi-agent Team & Refinement](change-requests/marketing/MARKETING-TEAM-REFINEMENT.md) (references)
+- [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md) (references)
 
 ## ADR-038 — Market Intelligence is a first-class Zuri domain inside the Modular Monolith
 
@@ -1076,6 +1078,7 @@ Backlinks:
 - [แผนรออนุมัติ: Knowledge / MSP / GKS และ SoT decision loop](roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md) (references)
 - [ADR-060 — LINE OA Studio is a first-class Zuri domain: the multi-account command center for LINE Official Accounts](decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md) (references)
 - [ADR-074 — The Located Stock Ledger, WIP Work Orders and Absorbed Landed Cost](decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md) (references)
+- [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md) (references)
 - [ADR-080 — Audit events carry their own scope, and an owner can read their own access history](decisions/ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE.md) (references)
 - [ADR-047 — SoT data plane: a Tenant-bound service-account key, not an operator grant](decisions/ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY.md) (relates)
 
@@ -1664,6 +1667,9 @@ Source: [ADR-077 — Membership is a grant with a lifecycle, not a membership fa
 
 - references: [FR-191 — Access grant lifecycle](domains/identity/features/FR-191-access-grant-lifecycle.md)
 - references: [ADR-027 — Profile-first and Workspace-first onboarding](decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md)
+- references: [ADR-033 — Customer scope and Product Owner authority](decisions/ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY.md)
+- references: [ADR-037 — Team is an organisational grouping, never an authority](decisions/ADR-037-TEAM-IS-AN-ORGANISATIONAL-GROUPING-NOT-AN-AUTHORITY.md)
+- references: [ADR-045 — Canonical Identity and Access Management Boundary](decisions/ADR-045-CANONICAL-IDENTITY-AND-ACCESS-MANAGEMENT.md)
 - relates: [ADR-025 — Domain-Driven Documentation Architecture for a Multi-Agent Workflow](decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
 
 Backlinks:
