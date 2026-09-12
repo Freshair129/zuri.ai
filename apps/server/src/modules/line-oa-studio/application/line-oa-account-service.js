@@ -386,7 +386,7 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
       if (sending) throw failure(409, 'LINE_OA_DELIVERY_RECONCILIATION_REQUIRED')
       const cancelled = await tx.lineConversationJob.updateMany({
         where: { accountId: row.id, status: { in: ['QUEUED', 'CLAIMED', 'READY'] } },
-        data: { status: 'CANCELLED', sealedReplyToken: null, claimantId: null, leaseExpiresAt: null },
+        data: { status: 'CANCELLED', sealedReplyToken: null, claimantId: null, leaseExpiresAt: null, version: { increment: 1 } },
       })
       payload.cancelledTransportJobs = cancelled.count
       payload.to.transportEpoch = row.transportEpoch + 1
