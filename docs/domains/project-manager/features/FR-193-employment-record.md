@@ -9,7 +9,7 @@ source: v2-native
 
 | Field | Value |
 |---|---|
-| **Version** | 1.1.0 |
+| **Version** | 1.2.0 |
 | **Status** | Implemented |
 | **Date** | 2026-09-13 |
 | **Relates to** | ADR-078 D1, ADR-037 D1, BR-034, FR-042 |
@@ -144,7 +144,40 @@ and the UI create-and-refresh flow. No schema change is required.
 | AC-193.8 | HR displays all live access members of the selected Business separately from Employment; creating Employment does not remove the member from that list |
 | AC-193.9 | An owner can add Employment for a listed member without an open Employment, including a re-hire; the operation leaves Membership unchanged |
 
+### Remove controls (owner-approved 2026-09-13)
+
+Complexity C-2; HIGH risk because the action changes access. The owner approved
+OWNER of the relevant scope or a live Platform OPERATOR, including SUPERADMIN,
+as the only users who see and use Remove. OWNER_OPERATOR employment type conveys
+no authority. Server checks enforce the same policy as the controls.
+
+- Members with access: show each live grant's BUSINESS or TENANT scope and role.
+  Remove opens a reason-required confirmation for one explicitly selected grant.
+  BUSINESS owners may revoke their Business grants; TENANT owners may revoke
+  Tenant-wide grants. Operators may revoke either scope, without acquiring
+  general ownership or permission to grant, suspend, reinstate or offboard.
+  Organization grants explicitly warn that all Businesses in that organization
+  are affected. Existing dependent-role cascade and last-owner refusal remain;
+  the HR control never requests a last-owner override. Other Memberships or
+  platform grants may preserve access; reload the actual list after each revoke.
+- Employment: Remove means end the open record with a required reason, retaining
+  it as ENDED history. OWNER of the Business or OPERATOR may do this. Default to
+  open records, with an explicit Show employment history control for past rows.
+  No hard delete, no new status, no schema change; re-hire creates a fresh record.
+  Create/on-leave/reinstate retain their existing owner-only authority.
+- Either operation leaves the other record type unchanged and records its own
+  audit event. Cancel and failed requests leave the UI's data unchanged; show
+  errors visibly. Ordinary members see neither Remove control and API requests
+  from them are denied, including members with OWNER_OPERATOR employment type.
+
+Verify direct/inherited/overlapping grants, scoped-owner and Operator authority,
+member and foreign-owner denials, last-owner protection, missing reason, retained
+history and audit, and independent Membership/Employment state through API and
+real browser flows. No production member or Employment is removed by the release.
+
 ## Version diff
+
+1.1.0 → 1.2.0: add separately authorized Remove confirmations and retained employment history.
 
 1.0.0 → 1.1.0: replace the temporary missing-employment prompt with a permanent
 access-member list and independent count, retaining the existing Employment lifecycle.

@@ -3,12 +3,14 @@ const { PrismaClient } = require('@prisma/client')
 const { randomUUID } = require('node:crypto')
 const { e2eTarget } = require('./e2e-target')
 const { loginAsOwner } = require('./e2e-auth')
+const { signUpBusinessActor, switchBusinessActor } = require('./e2e-business-actor')
 
-// @req FR-193 — adding Employment keeps the member in the separate access list.
-// @spec ADR-078 D1, BR-034
+// @req FR-191, FR-193 — access and Employment have independent Remove controls.
+// @spec ADR-078 D1, ADR-082, BR-034, SEC-008
 // @tested tests/e2e/fr193-access-members.spec.js
 const prisma = new PrismaClient({ datasources: { db: { url: e2eTarget().databaseUrl } } })
 let business, member, membership
+const operatorGrantIds = []
 
 test.beforeAll(async () => {
   const suffix = randomUUID().slice(0, 8)
@@ -19,7 +21,10 @@ test.beforeAll(async () => {
   await prisma.membership.create({ data: { personId: owner.id, tenantId: tenant.id, businessId: business.id, scopeType: 'BUSINESS', role: 'OWNER', status: 'ACTIVE' } })
   membership = await prisma.membership.create({ data: { personId: member.id, tenantId: tenant.id, businessId: business.id, scopeType: 'BUSINESS', role: 'MEMBER', status: 'ACTIVE' } })
 })
-test.afterAll(async () => { await prisma.$disconnect() })
+test.afterAll(async () => {
+  await prisma.platformGrant.updateMany({ where: { id: { in: operatorGrantIds } }, data: { status: 'REVOKED', revokedAt: new Date() } })
+  await prisma.$disconnect()
+})
 
 test('member remains listed after an Employment is created and the page is reloaded', async ({ page }) => {
   await loginAsOwner(page)
@@ -37,11 +42,90 @@ test('member remains listed after an Employment is created and the page is reloa
   expect((await response).ok()).toBe(true)
   await expect(dialog).not.toBeVisible()
   await expect(memberRow).toContainText('Employment: ACTIVE')
-  await expect(memberRow.getByRole('button')).toHaveCount(0)
+  await expect(memberRow.getByRole('button', { name: /^Add Employment/ })).toHaveCount(0)
+  await expect(memberRow.getByRole('button', { name: /^Remove access/ })).toBeVisible()
   const employmentRow = page.getByRole('row').filter({ hasText: member.displayName })
   await expect(employmentRow).toContainText('HR browser fixture')
   await page.reload()
   await expect(memberRow).toContainText('Employment: ACTIVE')
   await expect(employmentRow).toContainText('HR browser fixture')
   expect(await prisma.membership.findUnique({ where: { id: membership.id } })).toEqual(membership)
+
+  // Cancel cannot end the record. Confirmation requires a reason.
+  await employmentRow.getByRole('button', { name: /^Remove Employment/ }).click()
+  await expect(dialog.getByRole('button', { name: 'Confirm Remove' })).toBeDisabled()
+  await dialog.getByRole('button', { name: 'Cancel' }).click()
+  await expect(employmentRow).toContainText('ACTIVE')
+  await employmentRow.getByRole('button', { name: /^Remove Employment/ }).click()
+  await dialog.getByLabel('Reason', { exact: true }).fill('End browser fixture contract')
+  await dialog.getByRole('button', { name: 'Confirm Remove' }).click()
+  await expect(dialog).not.toBeVisible()
+  await expect(employmentRow).toHaveCount(0)
+  await expect(memberRow).toContainText('No open Employment')
+  await page.getByLabel(/^Show employment history/).check()
+  await expect(employmentRow).toContainText('ENDED')
+  expect(await prisma.membership.findUnique({ where: { id: membership.id } })).toEqual(membership)
+  await memberRow.getByRole('button', { name: /^Remove access/ }).click()
+  await expect(dialog).toContainText('This withdraws the selected membership for this Business.')
+  await dialog.getByLabel('Reason', { exact: true }).fill('Withdraw browser fixture access')
+  await dialog.getByRole('button', { name: 'Confirm Remove' }).click()
+  await expect(dialog).not.toBeVisible()
+  await expect(memberRow).toHaveCount(0)
+  await expect(employmentRow).toContainText('ENDED')
+  await page.reload()
+  await expect(memberRow).toHaveCount(0)
+  await page.getByLabel(/^Show employment history/).check()
+  await expect(employmentRow).toContainText('ENDED')
+  expect(await prisma.auditEvent.count({ where: { entityId: membership.id, action: 'MEMBERSHIP_REVOKED' } })).toBe(1)
+})
+
+test('ordinary member cannot see Remove or bypass it through the API; live Operator can and expiry removes authority', async ({ page }) => {
+  await loginAsOwner(page)
+  await page.getByRole('button', { name: `Open Business ${business.name}`, exact: true }).click()
+  await page.goto('/people')
+  const actor = await signUpBusinessActor(page.request, business.id)
+  await prisma.membership.updateMany({ where: { personId: actor.id, businessId: business.id }, data: { role: 'MEMBER' } })
+  const record = await prisma.employment.create({ data: { personId: actor.id, tenantId: business.tenantId, businessId: business.id, employmentType: 'OWNER_OPERATOR' } })
+  const access = await prisma.membership.findFirstOrThrow({ where: { personId: actor.id, businessId: business.id } })
+  await switchBusinessActor(page, actor)
+  await page.goto('/people')
+  await expect(page.getByRole('heading', { name: /Members with access/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /^Remove (access|Employment)/ })).toHaveCount(0)
+  const employmentUrl = `/api/people/employment/${record.id}`
+  const membershipUrl = `/api/platform/users/memberships/${access.id}/lifecycle`
+  expect((await page.request.patch(employmentUrl, { data: { action: 'end', reason: 'Denied', isOperator: true } })).status()).toBe(404)
+  expect((await page.request.post(membershipUrl, { data: { action: 'REVOKE', reason: 'Denied', isOperator: true } })).status()).toBe(404)
+
+  const platformGrant = await prisma.platformGrant.create({ data: { personId: actor.id, capability: 'OPERATOR', status: 'ACTIVE', expiresAt: new Date(Date.now() + 3600000) } })
+  operatorGrantIds.push(platformGrant.id)
+  await page.reload()
+  const employmentRow = page.getByRole('row').filter({ hasText: actor.email })
+  await expect(employmentRow.getByRole('button', { name: /^Remove Employment/ })).toBeVisible()
+  await employmentRow.getByRole('button', { name: /^Remove Employment/ }).click()
+  const dialog = page.getByRole('dialog')
+  await dialog.getByLabel('Reason', { exact: true }).fill('Operator ends test record')
+  await dialog.getByRole('button', { name: 'Confirm Remove' }).click()
+  await expect(dialog).not.toBeVisible()
+  await expect(employmentRow).toHaveCount(0)
+
+  // A Tenant grant is explicit in the confirmation; revoking it preserves the
+  // actor's other Business grant. This also exercises the trusted session port.
+  const inherited = await prisma.membership.create({ data: { personId: actor.id, tenantId: business.tenantId, scopeType: 'TENANT', role: 'MEMBER' } })
+  await page.reload()
+  const memberRow = page.getByRole('listitem').filter({ hasText: actor.email })
+  await memberRow.getByRole('button', { name: /^Remove access/ }).click()
+  await dialog.getByLabel('Access grant', { exact: true }).selectOption(inherited.id)
+  await expect(dialog).toContainText('across all businesses in this organization')
+  await dialog.getByLabel('Reason', { exact: true }).fill('Operator withdraws only organization grant')
+  await dialog.getByRole('button', { name: 'Confirm Remove' }).click()
+  await expect(dialog).not.toBeVisible()
+  await expect(memberRow).toBeVisible()
+  expect((await prisma.membership.findUniqueOrThrow({ where: { id: access.id } })).status).toBe('ACTIVE')
+
+  await prisma.platformGrant.update({ where: { id: platformGrant.id }, data: { expiresAt: new Date(0) } })
+  await page.reload()
+  await expect(page.getByRole('heading', { name: /Members with access/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /^Remove (access|Employment)/ })).toHaveCount(0)
+  expect((await page.request.post(membershipUrl, { data: { action: 'REVOKE', reason: 'Expired Operator' } })).status()).toBe(404)
+  expect((await prisma.employment.findUniqueOrThrow({ where: { id: record.id } })).status).toBe('ENDED')
 })

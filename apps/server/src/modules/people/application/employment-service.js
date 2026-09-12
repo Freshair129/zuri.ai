@@ -1,6 +1,6 @@
 import prisma from '@/lib/db'
 import { zEmploymentInput } from '@/lib/validation/entities'
-import { ownsBusiness } from '@/modules/identity/viewer-authority'
+import { ownsBusiness, isInstallationOperator } from '@/modules/identity/viewer-authority'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 
@@ -142,7 +142,12 @@ export async function reinstateEmployment(employmentId, { viewer, db = prisma } 
 export async function endEmployment(employmentId, { reason, endAt = new Date(), viewer, db = prisma } = {}) {
   if (!reason || !String(reason).trim()) throw failure(400, 'reason is required')
   const employment = await loadForTransition(db, employmentId)
-  requireBusinessOwner(viewer, employment.businessId)
+  // @req FR-193 — only ending additionally permits a live Operator (ADR-082).
+  // @tested tests/integration/fr193-remove-controls.test.js
+  assertDomainVisible(viewer, employment.businessId, 'people')
+  if (!ownsBusiness(viewer, employment.businessId) && !isInstallationOperator(viewer)) {
+    throw failure(404, 'Business not found')
+  }
   if (employment.status === 'ENDED') throw failure(409, 'EMPLOYMENT_ALREADY_ENDED')
   const at = endAt instanceof Date ? endAt : new Date(endAt)
   if (employment.startAt && at < employment.startAt) throw failure(422, 'EMPLOYMENT_END_BEFORE_START')

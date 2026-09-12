@@ -1,7 +1,7 @@
 ---
-version: "1.0.0"
+version: "1.1.0"
 created_at: "2026-09-12T18:00:00+07:00,Claude Opus 5"
-last_update: "2026-09-12T18:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-13T06:00:00+07:00,RWANG"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -270,3 +270,17 @@ for the state diagrams, refusal tables and acceptance criteria.
 | 3 | `people-service.js` reads `Employment`, derives `hasSystemAccess` from `Membership`; `rbac-service.js`'s `assertEmployee` renamed to `assertTenantMember` (it checked Membership, never employment — the old name was already wrong about what it did) | The repair FR-193 exists for |
 | 4 | `billing-invoice-service.js` reads the linked `TaxRegistrationBranch`; `scope-service.js`'s `createLegalEntity` takes `tenantId`; `createBusiness` gains the ancestry guard; `createTaxRegistrationBranch` added | The repair FR-194 exists for |
 | 5 | `fr193-employment-not-authorization.test.js` (ADR-037 D1 discipline, applied to Employment) | Last, so the guard is checked against the real end state rather than the starting one |
+
+## Amendment — HR Remove, approved 2026-09-13
+
+The owner subsequently authorized a live Platform OPERATOR, as well as the
+Business owner, to end an open Employment with a reason from the HR Remove
+control. ENDED records remain accessible as history. Create, leave and reinstate
+keep their existing ownership checks; Employment still grants no access. See
+[FR-193](../domains/project-manager/features/FR-193-employment-record.md).
+
+## CHANGELOG
+
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---|---|---|---|---|---|
+| 1.1.0 | 2026-09-13 | accepted | Owner-approved limited Operator Remove authority; existing lifecycle retained | pending | RWANG |

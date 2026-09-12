@@ -1,6 +1,6 @@
 import prisma from '@/lib/db'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
-import { ownsBusiness } from '@/modules/identity/viewer-authority'
+import { ownsBusiness, isInstallationOperator, canRevokeMembership } from '@/modules/identity/viewer-authority'
 
 // @req FR-042 - People Directory is a Business-scoped workforce view.
 // @req FR-193 - the roster is built from `Employment` (who works here), never
@@ -82,7 +82,10 @@ export async function listPeople(
       OR: [{ businessId }, { businessId: null }],
       AND: [{ OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }] }],
     },
-    select: { personId: true, person: { select: { id: true, code: true, displayName: true, email: true } } },
+    select: {
+      id: true, personId: true, tenantId: true, businessId: true, scopeType: true, role: true,
+      person: { select: { id: true, code: true, displayName: true, email: true } },
+    },
   })
   const hasAccess = new Set(businessMemberships.map((membership) => membership.personId))
   const accessMembers = [...new Map(businessMemberships
@@ -90,6 +93,14 @@ export async function listPeople(
     .map((membership) => [membership.personId, membership.person])).values()]
     .map((person) => ({
       person,
+      // @req FR-191, FR-193 — expose the actual grant scopes, never a guessed
+      // person-wide removal. The write service rechecks the same authority.
+      // @tested tests/integration/fr193-remove-controls.test.js
+      grants: businessMemberships.filter((membership) => membership.personId === person.id)
+        .map((membership) => ({
+          id: membership.id, scopeType: membership.scopeType, role: membership.role,
+          canRemove: canRevokeMembership(viewer, membership),
+        })),
       hasOpenEmployment: openEmploymentByPerson.has(person.id),
       employmentStatus: openEmploymentByPerson.get(person.id)?.status ?? null,
     }))
@@ -104,6 +115,7 @@ export async function listPeople(
     // rejected rather than believed.
     business: { id: business.id, code: business.code, name: business.name, tenantId: business.tenantId },
     canManageEmployment: ownsBusiness(viewer, businessId),
+    canRemoveEmployment: ownsBusiness(viewer, businessId) || isInstallationOperator(viewer),
     accessMembers,
     accessWithoutEmployment,
     people: employments.map((employment) => ({

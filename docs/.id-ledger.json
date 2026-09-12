@@ -3714,14 +3714,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "87bfd12ee4349b4c3950859d040f2a5c164338f297925525cca35f3335ac826e",
+      "statement_digest": "33ad25deb47a1bd2e6bf9a6ef8ef72800df1714a6094e3f4e6839f0c556f8455",
       "history": [
         {
           "anchor": "an access grant can be withdrawn by a named person for a",
           "since": "2026-09-12",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-12",
+      "statement_digest_reason": "Owner approved explicit Operator revoke capability for HR Remove while keeping the Membership lifecycle subject unchanged."
     },
     "FR-192": {
       "family": "FR",
@@ -3740,14 +3742,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "63543f562234dd68675e193bc48aa9df7dae08013d35d548678a697ac0848fe6",
+      "statement_digest": "2448a98b20cfde0c9417a1564cb6b0a94b811aa102db5b44e8624413b613fc97",
       "history": [
         {
           "anchor": "employment is a new hr assignment record",
           "since": "2026-09-12",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-12",
+      "statement_digest_reason": "Owner approved separate HR Remove and retained Employment history, with scoped owner or live Operator authorization."
     },
     "FR-194": {
       "family": "FR",
@@ -3831,14 +3835,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "39fec911f8eb1b0610693d7b0143b4eea75bc7dfe6ffb2523a8777a43fb5268f",
+      "statement_digest": "d2e0c567732c88e6d05c2b23ee5e9421dd164f582e8d1f2997291b56f616ba46",
       "history": [
         {
           "anchor": "explicit superadmin access grants an existing person",
           "since": "2026-09-12",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-12",
+      "statement_digest_reason": "Record the separately approved FR-191 and FR-193 withdrawal exception without changing Superadmin or Operator scope resolution."
     },
     "NFR-001": {
       "family": "NFR",

@@ -17,7 +17,7 @@ import prisma from '@/lib/db'
 import { z } from 'zod'
 import { MEMBERSHIP_STATUSES } from '@/lib/validation/enums'
 import { resolveViewer } from './resolve-viewer'
-import { ownsBusiness, ownsTenant } from './viewer-authority'
+import { ownsBusiness, ownsTenant, canRevokeMembership } from './viewer-authority'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 
 const LIVE = MEMBERSHIP_STATUSES.filter((status) => status !== 'REVOKED')
@@ -266,7 +266,11 @@ export async function reinstateMembership(input, { db = prisma, resolve = resolv
 export async function revokeMembership(input, { db = prisma, resolve = resolveViewer } = {}) {
   const data = zTransition.extend({ allowLast: z.boolean().optional() }).parse(input)
   const viewer = await ownerViewerFor(resolve, db)
-  const membership = await loadGrant(db, data.membershipId, viewer)
+  // @req FR-191 — Operator withdrawal is explicit and restricted to REVOKE.
+  // @spec ADR-082 — suspend/reinstate/offboard retain their ownership checks.
+  // @tested tests/integration/fr193-remove-controls.test.js
+  const membership = await db.membership.findUnique({ where: { id: data.membershipId } })
+  if (!membership || !canRevokeMembership(viewer, membership)) throw notFound()
 
   if (membership.status === 'REVOKED') throw failure(409, 'ALREADY_REVOKED')
   await assertNotLastOwner(db, membership, viewer, { allowLast: data.allowLast === true })

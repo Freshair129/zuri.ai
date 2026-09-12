@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-082
 title: Explicit Superadmin authority
-version: "1.0.0"
+version: "1.1.0"
 status: accepted
 created_at: "2026-09-13T04:25:00+07:00,RWANG"
-last_update: "2026-09-13T04:25:00+07:00,RWANG"
+last_update: "2026-09-13T06:00:00+07:00,RWANG"
 author: RWANG
 attributes:
   doc_type: architecture-decision
@@ -76,6 +76,16 @@ Tenants. A hardcoded email bypass would be unrevocable through the grant store.
 The chosen capability extends ADR-017's explicit platform authority while keeping
 ordinary operators' read-only business scope and existing wire role vocabulary.
 
+## Scoped amendment: HR Remove (owner-approved 2026-09-13)
+
+FR-191 and FR-193 now also permit live OPERATOR to revoke an explicitly selected
+Membership grant and end an Employment record with a reason. This is the owner's
+subsequent approved exception to ordinary operators' read-only Business scope.
+It does not populate ownership sets, promote OPERATOR to SUPERADMIN, or authorize
+other owner-only operations. Scoped owners retain their existing authority.
+Employment type OWNER_OPERATOR is never an authorization input. The existing
+last-owner refusal and independent audit/lifecycle rules continue to apply.
+
 ## Verification and release
 
 Tests must exercise a real signed browser session, all-domain/owner/operator
@@ -91,4 +101,5 @@ of image rollback.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.1.0 | 2026-09-13 | accepted | Explicit Operator withdrawal exception for FR-191/FR-193; no general ownership | pending | RWANG |
 | 1.0.0 | 2026-09-13 | accepted | Owner-approved separate Superadmin capability and bounded rollout | pending | RWANG |

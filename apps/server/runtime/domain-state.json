@@ -1052,7 +1052,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-078",
@@ -1287,14 +1287,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-038",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-044",
@@ -1315,14 +1315,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-061",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-062",
@@ -1350,14 +1350,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-075",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-076",
@@ -1531,8 +1531,8 @@
           "id": "FR-191",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 27
+          "codeCount": 7,
+          "testCount": 33
         },
         {
           "id": "FR-192",
@@ -1546,7 +1546,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-195",
@@ -1574,7 +1574,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-199",
@@ -2731,7 +2731,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-080",
@@ -2960,7 +2960,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-092",
@@ -3268,7 +3268,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-095",
@@ -3734,7 +3734,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-037",
@@ -3748,7 +3748,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-039",
@@ -3776,7 +3776,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 20
+          "testCount": 22
         },
         {
           "id": "FR-043",
@@ -3825,7 +3825,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-060",
@@ -3839,7 +3839,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-062",
@@ -3923,14 +3923,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-075",
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-077",
@@ -4412,15 +4412,15 @@
           "id": "FR-191",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 27
+          "codeCount": 7,
+          "testCount": 33
         },
         {
           "id": "FR-193",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-194",
@@ -4448,7 +4448,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-199",
@@ -7460,8 +7460,8 @@
           "id": "FR-191",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 12,
-          "testCount": 27
+          "codeCount": 15,
+          "testCount": 33
         },
         {
           "id": "FR-192",
@@ -7483,15 +7483,21 @@
         "apps/server/src/modules/identity/rbac-service.js",
         "apps/server/src/modules/identity/rbac.js",
         "apps/server/src/modules/identity/resolve-viewer.js",
+        "apps/server/src/modules/identity/viewer-authority.js",
         "apps/server/src/modules/identity/viewer-domains.js",
+        "apps/server/src/modules/people/application/people-service.js",
+        "apps/server/src/modules/people/components/PeopleDirectory.jsx",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/project-team-service.js",
         "apps/server/src/modules/project-manager/application/scope-service.js",
+        "apps/server/tests/e2e/fr193-access-members.spec.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
+        "apps/server/tests/integration/domain-visibility-server.test.js",
         "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
         "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
         "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
+        "apps/server/tests/integration/fr193-remove-controls.test.js",
         "apps/server/tests/integration/identity-erase.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/password-reset-flow.test.js",
@@ -7512,9 +7518,12 @@
         "apps/server/tests/unit/membership-grant-service.test.js",
         "apps/server/tests/unit/membership-lifecycle-service.test.js",
         "apps/server/tests/unit/password-reset-service.test.js",
+        "apps/server/tests/unit/people-directory.test.js",
+        "apps/server/tests/unit/people-service.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/profile-permission-service.test.js",
         "apps/server/tests/unit/project-team-service.test.js",
+        "apps/server/tests/unit/viewer-authority.test.js",
         "apps/server/tests/unit/viewer-gate.test.js"
       ]
     },
@@ -7546,7 +7555,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-194",
@@ -7587,6 +7596,7 @@
         "apps/server/tests/integration/fr193-access-members.test.js",
         "apps/server/tests/integration/fr193-employment-lifecycle.test.js",
         "apps/server/tests/integration/fr193-employment-write-path.test.js",
+        "apps/server/tests/integration/fr193-remove-controls.test.js",
         "apps/server/tests/integration/fr194-legal-entity-tax-branch.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
@@ -7746,7 +7756,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-199",
@@ -7766,6 +7776,7 @@
         "apps/server/src/modules/identity/membership-lifecycle-service.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/audit.js",
+        "apps/server/tests/integration/fr193-remove-controls.test.js",
         "apps/server/tests/integration/fr195-access-invite.test.js",
         "apps/server/tests/integration/fr198-fr199-audit-access-evidence.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
@@ -9260,7 +9271,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 4
+          "testCount": 5
         }
       ],
       "evidence": [
@@ -9268,6 +9279,7 @@
         "apps/server/src/app/api/projects/[id]/team/route.js",
         "apps/server/src/modules/identity/viewer-authority.js",
         "apps/server/src/modules/project-manager/application/project-team-service.js",
+        "apps/server/tests/integration/fr193-remove-controls.test.js",
         "apps/server/tests/unit/fr036-team-authorization.test.js",
         "apps/server/tests/unit/fr089-br018-team-grants-nothing.test.js",
         "apps/server/tests/unit/project-team-service.test.js",
@@ -9298,7 +9310,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 17
+          "testCount": 18
         }
       ],
       "evidence": [
@@ -9316,6 +9328,7 @@
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/integration/fr038-business-membership-add.test.js",
         "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
+        "apps/server/tests/integration/fr193-remove-controls.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
@@ -9465,7 +9478,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 20
+          "testCount": 22
         }
       ],
       "evidence": [
@@ -9478,7 +9491,9 @@
         "apps/server/src/modules/people/components/PeopleDirectory.jsx",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr059-strategy-edit.spec.js",
+        "apps/server/tests/e2e/fr193-access-members.spec.js",
         "apps/server/tests/integration/domain-visibility-server.test.js",
+        "apps/server/tests/integration/fr193-remove-controls.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
@@ -10244,7 +10259,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 15
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -10264,6 +10279,7 @@
         "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
         "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
         "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
+        "apps/server/tests/integration/fr193-remove-controls.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr059-strategy-edit-ui.test.js",
         "apps/server/tests/unit/fr059-strategy-validation.test.js",
@@ -10303,7 +10319,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 38
+          "testCount": 39
         }
       ],
       "evidence": [
@@ -10329,6 +10345,7 @@
         "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
         "apps/server/tests/integration/fr161-sales-task.test.js",
         "apps/server/tests/integration/fr193-employment-lifecycle.test.js",
+        "apps/server/tests/integration/fr193-remove-controls.test.js",
         "apps/server/tests/integration/line-reply-record.test.js",
         "apps/server/tests/integration/market-intelligence-observation-feed.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
@@ -10888,7 +10905,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 13
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -10900,6 +10917,7 @@
         "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
         "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
         "apps/server/tests/integration/fr106-api-access-key-listing.test.js",
+        "apps/server/tests/integration/fr193-remove-controls.test.js",
         "apps/server/tests/integration/scope-and-isolation.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
         "apps/server/tests/unit/api-access-auth.test.js",
@@ -10936,7 +10954,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 33
+          "testCount": 34
         }
       ],
       "evidence": [
@@ -10962,6 +10980,7 @@
         "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr169-business-capability.test.js",
+        "apps/server/tests/integration/fr193-remove-controls.test.js",
         "apps/server/tests/integration/fr197-operator-grant-lifecycle.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
