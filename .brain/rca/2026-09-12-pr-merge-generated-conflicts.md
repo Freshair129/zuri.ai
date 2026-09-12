@@ -2,7 +2,7 @@
 version: "0.2.0b"
 status: beta
 created_at: "2026-09-12T20:26:00+07:00,RWANG,base 00f6d326"
-last_update: "2026-09-12T20:43:00+07:00,RWANG"
+last_update: "2026-09-12T20:54:00+07:00,RWANG"
 attributes:
   domain: agent-governance
   scope: PR integration diagnosis
@@ -87,20 +87,26 @@ The focused suite passes 24 tests, including actual repeated CLI generation,
 stale-state rejection, bundled-state parity, schema validation and real Dashboard
 server rendering without a date. Production build passes.
 
-Final local validation on base `bec36068` plus this change:
+PR #350 merged while draft #354 was being opened. Integration with main
+`12664edc` conflicted only in the two domain-state snapshots. Both were
+regenerated from the combined source; no additional application change was
+needed. The first full suite on `bec36068` passed 4,957 tests; the final suite,
+build and browser checks were rerun on the combined tree below.
+
+Final local validation on base `12664edc` plus this change:
 
 | Check | Result |
 |---|---|
-| Full `npm test` | 4,957 passed, 15 skipped; 602 files passed, 5 skipped; exit 0 |
+| Full `npm test` | 4,984 passed, 15 skipped; 604 files passed, 5 skipped; exit 0 |
 | Production build | Passed compilation, lint/type validation and prerendering |
-| Product Readiness E2E with normal warm-up and `--fail-on-flaky` | 4 passed (one warm-up, three browser tests), zero flaky; 351 modules warmed |
+| Product Readiness E2E with normal warm-up and `--fail-on-flaky` | 4 passed (one warm-up, three browser tests), zero flaky; 353 modules warmed |
 | Full `npm run govern` | PASS, critical 0, warning 0; both graph scopes valid |
 | Real-repository repeatability | SHA-256 unchanged for all 11 generated outputs after another full govern and docs:llms run |
 | Workflow YAML and gate order | Parsed; submitted-graph check before generation, freshness checks before tests/build |
 | `git diff --check` | Passed |
 
 Logs for this local run are in the task host's temporary directory as
-`zuri-generated-state-20260912-{tests,build,e2e,govern}.log`. These are local
+`zuri-generated-state-20260912-final-{tests,build,e2e,govern}.log`. These are local
 results; no hosted CI, merge or deployment success is inferred from them.
 
 Implementation uses private Server and Edge dependency installations. The earlier

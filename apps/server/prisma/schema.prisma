@@ -1966,6 +1966,22 @@ model ConversationAnalysis {
   @@index([state])
 }
 
+// @req FR-198 — an audit event carries its own scope and the change it made,
+// instead of that information living only inside `payloadJson` for the writers
+// that happened to put it there. Measured on production 2026-09-12: 12
+// `Membership` rows against 6 `MEMBERSHIP_ADDED` events, and `ROLE_BINDING_ASSIGNED`
+// 2 / `ROLE_BINDING_REVOKED` 1 against exactly 1 surviving `RoleBinding` row — one
+// binding disappeared with no event explaining it, because "what happened in
+// this Business" could not be queried, only scanned and JSON-parsed, and only
+// for the writers that happened to include scope.
+// @spec ADR-080 D1/D2, BR-036, SEC-003 — every new column is nullable and every
+// `recordAudit` parameter optional, so SEC-003's append-only stream and every
+// existing caller keep working unchanged; a rewrite of history would violate
+// SEC-003, and adding a column that is merely unpopulated on old rows does not.
+// No FK on tenantId/businessId — the same choice `AgentTraceEvent` already made
+// for the same reason: a hot, append-only journal should not carry a
+// referential-action decision.
+// @tested tests/unit/access-history-service.test.js, tests/integration/fr198-fr199-audit-access-evidence.test.js
 model AuditEvent {
   id          String   @id @default(uuid())
   entityType  String
@@ -1976,8 +1992,34 @@ model AuditEvent {
   actorId     String?
   occurredAt  DateTime @default(now())
 
+  // @req FR-198 — scope as queryable columns. Nullable: only the writers this
+  // change touches (identity's grant and lifecycle services) fill them; every
+  // other caller of `recordAudit` keeps writing rows with these null, which is
+  // what makes the migration additive rather than a retrofit.
+  tenantId   String?
+  businessId String?
+  // The reason a mutation happened, lifted out of `payloadJson` onto a column an
+  // access review can filter and group on directly.
+  reason     String?
+  // The state before and after the change, one JSON string each. Not a diff —
+  // a diff format is one more thing to keep in sync with whatever a writer
+  // decides "changed" means; the full before/after snapshot needs no such
+  // agreement and is trivially diffable by a reader that wants one.
+  beforeJson String?
+  afterJson  String?
+  // Correlation with the request and the session that made it, for a trace
+  // that starts at an audit row and needs to walk sideways to what else that
+  // request or that session did. Nothing writes these yet outside this
+  // change's own writers; declared now so a later caller has a column rather
+  // than a second migration.
+  requestId  String?
+  sessionId  String?
+
   @@index([entityType, entityId])
   @@index([occurredAt])
+  @@index([tenantId, occurredAt])
+  @@index([businessId, occurredAt])
+  @@index([actorId, occurredAt])
 }
 
 // @req FR-149, FR-171 — one scope-bound, append-only execution journal for Agent turns.

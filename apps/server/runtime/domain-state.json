@@ -36,11 +36,11 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 135,
+    "featureCount": 136,
     "readyFeatureCount": 108,
-    "requirementCount": 197,
-    "verifiedRequirementCount": 184,
-    "progressPercent": 94.2,
+    "requirementCount": 199,
+    "verifiedRequirementCount": 186,
+    "progressPercent": 94.3,
     "gapCount": 28,
     "gaps": [
       {
@@ -595,7 +595,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 248,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -850,7 +850,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 248,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -1041,7 +1041,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 248,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -1727,6 +1727,20 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 11
+        },
+        {
+          "id": "FR-198",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 6
+        },
+        {
+          "id": "FR-199",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 6
         }
       ],
       "checks": {
@@ -1752,7 +1766,7 @@
           "details": {
             "routes": 22,
             "inventoried": 22,
-            "openApiPaths": 248,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -1859,6 +1873,8 @@
         "docs/domains/identity/features/FR-195-access-invite.md",
         "docs/domains/identity/features/FR-196-segregation-of-duties.md",
         "docs/domains/identity/features/FR-197-operator-access-lifecycle.md",
+        "docs/domains/identity/features/FR-198-audit-scope-and-evidence.md",
+        "docs/domains/identity/features/FR-199-access-history-read-models.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -1966,12 +1982,13 @@
         "apiRoutes": 22,
         "pageRoutes": 8,
         "ownedModels": 19,
-        "featureNotes": 23
+        "featureNotes": 25
       },
       "featureIds": [
         "FEAT-010",
         "FEAT-027",
         "FEAT-029",
+        "FEAT-030",
         "FR-021",
         "FR-022",
         "FR-031",
@@ -1992,9 +2009,9 @@
         "FR-122",
         "FR-123"
       ],
-      "featureCount": 22,
+      "featureCount": 23,
       "readyFeatureCount": 18,
-      "progressPercent": 95.2
+      "progressPercent": 95.5
     },
     "integration": {
       "status": "partial",
@@ -2212,7 +2229,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 248,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -2480,7 +2497,7 @@
           "details": {
             "routes": 30,
             "inventoried": 30,
-            "openApiPaths": 248,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -3028,7 +3045,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 248,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -3187,7 +3204,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 248,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -3348,7 +3365,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 248,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -3509,7 +3526,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 248,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -3651,7 +3668,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 248,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -4670,6 +4687,20 @@
           "status": "verified",
           "codeCount": 3,
           "testCount": 11
+        },
+        {
+          "id": "FR-198",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 6
+        },
+        {
+          "id": "FR-199",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 6
         }
       ],
       "checks": {
@@ -4702,9 +4733,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 126,
-            "inventoried": 126,
-            "openApiPaths": 248,
+            "routes": 128,
+            "inventoried": 128,
+            "openApiPaths": 250,
             "missingFromOpenApi": 0
           }
         },
@@ -4772,7 +4803,7 @@
           "details": {
             "mutations": 101,
             "guardedMutations": 99,
-            "reads": 59,
+            "reads": 61,
             "unguardedReads": 2
           }
         },
@@ -4922,8 +4953,8 @@
         }
       ],
       "details": {
-        "routes": 171,
-        "apiRoutes": 126,
+        "routes": 173,
+        "apiRoutes": 128,
         "pageRoutes": 45,
         "ownedModels": 31,
         "featureNotes": 33
@@ -7931,6 +7962,66 @@
         "apps/server/tests/unit/procurement-domain.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/workspace-invite-service.test.js"
+      ]
+    },
+    {
+      "id": "FEAT-030",
+      "title": "Audit Access Evidence — closing the read-side gap ADR-077's lifecycle assumed was already open: `AuditEvent` gains seven nullable columns (`tenantId`, `businessId`, `reason`, `beforeJson`, `afterJson`, `requestId`, `sessionId`) so scope and the change made are queryable rather than living only inside `payloadJson` for whichever writer happened to include them, and identity gains `listAccessHistory` (a Business/Tenant owner, oneself, or the operator reads the event stream for their own scope, 404-shaped identically for unowned and nonexistent) and `listBusinessAccess` (the current grant roster with provenance) — the access review a reason on every FR-191 transition is only worth writing if someone can read it back (ADR-080, 2026-09-12)",
+      "kind": "bundle",
+      "registryStatus": "implemented",
+      "requirementIds": [
+        "FR-198",
+        "FR-199"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "identity",
+        "project-manager"
+      ],
+      "useCase": "An owner reads who has access to their own Business right now, who granted it and why, and what changed and when — the access review a reason on every access-grant transition was only ever worth writing for",
+      "progressPercent": 100,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-030 registry status is implemented"
+      ],
+      "requirements": [
+        {
+          "id": "FR-198",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 6
+        },
+        {
+          "id": "FR-199",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 5,
+          "testCount": 6
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/(pm)/platform/users/page.jsx",
+        "apps/server/src/app/api/platform/access-history/route.js",
+        "apps/server/src/app/api/platform/businesses/[businessId]/grants/route.js",
+        "apps/server/src/modules/identity/access-history-service.js",
+        "apps/server/src/modules/identity/access-invite-service.js",
+        "apps/server/src/modules/identity/membership-grant-service.js",
+        "apps/server/src/modules/identity/membership-lifecycle-service.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/src/modules/project-manager/application/audit.js",
+        "apps/server/tests/integration/fr195-access-invite.test.js",
+        "apps/server/tests/integration/fr198-fr199-audit-access-evidence.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/plan-import.test.js",
+        "apps/server/tests/integration/project-core.test.js",
+        "apps/server/tests/unit/access-history-service.test.js",
+        "apps/server/tests/unit/fr062-permissions-read-scope.test.js",
+        "apps/server/tests/unit/membership-grant-service.test.js",
+        "apps/server/tests/unit/membership-lifecycle-service.test.js",
+        "apps/server/tests/unit/platform-users-view.test.js",
+        "apps/server/tests/unit/profile-permission-service.test.js"
       ]
     },
     {

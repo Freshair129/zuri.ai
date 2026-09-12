@@ -121,6 +121,7 @@
     "BR-033",
     "BR-034",
     "BR-035",
+    "BR-036",
     "FR-001",
     "FR-002",
     "FR-003",
@@ -318,6 +319,8 @@
     "FR-195",
     "FR-196",
     "FR-197",
+    "FR-198",
+    "FR-199",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -434,6 +437,7 @@
     "SDD-092",
     "SDD-093",
     "SDD-094",
+    "SDD-095",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -461,6 +465,7 @@
     "SEC-025",
     "SEC-026",
     "SEC-027",
+    "SEC-028",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -490,6 +495,7 @@
     "FEAT-027",
     "FEAT-028",
     "FEAT-029",
+    "FEAT-030",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -657,6 +663,7 @@
     "ADR-077",
     "ADR-078",
     "ADR-079",
+    "ADR-080",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -1125,6 +1132,19 @@
       "history": [
         {
           "anchor": "two people complete a cycle that touches money or stock one",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-036": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "345041570e79c5395f37088bb7325b36dedf1a2c66e97c122df4a832839429da",
+      "history": [
+        {
+          "anchor": "an audit event states its scope as data a query can filter",
           "since": "2026-09-12",
           "reason": "declared"
         }
@@ -3778,6 +3798,32 @@
         }
       ]
     },
+    "FR-198": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "014dcc3d3b878f8bdd1d6fe260699547062bbb836025a347e1fda88669b18eff",
+      "history": [
+        {
+          "anchor": "an audit event carries its own scope and the change it made",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-199": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "53c2222e3a16ec832c622d49dcbd0bd016b147fb080b20495658d13130b99560",
+      "history": [
+        {
+          "anchor": "a business owner can read the access history of their own",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -5308,6 +5354,19 @@
         }
       ]
     },
+    "SDD-095": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "affe54c15eabe9943c6eef78a69c9001c983c54c8137ea6e02022ed049fa5f05",
+      "history": [
+        {
+          "anchor": "auditevent tenantid businessid reason beforejson afterjson",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -5664,6 +5723,19 @@
       "history": [
         {
           "anchor": "installation operator access is time boxed and its use is",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-028": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d93d9e6a87bb40c577b01a0761cb41f6d530fb42b7e1184f80fe3c8c84cb05c3",
+      "history": [
+        {
+          "anchor": "access history is authorized exactly like the grant it",
           "since": "2026-09-12",
           "reason": "declared"
         }
@@ -6066,6 +6138,19 @@
       "history": [
         {
           "anchor": "access invite segregation of duties and operator lifecycle",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-030": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "a0f274fa0d2feddd93f34901fe1e531ef97fd4236146e90d511ea3b2b97f66f0",
+      "history": [
+        {
+          "anchor": "audit access evidence",
           "since": "2026-09-12",
           "reason": "declared"
         }
@@ -8263,6 +8348,19 @@
       "history": [
         {
           "anchor": "access invite segregation of duties and the operator",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-080": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE.md",
+      "status": "current",
+      "statement_digest": "09d846a6bc1d92193e91fe0d4ab1178c48ae9238fd73c285d723b0748827dbfd",
+      "history": [
+        {
+          "anchor": "audit events carry their own scope and an owner can read",
           "since": "2026-09-12",
           "reason": "declared"
         }

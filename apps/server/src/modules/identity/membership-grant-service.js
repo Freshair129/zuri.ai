@@ -7,8 +7,11 @@
 //   repaired by a service in one lane
 //   (.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md).
 // @spec ADR-077 D1/D8, ADR-025 D3, BR-033, SEC-003, SDD-092
+// @req FR-198 — the creation event carries tenantId/businessId/reason as
+//   columns, not only inside payload (ADR-080).
 // @tested tests/unit/membership-grant-service.test.js,
-//   tests/integration/fr191-access-grant-lifecycle.test.js
+//   tests/integration/fr191-access-grant-lifecycle.test.js,
+//   tests/integration/fr198-fr199-audit-access-evidence.test.js
 import prisma from '@/lib/db'
 import { z } from 'zod'
 import { DOMAINS } from '@/config/domains'
@@ -107,6 +110,10 @@ export async function grantBusinessMembership(input, { db = prisma } = {}) {
   // One audit family for every creation path, whatever screen asked. The
   // calling lane may record its own PROJECT/BUSINESS event alongside as a
   // cross-reference; what it may not do is be the only record.
+  //
+  // @req FR-198 — tenantId/businessId/reason go on the row as columns, not only
+  // inside `payload`, so `listAccessHistory` (FR-199) can query this event by
+  // scope instead of scanning the whole stream and parsing JSON.
   await recordAudit(db, {
     entityType: 'MEMBERSHIP',
     entityId: created.id,
@@ -122,6 +129,10 @@ export async function grantBusinessMembership(input, { db = prisma } = {}) {
       reason: data.reason ?? null,
     },
     actorId: data.actorId,
+    tenantId: data.tenantId,
+    businessId: data.businessId,
+    reason: data.reason ?? null,
+    afterJson: { status: 'ACTIVE', role: data.role, scopeType, domainKeys: data.domainKeys },
   })
 
   return created

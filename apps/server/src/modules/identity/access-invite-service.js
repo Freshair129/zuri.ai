@@ -146,6 +146,16 @@ export async function mintAccessInvite({
     entityId: invite.id,
     action: 'ACCESS_INVITE_MINTED',
     actorId: viewer.principal.id,
+    // @req FR-198 — scope as COLUMNS, not only inside the payload.
+    //
+    // `listAccessHistory` filters a Business or Tenant scope on the
+    // `tenantId`/`businessId` columns ADR-080 D1 added. This file already knew
+    // both values and wrote them only into `payloadJson`, where no query
+    // reaches them — so every invite ever minted was invisible to the access
+    // history of the very scope it granted into. The payload keeps them too:
+    // it is the human-readable record, and the columns are the index.
+    tenantId: scope.tenantId,
+    businessId: scope.businessId,
     // No token material in any form.
     payload: {
       scopeType, portfolioId: scope.portfolioId, tenantId: scope.tenantId, businessId: scope.businessId,
@@ -226,6 +236,10 @@ export async function acceptAccessInvite({ token, personId, db = prisma, now = D
       entityId: invite.id,
       action: 'ACCESS_INVITE_ACCEPTED',
       actorId: personId,
+      // @req FR-198 — see the mint above. Acceptance is the event that matters
+      // most to an access review: it is the moment the grant came into being.
+      tenantId: invite.tenantId,
+      businessId: invite.businessId,
       payload: { scopeType: invite.scopeType, tenantId: invite.tenantId, businessId: invite.businessId, role: invite.role, membershipId: membership.id },
     })
 
@@ -270,6 +284,10 @@ export async function declineAccessInvite({ token, personId, db = prisma, now = 
     entityId: invite.id,
     action: 'ACCESS_INVITE_DECLINED',
     actorId: personId,
+    // @req FR-198 — a refused invitation is part of the scope's access history:
+    // "someone was offered this and said no" is an answer a review needs.
+    tenantId: invite.tenantId,
+    businessId: invite.businessId,
     payload: { scopeType: invite.scopeType, tenantId: invite.tenantId, businessId: invite.businessId },
   })
   return { inviteId: invite.id, status: 'DECLINED' }
@@ -302,6 +320,10 @@ export async function revokeAccessInvite({ viewer, inviteId, db = prisma, now = 
     entityId: invite.id,
     action: 'ACCESS_INVITE_REVOKED',
     actorId: viewer.principal.id,
+    // @req FR-198 — withdrawing an outstanding invitation is a withdrawal of
+    // access in progress, and belongs in the same history as the grant would.
+    tenantId: invite.tenantId,
+    businessId: invite.businessId,
     payload: { scopeType: invite.scopeType, tenantId: invite.tenantId, businessId: invite.businessId },
   })
   return { inviteId: invite.id, status: 'REVOKED' }

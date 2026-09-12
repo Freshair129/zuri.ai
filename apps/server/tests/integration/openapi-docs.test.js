@@ -162,9 +162,13 @@ describe('OpenAPI document', () => {
       // paths, two operations (POST /api/platform/users/memberships/{id}/lifecycle,
       // which carries suspend, reinstate and revoke as one action parameter
       // because the three share every guard, and POST /api/platform/users/offboard).
-      // 242 + 4 + 2 = 248; 331 + 5 + 2 = 338.
-      pathCount: 248,
-      operationCount: 338,
+      // FR-199 adds the access-review reads that had no route at all: two paths,
+      // two operations (GET /api/platform/access-history, scoped by exactly one
+      // of businessId/tenantId/personId, and GET
+      // /api/platform/businesses/{businessId}/grants, the current-state roster).
+      // 242 + 4 (MFA) + 2 (FR-191) + 2 (FR-199) = 250; 331 + 5 + 2 + 2 = 340.
+      pathCount: 250,
+      operationCount: 340,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
