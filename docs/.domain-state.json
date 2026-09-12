@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-12T11:39:59.478Z",
+  "generatedAt": "2026-09-12T12:05:35.409Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -37,10 +37,10 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 133,
+    "featureCount": 134,
     "readyFeatureCount": 108,
-    "requirementCount": 192,
-    "verifiedRequirementCount": 179,
+    "requirementCount": 194,
+    "verifiedRequirementCount": 181,
     "progressPercent": 94.1,
     "gapCount": 28,
     "gaps": [
@@ -999,6 +999,13 @@
           "status": "verified",
           "codeCount": 9,
           "testCount": 12
+        },
+        {
+          "id": "FR-194",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 20
         }
       ],
       "checks": {
@@ -1685,6 +1692,13 @@
             "apps/server/tests/unit/plan-schema.test.js",
             "apps/server/tests/unit/viewer-gate.test.js"
           ]
+        },
+        {
+          "id": "FR-193",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 16
         }
       ],
       "checks": {
@@ -4585,6 +4599,20 @@
             "apps/server/tests/unit/project-team-service.test.js",
             "apps/server/tests/unit/viewer-gate.test.js"
           ]
+        },
+        {
+          "id": "FR-193",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 16
+        },
+        {
+          "id": "FR-194",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 20
         }
       ],
       "checks": {
@@ -4663,8 +4691,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 29,
-            "present": 29
+            "models": 31,
+            "present": 31
           }
         },
         "authorization": {
@@ -4742,6 +4770,8 @@
         "docs/domains/project-manager/features/FR-086-projects-dashboard.md",
         "docs/domains/project-manager/features/FR-108-execution-plan-bundle.md",
         "docs/domains/project-manager/features/FR-124-product-readiness-dashboard.md",
+        "docs/domains/project-manager/features/FR-193-employment-record.md",
+        "docs/domains/project-manager/features/FR-194-legal-entity-and-tax-branch.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -4838,8 +4868,8 @@
         "routes": 171,
         "apiRoutes": 126,
         "pageRoutes": 45,
-        "ownedModels": 29,
-        "featureNotes": 31
+        "ownedModels": 31,
+        "featureNotes": 33
       },
       "featureIds": [
         "FEAT-001",
@@ -4850,6 +4880,7 @@
         "FEAT-008",
         "FEAT-011",
         "FEAT-012",
+        "FEAT-028",
         "FR-001",
         "FR-002",
         "FR-003",
@@ -4889,9 +4920,9 @@
         "FR-074",
         "FR-124"
       ],
-      "featureCount": 46,
+      "featureCount": 47,
       "readyFeatureCount": 43,
-      "progressPercent": 93.2
+      "progressPercent": 93.4
     }
   },
   "features": [
@@ -7665,6 +7696,86 @@
         "apps/server/tests/unit/profile-permission-service.test.js",
         "apps/server/tests/unit/project-team-service.test.js",
         "apps/server/tests/unit/viewer-gate.test.js"
+      ]
+    },
+    {
+      "id": "FEAT-028",
+      "title": "Org Employment & Legal Entity — separating \"who works here\" from \"who may log in here\": a new `Employment` HR assignment record (title, type, lifecycle status) that `resolveViewer` never reads, with system access shown as a column derived FROM `Membership` rather than the reverse; and moving `LegalEntity` from `Portfolio` to `Tenant` so a Business can only reference a legal entity within its own isolation boundary, splitting its VAT branch registrations into `TaxRegistrationBranch` so an operating site (a warehouse, say) is never asked to carry a tax identity it does not have (ADR-078, 2026-09-12)",
+      "kind": "bundle",
+      "registryStatus": "implemented",
+      "requirementIds": [
+        "FR-193",
+        "FR-194"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "commerce",
+        "identity",
+        "project-manager"
+      ],
+      "useCase": "The HR People Directory finally answers 'who works here' honestly — a suspended staff member stays listed as staff whose access is suspended, a shareholder with no employment relationship stops appearing as one, and a warehouse Branch with no VAT branch code registered against its legal entity can still sell, just never issue a tax invoice",
+      "progressPercent": 100,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-028 registry status is implemented"
+      ],
+      "requirements": [
+        {
+          "id": "FR-193",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 7,
+          "testCount": 16
+        },
+        {
+          "id": "FR-194",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 9,
+          "testCount": 20
+        }
+      ],
+      "evidence": [
+        "apps/server/prisma/seed.js",
+        "apps/server/src/lib/validation/entities.js",
+        "apps/server/src/lib/validation/enums.js",
+        "apps/server/src/modules/commerce/application/billing-invoice-service.js",
+        "apps/server/src/modules/commerce/application/pos-cashier-service.js",
+        "apps/server/src/modules/commerce/components/BillingWorkspace.jsx",
+        "apps/server/src/modules/commerce/domain/billing.js",
+        "apps/server/src/modules/identity/rbac-service.js",
+        "apps/server/src/modules/people/application/employment-service.js",
+        "apps/server/src/modules/people/application/people-service.js",
+        "apps/server/src/modules/people/components/PeopleDirectory.jsx",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/src/modules/project-manager/application/scope-service.js",
+        "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/fr186-billing-pos.spec.js",
+        "apps/server/tests/e2e/smoke.spec.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/domain-visibility-server.test.js",
+        "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
+        "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/fr183-pos.test.js",
+        "apps/server/tests/integration/fr186-billing.test.js",
+        "apps/server/tests/integration/fr193-employment-lifecycle.test.js",
+        "apps/server/tests/integration/fr194-legal-entity-tax-branch.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/scope-and-isolation.test.js",
+        "apps/server/tests/integration/xlsx-intake.test.js",
+        "apps/server/tests/unit/commerce-billing-domain.test.js",
+        "apps/server/tests/unit/conversation-analysis-contract.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
+        "apps/server/tests/unit/fr193-employment-not-authorization.test.js",
+        "apps/server/tests/unit/people-directory.test.js",
+        "apps/server/tests/unit/people-service.test.js",
+        "apps/server/tests/unit/plan-schema.test.js"
       ]
     },
     {

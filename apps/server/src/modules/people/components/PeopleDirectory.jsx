@@ -1,7 +1,9 @@
 'use client'
 
 // @req FR-042 - HR / People peer domain directory.
-// @spec ADR-013, SDD-020 - People is Business-scoped; Project Team stays in Development.
+// @req FR-193 - the roster is Employment (who works here); "system access" is
+// a column derived from Membership, shown but never the roster's source.
+// @spec ADR-013, ADR-078 D1, SDD-020 - People is Business-scoped; Project Team stays in Development.
 // @tested tests/unit/people-directory.test.js
 
 import { Users, UserRound } from 'lucide-react'
@@ -33,31 +35,34 @@ export default function PeopleDirectory({ directoryOnly = false }) {
       {error && <ErrorState detail={error} retry={reload} />}
       {!loading && !error && data && (
         <>
-          <div className="mb-4 grid grid-cols-3 gap-3 max-md:grid-cols-1">
-            <Kpi label="People" value={data.summary.peopleCount} meta="visible in this Business" />
-            <Kpi label="Business scoped" value={data.summary.businessScopedCount} meta="direct membership" />
-            <Kpi label="Tenant scoped" value={data.summary.tenantScopedCount} meta="shared within tenant" />
+          <div className="mb-4 grid grid-cols-4 gap-3 max-md:grid-cols-2">
+            <Kpi label="People" value={data.summary.peopleCount} meta="employed in this Business" />
+            <Kpi label="Active" value={data.summary.activeCount} meta="currently working" />
+            <Kpi label="On leave" value={data.summary.onLeaveCount} meta="temporarily away" />
+            <Kpi label="System access" value={data.summary.withSystemAccessCount} meta="has a live Membership" />
           </div>
           <Card>
-            <SectionTitle caption="Master data and membership scope; project assignment lives in Development > Project Team">
+            <SectionTitle caption="Employment records; project assignment lives in Development > Project Team. System access is a separate Membership grant, shown here but never the roster's source">
               People Directory
             </SectionTitle>
             {data.people.length === 0 ? (
-              <EmptyState title="No people in this Business" hint="Add a membership from Platform when workforce data is ready." />
+              <EmptyState title="No people in this Business" hint="Add an Employment record when workforce data is ready." />
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[620px] text-left text-xs">
+                <table className="w-full min-w-[720px] text-left text-xs">
                   <thead className="border-b border-[var(--border)] text-[10px] uppercase tracking-wide text-muted">
                     <tr>
                       <th className="px-2 py-2">Person</th>
-                      <th className="px-2 py-2">Role</th>
-                      <th className="px-2 py-2">Scope</th>
+                      <th className="px-2 py-2">Title</th>
+                      <th className="px-2 py-2">Type</th>
+                      <th className="px-2 py-2">Status</th>
                       <th className="px-2 py-2">Branch</th>
+                      <th className="px-2 py-2">System access</th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.people.map((entry) => (
-                      <tr key={entry.membershipId} className="border-b border-[var(--border)] last:border-0">
+                      <tr key={entry.employmentId} className="border-b border-[var(--border)] last:border-0">
                         <td className="px-2 py-3">
                           <div className="flex items-center gap-2">
                             <span className="grid h-7 w-7 place-items-center rounded-full bg-[var(--brand-tint)] text-[var(--brand-dark)]" aria-hidden>
@@ -69,9 +74,11 @@ export default function PeopleDirectory({ directoryOnly = false }) {
                             </span>
                           </div>
                         </td>
-                        <td className="px-2 py-3">{entry.role}</td>
-                        <td className="px-2 py-3"><span className="pill pill-planned">{entry.businessScope}</span></td>
-                        <td className="px-2 py-3">{entry.branch?.name || 'Tenant-wide'}</td>
+                        <td className="px-2 py-3">{entry.title || '—'}</td>
+                        <td className="px-2 py-3">{entry.employmentType}</td>
+                        <td className="px-2 py-3"><span className="pill pill-planned">{entry.status}</span></td>
+                        <td className="px-2 py-3">{entry.branch?.name || '—'}</td>
+                        <td className="px-2 py-3">{entry.hasSystemAccess ? 'Yes' : 'No'}</td>
                       </tr>
                     ))}
                   </tbody>
