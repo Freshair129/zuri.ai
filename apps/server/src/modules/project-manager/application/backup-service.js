@@ -27,7 +27,7 @@ import { BROADCAST_INTENT_STATUSES, hashMarketingBroadcastPayload, parseMarketin
 import { recordAudit } from './audit'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
 import { requireViewer } from './project-authorization'
-import { isInstallationOperator } from '@/modules/identity/viewer-authority'
+import { assertOperatorAndRecordUse } from '@/modules/identity/operator-use'
 import {
   BILLING_DOCUMENT_TYPES,
   BILLING_NON_VAT_POLICIES,
@@ -51,18 +51,20 @@ import {
  * restore guard would otherwise hand out for free. FR-065 made the identical
  * call for the import dry run — "a read-only preview of another scope's contents
  * is the leak the commit guard would otherwise still allow."
+ *
+ * @req FR-197 — every call also records that operator power was used
+ * (ADR-017 D6 read as covering operator reads — ADR-079): `action` names
+ * BACKUP_PREVIEW or BACKUP_RESTORE so a review can tell the two apart.
  */
-function assertRestoreOperator(viewer) {
+async function assertRestoreOperator(viewer, action) {
   requireViewer(viewer, 'backup restore')
-  if (!isInstallationOperator(viewer)) {
-    const error = new Error(
+  await assertOperatorAndRecordUse(viewer, {
+    action,
+    deniedMessage:
       'Restoring a snapshot replaces every tenant in this installation. It requires ' +
       'operator authority (a platform grant, or the local installation session) — ' +
-      'owning Businesses does not confer it, however many.'
-    )
-    error.status = 403
-    throw error
-  }
+      'owning Businesses does not confer it, however many.',
+  })
 }
 
 export const SNAPSHOT_SCHEMA_VERSION = '1.0'
@@ -178,11 +180,12 @@ const SNAPSHOT_MODELS = [
   // @req FR-107 — an operator grant hangs off Person; a snapshot that omitted
   // it would restore an installation with no operator (or silently drop one).
   'platformGrant',
-  // @req FR-067 — both hang off Portfolio (top of this list) and Person (just
-  // above), so they restore here and delete in the reverse. Like
-  // passwordResetToken, an invite's raw token is never exported — the model
-  // stores only the SHA-256 digest (SEC-014).
-  'workspaceMembership', 'workspaceInvite',
+  // @req FR-067/FR-195 — both hang off Portfolio (top of this list) and Person
+  // (just above); AccessInvite (renamed from WorkspaceInvite) can also
+  // reference Tenant/Business/Membership, all of which already precede this
+  // position. Like passwordResetToken, an invite's raw token is never
+  // exported — the model stores only the SHA-256 digest (SEC-014).
+  'workspaceMembership', 'accessInvite',
   // @req FR-089 — a Team hangs off a Business (restored at the top of this list)
   // and a TeamMembership off both that Team and the Person above, so they
   // restore in this order and delete in the reverse. `projectTeam` needs
@@ -1081,7 +1084,7 @@ export function previewSnapshot(snapshot, { remounts = [] } = {}) {
 }
 
 export async function previewImport(snapshot, { remounts = [], db = prisma, viewer } = {}) {
-  assertRestoreOperator(viewer)
+  await assertRestoreOperator(viewer, 'BACKUP_PREVIEW')
   const base = previewSnapshot(snapshot, { remounts })
   if (!base.valid) return base
   const billing = commerceBillingRecovery(snapshot)
@@ -1168,7 +1171,7 @@ export async function importSnapshot(snapshot, {
   viewer,
   filesystemPort = createLocalFilesystemPort(),
 } = {}) {
-  assertRestoreOperator(viewer)
+  await assertRestoreOperator(viewer, 'BACKUP_RESTORE')
   const preview = await previewImport(snapshot, { remounts, db, viewer })
   if (!preview.valid) return { restored: false, ...preview }
   if (!confirm) return { restored: false, needsConfirmation: true, ...preview }

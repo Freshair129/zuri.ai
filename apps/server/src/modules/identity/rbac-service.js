@@ -1,6 +1,7 @@
 import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
-import { ROLE_PERMISSIONS, ROLE_PRODUCT_OWNER, ROLE_SCOPE_BUSINESS } from './rbac'
+import { conflictingRoles, ROLE_PERMISSIONS, ROLE_PRODUCT_OWNER, ROLE_SCOPE_BUSINESS } from './rbac'
+import { ownsTenant } from './viewer-authority'
 
 // @req FR-076 — RoleBinding is explicit, Business-scoped, revocable and auditable.
 // @spec ADR-033 D2-D6 — assigning a Product Owner role does not change Membership.role.
@@ -72,13 +73,47 @@ function auditActionFor(status) {
   return 'ROLE_BINDING_REACTIVATED'
 }
 
+// @req FR-196 — segregation of duties at the write, not only the read. A
+// conflict is evaluated across the person's OTHER live bindings in the same
+// Tenant (any Business, any scope) — a buyer at Business A and a receiver at
+// Business B is still one person completing their own cycle if both are the
+// same Tenant, which is the shape ADR-065 D4 and ADR-066 D4 both name. Refused
+// 409 ROLE_CONFLICT unless a TENANT owner passes `sodOverride: { reason }` —
+// deliberately not a Business owner's call, the same "the person who would be
+// stranded is the only one who may make it" reasoning `assertNotLastOwner`
+// already uses in membership-lifecycle-service.js. The reason lands on the row
+// (`sodOverrideReason`) and in the audit payload, never silently.
+async function assertNoConflict(db, { personId, tenantId, roleKey, viewer, sodOverride }) {
+  const conflicts = conflictingRoles(roleKey)
+  if (!conflicts.length) return null
+
+  const held = await db.roleBinding.findMany({
+    where: { personId, tenantId, status: ACTIVE, roleKey: { in: conflicts } },
+    select: { roleKey: true },
+  })
+  const conflicting = [...new Set(held.map((binding) => binding.roleKey))]
+  if (!conflicting.length) return null
+
+  const reason = typeof sodOverride?.reason === 'string' ? sodOverride.reason.trim() : ''
+  if (!reason) {
+    throw accessError(
+      `ROLE_CONFLICT: ${roleKey} conflicts with ${conflicting.join(', ')} already held by this person in this Tenant`,
+      409,
+    )
+  }
+  if (!ownsTenant(viewer, tenantId)) {
+    throw accessError('Only a Tenant owner may override a segregation-of-duties conflict', 403)
+  }
+  return { reason, conflicting }
+}
+
 /**
  * Create or reactivate one generic Business-scoped role binding. The current
  * authority to assign a binding is Business ownership; Product Owner is only
  * one registered role and does not change the Membership role.
  */
 export async function assignRoleBinding(
-  { personId, tenantId, businessId, roleKey, scopeType = ROLE_SCOPE_BUSINESS },
+  { personId, tenantId, businessId, roleKey, scopeType = ROLE_SCOPE_BUSINESS, sodOverride },
   { db = prisma, viewer } = {},
 ) {
   personId = requireId(personId, 'personId')
@@ -91,8 +126,17 @@ export async function assignRoleBinding(
   await assertTargetBusiness(db, tenantId, businessId)
   await assertEmployee(db, personId, tenantId, businessId)
 
-  const existing = await db.roleBinding.findUnique({
-    where: { personId_businessId_roleKey: { personId, businessId, roleKey } },
+  const override = await assertNoConflict(db, { personId, tenantId, roleKey, viewer, sodOverride })
+
+  // @req FR-192/ADR-077 D3 — `businessId` is nullable on RoleBinding now (a
+  // TENANT-scoped row has none), which retired the `@@unique([personId,
+  // businessId, roleKey])` index this used to key on: NULLs would no longer
+  // have deduplicated a TENANT row anyway (Postgres treats them as distinct).
+  // `assignRoleBinding` only ever assigns BUSINESS scope (`requireBusinessScope`
+  // above), so `businessId` here is always a concrete value and `findFirst` is
+  // exactly as precise as the retired unique lookup.
+  const existing = await db.roleBinding.findFirst({
+    where: { personId, businessId, roleKey },
   })
   if (existing && existing.tenantId !== tenantId) {
     throw accessError('Tenant/Business ancestry mismatch', 400)
@@ -101,10 +145,16 @@ export async function assignRoleBinding(
   const binding = existing
     ? await db.roleBinding.update({
         where: { id: existing.id },
-        data: { scopeType, status: ACTIVE, revokedAt: null, assignedBy: actorId, version: { increment: 1 } },
+        data: {
+          scopeType, status: ACTIVE, revokedAt: null, assignedBy: actorId,
+          sodOverrideReason: override?.reason ?? null, version: { increment: 1 },
+        },
       })
     : await db.roleBinding.create({
-        data: { personId, tenantId, businessId, roleKey, scopeType, status: ACTIVE, assignedBy: actorId },
+        data: {
+          personId, tenantId, businessId, roleKey, scopeType, status: ACTIVE, assignedBy: actorId,
+          sodOverrideReason: override?.reason ?? null,
+        },
       })
 
   await recordAudit(db, {
@@ -112,7 +162,10 @@ export async function assignRoleBinding(
     entityId: binding.id,
     action: existing ? 'ROLE_BINDING_REACTIVATED' : 'ROLE_BINDING_ASSIGNED',
     actorId,
-    payload: { tenantId, businessId, personId, roleKey, scopeType, status: ACTIVE },
+    payload: {
+      tenantId, businessId, personId, roleKey, scopeType, status: ACTIVE,
+      ...(override ? { sodOverride: true, sodOverrideReason: override.reason, conflictsWith: override.conflicting } : {}),
+    },
   })
 
   return binding

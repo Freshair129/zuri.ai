@@ -196,6 +196,19 @@ export const WORKSPACE_INVITE_ROLES = WORKSPACE_MEMBERSHIP_ROLES.filter((r) => r
 // `expiresAt` at acceptance time, never a status column somebody must update.
 export const WORKSPACE_INVITE_STATUSES = ['PENDING', 'ACCEPTED', 'REVOKED']
 
+// @req FR-195 — AccessInvite generalises WorkspaceInvite to TENANT and
+// BUSINESS scope, on top of the PORTFOLIO scope WorkspaceInvite already had.
+// Its own status vocabulary adds DECLINED, a state WorkspaceInvite had no way
+// to express (a targeted invite that a Person actively turns down, distinct
+// from letting it expire or having it revoked).
+export const ACCESS_INVITE_SCOPE_TYPES = ['PORTFOLIO', 'TENANT', 'BUSINESS']
+export const ACCESS_INVITE_STATUSES = ['PENDING', 'ACCEPTED', 'DECLINED', 'REVOKED']
+// TENANT/BUSINESS scope becomes a real Membership on acceptance
+// (`grantBusinessMembership`), whose role vocabulary is MEMBERSHIP_ROLES —
+// OWNER excluded here for the same reason WORKSPACE_INVITE_ROLES excludes it:
+// a token never mints ownership.
+export const ACCESS_INVITE_ROLES = MEMBERSHIP_ROLES.filter((r) => r !== 'OWNER')
+
 // FR-022 — the P3 gate's staff/customer split. In V2's unified identity a Person
 // is STAFF when it holds a Membership in the tenant (RBAC side) and CUSTOMER when
 // it holds a Customer record (CRM side); a Person that is both resolves to STAFF
@@ -394,6 +407,9 @@ export const zWorkspaceMembershipRole = z.enum(WORKSPACE_MEMBERSHIP_ROLES)
 export const zWorkspaceMembershipStatus = z.enum(WORKSPACE_MEMBERSHIP_STATUSES)
 export const zWorkspaceInviteRole = z.enum(WORKSPACE_INVITE_ROLES)
 export const zWorkspaceInviteStatus = z.enum(WORKSPACE_INVITE_STATUSES)
+export const zAccessInviteScopeType = z.enum(ACCESS_INVITE_SCOPE_TYPES)
+export const zAccessInviteStatus = z.enum(ACCESS_INVITE_STATUSES)
+export const zAccessInviteRole = z.enum(ACCESS_INVITE_ROLES)
 export const zPrincipalType = z.enum(PRINCIPAL_TYPES)
 export const zIdentityProvider = z.enum(IDENTITY_PROVIDERS)
 export const zAssetIntakeChannel = z.enum(ASSET_INTAKE_CHANNELS)

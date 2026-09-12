@@ -35,7 +35,7 @@ function mockDb({
     },
     tenant: { findFirst: vi.fn().mockResolvedValue(tenantUnderPortfolio) },
     person: { findUnique: vi.fn().mockResolvedValue(person) },
-    workspaceInvite: {
+    accessInvite: {
       create: vi.fn(async ({ data }) => { created.invites.push(data); return { id: 'inv-1', ...data } }),
       findUnique: vi.fn().mockResolvedValue(invite),
       updateMany: vi.fn().mockResolvedValue({ count: 1 }),
@@ -107,7 +107,7 @@ describe('mintWorkspaceInvite (AC-067.1, AC-067.6)', () => {
     await expect(
       mintWorkspaceInvite({ viewer: workspaceOwnerViewer(), portfolioId: PORTFOLIO_ID, db }),
     ).rejects.toMatchObject({ status: 404, message: 'Workspace not found' })
-    expect(db.workspaceInvite.create).not.toHaveBeenCalled()
+    expect(db.accessInvite.create).not.toHaveBeenCalled()
   })
 
   it('refuses an OWNER-of-a-Business-elsewhere — Business authority is not Workspace authority (BR-016)', async () => {
@@ -129,7 +129,7 @@ describe('mintWorkspaceInvite (AC-067.1, AC-067.6)', () => {
     await expect(
       mintWorkspaceInvite({ viewer: workspaceOwnerViewer(), portfolioId: PORTFOLIO_ID, role: 'OWNER', db }),
     ).rejects.toMatchObject({ status: 400, message: 'INVITE_ROLE_NOT_ALLOWED' })
-    expect(db.workspaceInvite.create).not.toHaveBeenCalled()
+    expect(db.accessInvite.create).not.toHaveBeenCalled()
   })
 })
 
@@ -142,7 +142,7 @@ describe('acceptWorkspaceInvite (AC-067.2, AC-067.3)', () => {
     expect(db.created.memberships[0]).toMatchObject({ personId: 'per-member', role: 'ADMIN', status: 'ACTIVE' })
     expect(db.created.audits.some((a) => a.action === 'WORKSPACE_INVITE_ACCEPTED')).toBe(true)
     // The claim is atomic: PENDING → ACCEPTED via a guarded updateMany.
-    expect(db.workspaceInvite.updateMany).toHaveBeenCalledWith(expect.objectContaining({
+    expect(db.accessInvite.updateMany).toHaveBeenCalledWith(expect.objectContaining({
       where: { id: 'inv-1', status: 'PENDING' },
     }))
   })
@@ -178,7 +178,7 @@ describe('acceptWorkspaceInvite (AC-067.2, AC-067.3)', () => {
 
   it('loses a concurrent replay race: a claim that updates zero rows refuses', async () => {
     const db = mockDb({ invite: pendingInvite() })
-    db.workspaceInvite.updateMany.mockResolvedValue({ count: 0 })
+    db.accessInvite.updateMany.mockResolvedValue({ count: 0 })
     await expect(
       acceptWorkspaceInvite({ token: 'raw-token', personId: 'per-member', db }),
     ).rejects.toMatchObject({ message: 'INVALID_OR_EXPIRED_INVITE' })
@@ -205,7 +205,7 @@ describe('acceptWorkspaceInvite (AC-067.2, AC-067.3)', () => {
 describe('revokeWorkspaceInvite and removeWorkspaceMembership (AC-067.7, AC-067.8)', () => {
   it('revokes a PENDING invite with owner authority and audits it', async () => {
     const db = mockDb()
-    db.workspaceInvite.findUnique.mockResolvedValue({ id: 'inv-1', portfolioId: PORTFOLIO_ID, status: 'PENDING' })
+    db.accessInvite.findUnique.mockResolvedValue({ id: 'inv-1', portfolioId: PORTFOLIO_ID, status: 'PENDING' })
     const result = await revokeWorkspaceInvite({ viewer: workspaceOwnerViewer(), inviteId: 'inv-1', db })
     expect(result).toMatchObject({ status: 'REVOKED' })
     expect(db.created.audits.some((a) => a.action === 'WORKSPACE_INVITE_REVOKED')).toBe(true)
@@ -213,7 +213,7 @@ describe('revokeWorkspaceInvite and removeWorkspaceMembership (AC-067.7, AC-067.
 
   it('refuses revocation without workspace authority', async () => {
     const db = mockDb({ workspaceOwnerMembership: null })
-    db.workspaceInvite.findUnique.mockResolvedValue({ id: 'inv-1', portfolioId: PORTFOLIO_ID, status: 'PENDING' })
+    db.accessInvite.findUnique.mockResolvedValue({ id: 'inv-1', portfolioId: PORTFOLIO_ID, status: 'PENDING' })
     await expect(
       revokeWorkspaceInvite({ viewer: workspaceOwnerViewer(), inviteId: 'inv-1', db }),
     ).rejects.toMatchObject({ status: 404 })

@@ -119,6 +119,7 @@
     "BR-031",
     "BR-032",
     "BR-033",
+    "BR-035",
     "FR-001",
     "FR-002",
     "FR-003",
@@ -311,6 +312,9 @@
     "FR-190",
     "FR-191",
     "FR-192",
+    "FR-195",
+    "FR-196",
+    "FR-197",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -425,6 +429,7 @@
     "SDD-090",
     "SDD-091",
     "SDD-092",
+    "SDD-094",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -451,6 +456,7 @@
     "SEC-024",
     "SEC-025",
     "SEC-026",
+    "SEC-027",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -478,6 +484,7 @@
     "FEAT-025",
     "FEAT-026",
     "FEAT-027",
+    "FEAT-029",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -643,6 +650,7 @@
     "ADR-075",
     "ADR-076",
     "ADR-077",
+    "ADR-079",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -1085,6 +1093,19 @@
       "history": [
         {
           "anchor": "a grant is withdrawn only by an explicit act that records",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-035": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "59f503d42414930fbcd2b740342e3147d9b188593b4d19fd0d40980c8d048754",
+      "history": [
+        {
+          "anchor": "two people complete a cycle that touches money or stock one",
           "since": "2026-09-12",
           "reason": "declared"
         }
@@ -3673,6 +3694,45 @@
         }
       ]
     },
+    "FR-195": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "8e000e4181c8db83a99d7ecc8e6861417b88b2274b69025b7335b5a160af615e",
+      "history": [
+        {
+          "anchor": "accessinvite generalises workspaceinvite to a scoped",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-196": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "bf48734825d8426619ba2f53c5994aacdd6c56ac7e12d85ccb840731d13c3b33",
+      "history": [
+        {
+          "anchor": "segregation of duties gets a writer not only a role list",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-197": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "749fc20a5bdf6eccaf93ec07429bab21e35b473076016653ef0fdf0c3a591452",
+      "history": [
+        {
+          "anchor": "operator access is time boxed issuable by a standing",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -5177,6 +5237,19 @@
         }
       ]
     },
+    "SDD-094": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "54f2e461b34399886f0a2ae1804c2061834a20618b505c9929e58bfac675a45c",
+      "history": [
+        {
+          "anchor": "one generalised invitation table not three parallel ones",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -5520,6 +5593,19 @@
       "history": [
         {
           "anchor": "erasure is downstream of offboarding and never a substitute",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-027": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "240c9ebe61cc47c48756202d81b3acf319e56a2fdf78e85f1bc632bc007f88b6",
+      "history": [
+        {
+          "anchor": "installation operator access is time boxed and its use is",
           "since": "2026-09-12",
           "reason": "declared"
         }
@@ -5896,6 +5982,19 @@
       "history": [
         {
           "anchor": "access grant lifecycle",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-029": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "bfbf5bfde0e685a1fc8906d754c9bd5423b479c9a6a7e6136ac0fd6e3f4367cd",
+      "history": [
+        {
+          "anchor": "access invite segregation of duties and operator lifecycle",
           "since": "2026-09-12",
           "reason": "declared"
         }
@@ -8067,6 +8166,19 @@
       "history": [
         {
           "anchor": "membership is a grant with a lifecycle not a membership fact",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-079": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md",
+      "status": "current",
+      "statement_digest": "11f2ff4ea29209d5e2935f7dadb2fc268794568f08d0d9ce544e7346c24acf0e",
+      "history": [
+        {
+          "anchor": "access invite segregation of duties and the operator",
           "since": "2026-09-12",
           "reason": "declared"
         }

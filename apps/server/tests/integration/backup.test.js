@@ -57,8 +57,9 @@ describe('snapshot backup round trip', () => {
     await prisma.workspaceMembership.create({
       data: { portfolioId: portfolio.id, personId: person.id, role: 'OWNER', status: 'ACTIVE' },
     })
-    await prisma.workspaceInvite.create({
+    await prisma.accessInvite.create({
       data: {
+        scopeType: 'PORTFOLIO',
         portfolioId: portfolio.id,
         invitedByPersonId: person.id,
         role: 'MEMBER',
@@ -327,7 +328,7 @@ describe('snapshot backup round trip', () => {
     expect(snapshot.tables.stockReservation.length).toBeGreaterThan(0)
     // @req FR-067 — populated, not merely present (the RCA discipline above).
     expect(snapshot.tables.workspaceMembership.length).toBeGreaterThan(0)
-    expect(snapshot.tables.workspaceInvite.length).toBeGreaterThan(0)
+    expect(snapshot.tables.accessInvite.length).toBeGreaterThan(0)
   })
 
   it('rejects invalid snapshot on preview', async () => {

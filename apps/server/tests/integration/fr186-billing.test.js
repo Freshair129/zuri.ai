@@ -107,7 +107,7 @@ describe('FR-186 durable Commerce billing documents', () => {
     expect(preview).toMatchObject({ status: 'PREVIEW', snapshot: { order: { paymentState: 'UNPAID' } } })
     await expect(issueBillingDocument(input, { viewer: owner, now: NOW })).rejects.toMatchObject({ status: 422, message: 'BILLING_RECEIPT_PAYMENT_NOT_VERIFIED' })
     const payment = await recordPayment(order.id, { method: 'CASH', amount: 107 }, { viewer: owner, now: NOW })
-    await applyPaymentAction(payment.id, { action: 'VERIFY', version: payment.version }, { viewer: owner, now: NOW })
+    await applyPaymentAction(payment.id, { action: 'VERIFY', version: payment.version, selfVerifyAttested: true }, { viewer: owner, now: NOW })
     const first = await issueBillingDocument(input, { viewer: owner, now: NOW })
     const second = await issueBillingDocument(input, { viewer: owner, now: new Date('2027-01-01T00:00:00Z') })
     expect(second).toMatchObject({ id: first.id, documentNumber: first.documentNumber, issuedAt: first.issuedAt })
@@ -126,7 +126,7 @@ describe('FR-186 durable Commerce billing documents', () => {
 
     const partialOrder = await createOrder({ businessId: business.id, lines: [{ description: 'Partial fixture', qty: 1, unitPrice: 107 }] }, { viewer: owner, now: NOW })
     const partialPayment = await recordPayment(partialOrder.id, { method: 'CASH', amount: 50 }, { viewer: owner, now: NOW })
-    await applyPaymentAction(partialPayment.id, { action: 'VERIFY', version: partialPayment.version }, { viewer: owner, now: NOW })
+    await applyPaymentAction(partialPayment.id, { action: 'VERIFY', version: partialPayment.version, selfVerifyAttested: true }, { viewer: owner, now: NOW })
     const partial = await previewBillingDocument({ orderId: partialOrder.id, branchId: branch.id, documentType: 'TAX_INVOICE', buyer: buyer(), includePromptPay: true }, { viewer: owner, now: NOW })
     expect(partial).toMatchObject({ promptPay: { amountSatang: 5700 }, snapshot: { order: { paymentState: 'PARTIAL', balanceDueSatang: 5700 } } })
     expect(partial.promptPay.payload).toContain('540557.00')

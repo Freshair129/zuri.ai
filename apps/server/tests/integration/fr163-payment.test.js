@@ -65,8 +65,11 @@ describe('FR-163 Payment', () => {
     const rejected = await applyPaymentAction(bad.id, { action: 'REJECT', version: 1, reason: 'สลิปไม่ตรง' }, { viewer: owner, now: NOW })
     expect(rejected.payment).toMatchObject({ status: 'REJECTED', rejectReason: 'สลิปไม่ตรง' })
     expect(rejected.order).toMatchObject({ paid: 300, paymentState: 'PARTIAL' })
+    // @req FR-196 — the owner recorded this one themselves: verifying it needs
+    // the explicit, audited self-verify attestation, even for an OWNER.
     const p3 = await recordPayment(o.id, { method: 'CASH', amount: 700 }, { viewer: owner, now: NOW })
-    const paid = await applyPaymentAction(p3.id, { action: 'VERIFY', version: 1 }, { viewer: owner, now: NOW })
+    await expect(applyPaymentAction(p3.id, { action: 'VERIFY', version: 1 }, { viewer: owner, now: NOW })).rejects.toMatchObject({ status: 409, message: 'PAYMENT_SELF_VERIFY_FORBIDDEN' })
+    const paid = await applyPaymentAction(p3.id, { action: 'VERIFY', version: 1, selfVerifyAttested: true }, { viewer: owner, now: NOW })
     expect(paid.order).toMatchObject({ paid: 1000, balanceDue: 0, paymentState: 'PAID' })
     const listed = await listPayments(o.id, { viewer: member })
     expect(listed.payments.map((p) => p.status)).toEqual(['VERIFIED', 'REJECTED', 'VERIFIED'])
@@ -94,12 +97,12 @@ describe('FR-163 Payment', () => {
     const chat = await createOrder({ businessId: fresh.id, conversationId: conv.conversationId, lines: [{ description: 'a', qty: 1, unitPrice: 900 }] }, { viewer: boss, now: NOW })
     const walk = await createOrder({ businessId: fresh.id, lines: [{ description: 'b', qty: 1, unitPrice: 300 }] }, { viewer: boss, now: NOW })
     const c1 = await recordPayment(chat.id, { method: 'TRANSFER', amount: 900, paidAt: '2026-09-05T10:00:00Z' }, { viewer: boss, now: NOW })
-    await applyPaymentAction(c1.id, { action: 'VERIFY', version: 1 }, { viewer: boss, now: NOW })
+    await applyPaymentAction(c1.id, { action: 'VERIFY', version: 1, selfVerifyAttested: true }, { viewer: boss, now: NOW })
     const w1 = await recordPayment(walk.id, { method: 'CASH', amount: 300, paidAt: '2026-09-06T17:30:00Z' }, { viewer: boss, now: NOW })
-    await applyPaymentAction(w1.id, { action: 'VERIFY', version: 1 }, { viewer: boss, now: NOW })
+    await applyPaymentAction(w1.id, { action: 'VERIFY', version: 1, selfVerifyAttested: true }, { viewer: boss, now: NOW })
     const w2 = await recordPayment(walk.id, { method: 'QR', amount: 50, paidAt: '2026-09-07T01:00:00Z' }, { viewer: boss, now: NOW })
     const r = await recordPayment(chat.id, { kind: 'REFUND', method: 'TRANSFER', amount: 100, paidAt: '2026-09-07T02:00:00Z' }, { viewer: boss, now: NOW })
-    await applyPaymentAction(r.id, { action: 'VERIFY', version: 1 }, { viewer: boss, now: NOW })
+    await applyPaymentAction(r.id, { action: 'VERIFY', version: 1, selfVerifyAttested: true }, { viewer: boss, now: NOW })
     const bad = await recordPayment(walk.id, { method: 'CARD', amount: 999 }, { viewer: boss, now: NOW })
     await applyPaymentAction(bad.id, { action: 'REJECT', version: 1 }, { viewer: boss, now: NOW })
 
