@@ -39,9 +39,9 @@
     "featureCount": 136,
     "readyFeatureCount": 108,
     "requirementCount": 199,
-    "verifiedRequirementCount": 186,
-    "progressPercent": 94.3,
-    "gapCount": 28,
+    "verifiedRequirementCount": 188,
+    "progressPercent": 94.5,
+    "gapCount": 25,
     "gaps": [
       {
         "domain": "agent",
@@ -119,73 +119,6 @@
         "check": "requirements",
         "summary": "FR-121 is planned",
         "evidence": []
-      },
-      {
-        "domain": "identity",
-        "id": "REQ-FR-191",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-191 is partial",
-        "evidence": [
-          "apps/server/src/modules/identity/auth-service.js",
-          "apps/server/src/modules/identity/erase-principal.js",
-          "apps/server/src/modules/identity/membership-grant-service.js",
-          "apps/server/src/modules/identity/membership-lifecycle-service.js",
-          "apps/server/src/modules/identity/profile-permission-service.js",
-          "apps/server/src/modules/identity/resolve-viewer.js",
-          "apps/server/tests/integration/crm-conversation-analysis.test.js",
-          "apps/server/tests/integration/crm-customer-erasure.test.js",
-          "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
-          "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
-          "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
-          "apps/server/tests/integration/identity-erase.test.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
-          "apps/server/tests/integration/password-reset-flow.test.js",
-          "apps/server/tests/integration/scope-and-isolation.test.js",
-          "apps/server/tests/integration/server-line-jobs.test.js",
-          "apps/server/tests/integration/workspace-onboarding-flow.test.js",
-          "apps/server/tests/integration/xlsx-intake.test.js",
-          "apps/server/tests/unit/auth-service.test.js",
-          "apps/server/tests/unit/conversation-analysis-contract.test.js",
-          "apps/server/tests/unit/fr036-team-authorization.test.js",
-          "apps/server/tests/unit/fr046-auth-route.test.js",
-          "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
-          "apps/server/tests/unit/fr062-permissions-read-scope.test.js",
-          "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
-          "apps/server/tests/unit/iam-session.test.js",
-          "apps/server/tests/unit/membership-grant-service.test.js",
-          "apps/server/tests/unit/membership-lifecycle-service.test.js",
-          "apps/server/tests/unit/password-reset-service.test.js",
-          "apps/server/tests/unit/plan-schema.test.js",
-          "apps/server/tests/unit/profile-permission-service.test.js",
-          "apps/server/tests/unit/project-team-service.test.js",
-          "apps/server/tests/unit/viewer-gate.test.js"
-        ]
-      },
-      {
-        "domain": "identity",
-        "id": "REQ-FR-192",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-192 is partial",
-        "evidence": [
-          "apps/server/src/modules/identity/membership-grant-service.js",
-          "apps/server/src/modules/identity/rbac-service.js",
-          "apps/server/src/modules/identity/rbac.js",
-          "apps/server/src/modules/identity/resolve-viewer.js",
-          "apps/server/src/modules/identity/viewer-domains.js",
-          "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
-          "apps/server/tests/integration/workspace-onboarding-flow.test.js",
-          "apps/server/tests/integration/xlsx-intake.test.js",
-          "apps/server/tests/unit/conversation-analysis-contract.test.js",
-          "apps/server/tests/unit/customer-import-review-service.test.js",
-          "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
-          "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
-          "apps/server/tests/unit/fr192-tenant-role-binding-resolver.test.js",
-          "apps/server/tests/unit/membership-grant-service.test.js",
-          "apps/server/tests/unit/plan-schema.test.js",
-          "apps/server/tests/unit/viewer-gate.test.js"
-        ]
       },
       {
         "domain": "integration",
@@ -301,47 +234,6 @@
         "check": "requirements",
         "summary": "FR-082 is planned",
         "evidence": []
-      },
-      {
-        "domain": "project-manager",
-        "id": "REQ-FR-191",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-191 is partial",
-        "evidence": [
-          "apps/server/src/app/api/platform/users/memberships/[id]/lifecycle/route.js",
-          "apps/server/src/app/api/platform/users/offboard/route.js",
-          "apps/server/src/modules/project-manager/api-docs/openapi.js",
-          "apps/server/src/modules/project-manager/application/project-team-service.js",
-          "apps/server/src/modules/project-manager/application/scope-service.js",
-          "apps/server/tests/integration/crm-conversation-analysis.test.js",
-          "apps/server/tests/integration/crm-customer-erasure.test.js",
-          "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
-          "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
-          "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
-          "apps/server/tests/integration/identity-erase.test.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
-          "apps/server/tests/integration/password-reset-flow.test.js",
-          "apps/server/tests/integration/scope-and-isolation.test.js",
-          "apps/server/tests/integration/server-line-jobs.test.js",
-          "apps/server/tests/integration/workspace-onboarding-flow.test.js",
-          "apps/server/tests/integration/xlsx-intake.test.js",
-          "apps/server/tests/unit/auth-service.test.js",
-          "apps/server/tests/unit/conversation-analysis-contract.test.js",
-          "apps/server/tests/unit/fr036-team-authorization.test.js",
-          "apps/server/tests/unit/fr046-auth-route.test.js",
-          "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
-          "apps/server/tests/unit/fr062-permissions-read-scope.test.js",
-          "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
-          "apps/server/tests/unit/iam-session.test.js",
-          "apps/server/tests/unit/membership-grant-service.test.js",
-          "apps/server/tests/unit/membership-lifecycle-service.test.js",
-          "apps/server/tests/unit/password-reset-service.test.js",
-          "apps/server/tests/unit/plan-schema.test.js",
-          "apps/server/tests/unit/profile-permission-service.test.js",
-          "apps/server/tests/unit/project-team-service.test.js",
-          "apps/server/tests/unit/viewer-gate.test.js"
-        ]
       }
     ]
   },
@@ -1005,14 +897,14 @@
         },
         {
           "id": "FR-194",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 4,
           "testCount": 20
         },
         {
           "id": "FR-196",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 2,
           "testCount": 9
@@ -1635,95 +1527,42 @@
         },
         {
           "id": "FR-191",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 6,
-          "testCount": 27,
-          "evidence": [
-            "apps/server/src/modules/identity/auth-service.js",
-            "apps/server/src/modules/identity/erase-principal.js",
-            "apps/server/src/modules/identity/membership-grant-service.js",
-            "apps/server/src/modules/identity/membership-lifecycle-service.js",
-            "apps/server/src/modules/identity/profile-permission-service.js",
-            "apps/server/src/modules/identity/resolve-viewer.js",
-            "apps/server/tests/integration/crm-conversation-analysis.test.js",
-            "apps/server/tests/integration/crm-customer-erasure.test.js",
-            "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
-            "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
-            "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
-            "apps/server/tests/integration/identity-erase.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/password-reset-flow.test.js",
-            "apps/server/tests/integration/scope-and-isolation.test.js",
-            "apps/server/tests/integration/server-line-jobs.test.js",
-            "apps/server/tests/integration/workspace-onboarding-flow.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/auth-service.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/fr036-team-authorization.test.js",
-            "apps/server/tests/unit/fr046-auth-route.test.js",
-            "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
-            "apps/server/tests/unit/fr062-permissions-read-scope.test.js",
-            "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
-            "apps/server/tests/unit/iam-session.test.js",
-            "apps/server/tests/unit/membership-grant-service.test.js",
-            "apps/server/tests/unit/membership-lifecycle-service.test.js",
-            "apps/server/tests/unit/password-reset-service.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/profile-permission-service.test.js",
-            "apps/server/tests/unit/project-team-service.test.js",
-            "apps/server/tests/unit/viewer-gate.test.js"
-          ]
+          "testCount": 27
         },
         {
           "id": "FR-192",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 5,
-          "testCount": 11,
-          "evidence": [
-            "apps/server/src/modules/identity/membership-grant-service.js",
-            "apps/server/src/modules/identity/rbac-service.js",
-            "apps/server/src/modules/identity/rbac.js",
-            "apps/server/src/modules/identity/resolve-viewer.js",
-            "apps/server/src/modules/identity/viewer-domains.js",
-            "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
-            "apps/server/tests/integration/workspace-onboarding-flow.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/customer-import-review-service.test.js",
-            "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
-            "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
-            "apps/server/tests/unit/fr192-tenant-role-binding-resolver.test.js",
-            "apps/server/tests/unit/membership-grant-service.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/viewer-gate.test.js"
-          ]
+          "testCount": 11
         },
         {
           "id": "FR-193",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 1,
           "testCount": 18
         },
         {
           "id": "FR-195",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 3,
           "testCount": 15
         },
         {
           "id": "FR-196",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 2,
           "testCount": 9
         },
         {
           "id": "FR-197",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 2,
           "testCount": 11
@@ -1910,71 +1749,6 @@
           "check": "requirements",
           "summary": "FR-121 is planned",
           "evidence": []
-        },
-        {
-          "id": "REQ-FR-191",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-191 is partial",
-          "evidence": [
-            "apps/server/src/modules/identity/auth-service.js",
-            "apps/server/src/modules/identity/erase-principal.js",
-            "apps/server/src/modules/identity/membership-grant-service.js",
-            "apps/server/src/modules/identity/membership-lifecycle-service.js",
-            "apps/server/src/modules/identity/profile-permission-service.js",
-            "apps/server/src/modules/identity/resolve-viewer.js",
-            "apps/server/tests/integration/crm-conversation-analysis.test.js",
-            "apps/server/tests/integration/crm-customer-erasure.test.js",
-            "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
-            "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
-            "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
-            "apps/server/tests/integration/identity-erase.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/password-reset-flow.test.js",
-            "apps/server/tests/integration/scope-and-isolation.test.js",
-            "apps/server/tests/integration/server-line-jobs.test.js",
-            "apps/server/tests/integration/workspace-onboarding-flow.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/auth-service.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/fr036-team-authorization.test.js",
-            "apps/server/tests/unit/fr046-auth-route.test.js",
-            "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
-            "apps/server/tests/unit/fr062-permissions-read-scope.test.js",
-            "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
-            "apps/server/tests/unit/iam-session.test.js",
-            "apps/server/tests/unit/membership-grant-service.test.js",
-            "apps/server/tests/unit/membership-lifecycle-service.test.js",
-            "apps/server/tests/unit/password-reset-service.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/profile-permission-service.test.js",
-            "apps/server/tests/unit/project-team-service.test.js",
-            "apps/server/tests/unit/viewer-gate.test.js"
-          ]
-        },
-        {
-          "id": "REQ-FR-192",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-192 is partial",
-          "evidence": [
-            "apps/server/src/modules/identity/membership-grant-service.js",
-            "apps/server/src/modules/identity/rbac-service.js",
-            "apps/server/src/modules/identity/rbac.js",
-            "apps/server/src/modules/identity/resolve-viewer.js",
-            "apps/server/src/modules/identity/viewer-domains.js",
-            "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
-            "apps/server/tests/integration/workspace-onboarding-flow.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/customer-import-review-service.test.js",
-            "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
-            "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
-            "apps/server/tests/unit/fr192-tenant-role-binding-resolver.test.js",
-            "apps/server/tests/unit/membership-grant-service.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/viewer-gate.test.js"
-          ]
         }
       ],
       "details": {
@@ -2011,7 +1785,7 @@
       ],
       "featureCount": 23,
       "readyFeatureCount": 18,
-      "progressPercent": 95.5
+      "progressPercent": 96.8
     },
     "integration": {
       "status": "partial",
@@ -3639,7 +3413,7 @@
         },
         {
           "id": "FR-196",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 2,
           "testCount": 9
@@ -4621,69 +4395,35 @@
         },
         {
           "id": "FR-191",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 5,
-          "testCount": 27,
-          "evidence": [
-            "apps/server/src/app/api/platform/users/memberships/[id]/lifecycle/route.js",
-            "apps/server/src/app/api/platform/users/offboard/route.js",
-            "apps/server/src/modules/project-manager/api-docs/openapi.js",
-            "apps/server/src/modules/project-manager/application/project-team-service.js",
-            "apps/server/src/modules/project-manager/application/scope-service.js",
-            "apps/server/tests/integration/crm-conversation-analysis.test.js",
-            "apps/server/tests/integration/crm-customer-erasure.test.js",
-            "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
-            "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
-            "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
-            "apps/server/tests/integration/identity-erase.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/password-reset-flow.test.js",
-            "apps/server/tests/integration/scope-and-isolation.test.js",
-            "apps/server/tests/integration/server-line-jobs.test.js",
-            "apps/server/tests/integration/workspace-onboarding-flow.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/auth-service.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/fr036-team-authorization.test.js",
-            "apps/server/tests/unit/fr046-auth-route.test.js",
-            "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
-            "apps/server/tests/unit/fr062-permissions-read-scope.test.js",
-            "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
-            "apps/server/tests/unit/iam-session.test.js",
-            "apps/server/tests/unit/membership-grant-service.test.js",
-            "apps/server/tests/unit/membership-lifecycle-service.test.js",
-            "apps/server/tests/unit/password-reset-service.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/profile-permission-service.test.js",
-            "apps/server/tests/unit/project-team-service.test.js",
-            "apps/server/tests/unit/viewer-gate.test.js"
-          ]
+          "testCount": 27
         },
         {
           "id": "FR-193",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 6,
           "testCount": 18
         },
         {
           "id": "FR-194",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 2,
           "testCount": 20
         },
         {
           "id": "FR-195",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 1,
           "testCount": 15
         },
         {
           "id": "FR-197",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 3,
           "testCount": 11
@@ -4910,46 +4650,6 @@
           "check": "requirements",
           "summary": "FR-082 is planned",
           "evidence": []
-        },
-        {
-          "id": "REQ-FR-191",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-191 is partial",
-          "evidence": [
-            "apps/server/src/app/api/platform/users/memberships/[id]/lifecycle/route.js",
-            "apps/server/src/app/api/platform/users/offboard/route.js",
-            "apps/server/src/modules/project-manager/api-docs/openapi.js",
-            "apps/server/src/modules/project-manager/application/project-team-service.js",
-            "apps/server/src/modules/project-manager/application/scope-service.js",
-            "apps/server/tests/integration/crm-conversation-analysis.test.js",
-            "apps/server/tests/integration/crm-customer-erasure.test.js",
-            "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
-            "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
-            "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
-            "apps/server/tests/integration/identity-erase.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/password-reset-flow.test.js",
-            "apps/server/tests/integration/scope-and-isolation.test.js",
-            "apps/server/tests/integration/server-line-jobs.test.js",
-            "apps/server/tests/integration/workspace-onboarding-flow.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/auth-service.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/fr036-team-authorization.test.js",
-            "apps/server/tests/unit/fr046-auth-route.test.js",
-            "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
-            "apps/server/tests/unit/fr062-permissions-read-scope.test.js",
-            "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
-            "apps/server/tests/unit/iam-session.test.js",
-            "apps/server/tests/unit/membership-grant-service.test.js",
-            "apps/server/tests/unit/membership-lifecycle-service.test.js",
-            "apps/server/tests/unit/password-reset-service.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/profile-permission-service.test.js",
-            "apps/server/tests/unit/project-team-service.test.js",
-            "apps/server/tests/unit/viewer-gate.test.js"
-          ]
         }
       ],
       "details": {
@@ -7720,26 +7420,24 @@
         "project-manager"
       ],
       "useCase": "An owner removes someone's access from the product instead of asking for SQL: suspend, reinstate, revoke or offboard a person with a stated reason, the dependent role bindings following and the evidence that the grant existed surviving the withdrawal",
-      "progressPercent": 80,
+      "progressPercent": 100,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-027 registry status is declared",
-        "FR-191 is partial",
-        "FR-192 is partial"
+        "FEAT-027 registry status is declared"
       ],
       "requirements": [
         {
           "id": "FR-191",
-          "status": "partial",
-          "progressPercent": 80,
+          "status": "verified",
+          "progressPercent": 100,
           "codeCount": 12,
           "testCount": 27
         },
         {
           "id": "FR-192",
-          "status": "partial",
-          "progressPercent": 80,
+          "status": "verified",
+          "progressPercent": 100,
           "codeCount": 6,
           "testCount": 11
         }
@@ -7879,7 +7577,7 @@
       "id": "FEAT-029",
       "title": "Access Invite, Segregation of Duties and Operator Lifecycle — a Business/Tenant-level invitation that becomes a real `Membership` grant on acceptance, bound to the accepting session rather than the invited address (generalising FR-067's Workspace-only `WorkspaceInvite`); segregation of duties as a write-time role-conflict refusal (with a Tenant-owner override) and a transaction-time self-verification refusal an OWNER does not bypass; and an operator grant that expires, that a standing operator can issue as a fresh row on renewal, and whose use reading the audit stream or a backup is itself recorded (ADR-079, 2026-09-12)",
       "kind": "bundle",
-      "registryStatus": "implemented locally",
+      "registryStatus": "implemented",
       "requirementIds": [
         "FR-195",
         "FR-196",
@@ -7897,7 +7595,7 @@
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-029 registry status is implemented locally"
+        "FEAT-029 registry status is implemented"
       ],
       "requirements": [
         {
