@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.61.0b |
+| **Version** | 1.62.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-12 |
 
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=244 -->
+<!-- api-spec-counts: route_handlers=248 -->
 
 ### Desktop browser/QR pairing (FR-144, 2026-09-08)
 
@@ -130,6 +130,20 @@ fail-closed (`IDENTITY_PENDING`).
 | POST | `/api/identity/link-tokens` | Issues a single-use time-bounded (`ttlSeconds`, default 900) link token for a tenant/person. Requires authenticated viewer session (`401 AUTHENTICATION_REQUIRED`). Returns `{ token, tokenId, expiresAt }`. |
 | POST | `/api/identity/link-tokens/redeem` | Single-use bearer token redemption binding channel account (LINE user) to canonical Person identity (`merge: true` re-points existing unlinked principal). Activates `ChannelIdentity` (`ACTIVE`, sets `verifiedAt` and `linkedAt`). Returns 400 if expired, already consumed, or invalid. |
 | GET | `/api/identity/channel-identities` | Query verification status of a channel identity for given `tenantId` and `providerSubject` (optional `channelAccountId`, `channel='LINE'`). Returns `{ found, id, personId, status, verified, verifiedAt, linkedAt, revokedAt }`. |
+
+## Multi-Factor Authentication (TOTP) and Session Assurance (FR-094, FR-095, FR-096 / ADR-045)
+
+P2 Enterprise IAM capabilities: RFC 6238 TOTP enrollment and challenge verification,
+session assurance levels (AAL1 standard single-factor, AAL2 multi-factor), and time-bounded
+step-up authentication elevation for sensitive administrative operations.
+
+| Method | Path | Contract |
+|---|---|---|
+| POST | `/api/auth/mfa/totp/enroll` | Starts TOTP factor enrollment for current user. Generates 160-bit cryptographically secure Base32 secret and `otpauth://` URI. Requires active viewer session. Returns `{ factorId, secret, uri }`. |
+| POST | `/api/auth/mfa/totp/verify` | Confirms enrollment with initial 6-digit TOTP code, activates factor (`ACTIVE`), and elevates current session to `AAL2`. Requires active viewer session. |
+| GET | `/api/auth/mfa/factors` | Lists registered MFA factors for current user with secrets redacted. Requires active viewer session. Returns `{ factors: [{ id, type, label, status, verifiedAt, createdAt }] }`. |
+| DELETE | `/api/auth/mfa/factors` | Revokes an MFA factor (`status: 'REVOKED'`). Body: `{ factorId }`. Requires active viewer session. |
+| POST | `/api/auth/step-up` | Re-verifies user via active MFA challenge code and elevates current session to `AAL2` for a 15-minute window (`elevatedUntil`). Returns `{ elevated: true, assuranceLevel: 'AAL2', elevatedUntil }`. |
 
 ## Plugin authentication and capability discovery (FR-123 / ADR-052)
 
@@ -749,7 +763,8 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 1.62.0b | 2026-09-12 | candidate | FR-191 / FR-192 (ADR-077): added the grant-withdrawal surface that did not exist — `POST /api/platform/users/memberships/{id}/lifecycle` (suspend / reinstate / revoke) and `POST /api/platform/users/offboard`. Before this, `Membership.status` had no writer anywhere in the repository, so removing someone's access meant SQL against production (`.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md`). Route handler count 242 -> 244 | working-tree | Claude Opus 5 |
+| 1.63.0b | 2026-09-12 | candidate | FR-191 / FR-192 (ADR-077): added the grant-withdrawal surface that did not exist — `POST /api/platform/users/memberships/{id}/lifecycle` (suspend / reinstate / revoke) and `POST /api/platform/users/offboard`. Before this, `Membership.status` had no writer anywhere in the repository, so removing someone's access meant SQL against production (`.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md`). Route handler count 246 -> 248 (242 before this pair of branches; FR-094/095/096 took it to 246 in 1.62.0b) | working-tree | Claude Opus 5 |
+| 1.62.0b | 2026-09-12 | candidate | FR-094/FR-095/FR-096: added MFA TOTP and step-up session assurance endpoints — `POST /api/auth/mfa/totp/enroll`, `POST /api/auth/mfa/totp/verify`, `GET/DELETE /api/auth/mfa/factors`, and `POST /api/auth/step-up`. Route handler count 242 -> 246 | working-tree | Antigravity |
 | 1.61.0b | 2026-09-12 | candidate | FR-097: added verified channel onboarding and identity binding endpoints — `POST /api/identity/link-tokens`, `POST /api/identity/link-tokens/redeem`, and `GET /api/identity/channel-identities`. Single-use time-bounded link tokens with fail-closed channel identity verification before agent tool execution. Route handler count 239 -> 242 | working-tree | Antigravity |
 | 1.60.0b | 2026-09-12 | candidate | FR-190: added `GET /api/line-oa/accounts/[id]/transport-health` — silence and endpoint-agreement states for a serverEnabled LINE account, read-only. Route handler count 238 -> 239 | working-tree | CLAUDE |
 | 1.57.0b | 2026-09-11 | candidate | Reconcile SCM, receipt reads and approved Billing/POS routes: 231 handlers | working-tree | RWANG |

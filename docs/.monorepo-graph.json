@@ -2551,6 +2551,66 @@
       }
     },
     {
+      "id": "code:src/app/api/auth/mfa/factors/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/auth/mfa/factors/route.js",
+      "hash": "54805a60",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-095"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/integration/mfa-totp-lifecycle.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/auth/mfa/totp/enroll/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/auth/mfa/totp/enroll/route.js",
+      "hash": "6bd1bb3d",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-095"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/integration/mfa-totp-lifecycle.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/auth/mfa/totp/verify/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/auth/mfa/totp/verify/route.js",
+      "hash": "1dc2f848",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-095"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/integration/mfa-totp-lifecycle.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/auth/reset-password/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/auth/reset-password/route.js",
@@ -2587,6 +2647,27 @@
         "@tested": [
           "tests/unit/fr120-signup-route.test.js",
           "tests/e2e/fr120-signup.spec.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/auth/step-up/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/auth/step-up/route.js",
+      "hash": "63a84c0b",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-095",
+          "FR-096"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/integration/mfa-totp-lifecycle.test.js"
         ]
       }
     },
@@ -10172,6 +10253,26 @@
       }
     },
     {
+      "id": "code:src/modules/identity/mfa-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/identity/mfa-service.js",
+      "hash": "8b4184db",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-095"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/integration/mfa-totp-lifecycle.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/onboarding-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/onboarding-service.js",
@@ -10524,6 +10625,27 @@
       }
     },
     {
+      "id": "code:src/modules/identity/session-assurance.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/identity/session-assurance.js",
+      "hash": "8a834d32",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-095",
+          "FR-096"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/unit/identity/session-assurance.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/session-port.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/session-port.js",
@@ -10639,6 +10761,26 @@
         ],
         "@tested": [
           "tests/unit/sot-data-plane-auth.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/totp.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/identity/totp.js",
+      "hash": "a39f1e46",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-094",
+          "FR-095"
+        ],
+        "@spec": [
+          "SDD-052",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/unit/identity/totp.test.js"
         ]
       }
     },
@@ -14419,7 +14561,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "62596ec6",
+      "hash": "3c1c1051",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14455,7 +14597,9 @@
           "FR-038",
           "FR-191",
           "FR-123",
-          "FR-097"
+          "FR-097",
+          "FR-094",
+          "FR-095"
         ],
         "@spec": [
           "FR-019",
@@ -14509,7 +14653,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
-      "hash": "b408d85d",
+      "hash": "8f8cbef1",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14527,6 +14671,7 @@
           "FR-153",
           "FR-090",
           "FR-095",
+          "FR-094",
           "FR-107",
           "FR-067",
           "FR-089",
@@ -16610,9 +16755,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.61.0b",
+      "version": "1.62.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "640bbf74",
+      "hash": "dee313f4",
       "status": "current"
     },
     {
@@ -16666,7 +16811,7 @@
       "title": "Appendix B — Database Schema Summary",
       "version": "1.34.0b",
       "doc_status": "Draft",
-      "hash": "f35caeca",
+      "hash": "c92dd863",
       "status": "current"
     },
     {
@@ -19104,7 +19249,8 @@
         "PluginInstallation",
         "PluginAuthorizationCode",
         "PluginSession",
-        "EdgeDeviceCredential"
+        "EdgeDeviceCredential",
+        "MfaFactor"
       ],
       "owns_routes": [
         "src/app/(entry)/**",
@@ -19123,7 +19269,7 @@
       "modules": [
         "identity"
       ],
-      "hash": "82e69fcc",
+      "hash": "b3b71c97",
       "status": "current"
     },
     {
@@ -20042,6 +20188,11 @@
     },
     {
       "id": "model:Message",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:MfaFactor",
       "type": "model",
       "status": "current"
     },
@@ -24205,6 +24356,30 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/auth/mfa/factors",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/auth/mfa/factors",
+      "path": "apps/server/src/app/api/auth/mfa/factors/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/auth/mfa/totp/enroll",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/auth/mfa/totp/enroll",
+      "path": "apps/server/src/app/api/auth/mfa/totp/enroll/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/auth/mfa/totp/verify",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/auth/mfa/totp/verify",
+      "path": "apps/server/src/app/api/auth/mfa/totp/verify/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/auth/reset-password",
       "type": "route",
       "kind": "api",
@@ -24218,6 +24393,14 @@
       "kind": "api",
       "route": "/api/auth/signup",
       "path": "apps/server/src/app/api/auth/signup/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/auth/step-up",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/auth/step-up",
+      "path": "apps/server/src/app/api/auth/step-up/route.js",
       "status": "current"
     },
     {
@@ -28542,6 +28725,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/mfa-totp-lifecycle.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/mfa-totp-lifecycle.test.js",
+      "hash": "b43d2537",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/msp-memory-lineage.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/msp-memory-lineage.test.js",
@@ -28559,7 +28749,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
-      "hash": "27d385c8",
+      "hash": "3aa8e59e",
       "status": "current"
     },
     {
@@ -30051,6 +30241,20 @@
       "type": "test",
       "path": "apps/server/tests/unit/identity/agent-tool-authorizer.test.js",
       "hash": "2c55ad22",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/identity/session-assurance.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/identity/session-assurance.test.js",
+      "hash": "5e7abb0b",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/identity/totp.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/identity/totp.test.js",
+      "hash": "8735d2b7",
       "status": "current"
     },
     {
@@ -38645,6 +38849,90 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/auth/mfa/factors/route.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/mfa/factors/route.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/mfa/factors/route.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/mfa/factors/route.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/mfa/totp/enroll/route.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/mfa/totp/enroll/route.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/mfa/totp/enroll/route.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/mfa/totp/enroll/route.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/mfa/totp/verify/route.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/mfa/totp/verify/route.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/mfa/totp/verify/route.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/mfa/totp/verify/route.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/auth/reset-password/route.js",
       "to": "req:FR-104",
       "type": "implements",
@@ -38689,6 +38977,41 @@
     {
       "from": "code:src/app/api/auth/signup/route.js",
       "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/step-up/route.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/step-up/route.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/step-up/route.js",
+      "to": "req:FR-096",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/step-up/route.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/auth/step-up/route.js",
+      "to": "req:SEC-018",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -49950,6 +50273,34 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/mfa-service.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/mfa-service.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/mfa-service.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/mfa-service.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/onboarding-service.js",
       "to": "req:BR-016",
       "type": "follows",
@@ -50517,6 +50868,41 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/session-assurance.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/session-assurance.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/session-assurance.js",
+      "to": "req:FR-096",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/session-assurance.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/session-assurance.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/session-port.js",
       "to": "req:FR-046",
       "type": "implements",
@@ -50659,6 +51045,34 @@
     {
       "from": "code:src/modules/identity/sot-data-plane-auth.js",
       "to": "req:SEC-019",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/totp.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/totp.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/totp.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/totp.js",
+      "to": "req:SEC-018",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -55726,6 +56140,20 @@
     },
     {
       "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-094",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-095",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
       "to": "req:FR-097",
       "type": "implements",
       "status": "current",
@@ -56035,6 +56463,13 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-094",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -65399,6 +65834,13 @@
       "source": "charter"
     },
     {
+      "from": "model:MfaFactor",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:Milestone",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -68598,6 +69040,27 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/auth/mfa/factors",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/auth/mfa/totp/enroll",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/auth/mfa/totp/verify",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/auth/reset-password",
       "to": "domain:identity",
       "type": "owned_by",
@@ -68606,6 +69069,13 @@
     },
     {
       "from": "route:api:/api/auth/signup",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/auth/step-up",
       "to": "domain:identity",
       "type": "owned_by",
       "status": "current",
@@ -77517,6 +77987,13 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:FR-095",
       "type": "verifies",
       "status": "current",
@@ -77987,6 +78464,13 @@
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
       "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-094",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -80528,6 +81012,13 @@
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-094",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -85525,6 +86016,13 @@
     },
     {
       "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
       "to": "req:FR-095",
       "type": "verifies",
       "status": "current",
@@ -86071,6 +86569,13 @@
     },
     {
       "from": "test:tests/integration/marketing-backup.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-backup.test.js",
       "to": "req:FR-095",
       "type": "verifies",
       "status": "current",
@@ -86569,6 +87074,13 @@
     {
       "from": "test:tests/integration/marketing-content-backup.test.js",
       "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-094",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -87127,6 +87639,76 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/mfa-totp-lifecycle.test.js",
+      "to": "code:src/app/api/auth/mfa/factors/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/mfa-totp-lifecycle.test.js",
+      "to": "code:src/app/api/auth/mfa/totp/enroll/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/mfa-totp-lifecycle.test.js",
+      "to": "code:src/app/api/auth/mfa/totp/verify/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/mfa-totp-lifecycle.test.js",
+      "to": "code:src/app/api/auth/step-up/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/mfa-totp-lifecycle.test.js",
+      "to": "code:src/modules/identity/mfa-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/mfa-totp-lifecycle.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/mfa-totp-lifecycle.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/mfa-totp-lifecycle.test.js",
+      "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/mfa-totp-lifecycle.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/mfa-totp-lifecycle.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/msp-memory-lineage.test.js",
       "to": "req:FR-171",
       "type": "verifies",
@@ -87297,6 +87879,27 @@
     {
       "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-096",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -96235,6 +96838,13 @@
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:FR-095",
       "type": "verifies",
       "status": "current",
@@ -99966,6 +100576,83 @@
     },
     {
       "from": "test:tests/unit/identity/agent-tool-authorizer.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/identity/session-assurance.test.js",
+      "to": "code:src/modules/identity/session-assurance.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/identity/session-assurance.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/identity/session-assurance.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/identity/session-assurance.test.js",
+      "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/identity/session-assurance.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/identity/session-assurance.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/identity/totp.test.js",
+      "to": "code:src/modules/identity/totp.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/unit/identity/totp.test.js",
+      "to": "req:FR-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/identity/totp.test.js",
+      "to": "req:FR-095",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/identity/totp.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/identity/totp.test.js",
       "to": "req:SEC-018",
       "type": "verifies",
       "status": "current",
@@ -114122,7 +114809,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2691,
+    "server_nodes": 2706,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,
