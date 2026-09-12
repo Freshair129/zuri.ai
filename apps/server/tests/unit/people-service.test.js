@@ -47,7 +47,13 @@ describe('listPeople', () => {
     expect(data.people.map((entry) => entry.status)).toEqual(['ACTIVE', 'ON_LEAVE'])
     // Employment defines the roster; Membership only answers "can log in".
     expect(data.people.map((entry) => entry.hasSystemAccess)).toEqual([true, false])
-    expect(data.summary).toEqual({ peopleCount: 2, activeCount: 1, onLeaveCount: 1, endedCount: 0, withSystemAccessCount: 1 })
+    // `accessWithoutEmploymentCount` is asserted here rather than left out of
+    // an exact-match expectation: it is the figure that stops an empty roster
+    // reporting "System access 0" as though nobody could sign in.
+    expect(data.summary).toEqual({
+      peopleCount: 2, activeCount: 1, onLeaveCount: 1, endedCount: 0,
+      withSystemAccessCount: 1, accessWithoutEmploymentCount: 0,
+    })
   })
 
   // @req FR-193 — a suspended (or altogether absent) Membership never removes

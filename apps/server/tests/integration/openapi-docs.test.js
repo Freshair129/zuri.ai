@@ -166,9 +166,13 @@ describe('OpenAPI document', () => {
       // two operations (GET /api/platform/access-history, scoped by exactly one
       // of businessId/tenantId/personId, and GET
       // /api/platform/businesses/{businessId}/grants, the current-state roster).
-      // 242 + 4 (MFA) + 2 (FR-191) + 2 (FR-199) = 250; 331 + 5 + 2 + 2 = 340.
-      pathCount: 250,
-      operationCount: 340,
+      // 242 + 4 (MFA) + 2 (FR-191) + 2 (FR-199) + 2 (FR-193 write path) = 252;
+      // 331 + 5 + 2 + 2 + 2 = 342. The FR-193 pair is POST
+      // /api/people/employment and PATCH /api/people/employment/{employmentId}
+      // — one operation each, because the three lifecycle transitions travel as
+      // a named `action` on the PATCH rather than as three separate verbs.
+      pathCount: 252,
+      operationCount: 342,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

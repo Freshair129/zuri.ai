@@ -6158,6 +6158,46 @@
       }
     },
     {
+      "id": "code:src/app/api/people/employment/[employmentId]/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/people/employment/[employmentId]/route.js",
+      "hash": "db25f963",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-193"
+        ],
+        "@spec": [
+          "BR-034",
+          "SDD-093",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr193-employment-write-path.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/people/employment/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/people/employment/route.js",
+      "hash": "48675428",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-193"
+        ],
+        "@spec": [
+          "BR-034",
+          "SDD-093",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr193-employment-write-path.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/people/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/people/route.js",
@@ -15064,11 +15104,12 @@
       "id": "code:src/modules/people/application/employment-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/people/application/employment-service.js",
-      "hash": "288e5d74",
+      "hash": "06b7ff75",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-193"
+          "FR-193",
+          "FR-061"
         ],
         "@spec": [
           "BR-034",
@@ -15083,7 +15124,7 @@
       "id": "code:src/modules/people/application/people-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/people/application/people-service.js",
-      "hash": "df7b41a5",
+      "hash": "c18849d4",
       "status": "current",
       "annotations": {
         "@req": [
@@ -15107,7 +15148,7 @@
       "id": "code:src/modules/people/components/PeopleDirectory.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/people/components/PeopleDirectory.jsx",
-      "hash": "b1e10f1f",
+      "hash": "7ee3b2ce",
       "status": "current",
       "annotations": {
         "@req": [
@@ -15115,6 +15156,8 @@
           "FR-193"
         ],
         "@spec": [
+          "BR-034",
+          "SDD-093",
           "SDD-020"
         ],
         "@tested": [
@@ -15282,7 +15325,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "2614d235",
+      "hash": "45e72216",
       "status": "current",
       "annotations": {
         "@req": [
@@ -17485,9 +17528,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.64.0b",
+      "version": "1.65.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "c8777f70",
+      "hash": "f8cc40a9",
       "status": "current"
     },
     {
@@ -26523,6 +26566,22 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/people/employment",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/people/employment",
+      "path": "apps/server/src/app/api/people/employment/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/people/employment/[employmentId]",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/people/employment/[employmentId]",
+      "path": "apps/server/src/app/api/people/employment/[employmentId]/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/pipelines/knowledge/[executionRunId]",
       "type": "route",
       "kind": "api",
@@ -29944,6 +30003,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/fr193-employment-write-path.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr193-employment-write-path.test.js",
+      "hash": "a8add07b",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/fr194-legal-entity-tax-branch.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr194-legal-entity-tax-branch.test.js",
@@ -30346,7 +30412,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
-      "hash": "79b946e9",
+      "hash": "05a3a82e",
       "status": "current"
     },
     {
@@ -32782,7 +32848,7 @@
       "id": "test:tests/unit/people-service.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/people-service.test.js",
-      "hash": "f464b20d",
+      "hash": "75128402",
       "status": "current"
     },
     {
@@ -45068,6 +45134,62 @@
     {
       "from": "code:src/app/api/onboarding/workspaces/route.js",
       "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/people/employment/[employmentId]/route.js",
+      "to": "req:BR-034",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/people/employment/[employmentId]/route.js",
+      "to": "req:FR-193",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/people/employment/[employmentId]/route.js",
+      "to": "req:SDD-093",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/people/employment/[employmentId]/route.js",
+      "to": "req:SEC-008",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/people/employment/route.js",
+      "to": "req:BR-034",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/people/employment/route.js",
+      "to": "req:FR-193",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/people/employment/route.js",
+      "to": "req:SDD-093",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/people/employment/route.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -57968,6 +58090,13 @@
     },
     {
       "from": "code:src/modules/people/application/employment-service.js",
+      "to": "req:FR-061",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/application/employment-service.js",
       "to": "req:FR-193",
       "type": "implements",
       "status": "current",
@@ -58031,6 +58160,13 @@
     },
     {
       "from": "code:src/modules/people/components/PeopleDirectory.jsx",
+      "to": "req:BR-034",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/components/PeopleDirectory.jsx",
       "to": "req:FR-042",
       "type": "implements",
       "status": "current",
@@ -58046,6 +58182,13 @@
     {
       "from": "code:src/modules/people/components/PeopleDirectory.jsx",
       "to": "req:SDD-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/components/PeopleDirectory.jsx",
+      "to": "req:SDD-093",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -72522,6 +72665,20 @@
     {
       "from": "route:api:/api/onboarding/workspaces",
       "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/people/employment/[employmentId]",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/people/employment",
+      "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
       "source": "charter-glob"
@@ -87368,6 +87525,13 @@
     },
     {
       "from": "test:tests/integration/fr193-employment-lifecycle.test.js",
+      "to": "req:FR-061",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr193-employment-lifecycle.test.js",
       "to": "req:FR-193",
       "type": "verifies",
       "status": "current",
@@ -87379,6 +87543,48 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr193-employment-write-path.test.js",
+      "to": "code:src/app/api/people/employment/[employmentId]/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr193-employment-write-path.test.js",
+      "to": "code:src/app/api/people/employment/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr193-employment-write-path.test.js",
+      "to": "req:BR-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr193-employment-write-path.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr193-employment-write-path.test.js",
+      "to": "req:SDD-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr193-employment-write-path.test.js",
+      "to": "req:SEC-008",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/fr194-legal-entity-tax-branch.test.js",
@@ -91506,6 +91712,13 @@
     {
       "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-193",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -109838,6 +110051,13 @@
     },
     {
       "from": "test:tests/unit/people-directory.test.js",
+      "to": "req:BR-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/people-directory.test.js",
       "to": "req:FR-042",
       "type": "verifies",
       "status": "current",
@@ -109853,6 +110073,13 @@
     {
       "from": "test:tests/unit/people-directory.test.js",
       "to": "req:SDD-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/people-directory.test.js",
+      "to": "req:SDD-093",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -118506,7 +118733,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2870,
+    "server_nodes": 2875,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,
