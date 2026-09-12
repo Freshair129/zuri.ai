@@ -409,14 +409,19 @@ async function executeClaimed({ db, answer, execution, claimantId, now }) {
     await settleExecution(execution.id, { version: execution.version, text }, { db, claimantId, now: now() })
     return null
   } catch (error) {
-    if (error.status === 409) return { id: execution.id, status: 'FAILED' }
-    const settled = await settleExecution(execution.id, {
-      version: execution.version,
-      code: error.code === 'MSP_INJECTION_RECEIPT_UNKNOWN' ? error.code : 'EXECUTION_FAILED',
-      outcome: error.code === 'MSP_INJECTION_RECEIPT_UNKNOWN' ? 'UNKNOWN' : undefined,
-      traceFailureCode: ['EXECUTION_TRACE_PAYLOAD_TOO_LARGE', 'EXECUTION_TRACE_SECRET_FIELD', 'EXECUTION_TRACE_UNAVAILABLE', 'MSP_INJECTION_RECEIPT_UNKNOWN'].includes(error.code) ? error.code : null },
-    { db, claimantId, now: now() })
-    return { id: execution.id, status: settled.status }
+    if (error.status === 409) return { id: execution.id, status: 'CONTENDED' }
+    try {
+      const settled = await settleExecution(execution.id, {
+        version: execution.version,
+        code: error.code === 'MSP_INJECTION_RECEIPT_UNKNOWN' ? error.code : 'EXECUTION_FAILED',
+        outcome: error.code === 'MSP_INJECTION_RECEIPT_UNKNOWN' ? 'UNKNOWN' : undefined,
+        traceFailureCode: ['EXECUTION_TRACE_PAYLOAD_TOO_LARGE', 'EXECUTION_TRACE_SECRET_FIELD', 'EXECUTION_TRACE_UNAVAILABLE', 'MSP_INJECTION_RECEIPT_UNKNOWN'].includes(error.code) ? error.code : null },
+      { db, claimantId, now: now() })
+      return { id: execution.id, status: settled.status }
+    } catch (settleError) {
+      if (settleError.status === 409) return { id: execution.id, status: 'CONTENDED' }
+      throw settleError
+    }
   }
 }
 
@@ -541,9 +546,11 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
     result = method === 'REPLY'
       ? await replyTransport.send({ account, replyToken, messages })
       : await pushTransport.send({ account, to: job.recipientId, messages, retryKey: job.retryKey })
-  } catch {
+  } catch (error) {
     receivedProviderResponse = false
-    result = { status: method === 'REPLY' ? 'UNKNOWN' : 'RETRYABLE_FAILURE', code: 'LINE_REQUEST_UNCONFIRMED' }
+    result = error?.status === 400
+      ? { status: 'PERMANENT_FAILURE', code: error.code ?? 'LINE_SEND_INPUT_INVALID' }
+      : { status: method === 'REPLY' ? 'UNKNOWN' : 'RETRYABLE_FAILURE', code: 'LINE_REQUEST_UNCONFIRMED' }
   }
   // A Reply's dead token is the one PERMANENT_FAILURE worth switching method over: LINE_HTTP_400
   // means the token itself is confirmed dead, not "some 4xx happened" — 401/403/404/429 are

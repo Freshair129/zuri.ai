@@ -334,6 +334,58 @@ describe('server transport and acceptance recovery', () => {
     await expect(admit(oa, event('new-after-epoch'))).rejects.toMatchObject({ status: 409 })
     await expect(completeEdgeConversation(admitted.jobId, { version: lease.job.version, text: 'old owner answer' }, { deviceContext: deviceA, now: start })).rejects.toMatchObject({ status: 409 })
   })
+
+  it('recovers cleanly without throwing out of the tick when model execution outlives its lease and fails', async () => {
+    const oa = await account()
+    const admitted = await admit(oa, event('model-outlives-lease'))
+    const options = worker({
+      answer: vi.fn(async (execution) => {
+        await prisma.lineConversationJob.update({
+          where: { id: execution.id },
+          data: { leaseExpiresAt: new Date(start.getTime() - 1000) },
+        })
+        const err = new Error('Model timeout')
+        err.code = 'MODEL_TIMEOUT'
+        throw err
+      }),
+    })
+    const outcome = await runLineConversationWorker(options)
+    expect(outcome).toMatchObject({ id: admitted.jobId, status: 'CONTENDED', executed: 1, sent: 0 })
+    const current = await row(admitted.jobId)
+    expect(current.status).toBe('CLAIMED')
+  })
+
+  it('classifies deterministic send-input errors as permanent failure rather than ambiguous unknown', async () => {
+    const oa = await account()
+    const admitted = await admit(oa, event('input-validation-400'))
+    const inputError = new Error('Invalid send input')
+    inputError.status = 400
+    inputError.code = 'LINE_SEND_INPUT_INVALID'
+    const options = worker({
+      replyTransport: {
+        send: vi.fn(async () => {
+          throw inputError
+        }),
+      },
+    })
+    const outcome = await runLineConversationWorker(options)
+    expect(outcome).toMatchObject({ id: admitted.jobId, status: 'FAILED' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'FAILED', errorCode: 'LINE_SEND_INPUT_INVALID' })
+  })
+
+  it('bumps job version when epoch-fence cancels waiting jobs on account reconfigure', async () => {
+    const oa = await account()
+    const admitted = await admit(oa, event('epoch-fence-version-bump'))
+    const before = await row(admitted.jobId)
+    expect(before.version).toBe(1)
+
+    const owner = makeViewer({ visibleBusinessIds: [businessA.id], ownedBusinessIds: [businessA.id], visibleDomains: ['platform', 'line-oa'] })
+    await applyLineOaAccountAction(oa.id, { action: 'PAUSE', version: oa.version }, { db: prisma, viewer: owner })
+
+    const after = await row(admitted.jobId)
+    expect(after.status).toBe('CANCELLED')
+    expect(after.version).toBe(before.version + 1)
+  })
 })
 
 
