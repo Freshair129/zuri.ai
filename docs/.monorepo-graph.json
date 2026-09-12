@@ -388,7 +388,7 @@
       "id": "code:src/app/(pm)/customer/conversations/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/customer/conversations/page.jsx",
-      "hash": "8075bf17",
+      "hash": "cfd0ea94",
       "status": "current",
       "annotations": {
         "@req": [
@@ -431,7 +431,7 @@
       "id": "code:src/app/(pm)/customer/page.jsx",
       "type": "code_file",
       "path": "apps/server/src/app/(pm)/customer/page.jsx",
-      "hash": "b42c90fb",
+      "hash": "90f610cd",
       "status": "current",
       "annotations": {
         "@req": [
@@ -9442,7 +9442,7 @@
       "id": "code:src/modules/crm/conversation-read-model.js",
       "type": "code_file",
       "path": "apps/server/src/modules/crm/conversation-read-model.js",
-      "hash": "ebe18622",
+      "hash": "9b87be8c",
       "status": "current",
       "annotations": {
         "@req": [
@@ -26969,6 +26969,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/acceptance/genesisrag17-smartgift.test.js",
+      "type": "test",
+      "path": "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
+      "hash": "e8b8745c",
+      "status": "current"
+    },
+    {
       "id": "test:tests/acceptance/knowledge-admission-native.test.js",
       "type": "test",
       "path": "apps/server/tests/acceptance/knowledge-admission-native.test.js",
@@ -27336,7 +27343,7 @@
       "id": "test:tests/integration/crm-conversation-inbox.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/crm-conversation-inbox.test.js",
-      "hash": "d3dee26a",
+      "hash": "6ccb691c",
       "status": "current"
     },
     {
@@ -72674,6 +72681,20 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/acceptance/genesisrag17-smartgift.test.js",
+      "to": "req:FR-187",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/acceptance/genesisrag17-smartgift.test.js",
+      "to": "req:FR-188",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/acceptance/knowledge-admission-native.test.js",
       "to": "code:src/instrumentation.js",
       "type": "tests",
@@ -112465,7 +112486,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2655,
+    "server_nodes": 2656,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,
