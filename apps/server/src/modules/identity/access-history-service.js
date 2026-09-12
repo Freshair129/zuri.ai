@@ -16,9 +16,14 @@ import { ownsBusiness, ownsTenant, isInstallationOperator } from './viewer-autho
 import { AUDIT_MAX_LIMIT, safeParse } from '@/modules/project-manager/application/audit'
 
 /**
- * The audit `entityType` families this read answers for. `ACCESS_INVITE`
- * writes nothing today — no invite flow exists yet — and is listed so the
- * query needs no change the day one does (ADR-080 D4).
+ * The audit `entityType` families this read answers for.
+ *
+ * `ACCESS_INVITE` was listed here speculatively — "writes nothing today, no
+ * invite flow exists yet" — and that stopped being true when ADR-079 landed
+ * `access-invite-service.js`. Listing it was right; what the note missed is
+ * that a reader naming a family it cannot see rows from looks identical to a
+ * reader with nothing to show. The invite service now stamps
+ * `tenantId`/`businessId` as columns, which is what makes this arm real.
  */
 const ACCESS_ENTITY_TYPES = ['MEMBERSHIP', 'ROLE_BINDING', 'ACCESS_INVITE']
 
@@ -28,14 +33,33 @@ const ACCESS_ENTITY_TYPES = ['MEMBERSHIP', 'ROLE_BINDING', 'ACCESS_INVITE']
  * are deliberately excluded — they are the same entityType but a different
  * question ("who is this person", not "what could this person reach").
  *
- * Only `OFFBOARDED` carries `tenantId` as a column today (it is written from
- * `membership-lifecycle-service.js`, this change's own file); the other three
- * are written from files this change does not touch (`operator-bootstrap.js`,
- * `signup-service.js`) and are matched by `entityId = personId` instead, which
- * is why they are usable for a personId-scoped query but not for a
- * Business/Tenant-scoped one below.
+ * Only `OFFBOARDED` carries `tenantId` as a column (written from
+ * `membership-lifecycle-service.js`). The rest come from `operator-bootstrap.js`,
+ * `operator-use.js` and `signup-service.js` and are matched by
+ * `entityId = personId`, which makes them usable for a personId-scoped query
+ * but not for the Business/Tenant-scoped one below.
+ *
+ * That split is about installation-level acts having no tenant to belong to —
+ * it is NOT, as an earlier version of this comment implied, a claim that only
+ * two files write access-relevant audit events. `access-invite-service.js`
+ * writes four kinds of its own, and it now stamps `tenantId`/`businessId` as
+ * columns so the scoped query reaches them.
  */
-const ACCESS_PERSON_ACTIONS = ['OFFBOARDED', 'OPERATOR_BOOTSTRAPPED', 'OPERATOR_GRANT_REVOKED', 'ACCOUNT_SELF_CREATED']
+// `OPERATOR_GRANT_ISSUED` and `OPERATOR_ACTION` were missing here while
+// `OPERATOR_GRANT_REVOKED` was present, so the history showed installation
+// authority being taken away and never being given — the asymmetry that makes
+// an access review useless, since the question it answers is "who has this,
+// and since when". Both are written as `entityType: 'PERSON'` with the
+// person's own id (`operator-bootstrap.js`, `operator-use.js`), which is the
+// shape this list already matches; nothing else had to change to include them.
+const ACCESS_PERSON_ACTIONS = [
+  'OFFBOARDED',
+  'OPERATOR_BOOTSTRAPPED',
+  'OPERATOR_GRANT_ISSUED',
+  'OPERATOR_GRANT_REVOKED',
+  'OPERATOR_ACTION',
+  'ACCOUNT_SELF_CREATED',
+]
 
 // Only the subset of ACCESS_PERSON_ACTIONS this change's own writers stamp
 // with a tenantId column. See the comment above.
@@ -130,15 +154,26 @@ export async function listAccessHistory({ businessId, tenantId, personId, limit 
     // Membership's own entityId is the grant's id, not the person's, so the
     // matching ids are read from the relational rows themselves rather than
     // by scanning payloadJson (the exact defect FR-198 exists to stop).
-    const [memberships, bindings] = await Promise.all([
+    const [memberships, bindings, invites] = await Promise.all([
       db.membership.findMany({ where: { personId }, select: { id: true } }),
       db.roleBinding.findMany({ where: { personId }, select: { id: true } }),
+      // An ACCESS_INVITE row's `entityId` is the INVITE's id, exactly as a
+      // Membership's is the grant's — so it is resolved the same way, from the
+      // relational row. It was matched against `personId` directly until now,
+      // which no invite has ever equalled, so this arm returned nothing at all
+      // and a person's history silently omitted every invitation that led to
+      // their access. Addressed-to and answered-by both count: an invitation
+      // someone declined is part of how they came to have, or not have, access.
+      db.accessInvite.findMany({
+        where: { OR: [{ targetPersonId: personId }, { acceptedByPersonId: personId }] },
+        select: { id: true },
+      }),
     ])
     where = {
       OR: [
         { entityType: 'MEMBERSHIP', entityId: { in: memberships.map((m) => m.id) } },
         { entityType: 'ROLE_BINDING', entityId: { in: bindings.map((b) => b.id) } },
-        { entityType: 'ACCESS_INVITE', entityId: personId },
+        { entityType: 'ACCESS_INVITE', entityId: { in: invites.map((i) => i.id) } },
         { entityType: 'PERSON', entityId: personId, action: { in: ACCESS_PERSON_ACTIONS } },
       ],
     }

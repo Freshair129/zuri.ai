@@ -70,6 +70,15 @@ product must be a non-archived SKU of the same Business. Nothing is reached from
 
 ### D4 — A receipt posts through the Inventory contract, and does not widen it
 
+> **Amended by [ADR-079](ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md) D2
+> (2026-09-12).** This decision settled how a receipt reaches the Inventory
+> ledger; it did not settle *who* may post one. ADR-079 splits
+> `PROCUREMENT_BUYER`'s `procurement.receipt.post` into a separate
+> `GOODS_RECEIVER` role and declares the two in conflict, so the person who
+> raises a purchase order cannot also receive against it without a Tenant owner
+> saying so on the record. Everything below about the Inventory contract, the
+> authority it requires and the transaction it runs in is unchanged.
+
 A receipt line whose order line names a counted SKU calls Inventory's exported
 `appendMovement` inside the receipt's own transaction: `lotCode` names or creates the lot
 (a LOT-tracked SKU needs one — Inventory's `INVENTORY_LOT_REQUIRED` bubbles up), a given

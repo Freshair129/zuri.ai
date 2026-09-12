@@ -1,6 +1,6 @@
 import prisma from '@/lib/db'
 import { VIEWER_DOMAINS, allDomainsFor, buildDomainsByBusiness } from './viewer-domains'
-import { permissionsForRoles, ROLE_PERMISSIONS, ROLE_SCOPE_BUSINESS } from './rbac'
+import { permissionsForRoles, ROLE_PERMISSIONS, ROLE_SCOPE_BUSINESS, ROLE_SCOPE_TENANT } from './rbac'
 
 // @req FR-031 — all future shell visibility starts from one resolved viewer scope.
 // @spec ADR-008 §D4, docs/features/FR-031-viewer-gate.md — DEV is a platform grant,
@@ -64,6 +64,17 @@ async function resolvePrincipal(db, principalId) {
 // @spec ADR-033 D3-D5 — binding status, role registry and Tenant/Business
 // ancestry are checked server-side; visibility alone never grants authority.
 // @tested tests/unit/fr076-product-owner-business-assignment.test.js
+//
+// @req FR-192/ADR-077 D3 — teaches the resolver the TENANT RoleBinding scope,
+// left inert on purpose when `scopeType` was added ("until the resolver is
+// taught to expand it"). The smallest change that does it: a TENANT binding is
+// read as a SECOND, independent query and expanded to every ACTIVE Business the
+// Tenant holds TODAY — mirroring `buildDomainsByBusiness`'s tenant-wide
+// Membership expansion, not derived from `visibleBusinessIds` (a TENANT
+// RoleBinding is authority granted AT the Tenant, not a widening of whatever
+// Membership already made visible). `hasPermission` is untouched: it only ever
+// reads `permissionsByBusinessId`, so widening what this function returns is
+// the only surface that changes.
 async function resolveRoleBindings(db, principalId, visibleBusinessIds) {
   const empty = { rolesByBusinessId: {}, permissionsByBusinessId: {} }
   if (typeof db.roleBinding?.findMany !== 'function') return empty
@@ -72,14 +83,19 @@ async function resolveRoleBindings(db, principalId, visibleBusinessIds) {
     where: {
       personId: principalId,
       status: 'ACTIVE',
-      scopeType: ROLE_SCOPE_BUSINESS,
-      businessId: { in: visibleBusinessIds },
+      OR: [
+        { scopeType: ROLE_SCOPE_BUSINESS, businessId: { in: visibleBusinessIds } },
+        { scopeType: ROLE_SCOPE_TENANT },
+      ],
     },
     select: { tenantId: true, businessId: true, roleKey: true, scopeType: true, status: true },
   })
   if (!bindings.length) return empty
 
-  const businessIds = unique(bindings.map((binding) => binding.businessId))
+  const businessScoped = bindings.filter((binding) => binding.scopeType === ROLE_SCOPE_BUSINESS)
+  const tenantScoped = bindings.filter((binding) => binding.scopeType === ROLE_SCOPE_TENANT)
+
+  const businessIds = unique(businessScoped.map((binding) => binding.businessId))
   const businesses = businessIds.length
     ? await db.business.findMany({
         where: { id: { in: businessIds } },
@@ -87,8 +103,13 @@ async function resolveRoleBindings(db, principalId, visibleBusinessIds) {
       })
     : []
   const businessById = new Map(businesses.map((business) => [business.id, business]))
+
   const rolesByBusinessId = {}
-  for (const binding of bindings) {
+  const grant = (businessId, roleKey) => {
+    rolesByBusinessId[businessId] = unique([...(rolesByBusinessId[businessId] || []), roleKey])
+  }
+
+  for (const binding of businessScoped) {
     const business = businessById.get(binding.businessId)
     const valid = visibleBusinessIds.includes(binding.businessId) &&
       binding.status === 'ACTIVE' &&
@@ -97,11 +118,23 @@ async function resolveRoleBindings(db, principalId, visibleBusinessIds) {
       business &&
       business.status === 'ACTIVE' &&
       business.tenantId === binding.tenantId
-    if (valid) {
-      rolesByBusinessId[binding.businessId] = unique([
-        ...(rolesByBusinessId[binding.businessId] || []),
-        binding.roleKey,
-      ])
+    if (valid) grant(binding.businessId, binding.roleKey)
+  }
+
+  // A TENANT binding expands to every ACTIVE Business the NAMED Tenant holds —
+  // deliberately independent of `visibleBusinessIds`, so a test proves it
+  // grants on every Business in the Tenant and NONE outside it.
+  const tenantIds = unique(tenantScoped.map((binding) => binding.tenantId))
+  const tenantBusinesses = tenantIds.length
+    ? await db.business.findMany({
+        where: { tenantId: { in: tenantIds }, status: 'ACTIVE' },
+        select: { id: true, tenantId: true },
+      })
+    : []
+  for (const binding of tenantScoped) {
+    if (!ROLE_PERMISSIONS[binding.roleKey]) continue
+    for (const business of tenantBusinesses) {
+      if (business.tenantId === binding.tenantId) grant(business.id, binding.roleKey)
     }
   }
 

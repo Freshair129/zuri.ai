@@ -48,8 +48,12 @@ see which kind of grant it is holding, and gate a tenant-wide one on
 `api-access-auth`; only this surface never called it.
 
 `RoleBinding` takes the same grammar (`TENANT | BUSINESS | BRANCH`), extending
-ADR-033 D3 rather than superseding it. No `TENANT` binding resolves until the
-resolver is taught to expand one, so the column is additive on its own.
+ADR-033 D3 rather than superseding it. The column shipped additive: no `TENANT`
+binding resolved until the resolver was taught to expand one, which
+[FR-196/ADR-079](../../../decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md)
+then did. The expansion is evaluated **at each request**, so a TENANT binding
+reaches a Business created after the grant without a new assignment — the same
+semantics a tenant-wide `Membership` has had since FR-074(c).
 
 ## What deletion did
 

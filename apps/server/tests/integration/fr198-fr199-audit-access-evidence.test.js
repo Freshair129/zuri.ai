@@ -160,3 +160,89 @@ describe('FR-199 — listBusinessAccess shows a revoked grant with its reason an
     ).rejects.toMatchObject({ status: 404 })
   })
 })
+
+// @req FR-198, FR-199 — the invite writer and the history reader agree.
+//
+//   `ACCESS_INVITE` was in this reader's entity-type list from the start, and
+//   the Business/Tenant arms filter on the `tenantId`/`businessId` columns —
+//   but `access-invite-service.js` wrote both only inside `payloadJson`, so
+//   the query asked for invitations and never matched one. The person arm was
+//   worse: it compared `entityId` (an INVITE's id) against `personId`, which
+//   no invite has ever equalled, so that arm could only ever return nothing.
+//
+//   Both assertions below fail against the code as it stood before this file.
+describe('FR-199 — invitations appear in the history of the scope they grant into', () => {
+  it('finds an invite event by Business scope, and in the invitee\'s own history', async () => {
+    const invitee = await prisma.person.create({
+      data: { code: `PSN-AEI${suffix}`, displayName: 'Invitee', email: `ae-invitee.${suffix}@example.com` },
+    })
+    const invite = await prisma.accessInvite.create({
+      data: {
+        scopeType: 'BUSINESS',
+        tenantId: ids.tenant.id,
+        businessId: ids.businessA.id,
+        invitedByPersonId: ids.owner.id,
+        targetPersonId: invitee.id,
+        tokenHash: `hash-${suffix}`,
+        role: 'MEMBER',
+        status: 'PENDING',
+        expiresAt: new Date(Date.now() + 86400000),
+      },
+    })
+
+    // Written the way access-invite-service.js writes it after this change:
+    // scope as COLUMNS, entityId as the invite's own id.
+    await recordAudit(prisma, {
+      entityType: 'ACCESS_INVITE',
+      entityId: invite.id,
+      action: 'ACCESS_INVITE_MINTED',
+      actorId: ids.owner.id,
+      tenantId: ids.tenant.id,
+      businessId: ids.businessA.id,
+      payload: { scopeType: 'BUSINESS', role: 'MEMBER' },
+    })
+
+    const byBusiness = await listAccessHistory(
+      { businessId: ids.businessA.id },
+      { resolve: async () => ownerViewer() },
+    )
+    expect(byBusiness.events.some((e) => e.entityId === invite.id)).toBe(true)
+
+    // The person arm must reach it through `targetPersonId`, not by pretending
+    // the invite's entityId is the person's id.
+    const inviteeViewer = () => makeViewer({
+      principal: { id: invitee.id, code: invitee.code, displayName: invitee.displayName },
+      visibleBusinessIds: [],
+      ownedBusinessIds: [],
+    })
+    const mine = await listAccessHistory(
+      { personId: invitee.id },
+      { resolve: async () => inviteeViewer() },
+    )
+    expect(mine.events.some((e) => e.entityId === invite.id)).toBe(true)
+  })
+
+  it('counts an issued operator grant as access history, not only its revocation', async () => {
+    // OPERATOR_GRANT_ISSUED was absent from ACCESS_PERSON_ACTIONS while
+    // OPERATOR_GRANT_REVOKED was present, so a person's history could show
+    // installation authority taken away and never given.
+    const op = await prisma.person.create({
+      data: { code: `PSN-AEOP${suffix}`, displayName: 'Operator', email: `ae-op.${suffix}@example.com` },
+    })
+    await recordAudit(prisma, {
+      entityType: 'PERSON',
+      entityId: op.id,
+      action: 'OPERATOR_GRANT_ISSUED',
+      actorId: ids.owner.id,
+      payload: { reason: 'incident response' },
+    })
+
+    const opViewer = () => makeViewer({
+      principal: { id: op.id, code: op.code, displayName: op.displayName },
+      visibleBusinessIds: [],
+      ownedBusinessIds: [],
+    })
+    const history = await listAccessHistory({ personId: op.id }, { resolve: async () => opViewer() })
+    expect(history.events.some((e) => e.action === 'OPERATOR_GRANT_ISSUED')).toBe(true)
+  })
+})

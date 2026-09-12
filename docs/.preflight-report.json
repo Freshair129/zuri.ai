@@ -2,14 +2,14 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 373,
+    "docs": 380,
     "routes": 250,
-    "test_files": 638
+    "test_files": 646
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 27,
+    "info": 23,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -149,42 +149,6 @@
     {
       "id": "I13",
       "severity": "info",
-      "check": "requirement-coverage",
-      "title": "Gaps in BR numbering",
-      "details": "BR-034, BR-035",
-      "files": [],
-      "action": "Intentional gaps are fine — confirm nothing was lost"
-    },
-    {
-      "id": "I14",
-      "severity": "info",
-      "check": "requirement-coverage",
-      "title": "Gaps in FR numbering",
-      "details": "FR-193, FR-194, FR-195, FR-196, FR-197",
-      "files": [],
-      "action": "Intentional gaps are fine — confirm nothing was lost"
-    },
-    {
-      "id": "I15",
-      "severity": "info",
-      "check": "requirement-coverage",
-      "title": "Gaps in SDD numbering",
-      "details": "SDD-093, SDD-094",
-      "files": [],
-      "action": "Intentional gaps are fine — confirm nothing was lost"
-    },
-    {
-      "id": "I16",
-      "severity": "info",
-      "check": "requirement-coverage",
-      "title": "Gaps in SEC numbering",
-      "details": "SEC-027",
-      "files": [],
-      "action": "Intentional gaps are fine — confirm nothing was lost"
-    },
-    {
-      "id": "I17",
-      "severity": "info",
       "check": "enum-copy",
       "title": "1 baseline entr(ies) no longer copy an enum",
       "details": "src/app/(pm)/audit/page.jsx::WORKSPACE_SCOPE_TYPES",
@@ -194,7 +158,7 @@
       "action": "Remove them from .enum-copy-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I18",
+      "id": "I14",
       "severity": "info",
       "check": "client-mutation",
       "title": "7 file(s) still swallow a failed mutation (accepted debt)",
@@ -205,18 +169,18 @@
       "action": "A silent failure is indistinguishable from success; the baseline may only shrink"
     },
     {
-      "id": "I19",
+      "id": "I15",
       "severity": "info",
       "check": "id-stability",
-      "title": "574 id(s) pinned across 10 families",
-      "details": "ADR 78 · BR 34 · FEAT 28 · FR 194 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 93 · SEC 27 · ZV2-CR 10 · roster 574",
+      "title": "588 id(s) pinned across 10 families",
+      "details": "ADR 80 · BR 36 · FEAT 30 · FR 199 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 95 · SEC 28 · ZV2-CR 10 · roster 588",
       "files": [
         "docs/.id-ledger.json"
       ],
       "action": "Each one is a key whose subject cannot move without saying so in the diff (AGENTS.md §18)"
     },
     {
-      "id": "I20",
+      "id": "I16",
       "severity": "info",
       "check": "roadmap-evidence",
       "title": "1 roadmap reference(s) name a document that no longer exists (accepted debt)",
@@ -227,7 +191,7 @@
       "action": "Repoint or retire them; the baseline may only shrink"
     },
     {
-      "id": "I21",
+      "id": "I17",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "1 baseline requirement(s) now have a roadmap row",
@@ -238,7 +202,7 @@
       "action": "Remove them from .roadmap-coverage-baseline.json so the ratchet keeps its ground"
     },
     {
-      "id": "I22",
+      "id": "I18",
       "severity": "info",
       "check": "roadmap-coverage",
       "title": "22 delivered requirement(s) carry no roadmap row (accepted debt)",
@@ -249,10 +213,10 @@
       "action": "Write their rows as their phases are revisited; the baseline may only shrink"
     },
     {
-      "id": "I23",
+      "id": "I19",
       "severity": "info",
       "check": "table-integrity",
-      "title": "table integrity checked in 373 document(s)",
+      "title": "table integrity checked in 380 document(s)",
       "details": "swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
       "files": [
         "docs/.id-ledger.json"
@@ -260,7 +224,7 @@
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I24",
+      "id": "I20",
       "severity": "info",
       "check": "table-integrity",
       "title": "2 document(s) contain rows shorter than their table's header",
@@ -272,25 +236,25 @@
       "action": "No action. Only a row WIDER than its header loses content, and only a delimiter row that does not match its header stops the block being a table at all — those two block"
     },
     {
-      "id": "I25",
+      "id": "I21",
       "severity": "info",
       "check": "audit-entity-type",
-      "title": "audit entityType checked in 92 file(s) that write audit events",
+      "title": "audit entityType checked in 95 file(s) that write audit events",
       "details": "every value is SCREAMING_SNAKE_CASE",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I26",
+      "id": "I22",
       "severity": "info",
       "check": "schema-migration-drift",
-      "title": "schema-migration drift checked: 2053 column(s) across 147 model(s) against 69 migration(s)",
+      "title": "schema-migration drift checked: 2088 column(s) across 149 model(s) against 71 migration(s)",
       "details": "every declared column outside the baseline is created by a migration",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"
     },
     {
-      "id": "I27",
+      "id": "I23",
       "severity": "info",
       "check": "unreachable-state",
       "title": "5 declared state(s) are unreachable (accepted debt)",

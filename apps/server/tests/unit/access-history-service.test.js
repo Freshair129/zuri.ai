@@ -53,6 +53,10 @@ function makeDb(over = {}) {
       ...over.membership,
     },
     roleBinding: { findMany: vi.fn().mockResolvedValue([]), ...over.roleBinding },
+    // A person scope resolves invite ids the same relational way it resolves
+    // Membership and RoleBinding ids — an ACCESS_INVITE row's entityId is the
+    // invite's id, never the person's — so the mock needs this table too.
+    accessInvite: { findMany: vi.fn().mockResolvedValue([]), ...over.accessInvite },
     person: {
       findMany: vi.fn().mockResolvedValue([{ id: 'owner-a', code: 'PSN-OWNER-A', displayName: 'Owner A' }]),
       ...over.person,
@@ -145,13 +149,26 @@ describe('listAccessHistory — shape', () => {
     const db = makeDb({
       membership: { findMany: vi.fn().mockResolvedValue([{ id: 'm-1' }]) },
       roleBinding: { findMany: vi.fn().mockResolvedValue([{ id: 'rb-1' }]) },
+      accessInvite: { findMany: vi.fn().mockResolvedValue([{ id: 'inv-1' }]) },
     })
     await listAccessHistory({ personId: 'person-1' }, { db, resolve: plainPerson })
     const where = db.auditEvent.findMany.mock.calls[0][0].where
     expect(where.OR).toEqual(expect.arrayContaining([
       expect.objectContaining({ entityType: 'MEMBERSHIP', entityId: { in: ['m-1'] } }),
       expect.objectContaining({ entityType: 'ROLE_BINDING', entityId: { in: ['rb-1'] } }),
+      // An invite is resolved the same way, and for the same reason: its
+      // entityId is the INVITE's id. Matching it against `personId` — which is
+      // what this did before — could never return a row, so the arm looked
+      // present and answered nothing.
+      expect.objectContaining({ entityType: 'ACCESS_INVITE', entityId: { in: ['inv-1'] } }),
     ]))
+    expect(where.OR).not.toContainEqual(
+      expect.objectContaining({ entityType: 'ACCESS_INVITE', entityId: 'person-1' }),
+    )
+    // Addressed-to or answered-by; both are how a person came to have access.
+    expect(db.accessInvite.findMany.mock.calls[0][0].where).toEqual({
+      OR: [{ targetPersonId: 'person-1' }, { acceptedByPersonId: 'person-1' }],
+    })
   })
 })
 

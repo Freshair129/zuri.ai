@@ -123,7 +123,18 @@ The three scopes are answered three different ways, which is worth stating
 because it looks inconsistent and is not:
 
 - **Business/Tenant scope** filters `AuditEvent.businessId`/`tenantId` — the new
-  columns, populated going forward by this lane's two writers.
+  columns, populated going forward by the services that grant or withdraw access:
+  `membership-lifecycle-service.js`, `membership-grant-service.js` and
+  `access-invite-service.js`.
+
+  > **Erratum (2026-09-12).** This said "this lane's two writers" and counted
+  > only the membership services. `access-invite-service.js` (ADR-079, merged
+  > into `main` before this lane) writes four `ACCESS_INVITE` events of its own,
+  > and `ACCESS_INVITE` was already in this reader's entity-type list — so the
+  > query asked for those rows while the writer left both columns null and none
+  > ever matched. Counting writers from the lane's own diff rather than from
+  > what the reader queries is what hid it. The invite service now stamps both
+  > columns.
 - **Person scope** cannot use those columns at all. A `Membership`'s
   `entityId` is the *grant's* id, not the person's; there is no `personId`
   column on `AuditEvent` (D1 deliberately does not add one — a person's own
@@ -176,7 +187,7 @@ make ADR-077's reason-on-every-transition worth having written.
 **Old rows stay silent on scope, and that is stated rather than hidden.** Every
 `AuditEvent` written before this migration has `tenantId`/`businessId`/`reason`
 null. `listAccessHistory` for a Business therefore only surfaces events from
-this lane's two writers going forward (plus, for a person's own history, every
+the three scope-stamping writers named above, going forward (plus, for a person's own history, every
 `MEMBERSHIP`/`ROLE_BINDING` event ever written against their rows, found by the
 relational join in D3 rather than by the column). A full retrofit is
 follow-up work, tracked below.
