@@ -27400,7 +27400,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md",
       "title": "ADR-077 — Membership is a grant with a lifecycle, not a membership fact",
-      "hash": "e77ee105",
+      "hash": "c93c5673",
       "status": "current"
     },
     {

@@ -1528,6 +1528,67 @@ const SCHEMA_MIGRATION_BASELINE = path.join(SPEC_PACK, '.schema-migration-baseli
   }
 }
 
+// ---- Check 20: one writer for the authority table (ratchet) ---------------
+// ADR-077 D8 moved `Membership` into the identity charter and stated that "a
+// preflight ratchet keeps `membership.create|update|delete` inside
+// `src/modules/identity/`". The move happened, the charter changed, the
+// services were rerouted — and the ratchet was never written. A decision record
+// that cites an enforcement which does not exist is the exact defect the ADR's
+// own RCA is about, one level up: there, a read filter stood in for a control
+// nobody had built; here, a sentence did.
+//
+// The rule it enforces is not stylistic. `Membership` is the row `resolveViewer`
+// reads to decide what anyone may see and own, and it had three writers in two
+// lanes — which is why half the live grants in production carry no MEMBERSHIP
+// audit event naming who created them, and why the lifecycle could not be
+// repaired from inside one lane
+// (.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md).
+//
+// Prisma's own call shapes only: `.create`, `.createMany`, `.update`,
+// `.updateMany`, `.upsert`, `.delete`, `.deleteMany` on a `membership`
+// accessor, whether reached through `db`, `prisma` or a transaction client.
+// Reads are untouched — any lane may ask who has access; only identity may
+// change it.
+//
+// @spec ADR-077 D8, ADR-025 D3, BR-033
+const MEMBERSHIP_WRITER_BASELINE = path.join(SPEC_PACK, '.membership-writer-baseline.json')
+{
+  const WRITE = /\bmembership\s*\.\s*(create|createMany|update|updateMany|upsert|delete|deleteMany)\s*\(/
+  const OWNER = `${path.sep}modules${path.sep}identity${path.sep}`
+  const offenders = []
+  for (const file of walk(path.join(ROOT, 'src'), '.js').concat(walk(path.join(ROOT, 'src'), '.jsx'))) {
+    if (file.includes(OWNER)) continue
+    // Comments are stripped first: this file and several services *describe*
+    // the rule, and a guard that fires on its own explanation teaches people to
+    // delete the explanation (.brain/rca/2026-08-17-a-guard-that-teaches-a-workaround.md).
+    const code = read(file).split('\n').map((line) => line.replace(/\/\/.*$/, '').replace(/^\s*\*.*$/, '')).join('\n')
+    if (WRITE.test(code)) offenders.push(rel(file))
+  }
+  offenders.sort()
+
+  const baseline = existsSync(MEMBERSHIP_WRITER_BASELINE)
+    ? JSON.parse(read(MEMBERSHIP_WRITER_BASELINE)).files || []
+    : []
+  const known = new Set(baseline)
+  const introduced = offenders.filter((f) => !known.has(f))
+  if (introduced.length) {
+    add('critical', 'membership-writer', `${introduced.length} file(s) outside identity write Membership`,
+      introduced.join(', '), introduced,
+      'Call grantBusinessMembership or the lifecycle services in src/modules/identity/ — never widen .membership-writer-baseline.json to silence this')
+  }
+  const repaid = baseline.filter((f) => !offenders.includes(f))
+  if (repaid.length) {
+    add('info', 'membership-writer', `${repaid.length} baseline file(s) no longer write Membership`, repaid.join(', '), [rel(MEMBERSHIP_WRITER_BASELINE)],
+      'Remove them from .membership-writer-baseline.json so the ratchet keeps its ground')
+  }
+  const remaining = offenders.length - introduced.length
+  if (remaining) {
+    add('info', 'membership-writer', `${remaining} file(s) outside identity still write Membership (accepted debt)`,
+      `baseline: ${rel(MEMBERSHIP_WRITER_BASELINE)}`, [rel(MEMBERSHIP_WRITER_BASELINE)],
+      'Reroute them through identity; the baseline may only shrink')
+  }
+}
+
 // ---- Check 19: a declared state that nothing writes (ratchet) -------------
 // ADR-045 D3 declared `ACTIVE | PENDING | SUSPENDED | REVOKED` for Membership.
 // FR-095 promised that suspension denies the next request. `resolve-viewer.js`
