@@ -91,6 +91,27 @@ export const DOMAIN_E2E_MAPPING = [
 // Core / Cross-Cutting changes that warrant running the core smoke & navigation suite
 export const CORE_PATTERNS = [
   /prisma\/schema/,
+  // The e2e harness: files that gate EVERY spec rather than exercising one.
+  //
+  // `prisma/seed.js` runs inside `tests/e2e/global-setup.js` before any spec,
+  // so a broken seed kills the whole suite before a single test starts — and
+  // no unit or integration test can see it, because those build their rows
+  // through `tests/factories/*` and never execute the seed. That happened on
+  // 2026-09-12: ADR-078 D1 rescoped LegalEntity from Portfolio to Tenant, the
+  // seed still passed the dropped `portfolioId`, and e2e died in global-setup
+  // while all 4,923 unit and integration tests passed. It was caught only
+  // because that change happened to touch `prisma/schema.prisma` too; on its
+  // own, the seed matched nothing here and e2e was skipped entirely.
+  //
+  // The same was true of every other file the run stands on — the Playwright
+  // config, global setup, and the warm-up that compiles each route before the
+  // specs measure it. None of them is a `.spec.js`, so the direct-spec-edit
+  // rule below misses them, and none lives under `src/`, so the server-code
+  // fallback misses them as well. A change to any one of them can only be
+  // judged by running specs, so they select the core suite.
+  /prisma\/seed/,
+  /apps\/server\/playwright\.config/,
+  /apps\/server\/tests\/e2e\/(global-setup|warmup|warmup-routes|e2e-target|e2e-auth)/,
   /apps\/server\/src\/components\/(layouts|ui)/,
   /apps\/server\/src\/context/,
   /apps\/server\/src\/config/,
