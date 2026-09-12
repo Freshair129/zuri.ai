@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
     "docs": 374,
-    "routes": 244,
-    "test_files": 638
+    "routes": 248,
+    "test_files": 641
   },
   "summary": {
     "critical": 0,
@@ -266,7 +266,7 @@
       "id": "I24",
       "severity": "info",
       "check": "audit-entity-type",
-      "title": "audit entityType checked in 92 file(s) that write audit events",
+      "title": "audit entityType checked in 94 file(s) that write audit events",
       "details": "every value is SCREAMING_SNAKE_CASE",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"
@@ -275,7 +275,7 @@
       "id": "I25",
       "severity": "info",
       "check": "schema-migration-drift",
-      "title": "schema-migration drift checked: 2045 column(s) across 146 model(s) against 68 migration(s)",
+      "title": "schema-migration drift checked: 2058 column(s) across 147 model(s) against 69 migration(s)",
       "details": "every declared column outside the baseline is created by a migration",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"

@@ -309,6 +309,7 @@ model Person {
   accessInvitesIssued           AccessInvite[]                 @relation("AccessInviteInviter")
   assetResponsibilities         AssetResponsibility[]
   salesTasksAssigned            SalesTask[]                    @relation("SalesTaskAssignee")
+  mfaFactors                    MfaFactor[]
 }
 
 // @req FR-107 — the server-held store behind FR-075's `isOperator` capability.
@@ -624,20 +625,42 @@ model Session {
   id           String    @id @default(uuid())
   personId     String
   tokenHash    String    @unique
-  status       String    @default("ACTIVE")
-  assurance    String    @default("PASSWORD")
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  lastSeenAt   DateTime  @default(now())
-  expiresAt    DateTime
-  revokedAt    DateTime?
-  revokeReason String?
-  version      Int       @default(1)
+  status         String    @default("ACTIVE")
+  assurance      String    @default("PASSWORD")
+  assuranceLevel String    @default("AAL1")
+  elevatedUntil  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  lastSeenAt     DateTime  @default(now())
+  expiresAt      DateTime
+  revokedAt      DateTime?
+  revokeReason   String?
+  version        Int       @default(1)
 
   person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 
   @@index([personId, status])
   @@index([expiresAt, status])
+}
+
+// @req FR-094, FR-095 — multi-factor authentication factors (TOTP, SMS) for canonical principals.
+// @spec ADR-045 D2, D5, SDD-052, SEC-018
+model MfaFactor {
+  id         String    @id @default(uuid())
+  personId   String
+  type       String    // TOTP, SMS
+  secret     String    // Encrypted or base32 secret
+  label      String?
+  status     String    @default("PENDING") // PENDING, ACTIVE, REVOKED
+  verifiedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  version    Int       @default(1)
+
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId, status])
 }
 
 // @req FR-094 — external channel subjects are namespaced attributes, never
