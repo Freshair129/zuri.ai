@@ -2,14 +2,14 @@
   "version": "2.0.0",
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
-    "docs": 367,
-    "routes": 246,
-    "test_files": 633
+    "docs": 370,
+    "routes": 248,
+    "test_files": 636
   },
   "summary": {
     "critical": 0,
     "warning": 0,
-    "info": 22,
+    "info": 23,
     "overall": "PASS"
   },
   "trust_hierarchy": "code > SDD > PRD — when they disagree, the downstream artefact wins",
@@ -172,8 +172,8 @@
       "id": "I15",
       "severity": "info",
       "check": "id-stability",
-      "title": "560 id(s) pinned across 10 families",
-      "details": "ADR 76 · BR 32 · FEAT 26 · FR 190 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 91 · SEC 25 · ZV2-CR 10 · roster 560",
+      "title": "567 id(s) pinned across 10 families",
+      "details": "ADR 77 · BR 33 · FEAT 27 · FR 192 · MI-RQ 72 · NFR 22 · RSK 16 · SDD 92 · SEC 26 · ZV2-CR 10 · roster 567",
       "files": [
         "docs/.id-ledger.json"
       ],
@@ -216,7 +216,7 @@
       "id": "I19",
       "severity": "info",
       "check": "table-integrity",
-      "title": "table integrity checked in 367 document(s)",
+      "title": "table integrity checked in 370 document(s)",
       "details": "swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md",
       "files": [
         "docs/.id-ledger.json"
@@ -239,7 +239,7 @@
       "id": "I21",
       "severity": "info",
       "check": "audit-entity-type",
-      "title": "audit entityType checked in 90 file(s) that write audit events",
+      "title": "audit entityType checked in 92 file(s) that write audit events",
       "details": "every value is SCREAMING_SNAKE_CASE",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"
@@ -248,10 +248,21 @@
       "id": "I22",
       "severity": "info",
       "check": "schema-migration-drift",
-      "title": "schema-migration drift checked: 2034 column(s) across 147 model(s) against 67 migration(s)",
+      "title": "schema-migration drift checked: 2046 column(s) across 147 model(s) against 68 migration(s)",
       "details": "every declared column outside the baseline is created by a migration",
       "files": [],
       "action": "No action — recorded so this check's reach is visible rather than assumed"
+    },
+    {
+      "id": "I23",
+      "severity": "info",
+      "check": "unreachable-state",
+      "title": "5 declared state(s) are unreachable (accepted debt)",
+      "details": "baseline: docs/.unreachable-state-baseline.json",
+      "files": [
+        "docs/.unreachable-state-baseline.json"
+      ],
+      "action": "Build their writers as the requirements land; the baseline may only shrink"
     }
   ]
 }

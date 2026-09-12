@@ -149,7 +149,10 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/projects', ['GET', 'POST']], ['/api/projects/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/projects/{id}/dependencies', ['GET']], ['/api/projects/{id}/files', ['GET', 'POST']], ['/api/projects/{id}/files/{fileId}', ['DELETE']], ['/api/projects/{id}/inventory', ['GET']], ['/api/projects/{id}/roadmap', ['GET']], ['/api/projects/{id}/team', ['GET', 'POST', 'PATCH', 'DELETE']], ['/api/projects/{id}/teams', ['GET', 'POST', 'DELETE']], ['/api/projects/{id}/tree', ['GET']], ['/api/projects/overview', ['GET']],
   ['/api/repositories', ['GET', 'POST']], ['/api/repositories/{id}', ['PATCH']], ['/api/repositories/link', ['POST']], ['/api/repositories/link/{id}', ['DELETE']], ['/api/resolve', ['GET']], ['/api/scope', ['GET', 'POST']], ['/api/auth/login', ['POST']], ['/api/auth/logout', ['POST']], ['/api/auth/reset-password', ['POST']], ['/api/auth/signup', ['POST']], ['/api/onboarding/profile', ['POST']], ['/api/onboarding/state', ['GET']], ['/api/onboarding/workspaces', ['POST']], ['/api/workspace-invites', ['POST']], ['/api/workspace-invites/accept', ['POST']], ['/api/workspace-invites/{id}', ['DELETE']], ['/api/workspace-memberships', ['GET', 'DELETE']], ['/api/platform/users/password-resets', ['POST']],
   // @req FR-038 — the owner attaches an existing Person to a Business they own.
-  ['/api/platform/users/memberships', ['POST']], ['/api/teams', ['GET', 'POST']], ['/api/teams/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/teams/{id}/members', ['POST', 'DELETE']], ['/api/viewer', ['GET']],
+  ['/api/platform/users/memberships', ['POST']],
+  // @req FR-191 — the withdrawal half of a grant's life (ADR-077 D2).
+  ['/api/platform/users/memberships/{id}/lifecycle', ['POST']],
+  ['/api/platform/users/offboard', ['POST']], ['/api/teams', ['GET', 'POST']], ['/api/teams/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/teams/{id}/members', ['POST', 'DELETE']], ['/api/viewer', ['GET']],
   // @req FR-123 — the plugin authorization boundary (ADR-052).
   // GET renders the consent screen (it redirects there and mints nothing);
   // POST is the consent form's own submission and the only path that mints.

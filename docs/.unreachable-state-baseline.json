@@ -1,0 +1,20 @@
+{
+  "_comment": [
+    "Accepted debt for preflight Check 19 (unreachable-state, ADR-077 D7).",
+    "A status value declared in apps/server/src/lib/validation/enums.js that no",
+    "file outside the registry names as a literal — nothing writes it, nothing",
+    "compares against it. ADR-045 D3 declared Membership's SUSPENDED and REVOKED",
+    "in this shape and they stayed unreachable for four months while every reader",
+    "filtered on them, which is the incident this check exists to prevent",
+    "(.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md).",
+    "This list may only SHRINK. Adding an entry to silence a new finding defeats",
+    "the check; build the writer, or remove the value from the vocabulary."
+  ],
+  "states": [
+    "PROJECT_STATUSES.ON_HOLD",
+    "WORKSTREAM_STATUSES.ON_HOLD",
+    "MILESTONE_STATUSES.MISSED",
+    "CUSTOMER_CONSENT_STATUSES.GRANDFATHERED",
+    "INVENTORY_SERIAL_STATUSES.SCRAPPED"
+  ]
+}

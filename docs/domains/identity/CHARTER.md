@@ -17,6 +17,7 @@ owns_models:
   - ExternalIdentity
   - IdentityLinkToken
   - ExternalRef
+  - Membership
   - RoleBinding
   - PersonCredential
   - PasswordResetToken
@@ -99,9 +100,12 @@ the shared policy-enforcement point, the viewer gate, and PDPA erasure.
   the caller owns, as an ACTIVE MEMBER: it is not an identity creator — signup
   (FR-120) and onboarding (FR-066) own that — and it never grants OWNER, which
   stays a separate, separately audited act through `updateUserPermissions`.
-  Listed here because it is a write to `Membership`, a model the project-manager
-  charter owns; it sits beside the role/domain writes that were already this
-  domain's, rather than opening a second write path for one row.
+  `Membership` is **this domain's model** since ADR-077 D8; it moved here from
+  the project-manager charter together with the rule that only this lane may
+  write it. `membership.create`, `.update` and `.delete` appear nowhere outside
+  `src/modules/identity/`, enforced by a preflight ratchet, because a table that
+  three services in two lanes could write is a table whose lifecycle no service
+  could own.
 - `resolveApiAccessViewer` (FR-106) generalizes the same pattern for the FR-019
   Enterprise API: an `ApiAccessKey` bearer token scoped to one Tenant, accepted
   only by the Enterprise API routes (dry-run/commit/resolve/docs), with

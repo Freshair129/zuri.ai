@@ -38,7 +38,6 @@ owns_models:
   - LocalWorkspaceMount
   - FileAsset
   - FileLink
-  - Membership
   - AuditEvent
   - PlanImportReceipt
 owns_routes:
@@ -82,7 +81,8 @@ trail. This is the back-office console's core.
   `WorkContainer`. `container` keeps its existing Workstream-local meaning.
 - `Team`, `TeamMembership` and `ProjectTeam` are organisational grouping and
   grant nothing: the identity resolver never reads them and no route guard
-  consults them (FR-089, BR-018, ADR-037 D1). `Membership` stays the authority
+  consults them (FR-089, BR-018, ADR-037 D1). `Membership` — owned by the identity charter since ADR-077 D8, and written
+  only from that lane — stays the authority
   record — grouping is kept out of it deliberately.
 - Does not touch CRM's Person/Customer/Conversation/Message, identity's
   ExternalIdentity/IdentityLinkToken, or anything under `/api/agent/**`.

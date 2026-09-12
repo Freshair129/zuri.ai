@@ -5,6 +5,8 @@ import prisma from '@/lib/db'
 import { z } from 'zod'
 import { zMembershipRole } from '@/lib/validation/enums'
 import { ownsBusiness, seesBusiness } from '@/modules/identity/viewer-authority'
+import { revokeMembership } from '@/modules/identity/membership-lifecycle-service'
+import { grantBusinessMembership } from '@/modules/identity/membership-grant-service'
 import { recordAudit } from './audit'
 
 // @req FR-036 — team mutations are authorized per Business.
@@ -33,7 +35,13 @@ function assertTeamReadable(businessId, viewer) {
   throw error
 }
 
-const zAddMember = z.object({ personId: z.string().min(1), role: zMembershipRole.default('MEMBER') })
+// @req FR-191 — no `role` field. This screen could previously pass `OWNER`
+// straight through `zMembershipRole` into `membership.create`, minting a
+// Business owner and recording it as PROJECT/TEAM_MEMBER_ADDED — a second
+// door past the identity charter's rule that promotion is a separate,
+// separately audited act. `assertTeamWritable` gated it on ownsBusiness so it
+// was never an escalation; it was an invariant being false (ADR-077 D8).
+const zAddMember = z.object({ personId: z.string().min(1) })
 const zChangeRole = z.object({ membershipId: z.string().min(1), role: zMembershipRole })
 const zRemoveMember = z.object({ membershipId: z.string().min(1) })
 
@@ -116,11 +124,22 @@ export async function addProjectTeamMember(projectId, input, { db = prisma, view
   if (!person) throw new Error('Person not found')
   const existing = await db.membership.findFirst({ where: { personId, ...membershipScopeForWorkspace(workspace) } })
   if (existing) throw new Error('Person is already in this project scope')
-  const membership = await db.membership.create({
-    data: { personId, tenantId: workspace.tenantId, businessId: workspace.businessId, role },
-    include: { person: { select: { id: true, code: true, displayName: true, email: true } } },
-  })
-  await recordAudit(db, { entityType: 'PROJECT', entityId: projectId, action: 'TEAM_MEMBER_ADDED', payload: { membershipId: membership.id, personId, role } })
+
+  // @req FR-191 — identity owns `Membership` (ADR-077 D8). This lane asks for a
+  // grant instead of writing one, so the row lands with provenance and under the
+  // MEMBERSHIP audit family rather than only under PROJECT. The PROJECT event
+  // below stays as the cross-reference that says which screen asked.
+  const membership = await grantBusinessMembership({
+    personId,
+    tenantId: workspace.tenantId,
+    businessId: workspace.businessId,
+    domainKeys: ['projects'],
+    grantSource: 'ADMIN',
+    reason: `project-team:${projectId}`,
+    actorId: viewer?.principal?.id ?? null,
+  }, { db })
+
+  await recordAudit(db, { entityType: 'PROJECT', entityId: projectId, action: 'TEAM_MEMBER_ADDED', payload: { membershipId: membership.id, personId, role: membership.role } })
   return membership
 }
 
@@ -130,9 +149,16 @@ export async function changeProjectTeamRole(projectId, input, { db = prisma, vie
   assertTeamWritable(workspace.businessId, viewer)
   const membership = await db.membership.findFirst({ where: mutableMembershipWhere(workspace, membershipId) })
   if (!membership) throw new Error('Membership is not mutable in this project scope')
-  const updated = await db.membership.update({ where: { id: membershipId }, data: { role } })
+  // @req FR-191 — role changes belong to the permissions surface, which records
+  // direction, reason and the last-owner guard. This screen keeps the refusal so
+  // a caller learns where the control moved rather than silently succeeding.
+  if (role !== membership.role) {
+    const error = new Error('ROLE_CHANGE_MOVED_TO_PERMISSIONS')
+    error.status = 409
+    throw error
+  }
   await recordAudit(db, { entityType: 'PROJECT', entityId: projectId, action: 'TEAM_ROLE_CHANGED', payload: { membershipId, role } })
-  return updated
+  return membership
 }
 
 export async function removeProjectTeamMember(projectId, input, { db = prisma, viewer } = {}) {
@@ -141,7 +167,10 @@ export async function removeProjectTeamMember(projectId, input, { db = prisma, v
   assertTeamWritable(workspace.businessId, viewer)
   const membership = await db.membership.findFirst({ where: mutableMembershipWhere(workspace, membershipId) })
   if (!membership) throw new Error('Membership is not mutable in this project scope')
-  await db.membership.delete({ where: { id: membershipId } })
+  // @req FR-191 — revoke, never delete. The hard delete this replaces destroyed
+  // the evidence that the grant existed and left the audit event's `entityId`
+  // pointing at a row that was gone (ADR-077 D2).
+  await revokeMembership({ membershipId, reason: `project-team removal:${projectId}` }, { db, resolve: async () => viewer })
   await recordAudit(db, { entityType: 'PROJECT', entityId: projectId, action: 'TEAM_MEMBER_REMOVED', payload: { membershipId, personId: membership.personId } })
   return { id: membershipId }
 }

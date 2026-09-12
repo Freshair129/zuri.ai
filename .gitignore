@@ -52,3 +52,4 @@ apps/server/src/generated/
 # first merge after landing and would have on every one after. Untracked, the
 # diagnostic still gets written and printed; only the merge churn goes away.
 docs/.doc-graph-drift-report.json
+.claude/worktrees/
