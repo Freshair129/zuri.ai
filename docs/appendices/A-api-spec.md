@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.59.0b |
+| **Version** | 1.60.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-09-11 |
+| **Last Updated** | 2026-09-12 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=238 -->
+<!-- api-spec-counts: route_handlers=239 -->
 
 ### Desktop browser/QR pairing (FR-144, 2026-09-08)
 
@@ -719,7 +719,7 @@ that a Codex worker or Supabase apply executed.
 
 - every current API route handler is represented by a current path in this
   appendix;
-- the `route_handlers=238` marker matches the route-file enumeration;
+- the `route_handlers=239` marker matches the route-file enumeration;
 - the interface inventory separately covers every current page route and its
   published operational domain counts; and
 - generated graph/projection freshness is checked by `npm run docs:check`.
@@ -734,6 +734,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.60.0b | 2026-09-12 | candidate | FR-190: added `GET /api/line-oa/accounts/[id]/transport-health` — silence and endpoint-agreement states for a serverEnabled LINE account, read-only. Route handler count 238 -> 239 | working-tree | CLAUDE |
 | 1.57.0b | 2026-09-11 | candidate | Reconcile SCM, receipt reads and approved Billing/POS routes: 231 handlers | working-tree | RWANG |
 | 1.56.0b | 2026-09-11 | candidate | FR-186/FR-183: registered the Business-scoped billing configuration, preview/issue/read document routes and POS catalogue/checkout routes; the current route-handler marker is 216. Preview remains non-persistent, issue persists an immutable THB snapshot with idempotency, and POS leaves payment PENDING until the existing verifier acts | working-tree | RWANG |
 | 1.56.0b | 2026-09-11 | candidate | FR-165: scoped paginated receipt registry and persisted receipt detail; 210 → 212 handlers, existing posting contract retained | working-tree | RWANG |
@@ -793,6 +794,7 @@ canary evidence; those remain owner-gated release criteria.
 | POST | `/api/edge/conversation-jobs/[id]/complete` | Same device/scope/live lease/version; `{version,text}` bounded 5000 characters. No provider send. |
 | POST | `/api/edge/conversation-jobs/[id]/fail` | Same lease authority; `{version,code}` from two contract failure codes. |
 | GET | `/api/line-oa/accounts/[id]/jobs` | Studio Business visibility; latest 100 status DTOs, no message text/recipient/token. |
+| GET | `/api/line-oa/accounts/[id]/transport-health` | Studio Business visibility; FR-190 reachability of a serverEnabled account: inbound silence state and whether the endpoint LINE has configured is still this deployment own route. States, timestamps and durations only — no channel credential, and never the other endpoint URL. Paused, draft and archived accounts answer `monitored:false` with the reason. |
 | GET | `/api/line-oa/jobs/failures?businessId=` | Studio Business visibility (same 404 for unknown, invisible or ungranted); read model only, never a retry or acknowledgement. `{ businessId, total, byErrorCode[], failures[] }` — the honest unwindowed count of `FAILED` conversation jobs for the Business, a per-`errorCode` breakdown (a null code is reported as `null`, never relabelled) and the 20 most recently updated rows in the same DTO shape as the per-account list. `400 LINE_OA_BUSINESS_REQUIRED`. |
 | POST | `/api/line-oa/jobs/[id]/acknowledge-unknown` | Studio publisher; `{version,acknowledgePossibleDelivery:true}` terminal audited closure without resend or delivery claim. |
 | GET | `/api/line-oa/jobs/[id]/trace` | Business owner plus Studio visibility; exact persisted execution evidence and read-only playback. Derives Tenant/Business from the job; no model, tool or transport calls. Missing or erased evidence returns `REPLAY_INCOMPLETE`. |
