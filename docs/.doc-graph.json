@@ -18124,7 +18124,7 @@
       "title": "FR-192 — Membership scope grammar and referential invariants",
       "version": "1.0.0",
       "doc_status": "Declared (2026-09-12) — implemented by [ADR-077](../../../decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md) D3/D4/D5",
-      "hash": "e7c6d832",
+      "hash": "affaca15",
       "status": "current"
     },
     {
@@ -27400,7 +27400,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md",
       "title": "ADR-077 — Membership is a grant with a lifecycle, not a membership fact",
-      "hash": "fb568ba9",
+      "hash": "e783f475",
       "status": "current"
     },
     {

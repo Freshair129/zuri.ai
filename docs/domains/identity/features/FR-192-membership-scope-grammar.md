@@ -127,11 +127,18 @@ rows can be written between the check and the apply:
 | `domainKeysJson` entries not in the domain registry | 1 row — `["crm"]` |
 
 `scopeType` is derivable for every existing row (`businessId IS NULL` →
-`TENANT`), so the backfill needs no judgement. The `["crm"]` row does: `crm` is
-a `DOMAIN_GROUPS` key, not a grantable domain, and resolves to zero domains
-today without reporting anything. The migration repairs it to the
-owner-confirmed value, or to `[]` if unconfirmed, and records a
-`MEMBERSHIP/DOMAIN_KEYS_REPAIRED` event either way.
+`TENANT`), so the backfill needs no judgement.
+
+The `["crm"]` row looks like it does, and the resolution is that it must not:
+`crm` is a `DOMAIN_GROUPS` key, not a grantable domain, and resolves to zero
+domains today without reporting anything. **The migration drops the key rather
+than expanding it to `customer` and `market`.** Expanding is the obvious reading
+of "give them CRM" and it is a privilege grant with no authorizer — a migration
+cannot be the person who decided, and the widened access would not appear in any
+review. Dropping changes nothing that is in effect; it makes the stored value
+agree with the resolved one. A `MEMBERSHIP/DOMAIN_KEYS_REPAIRED` event carries
+the previous value so the decision is recoverable, and re-granting deliberately
+is what [FR-191](FR-191-access-grant-lifecycle.md) built the path for.
 
 ## Acceptance
 

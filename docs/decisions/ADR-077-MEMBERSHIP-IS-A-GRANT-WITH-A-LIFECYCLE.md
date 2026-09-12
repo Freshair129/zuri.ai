@@ -234,11 +234,22 @@ nothing. It is listed in `docs/.unreachable-state-baseline.json` as accepted deb
 under D7's own rule, because a decision that exempts itself from its guard is not
 a guard.
 
-**One live row must be repaired before the CHECK can hold.** A production
-`Membership` carries `domainKeysJson = ["crm"]`, which is a `DOMAIN_GROUPS` key
-and not a grantable domain — it resolves to zero domains today, silently. The
-migration repairs it to the owner-confirmed value or to `[]` if unconfirmed, and
-records a `DOMAIN_KEYS_REPAIRED` event either way.
+**One live row must be repaired before the CHECK can hold, and the repair drops
+the key rather than interpreting it.** A production `Membership` carries
+`domainKeysJson = ["crm"]`, which is a `DOMAIN_GROUPS` key and not a grantable
+domain — `buildDomainsByBusiness` filters it out at read time, so the row reads
+as a grant in the database and resolves to nothing in the application.
+
+The migration removes the key and records a `DOMAIN_KEYS_REPAIRED` event
+carrying the previous value. It does **not** expand `crm` to `customer` and
+`market`, which was the obvious reading of "give them CRM". Expanding would
+grant access the person does not have today, on the authority of a migration:
+there is no authorizer, nothing to review, and the change would be invisible in
+the roster it silently widened. Least privilege decides it — an ambiguous stored
+grant is read narrowly, never generously. Dropping the key changes no effective
+access at all; it makes the stored value agree with the resolved one. An owner
+who wants this person to hold CRM now has a path that records who decided and
+why (FR-191), which is the thing a migration cannot be.
 
 **Costs accepted.** Four new columns and two indexes on the hottest
 authorization table; a migration against twelve live rows whose `scopeType` is
