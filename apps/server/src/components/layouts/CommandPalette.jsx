@@ -45,7 +45,7 @@ import { useFetch } from '@/modules/project-manager/components/useApi'
 // special-cased to `platform` by `business-shell-guard.js` — mirrored here so
 // search never offers a route the guard is about to refuse.
 const RESOURCE_ROUTES = [
-  { label: 'Spaces', path: '/workspaces', domainKey: 'projects' },
+  { label: 'Workspaces', path: '/workspaces', domainKey: 'projects' },
   { label: 'My Profile', path: '/profile', domainKey: 'platform' },
 ]
 

@@ -89,7 +89,7 @@ export default function Topbar({ onOpenPalette }) {
         <span className="text-xs font-extrabold tracking-wide">Zuri</span>
       </div>
 
-      <div className="flex min-w-0 items-center border-l border-white/10 pl-3 max-md:hidden" aria-label="Current workspace, organization, and business">
+      <div className="flex min-w-0 items-center border-l border-white/10 pl-3 max-md:hidden" aria-label="Current group, organization, and business">
         {BASE_CONTEXT_LEVELS.map((level, index) => {
           const item = contextBySchema[level.schema]
           const contextContent = (
