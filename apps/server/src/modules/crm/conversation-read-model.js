@@ -106,7 +106,7 @@ async function resolveScope({ viewer, businessId }) {
     businessNameById: new Map(visible.map((row) => [row.id, row.name])),
     where: {
       tenantId: business.tenantId,
-      OR: [{ businessId: null }, { businessId: { in: visible.map((row) => row.id) } }],
+      OR: [{ businessId: null }, { businessId: business.id }],
     },
   }
 }
