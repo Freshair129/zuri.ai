@@ -38,6 +38,7 @@ owns_models:
   - HarnessCredential
   - MfaFactor
   - RateLimitBucket
+  - PasskeyCredential
 ---
 
 # Domain charter — identity
