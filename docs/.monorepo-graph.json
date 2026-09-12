@@ -29358,7 +29358,7 @@
       "id": "test:tests/unit/ci-select-e2e.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/ci-select-e2e.test.js",
-      "hash": "90f7ee8c",
+      "hash": "2563f14c",
       "status": "current"
     },
     {

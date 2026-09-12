@@ -22,6 +22,7 @@
     "test:genesisrag17": "node scripts/run-genesisrag17-acceptance.mjs",
     "test:knowledge-admission": "node scripts/run-knowledge-admission-acceptance.mjs",
     "test:e2e": "node scripts/assert-tests-ran.mjs playwright test --fail-on-flaky",
+    "test:e2e:changed": "node scripts/e2e-changed.mjs",
     "verify": "npm test && npm run build && npm run govern && npm run test:e2e",
     "postinstall": "node scripts/generate-prisma-clients.mjs",
     "docs:graph": "node scripts/doc-graph.mjs",
