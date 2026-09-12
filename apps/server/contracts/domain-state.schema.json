@@ -8,7 +8,6 @@
   "required": [
     "schemaVersion",
     "generatedBy",
-    "generatedAt",
     "generatedFrom",
     "statusVocabulary",
     "progressMethodology",
@@ -17,9 +16,8 @@
     "features"
   ],
   "properties": {
-    "schemaVersion": { "const": "1.1" },
+    "schemaVersion": { "const": "2.0" },
     "generatedBy": { "type": "string", "const": "scripts/domain-state.mjs" },
-    "generatedAt": { "type": "string", "format": "date-time" },
     "generatedFrom": {
       "type": "array",
       "items": { "type": "string", "minLength": 1 },

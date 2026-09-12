@@ -9,7 +9,7 @@ import { spawnSync } from 'node:child_process'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 
-it('CLI rejects missing targets and a stale backlink view without indexing generated backlinks', () => {
+it('CLI reproduces generated files and rejects stale state, backlinks and missing targets', () => {
   const fixture = mkdtempSync(path.join(tmpdir(), 'zuri-doc-links-'))
   try {
     for (const dir of ['scripts', 'contracts', 'docs']) cpSync(workspacePath(root, dir), path.join(fixture, dir), { recursive: true })
@@ -32,6 +32,11 @@ it('CLI rejects missing targets and a stale backlink view without indexing gener
     const run = (script, args = []) => spawnSync(process.execPath, [path.join(fixture, 'scripts', script), ...args], { cwd: fixture, encoding: 'utf8', timeout: 60000 })
     const graph = run('doc-graph.mjs')
     expect(graph.status, graph.stderr).toBe(0)
+    const outputs = ['.doc-graph.json', '.domain-state.json', 'FEATURE-MAP.md', 'DOMAIN-MAP.md', 'TRACE.md', 'DOCUMENT-LINKS.md', 'appendices/D-traceability.md']
+    const before = outputs.map(name => readFileSync(path.join(fixture, 'docs', name), 'utf8'))
+    const repeated = run('doc-graph.mjs')
+    expect(repeated.status, repeated.stderr).toBe(0)
+    expect(outputs.map(name => readFileSync(path.join(fixture, 'docs', name), 'utf8'))).toEqual(before)
     const graphData = JSON.parse(readFileSync(path.join(fixture, 'docs/.doc-graph.json'), 'utf8'))
     expect(new Set(graphData.nodes.map(n => n.id)).size).toBe(graphData.nodes.length)
     expect(graphData.nodes.some(n => n.id === 'doc:FIXTURE-MIGRATION')).toBe(true)
@@ -41,6 +46,15 @@ it('CLI rejects missing targets and a stale backlink view without indexing gener
       { from: 'doc:LEGACY-WIKI', to: 'doc:LINK-PHASE', type: 'relates', source: 'wikilink', status: 'current' },
     ])
     expect(run('doc-graph.mjs', ['--check']).status).toBe(0)
+    const statePath = path.join(fixture, 'docs/.domain-state.json')
+    const state = readFileSync(statePath, 'utf8')
+    const staleState = JSON.parse(state)
+    staleState.overall.featureCount += 1
+    writeFileSync(statePath, JSON.stringify(staleState, null, 2) + '\n')
+    const stateCheck = run('doc-graph.mjs', ['--check'])
+    expect(stateCheck.status).toBe(1)
+    expect(stateCheck.stderr).toContain('domain state is stale')
+    writeFileSync(statePath, state)
     const ambiguousPath = path.join(fixture, 'docs/AMBIGUOUS-FIXTURE.md')
     writeFileSync(ambiguousPath, '# Ambiguous\n\n[[doc:FIXTURE-SRS]]\n')
     const ambiguous = run('doc-graph.mjs')

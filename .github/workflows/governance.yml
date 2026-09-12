@@ -148,11 +148,9 @@ jobs:
       # `postinstall` runs `prisma generate`, so the client is built here.
       - run: npm ci
 
-      - name: Unit and integration tests
-        run: npm test
-
-      - name: Production build
-        run: npm run build
+      # Check the submitted projection before a generator can overwrite it.
+      - name: Committed graph is current
+        run: npm run docs:check
 
       # docs:graph rebuilds from the filesystem, docs:check fails when the
       # committed graph disagrees with it, docs:preflight (--strict) fails on
@@ -164,23 +162,16 @@ jobs:
       - name: Relocated graph is committed and current
         run: node scripts/monorepo-graph.mjs --check
 
-      # The generated human views are deterministic, so if `govern` rewrote one
-      # the branch is shipping a stale view and docs:check cannot see it —
-      # `--check` compares a canonical projection of the graph, not the views.
-      #
-      # `.doc-graph.json` is deliberately NOT listed. It carries `generated_at`,
-      # a `drift` block and per-node `status` — bookkeeping *about the previous
-      # run*, which changes on every regeneration by design. `docs:check` strips
-      # exactly those fields before comparing, and demanding byte-stability here
-      # instead reintroduced the two-pass convergence bug fixed in #15/#22. The
-      # first CI run caught that; keep the narrower list.
+      # Human views and bundled readiness state must reproduce committed data.
+      # Graphs retain their dedicated semantic checks above; run diagnostics are
+      # ignored files. In particular, schema 2.0 state carries no run timestamp.
       - name: Generated views are committed and current
         working-directory: .
         shell: bash
         run: |
-          if ! git diff --quiet -- docs/FEATURE-MAP.md docs/DOMAIN-MAP.md docs/TRACE.md docs/appendices/D-traceability.md; then
+          if ! git diff --quiet -- docs/FEATURE-MAP.md docs/DOMAIN-MAP.md docs/TRACE.md docs/appendices/D-traceability.md docs/DOCUMENT-LINKS.md docs/.domain-state.json apps/server/runtime/domain-state.json; then
             echo "::error::A generated view is out of date. Run 'npm run govern' and commit the result."
-            git --no-pager diff --stat -- docs/FEATURE-MAP.md docs/DOMAIN-MAP.md docs/TRACE.md docs/appendices/D-traceability.md
+            git --no-pager diff --stat -- docs/FEATURE-MAP.md docs/DOMAIN-MAP.md docs/TRACE.md docs/appendices/D-traceability.md docs/DOCUMENT-LINKS.md docs/.domain-state.json apps/server/runtime/domain-state.json
             exit 1
           fi
 
@@ -202,6 +193,12 @@ jobs:
             git --no-pager diff --stat -- llms-full.txt
             exit 1
           fi
+
+      - name: Unit and integration tests
+        run: npm test
+
+      - name: Production build
+        run: npm run build
 
   e2e:
     # Skipped when the diff touches only `docs/` and `.brain/` — see the

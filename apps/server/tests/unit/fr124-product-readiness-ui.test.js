@@ -6,6 +6,12 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { DOMAINS } from '@/config/domains'
+import React, { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import ProductReadinessDashboard from '@/modules/project-manager/components/ProductReadinessDashboard'
+import { getProductReadinessSnapshot } from '@/modules/project-manager/application/product-readiness-read-model'
+
+globalThis.React = React
 
 const dashboardSource = readFileSync('src/modules/project-manager/components/ProductReadinessDashboard.jsx', 'utf8')
 const summarySource = readFileSync('src/app/(pm)/platform/product-readiness/page.jsx', 'utf8')
@@ -13,6 +19,15 @@ const detailSource = readFileSync('src/app/(pm)/platform/product-readiness/[doma
 const accessSource = readFileSync('src/modules/project-manager/application/product-readiness-access.js', 'utf8')
 
 describe('FR-124 product readiness UI contract', () => {
+  it('renders bundled snapshot provenance without a generation date', () => {
+    const snapshot = { ...getProductReadinessSnapshot() }
+    delete snapshot.generatedAt
+    const html = renderToStaticMarkup(createElement(ProductReadinessDashboard, { snapshot }))
+    expect(html).toContain('Snapshot ที่มาพร้อมแอปเวอร์ชันนี้')
+    expect(html).toContain('ไม่มี live telemetry หรือ external activation proof')
+    expect(html).not.toContain('Invalid Date')
+  })
+
   it('renders exactly six contextual KPIs and keeps methodology visible', () => {
     expect(dashboardSource.match(/<Kpi label=/g)).toHaveLength(6)
     for (const label of ['Domains', 'Features', 'Ready', 'Progress', 'Verified FRs', 'Open gaps']) {
