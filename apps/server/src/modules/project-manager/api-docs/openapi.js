@@ -155,6 +155,10 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // POST is the consent form's own submission and the only path that mints.
   ['/api/plugin/auth/authorize', ['GET', 'POST']], ['/api/plugin/auth/capabilities', ['GET']], ['/api/plugin/auth/revoke', ['POST']], ['/api/plugin/auth/token', ['POST']],
   ['/api/work', ['GET', 'POST']], ['/api/work/{id}', ['PATCH', 'DELETE']], ['/api/workspaces/{id}', ['PATCH', 'DELETE']], ['/api/workstreams', ['GET', 'POST']], ['/api/workstreams/{id}', ['PATCH', 'DELETE']],
+  // @req FR-022, FR-097 — verified channel onboarding and identity link tokens (ADR-045).
+  ['/api/identity/link-tokens', ['POST']],
+  ['/api/identity/link-tokens/redeem', ['POST']],
+  ['/api/identity/channel-identities', ['GET']],
 ]
 
 const zRouteInventoryRequest = z.record(z.string(), z.unknown()).openapi({

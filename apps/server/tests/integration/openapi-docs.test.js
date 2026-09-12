@@ -155,8 +155,10 @@ describe('OpenAPI document', () => {
       // add six paths and seven operations.
       // FR-190 adds the LINE transport reachability read: one path, one
       // operation (GET /api/line-oa/accounts/{id}/transport-health).
-      pathCount: 239,
-      operationCount: 328,
+      // FR-097 adds identity link tokens and channel identity queries: three paths,
+      // three operations (POST /api/identity/link-tokens, POST /api/identity/link-tokens/redeem, GET /api/identity/channel-identities).
+      pathCount: 242,
+      operationCount: 331,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

@@ -4096,6 +4096,68 @@
       }
     },
     {
+      "id": "code:src/app/api/identity/channel-identities/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/identity/channel-identities/route.js",
+      "hash": "8bd1db5a",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-097"
+        ],
+        "@spec": [
+          "SDD-052",
+          "BR-020",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/integration/fr097-line-channel-onboarding.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/identity/link-tokens/redeem/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/identity/link-tokens/redeem/route.js",
+      "hash": "720974d4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-022",
+          "FR-097"
+        ],
+        "@spec": [
+          "SDD-052",
+          "BR-020",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/integration/fr097-line-channel-onboarding.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/app/api/identity/link-tokens/route.js",
+      "type": "code_file",
+      "path": "apps/server/src/app/api/identity/link-tokens/route.js",
+      "hash": "1c43f412",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-022",
+          "FR-097"
+        ],
+        "@spec": [
+          "SDD-052",
+          "BR-020",
+          "SEC-018"
+        ],
+        "@tested": [
+          "tests/integration/fr097-line-channel-onboarding.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/app/api/import/bundle/commit/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/import/bundle/commit/route.js",
@@ -9650,12 +9712,13 @@
       "id": "code:src/modules/identity/agent-tool-authorizer.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/agent-tool-authorizer.js",
-      "hash": "9f429437",
+      "hash": "c7abce55",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-094",
           "FR-096",
+          "FR-097",
           "FR-098"
         ],
         "@spec": [
@@ -14259,7 +14322,7 @@
       "id": "code:src/modules/project-manager/api-docs/openapi.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/api-docs/openapi.js",
-      "hash": "86953382",
+      "hash": "888138ef",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14293,7 +14356,8 @@
           "FR-109",
           "FR-106",
           "FR-038",
-          "FR-123"
+          "FR-123",
+          "FR-097"
         ],
         "@spec": [
           "FR-019",
@@ -16446,9 +16510,9 @@
       "type": "appendix",
       "path": "docs/appendices/A-api-spec.md",
       "title": "Appendix A — API Specification",
-      "version": "1.60.0b",
+      "version": "1.61.0b",
       "doc_status": "Candidate — current route inventory with explicit deferred contracts",
-      "hash": "f4982f0d",
+      "hash": "5870a82c",
       "status": "current"
     },
     {
@@ -24556,6 +24620,30 @@
       "status": "current"
     },
     {
+      "id": "route:api:/api/identity/channel-identities",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/identity/channel-identities",
+      "path": "apps/server/src/app/api/identity/channel-identities/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/identity/link-tokens",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/identity/link-tokens",
+      "path": "apps/server/src/app/api/identity/link-tokens/route.js",
+      "status": "current"
+    },
+    {
+      "id": "route:api:/api/identity/link-tokens/redeem",
+      "type": "route",
+      "kind": "api",
+      "route": "/api/identity/link-tokens/redeem",
+      "path": "apps/server/src/app/api/identity/link-tokens/redeem/route.js",
+      "status": "current"
+    },
+    {
       "id": "route:api:/api/import/bundle/commit",
       "type": "route",
       "kind": "api",
@@ -27630,6 +27718,13 @@
       "status": "current"
     },
     {
+      "id": "test:tests/integration/fr097-line-channel-onboarding.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr097-line-channel-onboarding.test.js",
+      "hash": "ae8b0e34",
+      "status": "current"
+    },
+    {
       "id": "test:tests/integration/fr106-api-access-key-listing.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr106-api-access-key-listing.test.js",
@@ -28256,7 +28351,7 @@
       "id": "test:tests/integration/openapi-docs.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/openapi-docs.test.js",
-      "hash": "b7c7abe1",
+      "hash": "f303e665",
       "status": "current"
     },
     {
@@ -29747,7 +29842,7 @@
       "id": "test:tests/unit/identity/agent-tool-authorizer.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/identity/agent-tool-authorizer.test.js",
-      "hash": "e4909ce6",
+      "hash": "2c55ad22",
       "status": "current"
     },
     {
@@ -40652,6 +40747,104 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/app/api/identity/channel-identities/route.js",
+      "to": "req:BR-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/identity/channel-identities/route.js",
+      "to": "req:FR-097",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/identity/channel-identities/route.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/identity/channel-identities/route.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/identity/link-tokens/redeem/route.js",
+      "to": "req:BR-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/identity/link-tokens/redeem/route.js",
+      "to": "req:FR-022",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/identity/link-tokens/redeem/route.js",
+      "to": "req:FR-097",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/identity/link-tokens/redeem/route.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/identity/link-tokens/redeem/route.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/identity/link-tokens/route.js",
+      "to": "req:BR-020",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/identity/link-tokens/route.js",
+      "to": "req:FR-022",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/identity/link-tokens/route.js",
+      "to": "req:FR-097",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/identity/link-tokens/route.js",
+      "to": "req:SDD-052",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/identity/link-tokens/route.js",
+      "to": "req:SEC-018",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/app/api/import/bundle/commit/route.js",
       "to": "req:BR-007",
       "type": "follows",
@@ -48864,6 +49057,13 @@
     },
     {
       "from": "code:src/modules/identity/agent-tool-authorizer.js",
+      "to": "req:FR-097",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/agent-tool-authorizer.js",
       "to": "req:FR-098",
       "type": "implements",
       "status": "current",
@@ -55067,6 +55267,13 @@
     {
       "from": "code:src/modules/project-manager/api-docs/openapi.js",
       "to": "req:FR-092",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/api-docs/openapi.js",
+      "to": "req:FR-097",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -68365,6 +68572,27 @@
       "source": "charter-glob"
     },
     {
+      "from": "route:api:/api/identity/channel-identities",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/identity/link-tokens/redeem",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
+      "from": "route:api:/api/identity/link-tokens",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter-glob"
+    },
+    {
       "from": "route:api:/api/import/bundle/commit",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -80055,6 +80283,62 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/integration/fr097-line-channel-onboarding.test.js",
+      "to": "code:src/app/api/identity/channel-identities/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr097-line-channel-onboarding.test.js",
+      "to": "code:src/app/api/identity/link-tokens/redeem/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr097-line-channel-onboarding.test.js",
+      "to": "code:src/app/api/identity/link-tokens/route.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr097-line-channel-onboarding.test.js",
+      "to": "req:BR-020",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr097-line-channel-onboarding.test.js",
+      "to": "req:FR-022",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr097-line-channel-onboarding.test.js",
+      "to": "req:FR-097",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr097-line-channel-onboarding.test.js",
+      "to": "req:SDD-052",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr097-line-channel-onboarding.test.js",
+      "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/integration/fr106-api-access-key-listing.test.js",
       "to": "req:FR-074",
       "type": "verifies",
@@ -86287,6 +86571,13 @@
     {
       "from": "test:tests/integration/openapi-docs.test.js",
       "to": "req:FR-092",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/openapi-docs.test.js",
+      "to": "req:FR-097",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -98768,6 +99059,13 @@
     {
       "from": "test:tests/unit/identity/agent-tool-authorizer.test.js",
       "to": "req:FR-096",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/identity/agent-tool-authorizer.test.js",
+      "to": "req:FR-097",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -112783,7 +113081,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2666,
+    "server_nodes": 2673,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

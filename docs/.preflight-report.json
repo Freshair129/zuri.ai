@@ -3,8 +3,8 @@
   "generated_by": "scripts/doc-preflight.mjs (rwang:doc-preflight)",
   "scanned": {
     "docs": 367,
-    "routes": 239,
-    "test_files": 629
+    "routes": 242,
+    "test_files": 630
   },
   "summary": {
     "critical": 0,
