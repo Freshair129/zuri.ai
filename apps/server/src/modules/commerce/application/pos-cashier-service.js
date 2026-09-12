@@ -244,7 +244,10 @@ export async function getPosTerminalCatalogue(businessId, { viewer, db = prisma 
     db.product.findMany({ where: { businessId: business.id, status: 'ACTIVE' }, orderBy: [{ code: 'asc' }], select: { id: true, code: true, name: true, unit: true, stockPolicy: true, trackingMode: true, productMaster: { select: { categoryId: true, nameTh: true } } } }),
     db.stockMovement.groupBy({ by: ['productId'], where: { businessId: business.id }, _sum: { quantity: true } }),
     db.inventoryCategory.findMany({ where: { businessId: business.id, status: 'ACTIVE' }, orderBy: [{ code: 'asc' }], select: { id: true, code: true, nameTh: true, nameEn: true } }),
-    db.branch.findMany({ where: { businessId: business.id, status: 'ACTIVE' }, orderBy: [{ code: 'asc' }], select: { id: true, code: true, name: true, address: true, taxBranchCode: true, status: true } }),
+    // @req FR-194 — POS reads Branch as an operating site; `taxBranchCode` is
+    // gone (a VAT branch code is now the LegalEntity's own TaxRegistrationBranch,
+    // resolved by billing at document-issue time, never needed here).
+    db.branch.findMany({ where: { businessId: business.id, status: 'ACTIVE' }, orderBy: [{ code: 'asc' }], select: { id: true, code: true, name: true, address: true, kind: true, status: true } }),
     db.warehouseLocation.findMany({ where: { businessId: business.id, status: 'ACTIVE', isVirtual: false }, orderBy: [{ code: 'asc' }], select: { id: true, code: true, name: true, type: true, isVirtual: true, status: true } }),
   ])
   const onHand = new Map(movements.map((row) => [row.productId, row._sum.quantity ?? 0]))

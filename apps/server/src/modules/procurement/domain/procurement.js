@@ -143,6 +143,10 @@ export const zPostReceipt = z.object({
   notes: zOptionalText(2000),
   receivedAt: zDate.optional(),
   lines: z.array(zReceiptLine).min(1).max(200),
+  // @req FR-196 — same shape as commerce's `selfVerifyAttested`: an explicit,
+  // auditable exemption from refusing a receipt against a purchase order the
+  // same person created. Never silent — it lands in the audit payload.
+  selfVerifyAttested: z.boolean().optional(),
 }).strict().superRefine((value, ctx) => {
   const seen = new Set()
   for (const [index, line] of value.lines.entries()) {

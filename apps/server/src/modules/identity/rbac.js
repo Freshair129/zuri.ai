@@ -23,13 +23,26 @@ export const ROLE_SALES_REP = 'SALES_REP'
 // verifier or the Business OWNER turns PENDING into VERIFIED, because verified
 // payments are what revenue is counted from (ADR-065).
 export const ROLE_PAYMENT_VERIFIER = 'PAYMENT_VERIFIER'
-// @req FR-164, FR-165 — the procurement buyer: the Business-scoped role that
-// keeps suppliers and purchase orders and posts goods receipts. Posting a
-// receipt writes RECEIPT rows into the Inventory ledger, and that half needs
-// Inventory's own write authority (OWNER or INVENTORY_MANAGER) — a buyer's
-// binding never widens the ledger (ADR-066 D4, the ADR-065 D4 rule again).
+// @req FR-164 — the procurement buyer: the Business-scoped role that keeps
+// suppliers and purchase orders (`procurement.po.write`).
+// @req FR-196/ADR-079 — amends ADR-066 D4. `PROCUREMENT_BUYER` held both
+// `procurement.po.write` and `procurement.receipt.post` until this change,
+// which made three-way match (a different person orders, receives and pays)
+// impossible by construction — the same role could always receive its own
+// order. Posting is split into ROLE_GOODS_RECEIVER below, and the two are
+// declared conflicting in ROLE_CONFLICTS.
 export const ROLE_PROCUREMENT_BUYER = 'PROCUREMENT_BUYER'
+// @req FR-196 — the goods receiver: the Business-scoped role that posts
+// receipts against a purchase order it did not write (`procurement.receipt.post`).
+// Posting a receipt writes RECEIPT rows into the Inventory ledger, and that
+// half needs Inventory's own write authority (OWNER or INVENTORY_MANAGER) —
+// neither procurement role ever widens the ledger (ADR-066 D4).
+export const ROLE_GOODS_RECEIVER = 'GOODS_RECEIVER'
 export const ROLE_SCOPE_BUSINESS = 'BUSINESS'
+// @req FR-192/ADR-077 D3 — RoleBinding's second scope, "every Business in the
+// Tenant", extending ADR-033 D3 rather than superseding it (BRANCH is
+// declared in ROLE_BINDING_SCOPE_TYPES but resolved by nothing yet).
+export const ROLE_SCOPE_TENANT = 'TENANT'
 export const PRODUCT_MANAGE_PERMISSION = 'product.work.write'
 export const CUSTOMER_REVIEW_READ_PERMISSION = 'customer.import.review.read'
 export const CUSTOMER_REVIEW_DECIDE_PERMISSION = 'customer.import.review.decide'
@@ -85,9 +98,35 @@ export const ROLE_PERMISSIONS = Object.freeze({
   [ROLE_PROCUREMENT_BUYER]: Object.freeze([
     'procurement.read',
     PURCHASE_ORDER_WRITE_PERMISSION,
+  ]),
+  [ROLE_GOODS_RECEIVER]: Object.freeze([
+    'procurement.read',
     GOODS_RECEIPT_POST_PERMISSION,
   ]),
 })
+
+// @req FR-196 — segregation of duties: roles whose PERMISSIONS conflict, in
+// that holding both lets one person complete a cycle the pairing exists to
+// keep two-person. Symmetric and small on purpose: this is a declared list an
+// owner can read, not a derived graph. `assignRoleBinding` refuses 409
+// ROLE_CONFLICT when the person already holds (or is being given) both halves
+// of a pair in the same Tenant, unless a tenant owner passes `sodOverride`.
+// @spec ADR-065 D4 (SALES_REP/PAYMENT_VERIFIER), ADR-066 D4 as amended by
+// ADR-079 (PROCUREMENT_BUYER/GOODS_RECEIVER)
+export const ROLE_CONFLICTS = Object.freeze([
+  Object.freeze(['SALES_REP', 'PAYMENT_VERIFIER']),
+  Object.freeze([ROLE_PROCUREMENT_BUYER, ROLE_GOODS_RECEIVER]),
+])
+
+/** The OTHER role keys `roleKey` conflicts with, per ROLE_CONFLICTS. */
+export function conflictingRoles(roleKey) {
+  const out = new Set()
+  for (const pair of ROLE_CONFLICTS) {
+    if (!pair.includes(roleKey)) continue
+    for (const other of pair) if (other !== roleKey) out.add(other)
+  }
+  return [...out]
+}
 
 export function permissionsForRoles(roleKeys) {
   if (!Array.isArray(roleKeys)) return []

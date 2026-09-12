@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.38.0b"
+version: "1.39.0b"
 status: active
-last_update: "2026-09-11T06:21:00+07:00,RWANG"
+last_update: "2026-09-12T17:00:00+07:00,Claude Opus 5"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -59,6 +59,8 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-025 | SmartGift SCM — the located, costed, promisable ledger: where stock is across nine supply-chain buckets from a Chinese factory to a customer's lobby, what a unit cost landed in satang with the single-drop truck absorbed into it, the two work orders that turn blank hardware into branded components and branded components into a finished gift set (with a declared scrap allowance and an irreversible customer lock), the shelf-life guard that refuses a power-bank lot too long in storage, Available-to-Promise net of quote and order reservations, six agent tools over all of it on the existing Gate E / Gate F registries, and a strict physical stocktake that reconciles counts through the same append-only ledger (ADR-074) | FR-174, FR-175, FR-176, FR-177, FR-178, FR-179, FR-180, FR-181, FR-182, FR-184 | building |
 | FEAT-026 | SmartGift Catalog Convergence — converging the three independent writers of SmartGift product-catalog data into GenesisBlockDB (SmartGift's own 5-stage ETL direct write, `apps/edge` Genesis RAG v4's direct sibling-checkout read/serve, and the unactivated 17-stage pipeline) onto one entry path: a structured-record source adapter before Stage 1, SmartGift recast as a source producer keyed by its own SHA-256 registry, Zero-PII enforced at Stage 5 classify, a structured parser profile and `ontology_v2` contract for catalog facts, and edge reading the published generation through MSP with v4 as a time-boxed transitional fallback (ADR-075, approved 2026-09-11; Phase 1 authorized) | FR-187, FR-188, FR-189 | approved |
 | FEAT-027 | Access Grant Lifecycle — making a `Membership` a withdrawable grant rather than a membership fact: provenance and an end on the row, suspend/reinstate/revoke/offboard services with mandatory reasons and last-owner guards, an explicit scope grammar shared with `RoleBinding`, referential invariants moved from application convention into the database, erasure refusing while grants are live, one writer in identity, and an `unreachable-state` preflight check so a declared state that nothing writes fails the build (ADR-077, 2026-09-12) | FR-191, FR-192 | declared |
+| FEAT-028 | Org Employment & Legal Entity — separating "who works here" from "who may log in here": a new `Employment` HR assignment record (title, type, lifecycle status) that `resolveViewer` never reads, with system access shown as a column derived FROM `Membership` rather than the reverse; and moving `LegalEntity` from `Portfolio` to `Tenant` so a Business can only reference a legal entity within its own isolation boundary, splitting its VAT branch registrations into `TaxRegistrationBranch` so an operating site (a warehouse, say) is never asked to carry a tax identity it does not have (ADR-078, 2026-09-12) | FR-193, FR-194 | implemented |
+| FEAT-029 | Access Invite, Segregation of Duties and Operator Lifecycle — a Business/Tenant-level invitation that becomes a real `Membership` grant on acceptance, bound to the accepting session rather than the invited address (generalising FR-067's Workspace-only `WorkspaceInvite`); segregation of duties as a write-time role-conflict refusal (with a Tenant-owner override) and a transaction-time self-verification refusal an OWNER does not bypass; and an operator grant that expires, that a standing operator can issue as a fresh row on renewal, and whose use reading the audit stream or a backup is itself recorded (ADR-079, 2026-09-12) | FR-195, FR-196, FR-197 | implemented locally |
 
 Version diff 1.13.0b → 1.14.0b (2026-09-01): FEAT-015 is building with local domain, validation, schema, backup, pipeline and dashboard foundations. Provider-backed OCR/Vision, LINE binary handoff, live Google Sheet sync, Procurement/Finance adapters and Project Inventory projection are not claimed live.
 
@@ -791,6 +793,16 @@ writing one sentence here, or the governance chain stops.
     "id": "FEAT-027",
     "primaryDomain": "identity",
     "useCase": "An owner removes someone's access from the product instead of asking for SQL: suspend, reinstate, revoke or offboard a person with a stated reason, the dependent role bindings following and the evidence that the grant existed surviving the withdrawal"
+  },
+  {
+    "id": "FEAT-028",
+    "primaryDomain": "project-manager",
+    "useCase": "The HR People Directory finally answers 'who works here' honestly — a suspended staff member stays listed as staff whose access is suspended, a shareholder with no employment relationship stops appearing as one, and a warehouse Branch with no VAT branch code registered against its legal entity can still sell, just never issue a tax invoice"
+  },
+  {
+    "id": "FEAT-029",
+    "primaryDomain": "identity",
+    "useCase": "An owner invites someone into a Tenant or Business who has no account yet, with an expiring token instead of typing an exact email; a buyer cannot also receive their own purchase order and a rep cannot verify their own payment, even the owner, unless they say so on the record; and a lost operator credential no longer means editing production by hand"
   }
 ]
 ```
@@ -805,3 +817,5 @@ Version diff 1.21.0b → 1.22.0b: Added explicit FEAT-019 phase links and curren
 Version diff 1.25.0b → 1.26.0b: FEAT-021 includes FR-157 Content and Creative from approved CR-018.
 
 Version diff 1.36.0b → 1.37.0b: reconcile PR #321 approved FEAT-026 with the retained FR-184/FR-185 extensions; preserve both parallel revision histories and all published subjects.
+
+Version diff 1.38.0b → 1.39.0b (2026-09-12): Added **FEAT-029** (FR-195, FR-196, FR-197) under **ADR-079** — AccessInvite generalises WorkspaceInvite to Tenant/Business scope; segregation of duties gets a role-conflict writer and a self-verification transaction refusal; operator access becomes time-boxed, issuable and its use recorded. Implemented locally; migration not yet applied to production.

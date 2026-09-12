@@ -8,6 +8,7 @@ import { makeOperatorViewer, makeViewer } from '../factories/viewer'
 const mocks = vi.hoisted(() => ({
   resolveRequestViewer: vi.fn(),
   listAudit: vi.fn(),
+  recordAudit: vi.fn(),
   exportSnapshot: vi.fn(),
   computePortfolioProgress: vi.fn(),
   computeProjectProgress: vi.fn(),
@@ -26,6 +27,7 @@ vi.mock('@/modules/identity/request-viewer', () => ({
 }))
 vi.mock('@/modules/project-manager/application/audit', () => ({
   listAudit: mocks.listAudit,
+  recordAudit: mocks.recordAudit,
 }))
 vi.mock('@/modules/project-manager/application/backup-service', () => ({
   exportSnapshot: mocks.exportSnapshot,

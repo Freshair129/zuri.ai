@@ -12,7 +12,7 @@ import { describe, expect, it } from 'vitest'
 import { CURRENT_API_ROUTE_INVENTORY } from '@/modules/project-manager/api-docs/openapi'
 import { DOMAINS, domainForPath, isDomainVisible } from '@/config/domains'
 import { VIEWER_DOMAINS } from '@/modules/identity/viewer-domains'
-import { GOODS_RECEIPT_POST_PERMISSION, INVENTORY_MANAGE_PERMISSION, PURCHASE_ORDER_WRITE_PERMISSION, ROLE_PERMISSIONS, ROLE_PROCUREMENT_BUYER } from '@/modules/identity/rbac'
+import { GOODS_RECEIPT_POST_PERMISSION, INVENTORY_MANAGE_PERMISSION, PURCHASE_ORDER_WRITE_PERMISSION, ROLE_PERMISSIONS, ROLE_PROCUREMENT_BUYER, ROLE_GOODS_RECEIVER, conflictingRoles } from '@/modules/identity/rbac'
 
 const read = (relative) => fs.readFileSync(path.join(process.cwd(), relative), 'utf8')
 const ROUTES = {
@@ -109,10 +109,22 @@ describe('FR-164 / FR-165 procurement route and persistence contract', () => {
     expect(fs.existsSync(path.resolve(process.cwd(), 'src/app/(pm)/procurement/purchase-orders/page.jsx'))).toBe(true)
   })
 
-  it('a PROCUREMENT_BUYER keeps orders and posts receipts, and holds no Inventory write of its own', () => {
+  // @req FR-196/ADR-079 — amends this file's own prior assertion that a buyer
+  // both keeps orders and posts receipts: three-way match needs two people, so
+  // the two capabilities are split into conflicting roles.
+  it('a PROCUREMENT_BUYER keeps orders and holds no receipt-post or Inventory write of its own', () => {
     expect(ROLE_PROCUREMENT_BUYER).toBe('PROCUREMENT_BUYER')
     expect(ROLE_PERMISSIONS[ROLE_PROCUREMENT_BUYER]).toContain(PURCHASE_ORDER_WRITE_PERMISSION)
-    expect(ROLE_PERMISSIONS[ROLE_PROCUREMENT_BUYER]).toContain(GOODS_RECEIPT_POST_PERMISSION)
+    expect(ROLE_PERMISSIONS[ROLE_PROCUREMENT_BUYER]).not.toContain(GOODS_RECEIPT_POST_PERMISSION)
     expect(ROLE_PERMISSIONS[ROLE_PROCUREMENT_BUYER]).not.toContain(INVENTORY_MANAGE_PERMISSION)
+  })
+
+  it('a GOODS_RECEIVER posts receipts, holds no purchase-order write or Inventory write of its own, and conflicts with PROCUREMENT_BUYER', () => {
+    expect(ROLE_GOODS_RECEIVER).toBe('GOODS_RECEIVER')
+    expect(ROLE_PERMISSIONS[ROLE_GOODS_RECEIVER]).toContain(GOODS_RECEIPT_POST_PERMISSION)
+    expect(ROLE_PERMISSIONS[ROLE_GOODS_RECEIVER]).not.toContain(PURCHASE_ORDER_WRITE_PERMISSION)
+    expect(ROLE_PERMISSIONS[ROLE_GOODS_RECEIVER]).not.toContain(INVENTORY_MANAGE_PERMISSION)
+    expect(conflictingRoles(ROLE_PROCUREMENT_BUYER)).toContain(ROLE_GOODS_RECEIVER)
+    expect(conflictingRoles(ROLE_GOODS_RECEIVER)).toContain(ROLE_PROCUREMENT_BUYER)
   })
 })

@@ -25,7 +25,7 @@ owns_models:
   - ChannelIdentity
   - SotDataPlaneKey
   - WorkspaceMembership
-  - WorkspaceInvite
+  - AccessInvite
   - ApiAccessKey
   - PlatformGrant
   - PluginInstallation
@@ -152,7 +152,8 @@ Profile completion is an identity step over `Person`
 (`Person.profileCompletedAt`, written by `onboarding-service`), not an
 authorization grant. The Profile-first entry resolves a Profile-only person into
 the Waiting Room without creating a Tenant, Business or Project. Workspace
-invitation (`WorkspaceInvite`, hash-bound single-use tokens per SEC-014) and
+invitation (`AccessInvite`, renamed from `WorkspaceInvite` by FR-195/ADR-079 to
+also cover TENANT/BUSINESS scope; hash-bound single-use tokens per SEC-014) and
 `WorkspaceMembership` (keyed by `portfolioId`, ADR-027 §D2) are a separate
 collaboration contract from the existing Tenant/Business `Membership`; they
 widen nothing — `resolveViewer` never reads `WorkspaceMembership` (BR-016), so

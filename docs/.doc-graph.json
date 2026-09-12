@@ -3,29 +3,29 @@
   "generated_by": "scripts/doc-graph.mjs (rwang:doc-graph)",
   "generated_from": "filesystem scan — do not hand-edit",
   "stats": {
-    "total_nodes": 2706,
-    "total_edges": 11032,
+    "total_nodes": 2738,
+    "total_edges": 11222,
     "dangling_edges": 0,
     "node_types": {
-      "document": 225,
+      "document": 230,
       "appendix": 4,
-      "adr": 77,
+      "adr": 79,
       "domain": 14,
       "roadmap": 45,
-      "feature": 27,
+      "feature": 29,
       "route": 347,
-      "model": 147,
-      "requirement": 365,
-      "test": 636,
-      "code_file": 819
+      "model": 149,
+      "requirement": 375,
+      "test": 644,
+      "code_file": 822
     },
     "coverage": {
-      "requirements": 365,
-      "fr_with_code": "100% (179/179)",
-      "fr_with_tests": "100% (179/179)",
-      "rules_anchored_in_code": "96% (143/149)",
+      "requirements": 375,
+      "fr_with_code": "100% (184/184)",
+      "fr_with_tests": "100% (184/184)",
+      "rules_anchored_in_code": "96% (148/154)",
       "nfr_evidence_based": "22 (verified by the acceptance matrix, not code-linked)",
-      "annotated_code_files": 819,
+      "annotated_code_files": 822,
       "fr_planned": [
         "FR-082",
         "FR-083",
@@ -67,12 +67,13 @@
       "id": "code:prisma/seed.js",
       "type": "code_file",
       "path": "apps/server/prisma/seed.js",
-      "hash": "33bc15ef",
+      "hash": "cc7a6d18",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-016",
           "FR-041",
+          "FR-194",
           "FR-087",
           "FR-088",
           "FR-089",
@@ -2550,12 +2551,13 @@
       "id": "code:src/app/api/audit/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/audit/route.js",
-      "hash": "fdd8b22c",
+      "hash": "6f76b65b",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-014",
-          "FR-046"
+          "FR-046",
+          "FR-197"
         ],
         "@spec": [
           "SEC-008",
@@ -2734,14 +2736,15 @@
       "id": "code:src/app/api/backup/export/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/backup/export/route.js",
-      "hash": "408b25af",
+      "hash": "fc2f2662",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-013",
           "FR-045",
           "FR-046",
-          "FR-075"
+          "FR-075",
+          "FR-197"
         ],
         "@spec": [
           "BR-008",
@@ -6279,7 +6282,7 @@
       "id": "code:src/app/api/procurement/purchase-orders/[id]/receipts/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/procurement/purchase-orders/[id]/receipts/route.js",
-      "hash": "793b9ea7",
+      "hash": "83d83d84",
       "status": "current",
       "annotations": {
         "@req": [
@@ -6850,7 +6853,7 @@
       "id": "code:src/app/api/scope/route.js",
       "type": "code_file",
       "path": "apps/server/src/app/api/scope/route.js",
-      "hash": "83ef3646",
+      "hash": "f5ede6d1",
       "status": "current",
       "annotations": {
         "@req": [
@@ -7956,10 +7959,12 @@
       "id": "code:src/lib/validation/entities.js",
       "type": "code_file",
       "path": "apps/server/src/lib/validation/entities.js",
-      "hash": "167fec82",
+      "hash": "df89e0ba",
       "status": "current",
       "annotations": {
         "@req": [
+          "FR-194",
+          "FR-193",
           "FR-087",
           "FR-088",
           "FR-073"
@@ -7973,15 +7978,18 @@
       "id": "code:src/lib/validation/enums.js",
       "type": "code_file",
       "path": "apps/server/src/lib/validation/enums.js",
-      "hash": "57a5f578",
+      "hash": "9f15089e",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-086",
           "FR-087",
           "FR-111",
+          "FR-193",
+          "FR-194",
           "FR-191",
           "FR-192",
+          "FR-195",
           "FR-133",
           "FR-134",
           "FR-135",
@@ -9455,15 +9463,18 @@
       "id": "code:src/modules/commerce/application/billing-invoice-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/commerce/application/billing-invoice-service.js",
-      "hash": "a8db7021",
+      "hash": "fa380076",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-186"
+          "FR-186",
+          "FR-194"
         ],
         "@spec": [
           "BR-001",
           "BR-002",
+          "BR-034",
+          "SDD-093",
           "SEC-001"
         ],
         "@tested": [
@@ -9496,19 +9507,23 @@
       "id": "code:src/modules/commerce/application/payment-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/commerce/application/payment-service.js",
-      "hash": "db06a259",
+      "hash": "7bb5bb43",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-163"
+          "FR-163",
+          "FR-196"
         ],
         "@spec": [
           "BR-002",
+          "BR-035",
           "SEC-001",
+          "SEC-027",
           "FR-072"
         ],
         "@tested": [
-          "tests/integration/fr163-payment.test.js"
+          "tests/integration/fr163-payment.test.js",
+          "tests/integration/fr196-segregation-of-duties.test.js"
         ]
       }
     },
@@ -9516,11 +9531,12 @@
       "id": "code:src/modules/commerce/application/pos-cashier-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/commerce/application/pos-cashier-service.js",
-      "hash": "6eed4de7",
+      "hash": "be644e73",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-183"
+          "FR-183",
+          "FR-194"
         ],
         "@spec": [
           "BR-001",
@@ -9575,11 +9591,12 @@
       "id": "code:src/modules/commerce/components/BillingWorkspace.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/commerce/components/BillingWorkspace.jsx",
-      "hash": "5f3f478d",
+      "hash": "57ed497c",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-186"
+          "FR-186",
+          "FR-194"
         ],
         "@spec": [
           "BR-001",
@@ -9635,11 +9652,12 @@
       "id": "code:src/modules/commerce/domain/billing.js",
       "type": "code_file",
       "path": "apps/server/src/modules/commerce/domain/billing.js",
-      "hash": "5ffed4a2",
+      "hash": "1a72795f",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-186"
+          "FR-186",
+          "FR-194"
         ],
         "@spec": [
           "BR-001",
@@ -9655,12 +9673,13 @@
       "id": "code:src/modules/commerce/domain/commerce.js",
       "type": "code_file",
       "path": "apps/server/src/modules/commerce/domain/commerce.js",
-      "hash": "dd26c50c",
+      "hash": "bc6d2034",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-166",
-          "FR-163"
+          "FR-163",
+          "FR-196"
         ],
         "@spec": [
           "BR-002"
@@ -9896,6 +9915,27 @@
       }
     },
     {
+      "id": "code:src/modules/identity/access-invite-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/identity/access-invite-service.js",
+      "hash": "d07e546e",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-195",
+          "FR-067"
+        ],
+        "@spec": [
+          "BR-016",
+          "SEC-014",
+          "SDD-094"
+        ],
+        "@tested": [
+          "tests/integration/fr195-access-invite.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/identity/agent-tool-authorizer.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/agent-tool-authorizer.js",
@@ -9972,7 +10012,7 @@
       "id": "code:src/modules/identity/authorization-context.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/authorization-context.js",
-      "hash": "57e6fc4c",
+      "hash": "b0f95249",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10335,12 +10375,13 @@
       "id": "code:src/modules/identity/onboarding-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/onboarding-service.js",
-      "hash": "6af0a569",
+      "hash": "36db4517",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-066",
-          "FR-122"
+          "FR-122",
+          "FR-195"
         ],
         "@spec": [
           "BR-016",
@@ -10375,12 +10416,13 @@
       "id": "code:src/modules/identity/operator-bootstrap.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/operator-bootstrap.js",
-      "hash": "2f28d45b",
+      "hash": "eae4d1eb",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-107",
-          "FR-075"
+          "FR-075",
+          "FR-197"
         ],
         "@spec": [
           "FR-075",
@@ -10389,6 +10431,25 @@
         ],
         "@tested": [
           "tests/unit/operator-bootstrap.test.js"
+        ]
+      }
+    },
+    {
+      "id": "code:src/modules/identity/operator-use.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/identity/operator-use.js",
+      "hash": "d7c993d4",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-197"
+        ],
+        "@spec": [
+          "FR-075",
+          "SEC-008"
+        ],
+        "@tested": [
+          "tests/integration/fr197-operator-grant-lifecycle.test.js"
         ]
       }
     },
@@ -10572,11 +10633,14 @@
       "id": "code:src/modules/identity/rbac-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/rbac-service.js",
-      "hash": "a209f04a",
+      "hash": "00207c7e",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-076"
+          "FR-076",
+          "FR-193",
+          "FR-196",
+          "FR-192"
         ],
         "@tested": [
           "tests/unit/fr076-product-owner-business-assignment.test.js"
@@ -10587,7 +10651,7 @@
       "id": "code:src/modules/identity/rbac.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/rbac.js",
-      "hash": "efd35277",
+      "hash": "8adb1e98",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10598,7 +10662,8 @@
           "FR-161",
           "FR-163",
           "FR-164",
-          "FR-165",
+          "FR-196",
+          "FR-192",
           "FR-166"
         ],
         "@tested": [
@@ -10653,7 +10718,7 @@
       "id": "code:src/modules/identity/resolve-viewer.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/resolve-viewer.js",
-      "hash": "54e8a0be",
+      "hash": "122ba69e",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10911,11 +10976,12 @@
       "id": "code:src/modules/identity/workspace-membership-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/workspace-membership-service.js",
-      "hash": "ee22af32",
+      "hash": "b1fc6512",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-067"
+          "FR-067",
+          "FR-195"
         ],
         "@spec": [
           "BR-016",
@@ -14424,18 +14490,40 @@
       }
     },
     {
+      "id": "code:src/modules/people/application/employment-service.js",
+      "type": "code_file",
+      "path": "apps/server/src/modules/people/application/employment-service.js",
+      "hash": "288e5d74",
+      "status": "current",
+      "annotations": {
+        "@req": [
+          "FR-193"
+        ],
+        "@spec": [
+          "BR-034",
+          "SDD-093"
+        ],
+        "@tested": [
+          "tests/integration/fr193-employment-lifecycle.test.js"
+        ]
+      }
+    },
+    {
       "id": "code:src/modules/people/application/people-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/people/application/people-service.js",
-      "hash": "0e13bdf2",
+      "hash": "df7b41a5",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-042",
+          "FR-193",
           "FR-061"
         ],
         "@spec": [
           "BR-001",
+          "BR-034",
+          "SDD-093",
           "SEC-003"
         ],
         "@tested": [
@@ -14448,11 +14536,12 @@
       "id": "code:src/modules/people/components/PeopleDirectory.jsx",
       "type": "code_file",
       "path": "apps/server/src/modules/people/components/PeopleDirectory.jsx",
-      "hash": "e68b5fb0",
+      "hash": "b1e10f1f",
       "status": "current",
       "annotations": {
         "@req": [
-          "FR-042"
+          "FR-042",
+          "FR-193"
         ],
         "@spec": [
           "SDD-020"
@@ -14500,11 +14589,12 @@
       "id": "code:src/modules/procurement/application/goods-receipt-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/procurement/application/goods-receipt-service.js",
-      "hash": "b4c3ec0e",
+      "hash": "c39bdfb0",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-165",
+          "FR-196",
           "FR-168"
         ],
         "@spec": [
@@ -14585,12 +14675,13 @@
       "id": "code:src/modules/procurement/domain/procurement.js",
       "type": "code_file",
       "path": "apps/server/src/modules/procurement/domain/procurement.js",
-      "hash": "2219c8c7",
+      "hash": "a7fdf01e",
       "status": "current",
       "annotations": {
         "@req": [
           "FR-164",
-          "FR-165"
+          "FR-165",
+          "FR-196"
         ],
         "@spec": [
           "BR-002"
@@ -14712,7 +14803,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
-      "hash": "8f8cbef1",
+      "hash": "5faa90e1",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14723,16 +14814,20 @@
           "FR-078",
           "FR-045",
           "FR-075",
+          "FR-197",
+          "FR-194",
           "FR-186",
           "FR-081",
           "FR-092",
           "FR-146",
           "FR-153",
+          "FR-193",
           "FR-090",
           "FR-095",
           "FR-094",
           "FR-107",
           "FR-067",
+          "FR-195",
           "FR-089",
           "FR-151",
           "FR-152",
@@ -15273,7 +15368,7 @@
       "id": "code:src/modules/project-manager/application/scope-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/scope-service.js",
-      "hash": "bb6c3e3e",
+      "hash": "0b2a7d77",
       "status": "current",
       "annotations": {
         "@req": [
@@ -15282,6 +15377,7 @@
           "FR-074",
           "FR-075",
           "BR-001",
+          "FR-194",
           "FR-020",
           "FR-191"
         ],
@@ -16868,9 +16964,9 @@
       "type": "appendix",
       "path": "docs/appendices/B-db-schema.md",
       "title": "Appendix B — Database Schema Summary",
-      "version": "1.34.0b",
+      "version": "1.35.0b",
       "doc_status": "Draft",
-      "hash": "c92dd863",
+      "hash": "ab10f802",
       "status": "current"
     },
     {
@@ -17059,7 +17155,7 @@
       "type": "document",
       "path": "docs/domains/identity/SYSTEM-DIAGRAM.md",
       "title": "Identity Domain — System Diagram & Architecture Specification",
-      "hash": "0f73075f",
+      "hash": "4af99a09",
       "status": "current",
       "identity_migration": {
         "repository": "Freshair129/zuri.ai",
@@ -17250,7 +17346,7 @@
       "title": "Features (FEAT registry)",
       "version": "1.36.0b",
       "doc_status": "Active — hand-maintained source of truth",
-      "hash": "2e9a9901",
+      "hash": "a895110c",
       "status": "current"
     },
     {
@@ -17604,8 +17700,8 @@
       "path": "docs/domains/identity/features/FR-067-workspace-invitation-and-scoped-membership.md",
       "title": "FR-067 — Workspace invitation and scoped membership",
       "version": "1.0.0",
-      "doc_status": "✅ Implemented (2026-08-26) — `workspace-membership-service.js`, `WorkspaceMembership`/`WorkspaceInvite` (portfolioId-keyed), `/api/workspace-invites/*`, `/api/workspace-memberships`; BR-016 grants-nothing proven in `tests/integration/workspace-onboarding-flow.test.js`",
-      "hash": "0938ce5b",
+      "doc_status": "✅ Implemented (2026-08-26) — `workspace-membership-service.js`, `WorkspaceMembership`/`AccessInvite` (portfolioId-keyed at this scope; the table was renamed from `WorkspaceInvite` and generalised to also cover TENANT/BUSINESS scope by [FR-195](FR-195-access-invite.md)/ADR-079, 2026-09-12 — the PORTFOLIO-scope behaviour described below is unchanged), `/api/workspace-invites/*`, `/api/workspace-memberships`; BR-016 grants-nothing proven in `tests/integration/workspace-onboarding-flow.test.js`",
+      "hash": "90464a64",
       "status": "current"
     },
     {
@@ -18269,7 +18365,57 @@
       "title": "FR-192 — Membership scope grammar and referential invariants",
       "version": "1.0.0",
       "doc_status": "Declared (2026-09-12) — implemented by [ADR-077](../../../decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md) D3/D4/D5",
-      "hash": "affaca15",
+      "hash": "1e5cd601",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-193-employment-record",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-193-employment-record.md",
+      "title": "FR-193 — Employment: an HR record separate from the access grant",
+      "version": "1.0.0",
+      "doc_status": "Implemented",
+      "hash": "1940b6d7",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-194-legal-entity-and-tax-branch",
+      "type": "document",
+      "path": "docs/domains/project-manager/features/FR-194-legal-entity-and-tax-branch.md",
+      "title": "FR-194 — LegalEntity under Tenant, and TaxRegistrationBranch split from Branch",
+      "version": "1.0.0",
+      "doc_status": "Implemented",
+      "hash": "1690cce3",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-195-access-invite",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-195-access-invite.md",
+      "title": "FR-195 — AccessInvite: a scoped invitation that becomes a grant on acceptance",
+      "version": "1.0.0",
+      "doc_status": "Implemented locally 2026-09-12 — [ADR-079](../../../decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md) D1",
+      "hash": "039fdec5",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-196-segregation-of-duties",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-196-segregation-of-duties.md",
+      "title": "FR-196 — Segregation of duties: role conflicts, and self-verification refused at the transaction",
+      "version": "1.0.0",
+      "doc_status": "Implemented locally 2026-09-12 — [ADR-079](../../../decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md) D2",
+      "hash": "6145d19f",
+      "status": "current"
+    },
+    {
+      "id": "doc:FR-197-operator-access-lifecycle",
+      "type": "document",
+      "path": "docs/domains/identity/features/FR-197-operator-access-lifecycle.md",
+      "title": "FR-197 — Operator access is time-boxed, issuable, and its use is recorded",
+      "version": "1.0.0",
+      "doc_status": "Implemented locally 2026-09-12 — [ADR-079](../../../decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md) D3",
+      "hash": "37194b44",
       "status": "current"
     },
     {
@@ -18277,7 +18423,7 @@
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
       "title": "Database Schema — Full ERD Reference",
-      "hash": "e18c7e4f",
+      "hash": "a24d1c3b",
       "status": "current"
     },
     {
@@ -18907,7 +19053,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.184.0b",
       "doc_status": "Draft",
-      "hash": "425d87a3",
+      "hash": "44848818",
       "status": "current"
     },
     {
@@ -18943,7 +19089,7 @@
       "type": "roadmap",
       "path": "docs/roadmap/ROADMAP.md",
       "title": "ROADMAP: zuri-ai — Live Delivery State",
-      "hash": "d0be25fd",
+      "hash": "a70cc940",
       "status": "current"
     },
     {
@@ -19302,7 +19448,7 @@
         "ChannelIdentity",
         "SotDataPlaneKey",
         "WorkspaceMembership",
-        "WorkspaceInvite",
+        "AccessInvite",
         "ApiAccessKey",
         "PlatformGrant",
         "PluginInstallation",
@@ -19328,7 +19474,7 @@
       "modules": [
         "identity"
       ],
-      "hash": "b3b71c97",
+      "hash": "1985234a",
       "status": "current"
     },
     {
@@ -19571,8 +19717,10 @@
         "Tenant",
         "LegalEntity",
         "LegalEntityIdentifier",
+        "TaxRegistrationBranch",
         "Business",
         "Branch",
+        "Employment",
         "Workspace",
         "Project",
         "BusinessRoadmap",
@@ -19613,7 +19761,7 @@
         "business",
         "people"
       ],
-      "hash": "4b87102f",
+      "hash": "28376287",
       "status": "current"
     },
     {
@@ -19806,6 +19954,25 @@
       "status": "current"
     },
     {
+      "id": "feat:FEAT-028",
+      "type": "feature",
+      "label": "Org Employment & Legal Entity — separating \"who works here\" from \"who may log in here\": a new `Employment` HR assignment record (title, type, lifecycle status) that `resolveViewer` never reads, with system access shown as a column derived FROM `Membership` rather than the reverse; and moving `LegalEntity` from `Portfolio` to `Tenant` so a Business can only reference a legal entity within its own isolation boundary, splitting its VAT branch registrations into `TaxRegistrationBranch` so an operating site (a warehouse, say) is never asked to carry a tax identity it does not have (ADR-078, 2026-09-12)",
+      "declared": "implemented",
+      "status": "current"
+    },
+    {
+      "id": "feat:FEAT-029",
+      "type": "feature",
+      "label": "Access Invite, Segregation of Duties and Operator Lifecycle — a Business/Tenant-level invitation that becomes a real `Membership` grant on acceptance, bound to the accepting session rather than the invited address (generalising FR-067's Workspace-only `WorkspaceInvite`); segregation of duties as a write-time role-conflict refusal (with a Tenant-owner override) and a transaction-time self-verification refusal an OWNER does not bypass; and an operator grant that expires, that a standing operator can issue as a fresh row on renewal, and whose use reading the audit stream or a backup is itself recorded (ADR-079, 2026-09-12)",
+      "declared": "implemented locally",
+      "status": "current"
+    },
+    {
+      "id": "model:AccessInvite",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:AgentTraceEvent",
       "type": "model",
       "status": "current"
@@ -19962,6 +20129,11 @@
     },
     {
       "id": "model:EdgeDeviceCredential",
+      "type": "model",
+      "status": "current"
+    },
+    {
+      "id": "model:Employment",
       "type": "model",
       "status": "current"
     },
@@ -20491,6 +20663,11 @@
       "status": "current"
     },
     {
+      "id": "model:TaxRegistrationBranch",
+      "type": "model",
+      "status": "current"
+    },
+    {
       "id": "model:Team",
       "type": "model",
       "status": "current"
@@ -20522,11 +20699,6 @@
     },
     {
       "id": "model:Workspace",
-      "type": "model",
-      "status": "current"
-    },
-    {
-      "id": "model:WorkspaceInvite",
       "type": "model",
       "status": "current"
     },
@@ -20869,6 +21041,26 @@
       "declared": "n/a",
       "status": "current",
       "row_text": "A grant is withdrawn only by an explicit act that records who withdrew it and why. No referential action, cascade or other database side effect may change the scope of a grant, and none may widen one: a parent row whose deletion would reshape a grant must be refused until the grant is withdrawn. A status vocabulary that a resolver branches on must have a service that writes each of its values — a read filter over a column nothing writes is not an implemented control. FR-191, FR-192; ADR-077 D2/D4/D7; `.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md` "
+    },
+    {
+      "id": "req:BR-034",
+      "type": "requirement",
+      "family": "BR",
+      "label": "An HR assignment record and an access grant are two different facts and neither derives the other. Ending an Employment writes no change to any Membership row, and revoking a Membership writes no change to any Employment row; an owner who wants both performs both acts, each separately audited. A LegalEntity is owned by exactly one Tenant, and a Business may reference a LegalEntity only within its own Tenant — no ancestor's deletion or update may cross that boundary. A VAT branch code belongs to the legal entity's own tax registration, never to an operating site; a site may exist, and issue every document type that does not require one, with no tax registration linked at all.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "An HR assignment record and an access grant are two different facts and neither derives the other. Ending an Employment writes no change to any Membership row, and revoking a Membership writes no change to any Employment row; an owner who wants both performs both acts, each separately audited. A LegalEntity is owned by exactly one Tenant, and a Business may reference a LegalEntity only within its own Tenant — no ancestor's deletion or update may cross that boundary. A VAT branch code belongs to the legal entity's own tax registration, never to an operating site; a site may exist, and issue every document type that does not require one, with no tax registration linked at all. FR-193, FR-194; ADR-078 D1, D2 "
+    },
+    {
+      "id": "req:BR-035",
+      "type": "requirement",
+      "family": "BR",
+      "label": "Two people complete a cycle that touches money or stock; one person never does, however senior. A role that both records and confirms the same class of fact (recording a payment and verifying it; writing a purchase order and receiving against it) is a segregation-of-duties conflict, refused at assignment unless a Tenant owner overrides it with a recorded reason, and refused again at the transaction itself when the SAME person would record and confirm the SAME instance — a rule an OWNER does not bypass, because it is about needing a second person, not about holding a permission. An exemption for a genuinely one-person Business must be an explicit, audited attestation, never a silent one.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Two people complete a cycle that touches money or stock; one person never does, however senior. A role that both records and confirms the same class of fact (recording a payment and verifying it; writing a purchase order and receiving against it) is a segregation-of-duties conflict, refused at assignment unless a Tenant owner overrides it with a recorded reason, and refused again at the transaction itself when the SAME person would record and confirm the SAME instance — a rule an OWNER does not bypass, because it is about needing a second person, not about holding a permission. An exemption for a genuinely one-person Business must be an explicit, audited attestation, never a silent one. FR-196; ADR-065 D4; ADR-066 D4 as amended by ADR-079 "
     },
     {
       "id": "req:FR-001",
@@ -22791,6 +22983,56 @@
       "row_text": "The scope of a grant is a declared value, never the meaning of a null, and no database side effect may change it. `Membership.scopeType` is TENANT or BUSINESS held by a CHECK against `businessId`; `RoleBinding` takes the same grammar (TENANT, BUSINESS, BRANCH), extending ADR-033 D3 rather than superseding it. `ON DELETE RESTRICT` replaces `ON DELETE SET NULL` on `Membership.businessId`, `Workspace.businessId` and `Project.businessId`, because the null that cascade wrote was read by `buildDomainsByBusiness` as every Business in the Tenant — deleting one Business promoted its members to the whole group and its owners to `ownsTenant`. Tenant ancestry becomes a database invariant via `Business UNIQUE (id, tenantId)` and composite foreign keys; one live grant per person per scope becomes two partial unique indexes; and `Membership.role` defaults to MEMBER instead of OWNER. 🔜 declared 2026-09-12 — ADR-077 D3/D4/D5; preconditions verified on production 2026-09-12 and re-run at apply time "
     },
     {
+      "id": "req:FR-193",
+      "type": "requirement",
+      "family": "FR",
+      "label": "`Employment` is a new HR assignment record — `personId`, `tenantId`, `businessId`, optional `branchId`, `employeeNo` (was `Membership.employeeRef`), `title`, `employmentType` (EMPLOYEE / CONTRACTOR / INTERN / OWNER_OPERATOR) and a lifecycle status (ACTIVE / ON_LEAVE / ENDED) — separate from `Membership`'s access grant (ADR-078 D1). Before this, `people-service.js` built the HR roster by reading `Membership` directly, so a shareholder's tenant-wide OWNER grant read as an employee, a suspended staff member vanished from the roster instead of showing suspended, a consultant with access but no employment could not be distinguished from staff, and the LINE-originated Persons who hold no Membership at all could never appear. `resolveViewer` and the rest of `src/modules/identity/` never read `Employment` (ADR-037 D1's discipline, applied here); `people-service.js` now derives one column, `hasSystemAccess`, FROM `Membership`, never the reverse. `Membership.employeeRef` and `Membership.branchId` are dropped in the same migration that backfills them into `Employment`, after the backfill runs; a tenant-wide grant with an `employeeRef` (production's one such row) is not backfilled, because standard HR has no group-level employment — the migration names the skipped row instead of guessing a Business for it.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "`Employment` is a new HR assignment record — `personId`, `tenantId`, `businessId`, optional `branchId`, `employeeNo` (was `Membership.employeeRef`), `title`, `employmentType` (EMPLOYEE / CONTRACTOR / INTERN / OWNER_OPERATOR) and a lifecycle status (ACTIVE / ON_LEAVE / ENDED) — separate from `Membership`'s access grant (ADR-078 D1). Before this, `people-service.js` built the HR roster by reading `Membership` directly, so a shareholder's tenant-wide OWNER grant read as an employee, a suspended staff member vanished from the roster instead of showing suspended, a consultant with access but no employment could not be distinguished from staff, and the LINE-originated Persons who hold no Membership at all could never appear. `resolveViewer` and the rest of `src/modules/identity/` never read `Employment` (ADR-037 D1's discipline, applied here); `people-service.js` now derives one column, `hasSystemAccess`, FROM `Membership`, never the reverse. `Membership.employeeRef` and `Membership.branchId` are dropped in the same migration that backfills them into `Employment`, after the backfill runs; a tenant-wide grant with an `employeeRef` (production's one such row) is not backfilled, because standard HR has no group-level employment — the migration names the skipped row instead of guessing a Business for it. 🟢 implemented 2026-09-12 — ADR-078 D1; `employment-service.js` (create / on-leave / reinstate / end); `people-service.js` reads Employment; `rbac-service.js`'s `assertEmployee` renamed to `assertTenantMember` (it checked Membership, not employment) "
+    },
+    {
+      "id": "req:FR-194",
+      "type": "requirement",
+      "family": "FR",
+      "label": "`LegalEntity` moves from `portfolioId` to `tenantId` (ADR-078 D2) — before this it carried no Tenant column at all, which put it above the BR-001 isolation boundary: two Businesses in different Tenants could share one legal entity, and a tenant-scoped RLS policy had no column to filter on. `Business.legalEntityId` now has a composite FK to `LegalEntity(id, tenantId)`, so a Business may only reference a LegalEntity in its own Tenant; `createBusiness` carries the same check in application code for the SQLite dev/test path a compound FK cannot express there. `TaxRegistrationBranch` (`legalEntityId`, `branchCode`, `name`, `address`) is split out of `Branch.taxBranchCode`: a VAT branch code (ประมวลรัษฎากร ม.86, ภ.พ.20) is a fact about the legal entity's own tax registration, not about an operating site — a warehouse Branch has none, and `Branch` gains `kind` (SITE / WAREHOUSE / KITCHEN / OFFICE) to say what it IS independently of that. `billing-invoice-service.js` reads `branch.taxRegistrationBranch.branchCode`, refuses `422 BILLING_TAX_BRANCH_NOT_CONFIGURED` when a TAX_INVOICE/ABB_TAX_INVOICE has none and `422 BILLING_TAX_BRANCH_MISMATCH` when the linked one belongs to a different LegalEntity than the Business; the old application-code portfolio comparison is retired, while the `409 BILLING_SHARED_LEGAL_ENTITY` refusal for two Businesses sharing one LegalEntity stays correct and unchanged.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "`LegalEntity` moves from `portfolioId` to `tenantId` (ADR-078 D2) — before this it carried no Tenant column at all, which put it above the BR-001 isolation boundary: two Businesses in different Tenants could share one legal entity, and a tenant-scoped RLS policy had no column to filter on. `Business.legalEntityId` now has a composite FK to `LegalEntity(id, tenantId)`, so a Business may only reference a LegalEntity in its own Tenant; `createBusiness` carries the same check in application code for the SQLite dev/test path a compound FK cannot express there. `TaxRegistrationBranch` (`legalEntityId`, `branchCode`, `name`, `address`) is split out of `Branch.taxBranchCode`: a VAT branch code (ประมวลรัษฎากร ม.86, ภ.พ.20) is a fact about the legal entity's own tax registration, not about an operating site — a warehouse Branch has none, and `Branch` gains `kind` (SITE / WAREHOUSE / KITCHEN / OFFICE) to say what it IS independently of that. `billing-invoice-service.js` reads `branch.taxRegistrationBranch.branchCode`, refuses `422 BILLING_TAX_BRANCH_NOT_CONFIGURED` when a TAX_INVOICE/ABB_TAX_INVOICE has none and `422 BILLING_TAX_BRANCH_MISMATCH` when the linked one belongs to a different LegalEntity than the Business; the old application-code portfolio comparison is retired, while the `409 BILLING_SHARED_LEGAL_ENTITY` refusal for two Businesses sharing one LegalEntity stays correct and unchanged. 🟢 implemented 2026-09-12 — ADR-078 D2/D3; migration `20260912130000_org_employment_legal_entity.sql`; production row counts for LegalEntity/Branch could not be independently re-confirmed from this session (no reachable credential) — the migration re-asserts the \"zero rows\" precondition and aborts otherwise "
+    },
+    {
+      "id": "req:FR-195",
+      "type": "requirement",
+      "family": "FR",
+      "label": "`AccessInvite` generalises `WorkspaceInvite` to a scoped invitation over all three authority layers: PORTFOLIO (unchanged FR-067 Workspace collaboration, BR-016), TENANT and BUSINESS (a real `Membership` grant on acceptance, created only through `grantBusinessMembership` — the one creation path, ADR-077 D8). Authority to mint is `assertWorkspaceAdminAuthority` at PORTFOLIO scope, `ownsTenant` at TENANT scope, `ownsBusiness` at BUSINESS scope, each refusing 404 the same way an absent scope does; `role: 'OWNER'` is refused 400 at every scope. The Membership binds to the accepting SESSION's `personId`, never resolved from `invitedEmail` — the invited address only routes the link. Keeps WorkspaceInvite's exact token discipline: SHA-256 hash only, one-use atomic acceptance, one generic `INVALID_OR_EXPIRED_INVITE` refusal for every failure mode. `WorkspaceInvite` and `WorkspaceMembership` held zero rows in production on 2026-09-12, which is what makes the table rename a pure DDL change.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "`AccessInvite` generalises `WorkspaceInvite` to a scoped invitation over all three authority layers: PORTFOLIO (unchanged FR-067 Workspace collaboration, BR-016), TENANT and BUSINESS (a real `Membership` grant on acceptance, created only through `grantBusinessMembership` — the one creation path, ADR-077 D8). Authority to mint is `assertWorkspaceAdminAuthority` at PORTFOLIO scope, `ownsTenant` at TENANT scope, `ownsBusiness` at BUSINESS scope, each refusing 404 the same way an absent scope does; `role: 'OWNER'` is refused 400 at every scope. The Membership binds to the accepting SESSION's `personId`, never resolved from `invitedEmail` — the invited address only routes the link. Keeps WorkspaceInvite's exact token discipline: SHA-256 hash only, one-use atomic acceptance, one generic `INVALID_OR_EXPIRED_INVITE` refusal for every failure mode. `WorkspaceInvite` and `WorkspaceMembership` held zero rows in production on 2026-09-12, which is what makes the table rename a pure DDL change. 🟠 implemented locally 2026-09-12 (PR pending) — `src/modules/identity/access-invite-service.js`; migration `20260912140000_access_invite_sod_operator.sql` not yet applied "
+    },
+    {
+      "id": "req:FR-196",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Segregation of duties gets a writer, not only a role list. `ROLE_CONFLICTS` in `rbac.js` declares `SALES_REP`/`PAYMENT_VERIFIER` (ADR-065 D4) and `PROCUREMENT_BUYER`/`GOODS_RECEIVER` (ADR-066 D4 as amended by ADR-079 — `PROCUREMENT_BUYER` no longer holds `procurement.receipt.post`); `assignRoleBinding` refuses 409 `ROLE_CONFLICT` when the assignee already holds the other half in the same Tenant, unless the caller is a TENANT owner passing `sodOverride: { reason }`, which lands on `RoleBinding.sodOverrideReason` and in the audit payload. Independently, `applyPaymentAction` refuses 409 `PAYMENT_SELF_VERIFY_FORBIDDEN` when the verifier is the payment's own recorder — including a Business OWNER, who bypasses every other capability check in that file but not this one — unless `selfVerifyAttested: true` is passed, which is recorded in the audit payload as `selfVerified: true`, never silently. `postGoodsReceipt` applies the identical shape against the purchase order's `createdByPersonId` (`GOODS_RECEIPT_SELF_POST_FORBIDDEN`).",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Segregation of duties gets a writer, not only a role list. `ROLE_CONFLICTS` in `rbac.js` declares `SALES_REP`/`PAYMENT_VERIFIER` (ADR-065 D4) and `PROCUREMENT_BUYER`/`GOODS_RECEIVER` (ADR-066 D4 as amended by ADR-079 — `PROCUREMENT_BUYER` no longer holds `procurement.receipt.post`); `assignRoleBinding` refuses 409 `ROLE_CONFLICT` when the assignee already holds the other half in the same Tenant, unless the caller is a TENANT owner passing `sodOverride: { reason }`, which lands on `RoleBinding.sodOverrideReason` and in the audit payload. Independently, `applyPaymentAction` refuses 409 `PAYMENT_SELF_VERIFY_FORBIDDEN` when the verifier is the payment's own recorder — including a Business OWNER, who bypasses every other capability check in that file but not this one — unless `selfVerifyAttested: true` is passed, which is recorded in the audit payload as `selfVerified: true`, never silently. `postGoodsReceipt` applies the identical shape against the purchase order's `createdByPersonId` (`GOODS_RECEIPT_SELF_POST_FORBIDDEN`). 🟠 implemented locally 2026-09-12 (PR pending) — `rbac.js`, `rbac-service.js`, `payment-service.js`, `goods-receipt-service.js`; migration `20260912140000_access_invite_sod_operator.sql` not yet applied "
+    },
+    {
+      "id": "req:FR-197",
+      "type": "requirement",
+      "family": "FR",
+      "label": "Operator access is time-boxed, issuable by a standing operator, and its use is recorded. `issueOperatorGrant` requires an existing `isInstallationOperator` caller, a reason and a mandatory `expiresAt` capped at 90 days; a renewal is a fresh `PlatformGrant` row, with any prior ACTIVE grant for that Person superseded (revoked, its own audit event) in the same transaction — `@@unique(personId, capability)` is replaced by a partial unique index scoped to `status = 'ACTIVE'` so the history survives. `hasOperatorGrant` honours `expiresAt` even while the row is still nominally ACTIVE; nothing flips status on a timer. The bootstrap grant is flagged `standing: true` (it predates any operator to issue it); every issued grant is `standing: false`. Reading `/api/audit` and previewing or restoring a backup now route through `assertOperatorAndRecordUse`, which writes one `OPERATOR_ACTION` audit event per successful use — a denied attempt records nothing, because the refusal happens before the write. The restore path proves authority first and records the use INSIDE its transaction, after the re-insert: a record written beforehand is deleted by the wipe it is recording — read as ADR-017 D6 covering operator READS, a deliberate extension argued in ADR-079 rather than an obvious consequence of it.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Operator access is time-boxed, issuable by a standing operator, and its use is recorded. `issueOperatorGrant` requires an existing `isInstallationOperator` caller, a reason and a mandatory `expiresAt` capped at 90 days; a renewal is a fresh `PlatformGrant` row, with any prior ACTIVE grant for that Person superseded (revoked, its own audit event) in the same transaction — `@@unique(personId, capability)` is replaced by a partial unique index scoped to `status = 'ACTIVE'` so the history survives. `hasOperatorGrant` honours `expiresAt` even while the row is still nominally ACTIVE; nothing flips status on a timer. The bootstrap grant is flagged `standing: true` (it predates any operator to issue it); every issued grant is `standing: false`. Reading `/api/audit` and previewing or restoring a backup now route through `assertOperatorAndRecordUse`, which writes one `OPERATOR_ACTION` audit event per successful use — a denied attempt records nothing, because the refusal happens before the write. The restore path proves authority first and records the use INSIDE its transaction, after the re-insert: a record written beforehand is deleted by the wipe it is recording — read as ADR-017 D6 covering operator READS, a deliberate extension argued in ADR-079 rather than an obvious consequence of it. 🟠 implemented locally 2026-09-12 (PR pending) — `operator-bootstrap.js`, `operator-use.js`; migration `20260912140000_access_invite_sod_operator.sql` not yet applied "
+    },
+    {
       "id": "req:NFR-001",
       "type": "requirement",
       "family": "NFR",
@@ -23931,6 +24173,26 @@
       "row_text": "Authorization invariants are held by the database, not by application convention: scope shape and status vocabulary by CHECK, one live grant per person per scope by partial unique indexes excluding REVOKED, Tenant ancestry by composite foreign keys against `Business (id, tenantId)`, and parent deletion by RESTRICT. Provenance columns live on the grant row rather than only in the append-only stream, because an access review queries current state and because two of the three historical writers audited under other entity types, leaving half of the live grants with no MEMBERSHIP event naming their author. FR-191, FR-192; ADR-077 D1/D3/D4; ADR-018 context item 5 "
     },
     {
+      "id": "req:SDD-093",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "`Employment` is additive and unconnected by foreign key to `Membership`; the only place the two meet is `people-service.js`, which reads Employment for the roster and derives one column, `hasSystemAccess`, from a live (ACTIVE) Membership scoped to the same Business or tenant-wide. `resolveViewer` and every file under `src/modules/identity/` reference neither model nor column of Employment, enforced by a source-text scan (ADR-037 D1's discipline, extended). `LegalEntity` carries `tenantId` in place of `portfolioId`, held by `UNIQUE(id, tenantId)` and a composite FK from `Business.legalEntityId`; SQLite dev/test has no compound-FK equivalent, so `createBusiness` — the row's one writer — carries the same ancestry check in application code. `TaxRegistrationBranch` is `@@unique([legalEntityId, branchCode])`; `Branch.taxRegistrationBranchId` is nullable and `Restrict`, so an operating site with no tax registration is a complete, valid row.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "`Employment` is additive and unconnected by foreign key to `Membership`; the only place the two meet is `people-service.js`, which reads Employment for the roster and derives one column, `hasSystemAccess`, from a live (ACTIVE) Membership scoped to the same Business or tenant-wide. `resolveViewer` and every file under `src/modules/identity/` reference neither model nor column of Employment, enforced by a source-text scan (ADR-037 D1's discipline, extended). `LegalEntity` carries `tenantId` in place of `portfolioId`, held by `UNIQUE(id, tenantId)` and a composite FK from `Business.legalEntityId`; SQLite dev/test has no compound-FK equivalent, so `createBusiness` — the row's one writer — carries the same ancestry check in application code. `TaxRegistrationBranch` is `@@unique([legalEntityId, branchCode])`; `Branch.taxRegistrationBranchId` is nullable and `Restrict`, so an operating site with no tax registration is a complete, valid row. FR-193, FR-194; ADR-078 D1, D2, D3 "
+    },
+    {
+      "id": "req:SDD-094",
+      "type": "requirement",
+      "family": "SDD",
+      "label": "One generalised invitation table, not three parallel ones: `AccessInvite` (renamed from `WorkspaceInvite`) carries `scopeType` (PORTFOLIO / TENANT / BUSINESS) with a CHECK binding it to exactly one of `portfolioId`/`tenantId`/`businessId`, and an addressee CHECK requiring at least one of `targetPersonId`/`invitedEmail`/`invitedLineUserId`. `RoleBinding.businessId` becomes nullable to admit the TENANT scope ADR-077 D3 declared and left unresolved; `resolveViewer` expands a TENANT binding to every ACTIVE Business the Tenant holds at each request — including Businesses created after the grant, which a TENANT binding reaches without a new assignment, independent of `visibleBusinessIds`, and `hasPermission` is unchanged. `PlatformGrant` drops its unconditional `(personId, capability)` unique in favour of one scoped to `status = 'ACTIVE'`, so a superseded or expired grant survives as history rather than blocking a renewal.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "One generalised invitation table, not three parallel ones: `AccessInvite` (renamed from `WorkspaceInvite`) carries `scopeType` (PORTFOLIO / TENANT / BUSINESS) with a CHECK binding it to exactly one of `portfolioId`/`tenantId`/`businessId`, and an addressee CHECK requiring at least one of `targetPersonId`/`invitedEmail`/`invitedLineUserId`. `RoleBinding.businessId` becomes nullable to admit the TENANT scope ADR-077 D3 declared and left unresolved; `resolveViewer` expands a TENANT binding to every ACTIVE Business the Tenant holds at each request — including Businesses created after the grant, which a TENANT binding reaches without a new assignment, independent of `visibleBusinessIds`, and `hasPermission` is unchanged. `PlatformGrant` drops its unconditional `(personId, capability)` unique in favour of one scoped to `status = 'ACTIVE'`, so a superseded or expired grant survives as history rather than blocking a renewal. FR-192, FR-195, FR-197; ADR-079 "
+    },
+    {
       "id": "req:SEC-001",
       "type": "requirement",
       "family": "SEC",
@@ -24189,6 +24451,16 @@
       "declared": "planned",
       "status": "planned",
       "row_text": "Erasure is downstream of offboarding and never a substitute for it: `erasePrincipal` refuses 409 PRINCIPAL_HAS_LIVE_GRANTS while the principal holds any non-revoked Membership, RoleBinding or PlatformGrant in the tenant being erased, and where it does proceed it deletes `PersonCredential` and sets `Person.accessDisabledAt`, because a redacted person whose password still works is not erased. Erasure never revokes grants itself — that would make a data-subject request an administrative act with no named author and bury the moment authority ended inside a deliberately redacted trail. 🔜 FR-191 / ADR-077 D6 — declared 2026-09-12; replaces the prior behaviour where erasure counted memberships to decide whether to redact the Person and ended none "
+    },
+    {
+      "id": "req:SEC-027",
+      "type": "requirement",
+      "family": "SEC",
+      "label": "Installation-operator access is time-boxed and its use is auditable, not only its grant. Every non-bootstrap `PlatformGrant` carries a mandatory `expiresAt` capped at 90 days, honoured by `hasOperatorGrant` even while the row is still nominally ACTIVE; renewal is a fresh row so the history of who held operator access, and when, is never overwritten. Reading the installation-wide audit stream and previewing or restoring a whole-installation backup are support-class reads (ADR-017 D6) and each records one `OPERATOR_ACTION` audit event on use — a denied attempt records nothing.",
+      "defined_in": "docs/PRD-SDD-v1.0.md",
+      "declared": "n/a",
+      "status": "current",
+      "row_text": "Installation-operator access is time-boxed and its use is auditable, not only its grant. Every non-bootstrap `PlatformGrant` carries a mandatory `expiresAt` capped at 90 days, honoured by `hasOperatorGrant` even while the row is still nominally ACTIVE; renewal is a fresh row so the history of who held operator access, and when, is never overwritten. Reading the installation-wide audit stream and previewing or restoring a whole-installation backup are support-class reads (ADR-017 D6) and each records one `OPERATOR_ACTION` audit event on use — a denied attempt records nothing. FR-197; ADR-017 D6 as extended by ADR-079 "
     },
     {
       "id": "route:api:/api/agent/heartbeat",
@@ -27495,7 +27767,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md",
       "title": "ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts",
-      "hash": "91d309e1",
+      "hash": "c37cf2b6",
       "status": "current"
     },
     {
@@ -27584,6 +27856,22 @@
       "path": "docs/decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md",
       "title": "ADR-077 — Membership is a grant with a lifecycle, not a membership fact",
       "hash": "c93c5673",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY",
+      "type": "adr",
+      "path": "docs/decisions/ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY.md",
+      "title": "ADR-078 — Employment is not Membership, and a legal entity lives inside a Tenant",
+      "hash": "76495c1d",
+      "status": "current"
+    },
+    {
+      "id": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
+      "type": "adr",
+      "path": "docs/decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md",
+      "title": "ADR-079 — Access invite, segregation of duties, and the operator lifecycle",
+      "hash": "cbe42eab",
       "status": "current"
     },
     {
@@ -27800,7 +28088,7 @@
       "id": "test:tests/e2e/fr186-billing-pos.spec.js",
       "type": "test",
       "path": "apps/server/tests/e2e/fr186-billing-pos.spec.js",
-      "hash": "cb3b8ca0",
+      "hash": "70bcf77d",
       "status": "current"
     },
     {
@@ -27940,7 +28228,7 @@
       "id": "test:tests/integration/backup.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/backup.test.js",
-      "hash": "f1453b19",
+      "hash": "f9b6353f",
       "status": "current"
     },
     {
@@ -28143,7 +28431,7 @@
       "id": "test:tests/integration/fr074-scope-creation-authorization.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
-      "hash": "bb1a19fc",
+      "hash": "98ea71af",
       "status": "current"
     },
     {
@@ -28325,7 +28613,7 @@
       "id": "test:tests/integration/fr163-payment.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr163-payment.test.js",
-      "hash": "252cff91",
+      "hash": "ba931269",
       "status": "current"
     },
     {
@@ -28339,7 +28627,7 @@
       "id": "test:tests/integration/fr165-goods-receipt.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr165-goods-receipt.test.js",
-      "hash": "fd1f9892",
+      "hash": "79455003",
       "status": "current"
     },
     {
@@ -28437,7 +28725,7 @@
       "id": "test:tests/integration/fr186-billing.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/fr186-billing.test.js",
-      "hash": "fbb0aa57",
+      "hash": "8206f850",
       "status": "current"
     },
     {
@@ -28445,6 +28733,48 @@
       "type": "test",
       "path": "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
       "hash": "8afc18fa",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr193-employment-lifecycle.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr193-employment-lifecycle.test.js",
+      "hash": "91761829",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr194-legal-entity-tax-branch.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr194-legal-entity-tax-branch.test.js",
+      "hash": "36db24fc",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr195-access-invite.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr195-access-invite.test.js",
+      "hash": "2fe50999",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr196-segregation-of-duties.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr196-segregation-of-duties.test.js",
+      "hash": "418dfdae",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr196-sod-cannot-be-assembled.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr196-sod-cannot-be-assembled.test.js",
+      "hash": "3190b1d6",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr197-operator-grant-lifecycle.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr197-operator-grant-lifecycle.test.js",
+      "hash": "75078a65",
       "status": "current"
     },
     {
@@ -29004,7 +29334,7 @@
       "id": "test:tests/integration/workspace-onboarding-flow.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/workspace-onboarding-flow.test.js",
-      "hash": "b8fb18ef",
+      "hash": "470757f5",
       "status": "current"
     },
     {
@@ -29277,7 +29607,7 @@
       "id": "test:tests/unit/audit-page.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/audit-page.test.js",
-      "hash": "b8124337",
+      "hash": "e0b6f049",
       "status": "current"
     },
     {
@@ -29298,14 +29628,14 @@
       "id": "test:tests/unit/authorization-seam-list-routes.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/authorization-seam-list-routes.test.js",
-      "hash": "6db10248",
+      "hash": "3323ad9e",
       "status": "current"
     },
     {
       "id": "test:tests/unit/authorization-seam-routes.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/authorization-seam-routes.test.js",
-      "hash": "74ab67be",
+      "hash": "07135748",
       "status": "current"
     },
     {
@@ -30012,7 +30342,7 @@
       "id": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
-      "hash": "0f2e463a",
+      "hash": "f749e071",
       "status": "current"
     },
     {
@@ -30181,6 +30511,20 @@
       "type": "test",
       "path": "apps/server/tests/unit/fr190-line-transport-health.test.js",
       "hash": "481f6cdb",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr192-tenant-role-binding-resolver.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/fr192-tenant-role-binding-resolver.test.js",
+      "hash": "afda6402",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/unit/fr193-employment-not-authorization.test.js",
+      "type": "test",
+      "path": "apps/server/tests/unit/fr193-employment-not-authorization.test.js",
+      "hash": "dcccf5ec",
       "status": "current"
     },
     {
@@ -31167,7 +31511,7 @@
       "id": "test:tests/unit/onboarding-service.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/onboarding-service.test.js",
-      "hash": "7b91fa1b",
+      "hash": "2f883739",
       "status": "current"
     },
     {
@@ -31223,7 +31567,7 @@
       "id": "test:tests/unit/people-service.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/people-service.test.js",
-      "hash": "bb70d97f",
+      "hash": "f464b20d",
       "status": "current"
     },
     {
@@ -31468,7 +31812,7 @@
       "id": "test:tests/unit/procurement-routes.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/procurement-routes.test.js",
-      "hash": "3df1874b",
+      "hash": "cef46182",
       "status": "current"
     },
     {
@@ -32021,7 +32365,7 @@
       "id": "test:tests/unit/workspace-invite-service.test.js",
       "type": "test",
       "path": "apps/server/tests/unit/workspace-invite-service.test.js",
-      "hash": "11a8f298",
+      "hash": "dc78581b",
       "status": "current"
     },
     {
@@ -32092,6 +32436,13 @@
     {
       "from": "code:prisma/seed.js",
       "to": "req:FR-089",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:prisma/seed.js",
+      "to": "req:FR-194",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -35507,6 +35858,13 @@
     },
     {
       "from": "code:src/app/api/audit/route.js",
+      "to": "req:FR-197",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/audit/route.js",
       "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
@@ -35774,6 +36132,13 @@
     {
       "from": "code:src/app/api/backup/export/route.js",
       "to": "req:FR-075",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/app/api/backup/export/route.js",
+      "to": "req:FR-197",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -43458,6 +43823,20 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/lib/validation/entities.js",
+      "to": "req:FR-193",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/entities.js",
+      "to": "req:FR-194",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/lib/validation/enums.js",
       "to": "req:BR-004",
       "type": "follows",
@@ -43558,6 +43937,27 @@
     {
       "from": "code:src/lib/validation/enums.js",
       "to": "req:FR-192",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:FR-193",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:FR-194",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/lib/validation/enums.js",
+      "to": "req:FR-195",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -45790,8 +46190,29 @@
     },
     {
       "from": "code:src/modules/commerce/application/billing-invoice-service.js",
+      "to": "req:BR-034",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/commerce/application/billing-invoice-service.js",
       "to": "req:FR-186",
       "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/commerce/application/billing-invoice-service.js",
+      "to": "req:FR-194",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/commerce/application/billing-invoice-service.js",
+      "to": "req:SDD-093",
+      "type": "follows",
       "status": "current",
       "source": "annotation"
     },
@@ -45839,6 +46260,13 @@
     },
     {
       "from": "code:src/modules/commerce/application/payment-service.js",
+      "to": "req:BR-035",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/commerce/application/payment-service.js",
       "to": "req:FR-072",
       "type": "follows",
       "status": "current",
@@ -45853,7 +46281,21 @@
     },
     {
       "from": "code:src/modules/commerce/application/payment-service.js",
+      "to": "req:FR-196",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/commerce/application/payment-service.js",
       "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/commerce/application/payment-service.js",
+      "to": "req:SEC-027",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -45875,6 +46317,13 @@
     {
       "from": "code:src/modules/commerce/application/pos-cashier-service.js",
       "to": "req:FR-183",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/commerce/application/pos-cashier-service.js",
+      "to": "req:FR-194",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -45958,6 +46407,13 @@
     },
     {
       "from": "code:src/modules/commerce/components/BillingWorkspace.jsx",
+      "to": "req:FR-194",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/commerce/components/BillingWorkspace.jsx",
       "to": "req:SEC-001",
       "type": "follows",
       "status": "current",
@@ -46029,6 +46485,13 @@
     {
       "from": "code:src/modules/commerce/domain/billing.js",
       "to": "req:FR-186",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/commerce/domain/billing.js",
+      "to": "req:FR-194",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -46057,6 +46520,13 @@
     {
       "from": "code:src/modules/commerce/domain/commerce.js",
       "to": "req:FR-166",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/commerce/domain/commerce.js",
+      "to": "req:FR-196",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -46407,6 +46877,41 @@
     {
       "from": "code:src/modules/crm/sales-task-service.js",
       "to": "req:SEC-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/access-invite-service.js",
+      "to": "req:BR-016",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/access-invite-service.js",
+      "to": "req:FR-067",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/access-invite-service.js",
+      "to": "req:FR-195",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/access-invite-service.js",
+      "to": "req:SDD-094",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/access-invite-service.js",
+      "to": "req:SEC-014",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -47050,6 +47555,13 @@
     },
     {
       "from": "code:src/modules/identity/onboarding-service.js",
+      "to": "req:FR-195",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/onboarding-service.js",
       "to": "req:SDD-038",
       "type": "follows",
       "status": "current",
@@ -47099,6 +47611,13 @@
     },
     {
       "from": "code:src/modules/identity/operator-bootstrap.js",
+      "to": "req:FR-197",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/operator-bootstrap.js",
       "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
@@ -47107,6 +47626,27 @@
     {
       "from": "code:src/modules/identity/operator-bootstrap.js",
       "to": "req:SEC-014",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/operator-use.js",
+      "to": "req:FR-075",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/operator-use.js",
+      "to": "req:FR-197",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/operator-use.js",
+      "to": "req:SEC-008",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -47357,6 +47897,27 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/identity/rbac-service.js",
+      "to": "req:FR-192",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/rbac-service.js",
+      "to": "req:FR-193",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/rbac-service.js",
+      "to": "req:FR-196",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/identity/rbac.js",
       "to": "req:FR-076",
       "type": "implements",
@@ -47407,14 +47968,21 @@
     },
     {
       "from": "code:src/modules/identity/rbac.js",
-      "to": "req:FR-165",
+      "to": "req:FR-166",
       "type": "implements",
       "status": "current",
       "source": "annotation"
     },
     {
       "from": "code:src/modules/identity/rbac.js",
-      "to": "req:FR-166",
+      "to": "req:FR-192",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/rbac.js",
+      "to": "req:FR-196",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -47926,6 +48494,13 @@
     {
       "from": "code:src/modules/identity/workspace-membership-service.js",
       "to": "req:FR-067",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/identity/workspace-membership-service.js",
+      "to": "req:FR-195",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -52579,8 +53154,36 @@
       "source": "annotation"
     },
     {
+      "from": "code:src/modules/people/application/employment-service.js",
+      "to": "req:BR-034",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/application/employment-service.js",
+      "to": "req:FR-193",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/application/employment-service.js",
+      "to": "req:SDD-093",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
       "from": "code:src/modules/people/application/people-service.js",
       "to": "req:BR-001",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/application/people-service.js",
+      "to": "req:BR-034",
       "type": "follows",
       "status": "current",
       "source": "annotation"
@@ -52601,6 +53204,20 @@
     },
     {
       "from": "code:src/modules/people/application/people-service.js",
+      "to": "req:FR-193",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/application/people-service.js",
+      "to": "req:SDD-093",
+      "type": "follows",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/application/people-service.js",
       "to": "req:SEC-003",
       "type": "follows",
       "status": "current",
@@ -52609,6 +53226,13 @@
     {
       "from": "code:src/modules/people/components/PeopleDirectory.jsx",
       "to": "req:FR-042",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/people/components/PeopleDirectory.jsx",
+      "to": "req:FR-193",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -52679,6 +53303,13 @@
     {
       "from": "code:src/modules/procurement/application/goods-receipt-service.js",
       "to": "req:FR-168",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/procurement/application/goods-receipt-service.js",
+      "to": "req:FR-196",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -52805,6 +53436,13 @@
     {
       "from": "code:src/modules/procurement/domain/procurement.js",
       "to": "req:FR-165",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/procurement/domain/procurement.js",
+      "to": "req:FR-196",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -53463,6 +54101,34 @@
     {
       "from": "code:src/modules/project-manager/application/backup-service.js",
       "to": "req:FR-186",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-193",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-194",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-195",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/backup-service.js",
+      "to": "req:FR-197",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -54429,6 +55095,13 @@
     {
       "from": "code:src/modules/project-manager/application/scope-service.js",
       "to": "req:FR-191",
+      "type": "implements",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "code:src/modules/project-manager/application/scope-service.js",
+      "to": "req:FR-194",
       "type": "implements",
       "status": "current",
       "source": "annotation"
@@ -57438,6 +58111,13 @@
     },
     {
       "from": "doc:FR-067-workspace-invitation-and-scoped-membership",
+      "to": "doc:FR-195-access-invite",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-067-workspace-invitation-and-scoped-membership",
       "to": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
       "type": "references",
       "source": "markdown",
@@ -58881,6 +59561,34 @@
     {
       "from": "doc:FR-192-membership-scope-grammar",
       "to": "spec:ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-192-membership-scope-grammar",
+      "to": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-195-access-invite",
+      "to": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-196-segregation-of-duties",
+      "to": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "doc:FR-197-operator-access-lifecycle",
+      "to": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
       "type": "references",
       "source": "markdown",
       "status": "current"
@@ -61938,6 +62646,48 @@
       "source": "feature-registry"
     },
     {
+      "from": "feat:FEAT-028",
+      "to": "req:FR-193",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-028",
+      "to": "req:FR-194",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-029",
+      "to": "req:FR-195",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-029",
+      "to": "req:FR-196",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "feat:FEAT-029",
+      "to": "req:FR-197",
+      "type": "bundles",
+      "status": "current",
+      "source": "feature-registry"
+    },
+    {
+      "from": "model:AccessInvite",
+      "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:AgentTraceEvent",
       "to": "domain:agent",
       "type": "owned_by",
@@ -62157,6 +62907,13 @@
     {
       "from": "model:EdgeDeviceCredential",
       "to": "domain:identity",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
+      "from": "model:Employment",
+      "to": "domain:project-manager",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -62897,6 +63654,13 @@
       "source": "charter"
     },
     {
+      "from": "model:TaxRegistrationBranch",
+      "to": "domain:project-manager",
+      "type": "owned_by",
+      "status": "current",
+      "source": "charter"
+    },
+    {
       "from": "model:Team",
       "to": "domain:project-manager",
       "type": "owned_by",
@@ -62941,13 +63705,6 @@
     {
       "from": "model:Workspace",
       "to": "domain:project-manager",
-      "type": "owned_by",
-      "status": "current",
-      "source": "charter"
-    },
-    {
-      "from": "model:WorkspaceInvite",
-      "to": "domain:identity",
       "type": "owned_by",
       "status": "current",
       "source": "charter"
@@ -63199,6 +63956,20 @@
     },
     {
       "from": "req:BR-033",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-034",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:BR-035",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -64577,6 +65348,41 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:FR-193",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-194",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-195",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-196",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:FR-197",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:NFR-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -65375,6 +66181,20 @@
       "source": "prd-registry"
     },
     {
+      "from": "req:SDD-093",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SDD-094",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
       "from": "req:SEC-001",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
@@ -65565,6 +66385,13 @@
     },
     {
       "from": "req:SEC-026",
+      "to": "doc:PRD-SDD-v1.0",
+      "type": "specifies",
+      "status": "current",
+      "source": "prd-registry"
+    },
+    {
+      "from": "req:SEC-027",
       "to": "doc:PRD-SDD-v1.0",
       "type": "specifies",
       "status": "current",
@@ -70429,6 +71256,13 @@
       "status": "current"
     },
     {
+      "from": "spec:ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY",
+      "to": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
       "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
       "type": "references",
@@ -70889,6 +71723,111 @@
       "type": "references",
       "source": "markdown",
       "status": "current"
+    },
+    {
+      "from": "spec:ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY",
+      "to": "doc:FR-193-employment-record",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY",
+      "to": "doc:FR-194-legal-entity-and-tax-branch",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY",
+      "to": "spec:ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY",
+      "to": "spec:ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY",
+      "to": "spec:ADR-037-TEAM-IS-AN-ORGANISATIONAL-GROUPING-NOT-AN-AUTHORITY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY",
+      "to": "spec:ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
+    },
+    {
+      "from": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
+      "to": "doc:FR-195-access-invite",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
+      "to": "doc:FR-196-segregation-of-duties",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
+      "to": "doc:FR-197-operator-access-lifecycle",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
+      "to": "spec:ADR-017-PRODUCTION-VIEWER-SESSION-AND-ENTRY-READ-MODEL",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
+      "to": "spec:ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
+      "to": "spec:ADR-033-CUSTOMER-SCOPE-AND-PRODUCT-OWNER-AUTHORITY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
+      "to": "spec:ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
+      "to": "spec:ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
+      "from": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
+      "to": "spec:ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE",
+      "type": "relates",
+      "status": "current",
+      "source": "control-block"
     },
     {
       "from": "test:tests/acceptance/genesisrag17-e2e.test.js",
@@ -71404,6 +72343,13 @@
     {
       "from": "test:tests/e2e/fr041-business-first.spec.js",
       "to": "req:FR-182",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/fr041-business-first.spec.js",
+      "to": "req:FR-194",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -72628,6 +73574,13 @@
     },
     {
       "from": "test:tests/e2e/fr186-billing-pos.spec.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/e2e/fr186-billing-pos.spec.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -73455,6 +74408,13 @@
     {
       "from": "test:tests/e2e/smoke.spec.js",
       "to": "req:FR-169",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/e2e/smoke.spec.js",
+      "to": "req:FR-194",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -74987,6 +75947,34 @@
     },
     {
       "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-195",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:FR-197",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -74998,6 +75986,13 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:SEC-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/channel-identity.test.js",
@@ -75477,6 +76472,34 @@
     },
     {
       "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-195",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
+      "to": "req:FR-197",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/crm-conversation-analysis.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -75841,6 +76864,13 @@
     },
     {
       "from": "test:tests/integration/domain-visibility-server.test.js",
+      "to": "req:BR-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/domain-visibility-server.test.js",
       "to": "req:FR-042",
       "type": "verifies",
       "status": "current",
@@ -75869,6 +76899,13 @@
     },
     {
       "from": "test:tests/integration/domain-visibility-server.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/domain-visibility-server.test.js",
       "to": "req:SDD-024",
       "type": "verifies",
       "status": "current",
@@ -75880,6 +76917,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/domain-visibility-server.test.js",
+      "to": "req:SDD-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/integration/domain-visibility-server.test.js",
@@ -77472,6 +78516,13 @@
     },
     {
       "from": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr072-workspace-mutation-authorization.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -77627,6 +78678,13 @@
     {
       "from": "test:tests/integration/fr074-scope-creation-authorization.test.js",
       "to": "req:FR-191",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr074-scope-creation-authorization.test.js",
+      "to": "req:FR-194",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -78012,6 +79070,34 @@
     {
       "from": "test:tests/integration/fr075-restore-authorization.test.js",
       "to": "req:FR-186",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-195",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr075-restore-authorization.test.js",
+      "to": "req:FR-197",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -79726,6 +80812,13 @@
     },
     {
       "from": "test:tests/integration/fr163-payment.test.js",
+      "to": "req:BR-035",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr163-payment.test.js",
       "to": "req:FR-072",
       "type": "verifies",
       "status": "current",
@@ -79747,6 +80840,13 @@
     },
     {
       "from": "test:tests/integration/fr163-payment.test.js",
+      "to": "req:FR-196",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr163-payment.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -79755,6 +80855,13 @@
     {
       "from": "test:tests/integration/fr163-payment.test.js",
       "to": "req:SEC-018",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr163-payment.test.js",
+      "to": "req:SEC-027",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -79961,6 +81068,13 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr165-goods-receipt.test.js",
+      "to": "req:FR-196",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/fr165-goods-receipt.test.js",
@@ -80818,6 +81932,13 @@
     },
     {
       "from": "test:tests/integration/fr183-pos.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr183-pos.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -81035,6 +82156,13 @@
     },
     {
       "from": "test:tests/integration/fr186-billing.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr186-billing.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -81127,6 +82255,209 @@
     {
       "from": "test:tests/integration/fr191-access-grant-lifecycle.test.js",
       "to": "req:SEC-026",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr193-employment-lifecycle.test.js",
+      "to": "code:src/modules/people/application/employment-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr193-employment-lifecycle.test.js",
+      "to": "req:BR-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr193-employment-lifecycle.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr193-employment-lifecycle.test.js",
+      "to": "req:SDD-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr194-legal-entity-tax-branch.test.js",
+      "to": "req:BR-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr194-legal-entity-tax-branch.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr195-access-invite.test.js",
+      "to": "code:src/modules/identity/access-invite-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr195-access-invite.test.js",
+      "to": "req:BR-016",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr195-access-invite.test.js",
+      "to": "req:FR-067",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr195-access-invite.test.js",
+      "to": "req:FR-195",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr195-access-invite.test.js",
+      "to": "req:SDD-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr195-access-invite.test.js",
+      "to": "req:SEC-014",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr196-segregation-of-duties.test.js",
+      "to": "code:src/modules/commerce/application/payment-service.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr196-segregation-of-duties.test.js",
+      "to": "req:BR-002",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr196-segregation-of-duties.test.js",
+      "to": "req:BR-035",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr196-segregation-of-duties.test.js",
+      "to": "req:FR-072",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr196-segregation-of-duties.test.js",
+      "to": "req:FR-163",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr196-segregation-of-duties.test.js",
+      "to": "req:FR-196",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr196-segregation-of-duties.test.js",
+      "to": "req:SDD-094",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr196-segregation-of-duties.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/fr196-segregation-of-duties.test.js",
+      "to": "req:SEC-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr196-sod-cannot-be-assembled.test.js",
+      "to": "req:BR-035",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr196-sod-cannot-be-assembled.test.js",
+      "to": "req:FR-196",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr196-sod-cannot-be-assembled.test.js",
+      "to": "req:SEC-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr197-operator-grant-lifecycle.test.js",
+      "to": "code:src/modules/identity/operator-use.js",
+      "type": "tests",
+      "status": "current",
+      "source": "annotation"
+    },
+    {
+      "from": "test:tests/integration/fr197-operator-grant-lifecycle.test.js",
+      "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr197-operator-grant-lifecycle.test.js",
+      "to": "req:FR-197",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr197-operator-grant-lifecycle.test.js",
+      "to": "req:NFR-019",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr197-operator-grant-lifecycle.test.js",
+      "to": "req:SEC-008",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -83016,6 +84347,34 @@
     },
     {
       "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-195",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
+      "to": "req:FR-197",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/line-server-backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -83569,6 +84928,34 @@
     },
     {
       "from": "test:tests/integration/marketing-backup.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-backup.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-backup.test.js",
+      "to": "req:FR-195",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-backup.test.js",
+      "to": "req:FR-197",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-backup.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -84074,6 +85461,34 @@
     {
       "from": "test:tests/integration/marketing-content-backup.test.js",
       "to": "req:FR-186",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-195",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/marketing-content-backup.test.js",
+      "to": "req:FR-197",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -86250,6 +87665,13 @@
     },
     {
       "from": "test:tests/integration/scope-and-isolation.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/scope-and-isolation.test.js",
       "to": "req:SEC-001",
       "type": "verifies",
       "status": "current",
@@ -86887,6 +88309,13 @@
     },
     {
       "from": "test:tests/integration/workspace-collaboration-roster.test.js",
+      "to": "req:FR-195",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/workspace-collaboration-roster.test.js",
       "to": "req:SDD-038",
       "type": "verifies",
       "status": "current",
@@ -87007,6 +88436,13 @@
     {
       "from": "test:tests/integration/workspace-onboarding-flow.test.js",
       "to": "req:FR-192",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/workspace-onboarding-flow.test.js",
+      "to": "req:FR-195",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -87175,6 +88611,27 @@
     {
       "from": "test:tests/integration/xlsx-intake.test.js",
       "to": "req:FR-192",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/xlsx-intake.test.js",
+      "to": "req:FR-195",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -89532,6 +90989,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/audit-page.test.js",
+      "to": "req:FR-197",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
       "from": "test:tests/unit/auth-service.test.js",
       "to": "code:src/modules/identity/auth-service.js",
       "type": "tests",
@@ -89989,6 +91453,13 @@
     {
       "from": "test:tests/unit/authorization-seam-routes.test.js",
       "to": "req:FR-075",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/authorization-seam-routes.test.js",
+      "to": "req:FR-197",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -90926,6 +92397,13 @@
     },
     {
       "from": "test:tests/unit/commerce-billing-domain.test.js",
+      "to": "req:BR-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/commerce-billing-domain.test.js",
       "to": "req:FR-183",
       "type": "verifies",
       "status": "current",
@@ -90937,6 +92415,20 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/commerce-billing-domain.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/commerce-billing-domain.test.js",
+      "to": "req:SDD-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/commerce-billing-domain.test.js",
@@ -90979,6 +92471,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/commerce-domain.test.js",
+      "to": "req:FR-196",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/commerce-routes.test.js",
@@ -91319,6 +92818,27 @@
     {
       "from": "test:tests/unit/conversation-analysis-contract.test.js",
       "to": "req:FR-192",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/conversation-analysis-contract.test.js",
+      "to": "req:FR-195",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -91934,14 +93454,21 @@
     },
     {
       "from": "test:tests/unit/customer-import-review-service.test.js",
-      "to": "req:FR-165",
+      "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
     },
     {
       "from": "test:tests/unit/customer-import-review-service.test.js",
-      "to": "req:FR-166",
+      "to": "req:FR-192",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/customer-import-review-service.test.js",
+      "to": "req:FR-196",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -93838,6 +95365,34 @@
     },
     {
       "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-195",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
+      "to": "req:FR-197",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr045-backup-contract.test.js",
       "to": "req:SDD-023",
       "type": "verifies",
       "status": "current",
@@ -95707,13 +97262,6 @@
     },
     {
       "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
-      "to": "req:FR-165",
-      "type": "verifies",
-      "status": "current",
-      "source": "transitive"
-    },
-    {
-      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
       "to": "req:FR-166",
       "type": "verifies",
       "status": "current",
@@ -95729,6 +97277,20 @@
     {
       "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
       "to": "req:FR-192",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/fr076-product-owner-business-assignment.test.js",
+      "to": "req:FR-196",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -96709,6 +98271,34 @@
     {
       "from": "test:tests/unit/fr190-line-transport-health.test.js",
       "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr192-tenant-role-binding-resolver.test.js",
+      "to": "req:FR-192",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr192-tenant-role-binding-resolver.test.js",
+      "to": "req:SEC-001",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr193-employment-not-authorization.test.js",
+      "to": "req:BR-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/fr193-employment-not-authorization.test.js",
+      "to": "req:FR-193",
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
@@ -102574,6 +104164,13 @@
     },
     {
       "from": "test:tests/unit/onboarding-service.test.js",
+      "to": "req:FR-195",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/onboarding-service.test.js",
       "to": "req:SDD-038",
       "type": "verifies",
       "status": "current",
@@ -102634,6 +104231,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/operator-bootstrap.test.js",
+      "to": "req:FR-197",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/operator-bootstrap.test.js",
@@ -102959,6 +104563,13 @@
     },
     {
       "from": "test:tests/unit/people-directory.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/people-directory.test.js",
       "to": "req:SDD-020",
       "type": "verifies",
       "status": "current",
@@ -103029,6 +104640,13 @@
     },
     {
       "from": "test:tests/unit/people-service.test.js",
+      "to": "req:BR-034",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/people-service.test.js",
       "to": "req:FR-042",
       "type": "verifies",
       "status": "current",
@@ -103047,6 +104665,20 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/people-service.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/people-service.test.js",
+      "to": "req:SDD-093",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/people-service.test.js",
@@ -103604,6 +105236,27 @@
     {
       "from": "test:tests/unit/plan-schema.test.js",
       "to": "req:FR-192",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:FR-193",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:FR-194",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/plan-schema.test.js",
+      "to": "req:FR-195",
       "type": "verifies",
       "status": "current",
       "source": "transitive"
@@ -104911,6 +106564,13 @@
       "source": "test-reference"
     },
     {
+      "from": "test:tests/unit/procurement-domain.test.js",
+      "to": "req:FR-196",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
+    },
+    {
       "from": "test:tests/unit/procurement-routes.test.js",
       "to": "code:src/app/(pm)/procurement/page.jsx",
       "type": "tests",
@@ -105175,6 +106835,13 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/unit/procurement-routes.test.js",
+      "to": "req:FR-196",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/unit/procurement-routes.test.js",
@@ -109095,6 +110762,13 @@
       "type": "verifies",
       "status": "current",
       "source": "test-reference"
+    },
+    {
+      "from": "test:tests/unit/workspace-invite-service.test.js",
+      "to": "req:FR-195",
+      "type": "verifies",
+      "status": "current",
+      "source": "transitive"
     },
     {
       "from": "test:tests/unit/workspace-invite-service.test.js",

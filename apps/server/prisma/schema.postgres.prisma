@@ -26,12 +26,13 @@ model Portfolio {
   version   Int      @default(1)
 
   tenants              Tenant[]
-  legalEntities        LegalEntity[]
   workspaces           Workspace[]
   // @req FR-067 — the top-level collaboration Workspace the user sees IS this
   // Portfolio (ADR-027 §D2); membership and invites key off portfolioId.
   workspaceMemberships WorkspaceMembership[]
-  workspaceInvites     WorkspaceInvite[]
+  // @req FR-195 — renamed from workspaceInvites: AccessInvite generalises
+  // WorkspaceInvite to also cover TENANT/BUSINESS scope (ADR-079).
+  accessInvites        AccessInvite[]
 }
 
 model Tenant {
@@ -46,8 +47,12 @@ model Tenant {
 
   portfolio                  Portfolio                   @relation(fields: [portfolioId], references: [id])
   businesses                 Business[]
+  // @req FR-194 — moved from Portfolio (ADR-078 D1): a LegalEntity now sits
+  // inside the isolation boundary it always should have.
+  legalEntities              LegalEntity[]
   workspaces                 Workspace[]
   memberships                Membership[]
+  employments                Employment[]
   externalIdentities         ExternalIdentity[]
   channelIdentities          ChannelIdentity[]
   identityLinkTokens         IdentityLinkToken[]
@@ -106,24 +111,42 @@ model Tenant {
   marketingInitiatives      MarketingInitiative[]
   marketingContentBriefs    MarketingContentBrief[]
   marketingBroadcastIntents MarketingBroadcastIntent[]
+  // @req FR-195 — a TENANT-scoped AccessInvite hangs off the Tenant directly.
+  accessInvites             AccessInvite[]
 
   @@index([portfolioId])
 }
 
+// @req FR-194 — LegalEntity moves under Tenant (ADR-078 D1). Before this it
+// carried `portfolioId` with no `tenantId` at all, which put it ABOVE the BR-001
+// isolation boundary: two Businesses in different Tenants could share one legal
+// entity, and a tenant-scoped RLS policy has no column here to filter on.
+// `billing-invoice-service.js` compensated in application code with a
+// portfolio comparison; the composite FK below (`@@unique([id, tenantId])` plus
+// Business's matching composite relation) makes the ancestry a database
+// invariant instead, and the portfolio comparison is retired.
+// @spec ADR-078 D1, ADR-018 D4, BR-001
 model LegalEntity {
   id           String   @id @default(uuid())
   code         String   @unique
-  portfolioId  String
+  tenantId     String
   legalName    String
   legalAddress String?
+  status       String   @default("ACTIVE")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  portfolio   Portfolio               @relation(fields: [portfolioId], references: [id])
-  identifiers LegalEntityIdentifier[]
-  businesses  Business[]
+  tenant                  Tenant                   @relation(fields: [tenantId], references: [id])
+  identifiers             LegalEntityIdentifier[]
+  businesses              Business[]
+  taxRegistrationBranches TaxRegistrationBranch[]
 
-  @@index([portfolioId])
+  // The `UNIQUE (id, tenantId)` that a composite FK from Business needs exists
+  // only in the Supabase migration, not here — the same choice ADR-077 D4 made
+  // for `Business(id, tenantId)`: Prisma's relation to LegalEntity below stays
+  // the plain single-column shape schema.prisma uses everywhere else, and the
+  // ancestry invariant is a Postgres-only guard layered under it.
+  @@index([tenantId])
 }
 
 model LegalEntityIdentifier {
@@ -138,6 +161,33 @@ model LegalEntityIdentifier {
   legalEntity LegalEntity @relation(fields: [legalEntityId], references: [id], onDelete: Cascade)
 
   @@unique([country, type, value])
+  @@index([legalEntityId])
+}
+
+// @req FR-194 — the legal entity's VAT branch registration (ประมวลรัษฎากร ม.86,
+// ภ.พ.20): `00000` is head office, any other 5-digit code an additional
+// registered branch. This is split out of `Branch` because the branch code is
+// a fact about the LEGAL ENTITY's tax registration, not about an operating
+// site — a warehouse has no branch code, and one branch code can cover several
+// operating sites. Two Businesses sharing a LegalEntity could previously each
+// stamp an uncontrolled `00000` on their own Branch row with nothing to stop
+// two tax invoices claiming to be the same legal branch (ADR-078 D2).
+// @spec ADR-078 D2, BR-034
+model TaxRegistrationBranch {
+  id            String    @id @default(uuid())
+  legalEntityId String
+  branchCode    String
+  name          String
+  address       String
+  status        String    @default("ACTIVE")
+  verifiedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  legalEntity LegalEntity @relation(fields: [legalEntityId], references: [id], onDelete: Restrict)
+  branches    Branch[]
+
+  @@unique([legalEntityId, branchCode])
   @@index([legalEntityId])
 }
 
@@ -160,10 +210,18 @@ model Business {
   version          Int      @default(1)
 
   tenant                     Tenant                      @relation(fields: [tenantId], references: [id])
+  // @req FR-194 — Prisma keeps the plain single-column shape (as it does for
+  // Membership.business); the ancestry invariant — a Business may only
+  // reference a LegalEntity in its OWN Tenant — is a composite FK on
+  // (legalEntityId, tenantId) added by the Supabase migration only. Before
+  // ADR-078 this pointed at a Portfolio-scoped LegalEntity with no Tenant
+  // column at all, which is what let two Businesses in different Tenants share
+  // one legal entity (ADR-018 D4).
   legalEntity                LegalEntity?                @relation(fields: [legalEntityId], references: [id])
   branches                   Branch[]
   workspaces                 Workspace[]
   memberships                Membership[]
+  employments                Employment[]
   // @req FR-089 — Teams are Business-scoped (ADR-037 D2).
   teams                      Team[]
   customers                  Customer[]
@@ -223,29 +281,43 @@ model Business {
   marketingInitiatives      MarketingInitiative[]
   marketingContentBriefs    MarketingContentBrief[]
   marketingBroadcastIntents MarketingBroadcastIntent[]
+  // @req FR-195 — a BUSINESS-scoped AccessInvite hangs off the Business directly.
+  accessInvites             AccessInvite[]
 
   @@index([tenantId])
 }
 
 model Branch {
-  id            String   @id @default(uuid())
-  code          String   @unique
-  tenantId      String
-  businessId    String
-  name          String
-  address       String?
-  taxBranchCode String?
-  status        String   @default("ACTIVE")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id         String @id @default(uuid())
+  code       String @unique
+  tenantId   String
+  businessId String
+  name       String
+  address    String?
+  // @req FR-194 — what this Branch IS: an operating site. `SITE` is the
+  // default, matching every Branch row that existed before this column.
+  kind       String @default("SITE")
+  // @req FR-194 — replaces `taxBranchCode` (a free-text column any Business
+  // could stamp `00000` into with nothing to stop two Businesses sharing a
+  // legal entity from each claiming to be its head office). A Branch now
+  // POINTS AT the legal entity's own VAT registration record instead of
+  // carrying a copy of its code; a warehouse or kitchen legitimately has none.
+  taxRegistrationBranchId String?
+  status                  String   @default("ACTIVE")
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 
-  business          Business               @relation(fields: [businessId], references: [id])
-  memberships       Membership[]
-  assetLocations    AssetLocationHistory[]
-  commerceDocuments CommerceDocument[]
+  business              Business               @relation(fields: [businessId], references: [id])
+  // @req FR-194 — Restrict: a tax registration branch cannot be removed out
+  // from under a Branch that bills against it; unlink the Branch first.
+  taxRegistrationBranch TaxRegistrationBranch? @relation(fields: [taxRegistrationBranchId], references: [id], onDelete: Restrict)
+  employments           Employment[]
+  assetLocations        AssetLocationHistory[]
+  commerceDocuments     CommerceDocument[]
 
   @@index([tenantId])
   @@index([businessId])
+  @@index([taxRegistrationBranchId])
 }
 
 model Person {
@@ -277,6 +349,9 @@ model Person {
   memberships                   Membership[]
   membershipsGranted            Membership[]                   @relation("MembershipGrantedBy")
   membershipsRevoked            Membership[]                   @relation("MembershipRevokedBy")
+  // @req FR-193 — the HR assignment record, distinct from the Membership
+  // access grant above (ADR-078 D1).
+  employments                   Employment[]
   credential                    PersonCredential?
   passwordResetTokens           PasswordResetToken[]
   teamMemberships               TeamMembership[]
@@ -300,7 +375,7 @@ model Person {
   platformGrantsIssued          PlatformGrant[]                @relation("PlatformGrantIssuer")
   // @req FR-067 — Workspace collaboration grants and the invites this person issued.
   workspaceMemberships          WorkspaceMembership[]
-  workspaceInvitesIssued        WorkspaceInvite[]              @relation("WorkspaceInviteInviter")
+  accessInvitesIssued           AccessInvite[]                 @relation("AccessInviteInviter")
   assetResponsibilities         AssetResponsibility[]
   salesTasksAssigned            SalesTask[]                    @relation("SalesTaskAssignee")
   mfaFactors                    MfaFactor[]
@@ -311,13 +386,29 @@ model Person {
 // operator: the session port resolves it per request (revocation takes effect
 // on the next request, NFR-019 discipline), and nothing else — not role, not
 // ownership, not `isPlatform` — is ever read as operator authority.
-// @spec FR-075, SEC-008
+// @req FR-197 — operator access is time-boxed. `expiresAt` is mandatory on
+// every grant `issueOperatorGrant` mints (capped at 90 days; `hasOperatorGrant`
+// honours it) and `standing` marks the one grant this rule does not apply to —
+// the bootstrap grant, minted before any operator exists to issue one. A
+// renewal is a fresh row, not an update to this one (the same "grant, not a
+// fact" reasoning as ADR-077 D1): `@@unique([personId, capability])` would
+// have blocked that, so the old unconditional unique constraint is replaced by
+// a partial one scoped to `status = 'ACTIVE'` in the Supabase migration
+// (Prisma cannot express the partial predicate), matching the pattern
+// ADR-077 D4 already uses on Membership.
+// @spec FR-075, SEC-008, ADR-017 D6, ADR-079
 model PlatformGrant {
   id                String    @id @default(uuid())
   personId          String
   capability        String    @default("OPERATOR")
   status            String    @default("ACTIVE")
   grantedByPersonId String?
+  grantReason       String?
+  expiresAt         DateTime?
+  // True only for the grant `bootstrapOperator` mints when no operator exists
+  // yet. Every grant `issueOperatorGrant` issues afterward is standing:false —
+  // it was issued BY a standing operator, not born one.
+  standing          Boolean   @default(false)
   createdAt         DateTime  @default(now())
   revokedAt         DateTime?
   revokeReason      String?
@@ -325,8 +416,8 @@ model PlatformGrant {
   person    Person  @relation("PlatformGrantPerson", fields: [personId], references: [id], onDelete: Cascade)
   grantedBy Person? @relation("PlatformGrantIssuer", fields: [grantedByPersonId], references: [id], onDelete: SetNull)
 
-  @@unique([personId, capability])
   @@index([capability, status])
+  @@index([personId, capability, status])
 }
 
 // @req FR-067 — Workspace collaboration membership, keyed by `portfolioId`:
@@ -357,34 +448,60 @@ model WorkspaceMembership {
   @@index([portfolioId, status])
 }
 
-// @req FR-067 — scoped, expiring, single-use Workspace invite. `tokenHash` is a
-// SHA-256 digest (SEC-014, the FR-104 discipline): the raw token appears exactly
-// once in the authenticated mint response and is never persisted or logged.
-// EXPIRED is deliberately not a persisted status — expiry is a fail-closed
-// comparison against `expiresAt` at acceptance time, so a clock cannot be
-// outrun by a status column that nobody updated.
-// @spec SEC-014, BR-016, SDD-038
-// @tested tests/unit/workspace-invite-service.test.js
-model WorkspaceInvite {
-  id                 String    @id @default(uuid())
-  portfolioId        String
-  invitedByPersonId  String
-  targetPersonId     String?
-  invitedEmail       String?
-  role               String    @default("MEMBER")
-  status             String    @default("PENDING")
-  tokenHash          String    @unique
-  expiresAt          DateTime
-  acceptedByPersonId String?
-  acceptedAt         DateTime?
-  revokedAt          DateTime?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+// @req FR-195 — AccessInvite generalises WorkspaceInvite (FR-067) into a
+// scoped invitation for all three authority layers this installation has:
+// PORTFOLIO (Workspace collaboration, BR-016 — unchanged from FR-067),
+// TENANT and BUSINESS (a real Membership grant, on acceptance, via
+// `grantBusinessMembership` — the one creation path, ADR-077 D8). Both
+// WorkspaceInvite and WorkspaceMembership carried zero rows in production on
+// 2026-09-12, which is what makes this a pure DDL generalisation rather than a
+// migration of live data (ADR-079).
+// `tokenHash` is a SHA-256 digest (SEC-014, the FR-104 discipline): the raw
+// token appears exactly once in the authenticated mint response and is never
+// persisted or logged. EXPIRED is deliberately not a persisted status —
+// expiry is a fail-closed comparison against `expiresAt` at acceptance time.
+// The scope-shape and addressee CHECK constraints live in the Supabase
+// migration, which is the only place Prisma cannot express them (mirroring
+// ADR-077 D3's Membership.scopeType discipline).
+// @spec SEC-014, BR-016, SDD-094, ADR-079
+// @tested tests/unit/access-invite-service.test.js, tests/unit/workspace-invite-service.test.js
+model AccessInvite {
+  id                   String    @id @default(uuid())
+  scopeType            String    @default("PORTFOLIO")
+  portfolioId          String?
+  tenantId             String?
+  businessId           String?
+  invitedByPersonId    String
+  targetPersonId       String?
+  invitedEmail         String?
+  // @req FR-195 — LINE-first intake: invite the Person who messaged the OA,
+  // named by their channel identity rather than an email they may not have.
+  invitedLineUserId    String?
+  role                 String    @default("MEMBER")
+  domainKeysJson       String    @default("[]")
+  reason               String?
+  status               String    @default("PENDING")
+  tokenHash            String    @unique
+  expiresAt            DateTime
+  acceptedByPersonId   String?
+  acceptedAt           DateTime?
+  // No relation: the Membership this invite became. A plain reference, not a
+  // foreign key — the accepting write lives in identity's one Membership
+  // writer (ADR-077 D8) and this column only records which row it produced.
+  acceptedMembershipId String?
+  revokedAt            DateTime?
+  revokedByPersonId    String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
-  portfolio Portfolio @relation(fields: [portfolioId], references: [id])
-  invitedBy Person    @relation("WorkspaceInviteInviter", fields: [invitedByPersonId], references: [id])
+  portfolio Portfolio? @relation(fields: [portfolioId], references: [id])
+  tenant    Tenant?    @relation(fields: [tenantId], references: [id])
+  business  Business?  @relation(fields: [businessId], references: [id])
+  invitedBy Person     @relation("AccessInviteInviter", fields: [invitedByPersonId], references: [id])
 
   @@index([portfolioId, status])
+  @@index([tenantId, status])
+  @@index([businessId, status])
   @@index([targetPersonId, status])
   @@index([invitedEmail, status])
 }
@@ -516,8 +633,6 @@ model Membership {
   // the Supabase migration, which is the only place Prisma cannot express it.
   scopeType      String  @default("BUSINESS")
   businessId     String?
-  branchId       String?
-  employeeRef    String?
   // Default MEMBER, not OWNER (ADR-077 D5). Every current writer passes a role
   // explicitly, so this changes nothing for them; what it removes is an INSERT
   // that omits the column — a migration, a seed, a psql session — minting an
@@ -556,7 +671,6 @@ model Membership {
   // and its owners to `ownsTenant` — which FR-074(b) makes the authority to
   // create more Businesses.
   business Business? @relation(fields: [businessId], references: [id], onDelete: Restrict)
-  branch   Branch?   @relation(fields: [branchId], references: [id])
 
   grantedBy Person? @relation("MembershipGrantedBy", fields: [grantedByPersonId], references: [id], onDelete: SetNull)
   revokedBy Person? @relation("MembershipRevokedBy", fields: [revokedByPersonId], references: [id], onDelete: SetNull)
@@ -567,6 +681,59 @@ model Membership {
   @@index([tenantId, status])
   @@index([businessId, status])
   @@index([expiresAt, status])
+}
+
+// @req FR-193 — Employment is an HR assignment record, deliberately separate
+// from `Membership`'s access grant (ADR-078 D1; RCA-adjacent, though the defect
+// here predates ADR-077: `people-service.js` built the HR roster by reading
+// `Membership` directly, so "who works here" and "who can log in here" were the
+// same question by construction). Consequences that were real before this
+// model existed: a shareholder holding an OWNER Membership appeared as an
+// employee; a suspended staff member vanished from the roster entirely instead
+// of showing suspended; a consultant with access but no employment could not be
+// distinguished from staff; and a Person with no Membership — every
+// LINE-originated Person FR-023 creates on first contact — could never appear
+// in the roster at all.
+//
+// Same discipline ADR-037 D1 imposes on `TeamMembership`: `resolveViewer` does
+// not read this model, and a test in tests/unit asserts the resolver's source
+// files never name it, because "nobody consults it" is only true while nobody
+// consults it.
+// @spec ADR-078 D1, BR-034
+// @tested tests/unit/fr193-employment-not-authorization.test.js,
+//   tests/unit/people-service.test.js
+model Employment {
+  id         String  @id @default(uuid())
+  personId   String
+  tenantId   String
+  businessId String
+  branchId   String?
+  // The employer's own number for this person — was `Membership.employeeRef`.
+  // Never a key (BR-002): joins are always by `personId`.
+  employeeNo String?
+  title      String?
+  // EMPLOYEE | CONTRACTOR | INTERN | OWNER_OPERATOR (enums.js EMPLOYMENT_TYPES)
+  employmentType String @default("EMPLOYEE")
+  // ACTIVE | ON_LEAVE | ENDED (enums.js EMPLOYMENT_STATUSES)
+  status     String    @default("ACTIVE")
+  startAt    DateTime?
+  endAt      DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  version    Int       @default(1)
+
+  // onDelete: Restrict — PDPA erasure redacts the Person, it never deletes the
+  // row (FR-022); an Employment is HR history, not a live-access grant that
+  // disappears with its subject.
+  person   Person   @relation(fields: [personId], references: [id], onDelete: Restrict)
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  branch   Branch?  @relation(fields: [branchId], references: [id], onDelete: Restrict)
+
+  @@index([personId])
+  @@index([tenantId])
+  @@index([businessId, status])
+  @@index([branchId])
 }
 
 // @req FR-095 — the signed cookie is transport only; the live session row is
@@ -642,11 +809,24 @@ model ChannelIdentity {
   @@index([tenantId, status])
 }
 
+// @req FR-196 — `sodOverrideReason` records a tenant owner's deliberate bypass
+// of a segregation-of-duties conflict (ROLE_CONFLICTS in rbac.js):
+// `assignRoleBinding` refuses 409 ROLE_CONFLICT unless the caller is a tenant
+// owner passing `sodOverride: { reason }`, and the reason lands here as well
+// as in the audit payload, so a review sees it on the row itself and not only
+// in the append-only stream (the same "provenance on the row" reasoning as
+// ADR-077 D1's Membership.grantReason).
+// @req FR-192/ADR-077 D3 — `businessId` is nullable so a TENANT-scoped binding
+// can exist at all: with it nullable, Postgres treats NULLs as distinct, so
+// the old `@@unique([personId, businessId, roleKey])` stopped preventing
+// duplicate tenant-wide rows. Two partial unique indexes replace it in the
+// Supabase migration (the pattern ADR-077 D4 already uses on Membership),
+// which is also where the scope-shape CHECK lives (Prisma cannot express it).
 model RoleBinding {
   id                    String    @id @default(uuid())
   personId              String
   tenantId              String
-  businessId            String
+  businessId            String?
   roleKey               String
   scopeType             String    @default("BUSINESS")
   // @req FR-191 — why this binding is not active. Set when a Membership
@@ -656,6 +836,7 @@ model RoleBinding {
   // silently re-grant a capability somebody had deliberately removed.
   // @spec ADR-077 D2
   cascadeOfMembershipId String?
+  sodOverrideReason     String?
   status                String    @default("ACTIVE")
   assignedBy            String?
   version               Int       @default(1)
@@ -663,11 +844,10 @@ model RoleBinding {
   updatedAt             DateTime  @updatedAt
   revokedAt             DateTime?
 
-  person   Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
-  tenant   Tenant   @relation(fields: [tenantId], references: [id])
-  business Business @relation(fields: [businessId], references: [id])
+  person   Person    @relation(fields: [personId], references: [id], onDelete: Cascade)
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  business Business? @relation(fields: [businessId], references: [id])
 
-  @@unique([personId, businessId, roleKey])
   @@index([tenantId, businessId, status])
   @@index([personId, status])
   @@index([roleKey, status])
