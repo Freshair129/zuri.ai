@@ -20,6 +20,7 @@
 import { randomBytes, scryptSync } from 'node:crypto'
 import prisma from '../../lib/db.js'
 import { uniqueHumanCode } from '../../lib/ids.js'
+import { isInstallationOperator } from './viewer-authority.js'
 import { recordAudit } from '../project-manager/application/audit.js'
 
 export const OPERATOR_CAPABILITY = 'OPERATOR'
@@ -53,7 +54,7 @@ export async function bootstrapOperator({ email, displayName, grantOnly = false,
   if (!grantOnly && (typeof displayName !== 'string' || !displayName.trim())) throw failure(400, 'BOOTSTRAP_DISPLAY_NAME_REQUIRED')
 
   const standing = await db.platformGrant.findFirst({
-    where: { capability: OPERATOR_CAPABILITY, status: 'ACTIVE' },
+    where: liveOperatorGrantWhere(new Date()),
     select: { id: true },
   })
   if (standing) throw failure(409, 'BOOTSTRAP_REFUSED_OPERATOR_EXISTS — an ACTIVE OPERATOR grant already stands; new grants are issued by an operator, not by bootstrap')
@@ -166,7 +167,34 @@ const OPERATOR_GRANT_MAX_MS = OPERATOR_GRANT_MAX_DAYS * 24 * 60 * 60 * 1000
  * inside the same transaction rather than left to collide with the new row's
  * partial-unique-active index.
  */
-export async function issueOperatorGrant({ personId, reason, expiresAt, actorId = null, db = prisma, now = () => new Date() } = {}) {
+/**
+ * @req FR-197 — the ONE definition of a grant that still grants.
+ *
+ * `hasOperatorGrant` learned to honour `expiresAt`; `bootstrapOperator` and
+ * `revokeOperatorGrant`'s last-operator guard did not, and both still asked
+ * for `status: 'ACTIVE'` alone. An expired row is ACTIVE by status, so those
+ * two read a lapsed grant as a standing operator: bootstrap refused ("an
+ * OPERATOR grant already stands") while nobody could actually operate. A
+ * predicate that three callers each spell for themselves is three predicates,
+ * which is the shape ADR-077's own root cause had.
+ */
+export function liveOperatorGrantWhere(now = new Date()) {
+  return {
+    capability: OPERATOR_CAPABILITY,
+    status: 'ACTIVE',
+    OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+  }
+}
+
+export async function issueOperatorGrant({ personId, reason, expiresAt, viewer = null, actorId = null, db = prisma, now = () => new Date() } = {}) {
+  // @req FR-197 — "every later grant is issued by a standing operator" is what
+  // FR-197 says and what this function did not check: it took an `actorId`
+  // string and trusted it. An id in an argument is a claim, not an authority.
+  // `viewer` is optional only so the CLI, which runs with database access and
+  // has already proven more than this, can pass none deliberately.
+  if (viewer !== null && !isInstallationOperator(viewer)) {
+    throw failure(403, 'OPERATOR_GRANT_REQUIRES_OPERATOR')
+  }
   if (typeof personId !== 'string' || !personId.trim()) throw failure(400, 'OPERATOR_GRANT_PERSON_REQUIRED')
   if (typeof reason !== 'string' || !reason.trim()) throw failure(400, 'OPERATOR_GRANT_REASON_REQUIRED')
   const expiry = expiresAt instanceof Date ? expiresAt : (typeof expiresAt === 'string' ? new Date(expiresAt) : null)
@@ -183,8 +211,18 @@ export async function issueOperatorGrant({ personId, reason, expiresAt, actorId 
   return db.$transaction(async (tx) => {
     const superseded = await tx.platformGrant.findFirst({
       where: { personId, capability: OPERATOR_CAPABILITY, status: 'ACTIVE' },
-      select: { id: true },
+      select: { id: true, standing: true },
     })
+    // @req FR-197 — a standing grant is not renewable into an expiring one.
+    // Superseding it would put the installation's only unexpiring operator on a
+    // 90-day clock: when it lapsed there would be no operator, and
+    // `bootstrapOperator` — which exists for exactly that hole — would refuse
+    // while an expired row sat there looking ACTIVE. Issue the second operator
+    // a grant of their own; revoke the standing one deliberately if that is
+    // what is meant.
+    if (superseded?.standing) {
+      throw failure(409, 'OPERATOR_GRANT_STANDING_NOT_RENEWABLE — revoke the standing grant explicitly rather than superseding it with an expiring one')
+    }
     if (superseded) {
       await tx.platformGrant.updateMany({
         where: { id: superseded.id, status: 'ACTIVE' },
@@ -281,7 +319,7 @@ export async function revokeOperatorGrant(grantId, { reason = 'REVOKED', allowLa
 
   if (!allowLast) {
     const activeOperatorCount = await db.platformGrant.count({
-      where: { capability: OPERATOR_CAPABILITY, status: 'ACTIVE' },
+      where: liveOperatorGrantWhere(now()),
     })
     if (activeOperatorCount <= 1) {
       throw failure(409, 'OPERATOR_GRANT_REFUSED_LAST_ACTIVE_OPERATOR — revoking the last ACTIVE OPERATOR grant would lock the installation out; pass --allow-last to override')

@@ -87,8 +87,15 @@ async function assertNoConflict(db, { personId, tenantId, roleKey, viewer, sodOv
   const conflicts = conflictingRoles(roleKey)
   if (!conflicts.length) return null
 
+  // @req FR-196 — every status EXCEPT revoked counts as held. `status: ACTIVE`
+  // read the question as "is the conflicting role in effect right now", and the
+  // question segregation of duties asks is "does this person hold both". A
+  // SUSPENDED binding is still theirs — it comes back with one reactivation —
+  // so counting only ACTIVE let the conflict be assembled in three steps:
+  // suspend the first role, assign the second (no conflict visible), reactivate
+  // the first. Only REVOKED is terminal (ADR-077 D2), so only REVOKED is gone.
   const held = await db.roleBinding.findMany({
-    where: { personId, tenantId, status: ACTIVE, roleKey: { in: conflicts } },
+    where: { personId, tenantId, status: { not: REVOKED }, roleKey: { in: conflicts } },
     select: { roleKey: true },
   })
   const conflicting = [...new Set(held.map((binding) => binding.roleKey))]
@@ -175,7 +182,7 @@ export async function assignRoleBinding(
 export async function updateRoleBindingStatus(
   bindingId,
   status,
-  { db = prisma, viewer } = {},
+  { db = prisma, viewer, sodOverride } = {},
 ) {
   bindingId = requireId(bindingId, 'bindingId')
   if (!ALLOWED_STATUSES.has(status)) throw accessError('Invalid RoleBinding status')
@@ -184,11 +191,39 @@ export async function updateRoleBindingStatus(
   if (!existing) throw accessError('RoleBinding not found', 404)
   const actorId = requireBusinessOwner(viewer, existing.businessId)
 
+  // @req FR-196 — bringing a binding back to ACTIVE is an assignment, and has
+  // to clear the gate an assignment clears. Without this, a Business owner —
+  // who ADR-079 D2 deliberately does not let override a conflict — could
+  // assemble one anyway: suspend role A, assign conflicting role B through
+  // `assignRoleBinding` (A is not ACTIVE, so nothing objects), then reactivate
+  // A through this function, which asked nothing. The person ends up holding
+  // both with no `sodOverrideReason` recorded anywhere, which is the evidence
+  // BR-035 exists to produce.
+  //
+  // Only the transition INTO ACTIVE is gated: suspending and revoking narrow
+  // authority and never need an override.
+  const reactivating = status === ACTIVE && existing.status !== ACTIVE
+  const override = reactivating
+    ? await assertNoConflict(db, {
+      personId: existing.personId,
+      tenantId: existing.tenantId,
+      roleKey: existing.roleKey,
+      viewer,
+      sodOverride,
+    })
+    : null
+
   const binding = await db.roleBinding.update({
     where: { id: bindingId },
     data: {
       status,
       revokedAt: status === REVOKED ? new Date() : null,
+      // A reason belongs to the act that needed it. Carrying the previous
+      // override forward would credit this reactivation to whoever justified
+      // the last one, so it is rewritten on every transition into ACTIVE and
+      // cleared when the binding leaves it.
+      ...(reactivating ? { sodOverrideReason: override?.reason ?? null } : {}),
+      ...(status !== ACTIVE ? { sodOverrideReason: null } : {}),
       version: { increment: 1 },
     },
   })
@@ -205,6 +240,9 @@ export async function updateRoleBindingStatus(
       roleKey: existing.roleKey,
       scopeType: existing.scopeType,
       status,
+      ...(override
+        ? { sodOverride: true, sodOverrideReason: override.reason, conflictsWith: override.conflicting }
+        : {}),
     },
   })
 

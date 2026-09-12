@@ -1469,6 +1469,7 @@ Source: [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods 
 
 - references: [ADR-024 — zuri-ai Is a Standalone Product; the Replace-by-Reuse Program Is Retired](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)
 - references: [ADR-065 — The Commerce Lane: Orders and Payments](decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
+- references: [ADR-079 — Access invite, segregation of duties, and the operator lifecycle](decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md)
 - relates: [ADR-054 — The Legacy ERD Is Prior Art for CRM Conversation Intelligence](decisions/ADR-054-LEGACY-ERD-IS-PRIOR-ART-FOR-CRM-INTELLIGENCE.md)
 
 Backlinks:
@@ -1695,9 +1696,11 @@ Source: [ADR-079 — Access invite, segregation of duties, and the operator life
 
 Backlinks:
 
+- [FR-192 — Membership scope grammar and referential invariants](domains/identity/features/FR-192-membership-scope-grammar.md) (references)
 - [FR-195 — AccessInvite: a scoped invitation that becomes a grant on acceptance](domains/identity/features/FR-195-access-invite.md) (references)
 - [FR-196 — Segregation of duties: role conflicts, and self-verification refused at the transaction](domains/identity/features/FR-196-segregation-of-duties.md) (references)
 - [FR-197 — Operator access is time-boxed, issuable, and its use is recorded](domains/identity/features/FR-197-operator-access-lifecycle.md) (references)
+- [ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts](decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md) (references)
 
 ## Deploying zuri-ai with Docker Compose + ngrok
 
@@ -2209,6 +2212,7 @@ Source: [FR-192 — Membership scope grammar and referential invariants](domains
 
 - references: [FR-191 — Access grant lifecycle](domains/identity/features/FR-191-access-grant-lifecycle.md)
 - references: [ADR-077 — Membership is a grant with a lifecycle, not a membership fact](decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md)
+- references: [ADR-079 — Access invite, segregation of duties, and the operator lifecycle](decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md)
 
 ## FR-195 — AccessInvite: a scoped invitation that becomes a grant on acceptance
 

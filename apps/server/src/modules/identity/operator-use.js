@@ -26,6 +26,24 @@ function failure(status, message) {
  * `BACKUP_PREVIEW`, `BACKUP_RESTORE`); every such use is one `OPERATOR_ACTION`
  * event on the acting Person, whatever it was that they read or restored.
  */
+/**
+ * @req FR-197 — the authority half on its own.
+ *
+ * Split out because a restore DELETES every row of every snapshot model,
+ * `AuditEvent` included, and then re-inserts the snapshot's own. A use record
+ * written before that transaction is erased by the operation it was recording
+ * (SEC-027), so `importSnapshot` proves authority here and records the use
+ * inside the transaction, after the re-insert — the same placement the
+ * `SNAPSHOT/RESTORED` event already uses and for the same reason.
+ */
+export function assertOperator(viewer, deniedMessage) {
+  if (!isInstallationOperator(viewer)) {
+    const error = new Error(deniedMessage)
+    error.status = 403
+    throw error
+  }
+}
+
 export async function assertOperatorAndRecordUse(
   viewer,
   { action, deniedMessage = 'Operator authority is required', entityId = null, payload = {}, db = prisma } = {},

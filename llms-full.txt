@@ -5284,6 +5284,6 @@ an order of magnitude. Read them from the repository:
 - [docs/TRACE.md](docs/TRACE.md) (439KB): generated — per FR: surface to code to rules to tests
 - [docs/appendices/A-api-spec.md](docs/appendices/A-api-spec.md) (126KB): generated — the API surface
 - [docs/appendices/B-db-schema.md](docs/appendices/B-db-schema.md) (61KB): the database schema
-- [docs/appendices/D-traceability.md](docs/appendices/D-traceability.md) (597KB): generated — the traceability appendix
+- [docs/appendices/D-traceability.md](docs/appendices/D-traceability.md) (598KB): generated — the traceability appendix
 - [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md) (190KB): live delivery state (Thai) — read by GoVibe Mission Control
 

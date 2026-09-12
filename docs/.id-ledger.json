@@ -3724,14 +3724,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "749fc20a5bdf6eccaf93ec07429bab21e35b473076016653ef0fdf0c3a591452",
+      "statement_digest": "1c249f282f95e84a26400b507051fc72bea6240d576ea247e3638992f51b51f6",
       "history": [
         {
           "anchor": "operator access is time boxed issuable by a standing",
           "since": "2026-09-12",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-12",
+      "statement_digest_reason": "Removed an overclaim: the row said OPERATOR_ACTION is written for denied attempts included, and the code refuses before it writes, so a denial records nothing. Adds that the restore path records its use inside the transaction, after the re-insert, because a record written beforehand is deleted by the wipe it is recording (SEC-027)."
     },
     "NFR-001": {
       "family": "NFR",
@@ -5241,14 +5243,16 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "54f2e461b34399886f0a2ae1804c2061834a20618b505c9929e58bfac675a45c",
+      "statement_digest": "5dae8c3a440468009cb8e5645e301b4123bc34316b91b325b7450c5dc7afa5e1",
       "history": [
         {
           "anchor": "one generalised invitation table not three parallel ones",
           "since": "2026-09-12",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-12",
+      "statement_digest_reason": "Replaced 'every ACTIVE Business the Tenant holds today' with wording that says the expansion is evaluated at each request and therefore reaches Businesses created after the grant. The behaviour is unchanged; 'today' read as a snapshot and the resolver has never taken one."
     },
     "SEC-001": {
       "family": "SEC",

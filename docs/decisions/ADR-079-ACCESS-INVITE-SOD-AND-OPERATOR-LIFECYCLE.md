@@ -212,7 +212,7 @@ ADR-077 D3 added `scopeType` to `RoleBinding` and left it inert on purpose
 ("nothing resolves a TENANT binding until the resolver is taught to expand
 it"). `resolveRoleBindings` in `resolve-viewer.js` now also queries
 TENANT-scoped bindings and expands each to every ACTIVE Business the named
-Tenant holds today — the same tenant-wide expansion
+Tenant holds at each request — including Businesses created after the grant, which a TENANT binding reaches without a new assignment — the same tenant-wide expansion
 `buildDomainsByBusiness` already performs for a tenant-wide `Membership`,
 applied here to `RoleBinding` instead. This is deliberately **independent** of
 `visibleBusinessIds`: a TENANT `RoleBinding` is authority granted *at* the
@@ -251,11 +251,24 @@ not close. **Three-way match is now possible in procurement** — the roles a
 control depends on cannot be held by one person without a Tenant owner saying
 so, on the record. **Revenue integrity holds at the transaction, not only at
 role assignment** — the ADR-065 promise that VERIFIED money is trustworthy is
-now something the write refuses to violate, not only something a role
-assignment discourages. **This installation can recover from a lost operator
+now something the write refuses to perform SILENTLY, not only something a role
+assignment discourages. Stated precisely, because the difference matters to an
+auditor: this is a **detective** control, not a preventive one. Anyone holding
+the verify capability may still verify what they recorded — by passing
+`selfVerifyAttested`, which BR-035 requires so a genuinely one-person business
+is not locked out of its own money. What the change removes is the ability to do
+it without leaving `selfVerified: true` in the audit row. **This installation can recover from a lost operator
 credential** without a hand-written SQL statement, and the operator's own use
 of that power is now itself part of the auditable record ADR-017 D6 asks for
 of everyone else with comparable reach.
+
+**What is service-level only, and therefore not yet reachable from the product.**
+`mintAccessInvite` and `acceptAccessInvite` have no HTTP route at TENANT or
+BUSINESS scope, and `issueOperatorGrant` has neither a route nor a CLI. An owner
+cannot yet invite someone into a Business by clicking, and a standing operator
+cannot yet issue a second grant without a script. The services, their refusals
+and their audit events are built and tested; the surfaces are separable
+follow-on work, and are named here rather than left to be discovered.
 
 **Costs accepted.** `PROCUREMENT_BUYER` alone can no longer receive against its
 own orders — a single-person procurement operation must now either add a

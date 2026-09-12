@@ -10245,7 +10245,7 @@
       "id": "code:src/modules/identity/operator-bootstrap.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/operator-bootstrap.js",
-      "hash": "d2640908",
+      "hash": "eae4d1eb",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10267,7 +10267,7 @@
       "id": "code:src/modules/identity/operator-use.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/operator-use.js",
-      "hash": "5c22c09c",
+      "hash": "d7c993d4",
       "status": "current",
       "annotations": {
         "@req": [
@@ -10462,7 +10462,7 @@
       "id": "code:src/modules/identity/rbac-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/identity/rbac-service.js",
-      "hash": "33194709",
+      "hash": "7e83920b",
       "status": "current",
       "annotations": {
         "@req": [
@@ -14565,7 +14565,7 @@
       "id": "code:src/modules/project-manager/application/backup-service.js",
       "type": "code_file",
       "path": "apps/server/src/modules/project-manager/application/backup-service.js",
-      "hash": "fd24e3cf",
+      "hash": "16142d35",
       "status": "current",
       "annotations": {
         "@req": [
@@ -18123,7 +18123,7 @@
       "title": "FR-192 — Membership scope grammar and referential invariants",
       "version": "1.0.0",
       "doc_status": "Declared (2026-09-12) — implemented by [ADR-077](../../../decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md) D3/D4/D5",
-      "hash": "affaca15",
+      "hash": "1e5cd601",
       "status": "current"
     },
     {
@@ -18161,7 +18161,7 @@
       "type": "document",
       "path": "docs/architecture/database-erd/full-schema.md",
       "title": "Database Schema — Full ERD Reference",
-      "hash": "e18c7e4f",
+      "hash": "a24d1c3b",
       "status": "current"
     },
     {
@@ -18791,7 +18791,7 @@
       "title": "Zuri V2 — Project Manager Module: PRD & SDD",
       "version": "1.184.0b",
       "doc_status": "Draft",
-      "hash": "16932520",
+      "hash": "76dcb655",
       "status": "current"
     },
     {
@@ -22709,11 +22709,11 @@
       "id": "req:FR-197",
       "type": "requirement",
       "family": "FR",
-      "label": "Operator access is time-boxed, issuable by a standing operator, and its use is recorded. `issueOperatorGrant` requires an existing `isInstallationOperator` caller, a reason and a mandatory `expiresAt` capped at 90 days; a renewal is a fresh `PlatformGrant` row, with any prior ACTIVE grant for that Person superseded (revoked, its own audit event) in the same transaction — `@@unique(personId, capability)` is replaced by a partial unique index scoped to `status = 'ACTIVE'` so the history survives. `hasOperatorGrant` honours `expiresAt` even while the row is still nominally ACTIVE; nothing flips status on a timer. The bootstrap grant is flagged `standing: true` (it predates any operator to issue it); every issued grant is `standing: false`. Reading `/api/audit` and previewing or restoring a backup now route through `assertOperatorAndRecordUse`, which writes one `OPERATOR_ACTION` audit event per use, denied attempts included — read as ADR-017 D6 covering operator READS, a deliberate extension argued in ADR-079 rather than an obvious consequence of it.",
+      "label": "Operator access is time-boxed, issuable by a standing operator, and its use is recorded. `issueOperatorGrant` requires an existing `isInstallationOperator` caller, a reason and a mandatory `expiresAt` capped at 90 days; a renewal is a fresh `PlatformGrant` row, with any prior ACTIVE grant for that Person superseded (revoked, its own audit event) in the same transaction — `@@unique(personId, capability)` is replaced by a partial unique index scoped to `status = 'ACTIVE'` so the history survives. `hasOperatorGrant` honours `expiresAt` even while the row is still nominally ACTIVE; nothing flips status on a timer. The bootstrap grant is flagged `standing: true` (it predates any operator to issue it); every issued grant is `standing: false`. Reading `/api/audit` and previewing or restoring a backup now route through `assertOperatorAndRecordUse`, which writes one `OPERATOR_ACTION` audit event per successful use — a denied attempt records nothing, because the refusal happens before the write. The restore path proves authority first and records the use INSIDE its transaction, after the re-insert: a record written beforehand is deleted by the wipe it is recording — read as ADR-017 D6 covering operator READS, a deliberate extension argued in ADR-079 rather than an obvious consequence of it.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "Operator access is time-boxed, issuable by a standing operator, and its use is recorded. `issueOperatorGrant` requires an existing `isInstallationOperator` caller, a reason and a mandatory `expiresAt` capped at 90 days; a renewal is a fresh `PlatformGrant` row, with any prior ACTIVE grant for that Person superseded (revoked, its own audit event) in the same transaction — `@@unique(personId, capability)` is replaced by a partial unique index scoped to `status = 'ACTIVE'` so the history survives. `hasOperatorGrant` honours `expiresAt` even while the row is still nominally ACTIVE; nothing flips status on a timer. The bootstrap grant is flagged `standing: true` (it predates any operator to issue it); every issued grant is `standing: false`. Reading `/api/audit` and previewing or restoring a backup now route through `assertOperatorAndRecordUse`, which writes one `OPERATOR_ACTION` audit event per use, denied attempts included — read as ADR-017 D6 covering operator READS, a deliberate extension argued in ADR-079 rather than an obvious consequence of it. 🟠 implemented locally 2026-09-12 (PR pending) — `operator-bootstrap.js`, `operator-use.js`; migration `20260912140000_access_invite_sod_operator.sql` not yet applied "
+      "row_text": "Operator access is time-boxed, issuable by a standing operator, and its use is recorded. `issueOperatorGrant` requires an existing `isInstallationOperator` caller, a reason and a mandatory `expiresAt` capped at 90 days; a renewal is a fresh `PlatformGrant` row, with any prior ACTIVE grant for that Person superseded (revoked, its own audit event) in the same transaction — `@@unique(personId, capability)` is replaced by a partial unique index scoped to `status = 'ACTIVE'` so the history survives. `hasOperatorGrant` honours `expiresAt` even while the row is still nominally ACTIVE; nothing flips status on a timer. The bootstrap grant is flagged `standing: true` (it predates any operator to issue it); every issued grant is `standing: false`. Reading `/api/audit` and previewing or restoring a backup now route through `assertOperatorAndRecordUse`, which writes one `OPERATOR_ACTION` audit event per successful use — a denied attempt records nothing, because the refusal happens before the write. The restore path proves authority first and records the use INSIDE its transaction, after the re-insert: a record written beforehand is deleted by the wipe it is recording — read as ADR-017 D6 covering operator READS, a deliberate extension argued in ADR-079 rather than an obvious consequence of it. 🟠 implemented locally 2026-09-12 (PR pending) — `operator-bootstrap.js`, `operator-use.js`; migration `20260912140000_access_invite_sod_operator.sql` not yet applied "
     },
     {
       "id": "req:NFR-001",
@@ -23859,11 +23859,11 @@
       "id": "req:SDD-094",
       "type": "requirement",
       "family": "SDD",
-      "label": "One generalised invitation table, not three parallel ones: `AccessInvite` (renamed from `WorkspaceInvite`) carries `scopeType` (PORTFOLIO / TENANT / BUSINESS) with a CHECK binding it to exactly one of `portfolioId`/`tenantId`/`businessId`, and an addressee CHECK requiring at least one of `targetPersonId`/`invitedEmail`/`invitedLineUserId`. `RoleBinding.businessId` becomes nullable to admit the TENANT scope ADR-077 D3 declared and left unresolved; `resolveViewer` expands a TENANT binding to every ACTIVE Business the Tenant holds today, independent of `visibleBusinessIds`, and `hasPermission` is unchanged. `PlatformGrant` drops its unconditional `(personId, capability)` unique in favour of one scoped to `status = 'ACTIVE'`, so a superseded or expired grant survives as history rather than blocking a renewal.",
+      "label": "One generalised invitation table, not three parallel ones: `AccessInvite` (renamed from `WorkspaceInvite`) carries `scopeType` (PORTFOLIO / TENANT / BUSINESS) with a CHECK binding it to exactly one of `portfolioId`/`tenantId`/`businessId`, and an addressee CHECK requiring at least one of `targetPersonId`/`invitedEmail`/`invitedLineUserId`. `RoleBinding.businessId` becomes nullable to admit the TENANT scope ADR-077 D3 declared and left unresolved; `resolveViewer` expands a TENANT binding to every ACTIVE Business the Tenant holds at each request — including Businesses created after the grant, which a TENANT binding reaches without a new assignment, independent of `visibleBusinessIds`, and `hasPermission` is unchanged. `PlatformGrant` drops its unconditional `(personId, capability)` unique in favour of one scoped to `status = 'ACTIVE'`, so a superseded or expired grant survives as history rather than blocking a renewal.",
       "defined_in": "docs/PRD-SDD-v1.0.md",
       "declared": "n/a",
       "status": "current",
-      "row_text": "One generalised invitation table, not three parallel ones: `AccessInvite` (renamed from `WorkspaceInvite`) carries `scopeType` (PORTFOLIO / TENANT / BUSINESS) with a CHECK binding it to exactly one of `portfolioId`/`tenantId`/`businessId`, and an addressee CHECK requiring at least one of `targetPersonId`/`invitedEmail`/`invitedLineUserId`. `RoleBinding.businessId` becomes nullable to admit the TENANT scope ADR-077 D3 declared and left unresolved; `resolveViewer` expands a TENANT binding to every ACTIVE Business the Tenant holds today, independent of `visibleBusinessIds`, and `hasPermission` is unchanged. `PlatformGrant` drops its unconditional `(personId, capability)` unique in favour of one scoped to `status = 'ACTIVE'`, so a superseded or expired grant survives as history rather than blocking a renewal. FR-192, FR-195, FR-197; ADR-079 "
+      "row_text": "One generalised invitation table, not three parallel ones: `AccessInvite` (renamed from `WorkspaceInvite`) carries `scopeType` (PORTFOLIO / TENANT / BUSINESS) with a CHECK binding it to exactly one of `portfolioId`/`tenantId`/`businessId`, and an addressee CHECK requiring at least one of `targetPersonId`/`invitedEmail`/`invitedLineUserId`. `RoleBinding.businessId` becomes nullable to admit the TENANT scope ADR-077 D3 declared and left unresolved; `resolveViewer` expands a TENANT binding to every ACTIVE Business the Tenant holds at each request — including Businesses created after the grant, which a TENANT binding reaches without a new assignment, independent of `visibleBusinessIds`, and `hasPermission` is unchanged. `PlatformGrant` drops its unconditional `(personId, capability)` unique in favour of one scoped to `status = 'ACTIVE'`, so a superseded or expired grant survives as history rather than blocking a renewal. FR-192, FR-195, FR-197; ADR-079 "
     },
     {
       "id": "req:SEC-001",
@@ -27408,7 +27408,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY.md",
       "title": "ADR-066 — The Procurement Lane: Suppliers, Purchase Orders and Goods Receipts",
-      "hash": "91d309e1",
+      "hash": "c37cf2b6",
       "status": "current"
     },
     {
@@ -27504,7 +27504,7 @@
       "type": "adr",
       "path": "docs/decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md",
       "title": "ADR-079 — Access invite, segregation of duties, and the operator lifecycle",
-      "hash": "caa02eff",
+      "hash": "cbe42eab",
       "status": "current"
     },
     {
@@ -27861,7 +27861,7 @@
       "id": "test:tests/integration/backup.test.js",
       "type": "test",
       "path": "apps/server/tests/integration/backup.test.js",
-      "hash": "c7a9caf7",
+      "hash": "f9b6353f",
       "status": "current"
     },
     {
@@ -28380,6 +28380,13 @@
       "type": "test",
       "path": "apps/server/tests/integration/fr196-segregation-of-duties.test.js",
       "hash": "418dfdae",
+      "status": "current"
+    },
+    {
+      "id": "test:tests/integration/fr196-sod-cannot-be-assembled.test.js",
+      "type": "test",
+      "path": "apps/server/tests/integration/fr196-sod-cannot-be-assembled.test.js",
+      "hash": "3190b1d6",
       "status": "current"
     },
     {
@@ -62097,6 +62104,13 @@
       "status": "current"
     },
     {
+      "from": "doc:FR-192-membership-scope-grammar",
+      "to": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "doc:FR-195-access-invite",
       "to": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
       "type": "references",
@@ -73689,6 +73703,13 @@
       "status": "current"
     },
     {
+      "from": "spec:ADR-066-PROCUREMENT-LANE-SUPPLIERS-ORDERS-AND-RECEIPTS-BOUNDARY",
+      "to": "spec:ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE",
+      "type": "references",
+      "source": "markdown",
+      "status": "current"
+    },
+    {
       "from": "spec:ADR-067-KNOWLEDGE-INGESTION-REPORTER-AND-RUN-CLOSE",
       "to": "doc:KNOWLEDGE-INGESTION-17-STAGE-FLOW",
       "type": "references",
@@ -78313,7 +78334,7 @@
       "to": "req:FR-197",
       "type": "verifies",
       "status": "current",
-      "source": "transitive"
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/backup.test.js",
@@ -78328,6 +78349,13 @@
       "type": "verifies",
       "status": "current",
       "source": "transitive"
+    },
+    {
+      "from": "test:tests/integration/backup.test.js",
+      "to": "req:SEC-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
     },
     {
       "from": "test:tests/integration/channel-identity.test.js",
@@ -84603,6 +84631,27 @@
     },
     {
       "from": "test:tests/integration/fr196-segregation-of-duties.test.js",
+      "to": "req:SEC-027",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr196-sod-cannot-be-assembled.test.js",
+      "to": "req:BR-035",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr196-sod-cannot-be-assembled.test.js",
+      "to": "req:FR-196",
+      "type": "verifies",
+      "status": "current",
+      "source": "test-reference"
+    },
+    {
+      "from": "test:tests/integration/fr196-sod-cannot-be-assembled.test.js",
       "to": "req:SEC-027",
       "type": "verifies",
       "status": "current",
@@ -115020,7 +115069,7 @@
     }
   ],
   "accounting": {
-    "server_nodes": 2708,
+    "server_nodes": 2709,
     "edge_source_nodes": 272,
     "edge_scanned_nodes": 293,
     "edge_source_edges": 360,

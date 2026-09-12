@@ -27,7 +27,7 @@ import { BROADCAST_INTENT_STATUSES, hashMarketingBroadcastPayload, parseMarketin
 import { recordAudit } from './audit'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
 import { requireViewer } from './project-authorization'
-import { assertOperatorAndRecordUse } from '@/modules/identity/operator-use'
+import { assertOperator, assertOperatorAndRecordUse } from '@/modules/identity/operator-use'
 import {
   BILLING_DOCUMENT_TYPES,
   BILLING_NON_VAT_POLICIES,
@@ -56,6 +56,11 @@ import {
  * (ADR-017 D6 read as covering operator reads — ADR-079): `action` names
  * BACKUP_PREVIEW or BACKUP_RESTORE so a review can tell the two apart.
  */
+const RESTORE_DENIED =
+  'Restoring a snapshot replaces every tenant in this installation. It requires ' +
+  'operator authority (a platform grant, or the local installation session) — ' +
+  'owning Businesses does not confer it, however many.'
+
 async function assertRestoreOperator(viewer, action) {
   requireViewer(viewer, 'backup restore')
   await assertOperatorAndRecordUse(viewer, {
@@ -1083,8 +1088,12 @@ export function previewSnapshot(snapshot, { remounts = [] } = {}) {
   }
 }
 
-export async function previewImport(snapshot, { remounts = [], db = prisma, viewer } = {}) {
-  await assertRestoreOperator(viewer, 'BACKUP_PREVIEW')
+export async function previewImport(snapshot, { remounts = [], db = prisma, viewer, nested = false } = {}) {
+  // `nested` is importSnapshot's own dry run — the caller already proved
+  // authority and will record one BACKUP_RESTORE use, so a second
+  // BACKUP_PREVIEW row here would double-count one act.
+  if (nested) assertOperator(viewer, RESTORE_DENIED)
+  else await assertRestoreOperator(viewer, 'BACKUP_PREVIEW')
   const base = previewSnapshot(snapshot, { remounts })
   if (!base.valid) return base
   const billing = commerceBillingRecovery(snapshot)
@@ -1171,8 +1180,14 @@ export async function importSnapshot(snapshot, {
   viewer,
   filesystemPort = createLocalFilesystemPort(),
 } = {}) {
-  await assertRestoreOperator(viewer, 'BACKUP_RESTORE')
-  const preview = await previewImport(snapshot, { remounts, db, viewer })
+  // @req FR-197 — authority now, the use record later. Recording it here would
+  // write an OPERATOR_ACTION row that the transaction below deletes: restore
+  // clears every snapshot model, AuditEvent among them, before re-inserting the
+  // snapshot's own rows. The evidence of the most powerful operation in the
+  // product was being erased by that operation (SEC-027).
+  requireViewer(viewer, 'backup restore')
+  assertOperator(viewer, RESTORE_DENIED)
+  const preview = await previewImport(snapshot, { remounts, db, viewer, nested: true })
   if (!preview.valid) return { restored: false, ...preview }
   if (!confirm) return { restored: false, needsConfirmation: true, ...preview }
   for (const mount of remounts) {
@@ -1197,6 +1212,14 @@ export async function importSnapshot(snapshot, {
       await tx.localWorkspaceMount.create({ data: { tenantId: business.tenantId, businessId: mount.businessId, deviceKey: mount.deviceKey, rootPath: path.win32.normalize(mount.rootPath) } })
     }
     await recordAudit(tx, { entityType: 'SNAPSHOT', entityId: 'local', action: 'RESTORED', payload: { exportedAt: snapshot.exportedAt || null, counts: preview.counts } })
+    // @req FR-197 — inside the transaction and after the re-insert, so the
+    // record of who used operator power survives the wipe that use performed
+    // (SEC-027). Same placement, same reason, as the RESTORED event above.
+    await recordAudit(tx, {
+      entityType: 'OPERATOR_ACTION', entityId: 'local', action: 'BACKUP_RESTORE',
+      actorId: viewer?.principal?.id ?? null,
+      payload: { counts: preview.counts, exportedAt: snapshot.exportedAt || null },
+    })
   }, {
     // Prisma's default interactive-transaction budget is 5s, and the loop above
     // is one `create` per row across every model in SNAPSHOT_MODELS — so its

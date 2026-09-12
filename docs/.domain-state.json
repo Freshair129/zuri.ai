@@ -1,7 +1,7 @@
 {
   "schemaVersion": "1.1",
   "generatedBy": "scripts/domain-state.mjs",
-  "generatedAt": "2026-09-12T10:54:06.400Z",
+  "generatedAt": "2026-09-12T11:41:09.161Z",
   "generatedFrom": [
     "docs/PRD-SDD-v1.0.md",
     "docs/FEATURES.md",
@@ -1009,7 +1009,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 8
+          "testCount": 9
         }
       ],
       "checks": {
@@ -1706,7 +1706,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-197",
@@ -3612,7 +3612,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 8
+          "testCount": 9
         }
       ],
       "checks": {
@@ -7750,7 +7750,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-197",
@@ -7783,6 +7783,7 @@
         "apps/server/tests/integration/fr165-goods-receipt.test.js",
         "apps/server/tests/integration/fr195-access-invite.test.js",
         "apps/server/tests/integration/fr196-segregation-of-duties.test.js",
+        "apps/server/tests/integration/fr196-sod-cannot-be-assembled.test.js",
         "apps/server/tests/integration/fr197-operator-grant-lifecycle.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
