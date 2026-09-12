@@ -909,7 +909,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 9
+          "testCount": 12
         }
       ],
       "checks": {
@@ -1560,7 +1560,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 9
+          "testCount": 12
         },
         {
           "id": "FR-197",
@@ -3431,7 +3431,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 9
+          "testCount": 12
         }
       ],
       "checks": {
@@ -7608,7 +7608,7 @@
       "id": "FEAT-029",
       "title": "Access Invite, Segregation of Duties and Operator Lifecycle — a Business/Tenant-level invitation that becomes a real `Membership` grant on acceptance, bound to the accepting session rather than the invited address (generalising FR-067's Workspace-only `WorkspaceInvite`); segregation of duties as a write-time role-conflict refusal (with a Tenant-owner override) and a transaction-time self-verification refusal an OWNER does not bypass; and an operator grant that expires, that a standing operator can issue as a fresh row on renewal, and whose use reading the audit stream or a backup is itself recorded (ADR-079, 2026-09-12)",
       "kind": "bundle",
-      "registryStatus": "implemented; FR-200 building",
+      "registryStatus": "implemented",
       "requirementIds": [
         "FR-195",
         "FR-196",
@@ -7627,7 +7627,7 @@
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-029 registry status is implemented; FR-200 building"
+        "FEAT-029 registry status is implemented"
       ],
       "requirements": [
         {
@@ -7642,7 +7642,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 9
+          "testCount": 12
         },
         {
           "id": "FR-197",
@@ -7679,6 +7679,9 @@
         "apps/server/src/modules/procurement/application/goods-receipt-service.js",
         "apps/server/src/modules/procurement/domain/procurement.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/tests/e2e/fr164-procurement.spec.js",
+        "apps/server/tests/e2e/fr165-receipt-workstation.spec.js",
+        "apps/server/tests/e2e/fr166-commerce-orders.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",

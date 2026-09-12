@@ -1,23 +1,28 @@
 const { test, expect } = require('@playwright/test')
 const { loginAsOwner, readScope } = require('./e2e-auth')
+const { signUpBusinessActor } = require('./e2e-business-actor')
 
 // @req FR-165 — actual receiving intake, persisted printable detail and paged registry.
 // @spec ADR-066; SEC-001
 // @tested tests/e2e/fr165-receipt-workstation.spec.js
-test('receipt workstation posts actual quantities and reloads the persisted voucher', async ({ page }) => {
+test('receipt workstation posts actual quantities and reloads the persisted voucher', async ({ page, request }) => {
   await loginAsOwner(page)
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
   await expect(page).toHaveURL(/\/overview$/)
   const scope = await readScope(page.request)
   const businessId = scope.businesses.find(row => row.name === 'Business 01').id
   const tag = Date.now().toString()
+  // @req FR-196 — the buyer and receiver are separate authenticated people.
+  // The ordinary receipt success path must not rely on self-verification.
+  const buyer = await signUpBusinessActor(request, businessId)
   const send = async (url, data, method = 'POST') => {
-    const response = await page.request.fetch(url, { method, data })
+    const response = await request.fetch(url, { method, data })
     expect(response.ok(), await response.text()).toBeTruthy()
     return response.json()
   }
   const supplier = await send('/api/procurement/suppliers', { businessId, code: `GRN-E2E-${tag}`, name: 'Receipt fixture supplier' })
   const order = await send('/api/procurement/purchase-orders', { businessId, supplierId: supplier.id, lines: [{ description: `Packing ${tag}`, qty: 3, unitCost: 10 }] })
+  expect(order.createdByPersonId).toBe(buyer.id)
   await send(`/api/procurement/purchase-orders/${order.id}`, { action: 'SEND', version: order.version }, 'PATCH')
   const errors = []
   page.on('pageerror', error => errors.push(error.message))
