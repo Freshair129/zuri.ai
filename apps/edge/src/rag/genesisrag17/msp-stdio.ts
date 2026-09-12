@@ -20,21 +20,55 @@ export class MspTransportError extends Error {
 }
 
 /**
- * Edge secrets MSP has no use for. The child still gets the rest of the environment, because MSP
- * reads its own runtime grants from it, exactly as it does when zuri-ai's server starts it.
+ * Every variable an MSP child is allowed to see. An allowlist, not a denylist: a secret added to
+ * this process's environment later must not reach MSP merely because nobody remembered to withhold
+ * it. Mirrors zuri-ai's server transport (`apps/server/src/modules/agent/msp-stdio-transport.js`)
+ * name for name — `tests/unit/genesisrag17-edge.test.ts` reads that file and fails if the two lists
+ * drift apart. Nothing named ZURI_* is here: those configure this transport, and MSP never reads them.
  */
-const WITHHELD_FROM_MSP = [
-  'ZURI_EDGE_DEVICE_KEY', 'ZURI_EDGE_DEVICE_KEY_FILE', 'ZURI_AGENT_DEVICE_TOKEN', 'ZURI_AGENT_DEVICE_TOKEN_FILE',
-  'ANTHROPIC_API_KEY', 'ANTHROPIC_API_KEY_FILE', 'ANTHROPIC_AUTH_TOKEN', 'LINE_CHANNEL_ACCESS_TOKEN',
-  'LINE_CHANNEL_ACCESS_TOKEN_FILE', 'LINE_CHANNEL_SECRET', 'LINE_CHANNEL_SECRET_FILE', 'LINE_HISTORY_HASH_KEY',
-  'LINE_HISTORY_HASH_KEY_FILE', 'ZURI_EDGE_ADMIN_KEY_HASH', 'ZURI_EDGE_GENESISRAG17_CREDENTIAL',
-  'ZURI_EDGE_GENESISRAG17_CREDENTIAL_FILE',
-];
+export const MSP_RUNTIME_ENV_NAMES: readonly string[] = Object.freeze([
+  // apps/msp-server/bin/msp-server.mjs — the store; MSP refuses to start without it
+  'MSP_DB_PATH',
+  // apps/msp-server/src/providers/gks-stdio-provider.mjs — how MSP spawns GKS
+  'MSP_GKS_COMMAND',
+  'MSP_GKS_ARGS',
+  'MSP_GKS_CWD',
+  // apps/msp-server/src/transport/handlers/pipeline-handlers.mjs — relay grants and credentials
+  'MSP_PIPELINE_PRINCIPALS',
+  'MSP_GKS_PIPELINE_CREDENTIAL',
+  'MSP_PIPELINE_WORKER_URL',
+  'MSP_PIPELINE_WORKER_TOKEN',
+  // packages/msp-retrieval/src/retrieval/vector.mjs — the embedding endpoint
+  'OLLAMA_BASE_URL',
+  // Read by GKS (apps/gks-server/src/server.mjs, packages/gks-contracts/src/resolution.mjs),
+  // reaching it only because MSP spawns GKS with an allowlist of its own
+  'GKS_DB_PATH',
+  'GKS_PIPELINE_RELAY_CREDENTIAL',
+  'GKS_DEFAULT_PORTFOLIO_ID',
+  'GKS_AUTOMERGE_FLOOR',
+]);
+
+/**
+ * What a Node child needs from the OS to start and to spawn its own child: command lookup, temp and
+ * home directories, the Windows system paths libuv and OpenSSL resolve through, and locale/time zone.
+ * No credentials, no proxies, and no NODE_OPTIONS — that one can load code into the child.
+ */
+export const MSP_OS_ENV_NAMES: readonly string[] = Object.freeze([
+  'PATH', 'HOME', 'TMPDIR', 'TMP', 'TEMP', 'LANG', 'LC_ALL', 'TZ',
+  'PATHEXT', 'SYSTEMROOT', 'SYSTEMDRIVE', 'WINDIR', 'COMSPEC',
+  'USERPROFILE', 'HOMEDRIVE', 'HOMEPATH', 'APPDATA', 'LOCALAPPDATA',
+]);
+
+// Windows spells these `Path` and `SystemRoot`, and its environment is case-insensitive, so names
+// are matched without case and copied as spelled.
+const ALLOWED_ENV_NAMES = new Set([...MSP_RUNTIME_ENV_NAMES, ...MSP_OS_ENV_NAMES].map((name) => name.toUpperCase()));
 
 export function mspChildEnvironment(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
-  const copy: NodeJS.ProcessEnv = { ...env };
-  for (const name of WITHHELD_FROM_MSP) delete copy[name];
-  return copy;
+  const child: NodeJS.ProcessEnv = {};
+  for (const [name, value] of Object.entries(env ?? {})) {
+    if (typeof value === 'string' && ALLOWED_ENV_NAMES.has(name.toUpperCase())) child[name] = value;
+  }
+  return child;
 }
 
 type Pending = { resolve: (value: any) => void; reject: (error: Error) => void; timeout: NodeJS.Timeout };

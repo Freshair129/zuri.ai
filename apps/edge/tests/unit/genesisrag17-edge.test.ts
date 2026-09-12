@@ -15,7 +15,8 @@ import {
   createGenesisRag17Runtime, parsePublishedQueryResult, wrapAnswerRag,
 } from '../../src/rag/genesisrag17/published-rag.js';
 import { createRecordStore, readRecords, summarizeRecords, type GenesisRag17Record, type RecordStore } from '../../src/rag/genesisrag17/record-store.js';
-import { createMspStdioTransport, MspTransportError, type MspToolCall } from '../../src/rag/genesisrag17/msp-stdio.js';
+import { createMspStdioTransport, mspChildEnvironment, MSP_RUNTIME_ENV_NAMES, MSP_OS_ENV_NAMES, MspTransportError, type MspToolCall } from '../../src/rag/genesisrag17/msp-stdio.js';
+import { fileURLToPath } from 'node:url';
 
 // @req FR-189 — off unchanged, shadow never changes the answer, primary reads the published
 //   generation and falls back to v4 only before the configured sunset, report aggregation.
@@ -367,4 +368,80 @@ test('the MSP stdio transport speaks initialize then tools/call, and keeps edge 
   const evidence = await wrapAnswerRag(fakeV4().rag, runtime).searchProducts('แก้ว', 5);
   assert.deepEqual(evidence.published, { schemaVersion: 'genesisrag17.v1', snapshotId: 'snap-9', generation: '3' });
   assert.equal(evidence.passages?.[0].citation.chunkId, 'c1');
+});
+
+// @req SEC — the MSP child gets an allowlisted environment, never this process's environment minus
+//   a list of secrets someone remembered to name. zuri-ai's server transport was converted first
+//   (apps/server/src/modules/agent/msp-stdio-transport.js); this is the same boundary from edge.
+// @spec ADR-075 D7
+const MSP_ALLOWLISTED_ENV = {
+  MSP_DB_PATH: '/edge-test/msp.sqlite',
+  MSP_GKS_COMMAND: 'node',
+  MSP_GKS_ARGS: '["gks.mjs"]',
+  MSP_GKS_CWD: '/gks',
+  MSP_PIPELINE_PRINCIPALS: '[]',
+  MSP_GKS_PIPELINE_CREDENTIAL: 'relay-credential',
+  MSP_PIPELINE_WORKER_URL: 'http://127.0.0.1:1234/query',
+  MSP_PIPELINE_WORKER_TOKEN: 'worker-token',
+  OLLAMA_BASE_URL: 'http://127.0.0.1:11434',
+  GKS_DB_PATH: '/edge-test/gks.sqlite',
+  GKS_PIPELINE_RELAY_CREDENTIAL: 'gks-relay-credential',
+  GKS_DEFAULT_PORTFOLIO_ID: 'portfolio-1',
+  GKS_AUTOMERGE_FLOOR: '0.91',
+  PATH: process.env.PATH ?? '/usr/bin',
+  TEMP: '/tmp',
+  LANG: 'C.UTF-8',
+};
+
+// What this device actually holds, and what MSP has no business seeing. AWS_SECRET_ACCESS_KEY is
+// the point of an allowlist: nobody ever withheld it, and it still must not reach the child.
+const EDGE_SECRETS = {
+  ZURI_EDGE_DEVICE_KEY: 'device-key',
+  ZURI_AGENT_DEVICE_TOKEN: 'device-token',
+  ANTHROPIC_API_KEY: 'sk-decoy',
+  LINE_CHANNEL_SECRET: 'line-secret',
+  LINE_CHANNEL_ACCESS_TOKEN: 'line-token',
+  ZURI_EDGE_GENESISRAG17_CREDENTIAL: 'edge-credential',
+  ZURI_EDGE_ADMIN_KEY_HASH: 'admin-hash',
+  DATABASE_URL: 'postgres://decoy',
+  AWS_SECRET_ACCESS_KEY: 'aws-decoy',
+  NODE_OPTIONS: '--require ./evil.js',
+  ZURI_MSP_COMMAND: 'node',
+  ZURI_MSP_TIMEOUT_MS: '15000',
+};
+
+test('the MSP child environment is an allowlist: every edge secret is withheld, including one nobody named', () => {
+  const child = mspChildEnvironment({ ...MSP_ALLOWLISTED_ENV, ...EDGE_SECRETS });
+  assert.deepEqual(new Set(Object.keys(child)), new Set(Object.keys(MSP_ALLOWLISTED_ENV)));
+  for (const name of Object.keys(EDGE_SECRETS)) assert.equal(child[name], undefined, `${name} must not reach MSP`);
+  for (const [name, value] of Object.entries(MSP_ALLOWLISTED_ENV)) assert.equal(child[name], value);
+});
+
+test('allowlisted names are matched without case and copied as the caller spelled them', () => {
+  const child = mspChildEnvironment({ Path: '/usr/bin', SystemRoot: 'C:/Windows', windir: 'C:/Windows', msp_db_path: '/msp.sqlite', database_url: 'postgres://decoy' });
+  assert.deepEqual(child, { Path: '/usr/bin', SystemRoot: 'C:/Windows', windir: 'C:/Windows', msp_db_path: '/msp.sqlite' });
+});
+
+test('the edge allowlist matches zuri-ai server transport name for name', () => {
+  const serverTransport = fs.readFileSync(fileURLToPath(new URL('../../../server/src/modules/agent/msp-stdio-transport.js', import.meta.url)), 'utf8');
+  const namesIn = (constant: string) => {
+    const start = serverTransport.indexOf(`export const ${constant} = Object.freeze([`);
+    assert.ok(start >= 0, `${constant} not found in the server transport`);
+    const end = serverTransport.indexOf('])', start);
+    return serverTransport.slice(start, end).match(/'([A-Z0-9_]+)'/g)?.map((quoted) => quoted.slice(1, -1)) ?? [];
+  };
+  assert.deepEqual([...MSP_RUNTIME_ENV_NAMES].sort(), namesIn('MSP_RUNTIME_ENV_NAMES').sort());
+  assert.deepEqual([...MSP_OS_ENV_NAMES].sort(), namesIn('MSP_OS_ENV_NAMES').sort());
+});
+
+test('a spawned MSP child really receives the allowlist and none of the edge secrets', async () => {
+  const fixture = fileURLToPath(new URL('../fixtures/env-report-msp.mjs', import.meta.url));
+  const call = createMspStdioTransport({ command: process.execPath, args: [fixture], timeoutMs: 15_000 }, { ...MSP_ALLOWLISTED_ENV, ...EDGE_SECRETS });
+  const reported = await call('msp_env_report', {}) as { names?: string[] };
+  const received = new Set(reported.names ?? []);
+  assert.ok(received.size > 0, 'the fixture reported no environment at all');
+  for (const name of Object.keys(EDGE_SECRETS)) assert.equal(received.has(name), false, `${name} reached the spawned MSP child`);
+  for (const name of ['MSP_DB_PATH', 'MSP_GKS_PIPELINE_CREDENTIAL', 'GKS_DB_PATH', 'OLLAMA_BASE_URL']) {
+    assert.equal(received.has(name), true, `${name} must reach the spawned MSP child`);
+  }
 });
