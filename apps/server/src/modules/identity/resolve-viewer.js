@@ -159,6 +159,7 @@ async function resolveRoleBindings(db, principalId, visibleBusinessIds) {
 export async function resolveViewer({
   principalId = null,
   platformGrant = false,
+  superadminGrant = false,
   db = prisma,
   // Injectable so a test can place a grant's expiry on either side of the line
   // without sleeping, the same seam `operator-bootstrap` already uses.
@@ -169,6 +170,28 @@ export async function resolveViewer({
   }
 
   const principal = await resolvePrincipal(db, principalId)
+
+  // @req FR-200 — a separate trusted browser grant, never implied by OPERATOR.
+  // @spec ADR-082 — keep existing wire role values and enumerate real ids so
+  // scoped guards still deny nonexistent targets. Refresh includes new scopes.
+  if (superadminGrant) {
+    const [visibleBusinessIds, tenants, portfolios] = await Promise.all([
+      allBusinessIds(db),
+      db.tenant.findMany({ select: { id: true } }),
+      db.portfolio.findMany({ select: { id: true } }),
+    ])
+    const permissions = [...new Set(Object.values(ROLE_PERMISSIONS).flat())]
+    return {
+      principal, role: 'OWNER', isSuperadmin: true, isPlatform: true, isOperator: true,
+      visibleBusinessIds, ownedBusinessIds: [...visibleBusinessIds],
+      ownedTenantIds: tenants.map(({ id }) => id),
+      ownedPortfolioIds: portfolios.map(({ id }) => id),
+      domainsByBusinessId: allDomainsFor(visibleBusinessIds),
+      visibleDomains: [...VIEWER_DOMAINS],
+      rolesByBusinessId: {},
+      permissionsByBusinessId: Object.fromEntries(visibleBusinessIds.map((id) => [id, [...permissions]])),
+    }
+  }
 
   if (platformGrant) {
     // A platform DEV grant is cross-tenant visibility, not per-Business OWNER

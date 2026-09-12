@@ -321,6 +321,7 @@
     "FR-197",
     "FR-198",
     "FR-199",
+    "FR-200",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -665,6 +666,7 @@
     "ADR-079",
     "ADR-080",
     "ADR-081",
+    "ADR-082",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -3820,6 +3822,19 @@
       "history": [
         {
           "anchor": "a business owner can read the access history of their own",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-200": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "39fec911f8eb1b0610693d7b0143b4eea75bc7dfe6ffb2523a8777a43fb5268f",
+      "history": [
+        {
+          "anchor": "explicit superadmin access grants an existing person",
           "since": "2026-09-12",
           "reason": "declared"
         }
@@ -8375,6 +8390,19 @@
       "history": [
         {
           "anchor": "generated views are built not committed the monorepo",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-082": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-082-EXPLICIT-SUPERADMIN-AUTHORITY.md",
+      "status": "current",
+      "statement_digest": "14d930fb0cafd86ad387bab49ff042ef8bedc2bec1221591bb590a358632cc88",
+      "history": [
+        {
+          "anchor": "explicit superadmin authority",
           "since": "2026-09-12",
           "reason": "declared"
         }

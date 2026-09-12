@@ -53,6 +53,9 @@ const ACCESS_ENTITY_TYPES = ['MEMBERSHIP', 'ROLE_BINDING', 'ACCESS_INVITE']
 // person's own id (`operator-bootstrap.js`, `operator-use.js`), which is the
 // shape this list already matches; nothing else had to change to include them.
 const ACCESS_PERSON_ACTIONS = [
+  // @req FR-200 — grant and withdrawal must both be visible to access review.
+  'SUPERADMIN_GRANTED',
+  'SUPERADMIN_REVOKED',
   'OFFBOARDED',
   'OPERATOR_BOOTSTRAPPED',
   'OPERATOR_GRANT_ISSUED',

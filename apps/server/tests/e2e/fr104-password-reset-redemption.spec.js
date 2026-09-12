@@ -154,8 +154,8 @@ test.describe('FR-104 redemption screen', () => {
     expect(business, `BUS-001 not visible to the owner: ${JSON.stringify(scope.businesses)}`).toBeTruthy()
 
     const directory = await (await api(ownerPage.request).get(`/api/people?businessId=${business.id}`)).json()
-    const target = directory.people?.find((entry) => entry.person.code === 'PER-DELIVERY')
-    expect(target, 'PER-DELIVERY is not in the BUS-001 directory').toBeTruthy()
+    const target = directory.accessMembers?.find((entry) => entry.person.code === 'PER-DELIVERY')
+    expect(target, 'PER-DELIVERY is not among BUS-001 access members').toBeTruthy()
 
     const minted = await (await api(ownerPage.request).post('/api/platform/users/password-resets', {
       data: { personId: target.person.id },

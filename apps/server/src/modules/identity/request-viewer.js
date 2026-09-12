@@ -25,6 +25,7 @@ export async function resolveRequestViewer(
     return await resolve({
       principalId: session.principalId,
       platformGrant: session.platformGrant === true,
+      ...(session.superadminGrant === true ? { superadminGrant: true } : {}),
     })
   } catch (error) {
     if (Number(error?.status)) throw error
