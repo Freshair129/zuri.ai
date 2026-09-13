@@ -41,7 +41,9 @@ function systemTheme() {
   return typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
-export default function PlatformControlShell({ children }) {
+// @req FR-241 — the /roadmap member view reuses this frame (theme tokens, sign-out)
+// under its own title and footer; /control keeps the defaults.
+export default function PlatformControlShell({ children, title = 'Platform Control', footer = 'Platform Control · read-only programme projection' }) {
   const router = useRouter()
   const [signingOut, setSigningOut] = useState(false)
   const [theme, setTheme] = useState(null)
@@ -91,7 +93,7 @@ export default function PlatformControlShell({ children }) {
           </span>
           <div className="min-w-0">
             <p className="text-xs font-semibold tracking-wide text-white/65">Zuri</p>
-            <p className="truncate text-sm font-bold">Platform Control</p>
+            <p className="truncate text-sm font-bold">{title}</p>
           </div>
         </div>
         <Link href="/businesses" className="ml-auto text-xs font-semibold text-white/80 underline-offset-2 hover:underline">
@@ -120,7 +122,7 @@ export default function PlatformControlShell({ children }) {
       </header>
       <main className="mx-auto w-full max-w-7xl flex-1 p-6 max-md:p-4">{children}</main>
       <footer className={`${styles.footer} px-6 py-2 text-[10px] max-md:px-4`}>
-        Platform Control · read-only programme projection
+        {footer}
       </footer>
     </div>
   )

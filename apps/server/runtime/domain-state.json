@@ -36,11 +36,11 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 146,
-    "readyFeatureCount": 112,
-    "requirementCount": 240,
-    "verifiedRequirementCount": 212,
-    "progressPercent": 88.8,
+    "featureCount": 147,
+    "readyFeatureCount": 113,
+    "requirementCount": 241,
+    "verifiedRequirementCount": 213,
+    "progressPercent": 88.9,
     "gapCount": 28,
     "gaps": [
       {
@@ -3671,7 +3671,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-142",
@@ -3687,7 +3687,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-216",
@@ -3695,7 +3695,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-217",
@@ -3719,7 +3719,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-220",
@@ -3751,6 +3751,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
+          "testCount": 7
+        },
+        {
+          "id": "FR-241",
+          "title": "Programme roadmap member view",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
           "testCount": 6
         }
       ],
@@ -3892,10 +3900,11 @@
         "FR-105",
         "FR-142",
         "FR-145",
-        "FR-211"
+        "FR-211",
+        "FR-241"
       ],
-      "featureCount": 6,
-      "readyFeatureCount": 6,
+      "featureCount": 7,
+      "readyFeatureCount": 7,
       "progressPercent": 100
     },
     "procurement": {
@@ -4636,7 +4645,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-106",
@@ -5149,6 +5158,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 13
+        },
+        {
+          "id": "FR-241",
+          "title": "Programme roadmap member view",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 6
         }
       ],
       "checks": {
@@ -8969,7 +8986,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-217",
@@ -8993,7 +9010,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 7
+          "testCount": 8
         }
       ],
       "evidence": [
@@ -9021,6 +9038,7 @@
         "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
         "apps/server/tests/unit/program-task-evidence.test.js",
         "apps/server/tests/unit/programme-containers.test.js",
+        "apps/server/tests/unit/programme-member-view.test.js",
         "apps/server/tests/unit/programme-usage-meter.test.js",
         "apps/server/tests/unit/programme-usage-reports.test.js",
         "apps/server/tests/unit/zuri-harness-plugin.test.js"
@@ -9358,7 +9376,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 6
+          "testCount": 7
         }
       ],
       "evidence": [
@@ -9370,6 +9388,7 @@
         "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/program-delivery-metrics.test.js",
         "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
+        "apps/server/tests/unit/programme-member-view.test.js",
         "apps/server/tests/unit/programme-usage-meter.test.js",
         "apps/server/tests/unit/programme-usage-reports.test.js",
         "apps/server/tests/unit/usage-detail.test.js",
@@ -13075,7 +13094,7 @@
     },
     {
       "id": "FR-105",
-      "title": "Platform Programme Roadmap: `/control/roadmap` is an installation-operator-only, read-only projection of the submitted 24-week programme. It is deliberately outside BusinessShell and `DOMAINS`: there is no active Business, Tenant, Project or Workstream scope, and the surface must not be mistaken for a user's operational work. A missing viewer follows the entry boundary; a trusted viewer is admitted only by the named `isOperator` capability from FR-075 — never by `isPlatform`, role, Business/Tenant ownership or domain visibility. The board is a static plan snapshot re-projected from ROADMAP-ZURI-AI-24W-PROGRAM's own frontmatter and tables (currently v0.4.7, baseline `2b7ad27d`, eleven deliverables and nine gates under CR-019), carrying the document's own status (`approved` since 2026-09-13). It makes no write, persists no progress, exposes no API and never turns commit activity into programme completion. Declared as FR-105 rather than the branch's original FR-094, which main's canonical IAM slice claimed first (AGENTS.md §18 — the later declaration renumbers).",
+      "title": "Platform Programme Roadmap: `/control/roadmap` is an installation-operator-only, read-only projection of the submitted 24-week programme. It is deliberately outside BusinessShell and `DOMAINS`: there is no active Business, Tenant, Project or Workstream scope, and the surface must not be mistaken for a user's operational work. A missing viewer follows the entry boundary; a trusted viewer is admitted only by the named `isOperator` capability from FR-075 — never by `isPlatform`, role, Business/Tenant ownership or domain visibility. The board is a static plan snapshot re-projected from ROADMAP-ZURI-AI-24W-PROGRAM's own frontmatter and tables (currently v0.4.8, baseline `2b7ad27d`, eleven deliverables and nine gates under CR-019), carrying the document's own status (`approved` since 2026-09-13). It makes no write, persists no progress, exposes no API and never turns commit activity into programme completion. Declared as FR-105 rather than the branch's original FR-094, which main's canonical IAM slice claimed first (AGENTS.md §18 — the later declaration renumbers).",
       "kind": "requirement",
       "registryStatus": "live",
       "requirementIds": [
@@ -13098,7 +13117,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 16
+          "testCount": 17
         }
       ],
       "evidence": [
@@ -13126,6 +13145,7 @@
         "apps/server/tests/unit/program-delivery-metrics.test.js",
         "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
         "apps/server/tests/unit/programme-containers.test.js",
+        "apps/server/tests/unit/programme-member-view.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sign-out.test.js",
         "apps/server/tests/unit/topbar-no-dropdown.test.js",
@@ -14483,7 +14503,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 5
+          "testCount": 6
         }
       ],
       "evidence": [
@@ -14495,7 +14515,49 @@
         "apps/server/tests/unit/platform-control-domain-map.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/program-delivery-metrics.test.js",
-        "apps/server/tests/unit/program-roadmap-board-telemetry.test.js"
+        "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
+        "apps/server/tests/unit/programme-member-view.test.js"
+      ]
+    },
+    {
+      "id": "FR-241",
+      "title": "Programme roadmap member view: until **2026-10-15 00:00 Asia/Bangkok** (`2026-10-14T17:00:00Z`, a constant in code), `/roadmap` shows any signed-in person — no Business, role or grant consulted or conferred — a read-only projection of the programme board (phases, sprints, tasks with status, progress, size and evidence badges, and per-lane token totals, active time and headline usage counts) and the Domain map tab (FR-211). The projection is reduced on the server before rendering: it carries no usage by person or device, no tool or model name, no Agent devices tab and no report or credential row. A visitor without a session is sent to `/login`; an unavailable session store shows the shared retry state; once the window has closed the route is a non-enumerating 404 for everyone, including operators. `/control/roadmap` (FR-105) is unchanged and still admits only `isOperator`. Extending or closing the window early is a reviewed change to the constant and a deploy, never a runtime switch (ADR-092).",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-241"
+      ],
+      "primaryDomain": "platform-control",
+      "contributorDomains": [
+        "platform-control",
+        "project-manager"
+      ],
+      "useCase": "ใครก็ตามที่ login zuri-ai แล้ว เปิด /roadmap ได้ในช่วง 30 วันจนถึง 15 ต.ค. 2026 เพื่ออ่านแผนงาน 24 สัปดาห์กับ Domain map แบบอ่านอย่างเดียว โดยไม่เห็นยอดการใช้งานแยกตามคนหรือเครื่อง ชื่อ tool/model หรือรายการเครื่องที่จับคู่ ส่วน /control/roadmap ยังเปิดได้เฉพาะ operator",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-241",
+          "title": "Programme roadmap member view",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 6
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/roadmap/page.jsx",
+        "apps/server/src/components/layouts/PlatformControlShell.jsx",
+        "apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+        "apps/server/src/modules/platform-control/programme-member-view.js",
+        "apps/server/tests/e2e/fr241-roadmap-member-view.spec.js",
+        "apps/server/tests/unit/platform-control-domain-map.test.js",
+        "apps/server/tests/unit/platform-control-route-contract.test.js",
+        "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
+        "apps/server/tests/unit/programme-member-view.test.js",
+        "apps/server/tests/unit/sign-out.test.js"
       ]
     }
   ],
@@ -14563,7 +14625,7 @@
       "title": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity…",
       "status": "verified",
       "codeCount": 13,
-      "testCount": 20,
+      "testCount": 21,
       "domains": [
         "knowledge",
         "platform-control",

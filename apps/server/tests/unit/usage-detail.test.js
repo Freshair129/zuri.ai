@@ -152,6 +152,7 @@ describe('FR-240 board detail', () => {
 
   it('shows the split on the real board, and says so where a lane has no detail', () => {
     const html = renderToStaticMarkup(createElement(ProgramRoadmapBoard, {
+      lanes: [{ id: 'LANE-USAGE-DETAIL-AND-SPEC', tasks: ['TASK-ZAI-073', 'TASK-ZAI-074', 'TASK-ZAI-075'], branches: ['feat/usage-detail-and-spec'] }],
       laneUsage: Object.fromEntries(mergeLaneUsage({ lanes: [{ id: 'LANE-USAGE-DETAIL-AND-SPEC', tasks: ['TASK-ZAI-073', 'TASK-ZAI-074', 'TASK-ZAI-075'], branches: ['feat/usage-detail-and-spec'] }], usage: { lanes: { 'LANE-USAGE-DETAIL-AND-SPEC': { ...meterUsage.lanes['LANE-D'] } } } })),
     }))
     const phase = html.slice(html.indexOf('data-testid="phase-detail-PHASE-ZAI-01"'))
@@ -159,6 +160,7 @@ describe('FR-240 board detail', () => {
     expect(phase).toMatch(/tool call · error/)
     expect(phase).toContain('thinking')
     const bare = renderToStaticMarkup(createElement(ProgramRoadmapBoard, {
+      lanes: [{ id: 'LANE-USAGE-DETAIL-AND-SPEC', tasks: ['TASK-ZAI-073', 'TASK-ZAI-074', 'TASK-ZAI-075'], branches: ['feat/usage-detail-and-spec'] }],
       laneUsage: { 'LANE-USAGE-DETAIL-AND-SPEC': { ...mergeLaneUsage({ lanes: [], usage: { lanes: { X: { ...meterUsage.lanes['LANE-D'], detail: undefined } } } }).get('X'), laneId: 'LANE-USAGE-DETAIL-AND-SPEC' } },
     }))
     expect(bare.slice(bare.indexOf('data-testid="phase-detail-PHASE-ZAI-01"'))).toContain('data-detail="false"')

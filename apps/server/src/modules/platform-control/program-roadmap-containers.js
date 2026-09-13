@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.7, 2026-09-14) so the board can open a task the way the html board
+// (v0.4.8, 2026-09-14) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -5103,5 +5103,68 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-085"
     ],
     "evidence": "Section 3.1 row 8; ADR-089 phase 7; ADR-053 D3"
+  },
+  "TASK-ZAI-104": {
+    "container": "TC-TASK-ZAI-104",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.2.0",
+    "priority": "P1",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/app/roadmap/page.jsx",
+      "doc": "docs/decisions/ADR-092-TIME-BOXED-MEMBER-VIEW-OF-THE-PROGRAMME-ROADMAP.md",
+      "test": "apps/server/tests/unit/programme-member-view.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [
+      "FR-241"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Window constant and signed-in guard for /roadmap",
+        "status": "done"
+      },
+      {
+        "id": "P1",
+        "title": "Server-side member projection without people, devices, tool or model names",
+        "status": "done"
+      },
+      {
+        "id": "P2",
+        "title": "Board member mode without the Agent devices tab, with the closing date shown",
+        "status": "done"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given a signed-in person who holds no operator grant, when they open /roadmap before 2026-10-15 00:00 Asia/Bangkok, then they read the programme board and the Domain map tab read-only, a visitor without a session is sent to /login, and /control/roadmap still answers that person with a 404",
+        "checked": true
+      },
+      "success": {
+        "text": "Given the member projection built on the server, when it is rendered, then it carries no usage by person or device, no tool or model name, no Agent devices tab and no report or credential row, and a test asserts those fields are absent from the data handed to the client",
+        "checked": true
+      },
+      "exit": {
+        "text": "Given the window constant, when the clock passes its closing time, then /roadmap is a non-enumerating 404 for everyone including operators, and npm test covers open, closed, unauthenticated and the stripped projection",
+        "checked": true
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.8) on the owner's instruction to open the roadmap for 30 days. Asked who and what, the owner chose anyone signed in (not an anonymous URL or a share link) and the programme plan with the Domain map only (no usage by person or device, no Agent devices tab). ADR-092 records the decision; FR-241 declares the behaviour. /control/roadmap had one admitted person on 2026-09-14, the only OPERATOR grant holder. Implemented locally 2026-09-14 (FR-241): src/app/roadmap/page.jsx guards on the window constant first, then the session; programme-member-view.js holds MEMBER_VIEW_CLOSES_AT and projectMemberLaneUsage, which drops usage by person and device and tool and model names on the server; the board takes lanes, sizing and the measured-through time as props so its client bundle no longer carries the generated usage block, and audience=\"member\" hides the Agent devices tab and per-person rows; tests/unit/programme-member-view.test.js, and tests/e2e/fr241-roadmap-member-view.spec.js, which was not run locally (the worktree install predates the `three` dependency and installing was not permitted in the session) and is left to CI. Review, not done: not merged, not deployed.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 30000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-075"
+    ],
+    "evidence": "Section 3.1 row 2; FR-105; FR-211; ADR-048; ADR-092"
   }
 }

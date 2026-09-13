@@ -12,7 +12,7 @@ import { mergeLaneUsage } from '@/modules/platform-control/program-delivery-metr
 import { projectTaskEvidence } from '@/modules/platform-control/program-task-evidence'
 import { PROGRAMME_CONTAINERS } from '@/modules/platform-control/program-roadmap-containers'
 import { PROGRAMME_TASKS } from '@/modules/platform-control/program-roadmap-data'
-import { PROGRAMME_LANES, PROGRAMME_USAGE } from '@/modules/platform-control/program-roadmap-telemetry'
+import { PROGRAMME_LANES, PROGRAMME_SIZING, PROGRAMME_USAGE } from '@/modules/platform-control/program-roadmap-telemetry'
 import { getProductReadinessSnapshot } from '@/modules/project-manager/application/product-readiness-read-model'
 
 globalThis.React = React
@@ -21,6 +21,9 @@ const snapshot = getProductReadinessSnapshot()
 const render = (props = {}) => renderToStaticMarkup(createElement(ProgramRoadmapBoard, {
   laneUsage: Object.fromEntries(mergeLaneUsage({ lanes: PROGRAMME_LANES, usage: PROGRAMME_USAGE, reports: [] })),
   usageReports: { available: false, count: 0 },
+  lanes: PROGRAMME_LANES,
+  sizing: PROGRAMME_SIZING,
+  measuredThrough: PROGRAMME_USAGE.measuredThrough,
   taskEvidence: projectTaskEvidence({ tasks: PROGRAMME_TASKS, containers: PROGRAMME_CONTAINERS, snapshot }),
   ...props,
 }))

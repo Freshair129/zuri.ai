@@ -14,7 +14,7 @@ import ProgramRoadmapBoard from '@/modules/platform-control/components/ProgramRo
 import { projectDomainMap } from '@/modules/platform-control/program-domain-map'
 import { PROGRAMME_CONTAINERS } from '@/modules/platform-control/program-roadmap-containers'
 import { PROGRAMME_TASKS } from '@/modules/platform-control/program-roadmap-data'
-import { PROGRAMME_LANES, PROGRAMME_USAGE } from '@/modules/platform-control/program-roadmap-telemetry'
+import { PROGRAMME_LANES, PROGRAMME_SIZING, PROGRAMME_USAGE } from '@/modules/platform-control/program-roadmap-telemetry'
 import { mergeLaneUsage } from '@/modules/platform-control/program-delivery-metrics'
 import { projectTaskEvidence } from '@/modules/platform-control/program-task-evidence'
 import { listProgrammeUsageReports } from '@/modules/platform-control/application/programme-usage-reports'
@@ -38,6 +38,9 @@ export default async function PlatformProgrammeRoadmapPage({ searchParams }) {
       laneUsage={Object.fromEntries(laneUsage)}
       usageReports={{ available, count: reports.length }}
       taskEvidence={projectTaskEvidence({ tasks: PROGRAMME_TASKS, containers: PROGRAMME_CONTAINERS, snapshot })}
+      lanes={PROGRAMME_LANES}
+      sizing={PROGRAMME_SIZING}
+      measuredThrough={PROGRAMME_USAGE.measuredThrough}
     />
   )
 }
