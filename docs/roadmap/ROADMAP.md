@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.84.0b"
+version: "2.85.0b"
 updated: "2026-09-14"
 owner: "Owen"
 source_of_truth: true
@@ -18,6 +18,8 @@ live_document: true
 ---
 
 # ROADMAP: zuri-ai — Live Delivery State
+
+> Revision 2.85.0b (2026-09-14): TASK-ZAI-078 **ลงมือครบใน commit 9b66e05b** (ยัง in-progress เพราะยังไม่เปิด PR) — `SecretStorePort`, Supabase Vault store (definer functions + NOLOGIN roles), envelope store (AES-256-GCM + AAD), dispatching secret manager, credential lifecycle (rotation / revoke + fence / compensation / REENTRY_REQUIRED); migrations `20260914140000`, `20260914140200`, `20260914140300` เขียนแล้ว **ยังไม่ apply**. หลักฐาน: `npm test` 647 files / 5317 tests ผ่าน, suite Postgres 12 ผ่านบน postgres:17 (จำลอง schema vault), govern เขียว. เริ่ม TASK-ZAI-079 → **in-progress** (ยังไม่มี code).
 
 > Revision 2.84.0b (2026-09-14): เริ่มงาน **LINE OA platform Phase 1 — credential vault** (lane `LANE-LINE-OA-VAULT`, branch `feat/integration-secret-store-vault`, worktree `zuri-ai-secret-store-vault`) — TASK-ZAI-078 **in-progress**. branch แตกจาก `docs/line-oa-programme-plan` (PR #392 ยังเปิดอยู่) เพราะ lane และ task container มีอยู่บน branch นั้นเท่านั้น; baseline `govern` และ `npm test` เขียวก่อนเริ่มเขียนโค้ด. ยังไม่มี code, model หรือ migration ในรอบนี้.
 
@@ -366,7 +368,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-ZAI-076 | PHASE-ZAI-LINE-OA-PLATFORM | task | LINE OA platform decision record — ADR-089, ADR-090, ADR-091; FR-223..FR-238, SEC-030..SEC-032, SDD-097..SDD-100, FEAT-036..FEAT-038 declared and pinned | P0 | Claude | done (PR #389 merged as 8cd81196 on 2026-09-14; ADR-089..091 accepted; ids pinned; CI govern, tests, build and verify green) | - | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-077 | PHASE-ZAI-LINE-OA-PLATFORM | task | LINE OA platform delivery plan — phases 0 to 7 as sized tasks, lanes bound to branches before work, TASK-ZAI-074/075 as the measurement prerequisite, Project Manager import path, meter run | P0 | Claude | in-progress (plan written on docs/line-oa-programme-plan; pull request #392 open, not merged) | TASK-ZAI-076 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-078 | PHASE-ZAI-LINE-OA-PLATFORM | task | Integration credential vault (FR-223, SEC-030, SDD-097) — SecretStorePort, Supabase Vault and envelope stores, dispatching manager, versioned lifecycle; migrations 1, 3, 4 | P0 | Claude | in-progress (SPR-ZAI-03) | TASK-ZAI-077; TASK-ZAI-074; TASK-ZAI-075 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
-| TASK-ZAI-079 | PHASE-ZAI-LINE-OA-PLATFORM | task | Channel account claim (FR-226) and LINE channel-admin port (SDD-098, port half of FR-227) — claim before store, stateless tokens, bot info, webhook set/get/test; migration 2 | P0 | Claude | planned (SPR-ZAI-03) | TASK-ZAI-078 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-079 | PHASE-ZAI-LINE-OA-PLATFORM | task | Channel account claim (FR-226) and LINE channel-admin port (SDD-098, port half of FR-227) — claim before store, stateless tokens, bot info, webhook set/get/test; migration 2 | P0 | Claude | in-progress (SPR-ZAI-03) | TASK-ZAI-078 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-080 | PHASE-ZAI-LINE-OA-PLATFORM | task | Credential-write step-up gate and rate limit (FR-224) — AAL2 on every credential write, enrolment redirect, RateLimitBucket with 429 retry hints; migration 8 | P0 | Claude | planned (SPR-ZAI-03) | TASK-ZAI-078 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-081 | PHASE-ZAI-LINE-OA-PLATFORM | task | Phase 1 acceptance — ADR-089 proofs 1 to 6 on both providers and both stores; a real test channel validated end to end in a dev deployment; no production migration | P0 | Claude | planned (SPR-ZAI-03) | TASK-ZAI-079; TASK-ZAI-080 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-082 | PHASE-ZAI-LINE-OA-PLATFORM | task | Self-serve LINE OA connection wizard (FR-225) — Thai step-up, Channel ID and secret, live proof, claim, vault write, masked card, DRAFT account; mount-backed account moves on re-entry | P0 | Claude | planned (SPR-ZAI-04) | TASK-ZAI-081 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |

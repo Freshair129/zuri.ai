@@ -159,7 +159,7 @@
           "containerCode": "WST-LINE-OA-VAULT-SPR-ZAI-03",
           "subtype": "TASK",
           "title": "LINE channel account claim and the Integration LINE channel-admin port — an installation-wide claim by destination hash taken before any secret is stored, stateless token minting with a per-version cache, bot info, and webhook set, read and test calls, with design migration 2 — FR-226, SDD-098 and the port half of FR-227",
-          "status": "PLANNED",
+          "status": "IN_PROGRESS",
           "weight": 3,
           "metadata": {
             "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",

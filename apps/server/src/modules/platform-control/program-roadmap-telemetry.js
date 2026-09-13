@@ -189,7 +189,7 @@ export const PROGRAMME_LANES = [
 
 export const PROGRAMME_USAGE = {
   "meter": "scripts/programme-usage-meter.mjs",
-  "measuredThrough": "2026-09-13T20:54:32.683Z",
+  "measuredThrough": "2026-09-13T22:43:16.580Z",
   "lanes": {
     "LANE-COST-QUOTE-PLAN": {
       "requests": 33,
@@ -514,6 +514,77 @@ export const PROGRAMME_USAGE = {
         "models": {
           "claude-opus-5": 71,
           "claude-sonnet-5": 42
+        }
+      }
+    },
+    "LANE-LINE-OA-VAULT": {
+      "requests": 86,
+      "sessions": [
+        "claude-code:aac0cfef-d023-4455-a10f-a729b17b61f6"
+      ],
+      "tokens": {
+        "input": 172,
+        "cacheWrite": 207864,
+        "cacheRead": 41577925,
+        "output": 147939
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 86,
+          "tokens": {
+            "input": 172,
+            "cacheWrite": 207864,
+            "cacheRead": 41577925,
+            "output": 147939
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5"
+      ],
+      "firstActivityAt": "2026-09-13T22:04:31.684Z",
+      "lastActivityAt": "2026-09-13T22:43:16.580Z",
+      "activeMinutes": 39,
+      "detail": {
+        "reasoningTokens": 37050,
+        "cacheWrite5mTokens": 0,
+        "cacheWrite1hTokens": 207864,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 0,
+        "toolCalls": 124,
+        "toolErrors": 7,
+        "toolDenials": 0,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Bash": {
+            "calls": 12,
+            "errors": 1
+          },
+          "Edit": {
+            "calls": 49,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 10,
+            "errors": 0
+          },
+          "PowerShell": {
+            "calls": 19,
+            "errors": 6
+          },
+          "Read": {
+            "calls": 14,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 20,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 86
         }
       }
     },

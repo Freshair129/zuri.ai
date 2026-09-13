@@ -3769,14 +3769,14 @@ export const PROGRAMME_CONTAINERS = {
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "unavailable",
+      "code": "apps/server/src/platform/integrations/core/secret-store/secret-store-port.js",
       "doc": "docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md",
-      "test": "unavailable"
+      "test": "apps/server/tests/integration/credential-vault-lifecycle.test.js"
     },
     "linkState": {
-      "code": "unavailable",
+      "code": "present",
       "doc": "present",
-      "test": "unavailable"
+      "test": "present"
     },
     "delivers": [
       "FR-223",
@@ -3786,22 +3786,22 @@ export const PROGRAMME_CONTAINERS = {
       {
         "id": "P0",
         "title": "SecretStorePort and dispatching secret manager with cross-store refusal",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P1",
         "title": "Supabase Vault definer functions, NOLOGIN writer and reader roles, migration 3",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P2",
         "title": "Envelope store with AES-256-GCM, per-secret data keys and AAD binding, migration 4",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P3",
         "title": "Credential versions, rotation, revocation, compensation purge and REENTRY_REQUIRED, migration 1",
-        "status": "planned"
+        "status": "done"
       }
     ],
     "dod": {
@@ -3818,7 +3818,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. Migration numbers follow the vault design's section 8.2 list; the Phase-1 model-credential resolver is left untouched (SDD-097). The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them. Started 2026-09-14 on feat/integration-secret-store-vault in worktree zuri-ai-secret-store-vault (lane LANE-LINE-OA-VAULT), branched from docs/line-oa-programme-plan (PR #392, open) because the lane and this container exist only there; baseline govern and npm test green before any code (640 files, 5263 tests). In progress, not review: no code yet.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. Migration numbers follow the vault design's section 8.2 list; the Phase-1 model-credential resolver is left untouched (SDD-097). The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them. Started 2026-09-14 on feat/integration-secret-store-vault in worktree zuri-ai-secret-store-vault (lane LANE-LINE-OA-VAULT), branched from docs/line-oa-programme-plan (PR #392, open) because the lane and this container exist only there; baseline govern and npm test green before any code (640 files, 5263 tests). In progress, not review: no code yet. Implemented 2026-09-14 in commit 9b66e05b (not yet in a pull request, so still in-progress): P0 SecretStorePort and dispatching secret manager with cross-store refusal; P1 Supabase Vault definer functions with NOLOGIN writer and reader roles (migration 20260914140200, membership WITH INHERIT FALSE on PostgreSQL 16+); P2 envelope store with AES-256-GCM, wrapped data keys and AAD binding (migration 20260914140300); P3 credential versions, rotation, rejection, revocation with fence, compensation purge and REENTRY_REQUIRED (migration 20260914140000 with backfill). Evidence: npm test 647 files / 5317 tests passed; tests/integration/credential-vault.postgres.test.js 12 passed on a disposable postgres:17-alpine with an emulated vault schema (Supabase Vault itself not exercised); govern exit 0. No migration applied. Wiring REENTRY_REQUIRED into snapshot restore stays with TASK-ZAI-084.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 70000,
     "totalTokens": 0,
@@ -3833,7 +3833,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-079",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -3885,7 +3885,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. FR-227 is split across phases: the LINE API calls land here in the port; the publisher action, webhook health column and manual card are TASK-ZAI-083.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. FR-227 is split across phases: the LINE API calls land here in the port; the publisher action, webhook health column and manual card are TASK-ZAI-083. Started 2026-09-14 on feat/integration-secret-store-vault after TASK-ZAI-078's implementation commit 9b66e05b. In progress, not review: no code yet.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 55000,
     "totalTokens": 0,
