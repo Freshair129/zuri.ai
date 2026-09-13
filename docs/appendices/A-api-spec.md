@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.69.0b |
+| **Version** | 1.70.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-09-13 |
+| **Last Updated** | 2026-09-14 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -169,6 +169,8 @@ step-up authentication elevation for sensitive administrative operations.
 | GET | `/api/auth/mfa/factors` | Lists registered MFA factors for current user with secrets redacted. Requires active viewer session. Returns `{ factors: [{ id, type, label, status, verifiedAt, createdAt }] }`. |
 | DELETE | `/api/auth/mfa/factors` | Revokes an MFA factor (`status: 'REVOKED'`). Body: `{ factorId }`. Requires active viewer session. |
 | POST | `/api/auth/step-up` | Re-verifies user via active MFA challenge code and elevates current session to `AAL2` for a 15-minute window (`elevatedUntil`). Returns `{ elevated: true, assuranceLevel: 'AAL2', elevatedUntil }`. |
+
+The factor secret is sealed at rest (SEC-029, ADR-088): the enrollment reply is the only response that ever carries it, and the stored column holds an AES-256-GCM envelope. No request or response shape changes. A production deployment without `ZURI_MFA_SECRET_KEY` answers the enroll, verify and step-up operations with 503 `MFA_SECRET_KEY_REQUIRED`; a factor whose stored value cannot be opened answers verify with 503 `MFA_SECRET_UNAVAILABLE` and cannot satisfy step-up (401).
 
 ## Plugin authentication and capability discovery (FR-123 / ADR-052)
 
@@ -975,3 +977,5 @@ Version diff 1.65.0b → 1.66.0b (2026-09-13): add the nine FR-203 / FR-204 / FR
 Version diff 1.67.0b → 1.68.0b (2026-09-13): add `POST /api/platform/programme-usage-reports` (FR-218, ADR-086 D5) — agent usage reports under a deployment bearer; handler count 263 → 264.
 
 Version diff 1.68.0b → 1.69.0b (2026-09-14): add the six FR-220 harness pairing, device and whoami handlers and the FR-221 attribution contract on the usage report endpoint (ADR-087); handler count 264 → 270.
+
+Version diff 1.69.0b → 1.70.0b (2026-09-14): no route added or changed; record that the MFA factor secret is sealed at rest (SEC-029, ADR-088) and the two 503 refusals that follow from a missing key or an unopenable factor. Handler count unchanged.

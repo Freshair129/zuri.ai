@@ -2,7 +2,9 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import { createBusiness, createPortfolio, createTenant } from '../factories/scope'
 import { makeViewer } from '../factories/viewer'
-import { generateTotp } from '@/modules/identity/totp'
+import { generateTotp, generateTotpSecret } from '@/modules/identity/totp'
+import { openMfaSecret } from '@/modules/identity/mfa-secret-seal'
+import { resealMfaFactorSecrets } from '@/modules/identity/mfa-secret-reseal'
 import { assertSessionAssurance, resolveSessionAssurance } from '@/modules/identity/session-assurance'
 import { POST as postEnrollTotp } from '@/app/api/auth/mfa/totp/enroll/route'
 import { POST as postVerifyTotp } from '@/app/api/auth/mfa/totp/verify/route'
@@ -10,7 +12,7 @@ import { DELETE as deleteFactor, GET as getFactors } from '@/app/api/auth/mfa/fa
 import { POST as postStepUp } from '@/app/api/auth/step-up/route'
 
 // @req FR-094, FR-095, FR-096 — multi-factor authentication lifecycle
-// @spec ADR-045 D2, D4, D5, SDD-052, SEC-018
+// @spec ADR-045 D2, D4, D5, SDD-052, SEC-018, SEC-029, SDD-096, ADR-088
 // @tested tests/integration/mfa-totp-lifecycle.test.js
 
 let tenant
@@ -101,6 +103,12 @@ describe('P2 Enterprise IAM — MFA TOTP & Session Assurance Lifecycle', () => {
     const factorInDb = await prisma.mfaFactor.findUnique({ where: { id: enrolledFactorId } })
     expect(factorInDb.status).toBe('PENDING')
     expect(factorInDb.verifiedAt).toBeNull()
+
+    // SEC-029: the column holds a sealed value, never the base32 secret the app showed
+    expect(factorInDb.secret).not.toBe(data.secret)
+    expect(factorInDb.secret).not.toContain(data.secret)
+    expect(factorInDb.secret).toMatch(/^mfa\.v\d+\./)
+    expect(openMfaSecret(factorInDb.secret, { personId: staffPerson.id, factorId: enrolledFactorId })).toBe(data.secret)
   })
 
   it('lists registered factors without leaking raw secret', async () => {
@@ -214,5 +222,94 @@ describe('P2 Enterprise IAM — MFA TOTP & Session Assurance Lifecycle', () => {
       tokenHash: staffSession.tokenHash,
     })
     expect(stepUpRes.status).toBe(401)
+  })
+})
+
+describe('SEC-029 — factor secrets sealed at rest, and the sweep for rows written before', () => {
+  let person
+  let session
+  let viewer
+
+  beforeAll(async () => {
+    person = await prisma.person.create({
+      data: { code: 'PSN-MFA-LEGACY', displayName: 'MFA Legacy User', email: 'legacy.mfa@zuri.ai' },
+    })
+    session = await prisma.session.create({
+      data: {
+        personId: person.id,
+        tokenHash: 'mfa-test-session-hash-legacy',
+        status: 'ACTIVE',
+        assuranceLevel: 'AAL1',
+        expiresAt: new Date(Date.now() + 86400000),
+      },
+    })
+    viewer = makeViewer({
+      principal: { id: person.id, code: person.code, displayName: person.displayName },
+      role: 'OWNER',
+      visibleBusinessIds: [business.id],
+      ownedBusinessIds: [business.id],
+      ownedTenantIds: [tenant.id],
+      visibleDomains: ['identity', 'platform'],
+    })
+    viewer.personId = person.id
+  })
+
+  function stepUp(code) {
+    const req = mockRequest('http://localhost:3000/api/auth/step-up', { method: 'POST', body: { code } })
+    return postStepUp(req, { viewer, tokenHash: session.tokenHash })
+  }
+
+  it('a plaintext factor left by an earlier release fails closed until the sweep seals it, then verifies unchanged', async () => {
+    const legacySecret = generateTotpSecret()
+    const legacy = await prisma.mfaFactor.create({
+      data: { personId: person.id, type: 'TOTP', secret: legacySecret, status: 'ACTIVE', verifiedAt: new Date() },
+    })
+
+    expect((await stepUp(generateTotp({ secret: legacySecret }))).status).toBe(401)
+
+    const dryRun = await resealMfaFactorSecrets()
+    expect(dryRun.pending.find(p => p.factorId === legacy.id)).toMatchObject({ from: 'LEGACY_PLAINTEXT', status: 'ACTIVE' })
+    expect((await prisma.mfaFactor.findUnique({ where: { id: legacy.id } })).secret).toBe(legacySecret)
+
+    const written = await resealMfaFactorSecrets({ write: true })
+    expect(written.resealed).toContain(legacy.id)
+
+    const sealed = await prisma.mfaFactor.findUnique({ where: { id: legacy.id } })
+    expect(sealed.secret).not.toContain(legacySecret)
+    const audit = await prisma.auditEvent.findFirst({ where: { entityType: 'MFA_FACTOR', entityId: legacy.id, action: 'SECRET_RESEALED' } })
+    expect(audit).toBeTruthy()
+    expect(audit.payloadJson).not.toContain(legacySecret)
+
+    // The same authenticator entry the person already has keeps working
+    const res = await stepUp(generateTotp({ secret: legacySecret }))
+    expect(res.status).toBe(200)
+    expect((await res.json()).elevated).toBe(true)
+
+    const again = await resealMfaFactorSecrets({ write: true })
+    expect(again.pending.map(p => p.factorId)).not.toContain(legacy.id)
+    expect(again.resealed).not.toContain(legacy.id)
+  })
+
+  it("a sealed secret copied onto another Person's factor does not verify for them", async () => {
+    const other = await prisma.person.create({ data: { code: 'PSN-MFA-OTHER', displayName: 'MFA Other User' } })
+    const enrollReq = mockRequest('http://localhost:3000/api/auth/mfa/totp/enroll', { method: 'POST', body: {} })
+    const otherViewer = makeViewer({
+      principal: { id: other.id, code: other.code, displayName: other.displayName },
+      role: 'OWNER',
+      visibleBusinessIds: [business.id],
+      ownedBusinessIds: [business.id],
+      ownedTenantIds: [tenant.id],
+      visibleDomains: ['identity', 'platform'],
+    })
+    otherViewer.personId = other.id
+    const { secret: otherSecret, factorId: otherFactorId } = await (await postEnrollTotp(enrollReq, { viewer: otherViewer })).json()
+    const otherRow = await prisma.mfaFactor.findUnique({ where: { id: otherFactorId } })
+
+    await prisma.mfaFactor.updateMany({ where: { personId: person.id }, data: { status: 'REVOKED' } })
+    await prisma.mfaFactor.create({
+      data: { personId: person.id, type: 'TOTP', secret: otherRow.secret, status: 'ACTIVE', verifiedAt: new Date() },
+    })
+
+    expect((await stepUp(generateTotp({ secret: otherSecret }))).status).toBe(401)
   })
 })

@@ -1491,16 +1491,16 @@
           "title": "Canonical IAM principal",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 9,
-          "testCount": 16
+          "codeCount": 11,
+          "testCount": 18
         },
         {
           "id": "FR-095",
           "title": "Persisted session lifecycle",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 12,
-          "testCount": 32
+          "codeCount": 14,
+          "testCount": 34
         },
         {
           "id": "FR-096",
@@ -3660,7 +3660,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 32
+          "testCount": 34
         },
         {
           "id": "FR-105",
@@ -4560,7 +4560,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 16
+          "testCount": 18
         },
         {
           "id": "FR-095",
@@ -4568,7 +4568,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 32
+          "testCount": 34
         },
         {
           "id": "FR-097",
@@ -6213,16 +6213,16 @@
           "title": "Canonical IAM principal",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
-          "testCount": 16
+          "codeCount": 13,
+          "testCount": 18
         },
         {
           "id": "FR-095",
           "title": "Persisted session lifecycle",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 17,
-          "testCount": 32
+          "codeCount": 19,
+          "testCount": 34
         },
         {
           "id": "FR-096",
@@ -6277,6 +6277,8 @@
         "apps/server/src/modules/identity/channel-identity.js",
         "apps/server/src/modules/identity/erase-principal.js",
         "apps/server/src/modules/identity/link-line-identity.js",
+        "apps/server/src/modules/identity/mfa-secret-reseal.js",
+        "apps/server/src/modules/identity/mfa-secret-seal.js",
         "apps/server/src/modules/identity/mfa-service.js",
         "apps/server/src/modules/identity/resolve-line-identity.js",
         "apps/server/src/modules/identity/session-assurance.js",
@@ -6327,6 +6329,8 @@
         "apps/server/tests/unit/fr046-session-port.test.js",
         "apps/server/tests/unit/iam-session.test.js",
         "apps/server/tests/unit/identity/agent-tool-authorizer.test.js",
+        "apps/server/tests/unit/identity/mfa-secret-seal.test.js",
+        "apps/server/tests/unit/identity/seal-mfa-factor-secrets-cli.test.js",
         "apps/server/tests/unit/identity/session-assurance.test.js",
         "apps/server/tests/unit/identity/totp.test.js",
         "apps/server/tests/unit/line-binding-resolver.test.js",
