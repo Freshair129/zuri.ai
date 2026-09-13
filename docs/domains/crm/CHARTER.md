@@ -1,7 +1,7 @@
 ---
-version: "0.2.0b"
+version: "0.3.0b"
 status: active
-last_update: "2026-09-06T23:50:00+07:00,Claude"
+last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
 id: ZAI:DOMAIN-CRM
 relations:
   - type: relates_to
@@ -134,6 +134,37 @@ ADR-054. They are deliberately **not** in `owns_models` yet: that list mirrors
 same change that adds it. Until then this paragraph is the claim, so no other
 lane designs these tables elsewhere.
 
+## Declared, not yet in schema (FEAT-037, ADR-091)
+
+[ADR-091](../../decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md)
+(accepted 2026-09-14) makes the split explicit: **`Conversation` and `Message` are
+the business record** of a LINE conversation — receipts, the inbox, commerce
+linkage and legal retention read them — written first in the ADR-061 admission
+transaction. MSP's session events are the agent's ledger and never stand in for
+this record, and GKS never indexes it (ADR-090 D6).
+
+Planned under this charter, not in `owns_models` until each lands:
+
+- `MessageAttachment` (media recorded without bytes until a later phase fetches
+  them into `FileAsset`) and `ConversationEvent` (follow, unfollow, join, leave,
+  membership changes, postback, unsend) — FR-229. An unsend tombstones the
+  referenced message.
+- `Message` content kind, sender channel identity and retention expiry;
+  `Conversation` last-message time, a preview of at most 120 characters, and a
+  retention class — FR-229, FR-230, FR-233. The erasure writer above already
+  promises to redact such a preview in the same call; it will also redact
+  attachments.
+- A third read-only reader: message search (trigram on Postgres, `LIKE` on SQLite)
+  scoped to visible Businesses and optionally one LINE OA account — FR-233.
+- Retention: message bodies and attachments keep 24 months by default, a Tenant
+  may only shorten it, and a nightly sweep tombstones past the window — FR-230.
+- A consent-gated read projection for the knowledge lane's candidate extractor
+  (ADR-090 D6), in the shape of `getConversationAnalyses`; crm gains no writer for it.
+
+Consent keeps its current meaning and gains one: it never gates recording an
+inbound message, and it now also gates episodic, passport and cross-thread agent
+memory (ADR-091 D4, SEC-031).
+
 ## Account-aware transport (ADR-061)
 
 FR-148 adds account-scoped Conversation identity and transaction-capable inbound/accepted outbound contracts. Legacy rows stay LEGACY:LINE. The server job ledger calls CRM; it never writes Message directly. Provider acceptance is not delivery or reading.
@@ -146,5 +177,6 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.3.0b | 2026-09-14 | ADR-091 / FEAT-037 declared: CRM is the business record of a conversation; planned `MessageAttachment`, `ConversationEvent`, message and conversation read-model columns, search reader and retention recorded as prose; no `owns_models` change | Claude Opus 5 |
 | 0.2.0b | 2026-09-06 | Claimed `SalesTask` (FR-161, ADR-064): the legacy Tasks section adapted as a CRM sales activity record with its own writer, `SALES_REP` role and `/customer/sales-tasks` page | Claude Fable 5.1 |
 | 0.1.0b | 2026-09-06 | Added document metadata and FEAT-019 handoff navigation; existing domain manifest retained | RWANG |

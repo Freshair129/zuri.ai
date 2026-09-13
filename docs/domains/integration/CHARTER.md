@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 status: active
-last_update: "2026-09-06T13:29:04+07:00,RWANG"
+last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
 id: ZAI:DOMAIN-INTEGRATION
 relations:
   - type: relates_to
@@ -102,6 +102,14 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
   ADR-053 proposes the first such write-only path for FlowAccount; it does not
   relax the generic form and no browser response may contain secret material.
 - ADR-061 adds an owner-only LINE connection metadata provisioner at `POST /api/line-oa/connections`. It accepts a deployment-secret reference, never secret bytes. Server LINE channel credentials may resolve from an out-of-checkout read-only deployment secret mount, scoped to Tenant, Business, account, connection and destination. This exception concerns channel transport credentials only.
+- **Decided, not built: browser write-only credential entry (ADR-089).** The two
+  bullets above describe today. ADR-089 decides that this lane will own a
+  write-only `SecretStorePort` — Supabase Vault primary, an envelope-encryption
+  store for self-host, the mount kept as an operator-only read adapter,
+  cross-store resolution refused (SDD-097) — and that `POST /api/line-oa/connections`
+  will accept a Channel ID and Channel secret from an AAL2 Business owner, never
+  echoing them (SEC-030). Until FR-223..FR-228 land, the reference-only rules above
+  stay in force. See "Credential vault and self-serve LINE OA onboarding" below.
 - Local encrypted vault storage is dev/test only. Production uses Supabase Vault
   through the private `zuri_line_runtime` resolver and fails closed when it is
   unavailable.
@@ -240,8 +248,42 @@ or publishing raw provider records into an owner domain.
 
 See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[ZAI:ADR-061]]. Phase ownership does not change this charter's model/route manifest. Server transport is independent of Edge execution; BR-011/FR-050 describe retained legacy forwarding only.
 
+## Credential vault and self-serve LINE OA onboarding (ADR-089, FEAT-036 — declared, not built)
+
+[ADR-089](../../decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md)
+(accepted 2026-09-14) assigns this lane the credential vault and the LINE
+channel-admin port. Nothing below exists in code or schema yet; `owns_models`
+above changes only in the slice that adds each model.
+
+- **What this lane will own.** The `SecretStorePort` (write, activate, rotate,
+  revoke, resolve) over Supabase Vault definer functions and the envelope store
+  (FR-223, SDD-097); the dispatching secret manager the LINE runtime and
+  `ENABLE_SERVER` resolve through (FR-228); the LINE channel-admin port — stateless
+  token minting (SDD-098), bot information, webhook set, get and test (FR-225,
+  FR-227); and the installation-wide channel account claim (FR-226).
+- **Planned models, claimed here so no other lane designs them.**
+  `IntegrationCredentialVersion` (append-only version history),
+  `IntegrationSecretEnvelope` (envelope ciphertext, excluded from backup export),
+  `ChannelAccountClaim` (one live claim per bot, keyed by the SHA-256 of its
+  destination) and new lifecycle columns on `IntegrationCredential` (store, kind,
+  display hint, validation and revocation). Prisma never holds material.
+- **Boundaries that do not move.** No read-back route in any store; display is a
+  mask plus the last four characters of the Channel ID; the store functions
+  re-prove Tenant, Business, connection and destination from rows; a reference
+  whose store is not configured resolves `Unavailable`. EDGE-mode accounts keep
+  their credentials on the device (ADR-041 D2). The Phase-1 model-credential
+  resolver is untouched.
+- **Who calls it.** The Studio's connect wizard posts to this lane's route and
+  holds nothing; identity supplies the AAL2 gate and the rate limit (FR-224).
+- **Design evidence.** [Credential vault and chat-history design](../../plans/LINE-OA-CREDENTIAL-VAULT-ONBOARDING-AND-CHAT-HISTORY-DESIGN.md) §4–5.
+- **Chat retention touches raw evidence.** Under [ADR-091](../../decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md)
+  D2, LINE `RawExternalRecord.payloadJson` gets a 90-day retention tombstone with a
+  second reason code beside `PDPA_ERASURE`; envelope columns are kept, as the
+  erasure boundary above already requires.
+
 ## CHANGELOG
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.2.0b | 2026-09-14 | ADR-089 / FEAT-036 declared: the credential vault (`SecretStorePort`, Supabase Vault and envelope stores, mount operator-only), LINE channel-admin port and channel account claim assigned to this lane as planned prose; ADR-091 raw-payload retention noted; no `owns_models` change | Claude Opus 5 |
 | 0.1.0b | 2026-09-06 | Added document metadata and FEAT-019 handoff navigation; existing domain manifest retained | RWANG |

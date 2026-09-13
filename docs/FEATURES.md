@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.50.0b"
+version: "1.51.0b"
 status: active
-last_update: "2026-09-13T22:30:00+07:00,Claude Opus 5"
+last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -67,6 +67,9 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-033 | Data Pipeline Map — where data enters zuri-ai, where it is combined and who receives it, kept as a validated registry whose surface levels, build statuses and FEATs are derived from the tree and the readiness snapshot, drawn as a node-edge view with chain, domain and status filters in a Knowledge (GKS) navigation slot, with live per-edge health for the active Business declared next (ADR-085, `DOM-KNOWLEDGE`) | FR-212, FR-213, FR-214, FR-215 | building |
 | FEAT-034 | Programme delivery telemetry — phase cards on the operator programme board show counts, size, plan window and effort estimate beside the time and tokens really used, measured from local agent session logs and agent usage reports and never presented as progress, and task cards carry evidence badges and subtask progress (ADR-086, `DOM-PLATFORM-CONTROL`) | FR-216, FR-217, FR-218, FR-219 | building |
 | FEAT-035 | Zuri harness usage plugin — Claude Code and Codex agents on any machine pair once through a signed-in browser, hold a credential that can only report usage, and report each finished session attributed to the approving person, the device and the lane of its branch (ADR-087, `DOM-IDENTITY`, `DOM-PLATFORM-CONTROL`) | FR-220, FR-221, FR-222 | building |
+| FEAT-036 | Connect LINE OA yourself — a Business owner connects a LINE Official Account from the browser: after a TOTP step-up they enter the Channel ID and Channel secret once, the server proves them with LINE, claims the bot for this installation, stores the secret write-only in the Integration vault (Supabase Vault, or an encrypted store on self-host) and mints short-lived tokens itself, sets and tests the webhook through LINE's API and decides on its own when the old transport has gone quiet — with no operator and no host file (ADR-089, `DOM-INTEGRATION`, `DOM-IDENTITY`, `DOM-LINE-OA-STUDIO`) | FR-223, FR-224, FR-225, FR-226, FR-227, FR-228 | declared |
+| FEAT-037 | Chat record, memory tiers and retention — every LINE conversation kept in the right place for its role: the complete business record in CRM (text, stickers, media references and events, searchable in the inbox), the agent's own 90-day conversation ledger and consolidated memory in MSP under a per-account policy and per-tier consent, declared retention windows a Tenant can only shorten, erasure that reaches every tier and shows what is still pending, and one Context Composer that decides what a model may see and leaves a receipt of it (ADR-091, `DOM-CRM`, `DOM-AGENT`, `DOM-LINE-OA-STUDIO`) | FR-229, FR-230, FR-231, FR-232, FR-233, FR-234 | declared |
+| FEAT-038 | LINE grounding and knowledge candidates — a LINE OA account can answer from the Business's published GKS corpus, with a traced fallback and never a model call without evidence, and what the business learns from LINE conversations enters that corpus only as a locator-only question-and-answer that an owner or publisher approved, with a report of the questions nobody could answer (ADR-090, `DOM-KNOWLEDGE`, `DOM-AGENT`, `DOM-LINE-OA-STUDIO`) | FR-235, FR-236, FR-237, FR-238 | declared |
 
 Version diff 1.39.0b → 1.40.0b (2026-09-12): FEAT-030 declared and implemented in the same change — audit events carry queryable scope (FR-198) and identity gains the two read models an access review needs (FR-199), under ADR-080. Closes the gap ADR-077's grant lifecycle assumed was already open.
 
@@ -846,6 +849,21 @@ writing one sentence here, or the governance chain stops.
     "id": "FEAT-035",
     "primaryDomain": "identity",
     "useCase": "นักพัฒนาติดตั้ง plugin ของ Zuri ใน Claude Code หรือ Codex บนเครื่องตัวเอง กดจับคู่แล้วยืนยันใน browser ที่ login zuri-ai ค้างไว้ครั้งเดียว หลังจากนั้นทุก session ที่จบจะส่งยอด token จริงขึ้น zuri-ai เอง operator เห็นบน /control/roadmap ว่าใครใช้ไปเท่าไรจากเครื่องไหนใน lane ไหน และเพิกถอนเครื่องที่ไม่ใช้แล้วได้"
+  },
+  {
+    "id": "FEAT-036",
+    "primaryDomain": "integration",
+    "useCase": "เจ้าของธุรกิจเปิดหน้าเชื่อมต่อ LINE OA ยืนยันตัวตนด้วยรหัส TOTP แล้วกรอก Channel ID กับ Channel secret จาก LINE Developers Console ครั้งเดียว ระบบตรวจกับ LINE ดึงชื่อบอทมาให้ ตั้งและทดสอบ Webhook ให้เอง แล้วกดเปิดใช้งานได้ทันทีโดยไม่ต้องให้ผู้ดูแลระบบใส่ไฟล์บนเครื่องเซิร์ฟเวอร์ และหลังบันทึกไม่มีหน้าไหนแสดง secret ซ้ำอีก"
+  },
+  {
+    "id": "FEAT-037",
+    "primaryDomain": "crm",
+    "useCase": "พนักงานเปิด Inbox แล้วเห็นบทสนทนา LINE ครบทั้งข้อความ สติกเกอร์ รูปที่ลูกค้าส่ง และเหตุการณ์อย่างการเพิ่มเพื่อนหรือบล็อก ค้นหาข้อความเก่าได้ ส่วนเจ้าของธุรกิจกำหนดได้ว่าบัญชีไหนให้ agent จำบริบทได้ รู้ว่าข้อมูลแต่ละชั้นเก็บนานเท่าไร และเมื่อลูกค้าขอลบข้อมูลก็เห็นว่าลบครบทุกชั้นแล้วหรือยังรออยู่ที่ไหน"
+  },
+  {
+    "id": "FEAT-038",
+    "primaryDomain": "knowledge",
+    "useCase": "เจ้าของธุรกิจสลับบัญชี LINE OA ให้ตอบลูกค้าจากคลังความรู้ที่ publish แล้วใน GKS ดู trace ได้ว่าคำตอบอ้างเอกสารไหน อนุมัติคำถาม-คำตอบที่ได้จากแชทลูกค้าเข้าเป็นความรู้ของธุรกิจโดยไม่มีข้อมูลส่วนตัวของลูกค้าติดไป และเห็นรายงานว่าลูกค้าถามเรื่องสินค้าตัวไหนที่ระบบยังตอบไม่ได้"
   }
 ]
 ```
@@ -882,3 +900,5 @@ Version diff 1.47.0b → 1.48.0b (2026-09-13): Added **FEAT-033** (FR-212..FR-21
 Version diff 1.48.0b → 1.49.0b (2026-09-13): Added **FEAT-034** (FR-216..FR-219) under **ADR-086** — programme delivery telemetry and task card evidence badges on `/control/roadmap`. Declared; building.
 
 Version diff 1.49.0b → 1.50.0b (2026-09-14): Added **FEAT-035** (FR-220..FR-222) under **ADR-087** — the Zuri harness usage plugin with browser-paired devices and a report-only credential. Declared; building.
+
+Version diff 1.50.0b → 1.51.0b (2026-09-14): Added **FEAT-036** (FR-223..FR-228) under **ADR-089** — connect LINE OA yourself; **FEAT-037** (FR-229..FR-234) under **ADR-091** — chat record, memory tiers and retention; and **FEAT-038** (FR-235..FR-238) under **ADR-090** — LINE grounding and knowledge candidates. Owner-approved design, declared only: no code, model, route or migration.

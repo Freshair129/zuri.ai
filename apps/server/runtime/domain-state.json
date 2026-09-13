@@ -36,11 +36,11 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 142,
+    "featureCount": 145,
     "readyFeatureCount": 109,
-    "requirementCount": 222,
+    "requirementCount": 238,
     "verifiedRequirementCount": 210,
-    "progressPercent": 95.1,
+    "progressPercent": 88.7,
     "gapCount": 28,
     "gaps": [
       {
@@ -1339,13 +1339,14 @@
         "FEAT-009",
         "FEAT-014",
         "FEAT-022",
+        "FEAT-037",
         "FR-023",
         "FR-103",
         "FR-172"
       ],
-      "featureCount": 7,
+      "featureCount": 8,
       "readyFeatureCount": 4,
-      "progressPercent": 84
+      "progressPercent": 52.5
     },
     "identity": {
       "status": "partial",
@@ -2322,6 +2323,7 @@
       },
       "featureIds": [
         "FEAT-004",
+        "FEAT-036",
         "FR-030",
         "FR-081",
         "FR-102",
@@ -2330,9 +2332,9 @@
         "FR-129",
         "FR-130"
       ],
-      "featureCount": 8,
+      "featureCount": 9,
       "readyFeatureCount": 6,
-      "progressPercent": 90
+      "progressPercent": 56.3
     },
     "inventory": {
       "status": "partial",
@@ -3044,6 +3046,7 @@
         "FEAT-013",
         "FEAT-026",
         "FEAT-033",
+        "FEAT-038",
         "FR-024",
         "FR-047",
         "FR-071",
@@ -3057,9 +3060,9 @@
         "FR-119",
         "FR-131"
       ],
-      "featureCount": 15,
+      "featureCount": 16,
       "readyFeatureCount": 11,
-      "progressPercent": 90.4
+      "progressPercent": 77
     },
     "line-oa-studio": {
       "status": "partial",
@@ -9087,6 +9090,226 @@
         "plugins/zuri-harness/lib/report.mjs",
         "plugins/zuri-harness/lib/usage.mjs"
       ]
+    },
+    {
+      "id": "FEAT-036",
+      "title": "Connect LINE OA yourself — a Business owner connects a LINE Official Account from the browser: after a TOTP step-up they enter the Channel ID and Channel secret once, the server proves them with LINE, claims the bot for this installation, stores the secret write-only in the Integration vault (Supabase Vault, or an encrypted store on self-host) and mints short-lived tokens itself, sets and tests the webhook through LINE's API and decides on its own when the old transport has gone quiet — with no operator and no host file (ADR-089, `DOM-INTEGRATION`, `DOM-IDENTITY`, `DOM-LINE-OA-STUDIO`)",
+      "kind": "bundle",
+      "registryStatus": "declared",
+      "requirementIds": [
+        "FR-223",
+        "FR-224",
+        "FR-225",
+        "FR-226",
+        "FR-227",
+        "FR-228"
+      ],
+      "primaryDomain": "integration",
+      "contributorDomains": [],
+      "useCase": "เจ้าของธุรกิจเปิดหน้าเชื่อมต่อ LINE OA ยืนยันตัวตนด้วยรหัส TOTP แล้วกรอก Channel ID กับ Channel secret จาก LINE Developers Console ครั้งเดียว ระบบตรวจกับ LINE ดึงชื่อบอทมาให้ ตั้งและทดสอบ Webhook ให้เอง แล้วกดเปิดใช้งานได้ทันทีโดยไม่ต้องให้ผู้ดูแลระบบใส่ไฟล์บนเครื่องเซิร์ฟเวอร์ และหลังบันทึกไม่มีหน้าไหนแสดง secret ซ้ำอีก",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-036 registry status is declared",
+        "FR-223 is planned",
+        "FR-224 is planned",
+        "FR-225 is planned",
+        "FR-226 is planned",
+        "FR-227 is planned",
+        "FR-228 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-223",
+          "title": "Integration credential vault",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-224",
+          "title": "Credential-write step-up gate",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-225",
+          "title": "Self-serve LINE OA connection",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-226",
+          "title": "LINE channel account claim",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-227",
+          "title": "Automatic LINE webhook registration",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-228",
+          "title": "Derived legacy-transport quiescence",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "id": "FEAT-037",
+      "title": "Chat record, memory tiers and retention — every LINE conversation kept in the right place for its role: the complete business record in CRM (text, stickers, media references and events, searchable in the inbox), the agent's own 90-day conversation ledger and consolidated memory in MSP under a per-account policy and per-tier consent, declared retention windows a Tenant can only shorten, erasure that reaches every tier and shows what is still pending, and one Context Composer that decides what a model may see and leaves a receipt of it (ADR-091, `DOM-CRM`, `DOM-AGENT`, `DOM-LINE-OA-STUDIO`)",
+      "kind": "bundle",
+      "registryStatus": "declared",
+      "requirementIds": [
+        "FR-229",
+        "FR-230",
+        "FR-231",
+        "FR-232",
+        "FR-233",
+        "FR-234"
+      ],
+      "primaryDomain": "crm",
+      "contributorDomains": [],
+      "useCase": "พนักงานเปิด Inbox แล้วเห็นบทสนทนา LINE ครบทั้งข้อความ สติกเกอร์ รูปที่ลูกค้าส่ง และเหตุการณ์อย่างการเพิ่มเพื่อนหรือบล็อก ค้นหาข้อความเก่าได้ ส่วนเจ้าของธุรกิจกำหนดได้ว่าบัญชีไหนให้ agent จำบริบทได้ รู้ว่าข้อมูลแต่ละชั้นเก็บนานเท่าไร และเมื่อลูกค้าขอลบข้อมูลก็เห็นว่าลบครบทุกชั้นแล้วหรือยังรออยู่ที่ไหน",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-037 registry status is declared",
+        "FR-229 is planned",
+        "FR-230 is planned",
+        "FR-231 is planned",
+        "FR-232 is planned",
+        "FR-233 is planned",
+        "FR-234 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-229",
+          "title": "Non-text LINE content in the CRM record",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-230",
+          "title": "Chat record and agent memory split with declared retention",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-231",
+          "title": "LINE memory projection policy and receipts",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-232",
+          "title": "Erasure propagation beyond Tier 1",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-233",
+          "title": "Conversation inbox read models and search",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-234",
+          "title": "Context Composer",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "id": "FEAT-038",
+      "title": "LINE grounding and knowledge candidates — a LINE OA account can answer from the Business's published GKS corpus, with a traced fallback and never a model call without evidence, and what the business learns from LINE conversations enters that corpus only as a locator-only question-and-answer that an owner or publisher approved, with a report of the questions nobody could answer (ADR-090, `DOM-KNOWLEDGE`, `DOM-AGENT`, `DOM-LINE-OA-STUDIO`)",
+      "kind": "bundle",
+      "registryStatus": "declared",
+      "requirementIds": [
+        "FR-235",
+        "FR-236",
+        "FR-237",
+        "FR-238"
+      ],
+      "primaryDomain": "knowledge",
+      "contributorDomains": [],
+      "useCase": "เจ้าของธุรกิจสลับบัญชี LINE OA ให้ตอบลูกค้าจากคลังความรู้ที่ publish แล้วใน GKS ดู trace ได้ว่าคำตอบอ้างเอกสารไหน อนุมัติคำถาม-คำตอบที่ได้จากแชทลูกค้าเข้าเป็นความรู้ของธุรกิจโดยไม่มีข้อมูลส่วนตัวของลูกค้าติดไป และเห็นรายงานว่าลูกค้าถามเรื่องสินค้าตัวไหนที่ระบบยังตอบไม่ได้",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-038 registry status is declared",
+        "FR-235 is planned",
+        "FR-236 is planned",
+        "FR-237 is planned",
+        "FR-238 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-235",
+          "title": "LINE answer grounding from the published knowledge corpus",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-236",
+          "title": "LINE FAQ knowledge candidates",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-237",
+          "title": "Knowledge gap report for LINE",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-238",
+          "title": "LINE Studio descriptions as knowledge sources",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
     },
     {
       "id": "FR-001",

@@ -53,6 +53,8 @@ The central Zuri Cloud Console (`zuri-ai`) does not capture, store, or display s
 
 All credential updates and persona configurations must be executed locally on the `Zuri Edge Device` via `http://localhost:8787/gui` or `Zuri Edge Command` CLI.
 
+> **Amended by [ADR-089](ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md) (2026-09-14):** unchanged for EDGE-mode accounts (ADR-060 scoped this decision to them). For a CLOUD-mode LINE OA account the cloud console may capture the channel credential write-only into the Integration vault; it still never stores it readably or displays it.
+
 ## Consequences
 
 - **Clarity:** Agents and operators immediately recognize `Zuri Edge Device` as an on-premise node rather than a cloud endpoint.

@@ -27,8 +27,8 @@
   },
   "summary": {
     "nodes": 76,
-    "edges": 104,
-    "chains": 20,
+    "edges": 107,
+    "chains": 22,
     "byKind": {
       "SOURCE": 12,
       "ENTRY": 24,
@@ -38,7 +38,7 @@
     },
     "chainsByStatus": {
       "BLOCKED": 0,
-      "DECLARED": 3,
+      "DECLARED": 5,
       "PARTIAL": 0,
       "CODE_TESTS": 14,
       "PRODUCTION": 3
@@ -3329,6 +3329,30 @@
       "label": "Repository links (local metadata)",
       "wired": true,
       "status": "BLOCKED"
+    },
+    {
+      "id": "e.corpus-to-agent",
+      "from": "s.knowledge-corpus",
+      "to": "p.agent-turn",
+      "label": "published corpus → evidence ตาม grounding mode ของบัญชี (FR-235, ADR-090, ยังไม่ wire)",
+      "wired": false,
+      "status": "DECLARED"
+    },
+    {
+      "id": "e.crm-to-candidate-admission",
+      "from": "s.crm",
+      "to": "in.knowledge-admission",
+      "label": "Q/A แบบ locator-only ที่ OWNER / LINE_OA_PUBLISHER อนุมัติ → TEXT source LINE_FAQ_CANDIDATE (FR-236, ยังไม่ wire)",
+      "wired": false,
+      "status": "DECLARED"
+    },
+    {
+      "id": "e.agent-to-msp-session",
+      "from": "p.agent-turn",
+      "to": "r.msp",
+      "label": "MSP session tier ตาม memoryPolicy (FR-231, ADR-091, ปิดไว้จนกว่า MSP main มี thread + erase tool)",
+      "wired": false,
+      "status": "DECLARED"
     }
   ],
   "chains": [
@@ -3998,6 +4022,99 @@
         "FEAT-025",
         "FR-023",
         "FR-171",
+        "FR-190"
+      ]
+    },
+    {
+      "id": "CH-21",
+      "name": "LINE turn — grounded ด้วย corpus ที่ publish แล้ว",
+      "summary": "ADR-090: อ่าน published corpus ก่อนเรียก model ตามโหมดของบัญชี business knowledge เป็น fallback ที่บันทึกใน trace",
+      "path": [
+        "e.line-to-webhook",
+        "e.webhook-to-jobs",
+        "e.jobs-to-agent",
+        "e.agent-to-jobs",
+        "e.jobs-to-line"
+      ],
+      "branches": [
+        "e.corpus-to-agent",
+        "e.knowledge-to-agent",
+        "e.agent-to-models",
+        "e.agent-to-trace",
+        "e.agent-to-msp-session",
+        "e.jobs-to-crm"
+      ],
+      "nodeIds": [
+        "in.line-webhook",
+        "p.agent-turn",
+        "p.line-jobs",
+        "r.line-api",
+        "r.model-providers",
+        "r.msp",
+        "s.agent-trace",
+        "s.business-knowledge",
+        "s.crm",
+        "s.knowledge-corpus",
+        "src.line-users"
+      ],
+      "status": "DECLARED",
+      "domains": [
+        "agent",
+        "crm",
+        "knowledge",
+        "line-oa-studio"
+      ],
+      "features": [
+        "FEAT-009",
+        "FEAT-010",
+        "FEAT-013",
+        "FEAT-019",
+        "FEAT-025",
+        "FR-023",
+        "FR-047",
+        "FR-171",
+        "FR-190"
+      ]
+    },
+    {
+      "id": "CH-22",
+      "name": "FAQ candidate จาก LINE → review → 17 stage → corpus",
+      "summary": "ADR-090: ความรู้จากแชทเข้า GKS ได้เฉพาะ Q/A แบบ locator-only ที่คนอนุมัติ",
+      "path": [
+        "e.line-to-webhook",
+        "e.webhook-to-jobs",
+        "e.jobs-to-crm",
+        "e.crm-to-candidate-admission",
+        "e.admission-to-tier1",
+        "e.tier1-to-msp"
+      ],
+      "branches": [
+        "e.staff-to-admission",
+        "e.tier1-to-corpus"
+      ],
+      "nodeIds": [
+        "in.knowledge-admission",
+        "in.line-webhook",
+        "p.knowledge-tier1",
+        "p.line-jobs",
+        "r.msp",
+        "s.crm",
+        "s.knowledge-corpus",
+        "src.line-users",
+        "src.staff"
+      ],
+      "status": "DECLARED",
+      "domains": [
+        "crm",
+        "knowledge",
+        "line-oa-studio"
+      ],
+      "features": [
+        "FEAT-009",
+        "FEAT-013",
+        "FEAT-019",
+        "FEAT-026",
+        "FR-023",
         "FR-190"
       ]
     }

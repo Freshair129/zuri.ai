@@ -1,7 +1,7 @@
 ---
-version: "0.3.0b"
+version: "0.4.0b"
 status: active
-last_update: "2026-09-13T21:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
 id: ZAI:DOMAIN-AGENT
 relations:
   - type: relates_to
@@ -60,7 +60,10 @@ scoped `AgentTraceEvent` journal for execution evidence and read-only playback.
   Integration-owned LINE port under ADR-061; Agent never owns sending.
 - MSP is episodic memory, GKS is canonical knowledge, ERP state is operational
   truth — never confused (spec §17–19); conversation content never becomes
-  canonical knowledge without governance.
+  canonical knowledge without governance. Since ADR-090 that governance has one
+  lawful route: a locator-only candidate an OWNER or `LINE_OA_PUBLISHER` approved,
+  admitted by the knowledge lane through ADR-072 — never a Tier 1
+  `gks_knowledge_promote` call from this lane.
 
 ## Public contract
 
@@ -110,10 +113,43 @@ owner-only read-only playback route. MSP Soul sessions and runtime assembly,
 GKS retrieval and the optional Edge adapter remain external phase gates; this
 charter does not authorize direct writes to their repositories or databases.
 
+## Context Composer, memory tiers and grounding composition (ADR-091, ADR-090 — declared, not built)
+
+[ADR-091](../../decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md)
+and [ADR-090](../../decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md)
+(accepted 2026-09-14) give this lane three planned responsibilities. None exists in
+code yet; `owns_models` changes only when a model lands.
+
+- **Context Composer (FR-234, SDD-100).** A module, `src/modules/agent/context-composer.js`,
+  not a service: this lane stays the turn orchestrator. It assembles every model
+  prompt from the AuthContext, MSP slices with provenance, knowledge evidence with
+  citation ids, CRM/ERP facts and account policy; authorization first, then
+  CRM/ERP record over GKS evidence over MSP memory, with memory that contradicts a
+  record dropped as `SUPERSEDED_BY_RECORD`; one prompt-wide budget with reported
+  trims; group slices never cross threads; a denial yields an empty packet; no
+  evidence and no facts means no model call. Each model invocation records one
+  `ContextReceipt` (references, hash, budget) on `AgentTraceEvent`, referenced by
+  MSP's injection receipt. A follow-on to FR-171-P2; it moves assembly out of
+  `createServerLineAnswer`.
+- **Memory tiers (FR-230, FR-231, FR-232).** CRM holds the business record; MSP's
+  session tier is the agent's 90-day ledger, consolidated on session close into
+  episodic and passport memory. MSP calls no model, so **this lane produces the
+  consolidation summaries** and sends them back. MSP persists nothing into
+  GenesisBlockDB, and the GenesisBlockDB write-ahead log is never a chat buffer.
+  Projection stays off until MSP main ships thread and erase tools. **Planned model
+  `MemoryProjectionReceipt`** — one row per projection MSP acknowledged — is claimed
+  here, with an erase worker that calls MSP per receipt and reports `PENDING_MSP`
+  until acknowledged. Trace input snapshots gain a 90-day retention window.
+- **Grounding composition (FR-235, SDD-099).** This lane composes the knowledge
+  lane's corpus reader into the server answer by the account's grounding mode and
+  records `retrievalRefs`, source and reason on `EVIDENCE_SELECTED`; it owns no model
+  for this.
+
 ## CHANGELOG
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.4.0b | 2026-09-14 | ADR-091 / ADR-090 declared (FEAT-037, FEAT-038): the Context Composer as an agent-lane module with one `ContextReceipt` per model call, the CRM-record versus MSP-ledger split with this lane producing consolidation summaries, planned `MemoryProjectionReceipt`, and grounding composition; the one lawful chat-to-knowledge route named in Boundaries; no `owns_models` change | Claude Opus 5 |
 | 0.3.0b | 2026-09-13 | FR-210 / ADR-084 D4: the `#sku` catalogue command wraps the server-owned LINE worker's answer port for verified staff with Inventory write authority; the native path still never calls `handleAgentTurn`, and no model output reaches a write | Claude Opus 5 |
 | 0.1.0b | 2026-09-06 | Added document metadata and FEAT-019 handoff navigation; existing domain manifest retained | RWANG |
 | 0.2.0b | 2026-09-07 | ADR-070/FR-171 approved the single AgentTraceEvent journal and read-only playback boundary; the agent now owns that one local model while MSP, GKS and Edge remain external authorities | RWANG |
