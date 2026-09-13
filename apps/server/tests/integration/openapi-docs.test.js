@@ -171,8 +171,13 @@ describe('OpenAPI document', () => {
       // /api/people/employment and PATCH /api/people/employment/{employmentId}
       // — one operation each, because the three lifecycle transitions travel as
       // a named `action` on the PATCH rather than as three separate verbs.
-      pathCount: 252,
-      operationCount: 342,
+      // FR-203/FR-204/FR-206/FR-207 (ADR-083 SKU governance) add five paths and
+      // nine operations: GET /api/inventory/products/resolve, the identifier and
+      // unit-conversion collections of a SKU (GET, POST, PATCH each — RETIRE is a
+      // versioned action, never a DELETE), GET /api/inventory/catalog-hygiene and
+      // GET /api/inventory/replenishment. 252 + 5 = 257; 342 + 9 = 351.
+      pathCount: 257,
+      operationCount: 351,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

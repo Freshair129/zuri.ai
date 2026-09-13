@@ -212,6 +212,8 @@ export const DOMAINS = [
       { label: 'Work Orders', path: '/inventory/work-orders', icon: ClipboardList },
       { label: 'Reservations', path: '/inventory/reservations', icon: Bookmark },
       { label: 'Stocktake', path: '/inventory/stocktakes', icon: ClipboardList },
+      // @req FR-206 — the catalogue hygiene report and the merge desk (ADR-083 D6).
+      { label: 'SKU Hygiene', path: '/inventory/hygiene', icon: ClipboardCheck },
     ],
   },
   {

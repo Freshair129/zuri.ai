@@ -8,8 +8,12 @@ import { applyProductAction, getProduct } from '@/modules/inventory/application/
 //   authority with the caller's `version` as the compare-and-swap. No DELETE:
 //   archiving keeps the row. An unknown id and a product in a Business the
 //   viewer may not see answer identically (FR-072).
-// @spec BR-002; SEC-001; BR-012
-// @tested tests/unit/inventory-routes.test.js, tests/integration/fr154-inventory-catalog.test.js
+// @req FR-205 — since ADR-083 the action vocabulary is five: UPDATE, ARCHIVE
+//   (refused while stock or a live promise remains), PHASE_OUT, REACTIVATE and
+//   MERGE `{ into }`, the anti-bloat repair that never deletes.
+// @spec BR-002; SEC-001; BR-012; BR-040
+// @tested tests/unit/inventory-routes.test.js, tests/integration/fr154-inventory-catalog.test.js,
+//   tests/integration/fr201-inventory-sku-governance.test.js
 
 export const dynamic = 'force-dynamic'
 

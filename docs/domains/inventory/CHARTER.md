@@ -22,6 +22,8 @@ owns_models:
   - StockReservation
   - InventoryStocktake
   - InventoryLedgerFence
+  - ProductIdentifier
+  - ProductUnitConversion
 owns_routes:
   - src/app/(pm)/inventory/**
   - src/app/api/inventory/**
@@ -29,9 +31,9 @@ owns_code:
   - src/modules/inventory/**
 technical_owner: TD-INVENTORY
 status: active-foundation
-version: "1.3.0"
+version: "1.4.0"
 created_at: "2026-09-06T21:00:00+07:00"
-updated_at: "2026-09-11T03:42:14+07:00"
+updated_at: "2026-09-13T16:30:00+07:00"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -55,7 +57,11 @@ every stock movement is written to. It answers, for every Business,
 
 1. What is this product — its category, family, master, variant (SKU), the
    factory it came from, and which bundles pack it?
-2. Is this a counted good (นับสต๊อก), an uncounted good (ไม่นับสต๊อก) or a service (บริการ)?
+2. Is this a counted good (นับสต๊อก), an uncounted good (ไม่นับสต๊อก) or a service (บริการ)
+   — declared once at the master since ADR-083, so a service is never a variant of a good?
+5. Is this SKU the same physical thing as one we already have — by its variant, by its
+   barcode or a partner's code — and if it is, how do the two become one without losing
+   a ledger row?
 3. For a counted product: how many are on hand right now, is that below its
    safety stock, and which lot or serial unit is each one?
 4. What happened to the stock, when, by whom, and against which reference?
@@ -82,7 +88,7 @@ Display label:    Inventory (คลังสินค้า), under the SCM slot
 | `product_family` | `ProductFamily` | `code` unique per Tenant | groups product masters across categories |
 | `factory_id` | `Factory` | `code` unique per Tenant | referenced by a product master (default maker) and by a lot (actual maker of that batch) |
 | `product_master` | `ProductMaster` | `code` unique per Tenant | in exactly one category; optional family and factory; `baseCost`, `specs` |
-| `product_id` | `Product` (SKU) | `code` unique per Tenant | the variant of a master (`color`, `material`); carries `stockPolicy` and `trackingMode` |
+| `product_id` | `Product` (SKU) | `code` unique per Tenant | the variant of a master (`color`, `material`, and since FR-202 `variant` on the master's declared axes with a `variantKey` unique per master); carries `stockPolicy` (inherited from the master's `nature` since FR-201) and `trackingMode` |
 | `bundle_id` | `ProductBundle` + `ProductBundleItem` | `code` unique per Tenant | a pack of SKUs with quantities; availability is derived from the ledger |
 | `lot_id` | `ProductLot` | `code` unique per product | a manufacturing batch with optional factory, dates and `receivedQty` |
 | `serial_id` | `SerialUnit` | `serialNo` unique per product | one physical unit with its custody status |
@@ -122,6 +128,59 @@ three differ in **accounting**, not only in how the ledger treats them (FR-168):
   count this good" with "this is not a good", which is a distinction an
   accountant makes and the catalogue could not.
 
+**The nature is declared at the master, once (FR-201, ADR-083 D1, BR-038).**
+`ProductMaster.nature` is GOOD or SERVICE, fixed at creation, and every SKU
+inherits it: a SERVICE master's SKUs are SERVICE (a request for anything else is
+`INVENTORY_NATURE_MISMATCH`), a GOOD master's SKUs are TRACKED or UNTRACKED
+(defaulting to `defaultStockPolicy`) and never SERVICE. Until ADR-083 the nature
+lived only on the SKU, and the repository's own fixtures filed an engraving
+service as a colour-variant of a tumbler. A service SKU is stored with
+`safetyStock` 0, `trackingMode` NONE and no replenishment parameters, and the
+stock summary counts `services` apart from `untracked`. The migration backfills
+existing masters from their SKUs (all-SERVICE becomes SERVICE); a service left
+under a GOOD master keeps working and is reported by the hygiene report.
+
+## SKU governance — one physical thing, one SKU (ADR-083)
+
+The catalogue's identity guard used to be `code` alone, which is no guard against
+the ways an item master actually bloats: the same variant entered twice, a case of
+twelve beside the single, a barcode typed as a code on one row and a name on
+another, an intake that does not know the SKU exists. Since ADR-083:
+
+- **Variant identity (FR-202, BR-039).** A master declares `variantAxes`
+  (`["color","size"]`); a SKU carries `variant` (one value per axis, the legacy
+  `color` / `material` columns standing in for a same-named axis) and the
+  service derives `variantKey` — the normalized `axis=value|axis=value`
+  fingerprint — unique per master by index, archived or not
+  (`INVENTORY_PRODUCT_VARIANT_EXISTS` names the row that already is that variant;
+  REACTIVATE is the answer when it is archived). A master without axes has no
+  key and gets the exact-match **lookalike guard** instead:
+  `INVENTORY_PRODUCT_LOOKALIKE` unless the caller passes `allowLookalike`, which
+  the audit row records.
+- **Identifiers (FR-203, BR-002).** `ProductIdentifier` holds a GTIN (check
+  digit validated; EAN-13 and UPC-A are GTIN-13 / GTIN-12, not kinds of their
+  own), a BARCODE, a SUPPLIER_CODE, a MANUFACTURER_PART or a LEGACY_CODE —
+  unique per Tenant per kind, the two scannable kinds sharing one value space,
+  never a key and never an `ExternalRef`. `resolveProduct` answers "which SKU is
+  this" from the code, the FlowAccount code or any active identifier, follows a
+  merge to the survivor, and is the call an intake makes before it creates.
+- **Unit conversions (FR-204, BR-037).** `ProductUnitConversion` makes a pack
+  size an integer factor on the SKU; the ledger counts base units only, and a
+  movement that names a unit is converted before `appendMovement` sees it.
+- **Lifecycle and merge (FR-205, BR-040).** `Product.status` is ACTIVE,
+  PHASE_OUT (receipts refused, sell-down continues) or ARCHIVED (refused while
+  stock or a live reservation remains). MERGE moves a duplicate's stock to the
+  survivor through the ledger, re-points its identifiers, unit conversions,
+  bundle items and recipe lines, and leaves it ARCHIVED with
+  `mergedIntoProductId` set. Nothing is deleted.
+- **Hygiene report and replenishment (FR-206, FR-207).** `hygieneReport` is a
+  pure function over the catalogue and the ledger — lookalikes, nature
+  mismatches, undeclared axes, dormant SKUs, missing identifiers, services with
+  stock fields, phased-out stock — shown on the `/inventory/hygiene` tab beside
+  the merge desk. `reorderPoint` / `reorderQty` / `leadTimeDays` yield a
+  replenishment suggestion that the Procurement lane may act on; Inventory never
+  writes a purchase order.
+
 ## Owned records
 
 - `InventoryCategory`, `ProductFamily`, `Factory`, `ProductMaster`, `Product`,
@@ -147,6 +206,9 @@ three differ in **accounting**, not only in how the ledger treats them (FR-168):
   preview/idempotency record and the Business-scoped lock-only revision that
   serializes every write-side ledger read (FR-184). A stocktake adjusts through
   `appendMovement`; it is never a second stock ledger.
+- `ProductIdentifier`, `ProductUnitConversion` — a SKU's barcodes and partner
+  codes, and its pack sizes as integer factors (FR-203, FR-204). Attributes of
+  one SKU, re-pointed by a merge, never keys.
 
 ## Explicitly not owned
 
@@ -206,6 +268,9 @@ src/modules/inventory/
 ├── application/inventory-shelf-life-service.js  the ageing audit and the maintenance that resets it (FR-179)
 ├── application/inventory-atp-service.js      reservations and Available-to-Promise (FR-180)
 ├── application/inventory-stocktake-service.js physical count preview/commit (FR-184)
+├── domain/inventory-governance.js            nature, variant key, lookalike, GTIN, unit conversion, lifecycle and merge rules, hygiene report, replenishment (FR-201..FR-207)
+├── application/inventory-identity-service.js identifiers, unit conversions, resolve-before-create (FR-203, FR-204)
+├── application/inventory-hygiene-service.js  the hygiene report and the replenishment suggestion, read-only (FR-206, FR-207)
 └── index.js                                 stable module exports
 ```
 
@@ -232,18 +297,33 @@ create a `/warehouse` console. Not in this slice: bins, campaign scheduling,
 numeric SERIAL counts, Excel/LINE intake converters for stock, FlowAccount
 catalogue/stock synchronisation, or the graph projection of the ontology.
 
+FR-201…FR-207 (FEAT-031, ADR-083) are implemented locally: the nature at the
+master, variant identity and the lookalike guard, identifiers with
+`resolve`, unit conversions, the SKU lifecycle with MERGE, the hygiene report
+and replenishment. Migration `20260913120000_inventory_sku_governance` is
+written in both trees and **not applied**. The `/inventory/hygiene` tab is the
+sixth Inventory tab. Not in this slice: category hierarchy, automatic merge
+(the report proposes, a person disposes), identifier and unit-conversion
+forms on the console (API only), and the Excel/LINE converters that will call
+`resolve` first.
+
 ## References
 
 - [ONTOLOGY.md](ONTOLOGY.md) — the owner's node/edge ontology and how each concept maps here
 - [FR-154 catalogue identity](features/FR-154-inventory-catalogue-identity.md)
 - [FR-155 stock ledger](features/FR-155-inventory-stock-ledger.md)
 - [FR-184 stocktake](features/FR-184-inventory-stocktake.md)
+- [FR-201 nature at the master](features/FR-201-nature-at-the-master.md)
+- [FR-202 variant identity](features/FR-202-variant-identity.md)
+- [FR-205 SKU lifecycle and merge](features/FR-205-sku-lifecycle-and-merge.md)
+- [ADR-083](../../decisions/ADR-083-SKU-GOVERNANCE-NATURE-AT-THE-MASTER-VARIANT-IDENTITY-AND-CATALOGUE-HYGIENE.md) — SKU governance: the review, the decisions and the ERP mapping
 - [ADR-025](../../decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md) — the domain spine this charter lives in
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.4.0 | 2026-09-13 | active-foundation | Claimed `ProductIdentifier` and `ProductUnitConversion` (FR-203, FR-204) and recorded ADR-083's SKU governance: the nature declared at the master and inherited (FR-201), variant identity with a unique key per master and the lookalike guard (FR-202), the SKU lifecycle with PHASE_OUT / REACTIVATE / MERGE and the guarded ARCHIVE (FR-205), the read-only hygiene report on the new `/inventory/hygiene` tab (FR-206) and replenishment parameters (FR-207). Every ledger rule still reads the SKU; nothing existing changes meaning | working-tree | Claude Fable 5.1 |
 | 1.3.0 | 2026-09-11 | owner-approved | Added FR-184's durable NONE/LOT stocktake aggregate and lock-only ledger fence to Inventory; the existing `/inventory` surface remains the only UI and SERIAL observation, bins, campaigns and production migration remain out of scope | working-tree | RWANG |
 | 1.2.0 | 2026-09-10 | active-foundation | Claimed `WarehouseLocation`, `CustomizationWorkOrder`, `KittingWorkOrder` and `StockReservation` (FR-174..FR-181, ADR-074): the located ledger with its atomic transfer, landed cost in satang, the two WIP work orders and the irreversible customer dedication, de-kitting, the shelf-life storage guard, Available-to-Promise with two-tier reservations, and the FlowAccount set code recorded as a per-Tenant `Product.flowAccountSku` attribute rather than a second `code` or an installation-unique `ExternalRef`. Inventory valuation moves in from "future Finance"; the `warehouse` bar slot stays reserved for bins and stocktake | working-tree | Claude Opus 5 |
 | 1.1.0 | 2026-09-06 | active-foundation | Claimed `ProductRecipe` and `ProductRecipeLine` (FR-156 — the legacy Culinary recipes relabelled as a bill of materials at a batch size), recorded FEFO consumption on the ledger, and the `Warehouse` display label | working-tree | Claude Fable 5.1 |

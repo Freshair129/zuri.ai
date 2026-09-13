@@ -13,6 +13,7 @@ import {
   zRecordMovement,
 } from '../domain/inventory'
 import { dedicationRule, shelfLifeIssueRule } from '../domain/inventory-wip'
+import { toBaseQuantity } from '../domain/inventory-governance'
 import { loadBusiness } from './inventory-authority'
 import { INT32_MAX } from '../domain/inventory-stocktake'
 
@@ -43,6 +44,13 @@ import { INT32_MAX } from '../domain/inventory-stocktake'
 //   storage limit; FEFO skips such lots entirely, and an issue that could only
 //   be satisfied from them is refused as `INVENTORY_LOT_STORAGE_EXPIRED`
 //   rather than as a shortage, because the two need different fixes (BR-030).
+// @req FR-204 — a movement that names a `unit` other than the product's base
+//   unit is converted through the product's ACTIVE unit conversions before a
+//   row is written, so the ledger only ever counts base units (BR-037); an
+//   unknown unit is refused, and a serial-tracked product accepts none.
+// @req FR-201, FR-205 — the summary counts services apart from uncounted goods
+//   and reports the phased-out SKUs; a phased-out SKU refuses a receipt
+//   through `movementRule`.
 // @spec BR-002 (lot numbers and serials are attributes, never keys); SEC-001; FR-072;
 //   ADR-074 D1, D2, D3, D4, D7; BR-026, BR-027, BR-028, BR-030
 // @tested tests/integration/fr155-inventory-stock.test.js,
@@ -52,7 +60,7 @@ import { INT32_MAX } from '../domain/inventory-stocktake'
 const failure = (status, message) => Object.assign(new Error(message), { status })
 const actor = (viewer) => viewer?.principal?.id ?? null
 
-const PRODUCT_SELECT = { id: true, code: true, tenantId: true, businessId: true, name: true, unit: true, stockPolicy: true, trackingMode: true, safetyStock: true, status: true, itemKind: true, dedicatedCustomerId: true, dedicatedSalesOrderId: true, maintenanceIntervalDays: true, maxStorageDays: true }
+const PRODUCT_SELECT = { id: true, code: true, tenantId: true, businessId: true, name: true, unit: true, stockPolicy: true, trackingMode: true, safetyStock: true, status: true, itemKind: true, dedicatedCustomerId: true, dedicatedSalesOrderId: true, maintenanceIntervalDays: true, maxStorageDays: true, reorderPoint: true, reorderQty: true, leadTimeDays: true }
 const LOT_SELECT = { id: true, code: true, tenantId: true, businessId: true, productId: true, factoryId: true, manufacturedAt: true, expiresAt: true, lastMaintainedAt: true, receivedQty: true, status: true, createdAt: true, updatedAt: true, version: true }
 const SERIAL_SELECT = { id: true, serialNo: true, tenantId: true, businessId: true, productId: true, lotId: true, status: true, createdAt: true, updatedAt: true, version: true }
 const MOVEMENT_SELECT = { id: true, tenantId: true, businessId: true, productId: true, lotId: true, serialUnitId: true, kind: true, quantity: true, reason: true, reference: true, actorId: true, occurredAt: true, createdAt: true, sourceLocationId: true, targetLocationId: true, costSatang: true, customerId: true, salesOrderId: true, workOrderId: true }
@@ -166,18 +174,31 @@ async function resolveLot(tx, business, product, data) {
  * serial product or a FEFO issue) inside the caller's transaction. `data` is
  * an already-parsed `zRecordMovement` value.
  */
-export async function appendMovement(tx, data, { viewer } = {}) {
+export async function appendMovement(tx, input, { viewer } = {}) {
   // Authorization is a read and must precede the fence. After it succeeds,
   // acquiring the fence is the first write-side statement in this writer;
   // reading Product or on-hand before it would let a stocktake observe a
   // moving ledger. Provider-specific concurrency is proven by the real DB
   // tests rather than by this ordering comment.
-  const business = await loadBusiness(tx, viewer, data.businessId, { write: true })
+  const business = await loadBusiness(tx, viewer, input.businessId, { write: true })
   await acquireLedgerFence(tx, { tenantId: business.tenantId, businessId: business.id })
-  const product = await tx.product.findUnique({ where: { id: data.productId }, select: PRODUCT_SELECT })
+  const product = await tx.product.findUnique({ where: { id: input.productId }, select: PRODUCT_SELECT })
   if (!product || product.businessId !== business.id) throw failure(422, 'INVENTORY_PRODUCT_NOT_FOUND')
+  // @req FR-204 — the caller's unit becomes base units here, before any rule
+  //   reads the quantity; the row and every calculation below see base units.
+  let data = input
+  let unitConversion = null
+  if (input.unit && input.unit !== product.unit) {
+    const conversions = await tx.productUnitConversion.findMany({ where: { productId: product.id, status: 'ACTIVE' }, select: { unit: true, factor: true, status: true } })
+    const converted = toBaseQuantity(product, input.quantity, input.unit, conversions)
+    if (!converted.ok) throw Object.assign(failure(422, converted.code), { details: { unit: input.unit, baseUnit: product.unit } })
+    data = { ...input, quantity: converted.quantity, unit: undefined }
+    unitConversion = { unit: converted.unit, factor: converted.factor, quantityInUnit: Math.trunc(input.quantity) }
+  } else if (input.unit) {
+    data = { ...input, unit: undefined }
+  }
   const rule = movementRule(product, data)
-  if (!rule.ok) throw failure(rule.code === 'INVENTORY_PRODUCT_ARCHIVED' ? 409 : 422, rule.code)
+  if (!rule.ok) throw failure(rule.code === 'INVENTORY_PRODUCT_ARCHIVED' || rule.code === 'INVENTORY_PRODUCT_PHASED_OUT' ? 409 : 422, rule.code)
 
   const delta = movementDelta(data.kind, data.quantity)
   const before = await onHandOf(tx, product.id)
@@ -289,10 +310,11 @@ export async function appendMovement(tx, data, { viewer } = {}) {
       onHandBefore: before, onHandAfter: after, reference: data.reference ?? null,
       sourceLocationId: base.sourceLocationId, targetLocationId: base.targetLocationId, costSatang: base.costSatang,
       customerId: base.customerId, salesOrderId: base.salesOrderId, workOrderId: base.workOrderId,
+      ...(unitConversion ? { unitConversion } : {}),
     },
   })
   await advanceLedgerFence(tx, { tenantId: business.tenantId, businessId: business.id })
-  return { productId: product.id, kind: data.kind, quantity: delta, onHandBefore: before, onHandAfter: after, lotId: lot?.id ?? null, allocations, movements: rows, costSatang: base.costSatang }
+  return { productId: product.id, kind: data.kind, quantity: delta, onHandBefore: before, onHandAfter: after, lotId: lot?.id ?? null, allocations, movements: rows, costSatang: base.costSatang, unitConversion }
 }
 
 /** Append one movement in its own transaction. */
@@ -322,8 +344,15 @@ export async function stockSummary({ businessId, includeArchived = false, viewer
     counts: {
       products: rows.length,
       tracked: rows.filter((r) => r.stockPolicy === 'TRACKED').length,
-      untracked: rows.filter((r) => r.stockPolicy !== 'TRACKED').length,
+      // @req FR-201 — an uncounted good and a service are different classes
+      //   (ADR-083 D1); a reader that wants "everything without a ledger" adds
+      //   the two, and a reader that wants "goods we do not count" no longer
+      //   gets the services folded in.
+      untracked: rows.filter((r) => r.stockPolicy === 'UNTRACKED').length,
+      services: rows.filter((r) => r.stockPolicy === 'SERVICE').length,
+      phaseOut: rows.filter((r) => r.status === 'PHASE_OUT').length,
       belowSafetyStock: rows.filter((r) => r.belowSafetyStock).length,
+      belowReorderPoint: rows.filter((r) => r.belowReorderPoint).length,
     },
   }
 }

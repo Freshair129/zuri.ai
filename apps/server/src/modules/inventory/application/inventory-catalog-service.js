@@ -18,7 +18,19 @@ import {
   zProductAction,
 } from '../domain/inventory'
 import { FINISHED_SET_SKU_PATTERN, isFinishedSetSku } from '../domain/inventory-costing'
+import {
+  archiveGuard,
+  lookalikeFingerprint,
+  mergeRule,
+  natureRule,
+  parseVariant,
+  parseVariantAxes,
+  productLifecycleRule,
+  variantKeyFor,
+  variantValues,
+} from '../domain/inventory-governance'
 import { assertMayView, loadBusiness, notFound } from './inventory-authority'
+import { appendMovement } from './inventory-stock-service'
 
 // @req FR-154 — the only writer of the Inventory catalogue: category, family,
 //   factory, product master, product (SKU) and bundle. Every create derives
@@ -30,16 +42,37 @@ import { assertMayView, loadBusiness, notFound } from './inventory-authority'
 //   ledger's meaning depends on them, so they are not editable after the
 //   first movement could exist. `UPDATE` edits the descriptive fields and the
 //   safety stock; `ARCHIVE` keeps the row. Nothing is ever deleted.
-// @spec BR-002 (codes are attributes, unique per Tenant, never keys); SEC-001; FR-072
-// @tested tests/integration/fr154-inventory-catalog.test.js
+// @req FR-201 — a master declares its nature once; a SKU's policy is derived
+//   from it and a request that disagrees is refused (`INVENTORY_NATURE_MISMATCH`).
+//   A service SKU is stored with no stock fields (BR-038).
+// @req FR-202 — a SKU's variant values on the master's axes yield its
+//   `variantKey`, unique per master (`INVENTORY_PRODUCT_VARIANT_EXISTS` names
+//   the row that already is that variant, archived or not); for masters that
+//   declare no axes the exact-match lookalike guard refuses a second SKU that
+//   describes the same thing (`INVENTORY_PRODUCT_LOOKALIKE`) unless the caller
+//   says `allowLookalike`, which the audit row records (BR-039).
+// @req FR-205 — the lifecycle actions: PHASE_OUT, REACTIVATE, the ARCHIVE
+//   guard (BR-040: no stock, no live promise), and MERGE — the duplicate's
+//   stock moves to the survivor through the ledger, its identifiers, unit
+//   conversions, bundle items and recipe lines are re-pointed, and it ends
+//   ARCHIVED with `mergedIntoProductId` set. Nothing is deleted.
+// @req FR-207 — the replenishment parameters are set at creation or by UPDATE.
+// @spec BR-002 (codes are attributes, unique per Tenant, never keys); SEC-001; FR-072;
+//   ADR-083 D1, D2, D5, D6; BR-037, BR-038, BR-039, BR-040
+// @tested tests/integration/fr154-inventory-catalog.test.js,
+//   tests/integration/fr201-inventory-sku-governance.test.js
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
 
 const CATEGORY_SELECT = { id: true, code: true, tenantId: true, businessId: true, nameTh: true, nameEn: true, slug: true, vibe: true, targetRecipient: true, guardrail: true, status: true, createdAt: true, updatedAt: true, version: true }
 const FAMILY_SELECT = { id: true, code: true, tenantId: true, businessId: true, name: true, description: true, status: true, createdAt: true, updatedAt: true, version: true }
 const FACTORY_SELECT = { id: true, code: true, tenantId: true, businessId: true, name: true, country: true, contact: true, status: true, createdAt: true, updatedAt: true, version: true }
-const MASTER_SELECT = { id: true, code: true, tenantId: true, businessId: true, categoryId: true, familyId: true, factoryId: true, nameTh: true, nameEn: true, baseCost: true, specsJson: true, status: true, createdAt: true, updatedAt: true, version: true }
-const PRODUCT_SELECT = { id: true, code: true, tenantId: true, businessId: true, productMasterId: true, name: true, color: true, material: true, unit: true, stockPolicy: true, trackingMode: true, safetyStock: true, status: true, archivedAt: true, createdAt: true, updatedAt: true, version: true, itemKind: true, dedicatedCustomerId: true, dedicatedSalesOrderId: true, maintenanceIntervalDays: true, maxStorageDays: true, flowAccountSku: true }
+const MASTER_SELECT = { id: true, code: true, tenantId: true, businessId: true, categoryId: true, familyId: true, factoryId: true, nameTh: true, nameEn: true, baseCost: true, specsJson: true, nature: true, defaultStockPolicy: true, variantAxesJson: true, status: true, createdAt: true, updatedAt: true, version: true }
+const PRODUCT_SELECT = {
+  id: true, code: true, tenantId: true, businessId: true, productMasterId: true, name: true, color: true, material: true, unit: true, stockPolicy: true, trackingMode: true, safetyStock: true, status: true, archivedAt: true, createdAt: true, updatedAt: true, version: true,
+  itemKind: true, dedicatedCustomerId: true, dedicatedSalesOrderId: true, maintenanceIntervalDays: true, maxStorageDays: true, flowAccountSku: true,
+  variantJson: true, variantKey: true, mergedIntoProductId: true, reorderPoint: true, reorderQty: true, leadTimeDays: true,
+}
 const BUNDLE_SELECT = { id: true, code: true, tenantId: true, businessId: true, name: true, description: true, targetRecipients: true, totalPrice: true, status: true, createdAt: true, updatedAt: true, version: true, items: { select: { id: true, productId: true, qty: true }, orderBy: { id: 'asc' } } }
 
 function parseSpecs(json) {
@@ -51,7 +84,8 @@ function parseSpecs(json) {
   }
 }
 
-const masterDto = (row) => ({ ...row, specs: parseSpecs(row.specsJson), specsJson: undefined })
+const masterDto = (row) => ({ ...row, specs: parseSpecs(row.specsJson), specsJson: undefined, variantAxes: parseVariantAxes(row.variantAxesJson), variantAxesJson: undefined })
+const productDto = (row) => row ? ({ ...row, variant: parseVariant(row.variantJson), variantJson: undefined }) : row
 const actor = (viewer) => viewer?.principal?.id ?? null
 
 async function assertCodeFree(tx, model, tenantId, code, message) {
@@ -139,55 +173,138 @@ export async function createProductMaster(input, { viewer, db = prisma } = {}) {
       await requireInBusiness(tx, 'productFamily', d.familyId, business.id, 'PRODUCT_FAMILY_NOT_FOUND')
       await requireInBusiness(tx, 'factory', d.factoryId, business.id, 'FACTORY_NOT_FOUND')
     },
-    columns: (d) => ({ code: d.code, categoryId: d.categoryId, familyId: d.familyId ?? null, factoryId: d.factoryId ?? null, nameTh: d.nameTh, nameEn: d.nameEn, baseCost: d.baseCost ?? 0, specsJson: JSON.stringify(d.specs ?? {}) }),
-    payload: (created) => ({ categoryId: created.categoryId, familyId: created.familyId, factoryId: created.factoryId }),
+    columns: (d) => ({
+      code: d.code, categoryId: d.categoryId, familyId: d.familyId ?? null, factoryId: d.factoryId ?? null, nameTh: d.nameTh, nameEn: d.nameEn, baseCost: d.baseCost ?? 0, specsJson: JSON.stringify(d.specs ?? {}),
+      // @req FR-201, FR-202 — the nature and the axes are fixed here; a
+      //   SERVICE master defaults nothing and declares no axes.
+      nature: d.nature ?? 'GOOD',
+      defaultStockPolicy: (d.nature ?? 'GOOD') === 'SERVICE' ? 'SERVICE' : (d.defaultStockPolicy ?? 'TRACKED'),
+      variantAxesJson: JSON.stringify((d.nature ?? 'GOOD') === 'SERVICE' ? [] : (d.variantAxes ?? [])),
+    }),
+    payload: (created) => ({ categoryId: created.categoryId, familyId: created.familyId, factoryId: created.factoryId, nature: created.nature, variantAxes: parseVariantAxes(created.variantAxesJson) }),
   })
   return masterDto(row)
 }
 
-export async function listProductMasters({ businessId, categoryId, viewer, db = prisma } = {}) {
-  const rows = await listScoped({ model: 'productMaster', select: MASTER_SELECT, businessId, viewer, db, where: categoryId ? { categoryId } : {} })
+export async function listProductMasters({ businessId, categoryId, nature, viewer, db = prisma } = {}) {
+  const rows = await listScoped({ model: 'productMaster', select: MASTER_SELECT, businessId, viewer, db, where: { ...(categoryId ? { categoryId } : {}), ...(nature ? { nature } : {}) } })
   return rows.map(masterDto)
 }
 
 // ── Product (SKU) ───────────────────────────────────────────────────────────
 
-export function createProduct(input, { viewer, db = prisma } = {}) {
-  return createScoped(PRODUCT_ENTITY, 'PRODUCT_CREATED', {
-    input, schema: zCreateProduct, model: 'product', select: PRODUCT_SELECT, codeTaken: 'PRODUCT_CODE_TAKEN', viewer, db,
-    references: async (tx, d, business) => {
-      const master = await requireInBusiness(tx, 'productMaster', d.productMasterId, business.id, 'PRODUCT_MASTER_NOT_FOUND')
-      if (master.status === 'ARCHIVED') throw failure(409, 'PRODUCT_MASTER_ARCHIVED')
-    },
-    columns: (d) => ({
-      code: d.code, productMasterId: d.productMasterId, name: d.name ?? null, color: d.color ?? null, material: d.material ?? null,
-      unit: d.unit ?? 'EA', stockPolicy: d.stockPolicy ?? 'TRACKED',
-      // @req FR-168 — anything without a ledger is stored with NONE, so a
-      // SERVICE cannot carry a tracking mode any more than an UNTRACKED good
-      // can. Written as "not TRACKED" rather than a list, so a fourth nature
-      // cannot be added later and silently inherit lot or serial identity.
-      trackingMode: (d.stockPolicy ?? 'TRACKED') !== 'TRACKED' ? 'NONE' : (d.trackingMode ?? 'NONE'),
-      safetyStock: d.safetyStock ?? 10,
-      // @req FR-176, FR-179 — the kit role, the customer lock a branded SKU
-      //   carries, and the storage thresholds an ageing one declares. Defaults
-      //   keep every product created before ADR-074 identical: RAW_COMPONENT,
-      //   no lock, no ageing.
-      itemKind: d.itemKind ?? 'RAW_COMPONENT',
-      flowAccountSku: d.flowAccountSku ?? null,
-      dedicatedCustomerId: d.dedicatedCustomerId ?? null,
-      dedicatedSalesOrderId: d.dedicatedSalesOrderId ?? null,
-      maintenanceIntervalDays: d.maintenanceIntervalDays ?? null,
-      maxStorageDays: d.maxStorageDays ?? null,
-    }),
-    payload: (created) => ({ productMasterId: created.productMasterId, stockPolicy: created.stockPolicy, trackingMode: created.trackingMode, itemKind: created.itemKind, dedicatedCustomerId: created.dedicatedCustomerId, dedicatedSalesOrderId: created.dedicatedSalesOrderId }),
-  })
+const MASTER_FOR_SKU_SELECT = { id: true, code: true, businessId: true, status: true, nature: true, defaultStockPolicy: true, variantAxesJson: true }
+
+/**
+ * The variant key and lookalike fingerprint of a SKU under its master, with
+ * the refusals a caller gets when the values do not cover the axes.
+ */
+function variantIdentity(master, fields) {
+  const axes = parseVariantAxes(master.variantAxesJson)
+  const { values, missing, extra } = variantValues(axes, fields)
+  if (missing.length) throw Object.assign(failure(422, 'INVENTORY_VARIANT_AXES_INCOMPLETE'), { details: { axes, missing } })
+  if (extra.length) throw Object.assign(failure(422, 'INVENTORY_VARIANT_AXIS_UNKNOWN'), { details: { axes, unknown: extra } })
+  const variantKey = variantKeyFor(axes, values)
+  return { axes, variant: values, variantKey, fingerprint: lookalikeFingerprint({ name: fields.name, color: fields.color, material: fields.material, variantKey }) }
 }
 
-export function listProducts({ businessId, productMasterId, includeArchived = false, viewer, db = prisma } = {}) {
-  return listScoped({
-    model: 'product', select: PRODUCT_SELECT, businessId, viewer, db,
-    where: { ...(productMasterId ? { productMasterId } : {}), ...(includeArchived ? {} : { status: { not: 'ARCHIVED' } }) },
+/** The one row that already is this variant under the master, archived or not; null when none. */
+async function variantTaken(tx, masterId, variantKey, exceptId = null) {
+  if (!variantKey) return null
+  const row = await tx.product.findFirst({ where: { productMasterId: masterId, variantKey, ...(exceptId ? { id: { not: exceptId } } : {}) }, select: { id: true, code: true, status: true } })
+  return row
+}
+
+/** A live SKU under the master that describes exactly the same thing; null when none or when the fingerprint says nothing. */
+async function lookalikeOf(tx, masterId, fingerprint, exceptId = null) {
+  if (!fingerprint) return null
+  const rows = await tx.product.findMany({ where: { productMasterId: masterId, status: { not: 'ARCHIVED' }, ...(exceptId ? { id: { not: exceptId } } : {}) }, select: { id: true, code: true, name: true, color: true, material: true, variantKey: true } })
+  return rows.find((row) => lookalikeFingerprint(row) === fingerprint) ?? null
+}
+
+export async function createProduct(input, { viewer, db = prisma } = {}) {
+  const d = zCreateProduct.parse(input)
+  const row = await db.$transaction(async (tx) => {
+    const business = await loadBusiness(tx, viewer, d.businessId, { write: true })
+    await assertCodeFree(tx, 'product', business.tenantId, d.code, 'PRODUCT_CODE_TAKEN')
+    const master = await tx.productMaster.findUnique({ where: { id: d.productMasterId }, select: MASTER_FOR_SKU_SELECT })
+    if (!master || master.businessId !== business.id) throw failure(422, 'PRODUCT_MASTER_NOT_FOUND')
+    if (master.status === 'ARCHIVED') throw failure(409, 'PRODUCT_MASTER_ARCHIVED')
+
+    // @req FR-201 — the master decides what a SKU under it may be (BR-038).
+    const nature = natureRule(master, d.stockPolicy)
+    if (!nature.ok) throw Object.assign(failure(422, nature.code), { details: { masterNature: master.nature, stockPolicy: d.stockPolicy } })
+    const stockPolicy = nature.stockPolicy
+    const isService = stockPolicy === 'SERVICE'
+
+    // @req FR-202 — one physical variant, one SKU (BR-039).
+    const identity = isService ? { axes: [], variant: {}, variantKey: null, fingerprint: lookalikeFingerprint({ name: d.name, color: d.color, material: d.material, variantKey: null }) } : variantIdentity(master, d)
+    const existing = await variantTaken(tx, master.id, identity.variantKey)
+    if (existing) throw Object.assign(failure(409, 'INVENTORY_PRODUCT_VARIANT_EXISTS'), { details: { existingProductId: existing.id, existingCode: existing.code, existingStatus: existing.status, variantKey: identity.variantKey } })
+    const lookalike = await lookalikeOf(tx, master.id, identity.fingerprint)
+    if (lookalike && !d.allowLookalike) throw Object.assign(failure(409, 'INVENTORY_PRODUCT_LOOKALIKE'), { details: { existingProductId: lookalike.id, existingCode: lookalike.code } })
+
+    const created = await tx.product.create({
+      data: {
+        tenantId: business.tenantId, businessId: business.id,
+        code: d.code, productMasterId: master.id, name: d.name ?? null, color: d.color ?? null, material: d.material ?? null,
+        unit: d.unit ?? 'EA', stockPolicy,
+        // @req FR-168 — anything without a ledger is stored with NONE, so a
+        // SERVICE cannot carry a tracking mode any more than an UNTRACKED good
+        // can. Written as "not TRACKED" rather than a list, so a fourth nature
+        // cannot be added later and silently inherit lot or serial identity.
+        trackingMode: stockPolicy !== 'TRACKED' ? 'NONE' : (d.trackingMode ?? 'NONE'),
+        // @req FR-201 — a service has no stock to keep safe; the field is 0,
+        //   not the counted default, so a report never reads it as a threshold.
+        safetyStock: isService ? 0 : (d.safetyStock ?? 10),
+        // @req FR-176, FR-179 — the kit role, the customer lock a branded SKU
+        //   carries, and the storage thresholds an ageing one declares. Defaults
+        //   keep every product created before ADR-074 identical: RAW_COMPONENT,
+        //   no lock, no ageing.
+        itemKind: d.itemKind ?? 'RAW_COMPONENT',
+        flowAccountSku: d.flowAccountSku ?? null,
+        dedicatedCustomerId: d.dedicatedCustomerId ?? null,
+        dedicatedSalesOrderId: d.dedicatedSalesOrderId ?? null,
+        maintenanceIntervalDays: d.maintenanceIntervalDays ?? null,
+        maxStorageDays: d.maxStorageDays ?? null,
+        // @req FR-202, FR-207
+        variantJson: JSON.stringify(identity.variant),
+        variantKey: identity.variantKey,
+        reorderPoint: isService ? null : (d.reorderPoint ?? null),
+        reorderQty: isService ? null : (d.reorderQty ?? null),
+        leadTimeDays: isService ? null : (d.leadTimeDays ?? null),
+      },
+      select: PRODUCT_SELECT,
+    })
+    await recordAudit(tx, {
+      entityType: PRODUCT_ENTITY, entityId: created.id, action: 'PRODUCT_CREATED', actorId: actor(viewer),
+      payload: {
+        businessId: business.id, code: created.code, productMasterId: created.productMasterId, stockPolicy: created.stockPolicy, trackingMode: created.trackingMode, itemKind: created.itemKind,
+        dedicatedCustomerId: created.dedicatedCustomerId, dedicatedSalesOrderId: created.dedicatedSalesOrderId,
+        masterNature: master.nature, variantKey: created.variantKey, ...(lookalike ? { allowLookalike: true, lookalikeOf: lookalike.id } : {}),
+      },
+    })
+    return created
   })
+  return productDto(row)
+}
+
+/**
+ * The SKUs of one Business. Archived rows on request only; `stockPolicy`,
+ * `status` and the master's `nature` narrow the list, so "the services" and
+ * "what is being phased out" are one query each.
+ */
+export async function listProducts({ businessId, productMasterId, includeArchived = false, stockPolicy, status, nature, viewer, db = prisma } = {}) {
+  const rows = await listScoped({
+    model: 'product', select: PRODUCT_SELECT, businessId, viewer, db,
+    where: {
+      ...(productMasterId ? { productMasterId } : {}),
+      ...(status ? { status } : (includeArchived ? {} : { status: { not: 'ARCHIVED' } })),
+      ...(stockPolicy ? { stockPolicy } : {}),
+      ...(nature ? { productMaster: { nature } } : {}),
+    },
+  })
+  return rows.map(productDto)
 }
 
 export async function getProduct(id, { viewer, db = prisma } = {}) {
@@ -197,17 +314,84 @@ export async function getProduct(id, { viewer, db = prisma } = {}) {
   if (!row) throw notFound()
   assertMayView(viewer, row.businessId)
   const { movements, ...product } = row
-  return { ...product, onHand: product.stockPolicy === 'TRACKED' ? stockOnHand(movements) : null }
+  return { ...productDto(product), onHand: product.stockPolicy === 'TRACKED' ? stockOnHand(movements) : null }
 }
 
-const PRODUCT_ACTIONS = Object.freeze({ UPDATE: 'PRODUCT_UPDATED', ARCHIVE: 'PRODUCT_ARCHIVED' })
+const PRODUCT_ACTIONS = Object.freeze({ UPDATE: 'PRODUCT_UPDATED', ARCHIVE: 'PRODUCT_ARCHIVED', PHASE_OUT: 'PRODUCT_PHASED_OUT', REACTIVATE: 'PRODUCT_REACTIVATED', MERGE: 'PRODUCT_MERGED' })
+const TERMINAL_WORK_ORDER_STATUSES = ['COMPLETED', 'CANCELLED']
 
 function productFieldColumns(fields = {}) {
   const out = {}
-  for (const key of ['name', 'color', 'material', 'unit', 'safetyStock']) {
+  for (const key of ['name', 'color', 'material', 'unit', 'safetyStock', 'reorderPoint', 'reorderQty', 'leadTimeDays']) {
     if (fields[key] !== undefined) out[key] = fields[key]
   }
   return out
+}
+
+async function onHandOf(tx, product) {
+  if (product.stockPolicy !== 'TRACKED') return null
+  const sum = await tx.stockMovement.aggregate({ where: { productId: product.id }, _sum: { quantity: true } })
+  return sum._sum.quantity ?? 0
+}
+
+const activeReservationsOf = (tx, productId) => tx.stockReservation.count({ where: { productId, status: 'ACTIVE' } })
+
+/**
+ * Everything that would still point at the duplicate after a merge and that a
+ * merge cannot re-point on its own: a bundle or recipe already holding the
+ * survivor (a quantity sum would change the BOM's meaning), a recipe whose
+ * output is the survivor at a batch size the survivor already has, a recipe
+ * of the duplicate that names the survivor as a component (or the reverse),
+ * and any work order that is not finished.
+ */
+async function mergeBlockers(tx, duplicate, survivor) {
+  const blockers = []
+  const bundleItems = await tx.productBundleItem.findMany({ where: { productId: duplicate.id }, select: { id: true, bundleId: true, bundle: { select: { code: true } } } })
+  for (const item of bundleItems) {
+    const clash = await tx.productBundleItem.findFirst({ where: { bundleId: item.bundleId, productId: survivor.id }, select: { id: true } })
+    if (clash) blockers.push({ kind: 'BUNDLE_HOLDS_BOTH', bundleId: item.bundleId, code: item.bundle.code })
+  }
+  const lines = await tx.productRecipeLine.findMany({ where: { componentProductId: duplicate.id }, select: { id: true, recipeId: true, recipe: { select: { code: true, productId: true } } } })
+  for (const line of lines) {
+    if (line.recipe.productId === survivor.id) { blockers.push({ kind: 'RECIPE_OUTPUT_IS_SURVIVOR', recipeId: line.recipeId, code: line.recipe.code }); continue }
+    const clash = await tx.productRecipeLine.findFirst({ where: { recipeId: line.recipeId, componentProductId: survivor.id }, select: { id: true } })
+    if (clash) blockers.push({ kind: 'RECIPE_HOLDS_BOTH', recipeId: line.recipeId, code: line.recipe.code })
+  }
+  const recipes = await tx.productRecipe.findMany({ where: { productId: duplicate.id }, select: { id: true, code: true, batchSize: true, status: true } })
+  for (const recipe of recipes) {
+    const names = await tx.productRecipeLine.findFirst({ where: { recipeId: recipe.id, componentProductId: survivor.id }, select: { id: true } })
+    if (names) { blockers.push({ kind: 'RECIPE_COMPONENT_IS_SURVIVOR', recipeId: recipe.id, code: recipe.code }); continue }
+    if (recipe.status !== 'ARCHIVED') {
+      const clash = await tx.productRecipe.findFirst({ where: { productId: survivor.id, batchSize: recipe.batchSize, status: { not: 'ARCHIVED' } }, select: { id: true } })
+      if (clash) blockers.push({ kind: 'RECIPE_BATCH_SIZE_EXISTS', recipeId: recipe.id, code: recipe.code, batchSize: recipe.batchSize })
+    }
+  }
+  const openStatus = { notIn: TERMINAL_WORK_ORDER_STATUSES }
+  const customization = await tx.customizationWorkOrder.count({ where: { status: openStatus, OR: [{ rawProductId: duplicate.id }, { outputProductId: duplicate.id }] } })
+  if (customization) blockers.push({ kind: 'OPEN_CUSTOMIZATION_WORK_ORDERS', count: customization })
+  const kitting = await tx.kittingWorkOrder.count({ where: { status: openStatus, finishedProductId: duplicate.id } })
+  if (kitting) blockers.push({ kind: 'OPEN_KITTING_WORK_ORDERS', count: kitting })
+  return blockers
+}
+
+async function repointReferences(tx, duplicate, survivor) {
+  const identifiers = await tx.productIdentifier.updateMany({ where: { productId: duplicate.id, status: 'ACTIVE' }, data: { productId: survivor.id } })
+  let conversions = 0
+  let conversionsRetired = 0
+  for (const conversion of await tx.productUnitConversion.findMany({ where: { productId: duplicate.id, status: 'ACTIVE' }, select: { id: true, unit: true } })) {
+    const clash = await tx.productUnitConversion.findUnique({ where: { productId_unit: { productId: survivor.id, unit: conversion.unit } }, select: { id: true } })
+    if (clash || conversion.unit === survivor.unit) {
+      await tx.productUnitConversion.update({ where: { id: conversion.id }, data: { status: 'RETIRED', version: { increment: 1 } } })
+      conversionsRetired += 1
+    } else {
+      await tx.productUnitConversion.update({ where: { id: conversion.id }, data: { productId: survivor.id, version: { increment: 1 } } })
+      conversions += 1
+    }
+  }
+  const bundleItems = await tx.productBundleItem.updateMany({ where: { productId: duplicate.id }, data: { productId: survivor.id } })
+  const recipeLines = await tx.productRecipeLine.updateMany({ where: { componentProductId: duplicate.id }, data: { componentProductId: survivor.id } })
+  const recipes = await tx.productRecipe.updateMany({ where: { productId: duplicate.id }, data: { productId: survivor.id } })
+  return { identifiers: identifiers.count, conversions, conversionsRetired, bundleItems: bundleItems.count, recipeLines: recipeLines.count, recipes: recipes.count }
 }
 
 /** Apply one versioned action; compare-and-swap on (id, version). */
@@ -218,26 +402,95 @@ export async function applyProductAction(id, input, { viewer, db = prisma } = {}
   const updated = await db.$transaction(async (tx) => {
     const row = await tx.product.findUnique({ where: { id: productId }, select: PRODUCT_SELECT })
     if (!row) throw notFound()
-    await loadBusiness(tx, viewer, row.businessId, { write: true })
+    const business = await loadBusiness(tx, viewer, row.businessId, { write: true })
     if (row.version !== data.version) throw failure(409, 'PRODUCT_VERSION_CONFLICT')
-    if (row.status === 'ARCHIVED') throw failure(409, 'PRODUCT_ARCHIVED')
+    // @req FR-205 — the lifecycle rule first: the status a SKU is in decides
+    //   which actions exist for it, before any ledger question is asked.
+    const lifecycle = productLifecycleRule(row, data.action)
+    if (!lifecycle.ok) throw failure(409, lifecycle.code)
+
     const change = {}
-    const payload = { businessId: row.businessId, code: row.code }
+    const payload = { businessId: business.id, code: row.code, ...(data.reason ? { reason: data.reason } : {}) }
+    let survivor = null
+
     if (data.action === 'UPDATE') {
       Object.assign(change, productFieldColumns(data.fields))
-      payload.fields = Object.keys(change)
-    } else {
+      if (row.stockPolicy === 'SERVICE') {
+        for (const key of ['safetyStock', 'reorderPoint', 'reorderQty', 'leadTimeDays', 'variant']) {
+          if (data.fields[key] !== undefined && data.fields[key] !== null && data.fields[key] !== 0) throw Object.assign(failure(422, 'INVENTORY_PRODUCT_IS_A_SERVICE'), { details: { field: key } })
+        }
+      } else if (data.fields.variant !== undefined || data.fields.name !== undefined || data.fields.color !== undefined || data.fields.material !== undefined) {
+        // @req FR-202 — a corrected description is re-keyed and re-checked
+        //   against the master, exactly as a new SKU is.
+        const master = await tx.productMaster.findUnique({ where: { id: row.productMasterId }, select: MASTER_FOR_SKU_SELECT })
+        const merged = { name: data.fields.name ?? row.name, color: data.fields.color ?? row.color, material: data.fields.material ?? row.material, variant: data.fields.variant ?? parseVariant(row.variantJson) }
+        const identity = variantIdentity(master, merged)
+        const existing = await variantTaken(tx, master.id, identity.variantKey, row.id)
+        if (existing) throw Object.assign(failure(409, 'INVENTORY_PRODUCT_VARIANT_EXISTS'), { details: { existingProductId: existing.id, existingCode: existing.code, existingStatus: existing.status, variantKey: identity.variantKey } })
+        const lookalike = await lookalikeOf(tx, master.id, identity.fingerprint, row.id)
+        if (lookalike) throw Object.assign(failure(409, 'INVENTORY_PRODUCT_LOOKALIKE'), { details: { existingProductId: lookalike.id, existingCode: lookalike.code } })
+        change.variantJson = JSON.stringify(identity.variant)
+        change.variantKey = identity.variantKey
+        if (data.fields.variant !== undefined) payload.variant = { from: parseVariant(row.variantJson), to: identity.variant }
+      }
+      payload.fields = Object.keys(change).filter((k) => k !== 'variantJson')
+    } else if (data.action === 'ARCHIVE') {
+      // @req FR-205 — BR-040: a counted SKU with stock or a live promise stays.
+      const guard = archiveGuard({ onHand: await onHandOf(tx, row), activeReservations: await activeReservationsOf(tx, row.id) })
+      if (!guard.ok) throw Object.assign(failure(409, guard.code), { details: { onHand: await onHandOf(tx, row) } })
       change.status = 'ARCHIVED'
       change.archivedAt = new Date()
       payload.from = { status: row.status }
       payload.to = { status: 'ARCHIVED' }
+    } else if (data.action === 'PHASE_OUT') {
+      change.status = 'PHASE_OUT'
+      payload.from = { status: row.status }
+      payload.to = { status: 'PHASE_OUT' }
+      payload.onHand = await onHandOf(tx, row)
+    } else if (data.action === 'REACTIVATE') {
+      const master = await tx.productMaster.findUnique({ where: { id: row.productMasterId }, select: { status: true } })
+      if (master?.status === 'ARCHIVED') throw failure(409, 'PRODUCT_MASTER_ARCHIVED')
+      change.status = 'ACTIVE'
+      change.archivedAt = null
+      payload.from = { status: row.status }
+      payload.to = { status: 'ACTIVE' }
+    } else if (data.action === 'MERGE') {
+      // @req FR-205 — the anti-bloat repair (ADR-083 D5).
+      survivor = await tx.product.findUnique({ where: { id: data.into }, select: PRODUCT_SELECT })
+      const onHand = await onHandOf(tx, row)
+      const rule = mergeRule(row, survivor, { onHand, activeReservations: await activeReservationsOf(tx, row.id) })
+      if (!rule.ok) throw Object.assign(failure(rule.code === 'INVENTORY_MERGE_TARGET_NOT_FOUND' ? 422 : 409, rule.code), { details: { onHand, into: data.into } })
+      const blockers = await mergeBlockers(tx, row, survivor)
+      if (blockers.length) throw Object.assign(failure(409, 'INVENTORY_MERGE_BLOCKED_BY_REFERENCES'), { details: blockers })
+      let moved = 0
+      if (rule.movesStock) {
+        const reference = `MERGE:${row.code}`
+        const occurredAt = new Date()
+        await appendMovement(tx, { businessId: business.id, productId: row.id, kind: 'ISSUE', quantity: onHand, reason: 'SKU_MERGE', reference, occurredAt }, { viewer })
+        await appendMovement(tx, { businessId: business.id, productId: survivor.id, kind: 'RECEIPT', quantity: onHand, reason: 'SKU_MERGE', reference, occurredAt }, { viewer })
+        moved = onHand
+      }
+      const repointed = await repointReferences(tx, row, survivor)
+      change.status = 'ARCHIVED'
+      change.archivedAt = new Date()
+      change.mergedIntoProductId = survivor.id
+      payload.into = { productId: survivor.id, code: survivor.code }
+      payload.movedQty = moved
+      payload.repointed = repointed
+      payload.from = { status: row.status }
+      payload.to = { status: 'ARCHIVED' }
     }
+
     const result = await tx.product.updateMany({ where: { id: row.id, version: row.version }, data: { ...change, version: { increment: 1 } } })
     if (result.count !== 1) throw failure(409, 'PRODUCT_VERSION_CONFLICT')
     await recordAudit(tx, { entityType: PRODUCT_ENTITY, entityId: row.id, action: PRODUCT_ACTIONS[data.action], actorId: actor(viewer), payload: { ...payload, version: row.version + 1 } })
+    if (survivor) {
+      const absorbed = await tx.product.update({ where: { id: survivor.id }, data: { version: { increment: 1 } }, select: { version: true } })
+      await recordAudit(tx, { entityType: PRODUCT_ENTITY, entityId: survivor.id, action: 'PRODUCT_ABSORBED_MERGE', actorId: actor(viewer), payload: { businessId: business.id, code: survivor.code, from: { productId: row.id, code: row.code }, movedQty: payload.movedQty, repointed: payload.repointed, version: absorbed.version } })
+    }
     return tx.product.findUnique({ where: { id: row.id }, select: PRODUCT_SELECT })
   })
-  return updated
+  return productDto(updated)
 }
 
 // ── Bundle ──────────────────────────────────────────────────────────────────
@@ -296,7 +549,7 @@ export async function setFlowAccountSku({ businessId, productId, flowAccountSku 
   if (!isFinishedSetSku(flowAccountSku)) {
     throw Object.assign(failure(422, 'INVENTORY_FINISHED_SET_SKU_INVALID'), { details: { flowAccountSku, pattern: FINISHED_SET_SKU_PATTERN.source } })
   }
-  return db.$transaction(async (tx) => {
+  const row = await db.$transaction(async (tx) => {
     const business = await loadBusiness(tx, viewer, businessId, { write: true })
     const product = await tx.product.findUnique({ where: { id: productId }, select: PRODUCT_SELECT })
     if (!product || product.businessId !== business.id) throw failure(422, 'INVENTORY_PRODUCT_NOT_FOUND')
@@ -313,6 +566,7 @@ export async function setFlowAccountSku({ businessId, productId, flowAccountSku 
     })
     return updated
   })
+  return productDto(row)
 }
 
 /** The FlowAccount item code carried by a product, or null when it has none. */

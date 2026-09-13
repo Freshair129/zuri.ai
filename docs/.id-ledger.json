@@ -122,6 +122,10 @@
     "BR-034",
     "BR-035",
     "BR-036",
+    "BR-037",
+    "BR-038",
+    "BR-039",
+    "BR-040",
     "FR-001",
     "FR-002",
     "FR-003",
@@ -322,6 +326,13 @@
     "FR-198",
     "FR-199",
     "FR-200",
+    "FR-201",
+    "FR-202",
+    "FR-203",
+    "FR-204",
+    "FR-205",
+    "FR-206",
+    "FR-207",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -497,6 +508,7 @@
     "FEAT-028",
     "FEAT-029",
     "FEAT-030",
+    "FEAT-031",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -667,6 +679,7 @@
     "ADR-080",
     "ADR-081",
     "ADR-082",
+    "ADR-083",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -1149,6 +1162,58 @@
         {
           "anchor": "an audit event states its scope as data a query can filter",
           "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-037": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "67ce35d7eb4294f0730a9bb41c403665c65f502b7d2bd3a9c3b9da2760978abd",
+      "history": [
+        {
+          "anchor": "a pack size is a unit conversion on the sku never a second",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-038": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "8e3fba2414d683b4fcdff50d51afece78968f8f86a4d0d29eb4c73f3312eefe5",
+      "history": [
+        {
+          "anchor": "a service is never a variant of a good",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-039": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b8a2f7a68ed3f088396d4b3c9557672f24cf1bd008a9f4ac987380f8152bd01b",
+      "history": [
+        {
+          "anchor": "one physical variant is one sku and consolidation never",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-040": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "0807a4825df34e436f17109afc37239c04d6d3eef35f818bd4294fb3843a5076",
+      "history": [
+        {
+          "anchor": "a sku with stock or a live promise cannot leave the",
+          "since": "2026-09-13",
           "reason": "declared"
         }
       ]
@@ -3848,6 +3913,99 @@
       "statement_digest_reviewed_at": "2026-09-12",
       "statement_digest_reason": "Record the separately approved FR-191 and FR-193 withdrawal exception without changing Superadmin or Operator scope resolution."
     },
+    "FR-201": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "6d669e894fe08f7a43c455a82108f9abdf4ba2985a17e15aa9750e37bcb9d72f",
+      "history": [
+        {
+          "anchor": "a product master declares its nature once",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-202": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "ce13e1cb93dbdd9467ee2ee2e3499ffcdda769ca9fdc0586f4b53fa991c62f32",
+      "history": [
+        {
+          "anchor": "a sku is one combination of its master s variant axes and",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-13",
+      "statement_digest_reason": "Escaped the table pipe inside the axis=value fingerprint example; the statement's subject and meaning are unchanged."
+    },
+    "FR-203": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d37f55b8a8d22b5c4b9ccb392fedb830e01f9201fb70a6680045c5903ae2fc52",
+      "history": [
+        {
+          "anchor": "a barcode gtin supplier code manufacturer part or legacy",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-204": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "8caa81eb65b900a7b4efc9820d3d2083a8db47a4403035f46663aaa4e23022c1",
+      "history": [
+        {
+          "anchor": "a pack size is a unit conversion on the sku never a second",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-205": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "27b43d7891a1831539fe38ff9b193eec21a987dbcc9071a51c5903b6a4e0e657",
+      "history": [
+        {
+          "anchor": "a sku has a lifecycle and a consolidation path and it",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-206": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "46a0d1ef5c5e0fe36b6ce88a5517eacaff3460bb33ff1d54df34e8aeeb409d35",
+      "history": [
+        {
+          "anchor": "the catalogue hygiene report names every sku bloat finding",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-207": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "516b6c9a377b13af998bdd8ea2a345dc49ec6d704c4f0b79809b8f19d97c4bae",
+      "history": [
+        {
+          "anchor": "replenishment parameters live on the sku and yield a",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -6180,6 +6338,19 @@
         }
       ]
     },
+    "FEAT-031": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "08b0e4754281b7b9d524faeaba88d90023abfb8ec719919b3c1d378ed7b670ab",
+      "history": [
+        {
+          "anchor": "sku governance anti sku bloat",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
     "RSK-001": {
       "family": "RSK",
       "source": "docs/appendices/E-risk-matrix.md",
@@ -8412,6 +8583,19 @@
         {
           "anchor": "explicit superadmin authority",
           "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-083": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-083-SKU-GOVERNANCE-NATURE-AT-THE-MASTER-VARIANT-IDENTITY-AND-CATALOGUE-HYGIENE.md",
+      "status": "current",
+      "statement_digest": "5760c99406cd75873f4dfd1641c0ae25eed4ddc288a75540416131150ad48306",
+      "history": [
+        {
+          "anchor": "sku governance",
+          "since": "2026-09-13",
           "reason": "declared"
         }
       ]

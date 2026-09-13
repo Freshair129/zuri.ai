@@ -8,14 +8,29 @@
 //   Available-to-Promise. The agent's tools (FR-181) bind to these exports and
 //   to nothing deeper, which is what keeps a tool from acquiring authority the
 //   service does not grant.
-// @spec ADR-025 (one module, one charter: docs/domains/inventory/CHARTER.md); ADR-074
+// @req FR-201, FR-202, FR-203, FR-204, FR-205, FR-206, FR-207 — and, since
+//   ADR-083, SKU governance: the nature and variant rules, identifiers and
+//   unit conversions with `resolveProduct`, the lifecycle actions, the
+//   hygiene report and the replenishment suggestion.
+// @spec ADR-025 (one module, one charter: docs/domains/inventory/CHARTER.md); ADR-074; ADR-083
 // @tested tests/unit/inventory-domain.test.js
 export * from './domain/inventory'
 export * from './domain/inventory-costing'
 export * from './domain/inventory-wip'
 export * from './domain/warehouse-location'
 export * from './domain/inventory-stocktake'
+export * from './domain/inventory-governance'
 export { assertMayManage, assertMayView, mayManage, mayView } from './application/inventory-authority'
+export {
+  addIdentifier,
+  addUnitConversion,
+  applyIdentifierAction,
+  applyUnitConversionAction,
+  listIdentifiers,
+  listUnitConversions,
+  resolveProduct,
+} from './application/inventory-identity-service'
+export { catalogHygiene, replenishment } from './application/inventory-hygiene-service'
 export {
   applyProductAction,
   createBundle,
