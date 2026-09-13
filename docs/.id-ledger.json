@@ -2618,7 +2618,7 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "04a7114efaab594d4bb09e171e3314e9a63fa203d71986b99e7d8ddb4ecf7728",
+      "statement_digest": "7b9e467ad0ad59812a15f9e93912cb115bbe0625fb753ad884c6a0cf70f95a19",
       "history": [
         {
           "anchor": "platform programme roadmap",
@@ -2627,7 +2627,7 @@
         }
       ],
       "statement_digest_reviewed_at": "2026-09-13",
-      "statement_digest_reason": "FR-105 statement re-worded on 2026-09-13 to name the programme projection it now carries (v0.4.1, baseline 2b7ad27d, eleven deliverables and nine gates under CR-019, status approved); the subject anchor, the route and the operator gate are unchanged."
+      "statement_digest_reason": "Re-worded to name programme v0.4.2 after TASK-ZAI-052 to TASK-ZAI-059 were added on the owner's instruction; the subject anchor and the surface it names are unchanged"
     },
     "FR-106": {
       "family": "FR",

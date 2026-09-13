@@ -2,7 +2,7 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.1"
+version: "0.4.2"
 updated: "2026-09-13"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
@@ -136,7 +136,7 @@ the v0.4.0 column is what changed in the programme's first three weeks.
 | 8 | Up to 3 standard connectors | One. LINE through FR-079/080/091/093. | LINE deepened (FR-146 to FR-153, FR-190, server-owned transport under ADR-061). FlowAccount declared as a read-only pull pipeline (FR-125, ADR-053) but not built; GitHub projection partial (FR-130); Google Sheets snapshot intake real for Assets (FR-139). | Connectors two and three, SPR-ZAI-06 and SPR-ZAI-10 — TASK-ZAI-017 re-stated to name FlowAccount |
 | 9 | Approval L1 to L4 with audit, verification and notification | Partial. Immutable audit through FR-014; a **single** step-up tier; no notification fabric. | Audit strengthened: FR-198/199 give events queryable scope and a Business-readable access history (ADR-080); FR-191/196/197 add withdrawable grants, segregation of duties and time-boxed operator access (ADR-077/079). Approval is still one tier; FR-100 and FR-129 are single-purpose inboxes, not a ladder. | L1 to L4 ladder, verification, notification, SPR-ZAI-04 |
 | 10 | Deployment, data and security checklist, UAT, training, technical documentation | Partial. RLS, scope binding, evaluation and isolation harnesses; no UAT, training or handover pack. | **Deployment is real.** Production runs as a Docker Compose stack behind ngrok (ADR-058, FR-142 liveness probe, FR-145 pooler mode), redeployed many times, with two written outage RCAs. IAM hardening tail (FR-094 to FR-098) and TOTP step-up merged 2026-09-12. `llms.txt` / `llms-full.txt` give the documentation corpus one LLM-readable entry. No UAT, training or handover pack. | Hardening through handover, PHASE-ZAI-06 |
-| 11 | ERP business modules (CR-019) | Not in the proposal; nothing built. | **Built for Business one.** Inventory (FEAT-020), SmartGift SCM (FEAT-025), Sales Tasks (FEAT-022), Commerce (FEAT-023), Procurement (FEAT-024), Marketing (FEAT-021), Asset Management (FEAT-015 to 017), LINE OA Studio (FEAT-018/019), catalog convergence (FEAT-026); SCM and CRM parent slots, capabilities and module tabs (FR-167 to FR-172). Most lanes are "implemented locally" in the PRD with production migrations applied lane by lane. | Production activation and GATE-ZAI-09 for Business one (TASK-ZAI-043/044); Business two under deliverable 6 |
+| 11 | ERP business modules (CR-019) | Not in the proposal; nothing built. | **Built for Business one.** Inventory (FEAT-020), SmartGift SCM (FEAT-025), Sales Tasks (FEAT-022), Commerce (FEAT-023), Procurement (FEAT-024), Marketing (FEAT-021), Asset Management (FEAT-015 to 017), LINE OA Studio (FEAT-018/019), catalog convergence (FEAT-026); SCM and CRM parent slots, capabilities and module tabs (FR-167 to FR-172). Most lanes are "implemented locally" in the PRD with production migrations applied lane by lane. | Production activation and GATE-ZAI-09 for Business one (TASK-ZAI-043/044); Business two under deliverable 6; the SmartGift cost and quote engine (TASK-ZAI-052 to 059, v0.4.2) |
 
 Read together: **the proposal's weeks 1 to 4 band is substantially inherited**, the weeks 5 to 8
 band is about one third inherited, and weeks 13 to 24 are greenfield. The phase plan below keeps
@@ -409,8 +409,8 @@ Week numbers map to the calendar in section 5.4. W1 begins Mon 2026-08-24.
 
 | Phase | Weeks | Dates | Goal | Governing SoT | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
-| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, and (CR-019) land the ERP business modules for Business one | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, and every deliverable-11 lane is merged with its migration written | in-progress | 90 |
-| PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; give the seventeen-stage pipeline its knowledge base and file system on production; activate deliverable 11 on production | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; a real document is admitted, parsed, published and cited on production; GATE-ZAI-09's migration ledger matches | planned | 0 |
+| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2) | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, and the cost and quote decision record is written | in-progress | 80 |
+| PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; give the seventeen-stage pipeline its knowledge base and file system on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; a real document is admitted, parsed, published and cited on production; GATE-ZAI-09's migration ledger matches | planned | 0 |
 | PHASE-ZAI-03 | 9-12 | 2026-10-19 to 2026-11-15 | Second business, cross-business analytics, first workflows and connectors; deliverable 11 accepted for Business one | `docs/ARCHITECTURE.md` | GATE-ZAI-04 and GATE-ZAI-07 are met for connectors one and two and workflows one and two; GATE-ZAI-09 is met | planned | 0 |
 | PHASE-ZAI-04 | 13-16 | 2026-11-16 to 2026-12-13 | Visual Office 2.5D and the agent activity experience | `docs/UI-DESIGN-SYSTEM.md` | GATE-ZAI-01 is met | planned | 0 |
 | PHASE-ZAI-05 | 17-20 | 2026-12-14 to 2027-01-10 | Second Brain, Node View 3D and the remaining automation | `docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md` | GATE-ZAI-02, GATE-ZAI-03 and GATE-ZAI-05 are met | in-progress | 20 |
@@ -429,9 +429,9 @@ locates the week.
 | Sprint | Parent ID | Weeks | Dates | Goal | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
 | SPR-ZAI-01 | PHASE-ZAI-01 | 1-2 | 08-24 to 09-06 | Close identity, session and authorization to production standard; (CR-019) Inventory, Sales Tasks, Commerce, Procurement, Asset Management and LINE OA Studio lanes land | A request without a trusted session reaches no mutating route, proven by test; each lane merged with tests | in-progress | 93 |
-| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, and every lane's migration is written | in-progress | 87 |
-| SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; stand up the knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending deliverable-11 migration on production | Each role resolves distinct tools, policy and memory partition; a PDF uploaded in the console is published as a cited corpus on production; the migration ledger matches the tree | planned | 0 |
-| SPR-ZAI-04 | PHASE-ZAI-02 | 7-8 | 10-05 to 10-18 | Approval Gateway L1 to L4 with verification, notification and Mission Control binding | An L4 action cannot execute without four recorded approvals | planned | 0 |
+| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, and supplier cost sheets land with a locked FX rate | in-progress | 72 |
+| SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; stand up the knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending deliverable-11 migration on production; pricing rule set, the shared pricing engine and quotations | Each role resolves distinct tools, policy and memory partition; a PDF uploaded in the console is published as a cited corpus on production; the migration ledger matches the tree; a quote and the FR-181 tool price the same SKU to the same satang | planned | 0 |
+| SPR-ZAI-04 | PHASE-ZAI-02 | 7-8 | 10-05 to 10-18 | Approval Gateway L1 to L4 with verification, notification and Mission Control binding; ladder quotation on LINE and knowledge structured records | An L4 action cannot execute without four recorded approvals; a LINE quotation request is answered from the shared engine with no margin in the payload | planned | 0 |
 | SPR-ZAI-05 | PHASE-ZAI-03 | 9-10 | 10-19 to 11-01 | Standard business template and Business number two onboarding | Business two is live and isolated from SmartGift under test | planned | 0 |
 | SPR-ZAI-06 | PHASE-ZAI-03 | 11-12 | 11-02 to 11-15 | Cross-business analytics, connector two, workflows one and two; GATE-ZAI-09 evidence run | Analytics obey per-business visibility, two workflows run end to end, and the ERP acceptance record is signed | planned | 0 |
 | SPR-ZAI-07 | PHASE-ZAI-04 | 13-14 | 11-16 to 11-29 | Visual Office 2.5D scene model and shell | The scene renders live Business, Agent and Mission objects with no mock values | planned | 0 |
@@ -496,6 +496,14 @@ locates the week.
 | TASK-ZAI-049 | SPR-ZAI-03 | task | Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1) | P0 | ATHER | planned | TASK-ZAI-045 | Section 3.1 row 4; FR-045, FR-111, FR-137 |
 | TASK-ZAI-050 | SPR-ZAI-03 | task | Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published | P0 | ATHER | planned | TASK-ZAI-045; TASK-ZAI-049 | ADR-073 amendment; ADR-075 Phase 2 gate |
 | TASK-ZAI-051 | SPR-ZAI-03 | task | Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary | P2 | Claude | planned | TASK-ZAI-050 | 17-stage flow, "connector/แหล่งเอกสาร" row; FR-081 |
+| TASK-ZAI-052 | SPR-ZAI-02 | task | Cost and quote engine decision record — proposal, ADR, FR and FEAT declarations with the owner's nine decisions | P0 | Claude | in-progress | TASK-ZAI-038 | CR-019 deliverable 11; ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; SmartGift ADR-009 |
+| TASK-ZAI-053 | SPR-ZAI-02 | task | Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory) | P0 | Claude | planned | TASK-ZAI-052; TASK-ZAI-034 | CR-019 deliverable 11; SmartGift ADR-005 and ADR-009 D4; ADR-084 |
+| TASK-ZAI-054 | SPR-ZAI-02 | task | Goods receipts post the landed unit cost to the stock ledger, and the SKU page gains a cost card | P0 | Claude | planned | TASK-ZAI-053; TASK-ZAI-038 | CR-019 deliverable 11; ADR-074 D3; FR-165; FR-175 |
+| TASK-ZAI-055 | SPR-ZAI-03 | task | PricingRuleSet — versioned, owner-approved pricing rules ported from pricing_rules_formula.yaml with per-block provenance, and the Pricing Rules console | P0 | Claude | planned | TASK-ZAI-052 | CR-019 deliverable 11; SmartGift pricing_rules_formula.yaml v4; FR-131; SDD-077 |
+| TASK-ZAI-056 | SPR-ZAI-03 | task | One pure pricing engine in integer satang — landed cost, ladder, profit floor and ten-baht round-up — with parity fixtures against price-boss; the FR-181 quote tool reads the rule set | P0 | Claude | planned | TASK-ZAI-054; TASK-ZAI-055 | CR-019 deliverable 11; SmartGift ADR-009 D2 and D3; BR-027; FR-181 |
+| TASK-ZAI-057 | SPR-ZAI-03 | task | Quotations — Quote and QuoteLine with ladder snapshots, two-hat approval, the QUOTATION document and conversion to a sales order with the FR-180 hold | P0 | Claude | planned | TASK-ZAI-056; TASK-ZAI-039 | CR-019 deliverable 11; price-boss workflow-quotation; FR-166; FR-180; FR-186; FR-196 |
+| TASK-ZAI-058 | SPR-ZAI-04 | task | Ladder quotation on LINE (FR-132) over the shared engine with a deterministic intent matcher | P1 | Claude | planned | TASK-ZAI-057; TASK-ZAI-036 | CR-019 deliverable 11; FR-132; FR-131; BR-011; FR-047 |
+| TASK-ZAI-059 | SPR-ZAI-04 | task | Knowledge structured records — STRUCTURED_RECORDS_V1 JSON format, an Excel template and converter, and MCP format widening before Stage 1 | P1 | Claude | planned | TASK-ZAI-045; TASK-ZAI-042 | Section 3.1 row 4; ADR-075 D2; FR-187; FR-209; BR-009 |
 
 ## Assignments
 
@@ -2800,6 +2808,358 @@ ui_state:
   disabled_reason: ""
 ```
 
+### TC-TASK-ZAI-052
+
+```yaml
+task_container_id: TC-TASK-ZAI-052
+task_id: TASK-ZAI-052
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Cost and quote engine decision record — proposal, ADR, FR and FEAT declarations with the owner's nine decisions
+requirement_type: NFR
+complexity: C-2
+access_scope: H2
+status: in-progress
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: unavailable
+  doc: docs/change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the proposal's nine decisions, when the ADR is written, then each decision is recorded with the owner's 2026-09-13 answer (recommended defaults accepted) and the SmartGift ADR-009 invariants D2, D3 and D4 are cited as kept, not restated
+      checked: false
+  success_criteria:
+    - criterion: Given the six requirements the plan names, when they are declared in the PRD with a FEAT bundle, then every id is pinned by docs:ids --write, FR-131 is re-scoped onto the rule set, FR-132's blocker names the rule set, and FR-181's status cell says the quote tool will read it
+      checked: false
+  exit_criteria:
+    - criterion: Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and the proposal, the ADR and the PRD rows agree on every id and every formula name
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.2) on the owner's instruction to bring the SmartGift cost and quotation system (price-boss) into zuri-ai. In progress — the proposal is recorded in this revision and the owner accepted every recommended default (Q1 to Q9); the ADR and the requirement declarations are the remaining two thirds. Nothing here is code, which is why it fits the current sprint.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-fable-5-1
+  context_length: 200k
+  predicted_token_usage: 30000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-053
+
+```yaml
+task_container_id: TC-TASK-ZAI-053
+task_id: TASK-ZAI-053
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory)
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/procurement/application/purchase-order-service.js
+  doc: docs/domains/procurement/CHARTER.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a factory cost workbook or JSON export, when it is previewed and committed, then one SupplierCostSheet version records supplier, currency, the locked FX rate, the source file hash and one line per SKU price break, and no line is written until its product mapping is confirmed by a person
+      checked: false
+  success_criteria:
+    - criterion: Given a confirmed sheet line, when the SKU is opened, then the product page shows the sheet's price breaks in baht at the locked rate and the carton attributes (units per carton, CBM, kg) the sheet supplied, and SKU Hygiene reports CARTON_DATA_MISSING for a counted SKU without them
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test, when the cost sheet suites run, then preview and commit are idempotent on the file hash, an unconfirmed mapping refuses the write, and both migrations (SQLite and supabase/migrations) exist with schema-migration drift green
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.2). Lifts SmartGift's 08_factory_costs lane and ADR-005's confirm-before-write rule into a Procurement record, so a cost has a version and a locked rate (SmartGift ADR-009 D4 — 34.00 THB per USD, never spot). Placed in the current sprint on the owner's instruction; may move to SPR-ZAI-03 at sprint exit without a plan revision if the sprint ends first.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-fable-5-1
+  context_length: 200k
+  predicted_token_usage: 56000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-054
+
+```yaml
+task_container_id: TC-TASK-ZAI-054
+task_id: TASK-ZAI-054
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Goods receipts post the landed unit cost to the stock ledger, and the SKU page gains a cost card
+requirement_type: FR
+complexity: C-2
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/procurement/application/goods-receipt-service.js
+  doc: docs/decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md
+  test: apps/server/tests/unit/inventory-costing.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a goods receipt against a purchase order line, when it posts, then every RECEIPT movement carries costSatang computed by inventory-costing.js from the line's agreed cost plus the receipt's amortised batch costs, and a receipt without a cost basis is recorded with a null cost and reported, never as zero
+      checked: false
+  success_criteria:
+    - criterion: Given a SKU whose receipts carry cost, when the product page loads, then it shows the moving weighted average landed cost, the last receipt cost and the ledger cost history, and the FR-181 quote tool no longer answers INVENTORY_COST_UNKNOWN for that SKU
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test, when the goods receipt and costing suites run, then a receipt with and without a cost basis both pass, the weighted average matches inventory-costing.js to the satang, and the receipt workstation e2e still passes
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.2). Closes the gap the proposal found — FR-175 declares landed cost, but goods-receipt-service.js posts RECEIPT rows with no costSatang, so the only costs on the ledger today come from work orders and transfers. Same sprint placement rule as TASK-ZAI-053.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-fable-5-1
+  context_length: 200k
+  predicted_token_usage: 40000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-055
+
+```yaml
+task_container_id: TC-TASK-ZAI-055
+task_id: TASK-ZAI-055
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: PricingRuleSet — versioned, owner-approved pricing rules ported from pricing_rules_formula.yaml with per-block provenance, and the Pricing Rules console
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/commerce/index.js
+  doc: docs/domains/commerce/CHARTER.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given SmartGift's pricing_rules_formula.yaml v2026.09.11-v4, when it is imported, then PricingRuleSet v1 holds FX, the freight matrix with the density switch, logo rates, the two ladder profiles, profit floors by quantity and by kind, and domestic delivery options, each block with its provenance level, validated by a Zod schema that rejects an unknown key
+      checked: false
+  success_criteria:
+    - criterion: Given a draft rule set edited in /commerce/pricing-rules, when a Business OWNER approves it with an effective date, then it becomes an immutable version, quotes issued earlier stay bound to their version, and a block still marked undocumented makes every later quote carry an assumption
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test and the navigation e2e, when they run, then schema rejection, approval immutability, version pinning and the console's diff against the previous version pass
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.2). Q3 decided for the rule set — the freight rate card is one block of it rather than business_knowledge rows, so FR-131 is re-scoped in TASK-ZAI-052. Carries SmartGift's own provenance ratings (registered, file_only, undocumented, owner_directive) into the console so an undocumented number stays visibly undocumented.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-fable-5-1
+  context_length: 200k
+  predicted_token_usage: 60000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-056
+
+```yaml
+task_container_id: TC-TASK-ZAI-056
+task_id: TASK-ZAI-056
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: One pure pricing engine in integer satang — landed cost, ladder, profit floor and ten-baht round-up — with parity fixtures against price-boss; the FR-181 quote tool reads the rule set
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/inventory/domain/inventory-costing.js
+  doc: docs/change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md
+  test: apps/server/tests/unit/inventory-costing.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given price-boss golden cases (same SKU, quantity, logo and freight inputs), when pricing-engine.js runs under the imported rule set, then every ladder break matches price-boss to the baht before the deliberate integer-satang rounding change, and the differences after it are recorded as a second fixture
+      checked: false
+  success_criteria:
+    - criterion: Given a quantity, when the engine prices it, then the result names the driver (LADDER, FLOOR or MANUAL), carries freightSatang 0 with freightAbsorbedSatang beside it, flags a margin outside the profile band without clamping it, and never emits a float
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test, when the engine, costing and FR-181 tool suites run, then both fixture sets pass, the tool no longer reads the QUOTE_TIERS or TECHNIQUE_RATES constants, and a negative or zero quantity is refused before any arithmetic
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.2). Q1 (factory price breaks replace the global small-order factor, SOF only as a flagged fallback), Q2 (SmartGift's markup ladder is the data shape and the margin band a warning), Q4 (inland China per set), Q5 (20,000 floor with 30,000 shown as target) and Q7 (SmartGift's USD logo rates as defaults) all land here as rule-set data, not code branches.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-fable-5-1
+  context_length: 200k
+  predicted_token_usage: 64000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-057
+
+```yaml
+task_container_id: TC-TASK-ZAI-057
+task_id: TASK-ZAI-057
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Quotations — Quote and QuoteLine with ladder snapshots, two-hat approval, the QUOTATION document and conversion to a sales order with the FR-180 hold
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/commerce/application/sales-order-service.js
+  doc: docs/domains/commerce/features/FR-166-sales-orders.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a quote built in /commerce/quotes, when it is saved, then each line stores its inputs, landed breakdown, ladder snapshot, unit price, driver and the rule set version, a manual price needs a reason, and the quote follows draft, submitted, approved, sent, accepted, converted, rejected, cancelled and expired with the creator refused as approver
+      checked: false
+  success_criteria:
+    - criterion: Given an accepted quote, when it is converted, then one transaction creates the FR-166 sales order with the quoted line prices, converts the QUOTE reservation to ORDER under FR-180, issues the QUOTATION document snapshot under FR-186's rules, and marks the quote converted and read-only
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test and a new e2e, when they run, then the workflow, the self-approval refusal, the manual-price audit, conversion atomicity and the document total (subtotal, discount, ROUND_HALF_UP VAT) pass
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.2). The price-boss CRM workflow (sale to manager to sent to accepted) rebuilt on Commerce's existing order, reservation and document contracts. Q8 decided — a Business OWNER or a QUOTE_APPROVER role approves, never the creator. May move to SPR-ZAI-04 at sprint entry if SPR-ZAI-03 is full.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-fable-5-1
+  context_length: 200k
+  predicted_token_usage: 70000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-058
+
+```yaml
+task_container_id: TC-TASK-ZAI-058
+task_id: TASK-ZAI-058
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-04
+title: Ladder quotation on LINE (FR-132) over the shared engine with a deterministic intent matcher
+requirement_type: FR
+complexity: C-2
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/agent/tools/smartgift-inventory-tools.js
+  doc: docs/change-requests/CR-005-ACCEPTED-SHAPE.md
+  test: apps/server/tests/integration/fr181-smartgift-agent-tools.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a verified LINE conversation, when a customer writes a quotation request the matcher recognises, then the reply carries the ladder prices rounded up to ten baht, the validity date and the free single-drop note, and carries no margin, landed cost or floor
+      checked: false
+  success_criteria:
+    - criterion: Given the same SKU and quantity, when the LINE tool and /commerce/quotes price it under the same rule set version, then the numbers are identical to the satang
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test, when the Gate E tool and matcher suites run, then the reply is returned to the transport and never sent, an unrecognised phrasing falls through to the ordinary turn, and FR-047's exclusion is asserted on the payload
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.2). Q9 decided — a deterministic matcher first (the FR-210 `#sku` precedent), model-selected tools later. Unblocks FR-132, which was waiting on FR-131 and on this very decision.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-fable-5-1
+  context_length: 200k
+  predicted_token_usage: 36000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-059
+
+```yaml
+task_container_id: TC-TASK-ZAI-059
+task_id: TASK-ZAI-059
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-04
+title: Knowledge structured records — STRUCTURED_RECORDS_V1 JSON format, an Excel template and converter, and MCP format widening before Stage 1
+requirement_type: FR
+complexity: C-2
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/knowledge-admission-service.js
+  doc: docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md
+  test: apps/server/tests/unit/knowledge-admission-service.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a JSON array of records with a registered entityType, when it is admitted as a FILE source with format STRUCTURED_RECORDS_V1, then each record becomes one immutable source with frozen bytes and hash before Stage 1, the Zero-PII predicate refuses a record that carries cost, margin or personal data, and no stage result is synthesised
+      checked: false
+  success_criteria:
+    - criterion: Given the per-Business Excel template, when a filled workbook is posted to the knowledge xlsx route, then its rows convert to the same records and enter the same admission call, and the MCP tool admits the format without a new handler
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test, when the admission, workbook and MCP suites run, then JSON, Excel and MCP produce identical source keys for identical rows and the SMARTGIFT_CATALOG_V1 path is unchanged
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.2) from the owner's flow request (group D gains JSON, Excel and MCP). Sell-side only by construction — the template has no cost column, because the cost workbook is TASK-ZAI-053's and enters Procurement.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-fable-5-1
+  context_length: 200k
+  predicted_token_usage: 44000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
 ## Live Status Protocol
 
 1. Status lives in the `Status` cells of the Phases, Sprints and Backlog Items tables. The board
@@ -2822,3 +3182,4 @@ ui_state:
 | 0.3.0 | 2026-08-23 | **Re-baselined to `7d8c9d0`.** The 0.1.0 and 0.2.0 files were destroyed by a concurrent `git reset --hard` in this working tree while untracked, and the repository moved 105 commits in the interval. Corrections in this revision: churn is now measured with `--no-merges` and `awk` path filtering instead of a git pathspec, because a pathspec enables history simplification and inflated the earlier deletion figures; history extended from 10 to 13 days; features 91 to 93 declared and 80 to 82 live; test files 233 to 263; TASK-ZAI-005 closed because FR-071 went live on D11; TASK-ZAI-002 widened from four undeclared features to five; ADR-042 and ADR-043 added as governing sources for the Second Brain tasks; section 2.2 added to state that this plan is measured against a moving repository. |
 | 0.4.0 | 2026-09-13 | **Re-baselined to `2b7ad27d` and widened under [CR-019](../change-requests/CR-019-24W-PROGRAMME-DELIVERABLE-11-ERP-BUSINESS-MODULES.md); ratified `approved` by the owner.** Deliverable 11 (ERP business modules) and GATE-ZAI-09 added. Section 3 re-measured with the v0.3.0 column kept (requirements 93 → 200, implemented 82 → 100, decisions 43 → 82, domains 9 → 14, test files 263 → 761, commits 392 → 1,451); section 3.1 gained a v0.4.0 reality column and row 11; section 5.6 added for programme weeks 1 to 3. Closed on existing evidence: TASK-ZAI-002 (FR-087/088/089/091/093 declared 2026-08-26), TASK-ZAI-003 (FR-066 delivered 2026-08-27), TASK-ZAI-004 (FR-067 delivered 2026-08-27). Moved to review: TASK-ZAI-001 (FEAT-010 on main, production tail open), TASK-ZAI-006 (contract written across ADR-050/063/067/068/072, per-role writes wait on roles). Moved to in-progress early: TASK-ZAI-024 and TASK-ZAI-025 (deliverable 4 substrate, ADR-070/072/073/075). TASK-ZAI-017 re-stated as FlowAccount (FR-125, ADR-053). Added TASK-ZAI-031 to TASK-ZAI-044 with containers: nine deliverable-11 lanes as merged (031 to 040), the identity lifecycle under deliverables 9 and 10 (041), catalog convergence under deliverable 4 (042), production activation (043) and the GATE-ZAI-09 evidence run (044). Phase, sprint and calendar structure unchanged; progress recomputed under the board mapping. Code links re-pointed under `apps/server/` after the ADR-062 monorepo move. |
 | 0.4.1 | 2026-09-13 | **Knowledge base and file system for the seventeen-stage pipeline** added on the owner's instruction, under deliverable 4 (no Change Request needed). SPR-ZAI-02 accounts for what is built: TASK-ZAI-045 file intake at Stage 1 (FR-173/081/109, review — no production claim) and TASK-ZAI-046 Tier 1 Stage 2 to 8 (FR-111 to FR-119, done). The new build work spills into SPR-ZAI-03 because SPR-ZAI-02 ends 20 Sep: TASK-ZAI-047 knowledge base console, TASK-ZAI-048 binary parsing at Stage 2 with Stage 3/7/8/9 re-proof, TASK-ZAI-049 durable storage and recoverability (spec §3.1), TASK-ZAI-050 production activation beyond the ADR-073 isolated profile, TASK-ZAI-051 multi-source concurrency and replay (P2, may move to SPR-ZAI-04 at sprint entry). Sprint 02/03 and Phase 01/02 goals and exit criteria extended; progress recomputed (SPR-ZAI-02 87, PHASE-ZAI-01 90). **Deliverable 2 corrected on the owner's instruction:** GoVibe Mission Control is the Project system of the Development domain in this repository (delivered: FR-040, FR-063/064, FR-068 to FR-070, FR-086 to FR-089, FR-108), not an external product; section 3.1 row 2 rewritten and TASK-ZAI-012 re-stated as the agent mission feed into that system. |
+| 0.4.2 | 2026-09-13 | **SmartGift cost and quote engine** added on the owner's instruction, under deliverable 11 (no Change Request needed — Commerce, Procurement and Inventory are CR-019 lanes). The owner accepted every recommended default of `docs/change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md` (nine decisions). Inserted into the current sprint what is documentation or cost intake, the rest into the backlog of the next two sprints: TASK-ZAI-052 decision record (in-progress, SPR-ZAI-02), TASK-ZAI-053 supplier cost sheets with locked FX and TASK-ZAI-054 goods receipts posting landed cost (SPR-ZAI-02, may move to 03 at sprint exit), TASK-ZAI-055 PricingRuleSet and console, TASK-ZAI-056 the one pure pricing engine with price-boss parity fixtures, TASK-ZAI-057 quotations (SPR-ZAI-03, 057 may move to 04), TASK-ZAI-058 ladder quotation on LINE and TASK-ZAI-059 knowledge structured records (SPR-ZAI-04). Phase 01/02 and sprint 02/03/04 goals and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 87 → 72, PHASE-ZAI-01 90 → 80). Section 3.1 row 11 delta names the engine. |

@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.1, 2026-09-13) so the board can open a task the way the html board
+// (v0.4.2, 2026-09-13) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @spec ADR-048 D3 — document data, never measured here. Regenerate from the
@@ -1885,5 +1885,307 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-050"
     ],
     "evidence": "17-stage flow, \"connector/แหล่งเอกสาร\" row; FR-081"
+  },
+  "TASK-ZAI-052": {
+    "container": "TC-TASK-ZAI-052",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md",
+      "test": "unavailable"
+    },
+    "dod": {
+      "acceptance": {
+        "text": "Given the proposal's nine decisions, when the ADR is written, then each decision is recorded with the owner's 2026-09-13 answer (recommended defaults accepted) and the SmartGift ADR-009 invariants D2, D3 and D4 are cited as kept, not restated",
+        "checked": false
+      },
+      "success": {
+        "text": "Given the six requirements the plan names, when they are declared in the PRD with a FEAT bundle, then every id is pinned by docs:ids --write, FR-131 is re-scoped onto the rule set, FR-132's blocker names the rule set, and FR-181's status cell says the quote tool will read it",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and the proposal, the ADR and the PRD rows agree on every id and every formula name",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-13 (v0.4.2) on the owner's instruction to bring the SmartGift cost and quotation system (price-boss) into zuri-ai. In progress — the proposal is recorded in this revision and the owner accepted every recommended default (Q1 to Q9); the ADR and the requirement declarations are the remaining two thirds. Nothing here is code, which is why it fits the current sprint.",
+    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "predictedTokens": 30000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-038"
+    ],
+    "evidence": "CR-019 deliverable 11; ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; SmartGift ADR-009"
+  },
+  "TASK-ZAI-053": {
+    "container": "TC-TASK-ZAI-053",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/procurement/application/purchase-order-service.js",
+      "doc": "docs/domains/procurement/CHARTER.md",
+      "test": "unavailable"
+    },
+    "dod": {
+      "acceptance": {
+        "text": "Given a factory cost workbook or JSON export, when it is previewed and committed, then one SupplierCostSheet version records supplier, currency, the locked FX rate, the source file hash and one line per SKU price break, and no line is written until its product mapping is confirmed by a person",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a confirmed sheet line, when the SKU is opened, then the product page shows the sheet's price breaks in baht at the locked rate and the carton attributes (units per carton, CBM, kg) the sheet supplied, and SKU Hygiene reports CARTON_DATA_MISSING for a counted SKU without them",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test, when the cost sheet suites run, then preview and commit are idempotent on the file hash, an unconfirmed mapping refuses the write, and both migrations (SQLite and supabase/migrations) exist with schema-migration drift green",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-13 (v0.4.2). Lifts SmartGift's 08_factory_costs lane and ADR-005's confirm-before-write rule into a Procurement record, so a cost has a version and a locked rate (SmartGift ADR-009 D4 — 34.00 THB per USD, never spot). Placed in the current sprint on the owner's instruction; may move to SPR-ZAI-03 at sprint exit without a plan revision if the sprint ends first.",
+    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "predictedTokens": 56000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-052",
+      "TASK-ZAI-034"
+    ],
+    "evidence": "CR-019 deliverable 11; SmartGift ADR-005 and ADR-009 D4; ADR-084"
+  },
+  "TASK-ZAI-054": {
+    "container": "TC-TASK-ZAI-054",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/procurement/application/goods-receipt-service.js",
+      "doc": "docs/decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md",
+      "test": "apps/server/tests/unit/inventory-costing.test.js"
+    },
+    "dod": {
+      "acceptance": {
+        "text": "Given a goods receipt against a purchase order line, when it posts, then every RECEIPT movement carries costSatang computed by inventory-costing.js from the line's agreed cost plus the receipt's amortised batch costs, and a receipt without a cost basis is recorded with a null cost and reported, never as zero",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a SKU whose receipts carry cost, when the product page loads, then it shows the moving weighted average landed cost, the last receipt cost and the ledger cost history, and the FR-181 quote tool no longer answers INVENTORY_COST_UNKNOWN for that SKU",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test, when the goods receipt and costing suites run, then a receipt with and without a cost basis both pass, the weighted average matches inventory-costing.js to the satang, and the receipt workstation e2e still passes",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-13 (v0.4.2). Closes the gap the proposal found — FR-175 declares landed cost, but goods-receipt-service.js posts RECEIPT rows with no costSatang, so the only costs on the ledger today come from work orders and transfers. Same sprint placement rule as TASK-ZAI-053.",
+    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "predictedTokens": 40000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-053",
+      "TASK-ZAI-038"
+    ],
+    "evidence": "CR-019 deliverable 11; ADR-074 D3; FR-165; FR-175"
+  },
+  "TASK-ZAI-055": {
+    "container": "TC-TASK-ZAI-055",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-03",
+    "version": "0.1.0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/commerce/index.js",
+      "doc": "docs/domains/commerce/CHARTER.md",
+      "test": "unavailable"
+    },
+    "dod": {
+      "acceptance": {
+        "text": "Given SmartGift's pricing_rules_formula.yaml v2026.09.11-v4, when it is imported, then PricingRuleSet v1 holds FX, the freight matrix with the density switch, logo rates, the two ladder profiles, profit floors by quantity and by kind, and domestic delivery options, each block with its provenance level, validated by a Zod schema that rejects an unknown key",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a draft rule set edited in /commerce/pricing-rules, when a Business OWNER approves it with an effective date, then it becomes an immutable version, quotes issued earlier stay bound to their version, and a block still marked undocumented makes every later quote carry an assumption",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test and the navigation e2e, when they run, then schema rejection, approval immutability, version pinning and the console's diff against the previous version pass",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-13 (v0.4.2). Q3 decided for the rule set — the freight rate card is one block of it rather than business_knowledge rows, so FR-131 is re-scoped in TASK-ZAI-052. Carries SmartGift's own provenance ratings (registered, file_only, undocumented, owner_directive) into the console so an undocumented number stays visibly undocumented.",
+    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "predictedTokens": 60000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-052"
+    ],
+    "evidence": "CR-019 deliverable 11; SmartGift pricing_rules_formula.yaml v4; FR-131; SDD-077"
+  },
+  "TASK-ZAI-056": {
+    "container": "TC-TASK-ZAI-056",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-03",
+    "version": "0.1.0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/inventory/domain/inventory-costing.js",
+      "doc": "docs/change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md",
+      "test": "apps/server/tests/unit/inventory-costing.test.js"
+    },
+    "dod": {
+      "acceptance": {
+        "text": "Given price-boss golden cases (same SKU, quantity, logo and freight inputs), when pricing-engine.js runs under the imported rule set, then every ladder break matches price-boss to the baht before the deliberate integer-satang rounding change, and the differences after it are recorded as a second fixture",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a quantity, when the engine prices it, then the result names the driver (LADDER, FLOOR or MANUAL), carries freightSatang 0 with freightAbsorbedSatang beside it, flags a margin outside the profile band without clamping it, and never emits a float",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test, when the engine, costing and FR-181 tool suites run, then both fixture sets pass, the tool no longer reads the QUOTE_TIERS or TECHNIQUE_RATES constants, and a negative or zero quantity is refused before any arithmetic",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-13 (v0.4.2). Q1 (factory price breaks replace the global small-order factor, SOF only as a flagged fallback), Q2 (SmartGift's markup ladder is the data shape and the margin band a warning), Q4 (inland China per set), Q5 (20,000 floor with 30,000 shown as target) and Q7 (SmartGift's USD logo rates as defaults) all land here as rule-set data, not code branches.",
+    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "predictedTokens": 64000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-054",
+      "TASK-ZAI-055"
+    ],
+    "evidence": "CR-019 deliverable 11; SmartGift ADR-009 D2 and D3; BR-027; FR-181"
+  },
+  "TASK-ZAI-057": {
+    "container": "TC-TASK-ZAI-057",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-03",
+    "version": "0.1.0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/commerce/application/sales-order-service.js",
+      "doc": "docs/domains/commerce/features/FR-166-sales-orders.md",
+      "test": "unavailable"
+    },
+    "dod": {
+      "acceptance": {
+        "text": "Given a quote built in /commerce/quotes, when it is saved, then each line stores its inputs, landed breakdown, ladder snapshot, unit price, driver and the rule set version, a manual price needs a reason, and the quote follows draft, submitted, approved, sent, accepted, converted, rejected, cancelled and expired with the creator refused as approver",
+        "checked": false
+      },
+      "success": {
+        "text": "Given an accepted quote, when it is converted, then one transaction creates the FR-166 sales order with the quoted line prices, converts the QUOTE reservation to ORDER under FR-180, issues the QUOTATION document snapshot under FR-186's rules, and marks the quote converted and read-only",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test and a new e2e, when they run, then the workflow, the self-approval refusal, the manual-price audit, conversion atomicity and the document total (subtotal, discount, ROUND_HALF_UP VAT) pass",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-13 (v0.4.2). The price-boss CRM workflow (sale to manager to sent to accepted) rebuilt on Commerce's existing order, reservation and document contracts. Q8 decided — a Business OWNER or a QUOTE_APPROVER role approves, never the creator. May move to SPR-ZAI-04 at sprint entry if SPR-ZAI-03 is full.",
+    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "predictedTokens": 70000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-056",
+      "TASK-ZAI-039"
+    ],
+    "evidence": "CR-019 deliverable 11; price-boss workflow-quotation; FR-166; FR-180; FR-186; FR-196"
+  },
+  "TASK-ZAI-058": {
+    "container": "TC-TASK-ZAI-058",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-04",
+    "version": "0.1.0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/agent/tools/smartgift-inventory-tools.js",
+      "doc": "docs/change-requests/CR-005-ACCEPTED-SHAPE.md",
+      "test": "apps/server/tests/integration/fr181-smartgift-agent-tools.test.js"
+    },
+    "dod": {
+      "acceptance": {
+        "text": "Given a verified LINE conversation, when a customer writes a quotation request the matcher recognises, then the reply carries the ladder prices rounded up to ten baht, the validity date and the free single-drop note, and carries no margin, landed cost or floor",
+        "checked": false
+      },
+      "success": {
+        "text": "Given the same SKU and quantity, when the LINE tool and /commerce/quotes price it under the same rule set version, then the numbers are identical to the satang",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test, when the Gate E tool and matcher suites run, then the reply is returned to the transport and never sent, an unrecognised phrasing falls through to the ordinary turn, and FR-047's exclusion is asserted on the payload",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-13 (v0.4.2). Q9 decided — a deterministic matcher first (the FR-210 `#sku` precedent), model-selected tools later. Unblocks FR-132, which was waiting on FR-131 and on this very decision.",
+    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "predictedTokens": 36000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-057",
+      "TASK-ZAI-036"
+    ],
+    "evidence": "CR-019 deliverable 11; FR-132; FR-131; BR-011; FR-047"
+  },
+  "TASK-ZAI-059": {
+    "container": "TC-TASK-ZAI-059",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-04",
+    "version": "0.1.0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/knowledge/knowledge-admission-service.js",
+      "doc": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "test": "apps/server/tests/unit/knowledge-admission-service.test.js"
+    },
+    "dod": {
+      "acceptance": {
+        "text": "Given a JSON array of records with a registered entityType, when it is admitted as a FILE source with format STRUCTURED_RECORDS_V1, then each record becomes one immutable source with frozen bytes and hash before Stage 1, the Zero-PII predicate refuses a record that carries cost, margin or personal data, and no stage result is synthesised",
+        "checked": false
+      },
+      "success": {
+        "text": "Given the per-Business Excel template, when a filled workbook is posted to the knowledge xlsx route, then its rows convert to the same records and enter the same admission call, and the MCP tool admits the format without a new handler",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test, when the admission, workbook and MCP suites run, then JSON, Excel and MCP produce identical source keys for identical rows and the SMARTGIFT_CATALOG_V1 path is unchanged",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-13 (v0.4.2) from the owner's flow request (group D gains JSON, Excel and MCP). Sell-side only by construction — the template has no cost column, because the cost workbook is TASK-ZAI-053's and enters Procurement.",
+    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "predictedTokens": 44000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-045",
+      "TASK-ZAI-042"
+    ],
+    "evidence": "Section 3.1 row 4; ADR-075 D2; FR-187; FR-209; BR-009"
   }
 }

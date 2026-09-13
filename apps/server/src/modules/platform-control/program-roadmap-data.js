@@ -11,7 +11,7 @@
 export const PROGRAMME_SNAPSHOT = {
   documentId: 'ROADMAP-ZURI-AI-24W-PROGRAM',
   status: 'approved',
-  version: '0.4.1',
+  version: '0.4.2',
   updated: '2026-09-13',
   baselineCommit: '2b7ad27d',
   programmeStart: '2026-08-24',
@@ -97,13 +97,13 @@ export const PROGRAMME_GATES = [
 ]
 
 export const PROGRAMME_PHASES = [
-  { id: 'PHASE-ZAI-01', weeks: 'W1–4', dates: '24 Aug – 20 Sep 2026', status: 'in-progress', progress: 90, goal: 'Consolidate the inherited foundation into a production-grade base; land the ERP business modules for Business one', sprints: [
+  { id: 'PHASE-ZAI-01', weeks: 'W1–4', dates: '24 Aug – 20 Sep 2026', status: 'in-progress', progress: 80, goal: 'Consolidate the inherited foundation into a production-grade base; land the ERP business modules for Business one; open the SmartGift cost and quote engine on the owner\'s instruction', sprints: [
     { id: 'SPR-ZAI-01', weeks: 'W1–2', dates: '24 Aug – 6 Sep', status: 'in-progress', progress: 93, goal: 'Close identity, session and authorization to production standard; Inventory, Sales, Commerce, Procurement, Assets and LINE OA Studio lanes land' },
-    { id: 'SPR-ZAI-02', weeks: 'W3–4', dates: '7 – 20 Sep', status: 'in-progress', progress: 87, goal: 'Settle tenancy, pipeline monitor and memory contract; seventeen-stage knowledge intake and Tier 1 accounted as built; SmartGift SCM, Marketing, billing/POS, catalog convergence and identity lifecycle land' },
+    { id: 'SPR-ZAI-02', weeks: 'W3–4', dates: '7 – 20 Sep', status: 'in-progress', progress: 72, goal: 'Settle tenancy, pipeline monitor and memory contract; seventeen-stage knowledge intake and Tier 1 accounted as built; SmartGift SCM, Marketing, billing/POS, catalog convergence and identity lifecycle land; cost and quote engine decision record and factory cost intake open' },
   ] },
-  { id: 'PHASE-ZAI-02', weeks: 'W5–8', dates: '21 Sep – 18 Oct 2026', status: 'planned', progress: 0, goal: 'Stand up the agent workforce and the governance ladder; knowledge base and file system for the seventeen-stage pipeline on production; activate deliverable 11 on production', sprints: [
-    { id: 'SPR-ZAI-03', weeks: 'W5–6', dates: '21 Sep – 4 Oct', status: 'planned', progress: 0, goal: 'Build the agent role registry and five core roles; knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending ERP migration' },
-    { id: 'SPR-ZAI-04', weeks: 'W7–8', dates: '5 – 18 Oct', status: 'planned', progress: 0, goal: 'Add approvals, verification, notification and Mission Control binding' },
+  { id: 'PHASE-ZAI-02', weeks: 'W5–8', dates: '21 Sep – 18 Oct 2026', status: 'planned', progress: 0, goal: 'Stand up the agent workforce and the governance ladder; knowledge base and file system for the seventeen-stage pipeline on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one', sprints: [
+    { id: 'SPR-ZAI-03', weeks: 'W5–6', dates: '21 Sep – 4 Oct', status: 'planned', progress: 0, goal: 'Build the agent role registry and five core roles; knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending ERP migration; pricing rule set, pricing engine and quotations' },
+    { id: 'SPR-ZAI-04', weeks: 'W7–8', dates: '5 – 18 Oct', status: 'planned', progress: 0, goal: 'Add approvals, verification, notification and Mission Control binding; ladder quotation on LINE and knowledge structured records' },
   ] },
   { id: 'PHASE-ZAI-03', weeks: 'W9–12', dates: '19 Oct – 15 Nov 2026', status: 'planned', progress: 0, goal: 'Second Business, governed analytics, workflows and connectors; deliverable 11 accepted', sprints: [
     { id: 'SPR-ZAI-05', weeks: 'W9–10', dates: '19 Oct – 1 Nov', status: 'planned', progress: 0, goal: 'Business template, onboarding and isolation proof' },
@@ -175,4 +175,12 @@ export const PROGRAMME_TASKS = [
   ['TASK-ZAI-049', 'SPR-ZAI-03', 'Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1)', 'NFR', 'C-3', 'H4', 'planned'],
   ['TASK-ZAI-050', 'SPR-ZAI-03', 'Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published', 'NFR', 'C-3', 'H4', 'planned'],
   ['TASK-ZAI-051', 'SPR-ZAI-03', 'Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-052', 'SPR-ZAI-02', 'Cost and quote engine decision record — proposal, ADR, FR and FEAT declarations with the owner\'s nine decisions', 'NFR', 'C-2', 'H2', 'in-progress'],
+  ['TASK-ZAI-053', 'SPR-ZAI-02', 'Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory)', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-054', 'SPR-ZAI-02', 'Goods receipts post the landed unit cost to the stock ledger, and the SKU page gains a cost card', 'FR', 'C-2', 'H3', 'planned'],
+  ['TASK-ZAI-055', 'SPR-ZAI-03', 'PricingRuleSet — versioned, owner-approved pricing rules ported from pricing_rules_formula.yaml with per-block provenance, and the Pricing Rules console', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-056', 'SPR-ZAI-03', 'One pure pricing engine in integer satang — landed cost, ladder, profit floor and ten-baht round-up — with parity fixtures against price-boss; the FR-181 quote tool reads the rule set', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-057', 'SPR-ZAI-03', 'Quotations — Quote and QuoteLine with ladder snapshots, two-hat approval, the QUOTATION document and conversion to a sales order with the FR-180 hold', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-058', 'SPR-ZAI-04', 'Ladder quotation on LINE (FR-132) over the shared engine with a deterministic intent matcher', 'FR', 'C-2', 'H3', 'planned'],
+  ['TASK-ZAI-059', 'SPR-ZAI-04', 'Knowledge structured records — STRUCTURED_RECORDS_V1 JSON format, an Excel template and converter, and MCP format widening before Stage 1', 'FR', 'C-2', 'H3', 'planned'],
 ]
