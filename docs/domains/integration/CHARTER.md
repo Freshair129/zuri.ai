@@ -292,8 +292,16 @@ written, not applied):**
   holding no token (SDD-098).
 - `src/modules/integration/application/line-channel-connection-service.js` —
   `connectLineChannelWithSecret`: validate with LINE → claim + connection → store
-  and activate through the vault, with compensation. No route calls it yet; the
-  write gate and rate limit are FR-224's.
+  and activate through the vault, with compensation.
+
+**Routes (TASK-ZAI-080, same branch):** `POST /api/line-oa/connections` takes the
+Channel ID and secret body (a `deployment-secret:` body still provisions the mount
+path, FR-149); `POST /api/line-oa/connections/[id]/credential` rotates,
+`…/credential/revoke` revokes with a typed `REVOKE` and fences the account, and
+`…/credential/validate` re-proves the stored pair. All four go through
+`credential-route.js`: a ≤ 16 KiB body refused with a generic 400, identity's write
+gate and rate limit before LINE or the store, `Cache-Control: no-store`, and no
+material in any response (`line-channel-credential-service.js` for the last three).
 
 - **What this lane will own.** The `SecretStorePort` (write, activate, rotate,
   revoke, resolve) over Supabase Vault definer functions and the envelope store

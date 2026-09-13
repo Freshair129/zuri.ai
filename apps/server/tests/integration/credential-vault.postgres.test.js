@@ -2,6 +2,9 @@
 //   applied over the pre-vault schema with their backfill, the Supabase Vault
 //   definer functions exercised through their NOLOGIN roles, the envelope store
 //   through the Postgres Prisma client, and the same leak scan as SQLite.
+// @req FR-226 — migration 2's backfill and live-only uniqueness, and the connection
+//   flow refusing another Tenant's bot. @req FR-224 — migration 8, the write gate
+//   and the limiter under concurrency.
 // @spec ADR-089 D1, D2, D5 and proofs 1-3; SDD-097; SEC-030; ADR-057
 // @tested tests/integration/credential-vault.postgres.test.js
 //
@@ -24,6 +27,8 @@ import { createDispatchingSecretManager } from '@/platform/integrations/core/sec
 import { storeValidatedCredential } from '@/platform/integrations/core/secret-store/credential-lifecycle'
 import { connectLineChannelWithSecret } from '@/modules/integration/application/line-channel-connection-service'
 import { makeViewer } from '../factories/viewer'
+import { assertCredentialWriteAssurance } from '@/modules/identity/credential-write-gate'
+import { consumeRateLimit } from '@/modules/identity/rate-limit'
 import { errorTrace, findLeaks, generateLineChannelBundle, secretNeedles } from '../helpers/credential-vault-fixtures'
 import { parseVaultPostgresTarget } from '../helpers/credential-vault-postgres-target'
 
@@ -115,6 +120,7 @@ runPostgres('credential vault on PostgreSQL', () => {
     await q('drop table "IntegrationCredentialVersion"')
     await q('drop table "IntegrationSecretEnvelope"')
     await q('drop table "ChannelAccountClaim"')
+    await q('drop table "RateLimitBucket"')
     for (const column of ['secretStore', 'secretKind', 'displayHint', 'lastValidatedAt', 'lastValidationCode', 'revokedAt', 'revokeReason']) {
       await q(`alter table "IntegrationCredential" drop column "${column}"`)
     }
@@ -147,6 +153,7 @@ runPostgres('credential vault on PostgreSQL', () => {
       await q(migrationSql('_integration_credential_lifecycle.sql'))
       await q(migrationSql('_channel_account_claim.sql'))
       await q(migrationSql('_integration_secret_envelope.sql'))
+      await q(migrationSql('_rate_limit_bucket.sql'))
     }
 
     await q('create schema zuri_core')
@@ -374,6 +381,31 @@ runPostgres('credential vault on PostgreSQL', () => {
       await expect(envelopeStore.write({ ...conn.scope, businessId: ids.other, kind: 'LINE_CHANNEL', bundle: bundle(), createdVia: 'BROWSER_MFA' })).rejects.toMatchObject({ code: 'CHANNEL_SECRET_SCOPE_MISMATCH' })
       expect(await envelopeStore.revoke({ ...conn.scope, reason: 'owner revoked' })).toMatchObject({ purgedCount: 1, purgeFailedCount: 0 })
       expect(Number((await one('select count(*) from "IntegrationSecretEnvelope" where "connectionId" = $1', [conn.id])).count)).toBe(0)
+    })
+  })
+
+  describe('migration 8 and the write gate on PostgreSQL (proof 4)', () => {
+    it('refuses no factor, AAL1 and an expired elevation, and admits a live step-up', async () => {
+      const personId = randomUUID()
+      await q(`insert into "Person" (id, code, "displayName", "updatedAt") values ($1, $2, 'PG gate', now())`, [personId, `PER-PG-${personId.slice(0, 6)}`])
+      const gateViewer = makeViewer({ principal: { id: personId, code: 'PER-PG', displayName: 'PG gate' }, visibleBusinessIds: [ids.business], ownedBusinessIds: [ids.business], visibleDomains: ['line-oa'] })
+      const session = (elevatedFor, assuranceLevel = 'AAL2') => ({ id: randomUUID(), personId, status: 'ACTIVE', assuranceLevel, expiresAt: new Date(Date.now() + 3600_000), elevatedUntil: elevatedFor === null ? null : new Date(Date.now() + elevatedFor * 1000) })
+      await expect(assertCredentialWriteAssurance({ viewer: gateViewer, session: session(900), db: pgPrisma })).rejects.toMatchObject({ status: 403, message: 'MFA_FACTOR_REQUIRED' })
+      await pgPrisma.mfaFactor.create({ data: { personId, type: 'TOTP', secret: 'mfa.v0.placeholder.placeholder.placeholder', status: 'ACTIVE' } })
+      await expect(assertCredentialWriteAssurance({ viewer: gateViewer, session: session(null, 'AAL1'), db: pgPrisma })).rejects.toMatchObject({ message: 'ASSURANCE_LEVEL_INSUFFICIENT' })
+      await expect(assertCredentialWriteAssurance({ viewer: gateViewer, session: session(-1), db: pgPrisma })).rejects.toMatchObject({ message: 'ASSURANCE_LEVEL_INSUFFICIENT' })
+      await expect(assertCredentialWriteAssurance({ viewer: gateViewer, session: session(900), db: pgPrisma })).resolves.toMatchObject({ personId })
+    })
+
+    it('never admits more than the limit under concurrent requests, and says when to retry', async () => {
+      const key = `pg-test:${randomUUID()}`
+      const results = await Promise.allSettled(Array.from({ length: 12 }, () => consumeRateLimit({ key, limit: 5, windowSeconds: 900, db: pgPrisma })))
+      expect(results.filter(r => r.status === 'fulfilled')).toHaveLength(5)
+      const refusals = results.filter(r => r.status === 'rejected').map(r => r.reason)
+      expect(refusals.every(e => e.status === 429 && e.retryAfterSeconds > 0)).toBe(true)
+      expect((await one('select count from "RateLimitBucket" where key = $1', [key])).count).toBe(5)
+      const row = await one(`select c.relforcerowsecurity from pg_class c where c.relname = 'RateLimitBucket'`)
+      expect(row.relforcerowsecurity).toBe(true)
     })
   })
 

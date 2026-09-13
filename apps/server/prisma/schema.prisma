@@ -783,6 +783,20 @@ model MfaFactor {
   @@index([personId, status])
 }
 
+// @req FR-224 — fixed-window request counters: the credential-write rate limit per
+//   Person and Business, and installation-wide LINE validation calls. A table
+//   because ADR-058 has no Redis. Holds counts and a key built from ids, nothing
+//   else; ephemeral, so excluded from backup export.
+// @spec ADR-089 D4
+// @tested tests/integration/credential-rate-limit.test.js
+model RateLimitBucket {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  windowStart DateTime
+  count       Int      @default(0)
+  updatedAt   DateTime @updatedAt
+}
+
 // @req FR-094 — external channel subjects are namespaced attributes, never
 // canonical principals or primary keys.
 // @req FR-097 — channel binding has an explicit pending/verified lifecycle.

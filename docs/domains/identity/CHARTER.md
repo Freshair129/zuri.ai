@@ -37,6 +37,7 @@ owns_models:
   - EdgeDeviceCredential
   - HarnessCredential
   - MfaFactor
+  - RateLimitBucket
 ---
 
 # Domain charter — identity
@@ -202,17 +203,23 @@ non-operator's device is `PENDING_ACTIVATION` until an operator activates it on
 the Agent devices tab. `describeHarnessReporters` is the read port the board uses
 for device labels and person names; it returns no key material.
 
-## Credential-write step-up gate and PDPA erasure fan-out (ADR-089, ADR-091 — declared, not built)
+## Credential-write step-up gate and PDPA erasure fan-out (ADR-089, ADR-091 — gate built on a branch, erasure fan-out declared)
 
-- **Step-up gate (FR-224, [ADR-089](../../decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md) D4).**
-  `assertSessionAssurance(viewer, 'AAL2')` becomes the gate other lanes call before
-  a credential write, rotation, revocation or live validation; a Person with no
-  ACTIVE TOTP factor is refused `MFA_FACTOR_REQUIRED` and sent to enrolment. The
-  same routes get the product's first rate limit, per Person and Business and per
-  installation. **Planned model `RateLimitBucket`** is claimed here (no Redis under
-  ADR-058); it enters `owns_models` only in the slice that adds it. This decision
-  does not change MFA enrolment or verification, and sealing the TOTP secret at rest
-  is a separate lane.
+- **Step-up gate (FR-224, [ADR-089](../../decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md) D4) —
+  built on `feat/integration-secret-store-vault` (TASK-ZAI-080, not merged).**
+  `credential-write-gate.js` is the gate other lanes call before a credential write,
+  rotation, revocation or live validation: `assertCredentialWriteAssurance` refuses a
+  Person with no ACTIVE TOTP factor `MFA_FACTOR_REQUIRED` (with the enrolment path),
+  then calls `assertSessionAssurance` with the Session's live step-up window only and
+  refuses `ASSURANCE_LEVEL_INSUFFICIENT`. It reads `elevatedUntil`, not the stored
+  `assuranceLevel`, because `elevateSession` leaves that column at AAL2 after the
+  900-second window ends. `createCredentialWriteGuard` composes the gate with the
+  product's first rate limit (`rate-limit.js`, model `RateLimitBucket`, migration
+  `20260914140400_rate_limit_bucket.sql`, not applied): five writes or validations in
+  fifteen minutes per Person and Business, a rejected LINE validation counting twice,
+  and sixty LINE validation calls a minute per installation, answering 429
+  `CREDENTIAL_RATE_LIMITED` with `retryAfterSeconds`. This does not change MFA
+  enrolment or verification, and sealing the TOTP secret at rest is a separate lane.
 - **Erasure fan-out (FR-232, [ADR-091](../../decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md) D6).**
   `erasePrincipal` stays the one erasure transaction. It will additionally compose
   the knowledge lane's candidate tombstone writer and leave durable work items for

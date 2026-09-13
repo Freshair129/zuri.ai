@@ -369,6 +369,9 @@ export const SNAPSHOT_EXCLUDED_MODELS = {
     'FR-220 agent harness credentials are credential material — a SHA-256 lookup hash bound to one Person and ' +
     'installation. They are never exported or restored, so a recovery cannot resurrect a revoked device, and ' +
     'each harness pairs again under the authority that holds it then (ADR-087 D3).',
+  rateLimitBucket:
+    'FR-224 rate-limit counters are ephemeral request accounting, not business data. A restore starts every ' +
+    'window empty; carrying counts across installations would refuse or admit requests on another deployment’s traffic.',
   integrationSecretEnvelope:
     'FR-223 envelope-store ciphertext is credential material (SEC-030, ADR-089 D1). It is never exported: a ' +
     'snapshot carries credential references and version history only, a restored credential must be entered ' +

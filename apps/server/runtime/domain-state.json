@@ -39,8 +39,8 @@
     "featureCount": 146,
     "readyFeatureCount": 109,
     "requirementCount": 240,
-    "verifiedRequirementCount": 215,
-    "progressPercent": 90.1,
+    "verifiedRequirementCount": 216,
+    "progressPercent": 90.5,
     "gapCount": 28,
     "gaps": [
       {
@@ -502,7 +502,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-150",
@@ -553,7 +553,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 270,
+            "openApiPaths": 273,
             "missingFromOpenApi": 0
           }
         },
@@ -818,7 +818,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 270,
+            "openApiPaths": 273,
             "missingFromOpenApi": 0
           }
         },
@@ -1015,7 +1015,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 270,
+            "openApiPaths": 273,
             "missingFromOpenApi": 0
           }
         },
@@ -1742,6 +1742,14 @@
           "status": "verified",
           "codeCount": 9,
           "testCount": 6
+        },
+        {
+          "id": "FR-224",
+          "title": "Credential-write step-up gate",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 7
         }
       ],
       "checks": {
@@ -1767,7 +1775,7 @@
           "details": {
             "routes": 27,
             "inventoried": 27,
-            "openApiPaths": 270,
+            "openApiPaths": 273,
             "missingFromOpenApi": 0
           }
         },
@@ -1809,8 +1817,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 20,
-            "present": 20
+            "models": 21,
+            "present": 21
           }
         },
         "authorization": {
@@ -1918,7 +1926,7 @@
         "routes": 36,
         "apiRoutes": 27,
         "pageRoutes": 9,
-        "ownedModels": 20,
+        "ownedModels": 21,
         "featureNotes": 26
       },
       "featureIds": [
@@ -2136,7 +2144,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-152",
@@ -2175,16 +2183,24 @@
           "title": "Integration credential vault",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 9,
-          "testCount": 25
+          "codeCount": 15,
+          "testCount": 28
+        },
+        {
+          "id": "FR-224",
+          "title": "Credential-write step-up gate",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 7
         },
         {
           "id": "FR-226",
           "title": "LINE channel account claim",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 10
+          "codeCount": 4,
+          "testCount": 13
         },
         {
           "id": "FR-227",
@@ -2216,9 +2232,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 7,
-            "inventoried": 7,
-            "openApiPaths": 270,
+            "routes": 10,
+            "inventoried": 10,
+            "openApiPaths": 273,
             "missingFromOpenApi": 0
           }
         },
@@ -2271,8 +2287,8 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 5,
-            "guardedMutations": 5,
+            "mutations": 8,
+            "guardedMutations": 8,
             "reads": 5,
             "unguardedReads": 0
           }
@@ -2339,8 +2355,8 @@
         }
       ],
       "details": {
-        "routes": 11,
-        "apiRoutes": 7,
+        "routes": 14,
+        "apiRoutes": 10,
         "pageRoutes": 4,
         "ownedModels": 19,
         "featureNotes": 11
@@ -2358,7 +2374,7 @@
       ],
       "featureCount": 9,
       "readyFeatureCount": 6,
-      "progressPercent": 75
+      "progressPercent": 81.3
     },
     "inventory": {
       "status": "partial",
@@ -2580,7 +2596,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 270,
+            "openApiPaths": 273,
             "missingFromOpenApi": 0
           }
         },
@@ -3153,7 +3169,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 21,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-150",
@@ -3217,7 +3233,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 25
+          "testCount": 28
         }
       ],
       "checks": {
@@ -3243,7 +3259,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 270,
+            "openApiPaths": 273,
             "missingFromOpenApi": 0
           }
         },
@@ -3404,7 +3420,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 270,
+            "openApiPaths": 273,
             "missingFromOpenApi": 0
           }
         },
@@ -3571,7 +3587,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 270,
+            "openApiPaths": 273,
             "missingFromOpenApi": 0
           }
         },
@@ -3809,7 +3825,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 270,
+            "openApiPaths": 273,
             "missingFromOpenApi": 0
           }
         },
@@ -3989,7 +4005,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 270,
+            "openApiPaths": 273,
             "missingFromOpenApi": 0
           }
         },
@@ -4492,7 +4508,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 65
+          "testCount": 66
         },
         {
           "id": "FR-073",
@@ -4820,7 +4836,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-150",
@@ -5187,8 +5203,16 @@
           "title": "Integration credential vault",
           "declared": "n/a",
           "status": "verified",
+          "codeCount": 2,
+          "testCount": 28
+        },
+        {
+          "id": "FR-224",
+          "title": "Credential-write step-up gate",
+          "declared": "n/a",
+          "status": "verified",
           "codeCount": 1,
-          "testCount": 25
+          "testCount": 7
         },
         {
           "id": "FR-226",
@@ -5196,7 +5220,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 10
+          "testCount": 13
         }
       ],
       "checks": {
@@ -5231,7 +5255,7 @@
           "details": {
             "routes": 130,
             "inventoried": 130,
-            "openApiPaths": 270,
+            "openApiPaths": 273,
             "missingFromOpenApi": 0
           }
         },
@@ -7310,7 +7334,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 34,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-150",
@@ -7385,6 +7409,7 @@
         "apps/server/tests/integration/identity-resolve.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
         "apps/server/tests/integration/line-admission-reconciler.test.js",
+        "apps/server/tests/integration/line-channel-credential-routes.test.js",
         "apps/server/tests/integration/line-ingest.test.js",
         "apps/server/tests/integration/line-oa-evidence-convergence.test.js",
         "apps/server/tests/integration/line-reply-record.test.js",
@@ -9176,17 +9201,17 @@
       ],
       "primaryDomain": "integration",
       "contributorDomains": [
+        "identity",
         "integration",
         "line-oa-studio",
         "project-manager"
       ],
       "useCase": "เจ้าของธุรกิจเปิดหน้าเชื่อมต่อ LINE OA ยืนยันตัวตนด้วยรหัส TOTP แล้วกรอก Channel ID กับ Channel secret จาก LINE Developers Console ครั้งเดียว ระบบตรวจกับ LINE ดึงชื่อบอทมาให้ ตั้งและทดสอบ Webhook ให้เอง แล้วกดเปิดใช้งานได้ทันทีโดยไม่ต้องให้ผู้ดูแลระบบใส่ไฟล์บนเครื่องเซิร์ฟเวอร์ และหลังบันทึกไม่มีหน้าไหนแสดง secret ซ้ำอีก",
-      "progressPercent": 50,
+      "progressPercent": 66.7,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-036 registry status is declared",
-        "FR-224 is planned",
         "FR-225 is planned",
         "FR-228 is planned"
       ],
@@ -9196,16 +9221,16 @@
           "title": "Integration credential vault",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 14,
-          "testCount": 25
+          "codeCount": 21,
+          "testCount": 28
         },
         {
           "id": "FR-224",
           "title": "Credential-write step-up gate",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 10,
+          "testCount": 7
         },
         {
           "id": "FR-225",
@@ -9220,8 +9245,8 @@
           "title": "LINE channel account claim",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 10
+          "codeCount": 5,
+          "testCount": 13
         },
         {
           "id": "FR-227",
@@ -9241,12 +9266,22 @@
         }
       ],
       "evidence": [
+        "apps/server/src/app/api/_helpers.js",
+        "apps/server/src/app/api/line-oa/connections/[id]/credential/revoke/route.js",
+        "apps/server/src/app/api/line-oa/connections/[id]/credential/route.js",
+        "apps/server/src/app/api/line-oa/connections/[id]/credential/validate/route.js",
+        "apps/server/src/app/api/line-oa/connections/route.js",
         "apps/server/src/lib/validation/enums.js",
+        "apps/server/src/modules/identity/credential-write-gate.js",
+        "apps/server/src/modules/identity/rate-limit.js",
+        "apps/server/src/modules/integration/application/credential-route.js",
         "apps/server/src/modules/integration/application/integration-management-service.js",
         "apps/server/src/modules/integration/application/line-channel-connection-service.js",
+        "apps/server/src/modules/integration/application/line-channel-credential-service.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
         "apps/server/src/modules/line-oa-studio/application/server-line-rich-menu-runtime.js",
         "apps/server/src/modules/line-oa-studio/application/server-line-runtime.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/platform/integrations/core/channel-account-claim.js",
         "apps/server/src/platform/integrations/core/connection-health.js",
@@ -9259,20 +9294,26 @@
         "apps/server/src/platform/integrations/providers/line/server-line-transport.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/channel-account-claim.test.js",
+        "apps/server/tests/integration/credential-rate-limit.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/credential-vault.postgres.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
+        "apps/server/tests/integration/fr149-line-server-configuration.test.js",
+        "apps/server/tests/integration/line-channel-credential-routes.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
+        "apps/server/tests/unit/api-error-mapping.test.js",
         "apps/server/tests/unit/connection-health.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr080-integration-management.test.js",
+        "apps/server/tests/unit/identity/rate-limit-bucket-migration.test.js",
         "apps/server/tests/unit/integration/channel-account-claim-migration.test.js",
         "apps/server/tests/unit/integration/credential-vault-migrations.test.js",
         "apps/server/tests/unit/integration/credential-vault-schema-contract.test.js",
@@ -12506,7 +12547,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 31,
-          "testCount": 65
+          "testCount": 66
         }
       ],
       "evidence": [
@@ -12586,6 +12627,7 @@
         "apps/server/tests/integration/fr196-segregation-of-duties.test.js",
         "apps/server/tests/integration/fr201-inventory-sku-governance.test.js",
         "apps/server/tests/integration/fr208-inventory-catalog-intake.test.js",
+        "apps/server/tests/integration/line-channel-credential-routes.test.js",
         "apps/server/tests/integration/project-authorization.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/project-core.test.js",

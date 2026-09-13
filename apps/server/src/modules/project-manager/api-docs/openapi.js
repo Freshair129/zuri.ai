@@ -39,6 +39,11 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/line-oa/accounts/{id}/webhook', ['POST']], ['/api/line-oa/accounts/{id}/jobs', ['GET']],
   ['/api/line-oa/accounts/{id}/transport-health', ['GET']],
   ['/api/line-oa/worker', ['POST']], ['/api/line-oa/connections', ['POST']],
+  // @req FR-223, FR-224 — write-only credential rotation, revocation and live
+  // validation (ADR-089); nothing they answer carries material.
+  ['/api/line-oa/connections/{id}/credential', ['POST']],
+  ['/api/line-oa/connections/{id}/credential/revoke', ['POST']],
+  ['/api/line-oa/connections/{id}/credential/validate', ['POST']],
   ['/api/line-oa/jobs/{id}/acknowledge-unknown', ['POST']],
   ['/api/line-oa/jobs/{id}/trace', ['GET']],
   ['/api/line-oa/jobs/failures', ['GET']],

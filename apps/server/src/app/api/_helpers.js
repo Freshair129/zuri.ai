@@ -81,7 +81,13 @@ export async function handle(fn) {
     // which components a recipe build is short of). Passed through only when
     // the service set it deliberately as an array; never the raw error object.
     const details = Array.isArray(err?.details) ? err.details : undefined
-    return NextResponse.json(details ? { error: message, details } : { error: message }, { status })
+    // @req FR-224 — a rate-limited refusal says when to retry, in the body and in
+    // the standard header. Passed through only as a positive integer.
+    const retryAfterSeconds = status === 429 && Number.isInteger(err?.retryAfterSeconds) && err.retryAfterSeconds > 0
+      ? err.retryAfterSeconds
+      : undefined
+    const body = { error: message, ...(details ? { details } : {}), ...(retryAfterSeconds ? { retryAfterSeconds } : {}) }
+    return NextResponse.json(body, { status, ...(retryAfterSeconds ? { headers: { 'Retry-After': String(retryAfterSeconds) } } : {}) })
   }
 }
 

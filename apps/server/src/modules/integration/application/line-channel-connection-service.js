@@ -37,15 +37,20 @@ import { createLineChannelAdminPort, processLineChannelTokenCache } from '@/plat
 // The response carries connection, masked credential and bot metadata only.
 // A request body is refused with one generic 400 that quotes no field.
 
-const zConnect = z.object({
-  businessId: z.string().trim().min(1).max(200),
-  name: z.string().trim().min(1).max(200),
+/** The write-only fields a LINE credential request may carry (ADR-089 D3). */
+export const LINE_CHANNEL_FIELDS = Object.freeze({
   channelId: z.string().regex(LINE_CHANNEL_ID_PATTERN),
   channelSecret: z.string().regex(LINE_CHANNEL_SECRET_PATTERN),
   channelAccessToken: z.string().regex(LINE_CHANNEL_ACCESS_TOKEN_PATTERN).optional(),
+})
+
+const zConnect = z.object({
+  businessId: z.string().trim().min(1).max(200),
+  name: z.string().trim().min(1).max(200),
+  ...LINE_CHANNEL_FIELDS,
 }).strict()
 
-function refusal(status, code) {
+export function refusal(status, code) {
   const error = new Error(code)
   error.status = status
   error.code = code
@@ -59,7 +64,7 @@ export function parseCredentialInput(schema, input) {
   return parsed.data
 }
 
-function credentialView(credential) {
+export function credentialView(credential) {
   return {
     status: credential.status,
     version: credential.version,
