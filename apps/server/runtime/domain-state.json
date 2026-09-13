@@ -4148,7 +4148,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-013",
@@ -4436,7 +4436,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-070",
@@ -5667,7 +5667,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-070",
@@ -5708,6 +5708,7 @@
         "apps/server/tests/unit/knowledge-admission-mcp.test.js",
         "apps/server/tests/unit/marketing-campaign-ui.test.js",
         "apps/server/tests/unit/pipeline-mcp-transport.test.js",
+        "apps/server/tests/unit/plan-import-commit-transaction.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/plan-status-vocabulary.test.js",
         "apps/server/tests/unit/project-manager-mcp.test.js",
@@ -9903,7 +9904,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 20
+          "testCount": 21
         }
       ],
       "evidence": [
@@ -9931,6 +9932,7 @@
         "apps/server/tests/unit/api-path-reachability.test.js",
         "apps/server/tests/unit/contract-plan-artifacts.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
+        "apps/server/tests/unit/plan-import-commit-transaction.test.js",
         "apps/server/tests/unit/plan-intake-flow.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/plan-status-vocabulary.test.js",
