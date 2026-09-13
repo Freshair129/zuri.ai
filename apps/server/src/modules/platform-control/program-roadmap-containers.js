@@ -3012,7 +3012,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-065",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -3063,7 +3063,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction. Implemented locally 2026-09-13 (FR-216): program-delivery-metrics.js computes the planned figures and the measured row per phase, the board renders them with done and review tints from the shell tone tokens; tests/unit/program-delivery-metrics.test.js, program-roadmap-board-telemetry.test.js and tests/e2e/fr216-programme-delivery-telemetry.spec.js.",
+    "changelog": "Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction. Implemented locally 2026-09-13 (FR-216): program-delivery-metrics.js computes the planned figures and the measured row per phase, the board renders them with done and review tints from the shell tone tokens; tests/unit/program-delivery-metrics.test.js, program-roadmap-board-telemetry.test.js and tests/e2e/fr216-programme-delivery-telemetry.spec.js. Closed 2026-09-14: merged in #383 (main 6630c1df) and deployed as zuri-ai-web:release-6630c1df, since carried forward to release-daca80fb.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 40000,
     "totalTokens": 0,
@@ -3076,7 +3076,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-066",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -3127,7 +3127,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction. Implemented locally 2026-09-13 (FR-217): scripts/programme-usage-meter.mjs reads Claude Code and Codex logs, counts each request once, attributes by lane branch and writes the usage block; first real run measured all three declared lanes and reported main and detached HEAD work as unattributed; tests/unit/programme-usage-meter.test.js.",
+    "changelog": "Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction. Implemented locally 2026-09-13 (FR-217): scripts/programme-usage-meter.mjs reads Claude Code and Codex logs, counts each request once, attributes by lane branch and writes the usage block; first real run measured all three declared lanes and reported main and detached HEAD work as unattributed; tests/unit/programme-usage-meter.test.js. Closed 2026-09-14: merged in #383 (main 6630c1df); the meter runs on the operator machine and its usage block is committed with each lane.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 56000,
     "totalTokens": 0,
@@ -3140,7 +3140,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-067",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "priority": "P1",
     "pic": "Claude",
     "executor": "Claude",
@@ -3191,7 +3191,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction. Implemented locally 2026-09-13 (FR-218): ProgrammeUsageReport in both schemas, migration 20260913230000_programme_usage_report written in both trees and NOT applied to production, POST /api/platform/programme-usage-reports under ZURI_PROGRAMME_USAGE_TOKEN, merged on the board with a metered session counted once; tests/unit/programme-usage-reports.test.js.",
+    "changelog": "Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction. Implemented locally 2026-09-13 (FR-218): ProgrammeUsageReport in both schemas, migration 20260913230000_programme_usage_report written in both trees and NOT applied to production, POST /api/platform/programme-usage-reports under ZURI_PROGRAMME_USAGE_TOKEN, merged on the board with a metered session counted once; tests/unit/programme-usage-reports.test.js. Closed 2026-09-14: merged in #383 (main 6630c1df) and deployed as zuri-ai-web:release-6630c1df, since carried forward to release-daca80fb; migration 20260913230000_programme_usage_report applied on production after a rolled-back dry run. ZURI_PROGRAMME_USAGE_TOKEN is an owner-set secret for unattended automation only (ADR-087 D6) and is not part of this task.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 52000,
     "totalTokens": 0,
@@ -3204,7 +3204,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-068",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -3255,7 +3255,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.4) on the owner's follow-up to TASK-ZAI-065, in the same conversation and before the plan merged: every task card should show [DOC] [CODE] [TEST] [FR] [NFR] [FEAT] [domain code name] [complexity] [priority] badges — green done, orange review, red needs fix, gray empty — and a task whose plan is split into subtasks such as P0, P1, P2 and P3 should list them so the card can carry a progress bar. The FR, NFR and FEAT colours come from the FR-124 snapshot the Domain map tab already reads (FR-211); the link colours need the container generator to check each path against the repository when it runs, because the production image carries neither docs/ nor tests/. Implemented locally 2026-09-13 (FR-219): scripts/programme-containers.mjs moves into the repository and adds priority, delivered ids, link state and subtasks; program-task-evidence.js colours the badges against the FR-124 snapshot; tests/unit/program-task-evidence.test.js and programme-containers.test.js.",
+    "changelog": "Opened 2026-09-13 (v0.4.4) on the owner's follow-up to TASK-ZAI-065, in the same conversation and before the plan merged: every task card should show [DOC] [CODE] [TEST] [FR] [NFR] [FEAT] [domain code name] [complexity] [priority] badges — green done, orange review, red needs fix, gray empty — and a task whose plan is split into subtasks such as P0, P1, P2 and P3 should list them so the card can carry a progress bar. The FR, NFR and FEAT colours come from the FR-124 snapshot the Domain map tab already reads (FR-211); the link colours need the container generator to check each path against the repository when it runs, because the production image carries neither docs/ nor tests/. Implemented locally 2026-09-13 (FR-219): scripts/programme-containers.mjs moves into the repository and adds priority, delivered ids, link state and subtasks; program-task-evidence.js colours the badges against the FR-124 snapshot; tests/unit/program-task-evidence.test.js and programme-containers.test.js. Closed 2026-09-14: merged in #383 (main 6630c1df) and deployed as zuri-ai-web:release-6630c1df, since carried forward to release-daca80fb.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 34000,
     "totalTokens": 0,
@@ -3313,7 +3313,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-070",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -3364,7 +3364,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.5) on the owner's instruction, after FR-218 shipped with one shared deployment token: agents on other machines should report usage through a Zuri plugin for Claude Code and Codex rather than a connector, because the model cannot see its own billed tokens and must not self-report them — the harness reports from its own logs when a session ends. The owner accepted the recommended identity design: the device is paired once through browser approval by a signed-in person (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; a report is attributed to that person and that installation, with the AI account that paid kept as a declared label. Two people on one machine are told apart only by separate OS users or by re-pairing; a shared zuri-ai account is not supported. Implemented locally 2026-09-14 (FR-220): harness-pairing start/approve/poll, HarnessCredential (hash, hrnk_ prefix, PROGRAMME_USAGE_REPORT scope, PENDING_ACTIVATION unless an operator approved), /harness/pair and the Agent devices tab with activate and revoke; migration 20260914100000_harness_usage_attribution written in both trees and NOT applied; tests/unit/harness-pairing.test.js, harness-credential.test.js, harness-devices-view.test.js and tests/e2e/fr220-harness-pairing.spec.js.",
+    "changelog": "Opened 2026-09-14 (v0.4.5) on the owner's instruction, after FR-218 shipped with one shared deployment token: agents on other machines should report usage through a Zuri plugin for Claude Code and Codex rather than a connector, because the model cannot see its own billed tokens and must not self-report them — the harness reports from its own logs when a session ends. The owner accepted the recommended identity design: the device is paired once through browser approval by a signed-in person (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; a report is attributed to that person and that installation, with the AI account that paid kept as a declared label. Two people on one machine are told apart only by separate OS users or by re-pairing; a shared zuri-ai account is not supported. Implemented locally 2026-09-14 (FR-220): harness-pairing start/approve/poll, HarnessCredential (hash, hrnk_ prefix, PROGRAMME_USAGE_REPORT scope, PENDING_ACTIVATION unless an operator approved), /harness/pair and the Agent devices tab with activate and revoke; migration 20260914100000_harness_usage_attribution written in both trees and NOT applied; tests/unit/harness-pairing.test.js, harness-credential.test.js, harness-devices-view.test.js and tests/e2e/fr220-harness-pairing.spec.js. Closed 2026-09-14: merged in #386 (main 9a8d9968) and deployed as zuri-ai-web:release-9a8d9968, since carried forward to release-daca80fb; migration 20260914100000_harness_usage_attribution applied on production after a rolled-back dry run.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 58000,
     "totalTokens": 0,
@@ -3377,7 +3377,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-071",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -3428,7 +3428,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.5) on the owner's instruction, after FR-218 shipped with one shared deployment token: agents on other machines should report usage through a Zuri plugin for Claude Code and Codex rather than a connector, because the model cannot see its own billed tokens and must not self-report them — the harness reports from its own logs when a session ends. The owner accepted the recommended identity design: the device is paired once through browser approval by a signed-in person (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; a report is attributed to that person and that installation, with the AI account that paid kept as a declared label. Two people on one machine are told apart only by separate OS users or by re-pairing; a shared zuri-ai account is not supported. Implemented locally 2026-09-14 (FR-221): the report endpoint accepts the harness credential and stores its person and installation, keys reports by (source, sessionId, branch), extends a resumed session whose counts only grow, resolves the lane from the branch at read time, and the board breaks usage down by person and device with unattributed reports grouped; tests/unit/programme-usage-reports.test.js and harness-devices-view.test.js.",
+    "changelog": "Opened 2026-09-14 (v0.4.5) on the owner's instruction, after FR-218 shipped with one shared deployment token: agents on other machines should report usage through a Zuri plugin for Claude Code and Codex rather than a connector, because the model cannot see its own billed tokens and must not self-report them — the harness reports from its own logs when a session ends. The owner accepted the recommended identity design: the device is paired once through browser approval by a signed-in person (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; a report is attributed to that person and that installation, with the AI account that paid kept as a declared label. Two people on one machine are told apart only by separate OS users or by re-pairing; a shared zuri-ai account is not supported. Implemented locally 2026-09-14 (FR-221): the report endpoint accepts the harness credential and stores its person and installation, keys reports by (source, sessionId, branch), extends a resumed session whose counts only grow, resolves the lane from the branch at read time, and the board breaks usage down by person and device with unattributed reports grouped; tests/unit/programme-usage-reports.test.js and harness-devices-view.test.js. Closed 2026-09-14: merged in #386 (main 9a8d9968) and deployed as zuri-ai-web:release-9a8d9968, since carried forward to release-daca80fb; migration 20260914100000_harness_usage_attribution applied on production after a rolled-back dry run.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 42000,
     "totalTokens": 0,
@@ -3441,7 +3441,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-072",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -3492,7 +3492,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.5) on the owner's instruction, after FR-218 shipped with one shared deployment token: agents on other machines should report usage through a Zuri plugin for Claude Code and Codex rather than a connector, because the model cannot see its own billed tokens and must not self-report them — the harness reports from its own logs when a session ends. The owner accepted the recommended identity design: the device is paired once through browser approval by a signed-in person (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; a report is attributed to that person and that installation, with the AI account that paid kept as a declared label. Two people on one machine are told apart only by separate OS users or by re-pairing; a shared zuri-ai account is not supported. Implemented locally 2026-09-14 (FR-222): plugins/zuri-harness with Claude Code and Codex manifests, pair/whoami/unpair, SessionStart and SessionEnd hooks, the Codex wrapper, branch split, offline queue and the root marketplace entry; doc-graph now scans plugins/; tests/unit/zuri-harness-plugin.test.js (parity with the meter).",
+    "changelog": "Opened 2026-09-14 (v0.4.5) on the owner's instruction, after FR-218 shipped with one shared deployment token: agents on other machines should report usage through a Zuri plugin for Claude Code and Codex rather than a connector, because the model cannot see its own billed tokens and must not self-report them — the harness reports from its own logs when a session ends. The owner accepted the recommended identity design: the device is paired once through browser approval by a signed-in person (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; a report is attributed to that person and that installation, with the AI account that paid kept as a declared label. Two people on one machine are told apart only by separate OS users or by re-pairing; a shared zuri-ai account is not supported. Implemented locally 2026-09-14 (FR-222): plugins/zuri-harness with Claude Code and Codex manifests, pair/whoami/unpair, SessionStart and SessionEnd hooks, the Codex wrapper, branch split, offline queue and the root marketplace entry; doc-graph now scans plugins/; tests/unit/zuri-harness-plugin.test.js (parity with the meter). Closed 2026-09-14: merged in #386 (main 9a8d9968) and installable from the repository marketplace entry; the server side it reports to is deployed (release-9a8d9968, now release-daca80fb). No device has been paired in production yet, which is use, not delivery.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 60000,
     "totalTokens": 0,
