@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.37.0b |
+| **Version** | 1.38.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-13 |
 
@@ -123,6 +123,7 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | ProductIdentifier | id, tenantId, businessId, productId → Product (Cascade), kind (GTIN / BARCODE / SUPPLIER_CODE / MANUFACTURER_PART / LEGACY_CODE), value, issuer?, unit?, status (ACTIVE / RETIRED), timestamps, version; unique (tenantId, kind, value) | FR-203 — a barcode or a partner's code as an attribute of exactly one SKU, never a key (BR-002); the two scannable kinds share one value space in the service; `unit` names the pack the barcode is on; a retired value still blocks |
 | ProductUnitConversion | id, tenantId, businessId, productId → Product (Cascade), unit, name?, factor (integer base units per unit), usage (PURCHASE / SALES / ANY), status (ACTIVE / RETIRED), timestamps, version; unique (productId, unit) | FR-204 — a pack size as a conversion on the SKU, never a second SKU (BR-037); the ledger counts base units only |
 | InventoryCatalogIntake | id, code (CIT-…, unique per tenant), tenantId, businessId, sourceChannel (REST_API / EXCEL / LINE_OA / WEB), sourceCorrelationId, payloadSha256, normalizedEnvelopeJson, planJson, planHash, committable, itemCount, status (PREVIEWED / COMMITTED / CANCELLED), requestedById?, resultJson?, expiresAt, committedAt?, cancelledAt?, timestamps, version; unique (businessId, sourceChannel, sourceCorrelationId) | FR-208 — one catalogue intake preview and its result; the plan is what the planner decided after resolving every item against the catalogue, and a commit must match its hash. No catalogue data of its own: created SKUs are written by the catalogue writers and named only in `resultJson` |
+| ProgrammeUsageReport | id, source (lowercase tool name), sessionId, taskCode (TASK-ZAI-…), model?, inputTokens (not cached), cacheWriteTokens, cacheReadTokens, outputTokens, requestCount, activeMinutes, startedAt, endedAt, payloadSha256, reportedAt; unique (source, sessionId) | FR-218 — one agent session's usage for one programme task, reported under the deployment bearer by an agent without local session logs (ADR-086 D5). Installation-level: no Tenant, Business or Person key. Measured cost beside the plan, never programme progress |
 | ProductBundle | code (unique per tenant), tenantId, businessId, name, description?, targetRecipients?, totalPrice?, status, version | FR-154 — bundle (`bundle_id`) |
 | ProductBundleItem | bundleId → ProductBundle (Cascade) + productId → Product (unique pair), qty | FR-154 — one SKU line of a bundle |
 | ProductRecipe | code (unique per tenant), tenantId, businessId, productId → Product (Cascade), name, batchSize, yieldQty, unit, notes?, scrapAllowanceFactor, status, archivedAt?, version; (productId, batchSize) unique | FR-156 — recipe / bill of materials (`recipe_id`) of one output SKU at one batch size; "for 10 seats" and "for 20 seats" are two rows. FR-177 — `scrapAllowanceFactor` in [0, 0.20] (default 0, so every recipe predating ADR-074 explodes unchanged) makes the gross issue ceil(net x (1 + factor)) |
@@ -518,3 +519,5 @@ written and NOT applied.
 Version diff 1.35.0b → 1.36.0b (2026-09-13): ADR-083 SKU governance — three columns on `ProductMaster` (nature, defaultStockPolicy, variantAxesJson), six on `Product` (variantJson, variantKey with its NULL-tolerant unique index per master, mergedIntoProductId, reorderPoint, reorderQty, leadTimeDays) and two new models, `ProductIdentifier` and `ProductUnitConversion`, both in `SNAPSHOT_MODELS` right after `product`. 150 models are now declared. Migration `20260913120000_inventory_sku_governance.sql` written in both trees and APPLIED on production on 2026-09-13 (ledger row written, effect verified).
 
 Version diff 1.36.0b → 1.37.0b (2026-09-13): ADR-084 catalogue intake — new model `InventoryCatalogIntake` (in `SNAPSHOT_MODELS` after `productUnitConversion`). 151 models are now declared. Migration `20260913200000_inventory_catalog_intake.sql` written in both trees and APPLIED on production on 2026-09-13 (ledger row written, effect verified).
+
+Version diff 1.37.0b → 1.38.0b (2026-09-13): ADR-086 programme delivery telemetry — new model `ProgrammeUsageReport` (first in `SNAPSHOT_MODELS`; no foreign key), owned by the platform-control charter. 152 models are now declared. Migration `20260913230000_programme_usage_report` written in both trees and NOT applied to production.

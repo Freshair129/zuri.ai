@@ -104,7 +104,9 @@ describe('FR-211 domain map UI', () => {
     const page = readFileSync('src/app/(control)/control/roadmap/page.jsx', 'utf8')
     const view = readFileSync('src/modules/platform-control/components/DomainMapView.jsx', 'utf8')
     expect(page).not.toContain("'use client'")
-    expect(page).toContain('projectDomainMap(getProductReadinessSnapshot())')
+    // FR-219 reads the same snapshot for task badges, so the page reads it once.
+    expect(page).toContain('const snapshot = getProductReadinessSnapshot()')
+    expect(page).toContain('projectDomainMap(snapshot)')
     expect(view).not.toMatch(/import .*(domain-state|product-readiness-read-model)/)
     expect(view).not.toMatch(/fetch\(|method: 'POST'/)
   })

@@ -36,12 +36,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 140,
+    "featureCount": 141,
     "readyFeatureCount": 109,
-    "requirementCount": 215,
-    "verifiedRequirementCount": 203,
-    "progressPercent": 95,
-    "gapCount": 26,
+    "requirementCount": 219,
+    "verifiedRequirementCount": 207,
+    "progressPercent": 95.1,
+    "gapCount": 27,
     "gaps": [
       {
         "domain": "agent",
@@ -196,6 +196,13 @@
       },
       {
         "domain": "line-oa-studio",
+        "id": "AUTH-001",
+        "severity": "high",
+        "check": "authorization",
+        "summary": "At least one mutating route lacks a recognizable request viewer seam"
+      },
+      {
+        "domain": "platform-control",
         "id": "AUTH-001",
         "severity": "high",
         "check": "authorization",
@@ -539,7 +546,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 263,
+            "openApiPaths": 264,
             "missingFromOpenApi": 0
           }
         },
@@ -804,7 +811,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 263,
+            "openApiPaths": 264,
             "missingFromOpenApi": 0
           }
         },
@@ -1001,7 +1008,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 263,
+            "openApiPaths": 264,
             "missingFromOpenApi": 0
           }
         },
@@ -1614,7 +1621,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-161",
@@ -1744,7 +1751,7 @@
           "details": {
             "routes": 22,
             "inventoried": 22,
-            "openApiPaths": 263,
+            "openApiPaths": 264,
             "missingFromOpenApi": 0
           }
         },
@@ -2016,7 +2023,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-101",
@@ -2170,7 +2177,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 263,
+            "openApiPaths": 264,
             "missingFromOpenApi": 0
           }
         },
@@ -2320,7 +2327,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-155",
@@ -2328,7 +2335,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-156",
@@ -2336,7 +2343,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-168",
@@ -2344,7 +2351,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-174",
@@ -2531,7 +2538,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 263,
+            "openApiPaths": 264,
             "missingFromOpenApi": 0
           }
         },
@@ -2834,7 +2841,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 2
+          "testCount": 3
         },
         {
           "id": "FR-213",
@@ -3151,7 +3158,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-210",
@@ -3185,7 +3192,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 263,
+            "openApiPaths": 264,
             "missingFromOpenApi": 0
           }
         },
@@ -3346,7 +3353,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 263,
+            "openApiPaths": 264,
             "missingFromOpenApi": 0
           }
         },
@@ -3513,7 +3520,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 263,
+            "openApiPaths": 264,
             "missingFromOpenApi": 0
           }
         },
@@ -3645,7 +3652,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 13
+          "testCount": 16
         },
         {
           "id": "FR-142",
@@ -3661,7 +3668,39 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
+          "testCount": 5
+        },
+        {
+          "id": "FR-216",
+          "title": "Phase card delivery metrics",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 6
+        },
+        {
+          "id": "FR-217",
+          "title": "Programme usage meter",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
           "testCount": 3
+        },
+        {
+          "id": "FR-218",
+          "title": "Programme usage report endpoint",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 13
+        },
+        {
+          "id": "FR-219",
+          "title": "Task card evidence badges and subtask progress",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 7
         }
       ],
       "checks": {
@@ -3685,9 +3724,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 1,
-            "inventoried": 1,
-            "openApiPaths": 263,
+            "routes": 2,
+            "inventoried": 2,
+            "openApiPaths": 264,
             "missingFromOpenApi": 0
           }
         },
@@ -3717,18 +3756,30 @@
           "gaps": []
         },
         "database": {
-          "status": "not_applicable",
-          "evidence": [],
-          "gaps": []
-        },
-        "authorization": {
-          "status": "unknown",
+          "status": "verified",
           "evidence": [
-            "docs/appendices/A-api-spec.md"
+            "prisma/schema.prisma"
           ],
           "gaps": [],
           "details": {
-            "mutations": 0,
+            "models": 1,
+            "present": 1
+          }
+        },
+        "authorization": {
+          "status": "partial",
+          "evidence": [
+            "docs/appendices/A-api-spec.md"
+          ],
+          "gaps": [
+            {
+              "id": "AUTH-001",
+              "severity": "high",
+              "summary": "At least one mutating route lacks a recognizable request viewer seam"
+            }
+          ],
+          "details": {
+            "mutations": 1,
             "guardedMutations": 0,
             "reads": 0,
             "unguardedReads": 0
@@ -3748,6 +3799,7 @@
         "docs/appendices/A-api-spec.md",
         "docs/domains/platform-control/CHARTER.md",
         "docs/domains/platform-control/features/FR-105-platform-programme-roadmap.md",
+        "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
         "src/modules/project-manager/api-docs/openapi.js",
@@ -3757,21 +3809,29 @@
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "AUTH-001",
+          "severity": "high",
+          "check": "authorization",
+          "summary": "At least one mutating route lacks a recognizable request viewer seam"
+        }
+      ],
       "details": {
-        "routes": 2,
-        "apiRoutes": 1,
+        "routes": 3,
+        "apiRoutes": 2,
         "pageRoutes": 1,
-        "ownedModels": 0,
+        "ownedModels": 1,
         "featureNotes": 1
       },
       "featureIds": [
+        "FEAT-034",
         "FR-105",
         "FR-142",
         "FR-145",
         "FR-211"
       ],
-      "featureCount": 4,
+      "featureCount": 5,
       "readyFeatureCount": 4,
       "progressPercent": 100
     },
@@ -3800,7 +3860,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-196",
@@ -3834,7 +3894,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 263,
+            "openApiPaths": 264,
             "missingFromOpenApi": 0
           }
         },
@@ -4481,7 +4541,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-102",
@@ -4513,7 +4573,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 13
+          "testCount": 16
         },
         {
           "id": "FR-106",
@@ -4569,7 +4629,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 19
+          "testCount": 21
         },
         {
           "id": "FR-127",
@@ -4705,7 +4765,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-155",
@@ -4713,7 +4773,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-156",
@@ -4721,7 +4781,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-157",
@@ -5018,6 +5078,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 12
+        },
+        {
+          "id": "FR-218",
+          "title": "Programme usage report endpoint",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 13
         }
       ],
       "checks": {
@@ -5052,7 +5120,7 @@
           "details": {
             "routes": 130,
             "inventoried": 130,
-            "openApiPaths": 263,
+            "openApiPaths": 264,
             "missingFromOpenApi": 0
           }
         },
@@ -6267,7 +6335,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-101",
@@ -6300,6 +6368,7 @@
         "apps/server/tests/integration/sot-decisions-route.test.js",
         "apps/server/tests/unit/api-access-key-migration.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/programme-containers.test.js",
         "apps/server/tests/unit/sot-data-plane-auth.test.js",
         "apps/server/tests/unit/sot-decision-migration.test.js",
         "apps/server/tests/unit/sot-decision-service.test.js",
@@ -7261,7 +7330,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-155",
@@ -7269,7 +7338,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-156",
@@ -7277,7 +7346,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 13
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -7339,6 +7408,7 @@
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/programme-containers.test.js",
         "apps/server/tests/unit/scm-console-routes.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
@@ -8750,7 +8820,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
-          "testCount": 2
+          "testCount": 3
         },
         {
           "id": "FR-213",
@@ -8798,7 +8868,94 @@
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/programme-containers.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js"
+      ]
+    },
+    {
+      "id": "FEAT-034",
+      "title": "Programme delivery telemetry — phase cards on the operator programme board show counts, size, plan window and effort estimate beside the time and tokens really used, measured from local agent session logs and agent usage reports and never presented as progress, and task cards carry evidence badges and subtask progress (ADR-086, `DOM-PLATFORM-CONTROL`)",
+      "kind": "bundle",
+      "registryStatus": "building",
+      "requirementIds": [
+        "FR-216",
+        "FR-217",
+        "FR-218",
+        "FR-219"
+      ],
+      "primaryDomain": "platform-control",
+      "contributorDomains": [
+        "platform-control",
+        "project-manager"
+      ],
+      "useCase": "installation operator เปิด /control/roadmap แล้วเห็นว่าแต่ละ phase มีกี่ sprint กี่ task ขนาดเท่าไร ใช้เวลาประมาณเท่าไร และงานที่ done แล้วใช้เวลาจริงกับ token จริงไปเท่าไรจาก log ของ agent ที่วัดได้ ไม่ใช่ค่าประมาณ พร้อม badge บนการ์ด task ว่าเอกสาร โค้ด เทสต์ FR NFR FEAT ของงานนั้นเสร็จ รอรีวิว ต้องแก้ หรือยังว่าง และ progress bar ของ subtask",
+      "progressPercent": 100,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-034 registry status is building"
+      ],
+      "requirements": [
+        {
+          "id": "FR-216",
+          "title": "Phase card delivery metrics",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 6
+        },
+        {
+          "id": "FR-217",
+          "title": "Programme usage meter",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 1,
+          "testCount": 3
+        },
+        {
+          "id": "FR-218",
+          "title": "Programme usage report endpoint",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 5,
+          "testCount": 13
+        },
+        {
+          "id": "FR-219",
+          "title": "Task card evidence badges and subtask progress",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 5,
+          "testCount": 7
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/(control)/control/roadmap/page.jsx",
+        "apps/server/src/app/api/platform/programme-usage-reports/route.js",
+        "apps/server/src/modules/platform-control/application/programme-usage-reports.js",
+        "apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+        "apps/server/src/modules/platform-control/program-delivery-metrics.js",
+        "apps/server/src/modules/platform-control/program-roadmap-containers.js",
+        "apps/server/src/modules/platform-control/program-roadmap-telemetry.js",
+        "apps/server/src/modules/platform-control/program-task-evidence.js",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/tests/e2e/fr216-programme-delivery-telemetry.spec.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/platform-control-domain-map.test.js",
+        "apps/server/tests/unit/platform-control-route-contract.test.js",
+        "apps/server/tests/unit/program-delivery-metrics.test.js",
+        "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
+        "apps/server/tests/unit/program-task-evidence.test.js",
+        "apps/server/tests/unit/programme-containers.test.js",
+        "apps/server/tests/unit/programme-usage-meter.test.js",
+        "apps/server/tests/unit/programme-usage-reports.test.js"
       ]
     },
     {
@@ -12520,7 +12677,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 13
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -12545,6 +12702,9 @@
         "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/platform-control-guard.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
+        "apps/server/tests/unit/program-delivery-metrics.test.js",
+        "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
+        "apps/server/tests/unit/programme-containers.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sign-out.test.js",
         "apps/server/tests/unit/topbar-no-dropdown.test.js",
@@ -13147,7 +13307,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 19
+          "testCount": 21
         }
       ],
       "evidence": [
@@ -13175,6 +13335,8 @@
         "apps/server/tests/unit/platform-control-domain-map.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/program-delivery-metrics.test.js",
+        "apps/server/tests/unit/program-task-evidence.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
@@ -13522,7 +13684,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 5
+          "testCount": 6
         }
       ],
       "evidence": [
@@ -13534,6 +13696,7 @@
         "apps/server/tests/integration/fr165-goods-receipt.test.js",
         "apps/server/tests/unit/inventory-domain.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/programme-containers.test.js",
         "apps/server/tests/unit/scm-console-routes.test.js"
       ]
     },
@@ -13855,7 +14018,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 7
+          "testCount": 8
         }
       ],
       "evidence": [
@@ -13871,7 +14034,8 @@
         "apps/server/tests/unit/fr190-line-transport-health.test.js",
         "apps/server/tests/unit/fr190-settings-chip-render.test.js",
         "apps/server/tests/unit/fr190-transport-health-presentation.test.js",
-        "apps/server/tests/unit/line-oa-settings-consolidation.test.js"
+        "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
+        "apps/server/tests/unit/programme-containers.test.js"
       ]
     },
     {
@@ -13898,7 +14062,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 3
+          "testCount": 5
         }
       ],
       "evidence": [
@@ -13908,7 +14072,9 @@
         "apps/server/src/modules/platform-control/program-domain-map.js",
         "apps/server/tests/e2e/fr211-control-domain-map.spec.js",
         "apps/server/tests/unit/platform-control-domain-map.test.js",
-        "apps/server/tests/unit/platform-control-route-contract.test.js"
+        "apps/server/tests/unit/platform-control-route-contract.test.js",
+        "apps/server/tests/unit/program-delivery-metrics.test.js",
+        "apps/server/tests/unit/program-roadmap-board-telemetry.test.js"
       ]
     }
   ],
@@ -13975,8 +14141,8 @@
       "id": "NFR-008",
       "title": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity…",
       "status": "verified",
-      "codeCount": 11,
-      "testCount": 17,
+      "codeCount": 12,
+      "testCount": 20,
       "domains": [
         "knowledge",
         "platform-control",
@@ -13996,7 +14162,7 @@
       "title": "LINE business answers fail closed within a bounded request deadline",
       "status": "not_implemented",
       "codeCount": 0,
-      "testCount": 0,
+      "testCount": 1,
       "domains": []
     },
     {

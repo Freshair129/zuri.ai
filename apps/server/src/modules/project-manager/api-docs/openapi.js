@@ -58,7 +58,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // transport mode) on the item. Archive is a PATCH action, never a DELETE.
   ['/api/line-oa/accounts', ['GET', 'POST']], ['/api/line-oa/accounts/{id}', ['GET', 'PATCH']],
   ['/api/line-oa/rich-menus', ['GET', 'POST']], ['/api/line-oa/rich-menus/{id}', ['GET', 'PATCH']],
-  ['/api/line-oa/rich-menus/{id}/jobs', ['GET', 'POST', 'PATCH']], ['/api/line-oa/rich-menu-worker', ['POST']],
+  ['/api/line-oa/rich-menus/{id}/jobs', ['GET', 'POST', 'PATCH']], ['/api/line-oa/rich-menu-worker', ['POST']], ['/api/platform/programme-usage-reports', ['POST']],
   ['/api/line-oa/liff-apps', ['GET', 'POST']], ['/api/line-oa/liff-apps/{id}', ['GET', 'PATCH']],
   // @req FR-154, FR-155 — the Inventory domain: six catalogue collections
   // (list + create), the product item (read + versioned action; archive is an

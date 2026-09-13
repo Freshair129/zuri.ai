@@ -180,8 +180,10 @@ describe('OpenAPI document', () => {
       // operations: the list (GET), preview and commit (POST each), one intake
       // (GET, PATCH — cancel is an action, never a DELETE), the workbook
       // template (GET) and the workbook upload (POST). 257 + 6 = 263; 351 + 7 = 358.
-      pathCount: 263,
-      operationCount: 358,
+      // FR-218 (ADR-086 D5) adds one path and one operation: the bearer-authenticated
+      // programme usage report (POST). 263 + 1 = 264; 358 + 1 = 359.
+      pathCount: 264,
+      operationCount: 359,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
