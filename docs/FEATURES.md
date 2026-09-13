@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.46.0b"
+version: "1.47.0b"
 status: active
 last_update: "2026-09-13T17:30:00+07:00,Claude Opus 5"
 relations:
@@ -14,7 +14,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.45.0b |
+| **Version** | 1.47.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -63,7 +63,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-029 | Access Invite, Segregation of Duties and Operator Lifecycle — a Business/Tenant-level invitation that becomes a real `Membership` grant on acceptance, bound to the accepting session rather than the invited address (generalising FR-067's Workspace-only `WorkspaceInvite`); segregation of duties as a write-time role-conflict refusal (with a Tenant-owner override) and a transaction-time self-verification refusal an OWNER does not bypass; and an operator grant that expires, that a standing operator can issue as a fresh row on renewal, and whose use reading the audit stream or a backup is itself recorded (ADR-079, 2026-09-12) | FR-195, FR-196, FR-197, FR-200 | implemented |
 | FEAT-030 | Audit Access Evidence — closing the read-side gap ADR-077's lifecycle assumed was already open: `AuditEvent` gains seven nullable columns (`tenantId`, `businessId`, `reason`, `beforeJson`, `afterJson`, `requestId`, `sessionId`) so scope and the change made are queryable rather than living only inside `payloadJson` for whichever writer happened to include them, and identity gains `listAccessHistory` (a Business/Tenant owner, oneself, or the operator reads the event stream for their own scope, 404-shaped identically for unowned and nonexistent) and `listBusinessAccess` (the current grant roster with provenance) — the access review a reason on every FR-191 transition is only worth writing if someone can read it back (ADR-080, 2026-09-12) | FR-198, FR-199 | implemented |
 | FEAT-031 | SKU governance (anti-SKU-bloat) — the product nature declared once at the master and inherited by every SKU so a service is never a variant of a good, variant identity as the key that makes one physical variant one SKU, barcodes and partner codes as resolvable attributes an intake checks before it creates, pack sizes as unit conversions rather than SKUs, the SKU lifecycle (phase-out, reactivate, merge, the archive guard), replenishment parameters, and the read-only catalogue hygiene report with its merge desk on the Inventory console (ADR-083, `DOM-INVENTORY`) | FR-201, FR-202, FR-203, FR-204, FR-205, FR-206, FR-207 | implemented |
-| FEAT-032 | Catalogue intake that resolves before it creates — one envelope that JSON, a Business-specific Excel workbook and a LINE `#sku` command all convert into; a planner that looks up every item by its barcodes, partner codes and SKU code (following merges) before it plans a create, matches without overwriting, and applies ADR-083's guards across the catalogue and the batch; a persisted preview whose plan hash a commit must match; an all-or-nothing commit through the existing catalogue writers; the Import tab; and LINE previews that only a verified staff sender with Inventory write authority can confirm (ADR-084, `DOM-INVENTORY`) | FR-208, FR-209, FR-210 | building |
+| FEAT-032 | Catalogue intake that resolves before it creates — one envelope that JSON, a Business-specific Excel workbook and a LINE `#sku` command all convert into; a planner that looks up every item by its barcodes, partner codes and SKU code (following merges) before it plans a create, matches without overwriting, and applies ADR-083's guards across the catalogue and the batch; a persisted preview whose plan hash a commit must match; an all-or-nothing commit through the existing catalogue writers; the Import tab; and LINE previews that only a verified staff sender with Inventory write authority can confirm (ADR-084, `DOM-INVENTORY`) | FR-208, FR-209, FR-210 | implemented |
 
 Version diff 1.39.0b → 1.40.0b (2026-09-12): FEAT-030 declared and implemented in the same change — audit events carry queryable scope (FR-198) and identity gains the two read models an access review needs (FR-199), under ADR-080. Closes the gap ADR-077's grant lifecycle assumed was already open.
 
@@ -856,3 +856,5 @@ Version diff 1.43.0b → 1.44.0b (2026-09-13): **FEAT-031 moves from `building` 
 Version diff 1.44.0b → 1.45.0b (2026-09-13): Added **FEAT-032** (FR-208, FR-209, FR-210) under **ADR-084** — catalogue intake that resolves before it creates: one envelope and planner, the Excel converter and Import tab, and the LINE `#sku` command. Implemented locally; migration written in both trees and not applied to production.
 
 Version diff 1.45.0b → 1.46.0b (2026-09-13): readiness metadata gains **FR-211** (primary domain `platform-control`) — the Domain map & inventory tab on `/control/roadmap`. An unbundled FR, so it is a feature of one; no FEAT row is added.
+
+Version diff 1.46.0b → 1.47.0b (2026-09-13): **FEAT-032 moves from `building` to `implemented`** — migration `20260913200000_inventory_catalog_intake` is applied on production and main ada5188b (PR #375) is deployed. No feature text changed.
