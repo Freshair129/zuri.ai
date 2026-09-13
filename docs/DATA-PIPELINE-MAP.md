@@ -120,6 +120,8 @@ chain คือเส้นทางจากต้นทางภายนอ�
 | CH-18 | Conversation analysis → Daily Sales Brief | ข้อความที่มี consent → analysis → brief ไป LINE (FR-128 declared) |
 | CH-19 | Broadcast planning → LINE | broadcast intent → dispatch (ยังไม่เปิด FR-185) |
 | CH-20 | ประวัติลูกค้าจาก SmartGift → บริบทของรอบสนทนา | backfill → CRM → evidence ของ agent → LINE |
+| CH-21 | LINE turn — grounded ด้วย corpus ที่ publish แล้ว | คำถาม + snapshot ที่ publish (citation) → evidence packet → model → คำตอบที่ตรวจแล้ว → LINE; business_knowledge เป็น fallback ที่บันทึกใน trace (ADR-090, declared) |
+| CH-22 | FAQ candidate จาก LINE → review → 17 stage → corpus | บทสนทนาที่มี consent → Q/A แบบ locator-only → คนอนุมัติ → Text admission → Stage 1–17 → corpus manifest (ADR-090, declared) |
 
 ## 6. แก้ map เมื่อไหร่
 
@@ -472,7 +474,10 @@ chain คือเส้นทางจากต้นทางภายนอ�
     { "id": "e.flowaccount-to-pull", "from": "src.flowaccount", "to": "in.flowaccount-pull", "label": "read-only pull", "wired": false },
     { "id": "e.pull-to-raw", "from": "in.flowaccount-pull", "to": "p.raw-ingestion", "label": "envelope", "wired": false },
     { "id": "e.github-to-projection", "from": "src.github", "to": "in.github-projection", "label": "repo metadata", "wired": false },
-    { "id": "e.github-to-project", "from": "in.github-projection", "to": "s.project-data", "label": "Repository links (local metadata)" }
+    { "id": "e.github-to-project", "from": "in.github-projection", "to": "s.project-data", "label": "Repository links (local metadata)" },
+    { "id": "e.corpus-to-agent", "from": "s.knowledge-corpus", "to": "p.agent-turn", "label": "published corpus → evidence ตาม grounding mode ของบัญชี (FR-235, ADR-090, ยังไม่ wire)", "wired": false },
+    { "id": "e.crm-to-candidate-admission", "from": "s.crm", "to": "in.knowledge-admission", "label": "Q/A แบบ locator-only ที่ OWNER / LINE_OA_PUBLISHER อนุมัติ → TEXT source LINE_FAQ_CANDIDATE (FR-236, ยังไม่ wire)", "wired": false },
+    { "id": "e.agent-to-msp-session", "from": "p.agent-turn", "to": "r.msp", "label": "MSP session tier ตาม memoryPolicy (FR-231, ADR-091, ปิดไว้จนกว่า MSP main มี thread + erase tool)", "wired": false }
   ],
 
   "chains": [
@@ -522,7 +527,13 @@ chain คือเส้นทางจากต้นทางภายนอ�
     { "id": "CH-19", "name": "Broadcast planning → LINE",
       "path": ["e.staff-to-broadcast", "e.broadcast-to-line"] },
     { "id": "CH-20", "name": "ประวัติลูกค้าจาก SmartGift → บริบทของรอบสนทนา",
-      "path": ["e.smartgift-to-backfill", "e.backfill-to-crm", "e.crm-to-agent", "e.agent-to-jobs", "e.jobs-to-line"] }
+      "path": ["e.smartgift-to-backfill", "e.backfill-to-crm", "e.crm-to-agent", "e.agent-to-jobs", "e.jobs-to-line"] },
+    { "id": "CH-21", "name": "LINE turn — grounded ด้วย corpus ที่ publish แล้ว", "summary": "ADR-090: อ่าน published corpus ก่อนเรียก model ตามโหมดของบัญชี business knowledge เป็น fallback ที่บันทึกใน trace",
+      "path": ["e.line-to-webhook", "e.webhook-to-jobs", "e.jobs-to-agent", "e.agent-to-jobs", "e.jobs-to-line"],
+      "branches": ["e.corpus-to-agent", "e.knowledge-to-agent", "e.agent-to-models", "e.agent-to-trace", "e.agent-to-msp-session", "e.jobs-to-crm"] },
+    { "id": "CH-22", "name": "FAQ candidate จาก LINE → review → 17 stage → corpus", "summary": "ADR-090: ความรู้จากแชทเข้า GKS ได้เฉพาะ Q/A แบบ locator-only ที่คนอนุมัติ",
+      "path": ["e.line-to-webhook", "e.webhook-to-jobs", "e.jobs-to-crm", "e.crm-to-candidate-admission", "e.admission-to-tier1", "e.tier1-to-msp"],
+      "branches": ["e.staff-to-admission", "e.tier1-to-corpus"] }
   ]
 }
 ```

@@ -350,6 +350,22 @@
     "FR-220",
     "FR-221",
     "FR-222",
+    "FR-223",
+    "FR-224",
+    "FR-225",
+    "FR-226",
+    "FR-227",
+    "FR-228",
+    "FR-229",
+    "FR-230",
+    "FR-231",
+    "FR-232",
+    "FR-233",
+    "FR-234",
+    "FR-235",
+    "FR-236",
+    "FR-237",
+    "FR-238",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -467,6 +483,10 @@
     "SDD-093",
     "SDD-094",
     "SDD-095",
+    "SDD-097",
+    "SDD-098",
+    "SDD-099",
+    "SDD-100",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -495,6 +515,9 @@
     "SEC-026",
     "SEC-027",
     "SEC-028",
+    "SEC-030",
+    "SEC-031",
+    "SEC-032",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -530,6 +553,9 @@
     "FEAT-033",
     "FEAT-034",
     "FEAT-035",
+    "FEAT-036",
+    "FEAT-037",
+    "FEAT-038",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -705,6 +731,9 @@
     "ADR-085",
     "ADR-086",
     "ADR-087",
+    "ADR-089",
+    "ADR-090",
+    "ADR-091",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -4256,6 +4285,214 @@
         }
       ]
     },
+    "FR-223": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "dfa1d17d922c79d9d31cecef5545e4b0722586c598a953314e1233c323b9da7a",
+      "history": [
+        {
+          "anchor": "integration credential vault",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-224": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b785b585c72e2e1caff15bb5bb396fe3f4cbf558a48e81f3a3b16e3214f7ed9c",
+      "history": [
+        {
+          "anchor": "credential write step up gate",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-225": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "63dd31cdf132ee999584034495be36be2793e7c5660d4b10cfd8d958c2d7778a",
+      "history": [
+        {
+          "anchor": "self serve line oa connection",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-226": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "77b6f1f9dd357fede8a6804c3379849643f456a1dde4f1f83aeee0cfb5cd91d3",
+      "history": [
+        {
+          "anchor": "line channel account claim",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-227": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "652a0523ddac4ef9c341d28a403ec0b9bd647b886ddaf65de377a6887cbab716",
+      "history": [
+        {
+          "anchor": "automatic line webhook registration",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-228": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "13e6b7254863961b761dd1bd1980be7deb9cedbf579808e139ceb001008a7788",
+      "history": [
+        {
+          "anchor": "derived legacy transport quiescence",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-229": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "51e4def1b14cf652f212e43e843677cbfd7d4db0c0ca0594aef1706499c63b89",
+      "history": [
+        {
+          "anchor": "non text line content in the crm record",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-230": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "474f3d5ba6bfd00e3a64456ed37630979c27a408ed690c6392f61ee964d493ef",
+      "history": [
+        {
+          "anchor": "chat record and agent memory split with declared retention",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-231": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "648da1663b87083ff2f1e6176d27fefd9c5239ffc4ae7bc23387446ddc3d9764",
+      "history": [
+        {
+          "anchor": "line memory projection policy and receipts",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-232": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b3f2987265a09b0f5d2ac2ac17d299a32f5de19950c2f5b3087c733853b31d1e",
+      "history": [
+        {
+          "anchor": "erasure propagation beyond tier 1",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-233": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "451d9724569810dbb91a019bc79caf195adfc5c6135088513f30bfa0344cbde7",
+      "history": [
+        {
+          "anchor": "conversation inbox read models and search",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-234": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "9727089fca38eea32682203e88ca865f66c67982c93ca48fb81adc84cf329cff",
+      "history": [
+        {
+          "anchor": "context composer",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-235": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "a39df5bc6da45ef39a96d3cda957bbffb55d3efa723590bfec756e1991f567c6",
+      "history": [
+        {
+          "anchor": "line answer grounding from the published knowledge corpus",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-236": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "f6bba754eb08b0401754e3ad3fc3ab7f4db81d83cb9dfa2f71733569091721e0",
+      "history": [
+        {
+          "anchor": "line faq knowledge candidates",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-237": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d5b58de3ae12f1538c9ab5e1d46aa813cd3ea3b097ff3363855341e945d29aea",
+      "history": [
+        {
+          "anchor": "knowledge gap report for line",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-238": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1905470611611173184dfcdc2071b482efcd796fdb201d9532ac3d441fcc0143",
+      "history": [
+        {
+          "anchor": "line studio descriptions as knowledge sources",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -5799,6 +6036,58 @@
         }
       ]
     },
+    "SDD-097": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "fd7c8dd0cabe903e5b36682c41eee864c74b2b4e2e96de65e252ed355a4e189d",
+      "history": [
+        {
+          "anchor": "secret store selection by reference prefix",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-098": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4f2667517740a2977a855961cf3f72117c57654063471dd72b75b9baae8efadc",
+      "history": [
+        {
+          "anchor": "line channel tokens are minted not stored",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-099": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "292b369af98b138071a2cf3dd7767e195183538c27f60d091e6dd06723e0cd68",
+      "history": [
+        {
+          "anchor": "the line grounding reader is a knowledge lane",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-100": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "47b706a118f38f691115208cad625fefe7f22bb2f27361da68e289935fc5715e",
+      "history": [
+        {
+          "anchor": "context composer placement and receipt",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -6169,6 +6458,45 @@
         {
           "anchor": "access history is authorized exactly like the grant it",
           "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-030": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d7600bcff58e6abf34bbeb36964018622f4fb1c9d9b292bf7030315f5eadf760",
+      "history": [
+        {
+          "anchor": "channel and provider credential material is write only",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-031": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "04061a209b0f8fccfdee557fe156c9654fa930b7bf3b9a52767ccacc2dbc6fdf",
+      "history": [
+        {
+          "anchor": "every copy of a person s conversation content has a",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-032": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "2fb195160d0c6e5b2f7cbe1132080d2fdbbc6f8dcef050d33fa357d09a5fc698",
+      "history": [
+        {
+          "anchor": "customer conversation content never becomes gks knowledge",
+          "since": "2026-09-13",
           "reason": "declared"
         }
       ]
@@ -6648,6 +6976,45 @@
       "history": [
         {
           "anchor": "zuri harness usage plugin",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-036": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "43bedad0c2226fd3e5e1254f7589e2fac8f58a6f684d41182921f30774a21385",
+      "history": [
+        {
+          "anchor": "connect line oa yourself",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-037": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "bd23160a286e3a1fc9560f8a35173425a58364ca34827d8d53708e5d7e24fbff",
+      "history": [
+        {
+          "anchor": "chat record memory tiers and retention",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-038": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "1c16c2960636399ac81199e3480f7b6baaf3d4443f8fd963a6b033889a9dbbb3",
+      "history": [
+        {
+          "anchor": "line grounding and knowledge candidates",
           "since": "2026-09-13",
           "reason": "declared"
         }
@@ -8949,6 +9316,45 @@
       "history": [
         {
           "anchor": "harness usage plugin",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-089": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md",
+      "status": "current",
+      "statement_digest": "d647dcf44ea5e9161da02e65e317e6d2533136cc6ef5730a533e11121601e091",
+      "history": [
+        {
+          "anchor": "browser write only credential provisioning into the",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-090": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md",
+      "status": "current",
+      "statement_digest": "ce96c3d39d216095a99bc93e20bec71e6967ffc0769defaafc838476635ad8d7",
+      "history": [
+        {
+          "anchor": "line answers are grounded by the published gks corpus line",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-091": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md",
+      "status": "current",
+      "statement_digest": "2b7ffe0ada557ee0a23f7730ce358a283fb848905900633a757cad1e76dd244b",
+      "history": [
+        {
+          "anchor": "the chat record and agent memory are split by role and a",
           "since": "2026-09-13",
           "reason": "declared"
         }

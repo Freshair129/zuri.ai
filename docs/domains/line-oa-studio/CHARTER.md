@@ -32,9 +32,9 @@ owns_code:
   - src/modules/line-oa-studio/**
 technical_owner: TD-LINE-OA-STUDIO
 status: phase-1-building
-version: "0.9.0b"
+version: "0.10.0b"
 created_at: "2026-09-05T00:00:00+07:00"
-updated_at: "2026-09-13T21:00:00+07:00"
+updated_at: "2026-09-14T15:00:00+07:00"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -346,8 +346,40 @@ until recorded and ACTIVE from then; FR-152's translator resolves a rich menu
 credential contract. ADR-060 D14 phases the rest; each slice declares its own
 ids first and updates this charter's ownership claims in the same change.
 
+## Decided, not yet built: self-serve connect, memory policy and knowledge grounding (ADR-089, ADR-090, ADR-091)
+
+Three decisions accepted on 2026-09-14 add Studio-owned behaviour. None of it is in
+code or schema; each column enters the model in the slice that implements it.
+
+- **Connect wizard (FR-225, FR-227, FR-228 — [ADR-089](../../decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md)).**
+  A Thai wizard replaces the `deployment-secret:` reference field: step-up, Channel
+  ID and Channel secret, live validation, webhook set and test, enable. The wizard
+  posts material write-only to the integration lane's route, so **"Holds no secret"
+  above stays true**. The Studio gains a `REGISTER_WEBHOOK` action and a planned
+  `LineOaAccount.webhookStateJson` column holding the webhook health only LINE can
+  report. For a vault-backed account `ENABLE_SERVER` derives legacy quiescence
+  (LINE's endpoint equals ours and no legacy evidence for 120 s) instead of asking
+  for the typed confirmation, which stays for mount-backed accounts; the epoch fence
+  is unchanged.
+- **Memory policy (FR-231 — [ADR-091](../../decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md)).**
+  A planned publisher-set `LineOaAccount.memoryPolicy`, default OFF. Admission
+  captures per job whether a turn may reach MSP's session tier (policy not OFF) and
+  episodic, passport or cross-thread memory (also consent GRANTED and DIRECT).
+  Projection stays off until MSP main ships thread and erase tools;
+  `ZURI_MSP_THREAD_MEMORY_ENABLED` becomes a kill switch. Admission also stops
+  skipping non-text events (FR-229), creating CRM rows through the crm contract and
+  no answer job.
+- **Knowledge grounding (FR-235 — [ADR-090](../../decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md)).**
+  A planned publisher-set `LineOaAccount.knowledgeGrounding` —
+  `BUSINESS_KNOWLEDGE` (default), `GKS_CORPUS` or `GKS_THEN_BUSINESS_KNOWLEDGE`.
+  The Studio stores the mode only; the reader is the knowledge lane's and the agent
+  composes it, so "the Studio stores no knowledge" stays true. Later, publishing a
+  rich menu, LIFF app or bot profile may admit its human-readable description as a
+  knowledge source (FR-238).
+
 ## References
 
+- [ADR-089](../../decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md) · [ADR-090](../../decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md) · [ADR-091](../../decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md)
 - [ADR-060](../../decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md)
 - [Context map](CONTEXT-MAP.md)
 - [SRS](SRS.md)
@@ -359,6 +391,7 @@ ids first and updates this charter's ownership claims in the same change.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.10.0b | 2026-09-14 | phase-1-building | ADR-089/090/091 declared (FEAT-036..038): connect wizard with write-only credentials posted to the integration lane, `REGISTER_WEBHOOK` and derived legacy quiescence, planned `webhookStateJson`, `memoryPolicy` and `knowledgeGrounding` columns, non-text admission; recorded as prose, no `owns_models` change | working-tree | Claude Opus 5 |
 | 0.9.0b | 2026-09-13 | phase-1-building | FR-210 (ADR-084 D4): `POST /api/line-oa/worker` passes `withLineCatalogCommand(createServerLineAnswer(...))` as the answer port, so a DIRECT `#sku` message from a verified sender with Inventory write authority is answered by the Inventory catalogue intake; admission, delivery, the reply transports and every other message are unchanged | working-tree | Claude Opus 5 |
 | 0.6.0 | 2026-09-06 | phase-1-building | Slice 4: claimed `LineOaRichMenuJob` as FR-152 lands — server-owned publish jobs on ADR-061; the integration lane gains the rich menu port; the ADR-060 transport-job sketch is superseded for rich menus | working-tree | Claude Fable 5.1 |
 | 0.8.0b | 2026-09-06 | phase-1-building | Slice 5: claimed `LineOaLiffApp` as FR-153 lands — the LIFF registry; rich menu LIFF actions resolve through it; no LINE call yet | working-tree | Claude Fable 5.1 |

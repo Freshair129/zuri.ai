@@ -1,8 +1,8 @@
 ---
 domain: knowledge
-version: "1.4.0b"
+version: "1.5.0b"
 status: beta
-last_update: "2026-09-13T22:30:00+07:00,Claude Opus 5"
+last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
 module: src/modules/knowledge
 owns_routes:
   - src/app/(pm)/knowledge/**
@@ -60,6 +60,11 @@ external systems with their own repositories and are never zuri-ai domains
   charter; they are execution records, not canonical GKS knowledge.
 - Knowledge enters through governed import/approval — never automatically from
   conversation (spec §19: MSP → candidate → validation → GKS, in that order).
+  [ADR-090](../../decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md)
+  names the one route for LINE (declared, not built): a locator-only question and
+  answer, approved by a Business OWNER or `LINE_OA_PUBLISHER`, admitted as a
+  `LINE_FAQ_CANDIDATE` TEXT source before Stage 1. No raw transcript, MSP episode or
+  automatic promotion, and no Tier 1 `gks_knowledge_promote`.
 - Serves grounded answers to the agent domain through the knowledge contract;
   it does not talk to LINE and it does not resolve identity.
 - **Holds no client of GenesisBlockDB** — no `GenesisDatabase` binding, no
@@ -282,10 +287,39 @@ ingestion lane above, never here.
   matching update.
 
 
+## LINE grounding and knowledge candidates (ADR-090, FEAT-038 — declared, not built)
+
+Accepted 2026-09-14. Nothing here is in code or schema; this is the claim, so no
+other lane designs it elsewhere, and `owns_models` changes only when a model lands.
+Design evidence: [the LINE → GKS design](../../plans/LINE-TO-GKS-GROUNDING-AND-CANDIDATE-PIPELINE-DESIGN.md).
+
+- **Corpus reader (FR-235, SDD-099).** This lane will own an in-process
+  implementation of the existing `knowledge.query` port over `queryKnowledgeCorpus`,
+  run under the ADR-072 D5 runtime capability with the LINE job's server-derived
+  scope, within a configurable 2 500 ms / top-5 / 8 KiB budget. The agent lane
+  composes it per the account's grounding mode (stored by line-oa-studio); the
+  business-knowledge port above remains the default. First Business: SmartGift,
+  after ADR-075 Phase 3. It holds no GenesisBlockDB client — every read still goes
+  through MSP.
+- **Knowledge candidates (FR-236).** **Planned model `KnowledgeCandidate`** —
+  PENDING_REVIEW, APPROVED, REJECTED, TOMBSTONED — with `sourceRef` locators only;
+  consent-GRANTED input from a crm read projection; Zero-PII deny policy at creation
+  and again at Stage 5; review by OWNER or `LINE_OA_PUBLISHER` in the Knowledge (GKS)
+  slot; admission as a `LINE_FAQ_CANDIDATE` TEXT source through the ADR-072 service.
+  Erasure tombstones candidates and withdraws an admitted source (FR-232).
+- **Knowledge gap report (FR-237).** Counts, product locators and last-seen times of
+  `NO_EVIDENCE` answers per Business; never admitted.
+- **Studio descriptions (FR-238, later).** Published rich menu, LIFF and bot-profile
+  descriptions as `LINE_STUDIO_DESCRIPTION` TEXT sources; never the JSON.
+- **Registry.** `docs/DATA-PIPELINE-MAP.md` carries the undeclared edges and chains
+  CH-21 and CH-22 now; the reader, extractor, candidate store and gap report nodes are
+  added with their surfaces (ADR-085 Consequence 2).
+
 ## Documentation version diff — 2026-09-08
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.4.0b → 1.5.0b (2026-09-14) | ADR-090 / FEAT-038 declared: corpus reader for LINE grounding, planned `KnowledgeCandidate`, gap report and Studio description sources recorded as prose; the one lawful chat-to-knowledge route named in Boundaries | None; no model, route or migration |
 | 1.3.0b → 1.4.0b (2026-09-13) | Claim the Knowledge (GKS) navigation slot and `src/app/(pm)/knowledge/**` for the Data Pipeline Map (ADR-085, FR-212..FR-215) | New read-only page; no model, no migration |
 | 1.2.0b → 1.3.0b | Own four admission/corpus models and the ADR-072 snapshot read-set boundary | Additive phases 0–4; no production migration |
 | 1.1.0b → 1.2.0b | Declare source intent and occurrence ownership for approved audit remediation | Additive isolated persistence and recovery; no production migration |

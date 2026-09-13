@@ -188,3 +188,22 @@ installation operator or a person holding a visible Business may approve; a
 non-operator's device is `PENDING_ACTIVATION` until an operator activates it on
 the Agent devices tab. `describeHarnessReporters` is the read port the board uses
 for device labels and person names; it returns no key material.
+
+## Credential-write step-up gate and PDPA erasure fan-out (ADR-089, ADR-091 — declared, not built)
+
+- **Step-up gate (FR-224, [ADR-089](../../decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md) D4).**
+  `assertSessionAssurance(viewer, 'AAL2')` becomes the gate other lanes call before
+  a credential write, rotation, revocation or live validation; a Person with no
+  ACTIVE TOTP factor is refused `MFA_FACTOR_REQUIRED` and sent to enrolment. The
+  same routes get the product's first rate limit, per Person and Business and per
+  installation. **Planned model `RateLimitBucket`** is claimed here (no Redis under
+  ADR-058); it enters `owns_models` only in the slice that adds it. This decision
+  does not change MFA enrolment or verification, and sealing the TOTP secret at rest
+  is a separate lane.
+- **Erasure fan-out (FR-232, [ADR-091](../../decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md) D6).**
+  `erasePrincipal` stays the one erasure transaction. It will additionally compose
+  the knowledge lane's candidate tombstone writer and leave durable work items for
+  the tiers outside Tier 1 — an MSP erase call per memory projection receipt and a
+  knowledge-source withdrawal for an admitted candidate — with the Customer's
+  erasure status reading `PENDING_MSP` until MSP acknowledges. Identity still writes
+  no other lane's model directly.

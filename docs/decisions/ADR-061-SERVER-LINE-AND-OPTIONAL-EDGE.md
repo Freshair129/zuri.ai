@@ -1,9 +1,9 @@
 ---
 id: ZAI:ADR-061
-version: "0.1.6b"
+version: "0.1.7b"
 status: active
 created_at: "2026-09-06T13:26:50+07:00,RWANG,base 4c0cbe3"
-last_update: "2026-09-11T04:31:00+07:00,RWANG"
+last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
 relations:
   - type: relates_to
     target: ZAI:ADR-041
@@ -44,6 +44,8 @@ This decision amends ADR-041's mandatory ingress/credential placement, ADR-059's
 7. **No false outbound rows.** Accepted output and CRM outbound are reconciled transactionally. Persisted ACCEPTED jobs can repair CRM recording without calling LINE again. A lost Reply response is UNKNOWN and visible; it is never called failed-and-safe-to-resend. Stale leases cannot complete or replace an answer. Account pause/ownership change fences waiting work and prevents new sends; an in-flight external request cannot be recalled, and cutover must wait for it to settle.
 8. **Secret and policy boundaries.** LINE material is a scoped Integration secret-manager reference, not a Studio field. A deployment-managed read-only secret mount is authorized for generic Docker/Postgres deployments through a distinct production SecretManagerPort adapter; each entry binds secretRef, Tenant, Business and account/connection, with expiry. This amends the Phase 1 Supabase-only restriction for channel transport only, not model credentials. Raw channel keys never become API response fields or Prisma values. A server worker credential is unrelated to device credentials. Edge routes require active `edgk_` Business credentials on every call; version, claimant and lease must match. No arbitrary URL, SQL, executable or recipient is accepted in a compute job. Replies are bounded text; model output never selects scope or delivery policy.
 
+   **Amended by [ADR-089](ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md) (2026-09-14):** the scoped reference may point into an Integration secret store a Business owner wrote to from the browser, write-only under AAL2 (Supabase Vault, or an envelope store on self-host); the mount stays an operator-only adapter, and "never an API response field or Prisma value" is restated as SEC-030.
+
 ## Consequences and deployment
 
 LINE and CRM remain available without Edge. Jobs requiring an offline device remain visibly waiting or expire; they do not silently use a different model. "Visibly" was aspirational until 2026-09-10: of the first 12 production jobs, 4 ended `FAILED` with `LOCAL_POLICY_UNAVAILABLE` and no screen said so — a third of real customer conversations ended in silence that only a database query could find. Terminal `FAILED` jobs are therefore counted, with their `errorCode`, for the selected Business on the Studio conversation surface. That count is a read of the job ledger and nothing else; it reports what the database holds, including honestly reporting none. Push can consume the account's message allowance, so delayed Push is opt-in and no automatic upgrade is hidden in this change. The server now needs channel credentials and a running durable worker. Reply delivery cannot be made exactly-once across a network timeout; UNKNOWN is an intentional terminal state requiring operator reconciliation.
@@ -78,6 +80,8 @@ The incremental PostgreSQL scripts in `supabase/migrations` target Supabase's ex
 ## Implementation validation and rollout boundary
 
 Both repositories implement the conversation contract. The native webhook currently admits text conversations; binary attachment intake is not migrated into this webhook. Existing asset extraction remains a separate device pull contract. Server grounded answers still use the existing dedicated business-knowledge reader and its deployment scope; this change does not widen the SmartGift read policy.
+
+**Amended by [ADR-090](ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md) (2026-09-14):** that reader stays the default; an account whose `knowledgeGrounding` mode names the corpus reads the Business's published GKS corpus generation instead or first, with a traced mode-gated fallback. Chat record versus agent memory is settled by [ADR-091](ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md), which keeps D1 and D5 of this decision.
 
 Validated locally: provider/secret policy tests, real SQLite admission/replay/scope/lease/send/erasure/backup tests, Next production build, and the LINE OA browser journey. Full verification is not certified: the Linux/Node 24 run encountered Windows filesystem cases and intermittent SQLite corruption; affected database suites passed independently. The broad browser run exposed fixture leakage from the new account test into the connector inventory test; cleanup now removes only that test's account and connection.
 

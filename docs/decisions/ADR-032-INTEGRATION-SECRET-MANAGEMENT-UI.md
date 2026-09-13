@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.2.1b"
 created_at: "2026-08-18T12:00:00+07:00,ATHER"
-last_update: "2026-08-18T16:00:00+07:00,ATHER"
+last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -61,6 +61,8 @@ The runtime `SecretManagerPort` remains read-only. A private
 only to `zuri_line_runtime`; the app and `zuri_line_smartgift_ro` roles receive no
 direct Vault view grant. A future write path may introduce a separate
 `SecretManagerProvisionPort`, but it is not part of this UI slice.
+
+> **Amended by [ADR-089](ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md) (2026-09-14):** the "raw value is entered in the Supabase Dashboard" sentence stays true for this generic form; for LINE channel credentials the reserved write path is decided — a write-only `SecretStorePort` into Supabase Vault or an envelope store, entered from the browser under AAL2.
 
 ### D3 — Authorization follows existing trusted Business ownership
 
@@ -144,3 +146,4 @@ credential before reading the Vault view.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-18 | candidate | Proposed Platform Integrations UI, write-only secret provisioning boundary and non-activation contract | working-tree | ATHER |
 | 0.2.0b | 2026-08-18 | candidate | Select Supabase Vault, add private resolver role boundary, and truth-sync the implemented metadata-only UI/API slice | working-tree | ATHER |
+| 0.2.1b | 2026-09-14 | candidate | Pointer only: D2's Dashboard-entry sentence is amended by ADR-089 for LINE channel credentials | working-tree | Claude Opus 5 |
