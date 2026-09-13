@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.4, 2026-09-13) so the board can open a task the way the html board
+// (v0.4.5, 2026-09-14) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -3263,5 +3263,234 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-064"
     ],
     "evidence": "Section 3.1 row 2; FR-105; FR-124; FR-211; NFR-008"
+  },
+  "TASK-ZAI-069": {
+    "container": "TC-TASK-ZAI-069",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "unavailable",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given ADR-086 D5 (one shared deployment bearer) and the owner's choice of a plugin over a connector, when the ADR is written, then it records why the harness and not the model reports usage, that a device is paired once by a signed-in person through browser approval with a check code, that the resulting credential can only report usage and is refused by every other route, and what the deployment bearer is still for",
+        "checked": false
+      },
+      "success": {
+        "text": "Given the identity layers person, installation and declared AI account, when the ADR states them, then it names which is authority and which is a label, how two people on one machine are told apart, that a shared zuri-ai account is not supported, and who may approve a pairing",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm run govern, when it runs after the requirement and FEAT declarations, then it exits zero with no CRITICAL and ADR-086 D5 points to the new decision",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.5) on the owner's instruction, after FR-218 shipped with one shared deployment token: agents on other machines should report usage through a Zuri plugin for Claude Code and Codex rather than a connector, because the model cannot see its own billed tokens and must not self-report them — the harness reports from its own logs when a session ends. The owner accepted the recommended identity design: the device is paired once through browser approval by a signed-in person (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; a report is attributed to that person and that installation, with the AI account that paid kept as a declared label. Two people on one machine are told apart only by separate OS users or by re-pairing; a shared zuri-ai account is not supported.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 24000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-067"
+    ],
+    "evidence": "Section 3.1 row 2; ADR-086 D5; ADR-052; FR-123; FR-144"
+  },
+  "TASK-ZAI-070": {
+    "container": "TC-TASK-ZAI-070",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/identity/edge-pairing.js",
+      "doc": "docs/decisions/ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY.md",
+      "test": "apps/server/tests/unit/edge-pairing.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Pairing start, browser approval with check code, poll and single redemption",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "Hashed report-only credential per installation with device label, and its migration",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "Operator list of paired devices with last use and revoke",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given a harness that starts pairing with its device label, when a signed-in person with pairing authority opens the approval link, sees the same check code and the device label, and approves, then the harness's next poll receives one credential shown exactly once, stored only as a hash with its prefix, bound to that person and a server-issued installation id",
+        "checked": false
+      },
+      "success": {
+        "text": "Given the credential, when it is presented to any route other than the usage report endpoint, then it is refused exactly as no credential would be, and an expired, denied or already-redeemed pairing yields nothing",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given the paired-device list on the operator console, when an operator revokes a device, then its next report is refused, the list shows label, person, created and last-used times, and npm test covers approval, refusal, single redemption, scope refusal and revoke; the migration ships in both trees and is applied separately (ADR-057)",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.5) on the owner's instruction, after FR-218 shipped with one shared deployment token: agents on other machines should report usage through a Zuri plugin for Claude Code and Codex rather than a connector, because the model cannot see its own billed tokens and must not self-report them — the harness reports from its own logs when a session ends. The owner accepted the recommended identity design: the device is paired once through browser approval by a signed-in person (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; a report is attributed to that person and that installation, with the AI account that paid kept as a declared label. Two people on one machine are told apart only by separate OS users or by re-pairing; a shared zuri-ai account is not supported.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 58000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-069"
+    ],
+    "evidence": "Section 3.1 row 2; FR-144; FR-123; SEC-025; ADR-057"
+  },
+  "TASK-ZAI-071": {
+    "container": "TC-TASK-ZAI-071",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/platform-control/application/programme-usage-reports.js",
+      "doc": "docs/appendices/A-api-spec.md",
+      "test": "apps/server/tests/unit/programme-usage-reports.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Harness credential on the report endpoint with person and installation columns",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "Server-side lane from branch and monotonic extension of a resumed session",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "Per-person and per-device breakdown and unattributed reports on the board",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given a report sent with a harness credential, when it is stored, then it records the credential's person and installation rather than anything the body claims, keeps the declared AI account label as a label, and resolves the lane from the reported branch against the lanes the programme declares, storing an undeclared branch as unattributed instead of refusing it",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a resumed session reported again, when every count and the end time are equal or larger, then the stored report is extended and audited as extended; when any count is smaller it is refused as a conflict; an identical report stays an idempotent replay",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given the board, when a lane has reports from two people, then the phase and task telemetry show usage per person and per device label, unattributed reports appear as their own group, a session the meter already counted is still counted once, and npm test covers each of these",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.5) on the owner's instruction, after FR-218 shipped with one shared deployment token: agents on other machines should report usage through a Zuri plugin for Claude Code and Codex rather than a connector, because the model cannot see its own billed tokens and must not self-report them — the harness reports from its own logs when a session ends. The owner accepted the recommended identity design: the device is paired once through browser approval by a signed-in person (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; a report is attributed to that person and that installation, with the AI account that paid kept as a declared label. Two people on one machine are told apart only by separate OS users or by re-pairing; a shared zuri-ai account is not supported.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 42000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-070"
+    ],
+    "evidence": "Section 3.1 row 2; FR-218; FR-216; ADR-086 D3"
+  },
+  "TASK-ZAI-072": {
+    "container": "TC-TASK-ZAI-072",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/scripts/programme-usage-meter.mjs",
+      "doc": "docs/decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md",
+      "test": "apps/server/tests/unit/programme-usage-meter.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Plugin manifests for Claude Code and Codex, pair, whoami and unpair",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "Session reporter with branch split and offline retry queue",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "SessionEnd hook, Codex wrapper, marketplace entry and parity tests",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given the plugin installed from the repository's marketplace entry, when a person runs pair, then the browser approval opens with the device label and check code, the credential is stored in the user's own configuration outside any repository, and whoami shows the paired person and device at the start of every session",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a Claude Code session that ends or a Codex session wrapped by the plugin, when it finishes, then the plugin reads that session's own log, counts each request once with the same parsers the meter uses, sends one report per branch the session worked on, and keeps an unsent report in a local queue that is retried later rather than lost",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test, when the plugin suites run, then hook input, branch split, queue retry, a refused credential and parser parity against the meter fixtures pass, and the plugin never reads a browser cookie or a zuri-ai password",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.5) on the owner's instruction, after FR-218 shipped with one shared deployment token: agents on other machines should report usage through a Zuri plugin for Claude Code and Codex rather than a connector, because the model cannot see its own billed tokens and must not self-report them — the harness reports from its own logs when a session ends. The owner accepted the recommended identity design: the device is paired once through browser approval by a signed-in person (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; a report is attributed to that person and that installation, with the AI account that paid kept as a declared label. Two people on one machine are told apart only by separate OS users or by re-pairing; a shared zuri-ai account is not supported.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 60000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-070",
+      "TASK-ZAI-071"
+    ],
+    "evidence": "Section 3.1 row 2; FR-217; FR-123; ADR-052"
   }
 }

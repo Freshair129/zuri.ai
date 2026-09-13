@@ -2630,7 +2630,7 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "c90176359049844afaf39235fe7482ea2fa98f803dd5032f4270a66b1a0f820d",
+      "statement_digest": "853025bead3e8fd5b56eac3833a6711dcc5913e8c3bdea254a591e0877124ddf",
       "history": [
         {
           "anchor": "platform programme roadmap",
@@ -2639,7 +2639,7 @@
         }
       ],
       "statement_digest_reviewed_at": "2026-09-13",
-      "statement_digest_reason": "Re-worded to name programme v0.4.4 after TASK-ZAI-064 to TASK-ZAI-067 were added on the owner's instruction for delivery telemetry on the programme board; the subject anchor and the surface it names are unchanged"
+      "statement_digest_reason": "Re-worded to name programme v0.4.5 after TASK-ZAI-069 to TASK-ZAI-072 were added on the owner's instruction for the Zuri harness usage plugin; the subject anchor and the surface it names are unchanged"
     },
     "FR-106": {
       "family": "FR",
