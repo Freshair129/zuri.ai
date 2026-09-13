@@ -52,6 +52,23 @@ describe('the Settings entry point into Platform Control', () => {
   })
 })
 
+describe('the Topbar Roadmap control (owner request 2026-09-13)', () => {
+  const topbarPath = fromRoot('src', 'components', 'layouts', 'Topbar.jsx')
+  const source = readFileSync(topbarPath, 'utf8')
+
+  it('links to /control/roadmap from the BusinessShell chrome', () => {
+    expect(source).toContain('href="/control/roadmap"')
+    expect(source).toContain('Roadmap')
+  })
+
+  it('gates the control on the exact isInstallationOperator capability, like the Settings card and the route', () => {
+    expect(source).toContain("import { isInstallationOperator } from '@/modules/identity/viewer-authority'")
+    expect(source).toContain('isInstallationOperator(')
+    expect(source).not.toMatch(/viewer\.data\?\.isPlatform/)
+    expect(source).not.toMatch(/viewer\.data\?\.role/)
+  })
+})
+
 describe('PlatformControlShell provides a way back to Business Routing', () => {
   const shellPath = fromRoot('src', 'components', 'layouts', 'PlatformControlShell.jsx')
   const source = readFileSync(shellPath, 'utf8')

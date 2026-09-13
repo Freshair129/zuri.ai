@@ -2519,14 +2519,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "3121fa857848eecc3b51de456bbca83a410c2b235308a62caeca54f8efd6528a",
+      "statement_digest": "04a7114efaab594d4bb09e171e3314e9a63fa203d71986b99e7d8ddb4ecf7728",
       "history": [
         {
           "anchor": "platform programme roadmap",
           "since": "2026-08-26",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-13",
+      "statement_digest_reason": "FR-105 statement re-worded on 2026-09-13 to name the programme projection it now carries (v0.4.1, baseline 2b7ad27d, eleven deliverables and nine gates under CR-019, status approved); the subject anchor, the route and the operator gate are unchanged."
     },
     "FR-106": {
       "family": "FR",
