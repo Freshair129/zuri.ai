@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.6, 2026-09-14) so the board can open a task the way the html board
+// (v0.4.7, 2026-09-14) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -3669,5 +3669,1439 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-074"
     ],
     "evidence": "Section 3.1 row 2; FR-216; FR-221; NFR-008"
+  },
+  "TASK-ZAI-076": {
+    "container": "TC-TASK-ZAI-076",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.2.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "unavailable",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given the two evidence-cited designs (the credential vault and chat history design, and the LINE to GKS grounding design), when the owner's twenty delegated decisions are recorded, then ADR-089, ADR-090 and ADR-091 state them with shared phase numbering, amend ADR-061, ADR-060, ADR-041, ADR-032 and ADR-072 by pointer, and name every planned model without creating one",
+        "checked": true
+      },
+      "success": {
+        "text": "Given the requirement map in each ADR, when the ids are declared, then FR-223 to FR-238, SEC-030 to SEC-032, SDD-097 to SDD-100 and FEAT-036 to FEAT-038 are pinned in the id ledger and the integration, identity, line-oa-studio, crm, agent and knowledge charters carry the planned ownership as prose",
+        "checked": true
+      },
+      "exit": {
+        "text": "Given npm run govern and CI on pull request 389, when they ran, then govern exited zero with no CRITICAL, the govern, tests, build and verify checks succeeded, and the pull request merged into main as 8cd81196",
+        "checked": true
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Recorded after the fact as the plan's Phase 0, because the declaration merged before the plan was written. Closed 2026-09-14: PR #389 from docs/line-oa-vault-memory-gks-decisions merged as 8cd81196 (2026-09-14 02:02 +07) with the govern, tests, build and verify checks green; ADR-089, ADR-090 and ADR-091 accepted; FR-223 to FR-238, SEC-030 to SEC-032, SDD-097 to SDD-100 and FEAT-036 to FEAT-038 pinned; govern re-run green on 8cd81196 in the planning worktree. The work predates its lane, so the meter counts it only for sessions whose working directory had that branch checked out.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 70000,
+    "totalTokens": 0,
+    "dependsOn": [],
+    "evidence": "Section 3.1 rows 4 and 8; ADR-089; ADR-090; ADR-091"
+  },
+  "TASK-ZAI-077": {
+    "container": "TC-TASK-ZAI-077",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "unavailable",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given ADR-089, ADR-090 and ADR-091 and their designs, when the plan is written, then every delivery phase (0 to 7) appears as tasks sized C-1 to C-3 with Given-When-Then criteria, the operator steps (production migration applies, channel credential entry, webhook cutover, the grounding switch) are tasks of their own, and phase 6 is blocked on MSP TASK-MEMOS-002 and TASK-MEMOS-004",
+        "checked": false
+      },
+      "success": {
+        "text": "Given the Delivery Telemetry section, when the lanes are declared, then each delivery phase from 1 to 6 has one lane naming its branch and Phase 0 one lane naming both documentation branches, the generator accepts them (one programme phase per lane, one lane per branch, never main), and the section says how a session must run to be measured",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm run govern and the programme container check on the plan branch merged with main, when they run, then both exit zero; the pull request is opened and left for the owner to merge",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them. No Change Request is needed: every task sits under deliverables the proposal already names (4 Second Brain, 8 connectors), as 0.4.1 to 0.4.6 did. First written as v0.4.6 with its own tool-call lane (TASK-ZAI-073 to 076); renumbered to v0.4.7 and TASK-ZAI-076 to 103 on the coordinator's instruction the same day, because PR #390 (opened earlier) claims v0.4.6 and TASK-ZAI-073 to 075 for the same measurement goal. The usage meter was run with --write on the plan branch; this planning session ran with the primary checkout on main as its working directory, so its requests are unattributed — the finding written into the Delivery Telemetry section.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 45000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-076"
+    ],
+    "evidence": "Section 3.1 rows 2, 4 and 8; ADR-086 D3; ADR-089; ADR-090; ADR-091"
+  },
+  "TASK-ZAI-078": {
+    "container": "TC-TASK-ZAI-078",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-03",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "unavailable",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [
+      "FR-223",
+      "FEAT-036"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "SecretStorePort and dispatching secret manager with cross-store refusal",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "Supabase Vault definer functions, NOLOGIN writer and reader roles, migration 3",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "Envelope store with AES-256-GCM, per-secret data keys and AAD binding, migration 4",
+        "status": "planned"
+      },
+      {
+        "id": "P3",
+        "title": "Credential versions, rotation, revocation, compensation purge and REENTRY_REQUIRED, migration 1",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given ZURI_SECRET_STORE set to supabase-vault or envelope, when a credential is written, activated, rotated, revoked and resolved through the SecretStorePort, then each write is a new PENDING_VALIDATION version that becomes ACTIVE only after validation, rotation keeps the previous version resolvable until the new one validates, revocation purges the material and fences the account, and a reference whose prefix has no configured store resolves Unavailable",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a store function or an envelope decrypt called with another Tenant's or Business's connection, when it runs, then it refuses from the database or the AAD check with CHANNEL_SECRET_SCOPE_MISMATCH, and a store write whose database transaction fails is purged by compensation and recorded",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test on both providers, when the vault suites run, then a scan of captured output finds the test secret in no response, log line, audit row, error, backup export or Prisma column (ADR-089 proofs 1 to 3), preflight Check 18 stays green with migrations 1, 3 and 4 written in both trees, and none is applied to production",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. Migration numbers follow the vault design's section 8.2 list; the Phase-1 model-credential resolver is left untouched (SDD-097). The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 70000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-077",
+      "TASK-ZAI-074",
+      "TASK-ZAI-075"
+    ],
+    "evidence": "Section 3.1 row 8; ADR-089 D1, D2, D5"
+  },
+  "TASK-ZAI-079": {
+    "container": "TC-TASK-ZAI-079",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-03",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "unavailable",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [
+      "FR-226",
+      "FR-227",
+      "FEAT-036"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "ChannelAccountClaim with its backfill migration and truthful refusals",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "Stateless token minting and a cache keyed by credential version",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "Bot info and webhook endpoint set, get and test port calls with mapped refusals",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given a Channel ID and secret, when the port validates them, then it mints a 15-minute stateless token at most once a minute per account, caches it for at most 13 minutes per credential version, reads the bot's destination, basic id and display name, and drops the cache on rotation or revocation",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a bot already claimed in the same Tenant or in another Tenant, when a connection is attempted, then it answers LINE_CHANNEL_ALREADY_CONNECTED or LINE_CHANNEL_CLAIMED_ELSEWHERE naming no Tenant or Business, only after possession of the secret is proved, and no secret is left stored (ADR-089 proofs 5 and 6)",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test with LINE's endpoints stubbed, when the port suites run, then a wrong Channel ID and a wrong secret are indistinguishable, a correct pair with a wrong override token is reported as the token's fault, every webhook set, get and test refusal maps to a reason, and migration 2 with its backfill is written in both trees and not applied",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. FR-227 is split across phases: the LINE API calls land here in the port; the publisher action, webhook health column and manual card are TASK-ZAI-083.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 55000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-078"
+    ],
+    "evidence": "Section 3.1 row 8; ADR-089 D3, D6, D7"
+  },
+  "TASK-ZAI-080": {
+    "container": "TC-TASK-ZAI-080",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-03",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/identity/session-assurance.js",
+      "doc": "docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [
+      "FR-224",
+      "FEAT-036"
+    ],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given an AAL1 session, an expired elevation or a Person with no ACTIVE TOTP factor, when any credential write, rotation, revocation or validation route is called, then it is refused before any LINE call with ASSURANCE_LEVEL_INSUFFICIENT, or MFA_FACTOR_REQUIRED with an enrolment link",
+        "checked": false
+      },
+      "success": {
+        "text": "Given five writes or validations in fifteen minutes by one Person in one Business, or sixty LINE validation calls a minute on the installation, when the next arrives, then it answers 429 CREDENTIAL_RATE_LIMITED with retryAfterSeconds, and a rejected LINE validation counts twice",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test, when the gate and limiter suites run, then ADR-089 proof 4 passes on both providers and migration 8 is written in both trees and not applied",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. RateLimitBucket is the identity lane's model (ADR-058 has no Redis).",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 34000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-078"
+    ],
+    "evidence": "Section 3.1 row 8; ADR-089 D4"
+  },
+  "TASK-ZAI-081": {
+    "container": "TC-TASK-ZAI-081",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-03",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "unavailable",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given the Phase 1 build on a dev deployment, when a person enters a real test channel's Channel ID and secret through the connection route, then the pair is validated with LINE, the bot claimed, the credential stored and resolved for one send, and nothing readable is left anywhere proof 1 inspects",
+        "checked": false
+      },
+      "success": {
+        "text": "Given the same run with ZURI_SECRET_STORE set to supabase-vault and then to envelope, when the proofs are repeated, then proofs 1 to 6 pass for both stores and the evidence names the commit, store and date",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given the production migration ledger, when it is read after the run, then no Phase 1 migration has been applied, and the evidence is recorded in this container's changelog",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. The test channel's secret is typed by a person; an agent session never enters a channel secret, token or password.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 24000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-079",
+      "TASK-ZAI-080"
+    ],
+    "evidence": "ADR-089 required proof 1 to 6 and 10"
+  },
+  "TASK-ZAI-082": {
+    "container": "TC-TASK-ZAI-082",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-04",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/integration/application/line-server-provisioning-service.js",
+      "doc": "docs/plans/LINE-OA-CREDENTIAL-VAULT-ONBOARDING-AND-CHAT-HISTORY-DESIGN.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [
+      "FR-225",
+      "FEAT-036"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Thai wizard steps with inline enrolment and the design error table",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "Connection route writing through the vault and returning masked metadata only",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "Studio form without deployment-secret references; mount-backed account moves on re-entry",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given a Business owner at AAL2, when they enter a Channel ID and secret in the Thai wizard, then the server proves the pair with LINE, fills destination, basic id and display name, claims the bot, writes the credential through FR-223 and creates the LINE_OA connection and a DRAFT LineOaAccount with no operator and no host file",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a wrong Channel ID or a wrong secret, a LINE outage, or a refused claim, when the wizard submits, then both wrong inputs answer 422 LINE_CREDENTIALS_REJECTED, the outage answers 503 with nothing stored, the claim refusal shows its Thai message, and no response carries more than connection, masked credential and bot metadata",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given the e2e journey and npm test, when they run, then the Studio form no longer accepts a deployment-secret reference, a mount-backed account moves into the vault when its owner re-enters the secret, and no secret remains in page state after submit",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 2 of ADR-089.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 60000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-081"
+    ],
+    "evidence": "Section 3.1 row 8; ADR-089 D2, D3, D7"
+  },
+  "TASK-ZAI-083": {
+    "container": "TC-TASK-ZAI-083",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-04",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+      "doc": "docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [
+      "FR-227",
+      "FEAT-036"
+    ],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given a DRAFT account with a validated credential, when a publisher runs register webhook, then LINE's endpoint is set to this server's account webhook URL, read back with its active flag and tested, and endpoint, active flag, last test time, reason and HTTP status are stored as webhook health; running it again is idempotent and needs no secret re-entry",
+        "checked": false
+      },
+      "success": {
+        "text": "Given LINE refusing the URL, an unset public base URL, the Use webhook toggle off or a failed test, when the action runs, then the account shows the reason in Thai with a manual card carrying the URL, and a test whose signature does not verify is reported as a stored secret that does not belong to the channel with a link to rotation (ADR-089 proof 8)",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test with LINE stubbed and the webhook-state migration written in both trees, when the suites and preflight run, then every refusal maps to its reason and Check 18 stays green; the column is not applied to production by this task",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 2 of ADR-089. The design's migration 7 carries both LineOaAccount columns; this plan writes the webhook-state column here and the memoryPolicy column with TASK-ZAI-100, so no column lands before its writer.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 36000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-082"
+    ],
+    "evidence": "Section 3.1 row 8; ADR-089 D7"
+  },
+  "TASK-ZAI-084": {
+    "container": "TC-TASK-ZAI-084",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-04",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+      "doc": "docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [
+      "FR-228",
+      "FEAT-036"
+    ],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given a vault-backed account, when ENABLE_SERVER runs, then it succeeds with no typed confirmation only when LINE reports this server's account URL and the legacy seam recorded no evidence for the destination in the last 120 seconds, and otherwise refuses 409 LINE_LEGACY_TRANSPORT_ACTIVE with the last legacy receipt time",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a mount-backed account, when ENABLE_SERVER runs, then the typed confirmation is still required, and for every account the epoch fence, the refusal while SENDING or UNKNOWN jobs exist and the version check are unchanged (ADR-061 D3, D7)",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given a backup restored into a test database and npm test, when the suites run, then every restored credential reads REENTRY_REQUIRED, rotation keeps sends flowing and revocation fails queued sends closed (ADR-089 proofs 7 and 9)",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 2 of ADR-089.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 34000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-083"
+    ],
+    "evidence": "Section 3.1 row 8; ADR-089 D5, D8; ADR-061 D3, D7"
+  },
+  "TASK-ZAI-085": {
+    "container": "TC-TASK-ZAI-085",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-04",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "ATHER",
+    "executor": "ATHER",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/supabase/migrations",
+      "doc": "docs/DB-MIGRATION-NOTES.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given the owner's instruction naming the migrations, when the operator applies them, then each is preceded by a read-only inventory and a rolled-back dry run through the transaction pooler and followed by a ledger row and a verified effect (tables, columns, forced RLS, definer functions, NOLOGIN roles and grants)",
+        "checked": false
+      },
+      "success": {
+        "text": "Given the Supabase Vault precondition, when migration 3 is applied, then its vault.decrypted_secrets privilege guard passes and no application role can read the vault views",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given docs/DB-MIGRATION-NOTES.md and the PRD status cells, when the apply is recorded, then each migration names its date and session, and the redeploy that follows keeps the ADR-061 overlay (both compose files named, ZURI_LINE_SERVER_ENABLED true) with clean web and line-worker logs",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Applying a migration is an owner-instructed operator step (ADR-057), so this is H4 and the PIC is the operator lane. To be measured, the operator session runs from a worktree on the lane branch feat/line-oa-self-serve-onboarding (re-created from main if the feature branch was deleted); work run in the primary checkout on main is unattributed.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 16000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-084"
+    ],
+    "evidence": "ADR-057; ADR-089 Phase 2 gate"
+  },
+  "TASK-ZAI-086": {
+    "container": "TC-TASK-ZAI-086",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-04",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Owen",
+    "executor": "Owen",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "unavailable",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given the production wizard after TASK-ZAI-085, when the owner re-enters the channel's Channel ID and secret at AAL2, then the credential is stored in the configured store, the credential card shows only the mask and the last four characters of the Channel ID, and the mount entry is no longer the account's reference",
+        "checked": false
+      },
+      "success": {
+        "text": "Given the entry, when the audit trail and server logs are read, then they record who wrote which credential version and when, and carry no secret material (SEC-030)",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given the account after entry, when one send is made, then it resolves through the vault and succeeds, recorded with the commit, store and date",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Credential entry is a person's step: an agent session must never enter a channel secret, token or password, so this task has no agent session to measure.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 6000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-085"
+    ],
+    "evidence": "ADR-089 D2, D4; SEC-030"
+  },
+  "TASK-ZAI-087": {
+    "container": "TC-TASK-ZAI-087",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-04",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Owen",
+    "executor": "ATHER",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "unavailable",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given the account moved into the vault, when register webhook runs on production, then LINE reports this server's account URL with the active flag and a passing test, and the webhook health card shows it",
+        "checked": false
+      },
+      "success": {
+        "text": "Given the legacy edge path that served the bot, when ENABLE_SERVER is attempted, then it is refused until 120 seconds pass without legacy evidence and then succeeds with no typed confirmation, and a real customer message is admitted, answered and receipted on the server path",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given delivery evidence read from the tunnel inspector rather than the console's Verify button alone, when the cutover is recorded, then it names the account, commit, time and last legacy receipt, and the rollback (re-point the webhook, fence the account) is written beside it",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Owner-triggered, operator-executed. A console Verify success only proves that something answered 200 (the 2026-09-12 finding), so the evidence is the delivery itself.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 14000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-086"
+    ],
+    "evidence": "ADR-089 D7, D8; ADR-061 D3"
+  },
+  "TASK-ZAI-088": {
+    "container": "TC-TASK-ZAI-088",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-04",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
+      "doc": "docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [
+      "FR-229",
+      "FEAT-037"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Message content kind and MessageAttachment recorded without bytes",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "ConversationEvent rows with id-only bounded payloads",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "Unsend tombstone and no answer job for any non-text event",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given LINE webhook events of every non-text type, when admission runs, then each produces its CRM row (a Message with content kind and placeholder body, a MessageAttachment without bytes, or a ConversationEvent with an id-only payload) in the ADR-061 admission transaction, and none creates an answer job",
+        "checked": false
+      },
+      "success": {
+        "text": "Given an unsend event, when it is admitted, then the referenced message body and attachment are tombstoned, and an unsend for a message the Business never received is recorded as an event without error (ADR-091 proof 4)",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test on both providers and the CRM part of design migration 5 written in both trees, when the suites and preflight run, then non-text events are visible in the inbox and Check 18 stays green; no media byte is fetched or stored",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3 of ADR-091. Fetching media bytes into FileAsset is a later phase that needs its own requirement (FR-229 says so). The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 56000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-077",
+      "TASK-ZAI-074",
+      "TASK-ZAI-075"
+    ],
+    "evidence": "Section 3.1 row 8; ADR-091 D5"
+  },
+  "TASK-ZAI-089": {
+    "container": "TC-TASK-ZAI-089",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-04",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "unavailable",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [
+      "FR-230",
+      "FEAT-037"
+    ],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given the defaults (raw payload text 90 days, message bodies and attachments 24 months, AgentTraceEvent payloads 90 days, MSP session content 90 days), when the nightly sweep runs, then it tombstones exactly the rows past each window, keeps envelope columns and skips rows a non-terminal LineConversationJob references",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a Tenant override, when it shortens a window it is honoured and when it would lengthen one it is refused, and each sweep run writes one audit event with counts per class (ADR-091 proof 5)",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test with fixtures on both providers, when the retention suites run, then the sweep is idempotent and reports retention truthfully (ADR-070 D3), and the override store's migration is written in both trees and not applied",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3 of ADR-091. The retention numbers are the owner's accepted defaults of 2026-09-14 (design Q9), not law.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 52000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-088"
+    ],
+    "evidence": "Section 3.1 row 8; ADR-091 D1, D2"
+  },
+  "TASK-ZAI-090": {
+    "container": "TC-TASK-ZAI-090",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-04",
+    "version": "0.1.0",
+    "priority": "P1",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "unavailable",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [
+      "FR-233",
+      "FEAT-037"
+    ],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given conversations with new messages, when the inbox reads them, then each shows its last-message time, a preview of at most 120 characters that the erasure writer redacts, its retention class and a per-Business unread count computed on read",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a search term, when the search reader runs, then it returns matches only from the viewer's visible Businesses and, when one is given, one LINE OA account, using a trigram index on Postgres and LIKE on SQLite",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test and the inbox e2e, when they run, then another Business's messages never appear, follow and unfollow counts per account come from ConversationEvent, and the index migration is written in both trees and not applied",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3 of ADR-091. Thai trigram quality is accepted for an inbox; a tokenizer is a later requirement (design risk table).",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 36000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-088"
+    ],
+    "evidence": "Section 3.1 row 8; ADR-091 D5"
+  },
+  "TASK-ZAI-091": {
+    "container": "TC-TASK-ZAI-091",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-04",
+    "version": "0.1.0",
+    "priority": "P1",
+    "pic": "ATHER",
+    "executor": "ATHER",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/supabase/migrations",
+      "doc": "docs/DB-MIGRATION-NOTES.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given the owner's instruction naming the migrations, when the operator applies them, then each is preceded by an inventory and a rolled-back dry run, and pg_trgm is confirmed available before the index migration",
+        "checked": false
+      },
+      "success": {
+        "text": "Given the apply, when its effect is verified, then the new tables and columns with their RLS and grants exist, and the retention sweep's first production run writes its audit event with counts per class",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given docs/DB-MIGRATION-NOTES.md, when the apply is recorded, then each migration names its date and session and the redeploy keeps the ADR-061 overlay with clean container logs",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Operator step (ADR-057). To be measured, run it from a worktree on feat/crm-chat-record-completeness.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 12000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-089",
+      "TASK-ZAI-090"
+    ],
+    "evidence": "ADR-057; ADR-091 Phase 3"
+  },
+  "TASK-ZAI-092": {
+    "container": "TC-TASK-ZAI-092",
+    "phase": "PHASE-ZAI-03",
+    "sprint": "SPR-ZAI-05",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/agent/server-line-answer.js",
+      "doc": "docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [
+      "FR-234",
+      "FEAT-037"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Context assembly extracted from createServerLineAnswer with the default path unchanged",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "Truth order, SUPERSEDED_BY_RECORD, group-thread scope and an empty packet on denial",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "Prompt-wide budget with reported trims and the ContextReceipt on AgentTraceEvent",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given a LINE turn, when the composer assembles the prompt, then authorization is checked first and a denial yields an empty packet, CRM and ERP records outrank GKS evidence which outranks MSP memory, and memory that contradicts a record is dropped with reason SUPERSEDED_BY_RECORD",
+        "checked": false
+      },
+      "success": {
+        "text": "Given one prompt-wide budget, when the slices exceed it, then they are trimmed by priority and every trim is reported, group-thread slices never cross threads, and exactly one ContextReceipt of references, hash and budget, never content, is recorded per model invocation",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test and the existing worker-route contract test, when they run, then the default path's answers and traces are unchanged by the extraction, no evidence and no facts means zero model calls, and ADR-091 proof 7 passes",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3b of ADR-091: it must land before phases 4 and 6, so grounding (TASK-ZAI-093) and memory projection (TASK-ZAI-100) plug into one assembler instead of two.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 62000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-088"
+    ],
+    "evidence": "Section 3.1 row 4; ADR-091 D7; FR-171"
+  },
+  "TASK-ZAI-093": {
+    "container": "TC-TASK-ZAI-093",
+    "phase": "PHASE-ZAI-03",
+    "sprint": "SPR-ZAI-05",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/knowledge/knowledge-corpus-service.js",
+      "doc": "docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [
+      "FR-235",
+      "FEAT-038"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Corpus reader implementing knowledge.query in process with the job-derived scope",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "knowledgeGrounding column, writer and publisher control defaulting to BUSINESS_KNOWLEDGE",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "Budget, mode-gated fallback, retrievalRefs and composition through the Context Composer",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given an account in BUSINESS_KNOWLEDGE mode, when a LINE job is answered, then answers and traces are byte-identical to today's path; given GKS_CORPUS or GKS_THEN_BUSINESS_KNOWLEDGE, then the reader reads the Business's published corpus generation under the job's server-derived Tenant and Business and records retrievalRefs with citation, source, snapshot and corpus generation",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a hop over 2 500 ms or an error, when the mode is GKS_THEN_BUSINESS_KNOWLEDGE, then the result is GKS_UNAVAILABLE and the fallback is traced with its reason; in GKS_CORPUS there is no fallback; with no evidence from any allowed source the deterministic reply is sent and no model is called",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test, when the grounding suites run, then a job of Business A never reads Business B's corpus through scope, capability or binding, the mode migration is written in both trees and not applied, and ADR-090 proofs 1, 3, 4 and 5 pass",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 4 of ADR-090, placed after the Context Composer (TASK-ZAI-092) on the owner-delegated ordering. Nothing changes for any account until a publisher switches its mode.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 58000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-092"
+    ],
+    "evidence": "Section 3.1 row 4; ADR-090 D1 to D4; SEC-032"
+  },
+  "TASK-ZAI-094": {
+    "container": "TC-TASK-ZAI-094",
+    "phase": "PHASE-ZAI-03",
+    "sprint": "SPR-ZAI-05",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
+      "doc": "docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given the four-process isolated harness with a published corpus generation, when a LINE job for an account in GKS_CORPUS mode is answered, then the reply is grounded and GET /api/line-oa/jobs/{id}/trace shows retrievalRefs (ADR-090 proof 2)",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a second Business in the harness and a stopped worker, when jobs are answered, then no cross-tenant evidence appears and the stopped worker yields the deterministic reply rather than an error or a model-only answer (proofs 5 and 6)",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given the measured MSP spawn time inside a four-wide worker tick, when it is recorded, then the evidence states whether the 2 500 ms budget holds, and if spawn dominates the finding is written for the MSP daemon transport decision instead of widening the budget",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 4 gate of ADR-090, run on the KI17 acceptance setup.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 26000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-093"
+    ],
+    "evidence": "ADR-090 required proof 2, 5, 6; ADR-090 D3"
+  },
+  "TASK-ZAI-095": {
+    "container": "TC-TASK-ZAI-095",
+    "phase": "PHASE-ZAI-03",
+    "sprint": "SPR-ZAI-06",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Owen",
+    "executor": "ATHER",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/supabase/migrations",
+      "doc": "docs/DB-MIGRATION-NOTES.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given ADR-075 Phase 3 deployed (MSP, GKS and the GenesisBlock worker beside the web container) and the owner's instruction, when the operator applies the knowledgeGrounding migration and switches one SmartGift DIRECT account, then that account's jobs read the published corpus first and fall back to business knowledge with a traced reason",
+        "checked": false
+      },
+      "success": {
+        "text": "Given one campaign window, when answers are shadow-compared against business knowledge, then the comparison is recorded and names which accounts ran SERVER execution, because customers on the edge path (CH-01) are not affected",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given a regression, when the rollback runs, then flipping the account back to BUSINESS_KNOWLEDGE restores today's traces, and the switch and any rollback are recorded in the migration notes and this container's changelog",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Production dependency: ADR-075 Phase 3, carried in this programme by TASK-ZAI-042 (catalog convergence) and TASK-ZAI-050 (seventeen-stage runtime on production). The switch is owner-triggered and operator-executed.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 16000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-094",
+      "TASK-ZAI-042",
+      "TASK-ZAI-050"
+    ],
+    "evidence": "ADR-090 D5; ADR-075 Phase 3; ADR-057"
+  },
+  "TASK-ZAI-096": {
+    "container": "TC-TASK-ZAI-096",
+    "phase": "PHASE-ZAI-03",
+    "sprint": "SPR-ZAI-06",
+    "version": "0.1.0",
+    "priority": "P1",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "unavailable",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [
+      "FR-236",
+      "FEAT-038"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "KnowledgeCandidate model, migration and consent-gated extractor over a CRM read projection",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "Review surface in the Knowledge (GKS) slot with edit, approve and reject audited",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "Admission hook as a LINE_FAQ_CANDIDATE TEXT source before Stage 1, and pipeline map rows",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given a consent-GRANTED conversation, when a candidate is drafted, then it carries a canonical question and answer with product locators, policy names and amounts and no names, LINE ids or quoted customer wording, and Thai PII fixtures are refused at creation and again at Stage 5 classify",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a candidate, when a Business OWNER or LINE_OA_PUBLISHER edits and approves or rejects it, then the decision is audited, only an approved candidate is admitted as one immutable LINE_FAQ_CANDIDATE TEXT source through the admission service, and nothing is promoted automatically or through gks_knowledge_promote",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test and preflight, when they run, then ADR-090 proof 7 passes, the knowledge charter claims KnowledgeCandidate, the pipeline map gains the candidate nodes with their surfaces, and the migration is written in both trees and not applied",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 5 of ADR-090. Candidates stay off by default per Business (design risk R-5).",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 60000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-093"
+    ],
+    "evidence": "Section 3.1 row 4; ADR-090 D6; ADR-072 D1"
+  },
+  "TASK-ZAI-097": {
+    "container": "TC-TASK-ZAI-097",
+    "phase": "PHASE-ZAI-03",
+    "sprint": "SPR-ZAI-06",
+    "version": "0.1.0",
+    "priority": "P2",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "unavailable",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [
+      "FR-237",
+      "FEAT-038"
+    ],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given EVIDENCE_SELECTED trace events with reason NO_EVIDENCE, when the gap report renders for the active Business, then it shows counts, product locators and last-seen times only",
+        "checked": false
+      },
+      "success": {
+        "text": "Given another Business's events, when the report renders, then none of them are counted and no question text appears in the report",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test, when the report suite runs, then the aggregation is scoped per Business and nothing from the report is admitted into knowledge",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 5 of ADR-090.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 18000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-093"
+    ],
+    "evidence": "Section 3.1 row 4; ADR-090 D7"
+  },
+  "TASK-ZAI-098": {
+    "container": "TC-TASK-ZAI-098",
+    "phase": "PHASE-ZAI-03",
+    "sprint": "SPR-ZAI-06",
+    "version": "0.1.0",
+    "priority": "P2",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "unavailable",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [
+      "FR-238",
+      "FEAT-038"
+    ],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given a published rich menu, LIFF app or bot profile, when a publisher admits its description, then one LINE_STUDIO_DESCRIPTION TEXT source is admitted through the admission service with the human-readable text only",
+        "checked": false
+      },
+      "success": {
+        "text": "Given the item is unpublished, when the unpublish completes, then the source is withdrawn and later citations are denied",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test, when the suites run, then no Flex or rich menu JSON reaches admission, and admission and withdrawal are both audited",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. ADR-090 calls this a later phase; the owner-delegated plan places it in Phase 5 with the candidates because both use the same admission hook.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 30000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-096"
+    ],
+    "evidence": "Section 3.1 row 4; ADR-090 D7"
+  },
+  "TASK-ZAI-099": {
+    "container": "TC-TASK-ZAI-099",
+    "phase": "PHASE-ZAI-03",
+    "sprint": "SPR-ZAI-06",
+    "version": "0.1.0",
+    "priority": "P1",
+    "pic": "ATHER",
+    "executor": "ATHER",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/supabase/migrations",
+      "doc": "docs/DB-MIGRATION-NOTES.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given the owner's instruction, when the operator applies the KnowledgeCandidate migration, then it is preceded by an inventory and a rolled-back dry run and followed by a verified effect",
+        "checked": false
+      },
+      "success": {
+        "text": "Given candidates are off by default per Business, when the owner turns them on for SmartGift, then the switch is recorded with its date and who asked",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given docs/DB-MIGRATION-NOTES.md, when the apply is recorded, then the migration names its date and session and the redeploy keeps the ADR-061 overlay",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Operator step (ADR-057). To be measured, run it from a worktree on feat/knowledge-line-candidates.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 10000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-096"
+    ],
+    "evidence": "ADR-057; ADR-090 Phase 5"
+  },
+  "TASK-ZAI-100": {
+    "container": "TC-TASK-ZAI-100",
+    "phase": "PHASE-ZAI-03",
+    "sprint": "SPR-ZAI-06",
+    "version": "0.1.0",
+    "priority": "P1",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
+      "doc": "docs/roadmap/PLAN-MSP-MEMORY-OS-LINE-AGENT.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [
+      "FR-231",
+      "FEAT-037"
+    ],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given an account's memoryPolicy and a Customer's consent, when a turn is admitted, then the job captures immutably whether it may reach MSP's session tier (policy not OFF) and whether it may reach episodic, passport or cross-thread memory (policy not OFF, consent GRANTED and audience DIRECT), and a group or room turn never reaches private memory",
+        "checked": false
+      },
+      "success": {
+        "text": "Given projection before MSP main exposes its thread tools and an erase tool, when the projector runs, then it refuses with MSP_THREAD_CONTRACT_UNAVAILABLE, no MSP thread tool is called for any policy or consent value, and ZURI_MSP_THREAD_MEMORY_ENABLED acts only as a kill switch",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given MSP TASK-MEMOS-002 and TASK-MEMOS-004 merged, when a projection is acknowledged, then a MemoryProjectionReceipt is written in the transaction that settles its delivery, ADR-091 proofs 1 to 3 pass, and the memoryPolicy and receipt migrations are written in both trees and not applied",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 6 of ADR-091, blocked at planning time: MSP main does not have the msp_thread_* tools zuri-ai calls or a thread erase tool (PLAN-MSP-MEMORY-OS-LINE-AGENT TASK-MEMOS-002 and TASK-MEMOS-004). The policy and consent plumbing may be built before the block lifts, but the task cannot close until it does. ADR-091 also lists media byte fetch in phase 6; FR-229 calls that a later phase, so it is not a task here and needs its own requirement.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 52000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-092",
+      "TASK-ZAI-089"
+    ],
+    "evidence": "Section 3.1 row 4; ADR-091 D3, D4; PLAN-MSP-MEMORY-OS-LINE-AGENT TASK-MEMOS-002, TASK-MEMOS-004"
+  },
+  "TASK-ZAI-101": {
+    "container": "TC-TASK-ZAI-101",
+    "phase": "PHASE-ZAI-03",
+    "sprint": "SPR-ZAI-06",
+    "version": "0.1.0",
+    "priority": "P1",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/identity/erase-principal.js",
+      "doc": "docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [
+      "FR-232",
+      "FEAT-037"
+    ],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given a principal erasure or a Customer's consent changing to DECLINED, when erasure runs, then one local transaction tombstones everything Tier 1 holds, including every KnowledgeCandidate whose source names an erased conversation, and records one MSP erase job per projection receipt and one knowledge-source withdrawal with a correction run per admitted candidate",
+        "checked": false
+      },
+      "success": {
+        "text": "Given MSP unavailable, when the Customer's erasure status is read, then it shows PENDING_MSP until MSP acknowledges, the erase call retries with backoff, and no external tier is shown as erased without its acknowledgement",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given the three-repository test of the ADR-068 pattern, when append, erase and context resolution run against real MSP, then MSP's context no longer returns the text, a late citation of a withdrawn candidate is denied, and ADR-091 proof 6 and ADR-090 proof 8 pass",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 6 of ADR-091, blocked on the same MSP work as TASK-ZAI-100. GKS cannot delete a row, so withdrawal plus correction is the only mechanism for an admitted candidate (ADR-090 D8).",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 56000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-100",
+      "TASK-ZAI-096"
+    ],
+    "evidence": "Section 3.1 row 4; ADR-091 D6; ADR-090 D8; PLAN-MSP-MEMORY-OS-LINE-AGENT TASK-MEMOS-004"
+  },
+  "TASK-ZAI-102": {
+    "container": "TC-TASK-ZAI-102",
+    "phase": "PHASE-ZAI-03",
+    "sprint": "SPR-ZAI-06",
+    "version": "0.1.0",
+    "priority": "P1",
+    "pic": "ATHER",
+    "executor": "ATHER",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/supabase/migrations",
+      "doc": "docs/DB-MIGRATION-NOTES.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given MSP main with thread and erase tools deployed and the owner's instruction, when the operator applies the memory policy and receipt migrations, then each is preceded by an inventory and a rolled-back dry run and followed by a verified effect",
+        "checked": false
+      },
+      "success": {
+        "text": "Given one DIRECT account set to a memory policy other than OFF, when a customer converses across a worker restart, then in-thread recall works, no other person's thread is readable, and an erasure test shows PENDING_MSP and then acknowledged",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given the kill switch, when it is exercised, then projection stops on the next job, and the activation, test and rollback are recorded in the migration notes",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Operator step (ADR-057), blocked with the rest of Phase 6. To be measured, run it from a worktree on feat/line-memory-policy-erasure.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 14000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-101"
+    ],
+    "evidence": "ADR-057; ADR-091 D3; PLAN-MSP-MEMORY-OS-LINE-AGENT TASK-MEMOS-006"
+  },
+  "TASK-ZAI-103": {
+    "container": "TC-TASK-ZAI-103",
+    "phase": "PHASE-ZAI-05",
+    "sprint": "SPR-ZAI-10",
+    "version": "0.1.0",
+    "priority": "P2",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "unavailable",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given ADR-089 phase 7, when this task opens, then its requirements are declared in the PRD and pinned before any code, because no requirement covers these kinds today",
+        "checked": false
+      },
+      "success": {
+        "text": "Given an OAUTH_CLIENT or MODEL_PROVIDER_KEY credential, when it is written, rotated, revoked and resolved, then it follows the same write-only, versioned and scope-rechecked lifecycle as a LINE channel credential and SEC-030 holds",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given the Phase-1 resolver retired, when npm test and npm run phase1:isolation:verify run, then model credentials resolve through the port and no resolver reads zuri_core.integration_* directly",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Registered as backlog without a requirement: the programme already registers work whose requirement is declared at sprint entry (TASK-ZAI-007 to TASK-ZAI-030), and ADR-089 names this phase. No lane is declared because no branch has been chosen; one must be declared before work starts, or its sessions are not measured.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 50000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-085"
+    ],
+    "evidence": "Section 3.1 row 8; ADR-089 phase 7; ADR-053 D3"
   }
 }

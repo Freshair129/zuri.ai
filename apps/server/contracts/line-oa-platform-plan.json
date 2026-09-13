@@ -1,0 +1,1243 @@
+{
+  "schemaVersion": "1.1",
+  "generatedBy": "Claude (dogfood: programme v0.4.7 TASK-ZAI-076..103 from docs/roadmap/ROADMAP-zuri-ai-24w-program.md → Project Manager)",
+  "generatedAt": "2026-09-13T20:57:52.688Z",
+  "scope": {
+    "portfolioCode": "PF-001",
+    "workspaceCode": "WS-PLATFORM"
+  },
+  "project": {
+    "code": "PRJ-LINE-OA-PLATFORM",
+    "name": "LINE OA Platform — credential vault, chat memory tiers, GKS grounding",
+    "description": "Delivery plan of ADR-089, ADR-090 and ADR-091 (FR-223..FR-238, FEAT-036..038) as registered in programme v0.4.7. Task codes are the programme TASK-ZAI ids; lanes and branches are in item metadata so measured usage joins to tasks. Status follows the programme document.",
+    "type": "SOFTWARE",
+    "status": "ACTIVE",
+    "externalRefs": [
+      {
+        "system": "zuri-programme",
+        "id": "v0.4.7"
+      }
+    ]
+  },
+  "workstreams": [
+    {
+      "code": "WST-LINE-OA-PLATFORM-PLAN",
+      "name": "LINE OA platform — decisions (Phase 0) and delivery plan",
+      "executionMode": "SOFTWARE_SPRINT",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 1,
+      "containers": [
+        {
+          "code": "WST-LINE-OA-PLATFORM-PLAN-SPR-ZAI-02",
+          "subtype": "SPRINT",
+          "title": "SPR-ZAI-02",
+          "status": "ACTIVE",
+          "metadata": {
+            "programmeSprint": "SPR-ZAI-02"
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "TASK-ZAI-076",
+          "containerCode": "WST-LINE-OA-PLATFORM-PLAN-SPR-ZAI-02",
+          "subtype": "TASK",
+          "title": "LINE OA platform decision record — ADR-089 credential vault and self-serve onboarding, ADR-090 GKS grounding and reviewed candidates, ADR-091 chat record, memory tiers and the Context Composer, with FR-223 to FR-238, SEC-030 to SEC-032, SDD-097 to SDD-100 and FEAT-036 to FEAT-038 declared",
+          "status": "DONE",
+          "weight": 3,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-076",
+            "programmePhase": "PHASE-ZAI-01",
+            "programmeSprint": "SPR-ZAI-02",
+            "complexity": "C-3",
+            "priority": "P0",
+            "owner": "Claude",
+            "delivers": [],
+            "refs": "Section 3.1 rows 4 and 8; ADR-089; ADR-090; ADR-091",
+            "lane": "LANE-LINE-OA-PLATFORM-PLAN",
+            "laneBranches": [
+              "docs/line-oa-vault-memory-gks-decisions",
+              "docs/line-oa-programme-plan"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-076"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-077",
+          "containerCode": "WST-LINE-OA-PLATFORM-PLAN-SPR-ZAI-02",
+          "subtype": "TASK",
+          "title": "LINE OA platform delivery plan — every phase of ADR-089 to ADR-091 registered as sized tasks with acceptance criteria, lanes bound to branches before work starts, the usage-detail capture of TASK-ZAI-074 and TASK-ZAI-075 named as the measurement prerequisite, the Project Manager import path stated, and the usage meter run",
+          "status": "IN_PROGRESS",
+          "weight": 2,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-077",
+            "programmePhase": "PHASE-ZAI-01",
+            "programmeSprint": "SPR-ZAI-02",
+            "complexity": "C-2",
+            "priority": "P0",
+            "owner": "Claude",
+            "delivers": [],
+            "refs": "Section 3.1 rows 2, 4 and 8; ADR-086 D3; ADR-089; ADR-090; ADR-091",
+            "lane": "LANE-LINE-OA-PLATFORM-PLAN",
+            "laneBranches": [
+              "docs/line-oa-vault-memory-gks-decisions",
+              "docs/line-oa-programme-plan"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-077"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "WST-LINE-OA-VAULT",
+      "name": "LINE OA platform Phase 1 — credential vault and LINE channel port",
+      "executionMode": "SOFTWARE_SPRINT",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 1,
+      "containers": [
+        {
+          "code": "WST-LINE-OA-VAULT-SPR-ZAI-03",
+          "subtype": "SPRINT",
+          "title": "SPR-ZAI-03",
+          "status": "PLANNED",
+          "metadata": {
+            "programmeSprint": "SPR-ZAI-03"
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "TASK-ZAI-078",
+          "containerCode": "WST-LINE-OA-VAULT-SPR-ZAI-03",
+          "subtype": "TASK",
+          "title": "Integration credential vault — a SecretStorePort with the Supabase Vault and envelope stores, a dispatching secret manager by reference prefix, versioned write, activate, rotate, revoke and resolve with compensation and re-entry status, and design migrations 1, 3 and 4 — FR-223, SEC-030, SDD-097",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-078",
+            "programmePhase": "PHASE-ZAI-02",
+            "programmeSprint": "SPR-ZAI-03",
+            "complexity": "C-3",
+            "priority": "P0",
+            "owner": "Claude",
+            "delivers": [
+              "FR-223",
+              "FEAT-036"
+            ],
+            "refs": "Section 3.1 row 8; ADR-089 D1, D2, D5",
+            "lane": "LANE-LINE-OA-VAULT",
+            "laneBranches": [
+              "feat/integration-secret-store-vault"
+            ],
+            "externalDependencies": [
+              "TASK-ZAI-074",
+              "TASK-ZAI-075"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-078"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-079",
+          "containerCode": "WST-LINE-OA-VAULT-SPR-ZAI-03",
+          "subtype": "TASK",
+          "title": "LINE channel account claim and the Integration LINE channel-admin port — an installation-wide claim by destination hash taken before any secret is stored, stateless token minting with a per-version cache, bot info, and webhook set, read and test calls, with design migration 2 — FR-226, SDD-098 and the port half of FR-227",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-079",
+            "programmePhase": "PHASE-ZAI-02",
+            "programmeSprint": "SPR-ZAI-03",
+            "complexity": "C-3",
+            "priority": "P0",
+            "owner": "Claude",
+            "delivers": [
+              "FR-226",
+              "FR-227",
+              "FEAT-036"
+            ],
+            "refs": "Section 3.1 row 8; ADR-089 D3, D6, D7",
+            "lane": "LANE-LINE-OA-VAULT",
+            "laneBranches": [
+              "feat/integration-secret-store-vault"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-079"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-080",
+          "containerCode": "WST-LINE-OA-VAULT-SPR-ZAI-03",
+          "subtype": "TASK",
+          "title": "Credential-write step-up gate and the first rate limit — assertSessionAssurance AAL2 on every credential write, rotation, revocation and validation, an enrolment redirect when no factor exists, and a RateLimitBucket store answering 429 with retry hints, design migration 8 — FR-224",
+          "status": "PLANNED",
+          "weight": 2,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-080",
+            "programmePhase": "PHASE-ZAI-02",
+            "programmeSprint": "SPR-ZAI-03",
+            "complexity": "C-2",
+            "priority": "P0",
+            "owner": "Claude",
+            "delivers": [
+              "FR-224",
+              "FEAT-036"
+            ],
+            "refs": "Section 3.1 row 8; ADR-089 D4",
+            "lane": "LANE-LINE-OA-VAULT",
+            "laneBranches": [
+              "feat/integration-secret-store-vault"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-080"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-081",
+          "containerCode": "WST-LINE-OA-VAULT-SPR-ZAI-03",
+          "subtype": "TASK",
+          "title": "Phase 1 acceptance — ADR-089 proofs 1 to 6 on SQLite and Postgres with both stores, and one real LINE test channel validated end to end through the connection route in a dev deployment, before any production migration",
+          "status": "PLANNED",
+          "weight": 2,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-081",
+            "programmePhase": "PHASE-ZAI-02",
+            "programmeSprint": "SPR-ZAI-03",
+            "complexity": "C-2",
+            "priority": "P0",
+            "owner": "Claude",
+            "delivers": [],
+            "refs": "ADR-089 required proof 1 to 6 and 10",
+            "lane": "LANE-LINE-OA-VAULT",
+            "laneBranches": [
+              "feat/integration-secret-store-vault"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-081"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "WST-LINE-OA-ONBOARDING",
+      "name": "LINE OA platform Phase 2 — self-serve onboarding, webhook and ENABLE_SERVER",
+      "executionMode": "SOFTWARE_SPRINT",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 1,
+      "containers": [
+        {
+          "code": "WST-LINE-OA-ONBOARDING-SPR-ZAI-04",
+          "subtype": "SPRINT",
+          "title": "SPR-ZAI-04",
+          "status": "PLANNED",
+          "metadata": {
+            "programmeSprint": "SPR-ZAI-04"
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "TASK-ZAI-082",
+          "containerCode": "WST-LINE-OA-ONBOARDING-SPR-ZAI-04",
+          "subtype": "TASK",
+          "title": "Self-serve LINE OA connection wizard — Thai step-up, Channel ID and secret entry with an optional override token, live proof with LINE, claim, vault write, connection, a masked credential card and a DRAFT account, and a mount-backed account moved into the vault on re-entry — FR-225",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-082",
+            "programmePhase": "PHASE-ZAI-02",
+            "programmeSprint": "SPR-ZAI-04",
+            "complexity": "C-3",
+            "priority": "P0",
+            "owner": "Claude",
+            "delivers": [
+              "FR-225",
+              "FEAT-036"
+            ],
+            "refs": "Section 3.1 row 8; ADR-089 D2, D3, D7",
+            "lane": "LANE-LINE-OA-ONBOARDING",
+            "laneBranches": [
+              "feat/line-oa-self-serve-onboarding"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-082"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-083",
+          "containerCode": "WST-LINE-OA-ONBOARDING-SPR-ZAI-04",
+          "subtype": "TASK",
+          "title": "Automatic LINE webhook registration and health — a publisher action sets, reads back and tests the account webhook through LINE, stores webhook health in LineOaAccount.webhookStateJson with its migration, and falls back to a Thai manual card — FR-227",
+          "status": "PLANNED",
+          "weight": 2,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-083",
+            "programmePhase": "PHASE-ZAI-02",
+            "programmeSprint": "SPR-ZAI-04",
+            "complexity": "C-2",
+            "priority": "P0",
+            "owner": "Claude",
+            "delivers": [
+              "FR-227",
+              "FEAT-036"
+            ],
+            "refs": "Section 3.1 row 8; ADR-089 D7",
+            "lane": "LANE-LINE-OA-ONBOARDING",
+            "laneBranches": [
+              "feat/line-oa-self-serve-onboarding"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-083"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-084",
+          "containerCode": "WST-LINE-OA-ONBOARDING-SPR-ZAI-04",
+          "subtype": "TASK",
+          "title": "Derived legacy-transport quiescence and restore re-entry — ENABLE_SERVER derives quiescence for a vault-backed account from the endpoint LINE reports and 120 seconds without legacy evidence, validates through the dispatching secret manager, and a restored snapshot forces credential re-entry — FR-228",
+          "status": "PLANNED",
+          "weight": 2,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-084",
+            "programmePhase": "PHASE-ZAI-02",
+            "programmeSprint": "SPR-ZAI-04",
+            "complexity": "C-2",
+            "priority": "P0",
+            "owner": "Claude",
+            "delivers": [
+              "FR-228",
+              "FEAT-036"
+            ],
+            "refs": "Section 3.1 row 8; ADR-089 D5, D8; ADR-061 D3, D7",
+            "lane": "LANE-LINE-OA-ONBOARDING",
+            "laneBranches": [
+              "feat/line-oa-self-serve-onboarding"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-084"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-085",
+          "containerCode": "WST-LINE-OA-ONBOARDING-SPR-ZAI-04",
+          "subtype": "TASK",
+          "title": "Apply the credential vault and onboarding migrations on production — design migrations 1 to 4 and 8 and the webhook-state column, under ADR-057 with an inventory, a rolled-back dry run and a verified effect, recorded in the migration notes",
+          "status": "PLANNED",
+          "weight": 2,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-085",
+            "programmePhase": "PHASE-ZAI-02",
+            "programmeSprint": "SPR-ZAI-04",
+            "complexity": "C-2",
+            "priority": "P0",
+            "owner": "ATHER",
+            "delivers": [],
+            "refs": "ADR-057; ADR-089 Phase 2 gate",
+            "lane": "LANE-LINE-OA-ONBOARDING",
+            "laneBranches": [
+              "feat/line-oa-self-serve-onboarding"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-085"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-086",
+          "containerCode": "WST-LINE-OA-ONBOARDING-SPR-ZAI-04",
+          "subtype": "TASK",
+          "title": "Channel credential entry for the first production account — the Business owner, at AAL2, enters the Channel ID and secret in the production wizard to move one mount-backed LINE OA account into the vault; no agent ever types a credential",
+          "status": "PLANNED",
+          "weight": 1,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-086",
+            "programmePhase": "PHASE-ZAI-02",
+            "programmeSprint": "SPR-ZAI-04",
+            "complexity": "C-1",
+            "priority": "P0",
+            "owner": "Owen",
+            "delivers": [],
+            "refs": "ADR-089 D2, D4; SEC-030",
+            "lane": "LANE-LINE-OA-ONBOARDING",
+            "laneBranches": [
+              "feat/line-oa-self-serve-onboarding"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-086"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-087",
+          "containerCode": "WST-LINE-OA-ONBOARDING-SPR-ZAI-04",
+          "subtype": "TASK",
+          "title": "Webhook cutover for the first production account — register and test the webhook through LINE, observe derived quiescence, enable server transport and record ADR-061 provider-webhook-replaced evidence with a written rollback",
+          "status": "PLANNED",
+          "weight": 2,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-087",
+            "programmePhase": "PHASE-ZAI-02",
+            "programmeSprint": "SPR-ZAI-04",
+            "complexity": "C-2",
+            "priority": "P0",
+            "owner": "Owen",
+            "delivers": [],
+            "refs": "ADR-089 D7, D8; ADR-061 D3",
+            "lane": "LANE-LINE-OA-ONBOARDING",
+            "laneBranches": [
+              "feat/line-oa-self-serve-onboarding"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-087"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "WST-CRM-CHAT-RECORD",
+      "name": "LINE OA platform Phase 3 — chat record completeness, retention and inbox search",
+      "executionMode": "SOFTWARE_SPRINT",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 1,
+      "containers": [
+        {
+          "code": "WST-CRM-CHAT-RECORD-SPR-ZAI-04",
+          "subtype": "SPRINT",
+          "title": "SPR-ZAI-04",
+          "status": "PLANNED",
+          "metadata": {
+            "programmeSprint": "SPR-ZAI-04"
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "TASK-ZAI-088",
+          "containerCode": "WST-CRM-CHAT-RECORD-SPR-ZAI-04",
+          "subtype": "TASK",
+          "title": "Non-text LINE content in the CRM record — sticker, location and media messages become Message rows with a content kind and placeholder body, media gets a MessageAttachment without bytes, follow, join, membership, postback and unsend become ConversationEvent rows, and an unsend tombstones its message — FR-229",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-088",
+            "programmePhase": "PHASE-ZAI-02",
+            "programmeSprint": "SPR-ZAI-04",
+            "complexity": "C-3",
+            "priority": "P0",
+            "owner": "Claude",
+            "delivers": [
+              "FR-229",
+              "FEAT-037"
+            ],
+            "refs": "Section 3.1 row 8; ADR-091 D5",
+            "lane": "LANE-CRM-CHAT-RECORD",
+            "laneBranches": [
+              "feat/crm-chat-record-completeness"
+            ],
+            "externalDependencies": [
+              "TASK-ZAI-074",
+              "TASK-ZAI-075"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-088"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-089",
+          "containerCode": "WST-CRM-CHAT-RECORD-SPR-ZAI-04",
+          "subtype": "TASK",
+          "title": "Declared retention classes and the nightly sweep — installation defaults for raw LINE payloads, message bodies and attachments, trace payloads and MSP session content, per-Tenant downward-only overrides, a sweep that skips rows live LINE jobs reference, and one audit event per run — FR-230, SEC-031",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-089",
+            "programmePhase": "PHASE-ZAI-02",
+            "programmeSprint": "SPR-ZAI-04",
+            "complexity": "C-3",
+            "priority": "P0",
+            "owner": "Claude",
+            "delivers": [
+              "FR-230",
+              "FEAT-037"
+            ],
+            "refs": "Section 3.1 row 8; ADR-091 D1, D2",
+            "lane": "LANE-CRM-CHAT-RECORD",
+            "laneBranches": [
+              "feat/crm-chat-record-completeness"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-089"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-090",
+          "containerCode": "WST-CRM-CHAT-RECORD-SPR-ZAI-04",
+          "subtype": "TASK",
+          "title": "Conversation inbox read models and message search — last-message time, a redacted 120-character preview, retention class and unread counts, a read-only CRM search reader with a trigram index on Postgres, and follow and unfollow counts per account — FR-233",
+          "status": "PLANNED",
+          "weight": 2,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-090",
+            "programmePhase": "PHASE-ZAI-02",
+            "programmeSprint": "SPR-ZAI-04",
+            "complexity": "C-2",
+            "priority": "P1",
+            "owner": "Claude",
+            "delivers": [
+              "FR-233",
+              "FEAT-037"
+            ],
+            "refs": "Section 3.1 row 8; ADR-091 D5",
+            "lane": "LANE-CRM-CHAT-RECORD",
+            "laneBranches": [
+              "feat/crm-chat-record-completeness"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-090"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-091",
+          "containerCode": "WST-CRM-CHAT-RECORD-SPR-ZAI-04",
+          "subtype": "TASK",
+          "title": "Apply the chat record migrations on production — non-text content, read-model columns, the trigram index and the retention override store, under ADR-057, recorded in the migration notes",
+          "status": "PLANNED",
+          "weight": 1,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-091",
+            "programmePhase": "PHASE-ZAI-02",
+            "programmeSprint": "SPR-ZAI-04",
+            "complexity": "C-1",
+            "priority": "P1",
+            "owner": "ATHER",
+            "delivers": [],
+            "refs": "ADR-057; ADR-091 Phase 3",
+            "lane": "LANE-CRM-CHAT-RECORD",
+            "laneBranches": [
+              "feat/crm-chat-record-completeness"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-091"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "WST-AGENT-CONTEXT-COMPOSER",
+      "name": "LINE OA platform Phase 3b — Context Composer",
+      "executionMode": "SOFTWARE_SPRINT",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 1,
+      "containers": [
+        {
+          "code": "WST-AGENT-CONTEXT-COMPOSER-SPR-ZAI-05",
+          "subtype": "SPRINT",
+          "title": "SPR-ZAI-05",
+          "status": "PLANNED",
+          "metadata": {
+            "programmeSprint": "SPR-ZAI-05"
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "TASK-ZAI-092",
+          "containerCode": "WST-AGENT-CONTEXT-COMPOSER-SPR-ZAI-05",
+          "subtype": "TASK",
+          "title": "Context Composer — one agent-lane module assembling every LINE model prompt from AuthContext, MSP slices, knowledge evidence and CRM and ERP facts in truth order under one budget, reporting every trim, recording one ContextReceipt per model invocation and calling no model without evidence — FR-234, SDD-100",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-092",
+            "programmePhase": "PHASE-ZAI-03",
+            "programmeSprint": "SPR-ZAI-05",
+            "complexity": "C-3",
+            "priority": "P0",
+            "owner": "Claude",
+            "delivers": [
+              "FR-234",
+              "FEAT-037"
+            ],
+            "refs": "Section 3.1 row 4; ADR-091 D7; FR-171",
+            "lane": "LANE-AGENT-CONTEXT-COMPOSER",
+            "laneBranches": [
+              "feat/agent-context-composer"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-092"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "WST-LINE-GKS-GROUNDING",
+      "name": "LINE OA platform Phase 4 — grounding from the published GKS corpus",
+      "executionMode": "SOFTWARE_SPRINT",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 1,
+      "containers": [
+        {
+          "code": "WST-LINE-GKS-GROUNDING-SPR-ZAI-05",
+          "subtype": "SPRINT",
+          "title": "SPR-ZAI-05",
+          "status": "PLANNED",
+          "metadata": {
+            "programmeSprint": "SPR-ZAI-05"
+          }
+        },
+        {
+          "code": "WST-LINE-GKS-GROUNDING-SPR-ZAI-06",
+          "subtype": "SPRINT",
+          "title": "SPR-ZAI-06",
+          "status": "PLANNED",
+          "metadata": {
+            "programmeSprint": "SPR-ZAI-06"
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "TASK-ZAI-093",
+          "containerCode": "WST-LINE-GKS-GROUNDING-SPR-ZAI-05",
+          "subtype": "TASK",
+          "title": "LINE grounding from the published corpus — an in-process knowledge.query reader over queryKnowledgeCorpus under the runtime knowledge capability, a per-account knowledgeGrounding mode with its migration, a 2 500 ms, top-5, 8 KiB budget, a traced mode-gated fallback and retrievalRefs on EVIDENCE_SELECTED — FR-235, SDD-099",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-093",
+            "programmePhase": "PHASE-ZAI-03",
+            "programmeSprint": "SPR-ZAI-05",
+            "complexity": "C-3",
+            "priority": "P0",
+            "owner": "Claude",
+            "delivers": [
+              "FR-235",
+              "FEAT-038"
+            ],
+            "refs": "Section 3.1 row 4; ADR-090 D1 to D4; SEC-032",
+            "lane": "LANE-LINE-GKS-GROUNDING",
+            "laneBranches": [
+              "feat/line-gks-grounding"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-093"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-094",
+          "containerCode": "WST-LINE-GKS-GROUNDING-SPR-ZAI-05",
+          "subtype": "TASK",
+          "title": "Grounding isolated acceptance — a real LINE job answered from a published generation in the four-process harness with citations on the job trace, zero cross-tenant leakage, the deterministic reply with the worker stopped, and MSP spawn cost measured against the budget",
+          "status": "PLANNED",
+          "weight": 2,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-094",
+            "programmePhase": "PHASE-ZAI-03",
+            "programmeSprint": "SPR-ZAI-05",
+            "complexity": "C-2",
+            "priority": "P0",
+            "owner": "Claude",
+            "delivers": [],
+            "refs": "ADR-090 required proof 2, 5, 6; ADR-090 D3",
+            "lane": "LANE-LINE-GKS-GROUNDING",
+            "laneBranches": [
+              "feat/line-gks-grounding"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-094"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-095",
+          "containerCode": "WST-LINE-GKS-GROUNDING-SPR-ZAI-06",
+          "subtype": "TASK",
+          "title": "SmartGift grounding switch on production — after ADR-075 Phase 3 is deployed, apply the grounding-mode migration, switch one SmartGift DIRECT account to GKS_THEN_BUSINESS_KNOWLEDGE as an owner-triggered operator step, shadow-compare for one campaign window and keep the rollback",
+          "status": "PLANNED",
+          "weight": 2,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-095",
+            "programmePhase": "PHASE-ZAI-03",
+            "programmeSprint": "SPR-ZAI-06",
+            "complexity": "C-2",
+            "priority": "P0",
+            "owner": "Owen",
+            "delivers": [],
+            "refs": "ADR-090 D5; ADR-075 Phase 3; ADR-057",
+            "lane": "LANE-LINE-GKS-GROUNDING",
+            "laneBranches": [
+              "feat/line-gks-grounding"
+            ],
+            "externalDependencies": [
+              "TASK-ZAI-042",
+              "TASK-ZAI-050"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-095"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "WST-KNOWLEDGE-LINE-CANDIDATES",
+      "name": "LINE OA platform Phase 5 — knowledge candidates, gap report and Studio descriptions",
+      "executionMode": "SOFTWARE_SPRINT",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 1,
+      "containers": [
+        {
+          "code": "WST-KNOWLEDGE-LINE-CANDIDATES-SPR-ZAI-06",
+          "subtype": "SPRINT",
+          "title": "SPR-ZAI-06",
+          "status": "PLANNED",
+          "metadata": {
+            "programmeSprint": "SPR-ZAI-06"
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "TASK-ZAI-096",
+          "containerCode": "WST-KNOWLEDGE-LINE-CANDIDATES-SPR-ZAI-06",
+          "subtype": "TASK",
+          "title": "LINE FAQ knowledge candidates — locator-only question-and-answer candidates from consent-GRANTED conversations checked by the Zero-PII deny policy, an OWNER or LINE_OA_PUBLISHER review surface with audited decisions, and admission of an approved candidate as a LINE_FAQ_CANDIDATE TEXT source through ADR-072 — FR-236, SEC-032",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-096",
+            "programmePhase": "PHASE-ZAI-03",
+            "programmeSprint": "SPR-ZAI-06",
+            "complexity": "C-3",
+            "priority": "P1",
+            "owner": "Claude",
+            "delivers": [
+              "FR-236",
+              "FEAT-038"
+            ],
+            "refs": "Section 3.1 row 4; ADR-090 D6; ADR-072 D1",
+            "lane": "LANE-KNOWLEDGE-LINE-CANDIDATES",
+            "laneBranches": [
+              "feat/knowledge-line-candidates"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-096"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-097",
+          "containerCode": "WST-KNOWLEDGE-LINE-CANDIDATES-SPR-ZAI-06",
+          "subtype": "TASK",
+          "title": "Knowledge gap report for LINE — NO_EVIDENCE retrievals aggregated per Business in the Knowledge (GKS) slot as counts, product locators and last-seen times, with the question text left in CRM — FR-237",
+          "status": "PLANNED",
+          "weight": 1,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-097",
+            "programmePhase": "PHASE-ZAI-03",
+            "programmeSprint": "SPR-ZAI-06",
+            "complexity": "C-1",
+            "priority": "P2",
+            "owner": "Claude",
+            "delivers": [
+              "FR-237",
+              "FEAT-038"
+            ],
+            "refs": "Section 3.1 row 4; ADR-090 D7",
+            "lane": "LANE-KNOWLEDGE-LINE-CANDIDATES",
+            "laneBranches": [
+              "feat/knowledge-line-candidates"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-097"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-098",
+          "containerCode": "WST-KNOWLEDGE-LINE-CANDIDATES-SPR-ZAI-06",
+          "subtype": "TASK",
+          "title": "LINE Studio descriptions as knowledge sources — on a publisher action, published rich menu, LIFF app and bot profile descriptions are admitted as LINE_STUDIO_DESCRIPTION TEXT sources, never the Flex or rich menu JSON, and unpublishing withdraws them — FR-238",
+          "status": "PLANNED",
+          "weight": 2,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-098",
+            "programmePhase": "PHASE-ZAI-03",
+            "programmeSprint": "SPR-ZAI-06",
+            "complexity": "C-2",
+            "priority": "P2",
+            "owner": "Claude",
+            "delivers": [
+              "FR-238",
+              "FEAT-038"
+            ],
+            "refs": "Section 3.1 row 4; ADR-090 D7",
+            "lane": "LANE-KNOWLEDGE-LINE-CANDIDATES",
+            "laneBranches": [
+              "feat/knowledge-line-candidates"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-098"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-099",
+          "containerCode": "WST-KNOWLEDGE-LINE-CANDIDATES-SPR-ZAI-06",
+          "subtype": "TASK",
+          "title": "Apply the knowledge candidate migration on production and turn candidates on for SmartGift only on the owner's instruction, recorded in the migration notes",
+          "status": "PLANNED",
+          "weight": 1,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-099",
+            "programmePhase": "PHASE-ZAI-03",
+            "programmeSprint": "SPR-ZAI-06",
+            "complexity": "C-1",
+            "priority": "P1",
+            "owner": "ATHER",
+            "delivers": [],
+            "refs": "ADR-057; ADR-090 Phase 5",
+            "lane": "LANE-KNOWLEDGE-LINE-CANDIDATES",
+            "laneBranches": [
+              "feat/knowledge-line-candidates"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-099"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "WST-LINE-MEMORY-POLICY-ERASURE",
+      "name": "LINE OA platform Phase 6 — memory policy and erasure fan-out (blocked on MSP)",
+      "executionMode": "SOFTWARE_SPRINT",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 1,
+      "containers": [
+        {
+          "code": "WST-LINE-MEMORY-POLICY-ERASURE-SPR-ZAI-06",
+          "subtype": "SPRINT",
+          "title": "SPR-ZAI-06",
+          "status": "PLANNED",
+          "metadata": {
+            "programmeSprint": "SPR-ZAI-06"
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "TASK-ZAI-100",
+          "containerCode": "WST-LINE-MEMORY-POLICY-ERASURE-SPR-ZAI-06",
+          "subtype": "TASK",
+          "title": "LINE memory projection policy and receipts — LineOaAccount.memoryPolicy defaulting to OFF, per-job capture of session-tier and memory-tier eligibility by policy, consent and audience, MemoryProjectionReceipt in the delivery settlement, and a projector that refuses until MSP main ships thread and erase tools — FR-231",
+          "status": "BLOCKED",
+          "weight": 3,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-100",
+            "programmePhase": "PHASE-ZAI-03",
+            "programmeSprint": "SPR-ZAI-06",
+            "complexity": "C-3",
+            "priority": "P1",
+            "owner": "Claude",
+            "delivers": [
+              "FR-231",
+              "FEAT-037"
+            ],
+            "refs": "Section 3.1 row 4; ADR-091 D3, D4; PLAN-MSP-MEMORY-OS-LINE-AGENT TASK-MEMOS-002, TASK-MEMOS-004",
+            "lane": "LANE-LINE-MEMORY-POLICY-ERASURE",
+            "laneBranches": [
+              "feat/line-memory-policy-erasure"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-100"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-101",
+          "containerCode": "WST-LINE-MEMORY-POLICY-ERASURE-SPR-ZAI-06",
+          "subtype": "TASK",
+          "title": "Erasure propagation beyond Tier 1 — one transaction tombstones CRM bodies, previews, attachments, LINE job fields, raw payloads, trace inputs and knowledge candidates, and leaves durable MSP erase calls per projection receipt and knowledge-source withdrawals, with PENDING_MSP until acknowledged — FR-232, SEC-031",
+          "status": "BLOCKED",
+          "weight": 3,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-101",
+            "programmePhase": "PHASE-ZAI-03",
+            "programmeSprint": "SPR-ZAI-06",
+            "complexity": "C-3",
+            "priority": "P1",
+            "owner": "Claude",
+            "delivers": [
+              "FR-232",
+              "FEAT-037"
+            ],
+            "refs": "Section 3.1 row 4; ADR-091 D6; ADR-090 D8; PLAN-MSP-MEMORY-OS-LINE-AGENT TASK-MEMOS-004",
+            "lane": "LANE-LINE-MEMORY-POLICY-ERASURE",
+            "laneBranches": [
+              "feat/line-memory-policy-erasure"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-101"
+            }
+          ]
+        },
+        {
+          "code": "TASK-ZAI-102",
+          "containerCode": "WST-LINE-MEMORY-POLICY-ERASURE-SPR-ZAI-06",
+          "subtype": "TASK",
+          "title": "Memory policy production activation — apply the memory policy and projection receipt migrations under ADR-057 and, only on the owner's instruction, enable projection for one DIRECT account after the MSP canary (TASK-MEMOS-006) passes, recorded with a rollback",
+          "status": "BLOCKED",
+          "weight": 2,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-102",
+            "programmePhase": "PHASE-ZAI-03",
+            "programmeSprint": "SPR-ZAI-06",
+            "complexity": "C-2",
+            "priority": "P1",
+            "owner": "ATHER",
+            "delivers": [],
+            "refs": "ADR-057; ADR-091 D3; PLAN-MSP-MEMORY-OS-LINE-AGENT TASK-MEMOS-006",
+            "lane": "LANE-LINE-MEMORY-POLICY-ERASURE",
+            "laneBranches": [
+              "feat/line-memory-policy-erasure"
+            ]
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-102"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "code": "WST-LINE-OA-GENERALISE",
+      "name": "LINE OA platform Phase 7 — generalise provider kinds",
+      "executionMode": "SOFTWARE_SPRINT",
+      "progressStrategy": "TASK_WEIGHT",
+      "progressWeight": 1,
+      "containers": [
+        {
+          "code": "WST-LINE-OA-GENERALISE-SPR-ZAI-10",
+          "subtype": "SPRINT",
+          "title": "SPR-ZAI-10",
+          "status": "PLANNED",
+          "metadata": {
+            "programmeSprint": "SPR-ZAI-10"
+          }
+        }
+      ],
+      "items": [
+        {
+          "code": "TASK-ZAI-103",
+          "containerCode": "WST-LINE-OA-GENERALISE-SPR-ZAI-10",
+          "subtype": "TASK",
+          "title": "Generalise the credential vault to other provider kinds — OAUTH_CLIENT for FlowAccount (ADR-053) and MODEL_PROVIDER_KEY on the same SecretStorePort, and retire the Phase-1 model-credential resolver; requirements declared first",
+          "status": "PLANNED",
+          "weight": 3,
+          "metadata": {
+            "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+            "taskContainer": "TC-TASK-ZAI-103",
+            "programmePhase": "PHASE-ZAI-05",
+            "programmeSprint": "SPR-ZAI-10",
+            "complexity": "C-3",
+            "priority": "P2",
+            "owner": "Claude",
+            "delivers": [],
+            "refs": "Section 3.1 row 8; ADR-089 phase 7; ADR-053 D3",
+            "lane": null,
+            "laneBranches": []
+          },
+          "externalRefs": [
+            {
+              "system": "zuri-programme",
+              "id": "TASK-ZAI-103"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "sourceRef": "TASK-ZAI-077",
+      "targetRef": "TASK-ZAI-076",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-078",
+      "targetRef": "TASK-ZAI-077",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-079",
+      "targetRef": "TASK-ZAI-078",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-080",
+      "targetRef": "TASK-ZAI-078",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-081",
+      "targetRef": "TASK-ZAI-079",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-081",
+      "targetRef": "TASK-ZAI-080",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-082",
+      "targetRef": "TASK-ZAI-081",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-083",
+      "targetRef": "TASK-ZAI-082",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-084",
+      "targetRef": "TASK-ZAI-083",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-085",
+      "targetRef": "TASK-ZAI-084",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-086",
+      "targetRef": "TASK-ZAI-085",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-087",
+      "targetRef": "TASK-ZAI-086",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-088",
+      "targetRef": "TASK-ZAI-077",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-089",
+      "targetRef": "TASK-ZAI-088",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-090",
+      "targetRef": "TASK-ZAI-088",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-091",
+      "targetRef": "TASK-ZAI-089",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-091",
+      "targetRef": "TASK-ZAI-090",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-092",
+      "targetRef": "TASK-ZAI-088",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-093",
+      "targetRef": "TASK-ZAI-092",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-094",
+      "targetRef": "TASK-ZAI-093",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-095",
+      "targetRef": "TASK-ZAI-094",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-096",
+      "targetRef": "TASK-ZAI-093",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-097",
+      "targetRef": "TASK-ZAI-093",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-098",
+      "targetRef": "TASK-ZAI-096",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-099",
+      "targetRef": "TASK-ZAI-096",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-100",
+      "targetRef": "TASK-ZAI-092",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-100",
+      "targetRef": "TASK-ZAI-089",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-101",
+      "targetRef": "TASK-ZAI-100",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-101",
+      "targetRef": "TASK-ZAI-096",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-102",
+      "targetRef": "TASK-ZAI-101",
+      "type": "REQUIRES"
+    },
+    {
+      "sourceRef": "TASK-ZAI-103",
+      "targetRef": "TASK-ZAI-085",
+      "type": "REQUIRES"
+    }
+  ]
+}

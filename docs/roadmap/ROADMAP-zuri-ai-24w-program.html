@@ -488,7 +488,7 @@ button{font:inherit;color:inherit;}
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
           <span class="pill pill-brand">approved</span>
           <span class="pill pill-planned mono">ROADMAP-ZURI-AI-24W-PROGRAM</span>
-          <span class="pill pill-planned mono">v0.4.6</span>
+          <span class="pill pill-planned mono">v0.4.7</span>
           <span class="pill pill-planned">updated 2026-09-13</span>
           <span class="pill pill-planned mono">CR-019</span>
           <span class="pill pill-planned">owner Owen</span>
@@ -678,7 +678,7 @@ button{font:inherit;color:inherit;}
 
 <script>
 /* ==================================================================
-   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.4.6 (CR-019,
+   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.4.7 (CR-019,
    2026-09-13) — the markdown is the source of truth, this array is
    its rendering. Tasks 031–044 were added on the re-baseline,
    045–051 (17-stage knowledge base + file system) the same day,
@@ -843,7 +843,7 @@ const PHASES = [
             "Given npm test, when the FR-066 unit suite runs, then onboarding order is asserted, not assumed",
             "ส่งมอบ 27 ส.ค. (ROADMAP.md TASK-FR-066-067) · FR-122 บังคับชื่อ-สกุล-โทรศัพท์ · CR-017 UX correction ติดตามในเลน Asset"]
         ]},
-      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract · นับ knowledge intake + Tier 1 ของ 17-stage ที่สร้างแล้ว · (CR-019) SCM, Marketing, billing/POS, catalog convergence และ identity lifecycle เข้า main · (v0.4.2) เปิด cost & quote engine: decision record + ใบต้นทุนโรงงาน · (v0.4.3) data pipeline registry + node-edge map ใน slot Knowledge (GKS) · (v0.4.4) delivery telemetry บน programme board: การ์ด phase มีตัวเลข, badge หลักฐานบนการ์ด task, usage meter และ endpoint รายงาน token จริง · (v0.4.5) plugin ของ Zuri สำหรับ agent เครื่องอื่น จับคู่เครื่องผ่าน browser · (v0.4.6) spec ของ plugin และรายละเอียดการใช้งาน: thinking tokens, tool call, prompt, compaction",
+      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract · นับ knowledge intake + Tier 1 ของ 17-stage ที่สร้างแล้ว · (CR-019) SCM, Marketing, billing/POS, catalog convergence และ identity lifecycle เข้า main · (v0.4.2) เปิด cost & quote engine: decision record + ใบต้นทุนโรงงาน · (v0.4.3) data pipeline registry + node-edge map ใน slot Knowledge (GKS) · (v0.4.4) delivery telemetry บน programme board: การ์ด phase มีตัวเลข, badge หลักฐานบนการ์ด task, usage meter และ endpoint รายงาน token จริง · (v0.4.5) plugin ของ Zuri สำหรับ agent เครื่องอื่น จับคู่เครื่องผ่าน browser · (v0.4.6) spec ของ plugin และรายละเอียดการใช้งาน: thinking tokens, tool call, prompt, compaction · (v0.4.7) ลงทะเบียนแผน LINE OA platform พร้อม lane ก่อนเริ่มงาน",
         exit:"pipeline รายงานได้ทุก stage, memory contract ผ่านการรีวิว, ไฟล์ที่รับเข้า Stage 1 ไปถึง Stage 8 พร้อม lineage ใต้เทสต์ และทุกเลนมี migration เขียนแล้ว",
         tasks:[
           ["TASK-ZAI-004","TSK-ZAI004","Workspace collaboration boundary and scoped invites, FR-067","FR","C-3","H3","done","Codex","TASK-ZAI-003","apps/server/src/modules/identity/access-invite-service.js","docs/PRD-SDD-v1.0.md","unavailable",40000,
@@ -990,7 +990,17 @@ const PHASES = [
             "Given a phase with measured lanes, when its card renders, then input, output, thinking and cache tokens are shown as separate figures, with tool calls, error rate, prompts and compactions beside them, and a lane with no detail says so rather than showing zero",
             "Given a task opened on the board, when its lane has detail, then the most used tools with counts, the error and denial counts, and the per person and per device split are listed",
             "Given npm test and the roadmap e2e, when they run, then aggregation of detail across lanes and reports, the empty-detail state and the rendered figures are asserted and the page builds clean",
-            "(v0.4.6) แยก input / output / thinking / cache บนการ์ด · tool ที่ใช้มากสุด + อัตรา error · จำนวน prompt และ compaction · แยกตามคนและ device"]
+            "(v0.4.6) แยก input / output / thinking / cache บนการ์ด · tool ที่ใช้มากสุด + อัตรา error · จำนวน prompt และ compaction · แยกตามคนและ device"],
+          ["TASK-ZAI-076","TSK-ZAI076","LINE OA platform decision record — ADR-089 credential vault and self-serve onboarding, ADR-090 GKS grounding and reviewed candidates, ADR-091 chat record, memory tiers and the Context Composer, with FR-223 to FR-238, SEC-030 to SEC-032, SDD-097 to SDD-100 and FEAT-036 to FEAT-038 declared","NFR","C-3","H2","done","Claude","-","unavailable","docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md","unavailable",70000,
+            "Given the two evidence-cited designs (the credential vault and chat history design, and the LINE to GKS grounding design), when the owner's twenty delegated decisions are recorded, then ADR-089, ADR-090 and ADR-091 state them with shared phase numbering, amend ADR-061, ADR-060, ADR-041, ADR-032 and ADR-072 by pointer, and name every planned model without creating one",
+            "Given the requirement map in each ADR, when the ids are declared, then FR-223 to FR-238, SEC-030 to SEC-032, SDD-097 to SDD-100 and FEAT-036 to FEAT-038 are pinned in the id ledger and the integration, identity, line-oa-studio, crm, agent and knowledge charters carry the planned ownership as prose",
+            "Given npm run govern and CI on pull request 389, when they ran, then govern exited zero with no CRITICAL, the govern, tests, build and verify checks succeeded, and the pull request merged into main as 8cd81196",
+            "(v0.4.7) Phase 0 เสร็จแล้ว — PR #389 merge เป็น 8cd81196 · ADR-089/090/091 · FR-223..238, SEC-030..032, SDD-097..100, FEAT-036..038 pin แล้ว · CI เขียวทั้งหมด"],
+          ["TASK-ZAI-077","TSK-ZAI077","LINE OA platform delivery plan — every phase of ADR-089 to ADR-091 registered as sized tasks with acceptance criteria, lanes bound to branches before work starts, the usage-detail capture of TASK-ZAI-074 and TASK-ZAI-075 named as the measurement prerequisite, the Project Manager import path stated, and the usage meter run","NFR","C-2","H2","in-progress","Claude","TASK-ZAI-076","unavailable","docs/roadmap/ROADMAP-zuri-ai-24w-program.md","unavailable",45000,
+            "Given ADR-089, ADR-090 and ADR-091 and their designs, when the plan is written, then every delivery phase (0 to 7) appears as tasks sized C-1 to C-3 with Given-When-Then criteria, the operator steps (production migration applies, channel credential entry, webhook cutover, the grounding switch) are tasks of their own, and phase 6 is blocked on MSP TASK-MEMOS-002 and TASK-MEMOS-004",
+            "Given the Delivery Telemetry section, when the lanes are declared, then each delivery phase from 1 to 6 has one lane naming its branch and Phase 0 one lane naming both documentation branches, the generator accepts them (one programme phase per lane, one lane per branch, never main), and the section says how a session must run to be measured",
+            "Given npm run govern and the programme container check on the plan branch merged with main, when they run, then both exit zero; the pull request is opened and left for the owner to merge",
+            "(v0.4.7) task นี้ — เขียนแผนทุก phase เป็น task พร้อมขนาดและเกณฑ์ · ผูก lane กับ branch ก่อนเริ่มงาน · การวัดละเอียด (token แยกประเภท, tool call) มาจาก TASK-ZAI-074/075 ที่ส่งมอบแล้วใน PR #393 · ระบุทางนำเข้า Project Manager · รัน meter"]
         ]}
     ]
   },
@@ -1001,7 +1011,7 @@ const PHASES = [
     exit:"5 roles ทำงานภายใต้ชั้นอนุมัติ L1–L4 พร้อม audit, verification และ notification",
     state:"planned",
     sprints:[
-      { id:"SPR-ZAI-03", weeks:"สัปดาห์ 5-6", goal:"สร้าง Agent Role registry และ 5 core roles · knowledge base console, binary parser, durable file storage และ 17-stage runtime บน production · apply migration ERP ที่ค้าง · pricing rule set, pricing engine และใบเสนอราคา · live pipeline health บน map",
+      { id:"SPR-ZAI-03", weeks:"สัปดาห์ 5-6", goal:"สร้าง Agent Role registry และ 5 core roles · knowledge base console, binary parser, durable file storage และ 17-stage runtime บน production · apply migration ERP ที่ค้าง · pricing rule set, pricing engine และใบเสนอราคา · live pipeline health บน map · (v0.4.7) vault ของ Integration (Supabase Vault + envelope), claim บอท LINE, port ของ LINE และ TOTP step-up ก่อนเขียน credential",
         exit:"แต่ละ role resolve tools, policy และ memory partition ที่ต่างกันได้ · PDF ที่อัปโหลดใน console ถูก publish เป็น corpus พร้อม citation บน production · migration ledger ตรงกับ tree",
         tasks:[
           ["TASK-ZAI-007","TSK-ZAI007","Agent Role registry with five core roles","FR","C-3","H3","planned","Claude","TASK-ZAI-006","src/modules/agent/index.js","docs/ARCHITECTURE.md","unavailable",62000,
@@ -1068,9 +1078,29 @@ const PHASES = [
             "Given the active Business, when the live overlay loads, then each edge backed by a ledger or job table shows counts by status and the last run for that Business only, through the owning read port, and an edge with no backing table shows no number",
             "Given a failed knowledge run or a failed LINE or rich menu job, when the owner opens the map, then the edge is marked and links to the existing monitor or job surface",
             "Given npm test, when the overlay suites run, then another Business sees none of the counts, one bounded read per table is issued, and the static map still renders when every read fails",
-            "(v0.4.3) ส่วนเดียวของ map ที่ live · registry และ view ยังเป็น static · ต่อจาก knowledge console ให้อ่าน ledger ชุดเดียวกัน"]
+            "(v0.4.3) ส่วนเดียวของ map ที่ live · registry และ view ยังเป็น static · ต่อจาก knowledge console ให้อ่าน ledger ชุดเดียวกัน"],
+          ["TASK-ZAI-078","TSK-ZAI078","Integration credential vault — a SecretStorePort with the Supabase Vault and envelope stores, a dispatching secret manager by reference prefix, versioned write, activate, rotate, revoke and resolve with compensation and re-entry status, and design migrations 1, 3 and 4 — FR-223, SEC-030, SDD-097","FR","C-3","H3","planned","Claude","TASK-ZAI-077; TASK-ZAI-074; TASK-ZAI-075","unavailable","docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md","unavailable",70000,
+            "Given ZURI_SECRET_STORE set to supabase-vault or envelope, when a credential is written, activated, rotated, revoked and resolved through the SecretStorePort, then each write is a new PENDING_VALIDATION version that becomes ACTIVE only after validation, rotation keeps the previous version resolvable until the new one validates, revocation purges the material and fences the account, and a reference whose prefix has no configured store resolves Unavailable",
+            "Given a store function or an envelope decrypt called with another Tenant's or Business's connection, when it runs, then it refuses from the database or the AAD check with CHANNEL_SECRET_SCOPE_MISMATCH, and a store write whose database transaction fails is purged by compensation and recorded",
+            "Given npm test on both providers, when the vault suites run, then a scan of captured output finds the test secret in no response, log line, audit row, error, backup export or Prisma column (ADR-089 proofs 1 to 3), preflight Check 18 stays green with migrations 1, 3 and 4 written in both trees, and none is applied to production",
+            "(v0.4.7) Phase 1 — vault ของ Integration: Supabase Vault (หลัก) + envelope store (self-host) หลัง SecretStorePort เดียว · เวอร์ชัน/หมุน/เพิกถอน · ห้าม resolve ข้าม store · ไม่มี secret หลุดไปที่ใด"],
+          ["TASK-ZAI-079","TSK-ZAI079","LINE channel account claim and the Integration LINE channel-admin port — an installation-wide claim by destination hash taken before any secret is stored, stateless token minting with a per-version cache, bot info, and webhook set, read and test calls, with design migration 2 — FR-226, SDD-098 and the port half of FR-227","FR","C-3","H3","planned","Claude","TASK-ZAI-078","unavailable","docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md","unavailable",55000,
+            "Given a Channel ID and secret, when the port validates them, then it mints a 15-minute stateless token at most once a minute per account, caches it for at most 13 minutes per credential version, reads the bot's destination, basic id and display name, and drops the cache on rotation or revocation",
+            "Given a bot already claimed in the same Tenant or in another Tenant, when a connection is attempted, then it answers LINE_CHANNEL_ALREADY_CONNECTED or LINE_CHANNEL_CLAIMED_ELSEWHERE naming no Tenant or Business, only after possession of the secret is proved, and no secret is left stored (ADR-089 proofs 5 and 6)",
+            "Given npm test with LINE's endpoints stubbed, when the port suites run, then a wrong Channel ID and a wrong secret are indistinguishable, a correct pair with a wrong override token is reported as the token's fault, every webhook set, get and test refusal maps to a reason, and migration 2 with its backfill is written in both trees and not applied",
+            "(v0.4.7) Phase 1 — claim บอทหนึ่งตัวต่อหนึ่ง installation ก่อนเก็บ secret · port ของ LINE: mint token 15 นาที, bot info, ตั้ง/อ่าน/ทดสอบ webhook"],
+          ["TASK-ZAI-080","TSK-ZAI080","Credential-write step-up gate and the first rate limit — assertSessionAssurance AAL2 on every credential write, rotation, revocation and validation, an enrolment redirect when no factor exists, and a RateLimitBucket store answering 429 with retry hints, design migration 8 — FR-224","FR","C-2","H3","planned","Claude","TASK-ZAI-078","apps/server/src/modules/identity/session-assurance.js","docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md","unavailable",34000,
+            "Given an AAL1 session, an expired elevation or a Person with no ACTIVE TOTP factor, when any credential write, rotation, revocation or validation route is called, then it is refused before any LINE call with ASSURANCE_LEVEL_INSUFFICIENT, or MFA_FACTOR_REQUIRED with an enrolment link",
+            "Given five writes or validations in fifteen minutes by one Person in one Business, or sixty LINE validation calls a minute on the installation, when the next arrives, then it answers 429 CREDENTIAL_RATE_LIMITED with retryAfterSeconds, and a rejected LINE validation counts twice",
+            "Given npm test, when the gate and limiter suites run, then ADR-089 proof 4 passes on both providers and migration 8 is written in both trees and not applied",
+            "(v0.4.7) Phase 1 — ต้องยืนยัน TOTP (AAL2) ทุกครั้งที่เขียน credential · rate limit ตัวแรกของระบบ ตอบ 429 พร้อม retryAfterSeconds"],
+          ["TASK-ZAI-081","TSK-ZAI081","Phase 1 acceptance — ADR-089 proofs 1 to 6 on SQLite and Postgres with both stores, and one real LINE test channel validated end to end through the connection route in a dev deployment, before any production migration","NFR","C-2","H3","planned","Claude","TASK-ZAI-079; TASK-ZAI-080","unavailable","docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md","unavailable",24000,
+            "Given the Phase 1 build on a dev deployment, when a person enters a real test channel's Channel ID and secret through the connection route, then the pair is validated with LINE, the bot claimed, the credential stored and resolved for one send, and nothing readable is left anywhere proof 1 inspects",
+            "Given the same run with ZURI_SECRET_STORE set to supabase-vault and then to envelope, when the proofs are repeated, then proofs 1 to 6 pass for both stores and the evidence names the commit, store and date",
+            "Given the production migration ledger, when it is read after the run, then no Phase 1 migration has been applied, and the evidence is recorded in this container's changelog",
+            "(v0.4.7) ปิด Phase 1 — พิสูจน์ข้อ 1–6 ทั้ง SQLite/Postgres ทั้งสอง store · ช่อง LINE ทดสอบจริงบน dev (คนเป็นผู้กรอก secret) · ยังไม่ apply migration production"]
         ]},
-      { id:"SPR-ZAI-04", weeks:"สัปดาห์ 7-8", goal:"Approval Gateway L1–L4 พร้อม verification, notification และผูก Mission Control · ladder quote ใน LINE และ knowledge structured records",
+      { id:"SPR-ZAI-04", weeks:"สัปดาห์ 7-8", goal:"Approval Gateway L1–L4 พร้อม verification, notification และผูก Mission Control · ladder quote ใน LINE และ knowledge structured records · (v0.4.7) wizard เชื่อม LINE OA เอง, webhook อัตโนมัติ, quiescence ที่ระบบตรวจเอง, ย้ายบัญชีแรกออกจาก mount · บันทึกแชทครบ, retention และค้นหาใน inbox",
         exit:"action ระดับ L4 ทำงานไม่ได้ถ้ายังไม่มีการอนุมัติครบสี่ครั้งที่บันทึกไว้",
         tasks:[
           ["TASK-ZAI-010","TSK-ZAI010","Approval Gateway L1 to L4 over the FR-026 action gate","FR","C-3","H3","planned","ATHER","TASK-ZAI-007","src/modules/agent/action-gate.js","docs/FEATURE-MAP.md","unavailable",58000,
@@ -1097,7 +1127,57 @@ const PHASES = [
             "Given a JSON array of records with a registered entityType, when admitted as a FILE source with format STRUCTURED_RECORDS_V1, then each record becomes one immutable source with frozen bytes and hash before Stage 1, the Zero-PII predicate refuses cost, margin or personal data, and no stage result is synthesised",
             "Given the per-Business Excel template, when a filled workbook is posted to the knowledge xlsx route, then its rows convert to the same records and enter the same admission call, and the MCP tool admits the format without a new handler",
             "Given npm test, when the admission, workbook and MCP suites run, then JSON, Excel and MCP produce identical source keys for identical rows and the SMARTGIFT_CATALOG_V1 path is unchanged",
-            "(v0.4.2) จากคำขอ flow ของ owner (กลุ่ม D ได้ JSON / Excel / MCP) · ฝั่งขายเท่านั้น — template ไม่มีคอลัมน์ต้นทุน เพราะใบต้นทุนเป็นของ 053 และเข้า Procurement"]
+            "(v0.4.2) จากคำขอ flow ของ owner (กลุ่ม D ได้ JSON / Excel / MCP) · ฝั่งขายเท่านั้น — template ไม่มีคอลัมน์ต้นทุน เพราะใบต้นทุนเป็นของ 053 และเข้า Procurement"],
+          ["TASK-ZAI-082","TSK-ZAI082","Self-serve LINE OA connection wizard — Thai step-up, Channel ID and secret entry with an optional override token, live proof with LINE, claim, vault write, connection, a masked credential card and a DRAFT account, and a mount-backed account moved into the vault on re-entry — FR-225","FR","C-3","H3","planned","Claude","TASK-ZAI-081","apps/server/src/modules/integration/application/line-server-provisioning-service.js","docs/plans/LINE-OA-CREDENTIAL-VAULT-ONBOARDING-AND-CHAT-HISTORY-DESIGN.md","unavailable",60000,
+            "Given a Business owner at AAL2, when they enter a Channel ID and secret in the Thai wizard, then the server proves the pair with LINE, fills destination, basic id and display name, claims the bot, writes the credential through FR-223 and creates the LINE_OA connection and a DRAFT LineOaAccount with no operator and no host file",
+            "Given a wrong Channel ID or a wrong secret, a LINE outage, or a refused claim, when the wizard submits, then both wrong inputs answer 422 LINE_CREDENTIALS_REJECTED, the outage answers 503 with nothing stored, the claim refusal shows its Thai message, and no response carries more than connection, masked credential and bot metadata",
+            "Given the e2e journey and npm test, when they run, then the Studio form no longer accepts a deployment-secret reference, a mount-backed account moves into the vault when its owner re-enters the secret, and no secret remains in page state after submit",
+            "(v0.4.7) Phase 2 — wizard ภาษาไทยให้เจ้าของธุรกิจเชื่อม LINE OA เอง: ยืนยัน TOTP → กรอก Channel ID + secret → ตรวจกับ LINE → claim → เก็บลง vault → บัญชี DRAFT · ไม่ต้องมี operator"],
+          ["TASK-ZAI-083","TSK-ZAI083","Automatic LINE webhook registration and health — a publisher action sets, reads back and tests the account webhook through LINE, stores webhook health in LineOaAccount.webhookStateJson with its migration, and falls back to a Thai manual card — FR-227","FR","C-2","H3","planned","Claude","TASK-ZAI-082","apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js","docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md","unavailable",36000,
+            "Given a DRAFT account with a validated credential, when a publisher runs register webhook, then LINE's endpoint is set to this server's account webhook URL, read back with its active flag and tested, and endpoint, active flag, last test time, reason and HTTP status are stored as webhook health; running it again is idempotent and needs no secret re-entry",
+            "Given LINE refusing the URL, an unset public base URL, the Use webhook toggle off or a failed test, when the action runs, then the account shows the reason in Thai with a manual card carrying the URL, and a test whose signature does not verify is reported as a stored secret that does not belong to the channel with a link to rotation (ADR-089 proof 8)",
+            "Given npm test with LINE stubbed and the webhook-state migration written in both trees, when the suites and preflight run, then every refusal maps to its reason and Check 18 stays green; the column is not applied to production by this task",
+            "(v0.4.7) Phase 2 — ตั้ง webhook ผ่าน API ของ LINE อัตโนมัติ อ่านกลับและทดสอบ เก็บสุขภาพ webhook · ถ้า LINE ปฏิเสธ แสดงเหตุผลภาษาไทยพร้อมการ์ดให้วาง URL เอง"],
+          ["TASK-ZAI-084","TSK-ZAI084","Derived legacy-transport quiescence and restore re-entry — ENABLE_SERVER derives quiescence for a vault-backed account from the endpoint LINE reports and 120 seconds without legacy evidence, validates through the dispatching secret manager, and a restored snapshot forces credential re-entry — FR-228","FR","C-2","H3","planned","Claude","TASK-ZAI-083","apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js","docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md","unavailable",34000,
+            "Given a vault-backed account, when ENABLE_SERVER runs, then it succeeds with no typed confirmation only when LINE reports this server's account URL and the legacy seam recorded no evidence for the destination in the last 120 seconds, and otherwise refuses 409 LINE_LEGACY_TRANSPORT_ACTIVE with the last legacy receipt time",
+            "Given a mount-backed account, when ENABLE_SERVER runs, then the typed confirmation is still required, and for every account the epoch fence, the refusal while SENDING or UNKNOWN jobs exist and the version check are unchanged (ADR-061 D3, D7)",
+            "Given a backup restored into a test database and npm test, when the suites run, then every restored credential reads REENTRY_REQUIRED, rotation keeps sends flowing and revocation fails queued sends closed (ADR-089 proofs 7 and 9)",
+            "(v0.4.7) Phase 2 — ENABLE_SERVER ตรวจเองว่า transport เดิมเงียบแล้ว (URL ที่ LINE รายงาน + ไม่มีหลักฐาน legacy 120 วินาที) แทนการพิมพ์ยืนยัน · restore backup แล้วต้องกรอก credential ใหม่"],
+          ["TASK-ZAI-085","TSK-ZAI085","Apply the credential vault and onboarding migrations on production — design migrations 1 to 4 and 8 and the webhook-state column, under ADR-057 with an inventory, a rolled-back dry run and a verified effect, recorded in the migration notes","NFR","C-2","H4","planned","ATHER","TASK-ZAI-084","apps/server/supabase/migrations","docs/DB-MIGRATION-NOTES.md","unavailable",16000,
+            "Given the owner's instruction naming the migrations, when the operator applies them, then each is preceded by a read-only inventory and a rolled-back dry run through the transaction pooler and followed by a ledger row and a verified effect (tables, columns, forced RLS, definer functions, NOLOGIN roles and grants)",
+            "Given the Supabase Vault precondition, when migration 3 is applied, then its vault.decrypted_secrets privilege guard passes and no application role can read the vault views",
+            "Given docs/DB-MIGRATION-NOTES.md and the PRD status cells, when the apply is recorded, then each migration names its date and session, and the redeploy that follows keeps the ADR-061 overlay (both compose files named, ZURI_LINE_SERVER_ENABLED true) with clean web and line-worker logs",
+            "(v0.4.7) งาน operator — apply migration vault/onboarding บน production ตามคำสั่ง owner (ADR-057) · inventory → dry run แบบ rollback → apply → ตรวจผล → บันทึก"],
+          ["TASK-ZAI-086","TSK-ZAI086","Channel credential entry for the first production account — the Business owner, at AAL2, enters the Channel ID and secret in the production wizard to move one mount-backed LINE OA account into the vault; no agent ever types a credential","NFR","C-1","H4","planned","Owen","TASK-ZAI-085","unavailable","docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md","unavailable",6000,
+            "Given the production wizard after TASK-ZAI-085, when the owner re-enters the channel's Channel ID and secret at AAL2, then the credential is stored in the configured store, the credential card shows only the mask and the last four characters of the Channel ID, and the mount entry is no longer the account's reference",
+            "Given the entry, when the audit trail and server logs are read, then they record who wrote which credential version and when, and carry no secret material (SEC-030)",
+            "Given the account after entry, when one send is made, then it resolves through the vault and succeeds, recorded with the commit, store and date",
+            "(v0.4.7) งานของ owner — กรอก Channel ID + secret ของบัญชีจริงบัญชีแรกใน wizard production ด้วยตัวเอง · agent ห้ามกรอก credential"],
+          ["TASK-ZAI-087","TSK-ZAI087","Webhook cutover for the first production account — register and test the webhook through LINE, observe derived quiescence, enable server transport and record ADR-061 provider-webhook-replaced evidence with a written rollback","NFR","C-2","H4","planned","Owen","TASK-ZAI-086","unavailable","docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md","unavailable",14000,
+            "Given the account moved into the vault, when register webhook runs on production, then LINE reports this server's account URL with the active flag and a passing test, and the webhook health card shows it",
+            "Given the legacy edge path that served the bot, when ENABLE_SERVER is attempted, then it is refused until 120 seconds pass without legacy evidence and then succeeds with no typed confirmation, and a real customer message is admitted, answered and receipted on the server path",
+            "Given delivery evidence read from the tunnel inspector rather than the console's Verify button alone, when the cutover is recorded, then it names the account, commit, time and last legacy receipt, and the rollback (re-point the webhook, fence the account) is written beside it",
+            "(v0.4.7) งาน operator ตามคำสั่ง owner — ย้าย webhook ของบัญชีแรกมาที่ server: ตั้งและทดสอบผ่าน API, รอ transport เดิมเงียบ, ENABLE_SERVER, บันทึกหลักฐานการส่งจริงและวิธี rollback"],
+          ["TASK-ZAI-088","TSK-ZAI088","Non-text LINE content in the CRM record — sticker, location and media messages become Message rows with a content kind and placeholder body, media gets a MessageAttachment without bytes, follow, join, membership, postback and unsend become ConversationEvent rows, and an unsend tombstones its message — FR-229","FR","C-3","H3","planned","Claude","TASK-ZAI-077; TASK-ZAI-074; TASK-ZAI-075","apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js","docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md","unavailable",56000,
+            "Given LINE webhook events of every non-text type, when admission runs, then each produces its CRM row (a Message with content kind and placeholder body, a MessageAttachment without bytes, or a ConversationEvent with an id-only payload) in the ADR-061 admission transaction, and none creates an answer job",
+            "Given an unsend event, when it is admitted, then the referenced message body and attachment are tombstoned, and an unsend for a message the Business never received is recorded as an event without error (ADR-091 proof 4)",
+            "Given npm test on both providers and the CRM part of design migration 5 written in both trees, when the suites and preflight run, then non-text events are visible in the inbox and Check 18 stays green; no media byte is fetched or stored",
+            "(v0.4.7) Phase 3 — sticker, location, รูป/ไฟล์ และเหตุการณ์ follow/join/unsend เข้าบันทึก CRM · ยังไม่เก็บไฟล์จริง · ไม่สร้างงานตอบ"],
+          ["TASK-ZAI-089","TSK-ZAI089","Declared retention classes and the nightly sweep — installation defaults for raw LINE payloads, message bodies and attachments, trace payloads and MSP session content, per-Tenant downward-only overrides, a sweep that skips rows live LINE jobs reference, and one audit event per run — FR-230, SEC-031","FR","C-3","H3","planned","Claude","TASK-ZAI-088","unavailable","docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md","unavailable",52000,
+            "Given the defaults (raw payload text 90 days, message bodies and attachments 24 months, AgentTraceEvent payloads 90 days, MSP session content 90 days), when the nightly sweep runs, then it tombstones exactly the rows past each window, keeps envelope columns and skips rows a non-terminal LineConversationJob references",
+            "Given a Tenant override, when it shortens a window it is honoured and when it would lengthen one it is refused, and each sweep run writes one audit event with counts per class (ADR-091 proof 5)",
+            "Given npm test with fixtures on both providers, when the retention suites run, then the sweep is idempotent and reports retention truthfully (ADR-070 D3), and the override store's migration is written in both trees and not applied",
+            "(v0.4.7) Phase 3 — ระยะเก็บข้อมูลตามประเภท (payload ดิบ 90 วัน, ข้อความ 24 เดือน, trace 90 วัน, MSP 90 วัน) · Tenant ย่อได้ ห้ามยืด · sweep ทุกคืนพร้อม audit"],
+          ["TASK-ZAI-090","TSK-ZAI090","Conversation inbox read models and message search — last-message time, a redacted 120-character preview, retention class and unread counts, a read-only CRM search reader with a trigram index on Postgres, and follow and unfollow counts per account — FR-233","FR","C-2","H2","planned","Claude","TASK-ZAI-088","unavailable","docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md","unavailable",36000,
+            "Given conversations with new messages, when the inbox reads them, then each shows its last-message time, a preview of at most 120 characters that the erasure writer redacts, its retention class and a per-Business unread count computed on read",
+            "Given a search term, when the search reader runs, then it returns matches only from the viewer's visible Businesses and, when one is given, one LINE OA account, using a trigram index on Postgres and LIKE on SQLite",
+            "Given npm test and the inbox e2e, when they run, then another Business's messages never appear, follow and unfollow counts per account come from ConversationEvent, and the index migration is written in both trees and not applied",
+            "(v0.4.7) Phase 3 — inbox มีเวลาข้อความล่าสุด, preview 120 ตัวอักษร, จำนวนยังไม่อ่าน · ค้นหาข้อความภายในธุรกิจที่มองเห็นได้ (trigram บน Postgres)"],
+          ["TASK-ZAI-091","TSK-ZAI091","Apply the chat record migrations on production — non-text content, read-model columns, the trigram index and the retention override store, under ADR-057, recorded in the migration notes","NFR","C-1","H4","planned","ATHER","TASK-ZAI-089; TASK-ZAI-090","apps/server/supabase/migrations","docs/DB-MIGRATION-NOTES.md","unavailable",12000,
+            "Given the owner's instruction naming the migrations, when the operator applies them, then each is preceded by an inventory and a rolled-back dry run, and pg_trgm is confirmed available before the index migration",
+            "Given the apply, when its effect is verified, then the new tables and columns with their RLS and grants exist, and the retention sweep's first production run writes its audit event with counts per class",
+            "Given docs/DB-MIGRATION-NOTES.md, when the apply is recorded, then each migration names its date and session and the redeploy keeps the ADR-061 overlay with clean container logs",
+            "(v0.4.7) งาน operator — apply migration บันทึกแชทบน production ตามคำสั่ง owner"]
         ]}
     ]
   },
@@ -1108,7 +1188,7 @@ const PHASES = [
     exit:"GATE-ZAI-04 และ GATE-ZAI-07 ผ่านสำหรับ connector 1–2 และ workflow 1–2",
     state:"planned",
     sprints:[
-      { id:"SPR-ZAI-05", weeks:"สัปดาห์ 9-10", goal:"Standard business template และ onboard ธุรกิจที่สอง",
+      { id:"SPR-ZAI-05", weeks:"สัปดาห์ 9-10", goal:"Standard business template และ onboard ธุรกิจที่สอง · (v0.4.7) Context Composer และคำตอบ LINE อิง corpus GKS พร้อมทดสอบแยกสี่โปรเซส",
         exit:"ธุรกิจที่สอง live และแยกข้อมูลจาก SmartGift ได้จริงภายใต้เทสต์",
         tasks:[
           ["TASK-ZAI-013","TSK-ZAI013","Standard Business Template and provisioning path","FR","C-2","H2","planned","Codex","TASK-ZAI-009","prisma/seed.js","docs/DOMAIN-MODEL.md","unavailable",34000,
@@ -1125,9 +1205,24 @@ const PHASES = [
             "Given a Membership covering only Business one, when the viewer resolves domains, then Business two grants nothing",
             "Given the Users and Permissions list, when an administrator opens it, then it shows only Memberships they may administer",
             "Given npm test, when the FR-061 and FR-062 suites run at two-business scale, then both pass without widening a grant",
-            "FR-061/062 เขียนและเทสต์ตอนที่มีธุรกิจเดียว สองธุรกิจคือการใช้งานจริงครั้งแรกของ per-business grant"]
+            "FR-061/062 เขียนและเทสต์ตอนที่มีธุรกิจเดียว สองธุรกิจคือการใช้งานจริงครั้งแรกของ per-business grant"],
+          ["TASK-ZAI-092","TSK-ZAI092","Context Composer — one agent-lane module assembling every LINE model prompt from AuthContext, MSP slices, knowledge evidence and CRM and ERP facts in truth order under one budget, reporting every trim, recording one ContextReceipt per model invocation and calling no model without evidence — FR-234, SDD-100","FR","C-3","H3","planned","Claude","TASK-ZAI-088","apps/server/src/modules/agent/server-line-answer.js","docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md","unavailable",62000,
+            "Given a LINE turn, when the composer assembles the prompt, then authorization is checked first and a denial yields an empty packet, CRM and ERP records outrank GKS evidence which outranks MSP memory, and memory that contradicts a record is dropped with reason SUPERSEDED_BY_RECORD",
+            "Given one prompt-wide budget, when the slices exceed it, then they are trimmed by priority and every trim is reported, group-thread slices never cross threads, and exactly one ContextReceipt of references, hash and budget, never content, is recorded per model invocation",
+            "Given npm test and the existing worker-route contract test, when they run, then the default path's answers and traces are unchanged by the extraction, no evidence and no facts means zero model calls, and ADR-091 proof 7 passes",
+            "(v0.4.7) Phase 3b — Context Composer เป็น module ใน agent lane: ตรวจสิทธิ์ก่อน, CRM/ERP > GKS > MSP, budget เดียวรายงานทุกการตัด, ContextReceipt หนึ่งใบต่อการเรียก model · ต้องเสร็จก่อน phase 4 และ 6"],
+          ["TASK-ZAI-093","TSK-ZAI093","LINE grounding from the published corpus — an in-process knowledge.query reader over queryKnowledgeCorpus under the runtime knowledge capability, a per-account knowledgeGrounding mode with its migration, a 2 500 ms, top-5, 8 KiB budget, a traced mode-gated fallback and retrievalRefs on EVIDENCE_SELECTED — FR-235, SDD-099","FR","C-3","H3","planned","Claude","TASK-ZAI-092","apps/server/src/modules/knowledge/knowledge-corpus-service.js","docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md","unavailable",58000,
+            "Given an account in BUSINESS_KNOWLEDGE mode, when a LINE job is answered, then answers and traces are byte-identical to today's path; given GKS_CORPUS or GKS_THEN_BUSINESS_KNOWLEDGE, then the reader reads the Business's published corpus generation under the job's server-derived Tenant and Business and records retrievalRefs with citation, source, snapshot and corpus generation",
+            "Given a hop over 2 500 ms or an error, when the mode is GKS_THEN_BUSINESS_KNOWLEDGE, then the result is GKS_UNAVAILABLE and the fallback is traced with its reason; in GKS_CORPUS there is no fallback; with no evidence from any allowed source the deterministic reply is sent and no model is called",
+            "Given npm test, when the grounding suites run, then a job of Business A never reads Business B's corpus through scope, capability or binding, the mode migration is written in both trees and not applied, and ADR-090 proofs 1, 3, 4 and 5 pass",
+            "(v0.4.7) Phase 4 — ตอบ LINE จาก corpus GKS ที่ publish แล้ว ผ่าน reader ในโปรเซส · เลือกโหมดต่อบัญชี (ค่าเริ่มต้นเหมือนเดิม) · budget 2.5 วินาที · fallback ตามโหมดพร้อม trace · ไม่มีหลักฐาน = ไม่เรียก model"],
+          ["TASK-ZAI-094","TSK-ZAI094","Grounding isolated acceptance — a real LINE job answered from a published generation in the four-process harness with citations on the job trace, zero cross-tenant leakage, the deterministic reply with the worker stopped, and MSP spawn cost measured against the budget","NFR","C-2","H3","planned","Claude","TASK-ZAI-093","apps/server/tests/acceptance/genesisrag17-e2e.test.js","docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md","unavailable",26000,
+            "Given the four-process isolated harness with a published corpus generation, when a LINE job for an account in GKS_CORPUS mode is answered, then the reply is grounded and GET /api/line-oa/jobs/{id}/trace shows retrievalRefs (ADR-090 proof 2)",
+            "Given a second Business in the harness and a stopped worker, when jobs are answered, then no cross-tenant evidence appears and the stopped worker yields the deterministic reply rather than an error or a model-only answer (proofs 5 and 6)",
+            "Given the measured MSP spawn time inside a four-wide worker tick, when it is recorded, then the evidence states whether the 2 500 ms budget holds, and if spawn dominates the finding is written for the MSP daemon transport decision instead of widening the budget",
+            "(v0.4.7) Phase 4 — ทดสอบแยกสี่โปรเซส: ตอบจาก corpus จริง, citation บน trace, ไม่รั่วข้าม tenant, worker หยุด = ตอบแบบ deterministic, วัดเวลา spawn MSP"]
         ]},
-      { id:"SPR-ZAI-06", weeks:"สัปดาห์ 11-12", goal:"Cross-business analytics, connector #2, workflow 1–2",
+      { id:"SPR-ZAI-06", weeks:"สัปดาห์ 11-12", goal:"Cross-business analytics, connector #2, workflow 1–2 · (v0.4.7) สลับ grounding ของ SmartGift หลัง ADR-075 Phase 3, knowledge candidates, รายงานคำถามที่ไม่มีคำตอบ · memory policy และ erasure (ถูกบล็อก รอ MSP)",
         exit:"analytics เคารพ per-business visibility และ workflow สองตัวรันครบวงจร",
         tasks:[
           ["TASK-ZAI-016","TSK-ZAI016","Cross-business governed analytics read model","FR","C-3","H3","planned","Claude","TASK-ZAI-014","src/modules/knowledge/genesisblockdb-sink.js","docs/DOMAIN-MODEL.md","unavailable",48000,
@@ -1149,7 +1244,47 @@ const PHASES = [
             "Given the production migration ledger and the tree at the accepted commit, when compared, then every migration in the tree is recorded applied",
             "Given npm test on the ERP module suites at the accepted commit, when they run, then all pass through assert-tests-ran",
             "Given FR-181's negative test and the owner's walkthrough on the production Business, when both are recorded, then GATE-ZAI-09 is marked met with commit and date",
-            "(CR-019) งาน acceptance ของ deliverable 11 · gate ปิดด้วยหลักฐานที่บันทึก ไม่ใช่สถานะของ task"]
+            "(CR-019) งาน acceptance ของ deliverable 11 · gate ปิดด้วยหลักฐานที่บันทึก ไม่ใช่สถานะของ task"],
+          ["TASK-ZAI-095","TSK-ZAI095","SmartGift grounding switch on production — after ADR-075 Phase 3 is deployed, apply the grounding-mode migration, switch one SmartGift DIRECT account to GKS_THEN_BUSINESS_KNOWLEDGE as an owner-triggered operator step, shadow-compare for one campaign window and keep the rollback","NFR","C-2","H4","planned","Owen","TASK-ZAI-094; TASK-ZAI-042; TASK-ZAI-050","apps/server/supabase/migrations","docs/DB-MIGRATION-NOTES.md","unavailable",16000,
+            "Given ADR-075 Phase 3 deployed (MSP, GKS and the GenesisBlock worker beside the web container) and the owner's instruction, when the operator applies the knowledgeGrounding migration and switches one SmartGift DIRECT account, then that account's jobs read the published corpus first and fall back to business knowledge with a traced reason",
+            "Given one campaign window, when answers are shadow-compared against business knowledge, then the comparison is recorded and names which accounts ran SERVER execution, because customers on the edge path (CH-01) are not affected",
+            "Given a regression, when the rollback runs, then flipping the account back to BUSINESS_KNOWLEDGE restores today's traces, and the switch and any rollback are recorded in the migration notes and this container's changelog",
+            "(v0.4.7) งาน operator ตามคำสั่ง owner — หลัง ADR-075 Phase 3 ขึ้น production: สลับบัญชี SmartGift หนึ่งบัญชีเป็น GKS_THEN_BUSINESS_KNOWLEDGE, เทียบคำตอบหนึ่งช่วงแคมเปญ, rollback ได้"],
+          ["TASK-ZAI-096","TSK-ZAI096","LINE FAQ knowledge candidates — locator-only question-and-answer candidates from consent-GRANTED conversations checked by the Zero-PII deny policy, an OWNER or LINE_OA_PUBLISHER review surface with audited decisions, and admission of an approved candidate as a LINE_FAQ_CANDIDATE TEXT source through ADR-072 — FR-236, SEC-032","FR","C-3","H3","planned","Claude","TASK-ZAI-093","unavailable","docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md","unavailable",60000,
+            "Given a consent-GRANTED conversation, when a candidate is drafted, then it carries a canonical question and answer with product locators, policy names and amounts and no names, LINE ids or quoted customer wording, and Thai PII fixtures are refused at creation and again at Stage 5 classify",
+            "Given a candidate, when a Business OWNER or LINE_OA_PUBLISHER edits and approves or rejects it, then the decision is audited, only an approved candidate is admitted as one immutable LINE_FAQ_CANDIDATE TEXT source through the admission service, and nothing is promoted automatically or through gks_knowledge_promote",
+            "Given npm test and preflight, when they run, then ADR-090 proof 7 passes, the knowledge charter claims KnowledgeCandidate, the pipeline map gains the candidate nodes with their surfaces, and the migration is written in both trees and not applied",
+            "(v0.4.7) Phase 5 — ความรู้จากแชท LINE เข้า GKS ได้เฉพาะคำถาม-คำตอบที่ไม่มีข้อมูลบุคคล จากลูกค้าที่ยินยอม ผ่านการอนุมัติของ OWNER หรือ LINE_OA_PUBLISHER · ตรวจ PII สองชั้น"],
+          ["TASK-ZAI-097","TSK-ZAI097","Knowledge gap report for LINE — NO_EVIDENCE retrievals aggregated per Business in the Knowledge (GKS) slot as counts, product locators and last-seen times, with the question text left in CRM — FR-237","FR","C-1","H2","planned","Claude","TASK-ZAI-093","unavailable","docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md","unavailable",18000,
+            "Given EVIDENCE_SELECTED trace events with reason NO_EVIDENCE, when the gap report renders for the active Business, then it shows counts, product locators and last-seen times only",
+            "Given another Business's events, when the report renders, then none of them are counted and no question text appears in the report",
+            "Given npm test, when the report suite runs, then the aggregation is scoped per Business and nothing from the report is admitted into knowledge",
+            "(v0.4.7) Phase 5 — รายงานคำถามที่ไม่มีคำตอบ ต่อธุรกิจ: จำนวน, รหัสสินค้า, เวลาล่าสุด · ข้อความคำถามอยู่ใน CRM ไม่เข้า GKS"],
+          ["TASK-ZAI-098","TSK-ZAI098","LINE Studio descriptions as knowledge sources — on a publisher action, published rich menu, LIFF app and bot profile descriptions are admitted as LINE_STUDIO_DESCRIPTION TEXT sources, never the Flex or rich menu JSON, and unpublishing withdraws them — FR-238","FR","C-2","H2","planned","Claude","TASK-ZAI-096","unavailable","docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md","unavailable",30000,
+            "Given a published rich menu, LIFF app or bot profile, when a publisher admits its description, then one LINE_STUDIO_DESCRIPTION TEXT source is admitted through the admission service with the human-readable text only",
+            "Given the item is unpublished, when the unpublish completes, then the source is withdrawn and later citations are denied",
+            "Given npm test, when the suites run, then no Flex or rich menu JSON reaches admission, and admission and withdrawal are both audited",
+            "(v0.4.7) Phase 5 — คำอธิบาย rich menu, LIFF และโปรไฟล์บอทที่ publish แล้วเข้าเป็นแหล่งความรู้ (ไม่ใช่ JSON) · ยกเลิก publish = ถอนออก"],
+          ["TASK-ZAI-099","TSK-ZAI099","Apply the knowledge candidate migration on production and turn candidates on for SmartGift only on the owner's instruction, recorded in the migration notes","NFR","C-1","H4","planned","ATHER","TASK-ZAI-096","apps/server/supabase/migrations","docs/DB-MIGRATION-NOTES.md","unavailable",10000,
+            "Given the owner's instruction, when the operator applies the KnowledgeCandidate migration, then it is preceded by an inventory and a rolled-back dry run and followed by a verified effect",
+            "Given candidates are off by default per Business, when the owner turns them on for SmartGift, then the switch is recorded with its date and who asked",
+            "Given docs/DB-MIGRATION-NOTES.md, when the apply is recorded, then the migration names its date and session and the redeploy keeps the ADR-061 overlay",
+            "(v0.4.7) งาน operator — apply migration KnowledgeCandidate บน production และเปิดใช้กับ SmartGift ตามคำสั่ง owner เท่านั้น"],
+          ["TASK-ZAI-100","TSK-ZAI100","LINE memory projection policy and receipts — LineOaAccount.memoryPolicy defaulting to OFF, per-job capture of session-tier and memory-tier eligibility by policy, consent and audience, MemoryProjectionReceipt in the delivery settlement, and a projector that refuses until MSP main ships thread and erase tools — FR-231","FR","C-3","H3","blocked","Claude","TASK-ZAI-092; TASK-ZAI-089","apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js","docs/roadmap/PLAN-MSP-MEMORY-OS-LINE-AGENT.md","unavailable",52000,
+            "Given an account's memoryPolicy and a Customer's consent, when a turn is admitted, then the job captures immutably whether it may reach MSP's session tier (policy not OFF) and whether it may reach episodic, passport or cross-thread memory (policy not OFF, consent GRANTED and audience DIRECT), and a group or room turn never reaches private memory",
+            "Given projection before MSP main exposes its thread tools and an erase tool, when the projector runs, then it refuses with MSP_THREAD_CONTRACT_UNAVAILABLE, no MSP thread tool is called for any policy or consent value, and ZURI_MSP_THREAD_MEMORY_ENABLED acts only as a kill switch",
+            "Given MSP TASK-MEMOS-002 and TASK-MEMOS-004 merged, when a projection is acknowledged, then a MemoryProjectionReceipt is written in the transaction that settles its delivery, ADR-091 proofs 1 to 3 pass, and the memoryPolicy and receipt migrations are written in both trees and not applied",
+            "(v0.4.7) Phase 6 (ถูกบล็อก) — นโยบายความจำต่อบัญชี ค่าเริ่มต้นปิด · จับสิทธิ์ต่อ job ตาม policy/consent/audience · receipt ทุกครั้งที่ MSP รับ · รอ MSP main มี thread tool และ erase tool (TASK-MEMOS-002, 004)"],
+          ["TASK-ZAI-101","TSK-ZAI101","Erasure propagation beyond Tier 1 — one transaction tombstones CRM bodies, previews, attachments, LINE job fields, raw payloads, trace inputs and knowledge candidates, and leaves durable MSP erase calls per projection receipt and knowledge-source withdrawals, with PENDING_MSP until acknowledged — FR-232, SEC-031","FR","C-3","H3","blocked","Claude","TASK-ZAI-100; TASK-ZAI-096","apps/server/src/modules/identity/erase-principal.js","docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md","unavailable",56000,
+            "Given a principal erasure or a Customer's consent changing to DECLINED, when erasure runs, then one local transaction tombstones everything Tier 1 holds, including every KnowledgeCandidate whose source names an erased conversation, and records one MSP erase job per projection receipt and one knowledge-source withdrawal with a correction run per admitted candidate",
+            "Given MSP unavailable, when the Customer's erasure status is read, then it shows PENDING_MSP until MSP acknowledges, the erase call retries with backoff, and no external tier is shown as erased without its acknowledgement",
+            "Given the three-repository test of the ADR-068 pattern, when append, erase and context resolution run against real MSP, then MSP's context no longer returns the text, a late citation of a withdrawn candidate is denied, and ADR-091 proof 6 and ADR-090 proof 8 pass",
+            "(v0.4.7) Phase 6 (ถูกบล็อก) — ลบข้อมูลบุคคลในธุรกรรมเดียวภายใน Tier 1 แล้วสั่งลบใน MSP ต่อ receipt และถอน source ของ candidate · สถานะ PENDING_MSP จนกว่า MSP ยืนยัน"],
+          ["TASK-ZAI-102","TSK-ZAI102","Memory policy production activation — apply the memory policy and projection receipt migrations under ADR-057 and, only on the owner's instruction, enable projection for one DIRECT account after the MSP canary (TASK-MEMOS-006) passes, recorded with a rollback","NFR","C-2","H4","blocked","ATHER","TASK-ZAI-101","apps/server/supabase/migrations","docs/DB-MIGRATION-NOTES.md","unavailable",14000,
+            "Given MSP main with thread and erase tools deployed and the owner's instruction, when the operator applies the memory policy and receipt migrations, then each is preceded by an inventory and a rolled-back dry run and followed by a verified effect",
+            "Given one DIRECT account set to a memory policy other than OFF, when a customer converses across a worker restart, then in-thread recall works, no other person's thread is readable, and an erasure test shows PENDING_MSP and then acknowledged",
+            "Given the kill switch, when it is exercised, then projection stops on the next job, and the activation, test and rollback are recorded in the migration notes",
+            "(v0.4.7) งาน operator (ถูกบล็อก) — apply migration ความจำ และเปิด projection ให้บัญชี DIRECT หนึ่งบัญชีตามคำสั่ง owner หลัง canary ของ MSP ผ่าน · มี kill switch"]
         ]}
     ]
   },
@@ -1216,7 +1351,7 @@ const PHASES = [
             "Given npm test, when the lineage suite runs, then a replay against changed content fails closed",
             "13 ก.ย.: FR-116 lineage, FR-117 versions, FR-171 trace & replay v0.3 (ADR-070) · ยังไม่มี fail-closed replay test จึงยังไม่ติ๊ก"]
         ]},
-      { id:"SPR-ZAI-10", weeks:"สัปดาห์ 19-20", goal:"Node View 3D, direct manipulation, workflow 3–5, connector #3",
+      { id:"SPR-ZAI-10", weeks:"สัปดาห์ 19-20", goal:"Node View 3D, direct manipulation, workflow 3–5, connector #3 · (v0.4.7) ขยาย vault ไปยัง credential ประเภทอื่น",
         exit:"3D view ค้นความสัมพันธ์ได้ และมี workflow ครบห้าตัว",
         tasks:[
           ["TASK-ZAI-026","TSK-ZAI026","Interactive Node View 3D over the governed relation graph","FR","C-3","H3","planned","Codex","TASK-ZAI-024","src/modules/project-manager/views/dependency-map.module.css","docs/UI-DESIGN-SYSTEM.md","unavailable",68000,
@@ -1233,7 +1368,12 @@ const PHASES = [
             "Given workflows three, four and five, when each runs end to end, then each records steps, retries, approvals and a verifiable outcome",
             "Given connector three, when it reads, then it reads only inside its declared contract scope",
             "Given npm test, when the workflow and connector suites run, then five workflows and three connectors are covered and no out-of-scope read passes",
-            "ปิด deliverable 7 และ 8 ให้ถึงเพดานตามสัญญาคือ 5 workflow และ 3 connector"]
+            "ปิด deliverable 7 และ 8 ให้ถึงเพดานตามสัญญาคือ 5 workflow และ 3 connector"],
+          ["TASK-ZAI-103","TSK-ZAI103","Generalise the credential vault to other provider kinds — OAUTH_CLIENT for FlowAccount (ADR-053) and MODEL_PROVIDER_KEY on the same SecretStorePort, and retire the Phase-1 model-credential resolver; requirements declared first","FR","C-3","H3","planned","Claude","TASK-ZAI-085","unavailable","docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md","unavailable",50000,
+            "Given ADR-089 phase 7, when this task opens, then its requirements are declared in the PRD and pinned before any code, because no requirement covers these kinds today",
+            "Given an OAUTH_CLIENT or MODEL_PROVIDER_KEY credential, when it is written, rotated, revoked and resolved, then it follows the same write-only, versioned and scope-rechecked lifecycle as a LINE channel credential and SEC-030 holds",
+            "Given the Phase-1 resolver retired, when npm test and npm run phase1:isolation:verify run, then model credentials resolve through the port and no resolver reads zuri_core.integration_* directly",
+            "(v0.4.7) Phase 7 (ภายหลัง) — ขยาย vault ไปยัง credential ประเภทอื่น (FlowAccount OAuth, model provider key) และเลิกใช้ resolver ของ Phase 1 · ยังไม่มี FR ต้องประกาศก่อนเริ่ม · ยังไม่มี lane"]
         ]}
     ]
   },
@@ -1346,7 +1486,35 @@ const DOD_CHECKS = {
   "TASK-ZAI-072": [1,1,1],
   "TASK-ZAI-073": [1,1,1],
   "TASK-ZAI-074": [1,1,1],
-  "TASK-ZAI-075": [1,1,1]
+  "TASK-ZAI-075": [1,1,1],
+  "TASK-ZAI-076": [1,1,1],
+  "TASK-ZAI-077": [0,0,0],
+  "TASK-ZAI-078": [0,0,0],
+  "TASK-ZAI-079": [0,0,0],
+  "TASK-ZAI-080": [0,0,0],
+  "TASK-ZAI-081": [0,0,0],
+  "TASK-ZAI-082": [0,0,0],
+  "TASK-ZAI-083": [0,0,0],
+  "TASK-ZAI-084": [0,0,0],
+  "TASK-ZAI-085": [0,0,0],
+  "TASK-ZAI-086": [0,0,0],
+  "TASK-ZAI-087": [0,0,0],
+  "TASK-ZAI-088": [0,0,0],
+  "TASK-ZAI-089": [0,0,0],
+  "TASK-ZAI-090": [0,0,0],
+  "TASK-ZAI-091": [0,0,0],
+  "TASK-ZAI-092": [0,0,0],
+  "TASK-ZAI-093": [0,0,0],
+  "TASK-ZAI-094": [0,0,0],
+  "TASK-ZAI-095": [0,0,0],
+  "TASK-ZAI-096": [0,0,0],
+  "TASK-ZAI-097": [0,0,0],
+  "TASK-ZAI-098": [0,0,0],
+  "TASK-ZAI-099": [0,0,0],
+  "TASK-ZAI-100": [0,0,0],
+  "TASK-ZAI-101": [0,0,0],
+  "TASK-ZAI-102": [0,0,0],
+  "TASK-ZAI-103": [0,0,0]
 };
 
 /* ---------------------- theme ---------------------- */
