@@ -2,8 +2,8 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.4"
-updated: "2026-09-13"
+version: "0.4.5"
+updated: "2026-09-14"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
 programme_start: "2026-08-24"
@@ -127,7 +127,7 @@ the v0.4.0 column is what changed in the programme's first three weeks.
 | # | Deliverable | Reality at `7d8c9d0` (v0.3.0) | Reality at `2b7ad27d` (v0.4.0) | Delta this programme still buys |
 |---|---|---|---|---|
 | 1 | Visual Office 2.5D | Not started. No scene model, no renderer, no route. | Unchanged. | Whole deliverable, PHASE-ZAI-04 |
-| 2 | GoVibe Mission Control (v0.4.4: plus measured delivery telemetry and task card evidence badges on the programme board, TASK-ZAI-064 to 068) | Exists as a separate product. It reads this repository's roadmap but is **not bound to Zuri business data**. | **Corrected by the owner on 2026-09-13: this deliverable is the Project system of the Development domain in this repository, not the external GoVibe product.** That system is delivered: `src/modules/project-manager` with Projects, Workstreams, WorkItems, Board and Schedule (FR-063/064), Structure Plan and Dependency Map (FR-040), the Projects Dashboard with priority, PIC and Team (FR-086 to FR-089, FEAT-008), human-visible Execution Roadmap and Blueprint intake (FEAT-003, FR-068 to FR-070), ExecutionPlanBundle import (FEAT-012, FR-108, ADR-049), Project Inventory (FEAT-005), Files (FEAT-001) and the Marketing → PM handoff (FR-158). ROADMAP.md records PHASE-ZAI-PRODUCT done. What the proposal's "Mission Control" still lacks is agent *missions*: work created and progressed by agents under approval, visible in the same Project system — which is what TASK-ZAI-012 now names. | Agent mission feed into the Development domain, TASK-ZAI-012 |
+| 2 | GoVibe Mission Control (v0.4.4: plus measured delivery telemetry and task card evidence badges on the programme board, TASK-ZAI-064 to 068; v0.4.5: the Zuri harness usage plugin, TASK-ZAI-069 to 072) | Exists as a separate product. It reads this repository's roadmap but is **not bound to Zuri business data**. | **Corrected by the owner on 2026-09-13: this deliverable is the Project system of the Development domain in this repository, not the external GoVibe product.** That system is delivered: `src/modules/project-manager` with Projects, Workstreams, WorkItems, Board and Schedule (FR-063/064), Structure Plan and Dependency Map (FR-040), the Projects Dashboard with priority, PIC and Team (FR-086 to FR-089, FEAT-008), human-visible Execution Roadmap and Blueprint intake (FEAT-003, FR-068 to FR-070), ExecutionPlanBundle import (FEAT-012, FR-108, ADR-049), Project Inventory (FEAT-005), Files (FEAT-001) and the Marketing → PM handoff (FR-158). ROADMAP.md records PHASE-ZAI-PRODUCT done. What the proposal's "Mission Control" still lacks is agent *missions*: work created and progressed by agents under approval, visible in the same Project system — which is what TASK-ZAI-012 now names. | Agent mission feed into the Development domain, TASK-ZAI-012 |
 | 3 | Interactive Node View 3D | Not started. FR-040 ships a 2D read-only project dependency map; FR-083 edge creation is planned, not built. | FR-101 adds a second 2D read-only graph (SoT pipeline, hand-rolled SVG). FR-082 to FR-085 remain design only. | 3D view plus direct manipulation, SPR-ZAI-10 |
 | 4 | Second Brain / Governed Memory (v0.4.3: plus the data pipeline map, TASK-ZAI-060 to 063) | Partial. FR-024, FR-025, FR-029 read ports live and **read-only**; ADR-042/043 pinned, no product surface. | **Substantially advanced.** FR-109 to FR-119 declare the seventeen-stage ingestion path with lineage, provenance, snapshot and BR-022 quarantine; FR-173 admission and corpus publication (ADR-072); FR-098 agent/MSP authorization; FR-171 execution trace and replay (ADR-070); GenesisRAG17 isolated acceptance passed (ADR-073). Permission-scoped *retrieval* as a product surface is still open. | Retrieval by permission on the built substrate, SPR-ZAI-09, started early — TASK-ZAI-024/025 are in-progress |
 | 5 | Five Core Agent Roles | Partial. One generic agent turn; no role registry, no role-scoped policy. | Unchanged in kind. FR-181 adds six SCM tools on the existing gates and FR-098 the authorization context those tools consume, which is the substrate a role policy will bind to. No registry. | Role registry plus five roles, SPR-ZAI-03 |
@@ -409,7 +409,7 @@ Week numbers map to the calendar in section 5.4. W1 begins Mon 2026-08-24.
 
 | Phase | Weeks | Dates | Goal | Governing SoT | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
-| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2) | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, the cost and quote decision record is written, the data pipeline map renders every confirmed chain (v0.4.3), and the board shows measured time and tokens for done work (v0.4.4) | in-progress | 84 |
+| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2) | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, the cost and quote decision record is written, the data pipeline map renders every confirmed chain (v0.4.3), and the board shows measured time and tokens for done work (v0.4.4) | in-progress | 75 |
 | PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; give the seventeen-stage pipeline its knowledge base and file system on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; a real document is admitted, parsed, published and cited on production; GATE-ZAI-09's migration ledger matches | planned | 0 |
 | PHASE-ZAI-03 | 9-12 | 2026-10-19 to 2026-11-15 | Second business, cross-business analytics, first workflows and connectors; deliverable 11 accepted for Business one | `docs/ARCHITECTURE.md` | GATE-ZAI-04 and GATE-ZAI-07 are met for connectors one and two and workflows one and two; GATE-ZAI-09 is met | planned | 0 |
 | PHASE-ZAI-04 | 13-16 | 2026-11-16 to 2026-12-13 | Visual Office 2.5D and the agent activity experience | `docs/UI-DESIGN-SYSTEM.md` | GATE-ZAI-01 is met | planned | 0 |
@@ -429,7 +429,7 @@ locates the week.
 | Sprint | Parent ID | Weeks | Dates | Goal | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
 | SPR-ZAI-01 | PHASE-ZAI-01 | 1-2 | 08-24 to 09-06 | Close identity, session and authorization to production standard; (CR-019) Inventory, Sales Tasks, Commerce, Procurement, Asset Management and LINE OA Studio lanes land | A request without a trusted session reaches no mutating route, proven by test; each lane merged with tests | in-progress | 93 |
-| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake; (v0.4.3) the data pipeline registry and its node-edge map land under a Knowledge (GKS) slot; (v0.4.4) delivery telemetry on the programme board: phase card metrics, task card evidence badges with subtask progress, a usage meter over local session logs and a usage report endpoint | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, supplier cost sheets land with a locked FX rate, and the map shows every inbound source, outbound recipient and combine chain with its surface level, a done task shows tokens measured from a named source, and every task card shows its evidence badges | in-progress | 80 |
+| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake; (v0.4.3) the data pipeline registry and its node-edge map land under a Knowledge (GKS) slot; (v0.4.4) delivery telemetry on the programme board: phase card metrics, task card evidence badges with subtask progress, a usage meter over local session logs and a usage report endpoint; (v0.4.5) the Zuri harness usage plugin with browser-approved device pairing | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, supplier cost sheets land with a locked FX rate, and the map shows every inbound source, outbound recipient and combine chain with its surface level, a done task shows tokens measured from a named source, every task card shows its evidence badges, and a paired agent on another machine reports its sessions (v0.4.5) | in-progress | 69 |
 | SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; stand up the knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending deliverable-11 migration on production; pricing rule set, the shared pricing engine and quotations; live pipeline health on the data pipeline map | Each role resolves distinct tools, policy and memory partition; a PDF uploaded in the console is published as a cited corpus on production; the migration ledger matches the tree; a quote and the FR-181 tool price the same SKU to the same satang; a failed run is visible on its map edge for its own Business only | planned | 0 |
 | SPR-ZAI-04 | PHASE-ZAI-02 | 7-8 | 10-05 to 10-18 | Approval Gateway L1 to L4 with verification, notification and Mission Control binding; ladder quotation on LINE and knowledge structured records | An L4 action cannot execute without four recorded approvals; a LINE quotation request is answered from the shared engine with no margin in the payload | planned | 0 |
 | SPR-ZAI-05 | PHASE-ZAI-03 | 9-10 | 10-19 to 11-01 | Standard business template and Business number two onboarding | Business two is live and isolated from SmartGift under test | planned | 0 |
@@ -513,6 +513,10 @@ locates the week.
 | TASK-ZAI-066 | SPR-ZAI-02 | task | Usage meter — measured tokens and active time per task from Claude Code and Codex session logs, attributed by the branches each Task Container declares and written back with provenance | P0 | Claude | review | TASK-ZAI-064 | Section 3.1 row 2; ADR-048 D3; section 5.3 measurement precedent |
 | TASK-ZAI-067 | SPR-ZAI-02 | task | Usage report endpoint — an operator-authenticated ledger where agents without local logs report per-session tokens for a task, idempotent by session and merged with metered sessions without double counting | P1 | Claude | review | TASK-ZAI-066 | Section 3.1 row 2; FR-106 key precedent; ADR-057 |
 | TASK-ZAI-068 | SPR-ZAI-02 | task | Task card evidence badges and subtask progress — DOC, CODE, TEST, FR, NFR and FEAT badges coloured green for done, orange for review, red for needs fix and gray for empty, domain, complexity and priority badges, and P0 to P3 subtasks with a progress bar on the card | P0 | Claude | review | TASK-ZAI-064 | Section 3.1 row 2; FR-105; FR-124; FR-211; NFR-008 |
+| TASK-ZAI-069 | SPR-ZAI-02 | task | Harness usage plugin decision record — the ADR for a Zuri plugin that pairs a device by browser approval, holds a report-only credential with a device label, and lets the server attribute each report to a person, a device and a lane; requirement and FEAT declarations | P0 | Claude | in-progress | TASK-ZAI-067 | Section 3.1 row 2; ADR-086 D5; ADR-052; FR-123; FR-144 |
+| TASK-ZAI-070 | SPR-ZAI-02 | task | Harness device pairing and report-only credential — start, browser approval with a check code and poll as in FR-144, one hashed credential per installation scoped to usage reporting with a device label, and an operator list of paired devices with revoke | P0 | Claude | planned | TASK-ZAI-069 | Section 3.1 row 2; FR-144; FR-123; SEC-025; ADR-057 |
+| TASK-ZAI-071 | SPR-ZAI-02 | task | Usage reports attributed to person, device and lane — the report endpoint accepts the harness credential, derives the lane from the reported branch on the server, extends a resumed session whose counts only grow, and the board breaks lane usage down by person and shows unattributed reports | P0 | Claude | planned | TASK-ZAI-070 | Section 3.1 row 2; FR-218; FR-216; ADR-086 D3 |
+| TASK-ZAI-072 | SPR-ZAI-02 | task | Zuri harness plugin for Claude Code and Codex — pair, whoami and unpair commands, a SessionEnd hook and a Codex wrapper that report each finished session split by branch, an offline retry queue, a marketplace entry, and parser parity with the usage meter | P0 | Claude | planned | TASK-ZAI-070; TASK-ZAI-071 | Section 3.1 row 2; FR-217; FR-123; ADR-052 |
 
 ## Assignments
 
@@ -3619,6 +3623,216 @@ ui_state:
   disabled_reason: ""
 ```
 
+### TC-TASK-ZAI-069
+
+```yaml
+task_container_id: TC-TASK-ZAI-069
+task_id: TASK-ZAI-069
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Harness usage plugin decision record — the ADR for a Zuri plugin that pairs a device by browser approval, holds a report-only credential with a device label, and lets the server attribute each report to a person, a device and a lane; requirement and FEAT declarations
+requirement_type: NFR
+complexity: C-2
+access_scope: H2
+status: in-progress
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: unavailable
+  doc: docs/decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given ADR-086 D5 (one shared deployment bearer) and the owner's choice of a plugin over a connector, when the ADR is written, then it records why the harness and not the model reports usage, that a device is paired once by a signed-in person through browser approval with a check code, that the resulting credential can only report usage and is refused by every other route, and what the deployment bearer is still for
+      checked: false
+  success_criteria:
+    - criterion: Given the identity layers person, installation and declared AI account, when the ADR states them, then it names which is authority and which is a label, how two people on one machine are told apart, that a shared zuri-ai account is not supported, and who may approve a pairing
+      checked: false
+  exit_criteria:
+    - criterion: Given npm run govern, when it runs after the requirement and FEAT declarations, then it exits zero with no CRITICAL and ADR-086 D5 points to the new decision
+      checked: false
+changelog: Opened 2026-09-14 (v0.4.5) on the owner's instruction, after FR-218 shipped with one shared deployment token: agents on other machines should report usage through a Zuri plugin for Claude Code and Codex rather than a connector, because the model cannot see its own billed tokens and must not self-report them — the harness reports from its own logs when a session ends. The owner accepted the recommended identity design: the device is paired once through browser approval by a signed-in person (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; a report is attributed to that person and that installation, with the AI account that paid kept as a declared label. Two people on one machine are told apart only by separate OS users or by re-pairing; a shared zuri-ai account is not supported.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 24000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-070
+
+```yaml
+task_container_id: TC-TASK-ZAI-070
+task_id: TASK-ZAI-070
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Harness device pairing and report-only credential — start, browser approval with a check code and poll as in FR-144, one hashed credential per installation scoped to usage reporting with a device label, and an operator list of paired devices with revoke
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/identity/edge-pairing.js
+  doc: docs/decisions/ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY.md
+  test: apps/server/tests/unit/edge-pairing.test.js
+delivers: []
+subtasks:
+  - id: P0
+    title: Pairing start, browser approval with check code, poll and single redemption
+    status: planned
+  - id: P1
+    title: Hashed report-only credential per installation with device label, and its migration
+    status: planned
+  - id: P2
+    title: Operator list of paired devices with last use and revoke
+    status: planned
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a harness that starts pairing with its device label, when a signed-in person with pairing authority opens the approval link, sees the same check code and the device label, and approves, then the harness's next poll receives one credential shown exactly once, stored only as a hash with its prefix, bound to that person and a server-issued installation id
+      checked: false
+  success_criteria:
+    - criterion: Given the credential, when it is presented to any route other than the usage report endpoint, then it is refused exactly as no credential would be, and an expired, denied or already-redeemed pairing yields nothing
+      checked: false
+  exit_criteria:
+    - criterion: Given the paired-device list on the operator console, when an operator revokes a device, then its next report is refused, the list shows label, person, created and last-used times, and npm test covers approval, refusal, single redemption, scope refusal and revoke; the migration ships in both trees and is applied separately (ADR-057)
+      checked: false
+changelog: Opened 2026-09-14 (v0.4.5) on the owner's instruction, after FR-218 shipped with one shared deployment token: agents on other machines should report usage through a Zuri plugin for Claude Code and Codex rather than a connector, because the model cannot see its own billed tokens and must not self-report them — the harness reports from its own logs when a session ends. The owner accepted the recommended identity design: the device is paired once through browser approval by a signed-in person (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; a report is attributed to that person and that installation, with the AI account that paid kept as a declared label. Two people on one machine are told apart only by separate OS users or by re-pairing; a shared zuri-ai account is not supported.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 58000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-071
+
+```yaml
+task_container_id: TC-TASK-ZAI-071
+task_id: TASK-ZAI-071
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Usage reports attributed to person, device and lane — the report endpoint accepts the harness credential, derives the lane from the reported branch on the server, extends a resumed session whose counts only grow, and the board breaks lane usage down by person and shows unattributed reports
+requirement_type: FR
+complexity: C-2
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/platform-control/application/programme-usage-reports.js
+  doc: docs/appendices/A-api-spec.md
+  test: apps/server/tests/unit/programme-usage-reports.test.js
+delivers: []
+subtasks:
+  - id: P0
+    title: Harness credential on the report endpoint with person and installation columns
+    status: planned
+  - id: P1
+    title: Server-side lane from branch and monotonic extension of a resumed session
+    status: planned
+  - id: P2
+    title: Per-person and per-device breakdown and unattributed reports on the board
+    status: planned
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a report sent with a harness credential, when it is stored, then it records the credential's person and installation rather than anything the body claims, keeps the declared AI account label as a label, and resolves the lane from the reported branch against the lanes the programme declares, storing an undeclared branch as unattributed instead of refusing it
+      checked: false
+  success_criteria:
+    - criterion: Given a resumed session reported again, when every count and the end time are equal or larger, then the stored report is extended and audited as extended; when any count is smaller it is refused as a conflict; an identical report stays an idempotent replay
+      checked: false
+  exit_criteria:
+    - criterion: Given the board, when a lane has reports from two people, then the phase and task telemetry show usage per person and per device label, unattributed reports appear as their own group, a session the meter already counted is still counted once, and npm test covers each of these
+      checked: false
+changelog: Opened 2026-09-14 (v0.4.5) on the owner's instruction, after FR-218 shipped with one shared deployment token: agents on other machines should report usage through a Zuri plugin for Claude Code and Codex rather than a connector, because the model cannot see its own billed tokens and must not self-report them — the harness reports from its own logs when a session ends. The owner accepted the recommended identity design: the device is paired once through browser approval by a signed-in person (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; a report is attributed to that person and that installation, with the AI account that paid kept as a declared label. Two people on one machine are told apart only by separate OS users or by re-pairing; a shared zuri-ai account is not supported.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 42000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-072
+
+```yaml
+task_container_id: TC-TASK-ZAI-072
+task_id: TASK-ZAI-072
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Zuri harness plugin for Claude Code and Codex — pair, whoami and unpair commands, a SessionEnd hook and a Codex wrapper that report each finished session split by branch, an offline retry queue, a marketplace entry, and parser parity with the usage meter
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/scripts/programme-usage-meter.mjs
+  doc: docs/decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md
+  test: apps/server/tests/unit/programme-usage-meter.test.js
+delivers: []
+subtasks:
+  - id: P0
+    title: Plugin manifests for Claude Code and Codex, pair, whoami and unpair
+    status: planned
+  - id: P1
+    title: Session reporter with branch split and offline retry queue
+    status: planned
+  - id: P2
+    title: SessionEnd hook, Codex wrapper, marketplace entry and parity tests
+    status: planned
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the plugin installed from the repository's marketplace entry, when a person runs pair, then the browser approval opens with the device label and check code, the credential is stored in the user's own configuration outside any repository, and whoami shows the paired person and device at the start of every session
+      checked: false
+  success_criteria:
+    - criterion: Given a Claude Code session that ends or a Codex session wrapped by the plugin, when it finishes, then the plugin reads that session's own log, counts each request once with the same parsers the meter uses, sends one report per branch the session worked on, and keeps an unsent report in a local queue that is retried later rather than lost
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test, when the plugin suites run, then hook input, branch split, queue retry, a refused credential and parser parity against the meter fixtures pass, and the plugin never reads a browser cookie or a zuri-ai password
+      checked: false
+changelog: Opened 2026-09-14 (v0.4.5) on the owner's instruction, after FR-218 shipped with one shared deployment token: agents on other machines should report usage through a Zuri plugin for Claude Code and Codex rather than a connector, because the model cannot see its own billed tokens and must not self-report them — the harness reports from its own logs when a session ends. The owner accepted the recommended identity design: the device is paired once through browser approval by a signed-in person (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; a report is attributed to that person and that installation, with the AI account that paid kept as a declared label. Two people on one machine are told apart only by separate OS users or by re-pairing; a shared zuri-ai account is not supported.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 60000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
 ## Delivery Telemetry
 
 Added in v0.4.4 under [ADR-086](../decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md).
@@ -3696,6 +3910,20 @@ done before a lane is declared, or on a branch no lane names, is not measured.
         "feat/roadmap-phase-card-metrics",
         "feat/delivery-telemetry"
       ]
+    },
+    {
+      "id": "LANE-HARNESS-USAGE-PLUGIN",
+      "title": "Zuri harness usage plugin — plan and delivery",
+      "tasks": [
+        "TASK-ZAI-069",
+        "TASK-ZAI-070",
+        "TASK-ZAI-071",
+        "TASK-ZAI-072"
+      ],
+      "branches": [
+        "docs/harness-usage-plugin-plan",
+        "feat/harness-usage-plugin"
+      ]
     }
   ]
 }
@@ -3711,7 +3939,7 @@ second run over the same logs writes the same block.
 ```json
 {
   "meter": "scripts/programme-usage-meter.mjs",
-  "measuredThrough": "2026-09-13T15:22:04.318Z",
+  "measuredThrough": "2026-09-13T16:24:54.648Z",
   "lanes": {
     "LANE-COST-QUOTE-PLAN": {
       "requests": 33,
@@ -3772,24 +4000,24 @@ second run over the same logs writes the same block.
       "activeMinutes": 95
     },
     "LANE-DELIVERY-TELEMETRY": {
-      "requests": 126,
+      "requests": 150,
       "sessions": [
         "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
       ],
       "tokens": {
-        "input": 256,
-        "cacheWrite": 333119,
-        "cacheRead": 46904427,
-        "output": 176676
+        "input": 306,
+        "cacheWrite": 362091,
+        "cacheRead": 59356999,
+        "output": 188629
       },
       "bySource": {
         "claude-code": {
-          "requests": 126,
+          "requests": 150,
           "tokens": {
-            "input": 256,
-            "cacheWrite": 333119,
-            "cacheRead": 46904427,
-            "output": 176676
+            "input": 306,
+            "cacheWrite": 362091,
+            "cacheRead": 59356999,
+            "output": 188629
           }
         }
       },
@@ -3797,8 +4025,37 @@ second run over the same logs writes the same block.
         "claude-opus-5"
       ],
       "firstActivityAt": "2026-09-13T14:21:05.669Z",
-      "lastActivityAt": "2026-09-13T15:22:04.318Z",
-      "activeMinutes": 61
+      "lastActivityAt": "2026-09-13T15:57:33.643Z",
+      "activeMinutes": 96
+    },
+    "LANE-HARNESS-USAGE-PLUGIN": {
+      "requests": 4,
+      "sessions": [
+        "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
+      ],
+      "tokens": {
+        "input": 8,
+        "cacheWrite": 18329,
+        "cacheRead": 2366461,
+        "output": 12172
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 4,
+          "tokens": {
+            "input": 8,
+            "cacheWrite": 18329,
+            "cacheRead": 2366461,
+            "output": 12172
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5"
+      ],
+      "firstActivityAt": "2026-09-13T16:22:37.937Z",
+      "lastActivityAt": "2026-09-13T16:24:54.648Z",
+      "activeMinutes": 2
     }
   }
 }
@@ -3830,3 +4087,4 @@ second run over the same logs writes the same block.
 | 0.4.2 | 2026-09-13 | **SmartGift cost and quote engine** added on the owner's instruction, under deliverable 11 (no Change Request needed — Commerce, Procurement and Inventory are CR-019 lanes). The owner accepted every recommended default of `docs/change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md` (nine decisions). Inserted into the current sprint what is documentation or cost intake, the rest into the backlog of the next two sprints: TASK-ZAI-052 decision record (in-progress, SPR-ZAI-02), TASK-ZAI-053 supplier cost sheets with locked FX and TASK-ZAI-054 goods receipts posting landed cost (SPR-ZAI-02, may move to 03 at sprint exit), TASK-ZAI-055 PricingRuleSet and console, TASK-ZAI-056 the one pure pricing engine with price-boss parity fixtures, TASK-ZAI-057 quotations (SPR-ZAI-03, 057 may move to 04), TASK-ZAI-058 ladder quotation on LINE and TASK-ZAI-059 knowledge structured records (SPR-ZAI-04). Phase 01/02 and sprint 02/03/04 goals and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 87 → 72, PHASE-ZAI-01 90 → 80). Section 3.1 row 11 delta names the engine. |
 | 0.4.3 | 2026-09-13 | **Data pipeline map** added on the owner's instruction, under deliverable 4 (no Change Request needed): a map of where data comes from, who receives it and where it is combined before it is sent, drawn as a node-edge view in a Knowledge (GKS) navigation slot, with every task on the roadmap before work starts. No current document covers it (ARCHITECTURE-DIAGRAMS section 3 is dated 2026-08-15, SYSTEM-DIAGRAM has no surface status, KNOWLEDGE-INGESTION-SURFACES covers one domain). Placement is a zuri-ai knowledge-lane slot rather than a GKS domain because ADR-063 D4 says GKS is never a zuri-ai domain. SPR-ZAI-02 (current): TASK-ZAI-060 decision record (in-progress), TASK-ZAI-061 registry with generated projection and preflight check, TASK-ZAI-062 node-edge view; SPR-ZAI-03: TASK-ZAI-063 live per-edge health for the active Business, after TASK-ZAI-047. Sprint 02/03 and Phase 01 goals and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 72 → 62, PHASE-ZAI-01 80 → 73). Section 3.1 row 4 names the map. |
 | 0.4.4 | 2026-09-13 | **Delivery telemetry on the programme board** added on the owner's instruction, under deliverable 2 (no Change Request needed): each phase card shows its sprint count, task count, size and estimated duration, and once work is done the actual time taken and the tokens really used, measured by a surface rather than estimated; done cards tinted light green and review cards light orange. On the owner's follow-up the same day, every task card also shows [DOC] [CODE] [TEST] [FR] [NFR] [FEAT] [domain] [complexity] [priority] badges (green done, orange review, red needs fix, gray empty) and a task split into subtasks P0 to P3 carries a progress bar. The owner chose both sources for real usage — a meter over local Claude Code and Codex session logs and a report endpoint for agents without local logs — and the plan window plus complexity-based effort for the estimate. No actual usage figure exists before this: `total_token_usage` on done tasks is a copy of the prediction. SPR-ZAI-02 (current): TASK-ZAI-064 decision record amending ADR-048 D3 (in-progress), TASK-ZAI-065 phase card metrics, TASK-ZAI-066 usage meter, TASK-ZAI-067 usage report endpoint with its migration, TASK-ZAI-068 task card evidence badges and subtask progress. Sprint 02 and Phase 01 goals and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 76 → 61, PHASE-ZAI-01 82 → 70). Section 3.1 row 2 names the telemetry. Delivered the same day on feat/delivery-telemetry: TASK-ZAI-064 done (ADR-086; FR-216 to FR-219 and FEAT-034 declared), TASK-ZAI-065 to 068 in review (implemented locally with tests; the FR-218 migration written and not applied); a Delivery Telemetry section with the sizing table, work lanes and the meter's first measured usage block added; progress recomputed (SPR-ZAI-02 61 → 80, PHASE-ZAI-01 70 → 84). |
+| 0.4.5 | 2026-09-14 | **Zuri harness usage plugin** added on the owner's instruction, under deliverable 2 (no Change Request needed): agents on other machines report the tokens they used through a plugin for Claude Code and Codex instead of a shared deployment token. The owner chose a plugin over a connector (the harness, not the model, reads the billed usage) and accepted the recommended identity design — a device is paired once by browser approval with a check code (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; each report is attributed to the approving person and the installation, with the AI account kept as a declared label. SPR-ZAI-02 (current): TASK-ZAI-069 decision record (in-progress), TASK-ZAI-070 device pairing and report-only credential, TASK-ZAI-071 attribution to person, device and lane with resumed-session extension, TASK-ZAI-072 the plugin itself. A LANE-HARNESS-USAGE-PLUGIN work lane is declared before the work starts so the meter measures it. Sprint 02 goal and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 80 → 69, PHASE-ZAI-01 84 → 75). |

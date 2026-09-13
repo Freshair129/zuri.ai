@@ -12,8 +12,8 @@
 export const PROGRAMME_SNAPSHOT = {
   documentId: 'ROADMAP-ZURI-AI-24W-PROGRAM',
   status: 'approved',
-  version: '0.4.4',
-  updated: '2026-09-13',
+  version: '0.4.5',
+  updated: '2026-09-14',
   baselineCommit: '2b7ad27d',
   programmeStart: '2026-08-24',
   programmeEnd: '2027-02-07',
@@ -98,9 +98,9 @@ export const PROGRAMME_GATES = [
 ]
 
 export const PROGRAMME_PHASES = [
-  { id: 'PHASE-ZAI-01', start: '2026-08-24', end: '2026-09-20', weeks: 'W1–4', dates: '24 Aug – 20 Sep 2026', status: 'in-progress', progress: 84, goal: 'Consolidate the inherited foundation into a production-grade base; land the ERP business modules for Business one; open the SmartGift cost and quote engine on the owner\'s instruction', sprints: [
+  { id: 'PHASE-ZAI-01', start: '2026-08-24', end: '2026-09-20', weeks: 'W1–4', dates: '24 Aug – 20 Sep 2026', status: 'in-progress', progress: 75, goal: 'Consolidate the inherited foundation into a production-grade base; land the ERP business modules for Business one; open the SmartGift cost and quote engine on the owner\'s instruction', sprints: [
     { id: 'SPR-ZAI-01', start: '2026-08-24', end: '2026-09-06', weeks: 'W1–2', dates: '24 Aug – 6 Sep', status: 'in-progress', progress: 93, goal: 'Close identity, session and authorization to production standard; Inventory, Sales, Commerce, Procurement, Assets and LINE OA Studio lanes land' },
-    { id: 'SPR-ZAI-02', start: '2026-09-07', end: '2026-09-20', weeks: 'W3–4', dates: '7 – 20 Sep', status: 'in-progress', progress: 80, goal: 'Settle tenancy, pipeline monitor and memory contract; seventeen-stage knowledge intake and Tier 1 accounted as built; SmartGift SCM, Marketing, billing/POS, catalog convergence and identity lifecycle land; cost and quote engine decision record and factory cost intake open; data pipeline registry and node-edge map under a Knowledge (GKS) slot; delivery telemetry on the programme board with measured time and tokens and evidence badges on every task card' },
+    { id: 'SPR-ZAI-02', start: '2026-09-07', end: '2026-09-20', weeks: 'W3–4', dates: '7 – 20 Sep', status: 'in-progress', progress: 69, goal: 'Settle tenancy, pipeline monitor and memory contract; seventeen-stage knowledge intake and Tier 1 accounted as built; SmartGift SCM, Marketing, billing/POS, catalog convergence and identity lifecycle land; cost and quote engine decision record and factory cost intake open; data pipeline registry and node-edge map under a Knowledge (GKS) slot; delivery telemetry on the programme board with measured time and tokens and evidence badges on every task card; the Zuri harness usage plugin with browser-approved device pairing' },
   ] },
   { id: 'PHASE-ZAI-02', start: '2026-09-21', end: '2026-10-18', weeks: 'W5–8', dates: '21 Sep – 18 Oct 2026', status: 'planned', progress: 0, goal: 'Stand up the agent workforce and the governance ladder; knowledge base and file system for the seventeen-stage pipeline on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one', sprints: [
     { id: 'SPR-ZAI-03', start: '2026-09-21', end: '2026-10-04', weeks: 'W5–6', dates: '21 Sep – 4 Oct', status: 'planned', progress: 0, goal: 'Build the agent role registry and five core roles; knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending ERP migration; pricing rule set, pricing engine and quotations; live pipeline health on the map' },
@@ -193,4 +193,8 @@ export const PROGRAMME_TASKS = [
   ['TASK-ZAI-066', 'SPR-ZAI-02', 'Usage meter — measured tokens and active time per task from Claude Code and Codex session logs, attributed by the branches each Task Container declares and written back with provenance', 'FR', 'C-3', 'H3', 'review'],
   ['TASK-ZAI-067', 'SPR-ZAI-02', 'Usage report endpoint — an operator-authenticated ledger where agents without local logs report per-session tokens for a task, idempotent by session and merged with metered sessions without double counting', 'FR', 'C-3', 'H3', 'review'],
   ['TASK-ZAI-068', 'SPR-ZAI-02', 'Task card evidence badges and subtask progress — DOC, CODE, TEST, FR, NFR and FEAT badges coloured green for done, orange for review, red for needs fix and gray for empty, domain, complexity and priority badges, and P0 to P3 subtasks with a progress bar on the card', 'FR', 'C-2', 'H2', 'review'],
+  ['TASK-ZAI-069', 'SPR-ZAI-02', 'Harness usage plugin decision record — the ADR for a Zuri plugin that pairs a device by browser approval, holds a report-only credential with a device label, and lets the server attribute each report to a person, a device and a lane; requirement and FEAT declarations', 'NFR', 'C-2', 'H2', 'in-progress'],
+  ['TASK-ZAI-070', 'SPR-ZAI-02', 'Harness device pairing and report-only credential — start, browser approval with a check code and poll as in FR-144, one hashed credential per installation scoped to usage reporting with a device label, and an operator list of paired devices with revoke', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-071', 'SPR-ZAI-02', 'Usage reports attributed to person, device and lane — the report endpoint accepts the harness credential, derives the lane from the reported branch on the server, extends a resumed session whose counts only grow, and the board breaks lane usage down by person and shows unattributed reports', 'FR', 'C-2', 'H3', 'planned'],
+  ['TASK-ZAI-072', 'SPR-ZAI-02', 'Zuri harness plugin for Claude Code and Codex — pair, whoami and unpair commands, a SessionEnd hook and a Codex wrapper that report each finished session split by branch, an offline retry queue, a marketplace entry, and parser parity with the usage meter', 'FR', 'C-3', 'H3', 'planned'],
 ]
