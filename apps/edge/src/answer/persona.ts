@@ -1,7 +1,14 @@
 import fs from 'fs';
 import path from 'path';
 
-export function loadPersonaPrompt(personaId: string = 'zuri-01'): string {
+export const DEFAULT_PERSONA_ID = 'zuri-01';
+
+/** The persona the device answers as: `ZURI_ACTIVE_PERSONA`, read at answer time so a saved change applies without a restart. */
+export function activePersonaId(): string {
+  return process.env.ZURI_ACTIVE_PERSONA?.trim() || DEFAULT_PERSONA_ID;
+}
+
+export function loadPersonaPrompt(personaId: string = DEFAULT_PERSONA_ID): string {
   const agentsRoot = path.resolve('.agents');
   const personaPath = path.join(agentsRoot, personaId, 'AGENTS.md');
 
@@ -37,4 +44,37 @@ export function listAvailablePersonas(): string[] {
   } catch {
     return ['zuri-01'];
   }
+}
+
+export interface PersonaOption {
+  id: string;
+  /** The first `#` heading of AGENTS.md, or the id when there is none — what a dropdown shows. */
+  label: string;
+}
+
+/**
+ * What the GUI offers. The dropdown used to be two hardcoded options, one of which
+ * (`default`) had no folder and silently fell through to the built-in fallback string; the
+ * list is read from `.agents/` so an operator sees exactly the personas the device can load.
+ */
+export function listPersonaOptions(): PersonaOption[] {
+  const agentsRoot = path.resolve('.agents');
+  const options = listAvailablePersonas().map((id) => {
+    let label = id;
+    try {
+      const head = fs
+        .readFileSync(path.join(agentsRoot, id, 'AGENTS.md'), 'utf8')
+        .split('\n')
+        .find((line) => line.startsWith('# '));
+      if (head) label = `${id} — ${head.slice(2).trim()}`;
+    } catch {
+      /* the id alone is a valid label */
+    }
+    return { id, label };
+  });
+  const active = activePersonaId();
+  if (!options.some((option) => option.id === active)) {
+    options.push({ id: active, label: `${active} (ไม่พบ .agents/${active}/AGENTS.md — ใช้ persona สำรองในตัว)` });
+  }
+  return options;
 }

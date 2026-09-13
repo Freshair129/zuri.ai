@@ -18,7 +18,7 @@ import {
 } from './llm.js';
 import { ConversationOptions, appendTurns, loadConversation } from './memory.js';
 import { Intent, parseMessage } from './parse.js';
-import { loadPersonaPrompt } from './persona.js';
+import { activePersonaId, loadPersonaPrompt } from './persona.js';
 import type { AnswerRag } from '../rag/genesis-rag.js';
 import { buildCodexEvidence } from './codex-evidence.js';
 import type { SearchEvidenceV4 } from './format-cards.js';
@@ -292,8 +292,8 @@ async function answerViaHeadless(
   headless: HeadlessOptions,
   fallback: string
 ): Promise<ConversationResult> {
-  const personaPrompt = loadPersonaPrompt(process.env.ZURI_ACTIVE_PERSONA || 'zuri-01');
-  
+  const personaPrompt = loadPersonaPrompt(activePersonaId());
+
   // Load conversation turns for short-term memory continuity
   const historyTurns = options.retainHistory === false ? [] : loadConversation(options.conversationKey, options.memory);
   let conversationHistoryContext = '';
@@ -387,7 +387,10 @@ export async function answerConversation(
       ...(options.shipMonth !== undefined ? { shipMonth: options.shipMonth } : {}),
     },
     options.llm,
-    fallback
+    fallback,
+    // The same `.agents/` persona the headless path uses. Until now only that path read it;
+    // OLLAMA_LOCAL / API answered as the built-in prompt whatever the GUI said.
+    loadPersonaPrompt(activePersonaId())
   );
 
   recordTurns(text, result.text, options);
