@@ -39,8 +39,8 @@
     "featureCount": 146,
     "readyFeatureCount": 109,
     "requirementCount": 240,
-    "verifiedRequirementCount": 212,
-    "progressPercent": 88.8,
+    "verifiedRequirementCount": 213,
+    "progressPercent": 89.3,
     "gapCount": 28,
     "gaps": [
       {
@@ -406,7 +406,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-081",
@@ -478,7 +478,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-147",
@@ -502,7 +502,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-150",
@@ -799,7 +799,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 18
+          "testCount": 19
         }
       ],
       "checks": {
@@ -1191,7 +1191,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-147",
@@ -1605,7 +1605,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-146",
@@ -1613,7 +1613,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-148",
@@ -2008,7 +2008,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-081",
@@ -2128,7 +2128,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-149",
@@ -2136,7 +2136,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-152",
@@ -2169,6 +2169,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 9
+        },
+        {
+          "id": "FR-223",
+          "title": "Integration credential vault",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 8,
+          "testCount": 24
         }
       ],
       "checks": {
@@ -2236,8 +2244,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 16,
-            "present": 16
+            "models": 18,
+            "present": 18
           }
         },
         "authorization": {
@@ -2318,7 +2326,7 @@
         "routes": 11,
         "apiRoutes": 7,
         "pageRoutes": 4,
-        "ownedModels": 16,
+        "ownedModels": 18,
         "featureNotes": 11
       },
       "featureIds": [
@@ -2334,7 +2342,7 @@
       ],
       "featureCount": 9,
       "readyFeatureCount": 6,
-      "progressPercent": 56.3
+      "progressPercent": 62.5
     },
     "inventory": {
       "status": "partial",
@@ -3097,7 +3105,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-091",
@@ -3121,7 +3129,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 29,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-149",
@@ -3129,7 +3137,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 21,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-150",
@@ -3186,6 +3194,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 7
+        },
+        {
+          "id": "FR-223",
+          "title": "Integration credential vault",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 24
         }
       ],
       "checks": {
@@ -4460,7 +4476,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 63
+          "testCount": 64
         },
         {
           "id": "FR-073",
@@ -4772,7 +4788,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-146",
@@ -4780,7 +4796,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-149",
@@ -4788,7 +4804,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-150",
@@ -5149,6 +5165,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 13
+        },
+        {
+          "id": "FR-223",
+          "title": "Integration credential vault",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 24
         }
       ],
       "checks": {
@@ -5763,7 +5787,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 18
+          "testCount": 19
         }
       ],
       "evidence": [
@@ -5790,6 +5814,7 @@
         "apps/server/tests/e2e/fr080-integration-scope-switch.spec.js",
         "apps/server/tests/integration/agent-action-gate.test.js",
         "apps/server/tests/integration/agent-context.test.js",
+        "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
         "apps/server/tests/integration/line-oa-connection-health.test.js",
         "apps/server/tests/integration/line-oa-provider-migration.test.js",
@@ -6994,7 +7019,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 19,
-          "testCount": 18
+          "testCount": 19
         }
       ],
       "evidence": [
@@ -7026,6 +7051,7 @@
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/tests/e2e/edge-desktop-ui.spec.js",
         "apps/server/tests/e2e/edge-pairing.spec.js",
+        "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/edge-pairing.test.js",
         "apps/server/tests/integration/fr143-asset-extraction-job.test.js",
         "apps/server/tests/integration/fr144-edge-device-credential.test.js",
@@ -7083,7 +7109,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 37,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-147",
@@ -7179,6 +7205,7 @@
         "apps/server/tests/e2e/fr149-line-server-console.spec.js",
         "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
@@ -7259,7 +7286,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 34,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-150",
@@ -7324,6 +7351,7 @@
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-webhook-route.test.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
@@ -9123,14 +9151,17 @@
         "FR-228"
       ],
       "primaryDomain": "integration",
-      "contributorDomains": [],
+      "contributorDomains": [
+        "integration",
+        "line-oa-studio",
+        "project-manager"
+      ],
       "useCase": "เจ้าของธุรกิจเปิดหน้าเชื่อมต่อ LINE OA ยืนยันตัวตนด้วยรหัส TOTP แล้วกรอก Channel ID กับ Channel secret จาก LINE Developers Console ครั้งเดียว ระบบตรวจกับ LINE ดึงชื่อบอทมาให้ ตั้งและทดสอบ Webhook ให้เอง แล้วกดเปิดใช้งานได้ทันทีโดยไม่ต้องให้ผู้ดูแลระบบใส่ไฟล์บนเครื่องเซิร์ฟเวอร์ และหลังบันทึกไม่มีหน้าไหนแสดง secret ซ้ำอีก",
-      "progressPercent": 0,
+      "progressPercent": 16.7,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-036 registry status is declared",
-        "FR-223 is planned",
         "FR-224 is planned",
         "FR-225 is planned",
         "FR-226 is planned",
@@ -9141,10 +9172,10 @@
         {
           "id": "FR-223",
           "title": "Integration credential vault",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 13,
+          "testCount": 24
         },
         {
           "id": "FR-224",
@@ -9187,7 +9218,45 @@
           "testCount": 0
         }
       ],
-      "evidence": []
+      "evidence": [
+        "apps/server/src/lib/validation/enums.js",
+        "apps/server/src/modules/integration/application/integration-management-service.js",
+        "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+        "apps/server/src/modules/line-oa-studio/application/server-line-rich-menu-runtime.js",
+        "apps/server/src/modules/line-oa-studio/application/server-line-runtime.js",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/src/platform/integrations/core/connection-health.js",
+        "apps/server/src/platform/integrations/core/secret-store/credential-lifecycle.js",
+        "apps/server/src/platform/integrations/core/secret-store/dispatching-secret-manager.js",
+        "apps/server/src/platform/integrations/core/secret-store/envelope-secret-store.js",
+        "apps/server/src/platform/integrations/core/secret-store/secret-store-port.js",
+        "apps/server/src/platform/integrations/core/secret-store/supabase-vault-secret-store.js",
+        "apps/server/src/platform/integrations/providers/line/server-line-transport.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+        "apps/server/tests/integration/credential-vault.postgres.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/fr146-line-oa-account.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/server-line-jobs.test.js",
+        "apps/server/tests/integration/xlsx-intake.test.js",
+        "apps/server/tests/unit/connection-health.test.js",
+        "apps/server/tests/unit/conversation-analysis-contract.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/fr080-integration-management.test.js",
+        "apps/server/tests/unit/integration/credential-vault-migrations.test.js",
+        "apps/server/tests/unit/integration/credential-vault-schema-contract.test.js",
+        "apps/server/tests/unit/integration/dispatching-secret-manager.test.js",
+        "apps/server/tests/unit/integration/envelope-secret-store.test.js",
+        "apps/server/tests/unit/integration/secret-store-port.test.js",
+        "apps/server/tests/unit/integration/supabase-vault-secret-store.test.js",
+        "apps/server/tests/unit/line-oa-rich-menu-jobs-routes.test.js",
+        "apps/server/tests/unit/plan-schema.test.js",
+        "apps/server/tests/unit/platform/server-line-transport.test.js"
+      ]
     },
     {
       "id": "FEAT-037",
@@ -12409,7 +12478,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 31,
-          "testCount": 63
+          "testCount": 64
         }
       ],
       "evidence": [
@@ -12448,6 +12517,7 @@
         "apps/server/tests/e2e/fr165-receipt-workstation.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
+        "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
         "apps/server/tests/integration/domain-visibility-server.test.js",
         "apps/server/tests/integration/fr045-managed-files.test.js",

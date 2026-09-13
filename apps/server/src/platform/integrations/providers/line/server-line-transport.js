@@ -2,10 +2,11 @@ import { createHmac, timingSafeEqual } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { z } from 'zod'
-import { LINE_OA_ACCOUNT_STATUSES } from '@/lib/validation/enums'
+import { INTEGRATION_CREDENTIAL_RESOLVABLE_STATUSES, LINE_OA_ACCOUNT_STATUSES } from '@/lib/validation/enums'
 import { createSecretManagerPort } from '../../core/secret-manager'
 
 // @req FR-149 — account-scoped native ingress and server-owned LINE send port.
+// @req FR-223 — a credential mid-rotation still resolves its previous version.
 // @spec ADR-061, SEC-001, SEC-016 — exact account scope, opaque secrets and
 // provider acceptance rather than an unsupported delivery/read claim.
 // @tested tests/unit/platform/server-line-transport.test.js
@@ -16,6 +17,8 @@ const zSecret = z.object({
   channelSecret: z.string().min(1).max(4096).refine((value) => value.trim() === value),
   channelAccessToken: z.string().min(1).max(8192).refine((value) => !/\s/.test(value)),
 }).strict()
+// A store-held bundle also names its Channel ID (FR-223, ADR-089 D3).
+const zResolvedSecret = zSecret.extend({ channelId: z.string().regex(/^[0-9]{6,20}$/).optional() }).strict()
 const zWebhook = z.object({
   destination: z.string().min(1),
   events: z.array(z.object({ type: z.string().min(1) }).passthrough()).max(1000),
@@ -129,7 +132,9 @@ export async function resolveServerLineAccount({
     || !present(connection.externalAccountId)) {
     throw failure('LINE_ACCOUNT_NOT_AVAILABLE', 404)
   }
-  if (credential?.connectionId !== connection.id || credential.status !== 'ACTIVE'
+  // ROTATING still resolves: a rotation keeps the previous version live until the
+  // new one validates (FR-223, ADR-089 D5).
+  if (credential?.connectionId !== connection.id || !INTEGRATION_CREDENTIAL_RESOLVABLE_STATUSES.includes(credential.status)
     || !present(credential.secretRef) || !unexpired(credential.expiresAt, now)
     || !unexpired(credential.accessTokenExpiresAt, now)) {
     throw failure('LINE_ACCOUNT_CREDENTIAL_UNAVAILABLE')
@@ -146,7 +151,7 @@ export async function resolveServerLineAccount({
       tenantId: row.tenantId, businessId: row.businessId,
       accountId: row.id, connectionId: connection.id, destination: connection.externalAccountId,
     })
-    secrets = zSecret.parse(JSON.parse(resolved.material))
+    secrets = zResolvedSecret.parse(JSON.parse(resolved.material))
   } catch {
     // Vault, JSON and schema exceptions may contain material. Do not retain cause.
     throw failure('LINE_ACCOUNT_CREDENTIAL_UNAVAILABLE')

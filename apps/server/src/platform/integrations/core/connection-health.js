@@ -18,6 +18,8 @@
 // reporting green on the strength of configuration alone is exactly the claim an
 // operator would act on and regret. The reason code says which it is.
 
+import { INTEGRATION_CREDENTIAL_RESOLVABLE_STATUSES } from '@/lib/validation/enums'
+
 export const CONNECTION_HEALTH_STATES = Object.freeze([
   'CONNECTED',
   'DEGRADED',
@@ -70,7 +72,8 @@ function missingConfiguration(connection, credential, kind) {
 function credentialFailures(credential, now) {
   const failures = []
   if (!credential) return failures
-  if (credential.status && credential.status !== 'ACTIVE') {
+  // @req FR-223 — ROTATING still resolves its previous version, so it is not a failure.
+  if (credential.status && !INTEGRATION_CREDENTIAL_RESOLVABLE_STATUSES.includes(credential.status)) {
     failures.push(`CREDENTIAL_${credential.status}`)
   }
   if (credential.expiresAt && new Date(credential.expiresAt).getTime() <= now.getTime()) {

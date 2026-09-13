@@ -2696,20 +2696,93 @@ model IntegrationConnection {
   @@index([tenantId, businessId, purpose, status, role])
 }
 
+// @req FR-223 — lifecycle metadata of one connection's credential. `secretRef` is the
+//   version the runtime resolves; a rotation's pending version lives only in
+//   IntegrationCredentialVersion until it validates. Never material (SEC-030).
+// @spec ADR-089 D1, D2, D5; SDD-097
+// @tested tests/unit/integration/credential-vault-schema-contract.test.js
 model IntegrationCredential {
   id                    String    @id @default(uuid())
   connectionId          String    @unique
   secretRef             String
+  // DEPLOYMENT_MOUNT | SUPABASE_VAULT | ENVELOPE — the store `secretRef` names (SDD-097)
+  secretStore           String    @default("DEPLOYMENT_MOUNT")
+  // LINE_CHANNEL | OAUTH_CLIENT | API_KEY | MODEL_PROVIDER_KEY — selects the bundle schema
+  secretKind            String    @default("LINE_CHANNEL")
+  // PENDING_VALIDATION | ACTIVE | ROTATING | EXPIRED | REVOKED | REENTRY_REQUIRED
   status                String    @default("ACTIVE")
+  // last four characters of the non-secret identifier (Channel ID); never of a secret
+  displayHint           String?
   expiresAt             DateTime?
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
+  lastValidatedAt       DateTime?
+  lastValidationCode    String?
   rotatedAt             DateTime?
+  revokedAt             DateTime?
+  revokeReason          String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   version               Int       @default(1)
 
-  connection IntegrationConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  connection IntegrationConnection          @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  versions   IntegrationCredentialVersion[]
+}
+
+// @req FR-223 — append-only version history: every write is a new version, so a
+//   rotation, rejection, revocation and purge is auditable per version. `secretRef`
+//   stays after purge as a pointer to material that no longer exists.
+// @spec ADR-089 D5; SEC-030
+// @tested tests/unit/integration/credential-vault-schema-contract.test.js
+model IntegrationCredentialVersion {
+  id            String    @id @default(uuid())
+  credentialId  String
+  tenantId      String
+  businessId    String?
+  versionNumber Int
+  secretRef     String
+  secretStore   String
+  // PENDING_VALIDATION | ACTIVE | SUPERSEDED | REJECTED | REVOKED | PURGED
+  status        String
+  displayHint   String?
+  createdById   String?
+  // BROWSER_MFA | OPERATOR_CLI | BACKFILL
+  createdVia    String
+  createdAt     DateTime  @default(now())
+  activatedAt   DateTime?
+  supersededAt  DateTime?
+  revokedAt     DateTime?
+  purgedAt      DateTime?
+  reason        String?
+
+  credential IntegrationCredential @relation(fields: [credentialId], references: [id], onDelete: Cascade)
+
+  @@unique([credentialId, versionNumber])
+  @@index([tenantId, businessId, status])
+  @@index([secretRef])
+}
+
+// @req FR-223 — the envelope store's ciphertext (ZURI_SECRET_STORE=envelope): a
+//   bundle sealed with AES-256-GCM under a per-secret data key, the data key wrapped
+//   by the deployment's key-encryption key, bound by AAD to Tenant, Business,
+//   connection and version. Purge deletes the row. Excluded from backup export.
+// @spec ADR-089 D1; SDD-097; SEC-030
+// @tested tests/unit/integration/envelope-secret-store.test.js
+model IntegrationSecretEnvelope {
+  id           String    @id @default(uuid())
+  tenantId     String
+  businessId   String?
+  connectionId String
+  kekId        String
+  wrappedDek   String
+  iv           String
+  tag          String
+  ciphertext   String
+  aadVersion   Int
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([tenantId, businessId, connectionId])
 }
 
 model IngestionRun {

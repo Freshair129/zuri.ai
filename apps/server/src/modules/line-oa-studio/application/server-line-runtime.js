@@ -1,9 +1,12 @@
 import prisma from '@/lib/db'
-import { createServerLineSecretManagerFromEnv, resolveServerLineAccount, createServerLineReplyTransport, createServerLinePushTransport } from '@/platform/integrations/providers/line/server-line-transport'
+import { resolveServerLineAccount, createServerLineReplyTransport, createServerLinePushTransport } from '@/platform/integrations/providers/line/server-line-transport'
+import { createLineSecretManagerFromEnv } from '@/platform/integrations/core/secret-store/dispatching-secret-manager'
 import { createMspTransportFromEnvironment } from '@/modules/agent/msp-stdio-transport'
 import { createMspThreadMemoryPort } from '@/modules/agent/msp-thread-memory-port'
 // @req FR-149 — deployment composition, no credentials returned to clients.
-// @spec ADR-061
+// @req FR-223 — accounts resolve through the dispatching secret manager: the mount,
+//   and the one writable store ZURI_SECRET_STORE selects (SDD-097).
+// @spec ADR-061, SDD-097
 // @tested tests/integration/server-line-jobs.test.js
 
 function createServerLineThreadMemory(env) {
@@ -28,7 +31,7 @@ function createServerLineThreadMemory(env) {
 
 export function serverLinePorts(env = process.env, db = prisma) {
   if (env.ZURI_LINE_SERVER_ENABLED !== 'true') throw Object.assign(new Error('LINE_SERVER_DISABLED'), { status: 503 })
-  const secretManager = createServerLineSecretManagerFromEnv(env)
+  const secretManager = createLineSecretManagerFromEnv(env, { db })
   return { resolveAccount: accountId => resolveServerLineAccount({ accountId, db, secretManager }),
     replyTransport: createServerLineReplyTransport(), pushTransport: createServerLinePushTransport(),
     threadMemory: createServerLineThreadMemory(env) }
