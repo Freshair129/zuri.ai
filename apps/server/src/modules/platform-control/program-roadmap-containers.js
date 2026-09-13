@@ -3762,7 +3762,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-078",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -3818,7 +3818,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. Migration numbers follow the vault design's section 8.2 list; the Phase-1 model-credential resolver is left untouched (SDD-097). The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. Migration numbers follow the vault design's section 8.2 list; the Phase-1 model-credential resolver is left untouched (SDD-097). The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them. Started 2026-09-14 on feat/integration-secret-store-vault in worktree zuri-ai-secret-store-vault (lane LANE-LINE-OA-VAULT), branched from docs/line-oa-programme-plan (PR #392, open) because the lane and this container exist only there; baseline govern and npm test green before any code (640 files, 5263 tests). In progress, not review: no code yet.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 70000,
     "totalTokens": 0,
