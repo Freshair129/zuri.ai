@@ -1,5 +1,6 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert';
+import { FINAL_PASS_NUDGE } from '../../src/answer/providers/openai-compatible.js';
 import { createModelPort, createOpenAiCompatiblePort } from '../../src/answer/providers/index.js';
 import type { ToolSpec } from '../../src/answer/model-port.js';
 
@@ -225,12 +226,14 @@ describe('openai-compatible — the last pass has to produce an answer', () => {
    */
   it('withholds the tools on the final iteration so the model must answer', async () => {
     const sentTools: boolean[] = [];
+    let lastMessages: Array<{ role: string; content: unknown }> = [];
     const port = createOpenAiCompatiblePort(
       { provider: 'openai-compatible', model: 'm', effort: 'low', baseUrl: 'http://x/v1' },
       {
         fetchFn: async (_url, init) => {
           const body = JSON.parse(String((init as RequestInit).body));
           sentTools.push(Array.isArray(body.tools) && body.tools.length > 0);
+          lastMessages = body.messages;
           // Always ask for another tool call, which is the behaviour that exhausted the budget.
           if (sentTools.length < 4) {
             return reply({
@@ -248,7 +251,33 @@ describe('openai-compatible — the last pass has to produce an answer', () => {
     );
 
     assert.deepStrictEqual(sentTools, [true, true, true, false], 'tools offered until the last pass');
+    assert.strictEqual(lastMessages.at(-1)?.role, 'user', 'the last pass ends with a user turn');
+    assert.strictEqual(lastMessages.at(-1)?.content, FINAL_PASS_NUDGE, 'which tells the model this is the reply turn');
+    assert.strictEqual(lastMessages.filter((m) => m.content === FINAL_PASS_NUDGE).length, 1, 'sent once, on the final pass only');
     assert.strictEqual(result.text, 'ชุดของขวัญราคา 630 บาท/ชุด');
+  });
+
+  it('nudges once when the model goes silent mid-loop after a tool round, then accepts the reply', async () => {
+    const seen: Array<{ tools: boolean; last: unknown }> = [];
+    const port = createOpenAiCompatiblePort(
+      { provider: 'openai-compatible', model: 'm', effort: 'low', baseUrl: 'http://x/v1' },
+      {
+        fetchFn: async (_url, init) => {
+          const body = JSON.parse(String((init as RequestInit).body));
+          seen.push({ tools: Array.isArray(body.tools) && body.tools.length > 0, last: body.messages.at(-1)?.content });
+          if (seen.length === 1) {
+            return reply({ content: '', tool_calls: [{ id: 'c1', type: 'function', function: { name: 'search', arguments: '{}' } }] });
+          }
+          if (seen.length === 2) return reply({ content: '' }); // silence after the tool result
+          return reply({ content: 'ยังไม่มีสินค้าเข้างบค่ะ' });
+        },
+      },
+    );
+    const result = await port.generate(request({ tools: [tool('search', async () => '{"hits":[]}')], maxIterations: 4 }));
+    assert.strictEqual(result.text, 'ยังไม่มีสินค้าเข้างบค่ะ');
+    assert.strictEqual(seen.length, 3, 'silence cost one extra round, not the whole turn');
+    assert.strictEqual(seen[2].last, FINAL_PASS_NUDGE, 'the extra round was asked for plainly');
+    assert.strictEqual(seen[2].tools, true, 'not the final pass, so the tools were still offered');
   });
 
   it('still returns empty when the model says nothing even with no tools to hide behind', async () => {
