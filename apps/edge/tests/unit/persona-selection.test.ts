@@ -56,6 +56,19 @@ describe('where .agents/ is looked for', () => {
     fs.rmSync(pkg, { recursive: true, force: true });
   });
 
+  it('accepts the value desktop-worker.ts really sets: the worker directory itself', () => {
+    // packageRootForWorker() resolves to <package>/worker (the dir holding dist/) and overwrites
+    // the supervisor's value, so the live worker never sees the package directory.
+    delete process.env.ZURI_AGENTS_ROOT;
+    const pkg = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-pkg-'));
+    fs.mkdirSync(path.join(pkg, 'worker', '.agents', 'zuri-01'), { recursive: true });
+    fs.writeFileSync(path.join(pkg, 'worker', '.agents', 'zuri-01', 'AGENTS.md'), '# Persona: packaged');
+    process.env.ZURI_DESKTOP_PACKAGE_ROOT = path.join(pkg, 'worker');
+    assert.equal(agentsRoot(), path.join(pkg, 'worker', '.agents'));
+    assert.equal(loadPersonaPrompt('zuri-01'), '# Persona: packaged');
+    fs.rmSync(pkg, { recursive: true, force: true });
+  });
+
   it('a package with no worker/.agents falls back to the working directory rather than nowhere', () => {
     delete process.env.ZURI_AGENTS_ROOT;
     process.env.ZURI_DESKTOP_PACKAGE_ROOT = path.join(os.tmpdir(), 'zuri-pkg-does-not-exist');

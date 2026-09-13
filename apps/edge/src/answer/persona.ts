@@ -18,8 +18,14 @@ export function agentsRoot(): string {
   if (explicit) return path.resolve(explicit);
   const packageRoot = process.env.ZURI_DESKTOP_PACKAGE_ROOT?.trim();
   if (packageRoot) {
-    const packaged = path.join(packageRoot, 'worker', '.agents');
-    if (fs.existsSync(packaged)) return packaged;
+    // The supervisor sets this to the package directory, but desktop-worker.ts then overwrites
+    // it with its own root — `<package>/worker`, the directory holding dist/ — so the value
+    // seen here is the worker directory in the live app. The first deploy looked only under
+    // `<value>/worker/.agents`, found nothing, and every live answer used the fallback string
+    // while the same code, probed with the package directory, loaded the persona fine.
+    for (const candidate of [path.join(packageRoot, '.agents'), path.join(packageRoot, 'worker', '.agents')]) {
+      if (fs.existsSync(candidate)) return candidate;
+    }
   }
   return path.resolve('.agents');
 }
