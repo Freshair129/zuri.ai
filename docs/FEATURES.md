@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.46.0b"
+version: "1.47.0b"
 status: active
-last_update: "2026-09-13T21:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-13T17:30:00+07:00,Claude Opus 5"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -14,7 +14,7 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.46.0b |
+| **Version** | 1.47.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -823,6 +823,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FEAT-032",
     "primaryDomain": "inventory",
     "useCase": "เจ้าของธุรกิจดาวน์โหลดแม่แบบ Excel ของ Business ตัวเอง กรอกสินค้า 200 แถวแล้วอัปโหลด ระบบบอกทีละแถวว่าแถวไหนเป็น SKU ใหม่ แถวไหนตรงกับ SKU เดิมจากบาร์โค้ด (และจะเพิ่มแค่บาร์โค้ด/หน่วยแปลงที่ยังไม่มี) แถวไหนซ้ำหรือผิด แล้วกดยืนยันครั้งเดียวบันทึกทั้งไฟล์ หรือพิมพ์ #sku ใน LINE จากบัญชีที่ยืนยันตัวตนแล้วเพื่อทำแบบเดียวกันจากมือถือ"
+  },
+  {
+    "id": "FR-211",
+    "primaryDomain": "platform-control",
+    "useCase": "installation operator เปิดแท็บ Domain map & inventory ใน /control/roadmap แล้วเห็นทุกโดเมนเป็นแผนผังพร้อมสถานะ เลือกโดเมนหนึ่งเพื่อดู feature, FR และ NFR ของโดเมนนั้นว่าตัวไหนพร้อมใช้ ตัวไหนยังติดอะไร โดยไม่ต้องเปิด PRD หรือรันคำสั่งเอง"
   }
 ]
 ```
@@ -850,4 +855,6 @@ Version diff 1.43.0b → 1.44.0b (2026-09-13): **FEAT-031 moves from `building` 
 
 Version diff 1.44.0b → 1.45.0b (2026-09-13): Added **FEAT-032** (FR-208, FR-209, FR-210) under **ADR-084** — catalogue intake that resolves before it creates: one envelope and planner, the Excel converter and Import tab, and the LINE `#sku` command. Implemented locally; migration written in both trees and not applied to production.
 
-Version diff 1.45.0b → 1.46.0b (2026-09-13): **FEAT-032 moves from `building` to `implemented`** — migration `20260913200000_inventory_catalog_intake` is applied on production and main ada5188b (PR #375) is deployed. No feature text changed.
+Version diff 1.45.0b → 1.46.0b (2026-09-13): readiness metadata gains **FR-211** (primary domain `platform-control`) — the Domain map & inventory tab on `/control/roadmap`. An unbundled FR, so it is a feature of one; no FEAT row is added.
+
+Version diff 1.46.0b → 1.47.0b (2026-09-13): **FEAT-032 moves from `building` to `implemented`** — migration `20260913200000_inventory_catalog_intake` is applied on production and main ada5188b (PR #375) is deployed. No feature text changed.

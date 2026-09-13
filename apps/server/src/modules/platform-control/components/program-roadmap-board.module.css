@@ -301,3 +301,38 @@
     display: none;
   }
 }
+
+/* FR-211 — view tabs: the programme plan and the domain map share one page. */
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg, 12px);
+  background: var(--bg-subtle);
+  width: fit-content;
+  max-width: 100%;
+}
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tab:hover {
+  color: var(--text-primary);
+}
+.tab[aria-selected='true'] {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: var(--shadow-raised), inset 0 -2px 0 var(--action-primary);
+}

@@ -1,11 +1,12 @@
 'use client'
 
 // @req FR-105 — render the submitted programme without treating it as Business progress.
+// @req FR-211 — and, in a second tab, the domain map & inventory.
 // @spec ADR-048 D3, SDD-055, NFR-008
-// @tested tests/unit/platform-control-route-contract.test.js
+// @tested tests/unit/platform-control-route-contract.test.js, tests/unit/platform-control-domain-map.test.js
 
 import { useState } from 'react'
-import { ChevronDown, ClipboardList, Flag, History, Layers3, ShieldCheck } from 'lucide-react'
+import { Boxes, ChevronDown, ClipboardList, Flag, History, Layers3, ShieldCheck } from 'lucide-react'
 import { Card, Kpi, PageHeader, ProgressBar, StatusPill } from '@/components/ui'
 import {
   PROGRAMME_DELIVERABLES,
@@ -16,6 +17,7 @@ import {
   PROGRAMME_TASKS,
 } from '@/modules/platform-control/program-roadmap-data'
 import { PROGRAMME_CONTAINERS } from '@/modules/platform-control/program-roadmap-containers'
+import DomainMapView from './DomainMapView'
 import TiltCard from './TiltCard'
 import styles from './program-roadmap-board.module.css'
 
@@ -182,7 +184,25 @@ function HistoryChart({ history }) {
   )
 }
 
-export default function ProgramRoadmapBoard() {
+// FR-211 (owner request 2026-09-13): a second view on the same operator page —
+// the domain map & inventory, projected on the server from the generated
+// domain-state snapshot and handed in as `domainMap`. `?view=domains` opens it
+// directly; switching tabs rewrites only the query string, never navigates.
+const VIEWS = [
+  { id: 'programme', label: 'Programme plan', icon: Layers3 },
+  { id: 'domains', label: 'Domain map & inventory', icon: Boxes },
+]
+
+export default function ProgramRoadmapBoard({ domainMap = null, initialView = 'programme' }) {
+  const [view, setView] = useState(domainMap && initialView === 'domains' ? 'domains' : 'programme')
+  const selectView = (next) => {
+    setView(next)
+    if (typeof window === 'undefined') return
+    const url = new URL(window.location.href)
+    if (next === 'programme') url.searchParams.delete('view')
+    else url.searchParams.set('view', next)
+    window.history.replaceState(null, '', `${url.pathname}${url.search}${url.hash}`)
+  }
   const [openPhase, setOpenPhase] = useState('PHASE-ZAI-01')
   const [openTasks, setOpenTasks] = useState(() => new Set())
   const toggleTask = (id) =>
@@ -201,6 +221,32 @@ export default function ProgramRoadmapBoard() {
         subtitle="Read-only plan snapshot. It is not Business progress and it is not calculated from Git activity."
       />
 
+      {domainMap && (
+        <div className={styles.tabs} role="tablist" aria-label="Roadmap views">
+          {VIEWS.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              type="button"
+              role="tab"
+              id={`roadmap-tab-${id}`}
+              aria-selected={view === id}
+              aria-controls={`roadmap-panel-${id}`}
+              className={styles.tab}
+              onClick={() => selectView(id)}
+            >
+              <Icon size={15} aria-hidden />
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {view === 'domains' && domainMap ? (
+        <div role="tabpanel" id="roadmap-panel-domains" aria-labelledby="roadmap-tab-domains">
+          <DomainMapView domainMap={domainMap} />
+        </div>
+      ) : (
+      <div role={domainMap ? 'tabpanel' : undefined} id="roadmap-panel-programme" aria-labelledby={domainMap ? 'roadmap-tab-programme' : undefined} className="space-y-6">
       <Card warm className="flex flex-wrap items-center gap-x-5 gap-y-2">
         <span className="pill pill-review">{PROGRAMME_SNAPSHOT.status.toUpperCase()} PLAN</span>
         <span className="text-xs text-muted">{PROGRAMME_SNAPSHOT.programmeStart} → {PROGRAMME_SNAPSHOT.programmeEnd}</span>
@@ -339,6 +385,8 @@ export default function ProgramRoadmapBoard() {
           </Card>
         </aside>
       </section>
+      </div>
+      )}
     </div>
   )
 }

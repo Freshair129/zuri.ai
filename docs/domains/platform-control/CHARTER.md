@@ -30,6 +30,12 @@ persistence model.
   nothing here.
 - The first surface, `/control/roadmap` (FR-105), is an immutable static plan
   projection. It accepts no input and makes no API, database or audit write.
+- Its second tab, Domain map & inventory (FR-211), is a projection of the
+  Product Readiness snapshot this lane does **not** own: it reads it only through
+  Project Manager's `getProductReadinessSnapshot()` (FR-124), projects it on the
+  server, and never recomputes a status. The snapshot's generator
+  (`scripts/domain-state.mjs`) stays FR-124's; FR-211 added only the requirement
+  subjects and the `nonFunctionalRequirements` list it reads.
 - `src/config/domains.js` is the Business-only navigation registry. This domain
   may not add itself to `DOMAINS`.
 - Project-local roadmap work remains Project Manager authority under ADR-028.
