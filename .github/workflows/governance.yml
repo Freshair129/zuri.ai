@@ -109,19 +109,128 @@ jobs:
             echo "code=true" >> "$GITHUB_OUTPUT"
           fi
 
-  verify:
-    # The nightly run is about the environment, not the tree: on a schedule the
-    # commit is whatever `main` already merged and verified, so re-running the
-    # tests, the build and the governance chain would spend ~14 minutes to
-    # re-derive an answer that is committed in the repository.
+  # ---------------------------------------------------------------------------
+  # `verify` used to be one job: install → govern → tests → build, ~14.5 min in
+  # sequence, of which the tests were ~11 and the governance chain 22 seconds.
+  # Two consequences the owner hit on 2026-09-13 (PR #364): a stale
+  # `domain-state.json` and an unreviewed id-ledger digest — both 20-second
+  # governance findings — were reported after 13 minutes, and each fix push
+  # re-ran the whole 14.5 minutes, because GitHub re-runs a JOB, never a step,
+  # and a new commit is a new run in any case.
+  #
+  # Split (owner instruction, 2026-09-13):
+  #   govern  — the governance chain, the committed-state guard, the LLM corpus
+  #             and the governance-facing unit tests. Reports in ~2-3 minutes,
+  #             so a documentation or annotation slip is red before the suite
+  #             is half done.
+  #   tests   — the full unit + integration suite. The long job; unchanged.
+  #   build   — the production build, no longer queued behind the tests.
+  #   verify  — an aggregate that fails if any of the three did. Branch
+  #             protection requires a check literally named `verify`
+  #             (`changes`, `verify`, `edge-verify`), and a required check that
+  #             only covered one of the three would let a red suite merge.
+  #
+  # The three run in PARALLEL rather than govern-first-then-the-rest: gating the
+  # 11-minute suite on a 3-minute job would add 3 minutes to every green run to
+  # save runner minutes on the red ones, and time-to-signal — not runner cost —
+  # is what this split is for. `gh run rerun --failed` now re-runs only the job
+  # that failed when the failure was environmental.
+  #
+  # windows-latest on all three, not ubuntu: `src/modules/project-manager/local-files/`
+  # hardcodes `path.win32` in three files, deliberately — mounted-root
+  # containment has to reason about drive letters, UNC paths and junction/reparse
+  # points (SEC-007). On Linux those helpers turn `/tmp/x` into `\tmp\x` and
+  # FR-045's integration tests fail with ENOENT. The first CI run found this; the
+  # constraint was real and undocumented, not a regression. See
+  # .brain/rca/2026-08-17-ci-found-an-undocumented-platform-constraint.md
+  # The nightly run skips all of them: on a schedule the commit is whatever
+  # `main` already merged and verified, so nothing here can change.
+  # ---------------------------------------------------------------------------
+  govern:
     if: github.event_name != 'schedule'
-    # windows-latest, not ubuntu: `src/modules/project-manager/local-files/`
-    # hardcodes `path.win32` in three files, deliberately — mounted-root
-    # containment has to reason about drive letters, UNC paths and
-    # junction/reparse points (SEC-007). On Linux those helpers turn `/tmp/x`
-    # into `\tmp\x` and FR-045's integration tests fail with ENOENT. The first
-    # CI run found this; the constraint was real and undocumented, not a
-    # regression. See .brain/rca/2026-08-17-ci-found-an-undocumented-platform-constraint.md
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: apps/server
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/server/package-lock.json
+
+      # `postinstall` runs `prisma generate`, so the client is built here.
+      - run: npm ci
+
+      # docs:graph rebuilds from the filesystem, docs:check re-runs the
+      # generator and fails when a second pass disagrees with the first, and
+      # docs:preflight (--strict) fails on any CRITICAL. The order matters: two
+      # preflight checks read the graph, so it must be built before preflighting.
+      #
+      # The steps that used to sit around this one — "Committed graph is
+      # current", "Relocated graph is committed and current" and the
+      # generated-views diff — are gone with the committed artefacts they
+      # guarded (ADR-081 D3). What is left is the stronger question `docs:check`
+      # still asks: is the generator REPRODUCIBLE.
+      - name: Governance chain
+        run: npm run govern
+
+      # `runtime/domain-state.json` IS still committed — the app imports it and
+      # the Docker build context cannot regenerate it (ADR-081 D2) — so it keeps
+      # a byte-stability check of its own. #354 removed the run timestamp that
+      # made this impossible before.
+      - name: Bundled runtime state is committed and current
+        working-directory: .
+        shell: bash
+        run: |
+          if ! git diff --quiet -- apps/server/runtime/domain-state.json; then
+            echo "::error::apps/server/runtime/domain-state.json is out of date. Run 'npm run govern' and commit the result."
+            git --no-pager diff --stat -- apps/server/runtime/domain-state.json
+            exit 1
+          fi
+
+      # The unit tests that read the governance inputs the chain above just
+      # rebuilt — the id ledger, the doc graph, the domain state, the schema
+      # migration set, the design tokens. They are the tests a documentation
+      # or annotation change can break, and they run in well under a minute,
+      # so a break is red here and not eleven minutes into `tests`. `tests`
+      # runs them again as part of the full suite; the duplication is the
+      # point, not a cost.
+      #
+      # Explicit files, not a glob: a glob that matched nothing would make
+      # assert-tests-ran fail, which is right, but a glob that matched the
+      # wrong thing would quietly move the slow tail here.
+      - name: Governance-facing unit tests
+        run: >-
+          npm test --
+          tests/unit/id-anchor-stability.test.js
+          tests/unit/domain-state.test.js
+          tests/unit/design-system.test.js
+          tests/unit/schema-migration-drift.test.js
+          tests/unit/doc-graph-canonical-text.test.js
+          tests/unit/doc-graph-delivery-attribution.test.js
+          tests/unit/doc-graph-retired-rules.test.js
+
+      # llms-full.txt is built, not compared (ADR-081 D1 as amended): with no
+      # committed copy there is nothing to be current against, so what is left
+      # is whether the generator RUNS. The corpus is uploaded so an LLM reader
+      # without a checkout gets a build of it rather than a stale file.
+      - name: Build the LLM corpus
+        working-directory: .
+        shell: bash
+        run: node scripts/build-llms-full.mjs
+
+      - name: Keep the LLM corpus
+        uses: actions/upload-artifact@v4
+        with:
+          name: llms-full
+          path: llms-full.txt
+          retention-days: 30
+
+  tests:
+    if: github.event_name != 'schedule'
     runs-on: windows-latest
     defaults:
       run:
@@ -145,69 +254,58 @@ jobs:
           cache: npm
           cache-dependency-path: apps/server/package-lock.json
 
-      # `postinstall` runs `prisma generate`, so the client is built here.
       - run: npm ci
 
-      # docs:graph rebuilds from the filesystem, docs:check re-runs the
-      # generator and fails when a second pass disagrees with the first, and
-      # docs:preflight (--strict) fails on any CRITICAL. The order matters: two
-      # preflight checks read the graph, so it must be built before preflighting.
-      #
-      # The steps that used to sit around this one — "Committed graph is
-      # current", "Relocated graph is committed and current" and the
-      # generated-views diff — are gone with the committed artefacts they
-      # guarded (ADR-081 D3). They answered "has the copy in git drifted from
-      # its source"; with no copy in git there is nothing to drift. What is left
-      # is the stronger question `docs:check` still asks: is the generator
-      # REPRODUCIBLE. That catches a real defect and this one never did more
-      # than report that somebody forgot to run a command.
-      - name: Governance chain
-        run: npm run govern
-
-      # `runtime/domain-state.json` IS still committed — the app imports it and
-      # the Docker build context cannot regenerate it (ADR-081 D2) — so it keeps
-      # a byte-stability check of its own. #354 removed the run timestamp that
-      # made this impossible before.
-      - name: Bundled runtime state is committed and current
-        working-directory: .
-        shell: bash
-        run: |
-          if ! git diff --quiet -- apps/server/runtime/domain-state.json; then
-            echo "::error::apps/server/runtime/domain-state.json is out of date. Run 'npm run govern' and commit the result."
-            git --no-pager diff --stat -- apps/server/runtime/domain-state.json
-            exit 1
-          fi
-
-      # llms-full.txt inlines README, CLAUDE.md, AGENTS.md, PRODUCT.md and every
-      # domain charter, so editing any of them leaves the corpus stale — and a
-      # stale corpus is worse than no corpus: it reads authoritative while
-      # stating rules this repository no longer has. Same shape as the check
-      # above (regenerate, then compare) rather than the generator's own
-      # `--check`, so a failure names the drift instead of only asserting it.
-      # It needs Node and nothing else — no install, no dependency on the
-      # `apps/server` tree this job otherwise works in.
-      # Built, not compared. `llms-full.txt` is no longer committed (ADR-081 D1
-      # as amended), so "is it current" has no copy to be current against — what
-      # is left is whether the generator RUNS, which a failure here reports.
-      # The corpus is then uploaded, so an LLM reader without a checkout gets a
-      # build of it rather than a file that was stale between merges.
-      - name: Build the LLM corpus
-        working-directory: .
-        shell: bash
-        run: node scripts/build-llms-full.mjs
-
-      - name: Keep the LLM corpus
-        uses: actions/upload-artifact@v4
-        with:
-          name: llms-full
-          path: llms-full.txt
-          retention-days: 30
+      # Several tests read `docs/.doc-graph.json`, which is generated and not
+      # committed (ADR-081); in the single-job layout the governance chain had
+      # built it a step earlier. The graph alone takes seconds; the checks that
+      # judge it belong to `govern`, not here.
+      - name: Build the doc graph the tests read
+        run: npm run docs:graph
 
       - name: Unit and integration tests
         run: npm test
 
+  build:
+    if: github.event_name != 'schedule'
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: apps/server
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/server/package-lock.json
+
+      - run: npm ci
+
       - name: Production build
         run: npm run build
+
+  # The required check. `if: always()` so it reports on failure too — without
+  # it a failed dependency would leave `verify` skipped, and a skipped required
+  # check blocks the merge with no explanation of which job to look at.
+  verify:
+    if: always() && github.event_name != 'schedule'
+    needs: [govern, tests, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: All three verification jobs passed
+        shell: bash
+        run: |
+          echo "govern: ${{ needs.govern.result }}"
+          echo "tests:  ${{ needs.tests.result }}"
+          echo "build:  ${{ needs.build.result }}"
+          for r in "${{ needs.govern.result }}" "${{ needs.tests.result }}" "${{ needs.build.result }}"; do
+            if [ "$r" != "success" ]; then
+              echo "::error::a verification job did not succeed (see the job results above)"
+              exit 1
+            fi
+          done
 
   e2e:
     # Skipped when the diff touches only `docs/` and `.brain/` — see the
