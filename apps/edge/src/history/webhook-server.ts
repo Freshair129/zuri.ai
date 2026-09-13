@@ -14,6 +14,7 @@ import {
 import { RegistryOptions, Role, requestAccess, resolveIdentity, listIdentities } from '../identity/registry.js';
 import { isAuthorized, sessionCookie, keyMatches, type AdminSessions } from './admin-auth.js';
 import { activePersonaId, listPersonaOptions } from '../answer/persona.js';
+import { childEnv } from '../answer/headless.js';
 
 // @req BR-009 — every route that reads or changes configuration, or that can send as the OA,
 //   requires the operator key; only `/` and `/webhook/line` are open.
@@ -329,7 +330,11 @@ export function createLineWebhookServer(options: LineWebhookServerOptions): http
 
       if (url === '/api/ollama/models') {
         try {
-          const output = execSync('ollama list', { encoding: 'utf8', timeout: 5000 });
+          // The CLI needs the OS and, if set, the host it should query — nothing else.
+          // This process holds device keys, LINE credentials and model API keys that
+          // a model listing has no use for, and a shell child passes them on again.
+          const ollamaEnv = { ...childEnv(), ...(process.env.OLLAMA_HOST ? { OLLAMA_HOST: process.env.OLLAMA_HOST } : {}) };
+          const output = execSync('ollama list', { encoding: 'utf8', timeout: 5000, env: ollamaEnv });
           const lines = output.trim().split('\n').slice(1);
           const models = lines.map((l: string) => l.split(/\s{2,}/)[0].trim()).filter(Boolean);
           response.writeHead(200, { 'Content-Type': 'application/json' }).end(JSON.stringify({ models }));
