@@ -2618,7 +2618,7 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "7b9e467ad0ad59812a15f9e93912cb115bbe0625fb753ad884c6a0cf70f95a19",
+      "statement_digest": "5b951633a3c4a477e5c040c804a64261697998029a580eb846db9307df00f6e5",
       "history": [
         {
           "anchor": "platform programme roadmap",
@@ -2627,7 +2627,7 @@
         }
       ],
       "statement_digest_reviewed_at": "2026-09-13",
-      "statement_digest_reason": "Re-worded to name programme v0.4.2 after TASK-ZAI-052 to TASK-ZAI-059 were added on the owner's instruction; the subject anchor and the surface it names are unchanged"
+      "statement_digest_reason": "Re-worded to name programme v0.4.3 after TASK-ZAI-060 to TASK-ZAI-063 were added on the owner's instruction for the data pipeline map; the subject anchor and the surface it names are unchanged"
     },
     "FR-106": {
       "family": "FR",
