@@ -264,19 +264,34 @@ export async function searchV4(
   const deduped = dedupe(filtered);
   let liteResults: ResultV4[] = deduped.map((hit) => buildLiteResult(deps, hit, qty ?? null));
 
-  // Priced-first tie-break, only under commercial intent (a quantity or budget in the query):
-  // e5 scores over this catalog cluster within ~0.01 of each other, so a sellable item routinely
-  // loses the cut to an unpriced near-tie — bad when the customer asked for a price, irrelevant
-  // when they are just browsing (and reordering browse results costs NL recall). The reported
-  // `score` stays the raw cosine (AC-C1); only the ordering key is nudged.
+  // Ordering, in two layers. The reported `score` stays the raw cosine (AC-C1); only the
+  // ordering key changes.
+  //
+  // 1. Unorderable results sink, in every mode. A result with no code and no price is a
+  //    ProductModel the projection could not tie to any offer (427 masters from
+  //    pricelist_master.json, many with `code: null` and an empty ladder): nothing to quote,
+  //    nothing to order, no image. Measured on the 2026-09-13 store, "แก้วน้ำ" returned seven of
+  //    them ("Mug", "Bottle", all 0.88–0.89) above the one priced item, and "ขอราคา แก้วน้ำมีจอ LED"
+  //    was answered "ยังไม่มีข้อมูลราคา" while TBH01-3 sat at rank 8 with a full ladder and an
+  //    image. Semantic order is kept *among* orderable results, so browsing recall is unchanged
+  //    for anything a customer could actually be shown.
+  // 2. Priced-first nudge, only under commercial intent (a quantity or budget in the query):
+  //    e5 scores over this catalog cluster within a few hundredths of each other, so a priced
+  //    item routinely loses the cut to an unpriced near-tie — bad when the customer asked for a
+  //    price, irrelevant when they are just browsing. 0.005 was too small: the live gap between
+  //    the unpriced near-ties and the priced offer was 0.02; 0.03 covers the measured cluster
+  //    while a clear semantic winner (≥ 0.03 ahead) still keeps its rank.
   const commercialIntent = (qty ?? null) !== null || budgetPerUnit !== null;
-  if (commercialIntent) {
-    const PRICED_TIEBREAK = 0.005;
-    const hasPrice = (r: ResultV4) => r.priceLadder.some((t) => !t.priceMissing);
-    liteResults = [...liteResults].sort(
-      (a, b) => (b.score + (hasPrice(b) ? PRICED_TIEBREAK : 0)) - (a.score + (hasPrice(a) ? PRICED_TIEBREAK : 0))
-    );
-  }
+  const hasPrice = (r: ResultV4) => r.priceLadder.some((t) => !t.priceMissing);
+  const unorderable = (r: ResultV4) => r.code === null && !hasPrice(r);
+  const PRICED_TIEBREAK = commercialIntent ? 0.03 : 0;
+  const orderKey = (r: ResultV4) => r.score + (hasPrice(r) ? PRICED_TIEBREAK : 0);
+  liteResults = [...liteResults].sort((a, b) => {
+    const ua = unorderable(a) ? 1 : 0;
+    const ub = unorderable(b) ? 1 : 0;
+    if (ua !== ub) return ua - ub;
+    return orderKey(b) - orderKey(a);
+  });
 
   let finalResults = liteResults;
   let nearestLite: ResultV4[] = [];
