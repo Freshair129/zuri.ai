@@ -2866,7 +2866,7 @@
           "title": "Data Pipeline Map view",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
+          "codeCount": 6,
           "testCount": 2
         },
         {
@@ -8878,7 +8878,7 @@
           "title": "Data Pipeline Map view",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
+          "codeCount": 6,
           "testCount": 2
         },
         {
@@ -8902,6 +8902,7 @@
         "apps/server/src/app/(pm)/knowledge/data-pipeline/page.jsx",
         "apps/server/src/app/(pm)/knowledge/page.jsx",
         "apps/server/src/config/domains.js",
+        "apps/server/src/modules/knowledge/pipeline-map/DataPipelineMap3D.jsx",
         "apps/server/src/modules/knowledge/pipeline-map/DataPipelineMapView.jsx",
         "apps/server/src/modules/knowledge/pipeline-map/KnowledgeDashboard.jsx",
         "apps/server/src/modules/knowledge/pipeline-map/pipeline-map-access.js",
@@ -14495,7 +14496,7 @@
       "title": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity…",
       "status": "verified",
       "codeCount": 13,
-      "testCount": 21,
+      "testCount": 20,
       "domains": [
         "knowledge",
         "platform-control",
