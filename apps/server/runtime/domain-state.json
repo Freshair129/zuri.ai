@@ -7877,7 +7877,7 @@
       "id": "FEAT-031",
       "title": "SKU governance (anti-SKU-bloat) — the product nature declared once at the master and inherited by every SKU so a service is never a variant of a good, variant identity as the key that makes one physical variant one SKU, barcodes and partner codes as resolvable attributes an intake checks before it creates, pack sizes as unit conversions rather than SKUs, the SKU lifecycle (phase-out, reactivate, merge, the archive guard), replenishment parameters, and the read-only catalogue hygiene report with its merge desk on the Inventory console (ADR-083, `DOM-INVENTORY`)",
       "kind": "bundle",
-      "registryStatus": "building",
+      "registryStatus": "implemented",
       "requirementIds": [
         "FR-201",
         "FR-202",
@@ -7897,7 +7897,7 @@
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-031 registry status is building"
+        "FEAT-031 registry status is implemented"
       ],
       "requirements": [
         {
