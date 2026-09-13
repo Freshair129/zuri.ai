@@ -2,7 +2,7 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.0"
+version: "0.4.1"
 updated: "2026-09-13"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
@@ -127,7 +127,7 @@ the v0.4.0 column is what changed in the programme's first three weeks.
 | # | Deliverable | Reality at `7d8c9d0` (v0.3.0) | Reality at `2b7ad27d` (v0.4.0) | Delta this programme still buys |
 |---|---|---|---|---|
 | 1 | Visual Office 2.5D | Not started. No scene model, no renderer, no route. | Unchanged. | Whole deliverable, PHASE-ZAI-04 |
-| 2 | GoVibe Mission Control | Exists as a separate product. It reads this repository's roadmap but is **not bound to Zuri business data**. | FR-105 gives the platform its own operator-only roadmap projection at `/control/roadmap` (ADR-048); the binding to Zuri business data is still absent. | Binding only, TASK-ZAI-012 |
+| 2 | GoVibe Mission Control | Exists as a separate product. It reads this repository's roadmap but is **not bound to Zuri business data**. | **Corrected by the owner on 2026-09-13: this deliverable is the Project system of the Development domain in this repository, not the external GoVibe product.** That system is delivered: `src/modules/project-manager` with Projects, Workstreams, WorkItems, Board and Schedule (FR-063/064), Structure Plan and Dependency Map (FR-040), the Projects Dashboard with priority, PIC and Team (FR-086 to FR-089, FEAT-008), human-visible Execution Roadmap and Blueprint intake (FEAT-003, FR-068 to FR-070), ExecutionPlanBundle import (FEAT-012, FR-108, ADR-049), Project Inventory (FEAT-005), Files (FEAT-001) and the Marketing → PM handoff (FR-158). ROADMAP.md records PHASE-ZAI-PRODUCT done. What the proposal's "Mission Control" still lacks is agent *missions*: work created and progressed by agents under approval, visible in the same Project system — which is what TASK-ZAI-012 now names. | Agent mission feed into the Development domain, TASK-ZAI-012 |
 | 3 | Interactive Node View 3D | Not started. FR-040 ships a 2D read-only project dependency map; FR-083 edge creation is planned, not built. | FR-101 adds a second 2D read-only graph (SoT pipeline, hand-rolled SVG). FR-082 to FR-085 remain design only. | 3D view plus direct manipulation, SPR-ZAI-10 |
 | 4 | Second Brain / Governed Memory | Partial. FR-024, FR-025, FR-029 read ports live and **read-only**; ADR-042/043 pinned, no product surface. | **Substantially advanced.** FR-109 to FR-119 declare the seventeen-stage ingestion path with lineage, provenance, snapshot and BR-022 quarantine; FR-173 admission and corpus publication (ADR-072); FR-098 agent/MSP authorization; FR-171 execution trace and replay (ADR-070); GenesisRAG17 isolated acceptance passed (ADR-073). Permission-scoped *retrieval* as a product surface is still open. | Retrieval by permission on the built substrate, SPR-ZAI-09, started early — TASK-ZAI-024/025 are in-progress |
 | 5 | Five Core Agent Roles | Partial. One generic agent turn; no role registry, no role-scoped policy. | Unchanged in kind. FR-181 adds six SCM tools on the existing gates and FR-098 the authorization context those tools consume, which is the substrate a role policy will bind to. No registry. | Role registry plus five roles, SPR-ZAI-03 |
@@ -344,8 +344,8 @@ Week numbers map to the calendar in section 5.4. W1 begins Mon 2026-08-24.
 
 | Phase | Weeks | Dates | Goal | Governing SoT | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
-| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, and (CR-019) land the ERP business modules for Business one | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, and every deliverable-11 lane is merged with its migration written | in-progress | 89 |
-| PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; activate deliverable 11 on production | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; GATE-ZAI-09's migration ledger matches | planned | 0 |
+| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, and (CR-019) land the ERP business modules for Business one | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, and every deliverable-11 lane is merged with its migration written | in-progress | 90 |
+| PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; give the seventeen-stage pipeline its knowledge base and file system on production; activate deliverable 11 on production | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; a real document is admitted, parsed, published and cited on production; GATE-ZAI-09's migration ledger matches | planned | 0 |
 | PHASE-ZAI-03 | 9-12 | 2026-10-19 to 2026-11-15 | Second business, cross-business analytics, first workflows and connectors; deliverable 11 accepted for Business one | `docs/ARCHITECTURE.md` | GATE-ZAI-04 and GATE-ZAI-07 are met for connectors one and two and workflows one and two; GATE-ZAI-09 is met | planned | 0 |
 | PHASE-ZAI-04 | 13-16 | 2026-11-16 to 2026-12-13 | Visual Office 2.5D and the agent activity experience | `docs/UI-DESIGN-SYSTEM.md` | GATE-ZAI-01 is met | planned | 0 |
 | PHASE-ZAI-05 | 17-20 | 2026-12-14 to 2027-01-10 | Second Brain, Node View 3D and the remaining automation | `docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md` | GATE-ZAI-02, GATE-ZAI-03 and GATE-ZAI-05 are met | in-progress | 20 |
@@ -364,8 +364,8 @@ locates the week.
 | Sprint | Parent ID | Weeks | Dates | Goal | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
 | SPR-ZAI-01 | PHASE-ZAI-01 | 1-2 | 08-24 to 09-06 | Close identity, session and authorization to production standard; (CR-019) Inventory, Sales Tasks, Commerce, Procurement, Asset Management and LINE OA Studio lanes land | A request without a trusted session reaches no mutating route, proven by test; each lane merged with tests | in-progress | 93 |
-| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land | The pipeline reports every stage, the memory contract is reviewed, and every lane's migration is written | in-progress | 86 |
-| SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; apply every pending deliverable-11 migration on production | Each role resolves distinct tools, policy and memory partition; the migration ledger matches the tree | planned | 0 |
+| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, and every lane's migration is written | in-progress | 87 |
+| SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; stand up the knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending deliverable-11 migration on production | Each role resolves distinct tools, policy and memory partition; a PDF uploaded in the console is published as a cited corpus on production; the migration ledger matches the tree | planned | 0 |
 | SPR-ZAI-04 | PHASE-ZAI-02 | 7-8 | 10-05 to 10-18 | Approval Gateway L1 to L4 with verification, notification and Mission Control binding | An L4 action cannot execute without four recorded approvals | planned | 0 |
 | SPR-ZAI-05 | PHASE-ZAI-03 | 9-10 | 10-19 to 11-01 | Standard business template and Business number two onboarding | Business two is live and isolated from SmartGift under test | planned | 0 |
 | SPR-ZAI-06 | PHASE-ZAI-03 | 11-12 | 11-02 to 11-15 | Cross-business analytics, connector two, workflows one and two; GATE-ZAI-09 evidence run | Analytics obey per-business visibility, two workflows run end to end, and the ERP acceptance record is signed | planned | 0 |
@@ -391,7 +391,7 @@ locates the week.
 | TASK-ZAI-009 | SPR-ZAI-03 | task | Agent Factory, the standard business agent template | P1 | Codex | planned | TASK-ZAI-007 | Proposal scope, AI Control |
 | TASK-ZAI-010 | SPR-ZAI-04 | task | Approval Gateway L1 to L4 over the FR-026 action gate | P0 | ATHER | planned | TASK-ZAI-007 | Section 3.1 row 9 |
 | TASK-ZAI-011 | SPR-ZAI-04 | task | Verification and notification fabric on approval outcomes | P0 | Codex | planned | TASK-ZAI-010 | Section 3.1 row 9 |
-| TASK-ZAI-012 | SPR-ZAI-04 | task | Bind GoVibe Mission Control to the Zuri mission feed | P1 | ATHER | planned | TASK-ZAI-010 | Section 3.1 row 2 |
+| TASK-ZAI-012 | SPR-ZAI-04 | task | Mission feed: agent missions and their approvals surface as Development-domain work in the Project system | P1 | ATHER | planned | TASK-ZAI-010 | Section 3.1 row 2; FR-040, FR-063, FR-068, FR-108 |
 | TASK-ZAI-013 | SPR-ZAI-05 | task | Standard Business Template and provisioning path | P0 | Codex | planned | TASK-ZAI-009 | Section 3.1 row 6 |
 | TASK-ZAI-014 | SPR-ZAI-05 | task | Onboard Business number two end to end under isolation | P0 | ATHER | planned | TASK-ZAI-013 | Section 3.1 row 6 |
 | TASK-ZAI-015 | SPR-ZAI-05 | task | Per-business visibility regression at two-business scale | P1 | Claude | planned | TASK-ZAI-014 | FEATURE-MAP FR-061 and FR-062 |
@@ -424,6 +424,13 @@ locates the week.
 | TASK-ZAI-042 | SPR-ZAI-02 | task | SmartGift catalog convergence through the seventeen-stage adapter — FEAT-026, FR-187 to FR-189 | P1 | Claude | in-progress | TASK-ZAI-025 | Section 3.1 row 4; ADR-075 |
 | TASK-ZAI-043 | SPR-ZAI-03 | task | Apply every pending deliverable-11 migration on production and record it in the migration notes | P0 | ATHER | planned | TASK-ZAI-038; TASK-ZAI-039; TASK-ZAI-040; TASK-ZAI-041 | GATE-ZAI-09; ADR-057 |
 | TASK-ZAI-044 | SPR-ZAI-06 | task | GATE-ZAI-09 evidence run: ERP modules accepted on production for Business one | P0 | Owen | planned | TASK-ZAI-043 | GATE-ZAI-09 |
+| TASK-ZAI-045 | SPR-ZAI-02 | task | Knowledge file intake: Text/Markdown and FileAsset admission into an immutable raw artifact at Stage 1 — FR-173, FR-081, FR-109 | P0 | RWANG | review | TASK-ZAI-005 | Section 3.1 row 4; ADR-072, ADR-073 |
+| TASK-ZAI-046 | SPR-ZAI-02 | task | Tier 1 stage calculators, composition and quarantine, Stage 2 to 8 — FR-111 to FR-119 | P0 | Claude | done | TASK-ZAI-045 | Section 3.1 row 4; ADR-050 |
+| TASK-ZAI-047 | SPR-ZAI-03 | task | Knowledge base console: source library, ingestion run status, corpus and generation registry, cited query | P0 | Codex | planned | TASK-ZAI-045 | Section 3.1 row 4; FR-173, FR-071, FR-110 |
+| TASK-ZAI-048 | SPR-ZAI-03 | task | Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9 | P1 | Codex | planned | TASK-ZAI-046 | 17-stage flow, "PDF/OCR/HTML/table parser" row; FR-115, FR-138 |
+| TASK-ZAI-049 | SPR-ZAI-03 | task | Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1) | P0 | ATHER | planned | TASK-ZAI-045 | Section 3.1 row 4; FR-045, FR-111, FR-137 |
+| TASK-ZAI-050 | SPR-ZAI-03 | task | Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published | P0 | ATHER | planned | TASK-ZAI-045; TASK-ZAI-049 | ADR-073 amendment; ADR-075 Phase 2 gate |
+| TASK-ZAI-051 | SPR-ZAI-03 | task | Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary | P2 | Claude | planned | TASK-ZAI-050 | 17-stage flow, "connector/แหล่งเอกสาร" row; FR-081 |
 
 ## Assignments
 
@@ -441,9 +448,12 @@ locates the week.
 | TASK-ZAI-040 | RWANG | agent | ABAC | 2026-09-13T00:00:00Z | Owen |
 | TASK-ZAI-043 | ATHER | agent | ABAC | 2026-09-13T00:00:00Z | Owen |
 | TASK-ZAI-044 | Owen | human | RBAC | 2026-09-13T00:00:00Z | Owen |
+| TASK-ZAI-047 | Codex | agent | ABAC | 2026-09-13T00:00:00Z | Owen |
+| TASK-ZAI-049 | ATHER | agent | ABAC | 2026-09-13T00:00:00Z | Owen |
+| TASK-ZAI-050 | ATHER | agent | ABAC | 2026-09-13T00:00:00Z | Owen |
 
 Unlisted tasks are assigned at sprint entry, not at plan authoring time. Tasks 031 to 035, 037,
-038, 041 and 042 were assigned retroactively to the agent whose merged pull request delivered
+038, 041, 042, 045 and 046 were assigned retroactively to the agent whose merged pull request delivered
 them, on the CR-019 re-baseline; the executor named in each container is that record.
 
 ## Verification
@@ -958,31 +968,31 @@ task_container_id: TC-TASK-ZAI-012
 task_id: TASK-ZAI-012
 parent_phase_id: PHASE-ZAI-02
 parent_sprint_id: SPR-ZAI-04
-title: Bind GoVibe Mission Control to the Zuri mission feed
+title: Mission feed — agent missions and their approvals surface as Development-domain work in the Project system
 requirement_type: FR
 complexity: C-2
 access_scope: H2
 status: planned
-version: 0.1.0
+version: 0.2.0
 pic: ATHER
 executor: ATHER
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/app/api/viewer/route.js
-  doc: docs/GOVIBE-INTEGRATION.md
+  code: apps/server/src/modules/project-manager/application
+  doc: docs/domains/project-manager/features/FR-068-human-visible-execution-roadmap.md
   test: unavailable
 definition_of_done:
   acceptance_criteria:
-    - criterion: Given Mission Control is pointed at this repository, when the roadmap board loads, then it renders this plan phases, sprints and tasks with no fabricated node
+    - criterion: Given an agent role (TASK-ZAI-007) is assigned a mission, when the mission is created, then it is a WorkItem in the Project system of the Development domain written through the one intake pipeline, carrying the agent as accountable principal and the approval tier it needs
       checked: false
   success_criteria:
-    - criterion: Given no feed is reachable, when the board loads, then it shows an empty state naming the missing feed rather than stale values
+    - criterion: Given a mission awaiting approval or in progress, when a human opens the Board, Schedule or Dashboard, then it appears there with the same status vocabulary as human work and its progress is recomputed, never reported from an agent's claim
       checked: false
   exit_criteria:
-    - criterion: Given the GoVibe sidecar snapshot endpoint, when it is queried, then it returns this plan real node count and source path
+    - criterion: Given npm test and the navigation e2e, when they run, then an agent-created mission is visible on the Board, blocked while its approval is unmet, and released on approval with an audit trail
       checked: false
-changelog: Opened from the deliverable gap analysis. Mission Control exists but is not bound to Zuri business data.
+changelog: Opened from the deliverable gap analysis as "bind GoVibe Mission Control to the Zuri mission feed", on the reading that Mission Control was an external product. Re-stated 2026-09-13 (v0.4.1) on the owner's correction — Mission Control is the Project system of the Development domain in this repository, which is delivered (section 3.1 row 2). What remains is the mission half: agents creating and progressing work in that system under the approval ladder TASK-ZAI-010 builds, so the dependency on 010 stands and the sprint slot is unchanged.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -2410,6 +2420,321 @@ ui_state:
   disabled_reason: ""
 ```
 
+Containers 045 to 051 were opened on 2026-09-13 (v0.4.1) on the owner's instruction to put the
+seventeen-stage pipeline's **knowledge base and file system** into SPR-ZAI-02, spilling into
+SPR-ZAI-03 where SPR-ZAI-02 (which ends 20 Sep) cannot hold new build work. They sit under
+deliverable 4 (Second Brain), which the proposal already names, so no Change Request is needed.
+The split follows the extension guide in `docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md`: each task
+names the stage it starts at and the downstream stages it must re-prove.
+
+### TC-TASK-ZAI-045
+
+```yaml
+task_container_id: TC-TASK-ZAI-045
+task_id: TASK-ZAI-045
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Knowledge file intake — Text/Markdown and FileAsset admission into an immutable raw artifact at Stage 1 (FR-173, FR-081, FR-109)
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: review
+version: 0.1.0
+pic: RWANG
+executor: RWANG
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/knowledge-admission-service.js
+  doc: docs/domains/knowledge/features/FR-173-knowledge-admission-and-corpus.md
+  test: apps/server/tests/integration/knowledge-admission-backup.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given an authorized user submits a Text/Markdown body or an existing FileAsset version, when admission runs, then one immutable source version is recorded, Stage 1 stores a RawExternalRecord plus KnowledgeRawArtifact bound by artifact_id, and the same identity with different content is refused as a conflict
+      checked: true
+  success_criteria:
+    - criterion: Given a corpus published from admitted sources, when a query is served, then source, file and Project authorization is rechecked at query time and every citation resolves through the lineage chain to the raw artifact
+      checked: true
+  exit_criteria:
+    - criterion: Given the production deployment, when a real (non-fixture) document is admitted through the console or API, then it reaches a published corpus and the run is visible in the FR-071 ledger
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.1). FR-173 phases 0 to 4 are implemented (admission, durable scoped runtime, corpus snapshot manifest, query/citations, correction/revocation) with isolated Business browser/HTTP/MCP acceptance passed and ADR-073's raw-entrypoint acceptance covering Stage 1 evidence; FR-109 AC-109.3 binds artifact_id to FR-081's raw storage (PR #165). In review, not done, because the PRD records "no production activation claim" — the exit criterion is exactly that claim, and TASK-ZAI-050 earns it.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: expanded
+  expanded: true
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-046
+
+```yaml
+task_container_id: TC-TASK-ZAI-046
+task_id: TASK-ZAI-046
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Tier 1 stage calculators, composition and quarantine, Stage 2 to 8 (FR-111 to FR-119)
+requirement_type: FR
+complexity: C-3
+access_scope: H2
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/stage-runner.js
+  doc: docs/domains/knowledge/features/FR-118-tier1-stage-composition.md
+  test: apps/server/tests/integration/genesisrag17-tier1.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a parsed artifact, when runKnowledgeIngestionStages runs, then parsing, provenance, normalization, classification, dedup, chunking and entity extraction execute in catalog order and every derived object carries the ten provenance fields back to the raw source
+      checked: true
+  success_criteria:
+    - criterion: Given a document that fails at any Tier 1 stage, when the traced runner runs, then the failure is attributed to that stage and the document is quarantined under BR-022 without partial publication
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when the FR-111 to FR-119 unit suites and the genesisrag17-tier1 integration suite run, then all pass through assert-tests-ran
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.1) so the sprint accounts for the pipeline's built middle. FR-111 (2026-08-27), FR-112 to FR-118 (2026-08-28) and FR-119 (2026-08-29) are ✅ in the PRD with 182 unit tests and 8 real-database integration tests between them; ADR-073 then ran the same stages as part of the seventeen-stage isolated acceptance. Stage 2 is exact-text only by design (FR-115) — binary formats are TASK-ZAI-048, not a gap in this task. Closed at opening.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-047
+
+```yaml
+task_container_id: TC-TASK-ZAI-047
+task_id: TASK-ZAI-047
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Knowledge base console — source library, ingestion run status, corpus and generation registry, cited query
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Codex
+executor: Codex
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/app/api/knowledge/sources
+  doc: docs/domains/knowledge/CHARTER.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a Business viewer with knowledge authority, when they open the knowledge base in the console, then they see the source library (each source with its versions and admission state), every ingestion run from the FR-071 ledger with its per-stage terminal evidence, and the corpus generations with the one that is published marked as such
+      checked: false
+  success_criteria:
+    - criterion: Given a question typed in the console, when the query runs, then the answer binds one published generation and every citation opens the exact chunk, parsed artifact and raw source it came from; a viewer without authority over a cited source sees neither the passage nor its existence
+      checked: false
+  exit_criteria:
+    - criterion: Given npm run test:e2e, when the knowledge console spec runs, then admit → run → publish → query → citation is exercised through the browser and the page carries a declared FR under DOM-KNOWLEDGE
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.1). Today the knowledge domain has HTTP routes (sources, ingestions, queries, citations) and MCP, and no console page — the only pages that mention knowledge are Assets and LINE rich menus. This is the surface a person uses to run the pipeline; it reads FR-173 sources, the FR-071 ledger and FR-110 generations and writes nothing those services do not already write. Declare its FR before building (CLAUDE.md, Adding a feature).
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 60000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: expanded
+  expanded: true
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-048
+
+```yaml
+task_container_id: TC-TASK-ZAI-048
+task_id: TASK-ZAI-048
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Codex
+executor: Codex
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/parsing.js
+  doc: docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a PDF, DOCX or HTML FileAsset admitted at Stage 1, when Stage 2 runs, then a ParsedArtifact records the parser and its version, every text block maps back to a page, cell or element of the raw file, and a parser change is distinguishable from the original on reparse
+      checked: false
+  success_criteria:
+    - criterion: Given a scanned page, when OCR is needed, then the bytes go to the extraction provider under the same review-before-record rule Assets use (FR-138, FR-143), and the ParsedArtifact carries the OCR confidence in its warnings channel rather than silently as text
+      checked: false
+  exit_criteria:
+    - criterion: Given the seventeen-stage acceptance suite extended with one PDF and one DOCX fixture, when it runs from the raw entrypoint, then Stage 3 provenance, Stage 7 chunk offsets and Stage 8 occurrences resolve after restart and a citation opens the correct page
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.1). FR-115 deliberately parses markdown and plain text only, and the flow's extension guide warns that "adding a binary parser alone is not enough" — raw mapping at Stage 3 and offsets at 7/8/9 change with it, so this task carries those three stages in its exit criterion. Reuses the Edge extraction path the Asset lane built rather than a second OCR provider.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 56000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-049
+
+```yaml
+task_container_id: TC-TASK-ZAI-049
+task_id: TASK-ZAI-049
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1)
+requirement_type: NFR
+complexity: C-3
+access_scope: H4
+status: planned
+version: 0.1.0
+pic: ATHER
+executor: ATHER
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/genesisrag17-lineage-repository.js
+  doc: docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md
+  test: apps/server/tests/integration/knowledge-admission-backup.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a raw artifact admitted on production, when the file bytes are requested a year later or after a restore from backup, then the exact bytes and their content hash are returned, and a FileAsset deleted from the File Manager does not delete the knowledge raw artifact that cites it
+      checked: false
+  success_criteria:
+    - criterion: Given the FR-111 sensitivity lattice, when a raw artifact is classified RESTRICTED or above, then its bytes live only in the storage location the processing policy names, and a retention or erasure request removes bytes and cites the run that did so without breaking published citations' resolvability check
+      checked: false
+  exit_criteria:
+    - criterion: Given a backup taken on production and restored to a clean database, when the knowledge-admission-backup proof and a lineage resolve run against it, then every chain from Fact to raw artifact resolves and the report is recorded with commit, date and storage location
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.1). Spec §3.1 requires raw data to remain recoverable; today the raw payload lives in RawExternalRecord/KnowledgeRawArtifact rows and the managed local file workspace (FR-045), with a backup proof only in an isolated test. This task names the production storage location, its retention rules and the restore proof — the "file system" half of the owner's instruction. H4 because storage and erasure are operator decisions (ADR-057 pattern).
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 40000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-050
+
+```yaml
+task_container_id: TC-TASK-ZAI-050
+task_id: TASK-ZAI-050
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Activate the seventeen-stage runtime on production beyond the isolated profile — knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published
+requirement_type: NFR
+complexity: C-3
+access_scope: H4
+status: planned
+version: 0.1.0
+pic: ATHER
+executor: ATHER
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/platform/integrations/core/genesisrag17-worker.js
+  doc: docs/decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md
+  test: apps/server/tests/acceptance/genesisrag17-e2e.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the production database, when the knowledge migrations (genesisrag17_tier1 20260907160000, audit remediation 20260908040000, knowledge_admission 20260908100000, knowledge_evidence_cursor 20260907120000) are checked, then each is recorded applied — the 2026-09-11 gap map found the tables present and the migrations unrecorded, which is not the same thing
+      checked: false
+  success_criteria:
+    - criterion: Given the web container, when ZURI_MSP_* is set and MSP, GKS and the GenesisBlock worker are reachable on the edge host per the ADR-073 amendment, then a run started from the raw entrypoint reaches Stage 17 with a publication receipt and the query path answers with citations
+      checked: false
+  exit_criteria:
+    - criterion: Given one real Business document (not the fixed corpus), when it is admitted, published and queried on production, then the run, receipt and cited answer are recorded with commit and date, and the FR-109/FR-110 PRD rows drop "product-wide partial"
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.1). ADR-073 authorized isolated execution only; its 2026-09-11 amendment lifts "no production deployment" for one profile on the edge device after the ADR-075 Phase 2 gate. This task is the operator step that turns the built pipeline into a running knowledge base; TASK-ZAI-043 applies the deliverable-11 migrations in the same sprint and the two share one deploy window. Depends on TASK-ZAI-049 so that the first real document has somewhere durable to live.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 30000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: expanded
+  expanded: true
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-051
+
+```yaml
+task_container_id: TC-TASK-ZAI-051
+task_id: TASK-ZAI-051
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/ingestion-job.js
+  doc: docs/domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given two sources admitted for the same Business at the same time, when both runs execute, then each holds its own run, batch and attempt identities, neither reuses the other's occurrence output, and publication order is deterministic
+      checked: false
+  success_criteria:
+    - criterion: Given a failed run, when replay is requested from the console, then FR-071's replayRunId materializes a new attempt, only the failed records are reprocessed, and the old attempt's evidence is retained and addressable
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test, when the concurrency and replay suites run, then duplicate, reply-loss, crash and wrong-tenant cases pass and a scheduled pull runs on its declared cadence under test
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.1) as the lowest-priority slice of the knowledge base. The flow's extension guide states that multi-source concurrency "needs additional design", and FR-081's scheduler, translation and replay surface are recorded as not started. Sequenced after activation so the design is against the production runtime, not the isolated one; may move to SPR-ZAI-04 at sprint entry without a plan revision if SPR-ZAI-03 is full.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 44000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
 ## Live Status Protocol
 
 1. Status lives in the `Status` cells of the Phases, Sprints and Backlog Items tables. The board
@@ -2431,3 +2756,4 @@ ui_state:
 | 0.2.0 | 2026-08-20 | Added section 5, Timeline and Provenance: repository creation date, day-by-day history, counting decisions, the anchored 24-week calendar, and the history-against-plan overlay. Phases and Sprints tables gained a Dates column. |
 | 0.3.0 | 2026-08-23 | **Re-baselined to `7d8c9d0`.** The 0.1.0 and 0.2.0 files were destroyed by a concurrent `git reset --hard` in this working tree while untracked, and the repository moved 105 commits in the interval. Corrections in this revision: churn is now measured with `--no-merges` and `awk` path filtering instead of a git pathspec, because a pathspec enables history simplification and inflated the earlier deletion figures; history extended from 10 to 13 days; features 91 to 93 declared and 80 to 82 live; test files 233 to 263; TASK-ZAI-005 closed because FR-071 went live on D11; TASK-ZAI-002 widened from four undeclared features to five; ADR-042 and ADR-043 added as governing sources for the Second Brain tasks; section 2.2 added to state that this plan is measured against a moving repository. |
 | 0.4.0 | 2026-09-13 | **Re-baselined to `2b7ad27d` and widened under [CR-019](../change-requests/CR-019-24W-PROGRAMME-DELIVERABLE-11-ERP-BUSINESS-MODULES.md); ratified `approved` by the owner.** Deliverable 11 (ERP business modules) and GATE-ZAI-09 added. Section 3 re-measured with the v0.3.0 column kept (requirements 93 → 200, implemented 82 → 100, decisions 43 → 82, domains 9 → 14, test files 263 → 761, commits 392 → 1,451); section 3.1 gained a v0.4.0 reality column and row 11; section 5.6 added for programme weeks 1 to 3. Closed on existing evidence: TASK-ZAI-002 (FR-087/088/089/091/093 declared 2026-08-26), TASK-ZAI-003 (FR-066 delivered 2026-08-27), TASK-ZAI-004 (FR-067 delivered 2026-08-27). Moved to review: TASK-ZAI-001 (FEAT-010 on main, production tail open), TASK-ZAI-006 (contract written across ADR-050/063/067/068/072, per-role writes wait on roles). Moved to in-progress early: TASK-ZAI-024 and TASK-ZAI-025 (deliverable 4 substrate, ADR-070/072/073/075). TASK-ZAI-017 re-stated as FlowAccount (FR-125, ADR-053). Added TASK-ZAI-031 to TASK-ZAI-044 with containers: nine deliverable-11 lanes as merged (031 to 040), the identity lifecycle under deliverables 9 and 10 (041), catalog convergence under deliverable 4 (042), production activation (043) and the GATE-ZAI-09 evidence run (044). Phase, sprint and calendar structure unchanged; progress recomputed under the board mapping. Code links re-pointed under `apps/server/` after the ADR-062 monorepo move. |
+| 0.4.1 | 2026-09-13 | **Knowledge base and file system for the seventeen-stage pipeline** added on the owner's instruction, under deliverable 4 (no Change Request needed). SPR-ZAI-02 accounts for what is built: TASK-ZAI-045 file intake at Stage 1 (FR-173/081/109, review — no production claim) and TASK-ZAI-046 Tier 1 Stage 2 to 8 (FR-111 to FR-119, done). The new build work spills into SPR-ZAI-03 because SPR-ZAI-02 ends 20 Sep: TASK-ZAI-047 knowledge base console, TASK-ZAI-048 binary parsing at Stage 2 with Stage 3/7/8/9 re-proof, TASK-ZAI-049 durable storage and recoverability (spec §3.1), TASK-ZAI-050 production activation beyond the ADR-073 isolated profile, TASK-ZAI-051 multi-source concurrency and replay (P2, may move to SPR-ZAI-04 at sprint entry). Sprint 02/03 and Phase 01/02 goals and exit criteria extended; progress recomputed (SPR-ZAI-02 87, PHASE-ZAI-01 90). **Deliverable 2 corrected on the owner's instruction:** GoVibe Mission Control is the Project system of the Development domain in this repository (delivered: FR-040, FR-063/064, FR-068 to FR-070, FR-086 to FR-089, FR-108), not an external product; section 3.1 row 2 rewritten and TASK-ZAI-012 re-stated as the agent mission feed into that system. |

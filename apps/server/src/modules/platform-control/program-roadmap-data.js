@@ -11,7 +11,7 @@
 export const PROGRAMME_SNAPSHOT = {
   documentId: 'ROADMAP-ZURI-AI-24W-PROGRAM',
   status: 'approved',
-  version: '0.4.0',
+  version: '0.4.1',
   updated: '2026-09-13',
   baselineCommit: '2b7ad27d',
   programmeStart: '2026-08-24',
@@ -21,7 +21,7 @@ export const PROGRAMME_SNAPSHOT = {
 
 export const PROGRAMME_DELIVERABLES = [
   'Visual Office 2.5D',
-  'GoVibe Mission Control binding',
+  'GoVibe Mission Control — the Development-domain Project system, plus the agent mission feed',
   'Interactive Node View 3D',
   'Second Brain / governed memory',
   'Five core agent roles',
@@ -46,12 +46,12 @@ export const PROGRAMME_GATES = [
 ]
 
 export const PROGRAMME_PHASES = [
-  { id: 'PHASE-ZAI-01', weeks: 'W1–4', dates: '24 Aug – 20 Sep 2026', status: 'in-progress', progress: 89, goal: 'Consolidate the inherited foundation into a production-grade base; land the ERP business modules for Business one', sprints: [
+  { id: 'PHASE-ZAI-01', weeks: 'W1–4', dates: '24 Aug – 20 Sep 2026', status: 'in-progress', progress: 90, goal: 'Consolidate the inherited foundation into a production-grade base; land the ERP business modules for Business one', sprints: [
     { id: 'SPR-ZAI-01', weeks: 'W1–2', dates: '24 Aug – 6 Sep', status: 'in-progress', progress: 93, goal: 'Close identity, session and authorization to production standard; Inventory, Sales, Commerce, Procurement, Assets and LINE OA Studio lanes land' },
-    { id: 'SPR-ZAI-02', weeks: 'W3–4', dates: '7 – 20 Sep', status: 'in-progress', progress: 86, goal: 'Settle tenancy, pipeline monitor and memory contract; SmartGift SCM, Marketing, billing/POS, catalog convergence and identity lifecycle land' },
+    { id: 'SPR-ZAI-02', weeks: 'W3–4', dates: '7 – 20 Sep', status: 'in-progress', progress: 87, goal: 'Settle tenancy, pipeline monitor and memory contract; seventeen-stage knowledge intake and Tier 1 accounted as built; SmartGift SCM, Marketing, billing/POS, catalog convergence and identity lifecycle land' },
   ] },
-  { id: 'PHASE-ZAI-02', weeks: 'W5–8', dates: '21 Sep – 18 Oct 2026', status: 'planned', progress: 0, goal: 'Stand up the agent workforce and the governance ladder; activate deliverable 11 on production', sprints: [
-    { id: 'SPR-ZAI-03', weeks: 'W5–6', dates: '21 Sep – 4 Oct', status: 'planned', progress: 0, goal: 'Build the agent role registry and five core roles; apply every pending ERP migration' },
+  { id: 'PHASE-ZAI-02', weeks: 'W5–8', dates: '21 Sep – 18 Oct 2026', status: 'planned', progress: 0, goal: 'Stand up the agent workforce and the governance ladder; knowledge base and file system for the seventeen-stage pipeline on production; activate deliverable 11 on production', sprints: [
+    { id: 'SPR-ZAI-03', weeks: 'W5–6', dates: '21 Sep – 4 Oct', status: 'planned', progress: 0, goal: 'Build the agent role registry and five core roles; knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending ERP migration' },
     { id: 'SPR-ZAI-04', weeks: 'W7–8', dates: '5 – 18 Oct', status: 'planned', progress: 0, goal: 'Add approvals, verification, notification and Mission Control binding' },
   ] },
   { id: 'PHASE-ZAI-03', weeks: 'W9–12', dates: '19 Oct – 15 Nov 2026', status: 'planned', progress: 0, goal: 'Second Business, governed analytics, workflows and connectors; deliverable 11 accepted', sprints: [
@@ -84,7 +84,7 @@ export const PROGRAMME_TASKS = [
   ['TASK-ZAI-009', 'SPR-ZAI-03', 'Agent Factory, the standard business agent template', 'FR', 'C-2', 'H2', 'planned'],
   ['TASK-ZAI-010', 'SPR-ZAI-04', 'Approval Gateway L1 to L4 over the FR-026 action gate', 'FR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-011', 'SPR-ZAI-04', 'Verification and notification fabric on approval outcomes', 'FR', 'C-2', 'H2', 'planned'],
-  ['TASK-ZAI-012', 'SPR-ZAI-04', 'Bind GoVibe Mission Control to the Zuri mission feed', 'FR', 'C-2', 'H2', 'planned'],
+  ['TASK-ZAI-012', 'SPR-ZAI-04', 'Mission feed: agent missions and their approvals surface as Development-domain work in the Project system', 'FR', 'C-2', 'H2', 'planned'],
   ['TASK-ZAI-013', 'SPR-ZAI-05', 'Standard Business Template and provisioning path', 'FR', 'C-2', 'H2', 'planned'],
   ['TASK-ZAI-014', 'SPR-ZAI-05', 'Onboard Business number two end to end under isolation', 'FR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-015', 'SPR-ZAI-05', 'Per-business visibility regression at two-business scale', 'NFR', 'C-2', 'H2', 'planned'],
@@ -117,4 +117,11 @@ export const PROGRAMME_TASKS = [
   ['TASK-ZAI-042', 'SPR-ZAI-02', 'SmartGift catalog convergence through the seventeen-stage adapter — FEAT-026, FR-187 to FR-189', 'FR', 'C-3', 'H3', 'in-progress'],
   ['TASK-ZAI-043', 'SPR-ZAI-03', 'Apply every pending deliverable-11 migration on production and record it in the migration notes', 'NFR', 'C-2', 'H4', 'planned'],
   ['TASK-ZAI-044', 'SPR-ZAI-06', 'GATE-ZAI-09 evidence run: ERP modules accepted on production for Business one', 'NFR', 'C-2', 'H4', 'planned'],
+  ['TASK-ZAI-045', 'SPR-ZAI-02', 'Knowledge file intake: Text/Markdown and FileAsset admission into an immutable raw artifact at Stage 1 — FR-173, FR-081, FR-109', 'FR', 'C-3', 'H3', 'review'],
+  ['TASK-ZAI-046', 'SPR-ZAI-02', 'Tier 1 stage calculators, composition and quarantine, Stage 2 to 8 — FR-111 to FR-119', 'FR', 'C-3', 'H2', 'done'],
+  ['TASK-ZAI-047', 'SPR-ZAI-03', 'Knowledge base console: source library, ingestion run status, corpus and generation registry, cited query', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-048', 'SPR-ZAI-03', 'Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-049', 'SPR-ZAI-03', 'Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1)', 'NFR', 'C-3', 'H4', 'planned'],
+  ['TASK-ZAI-050', 'SPR-ZAI-03', 'Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published', 'NFR', 'C-3', 'H4', 'planned'],
+  ['TASK-ZAI-051', 'SPR-ZAI-03', 'Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary', 'FR', 'C-3', 'H3', 'planned'],
 ]

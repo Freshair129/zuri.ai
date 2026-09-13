@@ -365,7 +365,7 @@ button{font:inherit;color:inherit;}
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
           <span class="pill pill-brand">approved</span>
           <span class="pill pill-planned mono">ROADMAP-ZURI-AI-24W-PROGRAM</span>
-          <span class="pill pill-planned mono">v0.4.0</span>
+          <span class="pill pill-planned mono">v0.4.1</span>
           <span class="pill pill-planned">updated 2026-09-13</span>
           <span class="pill pill-planned mono">CR-019</span>
           <span class="pill pill-planned">owner Owen</span>
@@ -553,9 +553,10 @@ button{font:inherit;color:inherit;}
 
 <script>
 /* ==================================================================
-   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.4.0 (CR-019,
+   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.4.1 (CR-019,
    2026-09-13) — the markdown is the source of truth, this array is
-   its rendering. Tasks 031–044 were added on that re-baseline.
+   its rendering. Tasks 031–044 were added on the re-baseline,
+   045–051 (17-stage knowledge base + file system) the same day.
    ================================================================== */
 const PROGRESS_BY_STATE = { done:100, review:90, "in-progress":50, assigned:25, ready:10, planned:0, blocked:0 };
 
@@ -581,7 +582,7 @@ const GATES = [
 
 const DELIVERABLES = [
   ["Visual Office 2.5D","none","ยังไม่เริ่ม ไม่มี scene model / renderer / route"],
-  ["GoVibe Mission Control","partial","FR-105 ให้ operator roadmap ของตัวเองแล้ว แต่ยังไม่ผูกข้อมูลธุรกิจ Zuri"],
+  ["GoVibe Mission Control","partial","= ระบบ Project ใน Development domain (owner 13 ก.ย.) — ส่งมอบแล้ว: FR-040/063/064/068–070/086–089/108 · ที่เหลือคือ mission ของ agent เข้าระบบเดียวกัน (TASK-ZAI-012)"],
   ["Interactive Node View 3D","none","มีแค่ graph 2D อ่านอย่างเดียว (FR-040, FR-101) · FR-082–085 ยัง design only"],
   ["Second Brain / Governed Memory","partial","17-stage ingestion FR-109–119 · admission/publication FR-173 · trace & replay FR-171 · retrieval ตาม role ยังไม่มี"],
   ["5 Core Agent Roles","partial","มี agent turn เดียว + FR-098 authorization context · ไม่มี role registry"],
@@ -680,8 +681,8 @@ const PHASES = [
             "Given npm test, when the FR-066 unit suite runs, then onboarding order is asserted, not assumed",
             "ส่งมอบ 27 ส.ค. (ROADMAP.md TASK-FR-066-067) · FR-122 บังคับชื่อ-สกุล-โทรศัพท์ · CR-017 UX correction ติดตามในเลน Asset"]
         ]},
-      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract · (CR-019) SCM, Marketing, billing/POS, catalog convergence และ identity lifecycle เข้า main",
-        exit:"pipeline รายงานได้ทุก stage, memory contract ผ่านการรีวิว และทุกเลนมี migration เขียนแล้ว",
+      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract · นับ knowledge intake + Tier 1 ของ 17-stage ที่สร้างแล้ว · (CR-019) SCM, Marketing, billing/POS, catalog convergence และ identity lifecycle เข้า main",
+        exit:"pipeline รายงานได้ทุก stage, memory contract ผ่านการรีวิว, ไฟล์ที่รับเข้า Stage 1 ไปถึง Stage 8 พร้อม lineage ใต้เทสต์ และทุกเลนมี migration เขียนแล้ว",
         tasks:[
           ["TASK-ZAI-004","TSK-ZAI004","Workspace collaboration boundary and scoped invites, FR-067","FR","C-3","H3","done","Codex","TASK-ZAI-003","apps/server/src/modules/identity/access-invite-service.js","docs/PRD-SDD-v1.0.md","unavailable",40000,
             "Given a Workspace owner issues an invite, when it is redeemed twice, then the second redemption is refused",
@@ -727,7 +728,17 @@ const PHASES = [
             "Given SmartGift catalog data, when it enters knowledge, then it enters before Stage 1 through the structured-record adapter and passes the Stage 5 Zero-PII gate as locators and keys",
             "Given a catalog query on LINE, when Edge answers, then it answers from the published GenesisRAG17 generation through MSP with Genesis RAG v4 as the declared fallback",
             "Given the fallback window, when it closes, then the three independent catalog writers are retired and only the seventeen-stage path remains",
-            "deliverable 4 · FR-187 merge (PR #324) FR-188 local (PR #327) FR-189 approved 11 ก.ย. · รอ merge ของ GenesisBlock / GKS ที่ repo นี้ไม่ได้เป็นเจ้าของ"]
+            "deliverable 4 · FR-187 merge (PR #324) FR-188 local (PR #327) FR-189 approved 11 ก.ย. · รอ merge ของ GenesisBlock / GKS ที่ repo นี้ไม่ได้เป็นเจ้าของ"],
+          ["TASK-ZAI-045","TSK-ZAI045","Knowledge file intake — Text/Markdown and FileAsset admission into an immutable raw artifact at Stage 1 (FR-173, FR-081, FR-109)","FR","C-3","H3","review","RWANG","TASK-ZAI-005","apps/server/src/modules/knowledge/knowledge-admission-service.js","docs/domains/knowledge/features/FR-173-knowledge-admission-and-corpus.md","apps/server/tests/integration/knowledge-admission-backup.test.js",0,
+            "Given an authorized user submits a Text/Markdown body or an existing FileAsset version, when admission runs, then one immutable source version is recorded, Stage 1 stores RawExternalRecord + KnowledgeRawArtifact bound by artifact_id, and the same identity with different content is refused",
+            "Given a corpus published from admitted sources, when a query is served, then source/file/Project authorization is rechecked at query time and every citation resolves through the lineage chain to the raw artifact",
+            "Given the production deployment, when a real (non-fixture) document is admitted through the console or API, then it reaches a published corpus and the run is visible in the FR-071 ledger",
+            "(v0.4.1) FR-173 phases 0–4 + ADR-073 raw-entrypoint acceptance ผ่านแบบ isolated · PRD ระบุ no production activation claim จึงเป็น review (TASK-ZAI-050 ปิด)"],
+          ["TASK-ZAI-046","TSK-ZAI046","Tier 1 stage calculators, composition and quarantine, Stage 2–8 (FR-111 to FR-119)","FR","C-3","H2","done","Claude","TASK-ZAI-045","apps/server/src/modules/knowledge/stage-runner.js","docs/domains/knowledge/features/FR-118-tier1-stage-composition.md","apps/server/tests/integration/genesisrag17-tier1.test.js",0,
+            "Given a parsed artifact, when runKnowledgeIngestionStages runs, then parsing, provenance, normalization, classification, dedup, chunking and entity extraction execute in catalog order and every derived object carries the ten provenance fields back to the raw source",
+            "Given a document that fails at any Tier 1 stage, when the traced runner runs, then the failure is attributed to that stage and the document is quarantined under BR-022 without partial publication",
+            "Given npm test, when the FR-111–119 unit suites and genesisrag17-tier1 integration suite run, then all pass through assert-tests-ran",
+            "(v0.4.1) FR-111–119 ✅ 27–29 ส.ค. (182 unit + 8 integration tests) · Stage 2 เป็น exact text โดยตั้งใจ — binary คือ TASK-ZAI-048 · ปิดตอนเปิด"]
         ]}
     ]
   },
@@ -738,8 +749,8 @@ const PHASES = [
     exit:"5 roles ทำงานภายใต้ชั้นอนุมัติ L1–L4 พร้อม audit, verification และ notification",
     state:"planned",
     sprints:[
-      { id:"SPR-ZAI-03", weeks:"สัปดาห์ 5-6", goal:"สร้าง Agent Role registry และ 5 core roles",
-        exit:"แต่ละ role resolve tools, policy และ memory partition ที่ต่างกันได้",
+      { id:"SPR-ZAI-03", weeks:"สัปดาห์ 5-6", goal:"สร้าง Agent Role registry และ 5 core roles · knowledge base console, binary parser, durable file storage และ 17-stage runtime บน production · apply migration ERP ที่ค้าง",
+        exit:"แต่ละ role resolve tools, policy และ memory partition ที่ต่างกันได้ · PDF ที่อัปโหลดใน console ถูก publish เป็น corpus พร้อม citation บน production · migration ledger ตรงกับ tree",
         tasks:[
           ["TASK-ZAI-007","TSK-ZAI007","Agent Role registry with five core roles","FR","C-3","H3","planned","Claude","TASK-ZAI-006","src/modules/agent/index.js","docs/ARCHITECTURE.md","unavailable",62000,
             "Given the five roles Executive, Operations, Finance Analyst, Research and Marketing, when each resolves its context, then each receives a distinct tool set and policy",
@@ -760,7 +771,32 @@ const PHASES = [
             "Given every file under apps/server/supabase/migrations, when the production migration ledger is read, then each is recorded applied with its date and the session that applied it",
             "Given preflight Check 18, when it runs after the apply, then the baseline is still zero and no declared column lacks a migration",
             "Given docker logs of web and line-worker after the redeploy, when read, then both start clean and the compose config_files label names both compose files",
-            "(CR-019) apply migration เป็น operator step ตามคำสั่งเจ้าของ (ADR-057) จึงเป็น H4 · รายการที่ค้าง re-read จาก ledger ตอนเข้า sprint ไม่ใช่จาก changelog นี้"]
+            "(CR-019) apply migration เป็น operator step ตามคำสั่งเจ้าของ (ADR-057) จึงเป็น H4 · รายการที่ค้าง re-read จาก ledger ตอนเข้า sprint ไม่ใช่จาก changelog นี้"],
+          ["TASK-ZAI-047","TSK-ZAI047","Knowledge base console — source library, ingestion run status, corpus/generation registry, cited query","FR","C-3","H3","planned","Codex","TASK-ZAI-045","apps/server/src/app/api/knowledge/sources","docs/domains/knowledge/CHARTER.md","unavailable",60000,
+            "Given a Business viewer with knowledge authority, when they open the knowledge base, then they see the source library with versions and admission state, every ingestion run from the FR-071 ledger with per-stage terminal evidence, and the corpus generations with the published one marked",
+            "Given a question typed in the console, when the query runs, then the answer binds one published generation and every citation opens the exact chunk, parsed artifact and raw source; a viewer without authority over a cited source sees neither the passage nor its existence",
+            "Given npm run test:e2e, when the knowledge console spec runs, then admit → run → publish → query → citation is exercised through the browser and the page carries a declared FR under DOM-KNOWLEDGE",
+            "(v0.4.1) วันนี้ knowledge มีแค่ HTTP routes + MCP ไม่มีหน้า console · อ่าน FR-173 sources, FR-071 ledger, FR-110 generations · ประกาศ FR ก่อนสร้าง"],
+          ["TASK-ZAI-048","TSK-ZAI048","Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7–9","FR","C-3","H3","planned","Codex","TASK-ZAI-046","apps/server/src/modules/knowledge/parsing.js","docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md","unavailable",56000,
+            "Given a PDF, DOCX or HTML FileAsset admitted at Stage 1, when Stage 2 runs, then a ParsedArtifact records parser + version, every text block maps back to a page, cell or element of the raw file, and a parser change is distinguishable on reparse",
+            "Given a scanned page, when OCR is needed, then bytes go to the extraction provider under the same review-before-record rule Assets use (FR-138, FR-143) and OCR confidence lands in the warnings channel, never silently as text",
+            "Given the 17-stage acceptance suite extended with one PDF and one DOCX fixture, when run from the raw entrypoint, then Stage 3 provenance, Stage 7 offsets and Stage 8 occurrences resolve after restart and a citation opens the correct page",
+            "(v0.4.1) FR-115 ตั้งใจทำแค่ markdown/plain text · flow guide เตือนว่าเพิ่ม binary parser อย่างเดียวไม่พอ ต้อง re-prove Stage 3/7/8/9 · ใช้ Edge extraction path ของ Asset ไม่เพิ่ม OCR provider ที่สอง"],
+          ["TASK-ZAI-049","TSK-ZAI049","Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1)","NFR","C-3","H4","planned","ATHER","TASK-ZAI-045","apps/server/src/modules/knowledge/genesisrag17-lineage-repository.js","docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md","apps/server/tests/integration/knowledge-admission-backup.test.js",40000,
+            "Given a raw artifact admitted on production, when the bytes are requested a year later or after restore from backup, then the exact bytes and hash are returned, and deleting a FileAsset in the File Manager does not delete the knowledge raw artifact that cites it",
+            "Given the FR-111 lattice, when a raw artifact is RESTRICTED or above, then its bytes live only where the processing policy names, and a retention/erasure request removes bytes and cites the run that did so without breaking citation resolvability checks",
+            "Given a production backup restored to a clean database, when the knowledge-admission-backup proof and a lineage resolve run against it, then every Fact → raw chain resolves and the report is recorded with commit, date and storage location",
+            "(v0.4.1) spec §3.1: raw ต้อง recoverable · วันนี้ payload อยู่ใน RawExternalRecord/KnowledgeRawArtifact + FR-045 local workspace, backup proof มีแค่ใน isolated test · นี่คือครึ่ง file system ของคำสั่ง · H4 เพราะ storage/erasure เป็นการตัดสินใจของ operator"],
+          ["TASK-ZAI-050","TSK-ZAI050","Activate the 17-stage runtime on production beyond the isolated profile — knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published","NFR","C-3","H4","planned","ATHER","TASK-ZAI-045; TASK-ZAI-049","apps/server/src/platform/integrations/core/genesisrag17-worker.js","docs/decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md","apps/server/tests/acceptance/genesisrag17-e2e.test.js",30000,
+            "Given the production database, when the knowledge migrations (20260907120000, 20260907160000, 20260908040000, 20260908100000) are checked, then each is recorded applied — the 11 ก.ย. gap map found tables present and migrations unrecorded, which is not the same thing",
+            "Given the web container, when ZURI_MSP_* is set and MSP, GKS and the GenesisBlock worker are reachable on the edge host per the ADR-073 amendment, then a run from the raw entrypoint reaches Stage 17 with a publication receipt and the query path answers with citations",
+            "Given one real Business document (not the fixed corpus), when admitted, published and queried on production, then run, receipt and cited answer are recorded with commit and date, and FR-109/FR-110 drop product-wide partial",
+            "(v0.4.1) ADR-073 อนุญาตแค่ isolated; amendment 11 ก.ย. เปิด production ให้ profile เดียวหลัง ADR-075 Phase 2 gate · operator step ที่ทำให้ pipeline เป็น knowledge base จริง · แชร์ deploy window กับ TASK-ZAI-043"],
+          ["TASK-ZAI-051","TSK-ZAI051","Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary","FR","C-3","H3","planned","Claude","TASK-ZAI-050","apps/server/src/modules/knowledge/ingestion-job.js","docs/domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md","unavailable",44000,
+            "Given two sources admitted for the same Business at the same time, when both runs execute, then each holds its own run/batch/attempt identities, neither reuses the other's occurrence output, and publication order is deterministic",
+            "Given a failed run, when replay is requested from the console, then FR-071's replayRunId materializes a new attempt, only failed records are reprocessed, and the old attempt's evidence is retained and addressable",
+            "Given npm test, when the concurrency and replay suites run, then duplicate, reply-loss, crash and wrong-tenant cases pass and a scheduled pull runs on its declared cadence under test",
+            "(v0.4.1) P2 · flow guide บอกว่า multi-source concurrency ต้องออกแบบเพิ่ม, FR-081 scheduler/replay ยังไม่เริ่ม · ต่อจาก activation · ย้ายไป SPR-ZAI-04 ตอนเข้า sprint ได้ถ้า 03 แน่น"]
         ]},
       { id:"SPR-ZAI-04", weeks:"สัปดาห์ 7-8", goal:"Approval Gateway L1–L4 พร้อม verification, notification และผูก Mission Control",
         exit:"action ระดับ L4 ทำงานไม่ได้ถ้ายังไม่มีการอนุมัติครบสี่ครั้งที่บันทึกไว้",
@@ -775,11 +811,11 @@ const PHASES = [
             "Given a notification transport failure, when the send is retried, then no duplicate notification is delivered",
             "Given npm test, when the notification suite runs, then at-most-once delivery is asserted under a forced retry",
             "ครึ่งหลังของ deliverable ที่ 9 — audit มีแล้วจาก FR-014 · FR-093 (outbound receipt) เป็นแบบอย่างของฝั่ง delivery"],
-          ["TASK-ZAI-012","TSK-ZAI012","Bind GoVibe Mission Control to the Zuri mission feed","FR","C-2","H2","planned","ATHER","TASK-ZAI-010","src/app/api/viewer/route.js","docs/GOVIBE-INTEGRATION.md","unavailable",26000,
-            "Given Mission Control is pointed at this repository, when the roadmap board loads, then it renders this plan phases, sprints and tasks with no fabricated node",
-            "Given no feed is reachable, when the board loads, then it shows an empty state naming the missing feed rather than stale values",
-            "Given the GoVibe sidecar snapshot endpoint, when it is queried, then it returns this plan real node count and source path",
-            "Mission Control มีอยู่แล้วแต่ยังไม่ผูกกับข้อมูลธุรกิจของ Zuri"]
+          ["TASK-ZAI-012","TSK-ZAI012","Mission feed — agent missions and their approvals surface as Development-domain work in the Project system","FR","C-2","H2","planned","ATHER","TASK-ZAI-010","apps/server/src/modules/project-manager/application","docs/domains/project-manager/features/FR-068-human-visible-execution-roadmap.md","unavailable",26000,
+            "Given an agent role is assigned a mission, when the mission is created, then it is a WorkItem in the Development-domain Project system written through the one intake pipeline, carrying the agent as accountable principal and the approval tier it needs",
+            "Given a mission awaiting approval or in progress, when a human opens the Board, Schedule or Dashboard, then it appears with the same status vocabulary as human work and its progress is recomputed, never reported from an agent's claim",
+            "Given npm test and the navigation e2e, when they run, then an agent-created mission is visible on the Board, blocked while its approval is unmet, and released on approval with an audit trail",
+            "13 ก.ย. owner แก้: Mission Control = ระบบ Project ใน Development domain ที่ส่งมอบแล้ว · ที่เหลือคือฝั่ง mission ของ agent ใต้ approval ladder (TASK-ZAI-010) · sprint เดิม"]
         ]}
     ]
   },
