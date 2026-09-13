@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.40.0b |
+| **Version** | 1.41.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-13 |
 
@@ -526,3 +526,5 @@ Version diff 1.37.0b → 1.38.0b (2026-09-13): ADR-086 programme delivery teleme
 Version diff 1.38.0b → 1.39.0b (2026-09-14): migration `20260913230000_programme_usage_report` APPLIED on production 2026-09-14 (owner-instructed, ADR-057): read-only inventory, a rolled-back dry run through the transaction pooler, then apply with ledger row `20260913230000 programme_usage_report`; effect verified (15 columns, forced RLS, one `zuri_app_runtime_all` policy, grants to the two runtime roles only, unique (source, sessionId) and taskCode indexes, 0 rows).
 
 Version diff 1.39.0b → 1.40.0b (2026-09-14): ADR-087 — new model `HarnessCredential` (identity; excluded from the backup snapshot as credential material) and `ProgrammeUsageReport` attribution columns (branch in the unique key, personId, installationId, repository, aiAccountLabel, extendedAt; taskCode optional). 153 models are now declared. Migration `20260914100000_harness_usage_attribution` written in both trees and NOT applied to production.
+
+Version diff 1.40.0b → 1.41.0b (2026-09-14): migration `20260914100000_harness_usage_attribution` APPLIED on production 2026-09-14 (owner-instructed, ADR-057): read-only inventory (ProgrammeUsageReport 0 rows), a rolled-back dry run through the transaction pooler, then apply with ledger row `20260914100000 harness_usage_attribution`; effect verified (ProgrammeUsageReport 21 columns with branch/repository/personId/installationId/aiAccountLabel/extendedAt, taskCode nullable, unique (source, sessionId, branch); HarnessCredential 18 columns, forced RLS, one `zuri_app_runtime_all` policy, grants to the two runtime roles only, Person FK ON DELETE CASCADE).
