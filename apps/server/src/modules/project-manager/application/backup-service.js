@@ -170,6 +170,10 @@ const SNAPSHOT_MODELS = [
   // references and lifecycle metadata, never material (SEC-030), so it is exported
   // whole. The material itself (IntegrationSecretEnvelope) is excluded below.
   'integrationCredentialVersion',
+  // @req FR-226 — a claim names its connection by id only (no foreign key) and holds
+  // a destination hash, never material, so it is exported whole and restores after
+  // the connection it names.
+  'channelAccountClaim',
   'ingestionRun', 'rawExternalRecord',
   'syncCursor', 'externalEntityRef', 'deadLetterRecord',
   // @req FR-092 — translated market state is restored after its Integration

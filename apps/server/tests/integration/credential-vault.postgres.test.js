@@ -22,6 +22,8 @@ import { createPgRoleSql, createSupabaseVaultSecretStore } from '@/platform/inte
 import { createEnvelopeSecretStore } from '@/platform/integrations/core/secret-store/envelope-secret-store'
 import { createDispatchingSecretManager } from '@/platform/integrations/core/secret-store/dispatching-secret-manager'
 import { storeValidatedCredential } from '@/platform/integrations/core/secret-store/credential-lifecycle'
+import { connectLineChannelWithSecret } from '@/modules/integration/application/line-channel-connection-service'
+import { makeViewer } from '../factories/viewer'
 import { errorTrace, findLeaks, generateLineChannelBundle, secretNeedles } from '../helpers/credential-vault-fixtures'
 import { parseVaultPostgresTarget } from '../helpers/credential-vault-postgres-target'
 
@@ -112,6 +114,7 @@ runPostgres('credential vault on PostgreSQL', () => {
     await q(schemaSql())
     await q('drop table "IntegrationCredentialVersion"')
     await q('drop table "IntegrationSecretEnvelope"')
+    await q('drop table "ChannelAccountClaim"')
     for (const column of ['secretStore', 'secretKind', 'displayHint', 'lastValidatedAt', 'lastValidationCode', 'revokedAt', 'revokeReason']) {
       await q(`alter table "IntegrationCredential" drop column "${column}"`)
     }
@@ -134,8 +137,15 @@ runPostgres('credential vault on PostgreSQL', () => {
     ids.model = await connection('business', { providerId: ids.modelProvider, purpose: 'PHASE1_LINE_LLM', destination: null })
     await q(`insert into "IntegrationCredential" (id, "connectionId", "secretRef", status, "updatedAt") values ($1, $2, $3, 'ACTIVE', now())`, [randomUUID(), ids.model.id, `supabase-vault:${randomUUID()}`])
 
+    // One bot connected by two Tenants before claims existed: the ACTIVE, then oldest, wins.
+    ids.sharedDestination = `U${randomBytes(16).toString('hex')}`
+    ids.sharedOlder = await connection('other', { destination: ids.sharedDestination })
+    await q(`update "IntegrationConnection" set "createdAt" = now() - interval '1 day', status = 'DISABLED' where id = $1`, [ids.sharedOlder.id])
+    ids.sharedActive = await connection('business', { destination: ids.sharedDestination })
+
     for (let run = 0; run < 2; run += 1) {
       await q(migrationSql('_integration_credential_lifecycle.sql'))
+      await q(migrationSql('_channel_account_claim.sql'))
       await q(migrationSql('_integration_secret_envelope.sql'))
     }
 
@@ -187,6 +197,26 @@ runPostgres('credential vault on PostgreSQL', () => {
       expect(await columns('IntegrationCredentialVersion')).toEqual(['activatedAt', 'createdAt', 'createdById', 'createdVia', 'credentialId', 'displayHint', 'id', 'purgedAt', 'reason', 'revokedAt', 'secretRef', 'secretStore', 'status', 'supersededAt', 'tenantId', 'businessId', 'versionNumber'].sort())
       expect(await columns('IntegrationSecretEnvelope')).toEqual(['aadVersion', 'businessId', 'ciphertext', 'connectionId', 'createdAt', 'expiresAt', 'id', 'iv', 'kekId', 'tag', 'tenantId', 'wrappedDek'].sort())
       expect(await columns('IntegrationCredential')).toEqual(expect.arrayContaining(['secretStore', 'secretKind', 'displayHint', 'lastValidatedAt', 'lastValidationCode', 'revokedAt', 'revokeReason']))
+    })
+  })
+
+  describe('migration 2 — channel account claims', () => {
+    it('backfills one claim per destination by hash, preferring the ACTIVE connection, idempotently', async () => {
+      const claims = (await q('select * from "ChannelAccountClaim" order by "claimedAt"')).rows
+      expect(claims.map(c => c.connectionId).sort()).toEqual([ids.mounted.id, ids.sharedActive.id].sort())
+      const shared = claims.find(c => c.connectionId === ids.sharedActive.id)
+      expect(shared.externalAccountHash).toBe((await one(`select encode(sha256(convert_to($1, 'UTF8')), 'hex') as h`, [ids.sharedDestination])).h)
+      expect(JSON.stringify(claims)).not.toContain(ids.sharedDestination)
+    })
+
+    it('holds a bot unique among live claims only, so a released claim frees it', async () => {
+      const shared = await one('select * from "ChannelAccountClaim" where "connectionId" = $1', [ids.sharedActive.id])
+      const insert = connectionId => q(`insert into "ChannelAccountClaim" (id, provider, "externalAccountHash", "tenantId", "businessId", "connectionId")
+        values ($1, 'LINE_OA', $2, $3, $4, $5)`, [randomUUID(), shared.externalAccountHash, ids.otherTenant, ids.other, connectionId])
+      expect((await insert(ids.sharedOlder.id).catch(e => e)).code).toBe('23505')
+      await q('update "ChannelAccountClaim" set "releasedAt" = now() where id = $1', [shared.id])
+      await insert(ids.sharedOlder.id)
+      expect(Number((await one('select count(*) from "ChannelAccountClaim" where "externalAccountHash" = $1 and "releasedAt" is null', [shared.externalAccountHash])).count)).toBe(1)
     })
   })
 
@@ -344,6 +374,32 @@ runPostgres('credential vault on PostgreSQL', () => {
       await expect(envelopeStore.write({ ...conn.scope, businessId: ids.other, kind: 'LINE_CHANNEL', bundle: bundle(), createdVia: 'BROWSER_MFA' })).rejects.toMatchObject({ code: 'CHANNEL_SECRET_SCOPE_MISMATCH' })
       expect(await envelopeStore.revoke({ ...conn.scope, reason: 'owner revoked' })).toMatchObject({ purgedCount: 1, purgeFailedCount: 0 })
       expect(Number((await one('select count(*) from "IntegrationSecretEnvelope" where "connectionId" = $1', [conn.id])).count)).toBe(0)
+    })
+  })
+
+  describe('the connection flow on PostgreSQL (proofs 5 and 6)', () => {
+    it('connects through the Vault store, then refuses the same bot from another Tenant and stores nothing', async () => {
+      const pair = bundle()
+      const destination = `U${randomBytes(16).toString('hex')}`
+      const lineAdmin = {
+        validateChannel: async ({ channelId, channelSecret }) => {
+          if (channelId !== pair.channelId || channelSecret !== pair.channelSecret) throw Object.assign(new Error('LINE_CREDENTIALS_REJECTED'), { code: 'LINE_CREDENTIALS_REJECTED', status: 422 })
+          return { destination, validationCode: 'LINE_OK', bot: { basicId: '@pg', displayName: 'PG', pictureUrl: null, chatMode: 'bot', markAsReadMode: 'auto' } }
+        },
+      }
+      const ports = { store: vaultStore, lineAdmin, tokenCache: { invalidate() {} } }
+      const owner = makeViewer({ visibleBusinessIds: [ids.business], ownedBusinessIds: [ids.business], visibleDomains: ['line-oa'] })
+      const other = makeViewer({ visibleBusinessIds: [ids.other], ownedBusinessIds: [ids.other], visibleDomains: ['line-oa'] })
+      const connected = await connectLineChannelWithSecret({ businessId: ids.business, name: 'PG main', ...pair }, { viewer: owner, db: pgPrisma, ports })
+      expect(connected.credential).toMatchObject({ status: 'ACTIVE', secretStore: 'SUPABASE_VAULT' })
+      const count = async () => Number((await one('select (select count(*) from vault.secrets) + (select count(*) from "IntegrationConnection") + (select count(*) from "ChannelAccountClaim") as n')).n)
+      const before = await count()
+      const wrong = await connectLineChannelWithSecret({ businessId: ids.other, name: 'Guess', ...pair, channelSecret: generateLineChannelBundle().channelSecret }, { viewer: other, db: pgPrisma, ports }).catch(e => e)
+      expect(wrong.message).toBe('LINE_CREDENTIALS_REJECTED')
+      const elsewhere = await connectLineChannelWithSecret({ businessId: ids.other, name: 'Takeover', ...pair }, { viewer: other, db: pgPrisma, ports }).catch(e => e)
+      expect(elsewhere).toMatchObject({ status: 409, message: 'LINE_CHANNEL_CLAIMED_ELSEWHERE' })
+      expect(JSON.stringify(elsewhere.details)).not.toContain(ids.business)
+      expect(await count()).toBe(before)
     })
   })
 

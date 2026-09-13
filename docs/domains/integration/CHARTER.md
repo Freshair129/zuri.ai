@@ -1,5 +1,5 @@
 ---
-version: "0.3.0b"
+version: "0.4.0b"
 status: active
 last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
 id: ZAI:DOMAIN-INTEGRATION
@@ -26,6 +26,7 @@ owns_models:
   - IntegrationCredential
   - IntegrationCredentialVersion
   - IntegrationSecretEnvelope
+  - ChannelAccountClaim
   - IngestionRun
   - RawExternalRecord
   - SyncCursor
@@ -277,6 +278,23 @@ written, not applied):**
 - `IntegrationCredentialVersion` and the new `IntegrationCredential` columns
   (migration `20260914140000_integration_credential_lifecycle.sql`, with backfill).
 
+**Built on the same branch (TASK-ZAI-079, not merged; migration written, not applied):**
+
+- `src/platform/integrations/core/channel-account-claim.js` — `ChannelAccountClaim`
+  by sha256(destination), taken before any secret is stored; conflicts answer
+  `LINE_CHANNEL_ALREADY_CONNECTED` or `LINE_CHANNEL_CLAIMED_ELSEWHERE` with a Thai
+  sentence and no foreign Tenant or Business (migration
+  `20260914140100_channel_account_claim.sql`, partial unique on live claims, backfill).
+- `src/platform/integrations/providers/line/line-channel-admin-port.js` — stateless
+  token minting, bot information, webhook endpoint set / get / test with every
+  refusal mapped to a code, and the per-version token cache (≤ 13 minutes, ≤ one
+  mint a minute per account) that `resolveServerLineAccount` uses for a bundle
+  holding no token (SDD-098).
+- `src/modules/integration/application/line-channel-connection-service.js` —
+  `connectLineChannelWithSecret`: validate with LINE → claim + connection → store
+  and activate through the vault, with compensation. No route calls it yet; the
+  write gate and rate limit are FR-224's.
+
 - **What this lane will own.** The `SecretStorePort` (write, activate, rotate,
   revoke, resolve) over Supabase Vault definer functions and the envelope store
   (FR-223, SDD-097); the dispatching secret manager the LINE runtime and
@@ -286,9 +304,8 @@ written, not applied):**
 - **Models.** `IntegrationCredentialVersion` (append-only version history),
   `IntegrationSecretEnvelope` (envelope ciphertext, excluded from backup export) and
   the lifecycle columns on `IntegrationCredential` (store, kind, display hint,
-  validation and revocation) exist on the lane branch. Still planned, claimed here so
-  no other lane designs it: `ChannelAccountClaim` (one live claim per bot, keyed by
-  the SHA-256 of its destination). Prisma never holds material.
+  validation and revocation) and `ChannelAccountClaim` (one live claim per bot, keyed
+  by the SHA-256 of its destination) exist on the lane branch. Prisma never holds material.
 - **Boundaries that do not move.** No read-back route in any store; display is a
   mask plus the last four characters of the Channel ID; the store functions
   re-prove Tenant, Business, connection and destination from rows; a reference
@@ -307,6 +324,7 @@ written, not applied):**
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.4.0b | 2026-09-14 | TASK-ZAI-079 built on the same branch: `owns_models` += `ChannelAccountClaim`; claim service, LINE channel-admin port with the stateless token cache, and the connect-with-secret service listed; migration 20260914140100 written, not applied | Claude Opus 5 |
 | 0.3.0b | 2026-09-14 | TASK-ZAI-078 built on `feat/integration-secret-store-vault`: `owns_models` += `IntegrationCredentialVersion`, `IntegrationSecretEnvelope`; SecretStorePort, Supabase Vault and envelope stores, dispatching secret manager and credential lifecycle listed; migrations 20260914140000, 20260914140200 and 20260914140300 written, not applied | Claude Opus 5 |
 | 0.2.0b | 2026-09-14 | ADR-089 / FEAT-036 declared: the credential vault (`SecretStorePort`, Supabase Vault and envelope stores, mount operator-only), LINE channel-admin port and channel account claim assigned to this lane as planned prose; ADR-091 raw-payload retention noted; no `owns_models` change | Claude Opus 5 |
 | 0.1.0b | 2026-09-06 | Added document metadata and FEAT-019 handoff navigation; existing domain manifest retained | RWANG |

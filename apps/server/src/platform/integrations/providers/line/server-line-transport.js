@@ -4,10 +4,12 @@ import path from 'node:path'
 import { z } from 'zod'
 import { INTEGRATION_CREDENTIAL_RESOLVABLE_STATUSES, LINE_OA_ACCOUNT_STATUSES } from '@/lib/validation/enums'
 import { createSecretManagerPort } from '../../core/secret-manager'
+import { processLineChannelTokenCache } from './line-channel-admin-port'
 
 // @req FR-149 — account-scoped native ingress and server-owned LINE send port.
 // @req FR-223 — a credential mid-rotation still resolves its previous version.
-// @spec ADR-061, SEC-001, SEC-016 — exact account scope, opaque secrets and
+//   A vault-backed bundle's access token is minted per credential version (SDD-098).
+// @spec ADR-061, SEC-001, SEC-016, SDD-098 — exact account scope, opaque secrets and
 // provider acceptance rather than an unsupported delivery/read claim.
 // @tested tests/unit/platform/server-line-transport.test.js
 
@@ -17,8 +19,13 @@ const zSecret = z.object({
   channelSecret: z.string().min(1).max(4096).refine((value) => value.trim() === value),
   channelAccessToken: z.string().min(1).max(8192).refine((value) => !/\s/.test(value)),
 }).strict()
-// A store-held bundle also names its Channel ID (FR-223, ADR-089 D3).
-const zResolvedSecret = zSecret.extend({ channelId: z.string().regex(/^[0-9]{6,20}$/).optional() }).strict()
+// A store-held bundle names its Channel ID and usually carries no token: the token
+// is minted per credential version (FR-223, SDD-098, ADR-089 D3).
+const zResolvedSecret = z.object({
+  channelId: z.string().regex(/^[0-9]{6,20}$/).optional(),
+  channelSecret: zSecret.shape.channelSecret,
+  channelAccessToken: zSecret.shape.channelAccessToken.optional(),
+}).strict().refine(value => value.channelAccessToken !== undefined || value.channelId !== undefined)
 const zWebhook = z.object({
   destination: z.string().min(1),
   events: z.array(z.object({ type: z.string().min(1) }).passthrough()).max(1000),
@@ -114,6 +121,7 @@ export async function resolveServerLineAccount({
   runtimeSource = 'PRODUCTION_LINE',
   now = new Date(),
   requireEnabled = true,
+  tokenProvider = null,
 } = {}) {
   if (!present(accountId)) throw failure('LINE_ACCOUNT_NOT_AVAILABLE', 404)
   const row = await db.lineOaAccount.findUnique({
@@ -152,6 +160,17 @@ export async function resolveServerLineAccount({
       accountId: row.id, connectionId: connection.id, destination: connection.externalAccountId,
     })
     secrets = zResolvedSecret.parse(JSON.parse(resolved.material))
+    if (secrets.channelAccessToken === undefined) {
+      // SDD-098: a vault-backed account's token is minted, cached per version.
+      const provider = tokenProvider ?? processLineChannelTokenCache()
+      const channelAccessToken = await provider.accessTokenFor({
+        accountKey: connection.id,
+        credentialVersion: String(resolved.version),
+        channelId: secrets.channelId,
+        channelSecret: secrets.channelSecret,
+      })
+      secrets = { channelSecret: secrets.channelSecret, channelAccessToken }
+    }
   } catch {
     // Vault, JSON and schema exceptions may contain material. Do not retain cause.
     throw failure('LINE_ACCOUNT_CREDENTIAL_UNAVAILABLE')

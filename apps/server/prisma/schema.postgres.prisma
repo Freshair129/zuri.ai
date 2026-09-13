@@ -2792,6 +2792,30 @@ model IntegrationSecretEnvelope {
   @@index([tenantId, businessId, connectionId])
 }
 
+// @req FR-226 — one external bot bound to at most one live connection across the
+//   whole installation, keyed by the SHA-256 of its destination (never the raw id,
+//   BR-002), taken before any secret is stored.
+// @spec ADR-089 D6
+// @tested tests/integration/channel-account-claim.test.js
+//
+// Postgres holds the pair unique only among live claims (a partial unique index on
+// releasedAt IS NULL, migration 20260914140100); SQLite dev/test keeps the plain
+// unique below, so a claim is released by deleting its row — the one release
+// Phase 1 performs is compensation for a connection that never came to exist.
+model ChannelAccountClaim {
+  id                  String    @id @default(uuid())
+  provider            String
+  externalAccountHash String
+  tenantId            String
+  businessId          String
+  connectionId        String    @unique
+  claimedAt           DateTime  @default(now())
+  releasedAt          DateTime?
+
+  @@unique([provider, externalAccountHash])
+  @@index([tenantId, businessId])
+}
+
 model IngestionRun {
   id             String    @id @default(uuid())
   tenantId       String

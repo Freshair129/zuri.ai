@@ -255,6 +255,21 @@ describe('credential vault lifecycle (envelope store, SQLite)', () => {
     expect(JSON.stringify(resolved)).not.toContain(live.channelSecret)
   })
 
+  it('mints the access token for a bundle that holds none, keyed by account and credential version (SDD-098)', async () => {
+    const { connection, scope } = await newConnection()
+    const owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id], visibleDomains: ['line-oa'] })
+    const account = await connectLineOaAccount({ businessId: business.id, integrationConnectionId: connection.id, code: `oa-mint-${randomBytes(3).toString('hex')}`, displayName: 'Mint' }, { viewer: owner })
+    const pair = bundle()
+    await storeValidatedCredential({ store, ...scope, kind: 'LINE_CHANNEL', bundle: pair, validationCode: 'LINE_OK' })
+    const requests = []
+    const tokenProvider = { accessTokenFor: async (request) => { requests.push(request); return `minted-${'m'.repeat(40)}` } }
+    const resolved = await resolveServerLineAccount({ accountId: account.id, db: prisma, secretManager: manager, requireEnabled: false, tokenProvider })
+    expect(resolved.channelAccessToken).toBe(`minted-${'m'.repeat(40)}`)
+    expect(requests).toEqual([{ accountKey: connection.id, credentialVersion: 'credential-v1', channelId: pair.channelId, channelSecret: pair.channelSecret }])
+    const throttled = { accessTokenFor: async () => { throw Object.assign(new Error('LINE_TOKEN_MINT_THROTTLED'), { status: 503 }) } }
+    await expect(resolveServerLineAccount({ accountId: account.id, db: prisma, secretManager: manager, requireEnabled: false, tokenProvider: throttled })).rejects.toThrow('LINE_ACCOUNT_CREDENTIAL_UNAVAILABLE')
+  })
+
   it('revocation fences the LINE OA account before the store purges, and the runtime stops resolving it', async () => {
     const { connection, scope } = await newConnection()
     const owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id], visibleDomains: ['line-oa'] })
