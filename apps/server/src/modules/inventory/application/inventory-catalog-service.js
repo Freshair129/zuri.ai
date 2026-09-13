@@ -63,6 +63,10 @@ import { appendMovement } from './inventory-stock-service'
 //   tests/integration/fr201-inventory-sku-governance.test.js
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
+// @req FR-208 — the catalogue intake commits a whole batch in ONE transaction
+//   through these same writers (ADR-084 D2), so a create accepts the caller's
+//   transaction client and opens its own only when handed the root client.
+const inTx = (db, fn) => (typeof db?.$transaction === 'function' ? db.$transaction(fn) : fn(db))
 
 const CATEGORY_SELECT = { id: true, code: true, tenantId: true, businessId: true, nameTh: true, nameEn: true, slug: true, vibe: true, targetRecipient: true, guardrail: true, status: true, createdAt: true, updatedAt: true, version: true }
 const FAMILY_SELECT = { id: true, code: true, tenantId: true, businessId: true, name: true, description: true, status: true, createdAt: true, updatedAt: true, version: true }
@@ -103,7 +107,7 @@ async function requireInBusiness(tx, model, id, businessId, message) {
 
 async function createScoped(entityType, action, { input, schema, model, select, codeTaken, viewer, db, columns, payload, references }) {
   const data = schema.parse(input)
-  const row = await db.$transaction(async (tx) => {
+  const row = await inTx(db, async (tx) => {
     const business = await loadBusiness(tx, viewer, data.businessId, { write: true })
     await assertCodeFree(tx, model, business.tenantId, data.code, codeTaken)
     if (references) await references(tx, data, business)
@@ -224,7 +228,7 @@ async function lookalikeOf(tx, masterId, fingerprint, exceptId = null) {
 
 export async function createProduct(input, { viewer, db = prisma } = {}) {
   const d = zCreateProduct.parse(input)
-  const row = await db.$transaction(async (tx) => {
+  const row = await inTx(db, async (tx) => {
     const business = await loadBusiness(tx, viewer, d.businessId, { write: true })
     await assertCodeFree(tx, 'product', business.tenantId, d.code, 'PRODUCT_CODE_TAKEN')
     const master = await tx.productMaster.findUnique({ where: { id: d.productMasterId }, select: MASTER_FOR_SKU_SELECT })

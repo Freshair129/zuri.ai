@@ -316,6 +316,12 @@ export const INVENTORY_PRODUCT_ACTIONS = ['UPDATE', 'ARCHIVE', 'PHASE_OUT', 'REA
 export const INVENTORY_IDENTIFIER_KINDS = ['GTIN', 'BARCODE', 'SUPPLIER_CODE', 'MANUFACTURER_PART', 'LEGACY_CODE']
 // FR-204 — where a unit conversion applies: buying, selling, or anywhere.
 export const INVENTORY_UNIT_USAGES = ['PURCHASE', 'SALES', 'ANY']
+// FR-208 — catalogue intake (ADR-084): the surfaces that convert into the one
+// envelope, the states of a persisted preview, and what the planner decided
+// for each item after resolving it against the catalogue.
+export const INVENTORY_CATALOG_INTAKE_CHANNELS = ['REST_API', 'EXCEL', 'LINE_OA', 'WEB']
+export const INVENTORY_CATALOG_INTAKE_STATUSES = ['PREVIEWED', 'COMMITTED', 'CANCELLED']
+export const INVENTORY_CATALOG_INTAKE_DECISIONS = ['CREATE', 'MATCH', 'UNCHANGED', 'CONFLICT', 'INVALID']
 // FR-206 — the kinds of finding the catalogue hygiene report can raise.
 export const INVENTORY_HYGIENE_FINDING_KINDS = [
   'NATURE_MISMATCH', 'LOOKALIKE_SKUS', 'MASTER_WITHOUT_AXES', 'MASTER_WITHOUT_SKUS',

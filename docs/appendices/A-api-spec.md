@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.66.0b |
+| **Version** | 1.67.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-13 |
 
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=257 -->
+<!-- api-spec-counts: route_handlers=263 -->
 
 ### Desktop browser/QR pairing (FR-144, 2026-09-08)
 
@@ -476,6 +476,13 @@ Thirteen handlers over the services FR-174…FR-181 already shipped. Each is thi
 | PATCH | `/api/inventory/products/[id]/unit-conversions` | implemented (FR-204): `{ conversionId, action: UPDATE \| RETIRE, version, fields? (name, factor, usage) }` — compare-and-swap | `404`; `409 PRODUCT_UNIT_CONVERSION_VERSION_CONFLICT \| PRODUCT_UNIT_CONVERSION_RETIRED`; `400` |
 | GET | `/api/inventory/catalog-hygiene?businessId=&dormantDays=` | implemented (FR-206): `{ businessId, catalogue: { masters, products, live }, generatedAt, dormantDays, counts (by kind), bySeverity, total, findings: [{ kind, severity, message, suggestion, productIds, codes, masterId?, … }] }` — read-only, computed by a pure function on every read | `404` |
 | GET | `/api/inventory/replenishment?businessId=` | implemented (FR-207): `{ businessId, rows: [{ productId, code, name, unit, onHand, threshold, reorderPoint, safetyStock, suggestedQty, leadTimeDays }], counts: { counted, suggested } }` — counted ACTIVE SKUs below `reorderPoint ?? safetyStock`; a suggestion, never a purchase order | `404` |
+| GET | `/api/inventory/catalog-intakes?businessId=&limit=` | implemented (FR-208): recent catalogue intakes, newest first, as summaries `{ id, code, sourceChannel, sourceCorrelationId, status (PREVIEWED / COMMITTED / CANCELLED), committable, itemCount, planHash, expiresAt, committedAt, cancelledAt, requestedById, version }` without plans | `404` |
+| POST | `/api/inventory/catalog-intakes/preview` | implemented (FR-208): envelope `{ schemaVersion: "1.0", businessId, source: { channel: REST_API \| EXCEL \| LINE_OA \| WEB, correlationId }, items[1..500]: { ref?, sku: { code, name?, color?, material?, unit?, variant?, stockPolicy?, trackingMode?, safetyStock?, reorderPoint?, reorderQty?, leadTimeDays?, allowLookalike? }, master: { code, categoryCode?, nameTh?, nameEn?, nature?, defaultStockPolicy?, variantAxes? }, identifiers?[], unitConversions?[] } }` → `{ replayed, intake: { …summary, plan: { items: [{ index, ref, code, decision: CREATE \| MATCH \| UNCHANGED \| CONFLICT \| INVALID, matchedBy?, product?, master?, actions[], issues[], warnings[] }], counts, committable } } }`. Each item is resolved by active identifiers then SKU code before a create is planned. Idempotent per (Business, channel, correlation). Writes no catalogue row. Audited `INVENTORY_CATALOG_INTAKE_PREVIEWED` / `_REPREVIEWED` | `404`; `409 INVENTORY_CATALOG_INTAKE_CORRELATION_REUSED`; `400` envelope header |
+| POST | `/api/inventory/catalog-intakes/commit` | implemented (FR-208): `{ businessId, intakeId, planHash }` — re-plans in one transaction, applies every action through the catalogue writers (each audited) or nothing, marks COMMITTED with `result: { created[], matched[], unchanged[], mastersCreated[] }`. A committed intake replays. Audited `INVENTORY_CATALOG_INTAKE_COMMITTED` | `404`; `409 INVENTORY_CATALOG_INTAKE_PLAN_STALE \| INVENTORY_CATALOG_INTAKE_NOT_COMMITTABLE (details: refs) \| INVENTORY_CATALOG_INTAKE_EXPIRED \| INVENTORY_CATALOG_INTAKE_CANCELLED \| INVENTORY_CATALOG_INTAKE_VERSION_CONFLICT`, or a writer's own refusal; `400` |
+| GET | `/api/inventory/catalog-intakes/[id]` | implemented (FR-208): one intake with its `plan` and, once committed, its `result` | `404` |
+| PATCH | `/api/inventory/catalog-intakes/[id]` | implemented (FR-208): `{ action: CANCEL, version }` — compare-and-swap; the row stays. Audited `INVENTORY_CATALOG_INTAKE_CANCELLED`. No DELETE | `404`; `409 INVENTORY_CATALOG_INTAKE_VERSION_CONFLICT \| INVENTORY_CATALOG_INTAKE_ALREADY_COMMITTED \| INVENTORY_CATALOG_INTAKE_CANCELLED`; `400` |
+| GET | `/api/inventory/catalog-intakes/template?businessId=` | implemented (FR-209): `.xlsx` — `Products` (header row 2 is the contract, dropdowns from `enums.js`), `Lookups` (this Business's categories and masters) and a read-me | `404` as JSON |
+| POST | `/api/inventory/catalog-intakes/xlsx` | implemented (FR-209): multipart `businessId` + `file` (`.xlsx`, ≤ 5 MiB); authority before reading; rows become items unjudged and preview under correlation `xlsx:<sha256>` — the preview response above. Never commits | `404`; `400` not multipart / not `.xlsx`; `413`; `422 INVENTORY_CATALOG_WORKBOOK_UNREADABLE \| _SHEET_MISSING \| _HEADER_MISMATCH (details: columns) \| _EMPTY \| _TOO_MANY_ROWS` |
 
 ## CRM sales tasks (FR-161, ADR-064)
 
@@ -776,6 +783,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.67.0b | 2026-09-13 | candidate | FR-208 / FR-209 (ADR-084 catalogue intake): six handler files under `/api/inventory/catalog-intakes` — the list, preview, commit, one intake (GET + CANCEL), the Business-specific workbook template and the workbook upload preview. Route handler count 257 -> 263 | working-tree | Claude Opus 5 |
 | 1.66.0b | 2026-09-13 | candidate | FR-201..FR-207 (ADR-083 SKU governance): five new handler files under `/api/inventory` — `products/resolve` (GET), `products/[id]/identifiers` and `products/[id]/unit-conversions` (GET/POST/PATCH), `catalog-hygiene` and `replenishment` (GET) — plus the nature / variant / lifecycle fields and refusals on the product collection and item and the `services` / `phaseOut` / `belowReorderPoint` counts on the stock summary. Route handler count 252 -> 257 | working-tree | Claude Fable 5.1 |
 | 1.65.0b | 2026-09-12 | candidate | FR-193 (ADR-078 D1): added the Employment WRITE path, which had been declared and built as a service and then left unreachable — `POST /api/people/employment` and `PATCH /api/people/employment/[employmentId]` (`on_leave` / `reinstate` / `end`, the last requiring a reason). `employment-service.js` shipped all four operations in 1.63.0b-era work and no route imported it, so the People Directory could only show rows the ADR-078 backfill created — and on production that was none, because no `Membership.employeeRef` values existed to carry over. The page told the owner to add a record and offered no control that wrote one. Route handler count 250 -> 252 | working-tree | Claude Opus 5 |
 | 1.64.0b | 2026-09-12 | candidate | FR-198 / FR-199 (ADR-080): added the access-review read surface that had no route — `GET /api/platform/access-history?businessId=\|tenantId=\|personId=` (the event stream for one scope, authority `ownsBusiness`/`ownsTenant`/self/operator, 404-shaped identically for unowned and nonexistent per SEC-001) and `GET /api/platform/businesses/[businessId]/grants` (current-state roster with provenance). Route handler count 248 -> 250 | working-tree | Claude Opus 5 |

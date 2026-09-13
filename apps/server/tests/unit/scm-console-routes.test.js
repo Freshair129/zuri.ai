@@ -40,6 +40,8 @@ const PAGES = [
   // @req FR-203, FR-204 — the SKU detail page (identifiers and unit conversions)
   // holds to the same contract: shared tabs, selected Business, routes only.
   'src/app/(pm)/inventory/products/[productId]/page.jsx',
+  // @req FR-208, FR-209 — the Import tab holds to the same contract.
+  'src/app/(pm)/inventory/catalog-intake/page.jsx',
 ]
 
 describe('FR-182 SCM operations console — route contract', () => {
@@ -123,13 +125,13 @@ describe('FR-182 console pages (FR-170)', () => {
     }
   })
 
-  it('the tab list and the sidebar list name the same six paths, in the same order', () => {
+  it('the tab list and the sidebar list name the same seven paths, in the same order', () => {
     const inventory = DOMAINS.find((d) => d.key === 'inventory')
     expect(inventory.sub.map((s) => s.path)).toEqual(INVENTORY_TABS.map((t) => t.path))
-    // @req FR-206 — the SKU hygiene tab joined the strip with ADR-083.
+    // @req FR-206 — the SKU hygiene tab joined the strip with ADR-083; FR-209's Import tab with ADR-084.
     expect(INVENTORY_TABS.map((t) => t.path)).toEqual([
       '/inventory', '/inventory/locations', '/inventory/work-orders', '/inventory/reservations',
-      '/inventory/stocktakes', '/inventory/hygiene',
+      '/inventory/stocktakes', '/inventory/hygiene', '/inventory/catalog-intake',
     ])
   })
 

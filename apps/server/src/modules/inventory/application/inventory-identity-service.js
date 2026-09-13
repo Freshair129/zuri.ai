@@ -28,6 +28,9 @@ import { assertMayView, loadBusiness, notFound } from './inventory-authority'
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
 const actor = (viewer) => viewer?.principal?.id ?? null
+// @req FR-208 — additions run inside a catalogue intake's one transaction
+//   (ADR-084 D2); handed the root client, each still opens its own.
+const inTx = (db, fn) => (typeof db?.$transaction === 'function' ? db.$transaction(fn) : fn(db))
 
 const IDENTIFIER_SELECT = { id: true, tenantId: true, businessId: true, productId: true, kind: true, value: true, issuer: true, unit: true, status: true, createdAt: true, updatedAt: true, version: true }
 const CONVERSION_SELECT = { id: true, tenantId: true, businessId: true, productId: true, unit: true, name: true, factor: true, usage: true, status: true, createdAt: true, updatedAt: true, version: true }
@@ -58,7 +61,7 @@ async function loadProductForRead(db, viewer, productId) {
 
 export async function addIdentifier(productId, input, { viewer, db = prisma } = {}) {
   const data = zCreateIdentifier.parse(input)
-  return db.$transaction(async (tx) => {
+  return inTx(db, async (tx) => {
     const { business, product } = await loadProductForWrite(tx, viewer, data.businessId, productId)
     // A pack's barcode names the pack: the unit must be the base unit or a
     // conversion this SKU declares, or the scan would resolve to a quantity
@@ -104,7 +107,7 @@ export async function applyIdentifierAction(productId, input, { viewer, db = pri
 
 export async function addUnitConversion(productId, input, { viewer, db = prisma } = {}) {
   const data = zCreateUnitConversion.parse(input)
-  return db.$transaction(async (tx) => {
+  return inTx(db, async (tx) => {
     const { business, product } = await loadProductForWrite(tx, viewer, data.businessId, productId)
     if (product.stockPolicy === 'SERVICE') throw failure(422, 'INVENTORY_PRODUCT_IS_A_SERVICE')
     if (product.trackingMode === 'SERIAL') throw failure(422, 'INVENTORY_UNIT_NOT_FOR_SERIAL')

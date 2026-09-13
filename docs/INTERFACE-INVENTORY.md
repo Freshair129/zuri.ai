@@ -1,7 +1,7 @@
 ---
-version: "1.21.0b"
+version: "1.22.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-13T18:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-13T21:00:00+07:00,Claude Opus 5"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.21.0b |
+| **Version** | 1.22.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-09-13 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=101; operational_domain_keys=15; operational_subdomain_entries=52; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=102; operational_domain_keys=15; operational_subdomain_entries=53; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -209,6 +209,7 @@ uncounted product shows "—", never a zero.
 | `/inventory/reservations` | ATP & reservations (Inventory tab 4) | BusinessShell → Inventory / Reservations | on-hand, committed, quote-held and available per SKU side by side, with over-commitment surfaced; the reservation list with a computed `live`; forms to place a quote or order hold and release one | Business and `inventory` domain visibility to read; writes need OWNER or `INVENTORY_MANAGER`; no Business, loading, error, ready, busy, no-counted-SKU | implemented; `src/app/(pm)/inventory/reservations/page.jsx`, FR-182, FR-180 / ADR-074 |
 | `/inventory/hygiene` | SKU Hygiene (Inventory tab 6) | BusinessShell → Inventory / SKU Hygiene | Read the catalogue hygiene report (lookalike SKUs, services filed under goods, masters without variant axes, dormant SKUs, missing identifiers) with its severity and repair suggestion, tune the dormancy window, run a lifecycle action — MERGE a duplicate into its survivor, PHASE_OUT, REACTIVATE, ARCHIVE — with a recorded reason, and read the replenishment suggestion | Business visibility and the `inventory` domain to read; Inventory write authority for an action; no Business selected, clean report, blocked merge (references, stock, reservations), version conflict | implemented locally; `src/app/(pm)/inventory/hygiene/page.jsx`, FR-205, FR-206, FR-207 (ADR-083); production migration pending |
 | `/inventory/products/[productId]` | SKU detail — identifiers and unit conversions | BusinessShell → Inventory (from a SKU code on the Dashboard or the Dashboard's code lookup; not a tab) | Read the SKU header (on-hand, tracking, base unit); list, add and two-step retire barcodes / GTIN / supplier / manufacturer / legacy codes with the pack unit each sits on; declare, edit and two-step retire unit conversions ("1 BOX12 = 12 EA") | Business visibility and the `inventory` domain to read; Inventory write authority for a change; loading (desks disabled), SKU from another Business or archived/merged (read-only with the reason), service or serial SKU (no conversion desk, reason shown), bad GTIN check digit (caught before send), identifier held by another SKU (names and links it), version conflict, retired rows on request | implemented; `src/app/(pm)/inventory/products/[productId]/page.jsx`, FR-203, FR-204 (ADR-083) |
+| `/inventory/catalog-intake` | Import — catalogue intake (Inventory tab 7) | BusinessShell → Inventory / Import | Download this Business's workbook template; upload a filled `.xlsx` or paste JSON items and read the preview — each row's decision (create, match with additions, unchanged, conflict, invalid), the SKU it matched and by what, the issues and warnings; confirm the whole batch or cancel; reopen a recent intake from any channel, LINE included | Business visibility and the `inventory` domain to read; Inventory write authority to preview, confirm or cancel; no Business selected, workbook not the template (header, sheet, size, rows), uncommittable plan (confirm disabled with the reason), expired or stale plan, cancelled or committed intake | implemented locally; `src/app/(pm)/inventory/catalog-intake/page.jsx`, FR-208, FR-209 (ADR-084); production migration pending |
 
 ### 3.7 Workspace compatibility surfaces
 
@@ -386,6 +387,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.22.0b | 2026-09-13 | active | Added the Import tab `/inventory/catalog-intake` (FR-208 / FR-209, ADR-084), the seventh Inventory tab; page routes 101 -> 102, operational subdomain entries 52 -> 53 | working-tree | Claude Opus 5 |
 | 1.21.0b | 2026-09-13 | active | Added the SKU detail page `/inventory/products/[productId]` (FR-203 identifier desk, FR-204 unit-conversion desk; reached from the Dashboard, not a tab); page routes 100 -> 101, operational subdomain entries unchanged | working-tree | Claude Opus 5 |
 | 1.20.0b | 2026-09-13 | active | Added the sixth Inventory tab `/inventory/hygiene` (FR-206 catalogue hygiene report, the FR-205 lifecycle/merge desk and the FR-207 replenishment card, ADR-083); page routes 99 -> 100, operational subdomain entries 51 -> 52 | working-tree | Claude Fable 5.1 |
 | 1.18.0b | 2026-09-11 | candidate | FR-185: registered Paid Media, Broadcast Planning and Ask Marketing read/planning surfaces; page-route marker reconciled to 98 while direct routes remain outside the domain navigation count | working-tree | RWANG |

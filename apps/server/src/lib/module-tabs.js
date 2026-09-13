@@ -17,6 +17,8 @@ export const INVENTORY_TABS = [
   { key: 'stocktakes', label: 'Stocktake', path: '/inventory/stocktakes' },
   // @req FR-206 — the catalogue hygiene report and the merge desk (ADR-083 D6).
   { key: 'hygiene', label: 'SKU Hygiene', path: '/inventory/hygiene' },
+  // @req FR-209 — catalogue intake: Excel / JSON preview and commit (ADR-084 D3).
+  { key: 'catalog-intake', label: 'Import', path: '/inventory/catalog-intake' },
 ]
 
 export const PROCUREMENT_TABS = [
