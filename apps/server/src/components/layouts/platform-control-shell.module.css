@@ -1,0 +1,104 @@
+/* @req FR-105 — Platform Control shell theme: a contrast pass and a dark theme
+   for the operator surface (owner request 2026-09-13, after the deployed
+   /control/roadmap read as "all white, no accent, no dark mode").
+   @spec ADR-048 D1, NFR-008, SDD-010 — the theme only redefines semantic and
+   component tokens on the shell root; no component below consumes a primitive.
+   Light values are one step stronger than the app defaults (canvas darker than
+   surface, borders a step stronger). The dark block keeps every hue and inverts
+   the values. Scoped to the shell so the BusinessShell is untouched. */
+
+.root {
+  --bg-canvas: #E6EAEF;
+  --bg-sunken: #F1F3F6;
+  --text-secondary: #5B6472;
+  --text-tertiary: #6F7987;
+  --border-subtle: #D9DEE5;
+  --border-default: #C9D0D9;
+  --border-strong: #A9B4C2;
+  --border: var(--border-default);
+  --card-border: var(--border-default);
+  --surface-mid: #E4E8ED;
+  --shadow-raised: 0 1px 2px rgba(15, 23, 42, 0.05), 0 4px 12px rgba(15, 23, 42, 0.08);
+  --shadow-hover: 0 10px 30px rgba(15, 23, 42, 0.14), 0 2px 6px rgba(15, 23, 42, 0.08);
+  --glow: rgba(232, 130, 12, 0.22);
+  --accent-edge: var(--action-primary);
+  --pc-footer-bg: var(--bg-surface);
+  --chart-grid: #DDE2E8;
+  --chart-text: #6B7280;
+  --chart-text-faint: #9CA3AF;
+  --chart-bar: #FDE8D0;
+  --chart-bar-stroke: #F09420;
+  background: var(--bg-canvas);
+  color: var(--text-primary);
+}
+
+.root[data-theme='dark'] {
+  --bg-canvas: #0F1319;
+  --bg-surface: #1B2129;
+  --bg-raised: #1B2129;
+  --bg-sunken: #161C24;
+  --bg-subtle: #2A2117;
+  --text-primary: #E7EAEF;
+  --text-secondary: #A3ACB9;
+  --text-tertiary: #8A94A3;
+  --text-inverse: #0F1319;
+  --border-subtle: #2A323D;
+  --border-default: #333D4A;
+  --border-strong: #4A5666;
+  --border: var(--border-default);
+  --card-bg: var(--bg-surface);
+  --card-border: var(--border-default);
+  --card-subtle-bg: #2A2117;
+  --status-success: #5CC48A;
+  --status-success-bg: #17301F;
+  --status-warning: #E2B04A;
+  --status-warning-bg: #332A12;
+  --status-danger: #F08A8A;
+  --status-danger-bg: #3A1D1D;
+  --status-info: #7FB6D8;
+  --status-info-bg: #1E3442;
+  --surface-mid: #2A323D;
+  --mustard-tint: #33301F;
+  --ink: #E7EAEF;
+  --text: #E7EAEF;
+  --muted: #A3ACB9;
+  --success: #5CC48A;
+  --warning: #E2B04A;
+  --danger: #F08A8A;
+  --shadow-raised: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.4);
+  --glow: rgba(240, 148, 32, 0.28);
+  --pc-footer-bg: #0B0E13;
+  --chart-grid: #2E3844;
+  --chart-text: #A3ACB9;
+  --chart-text-faint: #6F7987;
+  --chart-bar: #5A3F14;
+  --chart-bar-stroke: #F09420;
+  --nav-glass-bg: rgba(11, 14, 19, 0.98);
+}
+
+.themeToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 16px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--motion-ease);
+}
+.themeToggle:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.footer {
+  background: var(--pc-footer-bg);
+  border-top: 1px solid var(--border);
+  color: var(--text-tertiary);
+}

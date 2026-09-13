@@ -11,16 +11,61 @@
 // the operator to wait out session expiry.
 // @spec ADR-017, SEC-008
 // @tested tests/unit/sign-out.test.js
+//
+// Theme (owner request 2026-09-13): the shell root carries `data-theme`
+// ("light" | "dark"). The choice is stored per browser under
+// `zai-control-theme`; with nothing stored the system preference applies. The
+// first server render carries no attribute and the effect sets it on the
+// client, so static markup is theme-neutral and never flashes the wrong one.
+// Tokens for both themes live in platform-control-shell.module.css.
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { LogOut } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { LogOut, Moon, Sun } from 'lucide-react'
 import { performSignOut } from '@/modules/identity/sign-out'
+import styles from './platform-control-shell.module.css'
+
+const THEME_KEY = 'zai-control-theme'
+
+function readStoredTheme() {
+  try {
+    const stored = window.localStorage.getItem(THEME_KEY)
+    return stored === 'dark' || stored === 'light' ? stored : null
+  } catch {
+    return null
+  }
+}
+
+function systemTheme() {
+  return typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+}
 
 export default function PlatformControlShell({ children }) {
   const router = useRouter()
   const [signingOut, setSigningOut] = useState(false)
+  const [theme, setTheme] = useState(null)
+
+  useEffect(() => {
+    setTheme(readStoredTheme() ?? systemTheme())
+    const media = window.matchMedia?.('(prefers-color-scheme: dark)')
+    if (!media) return undefined
+    const follow = (event) => {
+      if (!readStoredTheme()) setTheme(event.matches ? 'dark' : 'light')
+    }
+    media.addEventListener('change', follow)
+    return () => media.removeEventListener('change', follow)
+  }, [])
+
+  const toggleTheme = () => {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    setTheme(next)
+    try {
+      window.localStorage.setItem(THEME_KEY, next)
+    } catch {
+      /* private window: the choice lives for this page only */
+    }
+  }
 
   // @req FR-046, FR-095 — the redirect to /login always happens, whether the
   // server confirmed the revoke or not; a failed revoke is surfaced via
@@ -38,10 +83,10 @@ export default function PlatformControlShell({ children }) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[var(--bg-canvas)]">
+    <div className={`${styles.root} flex min-h-screen flex-col`} data-theme={theme ?? undefined}>
       <header className="nav-glass flex min-h-14 items-center border-b border-white/10 px-6 text-white max-md:px-4">
         <div className="flex min-w-0 items-center gap-3">
-          <span className="grid h-8 w-8 place-items-center rounded-lg bg-[var(--action-primary)] text-sm font-black" aria-hidden>
+          <span className="grid h-8 w-8 place-items-center rounded-lg bg-[var(--action-primary)] text-sm font-black text-[#1A1710]" aria-hidden>
             Z
           </span>
           <div className="min-w-0">
@@ -54,6 +99,17 @@ export default function PlatformControlShell({ children }) {
         </Link>
         <button
           type="button"
+          className={styles.themeToggle}
+          onClick={toggleTheme}
+          aria-pressed={theme === 'dark'}
+          aria-label={theme === 'dark' ? 'สลับเป็นโหมดสว่าง' : 'สลับเป็นโหมดมืด'}
+          title="สลับโหมดมืด/สว่าง (จำค่าในเบราว์เซอร์นี้)"
+        >
+          {theme === 'dark' ? <Sun size={13} aria-hidden /> : <Moon size={13} aria-hidden />}
+          {theme === 'dark' ? 'Light' : 'Dark'}
+        </button>
+        <button
+          type="button"
           className="ml-4 inline-flex items-center gap-1 text-xs font-semibold text-white/80 underline-offset-2 hover:underline disabled:opacity-50"
           onClick={handleSignOut}
           disabled={signingOut}
@@ -63,7 +119,7 @@ export default function PlatformControlShell({ children }) {
         </button>
       </header>
       <main className="mx-auto w-full max-w-7xl flex-1 p-6 max-md:p-4">{children}</main>
-      <footer className="border-t border-[var(--border)] bg-white px-6 py-2 text-[10px] text-[var(--text-tertiary)] max-md:px-4">
+      <footer className={`${styles.footer} px-6 py-2 text-[10px] max-md:px-4`}>
         Platform Control · read-only programme projection
       </footer>
     </div>

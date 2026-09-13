@@ -49,4 +49,22 @@ describe('Platform Programme Roadmap route contract', () => {
     expect(board).toContain('Repository history')
     expect(board).not.toContain('git log') // the page never measures git itself (ADR-048 D3)
   })
+
+  it('themes and decorates the board without changing what it says (owner request 2026-09-13)', () => {
+    const shell = readFileSync(fromRoot('src', 'components', 'layouts', 'PlatformControlShell.jsx'), 'utf8')
+    const shellCss = readFileSync(fromRoot('src', 'components', 'layouts', 'platform-control-shell.module.css'), 'utf8')
+    const board = readFileSync(fromRoot('src', 'modules', 'platform-control', 'components', 'ProgramRoadmapBoard.jsx'), 'utf8')
+    const boardCss = readFileSync(fromRoot('src', 'modules', 'platform-control', 'components', 'program-roadmap-board.module.css'), 'utf8')
+    // Dark mode is a token override on the shell root, chosen per browser, never a second stylesheet.
+    expect(shell).toContain('data-theme={theme ?? undefined}')
+    expect(shell).toContain("'zai-control-theme'")
+    expect(shellCss).toContain(".root[data-theme='dark']")
+    // Status colour never travels alone: the pill text stays next to every coloured edge.
+    expect(board).toContain('data-status={status}')
+    expect(board).toContain('<StatusPill status={badgeStatus(status)} />')
+    expect(boardCss).toContain("[data-status='done']")
+    // Tilt is hover chrome that switches itself off for reduced motion and coarse pointers.
+    expect(board).toContain('<TiltCard')
+    expect(boardCss).toContain('prefers-reduced-motion: reduce')
+  })
 })

@@ -1,0 +1,129 @@
+/* @req FR-105 — Programme board styling: contrast, status colouring, tilt/glow.
+   @spec ADR-048 D3, NFR-008 — colour never carries a status alone (the pill text
+   does); every colour is a token defined on the shell root, so the dark theme
+   in platform-control-shell.module.css restyles this file without a rule here.
+   Accent edges are inset box-shadows rather than a border so the layout does
+   not shift by 4px between states. */
+
+.phase {
+  box-shadow: var(--shadow-raised), inset 5px 0 0 var(--accent-edge);
+  border-color: var(--border-default);
+  overflow: hidden;
+}
+.phaseHead {
+  background: var(--bg-subtle);
+}
+.phaseHead:hover {
+  background: var(--card-subtle-bg);
+}
+.phaseBody {
+  background: var(--bg-sunken);
+  border-top: 1px solid var(--border-default);
+}
+
+.sprint {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  box-shadow: var(--shadow-raised);
+}
+.sprintHead {
+  border-bottom: 2px solid var(--bg-subtle);
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+}
+
+.task {
+  background: var(--bg-sunken);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  box-shadow: inset 4px 0 0 var(--border-strong);
+  transition:
+    background var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease);
+}
+.task:hover {
+  background: var(--bg-surface);
+}
+.task[data-status='done'] {
+  box-shadow: inset 4px 0 0 var(--status-success);
+}
+.task[data-status='in-progress'] {
+  box-shadow: inset 4px 0 0 var(--status-warning);
+}
+.task[data-status='review'] {
+  box-shadow: inset 4px 0 0 var(--mustard);
+}
+.task[data-status='ready'] {
+  box-shadow: inset 4px 0 0 var(--status-info);
+}
+.task[data-status='blocked'] {
+  box-shadow: inset 4px 0 0 var(--status-danger);
+}
+.taskDot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-full);
+  background: var(--border-strong);
+  flex: none;
+  margin-top: 5px;
+  box-shadow: 0 0 0 2px var(--bg-surface);
+}
+.task[data-status='done'] .taskDot { background: var(--status-success); }
+.task[data-status='in-progress'] .taskDot { background: var(--status-warning); }
+.task[data-status='review'] .taskDot { background: var(--mustard); }
+.task[data-status='ready'] .taskDot { background: var(--status-info); }
+.task[data-status='blocked'] .taskDot { background: var(--status-danger); }
+
+.sideCard {
+  box-shadow: var(--shadow-raised);
+  border-color: var(--border-default);
+}
+.chartFrame {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  padding: 8px;
+  overflow-x: auto;
+}
+
+/* 3D tilt + cursor glow. --mx/--my are set by TiltCard on pointer move. */
+.tilt {
+  position: relative;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transition:
+    transform var(--motion-default) var(--motion-ease),
+    box-shadow var(--motion-default) var(--motion-ease);
+}
+.tilt::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), var(--glow), transparent 60%);
+  transition: opacity var(--motion-default) var(--motion-ease);
+}
+.tilt:hover::after,
+.tilting::after {
+  opacity: 1;
+}
+.tilting {
+  box-shadow: var(--shadow-hover);
+  z-index: 1;
+}
+.tilting > * {
+  position: relative;
+  z-index: 1;
+}
+@media (hover: none), (pointer: coarse), (prefers-reduced-motion: reduce) {
+  .tilt {
+    transform: none !important;
+  }
+  .tilt::after {
+    display: none;
+  }
+}
