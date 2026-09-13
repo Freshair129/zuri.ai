@@ -15,8 +15,85 @@ import {
   PROGRAMME_SNAPSHOT,
   PROGRAMME_TASKS,
 } from '@/modules/platform-control/program-roadmap-data'
+import { PROGRAMME_CONTAINERS } from '@/modules/platform-control/program-roadmap-containers'
 import TiltCard from './TiltCard'
 import styles from './program-roadmap-board.module.css'
+
+// Task Containers (owner request 2026-09-13): a task opens the way it does on
+// the html board — links, container identity, definition of done with the
+// per-criterion `checked` flags the document records, changelog, dependencies.
+// The data is PROGRAMME_CONTAINERS, generated from the markdown YAML; links
+// point at the repository on GitHub because a file path is not a URL here.
+const REPO_BLOB = 'https://github.com/Freshair129/zuri.ai/blob/main/'
+
+function RepoLink({ path }) {
+  if (!path || path === 'unavailable') return <span className={styles.na}>unavailable</span>
+  return (
+    <a className={styles.link} href={`${REPO_BLOB}${path}`} target="_blank" rel="noopener noreferrer">
+      {path}
+    </a>
+  )
+}
+
+function Criterion({ label, tone, item }) {
+  return (
+    <div className={`${styles.dodCol} ${styles[`dod${tone}`]}`}>
+      <h5 className={styles.dodHead}>{label}</h5>
+      <div className={styles.crit}>
+        <span
+          className={`${styles.box} ${item.checked ? styles.boxOn : ''}`}
+          role="img"
+          aria-label={item.checked ? 'checked: true in the document' : 'checked: false in the document'}
+          title={item.checked ? 'checked: true ใน .md' : 'checked: false ใน .md'}
+        />
+        <span>{item.text}</span>
+      </div>
+    </div>
+  )
+}
+
+function TaskDetail({ id, status, container }) {
+  if (!container) return <p className="mt-2 text-xs text-muted">No Task Container is recorded for {id} in the document.</p>
+  return (
+    <div className={styles.detail} data-testid={`task-detail-${id}`}>
+      <div className={styles.kvGrid}>
+        <div className={styles.kv}><div className={styles.k}>Code link</div><div className={styles.v}><RepoLink path={container.links.code} /></div></div>
+        <div className={styles.kv}><div className={styles.k}>Doc link</div><div className={styles.v}><RepoLink path={container.links.doc} /></div></div>
+        <div className={styles.kv}><div className={styles.k}>Test link</div><div className={styles.v}><RepoLink path={container.links.test} /></div></div>
+      </div>
+      <div className={styles.infoSec}>
+        <div className={styles.kvGrid}>
+          <div className={styles.kv}><div className={styles.k}>Task container</div><div className={styles.v}>{container.container} · v{container.version}</div></div>
+          <div className={styles.kv}><div className={styles.k}>Parent</div><div className={styles.v}>{container.phase} / {container.sprint}</div></div>
+          <div className={styles.kv}><div className={styles.k}>Status · people</div><div className={styles.v}>{status} · PIC {container.pic} · exec {container.executor} · approver {container.approver} · auditor {container.auditor}</div></div>
+        </div>
+      </div>
+      <div className={styles.infoSec}>
+        <span className={styles.secLabel}>Definition of Done</span>
+        <div className={styles.dod}>
+          <Criterion label="Acceptance" tone="Acceptance" item={container.dod.acceptance} />
+          <Criterion label="Success" tone="Success" item={container.dod.success} />
+          <Criterion label="Exit" tone="Exit" item={container.dod.exit} />
+        </div>
+      </div>
+      <div className={styles.infoSec}>
+        <span className={styles.secLabel}>Changelog</span>
+        <p className={styles.changelog}>{container.changelog}</p>
+        <div className={styles.dep}>
+          <span className={styles.k}>Dependencies</span>
+          {container.dependsOn.length === 0 ? (
+            <span className={styles.na}>none</span>
+          ) : (
+            container.dependsOn.map((dep) => (
+              <a key={dep} href={`#task-${dep}`} className={styles.depCode}>{dep}</a>
+            ))
+          )}
+          <span className="ml-auto text-[11px] text-muted">evidence: {container.evidence}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 // Presentation pass 2026-09-13 (owner: the deployed page was "all white, no
 // accent, no dark mode, no tilt"): status-coloured task cards, tinted phase and
@@ -107,6 +184,14 @@ function HistoryChart({ history }) {
 
 export default function ProgramRoadmapBoard() {
   const [openPhase, setOpenPhase] = useState('PHASE-ZAI-01')
+  const [openTasks, setOpenTasks] = useState(() => new Set())
+  const toggleTask = (id) =>
+    setOpenTasks((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
 
   return (
     <div className="space-y-6">
@@ -188,20 +273,37 @@ export default function ProgramRoadmapBoard() {
                           </div>
                           <p className="mb-2 text-xs text-muted">{sprint.goal}</p>
                           <ul className="space-y-2" aria-label={`${sprint.id} tasks`}>
-                            {tasks.filter((task) => task[1] === sprint.id).map(([id, , title, type, complexity, scope, status]) => (
-                              <TiltCard as="li" key={id} className={`p-3 ${styles.task}`} data-status={status}>
-                                <div className="flex items-start gap-3">
-                                  <span className={styles.taskDot} aria-hidden />
-                                  <div className="min-w-0 flex-1">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                      <code className="text-[11px] font-semibold">{id}</code><StatusPill status={badgeStatus(status)} />
-                                      <span className="ml-auto text-[11px] text-muted">{type} · {complexity} · {scope}</span>
+                            {tasks.filter((task) => task[1] === sprint.id).map(([id, , title, type, complexity, scope, status]) => {
+                              const open = openTasks.has(id)
+                              const container = PROGRAMME_CONTAINERS[id]
+                              return (
+                                <TiltCard as="li" key={id} id={`task-${id}`} className={`${styles.task} ${open ? styles.taskOpen : ''}`} data-status={status} data-open={open ? 'true' : 'false'}>
+                                  <button
+                                    type="button"
+                                    className={`flex w-full items-start gap-3 p-3 text-left ${styles.taskHead}`}
+                                    onClick={() => toggleTask(id)}
+                                    aria-expanded={open}
+                                    aria-controls={`task-detail-${id}`}
+                                  >
+                                    <span className={styles.taskDot} aria-hidden />
+                                    <span className="min-w-0 flex-1">
+                                      <span className="flex flex-wrap items-center gap-2">
+                                        <code className="text-[11px] font-semibold">{id}</code><StatusPill status={badgeStatus(status)} />
+                                        <span className="ml-auto text-[11px] text-muted">{type} · {complexity} · {scope}</span>
+                                        {container && <span className="text-[11px] text-muted">PIC <b className="text-[var(--text-primary)]">{container.pic}</b> · {container.predictedTokens.toLocaleString()} tok</span>}
+                                        <ChevronDown size={14} className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden />
+                                      </span>
+                                      <span className="mt-1 block text-sm font-semibold">{title}</span>
+                                    </span>
+                                  </button>
+                                  {open && (
+                                    <div id={`task-detail-${id}`}>
+                                      <TaskDetail id={id} status={status} container={container} />
                                     </div>
-                                    <p className="mt-1 text-sm font-semibold">{title}</p>
-                                  </div>
-                                </div>
-                              </TiltCard>
-                            ))}
+                                  )}
+                                </TiltCard>
+                              )
+                            })}
                           </ul>
                         </div>
                       ))}
