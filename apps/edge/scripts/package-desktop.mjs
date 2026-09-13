@@ -27,6 +27,9 @@ export function assemblePackage({edgeRoot,outputDir,nodePath,desktopExe,installD
   fs.copyFileSync(nodePath,path.join(runtime,'node.exe'));
   fs.copyFileSync(desktopExe,path.join(outputDir,'zuri-edge-device.exe'));
   fs.cpSync(path.join(edgeRoot,'dist'),path.join(worker,'dist'),{recursive:true,dereference:false});
+  // Persona folders ride with the worker; without them the packaged worker answers from persona.ts's fallback string.
+  const agents=path.join(edgeRoot,'.agents');
+  if (fs.existsSync(agents)) fs.cpSync(agents,path.join(worker,'.agents'),{recursive:true,dereference:false});
   const pkg=JSON.parse(fs.readFileSync(path.join(edgeRoot,'package.json'),'utf8'));
   delete pkg.scripts;
   fs.writeFileSync(path.join(worker,'package.json'),JSON.stringify(pkg,null,2)+'\n');

@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { activePersonaId, listPersonaOptions, loadPersonaPrompt } from '../../src/answer/persona.js';
+import { activePersonaId, agentsRoot, listPersonaOptions, loadPersonaPrompt } from '../../src/answer/persona.js';
+import os from 'node:os';
 import { ANSWER_RULES, DEFAULT_PERSONA, SYSTEM_PROMPT, answerWithModel } from '../../src/answer/llm.js';
 import type { ModelPort, ModelRequest } from '../../src/answer/model-port.js';
 import type { Catalog } from '../../src/catalog/store.js';
@@ -23,10 +24,49 @@ import { emptyFakeRag } from '../helpers/fake-rag.js';
 
 const AGENTS_ROOT = path.resolve('.agents');
 const ORIGINAL_ENV = process.env.ZURI_ACTIVE_PERSONA;
+const ORIGINAL_ROOTS = { agents: process.env.ZURI_AGENTS_ROOT, pkg: process.env.ZURI_DESKTOP_PACKAGE_ROOT };
+
+const restore = (key: string, value: string | undefined) => {
+  if (value === undefined) delete process.env[key];
+  else process.env[key] = value;
+};
 
 afterEach(() => {
-  if (ORIGINAL_ENV === undefined) delete process.env.ZURI_ACTIVE_PERSONA;
-  else process.env.ZURI_ACTIVE_PERSONA = ORIGINAL_ENV;
+  restore('ZURI_ACTIVE_PERSONA', ORIGINAL_ENV);
+  restore('ZURI_AGENTS_ROOT', ORIGINAL_ROOTS.agents);
+  restore('ZURI_DESKTOP_PACKAGE_ROOT', ORIGINAL_ROOTS.pkg);
+});
+
+describe('where .agents/ is looked for', () => {
+  it('defaults to the working directory', () => {
+    delete process.env.ZURI_AGENTS_ROOT;
+    delete process.env.ZURI_DESKTOP_PACKAGE_ROOT;
+    assert.equal(agentsRoot(), AGENTS_ROOT);
+  });
+
+  it('inside the Desktop package the worker reads worker/.agents, whatever its cwd is', () => {
+    delete process.env.ZURI_AGENTS_ROOT;
+    const pkg = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-pkg-'));
+    fs.mkdirSync(path.join(pkg, 'worker', '.agents', 'packaged-01'), { recursive: true });
+    fs.writeFileSync(path.join(pkg, 'worker', '.agents', 'packaged-01', 'AGENTS.md'), '# Persona: packaged\nhello');
+    process.env.ZURI_DESKTOP_PACKAGE_ROOT = pkg;
+    assert.equal(agentsRoot(), path.join(pkg, 'worker', '.agents'));
+    assert.deepEqual(listPersonaOptions().map((o) => o.id), ['packaged-01'].concat(activePersonaId() === 'packaged-01' ? [] : [activePersonaId()]));
+    assert.equal(loadPersonaPrompt('packaged-01'), '# Persona: packaged\nhello');
+    fs.rmSync(pkg, { recursive: true, force: true });
+  });
+
+  it('a package with no worker/.agents falls back to the working directory rather than nowhere', () => {
+    delete process.env.ZURI_AGENTS_ROOT;
+    process.env.ZURI_DESKTOP_PACKAGE_ROOT = path.join(os.tmpdir(), 'zuri-pkg-does-not-exist');
+    assert.equal(agentsRoot(), AGENTS_ROOT);
+  });
+
+  it('ZURI_AGENTS_ROOT wins over both', () => {
+    process.env.ZURI_DESKTOP_PACKAGE_ROOT = path.join(os.tmpdir(), 'zuri-pkg-ignored');
+    process.env.ZURI_AGENTS_ROOT = path.join(os.tmpdir(), 'my-agents');
+    assert.equal(agentsRoot(), path.join(os.tmpdir(), 'my-agents'));
+  });
 });
 
 describe('persona options come from .agents/', () => {
