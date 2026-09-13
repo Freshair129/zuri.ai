@@ -73,12 +73,25 @@ export const ANSWER_RULES = `กติกาเรื่องตัวเลข
 - ห้ามคำนวณเอง ห้ามประมาณ ห้ามเดา ห้ามจำจากบทสนทนาก่อนหน้าโดยไม่เรียกเครื่องมือใหม่
 - ถ้าเครื่องมือไม่มีข้อมูล ให้บอกตรง ๆ ว่ายังไม่มีข้อมูล อย่าเติมให้ดูสมบูรณ์
 - ราคาที่ตอบไปคือคำมั่นต่อลูกค้า ตัวเลขผิดหนึ่งตัวคือปัญหาจริง
+- จำนวนขั้นต่ำ ขั้นบันไดจำนวน และเบรกราคา ก็เป็นตัวเลขตามกติกานี้ ห้ามยกมาเองจากความจำหรือจากตัวอย่างในบทบาท
+- ถ้าลูกค้าบอกงบแต่ไม่บอกจำนวน ให้ถามกลับสั้น ๆ ว่าต้องการกี่ชุด โดยห้ามยกตัวอย่างจำนวนเป็นตัวเลขในคำถาม (ห้ามเขียนแบบ "เช่น 100 หรือ 200 ชุด") เพราะตัวเลขทุกตัวในคำตอบถูกตรวจว่ามาจากเครื่องมือ
 
 ขอบเขต
 - เรื่องราคา สินค้า งบประมาณ ระยะเวลาผลิตและขนส่ง เงื่อนไขการสั่งซื้อ ให้ใช้เครื่องมือ
 - เรื่องที่อยู่นอกขอบเขตนี้ ให้บอกว่ายังช่วยไม่ได้ และแนะนำให้ถามผู้ดูแล`;
 
-export const SYSTEM_PROMPT = DEFAULT_PERSONA + '\n\n' + ANSWER_RULES;
+/**
+ * Rules first, persona second. Measured on qwen3.5:9b with the 5.7k-char `.agents/zuri-01`
+ * persona: persona-then-rules answered a budget question with invented tier quantities
+ * (100/200/1000) and no tool call on every run, so the number guard discarded the reply and
+ * the job failed; the short built-in persona did not. Leading with the rules is the cheapest
+ * lever and keeps the persona file free to carry example copy.
+ */
+export function composeSystemPrompt(personaPrompt: string): string {
+  return ANSWER_RULES + '\n\n' + personaPrompt;
+}
+
+export const SYSTEM_PROMPT = composeSystemPrompt(DEFAULT_PERSONA);
 
 export const OWNER_NOTE = `
 ผู้ใช้คนนี้เป็นเจ้าของกิจการ จึงเห็นต้นทุน ตัวคูณ และ margin ได้
@@ -314,7 +327,7 @@ export async function answerWithModel(
 
   try {
     const reply = await llm.port.generate({
-      system: personaPrompt + '\n\n' + ANSWER_RULES + (role === 'owner' ? OWNER_NOTE : SALES_NOTE),
+      system: composeSystemPrompt(personaPrompt) + (role === 'owner' ? OWNER_NOTE : SALES_NOTE),
       messages: [
         ...history.map((turn) => ({
           role: turn.role as 'user' | 'assistant',

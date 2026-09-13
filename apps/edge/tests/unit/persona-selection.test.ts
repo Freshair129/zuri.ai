@@ -5,7 +5,7 @@ import path from 'node:path';
 
 import { activePersonaId, agentsRoot, listPersonaOptions, loadPersonaPrompt } from '../../src/answer/persona.js';
 import os from 'node:os';
-import { ANSWER_RULES, DEFAULT_PERSONA, SYSTEM_PROMPT, answerWithModel } from '../../src/answer/llm.js';
+import { ANSWER_RULES, DEFAULT_PERSONA, SYSTEM_PROMPT, answerWithModel, composeSystemPrompt } from '../../src/answer/llm.js';
 import type { ModelPort, ModelRequest } from '../../src/answer/model-port.js';
 import type { Catalog } from '../../src/catalog/store.js';
 import { emptyFakeRag } from '../helpers/fake-rag.js';
@@ -53,6 +53,19 @@ describe('where .agents/ is looked for', () => {
     assert.equal(agentsRoot(), path.join(pkg, 'worker', '.agents'));
     assert.deepEqual(listPersonaOptions().map((o) => o.id), ['packaged-01'].concat(activePersonaId() === 'packaged-01' ? [] : [activePersonaId()]));
     assert.equal(loadPersonaPrompt('packaged-01'), '# Persona: packaged\nhello');
+    fs.rmSync(pkg, { recursive: true, force: true });
+  });
+
+  it('accepts the value desktop-worker.ts really sets: the worker directory itself', () => {
+    // packageRootForWorker() resolves to <package>/worker (the dir holding dist/) and overwrites
+    // the supervisor's value, so the live worker never sees the package directory.
+    delete process.env.ZURI_AGENTS_ROOT;
+    const pkg = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-pkg-'));
+    fs.mkdirSync(path.join(pkg, 'worker', '.agents', 'zuri-01'), { recursive: true });
+    fs.writeFileSync(path.join(pkg, 'worker', '.agents', 'zuri-01', 'AGENTS.md'), '# Persona: packaged');
+    process.env.ZURI_DESKTOP_PACKAGE_ROOT = path.join(pkg, 'worker');
+    assert.equal(agentsRoot(), path.join(pkg, 'worker', '.agents'));
+    assert.equal(loadPersonaPrompt('zuri-01'), '# Persona: packaged');
     fs.rmSync(pkg, { recursive: true, force: true });
   });
 
@@ -119,8 +132,10 @@ describe('the API/Ollama path answers as the selected persona', () => {
   const catalog: Catalog = { products: [], byCode: new Map() };
   const evidence = () => ({ catalog, role: 'sales' as const, exchangeRate: 5, rag: emptyFakeRag() });
 
-  it('SYSTEM_PROMPT is exactly the default persona plus the answer rules', () => {
-    assert.equal(SYSTEM_PROMPT, DEFAULT_PERSONA + '\n\n' + ANSWER_RULES);
+  it('SYSTEM_PROMPT is exactly the answer rules plus the default persona, rules first', () => {
+    assert.equal(SYSTEM_PROMPT, ANSWER_RULES + '\n\n' + DEFAULT_PERSONA);
+    assert.equal(composeSystemPrompt('X'), ANSWER_RULES + '\n\nX');
+    assert.match(ANSWER_RULES, /ขั้นบันไดจำนวน/, 'tier quantities are named as numbers the rule covers');
     assert.match(ANSWER_RULES, /กติกาเรื่องตัวเลข/);
     assert.doesNotMatch(DEFAULT_PERSONA, /กติกาเรื่องตัวเลข/);
   });
@@ -132,14 +147,29 @@ describe('the API/Ollama path answers as the selected persona', () => {
     assert.ok(requests[0].system.startsWith(SYSTEM_PROMPT), 'default = the historical SYSTEM_PROMPT');
   });
 
+  it('the local variant prefers AGENTS.local.md and falls back to AGENTS.md', () => {
+    const full = loadPersonaPrompt('zuri-01', 'full');
+    const local = loadPersonaPrompt('zuri-01', 'local');
+    assert.ok(full.includes('# Persona: Zuri'), 'full = AGENTS.md');
+    assert.ok(local.includes('ฉบับย่อ'), 'local = AGENTS.local.md');
+    assert.ok(local.length < full.length / 2, `local is compact: ${local.length} vs ${full.length}`);
+    assert.ok(!/\*\*\S/.test(local) && !local.includes('|---|'), 'the compact file carries no markdown the persona forbids');
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-agents-'));
+    fs.mkdirSync(path.join(dir, 'only-full'));
+    fs.writeFileSync(path.join(dir, 'only-full', 'AGENTS.md'), '# only full');
+    process.env.ZURI_AGENTS_ROOT = dir;
+    assert.equal(loadPersonaPrompt('only-full', 'local'), '# only full', 'no local file → the full one');
+    fs.rmSync(dir, { recursive: true, force: true });
+  });
+
   it('with the .agents/ persona the identity part is replaced and the number rules survive', async () => {
     const { port, requests } = capture();
     const persona = loadPersonaPrompt('zuri-01');
     assert.ok(persona.includes('# Persona: Zuri'), 'reads the committed AGENTS.md');
     await answerWithModel('ราคาเท่าไร', [], 'sales', evidence(), { port, timeoutMs: 5000, maxIterations: 1 }, 'fallback', persona);
     const system = requests[0].system;
-    assert.ok(system.startsWith(persona), 'persona leads the system prompt');
-    assert.ok(system.includes(ANSWER_RULES), 'numbers-from-tools rules cannot be dropped by a persona file');
+    assert.ok(system.startsWith(ANSWER_RULES), 'the numbers-from-tools rules lead the system prompt');
+    assert.ok(system.includes('\n\n' + persona), 'the persona follows the rules');
     assert.ok(!system.includes(DEFAULT_PERSONA), 'the built-in identity is not sent twice');
   });
 });
