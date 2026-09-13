@@ -488,7 +488,7 @@ button{font:inherit;color:inherit;}
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
           <span class="pill pill-brand">approved</span>
           <span class="pill pill-planned mono">ROADMAP-ZURI-AI-24W-PROGRAM</span>
-          <span class="pill pill-planned mono">v0.4.5</span>
+          <span class="pill pill-planned mono">v0.4.6</span>
           <span class="pill pill-planned">updated 2026-09-13</span>
           <span class="pill pill-planned mono">CR-019</span>
           <span class="pill pill-planned">owner Owen</span>
@@ -678,14 +678,15 @@ button{font:inherit;color:inherit;}
 
 <script>
 /* ==================================================================
-   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.4.5 (CR-019,
+   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.4.6 (CR-019,
    2026-09-13) — the markdown is the source of truth, this array is
    its rendering. Tasks 031–044 were added on the re-baseline,
    045–051 (17-stage knowledge base + file system) the same day,
    052–059 (SmartGift cost & quote engine, v0.4.2) the same day,
    060–063 (data pipeline map, v0.4.3) the same day,
    064–068 (delivery telemetry and task card badges, v0.4.4) the same day,
-   069–072 (Zuri harness usage plugin, v0.4.5) on 2026-09-14.
+   069–072 (Zuri harness usage plugin, v0.4.5) on 2026-09-14,
+   073–075 (plugin specification and usage detail, v0.4.6) the same day.
    ================================================================== */
 const PROGRESS_BY_STATE = { done:100, review:90, "in-progress":50, assigned:25, ready:10, planned:0, blocked:0 };
 
@@ -842,7 +843,7 @@ const PHASES = [
             "Given npm test, when the FR-066 unit suite runs, then onboarding order is asserted, not assumed",
             "ส่งมอบ 27 ส.ค. (ROADMAP.md TASK-FR-066-067) · FR-122 บังคับชื่อ-สกุล-โทรศัพท์ · CR-017 UX correction ติดตามในเลน Asset"]
         ]},
-      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract · นับ knowledge intake + Tier 1 ของ 17-stage ที่สร้างแล้ว · (CR-019) SCM, Marketing, billing/POS, catalog convergence และ identity lifecycle เข้า main · (v0.4.2) เปิด cost & quote engine: decision record + ใบต้นทุนโรงงาน · (v0.4.3) data pipeline registry + node-edge map ใน slot Knowledge (GKS) · (v0.4.4) delivery telemetry บน programme board: การ์ด phase มีตัวเลข, badge หลักฐานบนการ์ด task, usage meter และ endpoint รายงาน token จริง · (v0.4.5) plugin ของ Zuri สำหรับ agent เครื่องอื่น จับคู่เครื่องผ่าน browser",
+      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract · นับ knowledge intake + Tier 1 ของ 17-stage ที่สร้างแล้ว · (CR-019) SCM, Marketing, billing/POS, catalog convergence และ identity lifecycle เข้า main · (v0.4.2) เปิด cost & quote engine: decision record + ใบต้นทุนโรงงาน · (v0.4.3) data pipeline registry + node-edge map ใน slot Knowledge (GKS) · (v0.4.4) delivery telemetry บน programme board: การ์ด phase มีตัวเลข, badge หลักฐานบนการ์ด task, usage meter และ endpoint รายงาน token จริง · (v0.4.5) plugin ของ Zuri สำหรับ agent เครื่องอื่น จับคู่เครื่องผ่าน browser · (v0.4.6) spec ของ plugin และรายละเอียดการใช้งาน: thinking tokens, tool call, prompt, compaction",
         exit:"pipeline รายงานได้ทุก stage, memory contract ผ่านการรีวิว, ไฟล์ที่รับเข้า Stage 1 ไปถึง Stage 8 พร้อม lineage ใต้เทสต์ และทุกเลนมี migration เขียนแล้ว",
         tasks:[
           ["TASK-ZAI-004","TSK-ZAI004","Workspace collaboration boundary and scoped invites, FR-067","FR","C-3","H3","done","Codex","TASK-ZAI-003","apps/server/src/modules/identity/access-invite-service.js","docs/PRD-SDD-v1.0.md","unavailable",40000,
@@ -974,7 +975,22 @@ const PHASES = [
             "Given the plugin installed from the repository's marketplace entry, when a person runs pair, then the browser approval opens with the device label and check code, the credential is stored in the user's own configuration outside any repository, and whoami shows the paired person and device at the start of every session",
             "Given a Claude Code session that ends or a Codex session wrapped by the plugin, when it finishes, then the plugin reads that session's own log, counts each request once with the same parsers the meter uses, sends one report per branch the session worked on, and keeps an unsent report in a local queue that is retried later rather than lost",
             "Given npm test, when the plugin suites run, then hook input, branch split, queue retry, a refused credential and parser parity against the meter fixtures pass, and the plugin never reads a browser cookie or a zuri-ai password",
-            "(v0.4.5) plugin อยู่ใน repo นี้พร้อม marketplace entry · ใช้ hook SessionEnd ไม่ใช่ Stop เพื่อไม่ยิงทุก turn · Codex ใช้ wrapper หลังจบ session · คิว offline ส่งซ้ำภายหลัง · parser เดียวกับ meter"]
+            "(v0.4.5) plugin อยู่ใน repo นี้พร้อม marketplace entry · ใช้ hook SessionEnd ไม่ใช่ Stop เพื่อไม่ยิงทุก turn · Codex ใช้ wrapper หลังจบ session · คิว offline ส่งซ้ำภายหลัง · parser เดียวกับ meter"],
+          ["TASK-ZAI-073","TSK-ZAI073","Zuri harness plugin specification — one document for the CLI, hook input, configuration and queue formats, pairing state machine, counting rules, keep-or-drop rules per response, Codex wrapper, log-format compatibility, versioning and privacy, each rule linked to the test that proves it","NFR","C-2","H2","planned","Claude","TASK-ZAI-072","plugins/zuri-harness/bin/zuri-harness.mjs","docs/decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md","apps/server/tests/unit/zuri-harness-plugin.test.js",30000,
+            "Given a reader with only the specification, when they implement a compatible reporter, then every command, flag, exit code, hook input field, configuration and queue file shape, request body and the response each HTTP status gets is stated, and the pairing and reporting flows are drawn",
+            "Given each counting and attribution rule in the specification, when it is read, then it names the test that proves it, and the rules match the meter and the plugin exactly as they run, including the new usage detail",
+            "Given npm run govern, when it runs, then the specification is in the graph with no CRITICAL, and ADR-087, the plugin README and the API appendix point to it",
+            "(v0.4.6) ตามคำสั่ง owner — ยังไม่มี spec แยกของ plugin · สิ่งที่ไม่มีเขียนไว้เลย: รูปแบบ CLI, input ของ hook, schema ของ config และคิว, กติกา keep/drop, state machine ของ pairing, การรับมือเมื่อรูปแบบ log เปลี่ยน, นโยบาย version"],
+          ["TASK-ZAI-074","TSK-ZAI074","Agent usage detail capture — thinking and reasoning tokens, cache writes by lifetime, tool calls by name with errors and denials, web search and fetch, user prompts, compactions and errors, measured by the meter and the plugin with parity, carried by the report endpoint and stored for each lane, person and device","FR","C-3","H3","planned","Claude","TASK-ZAI-072","apps/server/scripts/programme-usage-meter.mjs","docs/decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md","apps/server/tests/unit/programme-usage-meter.test.js",64000,
+            "Given a Claude Code or Codex session log, when the meter or the plugin reads it, then each session's thinking or reasoning tokens, cache writes by lifetime, tool calls by tool name with results, errors and denials, web search and fetch requests, user prompts, compactions and API errors are counted once, with only names and numbers kept and no prompt, response, argument or output text",
+            "Given a report carrying the detail, when the endpoint stores it, then the counts are validated and kept with the report, a resumed session extends only when every count including the detail grows, and an older plugin that sends no detail is still accepted",
+            "Given npm test, when the meter, plugin and report suites run, then detail parity between the meter and the plugin, the privacy rule, extension with detail and the migration in both trees pass; applying the migration on production stays a separate step (ADR-057)",
+            "(v0.4.6) สำรวจ log แล้วเก็บได้: thinking/reasoning tokens, cache write แยก 5 นาที/1 ชั่วโมง, tool call ตามชื่อพร้อม error/ถูกปฏิเสธ, web search/fetch, จำนวน prompt, compaction, API error, model · เก็บแค่ชื่อกับตัวเลข ไม่เก็บข้อความ"],
+          ["TASK-ZAI-075","TSK-ZAI075","Usage detail on the programme board — phase and task telemetry show input, output, thinking and cache tokens separately, tool calls with the most used tools and the error rate, prompts and compactions, per lane, person and device","FR","C-2","H2","planned","Claude","TASK-ZAI-074","apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx","docs/roadmap/ROADMAP-zuri-ai-24w-program.md","apps/server/tests/unit/program-roadmap-board-telemetry.test.js",36000,
+            "Given a phase with measured lanes, when its card renders, then input, output, thinking and cache tokens are shown as separate figures, with tool calls, error rate, prompts and compactions beside them, and a lane with no detail says so rather than showing zero",
+            "Given a task opened on the board, when its lane has detail, then the most used tools with counts, the error and denial counts, and the per person and per device split are listed",
+            "Given npm test and the roadmap e2e, when they run, then aggregation of detail across lanes and reports, the empty-detail state and the rendered figures are asserted and the page builds clean",
+            "(v0.4.6) แยก input / output / thinking / cache บนการ์ด · tool ที่ใช้มากสุด + อัตรา error · จำนวน prompt และ compaction · แยกตามคนและ device"]
         ]}
     ]
   },
@@ -1327,7 +1343,10 @@ const DOD_CHECKS = {
   "TASK-ZAI-069": [1,1,1],
   "TASK-ZAI-070": [1,1,1],
   "TASK-ZAI-071": [1,1,1],
-  "TASK-ZAI-072": [1,1,1]
+  "TASK-ZAI-072": [1,1,1],
+  "TASK-ZAI-073": [0,0,0],
+  "TASK-ZAI-074": [0,0,0],
+  "TASK-ZAI-075": [0,0,0]
 };
 
 /* ---------------------- theme ---------------------- */

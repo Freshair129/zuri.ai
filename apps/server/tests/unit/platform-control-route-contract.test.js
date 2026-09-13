@@ -38,7 +38,8 @@ describe('Platform Programme Roadmap route contract', () => {
     // Phases and sprints are unchanged on purpose — the proposal's six bands still line up.
     // v0.4.4 (same day): 63 → 68 tasks for delivery telemetry and task card badges (TASK-ZAI-064 to 068).
     // v0.4.5 (2026-09-14): 68 → 72 tasks for the Zuri harness usage plugin (TASK-ZAI-069 to 072).
-    expect(PROGRAMME_TASKS).toHaveLength(72)
+    // v0.4.6 (2026-09-14): 72 → 75 tasks for the plugin specification and agent usage detail (TASK-ZAI-073 to 075).
+    expect(PROGRAMME_TASKS).toHaveLength(75)
     expect(PROGRAMME_GATES).toHaveLength(9)
     expect(PROGRAMME_DELIVERABLES).toHaveLength(11)
   })
