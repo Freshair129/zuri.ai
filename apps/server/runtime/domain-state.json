@@ -3740,7 +3740,7 @@
         {
           "id": "FR-239",
           "title": "Agent usage detail capture",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 1,
           "testCount": 4
@@ -3748,7 +3748,7 @@
         {
           "id": "FR-240",
           "title": "Usage detail on the programme board",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 2,
           "testCount": 6
