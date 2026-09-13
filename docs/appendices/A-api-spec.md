@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.70.0b |
+| **Version** | 1.71.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-14 |
 
@@ -47,6 +47,8 @@ ADR-087. A Claude Code or Codex installation pairs like an Edge Device; its cred
 | GET | `/api/platform/programme-usage-reports/whoami` | implemented (FR-220): the only read a harness credential allows — `{ installationId, personDisplayName, deviceLabel, harness, status }` of that credential | `401 HARNESS_CREDENTIAL_REQUIRED`; `503` |
 
 `POST /api/platform/programme-usage-reports` (FR-221) also accepts an active harness credential: the report stores the credential's person and installation, `branch` (key `(source, sessionId, branch)`), optional `repository` and `aiAccount` label, and `taskCode` becomes optional when a branch is named; a resumed session from the same installation whose counts only grow answers `200 { extended: true }` (audited `EXTENDED`); a pending device answers `403 HARNESS_NOT_ACTIVATED` and an unknown or revoked one `401 HARNESS_CREDENTIAL_REQUIRED`.
+
+FR-239 (ADR-086 D7): the body may also carry an optional, strict `detail` object — `reasoningTokens`, `cacheWrite5mTokens`, `cacheWrite1hTokens`, `webSearchRequests`, `webFetchRequests`, `prompts`, `toolCalls`, `toolErrors`, `toolDenials`, `compactions`, `apiErrors` (integers), `tools` (≤ 300 names matching `^[\w.:@/-]{1,120}$`, each `{ calls, errors }`) and `models` (≤ 30 names, each a request count); any other key is `400 USAGE_REPORT_INVALID`, so no text can be stored. The detail is part of the replay digest (a report without it digests as before) and every headline count must also grow for a resumed session to extend. Full contract: [Zuri harness plugin specification](../ZURI-HARNESS-PLUGIN-SPEC.md) §6–7.
 
 ### Desktop browser/QR pairing (FR-144, 2026-09-08)
 
@@ -979,3 +981,5 @@ Version diff 1.67.0b → 1.68.0b (2026-09-13): add `POST /api/platform/programme
 Version diff 1.68.0b → 1.69.0b (2026-09-14): add the six FR-220 harness pairing, device and whoami handlers and the FR-221 attribution contract on the usage report endpoint (ADR-087); handler count 264 → 270.
 
 Version diff 1.69.0b → 1.70.0b (2026-09-14): no route added or changed; record that the MFA factor secret is sealed at rest (SEC-029, ADR-088) and the two 503 refusals that follow from a missing key or an unopenable factor. Handler count unchanged.
+
+Version diff 1.70.0b → 1.71.0b (2026-09-14): FR-239 optional `detail` object on `POST /api/platform/programme-usage-reports` (ADR-086 D7); no new handler.

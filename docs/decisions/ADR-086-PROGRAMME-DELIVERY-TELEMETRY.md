@@ -1,5 +1,5 @@
 ---
-version: "1.1.0"
+version: "1.2.0"
 created_at: "2026-09-13T23:45:00+07:00,Claude Opus 5"
 last_update: "2026-09-13T23:45:00+07:00,Claude Opus 5"
 status: "accepted"
@@ -164,6 +164,30 @@ the board's status mapping. A task without subtasks shows no bar.
 **Card tint.** Done cards (phase, sprint and task) are tinted light green and
 review cards light orange in both themes, and the status word stays on the card.
 
+### D7 — Usage detail: every countable thing, names and numbers only (added 2026-09-14)
+
+On the owner's instruction to capture everything the agent logs can measure — especially input and output tokens and tool calling — the meter and the harness plugin also count, per session and branch:
+
+| Detail | Claude Code source | Codex source |
+|---|---|---|
+| Thinking / reasoning tokens (part of output) | `usage.output_tokens_details.thinking_tokens` | `usage.reasoning_output_tokens` |
+| Cache writes by lifetime | `usage.cache_creation.ephemeral_5m_input_tokens` / `ephemeral_1h_input_tokens` | not reported (0) |
+| Web search and fetch requests | `usage.server_tool_use.web_search_requests` / `web_fetch_requests` | not reported (0) |
+| Tool calls by name | `tool_use` content blocks, once per block id | `function_call`, `custom_tool_call`, `local_shell_call` items, once per call id |
+| Tool errors | `tool_result` blocks with `is_error`, once per tool use id | not reported (0) |
+| Tool denials | user lines carrying `toolDenialKind` | not reported (0) |
+| User prompts | user lines whose content is text, excluding meta and compact summaries | `task_started` events |
+| Compactions | `system` lines with subtype `compact_boundary` | `compacted` items |
+| API errors | `system` lines with subtype `api_error` | not reported (0) |
+| Requests per model | `message.model` of each counted request | `turn_context.model` in force |
+
+Two rules bind every field:
+
+- **Privacy.** Only numbers, tool names and model names are kept. Prompt, response, thinking, tool argument and tool output text is never read into the result, reported, stored or shown. A tool name can reveal which connector an agent used; the board is operator-only (ADR-048 D2).
+- **One counting rule set.** The meter and the plugin must agree field for field, proven by a parity test. A field a harness does not write is 0, never estimated.
+
+The report endpoint accepts the detail as an optional object, so an older plugin that sends none is still accepted. A resumed session extends only when every count, including the detail, grows (ADR-087 D5).
+
 ## Consequences
 
 - The board can answer "what did this phase really cost" for work done in
@@ -200,3 +224,4 @@ machine.
 |---|---|---|---|---|---|
 | 1.0.0 | 2026-09-13 | accepted | Measured delivery telemetry beside the plan: sizing table, lanes by branch, local usage meter, usage report endpoint with `ProgrammeUsageReport`, evidence badges and subtask progress | working-tree | Claude Opus 5 |
 | 1.1.0 | 2026-09-14 | accepted | D5 amended by ADR-087: the deployment bearer is for automation; people's agents report through paired devices | working-tree | Claude Opus 5 |
+| 1.2.0 | 2026-09-14 | accepted | D7 added: usage detail (thinking tokens, cache lifetimes, web search and fetch, tool calls, errors and denials, prompts, compactions, API errors, models), names and numbers only, with meter–plugin parity | working-tree | Claude Opus 5 |

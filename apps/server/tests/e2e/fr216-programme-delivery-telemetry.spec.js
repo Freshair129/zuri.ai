@@ -8,6 +8,7 @@ const { E2E_PASSWORD } = require('./e2e-auth')
 //   measured row, and done/review cards carry their tint.
 // @req FR-219 — task cards show evidence badges and a subtask progress bar.
 // @req FR-218 — a report posted without the deployment bearer is refused.
+// @req FR-240 — the phase card's detail row shows the token split and tool calls.
 // @spec ADR-086 D1, D5, D6; ADR-048 D2
 // @tested tests/e2e/fr216-programme-delivery-telemetry.spec.js
 const prisma = new PrismaClient({ datasources: { db: { url: e2eTarget().databaseUrl } } })
@@ -36,6 +37,11 @@ test('an operator reads phase delivery metrics, task badges and subtask progress
   await expect(phase01).toContainText('28')
   await expect(phase01).toContainText('ชม. effort')
   await expect(phase01).toContainText('วัดจริง')
+  // FR-240: the detail row splits tokens and shows tool calls for the measured lanes.
+  const detail01 = page.getByTestId('phase-detail-PHASE-ZAI-01')
+  await expect(detail01).toHaveAttribute('data-detail', 'true')
+  await expect(detail01).toContainText('thinking')
+  await expect(detail01).toContainText('tool call')
   // A phase no lane touches says so instead of showing zero.
   await expect(page.getByTestId('phase-metrics-PHASE-ZAI-06')).toContainText('ยังไม่วัด')
 

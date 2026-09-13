@@ -4735,6 +4735,14 @@ model ProgrammeUsageReport {
   reportedAt       DateTime  @default(now())
   // @req FR-221 — set when a resumed session's report was extended (ADR-087 D5).
   extendedAt       DateTime?
+  // @req FR-239 — usage detail headline counts, and the whole detail as canonical
+  // JSON (tool names with calls and errors, models, cache lifetimes, web search and
+  // fetch, denials, compactions, API errors). Names and numbers only (ADR-086 D7).
+  reasoningTokens  Int       @default(0)
+  toolCallCount    Int       @default(0)
+  toolErrorCount   Int       @default(0)
+  promptCount      Int       @default(0)
+  detailJson       String?
 
   @@unique([source, sessionId, branch])
   @@index([taskCode])

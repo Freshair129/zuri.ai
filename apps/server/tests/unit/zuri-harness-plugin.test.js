@@ -167,7 +167,8 @@ describe('FR-222 branch split', () => {
     const [summary] = summariseByBranch([parseClaudeLine(claudeLine())], { gapCapMinutes: 15 })
     const body = toReportBody(summary, { repository: 'Freshair129/zuri.ai', aiAccount: 'acct-1' })
     expect(Object.keys(body).sort()).toEqual(
-      ['activeMinutes', 'aiAccount', 'branch', 'cacheReadTokens', 'cacheWriteTokens', 'endedAt', 'inputTokens', 'model', 'outputTokens', 'repository', 'requestCount', 'sessionId', 'source', 'startedAt'].sort(),
+      // FR-239: a summary with any usage detail (here, requests per model) carries it too.
+      ['activeMinutes', 'aiAccount', 'branch', 'cacheReadTokens', 'cacheWriteTokens', 'detail', 'endedAt', 'inputTokens', 'model', 'outputTokens', 'repository', 'requestCount', 'sessionId', 'source', 'startedAt'].sort(),
     )
     expect(body.source).toBe('claude-code')
     expect(body.branch).toBe('feat/a')

@@ -409,7 +409,7 @@ Week numbers map to the calendar in section 5.4. W1 begins Mon 2026-08-24.
 
 | Phase | Weeks | Dates | Goal | Governing SoT | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
-| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2); (v0.4.7) bind the LINE OA platform plan to lanes before its work starts | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, the cost and quote decision record is written, the data pipeline map renders every confirmed chain (v0.4.3), and the board shows measured time and tokens for done work (v0.4.4) | in-progress | 78 |
+| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2); (v0.4.7) bind the LINE OA platform plan to lanes before its work starts | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, the cost and quote decision record is written, the data pipeline map renders every confirmed chain (v0.4.3), and the board shows measured time and tokens for done work (v0.4.4) | in-progress | 85 |
 | PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; give the seventeen-stage pipeline its knowledge base and file system on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one; (v0.4.7) a Business owner connects a LINE OA from the browser through a write-only credential vault, and the LINE chat record is complete with declared retention | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; a real document is admitted, parsed, published and cited on production; GATE-ZAI-09's migration ledger matches; one production LINE OA account runs on server transport from a vault credential its owner entered, with no operator file (v0.4.7) | planned | 0 |
 | PHASE-ZAI-03 | 9-12 | 2026-10-19 to 2026-11-15 | Second business, cross-business analytics, first workflows and connectors; deliverable 11 accepted for Business one; (v0.4.7) one Context Composer for every LINE prompt, LINE answers grounded by the published corpus, reviewed knowledge candidates, and memory policy with erasure beyond Tier 1 once MSP can hold and erase it | `docs/ARCHITECTURE.md` | GATE-ZAI-04 and GATE-ZAI-07 are met for connectors one and two and workflows one and two; GATE-ZAI-09 is met; a SmartGift LINE answer cites the published corpus in the isolated harness with zero cross-tenant leakage (v0.4.7) | planned | 0 |
 | PHASE-ZAI-04 | 13-16 | 2026-11-16 to 2026-12-13 | Visual Office 2.5D and the agent activity experience | `docs/UI-DESIGN-SYSTEM.md` | GATE-ZAI-01 is met | planned | 0 |
@@ -430,7 +430,7 @@ locates the week.
 | Sprint | Parent ID | Weeks | Dates | Goal | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
 | SPR-ZAI-01 | PHASE-ZAI-01 | 1-2 | 08-24 to 09-06 | Close identity, session and authorization to production standard; (CR-019) Inventory, Sales Tasks, Commerce, Procurement, Asset Management and LINE OA Studio lanes land | A request without a trusted session reaches no mutating route, proven by test; each lane merged with tests | in-progress | 93 |
-| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake; (v0.4.3) the data pipeline registry and its node-edge map land under a Knowledge (GKS) slot; (v0.4.4) delivery telemetry on the programme board: phase card metrics, task card evidence badges with subtask progress, a usage meter over local session logs and a usage report endpoint; (v0.4.5) the Zuri harness usage plugin with browser-approved device pairing; (v0.4.6) the plugin specification and agent usage detail — thinking tokens, tool calls, prompts and compactions; (v0.4.7) the LINE OA platform plan registered with its lanes before work starts | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, supplier cost sheets land with a locked FX rate, and the map shows every inbound source, outbound recipient and combine chain with its surface level, a done task shows tokens measured from a named source, every task card shows its evidence badges, a paired agent on another machine reports its sessions (v0.4.5), and the board shows tool calls and token types per lane and person (v0.4.6) | in-progress | 73 |
+| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake; (v0.4.3) the data pipeline registry and its node-edge map land under a Knowledge (GKS) slot; (v0.4.4) delivery telemetry on the programme board: phase card metrics, task card evidence badges with subtask progress, a usage meter over local session logs and a usage report endpoint; (v0.4.5) the Zuri harness usage plugin with browser-approved device pairing; (v0.4.6) the plugin specification and agent usage detail — thinking tokens, tool calls, prompts and compactions; (v0.4.7) the LINE OA platform plan registered with its lanes before work starts | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, supplier cost sheets land with a locked FX rate, and the map shows every inbound source, outbound recipient and combine chain with its surface level, a done task shows tokens measured from a named source, every task card shows its evidence badges, a paired agent on another machine reports its sessions (v0.4.5), and the board shows tool calls and token types per lane and person (v0.4.6) | in-progress | 83 |
 | SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; stand up the knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending deliverable-11 migration on production; pricing rule set, the shared pricing engine and quotations; live pipeline health on the data pipeline map; (v0.4.7) the Integration credential vault with Supabase Vault and envelope stores, the LINE channel claim and channel-admin port, and the AAL2 credential-write gate | Each role resolves distinct tools, policy and memory partition; a PDF uploaded in the console is published as a cited corpus on production; the migration ledger matches the tree; a quote and the FR-181 tool price the same SKU to the same satang; a failed run is visible on its map edge for its own Business only; ADR-089 proofs 1 to 6 pass on both stores and a real test channel is validated in a dev deployment with no production migration applied (v0.4.7) | planned | 0 |
 | SPR-ZAI-04 | PHASE-ZAI-02 | 7-8 | 10-05 to 10-18 | Approval Gateway L1 to L4 with verification, notification and Mission Control binding; ladder quotation on LINE and knowledge structured records; (v0.4.7) the self-serve LINE OA wizard with automatic webhook registration and derived quiescence, the first production account moved off the mount, and the complete chat record with retention sweep and inbox search | An L4 action cannot execute without four recorded approvals; a LINE quotation request is answered from the shared engine with no margin in the payload; one production LINE OA account runs on server transport from a credential its owner entered, and non-text LINE events appear in the inbox (v0.4.7) | planned | 0 |
 | SPR-ZAI-05 | PHASE-ZAI-03 | 9-10 | 10-19 to 11-01 | Standard business template and Business number two onboarding; (v0.4.7) the Context Composer, and LINE grounding from the published corpus with its isolated acceptance | Business two is live and isolated from SmartGift under test; every LINE prompt carries one ContextReceipt and a grounded answer cites the corpus in the four-process harness (v0.4.7) | planned | 0 |
@@ -518,9 +518,9 @@ locates the week.
 | TASK-ZAI-070 | SPR-ZAI-02 | task | Harness device pairing and report-only credential — start, browser approval with a check code and poll as in FR-144, one hashed credential per installation scoped to usage reporting with a device label, and an operator list of paired devices with revoke | P0 | Claude | review | TASK-ZAI-069 | Section 3.1 row 2; FR-144; FR-123; SEC-025; ADR-057 |
 | TASK-ZAI-071 | SPR-ZAI-02 | task | Usage reports attributed to person, device and lane — the report endpoint accepts the harness credential, derives the lane from the reported branch on the server, extends a resumed session whose counts only grow, and the board breaks lane usage down by person and shows unattributed reports | P0 | Claude | review | TASK-ZAI-070 | Section 3.1 row 2; FR-218; FR-216; ADR-086 D3 |
 | TASK-ZAI-072 | SPR-ZAI-02 | task | Zuri harness plugin for Claude Code and Codex — pair, whoami and unpair commands, a SessionEnd hook and a Codex wrapper that report each finished session split by branch, an offline retry queue, a marketplace entry, and parser parity with the usage meter | P0 | Claude | review | TASK-ZAI-070; TASK-ZAI-071 | Section 3.1 row 2; FR-217; FR-123; ADR-052 |
-| TASK-ZAI-073 | SPR-ZAI-02 | task | Zuri harness plugin specification — one document for the CLI, hook input, configuration and queue formats, pairing state machine, counting rules, keep-or-drop rules per response, Codex wrapper, log-format compatibility, versioning and privacy, each rule linked to the test that proves it | P0 | Claude | planned | TASK-ZAI-072 | Section 3.1 row 2; ADR-087; FR-220; FR-221; FR-222 |
-| TASK-ZAI-074 | SPR-ZAI-02 | task | Agent usage detail capture — thinking and reasoning tokens, cache writes by lifetime, tool calls by name with errors and denials, web search and fetch, user prompts, compactions and errors, measured by the meter and the plugin with parity, carried by the report endpoint and stored for each lane, person and device | P0 | Claude | planned | TASK-ZAI-072 | Section 3.1 row 2; FR-217; FR-221; FR-222; ADR-086 D4 |
-| TASK-ZAI-075 | SPR-ZAI-02 | task | Usage detail on the programme board — phase and task telemetry show input, output, thinking and cache tokens separately, tool calls with the most used tools and the error rate, prompts and compactions, per lane, person and device | P1 | Claude | planned | TASK-ZAI-074 | Section 3.1 row 2; FR-216; FR-221; NFR-008 |
+| TASK-ZAI-073 | SPR-ZAI-02 | task | Zuri harness plugin specification — one document for the CLI, hook input, configuration and queue formats, pairing state machine, counting rules, keep-or-drop rules per response, Codex wrapper, log-format compatibility, versioning and privacy, each rule linked to the test that proves it | P0 | Claude | done | TASK-ZAI-072 | Section 3.1 row 2; ADR-087; FR-220; FR-221; FR-222 |
+| TASK-ZAI-074 | SPR-ZAI-02 | task | Agent usage detail capture — thinking and reasoning tokens, cache writes by lifetime, tool calls by name with errors and denials, web search and fetch, user prompts, compactions and errors, measured by the meter and the plugin with parity, carried by the report endpoint and stored for each lane, person and device | P0 | Claude | done | TASK-ZAI-072 | Section 3.1 row 2; FR-217; FR-221; FR-222; ADR-086 D4 |
+| TASK-ZAI-075 | SPR-ZAI-02 | task | Usage detail on the programme board — phase and task telemetry show input, output, thinking and cache tokens separately, tool calls with the most used tools and the error rate, prompts and compactions, per lane, person and device | P1 | Claude | done | TASK-ZAI-074 | Section 3.1 row 2; FR-216; FR-221; NFR-008 |
 | TASK-ZAI-076 | SPR-ZAI-02 | task | LINE OA platform decision record — ADR-089 credential vault and self-serve onboarding, ADR-090 GKS grounding and reviewed candidates, ADR-091 chat record, memory tiers and the Context Composer, with FR-223 to FR-238, SEC-030 to SEC-032, SDD-097 to SDD-100 and FEAT-036 to FEAT-038 declared | P0 | Claude | done | - | Section 3.1 rows 4 and 8; ADR-089; ADR-090; ADR-091 |
 | TASK-ZAI-077 | SPR-ZAI-02 | task | LINE OA platform delivery plan — every phase of ADR-089 to ADR-091 registered as sized tasks with acceptance criteria, lanes bound to branches before work starts, the usage-detail capture of TASK-ZAI-074 and TASK-ZAI-075 named as the measurement prerequisite, the Project Manager import path stated, and the usage meter run | P0 | Claude | in-progress | TASK-ZAI-076 | Section 3.1 rows 2, 4 and 8; ADR-086 D3; ADR-089; ADR-090; ADR-091 |
 | TASK-ZAI-078 | SPR-ZAI-03 | task | Integration credential vault — a SecretStorePort with the Supabase Vault and envelope stores, a dispatching secret manager by reference prefix, versioned write, activate, rotate, revoke and resolve with compensation and re-entry status, and design migrations 1, 3 and 4 — FR-223, SEC-030, SDD-097 | P0 | Claude | planned | TASK-ZAI-077; TASK-ZAI-074; TASK-ZAI-075 | Section 3.1 row 8; ADR-089 D1, D2, D5 |
@@ -3880,28 +3880,28 @@ title: Zuri harness plugin specification — one document for the CLI, hook inpu
 requirement_type: NFR
 complexity: C-2
 access_scope: H2
-status: planned
-version: 0.1.0
+status: done
+version: 1.0.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
   code: plugins/zuri-harness/bin/zuri-harness.mjs
-  doc: docs/decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md
-  test: apps/server/tests/unit/zuri-harness-plugin.test.js
+  doc: docs/ZURI-HARNESS-PLUGIN-SPEC.md
+  test: apps/server/tests/unit/usage-detail.test.js
 delivers: []
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a reader with only the specification, when they implement a compatible reporter, then every command, flag, exit code, hook input field, configuration and queue file shape, request body and the response each HTTP status gets is stated, and the pairing and reporting flows are drawn
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given each counting and attribution rule in the specification, when it is read, then it names the test that proves it, and the rules match the meter and the plugin exactly as they run, including the new usage detail
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm run govern, when it runs, then the specification is in the graph with no CRITICAL, and ADR-087, the plugin README and the API appendix point to it
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text.
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text. Written 2026-09-14: docs/ZURI-HARNESS-PLUGIN-SPEC.md — parts, pairing and reporting flows, CLI with flags and exit codes, hooks and wrapper, config and queue formats with keep/drop rules, report body and server rules, counting rules including usage detail, privacy, compatibility, versioning and known limits, each rule linked to its test; ADR-087, the plugin README and Appendix A point to it. Review, not done: not merged. Closed 2026-09-14: merged in #393 (main daca80fb), deployed as zuri-ai-web:release-daca80fb; migration 20260914120000_usage_detail applied on production after a rolled-back dry run.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -3925,38 +3925,38 @@ title: Agent usage detail capture — thinking and reasoning tokens, cache write
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: done
+version: 1.0.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/scripts/programme-usage-meter.mjs
+  code: plugins/zuri-harness/lib/detail.mjs
   doc: docs/decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md
-  test: apps/server/tests/unit/programme-usage-meter.test.js
-delivers: []
+  test: apps/server/tests/unit/usage-detail.test.js
+delivers: [FR-239, FEAT-039]
 subtasks:
   - id: P0
     title: Detail counting in the meter and the plugin with parity
-    status: planned
+    status: done
   - id: P1
     title: Report schema, storage columns and migration, extension rule
-    status: planned
+    status: done
   - id: P2
     title: Privacy rule and compatibility with plugins that send no detail
-    status: planned
+    status: done
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a Claude Code or Codex session log, when the meter or the plugin reads it, then each session's thinking or reasoning tokens, cache writes by lifetime, tool calls by tool name with results, errors and denials, web search and fetch requests, user prompts, compactions and API errors are counted once, with only names and numbers kept and no prompt, response, argument or output text
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a report carrying the detail, when the endpoint stores it, then the counts are validated and kept with the report, a resumed session extends only when every count including the detail grows, and an older plugin that sends no detail is still accepted
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the meter, plugin and report suites run, then detail parity between the meter and the plugin, the privacy rule, extension with detail and the migration in both trees pass; applying the migration on production stays a separate step (ADR-057)
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text.
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text. Implemented locally 2026-09-14 (FR-239, ADR-086 D7): plugins/zuri-harness/lib/detail.mjs is the one rule set, imported by both the plugin and the meter; the report endpoint accepts a strict optional detail stored as headline columns plus canonical JSON; migration 20260914120000_usage_detail written in both trees and NOT applied; first real meter run with detail recorded in the usage block. Review, not done: not merged, migration not applied. Closed 2026-09-14: merged in #393 (main daca80fb), deployed as zuri-ai-web:release-daca80fb; migration 20260914120000_usage_detail applied on production after a rolled-back dry run.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -3980,35 +3980,35 @@ title: Usage detail on the programme board — phase and task telemetry show inp
 requirement_type: FR
 complexity: C-2
 access_scope: H2
-status: planned
-version: 0.1.0
+status: done
+version: 1.0.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx
+  code: apps/server/src/modules/platform-control/program-delivery-metrics.js
   doc: docs/roadmap/ROADMAP-zuri-ai-24w-program.md
-  test: apps/server/tests/unit/program-roadmap-board-telemetry.test.js
-delivers: []
+  test: apps/server/tests/unit/usage-detail.test.js
+delivers: [FR-240, FEAT-039]
 subtasks:
   - id: P0
     title: Phase card token split, tool calls, prompts and compactions
-    status: planned
+    status: done
   - id: P1
     title: Task detail top tools, errors and denials per person and device
-    status: planned
+    status: done
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a phase with measured lanes, when its card renders, then input, output, thinking and cache tokens are shown as separate figures, with tool calls, error rate, prompts and compactions beside them, and a lane with no detail says so rather than showing zero
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a task opened on the board, when its lane has detail, then the most used tools with counts, the error and denial counts, and the per person and per device split are listed
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test and the roadmap e2e, when they run, then aggregation of detail across lanes and reports, the empty-detail state and the rendered figures are asserted and the page builds clean
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text.
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text. Implemented locally 2026-09-14 (FR-240): phase cards show input, output, thinking and cache tokens separately with tool calls and error rate, prompts and compactions, or say no detail exists; task telemetry lists the most used tools, errors, denials and models. Review, not done: not merged. Closed 2026-09-14: merged in #393 (main daca80fb), deployed as zuri-ai-web:release-daca80fb; migration 20260914120000_usage_detail applied on production after a rolled-back dry run.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -4025,8 +4025,8 @@ Containers 076 to 103 were opened on 2026-09-14 (v0.4.7), before any implementat
 owner's instruction that the whole LINE OA platform plan (ADR-089, ADR-090, ADR-091) be on the
 roadmap and in the Project Manager with tasks and lanes bound, so that every later session is
 measured. The detail of that measurement (token types, tool calls by name with errors and denials,
-prompts and compactions) is TASK-ZAI-074 and TASK-ZAI-075 of v0.4.6, which the first build task of
-each chain depends on. The phase numbers in the titles and changelogs are the ADRs' shared delivery
+prompts and compactions) is TASK-ZAI-074 and TASK-ZAI-075 of v0.4.6, delivered by PR #393 and closed by #394;
+the first build task of each chain still names them as dependencies. The phase numbers in the titles and changelogs are the ADRs' shared delivery
 phases (0 to 7), not the programme's PHASE-ZAI ids. They sit under deliverables 4 and 8, which the
 proposal already names, so no Change Request is needed.
 
@@ -4105,9 +4105,9 @@ definition_of_done:
     - criterion: Given the Delivery Telemetry section, when the lanes are declared, then each delivery phase from 1 to 6 has one lane naming its branch and Phase 0 one lane naming both documentation branches, the generator accepts them (one programme phase per lane, one lane per branch, never main), and the section says how a session must run to be measured
       checked: false
   exit_criteria:
-    - criterion: Given npm run govern and the programme container check on the plan branch stacked on PR #390, when they run, then both exit zero; the pull request is opened, marked to merge after #390, and left for the owner to merge
+    - criterion: Given npm run govern and the programme container check on the plan branch merged with main, when they run, then both exit zero; the pull request is opened and left for the owner to merge
       checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. PR #390's TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) are the measurement-detail prerequisite; this plan does not redefine them. No Change Request is needed: every task sits under deliverables the proposal already names (4 Second Brain, 8 connectors), as 0.4.1 to 0.4.6 did. First written as v0.4.6 with its own tool-call lane (TASK-ZAI-073 to 076); renumbered to v0.4.7 and TASK-ZAI-076 to 103 on the coordinator's instruction the same day, because PR #390 (opened earlier) claims v0.4.6 and TASK-ZAI-073 to 075 for the same measurement goal. The usage meter was run with --write on the plan branch; this planning session ran with the primary checkout on main as its working directory, so its requests are unattributed — the finding written into the Delivery Telemetry section.
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them. No Change Request is needed: every task sits under deliverables the proposal already names (4 Second Brain, 8 connectors), as 0.4.1 to 0.4.6 did. First written as v0.4.6 with its own tool-call lane (TASK-ZAI-073 to 076); renumbered to v0.4.7 and TASK-ZAI-076 to 103 on the coordinator's instruction the same day, because PR #390 (opened earlier) claims v0.4.6 and TASK-ZAI-073 to 075 for the same measurement goal. The usage meter was run with --write on the plan branch; this planning session ran with the primary checkout on main as its working directory, so its requests are unattributed — the finding written into the Delivery Telemetry section.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -4165,7 +4165,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm test on both providers, when the vault suites run, then a scan of captured output finds the test secret in no response, log line, audit row, error, backup export or Prisma column (ADR-089 proofs 1 to 3), preflight Check 18 stays green with migrations 1, 3 and 4 written in both trees, and none is applied to production
       checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. Migration numbers follow the vault design's section 8.2 list; the Phase-1 model-credential resolver is left untouched (SDD-097). PR #390's TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) are the measurement-detail prerequisite; this plan does not redefine them.
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. Migration numbers follow the vault design's section 8.2 list; the Phase-1 model-credential resolver is left untouched (SDD-097). The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -4645,7 +4645,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm test on both providers and the CRM part of design migration 5 written in both trees, when the suites and preflight run, then non-text events are visible in the inbox and Check 18 stays green; no media byte is fetched or stored
       checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3 of ADR-091. Fetching media bytes into FileAsset is a later phase that needs its own requirement (FR-229 says so). PR #390's TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) are the measurement-detail prerequisite; this plan does not redefine them.
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3 of ADR-091. Fetching media bytes into FileAsset is a later phase that needs its own requirement (FR-229 says so). The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -5603,7 +5603,7 @@ second run over the same logs writes the same block.
 ```json
 {
   "meter": "scripts/programme-usage-meter.mjs",
-  "measuredThrough": "2026-09-13T19:42:46.032Z",
+  "measuredThrough": "2026-09-13T20:54:32.683Z",
   "lanes": {
     "LANE-COST-QUOTE-PLAN": {
       "requests": 33,
@@ -5632,7 +5632,53 @@ second run over the same logs writes the same block.
       ],
       "firstActivityAt": "2026-09-13T10:59:55.549Z",
       "lastActivityAt": "2026-09-13T11:34:07.131Z",
-      "activeMinutes": 34
+      "activeMinutes": 34,
+      "detail": {
+        "reasoningTokens": 23498,
+        "cacheWrite5mTokens": 0,
+        "cacheWrite1hTokens": 121351,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 6,
+        "toolCalls": 63,
+        "toolErrors": 7,
+        "toolDenials": 0,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Edit": {
+            "calls": 17,
+            "errors": 0
+          },
+          "Monitor": {
+            "calls": 2,
+            "errors": 0
+          },
+          "PowerShell": {
+            "calls": 30,
+            "errors": 7
+          },
+          "Read": {
+            "calls": 2,
+            "errors": 0
+          },
+          "ScheduleWakeup": {
+            "calls": 2,
+            "errors": 0
+          },
+          "TaskStop": {
+            "calls": 1,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 9,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-fable-5-1": 33
+        }
+      }
     },
     "LANE-DATA-PIPELINE-MAP": {
       "requests": 105,
@@ -5661,7 +5707,65 @@ second run over the same logs writes the same block.
       ],
       "firstActivityAt": "2026-09-13T11:48:18.303Z",
       "lastActivityAt": "2026-09-13T14:08:30.927Z",
-      "activeMinutes": 95
+      "activeMinutes": 95,
+      "detail": {
+        "reasoningTokens": 51691,
+        "cacheWrite5mTokens": 0,
+        "cacheWrite1hTokens": 499288,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 8,
+        "toolCalls": 162,
+        "toolErrors": 8,
+        "toolDenials": 0,
+        "compactions": 1,
+        "apiErrors": 1,
+        "tools": {
+          "Edit": {
+            "calls": 31,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 3,
+            "errors": 0
+          },
+          "Monitor": {
+            "calls": 1,
+            "errors": 0
+          },
+          "PowerShell": {
+            "calls": 86,
+            "errors": 8
+          },
+          "Read": {
+            "calls": 14,
+            "errors": 0
+          },
+          "SendUserFile": {
+            "calls": 1,
+            "errors": 0
+          },
+          "ToolSearch": {
+            "calls": 1,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 23,
+            "errors": 0
+          },
+          "mcp__ccd_pr__get_status": {
+            "calls": 1,
+            "errors": 0
+          },
+          "mcp__ccd_session__mark_chapter": {
+            "calls": 1,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 105
+        }
+      }
     },
     "LANE-DELIVERY-TELEMETRY": {
       "requests": 150,
@@ -5690,7 +5794,61 @@ second run over the same logs writes the same block.
       ],
       "firstActivityAt": "2026-09-13T14:21:05.669Z",
       "lastActivityAt": "2026-09-13T15:57:33.643Z",
-      "activeMinutes": 96
+      "activeMinutes": 96,
+      "detail": {
+        "reasoningTokens": 47617,
+        "cacheWrite5mTokens": 0,
+        "cacheWrite1hTokens": 362091,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 4,
+        "toolCalls": 173,
+        "toolErrors": 17,
+        "toolDenials": 0,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "AskUserQuestion": {
+            "calls": 1,
+            "errors": 0
+          },
+          "Bash": {
+            "calls": 1,
+            "errors": 1
+          },
+          "Edit": {
+            "calls": 10,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 2,
+            "errors": 0
+          },
+          "Monitor": {
+            "calls": 1,
+            "errors": 1
+          },
+          "PowerShell": {
+            "calls": 106,
+            "errors": 15
+          },
+          "Read": {
+            "calls": 21,
+            "errors": 0
+          },
+          "SendUserFile": {
+            "calls": 1,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 30,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 150
+        }
+      }
     },
     "LANE-HARNESS-USAGE-PLUGIN": {
       "requests": 113,
@@ -5720,27 +5878,78 @@ second run over the same logs writes the same block.
       ],
       "firstActivityAt": "2026-09-13T16:22:37.937Z",
       "lastActivityAt": "2026-09-13T17:49:17.727Z",
-      "activeMinutes": 71
+      "activeMinutes": 71,
+      "detail": {
+        "reasoningTokens": 33330,
+        "cacheWrite5mTokens": 186074,
+        "cacheWrite1hTokens": 189871,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 3,
+        "toolCalls": 136,
+        "toolErrors": 5,
+        "toolDenials": 1,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Agent": {
+            "calls": 1,
+            "errors": 0
+          },
+          "Bash": {
+            "calls": 15,
+            "errors": 0
+          },
+          "Edit": {
+            "calls": 14,
+            "errors": 0
+          },
+          "Glob": {
+            "calls": 1,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 1,
+            "errors": 0
+          },
+          "PowerShell": {
+            "calls": 46,
+            "errors": 3
+          },
+          "Read": {
+            "calls": 18,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 40,
+            "errors": 2
+          }
+        },
+        "models": {
+          "claude-opus-5": 71,
+          "claude-sonnet-5": 42
+        }
+      }
     },
     "LANE-USAGE-DETAIL-AND-SPEC": {
-      "requests": 41,
+      "requests": 46,
       "sessions": [
         "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
       ],
       "tokens": {
-        "input": 84,
-        "cacheWrite": 127619,
-        "cacheRead": 35572215,
-        "output": 83197
+        "input": 96,
+        "cacheWrite": 131135,
+        "cacheRead": 40202737,
+        "output": 86795
       },
       "bySource": {
         "claude-code": {
-          "requests": 41,
+          "requests": 46,
           "tokens": {
-            "input": 84,
-            "cacheWrite": 127619,
-            "cacheRead": 35572215,
-            "output": 83197
+            "input": 96,
+            "cacheWrite": 131135,
+            "cacheRead": 40202737,
+            "output": 86795
           }
         }
       },
@@ -5748,8 +5957,46 @@ second run over the same logs writes the same block.
         "claude-opus-5"
       ],
       "firstActivityAt": "2026-09-13T19:07:49.734Z",
-      "lastActivityAt": "2026-09-13T19:42:46.032Z",
-      "activeMinutes": 35
+      "lastActivityAt": "2026-09-13T20:54:32.683Z",
+      "activeMinutes": 65,
+      "detail": {
+        "reasoningTokens": 11450,
+        "cacheWrite5mTokens": 0,
+        "cacheWrite1hTokens": 131135,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 3,
+        "toolCalls": 75,
+        "toolErrors": 6,
+        "toolDenials": 0,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Edit": {
+            "calls": 27,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 2,
+            "errors": 0
+          },
+          "PowerShell": {
+            "calls": 32,
+            "errors": 6
+          },
+          "Read": {
+            "calls": 6,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 8,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 46
+        }
+      }
     }
   }
 }
@@ -5782,5 +6029,5 @@ second run over the same logs writes the same block.
 | 0.4.3 | 2026-09-13 | **Data pipeline map** added on the owner's instruction, under deliverable 4 (no Change Request needed): a map of where data comes from, who receives it and where it is combined before it is sent, drawn as a node-edge view in a Knowledge (GKS) navigation slot, with every task on the roadmap before work starts. No current document covers it (ARCHITECTURE-DIAGRAMS section 3 is dated 2026-08-15, SYSTEM-DIAGRAM has no surface status, KNOWLEDGE-INGESTION-SURFACES covers one domain). Placement is a zuri-ai knowledge-lane slot rather than a GKS domain because ADR-063 D4 says GKS is never a zuri-ai domain. SPR-ZAI-02 (current): TASK-ZAI-060 decision record (in-progress), TASK-ZAI-061 registry with generated projection and preflight check, TASK-ZAI-062 node-edge view; SPR-ZAI-03: TASK-ZAI-063 live per-edge health for the active Business, after TASK-ZAI-047. Sprint 02/03 and Phase 01 goals and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 72 → 62, PHASE-ZAI-01 80 → 73). Section 3.1 row 4 names the map. |
 | 0.4.4 | 2026-09-13 | **Delivery telemetry on the programme board** added on the owner's instruction, under deliverable 2 (no Change Request needed): each phase card shows its sprint count, task count, size and estimated duration, and once work is done the actual time taken and the tokens really used, measured by a surface rather than estimated; done cards tinted light green and review cards light orange. On the owner's follow-up the same day, every task card also shows [DOC] [CODE] [TEST] [FR] [NFR] [FEAT] [domain] [complexity] [priority] badges (green done, orange review, red needs fix, gray empty) and a task split into subtasks P0 to P3 carries a progress bar. The owner chose both sources for real usage — a meter over local Claude Code and Codex session logs and a report endpoint for agents without local logs — and the plan window plus complexity-based effort for the estimate. No actual usage figure exists before this: `total_token_usage` on done tasks is a copy of the prediction. SPR-ZAI-02 (current): TASK-ZAI-064 decision record amending ADR-048 D3 (in-progress), TASK-ZAI-065 phase card metrics, TASK-ZAI-066 usage meter, TASK-ZAI-067 usage report endpoint with its migration, TASK-ZAI-068 task card evidence badges and subtask progress. Sprint 02 and Phase 01 goals and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 76 → 61, PHASE-ZAI-01 82 → 70). Section 3.1 row 2 names the telemetry. Delivered the same day on feat/delivery-telemetry: TASK-ZAI-064 done (ADR-086; FR-216 to FR-219 and FEAT-034 declared), TASK-ZAI-065 to 068 in review (implemented locally with tests; the FR-218 migration written and not applied); a Delivery Telemetry section with the sizing table, work lanes and the meter's first measured usage block added; progress recomputed (SPR-ZAI-02 61 → 80, PHASE-ZAI-01 70 → 84). |
 | 0.4.5 | 2026-09-14 | **Zuri harness usage plugin** added on the owner's instruction, under deliverable 2 (no Change Request needed): agents on other machines report the tokens they used through a plugin for Claude Code and Codex instead of a shared deployment token. The owner chose a plugin over a connector (the harness, not the model, reads the billed usage) and accepted the recommended identity design — a device is paired once by browser approval with a check code (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; each report is attributed to the approving person and the installation, with the AI account kept as a declared label. SPR-ZAI-02 (current): TASK-ZAI-069 decision record (in-progress), TASK-ZAI-070 device pairing and report-only credential, TASK-ZAI-071 attribution to person, device and lane with resumed-session extension, TASK-ZAI-072 the plugin itself. A LANE-HARNESS-USAGE-PLUGIN work lane is declared before the work starts so the meter measures it. Sprint 02 goal and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 80 → 69, PHASE-ZAI-01 84 → 75). Delivered locally the same day on feat/harness-usage-plugin: TASK-ZAI-069 done (ADR-087; FR-220 to FR-222 and FEAT-035 declared), TASK-ZAI-070 to 072 in review (implemented locally with unit and e2e tests; migration 20260914100000_harness_usage_attribution written and not applied); progress recomputed (SPR-ZAI-02 69 → 82, PHASE-ZAI-01 75 → 85). |
-| 0.4.6 | 2026-09-14 | **Plugin specification and agent usage detail** added on the owner's instruction, under deliverable 2 (no Change Request needed): write the Zuri harness plugin's specification, and capture everything the agent logs can measure — especially token usage input and output and tool calling — with ids bound and the work lane declared before starting, then set statuses to what is true. The log survey found thinking and reasoning tokens, cache writes by lifetime, web search and fetch, tool calls by name with errors and denials, user prompts, compactions, API and hook errors, and models; only names and counts are captured. SPR-ZAI-02 (current): TASK-ZAI-073 plugin specification, TASK-ZAI-074 usage detail capture in the meter, plugin, endpoint and storage, TASK-ZAI-075 usage detail on the board; all planned. LANE-USAGE-DETAIL-AND-SPEC declared before work starts. Sprint 02 goal and exit criteria extended; progress recomputed (SPR-ZAI-02 82 → 73, PHASE-ZAI-01 85 → 78). |
-| 0.4.7 | 2026-09-14 | **LINE OA platform delivery plan** added on the owner's instruction of 2026-09-14: the whole plan behind ADR-089, ADR-090 and ADR-091 (merged in PR #389 as 8cd81196) is written into the roadmap and the Project Manager with tasks and lanes bound **before** any implementation starts, so that everything measurable is captured — especially token usage (input and output) and tool calling — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. **No Change Request is needed**, on the same reading as 0.4.1 to 0.4.6: the credential vault, self-serve onboarding and the complete LINE chat record sit under deliverable 8 (connectors, LINE deepened), and the Context Composer, corpus grounding, reviewed knowledge candidates and memory policy with erasure under deliverable 4 (Second Brain); LINE OA Studio is already a CR-019 lane. **Measurement detail comes from v0.4.6**: TASK-ZAI-074 (usage detail capture) and TASK-ZAI-075 (usage detail on the board) are not redefined here; the entry task of each build chain (078, 088) depends on both. Twenty-eight tasks, TASK-ZAI-076 to 103. **Phase 0** in SPR-ZAI-02 (current): 076 done (PR #389, CI green) and 077 this plan (in-progress). Backlog: SPR-ZAI-03 Phase 1 vault and LINE port (078 to 081); SPR-ZAI-04 Phase 2 wizard, webhook, derived quiescence and the operator steps — migration apply (085), the owner's channel credential entry (086, never an agent) and webhook cutover (087) — and Phase 3 chat record completeness with its migration apply (088 to 091); SPR-ZAI-05 Phase 3b Context Composer (092, before phases 4 and 6) and Phase 4 grounding with isolated acceptance (093, 094); SPR-ZAI-06 the SmartGift grounding switch after ADR-075 Phase 3 (095), Phase 5 candidates, gap report, Studio descriptions and migration apply (096 to 099), and Phase 6 memory policy, erasure fan-out and activation (100 to 102, **blocked** on MSP TASK-MEMOS-002 and TASK-MEMOS-004); SPR-ZAI-10 Phase 7, the vault generalised to other provider kinds (103), registered without a requirement as TASK-ZAI-007 to 030 were and without a lane until a branch is chosen. Design migration 7 is split so the webhook-state column lands with 083 and `memoryPolicy` with 100. Eight lanes declared (LANE-LINE-OA-PLATFORM-PLAN, LANE-LINE-OA-VAULT, LANE-LINE-OA-ONBOARDING, LANE-CRM-CHAT-RECORD, LANE-AGENT-CONTEXT-COMPOSER, LANE-LINE-GKS-GROUNDING, LANE-KNOWLEDGE-LINE-CANDIDATES, LANE-LINE-MEMORY-POLICY-ERASURE) and a "how to be measured" note added to the Delivery Telemetry section. First drafted as v0.4.6 with its own tool-call lane (TASK-ZAI-073 to 076); on the coordinator's instruction the same day that lane was removed and the rest renumbered, because PR #390 (opened earlier) claims v0.4.6 and TASK-ZAI-073 to 075 for the same measurement goal. Phase, sprint and deliverable goals and exits extended; progress recomputed under the board mapping (SPR-ZAI-02 73 → 73, PHASE-ZAI-01 78 → 78, PHASE-ZAI-05 20 → 17). Section 3.1 rows 4 and 8 name the work. |
+| 0.4.6 | 2026-09-14 | **Plugin specification and agent usage detail** added on the owner's instruction, under deliverable 2 (no Change Request needed): write the Zuri harness plugin's specification, and capture everything the agent logs can measure — especially token usage input and output and tool calling — with ids bound and the work lane declared before starting, then set statuses to what is true. The log survey found thinking and reasoning tokens, cache writes by lifetime, web search and fetch, tool calls by name with errors and denials, user prompts, compactions, API and hook errors, and models; only names and counts are captured. SPR-ZAI-02 (current): TASK-ZAI-073 plugin specification, TASK-ZAI-074 usage detail capture in the meter, plugin, endpoint and storage, TASK-ZAI-075 usage detail on the board; all planned. LANE-USAGE-DETAIL-AND-SPEC declared before work starts. Sprint 02 goal and exit criteria extended; progress recomputed (SPR-ZAI-02 82 → 73, PHASE-ZAI-01 85 → 78). Delivered locally the same day on feat/usage-detail-and-spec: TASK-ZAI-073, 074 and 075 set to review — implemented with tests and govern green, but not merged and the FR-239 migration 20260914120000_usage_detail not applied; progress recomputed (SPR-ZAI-02 73 → 82, PHASE-ZAI-01 78 → 85). Closed the same day: merged in #393, deployed as release-daca80fb and migration 20260914120000_usage_detail applied on production, so TASK-ZAI-073 to 075 move from review to done (SPR-ZAI-02 82 → 83, PHASE-ZAI-01 85 → 86). |
+| 0.4.7 | 2026-09-14 | **LINE OA platform delivery plan** added on the owner's instruction of 2026-09-14: the whole plan behind ADR-089, ADR-090 and ADR-091 (merged in PR #389 as 8cd81196) is written into the roadmap and the Project Manager with tasks and lanes bound **before** any implementation starts, so that everything measurable is captured — especially token usage (input and output) and tool calling — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. **No Change Request is needed**, on the same reading as 0.4.1 to 0.4.6: the credential vault, self-serve onboarding and the complete LINE chat record sit under deliverable 8 (connectors, LINE deepened), and the Context Composer, corpus grounding, reviewed knowledge candidates and memory policy with erasure under deliverable 4 (Second Brain); LINE OA Studio is already a CR-019 lane. **Measurement detail comes from v0.4.6 and is delivered**: TASK-ZAI-074 (usage detail capture) and TASK-ZAI-075 (usage detail on the board) shipped in PR #393 (FR-239, FR-240, FEAT-039) and were closed done by PR #394, so the prerequisite is satisfied; they are not redefined here, and the entry task of each build chain (078, 088) keeps both as dependencies. Twenty-eight tasks, TASK-ZAI-076 to 103. **Phase 0** in SPR-ZAI-02 (current): 076 done (PR #389, CI green) and 077 this plan (in-progress). Backlog: SPR-ZAI-03 Phase 1 vault and LINE port (078 to 081); SPR-ZAI-04 Phase 2 wizard, webhook, derived quiescence and the operator steps — migration apply (085), the owner's channel credential entry (086, never an agent) and webhook cutover (087) — and Phase 3 chat record completeness with its migration apply (088 to 091); SPR-ZAI-05 Phase 3b Context Composer (092, before phases 4 and 6) and Phase 4 grounding with isolated acceptance (093, 094); SPR-ZAI-06 the SmartGift grounding switch after ADR-075 Phase 3 (095), Phase 5 candidates, gap report, Studio descriptions and migration apply (096 to 099), and Phase 6 memory policy, erasure fan-out and activation (100 to 102, **blocked** on MSP TASK-MEMOS-002 and TASK-MEMOS-004); SPR-ZAI-10 Phase 7, the vault generalised to other provider kinds (103), registered without a requirement as TASK-ZAI-007 to 030 were and without a lane until a branch is chosen. Design migration 7 is split so the webhook-state column lands with 083 and `memoryPolicy` with 100. Eight lanes declared (LANE-LINE-OA-PLATFORM-PLAN, LANE-LINE-OA-VAULT, LANE-LINE-OA-ONBOARDING, LANE-CRM-CHAT-RECORD, LANE-AGENT-CONTEXT-COMPOSER, LANE-LINE-GKS-GROUNDING, LANE-KNOWLEDGE-LINE-CANDIDATES, LANE-LINE-MEMORY-POLICY-ERASURE) and a "how to be measured" note added to the Delivery Telemetry section. First drafted as v0.4.6 with its own tool-call lane (TASK-ZAI-073 to 076); on the coordinator's instruction the same day that lane was removed and the rest renumbered, because PR #390 (opened earlier) claims v0.4.6 and TASK-ZAI-073 to 075 for the same measurement goal. Phase, sprint and deliverable goals and exits extended; progress recomputed under the board mapping (SPR-ZAI-02 83 → 83, PHASE-ZAI-01 86 → 85, PHASE-ZAI-05 20 → 17). Section 3.1 rows 4 and 8 name the work. |

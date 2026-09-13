@@ -3506,7 +3506,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-073",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -3514,8 +3514,8 @@ export const PROGRAMME_CONTAINERS = {
     "auditor": "ATHER",
     "links": {
       "code": "plugins/zuri-harness/bin/zuri-harness.mjs",
-      "doc": "docs/decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md",
-      "test": "apps/server/tests/unit/zuri-harness-plugin.test.js"
+      "doc": "docs/ZURI-HARNESS-PLUGIN-SPEC.md",
+      "test": "apps/server/tests/unit/usage-detail.test.js"
     },
     "linkState": {
       "code": "present",
@@ -3527,18 +3527,18 @@ export const PROGRAMME_CONTAINERS = {
     "dod": {
       "acceptance": {
         "text": "Given a reader with only the specification, when they implement a compatible reporter, then every command, flag, exit code, hook input field, configuration and queue file shape, request body and the response each HTTP status gets is stated, and the pairing and reporting flows are drawn",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given each counting and attribution rule in the specification, when it is read, then it names the test that proves it, and the rules match the meter and the plugin exactly as they run, including the new usage detail",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm run govern, when it runs, then the specification is in the graph with no CRITICAL, and ADR-087, the plugin README and the API appendix point to it",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text.",
+    "changelog": "Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text. Written 2026-09-14: docs/ZURI-HARNESS-PLUGIN-SPEC.md — parts, pairing and reporting flows, CLI with flags and exit codes, hooks and wrapper, config and queue formats with keep/drop rules, report body and server rules, counting rules including usage detail, privacy, compatibility, versioning and known limits, each rule linked to its test; ADR-087, the plugin README and Appendix A point to it. Review, not done: not merged. Closed 2026-09-14: merged in #393 (main daca80fb), deployed as zuri-ai-web:release-daca80fb; migration 20260914120000_usage_detail applied on production after a rolled-back dry run.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 30000,
     "totalTokens": 0,
@@ -3551,55 +3551,58 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-074",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/scripts/programme-usage-meter.mjs",
+      "code": "plugins/zuri-harness/lib/detail.mjs",
       "doc": "docs/decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md",
-      "test": "apps/server/tests/unit/programme-usage-meter.test.js"
+      "test": "apps/server/tests/unit/usage-detail.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
       "test": "present"
     },
-    "delivers": [],
+    "delivers": [
+      "FR-239",
+      "FEAT-039"
+    ],
     "subtasks": [
       {
         "id": "P0",
         "title": "Detail counting in the meter and the plugin with parity",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P1",
         "title": "Report schema, storage columns and migration, extension rule",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P2",
         "title": "Privacy rule and compatibility with plugins that send no detail",
-        "status": "planned"
+        "status": "done"
       }
     ],
     "dod": {
       "acceptance": {
         "text": "Given a Claude Code or Codex session log, when the meter or the plugin reads it, then each session's thinking or reasoning tokens, cache writes by lifetime, tool calls by tool name with results, errors and denials, web search and fetch requests, user prompts, compactions and API errors are counted once, with only names and numbers kept and no prompt, response, argument or output text",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a report carrying the detail, when the endpoint stores it, then the counts are validated and kept with the report, a resumed session extends only when every count including the detail grows, and an older plugin that sends no detail is still accepted",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test, when the meter, plugin and report suites run, then detail parity between the meter and the plugin, the privacy rule, extension with detail and the migration in both trees pass; applying the migration on production stays a separate step (ADR-057)",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text.",
+    "changelog": "Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text. Implemented locally 2026-09-14 (FR-239, ADR-086 D7): plugins/zuri-harness/lib/detail.mjs is the one rule set, imported by both the plugin and the meter; the report endpoint accepts a strict optional detail stored as headline columns plus canonical JSON; migration 20260914120000_usage_detail written in both trees and NOT applied; first real meter run with detail recorded in the usage block. Review, not done: not merged, migration not applied. Closed 2026-09-14: merged in #393 (main daca80fb), deployed as zuri-ai-web:release-daca80fb; migration 20260914120000_usage_detail applied on production after a rolled-back dry run.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 64000,
     "totalTokens": 0,
@@ -3612,50 +3615,53 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-075",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "priority": "P1",
     "pic": "Claude",
     "executor": "Claude",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+      "code": "apps/server/src/modules/platform-control/program-delivery-metrics.js",
       "doc": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
-      "test": "apps/server/tests/unit/program-roadmap-board-telemetry.test.js"
+      "test": "apps/server/tests/unit/usage-detail.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
       "test": "present"
     },
-    "delivers": [],
+    "delivers": [
+      "FR-240",
+      "FEAT-039"
+    ],
     "subtasks": [
       {
         "id": "P0",
         "title": "Phase card token split, tool calls, prompts and compactions",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P1",
         "title": "Task detail top tools, errors and denials per person and device",
-        "status": "planned"
+        "status": "done"
       }
     ],
     "dod": {
       "acceptance": {
         "text": "Given a phase with measured lanes, when its card renders, then input, output, thinking and cache tokens are shown as separate figures, with tool calls, error rate, prompts and compactions beside them, and a lane with no detail says so rather than showing zero",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a task opened on the board, when its lane has detail, then the most used tools with counts, the error and denial counts, and the per person and per device split are listed",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test and the roadmap e2e, when they run, then aggregation of detail across lanes and reports, the empty-detail state and the rendered figures are asserted and the page builds clean",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text.",
+    "changelog": "Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text. Implemented locally 2026-09-14 (FR-240): phase cards show input, output, thinking and cache tokens separately with tool calls and error rate, prompts and compactions, or say no detail exists; task telemetry lists the most used tools, errors, denials and models. Review, not done: not merged. Closed 2026-09-14: merged in #393 (main daca80fb), deployed as zuri-ai-web:release-daca80fb; migration 20260914120000_usage_detail applied on production after a rolled-back dry run.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 36000,
     "totalTokens": 0,
@@ -3739,11 +3745,11 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       },
       "exit": {
-        "text": "Given npm run govern and the programme container check on the plan branch stacked on PR #390, when they run, then both exit zero; the pull request is opened, marked to merge after #390, and left for the owner to merge",
+        "text": "Given npm run govern and the programme container check on the plan branch merged with main, when they run, then both exit zero; the pull request is opened and left for the owner to merge",
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. PR #390's TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) are the measurement-detail prerequisite; this plan does not redefine them. No Change Request is needed: every task sits under deliverables the proposal already names (4 Second Brain, 8 connectors), as 0.4.1 to 0.4.6 did. First written as v0.4.6 with its own tool-call lane (TASK-ZAI-073 to 076); renumbered to v0.4.7 and TASK-ZAI-076 to 103 on the coordinator's instruction the same day, because PR #390 (opened earlier) claims v0.4.6 and TASK-ZAI-073 to 075 for the same measurement goal. The usage meter was run with --write on the plan branch; this planning session ran with the primary checkout on main as its working directory, so its requests are unattributed — the finding written into the Delivery Telemetry section.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them. No Change Request is needed: every task sits under deliverables the proposal already names (4 Second Brain, 8 connectors), as 0.4.1 to 0.4.6 did. First written as v0.4.6 with its own tool-call lane (TASK-ZAI-073 to 076); renumbered to v0.4.7 and TASK-ZAI-076 to 103 on the coordinator's instruction the same day, because PR #390 (opened earlier) claims v0.4.6 and TASK-ZAI-073 to 075 for the same measurement goal. The usage meter was run with --write on the plan branch; this planning session ran with the primary checkout on main as its working directory, so its requests are unattributed — the finding written into the Delivery Telemetry section.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 45000,
     "totalTokens": 0,
@@ -3812,7 +3818,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. Migration numbers follow the vault design's section 8.2 list; the Phase-1 model-credential resolver is left untouched (SDD-097). PR #390's TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) are the measurement-detail prerequisite; this plan does not redefine them.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. Migration numbers follow the vault design's section 8.2 list; the Phase-1 model-credential resolver is left untouched (SDD-097). The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 70000,
     "totalTokens": 0,
@@ -4332,7 +4338,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3 of ADR-091. Fetching media bytes into FileAsset is a later phase that needs its own requirement (FR-229 says so). PR #390's TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) are the measurement-detail prerequisite; this plan does not redefine them.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3 of ADR-091. Fetching media bytes into FileAsset is a later phase that needs its own requirement (FR-229 says so). The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 56000,
     "totalTokens": 0,
