@@ -488,7 +488,7 @@ button{font:inherit;color:inherit;}
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
           <span class="pill pill-brand">approved</span>
           <span class="pill pill-planned mono">ROADMAP-ZURI-AI-24W-PROGRAM</span>
-          <span class="pill pill-planned mono">v0.4.3</span>
+          <span class="pill pill-planned mono">v0.4.4</span>
           <span class="pill pill-planned">updated 2026-09-13</span>
           <span class="pill pill-planned mono">CR-019</span>
           <span class="pill pill-planned">owner Owen</span>
@@ -678,12 +678,13 @@ button{font:inherit;color:inherit;}
 
 <script>
 /* ==================================================================
-   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.4.3 (CR-019,
+   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.4.4 (CR-019,
    2026-09-13) — the markdown is the source of truth, this array is
    its rendering. Tasks 031–044 were added on the re-baseline,
    045–051 (17-stage knowledge base + file system) the same day,
    052–059 (SmartGift cost & quote engine, v0.4.2) the same day,
-   060–063 (data pipeline map, v0.4.3) the same day.
+   060–063 (data pipeline map, v0.4.3) the same day,
+   064–067 (delivery telemetry, v0.4.4) the same day.
    ================================================================== */
 const PROGRESS_BY_STATE = { done:100, review:90, "in-progress":50, assigned:25, ready:10, planned:0, blocked:0 };
 
@@ -840,7 +841,7 @@ const PHASES = [
             "Given npm test, when the FR-066 unit suite runs, then onboarding order is asserted, not assumed",
             "ส่งมอบ 27 ส.ค. (ROADMAP.md TASK-FR-066-067) · FR-122 บังคับชื่อ-สกุล-โทรศัพท์ · CR-017 UX correction ติดตามในเลน Asset"]
         ]},
-      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract · นับ knowledge intake + Tier 1 ของ 17-stage ที่สร้างแล้ว · (CR-019) SCM, Marketing, billing/POS, catalog convergence และ identity lifecycle เข้า main · (v0.4.2) เปิด cost & quote engine: decision record + ใบต้นทุนโรงงาน · (v0.4.3) data pipeline registry + node-edge map ใน slot Knowledge (GKS)",
+      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract · นับ knowledge intake + Tier 1 ของ 17-stage ที่สร้างแล้ว · (CR-019) SCM, Marketing, billing/POS, catalog convergence และ identity lifecycle เข้า main · (v0.4.2) เปิด cost & quote engine: decision record + ใบต้นทุนโรงงาน · (v0.4.3) data pipeline registry + node-edge map ใน slot Knowledge (GKS) · (v0.4.4) delivery telemetry บน programme board: การ์ด phase มีตัวเลข, usage meter และ endpoint รายงาน token จริง",
         exit:"pipeline รายงานได้ทุก stage, memory contract ผ่านการรีวิว, ไฟล์ที่รับเข้า Stage 1 ไปถึง Stage 8 พร้อม lineage ใต้เทสต์ และทุกเลนมี migration เขียนแล้ว",
         tasks:[
           ["TASK-ZAI-004","TSK-ZAI004","Workspace collaboration boundary and scoped invites, FR-067","FR","C-3","H3","done","Codex","TASK-ZAI-003","apps/server/src/modules/identity/access-invite-service.js","docs/PRD-SDD-v1.0.md","unavailable",40000,
@@ -927,7 +928,27 @@ const PHASES = [
             "Given a viewer with the Knowledge (GKS) slot, when they open the map, then sources, ingest surfaces, combine steps, stores, outbound surfaces and recipients render as layered nodes with labelled SVG edges, and a viewer without the slot reaches no page and no payload",
             "Given a chain, domain or status filter or a selected node or edge, when it is chosen, then the path is highlighted end to end, the panel names domain, FEAT, FR, surface kind and status with evidence, and the list view shows the same rows as a table",
             "Given npm test and a new e2e, when they run, then render, keyboard selection, list view, visibility refusal and navigation reachability pass and the build is clean",
-            "(v0.4.3) slot เปิดด้วยหน้านี้หน้าเดียว หน้าถัดไปคือ knowledge base console ของ TASK-ZAI-047 · SVG เขียนเองแบบ FR-040 / FR-101 ไม่เพิ่ม library"]
+            "(v0.4.3) slot เปิดด้วยหน้านี้หน้าเดียว หน้าถัดไปคือ knowledge base console ของ TASK-ZAI-047 · SVG เขียนเองแบบ FR-040 / FR-101 ไม่เพิ่ม library"],
+          ["TASK-ZAI-064","TSK-ZAI064","Delivery telemetry decision record — the ADR that lets the programme board show measured time and tokens beside the plan without turning either into completion, the sizing table, and the requirement and FEAT declarations","NFR","C-2","H2","in-progress","Claude","-","unavailable","docs/decisions/ADR-048-PLATFORM-CONTROL-SHELL.md","unavailable",22000,
+            "Given ADR-048 D3 (the board is a plan snapshot and never a completion claim), when the ADR is written, then it states that measured time and tokens may appear beside the plan only as labelled measurements with their source and measuring time, never as progress, and names which figures are planned (sizing table, plan window, predicted tokens) and which are measured",
+            "Given the phase card metrics, the usage meter and the report endpoint, when they are declared with one FEAT bundle, then every new id is pinned, and the sizing table (effort hours per complexity band) and the rule that one billed request is counted once across both sources are written in the programme document",
+            "Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and FR-105's statement names the measured layer",
+            "(v0.4.4) ตามคำสั่ง owner 13 ก.ย. — การ์ด phase แสดง sprint / task / size / เวลาประมาณ และหลัง done แสดงเวลาจริงกับ token ที่ใช้จริง · owner เลือกนับจากทั้ง log ในเครื่องและ endpoint รายงาน · ADR-048 D3 ห้ามหน้าวัดอะไรเอง จึงต้องมี ADR แยกชั้น measured"],
+          ["TASK-ZAI-065","TSK-ZAI065","Phase card delivery metrics — sprint and task counts, size in complexity points, plan window and effort estimate, actual time and measured tokens once done, and done or review cards tinted green or orange","FR","C-2","H2","planned","Claude","TASK-ZAI-064","apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx","docs/roadmap/ROADMAP-zuri-ai-24w-program.md","apps/server/tests/unit/platform-control-route-contract.test.js",40000,
+            "Given a phase card on /control/roadmap, when it renders, then it shows its sprint count, task count, size as the sum of complexity points, plan window in days from its dates and effort hours from the sizing table, every figure computed from the snapshot the card already reads",
+            "Given a phase, sprint or task whose status is done, when it renders, then it shows the actual elapsed time from first to last recorded activity, the active time and the measured tokens with their source, a figure with no measurement reads as not measured rather than zero or the prediction, and done cards are tinted light green and review cards light orange in both themes with the status word still shown",
+            "Given npm test and the roadmap e2e, when they run, then the aggregates match a hand-computed fixture, an unmeasured task never shows its predicted tokens as actual, and the page builds clean",
+            "(v0.4.4) size = ผลรวม C point · เวลาประมาณ = plan window จากวันที่ + effort ชั่วโมงจากตาราง sizing · ยังไม่มีการวัด = \"ยังไม่วัด\" ไม่ใช่ 0 · done เขียวอ่อน review ส้มอ่อน มีคำสถานะกำกับเสมอ"],
+          ["TASK-ZAI-066","TSK-ZAI066","Usage meter — measured tokens and active time per task from Claude Code and Codex session logs, attributed by the branches each Task Container declares and written back with provenance","FR","C-3","H3","planned","Claude","TASK-ZAI-064","unavailable","docs/roadmap/ROADMAP-zuri-ai-24w-program.md","unavailable",56000,
+            "Given Claude Code and Codex session logs on the operator's machine, when the meter runs, then each billed request is counted once by its request id, attributed to the task whose container lists the request's git branch, and summed as input, cache write, cache read and output tokens with active time and first and last activity",
+            "Given a request on a branch no container declares, on a detached HEAD, or on a branch two containers claim, when the meter runs, then it is reported as unattributed or conflicting by name and counted for no task",
+            "Given the meter's write mode, when it records results, then each container's token_telemetry gains measured totals with source, measuring time and session count while predicted_token_usage stays untouched, a second run is byte-stable, and the suite covers dedupe, attribution and refusal",
+            "(v0.4.4) มีข้อมูลจริงอยู่แล้ว: log ของ Claude Code 241 ไฟล์มี usage + gitBranch + timestamp ทุก request, Codex 118 session · นับ request ละครั้ง (requestId ซ้ำตาม content block) · ไม่เดาจาก HEAD ที่ detached"],
+          ["TASK-ZAI-067","TSK-ZAI067","Usage report endpoint — an operator-authenticated ledger where agents without local logs report per-session tokens for a task, idempotent by session and merged with metered sessions without double counting","FR","C-3","H3","planned","Claude","TASK-ZAI-066","unavailable","docs/DB-MIGRATION-NOTES.md","unavailable",52000,
+            "Given an agent on another machine holding an operator-issued key, when it posts a per-session usage report for a task, then the report is stored with source, session id, model, token counts and time span, a replay of the same source and session is idempotent, and a report for an unknown task is refused by name",
+            "Given sessions reported through the endpoint and sessions found by the meter, when the board computes a task's measured tokens, then a session present in both is counted once and the board says which source each figure came from",
+            "Given npm test and the Supabase migration file, when they run, then authorization refusal, idempotency, dedupe and the schema-migration drift check pass; applying the migration on production stays a separate operator step (ADR-057)",
+            "(v0.4.4) สำหรับ agent ที่ไม่มี log ในเครื่อง operator · session เดียวกันที่ meter เจอแล้วนับครั้งเดียว · migration เขียนในงานนี้ apply แยกตาม ADR-057"]
         ]}
     ]
   },
@@ -1271,7 +1292,11 @@ const DOD_CHECKS = {
   "TASK-ZAI-060": [1,1,1],
   "TASK-ZAI-061": [1,1,1],
   "TASK-ZAI-062": [1,1,1],
-  "TASK-ZAI-063": [0,0,0]
+  "TASK-ZAI-063": [0,0,0],
+  "TASK-ZAI-064": [0,0,0],
+  "TASK-ZAI-065": [0,0,0],
+  "TASK-ZAI-066": [0,0,0],
+  "TASK-ZAI-067": [0,0,0]
 };
 
 /* ---------------------- theme ---------------------- */

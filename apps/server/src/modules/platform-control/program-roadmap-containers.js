@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.3, 2026-09-13) so the board can open a task the way the html board
+// (v0.4.4, 2026-09-13) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @spec ADR-048 D3 — document data, never measured here. Regenerate from the
@@ -2334,5 +2334,151 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-047"
     ],
     "evidence": "Section 3.1 row 4; FR-071; FR-149; FR-152; FR-143"
+  },
+  "TASK-ZAI-064": {
+    "container": "TC-TASK-ZAI-064",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/decisions/ADR-048-PLATFORM-CONTROL-SHELL.md",
+      "test": "unavailable"
+    },
+    "dod": {
+      "acceptance": {
+        "text": "Given ADR-048 D3 (the board is a plan snapshot and never a completion claim), when the ADR is written, then it states that measured time and tokens may appear beside the plan only as labelled measurements with their source and measuring time, never as progress, and names which figures are planned (sizing table, plan window, predicted tokens) and which are measured",
+        "checked": false
+      },
+      "success": {
+        "text": "Given the phase card metrics, the usage meter and the report endpoint, when they are declared with one FEAT bundle, then every new id is pinned, and the sizing table (effort hours per complexity band) and the rule that one billed request is counted once across both sources are written in the programme document",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and FR-105's statement names the measured layer",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction.",
+    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "predictedTokens": 22000,
+    "totalTokens": 0,
+    "dependsOn": [],
+    "evidence": "Section 3.1 row 2; ADR-048 D3; FR-105"
+  },
+  "TASK-ZAI-065": {
+    "container": "TC-TASK-ZAI-065",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+      "doc": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+      "test": "apps/server/tests/unit/platform-control-route-contract.test.js"
+    },
+    "dod": {
+      "acceptance": {
+        "text": "Given a phase card on /control/roadmap, when it renders, then it shows its sprint count, task count, size as the sum of complexity points, plan window in days from its dates and effort hours from the sizing table, every figure computed from the snapshot the card already reads",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a phase, sprint or task whose status is done, when it renders, then it shows the actual elapsed time from first to last recorded activity, the active time and the measured tokens with their source, a figure with no measurement reads as not measured rather than zero or the prediction, and done cards are tinted light green and review cards light orange in both themes with the status word still shown",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test and the roadmap e2e, when they run, then the aggregates match a hand-computed fixture, an unmeasured task never shows its predicted tokens as actual, and the page builds clean",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction.",
+    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "predictedTokens": 40000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-064"
+    ],
+    "evidence": "Section 3.1 row 2; FR-105; FR-211; NFR-008"
+  },
+  "TASK-ZAI-066": {
+    "container": "TC-TASK-ZAI-066",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+      "test": "unavailable"
+    },
+    "dod": {
+      "acceptance": {
+        "text": "Given Claude Code and Codex session logs on the operator's machine, when the meter runs, then each billed request is counted once by its request id, attributed to the task whose container lists the request's git branch, and summed as input, cache write, cache read and output tokens with active time and first and last activity",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a request on a branch no container declares, on a detached HEAD, or on a branch two containers claim, when the meter runs, then it is reported as unattributed or conflicting by name and counted for no task",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given the meter's write mode, when it records results, then each container's token_telemetry gains measured totals with source, measuring time and session count while predicted_token_usage stays untouched, a second run is byte-stable, and the suite covers dedupe, attribution and refusal",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction.",
+    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "predictedTokens": 56000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-064"
+    ],
+    "evidence": "Section 3.1 row 2; ADR-048 D3; section 5.3 measurement precedent"
+  },
+  "TASK-ZAI-067": {
+    "container": "TC-TASK-ZAI-067",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/DB-MIGRATION-NOTES.md",
+      "test": "unavailable"
+    },
+    "dod": {
+      "acceptance": {
+        "text": "Given an agent on another machine holding an operator-issued key, when it posts a per-session usage report for a task, then the report is stored with source, session id, model, token counts and time span, a replay of the same source and session is idempotent, and a report for an unknown task is refused by name",
+        "checked": false
+      },
+      "success": {
+        "text": "Given sessions reported through the endpoint and sessions found by the meter, when the board computes a task's measured tokens, then a session present in both is counted once and the board says which source each figure came from",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test and the Supabase migration file, when they run, then authorization refusal, idempotency, dedupe and the schema-migration drift check pass; applying the migration on production stays a separate operator step (ADR-057)",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction.",
+    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "predictedTokens": 52000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-066"
+    ],
+    "evidence": "Section 3.1 row 2; FR-106 key precedent; ADR-057"
   }
 }

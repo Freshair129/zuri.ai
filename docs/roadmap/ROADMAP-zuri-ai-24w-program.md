@@ -2,7 +2,7 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.3"
+version: "0.4.4"
 updated: "2026-09-13"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
@@ -127,7 +127,7 @@ the v0.4.0 column is what changed in the programme's first three weeks.
 | # | Deliverable | Reality at `7d8c9d0` (v0.3.0) | Reality at `2b7ad27d` (v0.4.0) | Delta this programme still buys |
 |---|---|---|---|---|
 | 1 | Visual Office 2.5D | Not started. No scene model, no renderer, no route. | Unchanged. | Whole deliverable, PHASE-ZAI-04 |
-| 2 | GoVibe Mission Control | Exists as a separate product. It reads this repository's roadmap but is **not bound to Zuri business data**. | **Corrected by the owner on 2026-09-13: this deliverable is the Project system of the Development domain in this repository, not the external GoVibe product.** That system is delivered: `src/modules/project-manager` with Projects, Workstreams, WorkItems, Board and Schedule (FR-063/064), Structure Plan and Dependency Map (FR-040), the Projects Dashboard with priority, PIC and Team (FR-086 to FR-089, FEAT-008), human-visible Execution Roadmap and Blueprint intake (FEAT-003, FR-068 to FR-070), ExecutionPlanBundle import (FEAT-012, FR-108, ADR-049), Project Inventory (FEAT-005), Files (FEAT-001) and the Marketing → PM handoff (FR-158). ROADMAP.md records PHASE-ZAI-PRODUCT done. What the proposal's "Mission Control" still lacks is agent *missions*: work created and progressed by agents under approval, visible in the same Project system — which is what TASK-ZAI-012 now names. | Agent mission feed into the Development domain, TASK-ZAI-012 |
+| 2 | GoVibe Mission Control (v0.4.4: plus measured delivery telemetry on the programme board, TASK-ZAI-064 to 067) | Exists as a separate product. It reads this repository's roadmap but is **not bound to Zuri business data**. | **Corrected by the owner on 2026-09-13: this deliverable is the Project system of the Development domain in this repository, not the external GoVibe product.** That system is delivered: `src/modules/project-manager` with Projects, Workstreams, WorkItems, Board and Schedule (FR-063/064), Structure Plan and Dependency Map (FR-040), the Projects Dashboard with priority, PIC and Team (FR-086 to FR-089, FEAT-008), human-visible Execution Roadmap and Blueprint intake (FEAT-003, FR-068 to FR-070), ExecutionPlanBundle import (FEAT-012, FR-108, ADR-049), Project Inventory (FEAT-005), Files (FEAT-001) and the Marketing → PM handoff (FR-158). ROADMAP.md records PHASE-ZAI-PRODUCT done. What the proposal's "Mission Control" still lacks is agent *missions*: work created and progressed by agents under approval, visible in the same Project system — which is what TASK-ZAI-012 now names. | Agent mission feed into the Development domain, TASK-ZAI-012 |
 | 3 | Interactive Node View 3D | Not started. FR-040 ships a 2D read-only project dependency map; FR-083 edge creation is planned, not built. | FR-101 adds a second 2D read-only graph (SoT pipeline, hand-rolled SVG). FR-082 to FR-085 remain design only. | 3D view plus direct manipulation, SPR-ZAI-10 |
 | 4 | Second Brain / Governed Memory (v0.4.3: plus the data pipeline map, TASK-ZAI-060 to 063) | Partial. FR-024, FR-025, FR-029 read ports live and **read-only**; ADR-042/043 pinned, no product surface. | **Substantially advanced.** FR-109 to FR-119 declare the seventeen-stage ingestion path with lineage, provenance, snapshot and BR-022 quarantine; FR-173 admission and corpus publication (ADR-072); FR-098 agent/MSP authorization; FR-171 execution trace and replay (ADR-070); GenesisRAG17 isolated acceptance passed (ADR-073). Permission-scoped *retrieval* as a product surface is still open. | Retrieval by permission on the built substrate, SPR-ZAI-09, started early — TASK-ZAI-024/025 are in-progress |
 | 5 | Five Core Agent Roles | Partial. One generic agent turn; no role registry, no role-scoped policy. | Unchanged in kind. FR-181 adds six SCM tools on the existing gates and FR-098 the authorization context those tools consume, which is the substrate a role policy will bind to. No registry. | Role registry plus five roles, SPR-ZAI-03 |
@@ -409,7 +409,7 @@ Week numbers map to the calendar in section 5.4. W1 begins Mon 2026-08-24.
 
 | Phase | Weeks | Dates | Goal | Governing SoT | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
-| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2) | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, the cost and quote decision record is written, and the data pipeline map renders every confirmed chain (v0.4.3) | in-progress | 82 |
+| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2) | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, the cost and quote decision record is written, the data pipeline map renders every confirmed chain (v0.4.3), and the board shows measured time and tokens for done work (v0.4.4) | in-progress | 73 |
 | PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; give the seventeen-stage pipeline its knowledge base and file system on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; a real document is admitted, parsed, published and cited on production; GATE-ZAI-09's migration ledger matches | planned | 0 |
 | PHASE-ZAI-03 | 9-12 | 2026-10-19 to 2026-11-15 | Second business, cross-business analytics, first workflows and connectors; deliverable 11 accepted for Business one | `docs/ARCHITECTURE.md` | GATE-ZAI-04 and GATE-ZAI-07 are met for connectors one and two and workflows one and two; GATE-ZAI-09 is met | planned | 0 |
 | PHASE-ZAI-04 | 13-16 | 2026-11-16 to 2026-12-13 | Visual Office 2.5D and the agent activity experience | `docs/UI-DESIGN-SYSTEM.md` | GATE-ZAI-01 is met | planned | 0 |
@@ -429,7 +429,7 @@ locates the week.
 | Sprint | Parent ID | Weeks | Dates | Goal | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
 | SPR-ZAI-01 | PHASE-ZAI-01 | 1-2 | 08-24 to 09-06 | Close identity, session and authorization to production standard; (CR-019) Inventory, Sales Tasks, Commerce, Procurement, Asset Management and LINE OA Studio lanes land | A request without a trusted session reaches no mutating route, proven by test; each lane merged with tests | in-progress | 93 |
-| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake; (v0.4.3) the data pipeline registry and its node-edge map land under a Knowledge (GKS) slot | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, supplier cost sheets land with a locked FX rate, and the map shows every inbound source, outbound recipient and combine chain with its surface level | in-progress | 76 |
+| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake; (v0.4.3) the data pipeline registry and its node-edge map land under a Knowledge (GKS) slot; (v0.4.4) delivery telemetry on the programme board: phase card metrics, a usage meter over local session logs and a usage report endpoint | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, supplier cost sheets land with a locked FX rate, and the map shows every inbound source, outbound recipient and combine chain with its surface level, and a done task shows tokens measured from a named source | in-progress | 64 |
 | SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; stand up the knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending deliverable-11 migration on production; pricing rule set, the shared pricing engine and quotations; live pipeline health on the data pipeline map | Each role resolves distinct tools, policy and memory partition; a PDF uploaded in the console is published as a cited corpus on production; the migration ledger matches the tree; a quote and the FR-181 tool price the same SKU to the same satang; a failed run is visible on its map edge for its own Business only | planned | 0 |
 | SPR-ZAI-04 | PHASE-ZAI-02 | 7-8 | 10-05 to 10-18 | Approval Gateway L1 to L4 with verification, notification and Mission Control binding; ladder quotation on LINE and knowledge structured records | An L4 action cannot execute without four recorded approvals; a LINE quotation request is answered from the shared engine with no margin in the payload | planned | 0 |
 | SPR-ZAI-05 | PHASE-ZAI-03 | 9-10 | 10-19 to 11-01 | Standard business template and Business number two onboarding | Business two is live and isolated from SmartGift under test | planned | 0 |
@@ -508,6 +508,10 @@ locates the week.
 | TASK-ZAI-061 | SPR-ZAI-02 | task | Data pipeline registry — the written map of inbound sources, outbound recipients and combine chains, a validated JSON registry, a generated runtime projection and a preflight check | P0 | Claude | review | TASK-ZAI-060 | Section 3.1 row 4; FR-124 precedent; ADR-081 D2 |
 | TASK-ZAI-062 | SPR-ZAI-02 | task | Data Pipeline Map node-edge view under the Knowledge (GKS) slot — layered graph, chain, domain and status filters, edge detail with domain, FEAT and surface level, and a list view | P0 | Claude | review | TASK-ZAI-061 | Section 3.1 row 4; FR-040 and FR-101 hand-rolled SVG precedent; FR-061 |
 | TASK-ZAI-063 | SPR-ZAI-03 | task | Live pipeline health on the map — per-edge run and job counts for the active Business from the FR-071 ledger and the transport job tables | P1 | Claude | planned | TASK-ZAI-062; TASK-ZAI-047 | Section 3.1 row 4; FR-071; FR-149; FR-152; FR-143 |
+| TASK-ZAI-064 | SPR-ZAI-02 | task | Delivery telemetry decision record — the ADR that lets the programme board show measured time and tokens beside the plan without turning either into completion, the sizing table, and the requirement and FEAT declarations | P0 | Claude | in-progress | - | Section 3.1 row 2; ADR-048 D3; FR-105 |
+| TASK-ZAI-065 | SPR-ZAI-02 | task | Phase card delivery metrics — sprint and task counts, size in complexity points, plan window and effort estimate, actual time and measured tokens once done, and done or review cards tinted green or orange | P0 | Claude | planned | TASK-ZAI-064 | Section 3.1 row 2; FR-105; FR-211; NFR-008 |
+| TASK-ZAI-066 | SPR-ZAI-02 | task | Usage meter — measured tokens and active time per task from Claude Code and Codex session logs, attributed by the branches each Task Container declares and written back with provenance | P0 | Claude | planned | TASK-ZAI-064 | Section 3.1 row 2; ADR-048 D3; section 5.3 measurement precedent |
+| TASK-ZAI-067 | SPR-ZAI-02 | task | Usage report endpoint — an operator-authenticated ledger where agents without local logs report per-session tokens for a task, idempotent by session and merged with metered sessions without double counting | P1 | Claude | planned | TASK-ZAI-066 | Section 3.1 row 2; FR-106 key precedent; ADR-057 |
 
 ## Assignments
 
@@ -3340,6 +3344,182 @@ ui_state:
   disabled_reason: ""
 ```
 
+### TC-TASK-ZAI-064
+
+```yaml
+task_container_id: TC-TASK-ZAI-064
+task_id: TASK-ZAI-064
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Delivery telemetry decision record — the ADR that lets the programme board show measured time and tokens beside the plan without turning either into completion, the sizing table, and the requirement and FEAT declarations
+requirement_type: NFR
+complexity: C-2
+access_scope: H2
+status: in-progress
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: unavailable
+  doc: docs/decisions/ADR-048-PLATFORM-CONTROL-SHELL.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given ADR-048 D3 (the board is a plan snapshot and never a completion claim), when the ADR is written, then it states that measured time and tokens may appear beside the plan only as labelled measurements with their source and measuring time, never as progress, and names which figures are planned (sizing table, plan window, predicted tokens) and which are measured
+      checked: false
+  success_criteria:
+    - criterion: Given the phase card metrics, the usage meter and the report endpoint, when they are declared with one FEAT bundle, then every new id is pinned, and the sizing table (effort hours per complexity band) and the rule that one billed request is counted once across both sources are written in the programme document
+      checked: false
+  exit_criteria:
+    - criterion: Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and FR-105's statement names the measured layer
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 22000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-065
+
+```yaml
+task_container_id: TC-TASK-ZAI-065
+task_id: TASK-ZAI-065
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Phase card delivery metrics — sprint and task counts, size in complexity points, plan window and effort estimate, actual time and measured tokens once done, and done or review cards tinted green or orange
+requirement_type: FR
+complexity: C-2
+access_scope: H2
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx
+  doc: docs/roadmap/ROADMAP-zuri-ai-24w-program.md
+  test: apps/server/tests/unit/platform-control-route-contract.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a phase card on /control/roadmap, when it renders, then it shows its sprint count, task count, size as the sum of complexity points, plan window in days from its dates and effort hours from the sizing table, every figure computed from the snapshot the card already reads
+      checked: false
+  success_criteria:
+    - criterion: Given a phase, sprint or task whose status is done, when it renders, then it shows the actual elapsed time from first to last recorded activity, the active time and the measured tokens with their source, a figure with no measurement reads as not measured rather than zero or the prediction, and done cards are tinted light green and review cards light orange in both themes with the status word still shown
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test and the roadmap e2e, when they run, then the aggregates match a hand-computed fixture, an unmeasured task never shows its predicted tokens as actual, and the page builds clean
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 40000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-066
+
+```yaml
+task_container_id: TC-TASK-ZAI-066
+task_id: TASK-ZAI-066
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Usage meter — measured tokens and active time per task from Claude Code and Codex session logs, attributed by the branches each Task Container declares and written back with provenance
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: unavailable
+  doc: docs/roadmap/ROADMAP-zuri-ai-24w-program.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given Claude Code and Codex session logs on the operator's machine, when the meter runs, then each billed request is counted once by its request id, attributed to the task whose container lists the request's git branch, and summed as input, cache write, cache read and output tokens with active time and first and last activity
+      checked: false
+  success_criteria:
+    - criterion: Given a request on a branch no container declares, on a detached HEAD, or on a branch two containers claim, when the meter runs, then it is reported as unattributed or conflicting by name and counted for no task
+      checked: false
+  exit_criteria:
+    - criterion: Given the meter's write mode, when it records results, then each container's token_telemetry gains measured totals with source, measuring time and session count while predicted_token_usage stays untouched, a second run is byte-stable, and the suite covers dedupe, attribution and refusal
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 56000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-067
+
+```yaml
+task_container_id: TC-TASK-ZAI-067
+task_id: TASK-ZAI-067
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Usage report endpoint — an operator-authenticated ledger where agents without local logs report per-session tokens for a task, idempotent by session and merged with metered sessions without double counting
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: unavailable
+  doc: docs/DB-MIGRATION-NOTES.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given an agent on another machine holding an operator-issued key, when it posts a per-session usage report for a task, then the report is stored with source, session id, model, token counts and time span, a replay of the same source and session is idempotent, and a report for an unknown task is refused by name
+      checked: false
+  success_criteria:
+    - criterion: Given sessions reported through the endpoint and sessions found by the meter, when the board computes a task's measured tokens, then a session present in both is counted once and the board says which source each figure came from
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test and the Supabase migration file, when they run, then authorization refusal, idempotency, dedupe and the schema-migration drift check pass; applying the migration on production stays a separate operator step (ADR-057)
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 52000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
 ## Live Status Protocol
 
 1. Status lives in the `Status` cells of the Phases, Sprints and Backlog Items tables. The board
@@ -3364,3 +3544,4 @@ ui_state:
 | 0.4.1 | 2026-09-13 | **Knowledge base and file system for the seventeen-stage pipeline** added on the owner's instruction, under deliverable 4 (no Change Request needed). SPR-ZAI-02 accounts for what is built: TASK-ZAI-045 file intake at Stage 1 (FR-173/081/109, review — no production claim) and TASK-ZAI-046 Tier 1 Stage 2 to 8 (FR-111 to FR-119, done). The new build work spills into SPR-ZAI-03 because SPR-ZAI-02 ends 20 Sep: TASK-ZAI-047 knowledge base console, TASK-ZAI-048 binary parsing at Stage 2 with Stage 3/7/8/9 re-proof, TASK-ZAI-049 durable storage and recoverability (spec §3.1), TASK-ZAI-050 production activation beyond the ADR-073 isolated profile, TASK-ZAI-051 multi-source concurrency and replay (P2, may move to SPR-ZAI-04 at sprint entry). Sprint 02/03 and Phase 01/02 goals and exit criteria extended; progress recomputed (SPR-ZAI-02 87, PHASE-ZAI-01 90). **Deliverable 2 corrected on the owner's instruction:** GoVibe Mission Control is the Project system of the Development domain in this repository (delivered: FR-040, FR-063/064, FR-068 to FR-070, FR-086 to FR-089, FR-108), not an external product; section 3.1 row 2 rewritten and TASK-ZAI-012 re-stated as the agent mission feed into that system. |
 | 0.4.2 | 2026-09-13 | **SmartGift cost and quote engine** added on the owner's instruction, under deliverable 11 (no Change Request needed — Commerce, Procurement and Inventory are CR-019 lanes). The owner accepted every recommended default of `docs/change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md` (nine decisions). Inserted into the current sprint what is documentation or cost intake, the rest into the backlog of the next two sprints: TASK-ZAI-052 decision record (in-progress, SPR-ZAI-02), TASK-ZAI-053 supplier cost sheets with locked FX and TASK-ZAI-054 goods receipts posting landed cost (SPR-ZAI-02, may move to 03 at sprint exit), TASK-ZAI-055 PricingRuleSet and console, TASK-ZAI-056 the one pure pricing engine with price-boss parity fixtures, TASK-ZAI-057 quotations (SPR-ZAI-03, 057 may move to 04), TASK-ZAI-058 ladder quotation on LINE and TASK-ZAI-059 knowledge structured records (SPR-ZAI-04). Phase 01/02 and sprint 02/03/04 goals and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 87 → 72, PHASE-ZAI-01 90 → 80). Section 3.1 row 11 delta names the engine. |
 | 0.4.3 | 2026-09-13 | **Data pipeline map** added on the owner's instruction, under deliverable 4 (no Change Request needed): a map of where data comes from, who receives it and where it is combined before it is sent, drawn as a node-edge view in a Knowledge (GKS) navigation slot, with every task on the roadmap before work starts. No current document covers it (ARCHITECTURE-DIAGRAMS section 3 is dated 2026-08-15, SYSTEM-DIAGRAM has no surface status, KNOWLEDGE-INGESTION-SURFACES covers one domain). Placement is a zuri-ai knowledge-lane slot rather than a GKS domain because ADR-063 D4 says GKS is never a zuri-ai domain. SPR-ZAI-02 (current): TASK-ZAI-060 decision record (in-progress), TASK-ZAI-061 registry with generated projection and preflight check, TASK-ZAI-062 node-edge view; SPR-ZAI-03: TASK-ZAI-063 live per-edge health for the active Business, after TASK-ZAI-047. Sprint 02/03 and Phase 01 goals and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 72 → 62, PHASE-ZAI-01 80 → 73). Section 3.1 row 4 names the map. |
+| 0.4.4 | 2026-09-13 | **Delivery telemetry on the programme board** added on the owner's instruction, under deliverable 2 (no Change Request needed): each phase card shows its sprint count, task count, size and estimated duration, and once work is done the actual time taken and the tokens really used, measured by a surface rather than estimated; done cards tinted light green and review cards light orange. The owner chose both sources for real usage — a meter over local Claude Code and Codex session logs and a report endpoint for agents without local logs — and the plan window plus complexity-based effort for the estimate. No actual usage figure exists before this: `total_token_usage` on done tasks is a copy of the prediction. SPR-ZAI-02 (current): TASK-ZAI-064 decision record amending ADR-048 D3 (in-progress), TASK-ZAI-065 phase card metrics, TASK-ZAI-066 usage meter, TASK-ZAI-067 usage report endpoint with its migration. Sprint 02 and Phase 01 goals and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 76 → 64, PHASE-ZAI-01 82 → 73). Section 3.1 row 2 names the telemetry. |
