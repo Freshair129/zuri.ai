@@ -4704,3 +4704,29 @@ model GoodsReceiptLine {
   @@index([receiptId])
   @@index([purchaseOrderLineId])
 }
+
+// @req FR-218 — one agent session's usage for one programme task, reported by an
+// agent without local session logs (ADR-086 D5). Installation-level operations
+// data: no Tenant, Business or Person scope, so no foreign key. Keyed by
+// (source, sessionId) so a replay is idempotent; payloadSha256 tells a replay
+// from a conflicting second report. Tokens are the meter's four normalised counts.
+model ProgrammeUsageReport {
+  id               String   @id @default(uuid())
+  source           String
+  sessionId        String
+  taskCode         String
+  model            String?
+  inputTokens      Int
+  cacheWriteTokens Int
+  cacheReadTokens  Int
+  outputTokens     Int
+  requestCount     Int
+  activeMinutes    Int
+  startedAt        DateTime
+  endedAt          DateTime
+  payloadSha256    String
+  reportedAt       DateTime @default(now())
+
+  @@unique([source, sessionId])
+  @@index([taskCode])
+}

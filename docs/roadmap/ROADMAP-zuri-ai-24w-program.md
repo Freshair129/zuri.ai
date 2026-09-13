@@ -409,7 +409,7 @@ Week numbers map to the calendar in section 5.4. W1 begins Mon 2026-08-24.
 
 | Phase | Weeks | Dates | Goal | Governing SoT | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
-| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2) | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, the cost and quote decision record is written, the data pipeline map renders every confirmed chain (v0.4.3), and the board shows measured time and tokens for done work (v0.4.4) | in-progress | 70 |
+| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2) | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, the cost and quote decision record is written, the data pipeline map renders every confirmed chain (v0.4.3), and the board shows measured time and tokens for done work (v0.4.4) | in-progress | 84 |
 | PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; give the seventeen-stage pipeline its knowledge base and file system on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; a real document is admitted, parsed, published and cited on production; GATE-ZAI-09's migration ledger matches | planned | 0 |
 | PHASE-ZAI-03 | 9-12 | 2026-10-19 to 2026-11-15 | Second business, cross-business analytics, first workflows and connectors; deliverable 11 accepted for Business one | `docs/ARCHITECTURE.md` | GATE-ZAI-04 and GATE-ZAI-07 are met for connectors one and two and workflows one and two; GATE-ZAI-09 is met | planned | 0 |
 | PHASE-ZAI-04 | 13-16 | 2026-11-16 to 2026-12-13 | Visual Office 2.5D and the agent activity experience | `docs/UI-DESIGN-SYSTEM.md` | GATE-ZAI-01 is met | planned | 0 |
@@ -429,7 +429,7 @@ locates the week.
 | Sprint | Parent ID | Weeks | Dates | Goal | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
 | SPR-ZAI-01 | PHASE-ZAI-01 | 1-2 | 08-24 to 09-06 | Close identity, session and authorization to production standard; (CR-019) Inventory, Sales Tasks, Commerce, Procurement, Asset Management and LINE OA Studio lanes land | A request without a trusted session reaches no mutating route, proven by test; each lane merged with tests | in-progress | 93 |
-| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake; (v0.4.3) the data pipeline registry and its node-edge map land under a Knowledge (GKS) slot; (v0.4.4) delivery telemetry on the programme board: phase card metrics, task card evidence badges with subtask progress, a usage meter over local session logs and a usage report endpoint | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, supplier cost sheets land with a locked FX rate, and the map shows every inbound source, outbound recipient and combine chain with its surface level, a done task shows tokens measured from a named source, and every task card shows its evidence badges | in-progress | 61 |
+| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake; (v0.4.3) the data pipeline registry and its node-edge map land under a Knowledge (GKS) slot; (v0.4.4) delivery telemetry on the programme board: phase card metrics, task card evidence badges with subtask progress, a usage meter over local session logs and a usage report endpoint | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, supplier cost sheets land with a locked FX rate, and the map shows every inbound source, outbound recipient and combine chain with its surface level, a done task shows tokens measured from a named source, and every task card shows its evidence badges | in-progress | 80 |
 | SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; stand up the knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending deliverable-11 migration on production; pricing rule set, the shared pricing engine and quotations; live pipeline health on the data pipeline map | Each role resolves distinct tools, policy and memory partition; a PDF uploaded in the console is published as a cited corpus on production; the migration ledger matches the tree; a quote and the FR-181 tool price the same SKU to the same satang; a failed run is visible on its map edge for its own Business only | planned | 0 |
 | SPR-ZAI-04 | PHASE-ZAI-02 | 7-8 | 10-05 to 10-18 | Approval Gateway L1 to L4 with verification, notification and Mission Control binding; ladder quotation on LINE and knowledge structured records | An L4 action cannot execute without four recorded approvals; a LINE quotation request is answered from the shared engine with no margin in the payload | planned | 0 |
 | SPR-ZAI-05 | PHASE-ZAI-03 | 9-10 | 10-19 to 11-01 | Standard business template and Business number two onboarding | Business two is live and isolated from SmartGift under test | planned | 0 |
@@ -508,11 +508,11 @@ locates the week.
 | TASK-ZAI-061 | SPR-ZAI-02 | task | Data pipeline registry — the written map of inbound sources, outbound recipients and combine chains, a validated JSON registry, a generated runtime projection and a preflight check | P0 | Claude | review | TASK-ZAI-060 | Section 3.1 row 4; FR-124 precedent; ADR-081 D2 |
 | TASK-ZAI-062 | SPR-ZAI-02 | task | Data Pipeline Map node-edge view under the Knowledge (GKS) slot — layered graph, chain, domain and status filters, edge detail with domain, FEAT and surface level, and a list view | P0 | Claude | review | TASK-ZAI-061 | Section 3.1 row 4; FR-040 and FR-101 hand-rolled SVG precedent; FR-061 |
 | TASK-ZAI-063 | SPR-ZAI-03 | task | Live pipeline health on the map — per-edge run and job counts for the active Business from the FR-071 ledger and the transport job tables | P1 | Claude | planned | TASK-ZAI-062; TASK-ZAI-047 | Section 3.1 row 4; FR-071; FR-149; FR-152; FR-143 |
-| TASK-ZAI-064 | SPR-ZAI-02 | task | Delivery telemetry decision record — the ADR that lets the programme board show measured time and tokens beside the plan without turning either into completion, the sizing table, and the requirement and FEAT declarations | P0 | Claude | in-progress | - | Section 3.1 row 2; ADR-048 D3; FR-105 |
-| TASK-ZAI-065 | SPR-ZAI-02 | task | Phase card delivery metrics — sprint and task counts, size in complexity points, plan window and effort estimate, actual time and measured tokens once done, and done or review cards tinted green or orange | P0 | Claude | planned | TASK-ZAI-064 | Section 3.1 row 2; FR-105; FR-211; NFR-008 |
-| TASK-ZAI-066 | SPR-ZAI-02 | task | Usage meter — measured tokens and active time per task from Claude Code and Codex session logs, attributed by the branches each Task Container declares and written back with provenance | P0 | Claude | planned | TASK-ZAI-064 | Section 3.1 row 2; ADR-048 D3; section 5.3 measurement precedent |
-| TASK-ZAI-067 | SPR-ZAI-02 | task | Usage report endpoint — an operator-authenticated ledger where agents without local logs report per-session tokens for a task, idempotent by session and merged with metered sessions without double counting | P1 | Claude | planned | TASK-ZAI-066 | Section 3.1 row 2; FR-106 key precedent; ADR-057 |
-| TASK-ZAI-068 | SPR-ZAI-02 | task | Task card evidence badges and subtask progress — DOC, CODE, TEST, FR, NFR and FEAT badges coloured green for done, orange for review, red for needs fix and gray for empty, domain, complexity and priority badges, and P0 to P3 subtasks with a progress bar on the card | P0 | Claude | planned | TASK-ZAI-064 | Section 3.1 row 2; FR-105; FR-124; FR-211; NFR-008 |
+| TASK-ZAI-064 | SPR-ZAI-02 | task | Delivery telemetry decision record — the ADR that lets the programme board show measured time and tokens beside the plan without turning either into completion, the sizing table, and the requirement and FEAT declarations | P0 | Claude | done | - | Section 3.1 row 2; ADR-048 D3; FR-105 |
+| TASK-ZAI-065 | SPR-ZAI-02 | task | Phase card delivery metrics — sprint and task counts, size in complexity points, plan window and effort estimate, actual time and measured tokens once done, and done or review cards tinted green or orange | P0 | Claude | review | TASK-ZAI-064 | Section 3.1 row 2; FR-105; FR-211; NFR-008 |
+| TASK-ZAI-066 | SPR-ZAI-02 | task | Usage meter — measured tokens and active time per task from Claude Code and Codex session logs, attributed by the branches each Task Container declares and written back with provenance | P0 | Claude | review | TASK-ZAI-064 | Section 3.1 row 2; ADR-048 D3; section 5.3 measurement precedent |
+| TASK-ZAI-067 | SPR-ZAI-02 | task | Usage report endpoint — an operator-authenticated ledger where agents without local logs report per-session tokens for a task, idempotent by session and merged with metered sessions without double counting | P1 | Claude | review | TASK-ZAI-066 | Section 3.1 row 2; FR-106 key precedent; ADR-057 |
+| TASK-ZAI-068 | SPR-ZAI-02 | task | Task card evidence badges and subtask progress — DOC, CODE, TEST, FR, NFR and FEAT badges coloured green for done, orange for review, red for needs fix and gray for empty, domain, complexity and priority badges, and P0 to P3 subtasks with a progress bar on the card | P0 | Claude | review | TASK-ZAI-064 | Section 3.1 row 2; FR-105; FR-124; FR-211; NFR-008 |
 
 ## Assignments
 
@@ -976,6 +976,7 @@ symbol_links:
   code: src/modules/agent/action-gate.js
   doc: docs/FEATURE-MAP.md
   test: unavailable
+delivers: []
 definition_of_done:
   acceptance_criteria:
     - criterion: Given an action classified L4, when fewer than four distinct approvals are recorded, then execution is refused
@@ -1284,6 +1285,7 @@ symbol_links:
   code: apps/server/src/platform/integrations/providers/line/line-oa-evidence.js
   doc: docs/decisions/ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING.md
   test: unavailable
+delivers: [FR-125]
 definition_of_done:
   acceptance_criteria:
     - criterion: Given the second connector, when it ingests, then every record carries tenant, Business, connection, provider, lane, entity type and schema version
@@ -2794,6 +2796,7 @@ symbol_links:
   code: apps/server/src/modules/knowledge/ingestion-job.js
   doc: docs/domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md
   test: unavailable
+delivers: []
 definition_of_done:
   acceptance_criteria:
     - criterion: Given two sources admitted for the same Business at the same time, when both runs execute, then each holds its own run, batch and attempt identities, neither reuses the other's occurrence output, and publication order is deterministic
@@ -3014,6 +3017,7 @@ symbol_links:
   code: apps/server/src/modules/inventory/domain/inventory-costing.js
   doc: docs/change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md
   test: apps/server/tests/unit/inventory-costing.test.js
+delivers: []
 definition_of_done:
   acceptance_criteria:
     - criterion: Given price-boss golden cases (same SKU, quantity, logo and freight inputs), when pricing-engine.js runs under the imported rule set, then every ladder break matches price-boss to the baht before the deliberate integer-satang rounding change, and the differences after it are recorded as a second fixture
@@ -3058,6 +3062,7 @@ symbol_links:
   code: apps/server/src/modules/commerce/application/sales-order-service.js
   doc: docs/domains/commerce/features/FR-166-sales-orders.md
   test: unavailable
+delivers: []
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a quote built in /commerce/quotes, when it is saved, then each line stores its inputs, landed breakdown, ladder snapshot, unit price, driver and the rule set version, a manual price needs a reason, and the quote follows draft, submitted, approved, sent, accepted, converted, rejected, cancelled and expired with the creator refused as approver
@@ -3190,6 +3195,7 @@ symbol_links:
   code: unavailable
   doc: docs/domains/knowledge/CHARTER.md
   test: unavailable
+delivers: []
 definition_of_done:
   acceptance_criteria:
     - criterion: Given the owner's instruction to place the data pipeline map as a sub-domain of the Genesis Knowledge System, when the ADR is written, then it records that the new navigation slot belongs to zuri-ai's own knowledge lane and names GKS as the authority that lane consumes, so ADR-063 D4 (GKS, MSP and GenesisBlockDB are never zuri-ai domains) stays true word for word
@@ -3231,9 +3237,10 @@ executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/scripts/domain-state.mjs
-  doc: docs/ARCHITECTURE-DIAGRAMS.md
-  test: apps/server/tests/unit/domain-state.test.js
+  code: apps/server/scripts/data-pipeline-map.mjs
+  doc: docs/DATA-PIPELINE-MAP.md
+  test: apps/server/tests/unit/data-pipeline-map.test.js
+delivers: [FR-212, FEAT-033]
 definition_of_done:
   acceptance_criteria:
     - criterion: Given the new map document, when a reader opens it, then it lists every inbound source, every outbound recipient and every chain that combines data before sending it on, each hop with its owning domain, FEAT or FR, surface kind (HTTP endpoint, UI page, MCP tool, worker, CLI) and one status level (declared, code and tests, endpoint, UI, live on production), with declared-only and not-built flows shown as such rather than omitted
@@ -3275,9 +3282,10 @@ executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/config/domains.js
+  code: apps/server/src/modules/knowledge/pipeline-map/DataPipelineMapView.jsx
   doc: docs/INTERFACE-INVENTORY.md
-  test: unavailable
+  test: apps/server/tests/e2e/fr213-data-pipeline-map.spec.js
+delivers: [FR-213, FR-214, FEAT-033]
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a viewer whose visible domains include the Knowledge (GKS) slot, when they open the Data Pipeline Map, then external sources, ingest surfaces, combine steps, stores, outbound surfaces and recipients render as layered nodes with labelled edges drawn in hand-rolled SVG, and a viewer without the slot reaches no page and no payload
@@ -3322,6 +3330,7 @@ symbol_links:
   code: apps/server/src/platform/integrations/core/pipeline-tracking-service.js
   doc: docs/domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md
   test: unavailable
+delivers: [FR-215]
 definition_of_done:
   acceptance_criteria:
     - criterion: Given the active Business, when the map loads its live overlay, then each edge backed by a ledger or job table shows counts by status and the last run time for that Business only, read through the owning domain's read port, and an edge with no backing table shows no number rather than zero
@@ -3356,27 +3365,28 @@ title: Delivery telemetry decision record — the ADR that lets the programme bo
 requirement_type: NFR
 complexity: C-2
 access_scope: H2
-status: in-progress
-version: 0.1.0
+status: done
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
   code: unavailable
-  doc: docs/decisions/ADR-048-PLATFORM-CONTROL-SHELL.md
+  doc: docs/decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md
   test: unavailable
+delivers: []
 definition_of_done:
   acceptance_criteria:
     - criterion: Given ADR-048 D3 (the board is a plan snapshot and never a completion claim), when the ADR is written, then it states that measured time and tokens may appear beside the plan only as labelled measurements with their source and measuring time, never as progress, and names which figures are planned (sizing table, plan window, predicted tokens) and which are measured
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given the phase card metrics, the usage meter and the report endpoint, when they are declared with one FEAT bundle, then every new id is pinned, and the sizing table (effort hours per complexity band) the rule that one billed request is counted once across both sources and the badge colour rules (done green, review orange, needs fix red, empty gray) are written in the programme document
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and FR-105's statement names the measured layer
-      checked: false
-changelog: Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction.
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction. Closed 2026-09-13: ADR-086 accepted (amends ADR-048 D3); FR-216, FR-217, FR-218, FR-219 and FEAT-034 declared and pinned; the sizing table, work lanes and badge colour rules are written in the Delivery Telemetry section.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -3400,27 +3410,38 @@ title: Phase card delivery metrics — sprint and task counts, size in complexit
 requirement_type: FR
 complexity: C-2
 access_scope: H2
-status: planned
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx
+  code: apps/server/src/modules/platform-control/program-delivery-metrics.js
   doc: docs/roadmap/ROADMAP-zuri-ai-24w-program.md
-  test: apps/server/tests/unit/platform-control-route-contract.test.js
+  test: apps/server/tests/unit/program-delivery-metrics.test.js
+delivers: [FR-216, FEAT-034]
+subtasks:
+  - id: P0
+    title: Phase card counts, size, plan window and effort estimate
+    status: done
+  - id: P1
+    title: Measured time and tokens with their sources, not measured when absent
+    status: done
+  - id: P2
+    title: Done cards light green and review cards light orange in both themes
+    status: done
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a phase card on /control/roadmap, when it renders, then it shows its sprint count, task count, size as the sum of complexity points, plan window in days from its dates and effort hours from the sizing table, every figure computed from the snapshot the card already reads
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a phase, sprint or task whose status is done, when it renders, then it shows the actual elapsed time from first to last recorded activity, the active time and the measured tokens with their source, a figure with no measurement reads as not measured rather than zero or the prediction, and done cards are tinted light green and review cards light orange in both themes with the status word still shown
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test and the roadmap e2e, when they run, then the aggregates match a hand-computed fixture, an unmeasured task never shows its predicted tokens as actual, and the page builds clean
-      checked: false
-changelog: Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction.
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction. Implemented locally 2026-09-13 (FR-216): program-delivery-metrics.js computes the planned figures and the measured row per phase, the board renders them with done and review tints from the shell tone tokens; tests/unit/program-delivery-metrics.test.js, program-roadmap-board-telemetry.test.js and tests/e2e/fr216-programme-delivery-telemetry.spec.js.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -3444,27 +3465,38 @@ title: Usage meter — measured tokens and active time per task from Claude Code
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: unavailable
+  code: apps/server/scripts/programme-usage-meter.mjs
   doc: docs/roadmap/ROADMAP-zuri-ai-24w-program.md
-  test: unavailable
+  test: apps/server/tests/unit/programme-usage-meter.test.js
+delivers: [FR-217, FEAT-034]
+subtasks:
+  - id: P0
+    title: Claude Code log reader, one count per requestId
+    status: done
+  - id: P1
+    title: Codex log reader, one count per response_id, cached input separated
+    status: done
+  - id: P2
+    title: Lane attribution, active time, write-back and module regeneration
+    status: done
 definition_of_done:
   acceptance_criteria:
     - criterion: Given Claude Code and Codex session logs on the operator's machine, when the meter runs, then each billed request is counted once by its request id, attributed to the task whose container lists the request's git branch, and summed as input, cache write, cache read and output tokens with active time and first and last activity
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a request on a branch no container declares, on a detached HEAD, or on a branch two containers claim, when the meter runs, then it is reported as unattributed or conflicting by name and counted for no task
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given the meter's write mode, when it records results, then each container's token_telemetry gains measured totals with source, measuring time and session count while predicted_token_usage stays untouched, a second run is byte-stable, and the suite covers dedupe, attribution and refusal
-      checked: false
-changelog: Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction.
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction. Implemented locally 2026-09-13 (FR-217): scripts/programme-usage-meter.mjs reads Claude Code and Codex logs, counts each request once, attributes by lane branch and writes the usage block; first real run measured all three declared lanes and reported main and detached HEAD work as unattributed; tests/unit/programme-usage-meter.test.js.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -3488,27 +3520,38 @@ title: Usage report endpoint — an operator-authenticated ledger where agents w
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: unavailable
-  doc: docs/DB-MIGRATION-NOTES.md
-  test: unavailable
+  code: apps/server/src/app/api/platform/programme-usage-reports/route.js
+  doc: docs/appendices/A-api-spec.md
+  test: apps/server/tests/unit/programme-usage-reports.test.js
+delivers: [FR-218, FEAT-034]
+subtasks:
+  - id: P0
+    title: ProgrammeUsageReport model and Supabase migration
+    status: done
+  - id: P1
+    title: Bearer-authenticated idempotent report endpoint
+    status: done
+  - id: P2
+    title: Board merge that counts a metered session once
+    status: done
 definition_of_done:
   acceptance_criteria:
     - criterion: Given an agent on another machine holding an operator-issued key, when it posts a per-session usage report for a task, then the report is stored with source, session id, model, token counts and time span, a replay of the same source and session is idempotent, and a report for an unknown task is refused by name
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given sessions reported through the endpoint and sessions found by the meter, when the board computes a task's measured tokens, then a session present in both is counted once and the board says which source each figure came from
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test and the Supabase migration file, when they run, then authorization refusal, idempotency, dedupe and the schema-migration drift check pass; applying the migration on production stays a separate operator step (ADR-057)
-      checked: false
-changelog: Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction.
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction. Implemented locally 2026-09-13 (FR-218): ProgrammeUsageReport in both schemas, migration 20260913230000_programme_usage_report written in both trees and NOT applied to production, POST /api/platform/programme-usage-reports under ZURI_PROGRAMME_USAGE_TOKEN, merged on the board with a metered session counted once; tests/unit/programme-usage-reports.test.js.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -3532,27 +3575,38 @@ title: Task card evidence badges and subtask progress — DOC, CODE, TEST, FR, N
 requirement_type: FR
 complexity: C-2
 access_scope: H2
-status: planned
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx
+  code: apps/server/src/modules/platform-control/program-task-evidence.js
   doc: docs/roadmap/ROADMAP-zuri-ai-24w-program.md
-  test: apps/server/tests/unit/platform-control-route-contract.test.js
+  test: apps/server/tests/unit/program-task-evidence.test.js
+delivers: [FR-219, FEAT-034]
+subtasks:
+  - id: P0
+    title: DOC, CODE, TEST, FR, NFR and FEAT evidence badges with colour and word
+    status: done
+  - id: P1
+    title: Domain code name, complexity and priority badges
+    status: done
+  - id: P2
+    title: Subtask list and progress bar on the card
+    status: done
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a task card, when it renders, then it shows DOC, CODE and TEST badges from its container links, FR, NFR and FEAT badges from the ids it delivers read against the FR-124 snapshot, and badges for its domain code name, complexity and priority, each evidence badge green when done, orange when in review, red when it needs fixing (a declared link that no longer resolves, or a delivered id the snapshot does not show as built while the task claims done or review) and gray when empty
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a Task Container that splits its plan into subtasks P0 to P3, when the card renders, then the subtasks are listed with their own status and the card carries a progress bar computed from them under the board mapping, and a task without subtasks shows no bar rather than an invented one
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the board suites run, then every badge colour rule, the link check against the repository, the id-to-snapshot lookup and the subtask progress are asserted, and the generated containers stay in step with the markdown
-      checked: false
-changelog: Opened 2026-09-13 (v0.4.4) on the owner's follow-up to TASK-ZAI-065, in the same conversation and before the plan merged: every task card should show [DOC] [CODE] [TEST] [FR] [NFR] [FEAT] [domain code name] [complexity] [priority] badges — green done, orange review, red needs fix, gray empty — and a task whose plan is split into subtasks such as P0, P1, P2 and P3 should list them so the card can carry a progress bar. The FR, NFR and FEAT colours come from the FR-124 snapshot the Domain map tab already reads (FR-211); the link colours need the container generator to check each path against the repository when it runs, because the production image carries neither docs/ nor tests/.
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.4) on the owner's follow-up to TASK-ZAI-065, in the same conversation and before the plan merged: every task card should show [DOC] [CODE] [TEST] [FR] [NFR] [FEAT] [domain code name] [complexity] [priority] badges — green done, orange review, red needs fix, gray empty — and a task whose plan is split into subtasks such as P0, P1, P2 and P3 should list them so the card can carry a progress bar. The FR, NFR and FEAT colours come from the FR-124 snapshot the Domain map tab already reads (FR-211); the link colours need the container generator to check each path against the repository when it runs, because the production image carries neither docs/ nor tests/. Implemented locally 2026-09-13 (FR-219): scripts/programme-containers.mjs moves into the repository and adds priority, delivered ids, link state and subtasks; program-task-evidence.js colours the badges against the FR-124 snapshot; tests/unit/program-task-evidence.test.js and programme-containers.test.js.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -3564,6 +3618,192 @@ ui_state:
   expanded: false
   disabled_reason: ""
 ```
+
+## Delivery Telemetry
+
+Added in v0.4.4 under [ADR-086](../decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md).
+Two layers, never mixed: **planned** figures come from this document, **measured**
+figures come from the usage meter (FR-217) and usage reports (FR-218). A measured
+figure is cost, not progress — it feeds no status, gate or progress cell.
+
+**Sizing table** (ADR-086 D2). Size is the sum of complexity points; the effort
+estimate is the sum of each task's band. The owner may change the bands; the board
+shows whatever this block says.
+
+| Complexity | Points | Effort estimate |
+|---|---|---|
+| C-1 | 1 | 2 h |
+| C-2 | 2 | 6 h |
+| C-3 | 3 | 16 h |
+
+**Work lanes** (ADR-086 D3). A lane is a set of tasks worked on together, joined to
+agent sessions by the git branches the work used. Usage is measured per lane and
+shown once, never split across tasks by estimate. A lane's tasks share one phase; a
+branch belongs to one lane; `main`, `master` and `HEAD` are never declared. Work
+done before a lane is declared, or on a branch no lane names, is not measured.
+
+<!-- programme-delivery-plan:start -->
+```json
+{
+  "sizing": {
+    "points": {
+      "C-1": 1,
+      "C-2": 2,
+      "C-3": 3
+    },
+    "effortHours": {
+      "C-1": 2,
+      "C-2": 6,
+      "C-3": 16
+    },
+    "activeGapCapMinutes": 15
+  },
+  "lanes": [
+    {
+      "id": "LANE-COST-QUOTE-PLAN",
+      "title": "SmartGift cost and quote engine — plan",
+      "tasks": [
+        "TASK-ZAI-052"
+      ],
+      "branches": [
+        "docs/cost-quote-engine-plan"
+      ]
+    },
+    {
+      "id": "LANE-DATA-PIPELINE-MAP",
+      "title": "Data pipeline map — plan and delivery",
+      "tasks": [
+        "TASK-ZAI-060",
+        "TASK-ZAI-061",
+        "TASK-ZAI-062"
+      ],
+      "branches": [
+        "docs/data-pipeline-map-plan",
+        "feat/data-pipeline-map"
+      ]
+    },
+    {
+      "id": "LANE-DELIVERY-TELEMETRY",
+      "title": "Delivery telemetry and task card badges — plan and delivery",
+      "tasks": [
+        "TASK-ZAI-064",
+        "TASK-ZAI-065",
+        "TASK-ZAI-066",
+        "TASK-ZAI-067",
+        "TASK-ZAI-068"
+      ],
+      "branches": [
+        "feat/roadmap-phase-card-metrics",
+        "feat/delivery-telemetry"
+      ]
+    }
+  ]
+}
+```
+<!-- programme-delivery-plan:end -->
+
+**Measured usage** — written by `node scripts/programme-usage-meter.mjs --write`
+from Claude Code and Codex session logs on the operator's machine (ADR-086 D4). Do
+not edit by hand. `measuredThrough` is the last request the meter counted, so a
+second run over the same logs writes the same block.
+
+<!-- programme-usage:start -->
+```json
+{
+  "meter": "scripts/programme-usage-meter.mjs",
+  "measuredThrough": "2026-09-13T15:22:04.318Z",
+  "lanes": {
+    "LANE-COST-QUOTE-PLAN": {
+      "requests": 33,
+      "sessions": [
+        "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
+      ],
+      "tokens": {
+        "input": 858,
+        "cacheWrite": 121351,
+        "cacheRead": 21264738,
+        "output": 79091
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 33,
+          "tokens": {
+            "input": 858,
+            "cacheWrite": 121351,
+            "cacheRead": 21264738,
+            "output": 79091
+          }
+        }
+      },
+      "models": [
+        "claude-fable-5-1"
+      ],
+      "firstActivityAt": "2026-09-13T10:59:55.549Z",
+      "lastActivityAt": "2026-09-13T11:34:07.131Z",
+      "activeMinutes": 34
+    },
+    "LANE-DATA-PIPELINE-MAP": {
+      "requests": 105,
+      "sessions": [
+        "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
+      ],
+      "tokens": {
+        "input": 222,
+        "cacheWrite": 499288,
+        "cacheRead": 77097311,
+        "output": 187587
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 105,
+          "tokens": {
+            "input": 222,
+            "cacheWrite": 499288,
+            "cacheRead": 77097311,
+            "output": 187587
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5"
+      ],
+      "firstActivityAt": "2026-09-13T11:48:18.303Z",
+      "lastActivityAt": "2026-09-13T14:08:30.927Z",
+      "activeMinutes": 95
+    },
+    "LANE-DELIVERY-TELEMETRY": {
+      "requests": 126,
+      "sessions": [
+        "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
+      ],
+      "tokens": {
+        "input": 256,
+        "cacheWrite": 333119,
+        "cacheRead": 46904427,
+        "output": 176676
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 126,
+          "tokens": {
+            "input": 256,
+            "cacheWrite": 333119,
+            "cacheRead": 46904427,
+            "output": 176676
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5"
+      ],
+      "firstActivityAt": "2026-09-13T14:21:05.669Z",
+      "lastActivityAt": "2026-09-13T15:22:04.318Z",
+      "activeMinutes": 61
+    }
+  }
+}
+```
+<!-- programme-usage:end -->
 
 ## Live Status Protocol
 
@@ -3589,4 +3829,4 @@ ui_state:
 | 0.4.1 | 2026-09-13 | **Knowledge base and file system for the seventeen-stage pipeline** added on the owner's instruction, under deliverable 4 (no Change Request needed). SPR-ZAI-02 accounts for what is built: TASK-ZAI-045 file intake at Stage 1 (FR-173/081/109, review — no production claim) and TASK-ZAI-046 Tier 1 Stage 2 to 8 (FR-111 to FR-119, done). The new build work spills into SPR-ZAI-03 because SPR-ZAI-02 ends 20 Sep: TASK-ZAI-047 knowledge base console, TASK-ZAI-048 binary parsing at Stage 2 with Stage 3/7/8/9 re-proof, TASK-ZAI-049 durable storage and recoverability (spec §3.1), TASK-ZAI-050 production activation beyond the ADR-073 isolated profile, TASK-ZAI-051 multi-source concurrency and replay (P2, may move to SPR-ZAI-04 at sprint entry). Sprint 02/03 and Phase 01/02 goals and exit criteria extended; progress recomputed (SPR-ZAI-02 87, PHASE-ZAI-01 90). **Deliverable 2 corrected on the owner's instruction:** GoVibe Mission Control is the Project system of the Development domain in this repository (delivered: FR-040, FR-063/064, FR-068 to FR-070, FR-086 to FR-089, FR-108), not an external product; section 3.1 row 2 rewritten and TASK-ZAI-012 re-stated as the agent mission feed into that system. |
 | 0.4.2 | 2026-09-13 | **SmartGift cost and quote engine** added on the owner's instruction, under deliverable 11 (no Change Request needed — Commerce, Procurement and Inventory are CR-019 lanes). The owner accepted every recommended default of `docs/change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md` (nine decisions). Inserted into the current sprint what is documentation or cost intake, the rest into the backlog of the next two sprints: TASK-ZAI-052 decision record (in-progress, SPR-ZAI-02), TASK-ZAI-053 supplier cost sheets with locked FX and TASK-ZAI-054 goods receipts posting landed cost (SPR-ZAI-02, may move to 03 at sprint exit), TASK-ZAI-055 PricingRuleSet and console, TASK-ZAI-056 the one pure pricing engine with price-boss parity fixtures, TASK-ZAI-057 quotations (SPR-ZAI-03, 057 may move to 04), TASK-ZAI-058 ladder quotation on LINE and TASK-ZAI-059 knowledge structured records (SPR-ZAI-04). Phase 01/02 and sprint 02/03/04 goals and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 87 → 72, PHASE-ZAI-01 90 → 80). Section 3.1 row 11 delta names the engine. |
 | 0.4.3 | 2026-09-13 | **Data pipeline map** added on the owner's instruction, under deliverable 4 (no Change Request needed): a map of where data comes from, who receives it and where it is combined before it is sent, drawn as a node-edge view in a Knowledge (GKS) navigation slot, with every task on the roadmap before work starts. No current document covers it (ARCHITECTURE-DIAGRAMS section 3 is dated 2026-08-15, SYSTEM-DIAGRAM has no surface status, KNOWLEDGE-INGESTION-SURFACES covers one domain). Placement is a zuri-ai knowledge-lane slot rather than a GKS domain because ADR-063 D4 says GKS is never a zuri-ai domain. SPR-ZAI-02 (current): TASK-ZAI-060 decision record (in-progress), TASK-ZAI-061 registry with generated projection and preflight check, TASK-ZAI-062 node-edge view; SPR-ZAI-03: TASK-ZAI-063 live per-edge health for the active Business, after TASK-ZAI-047. Sprint 02/03 and Phase 01 goals and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 72 → 62, PHASE-ZAI-01 80 → 73). Section 3.1 row 4 names the map. |
-| 0.4.4 | 2026-09-13 | **Delivery telemetry on the programme board** added on the owner's instruction, under deliverable 2 (no Change Request needed): each phase card shows its sprint count, task count, size and estimated duration, and once work is done the actual time taken and the tokens really used, measured by a surface rather than estimated; done cards tinted light green and review cards light orange. On the owner's follow-up the same day, every task card also shows [DOC] [CODE] [TEST] [FR] [NFR] [FEAT] [domain] [complexity] [priority] badges (green done, orange review, red needs fix, gray empty) and a task split into subtasks P0 to P3 carries a progress bar. The owner chose both sources for real usage — a meter over local Claude Code and Codex session logs and a report endpoint for agents without local logs — and the plan window plus complexity-based effort for the estimate. No actual usage figure exists before this: `total_token_usage` on done tasks is a copy of the prediction. SPR-ZAI-02 (current): TASK-ZAI-064 decision record amending ADR-048 D3 (in-progress), TASK-ZAI-065 phase card metrics, TASK-ZAI-066 usage meter, TASK-ZAI-067 usage report endpoint with its migration, TASK-ZAI-068 task card evidence badges and subtask progress. Sprint 02 and Phase 01 goals and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 76 → 61, PHASE-ZAI-01 82 → 70). Section 3.1 row 2 names the telemetry. |
+| 0.4.4 | 2026-09-13 | **Delivery telemetry on the programme board** added on the owner's instruction, under deliverable 2 (no Change Request needed): each phase card shows its sprint count, task count, size and estimated duration, and once work is done the actual time taken and the tokens really used, measured by a surface rather than estimated; done cards tinted light green and review cards light orange. On the owner's follow-up the same day, every task card also shows [DOC] [CODE] [TEST] [FR] [NFR] [FEAT] [domain] [complexity] [priority] badges (green done, orange review, red needs fix, gray empty) and a task split into subtasks P0 to P3 carries a progress bar. The owner chose both sources for real usage — a meter over local Claude Code and Codex session logs and a report endpoint for agents without local logs — and the plan window plus complexity-based effort for the estimate. No actual usage figure exists before this: `total_token_usage` on done tasks is a copy of the prediction. SPR-ZAI-02 (current): TASK-ZAI-064 decision record amending ADR-048 D3 (in-progress), TASK-ZAI-065 phase card metrics, TASK-ZAI-066 usage meter, TASK-ZAI-067 usage report endpoint with its migration, TASK-ZAI-068 task card evidence badges and subtask progress. Sprint 02 and Phase 01 goals and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 76 → 61, PHASE-ZAI-01 82 → 70). Section 3.1 row 2 names the telemetry. Delivered the same day on feat/delivery-telemetry: TASK-ZAI-064 done (ADR-086; FR-216 to FR-219 and FEAT-034 declared), TASK-ZAI-065 to 068 in review (implemented locally with tests; the FR-218 migration written and not applied); a Delivery Telemetry section with the sizing table, work lanes and the meter's first measured usage block added; progress recomputed (SPR-ZAI-02 61 → 80, PHASE-ZAI-01 70 → 84). |

@@ -13,6 +13,8 @@
     "db:clean": "prisma db push --force-reset",
     "db:reset": "prisma db push --force-reset && node prisma/seed.js",
     "db:pg:schema": "node scripts/gen-postgres-schema.mjs",
+    "programme:containers": "node scripts/programme-containers.mjs",
+    "programme:usage": "node scripts/programme-usage-meter.mjs",
     "db:pg:sql": "npm run db:pg:schema && prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.postgres.prisma --script > prisma/postgres/0001_init.sql",
     "db:pg:export": "node scripts/migrate-to-postgres.mjs export snapshot.json",
     "db:pg:import": "node scripts/migrate-to-postgres.mjs import snapshot.json",

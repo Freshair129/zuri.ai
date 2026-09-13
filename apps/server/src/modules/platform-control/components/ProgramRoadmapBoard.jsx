@@ -2,11 +2,14 @@
 
 // @req FR-105 — render the submitted programme without treating it as Business progress.
 // @req FR-211 — and, in a second tab, the domain map & inventory.
-// @spec ADR-048 D3, SDD-055, NFR-008
-// @tested tests/unit/platform-control-route-contract.test.js, tests/unit/platform-control-domain-map.test.js
+// @req FR-216 — each phase card carries its planned figures and, beside them, the
+//   time and tokens measured for its lanes; done cards read green, review orange.
+// @req FR-219 — each task card carries evidence badges and its subtask progress.
+// @spec ADR-048 D3, ADR-086 D1, D6, SDD-055, NFR-008
+// @tested tests/unit/platform-control-route-contract.test.js, tests/unit/platform-control-domain-map.test.js, tests/unit/program-roadmap-board-telemetry.test.js
 
 import { useState } from 'react'
-import { Boxes, ChevronDown, ClipboardList, Flag, History, Layers3, ShieldCheck } from 'lucide-react'
+import { Boxes, ChevronDown, ClipboardList, Flag, Gauge, History, Layers3, ShieldCheck } from 'lucide-react'
 import { Card, Kpi, PageHeader, ProgressBar, StatusPill } from '@/components/ui'
 import {
   PROGRAMME_DELIVERABLES,
@@ -17,6 +20,15 @@ import {
   PROGRAMME_TASKS,
 } from '@/modules/platform-control/program-roadmap-data'
 import { PROGRAMME_CONTAINERS } from '@/modules/platform-control/program-roadmap-containers'
+import { PROGRAMME_LANES, PROGRAMME_SIZING, PROGRAMME_USAGE } from '@/modules/platform-control/program-roadmap-telemetry'
+import {
+  formatDuration,
+  formatTokens,
+  phaseDeliveryMetrics,
+  subtaskProgress,
+  tokensUsed,
+} from '@/modules/platform-control/program-delivery-metrics'
+import { TONE_WORD } from '@/modules/platform-control/program-task-evidence'
 import DomainMapView from './DomainMapView'
 import TiltCard from './TiltCard'
 import styles from './program-roadmap-board.module.css'
@@ -54,7 +66,115 @@ function Criterion({ label, tone, item }) {
   )
 }
 
-function TaskDetail({ id, status, container }) {
+// ---- FR-216 / FR-219 (ADR-086): delivery telemetry and evidence badges -------
+
+const TONE_GLYPH = { done: '✓', review: '◐', fix: '✕', empty: '○' }
+const STATUS_ORDER = ['done', 'review', 'in-progress', 'assigned', 'ready', 'planned', 'blocked']
+
+function EvidenceBadges({ id, evidence }) {
+  if (!evidence) return null
+  return (
+    <div className={styles.badges} data-testid={`task-badges-${id}`}>
+      {evidence.evidence.map((badge) => (
+        <span
+          key={badge.key}
+          className={styles.badge}
+          data-tone={badge.tone}
+          data-badge={badge.key}
+          title={`${badge.key} · ${TONE_WORD[badge.tone]} — ${badge.detail}`}
+          aria-label={`${badge.key} ${TONE_WORD[badge.tone]}`}
+        >
+          <span aria-hidden className={styles.badgeGlyph}>{TONE_GLYPH[badge.tone]}</span>
+          {badge.key}
+        </span>
+      ))}
+      {evidence.descriptors.map((d) => (
+        <span key={d.key} className={`${styles.badge} ${styles.badgeNeutral}`} data-badge={d.key} title={d.detail}>{d.label}</span>
+      ))}
+    </div>
+  )
+}
+
+function SubtaskBar({ id, subtasks }) {
+  const percent = subtaskProgress(subtasks)
+  if (percent === null) return null
+  const done = subtasks.filter((s) => s.status === 'done').length
+  return (
+    <div className={styles.subtaskBar} data-testid={`task-subtasks-${id}`}>
+      <span className="shrink-0 text-[11px] text-muted">subtask {done}/{subtasks.length} · {percent}%</span>
+      <span className="min-w-0 flex-1"><ProgressBar percent={percent} tone="green" label={`${id} subtask progress`} /></span>
+      <span className={styles.subtaskChips} aria-hidden>
+        {subtasks.map((s) => <span key={s.id} className={styles.subtaskChip} data-status={s.status} title={`${s.id} · ${s.status} — ${s.title}`}>{s.id}</span>)}
+      </span>
+    </div>
+  )
+}
+
+function usageSources(sources) {
+  return sources.map((s) => (s.startsWith('report:') ? `${s.slice('report:'.length)} (รายงาน)` : s)).join(', ')
+}
+
+function PhaseMetrics({ phase, metrics }) {
+  const m = metrics.measured
+  const breakdown = STATUS_ORDER.filter((s) => metrics.byStatus[s]).map((s) => `${s} ${metrics.byStatus[s]}`).join(' · ')
+  return (
+    <div className={styles.metrics} data-testid={`phase-metrics-${phase.id}`}>
+      <div className={styles.metricRow}>
+        <span className={styles.metricLabel}>แผน</span>
+        <span className={styles.metric}><b>{metrics.sprintCount}</b> sprint</span>
+        <span className={styles.metric} title={breakdown}><b>{metrics.taskCount}</b> task</span>
+        <span className={styles.metric} title="size = ผลรวม complexity point (C-1 = 1, C-2 = 2, C-3 = 3)"><b>{metrics.sizePoints}</b> pt</span>
+        <span className={styles.metric} title={`plan window ${phase.start} → ${phase.end}`}><b>{metrics.planDays ?? '—'}</b> วัน</span>
+        <span className={styles.metric} title="effort ประมาณจากตาราง sizing ในเอกสารโปรแกรม"><b>~{metrics.effortHours}</b> ชม. effort</span>
+        <span className={styles.metric} title="predicted_token_usage รวมของทุก task — ค่าคาดการณ์"><b>{formatTokens(metrics.predictedTokens)}</b> token คาดการณ์</span>
+        <span className={styles.metricMuted}>{breakdown}</span>
+      </div>
+      <div className={styles.metricRow} data-measured={m ? 'true' : 'false'}>
+        <span className={`${styles.metricLabel} ${styles.metricLabelMeasured}`}>วัดจริง</span>
+        {m ? (
+          <>
+            <span className={styles.metric} title={`input ${m.tokens.input.toLocaleString()} · cache write ${m.tokens.cacheWrite.toLocaleString()} · output ${m.tokens.output.toLocaleString()}`}>
+              <b>{formatTokens(m.used)}</b> token ใช้ไป
+            </span>
+            <span className={styles.metricMuted}>+ cache read {formatTokens(m.tokens.cacheRead)}</span>
+            {metrics.done ? (
+              <>
+                <span className={styles.metric}><b>{m.elapsedDays === null ? '—' : m.elapsedDays < 1 ? formatDuration(m.elapsedDays * 1440) : `${m.elapsedDays.toFixed(1)} วัน`}</b> เวลาจริง</span>
+                <span className={styles.metric}><b>{formatDuration(m.activeMinutes)}</b> active</span>
+              </>
+            ) : (
+              <span className={styles.metricMuted}>เวลาจริงแสดงเมื่อ phase done · active ถึงตอนนี้ {formatDuration(m.activeMinutes)}</span>
+            )}
+            <span className={styles.metricMuted}>{m.sessions} session · วัดได้ {m.coveredTasks}/{metrics.taskCount} task · {usageSources(m.sources)}</span>
+          </>
+        ) : (
+          <span className={styles.metricMuted}>ยังไม่วัด — ไม่มี lane ที่ประกาศ branch และมี session ใน phase นี้</span>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function LaneTelemetry({ id, laneUsage }) {
+  const lane = PROGRAMME_LANES.find((l) => l.tasks.includes(id))
+  const m = laneUsage[lane?.id] || laneUsage[`TASK:${id}`]
+  return (
+    <div className={styles.infoSec} data-testid={`task-telemetry-${id}`}>
+      <span className={styles.secLabel}>Delivery telemetry</span>
+      {m ? (
+        <p className="text-xs">
+          {lane ? <>lane <code>{lane.id}</code> ({lane.tasks.length} task ใช้ร่วมกัน · branch {lane.branches.join(', ')}) · </> : null}
+          ใช้ไป <b>{tokensUsed(m.tokens).toLocaleString()}</b> token (+ cache read {m.tokens.cacheRead.toLocaleString()}) · active {formatDuration(m.activeMinutes)} · {m.sessions} session · {usageSources(m.sources)}
+          {m.firstActivityAt && <> · {m.firstActivityAt.slice(0, 16).replace('T', ' ')} → {m.lastActivityAt.slice(0, 16).replace('T', ' ')} UTC</>}
+        </p>
+      ) : (
+        <p className="text-xs text-muted">ยังไม่วัด{lane ? ` — lane ${lane.id} ยังไม่มี session บน ${lane.branches.join(', ')}` : ' — task นี้ไม่อยู่ใน lane ใด'}</p>
+      )}
+    </div>
+  )
+}
+
+function TaskDetail({ id, status, container, laneUsage }) {
   if (!container) return <p className="mt-2 text-xs text-muted">No Task Container is recorded for {id} in the document.</p>
   return (
     <div className={styles.detail} data-testid={`task-detail-${id}`}>
@@ -78,6 +198,19 @@ function TaskDetail({ id, status, container }) {
           <Criterion label="Exit" tone="Exit" item={container.dod.exit} />
         </div>
       </div>
+      {container.subtasks?.length > 0 && (
+        <div className={styles.infoSec}>
+          <span className={styles.secLabel}>Subtasks</span>
+          <ul className="space-y-1">
+            {container.subtasks.map((s) => (
+              <li key={s.id} className="flex flex-wrap items-center gap-2 text-xs">
+                <code className="font-semibold">{s.id}</code><StatusPill status={badgeStatus(s.status)} /><span>{s.title}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      <LaneTelemetry id={id} laneUsage={laneUsage} />
       <div className={styles.infoSec}>
         <span className={styles.secLabel}>Changelog</span>
         <p className={styles.changelog}>{container.changelog}</p>
@@ -193,7 +326,16 @@ const VIEWS = [
   { id: 'domains', label: 'Domain map & inventory', icon: Boxes },
 ]
 
-export default function ProgramRoadmapBoard({ domainMap = null, initialView = 'programme' }) {
+const toneOf = (status) => (status === 'done' ? 'done' : status === 'review' ? 'review' : null)
+
+export default function ProgramRoadmapBoard({
+  domainMap = null,
+  initialView = 'programme',
+  laneUsage = {},
+  usageReports = { available: false, count: 0 },
+  taskEvidence = null,
+}) {
+  const laneUsageMap = new Map(Object.entries(laneUsage))
   const [view, setView] = useState(domainMap && initialView === 'domains' ? 'domains' : 'programme')
   const selectView = (next) => {
     setView(next)
@@ -285,12 +427,27 @@ export default function ProgramRoadmapBoard({ domainMap = null, initialView = 'p
             <Layers3 size={17} aria-hidden />
             <h2 className="text-base font-bold">Phases, sprints and tasks</h2>
           </div>
+          <div className={styles.legend} data-testid="delivery-legend">
+            <Gauge size={14} aria-hidden />
+            <span>badge:</span>
+            {['done', 'review', 'fix', 'empty'].map((tone) => (
+              <span key={tone} className={styles.badge} data-tone={tone}><span aria-hidden className={styles.badgeGlyph}>{TONE_GLYPH[tone]}</span>{TONE_WORD[tone]}</span>
+            ))}
+            <span className="text-muted">
+              · วัดจริงถึง {PROGRAMME_USAGE.measuredThrough ? `${PROGRAMME_USAGE.measuredThrough.slice(0, 16).replace('T', ' ')} UTC` : '—'} จาก log ของ agent
+              · รายงานจาก agent {usageReports.available ? `${usageReports.count} session` : 'ยังไม่เปิดใช้ (migration ยังไม่ apply)'}
+              · effort: C-1 {PROGRAMME_SIZING.effortHours['C-1']} ชม. · C-2 {PROGRAMME_SIZING.effortHours['C-2']} ชม. · C-3 {PROGRAMME_SIZING.effortHours['C-3']} ชม.
+            </span>
+          </div>
           <div className="space-y-3">
             {PROGRAMME_PHASES.map((phase) => {
               const expanded = openPhase === phase.id
               const tasks = PROGRAMME_TASKS.filter((task) => phase.sprints.some((sprint) => sprint.id === task[1]))
+              const metrics = phaseDeliveryMetrics({
+                phase, tasks: PROGRAMME_TASKS, containers: PROGRAMME_CONTAINERS, sizing: PROGRAMME_SIZING, lanes: PROGRAMME_LANES, laneUsage: laneUsageMap,
+              })
               return (
-                <Card key={phase.id} className={`p-0 ${styles.phase}`}>
+                <Card key={phase.id} className={`p-0 ${styles.phase}`} data-tone={toneOf(phase.status) || undefined} data-testid={`phase-card-${phase.id}`}>
                   <button
                     type="button"
                     className={`flex w-full items-start gap-3 p-4 text-left ${styles.phaseHead}`}
@@ -307,11 +464,12 @@ export default function ProgramRoadmapBoard({ domainMap = null, initialView = 'p
                     </span>
                     <span className="w-20 shrink-0 text-right text-xs text-muted">plan {phase.progress}%</span>
                   </button>
+                  <PhaseMetrics phase={phase} metrics={metrics} />
                   <ProgressBar percent={phase.progress} label={`${phase.id} submitted plan progress`} />
                   {expanded && (
                     <div className={`space-y-4 p-4 ${styles.phaseBody}`}>
                       {phase.sprints.map((sprint) => (
-                        <div key={sprint.id} className={styles.sprint}>
+                        <div key={sprint.id} className={styles.sprint} data-tone={toneOf(sprint.status) || undefined}>
                           <div className={`flex flex-wrap items-center gap-2 ${styles.sprintHead}`}>
                             <strong className="text-sm">{sprint.id}</strong><StatusPill status={badgeStatus(sprint.status)} />
                             <span className="text-xs text-muted">{sprint.weeks} · {sprint.dates}</span>
@@ -335,16 +493,20 @@ export default function ProgramRoadmapBoard({ domainMap = null, initialView = 'p
                                     <span className="min-w-0 flex-1">
                                       <span className="flex flex-wrap items-center gap-2">
                                         <code className="text-[11px] font-semibold">{id}</code><StatusPill status={badgeStatus(status)} />
-                                        <span className="ml-auto text-[11px] text-muted">{type} · {complexity} · {scope}</span>
+                                        <span className="ml-auto text-[11px] text-muted" title={`complexity ${complexity}`}>{type} · {scope}</span>
                                         {container && <span className="text-[11px] text-muted">PIC <b className="text-[var(--text-primary)]">{container.pic}</b> · {container.predictedTokens.toLocaleString()} tok</span>}
                                         <ChevronDown size={14} className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden />
                                       </span>
                                       <span className="mt-1 block text-sm font-semibold">{title}</span>
                                     </span>
                                   </button>
+                                  <div className={styles.taskMeta}>
+                                    <EvidenceBadges id={id} evidence={taskEvidence?.[id]} />
+                                    <SubtaskBar id={id} subtasks={container?.subtasks || []} />
+                                  </div>
                                   {open && (
                                     <div id={`task-detail-${id}`}>
-                                      <TaskDetail id={id} status={status} container={container} />
+                                      <TaskDetail id={id} status={status} container={container} laneUsage={laneUsage} />
                                     </div>
                                   )}
                                 </TiltCard>

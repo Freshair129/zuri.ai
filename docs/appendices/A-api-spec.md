@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.67.0b |
+| **Version** | 1.68.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-13 |
 
@@ -23,7 +23,15 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=263 -->
+<!-- api-spec-counts: route_handlers=264 -->
+
+### Programme usage reports (FR-218, 2026-09-13)
+
+ADR-086 D5. An agent without local session logs reports one session's usage for one programme task. Deployment-authenticated like the LINE worker: the bearer is compared in constant time before the body is read, and no browser viewer is resolved.
+
+| Method | Route | Contract | Failure |
+|---|---|---|---|
+| POST | `/api/platform/programme-usage-reports` | implemented (FR-218): under `Authorization: Bearer $ZURI_PROGRAMME_USAGE_TOKEN` (at least 32 characters), `{ source, sessionId, taskCode, model?, inputTokens, cacheWriteTokens, cacheReadTokens, outputTokens, requestCount, activeMinutes, startedAt, endedAt }` (strict — no other field, so no prompt or response content) is stored once per `(source, sessionId)` in `ProgrammeUsageReport`; `201 { report, replayed: false }` on create (audited `PROGRAMME_USAGE_REPORT` / `REPORTED`), `200 { report, replayed: true }` when the same payload arrives again. `/control/roadmap` merges the rows with the meter's figures, skipping a session the meter already counted | `401 USAGE_REPORT_CREDENTIAL_REQUIRED`; `400 USAGE_REPORT_INVALID` with `issues`; `404 PROGRAMME_TASK_UNKNOWN`; `409 USAGE_REPORT_CONFLICT` (same session, different payload); `503 USAGE_REPORT_UNAVAILABLE` (database, including a migration not yet applied) |
 
 ### Desktop browser/QR pairing (FR-144, 2026-09-08)
 
@@ -948,3 +956,5 @@ Integrate FR-144 Desktop browser/QR pairing with the current Server contracts: t
 Version diff 1.58.0b → 1.59.0b: add the three approved FR-184 handlers and reconcile the enumerated handler count to 238.
 
 Version diff 1.65.0b → 1.66.0b (2026-09-13): add the nine FR-203 / FR-204 / FR-206 / FR-207 handlers under `/api/inventory` (resolve, identifiers, unit conversions, catalog-hygiene, replenishment), the FR-201 / FR-202 / FR-205 fields and refusals on the product collection and item, and the `services` / `phaseOut` / `belowReorderPoint` counts on the stock summary (ADR-083).
+
+Version diff 1.67.0b → 1.68.0b (2026-09-13): add `POST /api/platform/programme-usage-reports` (FR-218, ADR-086 D5) — agent usage reports under a deployment bearer; handler count 263 → 264.

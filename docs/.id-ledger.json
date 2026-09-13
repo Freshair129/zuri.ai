@@ -343,6 +343,10 @@
     "FR-213",
     "FR-214",
     "FR-215",
+    "FR-216",
+    "FR-217",
+    "FR-218",
+    "FR-219",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -521,6 +525,7 @@
     "FEAT-031",
     "FEAT-032",
     "FEAT-033",
+    "FEAT-034",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -694,6 +699,7 @@
     "ADR-083",
     "ADR-084",
     "ADR-085",
+    "ADR-086",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -4154,6 +4160,58 @@
         }
       ]
     },
+    "FR-216": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d3f3af447f0ba37459589826a482a9479a13aa71cff6d163afc2dcc907db5e53",
+      "history": [
+        {
+          "anchor": "phase card delivery metrics",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-217": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "5f670c3d38d556e450eb537177d7225ee0dc8e50b013e93e3780876c608c510f",
+      "history": [
+        {
+          "anchor": "programme usage meter",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-218": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "eaf7974a8f8985d6b9671997160573cd1fe8df5e108dc4ba2e76def9b0715aec",
+      "history": [
+        {
+          "anchor": "programme usage report endpoint",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-219": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "95f083b9f08fb3981417e27a8c0ac2272e0462fca49fec7135a62a3e54c126ce",
+      "history": [
+        {
+          "anchor": "task card evidence badges and subtask progress",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -6525,6 +6583,19 @@
         }
       ]
     },
+    "FEAT-034": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "b86ab1d1c7b1b1f7d03168c78637440f035e7a7c8ec8648ce293babf3502f36f",
+      "history": [
+        {
+          "anchor": "programme delivery telemetry",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
     "RSK-001": {
       "family": "RSK",
       "source": "docs/appendices/E-risk-matrix.md",
@@ -8795,6 +8866,19 @@
       "history": [
         {
           "anchor": "a knowledge gks slot and the data pipeline map as a",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-086": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md",
+      "status": "current",
+      "statement_digest": "4dfb8ab69a246cd7653f2e5faa7c0d325c350b4d00184b0ee8ab862e57beffe3",
+      "history": [
+        {
+          "anchor": "programme delivery telemetry",
           "since": "2026-09-13",
           "reason": "declared"
         }

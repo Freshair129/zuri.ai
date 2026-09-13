@@ -915,6 +915,11 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
       // timing-safe bearer (ZURI_LINE_WORKER_TOKEN); no browser viewer exists on a worker tick.
       rel(file) === 'src/app/api/line-oa/worker/route.js' ||
       rel(file) === 'src/app/api/line-oa/rich-menu-worker/route.js' ||
+      // ADR-086 D5 / FR-218 (owner-approved 2026-09-13): agents on other machines report one
+      // session's usage under the deployment bearer ZURI_PROGRAMME_USAGE_TOKEN, checked in constant
+      // time before the body is read; the agent has no browser session by construction. Proven by
+      // tests/unit/programme-usage-reports.test.js.
+      rel(file) === 'src/app/api/platform/programme-usage-reports/route.js' ||
       // FR-144 browser/QR approval: start mints no key; poll requires the
       // initiating Desktop secret and a consumed owner approval with fresh
       // Business authority. approve MUST keep its browser viewer check.

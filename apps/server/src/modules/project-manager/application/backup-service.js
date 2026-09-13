@@ -147,6 +147,10 @@ function hasMemoryPendingCheckpoint(snapshot, job) {
 
 // Parents precede children for restore; reverse order is used for deletion.
 const SNAPSHOT_MODELS = [
+  // @req FR-218 — agent usage reports reference nothing (installation-level, no
+  // Tenant/Business/Person foreign key) and cannot be re-derived: the agent that
+  // sent one ran on another machine. Measurements, no secret: exported whole.
+  'programmeUsageReport',
   'portfolio', 'integrationProvider', 'tenant', 'legalEntity', 'legalEntityIdentifier',
   // @req FR-194 — a legal entity's own VAT branch registrations restore after
   // it and before any Business/Branch that could reference one.

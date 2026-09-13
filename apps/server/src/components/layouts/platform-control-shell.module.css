@@ -28,6 +28,17 @@
   --chart-text-faint: #9CA3AF;
   --chart-bar: #FDE8D0;
   --chart-bar-stroke: #F09420;
+  /* FR-216, FR-219 (ADR-086 D6) — delivery tones: done light green, review light
+     orange, needs fix red, empty gray. Each pairs an ink with a tint; the word or
+     glyph beside it carries the meaning (NFR-008). */
+  --tone-done: #1F7A45;
+  --tone-done-bg: #E1F3E8;
+  --tone-review: #B45A06;
+  --tone-review-bg: #FDEAD3;
+  --tone-fix: #B83227;
+  --tone-fix-bg: #FBE2DF;
+  --tone-empty: #5F6875;
+  --tone-empty-bg: #E6EAEF;
   background: var(--bg-canvas);
   color: var(--text-primary);
 }
@@ -55,6 +66,14 @@
   --status-warning-bg: #332A12;
   --status-danger: #F08A8A;
   --status-danger-bg: #3A1D1D;
+  --tone-done: #6FD39A;
+  --tone-done-bg: #15301F;
+  --tone-review: #F4A65A;
+  --tone-review-bg: #3A2614;
+  --tone-fix: #F29A92;
+  --tone-fix-bg: #3B1D1B;
+  --tone-empty: #9AA3B0;
+  --tone-empty-bg: #242B35;
   --status-info: #7FB6D8;
   --status-info-bg: #1E3442;
   --surface-mid: #2A323D;

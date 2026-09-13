@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.48.0b"
+version: "1.49.0b"
 status: active
 last_update: "2026-09-13T22:30:00+07:00,Claude Opus 5"
 relations:
@@ -65,6 +65,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-031 | SKU governance (anti-SKU-bloat) — the product nature declared once at the master and inherited by every SKU so a service is never a variant of a good, variant identity as the key that makes one physical variant one SKU, barcodes and partner codes as resolvable attributes an intake checks before it creates, pack sizes as unit conversions rather than SKUs, the SKU lifecycle (phase-out, reactivate, merge, the archive guard), replenishment parameters, and the read-only catalogue hygiene report with its merge desk on the Inventory console (ADR-083, `DOM-INVENTORY`) | FR-201, FR-202, FR-203, FR-204, FR-205, FR-206, FR-207 | implemented |
 | FEAT-032 | Catalogue intake that resolves before it creates — one envelope that JSON, a Business-specific Excel workbook and a LINE `#sku` command all convert into; a planner that looks up every item by its barcodes, partner codes and SKU code (following merges) before it plans a create, matches without overwriting, and applies ADR-083's guards across the catalogue and the batch; a persisted preview whose plan hash a commit must match; an all-or-nothing commit through the existing catalogue writers; the Import tab; and LINE previews that only a verified staff sender with Inventory write authority can confirm (ADR-084, `DOM-INVENTORY`) | FR-208, FR-209, FR-210 | implemented |
 | FEAT-033 | Data Pipeline Map — where data enters zuri-ai, where it is combined and who receives it, kept as a validated registry whose surface levels, build statuses and FEATs are derived from the tree and the readiness snapshot, drawn as a node-edge view with chain, domain and status filters in a Knowledge (GKS) navigation slot, with live per-edge health for the active Business declared next (ADR-085, `DOM-KNOWLEDGE`) | FR-212, FR-213, FR-214, FR-215 | building |
+| FEAT-034 | Programme delivery telemetry — phase cards on the operator programme board show counts, size, plan window and effort estimate beside the time and tokens really used, measured from local agent session logs and agent usage reports and never presented as progress, and task cards carry evidence badges and subtask progress (ADR-086, `DOM-PLATFORM-CONTROL`) | FR-216, FR-217, FR-218, FR-219 | building |
 
 Version diff 1.39.0b → 1.40.0b (2026-09-12): FEAT-030 declared and implemented in the same change — audit events carry queryable scope (FR-198) and identity gains the two read models an access review needs (FR-199), under ADR-080. Closes the gap ADR-077's grant lifecycle assumed was already open.
 
@@ -834,6 +835,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FEAT-033",
     "primaryDomain": "knowledge",
     "useCase": "เจ้าของธุรกิจเปิดแท็บ Knowledge (GKS) แล้วเห็นแผนที่ว่าข้อมูลของธุรกิจเข้ามาจากไหน ถูกรวมที่ไหน และถูกส่งต่อให้ใคร เลือก chain เช่น LINE turn เพื่อไล่ดูทีละ hop ว่าแต่ละขั้นเป็นของโดเมนไหน FEAT ไหน มีหน้าจอหรือ endpoint แล้วหรือยัง และขึ้น production แล้วหรือยังพร้อมหลักฐาน"
+  },
+  {
+    "id": "FEAT-034",
+    "primaryDomain": "platform-control",
+    "useCase": "installation operator เปิด /control/roadmap แล้วเห็นว่าแต่ละ phase มีกี่ sprint กี่ task ขนาดเท่าไร ใช้เวลาประมาณเท่าไร และงานที่ done แล้วใช้เวลาจริงกับ token จริงไปเท่าไรจาก log ของ agent ที่วัดได้ ไม่ใช่ค่าประมาณ พร้อม badge บนการ์ด task ว่าเอกสาร โค้ด เทสต์ FR NFR FEAT ของงานนั้นเสร็จ รอรีวิว ต้องแก้ หรือยังว่าง และ progress bar ของ subtask"
   }
 ]
 ```
@@ -866,3 +872,5 @@ Version diff 1.45.0b → 1.46.0b (2026-09-13): readiness metadata gains **FR-211
 Version diff 1.46.0b → 1.47.0b (2026-09-13): **FEAT-032 moves from `building` to `implemented`** — migration `20260913200000_inventory_catalog_intake` is applied on production and main ada5188b (PR #375) is deployed. No feature text changed.
 
 Version diff 1.47.0b → 1.48.0b (2026-09-13): Added **FEAT-033** (FR-212..FR-215) under **ADR-085** — the Data Pipeline Map in a Knowledge (GKS) navigation slot. FR-212..FR-214 implemented locally; FR-215 declared only.
+
+Version diff 1.48.0b → 1.49.0b (2026-09-13): Added **FEAT-034** (FR-216..FR-219) under **ADR-086** — programme delivery telemetry and task card evidence badges on `/control/roadmap`. Declared; building.
