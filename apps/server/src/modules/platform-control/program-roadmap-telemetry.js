@@ -189,7 +189,7 @@ export const PROGRAMME_LANES = [
 
 export const PROGRAMME_USAGE = {
   "meter": "scripts/programme-usage-meter.mjs",
-  "measuredThrough": "2026-09-13T23:02:28.581Z",
+  "measuredThrough": "2026-09-13T23:33:36.222Z",
   "lanes": {
     "LANE-COST-QUOTE-PLAN": {
       "requests": 33,
@@ -518,24 +518,24 @@ export const PROGRAMME_USAGE = {
       }
     },
     "LANE-LINE-OA-VAULT": {
-      "requests": 110,
+      "requests": 180,
       "sessions": [
         "claude-code:aac0cfef-d023-4455-a10f-a729b17b61f6"
       ],
       "tokens": {
-        "input": 220,
-        "cacheWrite": 268346,
-        "cacheRead": 56057667,
-        "output": 200795
+        "input": 360,
+        "cacheWrite": 389767,
+        "cacheRead": 104718227,
+        "output": 272634
       },
       "bySource": {
         "claude-code": {
-          "requests": 110,
+          "requests": 180,
           "tokens": {
-            "input": 220,
-            "cacheWrite": 268346,
-            "cacheRead": 56057667,
-            "output": 200795
+            "input": 360,
+            "cacheWrite": 389767,
+            "cacheRead": 104718227,
+            "output": 272634
           }
         }
       },
@@ -543,48 +543,48 @@ export const PROGRAMME_USAGE = {
         "claude-opus-5"
       ],
       "firstActivityAt": "2026-09-13T22:04:31.684Z",
-      "lastActivityAt": "2026-09-13T23:02:28.581Z",
-      "activeMinutes": 58,
+      "lastActivityAt": "2026-09-13T23:33:36.222Z",
+      "activeMinutes": 89,
       "detail": {
-        "reasoningTokens": 46215,
+        "reasoningTokens": 59155,
         "cacheWrite5mTokens": 0,
-        "cacheWrite1hTokens": 268346,
+        "cacheWrite1hTokens": 389767,
         "webSearchRequests": 0,
         "webFetchRequests": 0,
         "prompts": 0,
-        "toolCalls": 171,
-        "toolErrors": 7,
+        "toolCalls": 283,
+        "toolErrors": 10,
         "toolDenials": 0,
         "compactions": 0,
         "apiErrors": 0,
         "tools": {
           "Bash": {
-            "calls": 14,
-            "errors": 1
+            "calls": 25,
+            "errors": 2
           },
           "Edit": {
-            "calls": 77,
+            "calls": 105,
             "errors": 0
           },
           "Grep": {
-            "calls": 10,
+            "calls": 24,
             "errors": 0
           },
           "PowerShell": {
-            "calls": 27,
-            "errors": 6
+            "calls": 56,
+            "errors": 8
           },
           "Read": {
-            "calls": 14,
+            "calls": 28,
             "errors": 0
           },
           "Write": {
-            "calls": 29,
+            "calls": 45,
             "errors": 0
           }
         },
         "models": {
-          "claude-opus-5": 110
+          "claude-opus-5": 180
         }
       }
     },
