@@ -233,6 +233,10 @@ const SNAPSHOT_MODELS = [
   // unit. Deletion is the reverse. Design and operating data, no secret:
   // exported whole.
   'inventoryCategory', 'productFamily', 'factory', 'productMaster', 'product',
+  // @req FR-203, FR-204 — an identifier and a unit conversion hang off one
+  // product and nothing hangs off them, so both restore right after `product`
+  // and delete right before it. Catalogue attributes, no secret: exported whole.
+  'productIdentifier', 'productUnitConversion',
   'productBundle', 'productBundleItem',
   // @req FR-156 — a recipe hangs off its output product and its lines off the
   // recipe and the component products, so both restore after `product`.

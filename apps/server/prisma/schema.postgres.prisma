@@ -106,6 +106,8 @@ model Tenant {
   commerceDocumentSequences  CommerceDocumentSequence[]
   inventoryLedgerFences      InventoryLedgerFence[]
   inventoryStocktakes        InventoryStocktake[]
+  productIdentifiers         ProductIdentifier[]
+  productUnitConversions     ProductUnitConversion[]
 
   marketingPlans            MarketingPlan[]
   marketingInitiatives      MarketingInitiative[]
@@ -276,6 +278,8 @@ model Business {
   commerceDocumentSequences  CommerceDocumentSequence[]
   inventoryLedgerFences      InventoryLedgerFence[]
   inventoryStocktakes        InventoryStocktake[]
+  productIdentifiers         ProductIdentifier[]
+  productUnitConversions     ProductUnitConversion[]
 
   marketingPlans            MarketingPlan[]
   marketingInitiatives      MarketingInitiative[]
@@ -3684,6 +3688,19 @@ model ProductMaster {
   updatedAt  DateTime @updatedAt
   version    Int      @default(1)
 
+  // @req FR-201 — the nature is declared here, once, and every SKU inherits
+  //   it: GOOD (its SKUs are TRACKED or UNTRACKED, defaulting to
+  //   `defaultStockPolicy`) or SERVICE (its SKUs are SERVICE). Fixed at
+  //   creation. A service is never a variant of a good (BR-038).
+  // @req FR-202 — `variantAxesJson` is the ordered list of axes that
+  //   distinguish this master's SKUs (`["color","size"]`); a SKU's values on
+  //   them form its `variantKey`, unique per master. Empty means "no variant
+  //   identity declared" — every master created before ADR-083.
+  // @spec ADR-083 D1, D2
+  nature             String @default("GOOD")
+  defaultStockPolicy String @default("TRACKED")
+  variantAxesJson    String @default("[]")
+
   tenant   Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
   category InventoryCategory @relation(fields: [categoryId], references: [id])
@@ -3747,6 +3764,27 @@ model Product {
   maintenanceIntervalDays Int?
   maxStorageDays          Int?
 
+  // @req FR-202 — the SKU's value on each axis its master declares
+  //   (`variantJson`, a map) and the normalized fingerprint the service derives
+  //   from them (`variantKey`, `color=black|size=m`). Unique per master, so
+  //   one physical variant is one SKU (BR-039). Null when the master declares
+  //   no axes, and the unique index tolerates null, so every existing row
+  //   stays valid.
+  // @req FR-205 — `mergedIntoProductId` names the survivor of a MERGE: the
+  //   duplicate ends ARCHIVED pointing here, its ledger rows stay, and
+  //   `resolve` follows the pointer. Never a foreign key on purpose: a
+  //   survivor may itself be merged later, and the chain is walked, not joined.
+  // @req FR-207 — replenishment parameters: below `reorderPoint` (or
+  //   `safetyStock` when none) a counted, ACTIVE SKU is suggested for
+  //   `reorderQty` (or the gap); `leadTimeDays` is echoed for the buyer.
+  // @spec ADR-083 D2, D5, D6
+  variantJson           String  @default("{}")
+  variantKey            String?
+  mergedIntoProductId   String?
+  reorderPoint          Int?
+  reorderQty            Int?
+  leadTimeDays          Int?
+
   tenant                    Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business                  Business                 @relation(fields: [businessId], references: [id], onDelete: Cascade)
   productMaster             ProductMaster            @relation(fields: [productMasterId], references: [id])
@@ -3762,11 +3800,72 @@ model Product {
   customizationOutputOrders CustomizationWorkOrder[] @relation("CustomizationOutputProduct")
   kittingWorkOrders         KittingWorkOrder[]
   reservations              StockReservation[]
+  identifiers               ProductIdentifier[]
+  unitConversions           ProductUnitConversion[]
 
   @@unique([tenantId, code])
   @@unique([tenantId, flowAccountSku])
+  @@unique([productMasterId, variantKey])
   @@index([businessId, status])
   @@index([productMasterId])
+  @@index([mergedIntoProductId])
+}
+
+// @req FR-203 — a barcode, GTIN, supplier code, manufacturer part number or
+//   legacy code is an attribute of exactly one SKU: unique per Tenant per
+//   kind, the two scannable kinds sharing one value space in the service,
+//   never a key (BR-002), and never an `ExternalRef` (installation-unique, no
+//   tenantId — ADR-074 D5's reason). `unit` names the pack whose barcode this
+//   is; RETIRED keeps the row.
+// @spec ADR-083 D3
+model ProductIdentifier {
+  id         String   @id @default(uuid())
+  tenantId   String
+  businessId String
+  productId  String
+  kind       String
+  value      String
+  issuer     String?
+  unit       String?
+  status     String   @default("ACTIVE")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  version    Int      @default(1)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, kind, value])
+  @@index([productId, status])
+  @@index([businessId, value])
+}
+
+// @req FR-204 — a pack size is an integer factor on the SKU, never a second
+//   SKU (BR-037): one `unit` of this row is `factor` base units. The ledger
+//   counts base units only; a movement that names a unit is converted before
+//   it is appended. Unique per (product, unit); RETIRED keeps the row.
+// @spec ADR-083 D4
+model ProductUnitConversion {
+  id         String   @id @default(uuid())
+  tenantId   String
+  businessId String
+  productId  String
+  unit       String
+  name       String?
+  factor     Int
+  usage      String   @default("ANY")
+  status     String   @default("ACTIVE")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  version    Int      @default(1)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, unit])
+  @@index([businessId, status])
 }
 
 model ProductLot {

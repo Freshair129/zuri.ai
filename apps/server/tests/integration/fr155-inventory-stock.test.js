@@ -110,7 +110,8 @@ describe('FR-155 Inventory stock ledger', () => {
     expect(byCode['TEA-LOT']).toMatchObject({ onHand: 18, belowSafetyStock: false })
     expect(byCode['TEA-SERIAL']).toMatchObject({ onHand: 2, safetyStock: 1, belowSafetyStock: false })
     expect(byCode['TEA-CEREMONY']).toMatchObject({ onHand: null, stockPolicy: 'UNTRACKED', belowSafetyStock: false })
-    expect(summary.counts).toEqual({ products: 4, tracked: 3, untracked: 1, belowSafetyStock: 1 })
+    // @req FR-201 — services are counted apart from uncounted goods since ADR-083; none exists here.
+    expect(summary.counts).toEqual({ products: 4, tracked: 3, untracked: 1, services: 0, phaseOut: 0, belowSafetyStock: 1, belowReorderPoint: 1 })
     await expect(stockSummary({ businessId: b(), viewer: makeViewer({ visibleBusinessIds: [b()], ownedBusinessIds: [b()], visibleDomains: ['projects'] }) })).rejects.toMatchObject({ status: 404 })
   })
 

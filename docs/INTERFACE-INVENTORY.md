@@ -1,7 +1,7 @@
 ---
-version: "1.19.0b"
+version: "1.20.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-11T05:00:00+07:00,RWANG"
+last_update: "2026-09-13T16:45:00+07:00,Claude Fable 5.1"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.19.0b |
+| **Version** | 1.20.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
-| **Last Updated** | 2026-09-11 |
+| **Last Updated** | 2026-09-13 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=99; operational_domain_keys=15; operational_subdomain_entries=51; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=100; operational_domain_keys=15; operational_subdomain_entries=52; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -207,6 +207,7 @@ uncounted product shows "—", never a zero.
 | `/inventory/locations` | Locations & transfers (Inventory tab 2) | BusinessShell → Inventory / Locations | the Business's warehouse locations with type and `isVirtual`; on-hand per location for one SKU reported beside the Business-wide total and its unlocated remainder (BR-026); forms that create a location and move stock between two of them in one atomic pair | Business and `inventory` domain visibility to read; writes need OWNER or `INVENTORY_MANAGER`; no Business, loading, error, ready, busy, fewer-than-two-locations | implemented; `src/app/(pm)/inventory/locations/page.jsx`, FR-182, FR-174 / ADR-074 |
 | `/inventory/work-orders` | Work orders (Inventory tab 3) | BusinessShell → Inventory / Work Orders | both work-order lists with planned, gross issue, completed and scrapped quantities and the blended unit cost; open forms for a customization run and a kitting run; RELEASE / COMPLETE / CANCEL per row through one versioned action | Business and `inventory` domain visibility to read; writes need OWNER or `INVENTORY_MANAGER`; no Business, loading, error, ready, busy, no-SKU, no-recipe | implemented; `src/app/(pm)/inventory/work-orders/page.jsx`, FR-182, FR-176, FR-177 / ADR-074 |
 | `/inventory/reservations` | ATP & reservations (Inventory tab 4) | BusinessShell → Inventory / Reservations | on-hand, committed, quote-held and available per SKU side by side, with over-commitment surfaced; the reservation list with a computed `live`; forms to place a quote or order hold and release one | Business and `inventory` domain visibility to read; writes need OWNER or `INVENTORY_MANAGER`; no Business, loading, error, ready, busy, no-counted-SKU | implemented; `src/app/(pm)/inventory/reservations/page.jsx`, FR-182, FR-180 / ADR-074 |
+| `/inventory/hygiene` | SKU Hygiene (Inventory tab 6) | BusinessShell → Inventory / SKU Hygiene | Read the catalogue hygiene report (lookalike SKUs, services filed under goods, masters without variant axes, dormant SKUs, missing identifiers) with its severity and repair suggestion, tune the dormancy window, run a lifecycle action — MERGE a duplicate into its survivor, PHASE_OUT, REACTIVATE, ARCHIVE — with a recorded reason, and read the replenishment suggestion | Business visibility and the `inventory` domain to read; Inventory write authority for an action; no Business selected, clean report, blocked merge (references, stock, reservations), version conflict | implemented locally; `src/app/(pm)/inventory/hygiene/page.jsx`, FR-205, FR-206, FR-207 (ADR-083); production migration pending |
 
 ### 3.7 Workspace compatibility surfaces
 
@@ -384,6 +385,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.20.0b | 2026-09-13 | active | Added the sixth Inventory tab `/inventory/hygiene` (FR-206 catalogue hygiene report, the FR-205 lifecycle/merge desk and the FR-207 replenishment card, ADR-083); page routes 99 -> 100, operational subdomain entries 51 -> 52 | working-tree | Claude Fable 5.1 |
 | 1.18.0b | 2026-09-11 | candidate | FR-185: registered Paid Media, Broadcast Planning and Ask Marketing read/planning surfaces; page-route marker reconciled to 98 while direct routes remain outside the domain navigation count | working-tree | RWANG |
 | 1.16.0b | 2026-09-11 | candidate | FR-186/FR-183: registered the Billing and tax documents page and POS checkout page; page-route marker reconciled to 90 while the existing operational domain counts remain unchanged | working-tree | RWANG |
 | 1.16.0b | 2026-09-11 | candidate | FR-165: Goods Receipts registry, intake and printable detail under Procurement; 88 → 89 pages | working-tree | RWANG |

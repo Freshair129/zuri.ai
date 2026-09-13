@@ -299,7 +299,28 @@ export const INVENTORY_STOCK_POLICIES = ['TRACKED', 'UNTRACKED', 'SERVICE']
 /** The natures that have no stock ledger: no on-hand, no lot, no serial. */
 export const INVENTORY_UNSTOCKED_POLICIES = ['UNTRACKED', 'SERVICE']
 export const INVENTORY_TRACKING_MODES = ['NONE', 'LOT', 'SERIAL']
-export const INVENTORY_PRODUCT_ACTIONS = ['UPDATE', 'ARCHIVE']
+// FR-201 — the nature is declared once, at the master: a GOOD's SKUs are
+// TRACKED or UNTRACKED, a SERVICE's SKUs are SERVICE, and a service is never a
+// variant of a good (ADR-083 D1, BR-038).
+export const INVENTORY_PRODUCT_NATURES = ['GOOD', 'SERVICE']
+// FR-205 — a SKU's lifecycle: ACTIVE, PHASE_OUT (sell what is left, buy no
+// more), ARCHIVED (gone, never deleted). Other catalogue rows keep the two
+// states in `INVENTORY_RECORD_STATUSES`.
+export const INVENTORY_PRODUCT_STATUSES = ['ACTIVE', 'PHASE_OUT', 'ARCHIVED']
+// FR-205 — the five versioned product actions: the two from FR-154 and the
+// three the lifecycle adds. MERGE is the anti-bloat repair (ADR-083 D5).
+export const INVENTORY_PRODUCT_ACTIONS = ['UPDATE', 'ARCHIVE', 'PHASE_OUT', 'REACTIVATE', 'MERGE']
+// FR-203 — the kinds of identifier a SKU may carry. GTIN covers EAN-13 and
+// UPC-A (GTIN-13 / GTIN-12); BARCODE is any other scannable string; the rest
+// are a partner's names for our item. Never keys (BR-002).
+export const INVENTORY_IDENTIFIER_KINDS = ['GTIN', 'BARCODE', 'SUPPLIER_CODE', 'MANUFACTURER_PART', 'LEGACY_CODE']
+// FR-204 — where a unit conversion applies: buying, selling, or anywhere.
+export const INVENTORY_UNIT_USAGES = ['PURCHASE', 'SALES', 'ANY']
+// FR-206 — the kinds of finding the catalogue hygiene report can raise.
+export const INVENTORY_HYGIENE_FINDING_KINDS = [
+  'NATURE_MISMATCH', 'LOOKALIKE_SKUS', 'MASTER_WITHOUT_AXES', 'MASTER_WITHOUT_SKUS',
+  'DORMANT_SKU', 'SKU_WITHOUT_IDENTIFIER', 'SERVICE_WITH_STOCK_FIELDS', 'PHASE_OUT_WITH_STOCK',
+]
 export const INVENTORY_LOT_STATUSES = ['OPEN', 'QUARANTINE', 'CLOSED']
 export const INVENTORY_SERIAL_STATUSES = ['IN_STOCK', 'RESERVED', 'ISSUED', 'RETURNED', 'SCRAPPED']
 export const INVENTORY_MOVEMENT_KINDS = ['RECEIPT', 'ISSUE', 'ADJUSTMENT']
@@ -458,6 +479,11 @@ export const zLineOaLiffAppAction = z.enum(LINE_OA_LIFF_APP_ACTIONS)
 export const zInventoryStockPolicy = z.enum(INVENTORY_STOCK_POLICIES)
 export const zInventoryTrackingMode = z.enum(INVENTORY_TRACKING_MODES)
 export const zInventoryProductAction = z.enum(INVENTORY_PRODUCT_ACTIONS)
+export const zInventoryProductNature = z.enum(INVENTORY_PRODUCT_NATURES)
+export const zInventoryProductStatus = z.enum(INVENTORY_PRODUCT_STATUSES)
+export const zInventoryIdentifierKind = z.enum(INVENTORY_IDENTIFIER_KINDS)
+export const zInventoryUnitUsage = z.enum(INVENTORY_UNIT_USAGES)
+export const zInventoryHygieneFindingKind = z.enum(INVENTORY_HYGIENE_FINDING_KINDS)
 export const zInventoryLotStatus = z.enum(INVENTORY_LOT_STATUSES)
 export const zInventorySerialStatus = z.enum(INVENTORY_SERIAL_STATUSES)
 export const zInventoryMovementKind = z.enum(INVENTORY_MOVEMENT_KINDS)

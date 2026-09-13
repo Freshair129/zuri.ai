@@ -18,6 +18,10 @@ import { INVENTORY_MOVEMENT_KINDS, INVENTORY_STOCK_POLICIES, INVENTORY_TRACKING_
 // @req FR-182 — Inventory has more than one page since the SCM operations
 //   console, so its views render as in-canvas tabs (FR-170) rather than only as
 //   sidebar links; this page is the Dashboard tab.
+// @req FR-201, FR-202 — a master is created with its nature (สินค้า / บริการ)
+//   and its variant axes; the SKU form narrows to what the chosen master
+//   allows: a SERVICE master offers no stock policy at all, a GOOD master offers
+//   counted or uncounted and one field per declared axis (ADR-083 D1, D2).
 // @tested tests/unit/inventory-routes.test.js, tests/unit/scm-console-routes.test.js
 
 async function api(url, method = 'GET', body) {
@@ -35,6 +39,11 @@ const fieldClass = 'w-full rounded-lg border border-[var(--border)] bg-white p-2
 const POLICY_LABEL = { TRACKED: 'นับสต๊อก', UNTRACKED: 'ไม่นับสต๊อก', SERVICE: 'บริการ' }
 const MODE_LABEL = { NONE: 'นับจำนวนรวม', LOT: 'ตาม Lot', SERIAL: 'ตาม Serial' }
 const KIND_LABEL = { RECEIPT: 'รับเข้า', ISSUE: 'จ่ายออก', ADJUSTMENT: 'ปรับยอด' }
+const NATURE_LABEL = { GOOD: 'สินค้า (good)', SERVICE: 'บริการ (service)' }
+const STATUS_LABEL = { ACTIVE: 'ใช้งาน', PHASE_OUT: 'เลิกขาย', ARCHIVED: 'เก็บถาวร' }
+// A GOOD master's SKU is counted or uncounted; SERVICE is never a choice on the
+// SKU form because the master already made it (FR-201).
+const GOOD_POLICIES = INVENTORY_STOCK_POLICIES.filter((p) => p !== 'SERVICE')
 
 function Input({ label, ...props }) {
   return <label className="grid gap-1 text-xs font-semibold">{label}<input className={fieldClass} aria-label={label} {...props} /></label>
@@ -71,12 +80,15 @@ export default function InventoryPage() {
   useEffect(() => { refresh().catch((err) => setError(err.message)) }, [refresh])
 
   const [category, bindCategory, resetCategory] = useForm({ code: '', nameTh: '', nameEn: '' })
-  const [master, bindMaster, resetMaster] = useForm({ code: '', categoryId: '', nameTh: '', nameEn: '', baseCost: '' })
+  const [master, bindMaster, resetMaster] = useForm({ code: '', categoryId: '', nameTh: '', nameEn: '', baseCost: '', nature: 'GOOD', variantAxes: '' })
   const [sku, bindSku, resetSku] = useForm({ code: '', productMasterId: '', name: '', stockPolicy: 'TRACKED', trackingMode: 'NONE', safetyStock: '10' })
   const [move, bindMove, resetMove] = useForm({ productId: '', kind: 'RECEIPT', quantity: '', lotCode: '', serialNos: '', reference: '' })
 
   const products = summary?.products ?? []
-  const trackedProducts = useMemo(() => products.filter((p) => p.stockPolicy === 'TRACKED'), [products])
+  const trackedProducts = useMemo(() => products.filter((p) => p.stockPolicy === 'TRACKED' && p.status !== 'ARCHIVED'), [products])
+  const selectedMaster = useMemo(() => masters.find((m) => m.id === (sku.productMasterId || masters[0]?.id)) ?? null, [masters, sku.productMasterId])
+  const masterIsService = selectedMaster?.nature === 'SERVICE'
+  const axes = selectedMaster?.variantAxes ?? []
 
   async function submit(fn, reset) {
     if (!businessId || busy) return
@@ -92,14 +104,21 @@ export default function InventoryPage() {
   }, resetCategory)
 
   const createMaster = () => submit(async () => {
-    const row = await api('/api/inventory/product-masters', 'POST', { businessId, code: master.code, categoryId: master.categoryId || categories[0]?.id, nameTh: master.nameTh, nameEn: master.nameEn, ...(master.baseCost ? { baseCost: Number(master.baseCost) } : {}) })
-    return `สร้างสินค้าหลัก ${row.code} แล้ว`
+    const variantAxes = master.variantAxes.split(/[\s,]+/).map((a) => a.trim()).filter(Boolean)
+    const row = await api('/api/inventory/product-masters', 'POST', {
+      businessId, code: master.code, categoryId: master.categoryId || categories[0]?.id, nameTh: master.nameTh, nameEn: master.nameEn, ...(master.baseCost ? { baseCost: Number(master.baseCost) } : {}),
+      nature: master.nature, ...(master.nature === 'GOOD' && variantAxes.length ? { variantAxes } : {}),
+    })
+    return `สร้างสินค้าหลัก ${row.code} แล้ว · ${NATURE_LABEL[row.nature]}`
   }, resetMaster)
 
   const createSku = () => submit(async () => {
+    const variant = Object.fromEntries(axes.map((axis) => [axis, sku[`variant:${axis}`] ?? '']).filter(([, v]) => v !== ''))
     const row = await api('/api/inventory/products', 'POST', {
       businessId, code: sku.code, productMasterId: sku.productMasterId || masters[0]?.id, ...(sku.name ? { name: sku.name } : {}),
-      stockPolicy: sku.stockPolicy, ...(sku.stockPolicy === 'TRACKED' ? { trackingMode: sku.trackingMode } : {}), safetyStock: Number(sku.safetyStock || 0),
+      // @req FR-201 — a SERVICE master's SKU names no policy: the master decided.
+      ...(masterIsService ? {} : { stockPolicy: sku.stockPolicy, ...(sku.stockPolicy === 'TRACKED' ? { trackingMode: sku.trackingMode, safetyStock: Number(sku.safetyStock || 0) } : {}) }),
+      ...(Object.keys(variant).length ? { variant } : {}),
     })
     return `สร้าง SKU ${row.code} (${POLICY_LABEL[row.stockPolicy]}) แล้ว`
   }, resetSku)
@@ -117,6 +136,7 @@ export default function InventoryPage() {
     { key: 'code', label: 'รหัส', render: (r) => <span className="font-mono text-xs">{r.code}</span> },
     { key: 'name', label: 'ชื่อ', render: (r) => r.name || '—' },
     { key: 'stockPolicy', label: 'นโยบายสต๊อก', render: (r) => POLICY_LABEL[r.stockPolicy] || r.stockPolicy },
+    { key: 'status', label: 'สถานะ', render: (r) => <span style={{ color: r.status === 'PHASE_OUT' ? 'var(--warning)' : 'inherit' }}>{STATUS_LABEL[r.status] || r.status}</span> },
     { key: 'trackingMode', label: 'การระบุหน่วย', render: (r) => r.stockPolicy === 'TRACKED' ? (MODE_LABEL[r.trackingMode] || r.trackingMode) : '—' },
     { key: 'onHand', label: 'คงเหลือ', render: (r) => r.onHand === null ? <span className="text-muted">—</span> : <span style={{ color: r.belowSafetyStock ? 'var(--danger)' : 'inherit' }}>{r.onHand} {r.unit}</span> },
     { key: 'safetyStock', label: 'Safety stock', render: (r) => r.stockPolicy === 'TRACKED' ? r.safetyStock : '—' },
@@ -135,10 +155,11 @@ export default function InventoryPage() {
     {error && <p role="alert" className="mb-3 text-sm text-red-700">{error}</p>}
     {message && <p role="status" className="mb-3 text-sm" style={{ color: 'var(--success)' }}>{message}</p>}
 
-    {summary && <div className="mb-4 grid gap-3 md:grid-cols-4">
-      <Kpi label="SKU ทั้งหมด" value={summary.counts.products} />
+    {summary && <div className="mb-4 grid gap-3 md:grid-cols-5">
+      <Kpi label="SKU ทั้งหมด" value={summary.counts.products} meta={summary.counts.phaseOut ? `เลิกขาย ${summary.counts.phaseOut}` : undefined} />
       <Kpi label="นับสต๊อก" value={summary.counts.tracked} meta="on-hand คำนวณจาก ledger ทุกครั้งที่โหลด" />
-      <Kpi label="ไม่นับสต๊อก" value={summary.counts.untracked} meta="ไม่มี ledger — บริการ / สั่งผลิต" />
+      <Kpi label="ไม่นับสต๊อก" value={summary.counts.untracked} meta="สินค้าที่ไม่นับ — สั่งผลิต / วัสดุสิ้นเปลือง" />
+      <Kpi label="บริการ" value={summary.counts.services} meta="ไม่ใช่สินค้า — ไม่มีสต๊อกให้นับ" />
       <Kpi label="ต่ำกว่า safety stock" value={summary.counts.belowSafetyStock} tone={summary.counts.belowSafetyStock ? 'bad' : 'good'} />
     </div>}
 
@@ -166,6 +187,8 @@ export default function InventoryPage() {
           <Input label="ชื่อ (ไทย)" {...bindMaster('nameTh')} />
           <Input label="ชื่อ (อังกฤษ)" {...bindMaster('nameEn')} />
           <Input label="ต้นทุนฐาน" type="number" min="0" step="0.01" {...bindMaster('baseCost')} />
+          <Select label="ประเภทสินค้าหลัก" options={Object.entries(NATURE_LABEL)} {...bindMaster('nature')} />
+          {master.nature === 'GOOD' && <Input label="แกน variant (คั่นด้วยจุลภาค เช่น color, size)" placeholder="color, size" {...bindMaster('variantAxes')} />}
         </fieldset>
         {!categories.length && <p className="mt-2 text-xs text-muted">สร้างหมวดหมู่ก่อน</p>}
         <div className="mt-3"><button type="button" className="btn" onClick={createMaster} disabled={busy || !master.code || !categories.length}>สร้างสินค้าหลัก</button></div>
@@ -177,9 +200,12 @@ export default function InventoryPage() {
           <Input label="รหัส SKU" placeholder="SKU-001-RED" {...bindSku('code')} />
           <Select label="สินค้าหลัก" options={masters.map((m) => [m.id, `${m.code} · ${m.nameTh}`])} {...bindSku('productMasterId')} />
           <Input label="ชื่อ SKU" {...bindSku('name')} />
-          <Select label="นโยบายสต๊อก" options={INVENTORY_STOCK_POLICIES.map((p) => [p, POLICY_LABEL[p]])} {...bindSku('stockPolicy')} />
-          {sku.stockPolicy === 'TRACKED' && <Select label="การระบุหน่วย" options={INVENTORY_TRACKING_MODES.map((m) => [m, MODE_LABEL[m]])} {...bindSku('trackingMode')} />}
-          {sku.stockPolicy === 'TRACKED' && <Input label="Safety stock" type="number" min="0" {...bindSku('safetyStock')} />}
+          {masterIsService
+            ? <p className="text-xs text-muted md:col-span-2">สินค้าหลักนี้เป็น<strong>บริการ</strong> — SKU ทุกตัวใต้มันเป็นบริการ ไม่มีสต๊อกให้นับ (FR-201)</p>
+            : <Select label="นโยบายสต๊อก" options={GOOD_POLICIES.map((p) => [p, POLICY_LABEL[p]])} {...bindSku('stockPolicy')} />}
+          {!masterIsService && sku.stockPolicy === 'TRACKED' && <Select label="การระบุหน่วย" options={INVENTORY_TRACKING_MODES.map((m) => [m, MODE_LABEL[m]])} {...bindSku('trackingMode')} />}
+          {!masterIsService && sku.stockPolicy === 'TRACKED' && <Input label="Safety stock" type="number" min="0" {...bindSku('safetyStock')} />}
+          {!masterIsService && axes.map((axis) => <Input key={axis} label={`variant: ${axis}`} {...bindSku(`variant:${axis}`)} />)}
         </fieldset>
         {!masters.length && <p className="mt-2 text-xs text-muted">สร้างสินค้าหลักก่อน</p>}
         <div className="mt-3"><button type="button" className="btn btn-primary" onClick={createSku} disabled={busy || !sku.code || !masters.length}>สร้าง SKU</button></div>
