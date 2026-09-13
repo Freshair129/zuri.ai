@@ -29,13 +29,26 @@ export function activePersonaId(): string {
   return process.env.ZURI_ACTIVE_PERSONA?.trim() || DEFAULT_PERSONA_ID;
 }
 
-export function loadPersonaPrompt(personaId: string = DEFAULT_PERSONA_ID): string {
-  const personaPath = path.join(agentsRoot(), personaId, 'AGENTS.md');
+/**
+ * `full` is AGENTS.md as written — the headless (Claude/Codex) path reads it. `local` prefers
+ * `AGENTS.local.md`, a compact variant for the OLLAMA_LOCAL / API path, and falls back to the
+ * full file when a persona has none. Measured on qwen3.5:9b inside the 12 s model budget: the
+ * full 11 KB zuri-01 file made the model invent example quantities, skip the tools, or run out
+ * of time on the third round; the compact one answered every run.
+ */
+export type PersonaVariant = 'full' | 'local';
 
-  if (fs.existsSync(personaPath)) {
+export function loadPersonaPrompt(personaId: string = DEFAULT_PERSONA_ID, variant: PersonaVariant = 'full'): string {
+  const dir = path.join(agentsRoot(), personaId);
+  const candidates = variant === 'local' ? ['AGENTS.local.md', 'AGENTS.md'] : ['AGENTS.md'];
+
+  for (const file of candidates) {
+    const personaPath = path.join(dir, file);
+    if (!fs.existsSync(personaPath)) continue;
     try {
       const content = fs.readFileSync(personaPath, 'utf8').trim();
-      console.log(`[Persona] 🎭 Loaded persona "${personaId}" from ${personaPath}`);
+      // stderr: the Desktop worker's stdout is the supervisor's JSON event pipe.
+      console.error(`[Persona] Loaded persona "${personaId}" (${variant}) from ${personaPath}`);
       return content;
     } catch (err) {
       console.warn(`[Persona] Failed to read ${personaPath}:`, err);

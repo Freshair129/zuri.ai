@@ -388,9 +388,10 @@ export async function answerConversation(
     },
     options.llm,
     fallback,
-    // The same `.agents/` persona the headless path uses. Until now only that path read it;
-    // OLLAMA_LOCAL / API answered as the built-in prompt whatever the GUI said.
-    loadPersonaPrompt(activePersonaId())
+    // The same `.agents/` persona the headless path uses — its compact `local` variant, because a
+    // ~9B model on a 12 s budget loses the tools under the full file (see persona.ts). Until now
+    // only the headless path read the persona at all.
+    loadPersonaPrompt(activePersonaId(), 'local')
   );
 
   recordTurns(text, result.text, options);

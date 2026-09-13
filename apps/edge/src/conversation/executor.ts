@@ -34,6 +34,9 @@ export function headlessProviderHome(
     : { claudeConfigDir: home };
 }
 
+/** Floor for the model budget on leased jobs; an explicit larger `ZURI_LLM_TIMEOUT_MS` still wins. */
+export const JOB_MODEL_BUDGET_MS = 30000;
+
 export function validateExecutionPolicy(job: ConversationJob, config: Partial<AgentConfig>, ragUrl: string): void {
   const headlessBin = config.headlessBin || 'claude';
   const managedHome = headlessProviderHome(config, headlessBin);
@@ -83,7 +86,15 @@ export function createConversationExecutor(config: Partial<AgentConfig>, options
           ...(local ? { baseUrl: config.llmBaseUrl, numCtx: config.llmNumCtx } : { apiKey: config.anthropicApiKey }),
           effort: config.llmEffort || 'low',
         }, { fetchFn: noRedirectFetch }),
-        timeoutMs: Math.min(timeoutMs, config.llmTimeoutMs || 12000),
+        /*
+         * A job's answer is pushed by the server after completion (ADR-061; the account's
+         * allowDelayedPush), so LINE's ~30 s reply-token window — the reason `llmTimeoutMs`
+         * defaults to 12 s for the legacy direct-reply path — does not bound this call. Measured
+         * on qwen3.5:9b: a product question is three model rounds (two tool calls + the reply)
+         * and lands anywhere from 3 s to past 12 s, so the 12 s default failed one run in three
+         * with `model call failed: timeout`. The lease (`remaining`) is still the hard ceiling.
+         */
+        timeoutMs: Math.min(timeoutMs, Math.max(config.llmTimeoutMs || 0, JOB_MODEL_BUDGET_MS)),
         maxIterations: config.llmMaxIterations || 4,
       } : null;
       const result = await (options.answer || answerConversation)(job.question, {
