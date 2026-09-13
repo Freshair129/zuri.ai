@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.5, 2026-09-14) so the board can open a task the way the html board
+// (v0.4.6, 2026-09-14) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -3501,5 +3501,167 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-071"
     ],
     "evidence": "Section 3.1 row 2; FR-217; FR-123; ADR-052"
+  },
+  "TASK-ZAI-073": {
+    "container": "TC-TASK-ZAI-073",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "plugins/zuri-harness/bin/zuri-harness.mjs",
+      "doc": "docs/decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md",
+      "test": "apps/server/tests/unit/zuri-harness-plugin.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given a reader with only the specification, when they implement a compatible reporter, then every command, flag, exit code, hook input field, configuration and queue file shape, request body and the response each HTTP status gets is stated, and the pairing and reporting flows are drawn",
+        "checked": false
+      },
+      "success": {
+        "text": "Given each counting and attribution rule in the specification, when it is read, then it names the test that proves it, and the rules match the meter and the plugin exactly as they run, including the new usage detail",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm run govern, when it runs, then the specification is in the graph with no CRITICAL, and ADR-087, the plugin README and the API appendix point to it",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 30000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-072"
+    ],
+    "evidence": "Section 3.1 row 2; ADR-087; FR-220; FR-221; FR-222"
+  },
+  "TASK-ZAI-074": {
+    "container": "TC-TASK-ZAI-074",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/scripts/programme-usage-meter.mjs",
+      "doc": "docs/decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md",
+      "test": "apps/server/tests/unit/programme-usage-meter.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Detail counting in the meter and the plugin with parity",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "Report schema, storage columns and migration, extension rule",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "Privacy rule and compatibility with plugins that send no detail",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given a Claude Code or Codex session log, when the meter or the plugin reads it, then each session's thinking or reasoning tokens, cache writes by lifetime, tool calls by tool name with results, errors and denials, web search and fetch requests, user prompts, compactions and API errors are counted once, with only names and numbers kept and no prompt, response, argument or output text",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a report carrying the detail, when the endpoint stores it, then the counts are validated and kept with the report, a resumed session extends only when every count including the detail grows, and an older plugin that sends no detail is still accepted",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test, when the meter, plugin and report suites run, then detail parity between the meter and the plugin, the privacy rule, extension with detail and the migration in both trees pass; applying the migration on production stays a separate step (ADR-057)",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 64000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-072"
+    ],
+    "evidence": "Section 3.1 row 2; FR-217; FR-221; FR-222; ADR-086 D4"
+  },
+  "TASK-ZAI-075": {
+    "container": "TC-TASK-ZAI-075",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "priority": "P1",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+      "doc": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+      "test": "apps/server/tests/unit/program-roadmap-board-telemetry.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Phase card token split, tool calls, prompts and compactions",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "Task detail top tools, errors and denials per person and device",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given a phase with measured lanes, when its card renders, then input, output, thinking and cache tokens are shown as separate figures, with tool calls, error rate, prompts and compactions beside them, and a lane with no detail says so rather than showing zero",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a task opened on the board, when its lane has detail, then the most used tools with counts, the error and denial counts, and the per person and per device split are listed",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test and the roadmap e2e, when they run, then aggregation of detail across lanes and reports, the empty-detail state and the rendered figures are asserted and the page builds clean",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text.",
+    "created": "2026-09-14T00:00:00Z,Claude,pending",
+    "predictedTokens": 36000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-074"
+    ],
+    "evidence": "Section 3.1 row 2; FR-216; FR-221; NFR-008"
   }
 }

@@ -1,5 +1,5 @@
 // @req FR-216, FR-217 — the Delivery Telemetry section of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.5): the sizing table and work lanes the owner declares, and the usage
+// (v0.4.6): the sizing table and work lanes the owner declares, and the usage
 // the meter measured from local agent session logs.
 // @spec ADR-086 D1-D4 — planned and measured stay separate; usage is never progress.
 // @tested tests/unit/programme-containers.test.js, tests/unit/program-delivery-metrics.test.js
@@ -71,12 +71,25 @@ export const PROGRAMME_LANES = [
       "docs/harness-usage-plugin-plan",
       "feat/harness-usage-plugin"
     ]
+  },
+  {
+    "id": "LANE-USAGE-DETAIL-AND-SPEC",
+    "title": "Plugin specification and agent usage detail — plan and delivery",
+    "tasks": [
+      "TASK-ZAI-073",
+      "TASK-ZAI-074",
+      "TASK-ZAI-075"
+    ],
+    "branches": [
+      "docs/usage-detail-plan",
+      "feat/usage-detail-and-spec"
+    ]
   }
 ]
 
 export const PROGRAMME_USAGE = {
   "meter": "scripts/programme-usage-meter.mjs",
-  "measuredThrough": "2026-09-13T17:01:12.411Z",
+  "measuredThrough": "2026-09-13T19:09:49.952Z",
   "lanes": {
     "LANE-COST-QUOTE-PLAN": {
       "requests": 33,
@@ -166,24 +179,24 @@ export const PROGRAMME_USAGE = {
       "activeMinutes": 96
     },
     "LANE-HARNESS-USAGE-PLUGIN": {
-      "requests": 102,
+      "requests": 113,
       "sessions": [
         "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
       ],
       "tokens": {
-        "input": 204,
-        "cacheWrite": 366445,
-        "cacheRead": 47233751,
-        "output": 177723
+        "input": 228,
+        "cacheWrite": 375945,
+        "cacheRead": 55696301,
+        "output": 185871
       },
       "bySource": {
         "claude-code": {
-          "requests": 102,
+          "requests": 113,
           "tokens": {
-            "input": 204,
-            "cacheWrite": 366445,
-            "cacheRead": 47233751,
-            "output": 177723
+            "input": 228,
+            "cacheWrite": 375945,
+            "cacheRead": 55696301,
+            "output": 185871
           }
         }
       },
@@ -192,8 +205,37 @@ export const PROGRAMME_USAGE = {
         "claude-sonnet-5"
       ],
       "firstActivityAt": "2026-09-13T16:22:37.937Z",
-      "lastActivityAt": "2026-09-13T17:01:12.411Z",
-      "activeMinutes": 39
+      "lastActivityAt": "2026-09-13T17:49:17.727Z",
+      "activeMinutes": 71
+    },
+    "LANE-USAGE-DETAIL-AND-SPEC": {
+      "requests": 3,
+      "sessions": [
+        "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
+      ],
+      "tokens": {
+        "input": 6,
+        "cacheWrite": 14954,
+        "cacheRead": 2408744,
+        "output": 11597
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 3,
+          "tokens": {
+            "input": 6,
+            "cacheWrite": 14954,
+            "cacheRead": 2408744,
+            "output": 11597
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5"
+      ],
+      "firstActivityAt": "2026-09-13T19:07:49.734Z",
+      "lastActivityAt": "2026-09-13T19:09:49.952Z",
+      "activeMinutes": 2
     }
   }
 }

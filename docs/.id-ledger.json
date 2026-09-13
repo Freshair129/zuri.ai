@@ -2667,7 +2667,7 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "853025bead3e8fd5b56eac3833a6711dcc5913e8c3bdea254a591e0877124ddf",
+      "statement_digest": "ea086641322561a35ea50e7adf7c14506c44b97095bea9323ac71f2d9a497303",
       "history": [
         {
           "anchor": "platform programme roadmap",
@@ -2676,7 +2676,7 @@
         }
       ],
       "statement_digest_reviewed_at": "2026-09-13",
-      "statement_digest_reason": "Re-worded to name programme v0.4.5 after TASK-ZAI-069 to TASK-ZAI-072 were added on the owner's instruction for the Zuri harness usage plugin; the subject anchor and the surface it names are unchanged"
+      "statement_digest_reason": "Re-worded to name programme v0.4.6 after TASK-ZAI-073 to TASK-ZAI-075 were added on the owner's instruction for the Zuri harness plugin specification and agent usage detail; the subject anchor and the surface it names are unchanged"
     },
     "FR-106": {
       "family": "FR",
