@@ -1,5 +1,5 @@
 // @req FR-216, FR-217 — the Delivery Telemetry section of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.6): the sizing table and work lanes the owner declares, and the usage
+// (v0.4.7): the sizing table and work lanes the owner declares, and the usage
 // the meter measured from local agent session logs.
 // @spec ADR-086 D1-D4 — planned and measured stay separate; usage is never progress.
 // @tested tests/unit/programme-containers.test.js, tests/unit/program-delivery-metrics.test.js
@@ -84,12 +84,112 @@ export const PROGRAMME_LANES = [
       "docs/usage-detail-plan",
       "feat/usage-detail-and-spec"
     ]
+  },
+  {
+    "id": "LANE-LINE-OA-PLATFORM-PLAN",
+    "title": "LINE OA platform — decisions (Phase 0) and delivery plan",
+    "tasks": [
+      "TASK-ZAI-076",
+      "TASK-ZAI-077"
+    ],
+    "branches": [
+      "docs/line-oa-vault-memory-gks-decisions",
+      "docs/line-oa-programme-plan"
+    ]
+  },
+  {
+    "id": "LANE-LINE-OA-VAULT",
+    "title": "LINE OA platform Phase 1 — credential vault and LINE channel port",
+    "tasks": [
+      "TASK-ZAI-078",
+      "TASK-ZAI-079",
+      "TASK-ZAI-080",
+      "TASK-ZAI-081"
+    ],
+    "branches": [
+      "feat/integration-secret-store-vault"
+    ]
+  },
+  {
+    "id": "LANE-LINE-OA-ONBOARDING",
+    "title": "LINE OA platform Phase 2 — self-serve onboarding, webhook and ENABLE_SERVER",
+    "tasks": [
+      "TASK-ZAI-082",
+      "TASK-ZAI-083",
+      "TASK-ZAI-084",
+      "TASK-ZAI-085",
+      "TASK-ZAI-086",
+      "TASK-ZAI-087"
+    ],
+    "branches": [
+      "feat/line-oa-self-serve-onboarding"
+    ]
+  },
+  {
+    "id": "LANE-CRM-CHAT-RECORD",
+    "title": "LINE OA platform Phase 3 — chat record completeness, retention and inbox search",
+    "tasks": [
+      "TASK-ZAI-088",
+      "TASK-ZAI-089",
+      "TASK-ZAI-090",
+      "TASK-ZAI-091"
+    ],
+    "branches": [
+      "feat/crm-chat-record-completeness"
+    ]
+  },
+  {
+    "id": "LANE-AGENT-CONTEXT-COMPOSER",
+    "title": "LINE OA platform Phase 3b — Context Composer",
+    "tasks": [
+      "TASK-ZAI-092"
+    ],
+    "branches": [
+      "feat/agent-context-composer"
+    ]
+  },
+  {
+    "id": "LANE-LINE-GKS-GROUNDING",
+    "title": "LINE OA platform Phase 4 — grounding from the published GKS corpus",
+    "tasks": [
+      "TASK-ZAI-093",
+      "TASK-ZAI-094",
+      "TASK-ZAI-095"
+    ],
+    "branches": [
+      "feat/line-gks-grounding"
+    ]
+  },
+  {
+    "id": "LANE-KNOWLEDGE-LINE-CANDIDATES",
+    "title": "LINE OA platform Phase 5 — knowledge candidates, gap report and Studio descriptions",
+    "tasks": [
+      "TASK-ZAI-096",
+      "TASK-ZAI-097",
+      "TASK-ZAI-098",
+      "TASK-ZAI-099"
+    ],
+    "branches": [
+      "feat/knowledge-line-candidates"
+    ]
+  },
+  {
+    "id": "LANE-LINE-MEMORY-POLICY-ERASURE",
+    "title": "LINE OA platform Phase 6 — memory policy and erasure fan-out (blocked on MSP)",
+    "tasks": [
+      "TASK-ZAI-100",
+      "TASK-ZAI-101",
+      "TASK-ZAI-102"
+    ],
+    "branches": [
+      "feat/line-memory-policy-erasure"
+    ]
   }
 ]
 
 export const PROGRAMME_USAGE = {
   "meter": "scripts/programme-usage-meter.mjs",
-  "measuredThrough": "2026-09-13T19:09:49.952Z",
+  "measuredThrough": "2026-09-13T19:42:46.032Z",
   "lanes": {
     "LANE-COST-QUOTE-PLAN": {
       "requests": 33,
@@ -209,24 +309,24 @@ export const PROGRAMME_USAGE = {
       "activeMinutes": 71
     },
     "LANE-USAGE-DETAIL-AND-SPEC": {
-      "requests": 3,
+      "requests": 41,
       "sessions": [
         "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
       ],
       "tokens": {
-        "input": 6,
-        "cacheWrite": 14954,
-        "cacheRead": 2408744,
-        "output": 11597
+        "input": 84,
+        "cacheWrite": 127619,
+        "cacheRead": 35572215,
+        "output": 83197
       },
       "bySource": {
         "claude-code": {
-          "requests": 3,
+          "requests": 41,
           "tokens": {
-            "input": 6,
-            "cacheWrite": 14954,
-            "cacheRead": 2408744,
-            "output": 11597
+            "input": 84,
+            "cacheWrite": 127619,
+            "cacheRead": 35572215,
+            "output": 83197
           }
         }
       },
@@ -234,8 +334,8 @@ export const PROGRAMME_USAGE = {
         "claude-opus-5"
       ],
       "firstActivityAt": "2026-09-13T19:07:49.734Z",
-      "lastActivityAt": "2026-09-13T19:09:49.952Z",
-      "activeMinutes": 2
+      "lastActivityAt": "2026-09-13T19:42:46.032Z",
+      "activeMinutes": 35
     }
   }
 }

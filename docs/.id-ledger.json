@@ -2667,7 +2667,7 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "ea086641322561a35ea50e7adf7c14506c44b97095bea9323ac71f2d9a497303",
+      "statement_digest": "df1c916f646897e030c4296a347bd27d4c4b914c6cd1d38a935d8cc86aa4bba9",
       "history": [
         {
           "anchor": "platform programme roadmap",
@@ -2676,7 +2676,7 @@
         }
       ],
       "statement_digest_reviewed_at": "2026-09-13",
-      "statement_digest_reason": "Re-worded to name programme v0.4.6 after TASK-ZAI-073 to TASK-ZAI-075 were added on the owner's instruction for the Zuri harness plugin specification and agent usage detail; the subject anchor and the surface it names are unchanged"
+      "statement_digest_reason": "Re-worded to name programme v0.4.7 after TASK-ZAI-076 to TASK-ZAI-103 were added on the owner's instruction for the LINE OA platform delivery plan; the subject anchor and the surface it names are unchanged"
     },
     "FR-106": {
       "family": "FR",
