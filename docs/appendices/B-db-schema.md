@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.38.0b |
+| **Version** | 1.39.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-13 |
 
@@ -521,3 +521,5 @@ Version diff 1.35.0b → 1.36.0b (2026-09-13): ADR-083 SKU governance — three 
 Version diff 1.36.0b → 1.37.0b (2026-09-13): ADR-084 catalogue intake — new model `InventoryCatalogIntake` (in `SNAPSHOT_MODELS` after `productUnitConversion`). 151 models are now declared. Migration `20260913200000_inventory_catalog_intake.sql` written in both trees and APPLIED on production on 2026-09-13 (ledger row written, effect verified).
 
 Version diff 1.37.0b → 1.38.0b (2026-09-13): ADR-086 programme delivery telemetry — new model `ProgrammeUsageReport` (first in `SNAPSHOT_MODELS`; no foreign key), owned by the platform-control charter. 152 models are now declared. Migration `20260913230000_programme_usage_report` written in both trees and NOT applied to production.
+
+Version diff 1.38.0b → 1.39.0b (2026-09-14): migration `20260913230000_programme_usage_report` APPLIED on production 2026-09-14 (owner-instructed, ADR-057): read-only inventory, a rolled-back dry run through the transaction pooler, then apply with ledger row `20260913230000 programme_usage_report`; effect verified (15 columns, forced RLS, one `zuri_app_runtime_all` policy, grants to the two runtime roles only, unique (source, sessionId) and taskCode indexes, 0 rows).
