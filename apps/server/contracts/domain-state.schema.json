@@ -13,7 +13,8 @@
     "progressMethodology",
     "overall",
     "domains",
-    "features"
+    "features",
+    "nonFunctionalRequirements"
   ],
   "properties": {
     "schemaVersion": { "const": "2.0" },
@@ -41,6 +42,10 @@
       "type": "array",
       "items": { "$ref": "#/$defs/feature" },
       "uniqueItems": true
+    },
+    "nonFunctionalRequirements": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/nonFunctionalRequirement" }
     }
   },
   "$defs": {
@@ -107,9 +112,10 @@
     "requirement": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "declared", "status", "codeCount", "testCount"],
+      "required": ["id", "title", "declared", "status", "codeCount", "testCount"],
       "properties": {
         "id": { "type": "string", "pattern": "^(FR|NFR|BR|SEC|SDD)-[0-9]{3}$" },
+        "title": { "type": "string" },
         "declared": { "type": "string", "minLength": 1 },
         "status": { "$ref": "#/$defs/status" },
         "codeCount": { "type": "integer", "minimum": 0 },
@@ -124,13 +130,31 @@
     "featureRequirement": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "status", "progressPercent", "codeCount", "testCount"],
+      "required": ["id", "title", "status", "progressPercent", "codeCount", "testCount"],
       "properties": {
         "id": { "type": "string", "pattern": "^FR-[0-9]{3}$" },
+        "title": { "type": "string" },
         "status": { "$ref": "#/$defs/status" },
         "progressPercent": { "type": "number", "minimum": 0, "maximum": 100 },
         "codeCount": { "type": "integer", "minimum": 0 },
         "testCount": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "nonFunctionalRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "title", "status", "codeCount", "testCount", "domains"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^NFR-[0-9]{3}$" },
+        "title": { "type": "string" },
+        "status": { "$ref": "#/$defs/status" },
+        "codeCount": { "type": "integer", "minimum": 0 },
+        "testCount": { "type": "integer", "minimum": 0 },
+        "domains": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
       }
     },
     "feature": {

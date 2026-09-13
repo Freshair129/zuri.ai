@@ -338,6 +338,7 @@
     "FR-208",
     "FR-209",
     "FR-210",
+    "FR-211",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -4073,6 +4074,19 @@
       "history": [
         {
           "anchor": "a verified staff sender adds or matches skus from line with",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-211": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "58bebebc86b108333357d780e53591d1b15239a365cd54e2a27b27c9e6959303",
+      "history": [
+        {
+          "anchor": "platform domain map and inventory",
           "since": "2026-09-13",
           "reason": "declared"
         }

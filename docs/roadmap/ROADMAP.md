@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.67.0b"
+version: "2.68.0b"
 updated: "2026-09-13"
 owner: "Owen"
 source_of_truth: true
@@ -18,6 +18,8 @@ live_document: true
 ---
 
 # ROADMAP: zuri-ai — Live Delivery State
+
+> Revision 2.68.0b (2026-09-13): ประกาศและส่งมอบ **FR-211** ตามคำขอ owner — แท็บ **Domain map & inventory** ใน `/control/roadmap` แสดง feature, FR และ NFR ของแต่ละโดเมนพร้อมสถานะความพร้อม (อ่านจาก snapshot ของ FR-124, operator-only เหมือน FR-105). เพิ่ม `TASK-FR-211`. ไม่มี route / model / migration ใหม่.
 
 > Revision 2.67.0b (2026-09-13): ประกาศและส่งมอบ **FR-208..FR-210 / FEAT-032 / ADR-084** — นำเข้าสินค้า (catalogue intake) ที่ค้นหา SKU เดิมก่อนสร้างเสมอ ตามคำสั่ง owner: envelope เดียวสำหรับ JSON / Excel / LINE, planner ค้นจากบาร์โค้ด/รหัสคู่ค้าแล้วรหัส SKU (ตาม merge) ก่อนวางแผนสร้าง, จับคู่แล้วเพิ่มเฉพาะที่ขาดไม่แก้ของเดิม, preview เก็บพร้อม plan hash และ commit ทั้งชุดหรือไม่บันทึกเลยผ่าน writer เดิม (FR-208); แม่แบบ Excel ของแต่ละ Business + แท็บ Import (FR-209); คำสั่ง `#sku` ใน LINE เฉพาะบัญชีที่ยืนยันตัวตนแล้วและมีสิทธิ์จัดการคลัง ในแชทตัวต่อตัว ต้องยืนยันด้วย `#sku ยืนยัน <code>` (FR-210). migration `20260913200000_inventory_catalog_intake` เขียนทั้งสอง tree, production **ยังไม่ apply**.
 
@@ -351,6 +353,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FEAT-008 | PHASE-ZAI-PRODUCT | task | Projects Dashboard (FR-086 shipped) + project priority (FR-087), accountable PIC (FR-088), Team grouping models (FR-089) | P1 | Claude | done (FR-087..089 status ruling resolved 2026-08-26 — PRD 1.89.0b) | FR-005; ADR-036; ADR-037 | ../domains/project-manager/features/FR-086-projects-dashboard.md |
 | TASK-FR-090 | PHASE-ZAI-PRODUCT | task | Live production-auth table declaration (PersonCredential, PasswordResetToken, laneId) — resolved 2026-08-26: source branch deleted; successors TASK-FEAT-010 (login/session) and the password-reset row under PHASE-ZAI-IAM | P0 | Claude | done | - | PRD-SDD FR-090 |
 | TASK-FR-105 | PHASE-ZAI-PRODUCT | task | Platform Programme Roadmap `/control/roadmap`: isOperator-only read-only projection of the 24-week programme (ADR-048) | P2 | Claude | done | FR-075; ADR-048 | ../domains/platform-control/features/FR-105-platform-programme-roadmap.md |
+| TASK-FR-211 | PHASE-ZAI-PRODUCT | task | Domain map & inventory tab บน `/control/roadmap` (`?view=domains`, FR-211): ทุกโดเมนเป็น tile พร้อมสถานะ / progress / feature พร้อมใช้ / FR verified / NFR / gap และ inventory ของโดเมนที่เลือก (feature, FR, NFR, readiness checks, gaps) — projection ฝั่ง server จาก snapshot ของ FR-124 ไม่คำนวณสถานะเอง ไม่มี write path; `domain-state.mjs` เพิ่มชื่อย่อ FR และ `nonFunctionalRequirements` | P2 | Claude | done | FR-105; FR-124; ADR-048 | ../../apps/server/tests/unit/platform-control-domain-map.test.js |
 | TASK-FR-108 | PHASE-ZAI-PRODUCT | task | ExecutionPlanBundle import orchestration (FR-108, ADR-049, FEAT-012 live): 5 โมดูล orchestrator + `POST /api/import/bundle/{dry-run,commit}` — one preview / one confirmation / atomic commit / hash-bound idempotent receipt; พิสูจน์ end-to-end แล้ว: แผน 17-Stage ถูก import ขึ้น production SmartGift ผ่านมันเป็นเคสแรก (`PRJ-KNOWLEDGE-17S`) | P0 | Claude | done | FR-012; FR-059; ADR-049; SDD-056 | ../domains/project-manager/features/FR-108-execution-plan-bundle.md |
 | TASK-FR-081 | PHASE-ZAI-RUNTIME | task | Raw external ingestion boundary: one normalized envelope, tenant/connection-scoped repository, dead-letter records (FR-081) | P0 | Claude | done | FR-079; BR-002 | ../domains/integration/features/FR-081-raw-external-ingestion.md |
 | TASK-FEAT-007 | PHASE-ZAI-RUNTIME | task | Pipeline Builder canvas: structure editing (FR-082), edge creation (FR-083), handoff contracts (FR-084), contract-gated release (FR-085) — ADR-035 design only, implementation not authorized | P2 | Owen | planned | FR-007; FR-040; ADR-035 | ../domains/project-manager/features/FR-082-pipeline-canvas.md |
