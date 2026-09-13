@@ -1301,14 +1301,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-046",
           "declared": "done",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 72
+          "testCount": 73
         },
         {
           "id": "FR-059",
@@ -1357,7 +1357,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 34
+          "testCount": 36
         },
         {
           "id": "FR-076",
@@ -1385,7 +1385,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-096",
@@ -3261,28 +3261,28 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 72
+          "testCount": 73
         },
         {
           "id": "FR-075",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 34
+          "testCount": 36
         },
         {
           "id": "FR-095",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-105",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 9
+          "testCount": 11
         },
         {
           "id": "FR-142",
@@ -3713,7 +3713,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-034",
@@ -3755,7 +3755,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-040",
@@ -3783,14 +3783,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-044",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-045",
@@ -3804,7 +3804,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 66,
-          "testCount": 72
+          "testCount": 73
         },
         {
           "id": "FR-056",
@@ -3929,8 +3929,8 @@
           "id": "FR-075",
           "declared": "done",
           "status": "verified",
-          "codeCount": 8,
-          "testCount": 34
+          "codeCount": 9,
+          "testCount": 36
         },
         {
           "id": "FR-077",
@@ -3965,7 +3965,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-087",
@@ -4021,7 +4021,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-097",
@@ -4062,8 +4062,8 @@
           "id": "FR-105",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 9
+          "codeCount": 5,
+          "testCount": 11
         },
         {
           "id": "FR-106",
@@ -5305,7 +5305,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-087",
@@ -5374,6 +5374,7 @@
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
+        "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-list-contract.test.js",
         "apps/server/tests/unit/project-status-options.test.js",
@@ -5517,7 +5518,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 17,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-096",
@@ -5623,6 +5624,7 @@
         "apps/server/tests/unit/line-channel-binding.test.js",
         "apps/server/tests/unit/operator-bootstrap.test.js",
         "apps/server/tests/unit/password-reset-service.test.js",
+        "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sign-out-surfaces-render.test.js",
@@ -9167,12 +9169,13 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 5
         }
       ],
       "evidence": [
         "apps/server/src/components/layouts/Topbar.jsx",
         "apps/server/tests/unit/domain-state.test.js",
+        "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sign-out.test.js",
         "apps/server/tests/unit/topbar-no-dropdown.test.js"
@@ -9368,7 +9371,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 18
+          "testCount": 19
         }
       ],
       "evidence": [
@@ -9391,6 +9394,7 @@
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
+        "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
@@ -9536,7 +9540,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 19
+          "testCount": 20
         }
       ],
       "evidence": [
@@ -9563,6 +9567,7 @@
         "apps/server/tests/unit/breadcrumb-switcher.test.js",
         "apps/server/tests/unit/business-strategy-service.test.js",
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
+        "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/project-business-context.test.js",
         "apps/server/tests/unit/project-list-contract.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
@@ -9594,7 +9599,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
-          "testCount": 24
+          "testCount": 25
         }
       ],
       "evidence": [
@@ -9631,6 +9636,7 @@
         "apps/server/tests/unit/fr056-landing.test.js",
         "apps/server/tests/unit/fr120-signup-page.test.js",
         "apps/server/tests/unit/password-reset-page.test.js",
+        "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/route-reachability.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sign-out.test.js",
@@ -9663,7 +9669,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 84,
-          "testCount": 72
+          "testCount": 73
         }
       ],
       "evidence": [
@@ -9807,6 +9813,7 @@
         "apps/server/tests/unit/password-reset-page.test.js",
         "apps/server/tests/unit/password-reset-service.test.js",
         "apps/server/tests/unit/people-route.test.js",
+        "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/platform-control-guard.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/playwright-database-bootstrap.test.js",
@@ -10953,8 +10960,8 @@
           "id": "FR-075",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
-          "testCount": 34
+          "codeCount": 12,
+          "testCount": 36
         }
       ],
       "evidence": [
@@ -10963,6 +10970,7 @@
         "apps/server/src/app/api/backup/import/route.js",
         "apps/server/src/app/api/files/migrate/route.js",
         "apps/server/src/components/layouts/PlatformControlShell.jsx",
+        "apps/server/src/components/layouts/Topbar.jsx",
         "apps/server/src/modules/identity/operator-bootstrap.js",
         "apps/server/src/modules/identity/resolve-viewer.js",
         "apps/server/src/modules/identity/viewer-authority.js",
@@ -11000,7 +11008,9 @@
         "apps/server/tests/unit/platform-control-guard.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/platform-grant-migration.test.js",
+        "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sign-out.test.js",
+        "apps/server/tests/unit/topbar-no-dropdown.test.js",
         "apps/server/tests/unit/viewer-authority.test.js",
         "apps/server/tests/unit/viewer-gate.test.js"
       ]
@@ -11413,8 +11423,8 @@
           "id": "FR-105",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 9,
-          "testCount": 9
+          "codeCount": 10,
+          "testCount": 11
         }
       ],
       "evidence": [
@@ -11424,6 +11434,7 @@
         "apps/server/src/components/layouts/PlatformControlGuard.jsx",
         "apps/server/src/components/layouts/PlatformControlSessionRetry.jsx",
         "apps/server/src/components/layouts/PlatformControlShell.jsx",
+        "apps/server/src/components/layouts/Topbar.jsx",
         "apps/server/src/lib/platform-control-guard.js",
         "apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
         "apps/server/src/modules/platform-control/program-roadmap-data.js",
@@ -11434,7 +11445,9 @@
         "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/platform-control-guard.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
+        "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sign-out.test.js",
+        "apps/server/tests/unit/topbar-no-dropdown.test.js",
         "apps/server/tests/unit/viewer-failure.test.js"
       ]
     },
