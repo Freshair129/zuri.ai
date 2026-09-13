@@ -339,6 +339,10 @@
     "FR-209",
     "FR-210",
     "FR-211",
+    "FR-212",
+    "FR-213",
+    "FR-214",
+    "FR-215",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -516,6 +520,7 @@
     "FEAT-030",
     "FEAT-031",
     "FEAT-032",
+    "FEAT-033",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -688,6 +693,7 @@
     "ADR-082",
     "ADR-083",
     "ADR-084",
+    "ADR-085",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -4092,6 +4098,62 @@
         }
       ]
     },
+    "FR-212": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "6edbe71cf20fd77e98ce616738c69d3542617994cfaa7995cee4b39e1701e329",
+      "history": [
+        {
+          "anchor": "data pipeline registry and generated projection",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-213": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "62eb1fe58a10580c9ed119874e57c5f2c2925f825afcb10d3846f007a137e4d3",
+      "history": [
+        {
+          "anchor": "data pipeline map view",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-13",
+      "statement_digest_reason": "Statement tightened in the declaring change to describe the implemented admission: server-side check on the viewer's visible domains, per-Business grant applied by the shell guard"
+    },
+    "FR-214": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "83deca8dc1106923105068868790e367c64ed6b03f2e3af9b65e50deaf62cfff",
+      "history": [
+        {
+          "anchor": "knowledge gks navigation slot",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-13",
+      "statement_digest_reason": "Statement tightened in the declaring change: /knowledge is the slot's Dashboard with the map summary rather than a redirect"
+    },
+    "FR-215": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d87bf0ef20086ab568a88190e8331b5f2529e798639d48abd12fb6c938c2c1d5",
+      "history": [
+        {
+          "anchor": "live pipeline health on the map",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -6450,6 +6512,19 @@
         }
       ]
     },
+    "FEAT-033": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "cce5c79d777ecf4d8421a3784633dfd5072b4afd07124bbc4b776778f96e1f2b",
+      "history": [
+        {
+          "anchor": "data pipeline map",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
     "RSK-001": {
       "family": "RSK",
       "source": "docs/appendices/E-risk-matrix.md",
@@ -8707,6 +8782,19 @@
       "history": [
         {
           "anchor": "catalogue intake resolves before it creates",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-085": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-085-KNOWLEDGE-GKS-SLOT-AND-THE-DATA-PIPELINE-MAP.md",
+      "status": "current",
+      "statement_digest": "50dd028f9619ed801b862affaa3f453558c38e20a4cf942afa32a88ef92bc5c2",
+      "history": [
+        {
+          "anchor": "a knowledge gks slot and the data pipeline map as a",
           "since": "2026-09-13",
           "reason": "declared"
         }

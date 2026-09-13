@@ -409,7 +409,7 @@ Week numbers map to the calendar in section 5.4. W1 begins Mon 2026-08-24.
 
 | Phase | Weeks | Dates | Goal | Governing SoT | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
-| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2) | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, the cost and quote decision record is written, and the data pipeline map renders every confirmed chain (v0.4.3) | in-progress | 73 |
+| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2) | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, the cost and quote decision record is written, and the data pipeline map renders every confirmed chain (v0.4.3) | in-progress | 82 |
 | PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; give the seventeen-stage pipeline its knowledge base and file system on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; a real document is admitted, parsed, published and cited on production; GATE-ZAI-09's migration ledger matches | planned | 0 |
 | PHASE-ZAI-03 | 9-12 | 2026-10-19 to 2026-11-15 | Second business, cross-business analytics, first workflows and connectors; deliverable 11 accepted for Business one | `docs/ARCHITECTURE.md` | GATE-ZAI-04 and GATE-ZAI-07 are met for connectors one and two and workflows one and two; GATE-ZAI-09 is met | planned | 0 |
 | PHASE-ZAI-04 | 13-16 | 2026-11-16 to 2026-12-13 | Visual Office 2.5D and the agent activity experience | `docs/UI-DESIGN-SYSTEM.md` | GATE-ZAI-01 is met | planned | 0 |
@@ -429,7 +429,7 @@ locates the week.
 | Sprint | Parent ID | Weeks | Dates | Goal | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
 | SPR-ZAI-01 | PHASE-ZAI-01 | 1-2 | 08-24 to 09-06 | Close identity, session and authorization to production standard; (CR-019) Inventory, Sales Tasks, Commerce, Procurement, Asset Management and LINE OA Studio lanes land | A request without a trusted session reaches no mutating route, proven by test; each lane merged with tests | in-progress | 93 |
-| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake; (v0.4.3) the data pipeline registry and its node-edge map land under a Knowledge (GKS) slot | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, supplier cost sheets land with a locked FX rate, and the map shows every inbound source, outbound recipient and combine chain with its surface level | in-progress | 62 |
+| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake; (v0.4.3) the data pipeline registry and its node-edge map land under a Knowledge (GKS) slot | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, supplier cost sheets land with a locked FX rate, and the map shows every inbound source, outbound recipient and combine chain with its surface level | in-progress | 76 |
 | SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; stand up the knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending deliverable-11 migration on production; pricing rule set, the shared pricing engine and quotations; live pipeline health on the data pipeline map | Each role resolves distinct tools, policy and memory partition; a PDF uploaded in the console is published as a cited corpus on production; the migration ledger matches the tree; a quote and the FR-181 tool price the same SKU to the same satang; a failed run is visible on its map edge for its own Business only | planned | 0 |
 | SPR-ZAI-04 | PHASE-ZAI-02 | 7-8 | 10-05 to 10-18 | Approval Gateway L1 to L4 with verification, notification and Mission Control binding; ladder quotation on LINE and knowledge structured records | An L4 action cannot execute without four recorded approvals; a LINE quotation request is answered from the shared engine with no margin in the payload | planned | 0 |
 | SPR-ZAI-05 | PHASE-ZAI-03 | 9-10 | 10-19 to 11-01 | Standard business template and Business number two onboarding | Business two is live and isolated from SmartGift under test | planned | 0 |
@@ -504,9 +504,9 @@ locates the week.
 | TASK-ZAI-057 | SPR-ZAI-03 | task | Quotations — Quote and QuoteLine with ladder snapshots, two-hat approval, the QUOTATION document and conversion to a sales order with the FR-180 hold | P0 | Claude | planned | TASK-ZAI-056; TASK-ZAI-039 | CR-019 deliverable 11; price-boss workflow-quotation; FR-166; FR-180; FR-186; FR-196 |
 | TASK-ZAI-058 | SPR-ZAI-04 | task | Ladder quotation on LINE (FR-132) over the shared engine with a deterministic intent matcher | P1 | Claude | planned | TASK-ZAI-057; TASK-ZAI-036 | CR-019 deliverable 11; FR-132; FR-131; BR-011; FR-047 |
 | TASK-ZAI-059 | SPR-ZAI-04 | task | Knowledge structured records — STRUCTURED_RECORDS_V1 JSON format, an Excel template and converter, and MCP format widening before Stage 1 | P1 | Claude | planned | TASK-ZAI-045; TASK-ZAI-042 | Section 3.1 row 4; ADR-075 D2; FR-187; FR-209; BR-009 |
-| TASK-ZAI-060 | SPR-ZAI-02 | task | Data pipeline map decision record — the ADR for a Knowledge (GKS) navigation slot that consumes GKS without becoming it, and the requirement and FEAT declarations | P0 | Claude | in-progress | - | Section 3.1 row 4; ADR-063 D4; ADR-050; SYSTEM-DIAGRAM; ARCHITECTURE-DIAGRAMS section 3 |
-| TASK-ZAI-061 | SPR-ZAI-02 | task | Data pipeline registry — the written map of inbound sources, outbound recipients and combine chains, a validated JSON registry, a generated runtime projection and a preflight check | P0 | Claude | planned | TASK-ZAI-060 | Section 3.1 row 4; FR-124 precedent; ADR-081 D2 |
-| TASK-ZAI-062 | SPR-ZAI-02 | task | Data Pipeline Map node-edge view under the Knowledge (GKS) slot — layered graph, chain, domain and status filters, edge detail with domain, FEAT and surface level, and a list view | P0 | Claude | planned | TASK-ZAI-061 | Section 3.1 row 4; FR-040 and FR-101 hand-rolled SVG precedent; FR-061 |
+| TASK-ZAI-060 | SPR-ZAI-02 | task | Data pipeline map decision record — the ADR for a Knowledge (GKS) navigation slot that consumes GKS without becoming it, and the requirement and FEAT declarations | P0 | Claude | done | - | Section 3.1 row 4; ADR-063 D4; ADR-050; SYSTEM-DIAGRAM; ARCHITECTURE-DIAGRAMS section 3 |
+| TASK-ZAI-061 | SPR-ZAI-02 | task | Data pipeline registry — the written map of inbound sources, outbound recipients and combine chains, a validated JSON registry, a generated runtime projection and a preflight check | P0 | Claude | review | TASK-ZAI-060 | Section 3.1 row 4; FR-124 precedent; ADR-081 D2 |
+| TASK-ZAI-062 | SPR-ZAI-02 | task | Data Pipeline Map node-edge view under the Knowledge (GKS) slot — layered graph, chain, domain and status filters, edge detail with domain, FEAT and surface level, and a list view | P0 | Claude | review | TASK-ZAI-061 | Section 3.1 row 4; FR-040 and FR-101 hand-rolled SVG precedent; FR-061 |
 | TASK-ZAI-063 | SPR-ZAI-03 | task | Live pipeline health on the map — per-edge run and job counts for the active Business from the FR-071 ledger and the transport job tables | P1 | Claude | planned | TASK-ZAI-062; TASK-ZAI-047 | Section 3.1 row 4; FR-071; FR-149; FR-152; FR-143 |
 
 ## Assignments
@@ -3175,8 +3175,8 @@ title: Data pipeline map decision record — the ADR for a Knowledge (GKS) navig
 requirement_type: NFR
 complexity: C-2
 access_scope: H2
-status: in-progress
-version: 0.1.0
+status: done
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -3188,14 +3188,14 @@ symbol_links:
 definition_of_done:
   acceptance_criteria:
     - criterion: Given the owner's instruction to place the data pipeline map as a sub-domain of the Genesis Knowledge System, when the ADR is written, then it records that the new navigation slot belongs to zuri-ai's own knowledge lane and names GKS as the authority that lane consumes, so ADR-063 D4 (GKS, MSP and GenesisBlockDB are never zuri-ai domains) stays true word for word
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given the registry, the node-edge view, the navigation slot and the live overlay, when they are declared in the PRD with one FEAT bundle, then every new id is pinned by docs:ids --write and the knowledge charter claims the new route and module paths
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and the charter, the ADR and the PRD rows name the same slot key and route
-      checked: false
-changelog: Opened 2026-09-13 (v0.4.3) on the owner's instruction — draw a data pipeline map (where data comes from, who receives it, where it is combined first, how many chains) as a visual node-edge view inside the Genesis Knowledge System domain, and put every task on the roadmap before starting. No such document exists today; ARCHITECTURE-DIAGRAMS section 3 (2026-08-15) still draws the V1 cutover and zuri-cli, SYSTEM-DIAGRAM (2026-09-05) has no surface status, and KNOWLEDGE-INGESTION-SURFACES covers one domain. Placement is recorded as a zuri-ai knowledge-lane slot because ADR-063 D4 forbids a GKS domain here.
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.3) on the owner's instruction — draw a data pipeline map (where data comes from, who receives it, where it is combined first, how many chains) as a visual node-edge view inside the Genesis Knowledge System domain, and put every task on the roadmap before starting. No such document exists today; ARCHITECTURE-DIAGRAMS section 3 (2026-08-15) still draws the V1 cutover and zuri-cli, SYSTEM-DIAGRAM (2026-09-05) has no surface status, and KNOWLEDGE-INGESTION-SURFACES covers one domain. Placement is recorded as a zuri-ai knowledge-lane slot because ADR-063 D4 forbids a GKS domain here. Closed 2026-09-13 — ADR-085 accepted; FR-212 to FR-215 and FEAT-033 declared and pinned (docs:ids --write); npm run govern exits 0 with no CRITICAL.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -3219,8 +3219,8 @@ title: Data pipeline registry — the written map of inbound sources, outbound r
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -3232,14 +3232,14 @@ symbol_links:
 definition_of_done:
   acceptance_criteria:
     - criterion: Given the new map document, when a reader opens it, then it lists every inbound source, every outbound recipient and every chain that combines data before sending it on, each hop with its owning domain, FEAT or FR, surface kind (HTTP endpoint, UI page, MCP tool, worker, CLI) and one status level (declared, code and tests, endpoint, UI, live on production), with declared-only and not-built flows shown as such rather than omitted
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given the registry block, when the generator runs, then an endpoint or UI level is derived from the route and page files that exist, code-and-tests from the FR-124 snapshot, a production level is accepted only with written evidence, and an unknown id, a missing route, a node no edge touches or a chain with a broken hop fails generation by name
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm run govern and npm test, when they run, then the committed runtime projection is byte-stable on a second pass, the preflight check passes, ARCHITECTURE-DIAGRAMS section 3 and SYSTEM-DIAGRAM point to the new map as current, and the generator suite covers each refusal
-      checked: false
-changelog: Opened 2026-09-13 (v0.4.3). The survey behind the plan found 16 inbound surfaces in 8 groups plus 3 return channels, egress to LINE, model providers, Supabase Storage, MSP over stdio, edge devices, MCP and Enterprise API clients and operator downloads, and 12 confirmed combine chains with 2 rejected as declared-only or not outbound. The projection is committed for the same reason domain-state.json is (ADR-081 D2) — the server imports it and the Docker context cannot rebuild it.
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.3). The survey behind the plan found 16 inbound surfaces in 8 groups plus 3 return channels, egress to LINE, model providers, Supabase Storage, MSP over stdio, edge devices, MCP and Enterprise API clients and operator downloads, and 12 confirmed combine chains with 2 rejected as declared-only or not outbound. The projection is committed for the same reason domain-state.json is (ADR-081 D2) — the server imports it and the Docker context cannot rebuild it. Moved to review 2026-09-13 — docs/DATA-PIPELINE-MAP.md registry (76 nodes, 104 edges, 20 chains), scripts/data-pipeline-map.mjs wired into doc-graph and docs:check, runtime/data-pipeline-map.json with the CI committed-state guard, ARCHITECTURE-DIAGRAMS §3 and SYSTEM-DIAGRAM pointing to the map; tests/unit/data-pipeline-map.test.js passes. Review, not done: not deployed.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -3263,8 +3263,8 @@ title: Data Pipeline Map node-edge view under the Knowledge (GKS) slot — layer
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -3276,14 +3276,14 @@ symbol_links:
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a viewer whose visible domains include the Knowledge (GKS) slot, when they open the Data Pipeline Map, then external sources, ingest surfaces, combine steps, stores, outbound surfaces and recipients render as layered nodes with labelled edges drawn in hand-rolled SVG, and a viewer without the slot reaches no page and no payload
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given the map, when a chain, domain or status filter is chosen or a node or edge is selected, then the chain's path is highlighted end to end, the detail panel names the owning domain, FEAT, FR, surface kind and status level with its evidence, and the list view shows the same rows as an accessible table
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test and a new e2e, when they run, then the render test, keyboard selection, the list view, the visibility refusal and the navigation reachability suite pass, and the page builds clean
-      checked: false
-changelog: Opened 2026-09-13 (v0.4.3). The slot opens with this one page; the knowledge base console of TASK-ZAI-047 is the next page planned for it. Hand-rolled SVG with no graph library, as FR-040 and FR-101 already do, so the map adds no client dependency.
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.3). The slot opens with this one page; the knowledge base console of TASK-ZAI-047 is the next page planned for it. Hand-rolled SVG with no graph library, as FR-040 and FR-101 already do, so the map adds no client dependency. Moved to review 2026-09-13 — /knowledge and /knowledge/data-pipeline under the new knowledge slot; render, admission and layout unit suite and tests/e2e/fr213-data-pipeline-map.spec.js pass with navigation reachability. Review, not done: not deployed.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5

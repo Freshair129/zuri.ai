@@ -1,7 +1,7 @@
 ---
-version: "1.22.0b"
+version: "1.23.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-13T21:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-13T23:00:00+07:00,Claude Opus 5"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=102; operational_domain_keys=15; operational_subdomain_entries=53; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=104; operational_domain_keys=16; operational_subdomain_entries=55; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -211,6 +211,17 @@ uncounted product shows "—", never a zero.
 | `/inventory/products/[productId]` | SKU detail — identifiers and unit conversions | BusinessShell → Inventory (from a SKU code on the Dashboard or the Dashboard's code lookup; not a tab) | Read the SKU header (on-hand, tracking, base unit); list, add and two-step retire barcodes / GTIN / supplier / manufacturer / legacy codes with the pack unit each sits on; declare, edit and two-step retire unit conversions ("1 BOX12 = 12 EA") | Business visibility and the `inventory` domain to read; Inventory write authority for a change; loading (desks disabled), SKU from another Business or archived/merged (read-only with the reason), service or serial SKU (no conversion desk, reason shown), bad GTIN check digit (caught before send), identifier held by another SKU (names and links it), version conflict, retired rows on request | implemented; `src/app/(pm)/inventory/products/[productId]/page.jsx`, FR-203, FR-204 (ADR-083) |
 | `/inventory/catalog-intake` | Import — catalogue intake (Inventory tab 7) | BusinessShell → Inventory / Import | Download this Business's workbook template; upload a filled `.xlsx` or paste JSON items and read the preview — each row's decision (create, match with additions, unchanged, conflict, invalid), the SKU it matched and by what, the issues and warnings; confirm the whole batch or cancel; reopen a recent intake from any channel, LINE included | Business visibility and the `inventory` domain to read; Inventory write authority to preview, confirm or cancel; no Business selected, workbook not the template (header, sheet, size, rows), uncommittable plan (confirm disabled with the reason), expired or stale plan, cancelled or committed intake | implemented locally; `src/app/(pm)/inventory/catalog-intake/page.jsx`, FR-208, FR-209 (ADR-084); production migration pending |
 
+### 3.6c Knowledge (GKS) domain
+
+The knowledge lane's navigation slot (FR-214, ADR-085). The label names the
+authority the lane consumes; GKS, MSP and GenesisBlockDB remain external systems
+(ADR-063 D4). Both pages render one committed projection of
+`docs/DATA-PIPELINE-MAP.md` (FR-212) and hold no Business data.
+
+| Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
+|---|---|---|---|---|---|
+| `/knowledge` | Knowledge Dashboard (domain `knowledge`) | BusinessShell → Knowledge (GKS) / Dashboard | the map's summary figures (chains by status, sources, entry surfaces, recipients), a link to the Data Pipeline Map, and the knowledge base console named as planned (TASK-ZAI-047) | server-side viewer resolution before render; 404 without `knowledge`; per-Business grant by the shell guard | implemented locally 2026-09-13 — FR-214; `tests/unit/knowledge-data-pipeline-map-ui.test.js` |
+| `/knowledge/data-pipeline` | Data Pipeline Map | BusinessShell → Knowledge (GKS) / Data Pipeline Map | layered node-edge SVG of sources, entry surfaces, processes, stores and recipients; chain (`?chain=CH-xx`), domain and status filters; detail panel for a node, edge or chain (domain, FEATs, requirements, surfaces, decisions, production evidence); list view with the same chains, nodes and edges as tables | same admission as `/knowledge`; read-only, no API | implemented locally 2026-09-13 — FR-213; `tests/unit/knowledge-data-pipeline-map-ui.test.js`, `tests/e2e/fr213-data-pipeline-map.spec.js` |
 ### 3.7 Workspace compatibility surfaces
 
 These pages remain routable Project Manager Space surfaces. They are not a second
@@ -314,11 +325,11 @@ explicitly so “domain count” cannot silently mix the two concepts:
 
 | Count | Current value | Source interpretation |
 |---|---:|---|
-| Source `DOMAINS` entries | 16 | `business-home` plus fifteen operational domains |
-| Operational domain keys | 15 | `commerce`, `customer`, `market`, `growth`, `operations`, `people`, `projects`, `assets`, `line-oa`, `inventory`, `warehouse`, `procurement`, `platform`, `scm` and `crm` |
+| Source `DOMAINS` entries | 17 | `business-home` plus sixteen operational domains |
+| Operational domain keys | 16 | `commerce`, `customer`, `market`, `growth`, `operations`, `people`, `projects`, `assets`, `line-oa`, `inventory`, `warehouse`, `procurement`, `platform`, `scm`, `crm` and `knowledge` (FR-214) |
 | Business Home shell slots | 1 | `business-home`, `/overview`, always visible, not an operational domain |
-| Source sub-domain entries | 51 | includes Business Home Dashboard |
-| Operational sub-domain entries | 50 | excludes Business Home Dashboard |
+| Source sub-domain entries | 56 | includes Business Home Dashboard |
+| Operational sub-domain entries | 55 | excludes Business Home Dashboard |
 | Development sub-domain entries | 8 | includes Files and excludes Business Home |
 | Asset Management navigation entries | 4 | Dashboard, Receiving, Register and Scanner |
 | LINE OA Studio navigation entries | 8 | Dashboard, Projects & Accounts, Design Studio, Live CRM, Edge connection, Templates, Team and Settings; LINE registry editing lives in Projects (main 2a1b6a81) |
@@ -370,7 +381,7 @@ The current route evidence is:
 | Evidence | Current value | Check |
 |---|---:|---|
 | `src/app/**/page.jsx` | 98 page routes | preflight compares every derived URL to this registry |
-| `src/config/domains.js` | 15 operational domains, 50 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
+| `src/config/domains.js` | 16 operational domains, 55 operational sub-domains, 1 Business Home slot | preflight compares the control marker to the source registry |
 | UI status | per-row, not a global completion claim | local implementation does not imply production provider/cutover readiness |
 
 ## 7. Out of scope
@@ -387,6 +398,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.23.0b | 2026-09-13 | active | Added the Knowledge (GKS) domain (FR-214, ADR-085) with its Dashboard `/knowledge` and the Data Pipeline Map `/knowledge/data-pipeline` (FR-213); page routes 102 -> 104, operational domain keys 15 -> 16, operational subdomain entries 53 -> 55 | working-tree | Claude Opus 5 |
 | 1.22.0b | 2026-09-13 | active | Added the Import tab `/inventory/catalog-intake` (FR-208 / FR-209, ADR-084), the seventh Inventory tab; page routes 101 -> 102, operational subdomain entries 52 -> 53 | working-tree | Claude Opus 5 |
 | 1.21.0b | 2026-09-13 | active | Added the SKU detail page `/inventory/products/[productId]` (FR-203 identifier desk, FR-204 unit-conversion desk; reached from the Dashboard, not a tab); page routes 100 -> 101, operational subdomain entries unchanged | working-tree | Claude Opus 5 |
 | 1.20.0b | 2026-09-13 | active | Added the sixth Inventory tab `/inventory/hygiene` (FR-206 catalogue hygiene report, the FR-205 lifecycle/merge desk and the FR-207 replenishment card, ADR-083); page routes 99 -> 100, operational subdomain entries 51 -> 52 | working-tree | Claude Fable 5.1 |

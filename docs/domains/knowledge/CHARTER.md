@@ -1,9 +1,11 @@
 ---
 domain: knowledge
-version: "1.3.0b"
+version: "1.4.0b"
 status: beta
-last_update: "2026-09-08T17:30:00+07:00,RWANG"
+last_update: "2026-09-13T22:30:00+07:00,Claude Opus 5"
 module: src/modules/knowledge
+owns_routes:
+  - src/app/(pm)/knowledge/**
 owns_models:
   - KnowledgeCorpus
   - KnowledgeSource
@@ -72,6 +74,15 @@ external systems with their own repositories and are never zuri-ai domains
   went the same day (ADR-063 D2a); `smartgift-knowledge-catalog.js` stays as
   data and feeds the PUBLIC business-knowledge fixture the SmartGift webhook
   e2e test reads through the in-memory reader. Zero exceptions remain.
+- **Has one navigation slot, Knowledge (GKS)** ([ADR-085](../../decisions/ADR-085-KNOWLEDGE-GKS-SLOT-AND-THE-DATA-PIPELINE-MAP.md),
+  FR-214): the domain key `knowledge`, base path `/knowledge`. The label names
+  the authority this lane consumes, exactly as the opening line above does; it
+  does not make GKS a zuri-ai domain (ADR-063 D4). The slot opens with the Data
+  Pipeline Map (FR-212, FR-213) — a projection of `docs/DATA-PIPELINE-MAP.md`
+  built by `scripts/data-pipeline-map.mjs` and rendered from
+  `src/modules/knowledge/pipeline-map/` — which holds architecture metadata and
+  no Business data. The live per-edge overlay (FR-215) will read each owning
+  domain's ledger through that domain's read port, never a table of its own.
 
 ## Ingestion lane (FR-109, FR-110, FR-111 — ADR-050)
 
@@ -275,6 +286,7 @@ ingestion lane above, never here.
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.3.0b → 1.4.0b (2026-09-13) | Claim the Knowledge (GKS) navigation slot and `src/app/(pm)/knowledge/**` for the Data Pipeline Map (ADR-085, FR-212..FR-215) | New read-only page; no model, no migration |
 | 1.2.0b → 1.3.0b | Own four admission/corpus models and the ADR-072 snapshot read-set boundary | Additive phases 0–4; no production migration |
 | 1.1.0b → 1.2.0b | Declare source intent and occurrence ownership for approved audit remediation | Additive isolated persistence and recovery; no production migration |
 | unversioned → 1.1.0b | Current isolated profile and extension navigation; stable stage/requirement IDs and original section numbers preserved | None; historical acceptance evidence unchanged |

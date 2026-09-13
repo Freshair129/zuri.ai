@@ -2192,7 +2192,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-060",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "pic": "Claude",
     "executor": "Claude",
     "approver": "Owen",
@@ -2205,18 +2205,18 @@ export const PROGRAMME_CONTAINERS = {
     "dod": {
       "acceptance": {
         "text": "Given the owner's instruction to place the data pipeline map as a sub-domain of the Genesis Knowledge System, when the ADR is written, then it records that the new navigation slot belongs to zuri-ai's own knowledge lane and names GKS as the authority that lane consumes, so ADR-063 D4 (GKS, MSP and GenesisBlockDB are never zuri-ai domains) stays true word for word",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given the registry, the node-edge view, the navigation slot and the live overlay, when they are declared in the PRD with one FEAT bundle, then every new id is pinned by docs:ids --write and the knowledge charter claims the new route and module paths",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and the charter, the ADR and the PRD rows name the same slot key and route",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.3) on the owner's instruction — draw a data pipeline map (where data comes from, who receives it, where it is combined first, how many chains) as a visual node-edge view inside the Genesis Knowledge System domain, and put every task on the roadmap before starting. No such document exists today; ARCHITECTURE-DIAGRAMS section 3 (2026-08-15) still draws the V1 cutover and zuri-cli, SYSTEM-DIAGRAM (2026-09-05) has no surface status, and KNOWLEDGE-INGESTION-SURFACES covers one domain. Placement is recorded as a zuri-ai knowledge-lane slot because ADR-063 D4 forbids a GKS domain here.",
+    "changelog": "Opened 2026-09-13 (v0.4.3) on the owner's instruction — draw a data pipeline map (where data comes from, who receives it, where it is combined first, how many chains) as a visual node-edge view inside the Genesis Knowledge System domain, and put every task on the roadmap before starting. No such document exists today; ARCHITECTURE-DIAGRAMS section 3 (2026-08-15) still draws the V1 cutover and zuri-cli, SYSTEM-DIAGRAM (2026-09-05) has no surface status, and KNOWLEDGE-INGESTION-SURFACES covers one domain. Placement is recorded as a zuri-ai knowledge-lane slot because ADR-063 D4 forbids a GKS domain here. Closed 2026-09-13 — ADR-085 accepted; FR-212 to FR-215 and FEAT-033 declared and pinned (docs:ids --write); npm run govern exits 0 with no CRITICAL.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 24000,
     "totalTokens": 0,
@@ -2227,7 +2227,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-061",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "pic": "Claude",
     "executor": "Claude",
     "approver": "Owen",
@@ -2240,18 +2240,18 @@ export const PROGRAMME_CONTAINERS = {
     "dod": {
       "acceptance": {
         "text": "Given the new map document, when a reader opens it, then it lists every inbound source, every outbound recipient and every chain that combines data before sending it on, each hop with its owning domain, FEAT or FR, surface kind (HTTP endpoint, UI page, MCP tool, worker, CLI) and one status level (declared, code and tests, endpoint, UI, live on production), with declared-only and not-built flows shown as such rather than omitted",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given the registry block, when the generator runs, then an endpoint or UI level is derived from the route and page files that exist, code-and-tests from the FR-124 snapshot, a production level is accepted only with written evidence, and an unknown id, a missing route, a node no edge touches or a chain with a broken hop fails generation by name",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm run govern and npm test, when they run, then the committed runtime projection is byte-stable on a second pass, the preflight check passes, ARCHITECTURE-DIAGRAMS section 3 and SYSTEM-DIAGRAM point to the new map as current, and the generator suite covers each refusal",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.3). The survey behind the plan found 16 inbound surfaces in 8 groups plus 3 return channels, egress to LINE, model providers, Supabase Storage, MSP over stdio, edge devices, MCP and Enterprise API clients and operator downloads, and 12 confirmed combine chains with 2 rejected as declared-only or not outbound. The projection is committed for the same reason domain-state.json is (ADR-081 D2) — the server imports it and the Docker context cannot rebuild it.",
+    "changelog": "Opened 2026-09-13 (v0.4.3). The survey behind the plan found 16 inbound surfaces in 8 groups plus 3 return channels, egress to LINE, model providers, Supabase Storage, MSP over stdio, edge devices, MCP and Enterprise API clients and operator downloads, and 12 confirmed combine chains with 2 rejected as declared-only or not outbound. The projection is committed for the same reason domain-state.json is (ADR-081 D2) — the server imports it and the Docker context cannot rebuild it. Moved to review 2026-09-13 — docs/DATA-PIPELINE-MAP.md registry (76 nodes, 104 edges, 20 chains), scripts/data-pipeline-map.mjs wired into doc-graph and docs:check, runtime/data-pipeline-map.json with the CI committed-state guard, ARCHITECTURE-DIAGRAMS §3 and SYSTEM-DIAGRAM pointing to the map; tests/unit/data-pipeline-map.test.js passes. Review, not done: not deployed.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 58000,
     "totalTokens": 0,
@@ -2264,7 +2264,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-062",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "pic": "Claude",
     "executor": "Claude",
     "approver": "Owen",
@@ -2277,18 +2277,18 @@ export const PROGRAMME_CONTAINERS = {
     "dod": {
       "acceptance": {
         "text": "Given a viewer whose visible domains include the Knowledge (GKS) slot, when they open the Data Pipeline Map, then external sources, ingest surfaces, combine steps, stores, outbound surfaces and recipients render as layered nodes with labelled edges drawn in hand-rolled SVG, and a viewer without the slot reaches no page and no payload",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given the map, when a chain, domain or status filter is chosen or a node or edge is selected, then the chain's path is highlighted end to end, the detail panel names the owning domain, FEAT, FR, surface kind and status level with its evidence, and the list view shows the same rows as an accessible table",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test and a new e2e, when they run, then the render test, keyboard selection, the list view, the visibility refusal and the navigation reachability suite pass, and the page builds clean",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.3). The slot opens with this one page; the knowledge base console of TASK-ZAI-047 is the next page planned for it. Hand-rolled SVG with no graph library, as FR-040 and FR-101 already do, so the map adds no client dependency.",
+    "changelog": "Opened 2026-09-13 (v0.4.3). The slot opens with this one page; the knowledge base console of TASK-ZAI-047 is the next page planned for it. Hand-rolled SVG with no graph library, as FR-040 and FR-101 already do, so the map adds no client dependency. Moved to review 2026-09-13 — /knowledge and /knowledge/data-pipeline under the new knowledge slot; render, admission and layout unit suite and tests/e2e/fr213-data-pipeline-map.spec.js pass with navigation reachability. Review, not done: not deployed.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 62000,
     "totalTokens": 0,

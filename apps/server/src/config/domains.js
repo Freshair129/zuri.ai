@@ -7,7 +7,7 @@ import {
   Workflow, Gauge, TrendingUp,
   PackageCheck, MessageCircle, LayoutGrid, QrCode,
   Warehouse, Truck, ClipboardList,
-  Layers, Bot, Cpu, Bookmark, Contact,
+  Layers, Bot, Cpu, Bookmark, Contact, Waypoints,
 } from 'lucide-react'
 import { businessHasCapability } from '@/lib/business-capabilities'
 
@@ -256,6 +256,21 @@ export const DOMAINS = [
     sub: [
       { label: 'Dashboard', path: '/procurement', icon: LayoutDashboard },
       { label: 'Purchase Orders', path: '/procurement/purchase-orders', icon: ClipboardList },
+    ],
+  },
+  {
+    // @req FR-214 — Knowledge (GKS): the knowledge lane's own slot (ADR-085 D1).
+    // The label names the authority the lane consumes, as its charter's first
+    // line does; GKS, MSP and GenesisBlockDB stay external systems, never
+    // zuri-ai domains (ADR-063 D4). A flat, grantable key like every other
+    // leaf, and in no DOMAIN_GROUPS container. It opens with the Data Pipeline
+    // Map (FR-212, FR-213); the knowledge base console is planned next.
+    // @spec ADR-085, ADR-063 D4, FR-060, FR-061
+    // @tested tests/unit/knowledge-data-pipeline-map-ui.test.js
+    key: 'knowledge', label: 'Knowledge (GKS)', icon: Waypoints, basePath: '/knowledge',
+    sub: [
+      { label: 'Dashboard', path: '/knowledge', icon: LayoutDashboard, exact: true },
+      { label: 'Data Pipeline Map', path: '/knowledge/data-pipeline', icon: Workflow },
     ],
   },
   {
