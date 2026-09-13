@@ -388,12 +388,12 @@ button{font:inherit;color:inherit;}
     <div class="stats">
       <div class="stat"><div class="n" id="s-tasks">30</div><div class="l">Task ในแผนนี้</div></div>
       <div class="stat"><div class="n n-ok" id="s-done">0</div><div class="l">ปิดแล้ว (done)</div></div>
-      <div class="stat"><div class="n n-warn" id="s-prog">0</div><div class="l">กำลังทำ</div></div>
+      <div class="stat"><div class="n n-warn" id="s-prog">0</div><div class="l">กำลังทำ / รอรีวิว</div></div>
       <div class="stat"><div class="n n-info" id="s-ready">0</div><div class="l">พร้อมเริ่ม</div></div>
       <div class="stat"><div class="n n-mut" id="s-planned">0</div><div class="l">รอคิว</div></div>
       <div class="stat"><div class="n">6 / 12</div><div class="l">Phase / Sprint</div></div>
-      <div class="stat"><div class="n n-info">392</div><div class="l">commit ใน 13 วัน</div></div>
-      <div class="stat"><div class="n n-info">198,574</div><div class="l">บรรทัดที่ยืนอยู่วันนี้</div></div>
+      <div class="stat"><div class="n n-info">1,451</div><div class="l">commit ถึง 2b7ad27d (เดิม 392)</div></div>
+      <div class="stat"><div class="n n-info">200</div><div class="l">FR ที่ประกาศ (เดิม 93)</div></div>
     </div>
 
     <hr class="rule" />
@@ -1220,7 +1220,7 @@ function renderTask(t, ph, sp) {
   document.getElementById("global-sub").textContent = `${count("done")} / ${tasks.length} task ปิดแล้ว`;
   document.getElementById("s-tasks").textContent = tasks.length;
   document.getElementById("s-done").textContent = count("done");
-  document.getElementById("s-prog").textContent = count("in-progress");
+  document.getElementById("s-prog").textContent = count("in-progress") + count("review");
   document.getElementById("s-ready").textContent = count("ready");
   document.getElementById("s-planned").textContent = count("planned") + count("blocked");
 })();
