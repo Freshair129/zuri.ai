@@ -769,7 +769,7 @@ model MfaFactor {
   id         String    @id @default(uuid())
   personId   String
   type       String    // TOTP, SMS
-  secret     String    // Encrypted or base32 secret
+  secret     String    // Sealed envelope mfa.v<keyVersion>.<nonce>.<tag>.<ciphertext>, never base32 (SEC-029, ADR-088)
   label      String?
   status     String    @default("PENDING") // PENDING, ACTIVE, REVOKED
   verifiedAt DateTime?

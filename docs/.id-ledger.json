@@ -483,6 +483,7 @@
     "SDD-093",
     "SDD-094",
     "SDD-095",
+    "SDD-096",
     "SDD-097",
     "SDD-098",
     "SDD-099",
@@ -515,6 +516,7 @@
     "SEC-026",
     "SEC-027",
     "SEC-028",
+    "SEC-029",
     "SEC-030",
     "SEC-031",
     "SEC-032",
@@ -731,6 +733,7 @@
     "ADR-085",
     "ADR-086",
     "ADR-087",
+    "ADR-088",
     "ADR-089",
     "ADR-090",
     "ADR-091",
@@ -6036,6 +6039,19 @@
         }
       ]
     },
+    "SDD-096": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "09c0b82157c805b6c2bdf66d69e8000cdac891788972c4d4011e0eb9ded88371",
+      "history": [
+        {
+          "anchor": "mfafactor secret keeps its column and text type and stores",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
     "SDD-097": {
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -6458,6 +6474,19 @@
         {
           "anchor": "access history is authorized exactly like the grant it",
           "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-029": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "03e555b24784aa792219cb98080582edd800d710269698e96991167b17975d55",
+      "history": [
+        {
+          "anchor": "a totp factor secret is never stored or backed up in the",
+          "since": "2026-09-13",
           "reason": "declared"
         }
       ]
@@ -9316,6 +9345,19 @@
       "history": [
         {
           "anchor": "harness usage plugin",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-088": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-088-MFA-FACTOR-SECRETS-SEALED-AT-REST.md",
+      "status": "current",
+      "statement_digest": "4a741303e2af5fcb36048cf8d226dd1227424d1a04c186bf791bb3101c9f146a",
+      "history": [
+        {
+          "anchor": "mfa factor secrets are sealed at rest",
           "since": "2026-09-13",
           "reason": "declared"
         }
