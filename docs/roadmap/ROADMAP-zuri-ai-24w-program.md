@@ -265,6 +265,71 @@ in the D1 spec pack; they are simply not yet a registry.
 The cumulative column closes at 211,217, which is exactly the net in section 5.2. That
 reconciliation is the check that the day series is complete.
 
+### 5.3.1 Day-by-day history continued — D13 (after the baseline) to D34, measured 2026-09-13
+
+The owner asked (2026-09-13) for the history to run from 11 Aug to the present, so this table
+continues 5.3 with the same method: commits by committer date in Asia/Bangkok including merges;
+lines from `git log --no-merges --numstat` with `.next*` and `package-lock.json` excluded, filtered
+in `awk`; the day's registry and test counts read at the last first-parent commit of that day.
+Measured at `9b8a4fc9` (13 Sep, 09:30 +07); D34 is a partial day.
+
+Two things changed underneath the series and are handled in the open rather than hidden:
+
+1. **D13 did not end at the baseline.** `7d8c9d0` landed at 04:05 on 23 Aug and the day went on to
+   take 12 more commits. The 5.3 row for D13 is the baseline cut; the `D13+` row below is the rest
+   of that day, so the two tables join without a gap or a double count.
+2. **The monorepo relocation (D27, 6 Sep) moved every file once.** Commit `a5138eec` — "relocate
+   Server and reviewed Edge snapshot into monorepo" — inserted 209,170 lines and deleted 4,768,
+   almost all of them files that already existed under a different path plus the imported Edge
+   tree. Raw churn is reported as measured, and a second cumulative column excludes that one
+   commit. The check that the exclusion is right: the adjusted cumulative closes at 621,029, and
+   `git ls-files` at `2b7ad27d` counts 617,397 lines standing (section 3) — within 0.6 %, which is
+   the same order of gap 5.2 explains for binaries and excluded files. The raw cumulative, 825,431,
+   is not a size the tree has ever had.
+3. **`FR live` ends with FEATURE-MAP.md.** ADR-081 (12 Sep) stopped committing the generated
+   registry, so the D1–D13 `FR live` column cannot be continued. The continuation reports
+   `FR declared` (rows in the PRD, identical to FEATURE-MAP's row count on every day both existed)
+   and `FR ✅` (PRD rows marked implemented), which is a stricter definition — at `7d8c9d0` it reads
+   62 where FEATURE-MAP read 82 live — so the two columns are not to be compared across the join.
+
+| Day | Date | Weekday | Commits | +Lines | −Lines | Net | Cumulative (raw) | Cumulative (moves excluded) | FR declared | FR ✅ | Test files |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| D13+ | 2026-08-23 | Sun | 12 | 8,300 | 289 | +8,011 | 219,228 | 219,228 | 98 | 62 | 270 |
+| D14 | 2026-08-24 | Mon | 6 | 5,463 | 599 | +4,864 | 224,092 | 224,092 | 101 | 62 | 276 |
+| D15 | 2026-08-25 | Tue | 2 | 153 | 17 | +136 | 224,228 | 224,228 | 102 | 62 | 280 |
+| D16 | 2026-08-26 | Wed | 20 | 13,258 | 2,687 | +10,571 | 234,799 | 234,799 | 105 | 71 | 293 |
+| D17 | 2026-08-27 | Thu | 41 | 18,815 | 1,457 | +17,358 | 252,157 | 252,157 | 112 | 80 | 308 |
+| D18 | 2026-08-28 | Fri | 65 | 7,513 | 1,106 | +6,407 | 258,564 | 258,564 | 117 | 87 | 321 |
+| D19 | 2026-08-29 | Sat | 48 | 9,713 | 1,008 | +8,705 | 267,269 | 267,269 | 118 | 88 | 324 |
+| D20 | 2026-08-30 | Sun | 53 | 21,116 | 1,287 | +19,829 | 287,098 | 287,098 | 128 | 93 | 344 |
+| D21 | 2026-08-31 | Mon | 16 | 5,608 | 587 | +5,021 | 292,119 | 292,119 | 132 | 93 | 357 |
+| D22 | 2026-09-01 | Tue | 4 | 4,226 | 129 | +4,097 | 296,216 | 296,216 | 132 | 93 | 362 |
+| D23 | 2026-09-02 | Wed | 43 | 34,393 | 2,838 | +31,555 | 327,771 | 327,771 | 141 | 92 | 398 |
+| D24 | 2026-09-03 | Thu | 34 | 5,983 | 1,081 | +4,902 | 332,673 | 332,673 | 141 | 91 | 415 |
+| D25 | 2026-09-04 | Fri | 39 | 10,609 | 1,597 | +9,012 | 341,685 | 341,685 | 145 | 93 | 429 |
+| D26 | 2026-09-05 | Sat | 20 | 5,908 | 629 | +5,279 | 346,964 | 346,964 | 146 | 92 | 432 |
+| D27 | 2026-09-06 | Sun | 172 | 316,261 | 14,299 | +301,962 | 648,926 | 444,524 | 147 | 92 | 438 |
+| D28 | 2026-09-07 | Mon | 194 | 37,159 | 6,881 | +30,278 | 679,204 | 474,802 | 161 | 92 | 583 |
+| D29 | 2026-09-08 | Tue | 53 | 39,026 | 2,928 | +36,098 | 715,302 | 510,900 | 170 | 92 | 610 |
+| D30 | 2026-09-09 | Wed | 17 | 14,010 | 1,774 | +12,236 | 727,538 | 523,136 | 173 | 91 | 648 |
+| D31 | 2026-09-10 | Thu | 43 | 17,264 | 884 | +16,380 | 743,918 | 539,516 | 173 | 91 | 656 |
+| D32 | 2026-09-11 | Fri | 98 | 51,582 | 6,823 | +44,759 | 788,677 | 584,275 | 189 | 91 | 697 |
+| D33 | 2026-09-12 | Sat | 65 | 38,504 | 4,680 | +33,824 | 822,501 | 618,099 | 190 | 91 | 708 |
+| D34 | 2026-09-13 | Sun | 17 | 3,405 | 475 | +2,930 | 825,431 | 621,029 | 200 | 100 | 729 |
+
+Read against the 5.5 cautions: the 13-day sample was not steady state, and neither are the next 21
+days — D27 and D28 (the monorepo move and the ERP-lane merge wave) carry 366 of the 1,062 commits
+since the baseline, while D15 and D22 carry six between them. Weekends are not quiet: five of the
+eight busiest days are Saturday or Sunday. The `FR ✅` column is nearly flat from D20 to D33 (93 → 91)
+while `FR declared` climbs 128 → 190: the programme's first three weeks *declared and built
+locally* far more than they *marked implemented*, which is what the "implemented locally, migration
+not applied" rows in section 3.1 say in words. The test-file count nearly tripling (263 → 729) is a
+file count, as before, not a green suite.
+
+The 5.3 grid and a graph of both series are rendered in `ROADMAP-zuri-ai-24w-program.html` and, as
+a labelled repository-history block, on `/control/roadmap` (FR-105). Neither is programme progress;
+ADR-048 D3 still holds, and the graph says so in its caption.
+
 ### 5.4 The 24-week calendar
 
 The programme is anchored to the first Monday after the baseline. The baseline commit lands on

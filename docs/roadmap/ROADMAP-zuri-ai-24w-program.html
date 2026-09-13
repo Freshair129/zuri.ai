@@ -25,16 +25,21 @@
   --primitive-danger:#C84B4B;  --primitive-danger-bg:#FDECEC;
   --primitive-warning:#B7791F; --primitive-warning-bg:#FFF6DE;
 
-  --bg-canvas:var(--primitive-neutral-50);
+  /* Contrast pass 2026-09-13 (owner: "ขาวไปหมด ดูยาก"): the canvas is one step darker than
+     the surface, borders are a step stronger, and the phase/sprint/task nesting is separated
+     by tint and an accent edge rather than by white-on-white. Hues stay within Heritage v2:
+     amber for the brand accent, mustard for review, blue for info, green/red for status. */
+  --bg-canvas:#E6EAEF;
   --bg-surface:var(--primitive-white);
   --bg-subtle:var(--primitive-amber-50);
+  --bg-sunken:#F1F3F6;
   --text-primary:var(--primitive-neutral-900);
-  --text-secondary:var(--primitive-neutral-500);
-  --text-tertiary:#7B8490;
+  --text-secondary:#5B6472;
+  --text-tertiary:#6F7987;
   --text-inverse:var(--primitive-white);
-  --border-subtle:#ECEEF1;
-  --border-default:var(--primitive-neutral-200);
-  --border-strong:#CBD5E1;
+  --border-subtle:#D9DEE5;
+  --border-default:#C9D0D9;
+  --border-strong:#A9B4C2;
   --border-focus:var(--primitive-amber-500);
   --action-primary:var(--primitive-amber-500);
   --action-primary-hover:var(--primitive-amber-400);
@@ -95,18 +100,20 @@ button{font:inherit;color:inherit;}
   color:rgba(255,255,255,.86);border-radius:var(--radius-sm);padding:3px 8px;
   font-size:12px;line-height:18px;font-weight:600;}
 
-.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius-lg);}
+.card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-raised);}
 .card-pad{padding:var(--sp-5);}
-.card-warm{background:var(--card-subtle-bg);border-color:var(--primitive-amber-100);}
+.card-warm{background:var(--card-subtle-bg);border-color:#F3CFA3;}
 
 .pill{display:inline-flex;align-items:center;gap:5px;border-radius:var(--radius-sm);
-  padding:3px 8px;font-size:12px;line-height:18px;font-weight:600;white-space:nowrap;}
-.pill-done{background:var(--status-success-bg);color:var(--status-success);}
-.pill-active{background:var(--status-warning-bg);color:var(--status-warning);}
-.pill-planned{background:var(--primitive-neutral-100);color:var(--text-secondary);}
-.pill-ready{background:var(--status-info-bg);color:var(--status-info);}
-.pill-blocked{background:var(--status-danger-bg);color:var(--status-danger);}
-.pill-brand{background:var(--primitive-amber-100);color:var(--action-primary-active);}
+  padding:3px 8px;font-size:12px;line-height:18px;font-weight:600;white-space:nowrap;border:1px solid transparent;}
+.pill-done{background:var(--status-success-bg);color:var(--status-success);border-color:#A9D9BC;}
+.pill-active{background:var(--status-warning-bg);color:var(--status-warning);border-color:#E9CD86;}
+.pill-review{background:var(--primitive-mustard-100);color:#7A5C1E;border-color:#DCC58A;}
+.pill-planned{background:#E4E8ED;color:#4B5563;border-color:#CBD2DB;}
+.pill-ready{background:var(--status-info-bg);color:var(--status-info);border-color:#A9CFE6;}
+.pill-blocked{background:var(--status-danger-bg);color:var(--status-danger);border-color:#EFB3B3;}
+.pill-brand{background:var(--action-primary);color:var(--text-inverse);border-color:var(--action-primary-active);}
 .dot{width:6px;height:6px;border-radius:var(--radius-full);background:currentColor;flex:none;}
 
 .tag{display:inline-flex;align-items:center;border:1px solid var(--border-default);
@@ -158,6 +165,7 @@ button{font:inherit;color:inherit;}
 .seg button:hover{background:var(--primitive-neutral-50);}
 .seg button[aria-pressed="true"]{background:var(--action-primary);color:var(--text-inverse);}
 
+.prov > div{min-width:170px;}
 .prov{display:flex;gap:var(--sp-6);flex-wrap:wrap;padding:var(--sp-3) var(--sp-4);
   background:var(--bg-subtle);border:1px solid var(--primitive-amber-100);
   border-radius:var(--radius-md);margin-bottom:var(--sp-5);}
@@ -168,9 +176,16 @@ button{font:inherit;color:inherit;}
 
 .lane-h{display:flex;align-items:baseline;gap:var(--sp-2);flex-wrap:wrap;margin:0 0 var(--sp-3);}
 
-.hist{display:grid;grid-template-columns:repeat(13,minmax(0,1fr));gap:5px;}
-@media (max-width:1100px){.hist{grid-template-columns:repeat(7,minmax(0,1fr));}}
+.hist{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:5px;}
 @media (max-width:640px){.hist{grid-template-columns:repeat(3,minmax(0,1fr));}}
+.histchart{margin:0 0 var(--sp-3);border:1px solid var(--border-subtle);border-radius:var(--radius-md);
+  background:var(--bg-surface);padding:var(--sp-2);overflow-x:auto;}
+.histchart svg{display:block;width:100%;min-width:640px;height:auto;font-family:var(--font-mono);}
+.histchart .lg{display:flex;flex-wrap:wrap;gap:var(--sp-3);font-size:11px;line-height:16px;color:var(--text-secondary);
+  padding:4px 6px 2px;}
+.histchart .lg i{display:inline-block;width:10px;height:10px;border-radius:2px;vertical-align:-1px;margin-right:4px;}
+.day.baseline{outline:2px solid var(--action-primary);outline-offset:-2px;}
+.day.moved{background:var(--primitive-amber-50);}
 .day{border:1px solid var(--border-subtle);border-radius:var(--radius-md);
   padding:var(--sp-2) 6px;background:var(--bg-surface);min-width:0;}
 .day.weekend{background:var(--primitive-neutral-50);}
@@ -230,40 +245,51 @@ button{font:inherit;color:inherit;}
 .row .sub{font-size:12px;line-height:18px;color:var(--text-tertiary);overflow-wrap:anywhere;}
 
 .phases{display:flex;flex-direction:column;gap:var(--sp-4);}
-.phase{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius-lg);overflow:hidden;}
+.phase{background:var(--card-bg);border:1px solid var(--border-default);border-left:5px solid var(--action-primary);
+  border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow-raised);}
+.phase[open-state="open"]{border-left-color:var(--action-primary-active);}
 .phase-head{width:100%;display:flex;align-items:center;justify-content:space-between;gap:var(--sp-4);
-  padding:var(--sp-4) var(--sp-5);background:transparent;border:0;cursor:pointer;text-align:left;
+  padding:var(--sp-4) var(--sp-5);background:linear-gradient(90deg,var(--primitive-amber-50),var(--bg-surface) 55%);
+  border:0;cursor:pointer;text-align:left;
   transition:background var(--motion-fast) var(--motion-ease);}
-.phase-head:hover{background:var(--primitive-neutral-50);}
+.phase-head:hover{background:var(--primitive-amber-100);}
 .phase-head .lhs{display:flex;align-items:center;gap:var(--sp-3);min-width:0;}
 .phase-head .rhs{display:flex;align-items:center;gap:var(--sp-3);flex:none;}
 .chev{width:12px;height:12px;flex:none;color:var(--text-tertiary);
   transition:transform var(--motion-default) var(--motion-ease);}
 .phase[open-state="open"] .chev{transform:rotate(90deg);}
-.phase-body{border-top:1px solid var(--border-subtle);padding:var(--sp-5);display:none;}
+.phase-body{border-top:1px solid var(--border-default);padding:var(--sp-5);display:none;background:var(--bg-sunken);}
 .phase[open-state="open"] .phase-body{display:block;}
 .phase-goal{font-size:13px;line-height:20px;color:var(--text-secondary);margin-bottom:var(--sp-4);}
-.exit{border-left:3px solid var(--action-primary);background:var(--bg-subtle);
+.exit{border-left:4px solid var(--action-primary);background:var(--primitive-amber-100);
   border-radius:var(--radius-md);padding:var(--sp-3) var(--sp-4);margin-bottom:var(--sp-4);
-  font-size:13px;line-height:20px;}
+  font-size:13px;line-height:20px;color:#5C3A06;}
 
-.sprint{border:1px solid var(--border-subtle);border-radius:var(--radius-md);
-  background:var(--primitive-neutral-50);padding:var(--sp-4);margin-bottom:var(--sp-4);}
+.sprint{border:1px solid var(--border-default);border-radius:var(--radius-md);
+  background:var(--bg-surface);padding:var(--sp-4);margin-bottom:var(--sp-4);box-shadow:var(--shadow-raised);}
 .sprint:last-child{margin-bottom:0;}
 .sprint-head{display:flex;align-items:center;justify-content:space-between;gap:var(--sp-3);
-  flex-wrap:wrap;margin-bottom:var(--sp-3);}
+  flex-wrap:wrap;margin-bottom:var(--sp-3);padding-bottom:var(--sp-2);border-bottom:2px solid var(--primitive-amber-100);}
 .sprint-head .lhs{display:flex;align-items:center;gap:var(--sp-2);min-width:0;flex-wrap:wrap;}
 .sprint-goal{font-size:12px;line-height:18px;color:var(--text-secondary);margin-bottom:var(--sp-3);}
 .tasks{display:flex;flex-direction:column;gap:var(--sp-2);}
 
-.task{background:var(--bg-surface);border:1px solid var(--border-subtle);border-radius:var(--radius-md);
-  transition:border-color var(--motion-fast) var(--motion-ease);}
-.task:hover{border-color:var(--border-strong);}
+.task{background:var(--bg-sunken);border:1px solid var(--border-default);border-left:4px solid var(--border-strong);
+  border-radius:var(--radius-md);transition:border-color var(--motion-fast) var(--motion-ease),background var(--motion-fast) var(--motion-ease);}
+.task:hover{border-color:var(--border-strong);background:var(--bg-surface);}
+.task[open-state="open"]{background:var(--bg-surface);}
+.task.state-done{border-left-color:var(--status-success);}
+.task.state-in-progress{border-left-color:var(--status-warning);}
+.task.state-review{border-left-color:var(--primitive-mustard-500);}
+.task.state-ready{border-left-color:var(--status-info);}
+.task.state-blocked{border-left-color:var(--status-danger);}
 .task-head{width:100%;display:flex;align-items:flex-start;gap:var(--sp-3);padding:var(--sp-3);
   background:transparent;border:0;cursor:pointer;text-align:left;}
-.task-state{width:8px;height:8px;border-radius:var(--radius-full);margin-top:7px;flex:none;background:var(--border-strong);}
+.task-state{width:10px;height:10px;border-radius:var(--radius-full);margin-top:6px;flex:none;background:var(--border-strong);
+  box-shadow:0 0 0 2px var(--bg-surface);}
 .st-done{background:var(--status-success);}
 .st-inprogress{background:var(--status-warning);}
+.st-review{background:var(--primitive-mustard-500);}
 .st-ready{background:var(--status-info);}
 .st-blocked{background:var(--status-danger);}
 .task-main{min-width:0;flex:1;}
@@ -434,7 +460,8 @@ button{font:inherit;color:inherit;}
       <div>
         <div class="k">Baseline</div>
         <div class="v">2026-09-13 06:46 +07</div>
-        <div class="s">2b7ad27d · 1,451 commits (เดิม 7d8c9d0 · 392)</div>
+        <div class="s">2b7ad27d · 1,451 commits</div>
+        <div class="s">เดิม 7d8c9d0 · 392 (23 ส.ค.)</div>
       </div>
       <div>
         <div class="k">W1 เริ่ม</div>
@@ -450,9 +477,10 @@ button{font:inherit;color:inherit;}
 
     <div class="lane-h">
       <span class="t-title">ประวัติจริง</span>
-      <span class="pill pill-done">D1 – D13</span>
-      <span class="t-caption">11–23 ส.ค. 2026 · 392 commits · +292,937 / −81,720 บรรทัด (net 211,217) · FR 0 → 93</span>
+      <span class="pill pill-done">D1 – D34</span>
+      <span class="t-caption">11 ส.ค. – 13 ก.ย. 2026 · 1,454 commits · FR 0 → 200 · ไฟล์เทสต์ 9 → 729 · วัดที่ 9b8a4fc9 (D34 ยังไม่จบวัน)</span>
     </div>
+    <div class="histchart" id="histchart" role="img" aria-label="กราฟประวัติจริง D1–D34: commit ต่อวัน, บรรทัดสะสม (ไม่นับการย้าย monorepo), FR ที่ประกาศ และไฟล์เทสต์"></div>
     <div class="hist" id="hist"></div>
 
     <p class="gapnote" id="gapnote"></p>
@@ -621,6 +649,38 @@ const HISTORY = [
   [11, "2026-08-21", "ศ.",  31, 13069, 1869,  209981, 93,   82,   262],
   [12, "2026-08-22", "ส.",  7,  2392,  1385,  210988, 93,   82,   263],
   [13, "2026-08-23", "อา.", 2,  281,   52,    211217, 93,   82,   263]
+];
+
+/* Continued 2026-09-13 with the same method (section 5.3.1 of the markdown).
+   Extra columns: [10] cumulative with the D27 monorepo relocation commit
+   a5138eec excluded, [11] FR ✅ in the PRD (FEATURE-MAP "live" ended with
+   ADR-081, so column [8] here is the stricter PRD definition — 62, not 82,
+   at the baseline; do not compare it across the join). "D13+" is the rest of
+   23 Aug after the 04:05 baseline cut. D34 is a partial day (to 9b8a4fc9). */
+const HISTORY2 = [
+  /* label, date,     wd,    commits, ins,    del,   cumRaw, frDeclared, frOk, testFiles, cumAdj */
+  ["13+", "2026-08-23", "อา.", 12,  8300,   289,   219228, 98,  62,  270, 219228],
+  [14,    "2026-08-24", "จ.",  6,   5463,   599,   224092, 101, 62,  276, 224092],
+  [15,    "2026-08-25", "อ.",  2,   153,    17,    224228, 102, 62,  280, 224228],
+  [16,    "2026-08-26", "พ.",  20,  13258,  2687,  234799, 105, 71,  293, 234799],
+  [17,    "2026-08-27", "พฤ.", 41,  18815,  1457,  252157, 112, 80,  308, 252157],
+  [18,    "2026-08-28", "ศ.",  65,  7513,   1106,  258564, 117, 87,  321, 258564],
+  [19,    "2026-08-29", "ส.",  48,  9713,   1008,  267269, 118, 88,  324, 267269],
+  [20,    "2026-08-30", "อา.", 53,  21116,  1287,  287098, 128, 93,  344, 287098],
+  [21,    "2026-08-31", "จ.",  16,  5608,   587,   292119, 132, 93,  357, 292119],
+  [22,    "2026-09-01", "อ.",  4,   4226,   129,   296216, 132, 93,  362, 296216],
+  [23,    "2026-09-02", "พ.",  43,  34393,  2838,  327771, 141, 92,  398, 327771],
+  [24,    "2026-09-03", "พฤ.", 34,  5983,   1081,  332673, 141, 91,  415, 332673],
+  [25,    "2026-09-04", "ศ.",  39,  10609,  1597,  341685, 145, 93,  429, 341685],
+  [26,    "2026-09-05", "ส.",  20,  5908,   629,   346964, 146, 92,  432, 346964],
+  [27,    "2026-09-06", "อา.", 172, 316261, 14299, 648926, 147, 92,  438, 444524],
+  [28,    "2026-09-07", "จ.",  194, 37159,  6881,  679204, 161, 92,  583, 474802],
+  [29,    "2026-09-08", "อ.",  53,  39026,  2928,  715302, 170, 92,  610, 510900],
+  [30,    "2026-09-09", "พ.",  17,  14010,  1774,  727538, 173, 91,  648, 523136],
+  [31,    "2026-09-10", "พฤ.", 43,  17264,  884,   743918, 173, 91,  656, 539516],
+  [32,    "2026-09-11", "ศ.",  98,  51582,  6823,  788677, 189, 91,  697, 584275],
+  [33,    "2026-09-12", "ส.",  65,  38504,  4680,  822501, 190, 91,  708, 618099],
+  [34,    "2026-09-13", "อา.", 17,  3405,   475,   825431, 200, 100, 729, 621029]
 ];
 
 /* task: [id, code, title, type, C, H, state, owner, deps, codeLink, docLink, testLink, tokens, acceptance, success, exit, changelog] */
@@ -987,8 +1047,8 @@ const PHASES = [
 /* ---------------------- helpers ---------------------- */
 const el = (t, c, h) => { const n = document.createElement(t); if (c) n.className = c; if (h !== undefined) n.innerHTML = h; return n; };
 const esc = s => String(s).replace(/[&<>"]/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[m]));
-const pillClass = s => s === "done" ? "pill-done" : s === "in-progress" || s === "review" ? "pill-active" : s === "ready" ? "pill-ready" : s === "blocked" ? "pill-blocked" : "pill-planned";
-const stateClass = s => s === "done" ? "st-done" : s === "in-progress" ? "st-inprogress" : s === "ready" ? "st-ready" : s === "blocked" ? "st-blocked" : "";
+const pillClass = s => s === "done" ? "pill-done" : s === "in-progress" ? "pill-active" : s === "review" ? "pill-review" : s === "ready" ? "pill-ready" : s === "blocked" ? "pill-blocked" : "pill-planned";
+const stateClass = s => s === "done" ? "st-done" : s === "in-progress" ? "st-inprogress" : s === "review" ? "st-review" : s === "ready" ? "st-ready" : s === "blocked" ? "st-blocked" : "";
 const cTag = c => c === "C-1" ? "tag-c1" : c === "C-2" ? "tag-c2" : "tag-c3";
 const pct = tasks => tasks.length ? Math.round(tasks.reduce((a, t) => a + (PROGRESS_BY_STATE[t[6]] ?? 0), 0) / tasks.length) : 0;
 const allTasks = p => p.sprints.flatMap(s => s.tasks);
@@ -1031,36 +1091,111 @@ const CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentC
 /* ---------------------- timeline: history ---------------------- */
 (function renderHistory() {
   const host = document.getElementById("hist");
-  const scale = Math.max(...HISTORY.map(r => Math.max(r[4], r[5])));
+  /* One series for the grid and the chart: D1–D13 from HISTORY (FR column = FEATURE-MAP live),
+     D13+–D34 from HISTORY2 (FR column = PRD ✅, cumAdj excludes the monorepo relocation). */
+  const rows = [
+    ...HISTORY.map(([n, date, wd, commits, ins, del, cum, frD, frL, tf]) =>
+      ({ n, date, wd, commits, ins, del, cum, cumAdj: cum, frD, frL, tf, frLabel: "live", moved: false })),
+    ...HISTORY2.map(([n, date, wd, commits, ins, del, cum, frD, frL, tf, cumAdj]) =>
+      ({ n, date, wd, commits, ins, del, cum, cumAdj, frD, frL, tf, frLabel: "✅", moved: String(n) === "27" }))
+  ];
+  /* Spark scale ignores the relocation day so the other 34 bars stay readable. */
+  const scale = Math.max(...rows.filter(r => !r.moved).map(r => Math.max(r.ins, r.del)));
 
-  HISTORY.forEach(([n, date, wd, commits, ins, del, cum, frD, frL, tf]) => {
-    const weekend = wd === "ส." || wd === "อา.";
-    const hIns = Math.max(2, Math.round((ins / scale) * 38));
-    const hDel = Math.max(2, Math.round((del / scale) * 38));
-    const cell = el("div", "day" + (weekend ? " weekend" : ""));
+  rows.forEach(r => {
+    const weekend = r.wd === "ส." || r.wd === "อา.";
+    const hIns = Math.max(2, Math.min(38, Math.round((r.ins / scale) * 38)));
+    const hDel = Math.max(2, Math.min(38, Math.round((r.del / scale) * 38)));
+    const cell = el("div", "day" + (weekend ? " weekend" : "") + (String(r.n) === "13" ? " baseline" : "") + (r.moved ? " moved" : ""));
     cell.title =
-      `D${n} ${date} (${wd}) — ${commits} commits, +${ins.toLocaleString()} / -${del.toLocaleString()} บรรทัด, ` +
-      `สะสม ${cum.toLocaleString()} · FR ` + (frD === null ? "n/a (ยังไม่มี registry)" : `${frD} ประกาศ / ${frL} live`) +
-      ` · ไฟล์เทสต์ ${tf}`;
+      `D${r.n} ${r.date} (${r.wd}) — ${r.commits} commits, +${r.ins.toLocaleString()} / -${r.del.toLocaleString()} บรรทัด, ` +
+      `สะสม ${r.cum.toLocaleString()}` + (r.cumAdj !== r.cum ? ` (ไม่นับการย้าย monorepo ${r.cumAdj.toLocaleString()})` : "") +
+      ` · FR ` + (r.frD === null ? "n/a (ยังไม่มี registry)" : `${r.frD} ประกาศ / ${r.frL} ${r.frLabel}`) +
+      ` · ไฟล์เทสต์ ${r.tf}` + (String(r.n) === "13" ? " · baseline 7d8c9d0 (ถึง 04:05)" : "") + (String(r.n) === "13+" ? " · ส่วนที่เหลือของ 23 ส.ค. หลัง baseline" : "") +
+      (r.moved ? " · a5138eec ย้ายไฟล์ทั้งหมดเข้า monorepo (+209,170)" : "");
     cell.innerHTML =
-      `<div class="d">D${n}</div>
-       <div class="dt">${date.slice(5)}</div>
-       <div class="wd">${wd}</div>
+      `<div class="d">D${r.n}</div>
+       <div class="dt">${r.date.slice(5)}</div>
+       <div class="wd">${r.wd}</div>
        <div class="spark" aria-hidden="true">
          <i style="height:${hIns}px"></i>
-         <i class="${del > ins ? "big" : "del"}" style="height:${hDel}px"></i>
+         <i class="${r.del > r.ins ? "big" : "del"}" style="height:${hDel}px"></i>
        </div>
-       <div class="m"><span>commit</span><b>${commits}</b></div>
-       <div class="m"><span>+บรรทัด</span><b>${ins >= 1000 ? Math.round(ins / 1000) + "k" : ins}</b></div>
-       <div class="m"><span>FR</span><b>${frD === null ? "n/a" : frD + "/" + frL}</b></div>
-       <div class="m"><span>test</span><b>${tf}</b></div>`;
+       <div class="m"><span>commit</span><b>${r.commits}</b></div>
+       <div class="m"><span>+บรรทัด</span><b>${r.ins >= 1000 ? Math.round(r.ins / 1000) + "k" : r.ins}</b></div>
+       <div class="m"><span>FR</span><b>${r.frD === null ? "n/a" : r.frD + "/" + r.frL}</b></div>
+       <div class="m"><span>test</span><b>${r.tf}</b></div>`;
     host.appendChild(cell);
   });
 
+  /* ---- chart: commits/day (bars), cumulative net lines (moves excluded), FR declared, test files ---- */
+  (function renderChart() {
+    const W = 1200, H = 300, padL = 56, padR = 56, padT = 18, padB = 44;
+    const iw = W - padL - padR, ih = H - padT - padB;
+    const n = rows.length;
+    const x = i => padL + (i + 0.5) * (iw / n);
+    const maxCommits = Math.max(...rows.map(r => r.commits));
+    const maxLines = Math.max(...rows.map(r => r.cumAdj));
+    const maxFr = Math.max(...rows.map(r => r.frD || 0));
+    const maxTests = Math.max(...rows.map(r => r.tf));
+    const yL = v => padT + ih - (v / maxCommits) * ih;           /* left axis: commits */
+    const yR = v => padT + ih - (v / maxLines) * ih;             /* right axis: cumulative lines */
+    const yFr = v => padT + ih - (v / maxFr) * ih;               /* normalised, FR */
+    const yTf = v => padT + ih - (v / maxTests) * ih;            /* normalised, test files */
+    const bw = Math.max(4, (iw / n) * 0.6);
+    const fmtK = v => v >= 1000 ? Math.round(v / 1000) + "k" : String(v);
+    let s = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">`;
+    /* gridlines + axes */
+    for (let g = 0; g <= 4; g++) {
+      const yy = padT + ih - (g / 4) * ih;
+      s += `<line x1="${padL}" x2="${W - padR}" y1="${yy}" y2="${yy}" stroke="#E5E7EB" stroke-width="1"/>`;
+      s += `<text x="${padL - 6}" y="${yy + 4}" font-size="10" text-anchor="end" fill="#6B7280">${Math.round(maxCommits * g / 4)}</text>`;
+      s += `<text x="${W - padR + 6}" y="${yy + 4}" font-size="10" text-anchor="start" fill="#6B7280">${fmtK(Math.round(maxLines * g / 4))}</text>`;
+    }
+    /* baseline + monorepo markers */
+    rows.forEach((r, i) => {
+      if (String(r.n) === "13") s += `<line x1="${x(i) + bw / 2 + 2}" x2="${x(i) + bw / 2 + 2}" y1="${padT}" y2="${padT + ih}" stroke="#E8820C" stroke-dasharray="4 3"/>` +
+        `<text x="${x(i) + bw / 2 + 6}" y="${padT + 10}" font-size="10" fill="#B86A08">baseline 7d8c9d0 · แผนเริ่ม W1</text>`;
+      if (r.moved) s += `<text x="${x(i)}" y="${padT + 10}" font-size="10" text-anchor="middle" fill="#6B7280">monorepo</text>`;
+    });
+    /* bars: commits */
+    rows.forEach((r, i) => {
+      const yy = yL(r.commits);
+      s += `<rect x="${x(i) - bw / 2}" y="${yy}" width="${bw}" height="${padT + ih - yy}" rx="1.5" fill="${r.moved ? "#C6A052" : "#FDE8D0"}" stroke="#F09420" stroke-width="0.5"><title>D${r.n} ${r.date}: ${r.commits} commits</title></rect>`;
+    });
+    /* lines */
+    const path = (fn, key, color, dash) => {
+      let d = "";
+      rows.forEach((r, i) => { const v = r[key]; if (v === null || v === undefined) return; d += (d ? "L" : "M") + x(i).toFixed(1) + "," + fn(v).toFixed(1); });
+      return `<path d="${d}" fill="none" stroke="${color}" stroke-width="2"${dash ? ` stroke-dasharray="${dash}"` : ""} stroke-linejoin="round"/>`;
+    };
+    s += path(yR, "cumAdj", "#E8820C");
+    s += path(yR, "cum", "#C6A052", "3 3");
+    s += path(yFr, "frD", "#3D7A9E");
+    s += path(yTf, "tf", "#6B7280", "5 3");
+    /* end labels */
+    const last = rows[n - 1];
+    s += `<text x="${W - padR + 6}" y="${yR(last.cumAdj) + 14}" font-size="10" fill="#B86A08">${fmtK(last.cumAdj)} บรรทัด</text>`;
+    /* x labels: every 3rd day */
+    rows.forEach((r, i) => { if (i % 3 === 0 || i === n - 1) s += `<text x="${x(i)}" y="${H - padB + 14}" font-size="10" text-anchor="middle" fill="#6B7280">D${r.n}</text><text x="${x(i)}" y="${H - padB + 26}" font-size="9" text-anchor="middle" fill="#9CA3AF">${r.date.slice(5)}</text>`; });
+    s += `<text x="${padL}" y="${H - 4}" font-size="10" fill="#6B7280">แกนซ้าย: commit/วัน · แกนขวา: บรรทัดสะสม · FR และ test ปรับสเกลให้เต็มกราฟ (ค่าท้ายเส้นกำกับไว้)</text>`;
+    s += `</svg>`;
+    const host2 = document.getElementById("histchart");
+    host2.innerHTML =
+      `<div class="lg"><span><i style="background:#FDE8D0;border:1px solid #F09420"></i>commit/วัน</span>` +
+      `<span><i style="background:#E8820C"></i>บรรทัดสะสม (ไม่นับการย้าย monorepo)</span>` +
+      `<span><i style="background:#C6A052"></i>บรรทัดสะสมดิบ</span>` +
+      `<span><i style="background:#3D7A9E"></i>FR ที่ประกาศ (ท้ายเส้น ${last.frD})</span>` +
+      `<span><i style="background:#6B7280"></i>ไฟล์เทสต์ (ท้ายเส้น ${last.tf})</span>` +
+      `<span class="muted">ประวัติ repo ไม่ใช่ความคืบหน้าของแผน (ADR-048 D3)</span></div>` + s;
+  })();
+
   document.getElementById("gapnote").textContent =
     "D6 (16 ส.ค.) เส้นสะสมลดลงเพราะเลิก track V1 documentation corpus (-40,436 บรรทัด, ADR-005 rev 2) ไม่ใช่โค้ดผลิตภัณฑ์หาย · " +
-    "D1 ไม่มีค่า FR เพราะ FEATURE-MAP.md ยังไม่ถูก generate (spec pack วันนั้นมี FR id อยู่ 20 ตัวแต่ยังไม่เป็น registry) · " +
-    "ยอดสะสมปิดที่ 211,217 ตรงกับ net ในหัวข้อ 5.2 ของเอกสาร ซึ่งเป็นตัวตรวจว่าอนุกรมครบ";
+    "D1 ไม่มีค่า FR เพราะ FEATURE-MAP.md ยังไม่ถูก generate · " +
+    "D13 คือ baseline 7d8c9d0 (ถึง 04:05) และ D13+ คือส่วนที่เหลือของวัน · " +
+    "D27 (6 ก.ย.) commit a5138eec ย้ายทุกไฟล์เข้า monorepo (+209,170 บรรทัด) จึงมีเส้นสะสมสองเส้น เส้นทึบไม่นับการย้ายและปิดที่ 621,029 ใกล้ 617,397 บรรทัดที่ยืนอยู่จริงที่ 2b7ad27d · " +
+    "ตั้งแต่ D13+ คอลัมน์ FR ตัวหลังคือ ✅ ใน PRD (เข้มกว่า live ของ FEATURE-MAP ที่เลิก commit ตาม ADR-081) ห้ามเทียบข้ามรอยต่อ";
 })();
 
 /* ---------------------- timeline: plan, week ---------------------- */
@@ -1163,7 +1298,7 @@ function renderTask(t, ph, sp) {
   const done = state === "done";
   const hasTest = testLink && testLink !== "unavailable";
 
-  const node = el("div", "task");
+  const node = el("div", "task state-" + state);
   node.id = id;
   node.setAttribute("open-state", "closed");
 
