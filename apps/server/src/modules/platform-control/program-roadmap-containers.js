@@ -2355,7 +2355,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       },
       "success": {
-        "text": "Given the phase card metrics, the usage meter and the report endpoint, when they are declared with one FEAT bundle, then every new id is pinned, and the sizing table (effort hours per complexity band) and the rule that one billed request is counted once across both sources are written in the programme document",
+        "text": "Given the phase card metrics, the usage meter and the report endpoint, when they are declared with one FEAT bundle, then every new id is pinned, and the sizing table (effort hours per complexity band) the rule that one billed request is counted once across both sources and the badge colour rules (done green, review orange, needs fix red, empty gray) are written in the programme document",
         "checked": false
       },
       "exit": {
@@ -2480,5 +2480,42 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-066"
     ],
     "evidence": "Section 3.1 row 2; FR-106 key precedent; ADR-057"
+  },
+  "TASK-ZAI-068": {
+    "container": "TC-TASK-ZAI-068",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+      "doc": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",
+      "test": "apps/server/tests/unit/platform-control-route-contract.test.js"
+    },
+    "dod": {
+      "acceptance": {
+        "text": "Given a task card, when it renders, then it shows DOC, CODE and TEST badges from its container links, FR, NFR and FEAT badges from the ids it delivers read against the FR-124 snapshot, and badges for its domain code name, complexity and priority, each evidence badge green when done, orange when in review, red when it needs fixing (a declared link that no longer resolves, or a delivered id the snapshot does not show as built while the task claims done or review) and gray when empty",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a Task Container that splits its plan into subtasks P0 to P3, when the card renders, then the subtasks are listed with their own status and the card carries a progress bar computed from them under the board mapping, and a task without subtasks shows no bar rather than an invented one",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test, when the board suites run, then every badge colour rule, the link check against the repository, the id-to-snapshot lookup and the subtask progress are asserted, and the generated containers stay in step with the markdown",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-13 (v0.4.4) on the owner's follow-up to TASK-ZAI-065, in the same conversation and before the plan merged: every task card should show [DOC] [CODE] [TEST] [FR] [NFR] [FEAT] [domain code name] [complexity] [priority] badges — green done, orange review, red needs fix, gray empty — and a task whose plan is split into subtasks such as P0, P1, P2 and P3 should list them so the card can carry a progress bar. The FR, NFR and FEAT colours come from the FR-124 snapshot the Domain map tab already reads (FR-211); the link colours need the container generator to check each path against the repository when it runs, because the production image carries neither docs/ nor tests/.",
+    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "predictedTokens": 34000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-064"
+    ],
+    "evidence": "Section 3.1 row 2; FR-105; FR-124; FR-211; NFR-008"
   }
 }

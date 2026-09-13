@@ -684,7 +684,7 @@ button{font:inherit;color:inherit;}
    045–051 (17-stage knowledge base + file system) the same day,
    052–059 (SmartGift cost & quote engine, v0.4.2) the same day,
    060–063 (data pipeline map, v0.4.3) the same day,
-   064–067 (delivery telemetry, v0.4.4) the same day.
+   064–068 (delivery telemetry and task card badges, v0.4.4) the same day.
    ================================================================== */
 const PROGRESS_BY_STATE = { done:100, review:90, "in-progress":50, assigned:25, ready:10, planned:0, blocked:0 };
 
@@ -841,7 +841,7 @@ const PHASES = [
             "Given npm test, when the FR-066 unit suite runs, then onboarding order is asserted, not assumed",
             "ส่งมอบ 27 ส.ค. (ROADMAP.md TASK-FR-066-067) · FR-122 บังคับชื่อ-สกุล-โทรศัพท์ · CR-017 UX correction ติดตามในเลน Asset"]
         ]},
-      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract · นับ knowledge intake + Tier 1 ของ 17-stage ที่สร้างแล้ว · (CR-019) SCM, Marketing, billing/POS, catalog convergence และ identity lifecycle เข้า main · (v0.4.2) เปิด cost & quote engine: decision record + ใบต้นทุนโรงงาน · (v0.4.3) data pipeline registry + node-edge map ใน slot Knowledge (GKS) · (v0.4.4) delivery telemetry บน programme board: การ์ด phase มีตัวเลข, usage meter และ endpoint รายงาน token จริง",
+      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract · นับ knowledge intake + Tier 1 ของ 17-stage ที่สร้างแล้ว · (CR-019) SCM, Marketing, billing/POS, catalog convergence และ identity lifecycle เข้า main · (v0.4.2) เปิด cost & quote engine: decision record + ใบต้นทุนโรงงาน · (v0.4.3) data pipeline registry + node-edge map ใน slot Knowledge (GKS) · (v0.4.4) delivery telemetry บน programme board: การ์ด phase มีตัวเลข, badge หลักฐานบนการ์ด task, usage meter และ endpoint รายงาน token จริง",
         exit:"pipeline รายงานได้ทุก stage, memory contract ผ่านการรีวิว, ไฟล์ที่รับเข้า Stage 1 ไปถึง Stage 8 พร้อม lineage ใต้เทสต์ และทุกเลนมี migration เขียนแล้ว",
         tasks:[
           ["TASK-ZAI-004","TSK-ZAI004","Workspace collaboration boundary and scoped invites, FR-067","FR","C-3","H3","done","Codex","TASK-ZAI-003","apps/server/src/modules/identity/access-invite-service.js","docs/PRD-SDD-v1.0.md","unavailable",40000,
@@ -931,7 +931,7 @@ const PHASES = [
             "(v0.4.3) slot เปิดด้วยหน้านี้หน้าเดียว หน้าถัดไปคือ knowledge base console ของ TASK-ZAI-047 · SVG เขียนเองแบบ FR-040 / FR-101 ไม่เพิ่ม library"],
           ["TASK-ZAI-064","TSK-ZAI064","Delivery telemetry decision record — the ADR that lets the programme board show measured time and tokens beside the plan without turning either into completion, the sizing table, and the requirement and FEAT declarations","NFR","C-2","H2","in-progress","Claude","-","unavailable","docs/decisions/ADR-048-PLATFORM-CONTROL-SHELL.md","unavailable",22000,
             "Given ADR-048 D3 (the board is a plan snapshot and never a completion claim), when the ADR is written, then it states that measured time and tokens may appear beside the plan only as labelled measurements with their source and measuring time, never as progress, and names which figures are planned (sizing table, plan window, predicted tokens) and which are measured",
-            "Given the phase card metrics, the usage meter and the report endpoint, when they are declared with one FEAT bundle, then every new id is pinned, and the sizing table (effort hours per complexity band) and the rule that one billed request is counted once across both sources are written in the programme document",
+            "Given the phase card metrics, the usage meter and the report endpoint, when they are declared with one FEAT bundle, then every new id is pinned, and the sizing table (effort hours per complexity band) the rule that one billed request is counted once across both sources and the badge colour rules (done green, review orange, needs fix red, empty gray) are written in the programme document",
             "Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and FR-105's statement names the measured layer",
             "(v0.4.4) ตามคำสั่ง owner 13 ก.ย. — การ์ด phase แสดง sprint / task / size / เวลาประมาณ และหลัง done แสดงเวลาจริงกับ token ที่ใช้จริง · owner เลือกนับจากทั้ง log ในเครื่องและ endpoint รายงาน · ADR-048 D3 ห้ามหน้าวัดอะไรเอง จึงต้องมี ADR แยกชั้น measured"],
           ["TASK-ZAI-065","TSK-ZAI065","Phase card delivery metrics — sprint and task counts, size in complexity points, plan window and effort estimate, actual time and measured tokens once done, and done or review cards tinted green or orange","FR","C-2","H2","planned","Claude","TASK-ZAI-064","apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx","docs/roadmap/ROADMAP-zuri-ai-24w-program.md","apps/server/tests/unit/platform-control-route-contract.test.js",40000,
@@ -948,7 +948,12 @@ const PHASES = [
             "Given an agent on another machine holding an operator-issued key, when it posts a per-session usage report for a task, then the report is stored with source, session id, model, token counts and time span, a replay of the same source and session is idempotent, and a report for an unknown task is refused by name",
             "Given sessions reported through the endpoint and sessions found by the meter, when the board computes a task's measured tokens, then a session present in both is counted once and the board says which source each figure came from",
             "Given npm test and the Supabase migration file, when they run, then authorization refusal, idempotency, dedupe and the schema-migration drift check pass; applying the migration on production stays a separate operator step (ADR-057)",
-            "(v0.4.4) สำหรับ agent ที่ไม่มี log ในเครื่อง operator · session เดียวกันที่ meter เจอแล้วนับครั้งเดียว · migration เขียนในงานนี้ apply แยกตาม ADR-057"]
+            "(v0.4.4) สำหรับ agent ที่ไม่มี log ในเครื่อง operator · session เดียวกันที่ meter เจอแล้วนับครั้งเดียว · migration เขียนในงานนี้ apply แยกตาม ADR-057"],
+          ["TASK-ZAI-068","TSK-ZAI068","Task card evidence badges and subtask progress — DOC, CODE, TEST, FR, NFR and FEAT badges coloured green for done, orange for review, red for needs fix and gray for empty, domain, complexity and priority badges, and P0 to P3 subtasks with a progress bar on the card","FR","C-2","H2","planned","Claude","TASK-ZAI-064","apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx","docs/roadmap/ROADMAP-zuri-ai-24w-program.md","apps/server/tests/unit/platform-control-route-contract.test.js",34000,
+            "Given a task card, when it renders, then it shows DOC, CODE and TEST badges from its container links, FR, NFR and FEAT badges from the ids it delivers read against the FR-124 snapshot, and badges for its domain code name, complexity and priority, each evidence badge green when done, orange when in review, red when it needs fixing (a declared link that no longer resolves, or a delivered id the snapshot does not show as built while the task claims done or review) and gray when empty",
+            "Given a Task Container that splits its plan into subtasks P0 to P3, when the card renders, then the subtasks are listed with their own status and the card carries a progress bar computed from them under the board mapping, and a task without subtasks shows no bar rather than an invented one",
+            "Given npm test, when the board suites run, then every badge colour rule, the link check against the repository, the id-to-snapshot lookup and the subtask progress are asserted, and the generated containers stay in step with the markdown",
+            "(v0.4.4) ตามคำสั่ง owner ต่อจาก 065 — badge [DOC] [CODE] [TEST] [FR] [NFR] [FEAT] [domain] [complexity] [priority] · เขียว = done, ส้ม = review, แดง = ต้องแก้, เทา = ว่าง · task ที่แบ่งแผนเป็น P0–P3 แสดง subtask และ progress bar บนการ์ด · สถานะ FR/NFR/FEAT อ่านจาก runtime/domain-state.json ไม่คิดใหม่"]
         ]}
     ]
   },
@@ -1296,7 +1301,8 @@ const DOD_CHECKS = {
   "TASK-ZAI-064": [0,0,0],
   "TASK-ZAI-065": [0,0,0],
   "TASK-ZAI-066": [0,0,0],
-  "TASK-ZAI-067": [0,0,0]
+  "TASK-ZAI-067": [0,0,0],
+  "TASK-ZAI-068": [0,0,0]
 };
 
 /* ---------------------- theme ---------------------- */
