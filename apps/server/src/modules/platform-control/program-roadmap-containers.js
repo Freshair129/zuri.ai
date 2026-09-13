@@ -3506,7 +3506,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-073",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -3538,7 +3538,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text. Written 2026-09-14: docs/ZURI-HARNESS-PLUGIN-SPEC.md — parts, pairing and reporting flows, CLI with flags and exit codes, hooks and wrapper, config and queue formats with keep/drop rules, report body and server rules, counting rules including usage detail, privacy, compatibility, versioning and known limits, each rule linked to its test; ADR-087, the plugin README and Appendix A point to it. Review, not done: not merged.",
+    "changelog": "Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text. Written 2026-09-14: docs/ZURI-HARNESS-PLUGIN-SPEC.md — parts, pairing and reporting flows, CLI with flags and exit codes, hooks and wrapper, config and queue formats with keep/drop rules, report body and server rules, counting rules including usage detail, privacy, compatibility, versioning and known limits, each rule linked to its test; ADR-087, the plugin README and Appendix A point to it. Review, not done: not merged. Closed 2026-09-14: merged in #393 (main daca80fb), deployed as zuri-ai-web:release-daca80fb; migration 20260914120000_usage_detail applied on production after a rolled-back dry run.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 30000,
     "totalTokens": 0,
@@ -3551,7 +3551,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-074",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -3602,7 +3602,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text. Implemented locally 2026-09-14 (FR-239, ADR-086 D7): plugins/zuri-harness/lib/detail.mjs is the one rule set, imported by both the plugin and the meter; the report endpoint accepts a strict optional detail stored as headline columns plus canonical JSON; migration 20260914120000_usage_detail written in both trees and NOT applied; first real meter run with detail recorded in the usage block. Review, not done: not merged, migration not applied.",
+    "changelog": "Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text. Implemented locally 2026-09-14 (FR-239, ADR-086 D7): plugins/zuri-harness/lib/detail.mjs is the one rule set, imported by both the plugin and the meter; the report endpoint accepts a strict optional detail stored as headline columns plus canonical JSON; migration 20260914120000_usage_detail written in both trees and NOT applied; first real meter run with detail recorded in the usage block. Review, not done: not merged, migration not applied. Closed 2026-09-14: merged in #393 (main daca80fb), deployed as zuri-ai-web:release-daca80fb; migration 20260914120000_usage_detail applied on production after a rolled-back dry run.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 64000,
     "totalTokens": 0,
@@ -3615,7 +3615,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-075",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "priority": "P1",
     "pic": "Claude",
     "executor": "Claude",
@@ -3661,7 +3661,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text. Implemented locally 2026-09-14 (FR-240): phase cards show input, output, thinking and cache tokens separately with tool calls and error rate, prompts and compactions, or say no detail exists; task telemetry lists the most used tools, errors, denials and models. Review, not done: not merged.",
+    "changelog": "Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text. Implemented locally 2026-09-14 (FR-240): phase cards show input, output, thinking and cache tokens separately with tool calls and error rate, prompts and compactions, or say no detail exists; task telemetry lists the most used tools, errors, denials and models. Review, not done: not merged. Closed 2026-09-14: merged in #393 (main daca80fb), deployed as zuri-ai-web:release-daca80fb; migration 20260914120000_usage_detail applied on production after a rolled-back dry run.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 36000,
     "totalTokens": 0,
