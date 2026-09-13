@@ -1,10 +1,12 @@
 // @req FR-094, FR-095 — multi-factor authentication lifecycle
-// @spec ADR-045 D2, D5, SDD-052, SEC-018
+// @spec ADR-045 D2, D5, SDD-052, SEC-018, SEC-029, SDD-096, ADR-088
 // @tested tests/integration/mfa-totp-lifecycle.test.js
 
+import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
 import { httpError } from '@/app/api/_helpers'
 import { generateTotpSecret, generateTotpUri, verifyTotp } from './totp'
+import { openMfaSecret, sealMfaSecret } from './mfa-secret-seal'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 
 /**
@@ -23,17 +25,24 @@ export async function startTotpEnrollment({ personId, label, issuer = 'zuri-ai',
   const person = await db.person.findUnique({ where: { id: personId } })
   if (!person) throw httpError(404, 'Person not found')
 
+  // The row id is chosen here because the sealed secret is bound to it (SEC-029).
+  // Sealing happens before the stale PENDING factors are removed, so a deployment
+  // without its key refuses with 503 and leaves an in-progress enrollment intact.
+  const factorId = randomUUID()
+  const secret = generateTotpSecret()
+  const sealedSecret = sealMfaSecret(secret, { personId, factorId })
+
   // Remove any stale unverified PENDING factors
   await db.mfaFactor.deleteMany({
     where: { personId, type: 'TOTP', status: 'PENDING' },
   })
 
-  const secret = generateTotpSecret()
   const factor = await db.mfaFactor.create({
     data: {
+      id: factorId,
       personId,
       type: 'TOTP',
-      secret,
+      secret: sealedSecret,
       label: label ?? 'Authenticator App',
       status: 'PENDING',
     },
@@ -71,7 +80,7 @@ export async function confirmTotpEnrollment({ personId, factorId, code, db = pri
     throw httpError(404, 'Pending MFA factor not found')
   }
 
-  const isValid = verifyTotp({ token: code, secret: factor.secret })
+  const isValid = verifyTotp({ token: code, secret: openMfaSecret(factor.secret, { personId, factorId: factor.id }) })
   if (!isValid) {
     throw httpError(400, 'INVALID_MFA_CODE: Verification code does not match')
   }
@@ -117,7 +126,19 @@ export async function verifyMfaChallenge({ personId, code, db = prisma }) {
   })
 
   for (const factor of activeFactors) {
-    if (factor.type === 'TOTP' && verifyTotp({ token: code, secret: factor.secret })) {
+    if (factor.type !== 'TOTP') continue
+    let secret
+    try {
+      secret = openMfaSecret(factor.secret, { personId, factorId: factor.id })
+    } catch (error) {
+      // A missing deployment key refuses the whole challenge. One unreadable row
+      // (legacy plaintext awaiting the reseal sweep, a removed key version,
+      // tampering) cannot verify, and does not stop another factor from doing so.
+      if (error?.code !== 'MFA_SECRET_UNAVAILABLE') throw error
+      console.warn('[mfa] factor secret unavailable', { factorId: factor.id, reason: error.reason })
+      continue
+    }
+    if (verifyTotp({ token: code, secret })) {
       return { verified: true, factorId: factor.id }
     }
   }

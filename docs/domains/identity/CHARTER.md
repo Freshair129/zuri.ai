@@ -141,6 +141,19 @@ the shared policy-enforcement point, the viewer gate, and PDPA erasure.
   lives in `viewer-domains.js` with no I/O, because both consumers are client
   components.
 
+- `mfa-service` (TOTP enrollment, confirmation, step-up challenge, list, revoke)
+  is the one seam over `MfaFactor`, and `mfa-secret-seal.js` is the one place a
+  factor secret is encrypted or decrypted (SEC-029, SDD-096, ADR-088).
+  `MfaFactor.secret` holds only an AES-256-GCM envelope bound to its Person and
+  factor row under the deployment's `ZURI_MFA_SECRET_KEY`; no other file may
+  create a cipher over it, and a production deployment without the key refuses
+  MFA with 503 rather than falling back. The only other writer of the column is
+  the operator sweep `resealMfaFactorSecrets` (`scripts/seal-mfa-factor-secrets.mjs`),
+  which moves plaintext rows written before ADR-088 and rows under a retired key
+  version; the reader never accepts plaintext. The seal module imports nothing but
+  `node:crypto`, so the proposed shared credential vault can replace its body
+  without touching a caller.
+
 - Product Owner is the `PRODUCT_OWNER` key in the generic Business-scoped
   `RoleBinding` registry resolved by `resolveViewer`; `Membership.role`,
   platform `DEV`, Workspace/Portfolio ancestry and visibility do not infer it
