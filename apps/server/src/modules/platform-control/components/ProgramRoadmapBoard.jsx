@@ -15,6 +15,13 @@ import {
   PROGRAMME_SNAPSHOT,
   PROGRAMME_TASKS,
 } from '@/modules/platform-control/program-roadmap-data'
+import TiltCard from './TiltCard'
+import styles from './program-roadmap-board.module.css'
+
+// Presentation pass 2026-09-13 (owner: the deployed page was "all white, no
+// accent, no dark mode, no tilt"): status-coloured task cards, tinted phase and
+// sprint blocks, tilt + glow on cards, and theme tokens from the shell. Nothing
+// here changes what the page says (ADR-048 D3); it only changes how it looks.
 
 const badgeStatus = (status) => status.toUpperCase().replace(/-/g, '_')
 const numberWord = (n) => ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'][n] ?? String(n)
@@ -52,8 +59,11 @@ function HistoryChart({ history }) {
       .join('')
   const baselineIndex = rows.findIndex((r) => r[0] === history.baselineDay)
   const last = rows[n - 1]
-  const gridColor = 'var(--border-subtle, #E5E7EB)'
-  const mutedText = 'var(--text-secondary, #6B7280)'
+  const gridColor = 'var(--chart-grid, #E5E7EB)'
+  const mutedText = 'var(--chart-text, #6B7280)'
+  const faintText = 'var(--chart-text-faint, #9CA3AF)'
+  const barFill = 'var(--chart-bar, #FDE8D0)'
+  const barStroke = 'var(--chart-bar-stroke, #F09420)'
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full min-w-[560px]" role="img" aria-label={`Repository history ${rows[0][0]} to ${last[0]}: commits per day, cumulative net lines, declared requirements and test files`}>
@@ -74,7 +84,7 @@ function HistoryChart({ history }) {
         </g>
       )}
       {rows.map((r, i) => (
-        <rect key={r[0]} x={x(i) - bw / 2} y={yCommits(r[2])} width={bw} height={padT + ih - yCommits(r[2])} rx="1.5" fill="#FDE8D0" stroke="#F09420" strokeWidth="0.5">
+        <rect key={r[0]} x={x(i) - bw / 2} y={yCommits(r[2])} width={bw} height={padT + ih - yCommits(r[2])} rx="1.5" fill={barFill} stroke={barStroke} strokeWidth="0.5">
           <title>{`${r[0]} ${r[1]}: ${r[2]} commits, +${r[3].toLocaleString()} / -${r[4].toLocaleString()} lines`}</title>
         </rect>
       ))}
@@ -86,7 +96,7 @@ function HistoryChart({ history }) {
         i % 3 === 0 || i === n - 1 ? (
           <g key={`x-${r[0]}`}>
             <text x={x(i)} y={H - padB + 14} fontSize="10" textAnchor="middle" fill={mutedText}>{r[0]}</text>
-            <text x={x(i)} y={H - padB + 26} fontSize="9" textAnchor="middle" fill="#9CA3AF">{r[1].slice(5)}</text>
+            <text x={x(i)} y={H - padB + 26} fontSize="9" textAnchor="middle" fill={faintText}>{r[1].slice(5)}</text>
           </g>
         ) : null,
       )}
@@ -133,7 +143,7 @@ export default function ProgramRoadmapBoard() {
           <span><i className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-[#3D7A9E] align-[-1px]" />FR declared (ends at {PROGRAMME_HISTORY.rows.at(-1)[6]})</span>
           <span><i className="mr-1 inline-block h-2.5 w-2.5 rounded-sm bg-[#6B7280] align-[-1px]" />test files tracked (ends at {PROGRAMME_HISTORY.rows.at(-1)[8]})</span>
         </div>
-        <div className="overflow-x-auto rounded-md border border-[var(--border-subtle)] bg-white p-2">
+        <div className={styles.chartFrame}>
           <HistoryChart history={PROGRAMME_HISTORY} />
         </div>
       </Card>
@@ -149,10 +159,10 @@ export default function ProgramRoadmapBoard() {
               const expanded = openPhase === phase.id
               const tasks = PROGRAMME_TASKS.filter((task) => phase.sprints.some((sprint) => sprint.id === task[1]))
               return (
-                <Card key={phase.id} className="p-0">
+                <Card key={phase.id} className={`p-0 ${styles.phase}`}>
                   <button
                     type="button"
-                    className="flex w-full items-start gap-3 p-4 text-left hover:bg-[var(--bg-subtle)]"
+                    className={`flex w-full items-start gap-3 p-4 text-left ${styles.phaseHead}`}
                     onClick={() => setOpenPhase(expanded ? null : phase.id)}
                     aria-expanded={expanded}
                   >
@@ -168,23 +178,29 @@ export default function ProgramRoadmapBoard() {
                   </button>
                   <ProgressBar percent={phase.progress} label={`${phase.id} submitted plan progress`} />
                   {expanded && (
-                    <div className="space-y-4 border-t border-[var(--border)] p-4">
+                    <div className={`space-y-4 p-4 ${styles.phaseBody}`}>
                       {phase.sprints.map((sprint) => (
-                        <div key={sprint.id}>
-                          <div className="mb-2 flex flex-wrap items-center gap-2">
+                        <div key={sprint.id} className={styles.sprint}>
+                          <div className={`flex flex-wrap items-center gap-2 ${styles.sprintHead}`}>
                             <strong className="text-sm">{sprint.id}</strong><StatusPill status={badgeStatus(sprint.status)} />
                             <span className="text-xs text-muted">{sprint.weeks} · {sprint.dates}</span>
+                            <span className="ml-auto text-xs text-muted">plan {sprint.progress}%</span>
                           </div>
                           <p className="mb-2 text-xs text-muted">{sprint.goal}</p>
                           <ul className="space-y-2" aria-label={`${sprint.id} tasks`}>
                             {tasks.filter((task) => task[1] === sprint.id).map(([id, , title, type, complexity, scope, status]) => (
-                              <li key={id} className="rounded-md border border-[var(--border-subtle)] bg-white p-3">
-                                <div className="flex flex-wrap items-center gap-2">
-                                  <code className="text-[11px] font-semibold">{id}</code><StatusPill status={badgeStatus(status)} />
-                                  <span className="ml-auto text-[11px] text-muted">{type} · {complexity} · {scope}</span>
+                              <TiltCard as="li" key={id} className={`p-3 ${styles.task}`} data-status={status}>
+                                <div className="flex items-start gap-3">
+                                  <span className={styles.taskDot} aria-hidden />
+                                  <div className="min-w-0 flex-1">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <code className="text-[11px] font-semibold">{id}</code><StatusPill status={badgeStatus(status)} />
+                                      <span className="ml-auto text-[11px] text-muted">{type} · {complexity} · {scope}</span>
+                                    </div>
+                                    <p className="mt-1 text-sm font-semibold">{title}</p>
+                                  </div>
                                 </div>
-                                <p className="mt-1 text-sm">{title}</p>
-                              </li>
+                              </TiltCard>
                             ))}
                           </ul>
                         </div>
@@ -198,20 +214,24 @@ export default function ProgramRoadmapBoard() {
         </div>
 
         <aside className="space-y-6">
-          <Card>
-            <div className="mb-3 flex items-center gap-2"><ClipboardList size={17} aria-hidden /><h2 className="font-bold">{PROGRAMME_DELIVERABLES.length} deliverables</h2></div>
-            <ol className="space-y-2 text-xs text-muted">
-              {PROGRAMME_DELIVERABLES.map((deliverable, index) => <li key={deliverable} className="flex gap-2"><span className="font-semibold text-[var(--action-primary)]">{String(index + 1).padStart(2, '0')}</span>{deliverable}</li>)}
-            </ol>
-          </Card>
-          <Card>
-            <div className="mb-3 flex items-center gap-2"><Flag size={17} aria-hidden /><h2 className="font-bold">{PROGRAMME_GATES.length} acceptance gates</h2></div>
-            <ul className="space-y-3">
-              {PROGRAMME_GATES.map(([id, description, status]) => (
-                <li key={id} className="text-xs"><div className="flex items-center gap-2"><code className="font-semibold">{id}</code><StatusPill status={badgeStatus(status)} /></div><p className="mt-1 text-muted">{description}</p></li>
-              ))}
-            </ul>
-          </Card>
+          <TiltCard className="rounded-xl">
+            <Card className={styles.sideCard}>
+              <div className="mb-3 flex items-center gap-2"><ClipboardList size={17} aria-hidden /><h2 className="font-bold">{PROGRAMME_DELIVERABLES.length} deliverables</h2></div>
+              <ol className="space-y-2 text-xs text-muted">
+                {PROGRAMME_DELIVERABLES.map((deliverable, index) => <li key={deliverable} className="flex gap-2"><span className="font-semibold text-[var(--action-primary)]">{String(index + 1).padStart(2, '0')}</span>{deliverable}</li>)}
+              </ol>
+            </Card>
+          </TiltCard>
+          <TiltCard className="rounded-xl">
+            <Card className={styles.sideCard}>
+              <div className="mb-3 flex items-center gap-2"><Flag size={17} aria-hidden /><h2 className="font-bold">{PROGRAMME_GATES.length} acceptance gates</h2></div>
+              <ul className="space-y-3">
+                {PROGRAMME_GATES.map(([id, description, status]) => (
+                  <li key={id} className="text-xs"><div className="flex items-center gap-2"><code className="font-semibold">{id}</code><StatusPill status={badgeStatus(status)} /></div><p className="mt-1 text-muted">{description}</p></li>
+                ))}
+              </ul>
+            </Card>
+          </TiltCard>
           <Card warm>
             <div className="flex items-start gap-2"><ShieldCheck size={17} className="mt-0.5 shrink-0" aria-hidden /><p className="text-xs text-muted">Plan progress above is supplied by the submitted roadmap. It is not deployment readiness, UAT acceptance or live repository velocity.</p></div>
           </Card>
