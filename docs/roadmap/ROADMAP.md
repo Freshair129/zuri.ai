@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.70.0b"
+version: "2.71.0b"
 updated: "2026-09-13"
 owner: "Owen"
 source_of_truth: true
@@ -18,6 +18,8 @@ live_document: true
 ---
 
 # ROADMAP: zuri-ai — Live Delivery State
+
+> Revision 2.71.0b (2026-09-13): เปิดแผน **Data pipeline map** ตามคำสั่ง owner — แผนที่ node-edge ว่าข้อมูลเข้าจากไหน ใครรับจากเรา และรวมที่ไหนก่อนส่ง พร้อมสถานะ surface / โดเมน / FEAT ทุก hop ใน slot Knowledge (GKS); เพิ่ม `PHASE-ZAI-DATA-PIPELINE-MAP` และ TASK-ZAI-060..063 ให้ตรงกับโปรแกรม 24 สัปดาห์ v0.4.3 (060–062 แทรกใน SPR-ZAI-02 sprint ปัจจุบัน, 063 เข้า SPR-ZAI-03). ยังไม่ประกาศ FR/ADR — เป็นงานของ TASK-ZAI-060; ไม่มี code ในรอบนี้.
 
 > Revision 2.70.0b (2026-09-13): เปิดแผน **SmartGift cost & quote engine** ตามคำสั่ง owner (ยอมรับค่าที่แนะนำทั้งเก้าข้อ) — proposal `change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md`; เพิ่ม `PHASE-ZAI-COST-QUOTE` และ TASK-ZAI-052..059 ให้ตรงกับโปรแกรม 24 สัปดาห์ v0.4.2 (Phase 0–1 แทรกใน SPR-ZAI-02 sprint ปัจจุบัน, Phase 2–3 เข้า backlog ของ SPR-ZAI-03, Phase 4 ของ SPR-ZAI-04). ยังไม่ประกาศ FR/ADR ใหม่ — เป็นงานของ TASK-ZAI-052; ไม่มี code, model หรือ migration ในรอบนี้.
 
@@ -312,11 +314,16 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | PHASE-ZAI-PROCUREMENT | FEAT-024 / FR-164..165: Procurement lane (`DOM-PROCUREMENT`, ADR-066) — suppliers (code unique ต่อ Tenant, archive ไม่ลบ), purchase orders (line ผูก SKU ในคลังที่ต้นทุนที่ตกลง, satang, total/received/outstanding และ receiptState คำนวณตอนอ่าน, DRAFT → SENT → RECEIVED / SHORT_CLOSED / CANCELLED) และ goods receipts (post ทีละ line ไม่เกินที่ค้าง, line ที่นับสต๊อกเข้า ledger ของ Inventory พร้อม lot / วันหมดอายุ / serial ด้วย reference PO/GRN, ใบสั่งซื้อ RECEIVED เองเมื่อครบ); schema/backup/navigation/dashboard | local focused RED→GREEN, schema parity, backup completeness, build/govern/e2e complete; production migration, purchase request / approval, RFQ, return / credit note, supplier invoice และ landed cost ยังอยู่นอก gate | done (local foundation) | 100 |
 | PHASE-ZAI-SCM | FR-167: SCM navigation (ADR-069) — แถบโดเมนมีช่อง SCM ช่องเดียวคลุม Inventory · Warehouse (จอง) · Procurement · Order Management, เมนูซ้ายแสดงทั้งสี่พร้อมกันโดยหัวข้อกลุ่มเป็นชื่อลูกแต่ละตัว, key ของทุกโดเมนคงเดิมเพื่อไม่ให้สิทธิ์ที่เก็บไว้ต่อสมาชิกเปลี่ยนความหมาย | local focused RED→GREEN, schema parity, backup completeness, build/govern/e2e complete; production migration, purchase request / approval, RFQ, return / credit note, supplier invoice และ landed cost ยังอยู่นอก gate | done (local foundation) | 100 |
 | PHASE-ZAI-COST-QUOTE | SmartGift cost & quote engine (proposal 2026-09-13, owner ยอมรับค่าที่แนะนำทั้งเก้าข้อ): ใบต้นทุนโรงงานที่ล็อก FX เป็น `SupplierCostSheet` (Procurement), GRN โพสต์ landed cost ลง ledger (Inventory), `PricingRuleSet` ที่มี version และผู้อนุมัติ, pricing engine เดียวเป็นสตางค์จำนวนเต็มพร้อม parity fixtures กับ price-boss, Quote → SalesOrder (Commerce), ladder quote ใน LINE (FR-132) และ Knowledge structured records JSON/Excel/MCP — ตรงกับโปรแกรม 24 สัปดาห์ v0.4.2 TASK-ZAI-052..059 | Phase 0 = ADR + FR/FEAT declared + ledger pinned; Phase 1–4 ตาม container ของแต่ละ task; migration apply เป็น operator step (ADR-057); ยังไม่มี code | planned (decision record in progress) | 6 |
+| PHASE-ZAI-DATA-PIPELINE-MAP | Data pipeline map (owner request 2026-09-13): แผนที่ว่าข้อมูลเข้าจากไหน ใครรับข้อมูลจากเรา และรวมที่ไหนก่อนส่งต่อ นับ chain ได้ — เขียนเป็นเอกสาร + registry ที่ validate ได้ + projection ที่ generate แล้ว render เป็น node-edge view ใน slot Knowledge (GKS) ของ knowledge lane (ไม่ใช่โดเมน GKS ตาม ADR-063 D4) พร้อมสถานะ surface (declared / code+tests / endpoint / UI / production), โดเมน และ FEAT ของทุก hop; เฟสถัดไปเป็น live health ต่อ edge — ตรงกับโปรแกรม 24 สัปดาห์ v0.4.3 TASK-ZAI-060..063 | ADR + FR/FEAT declared; registry ผ่าน generator และ preflight; view ผ่าน render/e2e; live overlay หลัง TASK-ZAI-047 | planned (decision record in progress) | 12 |
 
 ## Backlog Items
 
 | ID | Parent ID | Type | Title | Priority | Owner | Status | Dependencies | Source Section |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| TASK-ZAI-060 | PHASE-ZAI-DATA-PIPELINE-MAP | task | Data pipeline map decision record — ADR for a Knowledge (GKS) navigation slot that consumes GKS without becoming it; FR/FEAT declarations | P0 | Claude | in-progress (planned 2026-09-13; ADR and declarations open) | ADR-063; ADR-050; FR-124 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-061 | PHASE-ZAI-DATA-PIPELINE-MAP | task | Data pipeline registry — written map of inbound sources, outbound recipients and combine chains; validated JSON registry; generated runtime projection; preflight check | P0 | Claude | planned | FR-124; ADR-081 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-062 | PHASE-ZAI-DATA-PIPELINE-MAP | task | Data Pipeline Map node-edge view under the Knowledge (GKS) slot — layered SVG graph, chain/domain/status filters, edge detail, list view | P0 | Claude | planned | FR-040; FR-101; FR-061 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-063 | PHASE-ZAI-DATA-PIPELINE-MAP | task | Live pipeline health on the map — per-edge run and job counts for the active Business from the FR-071 ledger and transport job tables | P1 | Claude | planned | FR-071; FR-149; FR-152; FR-143 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-052 | PHASE-ZAI-COST-QUOTE | task | Cost and quote engine decision record — proposal recorded, ADR and FR/FEAT declarations with the owner's nine decisions (Phase 0) | P0 | Claude | in-progress (proposal recorded 2026-09-13; ADR and declarations open) | ADR-074; ADR-065; FR-175; FR-181; FR-131; FR-132 | ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md |
 | TASK-ZAI-053 | PHASE-ZAI-COST-QUOTE | task | Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes on Product (Phase 1) | P0 | Claude | planned | FR-164; FR-154; ADR-084 | ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md |
 | TASK-ZAI-054 | PHASE-ZAI-COST-QUOTE | task | Goods receipts post the landed unit cost to the stock ledger; SKU cost card (Phase 1) | P0 | Claude | planned | FR-165; FR-175; ADR-074 | ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md |

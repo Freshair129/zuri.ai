@@ -488,7 +488,7 @@ button{font:inherit;color:inherit;}
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
           <span class="pill pill-brand">approved</span>
           <span class="pill pill-planned mono">ROADMAP-ZURI-AI-24W-PROGRAM</span>
-          <span class="pill pill-planned mono">v0.4.2</span>
+          <span class="pill pill-planned mono">v0.4.3</span>
           <span class="pill pill-planned">updated 2026-09-13</span>
           <span class="pill pill-planned mono">CR-019</span>
           <span class="pill pill-planned">owner Owen</span>
@@ -678,11 +678,12 @@ button{font:inherit;color:inherit;}
 
 <script>
 /* ==================================================================
-   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.4.2 (CR-019,
+   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.4.3 (CR-019,
    2026-09-13) — the markdown is the source of truth, this array is
    its rendering. Tasks 031–044 were added on the re-baseline,
    045–051 (17-stage knowledge base + file system) the same day,
-   052–059 (SmartGift cost & quote engine, v0.4.2) the same day.
+   052–059 (SmartGift cost & quote engine, v0.4.2) the same day,
+   060–063 (data pipeline map, v0.4.3) the same day.
    ================================================================== */
 const PROGRESS_BY_STATE = { done:100, review:90, "in-progress":50, assigned:25, ready:10, planned:0, blocked:0 };
 
@@ -839,7 +840,7 @@ const PHASES = [
             "Given npm test, when the FR-066 unit suite runs, then onboarding order is asserted, not assumed",
             "ส่งมอบ 27 ส.ค. (ROADMAP.md TASK-FR-066-067) · FR-122 บังคับชื่อ-สกุล-โทรศัพท์ · CR-017 UX correction ติดตามในเลน Asset"]
         ]},
-      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract · นับ knowledge intake + Tier 1 ของ 17-stage ที่สร้างแล้ว · (CR-019) SCM, Marketing, billing/POS, catalog convergence และ identity lifecycle เข้า main · (v0.4.2) เปิด cost & quote engine: decision record + ใบต้นทุนโรงงาน",
+      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract · นับ knowledge intake + Tier 1 ของ 17-stage ที่สร้างแล้ว · (CR-019) SCM, Marketing, billing/POS, catalog convergence และ identity lifecycle เข้า main · (v0.4.2) เปิด cost & quote engine: decision record + ใบต้นทุนโรงงาน · (v0.4.3) data pipeline registry + node-edge map ใน slot Knowledge (GKS)",
         exit:"pipeline รายงานได้ทุก stage, memory contract ผ่านการรีวิว, ไฟล์ที่รับเข้า Stage 1 ไปถึง Stage 8 พร้อม lineage ใต้เทสต์ และทุกเลนมี migration เขียนแล้ว",
         tasks:[
           ["TASK-ZAI-004","TSK-ZAI004","Workspace collaboration boundary and scoped invites, FR-067","FR","C-3","H3","done","Codex","TASK-ZAI-003","apps/server/src/modules/identity/access-invite-service.js","docs/PRD-SDD-v1.0.md","unavailable",40000,
@@ -911,7 +912,22 @@ const PHASES = [
             "Given a goods receipt against a purchase order line, when it posts, then every RECEIPT movement carries costSatang from the line's agreed cost plus the receipt's amortised batch costs, and a receipt without a cost basis records null and is reported, never zero",
             "Given a SKU whose receipts carry cost, when the product page loads, then it shows the moving weighted average landed cost, the last receipt cost and the ledger cost history, and the FR-181 tool no longer answers INVENTORY_COST_UNKNOWN for it",
             "Given npm test, when the goods receipt and costing suites run, then receipts with and without a cost basis pass, the weighted average matches inventory-costing.js to the satang, and the receipt workstation e2e still passes",
-            "(v0.4.2) ปิดช่องว่างที่ proposal พบ — FR-175 ประกาศ landed cost แต่ GRN โพสต์ RECEIPT โดยไม่มี costSatang · ต้นทุนบน ledger วันนี้มาจาก work order กับ transfer เท่านั้น"]
+            "(v0.4.2) ปิดช่องว่างที่ proposal พบ — FR-175 ประกาศ landed cost แต่ GRN โพสต์ RECEIPT โดยไม่มี costSatang · ต้นทุนบน ledger วันนี้มาจาก work order กับ transfer เท่านั้น"],
+          ["TASK-ZAI-060","TSK-ZAI060","Data pipeline map decision record — the ADR for a Knowledge (GKS) navigation slot that consumes GKS without becoming it, and the requirement and FEAT declarations","NFR","C-2","H2","in-progress","Claude","-","unavailable","docs/domains/knowledge/CHARTER.md","unavailable",24000,
+            "Given the owner's instruction to place the map inside the Genesis Knowledge System domain, when the ADR is written, then the new slot belongs to zuri-ai's own knowledge lane and names GKS as the authority it consumes, so ADR-063 D4 stays true word for word",
+            "Given the registry, the node-edge view, the slot and the live overlay, when they are declared with one FEAT bundle, then every new id is pinned and the knowledge charter claims the new route and module paths",
+            "Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and the charter, the ADR and the PRD name the same slot key and route",
+            "(v0.4.3) ตามคำสั่ง owner 13 ก.ย. — data pipeline map แบบ node-edge ในโดเมน Genesis Knowledge System · ยังไม่มีเอกสารนี้ (ARCHITECTURE-DIAGRAMS §3 เก่า 15 ส.ค., SYSTEM-DIAGRAM ไม่มีสถานะ surface) · วางเป็น slot ของ knowledge lane เพราะ ADR-063 D4 ห้ามมีโดเมน GKS"],
+          ["TASK-ZAI-061","TSK-ZAI061","Data pipeline registry — the written map of inbound sources, outbound recipients and combine chains, a validated JSON registry, a generated runtime projection and a preflight check","FR","C-3","H3","planned","Claude","TASK-ZAI-060","apps/server/scripts/domain-state.mjs","docs/ARCHITECTURE-DIAGRAMS.md","apps/server/tests/unit/domain-state.test.js",58000,
+            "Given the map document, when a reader opens it, then every inbound source, outbound recipient and combine chain is listed, each hop with domain, FEAT or FR, surface kind and one status level, and declared-only flows are shown rather than omitted",
+            "Given the registry block, when the generator runs, then endpoint and UI levels are derived from existing route and page files, code-and-tests from the FR-124 snapshot, production only with written evidence, and an unknown id, missing route, orphan node or broken chain fails by name",
+            "Given npm run govern and npm test, when they run, then the runtime projection is byte-stable, the preflight check passes, the old diagrams point to the map, and each refusal is under test",
+            "(v0.4.3) สำรวจแล้ว: ขาเข้า 16 จุดใน 8 กลุ่ม + ช่องรับผลกลับ 3, ขาออกไป LINE / model providers / Supabase Storage / MSP / edge / MCP และ Enterprise API / ดาวน์โหลด, chain ที่รวมข้อมูลก่อนส่ง 12 (ตัดออก 2) · projection commit ไว้เหมือน domain-state.json (ADR-081 D2)"],
+          ["TASK-ZAI-062","TSK-ZAI062","Data Pipeline Map node-edge view under the Knowledge (GKS) slot — layered graph, chain, domain and status filters, edge detail with domain, FEAT and surface level, and a list view","FR","C-3","H3","planned","Claude","TASK-ZAI-061","apps/server/src/config/domains.js","docs/INTERFACE-INVENTORY.md","unavailable",62000,
+            "Given a viewer with the Knowledge (GKS) slot, when they open the map, then sources, ingest surfaces, combine steps, stores, outbound surfaces and recipients render as layered nodes with labelled SVG edges, and a viewer without the slot reaches no page and no payload",
+            "Given a chain, domain or status filter or a selected node or edge, when it is chosen, then the path is highlighted end to end, the panel names domain, FEAT, FR, surface kind and status with evidence, and the list view shows the same rows as a table",
+            "Given npm test and a new e2e, when they run, then render, keyboard selection, list view, visibility refusal and navigation reachability pass and the build is clean",
+            "(v0.4.3) slot เปิดด้วยหน้านี้หน้าเดียว หน้าถัดไปคือ knowledge base console ของ TASK-ZAI-047 · SVG เขียนเองแบบ FR-040 / FR-101 ไม่เพิ่ม library"]
         ]}
     ]
   },
@@ -922,7 +938,7 @@ const PHASES = [
     exit:"5 roles ทำงานภายใต้ชั้นอนุมัติ L1–L4 พร้อม audit, verification และ notification",
     state:"planned",
     sprints:[
-      { id:"SPR-ZAI-03", weeks:"สัปดาห์ 5-6", goal:"สร้าง Agent Role registry และ 5 core roles · knowledge base console, binary parser, durable file storage และ 17-stage runtime บน production · apply migration ERP ที่ค้าง · pricing rule set, pricing engine และใบเสนอราคา",
+      { id:"SPR-ZAI-03", weeks:"สัปดาห์ 5-6", goal:"สร้าง Agent Role registry และ 5 core roles · knowledge base console, binary parser, durable file storage และ 17-stage runtime บน production · apply migration ERP ที่ค้าง · pricing rule set, pricing engine และใบเสนอราคา · live pipeline health บน map",
         exit:"แต่ละ role resolve tools, policy และ memory partition ที่ต่างกันได้ · PDF ที่อัปโหลดใน console ถูก publish เป็น corpus พร้อม citation บน production · migration ledger ตรงกับ tree",
         tasks:[
           ["TASK-ZAI-007","TSK-ZAI007","Agent Role registry with five core roles","FR","C-3","H3","planned","Claude","TASK-ZAI-006","src/modules/agent/index.js","docs/ARCHITECTURE.md","unavailable",62000,
@@ -984,7 +1000,12 @@ const PHASES = [
             "Given a quote built in /commerce/quotes, when it is saved, then each line stores inputs, landed breakdown, ladder snapshot, unit price, driver and rule set version, a manual price needs a reason, and the quote follows the price-boss status machine with the creator refused as approver",
             "Given an accepted quote, when it is converted, then one transaction creates the FR-166 sales order at the quoted prices, converts the QUOTE reservation to ORDER (FR-180), issues the QUOTATION document under FR-186's rules, and marks the quote converted and read-only",
             "Given npm test and a new e2e, when they run, then the workflow, self-approval refusal, manual-price audit, conversion atomicity and the document total (subtotal, discount, ROUND_HALF_UP VAT) pass",
-            "(v0.4.2) workflow ของ price-boss CRM (sale → manager → sent → accepted) บนสัญญา order / reservation / document ที่มีอยู่ · Q8 OWNER หรือ QUOTE_APPROVER อนุมัติ ไม่ใช่คนสร้าง · ย้ายไป SPR-ZAI-04 ได้ถ้า 03 แน่น"]
+            "(v0.4.2) workflow ของ price-boss CRM (sale → manager → sent → accepted) บนสัญญา order / reservation / document ที่มีอยู่ · Q8 OWNER หรือ QUOTE_APPROVER อนุมัติ ไม่ใช่คนสร้าง · ย้ายไป SPR-ZAI-04 ได้ถ้า 03 แน่น"],
+          ["TASK-ZAI-063","TSK-ZAI063","Live pipeline health on the map — per-edge run and job counts for the active Business from the FR-071 ledger and the transport job tables","FR","C-2","H3","planned","Claude","TASK-ZAI-062; TASK-ZAI-047","apps/server/src/platform/integrations/core/pipeline-tracking-service.js","docs/domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md","unavailable",36000,
+            "Given the active Business, when the live overlay loads, then each edge backed by a ledger or job table shows counts by status and the last run for that Business only, through the owning read port, and an edge with no backing table shows no number",
+            "Given a failed knowledge run or a failed LINE or rich menu job, when the owner opens the map, then the edge is marked and links to the existing monitor or job surface",
+            "Given npm test, when the overlay suites run, then another Business sees none of the counts, one bounded read per table is issued, and the static map still renders when every read fails",
+            "(v0.4.3) ส่วนเดียวของ map ที่ live · registry และ view ยังเป็น static · ต่อจาก knowledge console ให้อ่าน ledger ชุดเดียวกัน"]
         ]},
       { id:"SPR-ZAI-04", weeks:"สัปดาห์ 7-8", goal:"Approval Gateway L1–L4 พร้อม verification, notification และผูก Mission Control · ladder quote ใน LINE และ knowledge structured records",
         exit:"action ระดับ L4 ทำงานไม่ได้ถ้ายังไม่มีการอนุมัติครบสี่ครั้งที่บันทึกไว้",
@@ -1246,7 +1267,11 @@ const DOD_CHECKS = {
   "TASK-ZAI-056": [0,0,0],
   "TASK-ZAI-057": [0,0,0],
   "TASK-ZAI-058": [0,0,0],
-  "TASK-ZAI-059": [0,0,0]
+  "TASK-ZAI-059": [0,0,0],
+  "TASK-ZAI-060": [0,0,0],
+  "TASK-ZAI-061": [0,0,0],
+  "TASK-ZAI-062": [0,0,0],
+  "TASK-ZAI-063": [0,0,0]
 };
 
 /* ---------------------- theme ---------------------- */

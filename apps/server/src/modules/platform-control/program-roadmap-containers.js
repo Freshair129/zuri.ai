@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.2, 2026-09-13) so the board can open a task the way the html board
+// (v0.4.3, 2026-09-13) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @spec ADR-048 D3 — document data, never measured here. Regenerate from the
@@ -2187,5 +2187,152 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-042"
     ],
     "evidence": "Section 3.1 row 4; ADR-075 D2; FR-187; FR-209; BR-009"
+  },
+  "TASK-ZAI-060": {
+    "container": "TC-TASK-ZAI-060",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/domains/knowledge/CHARTER.md",
+      "test": "unavailable"
+    },
+    "dod": {
+      "acceptance": {
+        "text": "Given the owner's instruction to place the data pipeline map as a sub-domain of the Genesis Knowledge System, when the ADR is written, then it records that the new navigation slot belongs to zuri-ai's own knowledge lane and names GKS as the authority that lane consumes, so ADR-063 D4 (GKS, MSP and GenesisBlockDB are never zuri-ai domains) stays true word for word",
+        "checked": false
+      },
+      "success": {
+        "text": "Given the registry, the node-edge view, the navigation slot and the live overlay, when they are declared in the PRD with one FEAT bundle, then every new id is pinned by docs:ids --write and the knowledge charter claims the new route and module paths",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and the charter, the ADR and the PRD rows name the same slot key and route",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-13 (v0.4.3) on the owner's instruction — draw a data pipeline map (where data comes from, who receives it, where it is combined first, how many chains) as a visual node-edge view inside the Genesis Knowledge System domain, and put every task on the roadmap before starting. No such document exists today; ARCHITECTURE-DIAGRAMS section 3 (2026-08-15) still draws the V1 cutover and zuri-cli, SYSTEM-DIAGRAM (2026-09-05) has no surface status, and KNOWLEDGE-INGESTION-SURFACES covers one domain. Placement is recorded as a zuri-ai knowledge-lane slot because ADR-063 D4 forbids a GKS domain here.",
+    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "predictedTokens": 24000,
+    "totalTokens": 0,
+    "dependsOn": [],
+    "evidence": "Section 3.1 row 4; ADR-063 D4; ADR-050; SYSTEM-DIAGRAM; ARCHITECTURE-DIAGRAMS section 3"
+  },
+  "TASK-ZAI-061": {
+    "container": "TC-TASK-ZAI-061",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/scripts/domain-state.mjs",
+      "doc": "docs/ARCHITECTURE-DIAGRAMS.md",
+      "test": "apps/server/tests/unit/domain-state.test.js"
+    },
+    "dod": {
+      "acceptance": {
+        "text": "Given the new map document, when a reader opens it, then it lists every inbound source, every outbound recipient and every chain that combines data before sending it on, each hop with its owning domain, FEAT or FR, surface kind (HTTP endpoint, UI page, MCP tool, worker, CLI) and one status level (declared, code and tests, endpoint, UI, live on production), with declared-only and not-built flows shown as such rather than omitted",
+        "checked": false
+      },
+      "success": {
+        "text": "Given the registry block, when the generator runs, then an endpoint or UI level is derived from the route and page files that exist, code-and-tests from the FR-124 snapshot, a production level is accepted only with written evidence, and an unknown id, a missing route, a node no edge touches or a chain with a broken hop fails generation by name",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm run govern and npm test, when they run, then the committed runtime projection is byte-stable on a second pass, the preflight check passes, ARCHITECTURE-DIAGRAMS section 3 and SYSTEM-DIAGRAM point to the new map as current, and the generator suite covers each refusal",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-13 (v0.4.3). The survey behind the plan found 16 inbound surfaces in 8 groups plus 3 return channels, egress to LINE, model providers, Supabase Storage, MSP over stdio, edge devices, MCP and Enterprise API clients and operator downloads, and 12 confirmed combine chains with 2 rejected as declared-only or not outbound. The projection is committed for the same reason domain-state.json is (ADR-081 D2) — the server imports it and the Docker context cannot rebuild it.",
+    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "predictedTokens": 58000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-060"
+    ],
+    "evidence": "Section 3.1 row 4; FR-124 precedent; ADR-081 D2"
+  },
+  "TASK-ZAI-062": {
+    "container": "TC-TASK-ZAI-062",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/config/domains.js",
+      "doc": "docs/INTERFACE-INVENTORY.md",
+      "test": "unavailable"
+    },
+    "dod": {
+      "acceptance": {
+        "text": "Given a viewer whose visible domains include the Knowledge (GKS) slot, when they open the Data Pipeline Map, then external sources, ingest surfaces, combine steps, stores, outbound surfaces and recipients render as layered nodes with labelled edges drawn in hand-rolled SVG, and a viewer without the slot reaches no page and no payload",
+        "checked": false
+      },
+      "success": {
+        "text": "Given the map, when a chain, domain or status filter is chosen or a node or edge is selected, then the chain's path is highlighted end to end, the detail panel names the owning domain, FEAT, FR, surface kind and status level with its evidence, and the list view shows the same rows as an accessible table",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test and a new e2e, when they run, then the render test, keyboard selection, the list view, the visibility refusal and the navigation reachability suite pass, and the page builds clean",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-13 (v0.4.3). The slot opens with this one page; the knowledge base console of TASK-ZAI-047 is the next page planned for it. Hand-rolled SVG with no graph library, as FR-040 and FR-101 already do, so the map adds no client dependency.",
+    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "predictedTokens": 62000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-061"
+    ],
+    "evidence": "Section 3.1 row 4; FR-040 and FR-101 hand-rolled SVG precedent; FR-061"
+  },
+  "TASK-ZAI-063": {
+    "container": "TC-TASK-ZAI-063",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-03",
+    "version": "0.1.0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
+      "doc": "docs/domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md",
+      "test": "unavailable"
+    },
+    "dod": {
+      "acceptance": {
+        "text": "Given the active Business, when the map loads its live overlay, then each edge backed by a ledger or job table shows counts by status and the last run time for that Business only, read through the owning domain's read port, and an edge with no backing table shows no number rather than zero",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a failed knowledge run or a failed LINE or rich menu job, when the owner opens the map, then the affected edge is marked and links to the existing monitor or job surface for that record",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test, when the overlay suites run, then a viewer of another Business sees none of these counts, the overlay issues one bounded read per backing table, and the static map still renders when every read fails",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-13 (v0.4.3) as the only live part of the map; the registry and view stay static projections. Sequenced after the knowledge base console so both read the same ledger surfaces.",
+    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "predictedTokens": 36000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-062",
+      "TASK-ZAI-047"
+    ],
+    "evidence": "Section 3.1 row 4; FR-071; FR-149; FR-152; FR-143"
   }
 }

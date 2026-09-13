@@ -34,8 +34,9 @@ describe('Platform Programme Roadmap route contract', () => {
     // v0.4.0 (CR-019, 2026-09-13): 30 → 44 tasks, 8 → 9 gates, 10 → 11 deliverables;
     // v0.4.1 (same day): 44 → 51 tasks for the seventeen-stage knowledge base and file system.
     // v0.4.2 (same day): 51 → 59 tasks for the SmartGift cost and quote engine (TASK-ZAI-052 to 059).
+    // v0.4.3 (same day): 59 → 63 tasks for the data pipeline map (TASK-ZAI-060 to 063).
     // Phases and sprints are unchanged on purpose — the proposal's six bands still line up.
-    expect(PROGRAMME_TASKS).toHaveLength(59)
+    expect(PROGRAMME_TASKS).toHaveLength(63)
     expect(PROGRAMME_GATES).toHaveLength(9)
     expect(PROGRAMME_DELIVERABLES).toHaveLength(11)
   })
