@@ -185,11 +185,15 @@ jobs:
         working-directory: .
         shell: bash
         run: |
-          if ! git diff --quiet -- apps/server/runtime/domain-state.json; then
-            echo "::error::apps/server/runtime/domain-state.json is out of date. Run 'npm run govern' and commit the result."
-            git --no-pager diff --stat -- apps/server/runtime/domain-state.json
-            exit 1
-          fi
+          # FR-212 / ADR-085 D4: the data pipeline map projection is committed for
+          # the same reason and guarded the same way.
+          for committed in apps/server/runtime/domain-state.json apps/server/runtime/data-pipeline-map.json; do
+            if ! git diff --quiet -- "$committed" || [ -n "$(git ls-files --others --exclude-standard -- "$committed")" ]; then
+              echo "::error::$committed is out of date. Run 'npm run govern' and commit the result."
+              git --no-pager diff --stat -- "$committed"
+              exit 1
+            fi
+          done
 
       # The unit tests that read the governance inputs the chain above just
       # rebuilt — the id ledger, the doc graph, the domain state, the schema

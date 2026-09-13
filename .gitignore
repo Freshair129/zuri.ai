@@ -70,6 +70,7 @@ docs/.doc-graph-drift-report.json
 # reason of that kind.
 docs/.doc-graph.json
 docs/.domain-state.json
+docs/.data-pipeline-map.json
 docs/.preflight-report.json
 docs/FEATURE-MAP.md
 docs/DOMAIN-MAP.md

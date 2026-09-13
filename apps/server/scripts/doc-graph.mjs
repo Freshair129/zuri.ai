@@ -16,6 +16,7 @@ import { domainMap, traceView } from './doc-views.mjs'
 import { collectDocumentLinks, documentLinksView, hasLinkMetadata } from './doc-links.mjs'
 import { qualifyDocumentIds, assertUniqueNodeIds } from './doc-identities.mjs'
 import { generateDomainState } from './domain-state.mjs'
+import { generateDataPipelineMap } from './data-pipeline-map.mjs'
 // The same splitter the id ledger reads rows with. Two readings of one row, from
 // two splitters that disagree about `\|`, is how SDD-071's label reached
 // Appendix D as half a sentence.
@@ -37,6 +38,9 @@ const DOMAIN_MAP_PATH = workspacePath(ROOT, 'docs', 'DOMAIN-MAP.md')
 const TRACE_PATH = workspacePath(ROOT, 'docs', 'TRACE.md')
 const LINKS_PATH = workspacePath(ROOT, 'docs', 'DOCUMENT-LINKS.md')
 const DOMAIN_STATE_PATH = workspacePath(ROOT, 'docs', '.domain-state.json')
+// @req FR-212 — the data pipeline map projection, built from docs/DATA-PIPELINE-MAP.md
+// against the domain state computed in the same run (ADR-085 D4).
+const DATA_PIPELINE_MAP_PATH = workspacePath(ROOT, 'docs', '.data-pipeline-map.json')
 // Tombstone guard (ADR-024): the legacy-project mirror once lived here and may
 // still exist on old checkouts. Never index it.
 const V1_DIR = path.join(SPEC_PACK, 'v1-inherited')
@@ -724,6 +728,7 @@ const removed = (previous?.nodes || []).filter((n) => !nodes.some((x) => x.id ==
 
 const cov = coverage(nodes, edges)
 const domainState = generateDomainState({ root: ROOT, nodes, edges })
+const dataPipelineMap = generateDataPipelineMap({ root: ROOT, domainState })
 const graph = {
   version: '2.0.0',
   generated_by: 'scripts/doc-graph.mjs (rwang:doc-graph)',
@@ -746,6 +751,7 @@ const graph = {
 
 const serialized = JSON.stringify(graph, null, 2) + '\n'
 const domainStateSerialized = JSON.stringify(domainState, null, 2) + '\n'
+const dataPipelineMapSerialized = dataPipelineMap ? JSON.stringify(dataPipelineMap, null, 2) + '\n' : null
 const linksSerialized = documentLinksView(nodes, edges)
 const driftReport = {
   generated_at: new Date().toISOString(),
@@ -780,6 +786,11 @@ if (process.argv.includes('--check')) {
     console.error('domain state is stale — run: npm run docs:graph')
     process.exit(1)
   }
+  const currentDataPipelineMap = existsSync(DATA_PIPELINE_MAP_PATH) ? read(DATA_PIPELINE_MAP_PATH) : ''
+  if (dataPipelineMapSerialized !== null && currentDataPipelineMap !== dataPipelineMapSerialized) {
+    console.error('data pipeline map is stale — run: npm run docs:graph')
+    process.exit(1)
+  }
   console.log('doc-graph is up to date')
   if (!existsSync(LINKS_PATH) || read(LINKS_PATH) !== linksSerialized) {
     console.error('document links are stale — run: npm run docs:graph')
@@ -798,14 +809,17 @@ writeFileSync(DOMAIN_MAP_PATH, domainMap(nodes, edges))
 writeFileSync(TRACE_PATH, traceView(nodes, edges))
 writeFileSync(LINKS_PATH, linksSerialized)
 writeFileSync(DOMAIN_STATE_PATH, domainStateSerialized)
+if (dataPipelineMapSerialized !== null) writeFileSync(DATA_PIPELINE_MAP_PATH, dataPipelineMapSerialized)
 writeFileSync(DRIFT_REPORT_PATH, driftReportSerialized)
 if (workspaceRoot(ROOT) !== ROOT) {
   mkdirSync(path.join(ROOT, 'runtime'), { recursive: true })
   writeFileSync(path.join(ROOT, 'runtime', 'domain-state.json'), domainStateSerialized)
+  if (dataPipelineMapSerialized !== null) writeFileSync(path.join(ROOT, 'runtime', 'data-pipeline-map.json'), dataPipelineMapSerialized)
 }
 
 console.log(`nodes ${nodes.length} · edges ${edges.length} · dangling ${dangling.length}`)
 console.log(`FR with code ${cov.fr_with_code} · FR with tests ${cov.fr_with_tests} · rules anchored ${cov.rules_anchored_in_code}`)
+if (dataPipelineMap) console.log(`data pipeline map ${dataPipelineMap.summary.nodes} nodes · ${dataPipelineMap.summary.edges} edges · ${dataPipelineMap.summary.chains} chains`)
 console.log(`domain state ${Object.keys(domainState.domains).length} domains · overall ${domainState.overall.status} · gaps ${domainState.overall.gapCount}`)
 if (cov.fr_without_code.length) console.log(`FR without code: ${cov.fr_without_code.join(', ')}`)
 if (changed.length || added.length || removed.length) {

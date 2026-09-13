@@ -221,6 +221,13 @@ flowchart TB
 
 ## 3. Data flow diagram
 
+> **Superseded as the current data flow view on 2026-09-13** by
+> [DATA-PIPELINE-MAP.md](DATA-PIPELINE-MAP.md) (FR-212, ADR-085), which is a
+> validated registry regenerated on every `govern` and drawn at
+> `/knowledge/data-pipeline`. This section is kept as the dated record of
+> 2026-08-15: it still draws the V1 cutover and `zuri-cli` as the LINE transport,
+> both retired since (ADR-024, ADR-061).
+
 Shapes: `▭` external entity · `(  )` process · `[(  )]` data store. Dashed = gated,
 not wired yet.
 
