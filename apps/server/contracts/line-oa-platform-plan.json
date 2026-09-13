@@ -192,7 +192,7 @@
           "containerCode": "WST-LINE-OA-VAULT-SPR-ZAI-03",
           "subtype": "TASK",
           "title": "Credential-write step-up gate and the first rate limit — assertSessionAssurance AAL2 on every credential write, rotation, revocation and validation, an enrolment redirect when no factor exists, and a RateLimitBucket store answering 429 with retry hints, design migration 8 — FR-224",
-          "status": "PLANNED",
+          "status": "IN_PROGRESS",
           "weight": 2,
           "metadata": {
             "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",

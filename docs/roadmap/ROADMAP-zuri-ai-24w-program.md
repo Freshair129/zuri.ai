@@ -525,7 +525,7 @@ locates the week.
 | TASK-ZAI-077 | SPR-ZAI-02 | task | LINE OA platform delivery plan — every phase of ADR-089 to ADR-091 registered as sized tasks with acceptance criteria, lanes bound to branches before work starts, the usage-detail capture of TASK-ZAI-074 and TASK-ZAI-075 named as the measurement prerequisite, the Project Manager import path stated, and the usage meter run | P0 | Claude | in-progress | TASK-ZAI-076 | Section 3.1 rows 2, 4 and 8; ADR-086 D3; ADR-089; ADR-090; ADR-091 |
 | TASK-ZAI-078 | SPR-ZAI-03 | task | Integration credential vault — a SecretStorePort with the Supabase Vault and envelope stores, a dispatching secret manager by reference prefix, versioned write, activate, rotate, revoke and resolve with compensation and re-entry status, and design migrations 1, 3 and 4 — FR-223, SEC-030, SDD-097 | P0 | Claude | in-progress | TASK-ZAI-077; TASK-ZAI-074; TASK-ZAI-075 | Section 3.1 row 8; ADR-089 D1, D2, D5 |
 | TASK-ZAI-079 | SPR-ZAI-03 | task | LINE channel account claim and the Integration LINE channel-admin port — an installation-wide claim by destination hash taken before any secret is stored, stateless token minting with a per-version cache, bot info, and webhook set, read and test calls, with design migration 2 — FR-226, SDD-098 and the port half of FR-227 | P0 | Claude | in-progress | TASK-ZAI-078 | Section 3.1 row 8; ADR-089 D3, D6, D7 |
-| TASK-ZAI-080 | SPR-ZAI-03 | task | Credential-write step-up gate and the first rate limit — assertSessionAssurance AAL2 on every credential write, rotation, revocation and validation, an enrolment redirect when no factor exists, and a RateLimitBucket store answering 429 with retry hints, design migration 8 — FR-224 | P0 | Claude | planned | TASK-ZAI-078 | Section 3.1 row 8; ADR-089 D4 |
+| TASK-ZAI-080 | SPR-ZAI-03 | task | Credential-write step-up gate and the first rate limit — assertSessionAssurance AAL2 on every credential write, rotation, revocation and validation, an enrolment redirect when no factor exists, and a RateLimitBucket store answering 429 with retry hints, design migration 8 — FR-224 | P0 | Claude | in-progress | TASK-ZAI-078 | Section 3.1 row 8; ADR-089 D4 |
 | TASK-ZAI-081 | SPR-ZAI-03 | task | Phase 1 acceptance — ADR-089 proofs 1 to 6 on SQLite and Postgres with both stores, and one real LINE test channel validated end to end through the connection route in a dev deployment, before any production migration | P0 | Claude | planned | TASK-ZAI-079; TASK-ZAI-080 | ADR-089 required proof 1 to 6 and 10 |
 | TASK-ZAI-082 | SPR-ZAI-04 | task | Self-serve LINE OA connection wizard — Thai step-up, Channel ID and secret entry with an optional override token, live proof with LINE, claim, vault write, connection, a masked credential card and a DRAFT account, and a mount-backed account moved into the vault on re-entry — FR-225 | P0 | Claude | planned | TASK-ZAI-081 | Section 3.1 row 8; ADR-089 D2, D3, D7 |
 | TASK-ZAI-083 | SPR-ZAI-04 | task | Automatic LINE webhook registration and health — a publisher action sets, reads back and tests the account webhook through LINE, stores webhook health in LineOaAccount.webhookStateJson with its migration, and falls back to a Thai manual card — FR-227 | P0 | Claude | planned | TASK-ZAI-082 | Section 3.1 row 8; ADR-089 D7 |
@@ -4196,20 +4196,20 @@ executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: unavailable
+  code: apps/server/src/platform/integrations/providers/line/line-channel-admin-port.js
   doc: docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md
-  test: unavailable
+  test: apps/server/tests/integration/channel-account-claim.test.js
 delivers: [FR-226, FR-227, FEAT-036]
 subtasks:
   - id: P0
     title: ChannelAccountClaim with its backfill migration and truthful refusals
-    status: planned
+    status: done
   - id: P1
     title: Stateless token minting and a cache keyed by credential version
-    status: planned
+    status: done
   - id: P2
     title: Bot info and webhook endpoint set, get and test port calls with mapped refusals
-    status: planned
+    status: done
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a Channel ID and secret, when the port validates them, then it mints a 15-minute stateless token at most once a minute per account, caches it for at most 13 minutes per credential version, reads the bot's destination, basic id and display name, and drops the cache on rotation or revocation
@@ -4220,7 +4220,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm test with LINE's endpoints stubbed, when the port suites run, then a wrong Channel ID and a wrong secret are indistinguishable, a correct pair with a wrong override token is reported as the token's fault, every webhook set, get and test refusal maps to a reason, and migration 2 with its backfill is written in both trees and not applied
       checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. FR-227 is split across phases: the LINE API calls land here in the port; the publisher action, webhook health column and manual card are TASK-ZAI-083. Started 2026-09-14 on feat/integration-secret-store-vault after TASK-ZAI-078's implementation commit 9b66e05b. In progress, not review: no code yet.
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. FR-227 is split across phases: the LINE API calls land here in the port; the publisher action, webhook health column and manual card are TASK-ZAI-083. Started 2026-09-14 on feat/integration-secret-store-vault after TASK-ZAI-078's implementation commit 9b66e05b. In progress, not review: no code yet. Implemented 2026-09-14 in commit 66a4eff1 (no pull request yet, so still in-progress): P0 ChannelAccountClaim by sha256(destination) with truthful refusals and migration 20260914140100 (partial unique on live claims, backfill); P1 stateless token minting and a cache keyed by credential version (13 minutes, one mint a minute per account); P2 bot info and webhook set, get and test calls with mapped refusals; plus connectLineChannelWithSecret (validate, claim, store) with no route yet. Evidence: npm test 650 files / 5341 tests passed; Postgres suite 15 passed on postgres:17; govern exit 0. Migration not applied.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -4244,8 +4244,8 @@ title: Credential-write step-up gate and the first rate limit — assertSessionA
 requirement_type: FR
 complexity: C-2
 access_scope: H3
-status: planned
-version: 0.1.0
+status: in-progress
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -4265,7 +4265,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm test, when the gate and limiter suites run, then ADR-089 proof 4 passes on both providers and migration 8 is written in both trees and not applied
       checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. RateLimitBucket is the identity lane's model (ADR-058 has no Redis).
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. RateLimitBucket is the identity lane's model (ADR-058 has no Redis). Started 2026-09-14 on feat/integration-secret-store-vault after TASK-ZAI-079's implementation commit 66a4eff1. In progress, not review: no code yet.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -5603,7 +5603,7 @@ second run over the same logs writes the same block.
 ```json
 {
   "meter": "scripts/programme-usage-meter.mjs",
-  "measuredThrough": "2026-09-13T22:43:16.580Z",
+  "measuredThrough": "2026-09-13T23:02:28.581Z",
   "lanes": {
     "LANE-COST-QUOTE-PLAN": {
       "requests": 33,
@@ -5932,24 +5932,24 @@ second run over the same logs writes the same block.
       }
     },
     "LANE-LINE-OA-VAULT": {
-      "requests": 86,
+      "requests": 110,
       "sessions": [
         "claude-code:aac0cfef-d023-4455-a10f-a729b17b61f6"
       ],
       "tokens": {
-        "input": 172,
-        "cacheWrite": 207864,
-        "cacheRead": 41577925,
-        "output": 147939
+        "input": 220,
+        "cacheWrite": 268346,
+        "cacheRead": 56057667,
+        "output": 200795
       },
       "bySource": {
         "claude-code": {
-          "requests": 86,
+          "requests": 110,
           "tokens": {
-            "input": 172,
-            "cacheWrite": 207864,
-            "cacheRead": 41577925,
-            "output": 147939
+            "input": 220,
+            "cacheWrite": 268346,
+            "cacheRead": 56057667,
+            "output": 200795
           }
         }
       },
@@ -5957,27 +5957,27 @@ second run over the same logs writes the same block.
         "claude-opus-5"
       ],
       "firstActivityAt": "2026-09-13T22:04:31.684Z",
-      "lastActivityAt": "2026-09-13T22:43:16.580Z",
-      "activeMinutes": 39,
+      "lastActivityAt": "2026-09-13T23:02:28.581Z",
+      "activeMinutes": 58,
       "detail": {
-        "reasoningTokens": 37050,
+        "reasoningTokens": 46215,
         "cacheWrite5mTokens": 0,
-        "cacheWrite1hTokens": 207864,
+        "cacheWrite1hTokens": 268346,
         "webSearchRequests": 0,
         "webFetchRequests": 0,
         "prompts": 0,
-        "toolCalls": 124,
+        "toolCalls": 171,
         "toolErrors": 7,
         "toolDenials": 0,
         "compactions": 0,
         "apiErrors": 0,
         "tools": {
           "Bash": {
-            "calls": 12,
+            "calls": 14,
             "errors": 1
           },
           "Edit": {
-            "calls": 49,
+            "calls": 77,
             "errors": 0
           },
           "Grep": {
@@ -5985,7 +5985,7 @@ second run over the same logs writes the same block.
             "errors": 0
           },
           "PowerShell": {
-            "calls": 19,
+            "calls": 27,
             "errors": 6
           },
           "Read": {
@@ -5993,12 +5993,12 @@ second run over the same logs writes the same block.
             "errors": 0
           },
           "Write": {
-            "calls": 20,
+            "calls": 29,
             "errors": 0
           }
         },
         "models": {
-          "claude-opus-5": 86
+          "claude-opus-5": 110
         }
       }
     },

@@ -3840,14 +3840,14 @@ export const PROGRAMME_CONTAINERS = {
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "unavailable",
+      "code": "apps/server/src/platform/integrations/providers/line/line-channel-admin-port.js",
       "doc": "docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md",
-      "test": "unavailable"
+      "test": "apps/server/tests/integration/channel-account-claim.test.js"
     },
     "linkState": {
-      "code": "unavailable",
+      "code": "present",
       "doc": "present",
-      "test": "unavailable"
+      "test": "present"
     },
     "delivers": [
       "FR-226",
@@ -3858,17 +3858,17 @@ export const PROGRAMME_CONTAINERS = {
       {
         "id": "P0",
         "title": "ChannelAccountClaim with its backfill migration and truthful refusals",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P1",
         "title": "Stateless token minting and a cache keyed by credential version",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P2",
         "title": "Bot info and webhook endpoint set, get and test port calls with mapped refusals",
-        "status": "planned"
+        "status": "done"
       }
     ],
     "dod": {
@@ -3885,7 +3885,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. FR-227 is split across phases: the LINE API calls land here in the port; the publisher action, webhook health column and manual card are TASK-ZAI-083. Started 2026-09-14 on feat/integration-secret-store-vault after TASK-ZAI-078's implementation commit 9b66e05b. In progress, not review: no code yet.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. FR-227 is split across phases: the LINE API calls land here in the port; the publisher action, webhook health column and manual card are TASK-ZAI-083. Started 2026-09-14 on feat/integration-secret-store-vault after TASK-ZAI-078's implementation commit 9b66e05b. In progress, not review: no code yet. Implemented 2026-09-14 in commit 66a4eff1 (no pull request yet, so still in-progress): P0 ChannelAccountClaim by sha256(destination) with truthful refusals and migration 20260914140100 (partial unique on live claims, backfill); P1 stateless token minting and a cache keyed by credential version (13 minutes, one mint a minute per account); P2 bot info and webhook set, get and test calls with mapped refusals; plus connectLineChannelWithSecret (validate, claim, store) with no route yet. Evidence: npm test 650 files / 5341 tests passed; Postgres suite 15 passed on postgres:17; govern exit 0. Migration not applied.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 55000,
     "totalTokens": 0,
@@ -3898,7 +3898,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-080",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -3933,7 +3933,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. RateLimitBucket is the identity lane's model (ADR-058 has no Redis).",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. RateLimitBucket is the identity lane's model (ADR-058 has no Redis). Started 2026-09-14 on feat/integration-secret-store-vault after TASK-ZAI-079's implementation commit 66a4eff1. In progress, not review: no code yet.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 34000,
     "totalTokens": 0,
