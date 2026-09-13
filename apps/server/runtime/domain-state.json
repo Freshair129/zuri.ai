@@ -8065,7 +8065,7 @@
       "id": "FEAT-032",
       "title": "Catalogue intake that resolves before it creates — one envelope that JSON, a Business-specific Excel workbook and a LINE `#sku` command all convert into; a planner that looks up every item by its barcodes, partner codes and SKU code (following merges) before it plans a create, matches without overwriting, and applies ADR-083's guards across the catalogue and the batch; a persisted preview whose plan hash a commit must match; an all-or-nothing commit through the existing catalogue writers; the Import tab; and LINE previews that only a verified staff sender with Inventory write authority can confirm (ADR-084, `DOM-INVENTORY`)",
       "kind": "bundle",
-      "registryStatus": "building",
+      "registryStatus": "implemented",
       "requirementIds": [
         "FR-208",
         "FR-209",
@@ -8083,7 +8083,7 @@
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-032 registry status is building"
+        "FEAT-032 registry status is implemented"
       ],
       "requirements": [
         {

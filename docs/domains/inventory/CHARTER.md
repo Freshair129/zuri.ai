@@ -332,8 +332,8 @@ category hierarchy and automatic merge (the report proposes, a person disposes).
 FR-208…FR-210 (FEAT-032, ADR-084) are implemented locally: the catalogue intake
 envelope and planner, the Excel template, reader and Import tab (the seventh
 Inventory tab), and the LINE `#sku` command on the server-owned worker.
-Migration `20260913200000_inventory_catalog_intake` is written in both trees and
-**not applied**. Not in this slice: stock (quantity) intake, Google Sheets, a
+Migration `20260913200000_inventory_catalog_intake` was **applied on production on
+2026-09-13** (owner-instructed, ADR-057) and main ada5188b is deployed. Not in this slice: stock (quantity) intake, Google Sheets, a
 file or image sent over LINE, and updating an existing SKU's descriptive fields
 from an import.
 
