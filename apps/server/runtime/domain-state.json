@@ -36,11 +36,11 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 138,
-    "readyFeatureCount": 108,
-    "requirementCount": 210,
-    "verifiedRequirementCount": 199,
-    "progressPercent": 95.1,
+    "featureCount": 139,
+    "readyFeatureCount": 109,
+    "requirementCount": 211,
+    "verifiedRequirementCount": 200,
+    "progressPercent": 95.2,
     "gapCount": 25,
     "gaps": [
       {
@@ -245,6 +245,7 @@
       "requirements": [
         {
           "id": "FR-025",
+          "title": "Agent read-only context contract (ADR-007 P6, Gate E)",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
@@ -252,6 +253,7 @@
         },
         {
           "id": "FR-026",
+          "title": "Agent write/action gate (ADR-007 P7, Gate F)",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
@@ -259,6 +261,7 @@
         },
         {
           "id": "FR-027",
+          "title": "End-to-end agent turn (ADR-007 P7)",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -266,6 +269,7 @@
         },
         {
           "id": "FR-028",
+          "title": "LINE webhook API route (ADR-007 P7 wiring)",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -273,6 +277,7 @@
         },
         {
           "id": "FR-029",
+          "title": "Agent runtime ports (ADR-007 P6)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -280,6 +285,7 @@
         },
         {
           "id": "FR-047",
+          "title": "Curated business-knowledge read contract",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -287,6 +293,7 @@
         },
         {
           "id": "FR-048",
+          "title": "Provider selection contract",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
@@ -294,6 +301,7 @@
         },
         {
           "id": "FR-049",
+          "title": "Evidence-grounded answer",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -301,6 +309,7 @@
         },
         {
           "id": "FR-050",
+          "title": "Single-reply LINE delivery",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -308,6 +317,7 @@
         },
         {
           "id": "FR-051",
+          "title": "Production Supabase tenant isolation",
           "declared": "n/a",
           "status": "not_implemented",
           "codeCount": 0,
@@ -320,6 +330,7 @@
         },
         {
           "id": "FR-052",
+          "title": "Server-owned LINE scope binding",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
@@ -327,6 +338,7 @@
         },
         {
           "id": "FR-053",
+          "title": "Phase 1 golden question evaluation",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -334,6 +346,7 @@
         },
         {
           "id": "FR-054",
+          "title": "Controlled LINE canary readiness",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -341,6 +354,7 @@
         },
         {
           "id": "FR-055",
+          "title": "Controlled LINE activation and receipt",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
@@ -348,6 +362,7 @@
         },
         {
           "id": "FR-057",
+          "title": "Authorized agent context",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
@@ -355,6 +370,7 @@
         },
         {
           "id": "FR-079",
+          "title": "Phase 1 LINE runtime connection cut-over",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -362,6 +378,7 @@
         },
         {
           "id": "FR-080",
+          "title": "Platform Integrations UI",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -369,6 +386,7 @@
         },
         {
           "id": "FR-081",
+          "title": "Raw external ingestion boundary",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -376,6 +394,7 @@
         },
         {
           "id": "FR-093",
+          "title": "LINE reply delivery receipt",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
@@ -383,6 +402,7 @@
         },
         {
           "id": "FR-096",
+          "title": "Shared policy enforcement",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
@@ -390,6 +410,7 @@
         },
         {
           "id": "FR-097",
+          "title": "Verified channel onboarding",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
@@ -397,6 +418,7 @@
         },
         {
           "id": "FR-098",
+          "title": "Agent/tool/MSP authorization",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
@@ -404,6 +426,7 @@
         },
         {
           "id": "FR-132",
+          "title": "Ladder quotation on the LINE surface, as a Gate E read-only tool",
           "declared": "planned",
           "status": "planned",
           "codeCount": 0,
@@ -411,6 +434,7 @@
         },
         {
           "id": "FR-140",
+          "title": "Trusted LINE Asset handoff",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -418,6 +442,7 @@
         },
         {
           "id": "FR-141",
+          "title": "Edge Device heartbeat registry",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -425,6 +450,7 @@
         },
         {
           "id": "FR-144",
+          "title": "Edge device credential",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -432,6 +458,7 @@
         },
         {
           "id": "FR-147",
+          "title": "LINE binding status read contract",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -439,6 +466,7 @@
         },
         {
           "id": "FR-148",
+          "title": "Account-scoped CRM conversations",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -446,6 +474,7 @@
         },
         {
           "id": "FR-149",
+          "title": "Server-owned LINE conversation transport",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
@@ -453,6 +482,7 @@
         },
         {
           "id": "FR-150",
+          "title": "Optional Edge conversation execution",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -460,6 +490,7 @@
         },
         {
           "id": "FR-171",
+          "title": "Execution Trace & Replay v0.3",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
@@ -467,6 +498,7 @@
         },
         {
           "id": "FR-181",
+          "title": "The agent reaches the supply chain through six tools on the gates it already has, and through no other path",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -474,6 +506,7 @@
         },
         {
           "id": "FR-210",
+          "title": "A verified staff sender adds or matches SKUs from LINE with a deterministic #sku command that previews before it writes",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -666,6 +699,7 @@
       "requirements": [
         {
           "id": "FR-133",
+          "title": "Asset Management domain and physical register foundation",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
@@ -673,6 +707,7 @@
         },
         {
           "id": "FR-134",
+          "title": "Multi-surface Asset intake and evidence validation",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -680,6 +715,7 @@
         },
         {
           "id": "FR-135",
+          "title": "Temporal responsibility, location, lot and Project allocation",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 11,
@@ -687,6 +723,7 @@
         },
         {
           "id": "FR-136",
+          "title": "Asset depreciation candidate",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -694,6 +731,7 @@
         },
         {
           "id": "FR-137",
+          "title": "Asset cloud evidence intake",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
@@ -701,6 +739,7 @@
         },
         {
           "id": "FR-138",
+          "title": "Asset evidence extraction and review",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
@@ -708,6 +747,7 @@
         },
         {
           "id": "FR-139",
+          "title": "Asset Excel and Google Sheets snapshot intake/export",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
@@ -715,6 +755,7 @@
         },
         {
           "id": "FR-140",
+          "title": "Trusted LINE Asset handoff",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -722,6 +763,7 @@
         },
         {
           "id": "FR-143",
+          "title": "Edge-executed asset evidence extraction (ADR-059",
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
@@ -729,6 +771,7 @@
         },
         {
           "id": "FR-144",
+          "title": "Edge device credential",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
@@ -878,6 +921,7 @@
       "requirements": [
         {
           "id": "FR-163",
+          "title": "Payments, verification and revenue (commerce)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
@@ -885,6 +929,7 @@
         },
         {
           "id": "FR-166",
+          "title": "Sales orders (commerce)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
@@ -892,6 +937,7 @@
         },
         {
           "id": "FR-183",
+          "title": "Atomic POS checkout composes existing Commerce orders, pending payments and Inventory",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
@@ -899,6 +945,7 @@
         },
         {
           "id": "FR-186",
+          "title": "Business-scoped durable Commerce document issuance and issuer/tax/PromptPay configuration",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
@@ -906,6 +953,7 @@
         },
         {
           "id": "FR-194",
+          "title": "LegalEntity moves from portfolioId to tenantId (ADR-078 D2)",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
@@ -913,6 +961,7 @@
         },
         {
           "id": "FR-196",
+          "title": "Segregation of duties gets a writer, not only a role list",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -1042,6 +1091,7 @@
       "requirements": [
         {
           "id": "FR-022",
+          "title": "LINE as an identity provider end-to-end",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -1049,6 +1099,7 @@
         },
         {
           "id": "FR-023",
+          "title": "Zuri Backend Slice CRM core (ADR-007 P2)",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -1056,6 +1107,7 @@
         },
         {
           "id": "FR-061",
+          "title": "Per-Business domain visibility",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -1063,6 +1115,7 @@
         },
         {
           "id": "FR-078",
+          "title": "Customer Profile backfill contract",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -1070,6 +1123,7 @@
         },
         {
           "id": "FR-091",
+          "title": "CRM Conversation Inbox",
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
@@ -1077,6 +1131,7 @@
         },
         {
           "id": "FR-093",
+          "title": "LINE reply delivery receipt",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -1084,6 +1139,7 @@
         },
         {
           "id": "FR-097",
+          "title": "Verified channel onboarding",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -1091,6 +1147,7 @@
         },
         {
           "id": "FR-103",
+          "title": "SEC-005 PDPA consent, MVP scope",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
@@ -1098,6 +1155,7 @@
         },
         {
           "id": "FR-127",
+          "title": "Conversation intelligence analysis",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -1105,6 +1163,7 @@
         },
         {
           "id": "FR-146",
+          "title": "LINE OA Studio account aggregate",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -1112,6 +1171,7 @@
         },
         {
           "id": "FR-147",
+          "title": "LINE binding status read contract",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -1119,6 +1179,7 @@
         },
         {
           "id": "FR-148",
+          "title": "Account-scoped CRM conversations",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
@@ -1126,6 +1187,7 @@
         },
         {
           "id": "FR-151",
+          "title": "LINE OA rich menu designer",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -1133,6 +1195,7 @@
         },
         {
           "id": "FR-152",
+          "title": "LINE OA rich menu publish jobs, server-owned",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -1140,6 +1203,7 @@
         },
         {
           "id": "FR-153",
+          "title": "LINE OA LIFF app registry",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
@@ -1147,6 +1211,7 @@
         },
         {
           "id": "FR-161",
+          "title": "Sales tasks (crm)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -1263,6 +1328,7 @@
       "requirements": [
         {
           "id": "FR-021",
+          "title": "Identity resolution",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -1270,6 +1336,7 @@
         },
         {
           "id": "FR-022",
+          "title": "LINE as an identity provider end-to-end",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
@@ -1277,6 +1344,7 @@
         },
         {
           "id": "FR-026",
+          "title": "Agent write/action gate (ADR-007 P7, Gate F)",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -1284,6 +1352,7 @@
         },
         {
           "id": "FR-031",
+          "title": "Viewer gate: resolveViewer() resolves the current authenticated principal into one role (OWNER, MEMBER, or platform DEV),…",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -1291,6 +1360,7 @@
         },
         {
           "id": "FR-036",
+          "title": "Project Team (/projects/{id}/team) lists Memberships in the project’s business scope, adds/removes business-scoped members, changes…",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -1298,6 +1368,7 @@
         },
         {
           "id": "FR-038",
+          "title": "My Profile (/profile) shows the resolved local account, language preference, LINE-link state, and local session",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
@@ -1305,6 +1376,7 @@
         },
         {
           "id": "FR-044",
+          "title": "Entry routing is split into a minimal Landing (/), a demo Login stub in the historical routing slice, a Business Routing page (/businesses)…",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
@@ -1312,6 +1384,7 @@
         },
         {
           "id": "FR-046",
+          "title": "Production viewer entry contract",
           "declared": "done",
           "status": "verified",
           "codeCount": 14,
@@ -1319,6 +1392,7 @@
         },
         {
           "id": "FR-059",
+          "title": "Business Strategy mutation",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -1326,6 +1400,7 @@
         },
         {
           "id": "FR-061",
+          "title": "Per-Business domain visibility",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -1333,6 +1408,7 @@
         },
         {
           "id": "FR-062",
+          "title": "Users & Permissions read scope",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -1340,6 +1416,7 @@
         },
         {
           "id": "FR-066",
+          "title": "Profile-first onboarding",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
@@ -1347,6 +1424,7 @@
         },
         {
           "id": "FR-067",
+          "title": "Workspace collaboration boundary",
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
@@ -1354,6 +1432,7 @@
         },
         {
           "id": "FR-074",
+          "title": "Scope-creation authorization",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -1361,6 +1440,7 @@
         },
         {
           "id": "FR-075",
+          "title": "Installation-operator authority",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
@@ -1368,6 +1448,7 @@
         },
         {
           "id": "FR-076",
+          "title": "Product Owner Business role binding",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
@@ -1375,6 +1456,7 @@
         },
         {
           "id": "FR-078",
+          "title": "Customer Profile backfill contract",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -1382,6 +1464,7 @@
         },
         {
           "id": "FR-094",
+          "title": "Canonical IAM principal",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
@@ -1389,6 +1472,7 @@
         },
         {
           "id": "FR-095",
+          "title": "Persisted session lifecycle",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
@@ -1396,6 +1480,7 @@
         },
         {
           "id": "FR-096",
+          "title": "Shared policy enforcement",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
@@ -1403,6 +1488,7 @@
         },
         {
           "id": "FR-097",
+          "title": "Verified channel onboarding",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
@@ -1410,6 +1496,7 @@
         },
         {
           "id": "FR-098",
+          "title": "Agent/tool/MSP authorization",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -1417,6 +1504,7 @@
         },
         {
           "id": "FR-102",
+          "title": "SoT data-plane service-account authentication",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -1424,6 +1512,7 @@
         },
         {
           "id": "FR-103",
+          "title": "SEC-005 PDPA consent, MVP scope",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -1431,6 +1520,7 @@
         },
         {
           "id": "FR-104",
+          "title": "Owner-assisted password reset",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
@@ -1438,6 +1528,7 @@
         },
         {
           "id": "FR-106",
+          "title": "Enterprise API tenant token authentication",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -1445,6 +1536,7 @@
         },
         {
           "id": "FR-107",
+          "title": "Installation-operator grant store and bootstrap",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -1452,6 +1544,7 @@
         },
         {
           "id": "FR-120",
+          "title": "Self-serve account creation",
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
@@ -1459,6 +1552,7 @@
         },
         {
           "id": "FR-121",
+          "title": "Google as a second way in, over the same Person",
           "declared": "planned",
           "status": "planned",
           "codeCount": 0,
@@ -1466,6 +1560,7 @@
         },
         {
           "id": "FR-122",
+          "title": "A Profile states who the person is, not just what to call them",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
@@ -1473,6 +1568,7 @@
         },
         {
           "id": "FR-123",
+          "title": "Plugin authentication and capability discovery",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
@@ -1480,6 +1576,7 @@
         },
         {
           "id": "FR-144",
+          "title": "Edge device credential",
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
@@ -1487,6 +1584,7 @@
         },
         {
           "id": "FR-146",
+          "title": "LINE OA Studio account aggregate",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -1494,6 +1592,7 @@
         },
         {
           "id": "FR-148",
+          "title": "Account-scoped CRM conversations",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -1501,13 +1600,15 @@
         },
         {
           "id": "FR-154",
+          "title": "Inventory catalogue identity (คลังสินค้า)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-161",
+          "title": "Sales tasks (crm)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -1515,6 +1616,7 @@
         },
         {
           "id": "FR-163",
+          "title": "Payments, verification and revenue (commerce)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -1522,6 +1624,7 @@
         },
         {
           "id": "FR-164",
+          "title": "Suppliers and purchase orders (procurement)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -1529,6 +1632,7 @@
         },
         {
           "id": "FR-166",
+          "title": "Sales orders (commerce)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -1536,6 +1640,7 @@
         },
         {
           "id": "FR-191",
+          "title": "An access grant can be withdrawn by a named person, for a stated reason, without destroying the evidence that it existed",
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
@@ -1543,6 +1648,7 @@
         },
         {
           "id": "FR-192",
+          "title": "The scope of a grant is a declared value, never the meaning of a null, and no database side effect may change it",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
@@ -1550,6 +1656,7 @@
         },
         {
           "id": "FR-193",
+          "title": "Employment is a new HR assignment record",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -1557,6 +1664,7 @@
         },
         {
           "id": "FR-195",
+          "title": "AccessInvite generalises WorkspaceInvite to a scoped invitation over all three authority layers",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
@@ -1564,6 +1672,7 @@
         },
         {
           "id": "FR-196",
+          "title": "Segregation of duties gets a writer, not only a role list",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -1571,6 +1680,7 @@
         },
         {
           "id": "FR-197",
+          "title": "Operator access is time-boxed, issuable by a standing operator, and its use is recorded",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -1578,6 +1688,7 @@
         },
         {
           "id": "FR-198",
+          "title": "An audit event carries its own scope and the change it made, as columns a query can filter on rather than only fields inside payloadJson…",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
@@ -1585,6 +1696,7 @@
         },
         {
           "id": "FR-199",
+          "title": "A Business owner can read the access history of their own scope",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -1592,6 +1704,7 @@
         },
         {
           "id": "FR-200",
+          "title": "Explicit Superadmin access grants an existing Person administration of all pages and current/future Tenant, Business and Portfolio scopes…",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
@@ -1809,6 +1922,7 @@
       "requirements": [
         {
           "id": "FR-022",
+          "title": "LINE as an identity provider end-to-end",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -1816,6 +1930,7 @@
         },
         {
           "id": "FR-028",
+          "title": "LINE webhook API route (ADR-007 P7 wiring)",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -1823,6 +1938,7 @@
         },
         {
           "id": "FR-048",
+          "title": "Provider selection contract",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -1830,6 +1946,7 @@
         },
         {
           "id": "FR-052",
+          "title": "Server-owned LINE scope binding",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -1837,6 +1954,7 @@
         },
         {
           "id": "FR-071",
+          "title": "Supabase data pipeline monitor and replay",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
@@ -1844,6 +1962,7 @@
         },
         {
           "id": "FR-079",
+          "title": "Phase 1 LINE runtime connection cut-over",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -1851,6 +1970,7 @@
         },
         {
           "id": "FR-080",
+          "title": "Platform Integrations UI",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
@@ -1858,6 +1978,7 @@
         },
         {
           "id": "FR-081",
+          "title": "Raw external ingestion boundary",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
@@ -1865,6 +1986,7 @@
         },
         {
           "id": "FR-092",
+          "title": "Market translation core",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -1872,6 +1994,7 @@
         },
         {
           "id": "FR-099",
+          "title": "SoT pipeline plan board",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
@@ -1879,6 +2002,7 @@
         },
         {
           "id": "FR-100",
+          "title": "SoT approval inbox and decision export",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
@@ -1886,6 +2010,7 @@
         },
         {
           "id": "FR-101",
+          "title": "SoT pipeline graph dashboard",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
@@ -1893,6 +2018,7 @@
         },
         {
           "id": "FR-102",
+          "title": "SoT data-plane service-account authentication",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -1900,6 +2026,7 @@
         },
         {
           "id": "FR-109",
+          "title": "Seventeen-stage knowledge ingestion stage catalog and job trace",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
@@ -1907,6 +2034,7 @@
         },
         {
           "id": "FR-110",
+          "title": "Published knowledge snapshot contract",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
@@ -1914,6 +2042,7 @@
         },
         {
           "id": "FR-118",
+          "title": "Tier 1 stage composition",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -1921,6 +2050,7 @@
         },
         {
           "id": "FR-119",
+          "title": "Per-stage failure attribution and BR-022 quarantine",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -1928,6 +2058,7 @@
         },
         {
           "id": "FR-125",
+          "title": "FlowAccount read-only pull pipeline",
           "declared": "planned",
           "status": "planned",
           "codeCount": 0,
@@ -1935,6 +2066,7 @@
         },
         {
           "id": "FR-129",
+          "title": "Catalog publication approval gate",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -1942,6 +2074,7 @@
         },
         {
           "id": "FR-130",
+          "title": "Business-scoped GitHub repository projection",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -1949,6 +2082,7 @@
         },
         {
           "id": "FR-134",
+          "title": "Multi-surface Asset intake and evidence validation",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -1956,6 +2090,7 @@
         },
         {
           "id": "FR-146",
+          "title": "LINE OA Studio account aggregate",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -1963,6 +2098,7 @@
         },
         {
           "id": "FR-149",
+          "title": "Server-owned LINE conversation transport",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -1970,6 +2106,7 @@
         },
         {
           "id": "FR-152",
+          "title": "LINE OA rich menu publish jobs, server-owned",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -1977,6 +2114,7 @@
         },
         {
           "id": "FR-173",
+          "title": "Knowledge source admission and corpus publication",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
@@ -1984,6 +2122,7 @@
         },
         {
           "id": "FR-187",
+          "title": "A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2,…",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -1991,6 +2130,7 @@
         },
         {
           "id": "FR-188",
+          "title": "A structured parser profile, typed product mentions and an ontology_v2 contract extend GenesisRAG17 for catalog data (ADR-075 D6, proposed)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -2166,13 +2306,15 @@
       "requirements": [
         {
           "id": "FR-154",
+          "title": "Inventory catalogue identity (คลังสินค้า)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-155",
+          "title": "Inventory stock ledger",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
@@ -2180,6 +2322,7 @@
         },
         {
           "id": "FR-156",
+          "title": "Inventory recipe / bill of materials at a batch size",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
@@ -2187,6 +2330,7 @@
         },
         {
           "id": "FR-168",
+          "title": "A product declares one of three natures, and they differ in accounting rather than in bookkeeping convenience",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -2194,6 +2338,7 @@
         },
         {
           "id": "FR-174",
+          "title": "Every stock movement may name where it came from and where it went, and a transfer is the only way stock changes place",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 11,
@@ -2201,6 +2346,7 @@
         },
         {
           "id": "FR-175",
+          "title": "Inventory valuation is landed cost in integer satang, and domestic single-drop freight is absorbed into it rather than quoted",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
@@ -2208,6 +2354,7 @@
         },
         {
           "id": "FR-176",
+          "title": "A customization work order is the durable record of branded work in progress, and branding is irreversible",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
@@ -2215,6 +2362,7 @@
         },
         {
           "id": "FR-177",
+          "title": "A kitting work order assembles a finished gift set from a recipe with a declared scrap allowance",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
@@ -2222,6 +2370,7 @@
         },
         {
           "id": "FR-178",
+          "title": "Disassembly is a work order run backwards and it cannot launder branded stock",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -2229,6 +2378,7 @@
         },
         {
           "id": "FR-179",
+          "title": "A stored unit that ages and can be restored by an operation is guarded on issue, not merely reported",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
@@ -2236,6 +2386,7 @@
         },
         {
           "id": "FR-180",
+          "title": "Available-to-Promise subtracts what is already spoken for, in two tiers",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
@@ -2243,6 +2394,7 @@
         },
         {
           "id": "FR-182",
+          "title": "The SCM lane gets the human surface ADR-074 deferred",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
@@ -2250,6 +2402,7 @@
         },
         {
           "id": "FR-184",
+          "title": "Inventory physical stocktake reconciles an authorized Business's existing located ledger through the existing Inventory surface",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
@@ -2257,6 +2410,7 @@
         },
         {
           "id": "FR-201",
+          "title": "A product master declares its nature once",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
@@ -2264,6 +2418,7 @@
         },
         {
           "id": "FR-202",
+          "title": "A SKU is one combination of its master's variant axes, and the same combination cannot exist twice (BR-039)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
@@ -2271,13 +2426,15 @@
         },
         {
           "id": "FR-203",
+          "title": "A barcode, GTIN, supplier code, manufacturer part or legacy code is an attribute of exactly one SKU, and an intake resolves an identifier…",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-204",
+          "title": "A pack size is a unit conversion on the SKU, never a second SKU, and the ledger counts base units only (BR-037)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
@@ -2285,6 +2442,7 @@
         },
         {
           "id": "FR-205",
+          "title": "A SKU has a lifecycle and a consolidation path, and it cannot leave the catalogue with stock on it (BR-040)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
@@ -2292,6 +2450,7 @@
         },
         {
           "id": "FR-206",
+          "title": "The catalogue hygiene report names every SKU-bloat finding in a Business, read-only and computed by a pure function over the catalogue and…",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
@@ -2299,6 +2458,7 @@
         },
         {
           "id": "FR-207",
+          "title": "Replenishment parameters live on the SKU and yield a suggestion, never a purchase order",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
@@ -2306,6 +2466,7 @@
         },
         {
           "id": "FR-208",
+          "title": "Catalogue intake resolves every item before it creates anything, and applies a previewed plan all at once or not at all",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
@@ -2313,6 +2474,7 @@
         },
         {
           "id": "FR-209",
+          "title": "Excel is a converter of the catalogue intake with a template built for one Business, and it never commits",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
@@ -2320,6 +2482,7 @@
         },
         {
           "id": "FR-210",
+          "title": "A verified staff sender adds or matches SKUs from LINE with a deterministic #sku command that previews before it writes",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -2478,6 +2641,7 @@
       "requirements": [
         {
           "id": "FR-024",
+          "title": "Knowledge projection (ADR-007 P5)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
@@ -2485,6 +2649,7 @@
         },
         {
           "id": "FR-047",
+          "title": "Curated business-knowledge read contract",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -2492,6 +2657,7 @@
         },
         {
           "id": "FR-051",
+          "title": "Production Supabase tenant isolation",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -2499,6 +2665,7 @@
         },
         {
           "id": "FR-052",
+          "title": "Server-owned LINE scope binding",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -2506,6 +2673,7 @@
         },
         {
           "id": "FR-054",
+          "title": "Controlled LINE canary readiness",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -2513,6 +2681,7 @@
         },
         {
           "id": "FR-071",
+          "title": "Supabase data pipeline monitor and replay",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -2520,6 +2689,7 @@
         },
         {
           "id": "FR-109",
+          "title": "Seventeen-stage knowledge ingestion stage catalog and job trace",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
@@ -2527,6 +2697,7 @@
         },
         {
           "id": "FR-110",
+          "title": "Published knowledge snapshot contract",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -2534,6 +2705,7 @@
         },
         {
           "id": "FR-111",
+          "title": "Knowledge sensitivity lattice and processing policy fields",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -2541,6 +2713,7 @@
         },
         {
           "id": "FR-112",
+          "title": "Structural knowledge chunking with parent-child lineage",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -2548,6 +2721,7 @@
         },
         {
           "id": "FR-113",
+          "title": "Entity candidate extraction from chunks and structured records",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -2555,6 +2729,7 @@
         },
         {
           "id": "FR-114",
+          "title": "Canonical normalization that never destroys the raw value",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -2562,6 +2737,7 @@
         },
         {
           "id": "FR-115",
+          "title": "Document parsing into a structured artifact that keeps its link to the raw source",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -2569,6 +2745,7 @@
         },
         {
           "id": "FR-116",
+          "title": "Derived-object provenance and the lineage chain back to a source",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -2576,6 +2753,7 @@
         },
         {
           "id": "FR-117",
+          "title": "Deduplication and version relationships within one tenant",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -2583,6 +2761,7 @@
         },
         {
           "id": "FR-118",
+          "title": "Tier 1 stage composition",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -2590,6 +2769,7 @@
         },
         {
           "id": "FR-119",
+          "title": "Per-stage failure attribution and BR-022 quarantine",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -2597,6 +2777,7 @@
         },
         {
           "id": "FR-131",
+          "title": "Shipping rate card as governed business knowledge",
           "declared": "planned",
           "status": "planned",
           "codeCount": 0,
@@ -2604,6 +2785,7 @@
         },
         {
           "id": "FR-173",
+          "title": "Knowledge source admission and corpus publication",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
@@ -2611,6 +2793,7 @@
         },
         {
           "id": "FR-187",
+          "title": "A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2,…",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
@@ -2618,6 +2801,7 @@
         },
         {
           "id": "FR-188",
+          "title": "A structured parser profile, typed product mentions and an ontology_v2 contract extend GenesisRAG17 for catalog data (ADR-075 D6, proposed)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
@@ -2625,6 +2809,7 @@
         },
         {
           "id": "FR-189",
+          "title": "Edge answers SmartGift catalog queries from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as a transitional…",
           "declared": "planned",
           "status": "planned",
           "codeCount": 0,
@@ -2797,6 +2982,7 @@
       "requirements": [
         {
           "id": "FR-021",
+          "title": "Identity resolution",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -2804,6 +2990,7 @@
         },
         {
           "id": "FR-022",
+          "title": "LINE as an identity provider end-to-end",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -2811,6 +2998,7 @@
         },
         {
           "id": "FR-061",
+          "title": "Per-Business domain visibility",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -2818,6 +3006,7 @@
         },
         {
           "id": "FR-080",
+          "title": "Platform Integrations UI",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -2825,6 +3014,7 @@
         },
         {
           "id": "FR-091",
+          "title": "CRM Conversation Inbox",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -2832,6 +3022,7 @@
         },
         {
           "id": "FR-093",
+          "title": "LINE reply delivery receipt",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -2839,6 +3030,7 @@
         },
         {
           "id": "FR-146",
+          "title": "LINE OA Studio account aggregate",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 29,
@@ -2846,6 +3038,7 @@
         },
         {
           "id": "FR-149",
+          "title": "Server-owned LINE conversation transport",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 21,
@@ -2853,6 +3046,7 @@
         },
         {
           "id": "FR-150",
+          "title": "Optional Edge conversation execution",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
@@ -2860,6 +3054,7 @@
         },
         {
           "id": "FR-151",
+          "title": "LINE OA rich menu designer",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 21,
@@ -2867,6 +3062,7 @@
         },
         {
           "id": "FR-152",
+          "title": "LINE OA rich menu publish jobs, server-owned",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
@@ -2874,6 +3070,7 @@
         },
         {
           "id": "FR-153",
+          "title": "LINE OA LIFF app registry",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 13,
@@ -2881,6 +3078,7 @@
         },
         {
           "id": "FR-171",
+          "title": "Execution Trace & Replay v0.3",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
@@ -2888,6 +3086,7 @@
         },
         {
           "id": "FR-190",
+          "title": "Server-owned LINE transport reports its own reachability, so a silent channel is visible instead of inferred",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
@@ -2895,6 +3094,7 @@
         },
         {
           "id": "FR-210",
+          "title": "A verified staff sender adds or matches SKUs from LINE with a deterministic #sku command that previews before it writes",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -3047,6 +3247,7 @@
       "requirements": [
         {
           "id": "FR-061",
+          "title": "Per-Business domain visibility",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -3054,6 +3255,7 @@
         },
         {
           "id": "FR-092",
+          "title": "Market translation core",
           "declared": "done",
           "status": "verified",
           "codeCount": 20,
@@ -3180,6 +3382,7 @@
       "requirements": [
         {
           "id": "FR-157",
+          "title": "Marketing Content and Creative",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
@@ -3187,6 +3390,7 @@
         },
         {
           "id": "FR-158",
+          "title": "Marketing execution handoff",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
@@ -3194,6 +3398,7 @@
         },
         {
           "id": "FR-159",
+          "title": "Marketing Strategy revision and decision",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 17,
@@ -3201,6 +3406,7 @@
         },
         {
           "id": "FR-160",
+          "title": "Marketing Campaign initiatives",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
@@ -3208,6 +3414,7 @@
         },
         {
           "id": "FR-162",
+          "title": "Marketing Operations coordination",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 14,
@@ -3215,6 +3422,7 @@
         },
         {
           "id": "FR-185",
+          "title": "Business-scoped LINE broadcast planning intent with durable version/idempotency and an explicit unavailable dispatch state",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
@@ -3348,6 +3556,7 @@
       "requirements": [
         {
           "id": "FR-046",
+          "title": "Production viewer entry contract",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -3355,6 +3564,7 @@
         },
         {
           "id": "FR-075",
+          "title": "Installation-operator authority",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -3362,6 +3572,7 @@
         },
         {
           "id": "FR-095",
+          "title": "Persisted session lifecycle",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -3369,17 +3580,27 @@
         },
         {
           "id": "FR-105",
+          "title": "Platform Programme Roadmap",
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 11
+          "testCount": 13
         },
         {
           "id": "FR-142",
+          "title": "Deployment liveness probe and public-origin abstraction (ADR-058)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
           "testCount": 4
+        },
+        {
+          "id": "FR-211",
+          "title": "Platform Domain map and inventory",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 3
         }
       ],
       "checks": {
@@ -3486,10 +3707,11 @@
       "featureIds": [
         "FR-105",
         "FR-142",
-        "FR-145"
+        "FR-145",
+        "FR-211"
       ],
-      "featureCount": 3,
-      "readyFeatureCount": 3,
+      "featureCount": 4,
+      "readyFeatureCount": 4,
       "progressPercent": 100
     },
     "procurement": {
@@ -3497,6 +3719,7 @@
       "requirements": [
         {
           "id": "FR-164",
+          "title": "Suppliers and purchase orders (procurement)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 11,
@@ -3504,6 +3727,7 @@
         },
         {
           "id": "FR-165",
+          "title": "Goods receipts into the stock ledger (procurement)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
@@ -3511,6 +3735,7 @@
         },
         {
           "id": "FR-168",
+          "title": "A product declares one of three natures, and they differ in accounting rather than in bookkeeping convenience",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -3518,6 +3743,7 @@
         },
         {
           "id": "FR-196",
+          "title": "Segregation of duties gets a writer, not only a role list",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -3646,6 +3872,7 @@
       "requirements": [
         {
           "id": "FR-001",
+          "title": "จัดการ scope hierarchy",
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
@@ -3653,6 +3880,7 @@
         },
         {
           "id": "FR-002",
+          "title": "Scope selectors (Portfolio·Business·Workspace·Project) + จำ selection ล่าสุด",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -3660,6 +3888,7 @@
         },
         {
           "id": "FR-003",
+          "title": "Project CRUD + archive (soft delete) + mixed execution modes",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
@@ -3667,6 +3896,7 @@
         },
         {
           "id": "FR-004",
+          "title": "Workstream CRUD",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
@@ -3674,6 +3904,7 @@
         },
         {
           "id": "FR-005",
+          "title": "Neutral work model",
           "declared": "done",
           "status": "verified",
           "codeCount": 14,
@@ -3681,6 +3912,7 @@
         },
         {
           "id": "FR-006",
+          "title": "Milestones + Gates (weighted, required flag, evidence JSON), browsed and status-edited at Development → Milestones & Gates, both global and…",
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
@@ -3688,6 +3920,7 @@
         },
         {
           "id": "FR-007",
+          "title": "Dependencies 5 ชนิด, กัน self/cycle, ประเมิน blocked/ready",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
@@ -3695,6 +3928,7 @@
         },
         {
           "id": "FR-008",
+          "title": "Repository records (local metadata) + ผูกโปรเจกต์แบบ many-to-many",
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
@@ -3702,6 +3936,7 @@
         },
         {
           "id": "FR-009",
+          "title": "Execution views 7 โหมดบนโมเดลกลาง (global + project-scoped)",
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
@@ -3709,6 +3944,7 @@
         },
         {
           "id": "FR-010",
+          "title": "Progress ต่อ workstream ตาม strategy + evidence + warnings + \"Explain\" UI",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -3716,6 +3952,7 @@
         },
         {
           "id": "FR-011",
+          "title": "Project roll-up ถ่วงน้ำหนัก Σ(ws%×w)/Σw",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -3723,6 +3960,7 @@
         },
         {
           "id": "FR-012",
+          "title": "PlanEnvelope import",
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
@@ -3730,6 +3968,7 @@
         },
         {
           "id": "FR-013",
+          "title": "Snapshot backup",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
@@ -3737,6 +3976,7 @@
         },
         {
           "id": "FR-014",
+          "title": "Audit log (immutable) + UI browser",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
@@ -3744,6 +3984,7 @@
         },
         {
           "id": "FR-015",
+          "title": "Command palette (Ctrl+K), filters, search",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -3751,6 +3992,7 @@
         },
         {
           "id": "FR-017",
+          "title": "UI wizard intake (\"เริ่มจากเป้าหมาย\") → สร้าง envelope เข้า pipeline เดิม; direct modal creation is edit-only",
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
@@ -3758,6 +4000,7 @@
         },
         {
           "id": "FR-018",
+          "title": "Excel template intake",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
@@ -3765,6 +4008,7 @@
         },
         {
           "id": "FR-019",
+          "title": "Enterprise API",
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
@@ -3772,6 +4016,7 @@
         },
         {
           "id": "FR-020",
+          "title": "Adaptive shell ตามจำนวนธุรกิจ (single → ไม่มี switcher, multi → switcher + portfolio landing)",
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
@@ -3779,6 +4024,7 @@
         },
         {
           "id": "FR-022",
+          "title": "LINE as an identity provider end-to-end",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
@@ -3786,6 +4032,7 @@
         },
         {
           "id": "FR-031",
+          "title": "Viewer gate: resolveViewer() resolves the current authenticated principal into one role (OWNER, MEMBER, or platform DEV),…",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -3793,6 +4040,7 @@
         },
         {
           "id": "FR-032",
+          "title": "Home (/) is the ADR-008 entry journey",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -3800,6 +4048,7 @@
         },
         {
           "id": "FR-033",
+          "title": "Topbar contains Zuri identity, the viewed-domain chip, ERP/PM lens toggle, command palette, New Project, and profile cluster—but no scope…",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -3807,6 +4056,7 @@
         },
         {
           "id": "FR-034",
+          "title": "Breadcrumb is the scope switcher",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -3814,6 +4064,7 @@
         },
         {
           "id": "FR-035",
+          "title": "Overview is the selected Business's operational home",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -3821,6 +4072,7 @@
         },
         {
           "id": "FR-036",
+          "title": "Project Team (/projects/{id}/team) lists Memberships in the project’s business scope, adds/removes business-scoped members, changes…",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
@@ -3828,6 +4080,7 @@
         },
         {
           "id": "FR-037",
+          "title": "Project Files (/projects/{id}/files) manages metadata references for documents and attachments linked to a Project and optionally a WorkItem",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
@@ -3835,6 +4088,7 @@
         },
         {
           "id": "FR-038",
+          "title": "My Profile (/profile) shows the resolved local account, language preference, LINE-link state, and local session",
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
@@ -3842,6 +4096,7 @@
         },
         {
           "id": "FR-039",
+          "title": "The Base Context Bar maps Portfolio > Tenant > Business to Workspace > Organization > Business and stops global shell scope at Business",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
@@ -3849,6 +4104,7 @@
         },
         {
           "id": "FR-040",
+          "title": "Project Work views",
           "declared": "done",
           "status": "verified",
           "codeCount": 12,
@@ -3856,6 +4112,7 @@
         },
         {
           "id": "FR-041",
+          "title": "Business Overview renders the selected Business's Projects plus a Business Strategy read model",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
@@ -3863,6 +4120,7 @@
         },
         {
           "id": "FR-042",
+          "title": "HR / People is a peer ERP domain (route key people) with a Business-scoped People Directory over Person/Membership",
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
@@ -3870,6 +4128,7 @@
         },
         {
           "id": "FR-043",
+          "title": "Project stores a direct nullable businessId owner plus workspaceId as Development Space context",
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
@@ -3877,6 +4136,7 @@
         },
         {
           "id": "FR-044",
+          "title": "Entry routing is split into a minimal Landing (/), a demo Login stub in the historical routing slice, a Business Routing page (/businesses)…",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
@@ -3884,6 +4144,7 @@
         },
         {
           "id": "FR-045",
+          "title": "Managed local file workspace",
           "declared": "done",
           "status": "verified",
           "codeCount": 27,
@@ -3891,6 +4152,7 @@
         },
         {
           "id": "FR-046",
+          "title": "Production viewer entry contract",
           "declared": "done",
           "status": "verified",
           "codeCount": 66,
@@ -3898,6 +4160,7 @@
         },
         {
           "id": "FR-056",
+          "title": "Zuri-branded entry landing",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -3905,6 +4168,7 @@
         },
         {
           "id": "FR-058",
+          "title": "File Manager views",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
@@ -3912,6 +4176,7 @@
         },
         {
           "id": "FR-059",
+          "title": "Business Strategy mutation",
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
@@ -3919,6 +4184,7 @@
         },
         {
           "id": "FR-060",
+          "title": "Business Home",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
@@ -3926,6 +4192,7 @@
         },
         {
           "id": "FR-061",
+          "title": "Per-Business domain visibility",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
@@ -3933,6 +4200,7 @@
         },
         {
           "id": "FR-062",
+          "title": "Users & Permissions read scope",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -3940,6 +4208,7 @@
         },
         {
           "id": "FR-063",
+          "title": "Project Board",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -3947,6 +4216,7 @@
         },
         {
           "id": "FR-064",
+          "title": "Schedule: Project and Milestone dates render as a derived month-grid timeline, available global and project-scoped (the same view under a…",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
@@ -3954,6 +4224,7 @@
         },
         {
           "id": "FR-065",
+          "title": "Import target authorization",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
@@ -3961,6 +4232,7 @@
         },
         {
           "id": "FR-067",
+          "title": "Workspace collaboration boundary",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -3968,6 +4240,7 @@
         },
         {
           "id": "FR-068",
+          "title": "Human-visible Project Execution Roadmap",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
@@ -3975,6 +4248,7 @@
         },
         {
           "id": "FR-069",
+          "title": "Plan Blueprint and Human/Agent intake",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
@@ -3982,6 +4256,7 @@
         },
         {
           "id": "FR-070",
+          "title": "Stable execution, domain, goal, risk, tag, trace and supporting identities",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
@@ -3989,6 +4264,7 @@
         },
         {
           "id": "FR-071",
+          "title": "Supabase data pipeline monitor and replay",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
@@ -3996,6 +4272,7 @@
         },
         {
           "id": "FR-072",
+          "title": "Project-Manager mutation authorization",
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
@@ -4003,6 +4280,7 @@
         },
         {
           "id": "FR-073",
+          "title": "Repository ownership",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
@@ -4010,6 +4288,7 @@
         },
         {
           "id": "FR-074",
+          "title": "Scope-creation authorization",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -4017,6 +4296,7 @@
         },
         {
           "id": "FR-075",
+          "title": "Installation-operator authority",
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
@@ -4024,6 +4304,7 @@
         },
         {
           "id": "FR-077",
+          "title": "Project Inventory MVP",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
@@ -4031,6 +4312,7 @@
         },
         {
           "id": "FR-078",
+          "title": "Customer Profile backfill contract",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
@@ -4038,6 +4320,7 @@
         },
         {
           "id": "FR-081",
+          "title": "Raw external ingestion boundary",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -4045,6 +4328,7 @@
         },
         {
           "id": "FR-082",
+          "title": "Structure editing by direct manipulation",
           "declared": "planned",
           "status": "planned",
           "codeCount": 0,
@@ -4052,6 +4336,7 @@
         },
         {
           "id": "FR-086",
+          "title": "Projects Dashboard",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
@@ -4059,6 +4344,7 @@
         },
         {
           "id": "FR-087",
+          "title": "Project priority",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
@@ -4066,6 +4352,7 @@
         },
         {
           "id": "FR-088",
+          "title": "Project accountable owner (PIC)",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
@@ -4073,6 +4360,7 @@
         },
         {
           "id": "FR-089",
+          "title": "Team as an organisational grouping",
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
@@ -4080,6 +4368,7 @@
         },
         {
           "id": "FR-090",
+          "title": "Schema declaration for the live production-auth tables",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -4087,6 +4376,7 @@
         },
         {
           "id": "FR-091",
+          "title": "CRM Conversation Inbox",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
@@ -4094,6 +4384,7 @@
         },
         {
           "id": "FR-092",
+          "title": "Market translation core",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -4101,6 +4392,7 @@
         },
         {
           "id": "FR-094",
+          "title": "Canonical IAM principal",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -4108,6 +4400,7 @@
         },
         {
           "id": "FR-095",
+          "title": "Persisted session lifecycle",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
@@ -4115,6 +4408,7 @@
         },
         {
           "id": "FR-097",
+          "title": "Verified channel onboarding",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
@@ -4122,6 +4416,7 @@
         },
         {
           "id": "FR-100",
+          "title": "SoT approval inbox and decision export",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -4129,6 +4424,7 @@
         },
         {
           "id": "FR-102",
+          "title": "SoT data-plane service-account authentication",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -4136,6 +4432,7 @@
         },
         {
           "id": "FR-103",
+          "title": "SEC-005 PDPA consent, MVP scope",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
@@ -4143,6 +4440,7 @@
         },
         {
           "id": "FR-104",
+          "title": "Owner-assisted password reset",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -4150,13 +4448,15 @@
         },
         {
           "id": "FR-105",
+          "title": "Platform Programme Roadmap",
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 11
+          "testCount": 13
         },
         {
           "id": "FR-106",
+          "title": "Enterprise API tenant token authentication",
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
@@ -4164,6 +4464,7 @@
         },
         {
           "id": "FR-107",
+          "title": "Installation-operator grant store and bootstrap",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -4171,6 +4472,7 @@
         },
         {
           "id": "FR-108",
+          "title": "ExecutionPlanBundle import orchestration",
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
@@ -4178,6 +4480,7 @@
         },
         {
           "id": "FR-109",
+          "title": "Seventeen-stage knowledge ingestion stage catalog and job trace",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
@@ -4185,6 +4488,7 @@
         },
         {
           "id": "FR-110",
+          "title": "Published knowledge snapshot contract",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
@@ -4192,6 +4496,7 @@
         },
         {
           "id": "FR-123",
+          "title": "Plugin authentication and capability discovery",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -4199,13 +4504,15 @@
         },
         {
           "id": "FR-124",
+          "title": "Product Readiness",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 14
+          "testCount": 16
         },
         {
           "id": "FR-127",
+          "title": "Conversation intelligence analysis",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -4213,6 +4520,7 @@
         },
         {
           "id": "FR-133",
+          "title": "Asset Management domain and physical register foundation",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
@@ -4220,6 +4528,7 @@
         },
         {
           "id": "FR-134",
+          "title": "Multi-surface Asset intake and evidence validation",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -4227,6 +4536,7 @@
         },
         {
           "id": "FR-135",
+          "title": "Temporal responsibility, location, lot and Project allocation",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
@@ -4234,6 +4544,7 @@
         },
         {
           "id": "FR-136",
+          "title": "Asset depreciation candidate",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
@@ -4241,6 +4552,7 @@
         },
         {
           "id": "FR-137",
+          "title": "Asset cloud evidence intake",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -4248,6 +4560,7 @@
         },
         {
           "id": "FR-138",
+          "title": "Asset evidence extraction and review",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
@@ -4255,6 +4568,7 @@
         },
         {
           "id": "FR-139",
+          "title": "Asset Excel and Google Sheets snapshot intake/export",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
@@ -4262,6 +4576,7 @@
         },
         {
           "id": "FR-143",
+          "title": "Edge-executed asset evidence extraction (ADR-059",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
@@ -4269,6 +4584,7 @@
         },
         {
           "id": "FR-144",
+          "title": "Edge device credential",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
@@ -4276,6 +4592,7 @@
         },
         {
           "id": "FR-146",
+          "title": "LINE OA Studio account aggregate",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -4283,6 +4600,7 @@
         },
         {
           "id": "FR-149",
+          "title": "Server-owned LINE conversation transport",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -4290,6 +4608,7 @@
         },
         {
           "id": "FR-150",
+          "title": "Optional Edge conversation execution",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -4297,6 +4616,7 @@
         },
         {
           "id": "FR-151",
+          "title": "LINE OA rich menu designer",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -4304,6 +4624,7 @@
         },
         {
           "id": "FR-152",
+          "title": "LINE OA rich menu publish jobs, server-owned",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -4311,6 +4632,7 @@
         },
         {
           "id": "FR-153",
+          "title": "LINE OA LIFF app registry",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -4318,13 +4640,15 @@
         },
         {
           "id": "FR-154",
+          "title": "Inventory catalogue identity (คลังสินค้า)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-155",
+          "title": "Inventory stock ledger",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -4332,6 +4656,7 @@
         },
         {
           "id": "FR-156",
+          "title": "Inventory recipe / bill of materials at a batch size",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -4339,6 +4664,7 @@
         },
         {
           "id": "FR-157",
+          "title": "Marketing Content and Creative",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -4346,6 +4672,7 @@
         },
         {
           "id": "FR-158",
+          "title": "Marketing execution handoff",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -4353,6 +4680,7 @@
         },
         {
           "id": "FR-159",
+          "title": "Marketing Strategy revision and decision",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
@@ -4360,6 +4688,7 @@
         },
         {
           "id": "FR-160",
+          "title": "Marketing Campaign initiatives",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -4367,6 +4696,7 @@
         },
         {
           "id": "FR-161",
+          "title": "Sales tasks (crm)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
@@ -4374,6 +4704,7 @@
         },
         {
           "id": "FR-163",
+          "title": "Payments, verification and revenue (commerce)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -4381,6 +4712,7 @@
         },
         {
           "id": "FR-164",
+          "title": "Suppliers and purchase orders (procurement)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -4388,6 +4720,7 @@
         },
         {
           "id": "FR-165",
+          "title": "Goods receipts into the stock ledger (procurement)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -4395,6 +4728,7 @@
         },
         {
           "id": "FR-166",
+          "title": "Sales orders (commerce)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -4402,6 +4736,7 @@
         },
         {
           "id": "FR-167",
+          "title": "Supply-chain navigation groups its four modules under one SCM slot (ADR-069)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
@@ -4409,6 +4744,7 @@
         },
         {
           "id": "FR-169",
+          "title": "A Business declares feature capabilities (Business.capabilitiesJson), distinct from a Membership grant",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
@@ -4416,6 +4752,7 @@
         },
         {
           "id": "FR-172",
+          "title": "Customer-facing navigation groups two domains under one CRM slot (ADR-071), extending the ADR-069 precedent to the rest of the bar",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -4423,6 +4760,7 @@
         },
         {
           "id": "FR-173",
+          "title": "Knowledge source admission and corpus publication",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
@@ -4430,6 +4768,7 @@
         },
         {
           "id": "FR-174",
+          "title": "Every stock movement may name where it came from and where it went, and a transfer is the only way stock changes place",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -4437,6 +4776,7 @@
         },
         {
           "id": "FR-176",
+          "title": "A customization work order is the durable record of branded work in progress, and branding is irreversible",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -4444,6 +4784,7 @@
         },
         {
           "id": "FR-177",
+          "title": "A kitting work order assembles a finished gift set from a recipe with a declared scrap allowance",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -4451,6 +4792,7 @@
         },
         {
           "id": "FR-180",
+          "title": "Available-to-Promise subtracts what is already spoken for, in two tiers",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -4458,6 +4800,7 @@
         },
         {
           "id": "FR-182",
+          "title": "The SCM lane gets the human surface ADR-074 deferred",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -4465,6 +4808,7 @@
         },
         {
           "id": "FR-183",
+          "title": "Atomic POS checkout composes existing Commerce orders, pending payments and Inventory",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -4472,6 +4816,7 @@
         },
         {
           "id": "FR-184",
+          "title": "Inventory physical stocktake reconciles an authorized Business's existing located ledger through the existing Inventory surface",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -4479,6 +4824,7 @@
         },
         {
           "id": "FR-185",
+          "title": "Business-scoped LINE broadcast planning intent with durable version/idempotency and an explicit unavailable dispatch state",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -4486,6 +4832,7 @@
         },
         {
           "id": "FR-186",
+          "title": "Business-scoped durable Commerce document issuance and issuer/tax/PromptPay configuration",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -4493,6 +4840,7 @@
         },
         {
           "id": "FR-187",
+          "title": "A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2,…",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -4500,6 +4848,7 @@
         },
         {
           "id": "FR-191",
+          "title": "An access grant can be withdrawn by a named person, for a stated reason, without destroying the evidence that it existed",
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
@@ -4507,6 +4856,7 @@
         },
         {
           "id": "FR-193",
+          "title": "Employment is a new HR assignment record",
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
@@ -4514,6 +4864,7 @@
         },
         {
           "id": "FR-194",
+          "title": "LegalEntity moves from portfolioId to tenantId (ADR-078 D2)",
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
@@ -4521,6 +4872,7 @@
         },
         {
           "id": "FR-195",
+          "title": "AccessInvite generalises WorkspaceInvite to a scoped invitation over all three authority layers",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -4528,6 +4880,7 @@
         },
         {
           "id": "FR-197",
+          "title": "Operator access is time-boxed, issuable by a standing operator, and its use is recorded",
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
@@ -4535,6 +4888,7 @@
         },
         {
           "id": "FR-198",
+          "title": "An audit event carries its own scope and the change it made, as columns a query can filter on rather than only fields inside payloadJson…",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
@@ -4542,6 +4896,7 @@
         },
         {
           "id": "FR-199",
+          "title": "A Business owner can read the access history of their own scope",
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
@@ -4549,13 +4904,15 @@
         },
         {
           "id": "FR-203",
+          "title": "A barcode, GTIN, supplier code, manufacturer part or legacy code is an attribute of exactly one SKU, and an intake resolves an identifier…",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-204",
+          "title": "A pack size is a unit conversion on the SKU, never a second SKU, and the ledger counts base units only (BR-037)",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -4563,6 +4920,7 @@
         },
         {
           "id": "FR-206",
+          "title": "The catalogue hygiene report names every SKU-bloat finding in a Business, read-only and computed by a pure function over the catalogue and…",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -4570,6 +4928,7 @@
         },
         {
           "id": "FR-207",
+          "title": "Replenishment parameters live on the SKU and yield a suggestion, never a purchase order",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
@@ -4577,6 +4936,7 @@
         },
         {
           "id": "FR-208",
+          "title": "Catalogue intake resolves every item before it creates anything, and applies a previewed plan all at once or not at all",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -4584,6 +4944,7 @@
         },
         {
           "id": "FR-209",
+          "title": "Excel is a converter of the catalogue intake with a template built for one Business, and it never commits",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
@@ -4883,6 +5244,7 @@
       "requirements": [
         {
           "id": "FR-037",
+          "title": "Project Files (/projects/{id}/files) manages metadata references for documents and attachments linked to a Project and optionally a WorkItem",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
@@ -4890,6 +5252,7 @@
         },
         {
           "id": "FR-045",
+          "title": "Managed local file workspace",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
@@ -4897,6 +5260,7 @@
         },
         {
           "id": "FR-058",
+          "title": "File Manager views",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
@@ -5000,6 +5364,7 @@
       "requirements": [
         {
           "id": "FR-041",
+          "title": "Business Overview renders the selected Business's Projects plus a Business Strategy read model",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
@@ -5007,6 +5372,7 @@
         },
         {
           "id": "FR-060",
+          "title": "Business Home",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
@@ -5086,6 +5452,7 @@
       "requirements": [
         {
           "id": "FR-068",
+          "title": "Human-visible Project Execution Roadmap",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
@@ -5093,6 +5460,7 @@
         },
         {
           "id": "FR-069",
+          "title": "Plan Blueprint and Human/Agent intake",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
@@ -5100,6 +5468,7 @@
         },
         {
           "id": "FR-070",
+          "title": "Stable execution, domain, goal, risk, tag, trace and supporting identities",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
@@ -5171,6 +5540,7 @@
       "requirements": [
         {
           "id": "FR-048",
+          "title": "Provider selection contract",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
@@ -5178,6 +5548,7 @@
         },
         {
           "id": "FR-079",
+          "title": "Phase 1 LINE runtime connection cut-over",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
@@ -5185,6 +5556,7 @@
         },
         {
           "id": "FR-080",
+          "title": "Platform Integrations UI",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
@@ -5262,6 +5634,7 @@
       "requirements": [
         {
           "id": "FR-077",
+          "title": "Project Inventory MVP",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
@@ -5309,6 +5682,7 @@
       "requirements": [
         {
           "id": "FR-078",
+          "title": "Customer Profile backfill contract",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
@@ -5382,6 +5756,7 @@
       "requirements": [
         {
           "id": "FR-082",
+          "title": "Structure editing by direct manipulation",
           "status": "planned",
           "progressPercent": 0,
           "codeCount": 0,
@@ -5389,6 +5764,7 @@
         },
         {
           "id": "FR-083",
+          "title": "Edge creation by direct manipulation",
           "status": "planned",
           "progressPercent": 0,
           "codeCount": 0,
@@ -5396,6 +5772,7 @@
         },
         {
           "id": "FR-084",
+          "title": "Handoff Contract on a dependency edge",
           "status": "planned",
           "progressPercent": 0,
           "codeCount": 0,
@@ -5403,6 +5780,7 @@
         },
         {
           "id": "FR-085",
+          "title": "Contract-gated release on the Board",
           "status": "planned",
           "progressPercent": 0,
           "codeCount": 0,
@@ -5434,6 +5812,7 @@
       "requirements": [
         {
           "id": "FR-086",
+          "title": "Projects Dashboard",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -5441,6 +5820,7 @@
         },
         {
           "id": "FR-087",
+          "title": "Project priority",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
@@ -5448,6 +5828,7 @@
         },
         {
           "id": "FR-088",
+          "title": "Project accountable owner (PIC)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
@@ -5455,6 +5836,7 @@
         },
         {
           "id": "FR-089",
+          "title": "Team as an organisational grouping",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -5544,6 +5926,7 @@
       "requirements": [
         {
           "id": "FR-091",
+          "title": "CRM Conversation Inbox",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
@@ -5551,6 +5934,7 @@
         },
         {
           "id": "FR-093",
+          "title": "LINE reply delivery receipt",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
@@ -5640,6 +6024,7 @@
       "requirements": [
         {
           "id": "FR-094",
+          "title": "Canonical IAM principal",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
@@ -5647,6 +6032,7 @@
         },
         {
           "id": "FR-095",
+          "title": "Persisted session lifecycle",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 17,
@@ -5654,6 +6040,7 @@
         },
         {
           "id": "FR-096",
+          "title": "Shared policy enforcement",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
@@ -5661,6 +6048,7 @@
         },
         {
           "id": "FR-097",
+          "title": "Verified channel onboarding",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
@@ -5668,6 +6056,7 @@
         },
         {
           "id": "FR-098",
+          "title": "Agent/tool/MSP authorization",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
@@ -5791,6 +6180,7 @@
       "requirements": [
         {
           "id": "FR-099",
+          "title": "SoT pipeline plan board",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
@@ -5798,6 +6188,7 @@
         },
         {
           "id": "FR-100",
+          "title": "SoT approval inbox and decision export",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
@@ -5805,6 +6196,7 @@
         },
         {
           "id": "FR-101",
+          "title": "SoT pipeline graph dashboard",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
@@ -5864,6 +6256,7 @@
       "requirements": [
         {
           "id": "FR-108",
+          "title": "ExecutionPlanBundle import orchestration",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -5915,6 +6308,7 @@
       "requirements": [
         {
           "id": "FR-109",
+          "title": "Seventeen-stage knowledge ingestion stage catalog and job trace",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
@@ -5922,6 +6316,7 @@
         },
         {
           "id": "FR-110",
+          "title": "Published knowledge snapshot contract",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
@@ -5929,6 +6324,7 @@
         },
         {
           "id": "FR-111",
+          "title": "Knowledge sensitivity lattice and processing policy fields",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -5936,6 +6332,7 @@
         },
         {
           "id": "FR-173",
+          "title": "Knowledge source admission and corpus publication",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 22,
@@ -6079,6 +6476,7 @@
       "requirements": [
         {
           "id": "FR-126",
+          "title": "AI-inferred Customer Profile",
           "status": "planned",
           "progressPercent": 0,
           "codeCount": 0,
@@ -6086,6 +6484,7 @@
         },
         {
           "id": "FR-127",
+          "title": "Conversation intelligence analysis",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -6093,6 +6492,7 @@
         },
         {
           "id": "FR-128",
+          "title": "Daily Sales Brief",
           "status": "planned",
           "progressPercent": 0,
           "codeCount": 0,
@@ -6139,6 +6539,7 @@
       "requirements": [
         {
           "id": "FR-133",
+          "title": "Asset Management domain and physical register foundation",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 25,
@@ -6146,6 +6547,7 @@
         },
         {
           "id": "FR-134",
+          "title": "Multi-surface Asset intake and evidence validation",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
@@ -6153,6 +6555,7 @@
         },
         {
           "id": "FR-135",
+          "title": "Temporal responsibility, location, lot and Project allocation",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 27,
@@ -6160,6 +6563,7 @@
         },
         {
           "id": "FR-136",
+          "title": "Asset depreciation candidate",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -6271,6 +6675,7 @@
       "requirements": [
         {
           "id": "FR-137",
+          "title": "Asset cloud evidence intake",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
@@ -6278,6 +6683,7 @@
         },
         {
           "id": "FR-138",
+          "title": "Asset evidence extraction and review",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
@@ -6285,6 +6691,7 @@
         },
         {
           "id": "FR-139",
+          "title": "Asset Excel and Google Sheets snapshot intake/export",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
@@ -6292,6 +6699,7 @@
         },
         {
           "id": "FR-140",
+          "title": "Trusted LINE Asset handoff",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -6361,6 +6769,7 @@
       "requirements": [
         {
           "id": "FR-143",
+          "title": "Edge-executed asset evidence extraction (ADR-059",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
@@ -6368,6 +6777,7 @@
         },
         {
           "id": "FR-144",
+          "title": "Edge device credential",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 19,
@@ -6455,6 +6865,7 @@
       "requirements": [
         {
           "id": "FR-146",
+          "title": "LINE OA Studio account aggregate",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 37,
@@ -6462,6 +6873,7 @@
         },
         {
           "id": "FR-147",
+          "title": "LINE binding status read contract",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
@@ -6469,6 +6881,7 @@
         },
         {
           "id": "FR-151",
+          "title": "LINE OA rich menu designer",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 26,
@@ -6476,6 +6889,7 @@
         },
         {
           "id": "FR-152",
+          "title": "LINE OA rich menu publish jobs, server-owned",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 17,
@@ -6483,6 +6897,7 @@
         },
         {
           "id": "FR-153",
+          "title": "LINE OA LIFF app registry",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
@@ -6618,6 +7033,7 @@
       "requirements": [
         {
           "id": "FR-148",
+          "title": "Account-scoped CRM conversations",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
@@ -6625,6 +7041,7 @@
         },
         {
           "id": "FR-149",
+          "title": "Server-owned LINE conversation transport",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 34,
@@ -6632,6 +7049,7 @@
         },
         {
           "id": "FR-150",
+          "title": "Optional Edge conversation execution",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -6761,13 +7179,15 @@
       "requirements": [
         {
           "id": "FR-154",
+          "title": "Inventory catalogue identity (คลังสินค้า)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-155",
+          "title": "Inventory stock ledger",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
@@ -6775,6 +7195,7 @@
         },
         {
           "id": "FR-156",
+          "title": "Inventory recipe / bill of materials at a batch size",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
@@ -6810,6 +7231,7 @@
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr154-inventory-dashboard.spec.js",
         "apps/server/tests/e2e/fr164-procurement.spec.js",
+        "apps/server/tests/e2e/fr211-control-domain-map.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -6870,6 +7292,7 @@
       "requirements": [
         {
           "id": "FR-157",
+          "title": "Marketing Content and Creative",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 21,
@@ -6877,6 +7300,7 @@
         },
         {
           "id": "FR-158",
+          "title": "Marketing execution handoff",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -6884,6 +7308,7 @@
         },
         {
           "id": "FR-159",
+          "title": "Marketing Strategy revision and decision",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 21,
@@ -6891,6 +7316,7 @@
         },
         {
           "id": "FR-160",
+          "title": "Marketing Campaign initiatives",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 20,
@@ -6898,6 +7324,7 @@
         },
         {
           "id": "FR-162",
+          "title": "Marketing Operations coordination",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
@@ -6905,6 +7332,7 @@
         },
         {
           "id": "FR-185",
+          "title": "Business-scoped LINE broadcast planning intent with durable version/idempotency and an explicit unavailable dispatch state",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 17,
@@ -7081,6 +7509,7 @@
       "requirements": [
         {
           "id": "FR-161",
+          "title": "Sales tasks (crm)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
@@ -7148,6 +7577,7 @@
       "requirements": [
         {
           "id": "FR-163",
+          "title": "Payments, verification and revenue (commerce)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
@@ -7155,6 +7585,7 @@
         },
         {
           "id": "FR-166",
+          "title": "Sales orders (commerce)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
@@ -7235,6 +7666,7 @@
       "requirements": [
         {
           "id": "FR-164",
+          "title": "Suppliers and purchase orders (procurement)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
@@ -7242,6 +7674,7 @@
         },
         {
           "id": "FR-165",
+          "title": "Goods receipts into the stock ledger (procurement)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
@@ -7335,6 +7768,7 @@
       "requirements": [
         {
           "id": "FR-174",
+          "title": "Every stock movement may name where it came from and where it went, and a transfer is the only way stock changes place",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
@@ -7342,6 +7776,7 @@
         },
         {
           "id": "FR-175",
+          "title": "Inventory valuation is landed cost in integer satang, and domestic single-drop freight is absorbed into it rather than quoted",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
@@ -7349,6 +7784,7 @@
         },
         {
           "id": "FR-176",
+          "title": "A customization work order is the durable record of branded work in progress, and branding is irreversible",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
@@ -7356,6 +7792,7 @@
         },
         {
           "id": "FR-177",
+          "title": "A kitting work order assembles a finished gift set from a recipe with a declared scrap allowance",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
@@ -7363,6 +7800,7 @@
         },
         {
           "id": "FR-178",
+          "title": "Disassembly is a work order run backwards and it cannot launder branded stock",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
@@ -7370,6 +7808,7 @@
         },
         {
           "id": "FR-179",
+          "title": "A stored unit that ages and can be restored by an operation is guarded on issue, not merely reported",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
@@ -7377,6 +7816,7 @@
         },
         {
           "id": "FR-180",
+          "title": "Available-to-Promise subtracts what is already spoken for, in two tiers",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -7384,6 +7824,7 @@
         },
         {
           "id": "FR-181",
+          "title": "The agent reaches the supply chain through six tools on the gates it already has, and through no other path",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -7391,6 +7832,7 @@
         },
         {
           "id": "FR-182",
+          "title": "The SCM lane gets the human surface ADR-074 deferred",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 21,
@@ -7398,6 +7840,7 @@
         },
         {
           "id": "FR-184",
+          "title": "Inventory physical stocktake reconciles an authorized Business's existing located ledger through the existing Inventory surface",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
@@ -7514,6 +7957,7 @@
       "requirements": [
         {
           "id": "FR-187",
+          "title": "A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2,…",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
@@ -7521,6 +7965,7 @@
         },
         {
           "id": "FR-188",
+          "title": "A structured parser profile, typed product mentions and an ontology_v2 contract extend GenesisRAG17 for catalog data (ADR-075 D6, proposed)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
@@ -7528,6 +7973,7 @@
         },
         {
           "id": "FR-189",
+          "title": "Edge answers SmartGift catalog queries from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as a transitional…",
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 6,
@@ -7594,6 +8040,7 @@
       "requirements": [
         {
           "id": "FR-191",
+          "title": "An access grant can be withdrawn by a named person, for a stated reason, without destroying the evidence that it existed",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
@@ -7601,6 +8048,7 @@
         },
         {
           "id": "FR-192",
+          "title": "The scope of a grant is a declared value, never the meaning of a null, and no database side effect may change it",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
@@ -7688,6 +8136,7 @@
       "requirements": [
         {
           "id": "FR-193",
+          "title": "Employment is a new HR assignment record",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
@@ -7695,6 +8144,7 @@
         },
         {
           "id": "FR-194",
+          "title": "LegalEntity moves from portfolioId to tenantId (ADR-078 D2)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
@@ -7778,6 +8228,7 @@
       "requirements": [
         {
           "id": "FR-195",
+          "title": "AccessInvite generalises WorkspaceInvite to a scoped invitation over all three authority layers",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
@@ -7785,6 +8236,7 @@
         },
         {
           "id": "FR-196",
+          "title": "Segregation of duties gets a writer, not only a role list",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
@@ -7792,6 +8244,7 @@
         },
         {
           "id": "FR-197",
+          "title": "Operator access is time-boxed, issuable by a standing operator, and its use is recorded",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
@@ -7799,6 +8252,7 @@
         },
         {
           "id": "FR-200",
+          "title": "Explicit Superadmin access grants an existing Person administration of all pages and current/future Tenant, Business and Portfolio scopes…",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
@@ -7889,6 +8343,7 @@
       "requirements": [
         {
           "id": "FR-198",
+          "title": "An audit event carries its own scope and the change it made, as columns a query can filter on rather than only fields inside payloadJson…",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
@@ -7896,6 +8351,7 @@
         },
         {
           "id": "FR-199",
+          "title": "A Business owner can read the access history of their own scope",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
@@ -7955,6 +8411,7 @@
       "requirements": [
         {
           "id": "FR-201",
+          "title": "A product master declares its nature once",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -7962,6 +8419,7 @@
         },
         {
           "id": "FR-202",
+          "title": "A SKU is one combination of its master's variant axes, and the same combination cannot exist twice (BR-039)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
@@ -7969,13 +8427,15 @@
         },
         {
           "id": "FR-203",
+          "title": "A barcode, GTIN, supplier code, manufacturer part or legacy code is an attribute of exactly one SKU, and an intake resolves an identifier…",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-204",
+          "title": "A pack size is a unit conversion on the SKU, never a second SKU, and the ledger counts base units only (BR-037)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
@@ -7983,6 +8443,7 @@
         },
         {
           "id": "FR-205",
+          "title": "A SKU has a lifecycle and a consolidation path, and it cannot leave the catalogue with stock on it (BR-040)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -7990,6 +8451,7 @@
         },
         {
           "id": "FR-206",
+          "title": "The catalogue hygiene report names every SKU-bloat finding in a Business, read-only and computed by a pure function over the catalogue and…",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -7997,6 +8459,7 @@
         },
         {
           "id": "FR-207",
+          "title": "Replenishment parameters live on the SKU and yield a suggestion, never a purchase order",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -8030,6 +8493,7 @@
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr203-sku-identifiers-console.spec.js",
         "apps/server/tests/e2e/fr206-sku-hygiene.spec.js",
+        "apps/server/tests/e2e/fr211-control-domain-map.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -8088,6 +8552,7 @@
       "requirements": [
         {
           "id": "FR-208",
+          "title": "Catalogue intake resolves every item before it creates anything, and applies a previewed plan all at once or not at all",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
@@ -8095,6 +8560,7 @@
         },
         {
           "id": "FR-209",
+          "title": "Excel is a converter of the catalogue intake with a template built for one Business, and it never commits",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -8102,6 +8568,7 @@
         },
         {
           "id": "FR-210",
+          "title": "A verified staff sender adds or matches SKUs from LINE with a deterministic #sku command that previews before it writes",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
@@ -8186,6 +8653,7 @@
       "requirements": [
         {
           "id": "FR-001",
+          "title": "จัดการ scope hierarchy",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
@@ -8237,6 +8705,7 @@
       "requirements": [
         {
           "id": "FR-002",
+          "title": "Scope selectors (Portfolio·Business·Workspace·Project) + จำ selection ล่าสุด",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -8271,6 +8740,7 @@
       "requirements": [
         {
           "id": "FR-003",
+          "title": "Project CRUD + archive (soft delete) + mixed execution modes",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
@@ -8316,6 +8786,7 @@
       "requirements": [
         {
           "id": "FR-004",
+          "title": "Workstream CRUD",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
@@ -8356,6 +8827,7 @@
       "requirements": [
         {
           "id": "FR-005",
+          "title": "Neutral work model",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
@@ -8416,6 +8888,7 @@
       "requirements": [
         {
           "id": "FR-006",
+          "title": "Milestones + Gates (weighted, required flag, evidence JSON), browsed and status-edited at Development → Milestones & Gates, both global and…",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
@@ -8468,6 +8941,7 @@
       "requirements": [
         {
           "id": "FR-007",
+          "title": "Dependencies 5 ชนิด, กัน self/cycle, ประเมิน blocked/ready",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
@@ -8512,6 +8986,7 @@
       "requirements": [
         {
           "id": "FR-008",
+          "title": "Repository records (local metadata) + ผูกโปรเจกต์แบบ many-to-many",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -8554,6 +9029,7 @@
       "requirements": [
         {
           "id": "FR-009",
+          "title": "Execution views 7 โหมดบนโมเดลกลาง (global + project-scoped)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -8601,6 +9077,7 @@
       "requirements": [
         {
           "id": "FR-010",
+          "title": "Progress ต่อ workstream ตาม strategy + evidence + warnings + \"Explain\" UI",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -8636,6 +9113,7 @@
       "requirements": [
         {
           "id": "FR-011",
+          "title": "Project roll-up ถ่วงน้ำหนัก Σ(ws%×w)/Σw",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -8669,6 +9147,7 @@
       "requirements": [
         {
           "id": "FR-012",
+          "title": "PlanEnvelope import",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
@@ -8730,6 +9209,7 @@
       "requirements": [
         {
           "id": "FR-013",
+          "title": "Snapshot backup",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
@@ -8771,6 +9251,7 @@
       "requirements": [
         {
           "id": "FR-014",
+          "title": "Audit log (immutable) + UI browser",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
@@ -8812,6 +9293,7 @@
       "requirements": [
         {
           "id": "FR-015",
+          "title": "Command palette (Ctrl+K), filters, search",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -8843,6 +9325,7 @@
       "requirements": [
         {
           "id": "FR-016",
+          "title": "Seed/demo dataset idempotent ครบ 7 โหมด",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -8875,6 +9358,7 @@
       "requirements": [
         {
           "id": "FR-017",
+          "title": "UI wizard intake (\"เริ่มจากเป้าหมาย\") → สร้าง envelope เข้า pipeline เดิม; direct modal creation is edit-only",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -8922,6 +9406,7 @@
       "requirements": [
         {
           "id": "FR-018",
+          "title": "Excel template intake",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
@@ -8965,6 +9450,7 @@
       "requirements": [
         {
           "id": "FR-019",
+          "title": "Enterprise API",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -9014,6 +9500,7 @@
       "requirements": [
         {
           "id": "FR-020",
+          "title": "Adaptive shell ตามจำนวนธุรกิจ (single → ไม่มี switcher, multi → switcher + portfolio landing)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -9069,6 +9556,7 @@
       "requirements": [
         {
           "id": "FR-021",
+          "title": "Identity resolution",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -9107,6 +9595,7 @@
       "requirements": [
         {
           "id": "FR-022",
+          "title": "LINE as an identity provider end-to-end",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
@@ -9164,6 +9653,7 @@
       "requirements": [
         {
           "id": "FR-023",
+          "title": "Zuri Backend Slice CRM core (ADR-007 P2)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -9201,6 +9691,7 @@
       "requirements": [
         {
           "id": "FR-024",
+          "title": "Knowledge projection (ADR-007 P5)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
@@ -9243,6 +9734,7 @@
       "requirements": [
         {
           "id": "FR-025",
+          "title": "Agent read-only context contract (ADR-007 P6, Gate E)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
@@ -9287,6 +9779,7 @@
       "requirements": [
         {
           "id": "FR-026",
+          "title": "Agent write/action gate (ADR-007 P7, Gate F)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
@@ -9326,6 +9819,7 @@
       "requirements": [
         {
           "id": "FR-027",
+          "title": "End-to-end agent turn (ADR-007 P7)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -9363,6 +9857,7 @@
       "requirements": [
         {
           "id": "FR-028",
+          "title": "LINE webhook API route (ADR-007 P7 wiring)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -9403,6 +9898,7 @@
       "requirements": [
         {
           "id": "FR-029",
+          "title": "Agent runtime ports (ADR-007 P6)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -9436,6 +9932,7 @@
       "requirements": [
         {
           "id": "FR-030",
+          "title": "Persistence: Postgres/Supabase readiness (ADR-007 P4): generated schema.postgres.prisma + init DDL (provider swap only, models identical);…",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -9472,6 +9969,7 @@
       "requirements": [
         {
           "id": "FR-031",
+          "title": "Viewer gate: resolveViewer() resolves the current authenticated principal into one role (OWNER, MEMBER, or platform DEV),…",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -9507,6 +10005,7 @@
       "requirements": [
         {
           "id": "FR-032",
+          "title": "Home (/) is the ADR-008 entry journey",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -9540,6 +10039,7 @@
       "requirements": [
         {
           "id": "FR-033",
+          "title": "Topbar contains Zuri identity, the viewed-domain chip, ERP/PM lens toggle, command palette, New Project, and profile cluster—but no scope…",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -9575,6 +10075,7 @@
       "requirements": [
         {
           "id": "FR-034",
+          "title": "Breadcrumb is the scope switcher",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -9608,6 +10109,7 @@
       "requirements": [
         {
           "id": "FR-035",
+          "title": "Overview is the selected Business's operational home",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -9645,6 +10147,7 @@
       "requirements": [
         {
           "id": "FR-036",
+          "title": "Project Team (/projects/{id}/team) lists Memberships in the project’s business scope, adds/removes business-scoped members, changes…",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
@@ -9684,6 +10187,7 @@
       "requirements": [
         {
           "id": "FR-038",
+          "title": "My Profile (/profile) shows the resolved local account, language preference, LINE-link state, and local session",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
@@ -9742,6 +10246,7 @@
       "requirements": [
         {
           "id": "FR-039",
+          "title": "The Base Context Bar maps Portfolio > Tenant > Business to Workspace > Organization > Business and stops global shell scope at Business",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
@@ -9797,6 +10302,7 @@
       "requirements": [
         {
           "id": "FR-040",
+          "title": "Project Work views",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
@@ -9853,6 +10359,7 @@
       "requirements": [
         {
           "id": "FR-042",
+          "title": "HR / People is a peer ERP domain (route key people) with a Business-scoped People Directory over Person/Membership",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
@@ -9911,6 +10418,7 @@
       "requirements": [
         {
           "id": "FR-043",
+          "title": "Project stores a direct nullable businessId owner plus workspaceId as Development Space context",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
@@ -9970,6 +10478,7 @@
       "requirements": [
         {
           "id": "FR-044",
+          "title": "Entry routing is split into a minimal Landing (/), a demo Login stub in the historical routing slice, a Business Routing page (/businesses)…",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
@@ -10040,6 +10549,7 @@
       "requirements": [
         {
           "id": "FR-046",
+          "title": "Production viewer entry contract",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 84,
@@ -10227,6 +10737,7 @@
       "requirements": [
         {
           "id": "FR-047",
+          "title": "Curated business-knowledge read contract",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
@@ -10263,6 +10774,7 @@
       "requirements": [
         {
           "id": "FR-049",
+          "title": "Evidence-grounded answer",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -10299,6 +10811,7 @@
       "requirements": [
         {
           "id": "FR-050",
+          "title": "Single-reply LINE delivery",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -10338,6 +10851,7 @@
       "requirements": [
         {
           "id": "FR-051",
+          "title": "Production Supabase tenant isolation",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -10373,6 +10887,7 @@
       "requirements": [
         {
           "id": "FR-052",
+          "title": "Server-owned LINE scope binding",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
@@ -10426,6 +10941,7 @@
       "requirements": [
         {
           "id": "FR-053",
+          "title": "Phase 1 golden question evaluation",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
@@ -10464,6 +10980,7 @@
       "requirements": [
         {
           "id": "FR-054",
+          "title": "Controlled LINE canary readiness",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
@@ -10509,6 +11026,7 @@
       "requirements": [
         {
           "id": "FR-055",
+          "title": "Controlled LINE activation and receipt",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
@@ -10551,6 +11069,7 @@
       "requirements": [
         {
           "id": "FR-056",
+          "title": "Zuri-branded entry landing",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
@@ -10586,6 +11105,7 @@
       "requirements": [
         {
           "id": "FR-057",
+          "title": "Authorized agent context",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -10637,6 +11157,7 @@
       "requirements": [
         {
           "id": "FR-059",
+          "title": "Business Strategy mutation",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
@@ -10697,6 +11218,7 @@
       "requirements": [
         {
           "id": "FR-061",
+          "title": "Per-Business domain visibility",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
@@ -10778,6 +11300,7 @@
       "requirements": [
         {
           "id": "FR-062",
+          "title": "Users & Permissions read scope",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -10815,6 +11338,7 @@
       "requirements": [
         {
           "id": "FR-063",
+          "title": "Project Board",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -10848,6 +11372,7 @@
       "requirements": [
         {
           "id": "FR-064",
+          "title": "Schedule: Project and Milestone dates render as a derived month-grid timeline, available global and project-scoped (the same view under a…",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
@@ -10889,6 +11414,7 @@
       "requirements": [
         {
           "id": "FR-065",
+          "title": "Import target authorization",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
@@ -10932,6 +11458,7 @@
       "requirements": [
         {
           "id": "FR-066",
+          "title": "Profile-first onboarding",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
@@ -10987,6 +11514,7 @@
       "requirements": [
         {
           "id": "FR-067",
+          "title": "Workspace collaboration boundary",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
@@ -11046,6 +11574,7 @@
       "requirements": [
         {
           "id": "FR-071",
+          "title": "Supabase data pipeline monitor and replay",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
@@ -11113,6 +11642,7 @@
       "requirements": [
         {
           "id": "FR-072",
+          "title": "Project-Manager mutation authorization",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 31,
@@ -11236,6 +11766,7 @@
       "requirements": [
         {
           "id": "FR-073",
+          "title": "Repository ownership",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
@@ -11285,6 +11816,7 @@
       "requirements": [
         {
           "id": "FR-074",
+          "title": "Scope-creation authorization",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
@@ -11334,6 +11866,7 @@
       "requirements": [
         {
           "id": "FR-075",
+          "title": "Installation-operator authority",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
@@ -11411,6 +11944,7 @@
       "requirements": [
         {
           "id": "FR-076",
+          "title": "Product Owner Business role binding",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
@@ -11462,6 +11996,7 @@
       "requirements": [
         {
           "id": "FR-081",
+          "title": "Raw external ingestion boundary",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
@@ -11525,6 +12060,7 @@
       "requirements": [
         {
           "id": "FR-090",
+          "title": "Schema declaration for the live production-auth tables",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -11564,6 +12100,7 @@
       "requirements": [
         {
           "id": "FR-092",
+          "title": "Market translation core",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 24,
@@ -11651,6 +12188,7 @@
       "requirements": [
         {
           "id": "FR-102",
+          "title": "SoT data-plane service-account authentication",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
@@ -11699,6 +12237,7 @@
       "requirements": [
         {
           "id": "FR-103",
+          "title": "SEC-005 PDPA consent, MVP scope",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
@@ -11752,6 +12291,7 @@
       "requirements": [
         {
           "id": "FR-104",
+          "title": "Owner-assisted password reset",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
@@ -11797,10 +12337,11 @@
       "requirements": [
         {
           "id": "FR-105",
+          "title": "Platform Programme Roadmap",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 11
+          "testCount": 13
         }
       ],
       "evidence": [
@@ -11816,10 +12357,12 @@
         "apps/server/src/modules/platform-control/components/TiltCard.jsx",
         "apps/server/src/modules/platform-control/program-roadmap-containers.js",
         "apps/server/src/modules/platform-control/program-roadmap-data.js",
+        "apps/server/tests/e2e/fr211-control-domain-map.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
         "apps/server/tests/integration/fr169-business-capability.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/platform-control-domain-map.test.js",
         "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/platform-control-guard.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
@@ -11850,6 +12393,7 @@
       "requirements": [
         {
           "id": "FR-106",
+          "title": "Enterprise API tenant token authentication",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
@@ -11916,6 +12460,7 @@
       "requirements": [
         {
           "id": "FR-107",
+          "title": "Installation-operator grant store and bootstrap",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
@@ -11964,6 +12509,7 @@
       "requirements": [
         {
           "id": "FR-112",
+          "title": "Structural knowledge chunking with parent-child lineage",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -11995,6 +12541,7 @@
       "requirements": [
         {
           "id": "FR-113",
+          "title": "Entity candidate extraction from chunks and structured records",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -12026,6 +12573,7 @@
       "requirements": [
         {
           "id": "FR-114",
+          "title": "Canonical normalization that never destroys the raw value",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -12057,6 +12605,7 @@
       "requirements": [
         {
           "id": "FR-115",
+          "title": "Document parsing into a structured artifact that keeps its link to the raw source",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -12088,6 +12637,7 @@
       "requirements": [
         {
           "id": "FR-116",
+          "title": "Derived-object provenance and the lineage chain back to a source",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -12122,6 +12672,7 @@
       "requirements": [
         {
           "id": "FR-117",
+          "title": "Deduplication and version relationships within one tenant",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -12155,6 +12706,7 @@
       "requirements": [
         {
           "id": "FR-118",
+          "title": "Tier 1 stage composition",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -12192,6 +12744,7 @@
       "requirements": [
         {
           "id": "FR-119",
+          "title": "Per-stage failure attribution and BR-022 quarantine",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
@@ -12230,6 +12783,7 @@
       "requirements": [
         {
           "id": "FR-120",
+          "title": "Self-serve account creation",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
@@ -12283,6 +12837,7 @@
       "requirements": [
         {
           "id": "FR-121",
+          "title": "Google as a second way in, over the same Person",
           "status": "planned",
           "progressPercent": 0,
           "codeCount": 0,
@@ -12311,6 +12866,7 @@
       "requirements": [
         {
           "id": "FR-122",
+          "title": "A Profile states who the person is, not just what to call them",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
@@ -12349,6 +12905,7 @@
       "requirements": [
         {
           "id": "FR-123",
+          "title": "Plugin authentication and capability discovery",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
@@ -12407,10 +12964,11 @@
       "requirements": [
         {
           "id": "FR-124",
+          "title": "Product Readiness",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 14
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -12432,6 +12990,8 @@
         "apps/server/tests/unit/fr124-product-readiness-ui.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
+        "apps/server/tests/unit/platform-control-domain-map.test.js",
+        "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
@@ -12458,6 +13018,7 @@
       "requirements": [
         {
           "id": "FR-125",
+          "title": "FlowAccount read-only pull pipeline",
           "status": "planned",
           "progressPercent": 0,
           "codeCount": 0,
@@ -12486,6 +13047,7 @@
       "requirements": [
         {
           "id": "FR-129",
+          "title": "Catalog publication approval gate",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
@@ -12525,6 +13087,7 @@
       "requirements": [
         {
           "id": "FR-130",
+          "title": "Business-scoped GitHub repository projection",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -12562,6 +13125,7 @@
       "requirements": [
         {
           "id": "FR-131",
+          "title": "Shipping rate card as governed business knowledge",
           "status": "planned",
           "progressPercent": 0,
           "codeCount": 0,
@@ -12592,6 +13156,7 @@
       "requirements": [
         {
           "id": "FR-132",
+          "title": "Ladder quotation on the LINE surface, as a Gate E read-only tool",
           "status": "planned",
           "progressPercent": 0,
           "codeCount": 0,
@@ -12620,6 +13185,7 @@
       "requirements": [
         {
           "id": "FR-141",
+          "title": "Edge Device heartbeat registry",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -12655,6 +13221,7 @@
       "requirements": [
         {
           "id": "FR-142",
+          "title": "Deployment liveness probe and public-origin abstraction (ADR-058)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
@@ -12689,6 +13256,7 @@
       "requirements": [
         {
           "id": "FR-145",
+          "title": "Supabase pooler MODE follows deployment topology, not a fixed default (ADR-058 D9)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -12720,6 +13288,7 @@
       "requirements": [
         {
           "id": "FR-167",
+          "title": "Supply-chain navigation groups its four modules under one SCM slot (ADR-069)",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
@@ -12766,6 +13335,7 @@
       "requirements": [
         {
           "id": "FR-168",
+          "title": "A product declares one of three natures, and they differ in accounting rather than in bookkeeping convenience",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
@@ -12804,6 +13374,7 @@
       "requirements": [
         {
           "id": "FR-169",
+          "title": "A Business declares feature capabilities (Business.capabilitiesJson), distinct from a Membership grant",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
@@ -12858,6 +13429,7 @@
       "requirements": [
         {
           "id": "FR-170",
+          "title": "A sub-domain module with more than one page renders them as tabs inside its own canvas (<ModuleTabs>, src/lib/module-tabs.js), not only as…",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
@@ -12895,6 +13467,7 @@
       "requirements": [
         {
           "id": "FR-171",
+          "title": "Execution Trace & Replay v0.3",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
@@ -12955,6 +13528,7 @@
       "requirements": [
         {
           "id": "FR-172",
+          "title": "Customer-facing navigation groups two domains under one CRM slot (ADR-071), extending the ADR-069 precedent to the rest of the bar",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
@@ -12996,6 +13570,7 @@
       "requirements": [
         {
           "id": "FR-183",
+          "title": "Atomic POS checkout composes existing Commerce orders, pending payments and Inventory",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
@@ -13038,6 +13613,7 @@
       "requirements": [
         {
           "id": "FR-186",
+          "title": "Business-scoped durable Commerce document issuance and issuer/tax/PromptPay configuration",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
@@ -13090,6 +13666,7 @@
       "requirements": [
         {
           "id": "FR-190",
+          "title": "Server-owned LINE transport reports its own reachability, so a silent channel is visible instead of inferred",
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
@@ -13110,6 +13687,247 @@
         "apps/server/tests/unit/fr190-settings-chip-render.test.js",
         "apps/server/tests/unit/fr190-transport-health-presentation.test.js",
         "apps/server/tests/unit/line-oa-settings-consolidation.test.js"
+      ]
+    },
+    {
+      "id": "FR-211",
+      "title": "Platform Domain map and inventory: `/control/roadmap` carries a second, operator-only tab (`?view=domains`) beside the programme plan that lists every chartered domain as a tile — its generated status, requirement progress, ready / total features, verified / total FRs, NFR count and open gaps — and, for the selected domain, its inventory: the features it is primary for (readiness, registry status, progress, use case, blockers, bundled FRs), the FRs those features bundle (subject, status, code and test counts, owning feature), the NFRs its own code follows, the eight readiness checks and the gaps. NFRs no domain's code names are listed separately as cross-cutting rather than dropped. The tab is a projection of the FR-124 snapshot (`runtime/domain-state.json`) made on the server; it computes no status of its own, sends the client no evidence path lists, and has no fetch, input beyond a search box and a readiness filter, API, persistence or write. It inherits FR-105's admission unchanged: nothing renders before `isInstallationOperator` passes (SEC-020).",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-211"
+      ],
+      "primaryDomain": "platform-control",
+      "contributorDomains": [
+        "platform-control"
+      ],
+      "useCase": "installation operator เปิดแท็บ Domain map & inventory ใน /control/roadmap แล้วเห็นทุกโดเมนเป็นแผนผังพร้อมสถานะ เลือกโดเมนหนึ่งเพื่อดู feature, FR และ NFR ของโดเมนนั้นว่าตัวไหนพร้อมใช้ ตัวไหนยังติดอะไร โดยไม่ต้องเปิด PRD หรือรันคำสั่งเอง",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-211",
+          "title": "Platform Domain map and inventory",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 3
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/(control)/control/roadmap/page.jsx",
+        "apps/server/src/modules/platform-control/components/DomainMapView.jsx",
+        "apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+        "apps/server/src/modules/platform-control/program-domain-map.js",
+        "apps/server/tests/e2e/fr211-control-domain-map.spec.js",
+        "apps/server/tests/unit/platform-control-domain-map.test.js",
+        "apps/server/tests/unit/platform-control-route-contract.test.js"
+      ]
+    }
+  ],
+  "nonFunctionalRequirements": [
+    {
+      "id": "NFR-001",
+      "title": "Runtime offline สมบูรณ์หลัง npm install (SQLite, ไม่มี cloud/CDN/font ภายนอก)",
+      "status": "not_implemented",
+      "codeCount": 0,
+      "testCount": 0,
+      "domains": []
+    },
+    {
+      "id": "NFR-002",
+      "title": "npm run build ผ่านโดยไม่มี error",
+      "status": "not_implemented",
+      "codeCount": 0,
+      "testCount": 0,
+      "domains": []
+    },
+    {
+      "id": "NFR-003",
+      "title": "Responsive ถึง 375px โดยไม่มี horizontal scroll",
+      "status": "not_implemented",
+      "codeCount": 0,
+      "testCount": 0,
+      "domains": []
+    },
+    {
+      "id": "NFR-004",
+      "title": "Keyboard: palette เต็มรูปแบบ, aria labels, progressbar roles",
+      "status": "verified",
+      "codeCount": 1,
+      "testCount": 4,
+      "domains": [
+        "project-manager"
+      ]
+    },
+    {
+      "id": "NFR-005",
+      "title": "Progress calculators deterministic (pure, no clock/random)",
+      "status": "not_implemented",
+      "codeCount": 0,
+      "testCount": 0,
+      "domains": []
+    },
+    {
+      "id": "NFR-006",
+      "title": "Persistence ย้ายไป Postgres ได้โดยไม่แก้ semantics (string enums, UUID, JSON strings)",
+      "status": "not_implemented",
+      "codeCount": 0,
+      "testCount": 0,
+      "domains": []
+    },
+    {
+      "id": "NFR-007",
+      "title": "Seed idempotent / reset ได้ (db:seed, db:reset)",
+      "status": "verified",
+      "codeCount": 1,
+      "testCount": 2,
+      "domains": []
+    },
+    {
+      "id": "NFR-008",
+      "title": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity…",
+      "status": "verified",
+      "codeCount": 10,
+      "testCount": 15,
+      "domains": [
+        "platform-control",
+        "project-manager"
+      ]
+    },
+    {
+      "id": "NFR-009",
+      "title": "Local file operations are crash-recoverable and portable",
+      "status": "not_implemented",
+      "codeCount": 0,
+      "testCount": 0,
+      "domains": []
+    },
+    {
+      "id": "NFR-010",
+      "title": "LINE business answers fail closed within a bounded request deadline",
+      "status": "not_implemented",
+      "codeCount": 0,
+      "testCount": 0,
+      "domains": []
+    },
+    {
+      "id": "NFR-011",
+      "title": "Production tenancy changes are migration-first, idempotent and reversible",
+      "status": "not_implemented",
+      "codeCount": 0,
+      "testCount": 0,
+      "domains": []
+    },
+    {
+      "id": "NFR-012",
+      "title": "Activation evidence is deterministic, versioned and redacted",
+      "status": "not_implemented",
+      "codeCount": 0,
+      "testCount": 0,
+      "domains": []
+    },
+    {
+      "id": "NFR-013",
+      "title": "Binding activation and rollback are atomic, idempotent and bounded",
+      "status": "verified",
+      "codeCount": 2,
+      "testCount": 7,
+      "domains": [
+        "agent"
+      ]
+    },
+    {
+      "id": "NFR-014",
+      "title": "Authorization decisions are recomputed per turn and remain bounded, auditable and fail-closed across restart, horizontal instances,…",
+      "status": "not_implemented",
+      "codeCount": 0,
+      "testCount": 0,
+      "domains": []
+    },
+    {
+      "id": "NFR-015",
+      "title": "Phase 1 runtime source and secret resolution are explicit, asynchronous, bounded and redacted",
+      "status": "verified",
+      "codeCount": 1,
+      "testCount": 1,
+      "domains": [
+        "integration"
+      ]
+    },
+    {
+      "id": "NFR-016",
+      "title": "Platform Integration management is bounded and secret-safe",
+      "status": "not_implemented",
+      "codeCount": 0,
+      "testCount": 0,
+      "domains": []
+    },
+    {
+      "id": "NFR-017",
+      "title": "The LINE ingress is traceable end to end from one correlation id",
+      "status": "verified",
+      "codeCount": 6,
+      "testCount": 10,
+      "domains": [
+        "agent",
+        "crm"
+      ]
+    },
+    {
+      "id": "NFR-018",
+      "title": "Market translation is deterministic and replay-safe",
+      "status": "verified",
+      "codeCount": 4,
+      "testCount": 6,
+      "domains": [
+        "knowledge",
+        "market-intelligence"
+      ]
+    },
+    {
+      "id": "NFR-019",
+      "title": "IAM decisions are recomputed from trusted server state per request/turn, remain bounded and auditable across restart, horizontal instances,…",
+      "status": "verified",
+      "codeCount": 1,
+      "testCount": 7,
+      "domains": [
+        "identity"
+      ]
+    },
+    {
+      "id": "NFR-020",
+      "title": "Every knowledge ingestion stage emits per-stage and pipeline-level metrics",
+      "status": "verified",
+      "codeCount": 2,
+      "testCount": 9,
+      "domains": [
+        "integration"
+      ]
+    },
+    {
+      "id": "NFR-021",
+      "title": "Asset intake and calculations are deterministic, replay-safe and explainable",
+      "status": "verified",
+      "codeCount": 3,
+      "testCount": 2,
+      "domains": [
+        "asset-management",
+        "project-manager"
+      ]
+    },
+    {
+      "id": "NFR-022",
+      "title": "Evidence execution is bounded, recoverable and provider-failure safe",
+      "status": "verified",
+      "codeCount": 17,
+      "testCount": 6,
+      "domains": [
+        "agent",
+        "asset-management",
+        "project-manager"
       ]
     }
   ]
