@@ -453,3 +453,31 @@
 .subtaskChip[data-status='done'] { color: var(--tone-done); background: var(--tone-done-bg); }
 .subtaskChip[data-status='review'] { color: var(--tone-review); background: var(--tone-review-bg); }
 .subtaskChip[data-status='in-progress'] { color: var(--status-warning); background: var(--status-warning-bg); }
+/* ---- FR-220 / FR-221 (ADR-087): usage per person, and the devices tab ---- */
+.breakdown { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.breakdownChip {
+  padding: 0 7px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full);
+  font-size: 11px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+.breakdownChip b { color: var(--text-primary); }
+.tableFrame { overflow-x: auto; }
+.devicesTable { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 12.5px; }
+.devicesTable th { padding: 6px 8px; text-align: left; font-size: 11px; color: var(--text-tertiary); border-bottom: 1px solid var(--border-default); }
+.devicesTable td { padding: 7px 8px; border-bottom: 1px solid var(--border-subtle); vertical-align: middle; }
+.deviceAction {
+  margin-left: 6px;
+  padding: 3px 10px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.deviceAction:disabled { opacity: 0.5; cursor: default; }
+.deviceRevoke { color: var(--tone-fix); border-color: color-mix(in srgb, var(--tone-fix) 40%, var(--border-default)); }

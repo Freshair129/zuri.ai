@@ -1,5 +1,5 @@
 ---
-version: "1.0.0"
+version: "1.1.0"
 created_at: "2026-09-13T23:45:00+07:00,Claude Opus 5"
 last_update: "2026-09-13T23:45:00+07:00,Claude Opus 5"
 status: "accepted"
@@ -127,6 +127,8 @@ model, the four token counts, request count, time span and active minutes.
   separate operator step (ADR-057). Until it is applied, the board reads no
   reports and still renders.
 
+**Amended by ADR-087 (2026-09-14):** people's agents report through a browser-paired device with a report-only credential; this deployment bearer remains for unattended automation, and reports gain person, installation and lane attribution (FR-220, FR-221).
+
 The board merges reports with the meter's figures at request time on the server.
 A report whose `source:sessionId` the meter already counted is skipped, so one
 session is counted once whichever way it arrived. Each figure names the sources
@@ -197,3 +199,4 @@ machine.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 1.0.0 | 2026-09-13 | accepted | Measured delivery telemetry beside the plan: sizing table, lanes by branch, local usage meter, usage report endpoint with `ProgrammeUsageReport`, evidence badges and subtask progress | working-tree | Claude Opus 5 |
+| 1.1.0 | 2026-09-14 | accepted | D5 amended by ADR-087: the deployment bearer is for automation; people's agents report through paired devices | working-tree | Claude Opus 5 |

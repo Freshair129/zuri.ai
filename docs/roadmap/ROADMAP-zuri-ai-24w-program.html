@@ -488,7 +488,7 @@ button{font:inherit;color:inherit;}
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
           <span class="pill pill-brand">approved</span>
           <span class="pill pill-planned mono">ROADMAP-ZURI-AI-24W-PROGRAM</span>
-          <span class="pill pill-planned mono">v0.4.4</span>
+          <span class="pill pill-planned mono">v0.4.5</span>
           <span class="pill pill-planned">updated 2026-09-13</span>
           <span class="pill pill-planned mono">CR-019</span>
           <span class="pill pill-planned">owner Owen</span>
@@ -678,13 +678,14 @@ button{font:inherit;color:inherit;}
 
 <script>
 /* ==================================================================
-   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.4.4 (CR-019,
+   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.4.5 (CR-019,
    2026-09-13) — the markdown is the source of truth, this array is
    its rendering. Tasks 031–044 were added on the re-baseline,
    045–051 (17-stage knowledge base + file system) the same day,
    052–059 (SmartGift cost & quote engine, v0.4.2) the same day,
    060–063 (data pipeline map, v0.4.3) the same day,
-   064–068 (delivery telemetry and task card badges, v0.4.4) the same day.
+   064–068 (delivery telemetry and task card badges, v0.4.4) the same day,
+   069–072 (Zuri harness usage plugin, v0.4.5) on 2026-09-14.
    ================================================================== */
 const PROGRESS_BY_STATE = { done:100, review:90, "in-progress":50, assigned:25, ready:10, planned:0, blocked:0 };
 
@@ -841,7 +842,7 @@ const PHASES = [
             "Given npm test, when the FR-066 unit suite runs, then onboarding order is asserted, not assumed",
             "ส่งมอบ 27 ส.ค. (ROADMAP.md TASK-FR-066-067) · FR-122 บังคับชื่อ-สกุล-โทรศัพท์ · CR-017 UX correction ติดตามในเลน Asset"]
         ]},
-      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract · นับ knowledge intake + Tier 1 ของ 17-stage ที่สร้างแล้ว · (CR-019) SCM, Marketing, billing/POS, catalog convergence และ identity lifecycle เข้า main · (v0.4.2) เปิด cost & quote engine: decision record + ใบต้นทุนโรงงาน · (v0.4.3) data pipeline registry + node-edge map ใน slot Knowledge (GKS) · (v0.4.4) delivery telemetry บน programme board: การ์ด phase มีตัวเลข, badge หลักฐานบนการ์ด task, usage meter และ endpoint รายงาน token จริง",
+      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract · นับ knowledge intake + Tier 1 ของ 17-stage ที่สร้างแล้ว · (CR-019) SCM, Marketing, billing/POS, catalog convergence และ identity lifecycle เข้า main · (v0.4.2) เปิด cost & quote engine: decision record + ใบต้นทุนโรงงาน · (v0.4.3) data pipeline registry + node-edge map ใน slot Knowledge (GKS) · (v0.4.4) delivery telemetry บน programme board: การ์ด phase มีตัวเลข, badge หลักฐานบนการ์ด task, usage meter และ endpoint รายงาน token จริง · (v0.4.5) plugin ของ Zuri สำหรับ agent เครื่องอื่น จับคู่เครื่องผ่าน browser",
         exit:"pipeline รายงานได้ทุก stage, memory contract ผ่านการรีวิว, ไฟล์ที่รับเข้า Stage 1 ไปถึง Stage 8 พร้อม lineage ใต้เทสต์ และทุกเลนมี migration เขียนแล้ว",
         tasks:[
           ["TASK-ZAI-004","TSK-ZAI004","Workspace collaboration boundary and scoped invites, FR-067","FR","C-3","H3","done","Codex","TASK-ZAI-003","apps/server/src/modules/identity/access-invite-service.js","docs/PRD-SDD-v1.0.md","unavailable",40000,
@@ -953,7 +954,27 @@ const PHASES = [
             "Given a task card, when it renders, then it shows DOC, CODE and TEST badges from its container links, FR, NFR and FEAT badges from the ids it delivers read against the FR-124 snapshot, and badges for its domain code name, complexity and priority, each evidence badge green when done, orange when in review, red when it needs fixing (a declared link that no longer resolves, or a delivered id the snapshot does not show as built while the task claims done or review) and gray when empty",
             "Given a Task Container that splits its plan into subtasks P0 to P3, when the card renders, then the subtasks are listed with their own status and the card carries a progress bar computed from them under the board mapping, and a task without subtasks shows no bar rather than an invented one",
             "Given npm test, when the board suites run, then every badge colour rule, the link check against the repository, the id-to-snapshot lookup and the subtask progress are asserted, and the generated containers stay in step with the markdown",
-            "(v0.4.4) ตามคำสั่ง owner ต่อจาก 065 — badge [DOC] [CODE] [TEST] [FR] [NFR] [FEAT] [domain] [complexity] [priority] · เขียว = done, ส้ม = review, แดง = ต้องแก้, เทา = ว่าง · task ที่แบ่งแผนเป็น P0–P3 แสดง subtask และ progress bar บนการ์ด · สถานะ FR/NFR/FEAT อ่านจาก runtime/domain-state.json ไม่คิดใหม่"]
+            "(v0.4.4) ตามคำสั่ง owner ต่อจาก 065 — badge [DOC] [CODE] [TEST] [FR] [NFR] [FEAT] [domain] [complexity] [priority] · เขียว = done, ส้ม = review, แดง = ต้องแก้, เทา = ว่าง · task ที่แบ่งแผนเป็น P0–P3 แสดง subtask และ progress bar บนการ์ด · สถานะ FR/NFR/FEAT อ่านจาก runtime/domain-state.json ไม่คิดใหม่"],
+          ["TASK-ZAI-069","TSK-ZAI069","Harness usage plugin decision record — the ADR for a Zuri plugin that pairs a device by browser approval, holds a report-only credential with a device label, and lets the server attribute each report to a person, a device and a lane; requirement and FEAT declarations","NFR","C-2","H2","done","Claude","TASK-ZAI-067","unavailable","docs/decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md","unavailable",24000,
+            "Given ADR-086 D5 (one shared deployment bearer) and the owner's choice of a plugin over a connector, when the ADR is written, then it records why the harness and not the model reports usage, that a device is paired once by a signed-in person through browser approval with a check code, that the resulting credential can only report usage and is refused by every other route, and what the deployment bearer is still for",
+            "Given the identity layers person, installation and declared AI account, when the ADR states them, then it names which is authority and which is a label, how two people on one machine are told apart, that a shared zuri-ai account is not supported, and who may approve a pairing",
+            "Given npm run govern, when it runs after the requirement and FEAT declarations, then it exits zero with no CRITICAL and ADR-086 D5 points to the new decision",
+            "(v0.4.5) ตามคำสั่ง owner 14 ก.ย. — ทำเป็น plugin ไม่ใช่ connector เพราะ model มองไม่เห็น token ของตัวเอง · จับคู่เครื่องผ่าน browser แบบ FR-144 · credential ส่งยอดได้อย่างเดียว · ป้ายชื่อ device · ใครทำ = Person จากการอนุมัติ, เครื่อง = installation, บัญชี AI = label ที่ประกาศเอง"],
+          ["TASK-ZAI-070","TSK-ZAI070","Harness device pairing and report-only credential — start, browser approval with a check code and poll as in FR-144, one hashed credential per installation scoped to usage reporting with a device label, and an operator list of paired devices with revoke","FR","C-3","H3","review","Claude","TASK-ZAI-069","apps/server/src/modules/identity/edge-pairing.js","docs/decisions/ADR-052-PLUGIN-AUTHORIZATION-CODE-AND-TOKEN-BOUNDARY.md","apps/server/tests/unit/edge-pairing.test.js",58000,
+            "Given a harness that starts pairing with its device label, when a signed-in person with pairing authority opens the approval link, sees the same check code and the device label, and approves, then the harness's next poll receives one credential shown exactly once, stored only as a hash with its prefix, bound to that person and a server-issued installation id",
+            "Given the credential, when it is presented to any route other than the usage report endpoint, then it is refused exactly as no credential would be, and an expired, denied or already-redeemed pairing yields nothing",
+            "Given the paired-device list on the operator console, when an operator revokes a device, then its next report is refused, the list shows label, person, created and last-used times, and npm test covers approval, refusal, single redemption, scope refusal and revoke; the migration ships in both trees and is applied separately (ADR-057)",
+            "(v0.4.5) ใช้แบบเดียวกับการจับคู่ Edge (FR-144) — คำขอจับคู่อยู่ในหน่วยความจำ ไม่มี credential จนกว่าจะอนุมัติ · credential เก็บเป็น hash พร้อม prefix · scope เดียวคือส่งยอด usage · หน้ารายการเครื่องให้ operator เพิกถอน"],
+          ["TASK-ZAI-071","TSK-ZAI071","Usage reports attributed to person, device and lane — the report endpoint accepts the harness credential, derives the lane from the reported branch on the server, extends a resumed session whose counts only grow, and the board breaks lane usage down by person and shows unattributed reports","FR","C-2","H3","review","Claude","TASK-ZAI-070","apps/server/src/modules/platform-control/application/programme-usage-reports.js","docs/appendices/A-api-spec.md","apps/server/tests/unit/programme-usage-reports.test.js",42000,
+            "Given a report sent with a harness credential, when it is stored, then it records the credential's person and installation rather than anything the body claims, keeps the declared AI account label as a label, and resolves the lane from the reported branch against the lanes the programme declares, storing an undeclared branch as unattributed instead of refusing it",
+            "Given a resumed session reported again, when every count and the end time are equal or larger, then the stored report is extended and audited as extended; when any count is smaller it is refused as a conflict; an identical report stays an idempotent replay",
+            "Given the board, when a lane has reports from two people, then the phase and task telemetry show usage per person and per device label, unattributed reports appear as their own group, a session the meter already counted is still counted once, and npm test covers each of these",
+            "(v0.4.5) server ผูก lane จาก branch เอง plugin ไม่ต้องรู้รหัส task และไม่ต้องมี repo · session ที่ resume ส่งซ้ำได้ถ้าตัวเลขเพิ่มขึ้นอย่างเดียว · กระดานแยกยอดตามคนและ device"],
+          ["TASK-ZAI-072","TSK-ZAI072","Zuri harness plugin for Claude Code and Codex — pair, whoami and unpair commands, a SessionEnd hook and a Codex wrapper that report each finished session split by branch, an offline retry queue, a marketplace entry, and parser parity with the usage meter","FR","C-3","H3","review","Claude","TASK-ZAI-070; TASK-ZAI-071","apps/server/scripts/programme-usage-meter.mjs","docs/decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md","apps/server/tests/unit/programme-usage-meter.test.js",60000,
+            "Given the plugin installed from the repository's marketplace entry, when a person runs pair, then the browser approval opens with the device label and check code, the credential is stored in the user's own configuration outside any repository, and whoami shows the paired person and device at the start of every session",
+            "Given a Claude Code session that ends or a Codex session wrapped by the plugin, when it finishes, then the plugin reads that session's own log, counts each request once with the same parsers the meter uses, sends one report per branch the session worked on, and keeps an unsent report in a local queue that is retried later rather than lost",
+            "Given npm test, when the plugin suites run, then hook input, branch split, queue retry, a refused credential and parser parity against the meter fixtures pass, and the plugin never reads a browser cookie or a zuri-ai password",
+            "(v0.4.5) plugin อยู่ใน repo นี้พร้อม marketplace entry · ใช้ hook SessionEnd ไม่ใช่ Stop เพื่อไม่ยิงทุก turn · Codex ใช้ wrapper หลังจบ session · คิว offline ส่งซ้ำภายหลัง · parser เดียวกับ meter"]
         ]}
     ]
   },
@@ -1302,7 +1323,11 @@ const DOD_CHECKS = {
   "TASK-ZAI-065": [1,1,1],
   "TASK-ZAI-066": [1,1,1],
   "TASK-ZAI-067": [1,1,1],
-  "TASK-ZAI-068": [1,1,1]
+  "TASK-ZAI-068": [1,1,1],
+  "TASK-ZAI-069": [1,1,1],
+  "TASK-ZAI-070": [1,1,1],
+  "TASK-ZAI-071": [1,1,1],
+  "TASK-ZAI-072": [1,1,1]
 };
 
 /* ---------------------- theme ---------------------- */

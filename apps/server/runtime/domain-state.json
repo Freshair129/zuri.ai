@@ -36,12 +36,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 141,
+    "featureCount": 142,
     "readyFeatureCount": 109,
-    "requirementCount": 219,
-    "verifiedRequirementCount": 207,
+    "requirementCount": 222,
+    "verifiedRequirementCount": 210,
     "progressPercent": 95.1,
-    "gapCount": 27,
+    "gapCount": 28,
     "gaps": [
       {
         "domain": "agent",
@@ -207,6 +207,13 @@
         "severity": "high",
         "check": "authorization",
         "summary": "At least one mutating route lacks a recognizable request viewer seam"
+      },
+      {
+        "domain": "platform-control",
+        "id": "AUTH-002",
+        "severity": "medium",
+        "check": "authorization",
+        "summary": "At least one read route lacks a recognizable request viewer seam"
       },
       {
         "domain": "project-manager",
@@ -471,7 +478,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-147",
@@ -546,7 +553,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 264,
+            "openApiPaths": 270,
             "missingFromOpenApi": 0
           }
         },
@@ -792,7 +799,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 17
+          "testCount": 18
         }
       ],
       "checks": {
@@ -811,7 +818,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 264,
+            "openApiPaths": 270,
             "missingFromOpenApi": 0
           }
         },
@@ -1008,7 +1015,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 264,
+            "openApiPaths": 270,
             "missingFromOpenApi": 0
           }
         },
@@ -1597,7 +1604,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-146",
@@ -1726,18 +1733,26 @@
           "status": "verified",
           "codeCount": 5,
           "testCount": 12
+        },
+        {
+          "id": "FR-220",
+          "title": "Harness device pairing and report-only credential",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 9,
+          "testCount": 6
         }
       ],
       "checks": {
         "ui": {
-          "status": "verified",
+          "status": "unknown",
           "evidence": [
             "docs/INTERFACE-INVENTORY.md"
           ],
           "gaps": [],
           "details": {
-            "routes": 8,
-            "inventoried": 8,
+            "routes": 9,
+            "inventoried": 9,
             "missing": 0
           }
         },
@@ -1749,9 +1764,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 22,
-            "inventoried": 22,
-            "openApiPaths": 264,
+            "routes": 27,
+            "inventoried": 27,
+            "openApiPaths": 270,
             "missingFromOpenApi": 0
           }
         },
@@ -1793,8 +1808,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 19,
-            "present": 19
+            "models": 20,
+            "present": 20
           }
         },
         "authorization": {
@@ -1810,9 +1825,9 @@
             }
           ],
           "details": {
-            "mutations": 19,
-            "guardedMutations": 15,
-            "reads": 6,
+            "mutations": 23,
+            "guardedMutations": 17,
+            "reads": 7,
             "unguardedReads": 0
           }
         },
@@ -1899,10 +1914,10 @@
         }
       ],
       "details": {
-        "routes": 30,
-        "apiRoutes": 22,
-        "pageRoutes": 8,
-        "ownedModels": 19,
+        "routes": 36,
+        "apiRoutes": 27,
+        "pageRoutes": 9,
+        "ownedModels": 20,
         "featureNotes": 26
       },
       "featureIds": [
@@ -1910,6 +1925,7 @@
         "FEAT-027",
         "FEAT-029",
         "FEAT-030",
+        "FEAT-035",
         "FR-021",
         "FR-022",
         "FR-031",
@@ -1930,9 +1946,9 @@
         "FR-122",
         "FR-123"
       ],
-      "featureCount": 23,
+      "featureCount": 24,
       "readyFeatureCount": 18,
-      "progressPercent": 96.9
+      "progressPercent": 97.1
     },
     "integration": {
       "status": "partial",
@@ -2177,7 +2193,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 264,
+            "openApiPaths": 270,
             "missingFromOpenApi": 0
           }
         },
@@ -2538,7 +2554,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 264,
+            "openApiPaths": 270,
             "missingFromOpenApi": 0
           }
         },
@@ -3192,7 +3208,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 264,
+            "openApiPaths": 270,
             "missingFromOpenApi": 0
           }
         },
@@ -3353,7 +3369,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 264,
+            "openApiPaths": 270,
             "missingFromOpenApi": 0
           }
         },
@@ -3520,7 +3536,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 264,
+            "openApiPaths": 270,
             "missingFromOpenApi": 0
           }
         },
@@ -3684,7 +3700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-218",
@@ -3700,6 +3716,22 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
+          "testCount": 7
+        },
+        {
+          "id": "FR-220",
+          "title": "Harness device pairing and report-only credential",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 6
+        },
+        {
+          "id": "FR-221",
+          "title": "Usage reports attributed to person, device and lane",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
           "testCount": 7
         }
       ],
@@ -3724,9 +3756,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 2,
-            "inventoried": 2,
-            "openApiPaths": 264,
+            "routes": 3,
+            "inventoried": 3,
+            "openApiPaths": 270,
             "missingFromOpenApi": 0
           }
         },
@@ -3776,13 +3808,18 @@
               "id": "AUTH-001",
               "severity": "high",
               "summary": "At least one mutating route lacks a recognizable request viewer seam"
+            },
+            {
+              "id": "AUTH-002",
+              "severity": "medium",
+              "summary": "At least one read route lacks a recognizable request viewer seam"
             }
           ],
           "details": {
             "mutations": 1,
             "guardedMutations": 0,
-            "reads": 0,
-            "unguardedReads": 0
+            "reads": 1,
+            "unguardedReads": 1
           }
         },
         "tests": {
@@ -3815,11 +3852,17 @@
           "severity": "high",
           "check": "authorization",
           "summary": "At least one mutating route lacks a recognizable request viewer seam"
+        },
+        {
+          "id": "AUTH-002",
+          "severity": "medium",
+          "check": "authorization",
+          "summary": "At least one read route lacks a recognizable request viewer seam"
         }
       ],
       "details": {
-        "routes": 3,
-        "apiRoutes": 2,
+        "routes": 4,
+        "apiRoutes": 3,
         "pageRoutes": 1,
         "ownedModels": 1,
         "featureNotes": 1
@@ -3894,7 +3937,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 264,
+            "openApiPaths": 270,
             "missingFromOpenApi": 0
           }
         },
@@ -4709,7 +4752,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-146",
@@ -5120,7 +5163,7 @@
           "details": {
             "routes": 130,
             "inventoried": 130,
-            "openApiPaths": 264,
+            "openApiPaths": 270,
             "missingFromOpenApi": 0
           }
         },
@@ -6931,7 +6974,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 19,
-          "testCount": 17
+          "testCount": 18
         }
       ],
       "evidence": [
@@ -6980,6 +7023,7 @@
         "apps/server/tests/unit/edge-pairing-routes.test.js",
         "apps/server/tests/unit/edge-pairing.test.js",
         "apps/server/tests/unit/fr141-edge-device-heartbeat.test.js",
+        "apps/server/tests/unit/harness-pairing.test.js",
         "apps/server/tests/unit/integrations-page-claims.test.js",
         "apps/server/tests/unit/line-studio-edge-connection-render.test.js"
       ]
@@ -8914,7 +8958,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-218",
@@ -8959,7 +9003,89 @@
         "apps/server/tests/unit/program-task-evidence.test.js",
         "apps/server/tests/unit/programme-containers.test.js",
         "apps/server/tests/unit/programme-usage-meter.test.js",
-        "apps/server/tests/unit/programme-usage-reports.test.js"
+        "apps/server/tests/unit/programme-usage-reports.test.js",
+        "apps/server/tests/unit/zuri-harness-plugin.test.js"
+      ]
+    },
+    {
+      "id": "FEAT-035",
+      "title": "Zuri harness usage plugin — Claude Code and Codex agents on any machine pair once through a signed-in browser, hold a credential that can only report usage, and report each finished session attributed to the approving person, the device and the lane of its branch (ADR-087, `DOM-IDENTITY`, `DOM-PLATFORM-CONTROL`)",
+      "kind": "bundle",
+      "registryStatus": "building",
+      "requirementIds": [
+        "FR-220",
+        "FR-221",
+        "FR-222"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "identity",
+        "platform-control"
+      ],
+      "useCase": "นักพัฒนาติดตั้ง plugin ของ Zuri ใน Claude Code หรือ Codex บนเครื่องตัวเอง กดจับคู่แล้วยืนยันใน browser ที่ login zuri-ai ค้างไว้ครั้งเดียว หลังจากนั้นทุก session ที่จบจะส่งยอด token จริงขึ้น zuri-ai เอง operator เห็นบน /control/roadmap ว่าใครใช้ไปเท่าไรจากเครื่องไหนใน lane ไหน และเพิกถอนเครื่องที่ไม่ใช้แล้วได้",
+      "progressPercent": 100,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-035 registry status is building"
+      ],
+      "requirements": [
+        {
+          "id": "FR-220",
+          "title": "Harness device pairing and report-only credential",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 12,
+          "testCount": 6
+        },
+        {
+          "id": "FR-221",
+          "title": "Usage reports attributed to person, device and lane",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 3,
+          "testCount": 7
+        },
+        {
+          "id": "FR-222",
+          "title": "Zuri harness plugin",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 1
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/(control)/control/roadmap/page.jsx",
+        "apps/server/src/app/api/platform/harness-devices/[id]/route.js",
+        "apps/server/src/app/api/platform/harness-devices/route.js",
+        "apps/server/src/app/api/platform/harness-pairing/approve/route.js",
+        "apps/server/src/app/api/platform/harness-pairing/poll/route.js",
+        "apps/server/src/app/api/platform/harness-pairing/start/route.js",
+        "apps/server/src/app/api/platform/programme-usage-reports/route.js",
+        "apps/server/src/app/api/platform/programme-usage-reports/whoami/route.js",
+        "apps/server/src/app/harness/pair/page.jsx",
+        "apps/server/src/modules/identity/harness-credential.js",
+        "apps/server/src/modules/identity/harness-pairing-runtime.js",
+        "apps/server/src/modules/identity/harness-pairing.js",
+        "apps/server/src/modules/platform-control/application/programme-usage-reports.js",
+        "apps/server/src/modules/platform-control/components/HarnessDevicesView.jsx",
+        "apps/server/tests/e2e/fr220-harness-pairing.spec.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/unit/harness-credential.test.js",
+        "apps/server/tests/unit/harness-devices-view.test.js",
+        "apps/server/tests/unit/harness-pairing.test.js",
+        "apps/server/tests/unit/platform-control-domain-map.test.js",
+        "apps/server/tests/unit/platform-control-route-contract.test.js",
+        "apps/server/tests/unit/program-delivery-metrics.test.js",
+        "apps/server/tests/unit/programme-usage-reports.test.js",
+        "apps/server/tests/unit/zuri-harness-plugin.test.js",
+        "plugins/zuri-harness/bin/zuri-harness.mjs",
+        "plugins/zuri-harness/lib/client.mjs",
+        "plugins/zuri-harness/lib/config.mjs",
+        "plugins/zuri-harness/lib/queue.mjs",
+        "plugins/zuri-harness/lib/report.mjs",
+        "plugins/zuri-harness/lib/usage.mjs"
       ]
     },
     {
@@ -12658,7 +12784,7 @@
     },
     {
       "id": "FR-105",
-      "title": "Platform Programme Roadmap: `/control/roadmap` is an installation-operator-only, read-only projection of the submitted 24-week programme. It is deliberately outside BusinessShell and `DOMAINS`: there is no active Business, Tenant, Project or Workstream scope, and the surface must not be mistaken for a user's operational work. A missing viewer follows the entry boundary; a trusted viewer is admitted only by the named `isOperator` capability from FR-075 — never by `isPlatform`, role, Business/Tenant ownership or domain visibility. The board is a static plan snapshot re-projected from ROADMAP-ZURI-AI-24W-PROGRAM's own frontmatter and tables (currently v0.4.4, baseline `2b7ad27d`, eleven deliverables and nine gates under CR-019), carrying the document's own status (`approved` since 2026-09-13). It makes no write, persists no progress, exposes no API and never turns commit activity into programme completion. Declared as FR-105 rather than the branch's original FR-094, which main's canonical IAM slice claimed first (AGENTS.md §18 — the later declaration renumbers).",
+      "title": "Platform Programme Roadmap: `/control/roadmap` is an installation-operator-only, read-only projection of the submitted 24-week programme. It is deliberately outside BusinessShell and `DOMAINS`: there is no active Business, Tenant, Project or Workstream scope, and the surface must not be mistaken for a user's operational work. A missing viewer follows the entry boundary; a trusted viewer is admitted only by the named `isOperator` capability from FR-075 — never by `isPlatform`, role, Business/Tenant ownership or domain visibility. The board is a static plan snapshot re-projected from ROADMAP-ZURI-AI-24W-PROGRAM's own frontmatter and tables (currently v0.4.5, baseline `2b7ad27d`, eleven deliverables and nine gates under CR-019), carrying the document's own status (`approved` since 2026-09-13). It makes no write, persists no progress, exposes no API and never turns commit activity into programme completion. Declared as FR-105 rather than the branch's original FR-094, which main's canonical IAM slice claimed first (AGENTS.md §18 — the later declaration renumbers).",
       "kind": "requirement",
       "registryStatus": "live",
       "requirementIds": [
@@ -14145,8 +14271,8 @@
       "id": "NFR-008",
       "title": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity…",
       "status": "verified",
-      "codeCount": 12,
-      "testCount": 20,
+      "codeCount": 13,
+      "testCount": 21,
       "domains": [
         "knowledge",
         "platform-control",

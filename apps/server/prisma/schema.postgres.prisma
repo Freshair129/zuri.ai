@@ -366,6 +366,8 @@ model Person {
   externalIdentities            ExternalIdentity[]
   channelIdentities             ChannelIdentity[]
   sessions                      Session[]
+  // @req FR-220 — agent harness installations this person approved (ADR-087).
+  harnessCredentials            HarnessCredential[]            @relation("HarnessCredentialPerson")
   identityLinkTokens            IdentityLinkToken[]
   pluginAuthorizationCodes      PluginAuthorizationCode[]
   pluginSessions                PluginSession[]
@@ -4711,10 +4713,22 @@ model GoodsReceiptLine {
 // (source, sessionId) so a replay is idempotent; payloadSha256 tells a replay
 // from a conflicting second report. Tokens are the meter's four normalised counts.
 model ProgrammeUsageReport {
-  id               String   @id @default(uuid())
+  id               String    @id @default(uuid())
   source           String
   sessionId        String
-  taskCode         String
+  // @req FR-221 — the branch the session worked on; one session reports once per
+  // branch. The lane is resolved from it at read time against the declared lanes,
+  // so a lane declared after the work still claims it (ADR-087 D4). '' = none given.
+  branch           String    @default("")
+  // Optional: an explicit known task wins over the branch.
+  taskCode         String?
+  repository       String?
+  // @req FR-221 — from the harness credential, never from the body. Null for a
+  // report sent under the deployment bearer (ADR-087 D6).
+  personId         String?
+  installationId   String?
+  // Declared label of the AI account that paid; cost split only, never authority.
+  aiAccountLabel   String?
   model            String?
   inputTokens      Int
   cacheWriteTokens Int
@@ -4725,8 +4739,43 @@ model ProgrammeUsageReport {
   startedAt        DateTime
   endedAt          DateTime
   payloadSha256    String
-  reportedAt       DateTime @default(now())
+  reportedAt       DateTime  @default(now())
+  // @req FR-221 — set when a resumed session's report was extended (ADR-087 D5).
+  extendedAt       DateTime?
 
-  @@unique([source, sessionId])
+  @@unique([source, sessionId, branch])
   @@index([taskCode])
+  @@index([installationId])
+}
+
+// @req FR-220 — a paired agent harness installation (Claude Code or Codex): a
+// credential that can only report programme usage, bound to the person who
+// approved the pairing in a signed-in browser and to a server-issued
+// installation id. Stored as a SHA-256 hash with a display prefix; the raw key
+// is shown once at redemption (ADR-087 D1-D3). deviceLabel and osUser are
+// labels the device chose, never identity.
+model HarnessCredential {
+  id                  String    @id @default(uuid())
+  installationId      String    @unique @default(uuid())
+  personId            String
+  harness             String
+  deviceLabel         String
+  osUser              String?
+  keyHash             String    @unique
+  keyPrefix           String
+  scope               String    @default("PROGRAMME_USAGE_REPORT")
+  status              String    @default("PENDING_ACTIVATION")
+  activatedAt         DateTime?
+  activatedByPersonId String?
+  lastUsedAt          DateTime?
+  revokedAt           DateTime?
+  revokedByPersonId   String?
+  revokeReason        String?
+  createdAt           DateTime  @default(now())
+  version             Int       @default(1)
+
+  person Person @relation("HarnessCredentialPerson", fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId, status])
+  @@index([status, createdAt])
 }
