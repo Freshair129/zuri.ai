@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.53.0b"
+version: "1.54.0b"
 status: active
 last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
 relations:
@@ -870,6 +870,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FEAT-039",
     "primaryDomain": "platform-control",
     "useCase": "installation operator เปิดการ์ด phase บน /control/roadmap แล้วเห็นว่า token ที่ใช้แยกเป็น input, output, thinking และ cache อย่างละเท่าไร agent เรียก tool อะไรบ่อยที่สุด พลาดหรือถูกปฏิเสธกี่ครั้ง ใช้กี่ prompt และ compact กี่รอบ แยกตาม lane คน และเครื่อง โดยไม่มีข้อความของงานถูกเก็บ"
+  },
+  {
+    "id": "FR-241",
+    "primaryDomain": "platform-control",
+    "useCase": "ใครก็ตามที่ login zuri-ai แล้ว เปิด /roadmap ได้ในช่วง 30 วันจนถึง 15 ต.ค. 2026 เพื่ออ่านแผนงาน 24 สัปดาห์กับ Domain map แบบอ่านอย่างเดียว โดยไม่เห็นยอดการใช้งานแยกตามคนหรือเครื่อง ชื่อ tool/model หรือรายการเครื่องที่จับคู่ ส่วน /control/roadmap ยังเปิดได้เฉพาะ operator"
   }
 ]
 ```
@@ -912,3 +917,5 @@ Version diff 1.50.0b → 1.51.0b (2026-09-14): Added **FEAT-036** (FR-223..FR-22
 Version diff 1.51.0b → 1.52.0b (2026-09-14): Added **FEAT-039** (FR-239, FR-240) under **ADR-086 D7** — agent usage detail from agent logs: token types, tool calls, prompts and compactions per lane, person and device. Declared; building.
 
 Version diff 1.52.0b → 1.53.0b (2026-09-14): **FEAT-034**, **FEAT-035** and **FEAT-039** move from building to live — every FR they bundle is merged and deployed (#383, #386, #393; running image `zuri-ai-web:release-daca80fb`) with its migrations applied on production. No feature text changed.
+
+Version diff 1.53.0b → 1.54.0b (2026-09-14): readiness metadata for **FR-241** (a feature of one, ADR-092) — the 30-day roadmap member view for signed-in people.
