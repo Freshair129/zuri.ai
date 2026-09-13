@@ -920,6 +920,11 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
       // time before the body is read; the agent has no browser session by construction. Proven by
       // tests/unit/programme-usage-reports.test.js.
       rel(file) === 'src/app/api/platform/programme-usage-reports/route.js' ||
+      // ADR-087 D1 / FR-220: harness pairing start is anonymous and bounded (no credential minted),
+      // and poll is authenticated by the initiating device secret, exactly as FR-144's edge pairing
+      // start/poll are; approve keeps its browser viewer. Proven by tests/unit/harness-pairing.test.js.
+      rel(file) === 'src/app/api/platform/harness-pairing/start/route.js' ||
+      rel(file) === 'src/app/api/platform/harness-pairing/poll/route.js' ||
       // FR-144 browser/QR approval: start mints no key; poll requires the
       // initiating Desktop secret and a consumed owner approval with fresh
       // Business authority. approve MUST keep its browser viewer check.

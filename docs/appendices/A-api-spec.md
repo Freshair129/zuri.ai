@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.68.0b |
+| **Version** | 1.69.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-13 |
 
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=264 -->
+<!-- api-spec-counts: route_handlers=270 -->
 
 ### Programme usage reports (FR-218, 2026-09-13)
 
@@ -32,6 +32,21 @@ ADR-086 D5. An agent without local session logs reports one session's usage for 
 | Method | Route | Contract | Failure |
 |---|---|---|---|
 | POST | `/api/platform/programme-usage-reports` | implemented (FR-218): under `Authorization: Bearer $ZURI_PROGRAMME_USAGE_TOKEN` (at least 32 characters), `{ source, sessionId, taskCode, model?, inputTokens, cacheWriteTokens, cacheReadTokens, outputTokens, requestCount, activeMinutes, startedAt, endedAt }` (strict — no other field, so no prompt or response content) is stored once per `(source, sessionId)` in `ProgrammeUsageReport`; `201 { report, replayed: false }` on create (audited `PROGRAMME_USAGE_REPORT` / `REPORTED`), `200 { report, replayed: true }` when the same payload arrives again. `/control/roadmap` merges the rows with the meter's figures, skipping a session the meter already counted | `401 USAGE_REPORT_CREDENTIAL_REQUIRED`; `400 USAGE_REPORT_INVALID` with `issues`; `404 PROGRAMME_TASK_UNKNOWN`; `409 USAGE_REPORT_CONFLICT` (same session, different payload); `503 USAGE_REPORT_UNAVAILABLE` (database, including a migration not yet applied) |
+
+### Agent harness pairing and devices (FR-220, FR-221, 2026-09-14)
+
+ADR-087. A Claude Code or Codex installation pairs like an Edge Device; its credential (`hrnk_…`) is scoped to usage reporting and is refused by every other route.
+
+| Method | Route | Contract | Failure |
+|---|---|---|---|
+| POST | `/api/platform/harness-pairing/start` | implemented (FR-220): anonymous, bounded; `{ harness: CLAUDE_CODE \| CODEX, deviceLabel, osUser? }` → `{ state: PENDING, requestId, deviceSecret, checkCode, approvalUrl (/harness/pair#code), pollIntervalMs, expiresAt }`; nothing is minted | `400 HARNESS_REQUIRED \| HARNESS_DEVICE_LABEL_REQUIRED \| PAIRING_JSON_INVALID`; `413`; `429 PAIRING_BUSY_TRY_LATER` |
+| POST | `/api/platform/harness-pairing/approve` | implemented (FR-220): trusted browser session with a matching Origin; `{ action: inspect \| approve \| deny, code }`; inspect shows harness, device label, OS user, check code and whether this person may approve; approve is allowed to an operator or a person holding a visible Business, for themselves | `401 AUTH_REQUIRED`; `403 HARNESS_PAIRING_NOT_ALLOWED \| PAIRING_ORIGIN_REFUSED`; `409 PAIRING_ALREADY_DECIDED`; `410 PAIRING_EXPIRED_OR_UNAVAILABLE` |
+| POST | `/api/platform/harness-pairing/poll` | implemented (FR-220): `Authorization: Bearer <deviceSecret>`, `{ requestId, cancel? }` → `PENDING \| DENIED \| CANCELLED`, or once `{ state: PAIRED, pairing: { key, installationId, personDisplayName, status: ACTIVE \| PENDING_ACTIVATION, deviceLabel, apiBaseUrl } }`; the credential is minted in a transaction and audited `HARNESS_CREDENTIAL` / `MINTED` without key material | `410 PAIRING_EXPIRED_OR_UNAVAILABLE \| PAIRING_ALREADY_USED_START_AGAIN`; `429 PAIRING_POLL_TOO_FAST`; `403 PAIRING_REDEMPTION_FAILED` (authority lost) |
+| GET | `/api/platform/harness-devices` | implemented (FR-220): installation operator only; `{ devices: [{ id, installationId, personDisplayName, harness, deviceLabel, osUser, keyPrefix, status, createdAt, activatedAt, lastUsedAt, revokedAt, version }] }` — never a hash or key | `404` for any non-operator |
+| PATCH | `/api/platform/harness-devices/[id]` | implemented (FR-220): operator only; `{ action: activate \| revoke, version, reason? }`; audited `ACTIVATED` / `REVOKED`; effective on the device's next use | `404`; `400 HARNESS_DEVICE_ACTION_INVALID \| HARNESS_DEVICE_VERSION_REQUIRED`; `409 HARNESS_DEVICE_VERSION_CONFLICT \| HARNESS_DEVICE_REVOKED \| HARNESS_DEVICE_NOT_PENDING` |
+| GET | `/api/platform/programme-usage-reports/whoami` | implemented (FR-220): the only read a harness credential allows — `{ installationId, personDisplayName, deviceLabel, harness, status }` of that credential | `401 HARNESS_CREDENTIAL_REQUIRED`; `503` |
+
+`POST /api/platform/programme-usage-reports` (FR-221) also accepts an active harness credential: the report stores the credential's person and installation, `branch` (key `(source, sessionId, branch)`), optional `repository` and `aiAccount` label, and `taskCode` becomes optional when a branch is named; a resumed session from the same installation whose counts only grow answers `200 { extended: true }` (audited `EXTENDED`); a pending device answers `403 HARNESS_NOT_ACTIVATED` and an unknown or revoked one `401 HARNESS_CREDENTIAL_REQUIRED`.
 
 ### Desktop browser/QR pairing (FR-144, 2026-09-08)
 
@@ -958,3 +973,5 @@ Version diff 1.58.0b → 1.59.0b: add the three approved FR-184 handlers and rec
 Version diff 1.65.0b → 1.66.0b (2026-09-13): add the nine FR-203 / FR-204 / FR-206 / FR-207 handlers under `/api/inventory` (resolve, identifiers, unit conversions, catalog-hygiene, replenishment), the FR-201 / FR-202 / FR-205 fields and refusals on the product collection and item, and the `services` / `phaseOut` / `belowReorderPoint` counts on the stock summary (ADR-083).
 
 Version diff 1.67.0b → 1.68.0b (2026-09-13): add `POST /api/platform/programme-usage-reports` (FR-218, ADR-086 D5) — agent usage reports under a deployment bearer; handler count 263 → 264.
+
+Version diff 1.68.0b → 1.69.0b (2026-09-14): add the six FR-220 harness pairing, device and whoami handlers and the FR-221 attribution contract on the usage report endpoint (ADR-087); handler count 264 → 270.

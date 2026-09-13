@@ -39,22 +39,47 @@ export const tokensUsed = (t) => (t.input || 0) + (t.cacheWrite || 0) + (t.outpu
 const minIso = (a, b) => (!a ? b : !b ? a : a < b ? a : b)
 const maxIso = (a, b) => (!a ? b : !b ? a : a > b ? a : b)
 
+/** The lane id the unattributed group uses: reports whose branch no lane declares (ADR-087 D4). */
+export const UNATTRIBUTED_LANE = 'UNATTRIBUTED'
+/** The breakdown key for figures that carry no person: the meter's local logs. */
+export const NO_PERSON = ''
+
+function addBreakdown(bucket, label, tokens, sessions) {
+  const row = bucket[label] || { used: 0, cacheRead: 0, sessions: 0 }
+  row.used += tokensUsed(tokens)
+  row.cacheRead += tokens.cacheRead || 0
+  row.sessions += sessions
+  bucket[label] = row
+}
+
+/** Which lane a report belongs to: an explicit task, else its branch, else unattributed. */
+export function laneOfReport(report, lanes = []) {
+  if (report.taskCode) {
+    const lane = lanes.find((l) => l.tasks.includes(report.taskCode))
+    return lane ? lane.id : `TASK:${report.taskCode}`
+  }
+  const lane = report.branch ? lanes.find((l) => l.branches.includes(report.branch)) : null
+  return lane ? lane.id : UNATTRIBUTED_LANE
+}
+
 /**
  * One measurement per lane, from the meter's block plus usage reports. A report
- * whose `source:sessionId` the meter already counted is skipped; a report for a
- * task in no lane becomes a lane of its own (`TASK:<id>`) so it is still shown
- * once. Lanes with nothing measured are absent from the result.
+ * for a session the meter already counted in the same lane is skipped; a report
+ * naming a task in no lane becomes a lane of its own (`TASK:<id>`); a report
+ * whose branch no lane declares goes to `UNATTRIBUTED`. Each lane also carries a
+ * breakdown by person and by device label (`reporters` maps an installation id
+ * to its person and device); the meter's figures carry no person (FR-221).
+ * Lanes with nothing measured are absent from the result.
  */
-export function mergeLaneUsage({ lanes = [], usage = {}, reports = [] }) {
-  const laneOfTask = new Map()
-  for (const lane of lanes) for (const task of lane.tasks) laneOfTask.set(task, lane.id)
+export function mergeLaneUsage({ lanes = [], usage = {}, reports = [], reporters = {} }) {
   const merged = new Map()
-  const metered = new Set()
+  const counted = new Set()
   for (const [laneId, m] of Object.entries(usage.lanes || {})) {
-    for (const key of m.sessions || []) metered.add(key)
-    merged.set(laneId, {
+    for (const key of m.sessions || []) counted.add(`${laneId}|${key}`)
+    const tokens = addTokens(emptyTokens(), m.tokens || {})
+    const entry = {
       laneId,
-      tokens: addTokens(emptyTokens(), m.tokens || {}),
+      tokens,
       requests: m.requests || 0,
       sessions: (m.sessions || []).length,
       activeMinutes: m.activeMinutes || 0,
@@ -62,18 +87,25 @@ export function mergeLaneUsage({ lanes = [], usage = {}, reports = [] }) {
       lastActivityAt: m.lastActivityAt || null,
       sources: Object.keys(m.bySource || {}).sort(),
       reported: 0,
-    })
+      byPerson: {},
+      byDevice: {},
+    }
+    addBreakdown(entry.byPerson, NO_PERSON, tokens, entry.sessions)
+    merged.set(laneId, entry)
   }
   for (const report of reports) {
-    const key = `${report.source}:${report.sessionId}`
-    if (metered.has(key)) continue
-    const laneId = laneOfTask.get(report.taskCode) || `TASK:${report.taskCode}`
+    const laneId = laneOfReport(report, lanes)
+    // A session the meter already counted in this lane is not counted again (the
+    // meter read the same log). The same (source, sessionId, branch) twice is one
+    // report; a second branch of one session is a different report and counts.
+    if (counted.has(`${laneId}|${report.source}:${report.sessionId}`)) continue
+    const reportKey = `report|${report.source}:${report.sessionId}:${report.branch || ''}`
+    if (counted.has(reportKey)) continue
     const entry = merged.get(laneId) || {
-      laneId, tokens: emptyTokens(), requests: 0, sessions: 0, activeMinutes: 0, firstActivityAt: null, lastActivityAt: null, sources: [], reported: 0,
+      laneId, tokens: emptyTokens(), requests: 0, sessions: 0, activeMinutes: 0, firstActivityAt: null, lastActivityAt: null, sources: [], reported: 0, byPerson: {}, byDevice: {},
     }
-    addTokens(entry.tokens, {
-      input: report.inputTokens, cacheWrite: report.cacheWriteTokens, cacheRead: report.cacheReadTokens, output: report.outputTokens,
-    })
+    const tokens = { input: report.inputTokens, cacheWrite: report.cacheWriteTokens, cacheRead: report.cacheReadTokens, output: report.outputTokens }
+    addTokens(entry.tokens, tokens)
     entry.requests += report.requestCount || 0
     entry.sessions += 1
     entry.reported += 1
@@ -82,7 +114,10 @@ export function mergeLaneUsage({ lanes = [], usage = {}, reports = [] }) {
     entry.lastActivityAt = maxIso(entry.lastActivityAt, toIso(report.endedAt))
     const source = `report:${report.source}`
     if (!entry.sources.includes(source)) entry.sources = [...entry.sources, source].sort()
-    metered.add(key)
+    const who = report.installationId ? reporters[report.installationId] : null
+    addBreakdown(entry.byPerson, who?.personDisplayName || (report.installationId ? 'ไม่พบชื่อ' : 'deployment'), tokens, 1)
+    if (who?.deviceLabel) addBreakdown(entry.byDevice, who.deviceLabel, tokens, 1)
+    counted.add(reportKey)
     merged.set(laneId, entry)
   }
   return merged
@@ -119,8 +154,15 @@ export function phaseDeliveryMetrics({ phase, tasks, containers = {}, sizing, la
   for (const laneId of laneIds) {
     const m = laneUsage.get(laneId)
     if (!m) continue
-    measured ||= { tokens: emptyTokens(), requests: 0, sessions: 0, activeMinutes: 0, firstActivityAt: null, lastActivityAt: null, sources: [], lanes: 0 }
+    measured ||= { tokens: emptyTokens(), requests: 0, sessions: 0, activeMinutes: 0, firstActivityAt: null, lastActivityAt: null, sources: [], lanes: 0, byPerson: {} }
     addTokens(measured.tokens, m.tokens)
+    for (const [label, row] of Object.entries(m.byPerson || {})) {
+      const into = measured.byPerson[label] || { used: 0, cacheRead: 0, sessions: 0 }
+      into.used += row.used
+      into.cacheRead += row.cacheRead
+      into.sessions += row.sessions
+      measured.byPerson[label] = into
+    }
     measured.requests += m.requests
     measured.sessions += m.sessions
     measured.activeMinutes += m.activeMinutes

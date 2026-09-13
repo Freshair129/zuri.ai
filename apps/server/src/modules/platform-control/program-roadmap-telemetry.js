@@ -76,7 +76,7 @@ export const PROGRAMME_LANES = [
 
 export const PROGRAMME_USAGE = {
   "meter": "scripts/programme-usage-meter.mjs",
-  "measuredThrough": "2026-09-13T16:24:54.648Z",
+  "measuredThrough": "2026-09-13T17:01:12.411Z",
   "lanes": {
     "LANE-COST-QUOTE-PLAN": {
       "requests": 33,
@@ -166,33 +166,34 @@ export const PROGRAMME_USAGE = {
       "activeMinutes": 96
     },
     "LANE-HARNESS-USAGE-PLUGIN": {
-      "requests": 4,
+      "requests": 102,
       "sessions": [
         "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
       ],
       "tokens": {
-        "input": 8,
-        "cacheWrite": 18329,
-        "cacheRead": 2366461,
-        "output": 12172
+        "input": 204,
+        "cacheWrite": 366445,
+        "cacheRead": 47233751,
+        "output": 177723
       },
       "bySource": {
         "claude-code": {
-          "requests": 4,
+          "requests": 102,
           "tokens": {
-            "input": 8,
-            "cacheWrite": 18329,
-            "cacheRead": 2366461,
-            "output": 12172
+            "input": 204,
+            "cacheWrite": 366445,
+            "cacheRead": 47233751,
+            "output": 177723
           }
         }
       },
       "models": [
-        "claude-opus-5"
+        "claude-opus-5",
+        "claude-sonnet-5"
       ],
       "firstActivityAt": "2026-09-13T16:22:37.937Z",
-      "lastActivityAt": "2026-09-13T16:24:54.648Z",
-      "activeMinutes": 2
+      "lastActivityAt": "2026-09-13T17:01:12.411Z",
+      "activeMinutes": 39
     }
   }
 }

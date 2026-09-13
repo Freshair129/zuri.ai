@@ -347,6 +347,9 @@
     "FR-217",
     "FR-218",
     "FR-219",
+    "FR-220",
+    "FR-221",
+    "FR-222",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -526,6 +529,7 @@
     "FEAT-032",
     "FEAT-033",
     "FEAT-034",
+    "FEAT-035",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -700,6 +704,7 @@
     "ADR-084",
     "ADR-085",
     "ADR-086",
+    "ADR-087",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -4212,6 +4217,45 @@
         }
       ]
     },
+    "FR-220": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "95dcd10498b8ff10c0b06eeaa04e491976fb74d8dd46af9ebd2bc9bb352dacce",
+      "history": [
+        {
+          "anchor": "harness device pairing and report only credential",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-221": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "35b96df310c75fbf5a4a07d263987330cfe5a530e9dc87f4b2a46357304f6192",
+      "history": [
+        {
+          "anchor": "usage reports attributed to person device and lane",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-222": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1ab6c8fdb81a042f4bfde95399f8b75a58ca277df85ca00e542bdaf3dc72095f",
+      "history": [
+        {
+          "anchor": "zuri harness plugin",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -6596,6 +6640,19 @@
         }
       ]
     },
+    "FEAT-035": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "2568ecb01270663ee2ead6fbe4226178acf55da2f4b04428a4df728b7439943f",
+      "history": [
+        {
+          "anchor": "zuri harness usage plugin",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
     "RSK-001": {
       "family": "RSK",
       "source": "docs/appendices/E-risk-matrix.md",
@@ -8879,6 +8936,19 @@
       "history": [
         {
           "anchor": "programme delivery telemetry",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-087": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md",
+      "status": "current",
+      "statement_digest": "82c7722c9fccd3c8e72440b93c591971af6be79caf7fddcf31d4e228d652fdeb",
+      "history": [
+        {
+          "anchor": "harness usage plugin",
           "since": "2026-09-13",
           "reason": "declared"
         }

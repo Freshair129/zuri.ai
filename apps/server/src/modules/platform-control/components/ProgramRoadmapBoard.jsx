@@ -9,7 +9,7 @@
 // @tested tests/unit/platform-control-route-contract.test.js, tests/unit/platform-control-domain-map.test.js, tests/unit/program-roadmap-board-telemetry.test.js
 
 import { useState } from 'react'
-import { Boxes, ChevronDown, ClipboardList, Flag, Gauge, History, Layers3, ShieldCheck } from 'lucide-react'
+import { Boxes, ChevronDown, ClipboardList, Flag, Gauge, History, Layers3, MonitorSmartphone, ShieldCheck } from 'lucide-react'
 import { Card, Kpi, PageHeader, ProgressBar, StatusPill } from '@/components/ui'
 import {
   PROGRAMME_DELIVERABLES,
@@ -27,9 +27,11 @@ import {
   phaseDeliveryMetrics,
   subtaskProgress,
   tokensUsed,
+  UNATTRIBUTED_LANE,
 } from '@/modules/platform-control/program-delivery-metrics'
 import { TONE_WORD } from '@/modules/platform-control/program-task-evidence'
 import DomainMapView from './DomainMapView'
+import HarnessDevicesView from './HarnessDevicesView'
 import TiltCard from './TiltCard'
 import styles from './program-roadmap-board.module.css'
 
@@ -114,6 +116,22 @@ function usageSources(sources) {
   return sources.map((s) => (s.startsWith('report:') ? `${s.slice('report:'.length)} (รายงาน)` : s)).join(', ')
 }
 
+// FR-221: usage per person (and per device in task detail). The meter's local-log
+// figures carry no person and are shown as such, never guessed.
+function Breakdown({ rows, testId, noPersonLabel = 'ไม่ระบุคน (log เครื่อง operator)' }) {
+  const entries = Object.entries(rows || {}).sort((a, b) => b[1].used - a[1].used)
+  if (!entries.length) return null
+  return (
+    <span className={styles.breakdown} data-testid={testId}>
+      {entries.map(([label, row]) => (
+        <span key={label || 'none'} className={styles.breakdownChip} title={`cache read ${formatTokens(row.cacheRead)} · ${row.sessions} session`}>
+          {label || noPersonLabel} <b>{formatTokens(row.used)}</b>
+        </span>
+      ))}
+    </span>
+  )
+}
+
 function PhaseMetrics({ phase, metrics }) {
   const m = metrics.measured
   const breakdown = STATUS_ORDER.filter((s) => metrics.byStatus[s]).map((s) => `${s} ${metrics.byStatus[s]}`).join(' · ')
@@ -146,6 +164,7 @@ function PhaseMetrics({ phase, metrics }) {
               <span className={styles.metricMuted}>เวลาจริงแสดงเมื่อ phase done · active ถึงตอนนี้ {formatDuration(m.activeMinutes)}</span>
             )}
             <span className={styles.metricMuted}>{m.sessions} session · วัดได้ {m.coveredTasks}/{metrics.taskCount} task · {usageSources(m.sources)}</span>
+            <Breakdown rows={m.byPerson} testId={`phase-people-${phase.id}`} />
           </>
         ) : (
           <span className={styles.metricMuted}>ยังไม่วัด — ไม่มี lane ที่ประกาศ branch และมี session ใน phase นี้</span>
@@ -166,6 +185,12 @@ function LaneTelemetry({ id, laneUsage }) {
           {lane ? <>lane <code>{lane.id}</code> ({lane.tasks.length} task ใช้ร่วมกัน · branch {lane.branches.join(', ')}) · </> : null}
           ใช้ไป <b>{tokensUsed(m.tokens).toLocaleString()}</b> token (+ cache read {m.tokens.cacheRead.toLocaleString()}) · active {formatDuration(m.activeMinutes)} · {m.sessions} session · {usageSources(m.sources)}
           {m.firstActivityAt && <> · {m.firstActivityAt.slice(0, 16).replace('T', ' ')} → {m.lastActivityAt.slice(0, 16).replace('T', ' ')} UTC</>}
+        </p>
+      ) : null}
+      {m ? (
+        <p className="mt-1 flex flex-wrap items-center gap-2 text-xs">
+          <span className="text-muted">ตามคน</span><Breakdown rows={m.byPerson} testId={`task-people-${id}`} />
+          {Object.keys(m.byDevice || {}).length > 0 && <><span className="text-muted">ตาม device</span><Breakdown rows={m.byDevice} testId={`task-devices-${id}`} /></>}
         </p>
       ) : (
         <p className="text-xs text-muted">ยังไม่วัด{lane ? ` — lane ${lane.id} ยังไม่มี session บน ${lane.branches.join(', ')}` : ' — task นี้ไม่อยู่ใน lane ใด'}</p>
@@ -324,6 +349,8 @@ function HistoryChart({ history }) {
 const VIEWS = [
   { id: 'programme', label: 'Programme plan', icon: Layers3 },
   { id: 'domains', label: 'Domain map & inventory', icon: Boxes },
+  // FR-220 (ADR-087 D3): paired agent harness devices — activate or revoke.
+  { id: 'devices', label: 'Agent devices', icon: MonitorSmartphone },
 ]
 
 const toneOf = (status) => (status === 'done' ? 'done' : status === 'review' ? 'review' : null)
@@ -336,7 +363,7 @@ export default function ProgramRoadmapBoard({
   taskEvidence = null,
 }) {
   const laneUsageMap = new Map(Object.entries(laneUsage))
-  const [view, setView] = useState(domainMap && initialView === 'domains' ? 'domains' : 'programme')
+  const [view, setView] = useState(domainMap && ['domains', 'devices'].includes(initialView) ? initialView : 'programme')
   const selectView = (next) => {
     setView(next)
     if (typeof window === 'undefined') return
@@ -383,7 +410,11 @@ export default function ProgramRoadmapBoard({
         </div>
       )}
 
-      {view === 'domains' && domainMap ? (
+      {view === 'devices' && domainMap ? (
+        <div role="tabpanel" id="roadmap-panel-devices" aria-labelledby="roadmap-tab-devices">
+          <HarnessDevicesView />
+        </div>
+      ) : view === 'domains' && domainMap ? (
         <div role="tabpanel" id="roadmap-panel-domains" aria-labelledby="roadmap-tab-domains">
           <DomainMapView domainMap={domainMap} />
         </div>
@@ -435,7 +466,8 @@ export default function ProgramRoadmapBoard({
             ))}
             <span className="text-muted">
               · วัดจริงถึง {PROGRAMME_USAGE.measuredThrough ? `${PROGRAMME_USAGE.measuredThrough.slice(0, 16).replace('T', ' ')} UTC` : '—'} จาก log ของ agent
-              · รายงานจาก agent {usageReports.available ? `${usageReports.count} session` : 'ยังไม่เปิดใช้ (migration ยังไม่ apply)'}
+              · รายงานจาก agent {usageReports.available ? `${usageReports.count} รายงาน` : 'ยังไม่เปิดใช้ (migration ยังไม่ apply)'}
+              {laneUsage[UNATTRIBUTED_LANE] ? `· ยังไม่ผูก lane ${laneUsage[UNATTRIBUTED_LANE].sessions} รายงาน (${formatTokens(tokensUsed(laneUsage[UNATTRIBUTED_LANE].tokens))} token)` : ''}
               · effort: C-1 {PROGRAMME_SIZING.effortHours['C-1']} ชม. · C-2 {PROGRAMME_SIZING.effortHours['C-2']} ชม. · C-3 {PROGRAMME_SIZING.effortHours['C-3']} ชม.
             </span>
           </div>

@@ -182,8 +182,11 @@ describe('OpenAPI document', () => {
       // template (GET) and the workbook upload (POST). 257 + 6 = 263; 351 + 7 = 358.
       // FR-218 (ADR-086 D5) adds one path and one operation: the bearer-authenticated
       // programme usage report (POST). 263 + 1 = 264; 358 + 1 = 359.
-      pathCount: 264,
-      operationCount: 359,
+      // FR-220/FR-221 (ADR-087) add six paths and six operations: harness pairing
+      // start, approve and poll (POST each), the operator device list (GET) and item
+      // (PATCH), and the harness credential's whoami read (GET). 264 + 6 = 270; 359 + 6 = 365.
+      pathCount: 270,
+      operationCount: 365,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

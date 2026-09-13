@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.49.0b"
+version: "1.50.0b"
 status: active
 last_update: "2026-09-13T22:30:00+07:00,Claude Opus 5"
 relations:
@@ -66,6 +66,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-032 | Catalogue intake that resolves before it creates — one envelope that JSON, a Business-specific Excel workbook and a LINE `#sku` command all convert into; a planner that looks up every item by its barcodes, partner codes and SKU code (following merges) before it plans a create, matches without overwriting, and applies ADR-083's guards across the catalogue and the batch; a persisted preview whose plan hash a commit must match; an all-or-nothing commit through the existing catalogue writers; the Import tab; and LINE previews that only a verified staff sender with Inventory write authority can confirm (ADR-084, `DOM-INVENTORY`) | FR-208, FR-209, FR-210 | implemented |
 | FEAT-033 | Data Pipeline Map — where data enters zuri-ai, where it is combined and who receives it, kept as a validated registry whose surface levels, build statuses and FEATs are derived from the tree and the readiness snapshot, drawn as a node-edge view with chain, domain and status filters in a Knowledge (GKS) navigation slot, with live per-edge health for the active Business declared next (ADR-085, `DOM-KNOWLEDGE`) | FR-212, FR-213, FR-214, FR-215 | building |
 | FEAT-034 | Programme delivery telemetry — phase cards on the operator programme board show counts, size, plan window and effort estimate beside the time and tokens really used, measured from local agent session logs and agent usage reports and never presented as progress, and task cards carry evidence badges and subtask progress (ADR-086, `DOM-PLATFORM-CONTROL`) | FR-216, FR-217, FR-218, FR-219 | building |
+| FEAT-035 | Zuri harness usage plugin — Claude Code and Codex agents on any machine pair once through a signed-in browser, hold a credential that can only report usage, and report each finished session attributed to the approving person, the device and the lane of its branch (ADR-087, `DOM-IDENTITY`, `DOM-PLATFORM-CONTROL`) | FR-220, FR-221, FR-222 | building |
 
 Version diff 1.39.0b → 1.40.0b (2026-09-12): FEAT-030 declared and implemented in the same change — audit events carry queryable scope (FR-198) and identity gains the two read models an access review needs (FR-199), under ADR-080. Closes the gap ADR-077's grant lifecycle assumed was already open.
 
@@ -840,6 +841,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FEAT-034",
     "primaryDomain": "platform-control",
     "useCase": "installation operator เปิด /control/roadmap แล้วเห็นว่าแต่ละ phase มีกี่ sprint กี่ task ขนาดเท่าไร ใช้เวลาประมาณเท่าไร และงานที่ done แล้วใช้เวลาจริงกับ token จริงไปเท่าไรจาก log ของ agent ที่วัดได้ ไม่ใช่ค่าประมาณ พร้อม badge บนการ์ด task ว่าเอกสาร โค้ด เทสต์ FR NFR FEAT ของงานนั้นเสร็จ รอรีวิว ต้องแก้ หรือยังว่าง และ progress bar ของ subtask"
+  },
+  {
+    "id": "FEAT-035",
+    "primaryDomain": "identity",
+    "useCase": "นักพัฒนาติดตั้ง plugin ของ Zuri ใน Claude Code หรือ Codex บนเครื่องตัวเอง กดจับคู่แล้วยืนยันใน browser ที่ login zuri-ai ค้างไว้ครั้งเดียว หลังจากนั้นทุก session ที่จบจะส่งยอด token จริงขึ้น zuri-ai เอง operator เห็นบน /control/roadmap ว่าใครใช้ไปเท่าไรจากเครื่องไหนใน lane ไหน และเพิกถอนเครื่องที่ไม่ใช้แล้วได้"
   }
 ]
 ```
@@ -874,3 +880,5 @@ Version diff 1.46.0b → 1.47.0b (2026-09-13): **FEAT-032 moves from `building` 
 Version diff 1.47.0b → 1.48.0b (2026-09-13): Added **FEAT-033** (FR-212..FR-215) under **ADR-085** — the Data Pipeline Map in a Knowledge (GKS) navigation slot. FR-212..FR-214 implemented locally; FR-215 declared only.
 
 Version diff 1.48.0b → 1.49.0b (2026-09-13): Added **FEAT-034** (FR-216..FR-219) under **ADR-086** — programme delivery telemetry and task card evidence badges on `/control/roadmap`. Declared; building.
+
+Version diff 1.49.0b → 1.50.0b (2026-09-14): Added **FEAT-035** (FR-220..FR-222) under **ADR-087** — the Zuri harness usage plugin with browser-paired devices and a report-only credential. Declared; building.
