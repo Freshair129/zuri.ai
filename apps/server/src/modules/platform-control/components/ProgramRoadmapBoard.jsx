@@ -5,6 +5,8 @@
 // @req FR-216 — each phase card carries its planned figures and, beside them, the
 //   time and tokens measured for its lanes; done cards read green, review orange.
 // @req FR-219 — each task card carries evidence badges and its subtask progress.
+// @req FR-240 — phase cards split tokens and show tool calls, prompts and compactions;
+//   task telemetry lists the most used tools, errors and denials.
 // @spec ADR-048 D3, ADR-086 D1, D6, SDD-055, NFR-008
 // @tested tests/unit/platform-control-route-contract.test.js, tests/unit/platform-control-domain-map.test.js, tests/unit/program-roadmap-board-telemetry.test.js
 
@@ -27,6 +29,7 @@ import {
   phaseDeliveryMetrics,
   subtaskProgress,
   tokensUsed,
+  topTools,
   UNATTRIBUTED_LANE,
 } from '@/modules/platform-control/program-delivery-metrics'
 import { TONE_WORD } from '@/modules/platform-control/program-task-evidence'
@@ -116,6 +119,33 @@ function usageSources(sources) {
   return sources.map((s) => (s.startsWith('report:') ? `${s.slice('report:'.length)} (รายงาน)` : s)).join(', ')
 }
 
+// FR-240: the token split and the usage detail beside it. A lane whose reports and
+// logs carried no detail says so rather than showing zeros (ADR-086 D7).
+function UsageDetailRow({ tokens, detail, detailSessions = 0, sessions = 0, testId }) {
+  const errorRate = detail?.toolCalls ? Math.round((detail.toolErrors / detail.toolCalls) * 1000) / 10 : 0
+  return (
+    <div className={styles.metricRow} data-testid={testId} data-detail={detailSessions ? 'true' : 'false'}>
+      <span className={styles.metricLabel}>ละเอียด</span>
+      <span className={styles.metric} title="input ที่ไม่ได้มาจาก cache"><b>{formatTokens(tokens.input)}</b> in</span>
+      <span className={styles.metric} title="output รวม thinking"><b>{formatTokens(tokens.output)}</b> out</span>
+      {detailSessions ? (
+        <>
+          <span className={styles.metric} title="ส่วนหนึ่งของ output"><b>{formatTokens(detail.reasoningTokens)}</b> thinking</span>
+          <span className={styles.metric} title={`5 นาที ${formatTokens(detail.cacheWrite5mTokens)} · 1 ชั่วโมง ${formatTokens(detail.cacheWrite1hTokens)}`}><b>{formatTokens(tokens.cacheWrite)}</b> cache write</span>
+          <span className={styles.metric}><b>{formatTokens(tokens.cacheRead)}</b> cache read</span>
+          <span className={styles.metric} title={`error ${detail.toolErrors} · ถูกปฏิเสธ ${detail.toolDenials}`}><b>{detail.toolCalls.toLocaleString()}</b> tool call · error {errorRate}%</span>
+          <span className={styles.metric}><b>{detail.prompts}</b> prompt</span>
+          <span className={styles.metric}><b>{detail.compactions}</b> compaction</span>
+          {detail.webSearchRequests + detail.webFetchRequests > 0 && <span className={styles.metricMuted}>web search {detail.webSearchRequests} · fetch {detail.webFetchRequests}</span>}
+          {detailSessions < sessions && <span className={styles.metricMuted}>มีรายละเอียด {detailSessions}/{sessions} session</span>}
+        </>
+      ) : (
+        <span className={styles.metricMuted}>ยังไม่มีรายละเอียด (tool call, thinking, prompt) — plugin หรือ meter รุ่นก่อน FR-239</span>
+      )}
+    </div>
+  )
+}
+
 // FR-221: usage per person (and per device in task detail). The meter's local-log
 // figures carry no person and are shown as such, never guessed.
 function Breakdown({ rows, testId, noPersonLabel = 'ไม่ระบุคน (log เครื่อง operator)' }) {
@@ -170,6 +200,7 @@ function PhaseMetrics({ phase, metrics }) {
           <span className={styles.metricMuted}>ยังไม่วัด — ไม่มี lane ที่ประกาศ branch และมี session ใน phase นี้</span>
         )}
       </div>
+      {m ? <UsageDetailRow tokens={m.tokens} detail={m.detail} detailSessions={m.detailSessions} sessions={m.sessions} testId={`phase-detail-${phase.id}`} /> : null}
     </div>
   )
 }
@@ -192,6 +223,26 @@ function LaneTelemetry({ id, laneUsage }) {
           <span className="text-muted">ตามคน</span><Breakdown rows={m.byPerson} testId={`task-people-${id}`} />
           {Object.keys(m.byDevice || {}).length > 0 && <><span className="text-muted">ตาม device</span><Breakdown rows={m.byDevice} testId={`task-devices-${id}`} /></>}
         </p>
+      ) : null}
+      {m?.detailSessions ? (
+        <div className="mt-2 space-y-1 text-xs" data-testid={`task-tools-${id}`}>
+          <p>
+            <span className="text-muted">tool call </span><b>{m.detail.toolCalls.toLocaleString()}</b>
+            <span className="text-muted"> · error </span><b>{m.detail.toolErrors}</b>
+            <span className="text-muted"> · ถูกปฏิเสธ </span><b>{m.detail.toolDenials}</b>
+            <span className="text-muted"> · thinking </span><b>{formatTokens(m.detail.reasoningTokens)}</b>
+            <span className="text-muted"> · prompt </span><b>{m.detail.prompts}</b>
+            <span className="text-muted"> · compaction </span><b>{m.detail.compactions}</b>
+            {Object.keys(m.detail.models || {}).length > 0 && <span className="text-muted"> · {Object.entries(m.detail.models).map(([model, n]) => `${model} ${n}`).join(', ')}</span>}
+          </p>
+          <p className={styles.breakdown}>
+            {topTools(m.detail).map((tool) => (
+              <span key={tool.name} className={styles.breakdownChip} title={`error ${tool.errors}`}>{tool.name} <b>{tool.calls}</b>{tool.errors ? <span className="text-muted"> ({tool.errors} error)</span> : null}</span>
+            ))}
+          </p>
+        </div>
+      ) : m ? (
+        <p className="mt-1 text-xs text-muted">ยังไม่มีรายละเอียด tool call ของ lane นี้</p>
       ) : (
         <p className="text-xs text-muted">ยังไม่วัด{lane ? ` — lane ${lane.id} ยังไม่มี session บน ${lane.branches.join(', ')}` : ' — task นี้ไม่อยู่ใน lane ใด'}</p>
       )}

@@ -366,6 +366,8 @@
     "FR-236",
     "FR-237",
     "FR-238",
+    "FR-239",
+    "FR-240",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -558,6 +560,7 @@
     "FEAT-036",
     "FEAT-037",
     "FEAT-038",
+    "FEAT-039",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -4496,6 +4499,32 @@
         }
       ]
     },
+    "FR-239": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "e731e720e80df2f6d48cf65a7c1d47e1fc0fe4bc04ea3647d5ff3e2f7c4f5d35",
+      "history": [
+        {
+          "anchor": "agent usage detail capture",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-240": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "a5a47382d2142a684ec3812b2481e12140a619f7dc155bd34c0aca4bc2f179dd",
+      "history": [
+        {
+          "anchor": "usage detail on the programme board",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -7044,6 +7073,19 @@
       "history": [
         {
           "anchor": "line grounding and knowledge candidates",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-039": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "3dbad1da583d45672467ec3e02dac34442b6cc4cb760c5c614b1475b88434182",
+      "history": [
+        {
+          "anchor": "agent usage detail",
           "since": "2026-09-13",
           "reason": "declared"
         }
