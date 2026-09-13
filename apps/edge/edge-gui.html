@@ -382,8 +382,7 @@
             <div class="field">
               <label for="activePersona">Active Persona (.agents/)</label>
               <select id="activePersona" class="input">
-                <option value="zuri-01">zuri-01 (SmartGift Sales Assistant)</option>
-                <option value="default">default (General Assistant)</option>
+                <option value="zuri-01">zuri-01</option>
               </select>
             </div>
           </div>
@@ -796,7 +795,18 @@
         if (data.retentionDays) document.getElementById('retentionDays').value = data.retentionDays;
         if (data.lineGroupTeam) document.getElementById('lineGroupTeam').value = data.lineGroupTeam;
         if (data.lineGroupTest) document.getElementById('lineGroupTest').value = data.lineGroupTest;
-        if (data.activePersona) document.getElementById('activePersona').value = data.activePersona;
+        // Options come from the device's own .agents/ folder, so the list is what it can load.
+        const personaSelect = document.getElementById('activePersona');
+        if (Array.isArray(data.availablePersonas) && data.availablePersonas.length) {
+          personaSelect.innerHTML = '';
+          for (const persona of data.availablePersonas) {
+            const option = document.createElement('option');
+            option.value = persona.id;
+            option.textContent = persona.label || persona.id;
+            personaSelect.appendChild(option);
+          }
+        }
+        if (data.activePersona) personaSelect.value = data.activePersona;
 
         // The panel above used to print a hardcoded device id next to a hardcoded "Paired".
         const pairId = document.getElementById('pairingDeviceId');

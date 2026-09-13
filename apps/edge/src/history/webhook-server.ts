@@ -13,6 +13,7 @@ import {
 } from './archive.js';
 import { RegistryOptions, Role, requestAccess, resolveIdentity, listIdentities } from '../identity/registry.js';
 import { isAuthorized, sessionCookie, keyMatches, type AdminSessions } from './admin-auth.js';
+import { activePersonaId, listPersonaOptions } from '../answer/persona.js';
 
 // @req BR-009 — every route that reads or changes configuration, or that can send as the OA,
 //   requires the operator key; only `/` and `/webhook/line` are open.
@@ -362,7 +363,8 @@ export function createLineWebhookServer(options: LineWebhookServerOptions): http
           retentionDays: getVal('LINE_HISTORY_RETENTION_DAYS') || '90',
           engineMode: getVal('ZURI_ENGINE_MODE') || (getVal('ZURI_HEADLESS_ENABLED') === 'false' ? 'OLLAMA_LOCAL' : 'HEADLESS_PLAN'),
           modelName: getVal('ZURI_HEADLESS_MODEL') || getVal('OLLAMA_MODEL') || process.env.ZURI_HEADLESS_MODEL || 'gpt-5.6-luna',
-          activePersona: getVal('ZURI_ACTIVE_PERSONA') || process.env.ZURI_ACTIVE_PERSONA || 'zuri-01',
+          activePersona: getVal('ZURI_ACTIVE_PERSONA') || activePersonaId(),
+          availablePersonas: listPersonaOptions(),
           /*
            * Whether this device is actually paired with the cloud, rather than a badge.
            *
@@ -606,6 +608,12 @@ export function createLineWebhookServer(options: LineWebhookServerOptions): http
            * can be reloaded and name what cannot, rather than implying it all took effect.
            */
           const applied = options.onConfigSaved?.() ?? { reloaded: [], requiresRestart: [] };
+          if (body.activePersona) {
+            // The persona is read from the environment at answer time, so updating the
+            // process is what makes the saved choice apply to the next message.
+            process.env.ZURI_ACTIVE_PERSONA = String(body.activePersona);
+            applied.reloaded = [...applied.reloaded, 'activePersona'];
+          }
           response
             .writeHead(200, { 'Content-Type': 'application/json' })
             .end(JSON.stringify({ success: true, ...applied }));

@@ -1,9 +1,36 @@
 import fs from 'fs';
 import path from 'path';
 
-export function loadPersonaPrompt(personaId: string = 'zuri-01'): string {
-  const agentsRoot = path.resolve('.agents');
-  const personaPath = path.join(agentsRoot, personaId, 'AGENTS.md');
+export const DEFAULT_PERSONA_ID = 'zuri-01';
+
+/**
+ * Where the persona folders live.
+ *
+ * The CLI runs from the checkout, so `.agents/` beside the process is right. The Desktop app's
+ * packaged worker runs with cwd = its data root (`%APPDATA%\zuri-edge-device\runtime-data`) and
+ * a cleared environment, so `.agents/` was never found there and every answer came from the
+ * short built-in fallback. The package now ships `worker/.agents/` and the worker is told its
+ * package root, so that is looked at first; `ZURI_AGENTS_ROOT` overrides both for an operator
+ * who keeps personas elsewhere.
+ */
+export function agentsRoot(): string {
+  const explicit = process.env.ZURI_AGENTS_ROOT?.trim();
+  if (explicit) return path.resolve(explicit);
+  const packageRoot = process.env.ZURI_DESKTOP_PACKAGE_ROOT?.trim();
+  if (packageRoot) {
+    const packaged = path.join(packageRoot, 'worker', '.agents');
+    if (fs.existsSync(packaged)) return packaged;
+  }
+  return path.resolve('.agents');
+}
+
+/** The persona the device answers as: `ZURI_ACTIVE_PERSONA`, read at answer time so a saved change applies without a restart. */
+export function activePersonaId(): string {
+  return process.env.ZURI_ACTIVE_PERSONA?.trim() || DEFAULT_PERSONA_ID;
+}
+
+export function loadPersonaPrompt(personaId: string = DEFAULT_PERSONA_ID): string {
+  const personaPath = path.join(agentsRoot(), personaId, 'AGENTS.md');
 
   if (fs.existsSync(personaPath)) {
     try {
@@ -27,14 +54,47 @@ export function loadPersonaPrompt(personaId: string = 'zuri-01'): string {
 }
 
 export function listAvailablePersonas(): string[] {
-  const agentsRoot = path.resolve('.agents');
-  if (!fs.existsSync(agentsRoot)) return ['zuri-01'];
+  const root = agentsRoot();
+  if (!fs.existsSync(root)) return ['zuri-01'];
   try {
-    return fs.readdirSync(agentsRoot).filter((file) => {
-      const full = path.join(agentsRoot, file);
+    return fs.readdirSync(root).filter((file) => {
+      const full = path.join(root, file);
       return fs.statSync(full).isDirectory() && fs.existsSync(path.join(full, 'AGENTS.md'));
     });
   } catch {
     return ['zuri-01'];
   }
+}
+
+export interface PersonaOption {
+  id: string;
+  /** The first `#` heading of AGENTS.md, or the id when there is none — what a dropdown shows. */
+  label: string;
+}
+
+/**
+ * What the GUI offers. The dropdown used to be two hardcoded options, one of which
+ * (`default`) had no folder and silently fell through to the built-in fallback string; the
+ * list is read from `.agents/` so an operator sees exactly the personas the device can load.
+ */
+export function listPersonaOptions(): PersonaOption[] {
+  const root = agentsRoot();
+  const options = listAvailablePersonas().map((id) => {
+    let label = id;
+    try {
+      const head = fs
+        .readFileSync(path.join(root, id, 'AGENTS.md'), 'utf8')
+        .split('\n')
+        .find((line) => line.startsWith('# '));
+      if (head) label = `${id} — ${head.slice(2).trim()}`;
+    } catch {
+      /* the id alone is a valid label */
+    }
+    return { id, label };
+  });
+  const active = activePersonaId();
+  if (!options.some((option) => option.id === active)) {
+    options.push({ id: active, label: `${active} (ไม่พบ .agents/${active}/AGENTS.md — ใช้ persona สำรองในตัว)` });
+  }
+  return options;
 }
