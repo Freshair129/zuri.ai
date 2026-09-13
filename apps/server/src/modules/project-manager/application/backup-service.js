@@ -356,6 +356,10 @@ export const SNAPSHOT_EXCLUDED_MODELS = {
     'expired the moment the installation stopped, and the candidate a completed one produced already lives ' +
     'on AssetEvidence.extractionJson, which IS exported. Restoring the queue would hand a device work whose ' +
     'result the restore already carries.',
+  harnessCredential:
+    'FR-220 agent harness credentials are credential material — a SHA-256 lookup hash bound to one Person and ' +
+    'installation. They are never exported or restored, so a recovery cannot resurrect a revoked device, and ' +
+    'each harness pairs again under the authority that holds it then (ADR-087 D3).',
   localWorkspaceMount:
     'Device-local mount paths. Deleted explicitly before the sweep and never restored: a mount names a ' +
     'filesystem on one machine, so carrying it into another installation would point at a path that does ' +

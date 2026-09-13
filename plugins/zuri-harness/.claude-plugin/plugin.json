@@ -1,0 +1,17 @@
+{
+  "name": "zuri-harness",
+  "version": "0.1.0",
+  "description": "Pairs this Claude Code (or Codex) device with zuri-ai and reports finished-session token usage, attributed to a signed-in person, device and lane branch — never prompts, responses or credentials.",
+  "author": {
+    "name": "Zuri AI"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "usage-reporting",
+    "device-pairing",
+    "programme-usage",
+    "harness",
+    "ADR-087",
+    "FR-222"
+  ]
+}

@@ -13,6 +13,9 @@ owns_routes:
   - src/app/api/workspace-memberships/**
   - src/app/api/plugin/auth/**
   - src/app/api/platform/edge-devices/**
+  - src/app/harness/**
+  - src/app/api/platform/harness-pairing/**
+  - src/app/api/platform/harness-devices/**
 owns_models:
   - ExternalIdentity
   - IdentityLinkToken
@@ -32,6 +35,7 @@ owns_models:
   - PluginAuthorizationCode
   - PluginSession
   - EdgeDeviceCredential
+  - HarnessCredential
   - MfaFactor
 ---
 
@@ -170,3 +174,17 @@ domain. Implemented by FR-066/067 (`onboarding-service.js`,
   recorded in both charters; target state is a crm contract call. FR-120 is the
   same allowance rather than a new claim: it writes the same three columns, in
   the same lane, for the step that comes immediately before FR-066's.
+
+## Agent harness devices (FR-220, ADR-087)
+
+A Claude Code or Codex installation pairs the way a Zuri Edge Device does: an
+anonymous bounded start, approval by a signed-in person on `/harness/pair` who
+compares the check code and device label, and one redemption by the harness
+holding the device secret. The resulting `HarnessCredential` is bound to that
+**person** and a server-issued installation id, stored as a hash, and scoped to
+`PROGRAMME_USAGE_REPORT` only — it is not a viewer, and every route except
+platform-control's usage report endpoint and its whoami read refuses it. Only an
+installation operator or a person holding a visible Business may approve; a
+non-operator's device is `PENDING_ACTIVATION` until an operator activates it on
+the Agent devices tab. `describeHarnessReporters` is the read port the board uses
+for device labels and person names; it returns no key material.

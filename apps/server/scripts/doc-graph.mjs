@@ -436,10 +436,16 @@ function build() {
   // files, and `docs/FEATURE-MAP.md` reported it `🔜 planned · code — · tests —`.
   // Governance said the work had not started while it was running in production.
   const edgeCodeFiles = walk(workspacePath(ROOT, 'apps', 'edge', 'src'), ['.js', '.jsx', '.ts', '.tsx'])
+  // FR-222 (ADR-087 D7): the Zuri harness plugin ships from the repository root's
+  // plugins/ so it can be installed from the marketplace entry without the server
+  // tree. Unscanned, its FR would read as having no code, the same blindness the
+  // Edge note above describes.
+  const pluginCodeFiles = walk(workspacePath(ROOT, 'plugins'), ['.mjs', '.js'])
   const codeFiles = [
     ...walk(workspacePath(ROOT, 'src'), ['.js', '.jsx']),
     ...walk(workspacePath(ROOT, 'prisma'), ['.js']),
     ...edgeCodeFiles,
+    ...pluginCodeFiles,
   ]
   const isEdgeFile = new Set(edgeCodeFiles.map((f) => f))
   for (const file of codeFiles) {

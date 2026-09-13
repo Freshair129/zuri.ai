@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/bin/zuri-harness.mjs\" whoami --hook",
+            "timeout": 10,
+            "description": "zuri-harness: print who this device is paired to and flush any queued usage reports (ADR-087 D7)"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/bin/zuri-harness.mjs\" report --claude-hook",
+            "timeout": 20,
+            "description": "zuri-harness: report this finished session's token usage, split by branch (FR-221)"
+          }
+        ]
+      }
+    ]
+  }
+}
