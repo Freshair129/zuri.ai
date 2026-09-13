@@ -409,7 +409,7 @@ Week numbers map to the calendar in section 5.4. W1 begins Mon 2026-08-24.
 
 | Phase | Weeks | Dates | Goal | Governing SoT | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
-| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2); (v0.4.7) bind the LINE OA platform plan to lanes before its work starts | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, the cost and quote decision record is written, the data pipeline map renders every confirmed chain (v0.4.3), and the board shows measured time and tokens for done work (v0.4.4) | in-progress | 85 |
+| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2); (v0.4.7) bind the LINE OA platform plan to lanes before its work starts | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, the cost and quote decision record is written, the data pipeline map renders every confirmed chain (v0.4.3), and the board shows measured time and tokens for done work (v0.4.4) | in-progress | 87 |
 | PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; give the seventeen-stage pipeline its knowledge base and file system on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one; (v0.4.7) a Business owner connects a LINE OA from the browser through a write-only credential vault, and the LINE chat record is complete with declared retention | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; a real document is admitted, parsed, published and cited on production; GATE-ZAI-09's migration ledger matches; one production LINE OA account runs on server transport from a vault credential its owner entered, with no operator file (v0.4.7) | planned | 0 |
 | PHASE-ZAI-03 | 9-12 | 2026-10-19 to 2026-11-15 | Second business, cross-business analytics, first workflows and connectors; deliverable 11 accepted for Business one; (v0.4.7) one Context Composer for every LINE prompt, LINE answers grounded by the published corpus, reviewed knowledge candidates, and memory policy with erasure beyond Tier 1 once MSP can hold and erase it | `docs/ARCHITECTURE.md` | GATE-ZAI-04 and GATE-ZAI-07 are met for connectors one and two and workflows one and two; GATE-ZAI-09 is met; a SmartGift LINE answer cites the published corpus in the isolated harness with zero cross-tenant leakage (v0.4.7) | planned | 0 |
 | PHASE-ZAI-04 | 13-16 | 2026-11-16 to 2026-12-13 | Visual Office 2.5D and the agent activity experience | `docs/UI-DESIGN-SYSTEM.md` | GATE-ZAI-01 is met | planned | 0 |
@@ -430,7 +430,7 @@ locates the week.
 | Sprint | Parent ID | Weeks | Dates | Goal | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
 | SPR-ZAI-01 | PHASE-ZAI-01 | 1-2 | 08-24 to 09-06 | Close identity, session and authorization to production standard; (CR-019) Inventory, Sales Tasks, Commerce, Procurement, Asset Management and LINE OA Studio lanes land | A request without a trusted session reaches no mutating route, proven by test; each lane merged with tests | in-progress | 93 |
-| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake; (v0.4.3) the data pipeline registry and its node-edge map land under a Knowledge (GKS) slot; (v0.4.4) delivery telemetry on the programme board: phase card metrics, task card evidence badges with subtask progress, a usage meter over local session logs and a usage report endpoint; (v0.4.5) the Zuri harness usage plugin with browser-approved device pairing; (v0.4.6) the plugin specification and agent usage detail — thinking tokens, tool calls, prompts and compactions; (v0.4.7) the LINE OA platform plan registered with its lanes before work starts; (v0.4.8) a 30-day member view of the roadmap for signed-in people | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, supplier cost sheets land with a locked FX rate, and the map shows every inbound source, outbound recipient and combine chain with its surface level, a done task shows tokens measured from a named source, every task card shows its evidence badges, a paired agent on another machine reports its sessions (v0.4.5), the board shows tool calls and token types per lane and person (v0.4.6), and a signed-in non-operator reads the plan at /roadmap until the window closes (v0.4.8) | in-progress | 83 |
+| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake; (v0.4.3) the data pipeline registry and its node-edge map land under a Knowledge (GKS) slot; (v0.4.4) delivery telemetry on the programme board: phase card metrics, task card evidence badges with subtask progress, a usage meter over local session logs and a usage report endpoint; (v0.4.5) the Zuri harness usage plugin with browser-approved device pairing; (v0.4.6) the plugin specification and agent usage detail — thinking tokens, tool calls, prompts and compactions; (v0.4.7) the LINE OA platform plan registered with its lanes before work starts; (v0.4.8) a 30-day member view of the roadmap for signed-in people | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, supplier cost sheets land with a locked FX rate, and the map shows every inbound source, outbound recipient and combine chain with its surface level, a done task shows tokens measured from a named source, every task card shows its evidence badges, a paired agent on another machine reports its sessions (v0.4.5), the board shows tool calls and token types per lane and person (v0.4.6), and a signed-in non-operator reads the plan at /roadmap until the window closes (v0.4.8) | in-progress | 85 |
 | SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; stand up the knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending deliverable-11 migration on production; pricing rule set, the shared pricing engine and quotations; live pipeline health on the data pipeline map; (v0.4.7) the Integration credential vault with Supabase Vault and envelope stores, the LINE channel claim and channel-admin port, and the AAL2 credential-write gate | Each role resolves distinct tools, policy and memory partition; a PDF uploaded in the console is published as a cited corpus on production; the migration ledger matches the tree; a quote and the FR-181 tool price the same SKU to the same satang; a failed run is visible on its map edge for its own Business only; ADR-089 proofs 1 to 6 pass on both stores and a real test channel is validated in a dev deployment with no production migration applied (v0.4.7) | planned | 0 |
 | SPR-ZAI-04 | PHASE-ZAI-02 | 7-8 | 10-05 to 10-18 | Approval Gateway L1 to L4 with verification, notification and Mission Control binding; ladder quotation on LINE and knowledge structured records; (v0.4.7) the self-serve LINE OA wizard with automatic webhook registration and derived quiescence, the first production account moved off the mount, and the complete chat record with retention sweep and inbox search | An L4 action cannot execute without four recorded approvals; a LINE quotation request is answered from the shared engine with no margin in the payload; one production LINE OA account runs on server transport from a credential its owner entered, and non-text LINE events appear in the inbox (v0.4.7) | planned | 0 |
 | SPR-ZAI-05 | PHASE-ZAI-03 | 9-10 | 10-19 to 11-01 | Standard business template and Business number two onboarding; (v0.4.7) the Context Composer, and LINE grounding from the published corpus with its isolated acceptance | Business two is live and isolated from SmartGift under test; every LINE prompt carries one ContextReceipt and a grounded answer cites the corpus in the four-process harness (v0.4.7) | planned | 0 |
@@ -549,7 +549,7 @@ locates the week.
 | TASK-ZAI-101 | SPR-ZAI-06 | task | Erasure propagation beyond Tier 1 — one transaction tombstones CRM bodies, previews, attachments, LINE job fields, raw payloads, trace inputs and knowledge candidates, and leaves durable MSP erase calls per projection receipt and knowledge-source withdrawals, with PENDING_MSP until acknowledged — FR-232, SEC-031 | P1 | Claude | blocked | TASK-ZAI-100; TASK-ZAI-096 | Section 3.1 row 4; ADR-091 D6; ADR-090 D8; PLAN-MSP-MEMORY-OS-LINE-AGENT TASK-MEMOS-004 |
 | TASK-ZAI-102 | SPR-ZAI-06 | task | Memory policy production activation — apply the memory policy and projection receipt migrations under ADR-057 and, only on the owner's instruction, enable projection for one DIRECT account after the MSP canary (TASK-MEMOS-006) passes, recorded with a rollback | P1 | ATHER | blocked | TASK-ZAI-101 | ADR-057; ADR-091 D3; PLAN-MSP-MEMORY-OS-LINE-AGENT TASK-MEMOS-006 |
 | TASK-ZAI-103 | SPR-ZAI-10 | task | Generalise the credential vault to other provider kinds — OAUTH_CLIENT for FlowAccount (ADR-053) and MODEL_PROVIDER_KEY on the same SecretStorePort, and retire the Phase-1 model-credential resolver; requirements declared first | P2 | Claude | planned | TASK-ZAI-085 | Section 3.1 row 8; ADR-089 phase 7; ADR-053 D3 |
-| TASK-ZAI-104 | SPR-ZAI-02 | task | Programme roadmap member view — for 30 days any signed-in person reads the programme plan and the Domain map at /roadmap, with usage by person and device, tool and model names and the Agent devices tab removed on the server, closing by itself at 2026-10-15 00:00 Asia/Bangkok while /control/roadmap stays operator-only | P1 | Claude | planned | TASK-ZAI-075 | Section 3.1 row 2; FR-105; FR-211; ADR-048; ADR-092 |
+| TASK-ZAI-104 | SPR-ZAI-02 | task | Programme roadmap member view — for 30 days any signed-in person reads the programme plan and the Domain map at /roadmap, with usage by person and device, tool and model names and the Agent devices tab removed on the server, closing by itself at 2026-10-15 00:00 Asia/Bangkok while /control/roadmap stays operator-only | P1 | Claude | review | TASK-ZAI-075 | Section 3.1 row 2; FR-105; FR-211; ADR-048; ADR-092 |
 
 ## Assignments
 
@@ -5375,8 +5375,8 @@ title: Programme roadmap member view — for 30 days any signed-in person reads 
 requirement_type: FR
 complexity: C-2
 access_scope: H2
-status: planned
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -5389,24 +5389,24 @@ delivers: [FR-241]
 subtasks:
   - id: P0
     title: Window constant and signed-in guard for /roadmap
-    status: planned
+    status: done
   - id: P1
     title: Server-side member projection without people, devices, tool or model names
-    status: planned
+    status: done
   - id: P2
     title: Board member mode without the Agent devices tab, with the closing date shown
-    status: planned
+    status: done
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a signed-in person who holds no operator grant, when they open /roadmap before 2026-10-15 00:00 Asia/Bangkok, then they read the programme board and the Domain map tab read-only, a visitor without a session is sent to /login, and /control/roadmap still answers that person with a 404
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given the member projection built on the server, when it is rendered, then it carries no usage by person or device, no tool or model name, no Agent devices tab and no report or credential row, and a test asserts those fields are absent from the data handed to the client
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given the window constant, when the clock passes its closing time, then /roadmap is a non-enumerating 404 for everyone including operators, and npm test covers open, closed, unauthenticated and the stripped projection
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.8) on the owner's instruction to open the roadmap for 30 days. Asked who and what, the owner chose anyone signed in (not an anonymous URL or a share link) and the programme plan with the Domain map only (no usage by person or device, no Agent devices tab). ADR-092 records the decision; FR-241 declares the behaviour. /control/roadmap had one admitted person on 2026-09-14, the only OPERATOR grant holder.
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.8) on the owner's instruction to open the roadmap for 30 days. Asked who and what, the owner chose anyone signed in (not an anonymous URL or a share link) and the programme plan with the Domain map only (no usage by person or device, no Agent devices tab). ADR-092 records the decision; FR-241 declares the behaviour. /control/roadmap had one admitted person on 2026-09-14, the only OPERATOR grant holder. Implemented locally 2026-09-14 (FR-241): src/app/roadmap/page.jsx guards on the window constant first, then the session; programme-member-view.js holds MEMBER_VIEW_CLOSES_AT and projectMemberLaneUsage, which drops usage by person and device and tool and model names on the server; the board takes lanes, sizing and the measured-through time as props so its client bundle no longer carries the generated usage block, and audience="member" hides the Agent devices tab and per-person rows; tests/unit/programme-member-view.test.js, and tests/e2e/fr241-roadmap-member-view.spec.js, which was not run locally (the worktree install predates the `three` dependency and installing was not permitted in the session) and is left to CI. Review, not done: not merged, not deployed.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -5669,7 +5669,7 @@ second run over the same logs writes the same block.
 ```json
 {
   "meter": "scripts/programme-usage-meter.mjs",
-  "measuredThrough": "2026-09-13T20:54:32.683Z",
+  "measuredThrough": "2026-09-13T23:23:54.601Z",
   "lanes": {
     "LANE-COST-QUOTE-PLAN": {
       "requests": 33,
@@ -5997,6 +5997,148 @@ second run over the same logs writes the same block.
         }
       }
     },
+    "LANE-LINE-OA-VAULT": {
+      "requests": 152,
+      "sessions": [
+        "claude-code:aac0cfef-d023-4455-a10f-a729b17b61f6"
+      ],
+      "tokens": {
+        "input": 304,
+        "cacheWrite": 347773,
+        "cacheRead": 84271440,
+        "output": 253021
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 152,
+          "tokens": {
+            "input": 304,
+            "cacheWrite": 347773,
+            "cacheRead": 84271440,
+            "output": 253021
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5"
+      ],
+      "firstActivityAt": "2026-09-13T22:04:31.684Z",
+      "lastActivityAt": "2026-09-13T23:20:30.145Z",
+      "activeMinutes": 76,
+      "detail": {
+        "reasoningTokens": 56221,
+        "cacheWrite5mTokens": 0,
+        "cacheWrite1hTokens": 347773,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 0,
+        "toolCalls": 248,
+        "toolErrors": 10,
+        "toolDenials": 0,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Bash": {
+            "calls": 19,
+            "errors": 2
+          },
+          "Edit": {
+            "calls": 103,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 22,
+            "errors": 0
+          },
+          "PowerShell": {
+            "calls": 38,
+            "errors": 8
+          },
+          "Read": {
+            "calls": 25,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 41,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 152
+        }
+      }
+    },
+    "LANE-ROADMAP-MEMBER-VIEW": {
+      "requests": 61,
+      "sessions": [
+        "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
+      ],
+      "tokens": {
+        "input": 124,
+        "cacheWrite": 116716,
+        "cacheRead": 20429621,
+        "output": 58133
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 61,
+          "tokens": {
+            "input": 124,
+            "cacheWrite": 116716,
+            "cacheRead": 20429621,
+            "output": 58133
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5"
+      ],
+      "firstActivityAt": "2026-09-13T23:02:24.792Z",
+      "lastActivityAt": "2026-09-13T23:23:54.601Z",
+      "activeMinutes": 21,
+      "detail": {
+        "reasoningTokens": 11779,
+        "cacheWrite5mTokens": 0,
+        "cacheWrite1hTokens": 116716,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 1,
+        "toolCalls": 83,
+        "toolErrors": 6,
+        "toolDenials": 1,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Bash": {
+            "calls": 30,
+            "errors": 2
+          },
+          "Edit": {
+            "calls": 27,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 1,
+            "errors": 0
+          },
+          "PowerShell": {
+            "calls": 14,
+            "errors": 4
+          },
+          "Read": {
+            "calls": 3,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 8,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 61
+        }
+      }
+    },
     "LANE-USAGE-DETAIL-AND-SPEC": {
       "requests": 46,
       "sessions": [
@@ -6097,4 +6239,4 @@ second run over the same logs writes the same block.
 | 0.4.5 | 2026-09-14 | **Zuri harness usage plugin** added on the owner's instruction, under deliverable 2 (no Change Request needed): agents on other machines report the tokens they used through a plugin for Claude Code and Codex instead of a shared deployment token. The owner chose a plugin over a connector (the harness, not the model, reads the billed usage) and accepted the recommended identity design — a device is paired once by browser approval with a check code (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; each report is attributed to the approving person and the installation, with the AI account kept as a declared label. SPR-ZAI-02 (current): TASK-ZAI-069 decision record (in-progress), TASK-ZAI-070 device pairing and report-only credential, TASK-ZAI-071 attribution to person, device and lane with resumed-session extension, TASK-ZAI-072 the plugin itself. A LANE-HARNESS-USAGE-PLUGIN work lane is declared before the work starts so the meter measures it. Sprint 02 goal and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 80 → 69, PHASE-ZAI-01 84 → 75). Delivered locally the same day on feat/harness-usage-plugin: TASK-ZAI-069 done (ADR-087; FR-220 to FR-222 and FEAT-035 declared), TASK-ZAI-070 to 072 in review (implemented locally with unit and e2e tests; migration 20260914100000_harness_usage_attribution written and not applied); progress recomputed (SPR-ZAI-02 69 → 82, PHASE-ZAI-01 75 → 85). |
 | 0.4.6 | 2026-09-14 | **Plugin specification and agent usage detail** added on the owner's instruction, under deliverable 2 (no Change Request needed): write the Zuri harness plugin's specification, and capture everything the agent logs can measure — especially token usage input and output and tool calling — with ids bound and the work lane declared before starting, then set statuses to what is true. The log survey found thinking and reasoning tokens, cache writes by lifetime, web search and fetch, tool calls by name with errors and denials, user prompts, compactions, API and hook errors, and models; only names and counts are captured. SPR-ZAI-02 (current): TASK-ZAI-073 plugin specification, TASK-ZAI-074 usage detail capture in the meter, plugin, endpoint and storage, TASK-ZAI-075 usage detail on the board; all planned. LANE-USAGE-DETAIL-AND-SPEC declared before work starts. Sprint 02 goal and exit criteria extended; progress recomputed (SPR-ZAI-02 82 → 73, PHASE-ZAI-01 85 → 78). Delivered locally the same day on feat/usage-detail-and-spec: TASK-ZAI-073, 074 and 075 set to review — implemented with tests and govern green, but not merged and the FR-239 migration 20260914120000_usage_detail not applied; progress recomputed (SPR-ZAI-02 73 → 82, PHASE-ZAI-01 78 → 85). Closed the same day: merged in #393, deployed as release-daca80fb and migration 20260914120000_usage_detail applied on production, so TASK-ZAI-073 to 075 move from review to done (SPR-ZAI-02 82 → 83, PHASE-ZAI-01 85 → 86). The same day the earlier telemetry and plugin tasks were set to what is true: TASK-ZAI-065 to 068 (merged #383, deployed, FR-218 migration applied) and TASK-ZAI-070 to 072 (merged #386, deployed, harness migration applied) move from review to done, with every definition-of-done criterion already checked (SPR-ZAI-02 83 → 85, PHASE-ZAI-01 85 → 87). |
 | 0.4.7 | 2026-09-14 | **LINE OA platform delivery plan** added on the owner's instruction of 2026-09-14: the whole plan behind ADR-089, ADR-090 and ADR-091 (merged in PR #389 as 8cd81196) is written into the roadmap and the Project Manager with tasks and lanes bound **before** any implementation starts, so that everything measurable is captured — especially token usage (input and output) and tool calling — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. **No Change Request is needed**, on the same reading as 0.4.1 to 0.4.6: the credential vault, self-serve onboarding and the complete LINE chat record sit under deliverable 8 (connectors, LINE deepened), and the Context Composer, corpus grounding, reviewed knowledge candidates and memory policy with erasure under deliverable 4 (Second Brain); LINE OA Studio is already a CR-019 lane. **Measurement detail comes from v0.4.6 and is delivered**: TASK-ZAI-074 (usage detail capture) and TASK-ZAI-075 (usage detail on the board) shipped in PR #393 (FR-239, FR-240, FEAT-039) and were closed done by PR #394, so the prerequisite is satisfied; they are not redefined here, and the entry task of each build chain (078, 088) keeps both as dependencies. Twenty-eight tasks, TASK-ZAI-076 to 103. **Phase 0** in SPR-ZAI-02 (current): 076 done (PR #389, CI green) and 077 this plan (in-progress). Backlog: SPR-ZAI-03 Phase 1 vault and LINE port (078 to 081); SPR-ZAI-04 Phase 2 wizard, webhook, derived quiescence and the operator steps — migration apply (085), the owner's channel credential entry (086, never an agent) and webhook cutover (087) — and Phase 3 chat record completeness with its migration apply (088 to 091); SPR-ZAI-05 Phase 3b Context Composer (092, before phases 4 and 6) and Phase 4 grounding with isolated acceptance (093, 094); SPR-ZAI-06 the SmartGift grounding switch after ADR-075 Phase 3 (095), Phase 5 candidates, gap report, Studio descriptions and migration apply (096 to 099), and Phase 6 memory policy, erasure fan-out and activation (100 to 102, **blocked** on MSP TASK-MEMOS-002 and TASK-MEMOS-004); SPR-ZAI-10 Phase 7, the vault generalised to other provider kinds (103), registered without a requirement as TASK-ZAI-007 to 030 were and without a lane until a branch is chosen. Design migration 7 is split so the webhook-state column lands with 083 and `memoryPolicy` with 100. Eight lanes declared (LANE-LINE-OA-PLATFORM-PLAN, LANE-LINE-OA-VAULT, LANE-LINE-OA-ONBOARDING, LANE-CRM-CHAT-RECORD, LANE-AGENT-CONTEXT-COMPOSER, LANE-LINE-GKS-GROUNDING, LANE-KNOWLEDGE-LINE-CANDIDATES, LANE-LINE-MEMORY-POLICY-ERASURE) and a "how to be measured" note added to the Delivery Telemetry section. First drafted as v0.4.6 with its own tool-call lane (TASK-ZAI-073 to 076); on the coordinator's instruction the same day that lane was removed and the rest renumbered, because PR #390 (opened earlier) claims v0.4.6 and TASK-ZAI-073 to 075 for the same measurement goal. Phase, sprint and deliverable goals and exits extended; progress recomputed under the board mapping (SPR-ZAI-02 83 → 83, PHASE-ZAI-01 86 → 85, PHASE-ZAI-05 20 → 17). Section 3.1 rows 4 and 8 name the work. |
-| 0.4.8 | 2026-09-14 | **Programme roadmap member view** added on the owner's instruction, under deliverable 2 (no Change Request needed): open the roadmap for 30 days. The owner chose anyone signed in, and the programme plan with the Domain map only. SPR-ZAI-02 (current): TASK-ZAI-104, planned; ADR-092 accepted and FR-241 declared in the same change; LANE-ROADMAP-MEMBER-VIEW declared before work starts. /control/roadmap stays operator-only. Sprint 02 goal and exit criteria extended; progress recomputed (SPR-ZAI-02 85 → 83, PHASE-ZAI-01 87 → 85). |
+| 0.4.8 | 2026-09-14 | **Programme roadmap member view** added on the owner's instruction, under deliverable 2 (no Change Request needed): open the roadmap for 30 days. The owner chose anyone signed in, and the programme plan with the Domain map only. SPR-ZAI-02 (current): TASK-ZAI-104, planned; ADR-092 accepted and FR-241 declared in the same change; LANE-ROADMAP-MEMBER-VIEW declared before work starts. /control/roadmap stays operator-only. Sprint 02 goal and exit criteria extended; progress recomputed (SPR-ZAI-02 85 → 83, PHASE-ZAI-01 87 → 85). Delivered locally the same day on feat/roadmap-member-view: TASK-ZAI-104 set to review — implemented with unit tests and govern green, the e2e spec left to CI, not merged and not deployed; progress recomputed (SPR-ZAI-02 83 → 85, PHASE-ZAI-01 85 → 87). |

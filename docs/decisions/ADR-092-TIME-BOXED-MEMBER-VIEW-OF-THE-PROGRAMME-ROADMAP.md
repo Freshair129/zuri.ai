@@ -37,9 +37,9 @@ The operator board carries three kinds of data:
 
 - **Route.** The view is `/roadmap`, outside the `(control)` route group and outside BusinessShell. `/control/roadmap` keeps ADR-048 D2 exactly, so opening the view never widens the control shell, its navigation or anything later added under `/control`.
 - **Guard order.** The guard runs on the server before any programme data is rendered:
-  - no session → `/login`
+  - window closed → a non-enumerating 404, checked first so a closed view never asks anyone to log in
   - session store unavailable → the shared retry state
-  - window closed → a non-enumerating 404
+  - no session → `/login`
   - otherwise the view renders
 
 ### D2 — Any signed-in person, for a declared window

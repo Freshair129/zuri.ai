@@ -37,10 +37,10 @@
     "status": "partial",
     "domainCount": 14,
     "featureCount": 147,
-    "readyFeatureCount": 112,
+    "readyFeatureCount": 113,
     "requirementCount": 241,
-    "verifiedRequirementCount": 212,
-    "progressPercent": 88.5,
+    "verifiedRequirementCount": 213,
+    "progressPercent": 88.9,
     "gapCount": 28,
     "gaps": [
       {
@@ -3671,7 +3671,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-142",
@@ -3687,7 +3687,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-216",
@@ -3695,7 +3695,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-217",
@@ -3719,7 +3719,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-220",
@@ -3751,6 +3751,14 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
+          "testCount": 7
+        },
+        {
+          "id": "FR-241",
+          "title": "Programme roadmap member view",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
           "testCount": 6
         }
       ],
@@ -3896,8 +3904,8 @@
         "FR-241"
       ],
       "featureCount": 7,
-      "readyFeatureCount": 6,
-      "progressPercent": 92.7
+      "readyFeatureCount": 7,
+      "progressPercent": 100
     },
     "procurement": {
       "status": "partial",
@@ -4637,7 +4645,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-106",
@@ -5150,6 +5158,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 13
+        },
+        {
+          "id": "FR-241",
+          "title": "Programme roadmap member view",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 6
         }
       ],
       "checks": {
@@ -8970,7 +8986,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-217",
@@ -8994,7 +9010,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 7
+          "testCount": 8
         }
       ],
       "evidence": [
@@ -9022,6 +9038,7 @@
         "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
         "apps/server/tests/unit/program-task-evidence.test.js",
         "apps/server/tests/unit/programme-containers.test.js",
+        "apps/server/tests/unit/programme-member-view.test.js",
         "apps/server/tests/unit/programme-usage-meter.test.js",
         "apps/server/tests/unit/programme-usage-reports.test.js",
         "apps/server/tests/unit/zuri-harness-plugin.test.js"
@@ -9359,7 +9376,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 6
+          "testCount": 7
         }
       ],
       "evidence": [
@@ -9371,6 +9388,7 @@
         "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/program-delivery-metrics.test.js",
         "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
+        "apps/server/tests/unit/programme-member-view.test.js",
         "apps/server/tests/unit/programme-usage-meter.test.js",
         "apps/server/tests/unit/programme-usage-reports.test.js",
         "apps/server/tests/unit/usage-detail.test.js",
@@ -13099,7 +13117,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 16
+          "testCount": 17
         }
       ],
       "evidence": [
@@ -13127,6 +13145,7 @@
         "apps/server/tests/unit/program-delivery-metrics.test.js",
         "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
         "apps/server/tests/unit/programme-containers.test.js",
+        "apps/server/tests/unit/programme-member-view.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sign-out.test.js",
         "apps/server/tests/unit/topbar-no-dropdown.test.js",
@@ -14484,7 +14503,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 5
+          "testCount": 6
         }
       ],
       "evidence": [
@@ -14496,7 +14515,8 @@
         "apps/server/tests/unit/platform-control-domain-map.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/program-delivery-metrics.test.js",
-        "apps/server/tests/unit/program-roadmap-board-telemetry.test.js"
+        "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
+        "apps/server/tests/unit/programme-member-view.test.js"
       ]
     },
     {
@@ -14508,25 +14528,37 @@
         "FR-241"
       ],
       "primaryDomain": "platform-control",
-      "contributorDomains": [],
-      "useCase": "ใครก็ตามที่ login zuri-ai แล้ว เปิด /roadmap ได้ในช่วง 30 วันจนถึง 15 ต.ค. 2026 เพื่ออ่านแผนงาน 24 สัปดาห์กับ Domain map แบบอ่านอย่างเดียว โดยไม่เห็นยอดการใช้งานแยกตามคนหรือเครื่อง ชื่อ tool/model หรือรายการเครื่องที่จับคู่ ส่วน /control/roadmap ยังเปิดได้เฉพาะ operator",
-      "progressPercent": 20,
-      "ready": false,
-      "readiness": "not_ready",
-      "blockers": [
-        "FR-241 is not_implemented"
+      "contributorDomains": [
+        "platform-control",
+        "project-manager"
       ],
+      "useCase": "ใครก็ตามที่ login zuri-ai แล้ว เปิด /roadmap ได้ในช่วง 30 วันจนถึง 15 ต.ค. 2026 เพื่ออ่านแผนงาน 24 สัปดาห์กับ Domain map แบบอ่านอย่างเดียว โดยไม่เห็นยอดการใช้งานแยกตามคนหรือเครื่อง ชื่อ tool/model หรือรายการเครื่องที่จับคู่ ส่วน /control/roadmap ยังเปิดได้เฉพาะ operator",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
       "requirements": [
         {
           "id": "FR-241",
           "title": "Programme roadmap member view",
-          "status": "not_implemented",
-          "progressPercent": 20,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 6
         }
       ],
-      "evidence": []
+      "evidence": [
+        "apps/server/src/app/roadmap/page.jsx",
+        "apps/server/src/components/layouts/PlatformControlShell.jsx",
+        "apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+        "apps/server/src/modules/platform-control/programme-member-view.js",
+        "apps/server/tests/e2e/fr241-roadmap-member-view.spec.js",
+        "apps/server/tests/unit/platform-control-domain-map.test.js",
+        "apps/server/tests/unit/platform-control-route-contract.test.js",
+        "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
+        "apps/server/tests/unit/programme-member-view.test.js",
+        "apps/server/tests/unit/sign-out.test.js"
+      ]
     }
   ],
   "nonFunctionalRequirements": [
@@ -14593,7 +14625,7 @@
       "title": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity…",
       "status": "verified",
       "codeCount": 13,
-      "testCount": 20,
+      "testCount": 21,
       "domains": [
         "knowledge",
         "platform-control",

@@ -1002,7 +1002,7 @@ const PHASES = [
             "Given the Delivery Telemetry section, when the lanes are declared, then each delivery phase from 1 to 6 has one lane naming its branch and Phase 0 one lane naming both documentation branches, the generator accepts them (one programme phase per lane, one lane per branch, never main), and the section says how a session must run to be measured",
             "Given npm run govern and the programme container check on the plan branch merged with main, when they run, then both exit zero; the pull request is opened and left for the owner to merge",
             "(v0.4.7) task นี้ — เขียนแผนทุก phase เป็น task พร้อมขนาดและเกณฑ์ · ผูก lane กับ branch ก่อนเริ่มงาน · การวัดละเอียด (token แยกประเภท, tool call) มาจาก TASK-ZAI-074/075 ที่ส่งมอบแล้วใน PR #393 · ระบุทางนำเข้า Project Manager · รัน meter"],
-          ["TASK-ZAI-104","TSK-ZAI104","Programme roadmap member view — for 30 days any signed-in person reads the programme plan and the Domain map at /roadmap, with usage by person and device, tool and model names and the Agent devices tab removed on the server, closing by itself at 2026-10-15 00:00 Asia/Bangkok while /control/roadmap stays operator-only","FR","C-2","H2","planned","Claude","TASK-ZAI-075","apps/server/src/app/roadmap/page.jsx","docs/decisions/ADR-092-TIME-BOXED-MEMBER-VIEW-OF-THE-PROGRAMME-ROADMAP.md","apps/server/tests/unit/programme-member-view.test.js",30000,
+          ["TASK-ZAI-104","TSK-ZAI104","Programme roadmap member view — for 30 days any signed-in person reads the programme plan and the Domain map at /roadmap, with usage by person and device, tool and model names and the Agent devices tab removed on the server, closing by itself at 2026-10-15 00:00 Asia/Bangkok while /control/roadmap stays operator-only","FR","C-2","H2","review","Claude","TASK-ZAI-075","apps/server/src/app/roadmap/page.jsx","docs/decisions/ADR-092-TIME-BOXED-MEMBER-VIEW-OF-THE-PROGRAMME-ROADMAP.md","apps/server/tests/unit/programme-member-view.test.js",30000,
             "Given a signed-in person who holds no operator grant, when they open /roadmap before 2026-10-15 00:00 Asia/Bangkok, then they read the programme board and the Domain map tab read-only, a visitor without a session is sent to /login, and /control/roadmap still answers that person with a 404",
             "Given the member projection built on the server, when it is rendered, then it carries no usage by person or device, no tool or model name, no Agent devices tab and no report or credential row, and a test asserts those fields are absent from the data handed to the client",
             "Given the window constant, when the clock passes its closing time, then /roadmap is a non-enumerating 404 for everyone including operators, and npm test covers open, closed, unauthenticated and the stripped projection",
@@ -1521,7 +1521,7 @@ const DOD_CHECKS = {
   "TASK-ZAI-101": [0,0,0],
   "TASK-ZAI-102": [0,0,0],
   "TASK-ZAI-103": [0,0,0],
-  "TASK-ZAI-104": [0,0,0]
+  "TASK-ZAI-104": [1,1,1]
 };
 
 /* ---------------------- theme ---------------------- */

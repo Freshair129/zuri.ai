@@ -34,6 +34,13 @@ installation-level operations data with no Tenant, Business or Person scope.
   nothing here.
 - The first surface, `/control/roadmap` (FR-105), is an immutable static plan
   projection. It accepts no input and makes no API, database or audit write.
+- FR-241 (ADR-092): `/roadmap`, outside `/control/**`, shows the same plan and
+  Domain map to any signed-in person until the constant `MEMBER_VIEW_CLOSES_AT`
+  (2026-10-15 00:00 Asia/Bangkok), then answers 404 to everyone. It is the lane's
+  only non-operator surface. `projectMemberLaneUsage` removes usage by person and
+  device and tool and model names on the server. The board takes lanes, sizing
+  and the measured-through time as props, so no client module imports the
+  generated telemetry module.
 - Its second tab, Domain map & inventory (FR-211), is a projection of the
   Product Readiness snapshot this lane does **not** own: it reads it only through
   Project Manager's `getProductReadinessSnapshot()` (FR-124), projects it on the

@@ -199,7 +199,7 @@ export const PROGRAMME_LANES = [
 
 export const PROGRAMME_USAGE = {
   "meter": "scripts/programme-usage-meter.mjs",
-  "measuredThrough": "2026-09-13T20:54:32.683Z",
+  "measuredThrough": "2026-09-13T23:23:54.601Z",
   "lanes": {
     "LANE-COST-QUOTE-PLAN": {
       "requests": 33,
@@ -524,6 +524,148 @@ export const PROGRAMME_USAGE = {
         "models": {
           "claude-opus-5": 71,
           "claude-sonnet-5": 42
+        }
+      }
+    },
+    "LANE-LINE-OA-VAULT": {
+      "requests": 152,
+      "sessions": [
+        "claude-code:aac0cfef-d023-4455-a10f-a729b17b61f6"
+      ],
+      "tokens": {
+        "input": 304,
+        "cacheWrite": 347773,
+        "cacheRead": 84271440,
+        "output": 253021
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 152,
+          "tokens": {
+            "input": 304,
+            "cacheWrite": 347773,
+            "cacheRead": 84271440,
+            "output": 253021
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5"
+      ],
+      "firstActivityAt": "2026-09-13T22:04:31.684Z",
+      "lastActivityAt": "2026-09-13T23:20:30.145Z",
+      "activeMinutes": 76,
+      "detail": {
+        "reasoningTokens": 56221,
+        "cacheWrite5mTokens": 0,
+        "cacheWrite1hTokens": 347773,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 0,
+        "toolCalls": 248,
+        "toolErrors": 10,
+        "toolDenials": 0,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Bash": {
+            "calls": 19,
+            "errors": 2
+          },
+          "Edit": {
+            "calls": 103,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 22,
+            "errors": 0
+          },
+          "PowerShell": {
+            "calls": 38,
+            "errors": 8
+          },
+          "Read": {
+            "calls": 25,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 41,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 152
+        }
+      }
+    },
+    "LANE-ROADMAP-MEMBER-VIEW": {
+      "requests": 61,
+      "sessions": [
+        "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
+      ],
+      "tokens": {
+        "input": 124,
+        "cacheWrite": 116716,
+        "cacheRead": 20429621,
+        "output": 58133
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 61,
+          "tokens": {
+            "input": 124,
+            "cacheWrite": 116716,
+            "cacheRead": 20429621,
+            "output": 58133
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5"
+      ],
+      "firstActivityAt": "2026-09-13T23:02:24.792Z",
+      "lastActivityAt": "2026-09-13T23:23:54.601Z",
+      "activeMinutes": 21,
+      "detail": {
+        "reasoningTokens": 11779,
+        "cacheWrite5mTokens": 0,
+        "cacheWrite1hTokens": 116716,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 1,
+        "toolCalls": 83,
+        "toolErrors": 6,
+        "toolDenials": 1,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Bash": {
+            "calls": 30,
+            "errors": 2
+          },
+          "Edit": {
+            "calls": 27,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 1,
+            "errors": 0
+          },
+          "PowerShell": {
+            "calls": 14,
+            "errors": 4
+          },
+          "Read": {
+            "calls": 3,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 8,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 61
         }
       }
     },

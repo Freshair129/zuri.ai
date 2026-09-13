@@ -7,8 +7,12 @@
 // @req FR-219 — each task card carries evidence badges and its subtask progress.
 // @req FR-240 — phase cards split tokens and show tool calls, prompts and compactions;
 //   task telemetry lists the most used tools, errors and denials.
-// @spec ADR-048 D3, ADR-086 D1, D6, SDD-055, NFR-008
-// @tested tests/unit/platform-control-route-contract.test.js, tests/unit/platform-control-domain-map.test.js, tests/unit/program-roadmap-board-telemetry.test.js
+// @req FR-241 — `audience="member"`: no Agent devices tab and no per-person or
+//   per-device rows. Lanes, sizing and the measured-through time arrive as props
+//   from the server page, so this client module never bundles the generated
+//   usage block with its tool and model names (ADR-092 D3).
+// @spec ADR-048 D3, ADR-086 D1, D6, ADR-092, SDD-055, NFR-008
+// @tested tests/unit/platform-control-route-contract.test.js, tests/unit/platform-control-domain-map.test.js, tests/unit/program-roadmap-board-telemetry.test.js, tests/unit/programme-member-view.test.js
 
 import { useState } from 'react'
 import { Boxes, ChevronDown, ClipboardList, Flag, Gauge, History, Layers3, MonitorSmartphone, ShieldCheck } from 'lucide-react'
@@ -22,7 +26,6 @@ import {
   PROGRAMME_TASKS,
 } from '@/modules/platform-control/program-roadmap-data'
 import { PROGRAMME_CONTAINERS } from '@/modules/platform-control/program-roadmap-containers'
-import { PROGRAMME_LANES, PROGRAMME_SIZING, PROGRAMME_USAGE } from '@/modules/platform-control/program-roadmap-telemetry'
 import {
   formatDuration,
   formatTokens,
@@ -162,7 +165,7 @@ function Breakdown({ rows, testId, noPersonLabel = 'ไม่ระบุคน 
   )
 }
 
-function PhaseMetrics({ phase, metrics }) {
+function PhaseMetrics({ phase, metrics, member = false }) {
   const m = metrics.measured
   const breakdown = STATUS_ORDER.filter((s) => metrics.byStatus[s]).map((s) => `${s} ${metrics.byStatus[s]}`).join(' · ')
   return (
@@ -194,7 +197,7 @@ function PhaseMetrics({ phase, metrics }) {
               <span className={styles.metricMuted}>เวลาจริงแสดงเมื่อ phase done · active ถึงตอนนี้ {formatDuration(m.activeMinutes)}</span>
             )}
             <span className={styles.metricMuted}>{m.sessions} session · วัดได้ {m.coveredTasks}/{metrics.taskCount} task · {usageSources(m.sources)}</span>
-            <Breakdown rows={m.byPerson} testId={`phase-people-${phase.id}`} />
+            {member ? null : <Breakdown rows={m.byPerson} testId={`phase-people-${phase.id}`} />}
           </>
         ) : (
           <span className={styles.metricMuted}>ยังไม่วัด — ไม่มี lane ที่ประกาศ branch และมี session ใน phase นี้</span>
@@ -205,8 +208,8 @@ function PhaseMetrics({ phase, metrics }) {
   )
 }
 
-function LaneTelemetry({ id, laneUsage }) {
-  const lane = PROGRAMME_LANES.find((l) => l.tasks.includes(id))
+function LaneTelemetry({ id, laneUsage, lanes = [], member = false }) {
+  const lane = lanes.find((l) => l.tasks.includes(id))
   const m = laneUsage[lane?.id] || laneUsage[`TASK:${id}`]
   return (
     <div className={styles.infoSec} data-testid={`task-telemetry-${id}`}>
@@ -218,7 +221,7 @@ function LaneTelemetry({ id, laneUsage }) {
           {m.firstActivityAt && <> · {m.firstActivityAt.slice(0, 16).replace('T', ' ')} → {m.lastActivityAt.slice(0, 16).replace('T', ' ')} UTC</>}
         </p>
       ) : null}
-      {m ? (
+      {m && !member ? (
         <p className="mt-1 flex flex-wrap items-center gap-2 text-xs">
           <span className="text-muted">ตามคน</span><Breakdown rows={m.byPerson} testId={`task-people-${id}`} />
           {Object.keys(m.byDevice || {}).length > 0 && <><span className="text-muted">ตาม device</span><Breakdown rows={m.byDevice} testId={`task-devices-${id}`} /></>}
@@ -250,7 +253,7 @@ function LaneTelemetry({ id, laneUsage }) {
   )
 }
 
-function TaskDetail({ id, status, container, laneUsage }) {
+function TaskDetail({ id, status, container, laneUsage, lanes, member }) {
   if (!container) return <p className="mt-2 text-xs text-muted">No Task Container is recorded for {id} in the document.</p>
   return (
     <div className={styles.detail} data-testid={`task-detail-${id}`}>
@@ -286,7 +289,7 @@ function TaskDetail({ id, status, container, laneUsage }) {
           </ul>
         </div>
       )}
-      <LaneTelemetry id={id} laneUsage={laneUsage} />
+      <LaneTelemetry id={id} laneUsage={laneUsage} lanes={lanes} member={member} />
       <div className={styles.infoSec}>
         <span className={styles.secLabel}>Changelog</span>
         <p className={styles.changelog}>{container.changelog}</p>
@@ -406,15 +409,27 @@ const VIEWS = [
 
 const toneOf = (status) => (status === 'done' ? 'done' : status === 'review' ? 'review' : null)
 
+const NO_SIZING = { points: {}, effortHours: {} }
+const closingLabel = (iso) =>
+  new Date(iso).toLocaleString('th-TH', { timeZone: 'Asia/Bangkok', dateStyle: 'long', timeStyle: 'short' })
+
 export default function ProgramRoadmapBoard({
   domainMap = null,
   initialView = 'programme',
   laneUsage = {},
   usageReports = { available: false, count: 0 },
   taskEvidence = null,
+  lanes = [],
+  sizing = NO_SIZING,
+  measuredThrough = null,
+  // FR-241 (ADR-092): 'member' is the signed-in view at /roadmap.
+  audience = 'operator',
+  closesAt = null,
 }) {
+  const member = audience === 'member'
+  const views = member ? VIEWS.filter(({ id }) => id !== 'devices') : VIEWS
   const laneUsageMap = new Map(Object.entries(laneUsage))
-  const [view, setView] = useState(domainMap && ['domains', 'devices'].includes(initialView) ? initialView : 'programme')
+  const [view, setView] = useState(domainMap && views.some(({ id }) => id !== 'programme' && id === initialView) ? initialView : 'programme')
   const selectView = (next) => {
     setView(next)
     if (typeof window === 'undefined') return
@@ -436,14 +451,21 @@ export default function ProgramRoadmapBoard({
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow="PLATFORM PROGRAMME · OPERATOR ONLY"
+        eyebrow={member ? 'PLATFORM PROGRAMME · SIGNED-IN PREVIEW' : 'PLATFORM PROGRAMME · OPERATOR ONLY'}
         title="Zuri AI — 24-week delivery programme"
         subtitle="Read-only plan snapshot. It is not Business progress and it is not calculated from Git activity."
       />
 
+      {member && closesAt && (
+        <p className={styles.legend} data-testid="member-view-window">
+          <ShieldCheck size={14} aria-hidden />
+          เปิดให้ทุกคนที่เข้าสู่ระบบอ่านได้ถึง {closingLabel(closesAt)} · อ่านอย่างเดียว · ไม่แสดงยอดการใช้งานแยกตามคนหรือเครื่อง
+        </p>
+      )}
+
       {domainMap && (
         <div className={styles.tabs} role="tablist" aria-label="Roadmap views">
-          {VIEWS.map(({ id, label, icon: Icon }) => (
+          {views.map(({ id, label, icon: Icon }) => (
             <button
               key={id}
               type="button"
@@ -461,7 +483,7 @@ export default function ProgramRoadmapBoard({
         </div>
       )}
 
-      {view === 'devices' && domainMap ? (
+      {view === 'devices' && domainMap && !member ? (
         <div role="tabpanel" id="roadmap-panel-devices" aria-labelledby="roadmap-tab-devices">
           <HarnessDevicesView />
         </div>
@@ -516,10 +538,10 @@ export default function ProgramRoadmapBoard({
               <span key={tone} className={styles.badge} data-tone={tone}><span aria-hidden className={styles.badgeGlyph}>{TONE_GLYPH[tone]}</span>{TONE_WORD[tone]}</span>
             ))}
             <span className="text-muted">
-              · วัดจริงถึง {PROGRAMME_USAGE.measuredThrough ? `${PROGRAMME_USAGE.measuredThrough.slice(0, 16).replace('T', ' ')} UTC` : '—'} จาก log ของ agent
+              · วัดจริงถึง {measuredThrough ? `${measuredThrough.slice(0, 16).replace('T', ' ')} UTC` : '—'} จาก log ของ agent
               · รายงานจาก agent {usageReports.available ? `${usageReports.count} รายงาน` : 'ยังไม่เปิดใช้ (migration ยังไม่ apply)'}
               {laneUsage[UNATTRIBUTED_LANE] ? `· ยังไม่ผูก lane ${laneUsage[UNATTRIBUTED_LANE].sessions} รายงาน (${formatTokens(tokensUsed(laneUsage[UNATTRIBUTED_LANE].tokens))} token)` : ''}
-              · effort: C-1 {PROGRAMME_SIZING.effortHours['C-1']} ชม. · C-2 {PROGRAMME_SIZING.effortHours['C-2']} ชม. · C-3 {PROGRAMME_SIZING.effortHours['C-3']} ชม.
+              · effort: C-1 {sizing.effortHours['C-1'] ?? '—'} ชม. · C-2 {sizing.effortHours['C-2'] ?? '—'} ชม. · C-3 {sizing.effortHours['C-3'] ?? '—'} ชม.
             </span>
           </div>
           <div className="space-y-3">
@@ -527,7 +549,7 @@ export default function ProgramRoadmapBoard({
               const expanded = openPhase === phase.id
               const tasks = PROGRAMME_TASKS.filter((task) => phase.sprints.some((sprint) => sprint.id === task[1]))
               const metrics = phaseDeliveryMetrics({
-                phase, tasks: PROGRAMME_TASKS, containers: PROGRAMME_CONTAINERS, sizing: PROGRAMME_SIZING, lanes: PROGRAMME_LANES, laneUsage: laneUsageMap,
+                phase, tasks: PROGRAMME_TASKS, containers: PROGRAMME_CONTAINERS, sizing, lanes, laneUsage: laneUsageMap,
               })
               return (
                 <Card key={phase.id} className={`p-0 ${styles.phase}`} data-tone={toneOf(phase.status) || undefined} data-testid={`phase-card-${phase.id}`}>
@@ -547,7 +569,7 @@ export default function ProgramRoadmapBoard({
                     </span>
                     <span className="w-20 shrink-0 text-right text-xs text-muted">plan {phase.progress}%</span>
                   </button>
-                  <PhaseMetrics phase={phase} metrics={metrics} />
+                  <PhaseMetrics phase={phase} metrics={metrics} member={member} />
                   <ProgressBar percent={phase.progress} label={`${phase.id} submitted plan progress`} />
                   {expanded && (
                     <div className={`space-y-4 p-4 ${styles.phaseBody}`}>
@@ -589,7 +611,7 @@ export default function ProgramRoadmapBoard({
                                   </div>
                                   {open && (
                                     <div id={`task-detail-${id}`}>
-                                      <TaskDetail id={id} status={status} container={container} laneUsage={laneUsage} />
+                                      <TaskDetail id={id} status={status} container={container} laneUsage={laneUsage} lanes={lanes} member={member} />
                                     </div>
                                   )}
                                 </TiltCard>
