@@ -300,8 +300,9 @@ catalogue/stock synchronisation, or the graph projection of the ontology.
 FR-201…FR-207 (FEAT-031, ADR-083) are implemented locally: the nature at the
 master, variant identity and the lookalike guard, identifiers with
 `resolve`, unit conversions, the SKU lifecycle with MERGE, the hygiene report
-and replenishment. Migration `20260913120000_inventory_sku_governance` is
-written in both trees and **not applied**. The `/inventory/hygiene` tab is the
+and replenishment. Migration `20260913120000_inventory_sku_governance` was
+**applied on production on 2026-09-13** (owner-instructed, ADR-057) and main
+52c9881e is deployed. The `/inventory/hygiene` tab is the
 sixth Inventory tab. Not in this slice: category hierarchy, automatic merge
 (the report proposes, a person disposes), identifier and unit-conversion
 forms on the console (API only), and the Excel/LINE converters that will call
