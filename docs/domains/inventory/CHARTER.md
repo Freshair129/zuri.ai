@@ -271,6 +271,7 @@ src/modules/inventory/
 ├── domain/inventory-governance.js            nature, variant key, lookalike, GTIN, unit conversion, lifecycle and merge rules, hygiene report, replenishment (FR-201..FR-207)
 ├── application/inventory-identity-service.js identifiers, unit conversions, resolve-before-create (FR-203, FR-204)
 ├── application/inventory-hygiene-service.js  the hygiene report and the replenishment suggestion, read-only (FR-206, FR-207)
+├── ui/sku-console.js                         pure console helpers: identifier input problems, units offered, base-quantity preview, Thai refusal text (FR-203, FR-204)
 └── index.js                                 stable module exports
 ```
 
@@ -303,10 +304,12 @@ master, variant identity and the lookalike guard, identifiers with
 and replenishment. Migration `20260913120000_inventory_sku_governance` was
 **applied on production on 2026-09-13** (owner-instructed, ADR-057) and main
 52c9881e is deployed. The `/inventory/hygiene` tab is the
-sixth Inventory tab. Not in this slice: category hierarchy, automatic merge
-(the report proposes, a person disposes), identifier and unit-conversion
-forms on the console (API only), and the Excel/LINE converters that will call
-`resolve` first.
+sixth Inventory tab. Since 2026-09-13 identifiers and unit conversions also have a
+console: the SKU detail page `/inventory/products/[productId]` (reached from a
+SKU code on the dashboard or from the dashboard's code lookup), and the
+movement form's unit select with its base-quantity preview. Not in this slice:
+category hierarchy, automatic merge (the report proposes, a person disposes),
+and the Excel/LINE converters that will call `resolve` first.
 
 ## References
 

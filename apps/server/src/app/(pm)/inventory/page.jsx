@@ -1,11 +1,14 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { RefreshCw } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { RefreshCw, ScanLine } from 'lucide-react'
 import { Card, DataTable, Kpi, ModuleTabs, PageHeader, SectionTitle } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
 import { INVENTORY_TABS } from '@/lib/module-tabs'
 import { INVENTORY_MOVEMENT_KINDS, INVENTORY_STOCK_POLICIES, INVENTORY_TRACKING_MODES } from '@/lib/validation/enums'
+import { baseQuantityPreview, unitsFor } from '@/modules/inventory/ui/sku-console'
 
 // @req FR-154 — the Inventory dashboard (คลังสินค้า): the Business's SKUs with
 //   their stock policy, and the console forms that create a category, a
@@ -22,7 +25,13 @@ import { INVENTORY_MOVEMENT_KINDS, INVENTORY_STOCK_POLICIES, INVENTORY_TRACKING_
 //   and its variant axes; the SKU form narrows to what the chosen master
 //   allows: a SERVICE master offers no stock policy at all, a GOOD master offers
 //   counted or uncounted and one field per declared axis (ADR-083 D1, D2).
-// @tested tests/unit/inventory-routes.test.js, tests/unit/scm-console-routes.test.js
+// @req FR-203 — a SKU code opens its detail page, where barcodes and partner
+//   codes are managed, and the lookup box resolves a scanned or typed
+//   identifier to its SKU before anyone creates a second one (ADR-083 D3).
+// @req FR-204 — the movement form offers the units the chosen SKU declares and
+//   shows the base quantity the ledger will write before it posts (BR-037).
+// @tested tests/unit/inventory-routes.test.js, tests/unit/scm-console-routes.test.js,
+//   tests/unit/inventory-product-page.test.js, tests/e2e/fr203-sku-identifiers-console.spec.js
 
 async function api(url, method = 'GET', body) {
   const response = await fetch(url, { method, ...(body ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}) })
@@ -82,7 +91,11 @@ export default function InventoryPage() {
   const [category, bindCategory, resetCategory] = useForm({ code: '', nameTh: '', nameEn: '' })
   const [master, bindMaster, resetMaster] = useForm({ code: '', categoryId: '', nameTh: '', nameEn: '', baseCost: '', nature: 'GOOD', variantAxes: '' })
   const [sku, bindSku, resetSku] = useForm({ code: '', productMasterId: '', name: '', stockPolicy: 'TRACKED', trackingMode: 'NONE', safetyStock: '10' })
-  const [move, bindMove, resetMove] = useForm({ productId: '', kind: 'RECEIPT', quantity: '', lotCode: '', serialNos: '', reference: '' })
+  const [move, bindMove, resetMove] = useForm({ productId: '', kind: 'RECEIPT', quantity: '', unit: '', lotCode: '', serialNos: '', reference: '' })
+  const router = useRouter()
+  const [lookup, setLookup] = useState('')
+  const [lookupResult, setLookupResult] = useState('')
+  const [moveConversions, setMoveConversions] = useState([])
 
   const products = summary?.products ?? []
   const trackedProducts = useMemo(() => products.filter((p) => p.stockPolicy === 'TRACKED' && p.status !== 'ARCHIVED'), [products])
@@ -92,7 +105,9 @@ export default function InventoryPage() {
 
   async function submit(fn, reset) {
     if (!businessId || busy) return
-    setBusy(true); setError(''); setMessage('')
+    // A lookup's "not found" belongs to the lookup; once another action runs it
+    // is stale, and two status lines at once would leave the reader guessing.
+    setBusy(true); setError(''); setMessage(''); setLookupResult('')
     try { const result = await fn(); reset(); setMessage(result); await refresh() }
     catch (err) { setError(err.message) }
     finally { setBusy(false) }
@@ -123,17 +138,49 @@ export default function InventoryPage() {
     return `สร้าง SKU ${row.code} (${POLICY_LABEL[row.stockPolicy]}) แล้ว`
   }, resetSku)
 
+  // @req FR-204 — the units the chosen SKU declares, loaded when the choice
+  //   changes; a SKU with none offers its base unit only and the select stays hidden.
+  const moveProductId = move.productId || trackedProducts[0]?.productId || ''
+  const moveProduct = useMemo(() => trackedProducts.find((p) => p.productId === moveProductId) ?? null, [trackedProducts, moveProductId])
+  useEffect(() => {
+    if (!moveProductId) { setMoveConversions([]); return undefined }
+    let live = true
+    api(`/api/inventory/products/${encodeURIComponent(moveProductId)}/unit-conversions`)
+      .then((result) => { if (live) setMoveConversions(result.conversions) })
+      .catch(() => { if (live) setMoveConversions([]) })
+    return () => { live = false }
+  }, [moveProductId])
+  const moveUnits = useMemo(() => unitsFor(moveProduct, moveConversions), [moveProduct, moveConversions])
+  const moveUnit = moveUnits.some((u) => u.unit === move.unit) ? move.unit : (moveProduct?.unit ?? '')
+  const movePreview = baseQuantityPreview(moveProduct, move.quantity, moveUnit, moveConversions)
+
   const recordMove = () => submit(async () => {
     const serialNos = move.serialNos.split(/[\s,]+/).map((s) => s.trim()).filter(Boolean)
     const row = await api('/api/inventory/stock-movements', 'POST', {
-      businessId, productId: move.productId || trackedProducts[0]?.productId, kind: move.kind, quantity: Number(move.quantity),
+      businessId, productId: moveProductId, kind: move.kind, quantity: Number(move.quantity),
+      ...(moveProduct && moveUnit && moveUnit !== moveProduct.unit ? { unit: moveUnit } : {}),
       ...(move.lotCode ? { lotCode: move.lotCode } : {}), ...(serialNos.length ? { serialNos } : {}), ...(move.reference ? { reference: move.reference } : {}),
     })
-    return `${KIND_LABEL[row.kind]} ${Math.abs(row.quantity)} หน่วย · คงเหลือ ${row.onHandBefore} → ${row.onHandAfter}`
+    const inUnit = row.unitConversion ? ` (${Math.abs(row.unitConversion.quantityInUnit)} ${row.unitConversion.unit})` : ''
+    return `${KIND_LABEL[row.kind]} ${Math.abs(row.quantity)} หน่วย${inUnit} · คงเหลือ ${row.onHandBefore} → ${row.onHandAfter}`
   }, resetMove)
 
+  // @req FR-203 — resolve before create: a scanned barcode, a partner's code or
+  //   a SKU code opens the SKU it already names; a miss says so plainly.
+  async function findSku() {
+    const value = lookup.trim()
+    if (!businessId || !value || busy) return
+    setBusy(true); setError(''); setLookupResult('')
+    try {
+      const found = await api(`/api/inventory/products/resolve?businessId=${encodeURIComponent(businessId)}&identifier=${encodeURIComponent(value)}`)
+      if (!found.product) { setLookupResult(`ไม่พบ SKU ที่ใช้รหัส ${value} — ยังไม่มีในแคตตาล็อก`); return }
+      router.push(`/inventory/products/${found.product.id}`)
+    } catch (err) { setError(err.message) }
+    finally { setBusy(false) }
+  }
+
   const columns = [
-    { key: 'code', label: 'รหัส', render: (r) => <span className="font-mono text-xs">{r.code}</span> },
+    { key: 'code', label: 'รหัส', render: (r) => <Link href={`/inventory/products/${r.productId}`} className="font-mono text-xs underline">{r.code}</Link> },
     { key: 'name', label: 'ชื่อ', render: (r) => r.name || '—' },
     { key: 'stockPolicy', label: 'นโยบายสต๊อก', render: (r) => POLICY_LABEL[r.stockPolicy] || r.stockPolicy },
     { key: 'status', label: 'สถานะ', render: (r) => <span style={{ color: r.status === 'PHASE_OUT' ? 'var(--warning)' : 'inherit' }}>{STATUS_LABEL[r.status] || r.status}</span> },
@@ -163,8 +210,17 @@ export default function InventoryPage() {
       <Kpi label="ต่ำกว่า safety stock" value={summary.counts.belowSafetyStock} tone={summary.counts.belowSafetyStock ? 'bad' : 'good'} />
     </div>}
 
+    {business && <Card className="mb-4">
+      <SectionTitle caption="สแกนหรือพิมพ์บาร์โค้ด / รหัสซัพพลายเออร์ / รหัส SKU — ถ้ามีอยู่แล้วจะเปิด SKU นั้น ไม่ต้องสร้างซ้ำ">ค้นหา SKU ด้วยรหัส</SectionTitle>
+      <form className="flex items-end gap-2" onSubmit={(e) => { e.preventDefault(); findSku() }}>
+        <label className="grid flex-1 gap-1 text-xs font-semibold">บาร์โค้ดหรือรหัส<input className={fieldClass} aria-label="บาร์โค้ดหรือรหัส" value={lookup} onChange={(e) => setLookup(e.target.value)} placeholder="8850123456786" /></label>
+        <button type="submit" className="btn" disabled={busy || !lookup.trim()}><ScanLine size={15} /> ค้นหา</button>
+      </form>
+      {lookupResult && <p role="status" className="mt-2 text-sm text-muted">{lookupResult}</p>}
+    </Card>}
+
     {summary && <div className="mb-4">
-      <SectionTitle caption="ยอดคงเหลือคือผลรวมของความเคลื่อนไหวใน ledger — ไม่มีตัวเลขเก็บไว้ในตัวสินค้า">สินค้า (SKU)</SectionTitle>
+      <SectionTitle caption="ยอดคงเหลือคือผลรวมของความเคลื่อนไหวใน ledger — ไม่มีตัวเลขเก็บไว้ในตัวสินค้า · กดรหัสเพื่อจัดการบาร์โค้ดและหน่วยแปลง">สินค้า (SKU)</SectionTitle>
       <DataTable columns={columns} rows={products} rowKey={(r) => r.productId} />
     </div>}
 
@@ -217,6 +273,8 @@ export default function InventoryPage() {
           <Select label="SKU" options={trackedProducts.map((p) => [p.productId, `${p.code}${p.name ? ` · ${p.name}` : ''}`])} {...bindMove('productId')} />
           <Select label="ประเภท" options={INVENTORY_MOVEMENT_KINDS.map((k) => [k, KIND_LABEL[k]])} {...bindMove('kind')} />
           <Input label="จำนวน" type="number" {...bindMove('quantity')} />
+          {moveUnits.length > 1 && <Select label="หน่วย" options={moveUnits.map((u) => [u.unit, u.label])} {...bindMove('unit')} value={moveUnit} />}
+          {movePreview.text && <p className={`self-end pb-2 text-xs ${movePreview.ok ? 'text-muted' : ''}`} style={movePreview.ok ? undefined : { color: 'var(--danger)' }}>{movePreview.text}</p>}
           <Input label="Lot (ถ้าสินค้านับตาม Lot)" placeholder="LOT-2026-09" {...bindMove('lotCode')} />
           <label className="grid gap-1 text-xs font-semibold md:col-span-2">Serial (ถ้าสินค้านับตาม Serial — คั่นด้วยช่องว่างหรือจุลภาค)<textarea className={fieldClass} rows={2} aria-label="Serial" {...bindMove('serialNos')} /></label>
           <Input label="อ้างอิง (PO / ใบส่งของ)" {...bindMove('reference')} />

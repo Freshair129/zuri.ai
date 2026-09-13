@@ -2266,15 +2266,15 @@
           "id": "FR-203",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 12
+          "codeCount": 8,
+          "testCount": 16
         },
         {
           "id": "FR-204",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 14
+          "codeCount": 9,
+          "testCount": 18
         },
         {
           "id": "FR-205",
@@ -2315,8 +2315,8 @@
             }
           ],
           "details": {
-            "routes": 6,
-            "inventoried": 6,
+            "routes": 7,
+            "inventoried": 7,
             "missing": 0
           }
         },
@@ -2425,9 +2425,9 @@
         }
       ],
       "details": {
-        "routes": 41,
+        "routes": 42,
         "apiRoutes": 35,
-        "pageRoutes": 6,
+        "pageRoutes": 7,
         "ownedModels": 20,
         "featureNotes": 7
       },
@@ -4515,14 +4515,14 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 12
+          "testCount": 16
         },
         {
           "id": "FR-204",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 14
+          "testCount": 18
         },
         {
           "id": "FR-206",
@@ -7918,15 +7918,15 @@
           "id": "FR-203",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 12
+          "codeCount": 10,
+          "testCount": 16
         },
         {
           "id": "FR-204",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 8,
-          "testCount": 14
+          "codeCount": 11,
+          "testCount": 18
         },
         {
           "id": "FR-205",
@@ -7953,6 +7953,7 @@
       "evidence": [
         "apps/server/src/app/(pm)/inventory/hygiene/page.jsx",
         "apps/server/src/app/(pm)/inventory/page.jsx",
+        "apps/server/src/app/(pm)/inventory/products/[productId]/page.jsx",
         "apps/server/src/app/api/inventory/catalog-hygiene/route.js",
         "apps/server/src/app/api/inventory/product-masters/route.js",
         "apps/server/src/app/api/inventory/products/[id]/identifiers/route.js",
@@ -7970,9 +7971,11 @@
         "apps/server/src/modules/inventory/domain/inventory-governance.js",
         "apps/server/src/modules/inventory/domain/inventory.js",
         "apps/server/src/modules/inventory/index.js",
+        "apps/server/src/modules/inventory/ui/sku-console.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/fr203-sku-identifiers-console.spec.js",
         "apps/server/tests/e2e/fr206-sku-hygiene.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -7995,7 +7998,9 @@
         "apps/server/tests/unit/inventory-domain.test.js",
         "apps/server/tests/unit/inventory-governance.test.js",
         "apps/server/tests/unit/inventory-hygiene-page.test.js",
+        "apps/server/tests/unit/inventory-product-page.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/inventory-sku-console.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/module-tabs.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",

@@ -37,6 +37,9 @@ const PAGES = [
   'src/app/(pm)/inventory/locations/page.jsx',
   'src/app/(pm)/inventory/work-orders/page.jsx',
   'src/app/(pm)/inventory/reservations/page.jsx',
+  // @req FR-203, FR-204 — the SKU detail page (identifiers and unit conversions)
+  // holds to the same contract: shared tabs, selected Business, routes only.
+  'src/app/(pm)/inventory/products/[productId]/page.jsx',
 ]
 
 describe('FR-182 SCM operations console — route contract', () => {
