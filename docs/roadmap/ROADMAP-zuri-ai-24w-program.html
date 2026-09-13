@@ -63,7 +63,64 @@
 
   --font-sans:'IBM Plex Sans Thai','Manrope','Segoe UI',Tahoma,sans-serif;
   --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+
+  /* Component tokens introduced by the contrast + dark-mode passes (2026-09-13).
+     Every colour a component uses is one of these, so the dark theme below only
+     redefines tokens and never restyles a component. */
+  --topbar-bg:var(--primitive-neutral-900);
+  --label-fg:#374151;
+  --link-fg:#2F6A8C; --link-underline:#A9CFE6;
+  --pill-planned-bg:#E4E8ED; --pill-planned-fg:#4B5563; --pill-planned-border:#CBD2DB;
+  --pill-review-fg:#7A5C1E; --pill-review-border:#DCC58A;
+  --pill-done-border:#A9D9BC; --pill-active-border:#E9CD86; --pill-ready-border:#A9CFE6; --pill-blocked-border:#EFB3B3;
+  --warm-border:#F3CFA3; --exit-fg:#5C3A06;
+  --chart-grid:#DDE2E8; --chart-text:#6B7280; --chart-text-faint:#9CA3AF;
+  --glow:rgba(232,130,12,.22);
+  --shadow-hover:0 10px 30px rgba(15,23,42,.14), 0 2px 6px rgba(15,23,42,.08);
 }
+
+/* ---- Dark theme ------------------------------------------------------
+   Same hues, inverted values. Applied by [data-theme="dark"] (the toggle)
+   or by the system preference when no choice has been stored. */
+[data-theme="dark"]{
+  --primitive-white:#1B2129;
+  --primitive-neutral-50:#1F262F; --primitive-neutral-100:#262E39; --primitive-neutral-200:#333D4A;
+  --primitive-neutral-500:#A3ACB9; --primitive-neutral-900:#E7EAEF;
+  --primitive-amber-50:#2A2117; --primitive-amber-100:#3E2C13;
+  --primitive-blue-100:#1E3442; --primitive-blue-700:#7FB6D8;
+  --primitive-mustard-100:#33301F;
+  --primitive-success:#5CC48A; --primitive-success-bg:#17301F;
+  --primitive-danger:#F08A8A;  --primitive-danger-bg:#3A1D1D;
+  --primitive-warning:#E2B04A; --primitive-warning-bg:#332A12;
+  --bg-canvas:#0F1319; --bg-sunken:#161C24;
+  --text-secondary:#A3ACB9; --text-tertiary:#8A94A3;
+  --border-subtle:#2A323D; --border-default:#333D4A; --border-strong:#4A5666;
+  --topbar-bg:#0B0E13;
+  --label-fg:#C9D1DC;
+  --link-fg:#8CC4E6; --link-underline:#3E6C88;
+  --pill-planned-bg:#2A323D; --pill-planned-fg:#C9D1DC; --pill-planned-border:#3E4857;
+  --pill-review-fg:#E3C877; --pill-review-border:#5C4C1E;
+  --pill-done-border:#2F6B47; --pill-active-border:#6B5620; --pill-ready-border:#2E5A75; --pill-blocked-border:#6B2F2F;
+  --warm-border:#5A3F14; --exit-fg:#F2D3A7;
+  --chart-grid:#2E3844; --chart-text:#A3ACB9; --chart-text-faint:#6F7987;
+  --glow:rgba(240,148,32,.28);
+  --shadow-raised:0 1px 2px rgba(0,0,0,.4), 0 4px 12px rgba(0,0,0,.35);
+  --shadow-hover:0 12px 32px rgba(0,0,0,.55), 0 2px 6px rgba(0,0,0,.4);
+  /* color-scheme is deliberately not set: with it, the in-app preview captured a
+     blank frame while the page itself rendered; native scrollbars stay light. */
+}
+[data-theme="dark"] .task{background:var(--bg-sunken);}
+[data-theme="dark"] .phase-head{background:linear-gradient(90deg,var(--primitive-amber-50),var(--bg-surface) 55%);}
+[data-theme="dark"] .exit{background:var(--primitive-amber-100);}
+[data-theme="dark"] .changelog{background:var(--primitive-amber-50);}
+[data-theme="dark"] .brand-mark{color:#1B2129;}
+[data-theme="dark"] .seg button[aria-pressed="true"]{color:#1B2129;}
+[data-theme="dark"] .pill-brand{color:#1B2129;}
+[data-theme="dark"] .info-sec > .k{background:var(--primitive-amber-500);color:#1B2129;}
+[data-theme="dark"] .histchart svg rect{fill:#5A3F14;stroke:#F09420;}
+[data-theme="dark"] .histchart svg rect.moved{fill:#8A6D2A;}
+[data-theme="dark"] .day .spark i{background:var(--primitive-amber-400);}
+[data-theme="dark"] .day .spark i.del{background:#3E4857;}
 
 *,*::before,*::after{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
@@ -85,8 +142,11 @@ button{font:inherit;color:inherit;}
 .shell{max-width:1360px;margin:0 auto;padding:var(--sp-6) var(--sp-5) var(--sp-10);}
 @media (max-width:640px){.shell{padding:var(--sp-4) var(--sp-3) var(--sp-8);}}
 
-.topbar{background:var(--primitive-neutral-900);color:var(--text-inverse);
+.topbar{background:var(--topbar-bg);color:#FFFFFF;
   border-bottom:1px solid rgba(255,255,255,.08);}
+.theme-toggle{cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+.theme-toggle:hover{background:rgba(255,255,255,.14);}
+.theme-ico{font-size:13px;line-height:1;}
 .topbar-inner{max-width:1360px;margin:0 auto;padding:var(--sp-3) var(--sp-5);
   display:flex;align-items:center;gap:var(--sp-4);flex-wrap:wrap;}
 .brand{display:flex;align-items:center;gap:var(--sp-2);font-weight:700;font-size:16px;letter-spacing:-.01em;}
@@ -103,16 +163,16 @@ button{font:inherit;color:inherit;}
 .card{background:var(--card-bg);border:1px solid var(--card-border);border-radius:var(--radius-lg);
   box-shadow:var(--shadow-raised);}
 .card-pad{padding:var(--sp-5);}
-.card-warm{background:var(--card-subtle-bg);border-color:#F3CFA3;}
+.card-warm{background:var(--card-subtle-bg);border-color:var(--warm-border);}
 
 .pill{display:inline-flex;align-items:center;gap:5px;border-radius:var(--radius-sm);
   padding:3px 8px;font-size:12px;line-height:18px;font-weight:600;white-space:nowrap;border:1px solid transparent;}
-.pill-done{background:var(--status-success-bg);color:var(--status-success);border-color:#A9D9BC;}
-.pill-active{background:var(--status-warning-bg);color:var(--status-warning);border-color:#E9CD86;}
-.pill-review{background:var(--primitive-mustard-100);color:#7A5C1E;border-color:#DCC58A;}
-.pill-planned{background:#E4E8ED;color:#4B5563;border-color:#CBD2DB;}
-.pill-ready{background:var(--status-info-bg);color:var(--status-info);border-color:#A9CFE6;}
-.pill-blocked{background:var(--status-danger-bg);color:var(--status-danger);border-color:#EFB3B3;}
+.pill-done{background:var(--status-success-bg);color:var(--status-success);border-color:var(--pill-done-border);}
+.pill-active{background:var(--status-warning-bg);color:var(--status-warning);border-color:var(--pill-active-border);}
+.pill-review{background:var(--primitive-mustard-100);color:var(--pill-review-fg);border-color:var(--pill-review-border);}
+.pill-planned{background:var(--pill-planned-bg);color:var(--pill-planned-fg);border-color:var(--pill-planned-border);}
+.pill-ready{background:var(--status-info-bg);color:var(--status-info);border-color:var(--pill-ready-border);}
+.pill-blocked{background:var(--status-danger-bg);color:var(--status-danger);border-color:var(--pill-blocked-border);}
 .pill-brand{background:var(--action-primary);color:var(--text-inverse);border-color:var(--action-primary-active);}
 .dot{width:6px;height:6px;border-radius:var(--radius-full);background:currentColor;flex:none;}
 
@@ -263,7 +323,7 @@ button{font:inherit;color:inherit;}
 .phase-goal{font-size:13px;line-height:20px;color:var(--text-secondary);margin-bottom:var(--sp-4);}
 .exit{border-left:4px solid var(--action-primary);background:var(--primitive-amber-100);
   border-radius:var(--radius-md);padding:var(--sp-3) var(--sp-4);margin-bottom:var(--sp-4);
-  font-size:13px;line-height:20px;color:#5C3A06;}
+  font-size:13px;line-height:20px;color:var(--exit-fg);}
 
 .sprint{border:1px solid var(--border-default);border-radius:var(--radius-md);
   background:var(--bg-surface);padding:var(--sp-4);margin-bottom:var(--sp-4);box-shadow:var(--shadow-raised);}
@@ -304,7 +364,7 @@ button{font:inherit;color:inherit;}
 .v{width:20px;height:18px;border-radius:var(--radius-xs);border:1px solid var(--border-default);
   background:var(--bg-surface);color:var(--text-tertiary);font-size:10px;font-weight:700;
   font-family:var(--font-mono);display:grid;place-items:center;}
-.v.on{border-color:#BFE3CE;background:var(--status-success-bg);color:var(--status-success);}
+.v.on{border-color:var(--pill-done-border);background:var(--status-success-bg);color:var(--status-success);}
 
 /* Expanded task body: sunken canvas with white panels, so every block has an edge.
    Labels are dark, not tertiary grey; the three DoD columns carry their own colour. */
@@ -315,17 +375,17 @@ button{font:inherit;color:inherit;}
 .kv{background:var(--bg-surface);border:1px solid var(--border-default);border-radius:var(--radius-md);
   padding:var(--sp-2) var(--sp-3);border-top:3px solid var(--primitive-mustard-500);}
 .kv .k{font-size:11px;line-height:18px;font-weight:700;text-transform:uppercase;
-  letter-spacing:.04em;color:#374151;font-family:var(--font-mono);}
+  letter-spacing:.04em;color:var(--label-fg);font-family:var(--font-mono);}
 .kv .v-text{font-size:12px;line-height:18px;font-family:var(--font-mono);word-break:break-all;color:var(--text-primary);}
-.link{color:#2F6A8C;text-decoration:underline;text-decoration-color:#A9CFE6;text-underline-offset:2px;}
+.link{color:var(--link-fg);text-decoration:underline;text-decoration-color:var(--link-underline);text-underline-offset:2px;}
 .link:hover{color:var(--action-primary-active);text-decoration-color:currentColor;}
 .na{color:var(--text-tertiary);font-style:italic;}
 .info-sec{margin-top:var(--sp-3);padding:var(--sp-3);background:var(--bg-surface);
   border:1px solid var(--border-default);border-radius:var(--radius-md);}
 .k{font-size:11px;line-height:18px;font-weight:700;text-transform:uppercase;
-  letter-spacing:.04em;color:#374151;font-family:var(--font-mono);}
+  letter-spacing:.04em;color:var(--label-fg);font-family:var(--font-mono);}
 .info-sec > .k{display:inline-block;padding:1px 8px;border-radius:var(--radius-xs);
-  background:var(--primitive-neutral-900);color:var(--text-inverse);}
+  background:#1F2937;color:#FFFFFF;}
 .info-sec .kv{background:var(--bg-sunken);}
 .dod{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--sp-3);margin-top:var(--sp-3);}
 @media (max-width:900px){.dod{grid-template-columns:1fr;}}
@@ -343,13 +403,30 @@ button{font:inherit;color:inherit;}
 .box{width:14px;height:14px;border-radius:var(--radius-xs);border:2px solid var(--border-strong);
   flex:none;margin-top:2px;background:var(--bg-surface);}
 .box.on{background:var(--status-success);border-color:var(--status-success);}
-.changelog{font-size:12px;line-height:18px;color:#5C3A06;
-  background:var(--primitive-amber-50);border:1px solid #F3CFA3;border-left:4px solid var(--action-primary);
+.changelog{font-size:12px;line-height:18px;color:var(--exit-fg);
+  background:var(--primitive-amber-50);border:1px solid var(--warm-border);border-left:4px solid var(--action-primary);
   border-radius:var(--radius-md);padding:var(--sp-3);margin-top:var(--sp-2);}
 .dep{display:flex;align-items:center;gap:var(--sp-2);flex-wrap:wrap;
   font-size:12px;line-height:18px;color:var(--text-primary);margin-top:var(--sp-2);}
-.dep code{font-family:var(--font-mono);color:#2F6A8C;font-weight:600;background:var(--status-info-bg);
+.dep code{font-family:var(--font-mono);color:var(--link-fg);font-weight:600;background:var(--status-info-bg);
   padding:0 5px;border-radius:var(--radius-xs);}
+
+/* ---- 3D tilt + cursor glow (owner request 2026-09-13) ------------------
+   Closed task cards and the sidebar cards tilt a few degrees toward the
+   pointer and carry a radial glow that follows it. Off for reduced motion,
+   for coarse pointers, and for a card while it is expanded. */
+.tilt{position:relative;transform-style:preserve-3d;will-change:transform;
+  transition:transform var(--motion-default) var(--motion-ease),box-shadow var(--motion-default) var(--motion-ease);}
+.tilt::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;
+  background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),var(--glow),transparent 60%);
+  transition:opacity var(--motion-default) var(--motion-ease);}
+.tilt:hover::after,.tilt.is-tilting::after{opacity:1;}
+.tilt.is-tilting{box-shadow:var(--shadow-hover);z-index:1;}
+.tilt.is-tilting > *{position:relative;z-index:1;}
+@media (hover:none),(pointer:coarse),(prefers-reduced-motion:reduce){
+  .tilt{transform:none !important;}
+  .tilt::after{display:none;}
+}
 
 .band{width:100%;border-collapse:collapse;font-size:13px;}
 .band th,.band td{text-align:left;padding:var(--sp-2) var(--sp-3);
@@ -387,6 +464,9 @@ button{font:inherit;color:inherit;}
     <div class="topbar-right">
       <span class="chip-dark">GoVibe Mission Control · A2</span>
       <span class="chip-dark">Zuri Heritage v2</span>
+      <button type="button" class="chip-dark theme-toggle" id="theme-toggle" aria-pressed="false" title="สลับโหมดมืด/สว่าง (จำค่าในเบราว์เซอร์นี้)">
+        <span class="theme-ico" aria-hidden="true">◐</span><span class="theme-lbl">Dark</span>
+      </button>
     </div>
   </div>
 </header>
@@ -1061,6 +1141,112 @@ const PHASES = [
   }
 ];
 
+/* Per-criterion Definition-of-Done ticks, [acceptance, success, exit], copied
+   from the `checked:` flags of each TC-TASK-ZAI-* container in the markdown
+   (v0.4.1, 2026-09-13). The markdown is the source; regenerate this map from
+   it rather than editing a flag here. A task absent from the map falls back
+   to "all ticked when done, none otherwise". */
+const DOD_CHECKS = {
+  "TASK-ZAI-001": [0,1,0],
+  "TASK-ZAI-002": [1,1,1],
+  "TASK-ZAI-003": [1,1,1],
+  "TASK-ZAI-004": [1,1,1],
+  "TASK-ZAI-005": [1,1,1],
+  "TASK-ZAI-006": [0,1,1],
+  "TASK-ZAI-007": [0,0,0],
+  "TASK-ZAI-008": [0,0,0],
+  "TASK-ZAI-009": [0,0,0],
+  "TASK-ZAI-010": [0,0,0],
+  "TASK-ZAI-011": [0,0,0],
+  "TASK-ZAI-012": [0,0,0],
+  "TASK-ZAI-013": [0,0,0],
+  "TASK-ZAI-014": [0,0,0],
+  "TASK-ZAI-015": [0,0,0],
+  "TASK-ZAI-016": [0,0,0],
+  "TASK-ZAI-017": [0,0,0],
+  "TASK-ZAI-018": [0,0,0],
+  "TASK-ZAI-019": [0,0,0],
+  "TASK-ZAI-020": [0,0,0],
+  "TASK-ZAI-021": [0,0,0],
+  "TASK-ZAI-022": [0,0,0],
+  "TASK-ZAI-023": [0,0,0],
+  "TASK-ZAI-024": [0,1,0],
+  "TASK-ZAI-025": [0,0,0],
+  "TASK-ZAI-026": [0,0,0],
+  "TASK-ZAI-027": [0,0,0],
+  "TASK-ZAI-028": [0,0,0],
+  "TASK-ZAI-029": [0,0,0],
+  "TASK-ZAI-030": [0,0,0],
+  "TASK-ZAI-031": [1,1,1],
+  "TASK-ZAI-032": [1,1,1],
+  "TASK-ZAI-033": [1,1,1],
+  "TASK-ZAI-034": [1,1,1],
+  "TASK-ZAI-035": [1,1,1],
+  "TASK-ZAI-036": [0,1,0],
+  "TASK-ZAI-037": [1,1,1],
+  "TASK-ZAI-038": [1,1,1],
+  "TASK-ZAI-039": [1,1,0],
+  "TASK-ZAI-040": [1,1,0],
+  "TASK-ZAI-041": [1,1,0],
+  "TASK-ZAI-042": [1,0,0],
+  "TASK-ZAI-043": [0,0,0],
+  "TASK-ZAI-044": [0,0,0],
+  "TASK-ZAI-045": [1,1,0],
+  "TASK-ZAI-046": [1,1,1],
+  "TASK-ZAI-047": [0,0,0],
+  "TASK-ZAI-048": [0,0,0],
+  "TASK-ZAI-049": [0,0,0],
+  "TASK-ZAI-050": [0,0,0],
+  "TASK-ZAI-051": [0,0,0]
+};
+
+/* ---------------------- theme ---------------------- */
+(function initTheme() {
+  const root = document.documentElement;
+  const btn = document.getElementById("theme-toggle");
+  const KEY = "zai-24w-theme";
+  let stored = null;
+  try { stored = localStorage.getItem(KEY); } catch (e) { stored = null; }
+  const system = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  const apply = mode => {
+    root.setAttribute("data-theme", mode);
+    btn.setAttribute("aria-pressed", String(mode === "dark"));
+    btn.querySelector(".theme-lbl").textContent = mode === "dark" ? "Light" : "Dark";
+    btn.querySelector(".theme-ico").textContent = mode === "dark" ? "☀" : "◐";
+  };
+  apply(stored === "dark" || stored === "light" ? stored : system);
+  btn.addEventListener("click", () => {
+    const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    apply(next);
+    try { localStorage.setItem(KEY, next); } catch (e) { /* private window: theme lives for this page only */ }
+  });
+  if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", ev => {
+    let s = null; try { s = localStorage.getItem(KEY); } catch (e) { s = null; }
+    if (!s) apply(ev.matches ? "dark" : "light");
+  });
+})();
+
+/* ---------------------- 3D tilt + glow ---------------------- */
+const TILT_MAX = 4; /* degrees */
+const tiltOK = () => !(window.matchMedia && (window.matchMedia("(prefers-reduced-motion: reduce)").matches || window.matchMedia("(hover: none)").matches));
+function attachTilt(node) {
+  node.classList.add("tilt");
+  node.addEventListener("pointermove", ev => {
+    const r = node.getBoundingClientRect();
+    const px = (ev.clientX - r.left) / r.width, py = (ev.clientY - r.top) / r.height;
+    node.style.setProperty("--mx", (px * 100).toFixed(1) + "%");
+    node.style.setProperty("--my", (py * 100).toFixed(1) + "%");
+    if (!tiltOK() || node.getAttribute("open-state") === "open" || r.height > 420) return;
+    const rx = ((0.5 - py) * TILT_MAX * 2).toFixed(2), ry = ((px - 0.5) * TILT_MAX * 2).toFixed(2);
+    node.classList.add("is-tilting");
+    node.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`;
+  });
+  node.addEventListener("pointerleave", () => {
+    node.classList.remove("is-tilting");
+    node.style.transform = "";
+  });
+}
+
 /* ---------------------- helpers ---------------------- */
 const el = (t, c, h) => { const n = document.createElement(t); if (c) n.className = c; if (h !== undefined) n.innerHTML = h; return n; };
 const esc = s => String(s).replace(/[&<>"]/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[m]));
@@ -1165,20 +1351,20 @@ const CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentC
     /* gridlines + axes */
     for (let g = 0; g <= 4; g++) {
       const yy = padT + ih - (g / 4) * ih;
-      s += `<line x1="${padL}" x2="${W - padR}" y1="${yy}" y2="${yy}" stroke="#E5E7EB" stroke-width="1"/>`;
-      s += `<text x="${padL - 6}" y="${yy + 4}" font-size="10" text-anchor="end" fill="#6B7280">${Math.round(maxCommits * g / 4)}</text>`;
-      s += `<text x="${W - padR + 6}" y="${yy + 4}" font-size="10" text-anchor="start" fill="#6B7280">${fmtK(Math.round(maxLines * g / 4))}</text>`;
+      s += `<line x1="${padL}" x2="${W - padR}" y1="${yy}" y2="${yy}" stroke="var(--chart-grid)" stroke-width="1"/>`;
+      s += `<text x="${padL - 6}" y="${yy + 4}" font-size="10" text-anchor="end" fill="var(--chart-text)">${Math.round(maxCommits * g / 4)}</text>`;
+      s += `<text x="${W - padR + 6}" y="${yy + 4}" font-size="10" text-anchor="start" fill="var(--chart-text)">${fmtK(Math.round(maxLines * g / 4))}</text>`;
     }
     /* baseline + monorepo markers */
     rows.forEach((r, i) => {
       if (String(r.n) === "13") s += `<line x1="${x(i) + bw / 2 + 2}" x2="${x(i) + bw / 2 + 2}" y1="${padT}" y2="${padT + ih}" stroke="#E8820C" stroke-dasharray="4 3"/>` +
         `<text x="${x(i) + bw / 2 + 6}" y="${padT + 10}" font-size="10" fill="#B86A08">baseline 7d8c9d0 · แผนเริ่ม W1</text>`;
-      if (r.moved) s += `<text x="${x(i)}" y="${padT + 10}" font-size="10" text-anchor="middle" fill="#6B7280">monorepo</text>`;
+      if (r.moved) s += `<text x="${x(i)}" y="${padT + 10}" font-size="10" text-anchor="middle" fill="var(--chart-text)">monorepo</text>`;
     });
     /* bars: commits */
     rows.forEach((r, i) => {
       const yy = yL(r.commits);
-      s += `<rect x="${x(i) - bw / 2}" y="${yy}" width="${bw}" height="${padT + ih - yy}" rx="1.5" fill="${r.moved ? "#C6A052" : "#FDE8D0"}" stroke="#F09420" stroke-width="0.5"><title>D${r.n} ${r.date}: ${r.commits} commits</title></rect>`;
+      s += `<rect class="${r.moved ? "moved" : ""}" x="${x(i) - bw / 2}" y="${yy}" width="${bw}" height="${padT + ih - yy}" rx="1.5" fill="${r.moved ? "#C6A052" : "#FDE8D0"}" stroke="#F09420" stroke-width="0.5"><title>D${r.n} ${r.date}: ${r.commits} commits</title></rect>`;
     });
     /* lines */
     const path = (fn, key, color, dash) => {
@@ -1194,8 +1380,8 @@ const CHEV = '<svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentC
     const last = rows[n - 1];
     s += `<text x="${W - padR + 6}" y="${yR(last.cumAdj) + 14}" font-size="10" fill="#B86A08">${fmtK(last.cumAdj)} บรรทัด</text>`;
     /* x labels: every 3rd day */
-    rows.forEach((r, i) => { if (i % 3 === 0 || i === n - 1) s += `<text x="${x(i)}" y="${H - padB + 14}" font-size="10" text-anchor="middle" fill="#6B7280">D${r.n}</text><text x="${x(i)}" y="${H - padB + 26}" font-size="9" text-anchor="middle" fill="#9CA3AF">${r.date.slice(5)}</text>`; });
-    s += `<text x="${padL}" y="${H - 4}" font-size="10" fill="#6B7280">แกนซ้าย: commit/วัน · แกนขวา: บรรทัดสะสม · FR และ test ปรับสเกลให้เต็มกราฟ (ค่าท้ายเส้นกำกับไว้)</text>`;
+    rows.forEach((r, i) => { if (i % 3 === 0 || i === n - 1) s += `<text x="${x(i)}" y="${H - padB + 14}" font-size="10" text-anchor="middle" fill="var(--chart-text)">D${r.n}</text><text x="${x(i)}" y="${H - padB + 26}" font-size="9" text-anchor="middle" fill="var(--chart-text-faint)">${r.date.slice(5)}</text>`; });
+    s += `<text x="${padL}" y="${H - 4}" font-size="10" fill="var(--chart-text)">แกนซ้าย: commit/วัน · แกนขวา: บรรทัดสะสม · FR และ test ปรับสเกลให้เต็มกราฟ (ค่าท้ายเส้นกำกับไว้)</text>`;
     s += `</svg>`;
     const host2 = document.getElementById("histchart");
     host2.innerHTML =
@@ -1314,9 +1500,11 @@ function renderTask(t, ph, sp) {
   const [id, code, title, type, C, H, state, owner, deps, codeLink, docLink, testLink, tokens, ac, sc, ec, changelog] = t;
   const done = state === "done";
   const hasTest = testLink && testLink !== "unavailable";
+  const checks = DOD_CHECKS[id] ?? (done ? [1, 1, 1] : [0, 0, 0]);
 
   const node = el("div", "task state-" + state);
   node.id = id;
+  attachTilt(node);
   node.setAttribute("open-state", "closed");
 
   const head = el("button", "task-head");
@@ -1362,9 +1550,9 @@ function renderTask(t, ph, sp) {
      <div class="info-sec">
        <div class="k">Definition of Done</div>
        <div class="dod">
-         <div><h5>Acceptance</h5><div class="crit"><span class="box ${done ? "on" : ""}"></span><span>${esc(ac)}</span></div></div>
-         <div><h5>Success</h5><div class="crit"><span class="box ${done ? "on" : ""}"></span><span>${esc(sc)}</span></div></div>
-         <div><h5>Exit</h5><div class="crit"><span class="box ${done ? "on" : ""}"></span><span>${esc(ec)}</span></div></div>
+         <div><h5>Acceptance</h5><div class="crit"><span class="box ${checks[0] ? "on" : ""}" title="${checks[0] ? "checked: true" : "checked: false"} ใน .md"></span><span>${esc(ac)}</span></div></div>
+         <div><h5>Success</h5><div class="crit"><span class="box ${checks[1] ? "on" : ""}" title="${checks[1] ? "checked: true" : "checked: false"} ใน .md"></span><span>${esc(sc)}</span></div></div>
+         <div><h5>Exit</h5><div class="crit"><span class="box ${checks[2] ? "on" : ""}" title="${checks[2] ? "checked: true" : "checked: false"} ใน .md"></span><span>${esc(ec)}</span></div></div>
        </div>
      </div>
      <div class="info-sec">
@@ -1398,6 +1586,9 @@ function renderTask(t, ph, sp) {
 })();
 
 /* ---------------------- header stats ---------------------- */
+/* Sidebar and hero cards get the same tilt + glow as task cards. */
+document.querySelectorAll(".side .card").forEach(attachTilt);
+
 (function renderStats() {
   const tasks = PHASES.flatMap(allTasks);
   const count = s => tasks.filter(t => t[6] === s).length;
