@@ -488,7 +488,7 @@ button{font:inherit;color:inherit;}
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
           <span class="pill pill-brand">approved</span>
           <span class="pill pill-planned mono">ROADMAP-ZURI-AI-24W-PROGRAM</span>
-          <span class="pill pill-planned mono">v0.4.1</span>
+          <span class="pill pill-planned mono">v0.4.2</span>
           <span class="pill pill-planned">updated 2026-09-13</span>
           <span class="pill pill-planned mono">CR-019</span>
           <span class="pill pill-planned">owner Owen</span>
@@ -678,10 +678,11 @@ button{font:inherit;color:inherit;}
 
 <script>
 /* ==================================================================
-   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.4.1 (CR-019,
+   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.4.2 (CR-019,
    2026-09-13) — the markdown is the source of truth, this array is
    its rendering. Tasks 031–044 were added on the re-baseline,
-   045–051 (17-stage knowledge base + file system) the same day.
+   045–051 (17-stage knowledge base + file system) the same day,
+   052–059 (SmartGift cost & quote engine, v0.4.2) the same day.
    ================================================================== */
 const PROGRESS_BY_STATE = { done:100, review:90, "in-progress":50, assigned:25, ready:10, planned:0, blocked:0 };
 
@@ -785,7 +786,7 @@ const PHASES = [
   {
     id:"PHASE-ZAI-01", n:"Phase 1", weeks:"สัปดาห์ 1-4",
     title:"Foundation Consolidation — ยกฐานที่มีอยู่ให้เป็น production-grade",
-    goal:"ฐานสถาปัตยกรรม ข้อมูล ตัวตน ความปลอดภัย runtime และ memory ส่วนใหญ่สร้างเสร็จแล้วในรีโปนี้ Phase นี้ซื้อเฉพาะส่วนที่ยังขาด · (CR-019) และรับ ERP business modules สำหรับ Business ที่หนึ่งที่ส่งเข้ามาใน W1–3",
+    goal:"ฐานสถาปัตยกรรม ข้อมูล ตัวตน ความปลอดภัย runtime และ memory ส่วนใหญ่สร้างเสร็จแล้วในรีโปนี้ Phase นี้ซื้อเฉพาะส่วนที่ยังขาด · (CR-019) และรับ ERP business modules สำหรับ Business ที่หนึ่งที่ส่งเข้ามาใน W1–3 · (v0.4.2) เปิด SmartGift cost & quote engine ตามคำสั่ง owner",
     exit:"ปิด production session boundary, ไม่มี feature ที่สร้างแล้วแต่ยังไม่ประกาศ, เขียน memory contract เสร็จ และทุกเลน deliverable 11 merge พร้อม migration",
     state:"in-progress",
     sprints:[
@@ -838,7 +839,7 @@ const PHASES = [
             "Given npm test, when the FR-066 unit suite runs, then onboarding order is asserted, not assumed",
             "ส่งมอบ 27 ส.ค. (ROADMAP.md TASK-FR-066-067) · FR-122 บังคับชื่อ-สกุล-โทรศัพท์ · CR-017 UX correction ติดตามในเลน Asset"]
         ]},
-      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract · นับ knowledge intake + Tier 1 ของ 17-stage ที่สร้างแล้ว · (CR-019) SCM, Marketing, billing/POS, catalog convergence และ identity lifecycle เข้า main",
+      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract · นับ knowledge intake + Tier 1 ของ 17-stage ที่สร้างแล้ว · (CR-019) SCM, Marketing, billing/POS, catalog convergence และ identity lifecycle เข้า main · (v0.4.2) เปิด cost & quote engine: decision record + ใบต้นทุนโรงงาน",
         exit:"pipeline รายงานได้ทุก stage, memory contract ผ่านการรีวิว, ไฟล์ที่รับเข้า Stage 1 ไปถึง Stage 8 พร้อม lineage ใต้เทสต์ และทุกเลนมี migration เขียนแล้ว",
         tasks:[
           ["TASK-ZAI-004","TSK-ZAI004","Workspace collaboration boundary and scoped invites, FR-067","FR","C-3","H3","done","Codex","TASK-ZAI-003","apps/server/src/modules/identity/access-invite-service.js","docs/PRD-SDD-v1.0.md","unavailable",40000,
@@ -895,18 +896,33 @@ const PHASES = [
             "Given a parsed artifact, when runKnowledgeIngestionStages runs, then parsing, provenance, normalization, classification, dedup, chunking and entity extraction execute in catalog order and every derived object carries the ten provenance fields back to the raw source",
             "Given a document that fails at any Tier 1 stage, when the traced runner runs, then the failure is attributed to that stage and the document is quarantined under BR-022 without partial publication",
             "Given npm test, when the FR-111–119 unit suites and genesisrag17-tier1 integration suite run, then all pass through assert-tests-ran",
-            "(v0.4.1) FR-111–119 ✅ 27–29 ส.ค. (182 unit + 8 integration tests) · Stage 2 เป็น exact text โดยตั้งใจ — binary คือ TASK-ZAI-048 · ปิดตอนเปิด"]
+            "(v0.4.1) FR-111–119 ✅ 27–29 ส.ค. (182 unit + 8 integration tests) · Stage 2 เป็น exact text โดยตั้งใจ — binary คือ TASK-ZAI-048 · ปิดตอนเปิด"],
+          ["TASK-ZAI-052","TSK-ZAI052","Cost and quote engine decision record — proposal, ADR, FR and FEAT declarations with the owner's nine decisions","NFR","C-2","H2","in-progress","Claude","TASK-ZAI-038","unavailable","docs/change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md","unavailable",30000,
+            "Given the proposal's nine decisions, when the ADR is written, then each decision is recorded with the owner's 2026-09-13 answer and the SmartGift ADR-009 invariants D2, D3 and D4 are cited as kept, not restated",
+            "Given the six requirements the plan names, when they are declared in the PRD with a FEAT bundle, then every id is pinned, FR-131 is re-scoped onto the rule set, FR-132 names the rule set as its blocker, and FR-181 says the quote tool will read it",
+            "Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and the proposal, the ADR and the PRD rows agree on every id and formula name",
+            "(v0.4.2) เปิดตามคำสั่ง owner 13 ก.ย. — proposal บันทึกแล้ว owner รับค่าที่แนะนำทั้ง 9 ข้อ · เหลือ ADR + ประกาศ FR/FEAT · เป็นเอกสารจึงเข้า sprint ปัจจุบันได้"],
+          ["TASK-ZAI-053","TSK-ZAI053","Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory)","FR","C-3","H3","planned","Claude","TASK-ZAI-052; TASK-ZAI-034","apps/server/src/modules/procurement/application/purchase-order-service.js","docs/domains/procurement/CHARTER.md","unavailable",56000,
+            "Given a factory cost workbook or JSON export, when it is previewed and committed, then one SupplierCostSheet version records supplier, currency, the locked FX rate, the source hash and one line per SKU price break, and no line is written until a person confirms its product mapping",
+            "Given a confirmed sheet line, when the SKU is opened, then the product page shows the sheet's price breaks at the locked rate and the carton attributes it supplied, and SKU Hygiene reports CARTON_DATA_MISSING for a counted SKU without them",
+            "Given npm test, when the cost sheet suites run, then preview and commit are idempotent on the file hash, an unconfirmed mapping refuses the write, and both migrations exist with schema-migration drift green",
+            "(v0.4.2) lane 08_factory_costs + กฎ confirm-before-write ของ SmartGift ADR-005 มาเป็นเรคอร์ดใน Procurement · FX ล็อกต่อใบ 34.00 (ADR-009 D4) · แทรก sprint ปัจจุบัน ย้ายไป 03 ได้ตอนปิด sprint"],
+          ["TASK-ZAI-054","TSK-ZAI054","Goods receipts post the landed unit cost to the stock ledger, and the SKU page gains a cost card","FR","C-2","H3","planned","Claude","TASK-ZAI-053; TASK-ZAI-038","apps/server/src/modules/procurement/application/goods-receipt-service.js","docs/decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md","apps/server/tests/unit/inventory-costing.test.js",40000,
+            "Given a goods receipt against a purchase order line, when it posts, then every RECEIPT movement carries costSatang from the line's agreed cost plus the receipt's amortised batch costs, and a receipt without a cost basis records null and is reported, never zero",
+            "Given a SKU whose receipts carry cost, when the product page loads, then it shows the moving weighted average landed cost, the last receipt cost and the ledger cost history, and the FR-181 tool no longer answers INVENTORY_COST_UNKNOWN for it",
+            "Given npm test, when the goods receipt and costing suites run, then receipts with and without a cost basis pass, the weighted average matches inventory-costing.js to the satang, and the receipt workstation e2e still passes",
+            "(v0.4.2) ปิดช่องว่างที่ proposal พบ — FR-175 ประกาศ landed cost แต่ GRN โพสต์ RECEIPT โดยไม่มี costSatang · ต้นทุนบน ledger วันนี้มาจาก work order กับ transfer เท่านั้น"]
         ]}
     ]
   },
   {
     id:"PHASE-ZAI-02", n:"Phase 2", weeks:"สัปดาห์ 5-8",
     title:"Agent Workforce และ Governance Ladder",
-    goal:"สร้าง role registry 5 บทบาท และชั้นอนุมัติ L1–L4 ที่ครอบมันไว้ พร้อม audit, verification, notification",
+    goal:"สร้าง role registry 5 บทบาท และชั้นอนุมัติ L1–L4 ที่ครอบมันไว้ พร้อม audit, verification, notification · pricing rules, pricing engine และใบเสนอราคาสำหรับ Business ที่หนึ่ง",
     exit:"5 roles ทำงานภายใต้ชั้นอนุมัติ L1–L4 พร้อม audit, verification และ notification",
     state:"planned",
     sprints:[
-      { id:"SPR-ZAI-03", weeks:"สัปดาห์ 5-6", goal:"สร้าง Agent Role registry และ 5 core roles · knowledge base console, binary parser, durable file storage และ 17-stage runtime บน production · apply migration ERP ที่ค้าง",
+      { id:"SPR-ZAI-03", weeks:"สัปดาห์ 5-6", goal:"สร้าง Agent Role registry และ 5 core roles · knowledge base console, binary parser, durable file storage และ 17-stage runtime บน production · apply migration ERP ที่ค้าง · pricing rule set, pricing engine และใบเสนอราคา",
         exit:"แต่ละ role resolve tools, policy และ memory partition ที่ต่างกันได้ · PDF ที่อัปโหลดใน console ถูก publish เป็น corpus พร้อม citation บน production · migration ledger ตรงกับ tree",
         tasks:[
           ["TASK-ZAI-007","TSK-ZAI007","Agent Role registry with five core roles","FR","C-3","H3","planned","Claude","TASK-ZAI-006","src/modules/agent/index.js","docs/ARCHITECTURE.md","unavailable",62000,
@@ -953,9 +969,24 @@ const PHASES = [
             "Given two sources admitted for the same Business at the same time, when both runs execute, then each holds its own run/batch/attempt identities, neither reuses the other's occurrence output, and publication order is deterministic",
             "Given a failed run, when replay is requested from the console, then FR-071's replayRunId materializes a new attempt, only failed records are reprocessed, and the old attempt's evidence is retained and addressable",
             "Given npm test, when the concurrency and replay suites run, then duplicate, reply-loss, crash and wrong-tenant cases pass and a scheduled pull runs on its declared cadence under test",
-            "(v0.4.1) P2 · flow guide บอกว่า multi-source concurrency ต้องออกแบบเพิ่ม, FR-081 scheduler/replay ยังไม่เริ่ม · ต่อจาก activation · ย้ายไป SPR-ZAI-04 ตอนเข้า sprint ได้ถ้า 03 แน่น"]
+            "(v0.4.1) P2 · flow guide บอกว่า multi-source concurrency ต้องออกแบบเพิ่ม, FR-081 scheduler/replay ยังไม่เริ่ม · ต่อจาก activation · ย้ายไป SPR-ZAI-04 ตอนเข้า sprint ได้ถ้า 03 แน่น"],
+          ["TASK-ZAI-055","TSK-ZAI055","PricingRuleSet — versioned, owner-approved pricing rules ported from pricing_rules_formula.yaml with per-block provenance, and the Pricing Rules console","FR","C-3","H3","planned","Claude","TASK-ZAI-052","apps/server/src/modules/commerce/index.js","docs/domains/commerce/CHARTER.md","unavailable",60000,
+            "Given SmartGift's pricing_rules_formula.yaml v4, when it is imported, then PricingRuleSet v1 holds FX, the freight matrix with the density switch, logo rates, the two ladder profiles, profit floors by quantity and kind, and domestic delivery options, each block with its provenance level, validated by a Zod schema that rejects an unknown key",
+            "Given a draft rule set edited in /commerce/pricing-rules, when a Business OWNER approves it with an effective date, then it becomes an immutable version, earlier quotes stay bound to theirs, and an undocumented block makes every later quote carry an assumption",
+            "Given npm test and the navigation e2e, when they run, then schema rejection, approval immutability, version pinning and the console's diff against the previous version pass",
+            "(v0.4.2) Q3 → rate card เป็นบล็อกหนึ่งของ rule set ไม่ใช่ business_knowledge (FR-131 re-scope ใน 052) · ระดับที่มาของ SmartGift (registered / file_only / undocumented / owner_directive) แสดงในหน้าจอ"],
+          ["TASK-ZAI-056","TSK-ZAI056","One pure pricing engine in integer satang — landed cost, ladder, profit floor and ten-baht round-up — with parity fixtures against price-boss; the FR-181 quote tool reads the rule set","FR","C-3","H3","planned","Claude","TASK-ZAI-054; TASK-ZAI-055","apps/server/src/modules/inventory/domain/inventory-costing.js","docs/change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md","apps/server/tests/unit/inventory-costing.test.js",64000,
+            "Given price-boss golden cases, when pricing-engine.js runs under the imported rule set, then every ladder break matches price-boss to the baht before the deliberate integer-satang rounding change, and the differences after it are recorded as a second fixture",
+            "Given a quantity, when the engine prices it, then the result names the driver (LADDER, FLOOR or MANUAL), carries freightSatang 0 with freightAbsorbedSatang beside it, flags a margin outside the profile band without clamping, and never emits a float",
+            "Given npm test, when the engine, costing and FR-181 tool suites run, then both fixture sets pass, the tool no longer reads QUOTE_TIERS or TECHNIQUE_RATES constants, and a zero or negative quantity is refused before any arithmetic",
+            "(v0.4.2) Q1 ขั้นราคาโรงงานแทน SOF, Q2 บันได markup ของ SmartGift เป็นโครงข้อมูล margin band แค่เตือน, Q4 inland ต่อชุด, Q5 พื้น 20,000 เป้า 30,000, Q7 เรทโลโก้ USD ของ SmartGift — ทั้งหมดเป็นข้อมูลใน rule set"],
+          ["TASK-ZAI-057","TSK-ZAI057","Quotations — Quote and QuoteLine with ladder snapshots, two-hat approval, the QUOTATION document and conversion to a sales order with the FR-180 hold","FR","C-3","H3","planned","Claude","TASK-ZAI-056; TASK-ZAI-039","apps/server/src/modules/commerce/application/sales-order-service.js","docs/domains/commerce/features/FR-166-sales-orders.md","unavailable",70000,
+            "Given a quote built in /commerce/quotes, when it is saved, then each line stores inputs, landed breakdown, ladder snapshot, unit price, driver and rule set version, a manual price needs a reason, and the quote follows the price-boss status machine with the creator refused as approver",
+            "Given an accepted quote, when it is converted, then one transaction creates the FR-166 sales order at the quoted prices, converts the QUOTE reservation to ORDER (FR-180), issues the QUOTATION document under FR-186's rules, and marks the quote converted and read-only",
+            "Given npm test and a new e2e, when they run, then the workflow, self-approval refusal, manual-price audit, conversion atomicity and the document total (subtotal, discount, ROUND_HALF_UP VAT) pass",
+            "(v0.4.2) workflow ของ price-boss CRM (sale → manager → sent → accepted) บนสัญญา order / reservation / document ที่มีอยู่ · Q8 OWNER หรือ QUOTE_APPROVER อนุมัติ ไม่ใช่คนสร้าง · ย้ายไป SPR-ZAI-04 ได้ถ้า 03 แน่น"]
         ]},
-      { id:"SPR-ZAI-04", weeks:"สัปดาห์ 7-8", goal:"Approval Gateway L1–L4 พร้อม verification, notification และผูก Mission Control",
+      { id:"SPR-ZAI-04", weeks:"สัปดาห์ 7-8", goal:"Approval Gateway L1–L4 พร้อม verification, notification และผูก Mission Control · ladder quote ใน LINE และ knowledge structured records",
         exit:"action ระดับ L4 ทำงานไม่ได้ถ้ายังไม่มีการอนุมัติครบสี่ครั้งที่บันทึกไว้",
         tasks:[
           ["TASK-ZAI-010","TSK-ZAI010","Approval Gateway L1 to L4 over the FR-026 action gate","FR","C-3","H3","planned","ATHER","TASK-ZAI-007","src/modules/agent/action-gate.js","docs/FEATURE-MAP.md","unavailable",58000,
@@ -972,7 +1003,17 @@ const PHASES = [
             "Given an agent role is assigned a mission, when the mission is created, then it is a WorkItem in the Development-domain Project system written through the one intake pipeline, carrying the agent as accountable principal and the approval tier it needs",
             "Given a mission awaiting approval or in progress, when a human opens the Board, Schedule or Dashboard, then it appears with the same status vocabulary as human work and its progress is recomputed, never reported from an agent's claim",
             "Given npm test and the navigation e2e, when they run, then an agent-created mission is visible on the Board, blocked while its approval is unmet, and released on approval with an audit trail",
-            "13 ก.ย. owner แก้: Mission Control = ระบบ Project ใน Development domain ที่ส่งมอบแล้ว · ที่เหลือคือฝั่ง mission ของ agent ใต้ approval ladder (TASK-ZAI-010) · sprint เดิม"]
+            "13 ก.ย. owner แก้: Mission Control = ระบบ Project ใน Development domain ที่ส่งมอบแล้ว · ที่เหลือคือฝั่ง mission ของ agent ใต้ approval ladder (TASK-ZAI-010) · sprint เดิม"],
+          ["TASK-ZAI-058","TSK-ZAI058","Ladder quotation on LINE (FR-132) over the shared engine with a deterministic intent matcher","FR","C-2","H3","planned","Claude","TASK-ZAI-057; TASK-ZAI-036","apps/server/src/modules/agent/tools/smartgift-inventory-tools.js","docs/change-requests/CR-005-ACCEPTED-SHAPE.md","apps/server/tests/integration/fr181-smartgift-agent-tools.test.js",36000,
+            "Given a verified LINE conversation, when a customer writes a quotation request the matcher recognises, then the reply carries the ladder prices rounded up to ten baht, the validity date and the free single-drop note, and no margin, landed cost or floor",
+            "Given the same SKU and quantity, when the LINE tool and /commerce/quotes price it under the same rule set version, then the numbers are identical to the satang",
+            "Given npm test, when the Gate E tool and matcher suites run, then the reply is returned to the transport and never sent, an unrecognised phrasing falls through to the ordinary turn, and FR-047's exclusion is asserted on the payload",
+            "(v0.4.2) Q9 matcher แบบ deterministic ก่อน (แบบ #sku ของ FR-210) ค่อยให้โมเดลเลือก tool ทีหลัง · ปลด blocker ของ FR-132 ที่รอ FR-131 และการตัดสินใจนี้"],
+          ["TASK-ZAI-059","TSK-ZAI059","Knowledge structured records — STRUCTURED_RECORDS_V1 JSON format, an Excel template and converter, and MCP format widening before Stage 1","FR","C-2","H3","planned","Claude","TASK-ZAI-045; TASK-ZAI-042","apps/server/src/modules/knowledge/knowledge-admission-service.js","docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md","apps/server/tests/unit/knowledge-admission-service.test.js",44000,
+            "Given a JSON array of records with a registered entityType, when admitted as a FILE source with format STRUCTURED_RECORDS_V1, then each record becomes one immutable source with frozen bytes and hash before Stage 1, the Zero-PII predicate refuses cost, margin or personal data, and no stage result is synthesised",
+            "Given the per-Business Excel template, when a filled workbook is posted to the knowledge xlsx route, then its rows convert to the same records and enter the same admission call, and the MCP tool admits the format without a new handler",
+            "Given npm test, when the admission, workbook and MCP suites run, then JSON, Excel and MCP produce identical source keys for identical rows and the SMARTGIFT_CATALOG_V1 path is unchanged",
+            "(v0.4.2) จากคำขอ flow ของ owner (กลุ่ม D ได้ JSON / Excel / MCP) · ฝั่งขายเท่านั้น — template ไม่มีคอลัมน์ต้นทุน เพราะใบต้นทุนเป็นของ 053 และเข้า Procurement"]
         ]}
     ]
   },
@@ -1197,7 +1238,15 @@ const DOD_CHECKS = {
   "TASK-ZAI-048": [0,0,0],
   "TASK-ZAI-049": [0,0,0],
   "TASK-ZAI-050": [0,0,0],
-  "TASK-ZAI-051": [0,0,0]
+  "TASK-ZAI-051": [0,0,0],
+  "TASK-ZAI-052": [0,0,0],
+  "TASK-ZAI-053": [0,0,0],
+  "TASK-ZAI-054": [0,0,0],
+  "TASK-ZAI-055": [0,0,0],
+  "TASK-ZAI-056": [0,0,0],
+  "TASK-ZAI-057": [0,0,0],
+  "TASK-ZAI-058": [0,0,0],
+  "TASK-ZAI-059": [0,0,0]
 };
 
 /* ---------------------- theme ---------------------- */
