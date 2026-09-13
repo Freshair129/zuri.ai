@@ -76,6 +76,180 @@
 .task[data-status='ready'] .taskDot { background: var(--status-info); }
 .task[data-status='blocked'] .taskDot { background: var(--status-danger); }
 
+.taskOpen {
+  background: var(--bg-surface);
+}
+.taskHead {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+/* Expanded task body: sunken canvas with bordered panels, dark labels, the three
+   Definition-of-Done columns coloured blue / green / amber (each with its label). */
+.detail {
+  border-top: 1px solid var(--border-default);
+  background: var(--bg-sunken);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.kvGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (max-width: 720px) {
+  .kvGrid {
+    grid-template-columns: 1fr;
+  }
+}
+.kv {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-top: 3px solid var(--mustard);
+  border-radius: var(--radius-md);
+  padding: 6px 10px;
+  min-width: 0;
+}
+.k {
+  font-size: 11px;
+  line-height: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.v {
+  font-size: 12px;
+  line-height: 18px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  word-break: break-all;
+  color: var(--text-primary);
+}
+.link {
+  color: var(--status-info);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.link:hover {
+  color: var(--action-primary);
+}
+.na {
+  color: var(--text-tertiary);
+  font-style: italic;
+}
+.infoSec {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 10px;
+}
+.infoSec .kv {
+  background: var(--bg-sunken);
+}
+.secLabel {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: var(--radius-xs);
+  background: var(--action-primary);
+  color: var(--text-inverse);
+  font-size: 11px;
+  line-height: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.dod {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 10px;
+}
+@media (max-width: 900px) {
+  .dod {
+    grid-template-columns: 1fr;
+  }
+}
+.dodCol {
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  background: var(--bg-sunken);
+}
+.dodAcceptance { border-top: 3px solid var(--status-info); }
+.dodSuccess { border-top: 3px solid var(--status-success); }
+.dodExit { border-top: 3px solid var(--action-primary); }
+.dodHead {
+  margin: 0 0 6px;
+  font-size: 11px;
+  line-height: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.dodAcceptance .dodHead { color: var(--status-info); }
+.dodSuccess .dodHead { color: var(--status-success); }
+.dodExit .dodHead { color: var(--action-primary); }
+.crit {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--text-primary);
+}
+.box {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--radius-xs);
+  border: 2px solid var(--border-strong);
+  flex: none;
+  margin-top: 2px;
+  background: var(--bg-surface);
+}
+.boxOn {
+  background: var(--status-success);
+  border-color: var(--status-success);
+}
+.changelog {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--text-primary);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: 10px;
+  box-shadow: inset 4px 0 0 var(--action-primary);
+}
+.dep {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 18px;
+}
+.depCode {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--status-info);
+  background: var(--status-info-bg);
+  padding: 0 6px;
+  border-radius: var(--radius-xs);
+  font-weight: 600;
+  text-decoration: none;
+}
+.depCode:hover {
+  text-decoration: underline;
+}
+
 .sideCard {
   box-shadow: var(--shadow-raised);
   border-color: var(--border-default);

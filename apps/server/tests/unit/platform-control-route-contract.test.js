@@ -2,6 +2,7 @@ import { readFileSync, existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { PROGRAMME_DELIVERABLES, PROGRAMME_GATES, PROGRAMME_HISTORY, PROGRAMME_PHASES, PROGRAMME_TASKS } from '@/modules/platform-control/program-roadmap-data'
+import { PROGRAMME_CONTAINERS } from '@/modules/platform-control/program-roadmap-containers'
 
 // @req FR-105 — the roadmap is a contained platform projection, not a Business domain.
 // @spec ADR-048 D1, D3, SDD-055
@@ -48,6 +49,27 @@ describe('Platform Programme Roadmap route contract', () => {
     const board = readFileSync(fromRoot('src', 'modules', 'platform-control', 'components', 'ProgramRoadmapBoard.jsx'), 'utf8')
     expect(board).toContain('Repository history')
     expect(board).not.toContain('git log') // the page never measures git itself (ADR-048 D3)
+  })
+
+  it('carries one Task Container per backlog row, with the per-criterion checks the document records', () => {
+    const ids = PROGRAMME_TASKS.map(([id]) => id)
+    expect(Object.keys(PROGRAMME_CONTAINERS).sort()).toEqual([...ids].sort())
+    for (const id of ids) {
+      const c = PROGRAMME_CONTAINERS[id]
+      expect(c.container).toBe(`TC-${id}`)
+      expect(c.dod.acceptance.text.length).toBeGreaterThan(20)
+      expect(c.dod.success.text.length).toBeGreaterThan(20)
+      expect(c.dod.exit.text.length).toBeGreaterThan(20)
+      expect(Array.isArray(c.dependsOn)).toBe(true)
+      expect(c.links.code.length).toBeGreaterThan(0)
+    }
+    // Spot checks against the markdown: 001 has only its success criterion ticked; 031 is closed on all three.
+    expect([PROGRAMME_CONTAINERS['TASK-ZAI-001'].dod.acceptance.checked, PROGRAMME_CONTAINERS['TASK-ZAI-001'].dod.success.checked, PROGRAMME_CONTAINERS['TASK-ZAI-001'].dod.exit.checked]).toEqual([false, true, false])
+    expect([PROGRAMME_CONTAINERS['TASK-ZAI-031'].dod.acceptance.checked, PROGRAMME_CONTAINERS['TASK-ZAI-031'].dod.success.checked, PROGRAMME_CONTAINERS['TASK-ZAI-031'].dod.exit.checked]).toEqual([true, true, true])
+    expect(PROGRAMME_CONTAINERS['TASK-ZAI-038'].dependsOn).toEqual(['TASK-ZAI-031', 'TASK-ZAI-034'])
+    const board = readFileSync(fromRoot('src', 'modules', 'platform-control', 'components', 'ProgramRoadmapBoard.jsx'), 'utf8')
+    expect(board).toContain('PROGRAMME_CONTAINERS')
+    expect(board).toContain('aria-expanded={open}')
   })
 
   it('themes and decorates the board without changing what it says (owner request 2026-09-13)', () => {

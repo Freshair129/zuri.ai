@@ -3281,7 +3281,7 @@
           "id": "FR-105",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
+          "codeCount": 7,
           "testCount": 11
         },
         {
@@ -11423,7 +11423,7 @@
           "id": "FR-105",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
+          "codeCount": 12,
           "testCount": 11
         }
       ],
@@ -11438,6 +11438,7 @@
         "apps/server/src/lib/platform-control-guard.js",
         "apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
         "apps/server/src/modules/platform-control/components/TiltCard.jsx",
+        "apps/server/src/modules/platform-control/program-roadmap-containers.js",
         "apps/server/src/modules/platform-control/program-roadmap-data.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
