@@ -176,8 +176,12 @@ describe('OpenAPI document', () => {
       // unit-conversion collections of a SKU (GET, POST, PATCH each — RETIRE is a
       // versioned action, never a DELETE), GET /api/inventory/catalog-hygiene and
       // GET /api/inventory/replenishment. 252 + 5 = 257; 342 + 9 = 351.
-      pathCount: 257,
-      operationCount: 351,
+      // FR-208/FR-209 (ADR-084 catalogue intake) add six paths and seven
+      // operations: the list (GET), preview and commit (POST each), one intake
+      // (GET, PATCH — cancel is an action, never a DELETE), the workbook
+      // template (GET) and the workbook upload (POST). 257 + 6 = 263; 351 + 7 = 358.
+      pathCount: 263,
+      operationCount: 358,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

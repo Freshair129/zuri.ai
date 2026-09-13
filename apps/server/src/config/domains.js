@@ -214,6 +214,8 @@ export const DOMAINS = [
       { label: 'Stocktake', path: '/inventory/stocktakes', icon: ClipboardList },
       // @req FR-206 — the catalogue hygiene report and the merge desk (ADR-083 D6).
       { label: 'SKU Hygiene', path: '/inventory/hygiene', icon: ClipboardCheck },
+      // @req FR-209 — catalogue intake: Excel / JSON preview and commit (ADR-084 D3).
+      { label: 'Import', path: '/inventory/catalog-intake', icon: PackageCheck },
     ],
   },
   {

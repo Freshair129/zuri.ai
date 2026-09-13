@@ -237,6 +237,11 @@ const SNAPSHOT_MODELS = [
   // product and nothing hangs off them, so both restore right after `product`
   // and delete right before it. Catalogue attributes, no secret: exported whole.
   'productIdentifier', 'productUnitConversion',
+  // @req FR-208 — a catalogue intake references only its Tenant and Business
+  // (the SKUs it created are named inside its JSON, never by foreign key), so
+  // it restores with the catalogue and deletes before its scope parents. A
+  // preview and its result are evidence, no secret: exported whole.
+  'inventoryCatalogIntake',
   'productBundle', 'productBundleItem',
   // @req FR-156 — a recipe hangs off its output product and its lines off the
   // recipe and the component products, so both restore after `product`.

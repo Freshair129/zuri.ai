@@ -32,9 +32,9 @@ owns_code:
   - src/modules/line-oa-studio/**
 technical_owner: TD-LINE-OA-STUDIO
 status: phase-1-building
-version: "0.8.0b"
+version: "0.9.0b"
 created_at: "2026-09-05T00:00:00+07:00"
-updated_at: "2026-09-06T13:29:04+07:00"
+updated_at: "2026-09-13T21:00:00+07:00"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -359,6 +359,7 @@ ids first and updates this charter's ownership claims in the same change.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.9.0b | 2026-09-13 | phase-1-building | FR-210 (ADR-084 D4): `POST /api/line-oa/worker` passes `withLineCatalogCommand(createServerLineAnswer(...))` as the answer port, so a DIRECT `#sku` message from a verified sender with Inventory write authority is answered by the Inventory catalogue intake; admission, delivery, the reply transports and every other message are unchanged | working-tree | Claude Opus 5 |
 | 0.6.0 | 2026-09-06 | phase-1-building | Slice 4: claimed `LineOaRichMenuJob` as FR-152 lands — server-owned publish jobs on ADR-061; the integration lane gains the rich menu port; the ADR-060 transport-job sketch is superseded for rich menus | working-tree | Claude Fable 5.1 |
 | 0.8.0b | 2026-09-06 | phase-1-building | Slice 5: claimed `LineOaLiffApp` as FR-153 lands — the LIFF registry; rich menu LIFF actions resolve through it; no LINE call yet | working-tree | Claude Fable 5.1 |
 | 0.7.0b | 2026-09-06 | candidate | Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes | base 4c0cbe3 | RWANG |

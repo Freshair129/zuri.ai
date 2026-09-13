@@ -1,7 +1,7 @@
 ---
-version: "0.2.0b"
+version: "0.3.0b"
 status: active
-last_update: "2026-09-07T23:18:03+07:00,RWANG"
+last_update: "2026-09-13T21:00:00+07:00,Claude Opus 5"
 id: ZAI:DOMAIN-AGENT
 relations:
   - type: relates_to
@@ -68,6 +68,14 @@ scoped `AgentTraceEvent` journal for execution evidence and read-only playback.
   the product's only LINE inbound seam: a `serverEnabled` account is refused here and
   enters through the Studio's native `POST /api/line-oa/accounts/[id]/webhook`
   (FR-149, ADR-061), which never calls `handleAgentTurn`.
+- `withLineCatalogCommand(answer)` / `lineCatalogViewer(job)` (`line-catalog-command.js`,
+  FR-210, ADR-084 D4) — wraps the native worker's answer port: a DIRECT-chat `#sku`
+  text from a sender whose LINE channel identity is verified and whose resolved
+  viewer has Inventory write authority is answered by the Inventory catalogue
+  intake (preview, then `#sku ยืนยัน <code>` / `ยกเลิก`) before the model; every
+  other message reaches the wrapped answer unchanged. A deterministic command,
+  not a Gate F tool: no model output reaches the write, and it adds no authority
+  (SDD-091, BR-042).
 - `handleAgentTurn` — one end-to-end turn; identity resolution and policy
   checks happen before any memory-port call (FR-057).
 - `GET`/`POST`/`DELETE /api/agent/heartbeat` — the Business-scoped Edge Device
@@ -106,5 +114,6 @@ charter does not authorize direct writes to their repositories or databases.
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.3.0b | 2026-09-13 | FR-210 / ADR-084 D4: the `#sku` catalogue command wraps the server-owned LINE worker's answer port for verified staff with Inventory write authority; the native path still never calls `handleAgentTurn`, and no model output reaches a write | Claude Opus 5 |
 | 0.1.0b | 2026-09-06 | Added document metadata and FEAT-019 handoff navigation; existing domain manifest retained | RWANG |
 | 0.2.0b | 2026-09-07 | ADR-070/FR-171 approved the single AgentTraceEvent journal and read-only playback boundary; the agent now owns that one local model while MSP, GKS and Edge remain external authorities | RWANG |

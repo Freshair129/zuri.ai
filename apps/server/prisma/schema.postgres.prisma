@@ -108,6 +108,7 @@ model Tenant {
   inventoryStocktakes        InventoryStocktake[]
   productIdentifiers         ProductIdentifier[]
   productUnitConversions     ProductUnitConversion[]
+  inventoryCatalogIntakes    InventoryCatalogIntake[]
 
   marketingPlans            MarketingPlan[]
   marketingInitiatives      MarketingInitiative[]
@@ -280,6 +281,7 @@ model Business {
   inventoryStocktakes        InventoryStocktake[]
   productIdentifiers         ProductIdentifier[]
   productUnitConversions     ProductUnitConversion[]
+  inventoryCatalogIntakes    InventoryCatalogIntake[]
 
   marketingPlans            MarketingPlan[]
   marketingInitiatives      MarketingInitiative[]
@@ -3866,6 +3868,47 @@ model ProductUnitConversion {
 
   @@unique([productId, unit])
   @@index([businessId, status])
+}
+
+// @req FR-208 — one catalogue intake preview and, once confirmed, its result
+//   (ADR-084 D2). Every surface — JSON, Excel, LINE — converts into one
+//   envelope; this row keeps the normalized envelope, the plan the planner
+//   made after resolving every item against the catalogue, and the `planHash`
+//   a commit must match. Idempotent on (businessId, sourceChannel,
+//   sourceCorrelationId): the same payload re-previews, a different one under
+//   the same correlation is refused. The row never holds catalogue data of its
+//   own — the SKUs it creates are written by the catalogue writers, and it
+//   references them only inside `planJson` / `resultJson`.
+// @spec ADR-084 D1, D2; BR-009, BR-041; SDD-009
+model InventoryCatalogIntake {
+  id                     String    @id @default(uuid())
+  code                   String
+  tenantId               String
+  businessId             String
+  sourceChannel          String
+  sourceCorrelationId    String
+  payloadSha256          String
+  normalizedEnvelopeJson String
+  planJson               String
+  planHash               String
+  committable            Boolean   @default(false)
+  itemCount              Int       @default(0)
+  status                 String    @default("PREVIEWED")
+  requestedById          String?
+  resultJson             String?
+  expiresAt              DateTime
+  committedAt            DateTime?
+  cancelledAt            DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  version                Int       @default(1)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, sourceChannel, sourceCorrelationId])
+  @@unique([tenantId, code])
+  @@index([businessId, status, createdAt])
 }
 
 model ProductLot {

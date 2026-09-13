@@ -24,6 +24,7 @@ owns_models:
   - InventoryLedgerFence
   - ProductIdentifier
   - ProductUnitConversion
+  - InventoryCatalogIntake
 owns_routes:
   - src/app/(pm)/inventory/**
   - src/app/api/inventory/**
@@ -31,9 +32,9 @@ owns_code:
   - src/modules/inventory/**
 technical_owner: TD-INVENTORY
 status: active-foundation
-version: "1.4.0"
+version: "1.5.0"
 created_at: "2026-09-06T21:00:00+07:00"
-updated_at: "2026-09-13T16:30:00+07:00"
+updated_at: "2026-09-13T21:00:00+07:00"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -173,6 +174,16 @@ another, an intake that does not know the SKU exists. Since ADR-083:
   survivor through the ledger, re-points its identifiers, unit conversions,
   bundle items and recipe lines, and leaves it ARCHIVED with
   `mergedIntoProductId` set. Nothing is deleted.
+- **Catalogue intake (FR-208..FR-210, ADR-084, BR-041).** JSON, a Business-specific
+  Excel workbook and a LINE `#sku` command all convert into one
+  `InventoryCatalogIntake` envelope. The planner resolves each item by its active
+  identifiers and SKU code (following merges) **before** it plans a create; a match
+  only adds the identifiers and conversions the SKU lacks and never overwrites; a
+  create passes every guard above against the catalogue and the rest of the batch.
+  A preview is persisted with its plan hash, and a commit re-plans in one
+  transaction and applies exactly that plan through this lane's own writers — or
+  nothing. The LINE command itself is an agent-lane adapter over these exports
+  (BR-042); this lane owns the parser, the formatters and the pipeline.
 - **Hygiene report and replenishment (FR-206, FR-207).** `hygieneReport` is a
   pure function over the catalogue and the ledger — lookalikes, nature
   mismatches, undeclared axes, dormant SKUs, missing identifiers, services with
@@ -209,6 +220,10 @@ another, an intake that does not know the SKU exists. Since ADR-083:
 - `ProductIdentifier`, `ProductUnitConversion` — a SKU's barcodes and partner
   codes, and its pack sizes as integer factors (FR-203, FR-204). Attributes of
   one SKU, re-pointed by a merge, never keys.
+- `InventoryCatalogIntake` — one catalogue intake preview and its result
+  (FR-208): the normalized envelope, the plan and its hash, the status. It holds
+  no catalogue data of its own; the SKUs it creates are written by the writers
+  above and named only inside its JSON.
 
 ## Explicitly not owned
 
@@ -272,6 +287,10 @@ src/modules/inventory/
 ├── application/inventory-identity-service.js identifiers, unit conversions, resolve-before-create (FR-203, FR-204)
 ├── application/inventory-hygiene-service.js  the hygiene report and the replenishment suggestion, read-only (FR-206, FR-207)
 ├── ui/sku-console.js                         pure console helpers: identifier input problems, units offered, base-quantity preview, Thai refusal text (FR-203, FR-204)
+├── domain/catalog-intake.js                  intake envelope, the pure resolve-before-create planner, payload and plan hashes (FR-208)
+├── application/catalog-intake-service.js     preview / commit / cancel / read — the one intake pipeline (FR-208)
+├── import/catalog-workbook.js                Excel template and reader, never judging a cell (FR-209)
+├── import/catalog-line-command.js            the LINE `#sku` parser and reply formatters (FR-210)
 └── index.js                                 stable module exports
 ```
 
@@ -308,8 +327,15 @@ sixth Inventory tab. Since 2026-09-13 identifiers and unit conversions also have
 console: the SKU detail page `/inventory/products/[productId]` (reached from a
 SKU code on the dashboard or from the dashboard's code lookup), and the
 movement form's unit select with its base-quantity preview. Not in this slice:
-category hierarchy, automatic merge (the report proposes, a person disposes),
-and the Excel/LINE converters that will call `resolve` first.
+category hierarchy and automatic merge (the report proposes, a person disposes).
+
+FR-208…FR-210 (FEAT-032, ADR-084) are implemented locally: the catalogue intake
+envelope and planner, the Excel template, reader and Import tab (the seventh
+Inventory tab), and the LINE `#sku` command on the server-owned worker.
+Migration `20260913200000_inventory_catalog_intake` is written in both trees and
+**not applied**. Not in this slice: stock (quantity) intake, Google Sheets, a
+file or image sent over LINE, and updating an existing SKU's descriptive fields
+from an import.
 
 ## References
 
@@ -321,12 +347,15 @@ and the Excel/LINE converters that will call `resolve` first.
 - [FR-202 variant identity](features/FR-202-variant-identity.md)
 - [FR-205 SKU lifecycle and merge](features/FR-205-sku-lifecycle-and-merge.md)
 - [ADR-083](../../decisions/ADR-083-SKU-GOVERNANCE-NATURE-AT-THE-MASTER-VARIANT-IDENTITY-AND-CATALOGUE-HYGIENE.md) — SKU governance: the review, the decisions and the ERP mapping
+- [ADR-084](../../decisions/ADR-084-CATALOGUE-INTAKE-RESOLVES-BEFORE-IT-CREATES.md) — catalogue intake: one envelope, resolve before create, the LINE command
+- [FR-210 LINE #sku command](features/FR-210-line-sku-command.md)
 - [ADR-025](../../decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md) — the domain spine this charter lives in
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.5.0 | 2026-09-13 | active-foundation | Claimed `InventoryCatalogIntake` (FR-208) and recorded ADR-084: one catalogue intake envelope for JSON, Excel and LINE, a planner that resolves before it creates and never overwrites, a persisted preview whose plan hash an all-or-nothing commit must match, the Excel template/reader and Import tab (FR-209), and the parser and formatters behind the agent lane's `#sku` LINE command (FR-210). The catalogue writers now accept a transaction client | working-tree | Claude Opus 5 |
 | 1.4.0 | 2026-09-13 | active-foundation | Claimed `ProductIdentifier` and `ProductUnitConversion` (FR-203, FR-204) and recorded ADR-083's SKU governance: the nature declared at the master and inherited (FR-201), variant identity with a unique key per master and the lookalike guard (FR-202), the SKU lifecycle with PHASE_OUT / REACTIVATE / MERGE and the guarded ARCHIVE (FR-205), the read-only hygiene report on the new `/inventory/hygiene` tab (FR-206) and replenishment parameters (FR-207). Every ledger rule still reads the SKU; nothing existing changes meaning | working-tree | Claude Fable 5.1 |
 | 1.3.0 | 2026-09-11 | owner-approved | Added FR-184's durable NONE/LOT stocktake aggregate and lock-only ledger fence to Inventory; the existing `/inventory` surface remains the only UI and SERIAL observation, bins, campaigns and production migration remain out of scope | working-tree | RWANG |
 | 1.2.0 | 2026-09-10 | active-foundation | Claimed `WarehouseLocation`, `CustomizationWorkOrder`, `KittingWorkOrder` and `StockReservation` (FR-174..FR-181, ADR-074): the located ledger with its atomic transfer, landed cost in satang, the two WIP work orders and the irreversible customer dedication, de-kitting, the shelf-life storage guard, Available-to-Promise with two-tier reservations, and the FlowAccount set code recorded as a per-Tenant `Product.flowAccountSku` attribute rather than a second `code` or an installation-unique `ExternalRef`. Inventory valuation moves in from "future Finance"; the `warehouse` bar slot stays reserved for bins and stocktake | working-tree | Claude Opus 5 |

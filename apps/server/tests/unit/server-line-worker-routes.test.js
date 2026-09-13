@@ -2,14 +2,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { z } from 'zod'
 
 // @req FR-149, FR-150 — deployment and device route identities cannot be replaced by request payload.
-// @spec ADR-061, SEC-001, SEC-025
+// @req FR-210 — the worker's answer port is the model answer wrapped once by the
+//   `#sku` catalogue command, and that composition takes nothing from the request.
+// @spec ADR-061, ADR-084 D4, SEC-001, SEC-025
 // @tested tests/unit/server-line-worker-routes.test.js
 const mocks = vi.hoisted(() => ({
-  ports: vi.fn(), answer: vi.fn(), tick: vi.fn(), resolveDevice: vi.fn(),
+  ports: vi.fn(), answer: vi.fn(), catalog: vi.fn(), tick: vi.fn(), resolveDevice: vi.fn(),
   claim: vi.fn(), complete: vi.fn(), fail: vi.fn(),
 }))
 vi.mock('@/modules/line-oa-studio/application/server-line-runtime', () => ({ serverLinePorts: mocks.ports }))
 vi.mock('@/modules/agent/server-line-answer', () => ({ createServerLineAnswer: mocks.answer }))
+vi.mock('@/modules/agent/line-catalog-command', () => ({ withLineCatalogCommand: mocks.catalog }))
 vi.mock('@/modules/identity/edge-device-credential', () => ({ resolveEdgeDeviceContext: mocks.resolveDevice }))
 vi.mock('@/modules/line-oa-studio/application/line-conversation-jobs', () => ({
   runLineConversationWorker: mocks.tick, claimEdgeConversation: mocks.claim,
@@ -31,6 +34,7 @@ beforeEach(() => {
   vi.stubEnv('ZURI_LINE_SERVER_ENABLED', 'true')
   mocks.ports.mockReturnValue({ resolveAccount: 'server-port' })
   mocks.answer.mockReturnValue('answer-port')
+  mocks.catalog.mockImplementation((port) => ({ catalogCommandWraps: port }))
   mocks.tick.mockResolvedValue({ status: 'IDLE' })
   mocks.resolveDevice.mockResolvedValue(device)
   mocks.claim.mockResolvedValue(null)
@@ -54,7 +58,11 @@ describe('deployment worker route', () => {
   it('runs only with matching deployment bearer and ignores any client authority payload', async () => {
     const response = await workerPost(request('{"tenantId":"evil","resolveAccount":"evil"}', `Bearer ${token}`))
     expect(response.status).toBe(200)
-    expect(mocks.tick).toHaveBeenCalledWith({ resolveAccount: 'server-port', answer: 'answer-port' })
+    // The model answer is wrapped exactly once by the `#sku` command (FR-210);
+    // nothing from the request body reaches the composition.
+    expect(mocks.catalog).toHaveBeenCalledTimes(1)
+    expect(mocks.catalog).toHaveBeenCalledWith('answer-port')
+    expect(mocks.tick).toHaveBeenCalledWith({ resolveAccount: 'server-port', answer: { catalogCommandWraps: 'answer-port' } })
   })
   it('redacts disabled/unavailable runtime errors and does not run a tick', async () => {
     mocks.ports.mockImplementation(() => { throw new Error('PRIVATE_MOUNT_PATH_AND_SECRET') })

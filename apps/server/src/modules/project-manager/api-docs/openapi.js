@@ -96,6 +96,12 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/inventory/products/{id}/identifiers', ['GET', 'POST', 'PATCH']],
   ['/api/inventory/products/{id}/unit-conversions', ['GET', 'POST', 'PATCH']],
   ['/api/inventory/catalog-hygiene', ['GET']], ['/api/inventory/replenishment', ['GET']],
+  // @req FR-208, FR-209 — catalogue intake (ADR-084): the recent-intakes list, the
+  // JSON preview and commit, one intake (read + CANCEL action, never a DELETE),
+  // the Business-specific workbook template and the workbook upload preview.
+  ['/api/inventory/catalog-intakes', ['GET']], ['/api/inventory/catalog-intakes/preview', ['POST']],
+  ['/api/inventory/catalog-intakes/commit', ['POST']], ['/api/inventory/catalog-intakes/{id}', ['GET', 'PATCH']],
+  ['/api/inventory/catalog-intakes/template', ['GET']], ['/api/inventory/catalog-intakes/xlsx', ['POST']],
   ['/api/agent/heartbeat', ['GET', 'POST', 'DELETE']], ['/api/agent/line-asset-handoff', ['POST']], ['/api/agent/line-delivery', ['POST']], ['/api/agent/line-webhook', ['POST']], ['/api/assets/evidence', ['POST']], ['/api/assets/evidence/{id}/extract', ['POST']], ['/api/assets/evidence/{id}/review', ['POST']], ['/api/assets/import/sheets', ['POST']], ['/api/assets/import/template', ['GET']], ['/api/assets/import/xlsx', ['POST']], ['/api/assets/intakes', ['POST']], ['/api/assets/intakes/export', ['GET']], ['/api/assets/intakes/validate', ['POST']], ['/api/assets/lookup', ['GET']], ['/api/assets/register', ['GET', 'POST']], ['/api/assets/register/{id}', ['GET']], ['/api/assets/register/{id}/depreciation', ['GET']], ['/api/assets/register/{id}/dispose', ['GET', 'POST']], ['/api/assets/register/{id}/maintenance', ['GET', 'POST']], ['/api/assets/register/{id}/responsibility', ['POST']], ['/api/assets/register/{id}/relocate', ['POST']], ['/api/assets/register/{id}/allocate', ['POST']], ['/api/assets/register/{id}/return', ['POST']], ['/api/assets/register/{id}/verify', ['POST']], ['/api/audit', ['GET']], ['/api/backup/export', ['GET']], ['/api/backup/import', ['POST']],
   ['/api/business/files', ['GET']], ['/api/business/goals', ['POST']], ['/api/business/goals/{id}', ['PATCH']], ['/api/business/goals/{id}/projects', ['POST']], ['/api/business/goals/{id}/projects/{projectId}', ['DELETE']],
   ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']],

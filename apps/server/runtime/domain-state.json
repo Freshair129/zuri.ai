@@ -36,10 +36,10 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 137,
+    "featureCount": 138,
     "readyFeatureCount": 108,
-    "requirementCount": 207,
-    "verifiedRequirementCount": 196,
+    "requirementCount": 210,
+    "verifiedRequirementCount": 199,
     "progressPercent": 95.1,
     "gapCount": 25,
     "gaps": [
@@ -393,7 +393,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 19
+          "testCount": 21
         },
         {
           "id": "FR-098",
@@ -471,6 +471,13 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 1
+        },
+        {
+          "id": "FR-210",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 7
         }
       ],
       "checks": {
@@ -489,7 +496,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 257,
+            "openApiPaths": 263,
             "missingFromOpenApi": 0
           }
         },
@@ -744,7 +751,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 257,
+            "openApiPaths": 263,
             "missingFromOpenApi": 0
           }
         },
@@ -935,7 +942,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 257,
+            "openApiPaths": 263,
             "missingFromOpenApi": 0
           }
         },
@@ -1080,7 +1087,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 19
+          "testCount": 21
         },
         {
           "id": "FR-103",
@@ -1399,7 +1406,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 19
+          "testCount": 21
         },
         {
           "id": "FR-098",
@@ -1614,7 +1621,7 @@
           "details": {
             "routes": 22,
             "inventoried": 22,
-            "openApiPaths": 257,
+            "openApiPaths": 263,
             "missingFromOpenApi": 0
           }
         },
@@ -2013,7 +2020,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 257,
+            "openApiPaths": 263,
             "missingFromOpenApi": 0
           }
         },
@@ -2296,6 +2303,27 @@
           "status": "verified",
           "codeCount": 7,
           "testCount": 8
+        },
+        {
+          "id": "FR-208",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 10,
+          "testCount": 18
+        },
+        {
+          "id": "FR-209",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 18
+        },
+        {
+          "id": "FR-210",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 7
         }
       ],
       "checks": {
@@ -2315,8 +2343,8 @@
             }
           ],
           "details": {
-            "routes": 7,
-            "inventoried": 7,
+            "routes": 8,
+            "inventoried": 8,
             "missing": 0
           }
         },
@@ -2328,9 +2356,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 35,
-            "inventoried": 35,
-            "openApiPaths": 257,
+            "routes": 41,
+            "inventoried": 41,
+            "openApiPaths": 263,
             "missingFromOpenApi": 0
           }
         },
@@ -2366,8 +2394,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 20,
-            "present": 20
+            "models": 21,
+            "present": 21
           }
         },
         "authorization": {
@@ -2377,9 +2405,9 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 29,
-            "guardedMutations": 29,
-            "reads": 29,
+            "mutations": 33,
+            "guardedMutations": 33,
+            "reads": 32,
             "unguardedReads": 0
           }
         },
@@ -2403,6 +2431,7 @@
         "docs/domains/inventory/features/FR-201-nature-at-the-master.md",
         "docs/domains/inventory/features/FR-202-variant-identity.md",
         "docs/domains/inventory/features/FR-205-sku-lifecycle-and-merge.md",
+        "docs/domains/inventory/features/FR-210-line-sku-command.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -2425,21 +2454,22 @@
         }
       ],
       "details": {
-        "routes": 42,
-        "apiRoutes": 35,
-        "pageRoutes": 7,
-        "ownedModels": 20,
-        "featureNotes": 7
+        "routes": 49,
+        "apiRoutes": 41,
+        "pageRoutes": 8,
+        "ownedModels": 21,
+        "featureNotes": 8
       },
       "featureIds": [
         "FEAT-020",
         "FEAT-025",
         "FEAT-031",
+        "FEAT-032",
         "FR-167",
         "FR-168",
         "FR-169"
       ],
-      "featureCount": 6,
+      "featureCount": 7,
       "readyFeatureCount": 3,
       "progressPercent": 100
     },
@@ -2862,6 +2892,13 @@
           "status": "verified",
           "codeCount": 6,
           "testCount": 7
+        },
+        {
+          "id": "FR-210",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 7
         }
       ],
       "checks": {
@@ -2887,7 +2924,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 257,
+            "openApiPaths": 263,
             "missingFromOpenApi": 0
           }
         },
@@ -3046,7 +3083,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 257,
+            "openApiPaths": 263,
             "missingFromOpenApi": 0
           }
         },
@@ -3207,7 +3244,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 257,
+            "openApiPaths": 263,
             "missingFromOpenApi": 0
           }
         },
@@ -3368,7 +3405,7 @@
           "details": {
             "routes": 1,
             "inventoried": 1,
-            "openApiPaths": 257,
+            "openApiPaths": 263,
             "missingFromOpenApi": 0
           }
         },
@@ -3510,7 +3547,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 257,
+            "openApiPaths": 263,
             "missingFromOpenApi": 0
           }
         },
@@ -3962,7 +3999,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 62
+          "testCount": 63
         },
         {
           "id": "FR-073",
@@ -4081,7 +4118,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 19
+          "testCount": 21
         },
         {
           "id": "FR-100",
@@ -4537,6 +4574,20 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 8
+        },
+        {
+          "id": "FR-208",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 18
+        },
+        {
+          "id": "FR-209",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 18
         }
       ],
       "checks": {
@@ -4571,7 +4622,7 @@
           "details": {
             "routes": 130,
             "inventoried": 130,
-            "openApiPaths": 257,
+            "openApiPaths": 263,
             "missingFromOpenApi": 0
           }
         },
@@ -5613,7 +5664,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 19
+          "testCount": 21
         },
         {
           "id": "FR-098",
@@ -5675,6 +5726,7 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr097-line-channel-onboarding.test.js",
         "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
+        "apps/server/tests/integration/fr210-line-catalog-command.test.js",
         "apps/server/tests/integration/iam-authorization.test.js",
         "apps/server/tests/integration/identity-erase.test.js",
         "apps/server/tests/integration/identity-link.test.js",
@@ -5689,6 +5741,7 @@
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/password-reset-flow.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
+        "apps/server/tests/unit/agent-line-catalog-command.test.js",
         "apps/server/tests/unit/auth-service.test.js",
         "apps/server/tests/unit/authorization-context.test.js",
         "apps/server/tests/unit/business-routing-page.test.js",
@@ -8006,6 +8059,111 @@
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/scm-console-routes.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js"
+      ]
+    },
+    {
+      "id": "FEAT-032",
+      "title": "Catalogue intake that resolves before it creates — one envelope that JSON, a Business-specific Excel workbook and a LINE `#sku` command all convert into; a planner that looks up every item by its barcodes, partner codes and SKU code (following merges) before it plans a create, matches without overwriting, and applies ADR-083's guards across the catalogue and the batch; a persisted preview whose plan hash a commit must match; an all-or-nothing commit through the existing catalogue writers; the Import tab; and LINE previews that only a verified staff sender with Inventory write authority can confirm (ADR-084, `DOM-INVENTORY`)",
+      "kind": "bundle",
+      "registryStatus": "building",
+      "requirementIds": [
+        "FR-208",
+        "FR-209",
+        "FR-210"
+      ],
+      "primaryDomain": "inventory",
+      "contributorDomains": [
+        "agent",
+        "inventory",
+        "line-oa-studio",
+        "project-manager"
+      ],
+      "useCase": "เจ้าของธุรกิจดาวน์โหลดแม่แบบ Excel ของ Business ตัวเอง กรอกสินค้า 200 แถวแล้วอัปโหลด ระบบบอกทีละแถวว่าแถวไหนเป็น SKU ใหม่ แถวไหนตรงกับ SKU เดิมจากบาร์โค้ด (และจะเพิ่มแค่บาร์โค้ด/หน่วยแปลงที่ยังไม่มี) แถวไหนซ้ำหรือผิด แล้วกดยืนยันครั้งเดียวบันทึกทั้งไฟล์ หรือพิมพ์ #sku ใน LINE จากบัญชีที่ยืนยันตัวตนแล้วเพื่อทำแบบเดียวกันจากมือถือ",
+      "progressPercent": 100,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-032 registry status is building"
+      ],
+      "requirements": [
+        {
+          "id": "FR-208",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 12,
+          "testCount": 18
+        },
+        {
+          "id": "FR-209",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 8,
+          "testCount": 18
+        },
+        {
+          "id": "FR-210",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 7
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/(pm)/inventory/catalog-intake/page.jsx",
+        "apps/server/src/app/api/inventory/catalog-intakes/[id]/route.js",
+        "apps/server/src/app/api/inventory/catalog-intakes/commit/route.js",
+        "apps/server/src/app/api/inventory/catalog-intakes/preview/route.js",
+        "apps/server/src/app/api/inventory/catalog-intakes/route.js",
+        "apps/server/src/app/api/inventory/catalog-intakes/template/route.js",
+        "apps/server/src/app/api/inventory/catalog-intakes/xlsx/route.js",
+        "apps/server/src/app/api/line-oa/worker/route.js",
+        "apps/server/src/config/domains.js",
+        "apps/server/src/lib/module-tabs.js",
+        "apps/server/src/modules/agent/line-catalog-command.js",
+        "apps/server/src/modules/inventory/application/catalog-intake-service.js",
+        "apps/server/src/modules/inventory/application/inventory-catalog-service.js",
+        "apps/server/src/modules/inventory/application/inventory-identity-service.js",
+        "apps/server/src/modules/inventory/domain/catalog-intake.js",
+        "apps/server/src/modules/inventory/import/catalog-line-command.js",
+        "apps/server/src/modules/inventory/import/catalog-workbook.js",
+        "apps/server/src/modules/inventory/index.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/fr209-catalog-intake.spec.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/fr154-inventory-catalog.test.js",
+        "apps/server/tests/integration/fr201-inventory-sku-governance.test.js",
+        "apps/server/tests/integration/fr208-inventory-catalog-intake-rollback.test.js",
+        "apps/server/tests/integration/fr208-inventory-catalog-intake.test.js",
+        "apps/server/tests/integration/fr210-line-catalog-command.test.js",
+        "apps/server/tests/integration/line-admission-reconciler.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/server-line-jobs.test.js",
+        "apps/server/tests/unit/agent-line-catalog-command.test.js",
+        "apps/server/tests/unit/asset-management-navigation.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/crm-group-navigation.test.js",
+        "apps/server/tests/unit/domain-navigation.test.js",
+        "apps/server/tests/unit/fr045-api-ui-contract.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/inventory-catalog-intake-page.test.js",
+        "apps/server/tests/unit/inventory-catalog-intake.test.js",
+        "apps/server/tests/unit/inventory-catalog-line-command.test.js",
+        "apps/server/tests/unit/inventory-catalog-workbook.test.js",
+        "apps/server/tests/unit/inventory-domain.test.js",
+        "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js",
+        "apps/server/tests/unit/module-tabs.test.js",
+        "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/scm-console-routes.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js",
+        "apps/server/tests/unit/server-line-worker-routes.test.js"
       ]
     },
     {
@@ -10958,7 +11116,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 31,
-          "testCount": 62
+          "testCount": 63
         }
       ],
       "evidence": [
@@ -11035,6 +11193,7 @@
         "apps/server/tests/integration/fr184-inventory-stocktake.test.js",
         "apps/server/tests/integration/fr196-segregation-of-duties.test.js",
         "apps/server/tests/integration/fr201-inventory-sku-governance.test.js",
+        "apps/server/tests/integration/fr208-inventory-catalog-intake.test.js",
         "apps/server/tests/integration/project-authorization.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/project-core.test.js",

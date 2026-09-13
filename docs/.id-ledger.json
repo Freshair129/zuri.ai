@@ -126,6 +126,8 @@
     "BR-038",
     "BR-039",
     "BR-040",
+    "BR-041",
+    "BR-042",
     "FR-001",
     "FR-002",
     "FR-003",
@@ -333,6 +335,9 @@
     "FR-205",
     "FR-206",
     "FR-207",
+    "FR-208",
+    "FR-209",
+    "FR-210",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -509,6 +514,7 @@
     "FEAT-029",
     "FEAT-030",
     "FEAT-031",
+    "FEAT-032",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -680,6 +686,7 @@
     "ADR-081",
     "ADR-082",
     "ADR-083",
+    "ADR-084",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -1213,6 +1220,32 @@
       "history": [
         {
           "anchor": "a sku with stock or a live promise cannot leave the",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-041": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b2fbc2c20514ecf38ed2739f386bf965adb8548726f43a05681a389ba0e16f22",
+      "history": [
+        {
+          "anchor": "an intake resolves before it creates and never overwrites",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-042": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "e15634caaf7d876e5daa101f1e3945bf8119f843284c72e7fb91ad5a719b8dd4",
+      "history": [
+        {
+          "anchor": "a line message may change the catalogue only for a verified",
           "since": "2026-09-13",
           "reason": "declared"
         }
@@ -4006,6 +4039,45 @@
         }
       ]
     },
+    "FR-208": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "454b86ea05b3ff0bee3a8f4ff5c65b699499734781f38674fab2567a1bf259b7",
+      "history": [
+        {
+          "anchor": "catalogue intake resolves every item before it creates",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-209": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4e6ed20af53820398c94f903fa685d5988378adb0def51a5b42d04fdecccd3f3",
+      "history": [
+        {
+          "anchor": "excel is a converter of the catalogue intake with a",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-210": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4fad30260039b6623adba67ef2d9ea539a2dc34658e50a64683b34ee3a2be160",
+      "history": [
+        {
+          "anchor": "a verified staff sender adds or matches skus from line with",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -6351,6 +6423,19 @@
         }
       ]
     },
+    "FEAT-032": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "c2e2e6cfaff1ba096ca837b139bee5ca97bac38b87fbd9869da97fcc0c6b3539",
+      "history": [
+        {
+          "anchor": "catalogue intake that resolves before it creates",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
     "RSK-001": {
       "family": "RSK",
       "source": "docs/appendices/E-risk-matrix.md",
@@ -8595,6 +8680,19 @@
       "history": [
         {
           "anchor": "sku governance",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-084": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-084-CATALOGUE-INTAKE-RESOLVES-BEFORE-IT-CREATES.md",
+      "status": "current",
+      "statement_digest": "c35faec685886a808b0b1283b9c256a41757e745d2171ef94186e34dd590fb47",
+      "history": [
+        {
+          "anchor": "catalogue intake resolves before it creates",
           "since": "2026-09-13",
           "reason": "declared"
         }

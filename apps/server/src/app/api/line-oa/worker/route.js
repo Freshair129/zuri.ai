@@ -5,11 +5,16 @@ import { runLineConversationWorker } from '@/modules/line-oa-studio/application/
 import { reconcileAbandonedLineAdmissions } from '@/modules/line-oa-studio/application/line-admission-reconciler'
 import { sweepLineTransportHealth } from '@/modules/line-oa-studio/application/line-transport-health'
 import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
+import { withLineCatalogCommand } from '@/modules/agent/line-catalog-command'
 // @req FR-149, FR-150 — deployment-authenticated bounded durable worker tick.
 // @req FR-190 — the same tick carries the hourly transport-health sweep, so a
 //   silent or misrouted channel produces a log line without a second process.
-// @spec ADR-061, SEC-001
-// @tested tests/integration/server-line-jobs.test.js, tests/integration/line-admission-reconciler.test.js
+// @req FR-210 — the answer port is wrapped by the `#sku` catalogue command: a
+//   direct message from a verified sender with Inventory write authority is
+//   answered by the command, every other message by the model as before.
+// @spec ADR-061, ADR-084 D4, SEC-001
+// @tested tests/integration/server-line-jobs.test.js, tests/integration/line-admission-reconciler.test.js,
+//   tests/unit/agent-line-catalog-command.test.js
 export const dynamic = 'force-dynamic'
 
 const HEALTH_SWEEP_INTERVAL_MS = 60 * 60 * 1000
@@ -57,7 +62,7 @@ export async function POST(request) {
   try {
     const ports = serverLinePorts()
     const result = await runLineConversationWorker({ ...ports,
-      answer: createServerLineAnswer({ threadMemory: ports.threadMemory }) })
+      answer: withLineCatalogCommand(createServerLineAnswer({ threadMemory: ports.threadMemory })) })
     return NextResponse.json({ ...result, reconciled })
   } catch { return NextResponse.json({ error: 'LINE_WORKER_UNAVAILABLE' }, { status: 503 }) }
 }
