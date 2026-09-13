@@ -11,7 +11,7 @@
 export const PROGRAMME_SNAPSHOT = {
   documentId: 'ROADMAP-ZURI-AI-24W-PROGRAM',
   status: 'approved',
-  version: '0.4.3',
+  version: '0.4.4',
   updated: '2026-09-13',
   baselineCommit: '2b7ad27d',
   programmeStart: '2026-08-24',
@@ -97,9 +97,9 @@ export const PROGRAMME_GATES = [
 ]
 
 export const PROGRAMME_PHASES = [
-  { id: 'PHASE-ZAI-01', weeks: 'W1–4', dates: '24 Aug – 20 Sep 2026', status: 'in-progress', progress: 82, goal: 'Consolidate the inherited foundation into a production-grade base; land the ERP business modules for Business one; open the SmartGift cost and quote engine on the owner\'s instruction', sprints: [
+  { id: 'PHASE-ZAI-01', weeks: 'W1–4', dates: '24 Aug – 20 Sep 2026', status: 'in-progress', progress: 70, goal: 'Consolidate the inherited foundation into a production-grade base; land the ERP business modules for Business one; open the SmartGift cost and quote engine on the owner\'s instruction', sprints: [
     { id: 'SPR-ZAI-01', weeks: 'W1–2', dates: '24 Aug – 6 Sep', status: 'in-progress', progress: 93, goal: 'Close identity, session and authorization to production standard; Inventory, Sales, Commerce, Procurement, Assets and LINE OA Studio lanes land' },
-    { id: 'SPR-ZAI-02', weeks: 'W3–4', dates: '7 – 20 Sep', status: 'in-progress', progress: 76, goal: 'Settle tenancy, pipeline monitor and memory contract; seventeen-stage knowledge intake and Tier 1 accounted as built; SmartGift SCM, Marketing, billing/POS, catalog convergence and identity lifecycle land; cost and quote engine decision record and factory cost intake open; data pipeline registry and node-edge map under a Knowledge (GKS) slot' },
+    { id: 'SPR-ZAI-02', weeks: 'W3–4', dates: '7 – 20 Sep', status: 'in-progress', progress: 61, goal: 'Settle tenancy, pipeline monitor and memory contract; seventeen-stage knowledge intake and Tier 1 accounted as built; SmartGift SCM, Marketing, billing/POS, catalog convergence and identity lifecycle land; cost and quote engine decision record and factory cost intake open; data pipeline registry and node-edge map under a Knowledge (GKS) slot; delivery telemetry on the programme board with measured time and tokens and evidence badges on every task card' },
   ] },
   { id: 'PHASE-ZAI-02', weeks: 'W5–8', dates: '21 Sep – 18 Oct 2026', status: 'planned', progress: 0, goal: 'Stand up the agent workforce and the governance ladder; knowledge base and file system for the seventeen-stage pipeline on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one', sprints: [
     { id: 'SPR-ZAI-03', weeks: 'W5–6', dates: '21 Sep – 4 Oct', status: 'planned', progress: 0, goal: 'Build the agent role registry and five core roles; knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending ERP migration; pricing rule set, pricing engine and quotations; live pipeline health on the map' },
@@ -187,4 +187,9 @@ export const PROGRAMME_TASKS = [
   ['TASK-ZAI-061', 'SPR-ZAI-02', 'Data pipeline registry — the written map of inbound sources, outbound recipients and combine chains, a validated JSON registry, a generated runtime projection and a preflight check', 'FR', 'C-3', 'H3', 'review'],
   ['TASK-ZAI-062', 'SPR-ZAI-02', 'Data Pipeline Map node-edge view under the Knowledge (GKS) slot — layered graph, chain, domain and status filters, edge detail with domain, FEAT and surface level, and a list view', 'FR', 'C-3', 'H3', 'review'],
   ['TASK-ZAI-063', 'SPR-ZAI-03', 'Live pipeline health on the map — per-edge run and job counts for the active Business from the FR-071 ledger and the transport job tables', 'FR', 'C-2', 'H3', 'planned'],
+  ['TASK-ZAI-064', 'SPR-ZAI-02', 'Delivery telemetry decision record — the ADR that lets the programme board show measured time and tokens beside the plan without turning either into completion, the sizing table, and the requirement and FEAT declarations', 'NFR', 'C-2', 'H2', 'in-progress'],
+  ['TASK-ZAI-065', 'SPR-ZAI-02', 'Phase card delivery metrics — sprint and task counts, size in complexity points, plan window and effort estimate, actual time and measured tokens once done, and done or review cards tinted green or orange', 'FR', 'C-2', 'H2', 'planned'],
+  ['TASK-ZAI-066', 'SPR-ZAI-02', 'Usage meter — measured tokens and active time per task from Claude Code and Codex session logs, attributed by the branches each Task Container declares and written back with provenance', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-067', 'SPR-ZAI-02', 'Usage report endpoint — an operator-authenticated ledger where agents without local logs report per-session tokens for a task, idempotent by session and merged with metered sessions without double counting', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-068', 'SPR-ZAI-02', 'Task card evidence badges and subtask progress — DOC, CODE, TEST, FR, NFR and FEAT badges coloured green for done, orange for review, red for needs fix and gray for empty, domain, complexity and priority badges, and P0 to P3 subtasks with a progress bar on the card', 'FR', 'C-2', 'H2', 'planned'],
 ]
