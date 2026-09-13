@@ -1,11 +1,11 @@
 ---
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
-status: "draft"
-version: "0.3.0"
-updated: "2026-08-23"
+status: "approved"
+version: "0.4.0"
+updated: "2026-09-13"
 repo_created_at: "2026-08-11T16:27:54Z"
-baseline_commit: "7d8c9d0"
+baseline_commit: "2b7ad27d"
 programme_start: "2026-08-24"
 programme_end: "2027-02-07"
 owner: "Owen"
@@ -14,10 +14,11 @@ auditor: "ATHER"
 source_of_truth: false
 access_scope: "H3"
 complexity: "C-3"
-primary_goal: "Deliver the ten proposal deliverables on a 24-week schedule, starting from the verified zuri-ai build rather than from zero"
+primary_goal: "Deliver the eleven proposal deliverables (ten submitted plus ERP business modules under CR-019) on a 24-week schedule, starting from the verified zuri-ai build rather than from zero"
 live_document: true
 related_docs:
   - "docs/roadmap/ROADMAP.md"
+  - "docs/change-requests/CR-019-24W-PROGRAMME-DELIVERABLE-11-ERP-BUSINESS-MODULES.md"
   - "docs/FEATURE-MAP.md"
   - "docs/PRD-SDD-v1.0.md"
   - "docs/UI-DESIGN-SYSTEM.md"
@@ -35,8 +36,14 @@ Rendered board: `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
 
 The commercial proposal describes a 24-week programme in six four-week bands and ten
 deliverables. That document is a **preliminary estimate written against an empty repository**.
-This roadmap is the same programme rewritten against `D:\zuri-ai` as it actually stands, in the
-GoVibe planning form: Phases to Sprints to Backlog Items to Task Containers.
+This roadmap is the same programme rewritten against the primary checkout as it actually stands,
+in the GoVibe planning form: Phases to Sprints to Backlog Items to Task Containers.
+
+Since v0.4.0 the programme carries an **eleventh deliverable, ERP business modules**, added by
+[CR-019](../change-requests/CR-019-24W-PROGRAMME-DELIVERABLE-11-ERP-BUSINESS-MODULES.md) on
+2026-09-13. The proposal never named Inventory, Procurement, Commerce, Marketing, Asset
+Management or LINE OA Studio, yet they are most of what the repository built in the programme's
+first three weeks; the CR is the mechanism section 2 requires before counting them.
 
 Two rules apply to every row below.
 
@@ -57,7 +64,7 @@ Two rules apply to every row below.
 | Architecture decisions | `docs/decisions/ADR-*.md` | contradict a pinned ADR |
 | Design tokens and layout | `docs/UI-DESIGN-SYSTEM.md`, Zuri Heritage v2 under ADR-010 | introduce a non-Heritage accent colour |
 | Board rendering contract | GoVibe Mission Control roadmap parser | change the recognised status vocabulary |
-| Commercial scope | The signed proposal: 10 deliverables, 8 acceptance criteria | widen scope without a Change Request |
+| Commercial scope | The signed proposal: 10 deliverables, 8 acceptance criteria — plus deliverable 11 and GATE-ZAI-09 under CR-019 | widen scope without a Change Request |
 
 ### 2.1 Status vocabulary lock
 
@@ -78,52 +85,65 @@ baseline of this document (`6ad6ae9`, 20 Aug) and this one (`7d8c9d0`, 23 Aug) t
 - **Re-baseline before quoting.** Section 5 is a snapshot, not a live feed. Re-run the commands in
   section 5.2 before using any number in a commercial conversation.
 
-At the moment this revision was written, `docs/decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md`
+At the moment the 0.3.0 revision was written, `docs/decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md`
 existed in the working tree but was not yet tracked — a sixth decision being authored while this
 plan was being re-baselined against the fifth. That is the condition this section describes, not
 a hypothetical one.
 
+The 0.4.0 re-baseline (2026-09-13) is the same condition three weeks on: between `7d8c9d0` and
+`2b7ad27d` the tree gained about 270 first-parent merges, 107 declared requirements and 39
+decisions. The v0.3.0 figures were not wrong; they were three weeks old, which for this
+repository is the same thing.
+
 ## 3. Evidence Baseline
 
-Measured against `D:\zuri-ai` at commit `7d8c9d0`, 2026-08-23 04:05 +07.
+Measured against the primary checkout at commit `2b7ad27d`, 2026-09-13 06:46 +07. The v0.3.0
+column is kept so the three-week delta is visible without opening git.
 
-| Measure | Value | Where it comes from |
-|---|---|---|
-| Declared features | 93 | rows beginning `FR-` in `docs/FEATURE-MAP.md`, generated |
-| Live | 82 | rows marked live in that table |
-| Planned | 6 | FR-066, FR-067, FR-082, FR-083, FR-084, FR-085 |
-| Built but not declared | 5 | FR-087, FR-088, FR-089, FR-091, FR-093 |
-| Test files tracked | 263 | 252 under `tests/**/*.test.js`, 11 under `tests/e2e/*.spec.js` |
-| Lines standing in the tree | 198,574 | `git ls-files` minus lockfile and binaries |
-| Commits | 392 | `git rev-list --count HEAD` |
-| Governance gate | `npm run govern` | doc-graph, doc-check, doc-preflight |
-| Domains in the spine | 9 | shell, identity, project-manager, business, people, crm, knowledge, agent, integration |
+| Measure | v0.3.0 (`7d8c9d0`) | v0.4.0 (`2b7ad27d`) | Where it comes from |
+|---|---|---|---|
+| Declared requirements | 93 | 200 | rows beginning `\| FR-` in `docs/PRD-SDD-v1.0.md` (FEATURE-MAP.md is no longer committed, ADR-081) |
+| Marked implemented (✅) | 82 | 100 | same rows; the other 100 are 🟠 implemented locally / partial, 🟢 beta, 🔵 approved, 🔜 declared, or Phase 1 activation rows |
+| Design only | 6 | 4 | FR-082, FR-083, FR-084, FR-085 (ADR-035, not authorized) |
+| Built but not declared | 5 | 0 | closed by TASK-ZAI-002 on 2026-08-26 |
+| Feature bundles | 9 | 30 | `FEAT-` rows in `docs/FEATURES.md` |
+| Decisions | 43 | 82 | `docs/decisions/ADR-*.md` |
+| Test files tracked | 263 | 761 | `apps/server/tests/**/*.{test,spec}.js` plus `apps/edge` tests |
+| Lines standing in the tree | 198,574 | 617,397 | `git ls-files` minus lockfile and binaries; includes `llms-full.txt` and the monorepo's Edge tree, so not comparable one to one |
+| Commits | 392 | 1,451 | `git rev-list --count HEAD` |
+| Governance gate | `npm run govern` | `npm run govern` | doc-graph, doc-check, doc-preflight |
+| Domains in the spine | 9 | 14 | `docs/domains/*/CHARTER.md`: agent, asset-management, commerce, crm, identity, integration, inventory, knowledge, line-oa-studio, market-intelligence, marketing, platform-control, procurement, project-manager |
+| Production migrations | n/a | 25 since baseline | `apps/server/supabase/migrations/2026090[6-9]*` and `202609[1-2]*`; applied status per `docs/DB-MIGRATION-NOTES.md`, never assumed |
 
 Test files are a file count, not a green suite. A verified pass requires `npm run verify` and is
 the exit evidence for TASK-ZAI-029.
 
 ### 3.1 Deliverable-by-deliverable reality check
 
-The proposal's ten deliverables against what exists today. This table is the reason the phase
-plan is shaped the way it is.
+The proposal's ten deliverables, plus CR-019's eleventh, against what exists today. This table is
+the reason the phase plan is shaped the way it is. The v0.3.0 column is the reality at `7d8c9d0`;
+the v0.4.0 column is what changed in the programme's first three weeks.
 
-| # | Deliverable in the proposal | Reality at `7d8c9d0` | Delta this programme buys |
-|---|---|---|---|
-| 1 | Visual Office 2.5D | Not started. No scene model, no renderer, no route. | Whole deliverable, PHASE-ZAI-04 |
-| 2 | GoVibe Mission Control | Exists as a separate product in `G:\govibe`. It reads this repository's roadmap but is **not bound to Zuri business data**. | Binding only, TASK-ZAI-012 |
-| 3 | Interactive Node View 3D | Not started. FR-040 ships a 2D read-only project dependency map; FR-083 edge creation is planned, not built. | 3D view plus direct manipulation, SPR-ZAI-10 |
-| 4 | Second Brain / Governed Memory | Partial. FR-024 knowledge projection, FR-025 read context and FR-029 MSP/GKS runtime ports are live and **read-only**. ADR-042 and ADR-043 have since pinned a decoupled knowledge service and a four-tier cognitive architecture, but no product surface exists yet. | Retrieval by permission, lineage, replay, SPR-ZAI-09 |
-| 5 | Five Core Agent Roles | Partial. One generic agent turn exists: FR-025 read, FR-026 write gate, FR-027 turn, FR-029 ports. There is no role registry and no role-scoped policy. | Role registry plus five roles, SPR-ZAI-03 |
-| 6 | Two cross-integrated Businesses | Partial. Multi-business scaffolding is live through FR-001, FR-020, FR-043, FR-061 and FR-062. Exactly **one** business, SmartGift, is actually onboarded. | Business number two plus cross-business analytics, PHASE-ZAI-03 |
-| 7 | Up to 5 full automation workflows | None end to end. FR-026 provides the write and action gate a workflow would stand on. | Five workflows, SPR-ZAI-06 and SPR-ZAI-10 |
-| 8 | Up to 3 standard connectors | One. LINE through FR-079 runtime cut-over and FR-080 credential UI, with FR-091 inbound and FR-093 outbound reader surfaces. | Connectors two and three, SPR-ZAI-06 and SPR-ZAI-10 |
-| 9 | Approval L1 to L4 with audit, verification and notification | Partial. Immutable audit is live through FR-014. FR-026 has a **single** step-up tier for high-sensitivity actions, not a four-level ladder. No notification fabric. | L1 to L4 ladder, verification, notification, SPR-ZAI-04 |
-| 10 | Deployment, data and security checklist, UAT, training, technical documentation | Partial. FR-051 RLS, FR-052 scope binding, FR-053 golden evaluation, FR-054 isolation report and the FR-071 pipeline monitor exist. No UAT, no training, no handover pack. | Hardening through handover, PHASE-ZAI-06 |
+| # | Deliverable | Reality at `7d8c9d0` (v0.3.0) | Reality at `2b7ad27d` (v0.4.0) | Delta this programme still buys |
+|---|---|---|---|---|
+| 1 | Visual Office 2.5D | Not started. No scene model, no renderer, no route. | Unchanged. | Whole deliverable, PHASE-ZAI-04 |
+| 2 | GoVibe Mission Control | Exists as a separate product. It reads this repository's roadmap but is **not bound to Zuri business data**. | FR-105 gives the platform its own operator-only roadmap projection at `/control/roadmap` (ADR-048); the binding to Zuri business data is still absent. | Binding only, TASK-ZAI-012 |
+| 3 | Interactive Node View 3D | Not started. FR-040 ships a 2D read-only project dependency map; FR-083 edge creation is planned, not built. | FR-101 adds a second 2D read-only graph (SoT pipeline, hand-rolled SVG). FR-082 to FR-085 remain design only. | 3D view plus direct manipulation, SPR-ZAI-10 |
+| 4 | Second Brain / Governed Memory | Partial. FR-024, FR-025, FR-029 read ports live and **read-only**; ADR-042/043 pinned, no product surface. | **Substantially advanced.** FR-109 to FR-119 declare the seventeen-stage ingestion path with lineage, provenance, snapshot and BR-022 quarantine; FR-173 admission and corpus publication (ADR-072); FR-098 agent/MSP authorization; FR-171 execution trace and replay (ADR-070); GenesisRAG17 isolated acceptance passed (ADR-073). Permission-scoped *retrieval* as a product surface is still open. | Retrieval by permission on the built substrate, SPR-ZAI-09, started early — TASK-ZAI-024/025 are in-progress |
+| 5 | Five Core Agent Roles | Partial. One generic agent turn; no role registry, no role-scoped policy. | Unchanged in kind. FR-181 adds six SCM tools on the existing gates and FR-098 the authorization context those tools consume, which is the substrate a role policy will bind to. No registry. | Role registry plus five roles, SPR-ZAI-03 |
+| 6 | Two cross-integrated Businesses | Partial. Multi-business scaffolding live; exactly **one** business, SmartGift, onboarded. | Unchanged count. ADR-076 aligned the organizational hierarchy to ERP vocabulary and FR-193/194 put Employment and LegalEntity under Tenant, which is what a second Business's provisioning will stand on. | Business number two plus cross-business analytics, PHASE-ZAI-03 |
+| 7 | Up to 5 full automation workflows | None end to end. | Server-owned job ledgers exist for two narrow flows: FR-152 rich-menu publish jobs and FR-143 edge extraction jobs (ADR-059), both with retry and audit. Neither is a business workflow under approval. | Five workflows, SPR-ZAI-06 and SPR-ZAI-10 |
+| 8 | Up to 3 standard connectors | One. LINE through FR-079/080/091/093. | LINE deepened (FR-146 to FR-153, FR-190, server-owned transport under ADR-061). FlowAccount declared as a read-only pull pipeline (FR-125, ADR-053) but not built; GitHub projection partial (FR-130); Google Sheets snapshot intake real for Assets (FR-139). | Connectors two and three, SPR-ZAI-06 and SPR-ZAI-10 — TASK-ZAI-017 re-stated to name FlowAccount |
+| 9 | Approval L1 to L4 with audit, verification and notification | Partial. Immutable audit through FR-014; a **single** step-up tier; no notification fabric. | Audit strengthened: FR-198/199 give events queryable scope and a Business-readable access history (ADR-080); FR-191/196/197 add withdrawable grants, segregation of duties and time-boxed operator access (ADR-077/079). Approval is still one tier; FR-100 and FR-129 are single-purpose inboxes, not a ladder. | L1 to L4 ladder, verification, notification, SPR-ZAI-04 |
+| 10 | Deployment, data and security checklist, UAT, training, technical documentation | Partial. RLS, scope binding, evaluation and isolation harnesses; no UAT, training or handover pack. | **Deployment is real.** Production runs as a Docker Compose stack behind ngrok (ADR-058, FR-142 liveness probe, FR-145 pooler mode), redeployed many times, with two written outage RCAs. IAM hardening tail (FR-094 to FR-098) and TOTP step-up merged 2026-09-12. `llms.txt` / `llms-full.txt` give the documentation corpus one LLM-readable entry. No UAT, training or handover pack. | Hardening through handover, PHASE-ZAI-06 |
+| 11 | ERP business modules (CR-019) | Not in the proposal; nothing built. | **Built for Business one.** Inventory (FEAT-020), SmartGift SCM (FEAT-025), Sales Tasks (FEAT-022), Commerce (FEAT-023), Procurement (FEAT-024), Marketing (FEAT-021), Asset Management (FEAT-015 to 017), LINE OA Studio (FEAT-018/019), catalog convergence (FEAT-026); SCM and CRM parent slots, capabilities and module tabs (FR-167 to FR-172). Most lanes are "implemented locally" in the PRD with production migrations applied lane by lane. | Production activation and GATE-ZAI-09 for Business one (TASK-ZAI-043/044); Business two under deliverable 6 |
 
 Read together: **the proposal's weeks 1 to 4 band is substantially inherited**, the weeks 5 to 8
 band is about one third inherited, and weeks 13 to 24 are greenfield. The phase plan below keeps
 the proposal's six bands so the two documents can be laid side by side, but reweights the work
-inside them.
+inside them. At v0.4.0 the reweighting has a second axis: deliverables 4, 10 and 11 moved early
+and by a lot, while 1, 3, 5, 6 and 7 did not move, so the greenfield bands are as outstanding as
+they were on 23 Aug.
 
 ### 3.2 Inherited versus purchased, per proposal band
 
@@ -135,11 +155,13 @@ inside them.
 | Weeks 13 to 16 | Visual Office 2.5D and agent activity experience | Nothing | Whole band |
 | Weeks 17 to 20 | Second Brain, Node View 3D and full automation | FR-024, FR-025 and FR-029 read ports; ADR-042 and ADR-043 as pinned decisions, not code | Whole band minus those ports |
 | Weeks 21 to 24 | Hardening, load and security test, UAT, deployment, training and handover | FR-053 golden evaluation harness, FR-054 isolation report | Whole band minus those harnesses |
+| (CR-019) Deliverable 11 | ERP business modules | Nothing at `7d8c9d0` | Built W1 to W3 for Business one (FEAT-015 to FEAT-026); production activation and acceptance remain |
 
 ## 4. Acceptance Gates
 
-The proposal's eight acceptance criteria, restated as gates. A gate is never satisfied by lowering
-its own threshold, and none is claimable on assertion. Each names the evidence that closes it.
+The proposal's eight acceptance criteria, restated as gates, plus the ninth CR-019 adds for
+deliverable 11. A gate is never satisfied by lowering its own threshold, and none is claimable on
+assertion. Each names the evidence that closes it.
 
 | Gate | Definition | Evidence that closes it | Current |
 |---|---|---|---|
@@ -151,14 +173,15 @@ its own threshold, and none is claimable on assertion. Each names the evidence t
 | GATE-ZAI-06 | Automation, retry, verification and approval pass UAT | Signed UAT record covering all five workflows | unmet |
 | GATE-ZAI-07 | Connectors honour their contract and never read outside scope | A negative test proves an out-of-scope read is refused | unmet |
 | GATE-ZAI-08 | Deployment, documentation and training are handed over complete | Handover pack accepted by the owner | unmet |
+| GATE-ZAI-09 | The ERP modules run on production for Business one with every declared migration applied, and an agent reaches them only through the declared tools (CR-019) | Production migration ledger matches `supabase/migrations/`; `npm test` green on the module suites; FR-181's negative test proves an undeclared tool path is refused | unmet — lanes are applied one by one; identity, billing/POS, stocktake and broadcast migrations are written and not yet applied |
 
 Two standing gates carried over from this repository's own governance apply throughout. They are
 already met and are listed so that a regression is visible, not as programme progress.
 
 | Gate | Definition | Current |
 |---|---|---|
-| GATE-ZAI-DOCS | `npm run govern` passes: doc-graph regenerated, `--check` clean, preflight strict | met at the 2026-08-23 baseline |
-| GATE-ZAI-HONEST | No surface reports a figure it does not own; every read projection names its source | met, FR-060 is a declared non-owning projection |
+| GATE-ZAI-DOCS | `npm run govern` passes: doc-graph regenerated, `--check` clean, preflight strict | met at the 2026-08-23 baseline; re-met at `2b7ad27d` (CI runs the chain on every pull request) |
+| GATE-ZAI-HONEST | No surface reports a figure it does not own; every read projection names its source | met, FR-060 is a declared non-owning projection; FR-105 and FR-124 joined it as declared snapshots |
 
 ## 5. Timeline and Provenance
 
@@ -289,18 +312,49 @@ Three cautions against reading the 13-day history as a velocity forecast.
   after this plan was first drafted. A decision that lands mid-programme can invalidate a sprint
   that was scoped before it. Section 2.2 is the standing instruction for that.
 
+### 5.6 Programme weeks 1 to 3, measured at the v0.4.0 re-baseline
+
+Sections 5.1 to 5.5 are the 13-day pre-programme history and are left as written. This section
+is the first measurement of the programme itself, W1 (24 Aug) to the end of W3 (13 Sep), at
+`2b7ad27d`. Figures are first-parent merges into `main` and registry rows, not line churn — the
+monorepo move (ADR-062, 2026-09-06) relocated every file once, so a line count across the interval
+would mostly measure the move.
+
+| Measure | 23 Aug (`7d8c9d0`) | 13 Sep (`2b7ad27d`) | Delta |
+|---|---|---|---|
+| Merges into `main` (first parent) | — | ~270 | `git log --first-parent --oneline 7d8c9d0..HEAD` |
+| Declared requirements | 93 | 200 | +107, FR-094 to FR-200 |
+| Marked implemented (✅) | 82 | 100 | +18; a further ~100 are implemented locally, beta or approved |
+| Feature bundles | 9 | 30 | +21, FEAT-010 to FEAT-030 |
+| Decisions | 43 | 82 | +39, ADR-044 to ADR-082 |
+| Chartered domains | 9 | 14 | +5: asset-management, commerce, inventory, line-oa-studio, marketing, platform-control, procurement (agent absorbed people; business and shell folded into their charters) |
+| Production migrations written | 0 | 25 | under `apps/server/supabase/migrations/`; applied status in `docs/DB-MIGRATION-NOTES.md` |
+| Outage RCAs written | 0 | 3 | `.brain/rca/2026-09-06`, `2026-09-09`, `2026-09-11` — the deployment is real enough to fail |
+
+Where the three weeks went, by deliverable: 11 (ERP modules, CR-019) took most of the merges;
+4 (Second Brain substrate) and 10 (deployment, IAM hardening) the next most; 8 (LINE deepened);
+9 (audit and grant lifecycle). Deliverables 1, 3, 5, 6 and 7 received no merges. Read against the
+calendar, PHASE-ZAI-01 is ending with its two sprints' original tasks mostly closed and with three
+weeks of unplanned deliverable-11 work delivered alongside them; the greenfield phases have not
+started early.
+
 ## Phases
 
 Week numbers map to the calendar in section 5.4. W1 begins Mon 2026-08-24.
 
 | Phase | Weeks | Dates | Goal | Governing SoT | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
-| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, and the memory contract is written | in-progress | 27 |
-| PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification | planned | 0 |
-| PHASE-ZAI-03 | 9-12 | 2026-10-19 to 2026-11-15 | Second business, cross-business analytics, first workflows and connectors | `docs/ARCHITECTURE.md` | GATE-ZAI-04 and GATE-ZAI-07 are met for connectors one and two and workflows one and two | planned | 0 |
+| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, and (CR-019) land the ERP business modules for Business one | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, and every deliverable-11 lane is merged with its migration written | in-progress | 89 |
+| PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; activate deliverable 11 on production | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; GATE-ZAI-09's migration ledger matches | planned | 0 |
+| PHASE-ZAI-03 | 9-12 | 2026-10-19 to 2026-11-15 | Second business, cross-business analytics, first workflows and connectors; deliverable 11 accepted for Business one | `docs/ARCHITECTURE.md` | GATE-ZAI-04 and GATE-ZAI-07 are met for connectors one and two and workflows one and two; GATE-ZAI-09 is met | planned | 0 |
 | PHASE-ZAI-04 | 13-16 | 2026-11-16 to 2026-12-13 | Visual Office 2.5D and the agent activity experience | `docs/UI-DESIGN-SYSTEM.md` | GATE-ZAI-01 is met | planned | 0 |
-| PHASE-ZAI-05 | 17-20 | 2026-12-14 to 2027-01-10 | Second Brain, Node View 3D and the remaining automation | `docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md` | GATE-ZAI-02, GATE-ZAI-03 and GATE-ZAI-05 are met | planned | 0 |
+| PHASE-ZAI-05 | 17-20 | 2026-12-14 to 2027-01-10 | Second Brain, Node View 3D and the remaining automation | `docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md` | GATE-ZAI-02, GATE-ZAI-03 and GATE-ZAI-05 are met | in-progress | 20 |
 | PHASE-ZAI-06 | 21-24 | 2027-01-11 to 2027-02-07 | Harden, prove, deploy and hand over | This roadmap | GATE-ZAI-06 and GATE-ZAI-08 are met | planned | 0 |
+
+Progress is the mean of the phase's task progress under the board parser's mapping (`done` 100,
+`review` 90, `in-progress` 50, `assigned` 25, `ready` 10, `planned` 0). PHASE-ZAI-05 shows 20
+because both SPR-ZAI-09 tasks started three months early on the substrate deliverable
+4 gained (section 3.1), not because the phase has opened.
 
 ## Sprints
 
@@ -309,15 +363,15 @@ locates the week.
 
 | Sprint | Parent ID | Weeks | Dates | Goal | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
-| SPR-ZAI-01 | PHASE-ZAI-01 | 1-2 | 08-24 to 09-06 | Close identity, session and authorization to production standard | A request without a trusted session reaches no mutating route, proven by test | in-progress | 20 |
-| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract | The pipeline reports every stage and the memory contract is reviewed | in-progress | 33 |
-| SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles | Each role resolves distinct tools, policy and memory partition | planned | 0 |
+| SPR-ZAI-01 | PHASE-ZAI-01 | 1-2 | 08-24 to 09-06 | Close identity, session and authorization to production standard; (CR-019) Inventory, Sales Tasks, Commerce, Procurement, Asset Management and LINE OA Studio lanes land | A request without a trusted session reaches no mutating route, proven by test; each lane merged with tests | in-progress | 93 |
+| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land | The pipeline reports every stage, the memory contract is reviewed, and every lane's migration is written | in-progress | 86 |
+| SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; apply every pending deliverable-11 migration on production | Each role resolves distinct tools, policy and memory partition; the migration ledger matches the tree | planned | 0 |
 | SPR-ZAI-04 | PHASE-ZAI-02 | 7-8 | 10-05 to 10-18 | Approval Gateway L1 to L4 with verification, notification and Mission Control binding | An L4 action cannot execute without four recorded approvals | planned | 0 |
 | SPR-ZAI-05 | PHASE-ZAI-03 | 9-10 | 10-19 to 11-01 | Standard business template and Business number two onboarding | Business two is live and isolated from SmartGift under test | planned | 0 |
-| SPR-ZAI-06 | PHASE-ZAI-03 | 11-12 | 11-02 to 11-15 | Cross-business analytics, connector two, workflows one and two | Analytics obey per-business visibility and two workflows run end to end | planned | 0 |
+| SPR-ZAI-06 | PHASE-ZAI-03 | 11-12 | 11-02 to 11-15 | Cross-business analytics, connector two, workflows one and two; GATE-ZAI-09 evidence run | Analytics obey per-business visibility, two workflows run end to end, and the ERP acceptance record is signed | planned | 0 |
 | SPR-ZAI-07 | PHASE-ZAI-04 | 13-14 | 11-16 to 11-29 | Visual Office 2.5D scene model and shell | The scene renders live Business, Agent and Mission objects with no mock values | planned | 0 |
 | SPR-ZAI-08 | PHASE-ZAI-04 | 15-16 | 11-30 to 12-13 | Agent activity experience and in-scene approval | Live agent activity and the approval queue are visible in the office | planned | 0 |
-| SPR-ZAI-09 | PHASE-ZAI-05 | 17-18 | 12-14 to 12-27 | Second Brain retrieval, lineage and replay | Retrieval is refused and audited when permission is absent | planned | 0 |
+| SPR-ZAI-09 | PHASE-ZAI-05 | 17-18 | 12-14 to 12-27 | Second Brain retrieval, lineage and replay | Retrieval is refused and audited when permission is absent | in-progress | 50 |
 | SPR-ZAI-10 | PHASE-ZAI-05 | 19-20 | 12-28 to 01-10 | Node View 3D, direct manipulation, workflows three to five, connector three | The 3D view searches relationships and five workflows exist | planned | 0 |
 | SPR-ZAI-11 | PHASE-ZAI-06 | 21-22 | 01-11 to 01-24 | Integration hardening plus load and security testing | Load and security reports are recorded with no open critical finding | planned | 0 |
 | SPR-ZAI-12 | PHASE-ZAI-06 | 23-24 | 01-25 to 02-07 | UAT, deployment, checklist, training and handover | The owner accepts the handover pack | planned | 0 |
@@ -326,12 +380,12 @@ locates the week.
 
 | ID | Parent ID | Type | Title | Priority | Owner | Status | Dependencies | Source Section |
 |---|---|---|---|---|---|---|---|---|
-| TASK-ZAI-001 | SPR-ZAI-01 | task | Close the production request-session and credential boundary | P0 | ATHER | in-progress | - | Section 3.1 row 10 |
-| TASK-ZAI-002 | SPR-ZAI-01 | task | Declare the five built-but-undeclared features into the registry | P0 | Claude | ready | - | Section 3 evidence baseline |
-| TASK-ZAI-003 | SPR-ZAI-01 | task | Profile-first onboarding and Waiting Room, FR-066 | P1 | Codex | planned | TASK-ZAI-001 | FEATURE-MAP FR-066 |
-| TASK-ZAI-004 | SPR-ZAI-02 | task | Workspace collaboration boundary and scoped invites, FR-067 | P0 | Codex | planned | TASK-ZAI-003 | FEATURE-MAP FR-067 |
-| TASK-ZAI-005 | SPR-ZAI-02 | task | Supabase data pipeline monitor and replay, FR-071 | P0 | ATHER | done | - | FEATURE-MAP FR-071 |
-| TASK-ZAI-006 | SPR-ZAI-02 | task | Write the governed memory read and write contract | P1 | Claude | planned | - | Section 3.1 row 4 |
+| TASK-ZAI-001 | SPR-ZAI-01 | task | Close the production request-session and credential boundary | P0 | ATHER | review | - | Section 3.1 row 10; FEAT-010 |
+| TASK-ZAI-002 | SPR-ZAI-01 | task | Declare the five built-but-undeclared features into the registry | P0 | Claude | done | - | Section 3 evidence baseline |
+| TASK-ZAI-003 | SPR-ZAI-01 | task | Profile-first onboarding and Waiting Room, FR-066 | P1 | Codex | done | TASK-ZAI-001 | PRD FR-066, FR-122 |
+| TASK-ZAI-004 | SPR-ZAI-02 | task | Workspace collaboration boundary and scoped invites, FR-067 | P0 | Codex | done | TASK-ZAI-003 | PRD FR-067; FR-195 generalises it |
+| TASK-ZAI-005 | SPR-ZAI-02 | task | Supabase data pipeline monitor and replay, FR-071 | P0 | ATHER | done | - | PRD FR-071 |
+| TASK-ZAI-006 | SPR-ZAI-02 | task | Write the governed memory read and write contract | P1 | Claude | review | - | Section 3.1 row 4; ADR-050, ADR-063, ADR-067, ADR-068, ADR-072 |
 | TASK-ZAI-007 | SPR-ZAI-03 | task | Agent Role registry with five core roles | P0 | Claude | planned | TASK-ZAI-006 | Section 3.1 row 5 |
 | TASK-ZAI-008 | SPR-ZAI-03 | task | Role-scoped memory partition and retrieval policy | P0 | Claude | planned | TASK-ZAI-007 | Section 3.1 rows 4 and 5 |
 | TASK-ZAI-009 | SPR-ZAI-03 | task | Agent Factory, the standard business agent template | P1 | Codex | planned | TASK-ZAI-007 | Proposal scope, AI Control |
@@ -342,20 +396,34 @@ locates the week.
 | TASK-ZAI-014 | SPR-ZAI-05 | task | Onboard Business number two end to end under isolation | P0 | ATHER | planned | TASK-ZAI-013 | Section 3.1 row 6 |
 | TASK-ZAI-015 | SPR-ZAI-05 | task | Per-business visibility regression at two-business scale | P1 | Claude | planned | TASK-ZAI-014 | FEATURE-MAP FR-061 and FR-062 |
 | TASK-ZAI-016 | SPR-ZAI-06 | task | Cross-business governed analytics read model | P0 | Claude | planned | TASK-ZAI-014 | Section 3.1 row 6 |
-| TASK-ZAI-017 | SPR-ZAI-06 | task | Connector number two under the FR-081 ingestion boundary | P0 | Codex | planned | TASK-ZAI-005 | Section 3.1 row 8 |
+| TASK-ZAI-017 | SPR-ZAI-06 | task | Connector number two under the FR-081 ingestion boundary — FlowAccount read-only pull, FR-125 | P0 | Codex | planned | TASK-ZAI-005 | Section 3.1 row 8; ADR-053 |
 | TASK-ZAI-018 | SPR-ZAI-06 | task | Automation workflows one and two end to end | P1 | ATHER | planned | TASK-ZAI-010; TASK-ZAI-017 | Section 3.1 row 7 |
 | TASK-ZAI-019 | SPR-ZAI-07 | task | Visual Office 2.5D scene model and shell | P0 | Codex | planned | TASK-ZAI-012 | Section 3.1 row 1 |
 | TASK-ZAI-020 | SPR-ZAI-07 | task | Bind Business, Agent, Mission and Approval objects to live reads | P0 | Codex | planned | TASK-ZAI-019 | Section 3.1 row 1 |
 | TASK-ZAI-021 | SPR-ZAI-07 | task | Accessibility and reduced-motion contract for the 2.5D surface | P1 | Claude | planned | TASK-ZAI-019 | UI-DESIGN-SYSTEM section 3 |
 | TASK-ZAI-022 | SPR-ZAI-08 | task | Live agent activity presence and mission tracking in-scene | P0 | Codex | planned | TASK-ZAI-020 | Proposal scope, Business Layer |
 | TASK-ZAI-023 | SPR-ZAI-08 | task | Surface the L1 to L4 approval queue inside Visual Office | P1 | Codex | planned | TASK-ZAI-011; TASK-ZAI-022 | Section 3.1 rows 1 and 9 |
-| TASK-ZAI-024 | SPR-ZAI-09 | task | Second Brain retrieval by Business, Role and Permission | P0 | Claude | planned | TASK-ZAI-008 | Section 3.1 row 4 |
-| TASK-ZAI-025 | SPR-ZAI-09 | task | Memory lineage, replay and the no-silent-replay guarantee | P1 | Claude | planned | TASK-ZAI-024 | Section 3.1 row 4 |
+| TASK-ZAI-024 | SPR-ZAI-09 | task | Second Brain retrieval by Business, Role and Permission | P0 | Claude | in-progress | TASK-ZAI-008 | Section 3.1 row 4; FR-098, FR-173, ADR-072 |
+| TASK-ZAI-025 | SPR-ZAI-09 | task | Memory lineage, replay and the no-silent-replay guarantee | P1 | Claude | in-progress | TASK-ZAI-024 | Section 3.1 row 4; FR-116, FR-171, ADR-070 |
 | TASK-ZAI-026 | SPR-ZAI-10 | task | Interactive Node View 3D over the governed relation graph | P0 | Codex | planned | TASK-ZAI-024 | Section 3.1 row 3 |
 | TASK-ZAI-027 | SPR-ZAI-10 | task | Structure and edge direct manipulation with handoff contracts | P0 | Codex | planned | TASK-ZAI-026 | FEATURE-MAP FR-082 to FR-085 |
 | TASK-ZAI-028 | SPR-ZAI-10 | task | Automation workflows three to five and connector number three | P1 | ATHER | planned | TASK-ZAI-018 | Section 3.1 rows 7 and 8 |
 | TASK-ZAI-029 | SPR-ZAI-11 | task | Integration hardening plus load and security test campaign | P0 | ATHER | planned | TASK-ZAI-028 | Section 3.1 row 10 |
 | TASK-ZAI-030 | SPR-ZAI-12 | task | UAT, deployment, data and security checklist, training and handover | P0 | Owen | planned | TASK-ZAI-029 | Section 3.1 row 10 |
+| TASK-ZAI-031 | SPR-ZAI-01 | task | Inventory catalogue, stock ledger, recipes and product natures — FEAT-020, FR-154 to FR-156, FR-168 | P0 | Claude | done | - | CR-019 deliverable 11; ADR-024 |
+| TASK-ZAI-032 | SPR-ZAI-01 | task | Sales tasks in CRM — FEAT-022, FR-161 | P1 | Claude | done | - | CR-019 deliverable 11; ADR-064 |
+| TASK-ZAI-033 | SPR-ZAI-01 | task | Commerce orders and payments — FEAT-023, FR-166, FR-163 | P0 | Claude | done | TASK-ZAI-031 | CR-019 deliverable 11; ADR-065 |
+| TASK-ZAI-034 | SPR-ZAI-01 | task | Procurement suppliers, purchase orders and goods receipts — FEAT-024, FR-164, FR-165 | P0 | Claude | done | TASK-ZAI-031 | CR-019 deliverable 11; ADR-066 |
+| TASK-ZAI-035 | SPR-ZAI-01 | task | Asset Management foundation, evidence intake and edge extraction — FEAT-015 to FEAT-017, FR-133 to FR-144 | P1 | Codex | done | - | CR-019 deliverable 11; ADR-055, ADR-056, ADR-059 |
+| TASK-ZAI-036 | SPR-ZAI-01 | task | LINE OA Studio multi-account, rich menu, LIFF and server-owned transport — FEAT-018, FEAT-019, FR-146 to FR-153, FR-190 | P0 | Claude | in-progress | - | CR-019 deliverable 11; ADR-060, ADR-061 |
+| TASK-ZAI-037 | SPR-ZAI-02 | task | SCM and CRM parent navigation, Business capabilities and module tabs — FR-167, FR-169, FR-170, FR-172 | P2 | Claude | done | TASK-ZAI-031 | CR-019 deliverable 11; ADR-069, ADR-071 |
+| TASK-ZAI-038 | SPR-ZAI-02 | task | SmartGift SCM located ledger, landed cost, work orders, ATP and agent tools — FEAT-025, FR-174 to FR-182 | P0 | Claude | done | TASK-ZAI-031; TASK-ZAI-034 | CR-019 deliverable 11; ADR-074 |
+| TASK-ZAI-039 | SPR-ZAI-02 | task | Commerce billing documents, POS checkout and physical stocktake — FR-186, FR-183, FR-184 | P1 | RWANG | review | TASK-ZAI-033; TASK-ZAI-038 | CR-019 deliverable 11; ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910 |
+| TASK-ZAI-040 | SPR-ZAI-02 | task | Marketing strategy, campaigns, content, operations and broadcast planning — FEAT-021, FR-157 to FR-160, FR-162, FR-185 | P1 | RWANG | in-progress | - | CR-019 deliverable 11; CR-018 |
+| TASK-ZAI-041 | SPR-ZAI-02 | task | Identity lifecycle: withdrawable grants, Employment and LegalEntity, invites and segregation of duties, audit access evidence — FEAT-027 to FEAT-030, FR-191 to FR-199 | P0 | Claude | review | TASK-ZAI-001 | Section 3.1 rows 9 and 10; ADR-077 to ADR-080 |
+| TASK-ZAI-042 | SPR-ZAI-02 | task | SmartGift catalog convergence through the seventeen-stage adapter — FEAT-026, FR-187 to FR-189 | P1 | Claude | in-progress | TASK-ZAI-025 | Section 3.1 row 4; ADR-075 |
+| TASK-ZAI-043 | SPR-ZAI-03 | task | Apply every pending deliverable-11 migration on production and record it in the migration notes | P0 | ATHER | planned | TASK-ZAI-038; TASK-ZAI-039; TASK-ZAI-040; TASK-ZAI-041 | GATE-ZAI-09; ADR-057 |
+| TASK-ZAI-044 | SPR-ZAI-06 | task | GATE-ZAI-09 evidence run: ERP modules accepted on production for Business one | P0 | Owen | planned | TASK-ZAI-043 | GATE-ZAI-09 |
 
 ## Assignments
 
@@ -368,8 +436,15 @@ locates the week.
 | TASK-ZAI-010 | ATHER | agent | ABAC | 2026-08-20T00:00:00Z | Owen |
 | TASK-ZAI-019 | Codex | agent | ABAC | 2026-08-20T00:00:00Z | Owen |
 | TASK-ZAI-030 | Owen | human | RBAC | 2026-08-20T00:00:00Z | Owen |
+| TASK-ZAI-036 | Claude | agent | ABAC | 2026-09-13T00:00:00Z | Owen |
+| TASK-ZAI-039 | RWANG | agent | ABAC | 2026-09-13T00:00:00Z | Owen |
+| TASK-ZAI-040 | RWANG | agent | ABAC | 2026-09-13T00:00:00Z | Owen |
+| TASK-ZAI-043 | ATHER | agent | ABAC | 2026-09-13T00:00:00Z | Owen |
+| TASK-ZAI-044 | Owen | human | RBAC | 2026-09-13T00:00:00Z | Owen |
 
-Unlisted tasks are assigned at sprint entry, not at plan authoring time.
+Unlisted tasks are assigned at sprint entry, not at plan authoring time. Tasks 031 to 035, 037,
+038, 041 and 042 were assigned retroactively to the agent whose merged pull request delivered
+them, on the CR-019 re-baseline; the executor named in each container is that record.
 
 ## Verification
 
@@ -403,27 +478,27 @@ title: Close the production request-session and credential boundary
 requirement_type: NFR
 complexity: C-3
 access_scope: H3
-status: in-progress
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: ATHER
 executor: Codex
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/modules/identity/resolve-viewer.js
+  code: apps/server/src/modules/identity/resolve-viewer.js
   doc: docs/roadmap/ROADMAP.md
-  test: tests/e2e/fr046-entry-contract.spec.js
+  test: apps/server/tests/e2e/fr046-entry-contract.spec.js
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a request carrying no trusted session, when it reaches any mutating project-manager route, then the route refuses before the service runs
       checked: false
   success_criteria:
     - criterion: Given the FR-090 credential tables, when a password reset is issued, then the token is single use and expires
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm run test:e2e, when fr046-entry-contract.spec.js runs, then the unauthenticated negative case passes
       checked: false
-changelog: Carried forward from TASK-V2-IDENTITY in ROADMAP.md, which records identity foundations FR-021 and FR-022 as implemented with the production web request-session boundary still open.
+changelog: Carried forward from TASK-V2-IDENTITY in ROADMAP.md, which records identity foundations FR-021 and FR-022 as implemented with the production web request-session boundary still open. Re-baselined 2026-09-13 (v0.4.0) to review — FEAT-010 (FR-094 canonical principal, FR-095 persisted sessions, FR-096 shared policy enforcement, FR-097 verified channel onboarding merged 2026-09-12, FR-098 agent/tool/MSP authorization) has code and tests on main, FR-104 owner-assisted reset closes the success criterion (digest-only, single use, all sessions revoked), and TOTP step-up merged 2026-09-12. The PRD still marks FR-094 to FR-098 as the Issue #99 production-hardening tail, so the acceptance and exit criteria stay unticked until that tail is run against production, not against the local suite.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -447,27 +522,27 @@ title: Declare the five built-but-undeclared features into the registry
 requirement_type: NFR
 complexity: C-1
 access_scope: H1
-status: ready
-version: 0.2.0
+status: done
+version: 1.0.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
   code: scripts/doc-graph.mjs
-  doc: docs/FEATURE-MAP.md
+  doc: docs/PRD-SDD-v1.0.md
   test: unavailable
 definition_of_done:
   acceptance_criteria:
     - criterion: Given FR-087, FR-088, FR-089, FR-091 and FR-093, when doc-graph regenerates, then none is reported as built but not declared
-      checked: false
+      checked: true
   success_criteria:
-    - criterion: Given a reader opens FEATURE-MAP.md, when they look for project priority, PIC, Team, the CRM inbox and the LINE reply receipt, then each has a design note and a status
-      checked: false
+    - criterion: Given a reader opens the registry, when they look for project priority, PIC, Team, the CRM inbox and the LINE reply receipt, then each has a design note and a status
+      checked: true
   exit_criteria:
     - criterion: Given npm run docs:check, when it runs after regeneration, then it exits zero with no drift
-      checked: false
-changelog: Opened from the 2026-08-20 evidence baseline with four undeclared features. Re-baselined 2026-08-23 at 7d8c9d0 — FR-093 (LINE reply delivery receipt) joined the set, so the scope is now five.
+      checked: true
+changelog: Opened from the 2026-08-20 evidence baseline with four undeclared features. Re-baselined 2026-08-23 at 7d8c9d0 — FR-093 (LINE reply delivery receipt) joined the set, so the scope is now five. Closed on the 2026-09-13 re-baseline — FR-087, FR-088 and FR-089 flipped to implemented in PRD 1.89.0b on 2026-08-26 (ROADMAP.md TASK-FEAT-008 status ruling), FR-091 and FR-093 are implemented with e2e (TASK-FEAT-009); docs:check runs green in CI on every pull request. FEATURE-MAP.md is no longer a committed file (ADR-081), so the doc link now points at the registry the generator reads.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -491,27 +566,27 @@ title: Profile-first onboarding and Waiting Room, FR-066
 requirement_type: FR
 complexity: C-2
 access_scope: H2
-status: planned
-version: 0.1.0
+status: done
+version: 1.0.0
 pic: Codex
 executor: Codex
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/modules/identity/resolve-viewer.js
-  doc: docs/FEATURE-MAP.md
+  code: apps/server/src/modules/identity/resolve-viewer.js
+  doc: docs/PRD-SDD-v1.0.md
   test: unavailable
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a new person with a local session, when they enter the app, then they complete a Profile before being offered scope creation
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a Profile-only member, when no Organization exists for them, then they remain in Waiting Room without an error state
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the FR-066 unit suite runs, then onboarding order is asserted, not assumed
-      checked: false
-changelog: Planned feature carried from FEATURE-MAP.md into a scheduled sprint slot.
+      checked: true
+changelog: Planned feature carried from FEATURE-MAP.md into a scheduled sprint slot. Closed on the 2026-09-13 re-baseline — ROADMAP.md TASK-FR-066-067 records delivery on 2026-08-27, and FR-122 (2026-08-29) tightened the Profile step to require given name, family name and telephone. The PRD row is 🟠 because CR-017 approved a current-person profile/Home UX correction; the authority boundary this task bought is implemented and tested, and the correction is tracked by the Asset lane that raised it.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -535,27 +610,27 @@ title: Workspace collaboration boundary and scoped invites, FR-067
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: done
+version: 1.0.0
 pic: Codex
 executor: Codex
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/modules/identity/classify-principal.js
-  doc: docs/FEATURE-MAP.md
+  code: apps/server/src/modules/identity/access-invite-service.js
+  doc: docs/PRD-SDD-v1.0.md
   test: unavailable
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a Workspace owner issues an invite, when it is redeemed twice, then the second redemption is refused
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a WorkspaceMembership, when the holder queries Business or Tenant scope, then nothing outside Workspace collaboration is returned
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the invite suite runs, then expiry, single use and scope containment each have a failing-first test
-      checked: false
-changelog: Planned feature carried from FEATURE-MAP.md. Sequenced after onboarding so an invitee has a Profile to land on.
+      checked: true
+changelog: Planned feature carried from FEATURE-MAP.md. Sequenced after onboarding so an invitee has a Profile to land on. Closed on the 2026-09-13 re-baseline — FR-067 is ✅ implemented in the PRD and ROADMAP.md records delivery on 2026-08-27 (WorkspaceMembership/WorkspaceInvite as a separate authority layer, BR-016). On 2026-09-12 FR-195 (ADR-079, PR #352) generalised WorkspaceInvite into AccessInvite over all three authority layers; the Workspace case is unchanged and the code link now names the service that owns both.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -623,15 +698,15 @@ title: Write the governed memory read and write contract
 requirement_type: NFR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/modules/agent/context.js
-  doc: docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md
+  code: apps/server/src/modules/agent/context.js
+  doc: docs/decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md
   test: unavailable
 definition_of_done:
   acceptance_criteria:
@@ -639,11 +714,11 @@ definition_of_done:
       checked: false
   success_criteria:
     - criterion: Given the existing FR-025 read path, when the contract is applied, then no current read behaviour changes without an explicit note
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm run govern, when the new contract document is added, then preflight strict passes with no new warning
-      checked: false
-changelog: Opened because the Second Brain deliverable has read ports but no written contract governing writes, retention or partitioning. Re-baselined 2026-08-23 to sit under ADR-043, which pinned the four-tier cognitive architecture on D12 and now governs this contract.
+      checked: true
+changelog: Opened because the Second Brain deliverable has read ports but no written contract governing writes, retention or partitioning. Re-baselined 2026-08-23 to sit under ADR-043, which pinned the four-tier cognitive architecture on D12 and now governs this contract. Re-baselined 2026-09-13 (v0.4.0) to review — no single document titled "memory contract" exists, but the contract is now written across five decisions that each passed govern: ADR-050 (Tier 1 ingestion boundary), ADR-063 (Tier 1 direct GenesisBlockDB clients retired; MSP/GKS/GenesisBlockDB stay external), ADR-067 (reporter and run close), ADR-068 (evidence pull through MSP) and ADR-072 (admission and corpus publication), with FR-098 stating what an agent, tool or MSP call may read under the shared authorization context. What is still not stated per scope is what a *role* may write, because roles do not exist yet (TASK-ZAI-007); the acceptance criterion therefore stays open and closes with the role registry.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -1103,19 +1178,19 @@ task_container_id: TC-TASK-ZAI-017
 task_id: TASK-ZAI-017
 parent_phase_id: PHASE-ZAI-03
 parent_sprint_id: SPR-ZAI-06
-title: Connector number two under the FR-081 ingestion boundary
+title: Connector number two under the FR-081 ingestion boundary — FlowAccount read-only pull, FR-125
 requirement_type: FR
 complexity: C-2
 access_scope: H2
 status: planned
-version: 0.1.0
+version: 0.2.0
 pic: Codex
 executor: Codex
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/platform/integrations/providers/line/line-oa-evidence.js
-  doc: docs/domains/integration/features/FR-080-integration-secret-management-ui.md
+  code: apps/server/src/platform/integrations/providers/line/line-oa-evidence.js
+  doc: docs/decisions/ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING.md
   test: unavailable
 definition_of_done:
   acceptance_criteria:
@@ -1127,7 +1202,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm test, when the connector suite runs, then an out-of-scope read is refused and the refusal is audited
       checked: false
-changelog: Opened from deliverable eight. LINE is connector one. The ingestion boundary already exists, and FR-092 added a provider-neutral translation core, so connector two is a conformance exercise rather than new architecture.
+changelog: Opened from deliverable eight. LINE is connector one. The ingestion boundary already exists, and FR-092 added a provider-neutral translation core, so connector two is a conformance exercise rather than new architecture. Re-stated 2026-09-13 (v0.4.0) to name the connector — FR-125 and ADR-053 (2026-08-30) declared FlowAccount as a read-only pull pipeline over one OWNER-authorized Client Credentials connection; the PRD marks it "design candidate only, nothing built and nothing authorized". It stays planned in SPR-ZAI-06. Google Sheets snapshot intake (FR-139, Assets) and the GitHub repository projection (FR-130, partial) are real but narrower than a connector under this deliverable's definition, and are not counted.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -1415,15 +1490,15 @@ title: Second Brain retrieval by Business, Role and Permission
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: in-progress
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/modules/agent/context.js
-  doc: docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md
+  code: apps/server/src/modules/agent/context.js
+  doc: docs/decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md
   test: unavailable
 definition_of_done:
   acceptance_criteria:
@@ -1431,11 +1506,11 @@ definition_of_done:
       checked: false
   success_criteria:
     - criterion: Given a permitted retrieval, when the result is assembled, then every item names the Business and partition it came from
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the retrieval suite runs, then policy is evaluated before retrieval, not after
       checked: false
-changelog: Opened from deliverable four. Read ports exist through FR-024, FR-025 and FR-029; permission-scoped retrieval does not. Re-baselined 2026-08-23 to sit under ADR-042, which pinned the decoupled knowledge and GraphRAG service on D12.
+changelog: Opened from deliverable four. Read ports exist through FR-024, FR-025 and FR-029; permission-scoped retrieval does not. Re-baselined 2026-08-23 to sit under ADR-042, which pinned the decoupled knowledge and GraphRAG service on D12. Moved to in-progress on the 2026-09-13 re-baseline, three months ahead of its sprint — FR-098 makes every retrieval consume the immutable shared authorization context and audits denial; FR-110 makes knowledge readable only as an identified publication; FR-173 (ADR-072) admits sources and publishes corpora under Business authorization with isolated acceptance passed; FR-189 (ADR-075) answers catalog queries from a published generation. The success criterion is met by the publication contract. The acceptance criterion — retrieval refused and audited *by role* — waits on the role registry (TASK-ZAI-007/008), and the exit criterion on a suite that asserts ordering, which does not exist yet.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -1459,15 +1534,15 @@ title: Memory lineage, replay and the no-silent-replay guarantee
 requirement_type: NFR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: in-progress
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/modules/agent/runtime.js
-  doc: docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md
+  code: apps/server/src/modules/agent/runtime.js
+  doc: docs/decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md
   test: unavailable
 definition_of_done:
   acceptance_criteria:
@@ -1479,7 +1554,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm test, when the lineage suite runs, then a replay against changed content fails closed
       checked: false
-changelog: Opened to make the Second Brain auditable rather than merely persistent. Reproducibility of context and reproducibility of output are recorded as separate claims.
+changelog: Opened to make the Second Brain auditable rather than merely persistent. Reproducibility of context and reproducibility of output are recorded as separate claims. Moved to in-progress on the 2026-09-13 re-baseline — FR-116 gives every derived knowledge object the ten provenance fields and a lineage chain back to its source; FR-117 records duplicate and version relationships; FR-171 (ADR-070, execution trace and replay v0.3) journals the native SERVER LINE path into an append-only AgentTraceEvent with MSP memory provenance preserved. The PRD marks FR-171 🟡: MSP erasure API, live Postgres and a deployed canary are still open, and none of the three criteria has its fail-closed replay test yet, so all stay unticked.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -1712,14 +1787,638 @@ ui_state:
   disabled_reason: ""
 ```
 
+Containers 031 to 044 were opened on the 2026-09-13 re-baseline under CR-019. Where a container
+is `done` at opening, its criteria are ticked on the merged pull request and the test file the
+container names — the same evidentiary standard TASK-ZAI-005 used, stated in the changelog rather
+than assumed. `token_telemetry` for retroactive containers records `0` predicted and `0` total:
+no estimate was made before the work, and inventing one afterwards would be a figure with no
+source.
+
+### TC-TASK-ZAI-031
+
+```yaml
+task_container_id: TC-TASK-ZAI-031
+task_id: TASK-ZAI-031
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-01
+title: Inventory catalogue, stock ledger, recipes and product natures — FEAT-020, FR-154 to FR-156, FR-168
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/inventory/application/inventory-stock-service.js
+  doc: docs/domains/inventory/features/FR-155-inventory-stock-ledger.md
+  test: apps/server/tests/integration/fr155-inventory-stock.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a TRACKED product, when a RECEIPT, ISSUE or ADJUSTMENT is recorded, then on-hand is derived from the append-only ledger and never stored as a mutable balance
+      checked: true
+  success_criteria:
+    - criterion: Given a product declared UNTRACKED or SERVICE, when a stock movement is attempted, then the service refuses with the reason the nature gives
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when fr154, fr155 and fr156 integration suites run, then all pass and the migrations 20260906230000, 20260906233000 and 20260907140000 are recorded applied on production
+      checked: true
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Delivered by PR #263 (merged 2026-09-06, FEAT-020) and PR #286 (FR-168 product natures, merged 2026-09-07). Production migrations confirmed applied 2026-09-07 per the lane record. Closed at opening on that evidence.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-032
+
+```yaml
+task_container_id: TC-TASK-ZAI-032
+task_id: TASK-ZAI-032
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-01
+title: Sales tasks in CRM — FEAT-022, FR-161
+requirement_type: FR
+complexity: C-2
+access_scope: H2
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/crm/sales-task-service.js
+  doc: docs/decisions/ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK.md
+  test: apps/server/tests/integration/fr161-sales-task.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a salesperson owes a customer a follow-up, when it is recorded, then it is a CRM activity bound to the Customer and never a project-manager WorkItem
+      checked: true
+  success_criteria:
+    - criterion: Given a viewer without CRM authority over the Business, when they list sales tasks, then nothing is returned
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when fr161-sales-task runs, then it passes and migration 20260906235500 is recorded applied on production
+      checked: true
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Delivered by PR #266 (merged 2026-09-07); renumbered from FR-157 to FR-161 when the Marketing lane took the earlier number. Migration applied on production 2026-09-07. Closed at opening.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-033
+
+```yaml
+task_container_id: TC-TASK-ZAI-033
+task_id: TASK-ZAI-033
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-01
+title: Commerce orders and payments — FEAT-023, FR-166, FR-163
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/commerce/application/payment-service.js
+  doc: docs/domains/commerce/features/FR-163-payments-and-revenue.md
+  test: apps/server/tests/integration/fr163-payment.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a sales order, when payments are recorded, then money is integer satang, no paid total is stored, and revenue counts only VERIFIED payments
+      checked: true
+  success_criteria:
+    - criterion: Given a sales order line naming an Inventory SKU, when the order is read, then the line resolves the catalogue product without duplicating its identity
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when fr166-sales-order and fr163-payment run, then both pass and migration 20260907000000 is recorded applied on production
+      checked: true
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Delivered by PR #268 (merged 2026-09-07, ADR-065); renumbered twice before landing. Migration applied on production 2026-09-07. Closed at opening.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-034
+
+```yaml
+task_container_id: TC-TASK-ZAI-034
+task_id: TASK-ZAI-034
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-01
+title: Procurement suppliers, purchase orders and goods receipts — FEAT-024, FR-164, FR-165
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/procurement/application/goods-receipt-service.js
+  doc: docs/domains/procurement/features/FR-165-goods-receipts.md
+  test: apps/server/tests/integration/fr165-goods-receipt.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a goods receipt against a purchase order, when it posts, then the Inventory ledger gains RECEIPT movements carrying the PO and GRN reference, under Inventory authority as well as Procurement authority
+      checked: true
+  success_criteria:
+    - criterion: Given a purchase order, when its receipt state is asked for, then it is derived from receipts and never stored as a status
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when fr164-procurement and fr165-goods-receipt run, then both pass and migration 20260907010000 is recorded applied on production
+      checked: true
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Delivered by PR #272 (merged 2026-09-07, ADR-066). PO terminal status is SHORT_CLOSED, chosen to avoid an enum-copy overlap with Marketing's local lists. Migration applied on production 2026-09-07. Closed at opening.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-035
+
+```yaml
+task_container_id: TC-TASK-ZAI-035
+task_id: TASK-ZAI-035
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-01
+title: Asset Management foundation, evidence intake and edge extraction — FEAT-015 to FEAT-017, FR-133 to FR-144
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Codex
+executor: Codex
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/asset-management/application/asset-extraction-job-service.js
+  doc: docs/domains/asset-management/features/FR-143-edge-executed-evidence-extraction.md
+  test: apps/server/tests/integration/fr143-asset-extraction-job.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given evidence uploaded for an Asset, when extraction is requested, then a cloud-queued job is claimed and executed by a paired Edge Device presenting its Business-scoped credential, and the result is reviewed by a human before it becomes the record
+      checked: true
+  success_criteria:
+    - criterion: Given Web, REST, Excel/CSV, Google Sheet, Agent/MCP and LINE intake, when an Asset arrives, then all six converge on one strict envelope with the same validation
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when asset-evidence-intake-execution and fr143-asset-extraction-job run, then both pass and the Asset migrations 20260902001000 and 20260902103000 are recorded applied on production
+      checked: true
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Delivered across PR #201, #202 (2026-09-02), #213 and #218 (edge extraction round trip, 2026-09-04), #252 to #256 (custody, tagging, maintenance, disposal, 2026-09-06), under ADR-055, ADR-056, ADR-057 and ADR-059; ROADMAP.md records PHASE-ZAI-ASSET-FOUNDATION and PHASE-ZAI-ASSET-EVIDENCE done. The PRD keeps FR-133 to FR-140 🟠 because CR-016 and CR-017 leave real-provider canary and UX corrections gated; the deliverable-11 scope this task carries is the domain and its intake, which are merged and applied. Closed at opening on that boundary.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-036
+
+```yaml
+task_container_id: TC-TASK-ZAI-036
+task_id: TASK-ZAI-036
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-01
+title: LINE OA Studio multi-account, rich menu, LIFF and server-owned transport — FEAT-018, FEAT-019, FR-146 to FR-153, FR-190
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: in-progress
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/line-oa-studio/application/line-transport-health.js
+  doc: docs/domains/line-oa-studio/features/FR-190-line-transport-health.md
+  test: apps/server/tests/unit/fr190-line-transport-health.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a serverEnabled LINE account, when a signed webhook arrives, then the server records the event, executes on SERVER or EDGE as the account declares, and the console reports how long the channel has been silent
+      checked: false
+  success_criteria:
+    - criterion: Given a frozen rich menu version, when publish is requested, then a durable job carries it to LINE with retry and audit and never from the browser
+      checked: true
+  exit_criteria:
+    - criterion: Given the deployed web container, when ZURI_LINE_SERVER_ENABLED is read and a real LINE delivery is sent, then the native route answers 200 and the console badge shows OK within the owner's thresholds
+      checked: false
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Accounts (FR-146/147, PR #230 to #232), rich menu designer and publish jobs (FR-151/152, PR #238, #244, #245, #248), LIFF registry (FR-153, PR #257), server-owned transport with optional Edge (FR-148 to FR-150, ADR-061, PR #234 and the 2026-09-09/10 fix series) and transport reachability (FR-190, PR #341) are merged; migrations for accounts, rich menus, jobs and LIFF are applied on production. Left in-progress rather than done because ROADMAP.md still lists PHASE-ZAI-LINE-OA-STUDIO as planned, the native server path has been 503 twice in production (RCAs 2026-09-11 and 2026-09-12), and FR-190's console badge is recorded pending. The exit criterion names the deployment check those RCAs prescribe.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: expanded
+  expanded: true
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-037
+
+```yaml
+task_container_id: TC-TASK-ZAI-037
+task_id: TASK-ZAI-037
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: SCM and CRM parent navigation, Business capabilities and module tabs — FR-167, FR-169, FR-170, FR-172
+requirement_type: FR
+complexity: C-2
+access_scope: H2
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/config/domains.js
+  doc: docs/decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md
+  test: apps/server/tests/integration/fr169-business-capability.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given DOMAIN_GROUPS declares scm and crm over their member domains, when a viewer's grants are filtered, then the persisted member grants are unchanged and the parent slot is never itself grantable
+      checked: true
+  success_criteria:
+    - criterion: Given a Business with the Warehouse capability off, when the bar renders, then the slot is hidden for that Business without revoking any Membership grant
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test and the navigation e2e, when they run, then the parent slots, capabilities and ModuleTabs pass, and migration 20260907150000 is recorded applied on production
+      checked: true
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Delivered by PR #280 (FR-167, ADR-069), PR #288 (FR-169 capabilities and FR-170 module tabs) and PR #294 (FR-172, ADR-071), all merged 2026-09-07/08. DOMAINS stays flat and DOMAIN_GROUPS declares the group because VIEWER_DOMAINS filters persisted grants and nesting would revoke them silently. Closed at opening.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-038
+
+```yaml
+task_container_id: TC-TASK-ZAI-038
+task_id: TASK-ZAI-038
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: SmartGift SCM located ledger, landed cost, work orders, ATP and agent tools — FEAT-025, FR-174 to FR-182
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/inventory/application/inventory-atp-service.js
+  doc: docs/decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md
+  test: apps/server/tests/integration/fr181-smartgift-agent-tools.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given stock at a WarehouseLocation, when it changes place, then a transfer is the only path, cost is landed cost in integer satang, and branded work in progress cannot be laundered back into unbranded stock
+      checked: true
+  success_criteria:
+    - criterion: Given the agent, when it reaches the supply chain, then it does so through the six declared tools on the existing gates and an undeclared path is refused
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when fr174 to fr182 suites run, then all pass and migration 20260910120000 is recorded applied on production
+      checked: true
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Delivered by PR #316 (merged 2026-09-10, ADR-074) and PR #318 (FR-182 SCM console). Migration applied on production 2026-09-10 through the pooler. The success criterion is the negative test GATE-ZAI-09 names. Closed at opening.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-039
+
+```yaml
+task_container_id: TC-TASK-ZAI-039
+task_id: TASK-ZAI-039
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Commerce billing documents, POS checkout and physical stocktake — FR-186, FR-183, FR-184
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: review
+version: 0.1.0
+pic: RWANG
+executor: RWANG
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/commerce/application/pos-cashier-service.js
+  doc: docs/change-requests/ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910.md
+  test: apps/server/tests/integration/fr183-pos.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a POS checkout, when it commits, then the sales order, its pending payment and the Inventory ISSUE movements are one transaction that either all land or none do
+      checked: true
+  success_criteria:
+    - criterion: Given a stocktake over a located ledger, when counts are reconciled, then the adjustments are ADJUSTMENT movements with the count as their reason and nothing rewrites history
+      checked: true
+  exit_criteria:
+    - criterion: Given the production migration ledger, when 20260911010000 and 20260911020000 are applied and recorded, then the FR-186, FR-183 and FR-184 rows leave the "not applied" state
+      checked: false
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Owner-approved and locally verified 2026-09-11 (PRD 🔵; ROADMAP.md 2.52.0b records FR-184's isolated browser, concurrency and recovery proof). In review, not done, because the two migrations are written and not applied — the exit criterion is TASK-ZAI-043's job for this lane.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-040
+
+```yaml
+task_container_id: TC-TASK-ZAI-040
+task_id: TASK-ZAI-040
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Marketing strategy, campaigns, content, operations and broadcast planning — FEAT-021, FR-157 to FR-160, FR-162, FR-185
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: in-progress
+version: 0.1.0
+pic: RWANG
+executor: RWANG
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/marketing/application/marketing-plan-service.js
+  doc: docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md
+  test: apps/server/tests/integration/marketing
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a MarketingPlan draft, when it is revised, then every revision is an immutable canonical version, review is independent of authorship, and the human decision names the exact revision it approves
+      checked: true
+  success_criteria:
+    - criterion: Given an approved Strategy revision, when execution is handed off, then a deterministic PlanEnvelope is generated for a same-Business Workspace and imported through the one intake pipeline, never a second write path
+      checked: true
+  exit_criteria:
+    - criterion: Given the Marketing surfaces, when P5 broadcast planning and the remaining CR-018 phases conclude, then provider metrics, audience resolution and dispatch are either delivered or explicitly recorded as out of scope, and the marketing migrations are recorded applied on production
+      checked: false
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. FR-159 and FR-158 are 🟢 locally verified beta, FR-157, FR-160, FR-162 🟠 in progress, FR-185 🟠 P5 planning/read only (PR #270, #273, #274, the marketing_content and marketing_operations migrations of 2026-09-06/07, broadcast intents 2026-09-11). Stays in-progress: CR-018 phases beyond planning and read integration are not delivered, and the PRD says so.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-041
+
+```yaml
+task_container_id: TC-TASK-ZAI-041
+task_id: TASK-ZAI-041
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Identity lifecycle — withdrawable grants, Employment and LegalEntity, invites and segregation of duties, audit access evidence — FEAT-027 to FEAT-030, FR-191 to FR-199
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: review
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/identity/membership-lifecycle-service.js
+  doc: docs/decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md
+  test: apps/server/tests/integration/fr198-fr199-audit-access-evidence.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a Membership, when it is withdrawn, suspended or off-boarded by a named person for a stated reason, then the row keeps its provenance and end, and nothing destroys the evidence that it existed
+      checked: true
+  success_criteria:
+    - criterion: Given a Business owner, when they read the access history of their own scope, then every grant and withdrawal is returned with its scope, reason and before/after as queryable columns
+      checked: true
+  exit_criteria:
+    - criterion: Given the production migration ledger, when 20260912120000 to 20260912160000 are applied and recorded, then FR-191, FR-192 and FR-195 to FR-199 leave the "implemented locally" state
+      checked: false
+changelog: Opened 2026-09-13 on the re-baseline; it belongs to deliverables 9 (audit) and 10 (security checklist), not to deliverable 11, and is listed with the CR-019 wave because it merged in the same week. PR #348 (ADR-077), #351 (ADR-078), #352 (ADR-079) and #350 (ADR-080) all merged 2026-09-12 with integration tests; the owner ran ADR-077 and ADR-078 in parallel by instruction. In review because the five migrations are written and, at the time of writing, not recorded applied — TASK-ZAI-043 closes that.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-042
+
+```yaml
+task_container_id: TC-TASK-ZAI-042
+task_id: TASK-ZAI-042
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: SmartGift catalog convergence through the seventeen-stage adapter — FEAT-026, FR-187 to FR-189
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: in-progress
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/smartgift-catalog-adapter.js
+  doc: docs/decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given SmartGift catalog data, when it enters knowledge, then it enters before Stage 1 through the structured-record adapter and passes the Stage 5 Zero-PII gate as locators and keys, never prose
+      checked: true
+  success_criteria:
+    - criterion: Given a catalog query on LINE, when Edge answers, then it answers from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as the declared transitional fallback
+      checked: false
+  exit_criteria:
+    - criterion: Given the fallback window (120 days after cutover or the end of the New Year 2027 season, whichever is later), when it closes, then the three independent catalog writers are retired and only the seventeen-stage path remains
+      checked: false
+changelog: Opened 2026-09-13 on the re-baseline under deliverable 4 (Second Brain), listed with the CR-019 wave because it is SmartGift work. FR-187 adapter merged (PR #324, 2026-09-11, tests, not deployed); FR-188 parser profile merged locally (PR #327) behind two external repositories' pull requests; FR-189 approved 2026-09-11 with the fallback window set. Rollout waits on GenesisBlock and Genesis-Knowledge-System merges the repository does not own.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-043
+
+```yaml
+task_container_id: TC-TASK-ZAI-043
+task_id: TASK-ZAI-043
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Apply every pending deliverable-11 migration on production and record it in the migration notes
+requirement_type: NFR
+complexity: C-2
+access_scope: H4
+status: planned
+version: 0.1.0
+pic: ATHER
+executor: ATHER
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/supabase/migrations
+  doc: docs/DB-MIGRATION-NOTES.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given every file under apps/server/supabase/migrations, when the production migration ledger is read, then each is recorded applied with its date and the session that applied it
+      checked: false
+  success_criteria:
+    - criterion: Given preflight Check 18 (schema-migration drift), when it runs after the apply, then the baseline is still zero and no declared column lacks a migration
+      checked: false
+  exit_criteria:
+    - criterion: Given docker logs of the web and line-worker containers after the redeploy that follows, when they are read, then both start clean and the compose config_files label names both compose files
+      checked: false
+changelog: Opened 2026-09-13 on the re-baseline. Applying a migration is an owner-instructed operator step (ADR-057), so this is H4 and the PIC is the operator lane, not the lane that wrote the SQL. At opening the written-but-unapplied set is: identity 20260912120000 to 20260912160000, billing/POS 20260911010000, stocktake 20260911020000, broadcast intents 20260911030000, line worker memory 20260911040000; the exact list is re-read from the ledger at sprint entry, not from this changelog.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 12000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-044
+
+```yaml
+task_container_id: TC-TASK-ZAI-044
+task_id: TASK-ZAI-044
+parent_phase_id: PHASE-ZAI-03
+parent_sprint_id: SPR-ZAI-06
+title: GATE-ZAI-09 evidence run — ERP modules accepted on production for Business one
+requirement_type: NFR
+complexity: C-2
+access_scope: H4
+status: planned
+version: 0.1.0
+pic: Owen
+executor: ATHER
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/tests/integration/fr181-smartgift-agent-tools.test.js
+  doc: docs/change-requests/CR-019-24W-PROGRAMME-DELIVERABLE-11-ERP-BUSINESS-MODULES.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the production migration ledger and the tree at the accepted commit, when they are compared, then every migration in the tree is recorded applied
+      checked: false
+  success_criteria:
+    - criterion: Given npm test on the inventory, commerce, procurement, crm, marketing, asset-management and line-oa-studio suites, when they run at the accepted commit, then all pass through assert-tests-ran
+      checked: false
+  exit_criteria:
+    - criterion: Given FR-181's negative test and the owner's walkthrough of each module on the production Business, when both are recorded, then GATE-ZAI-09 is marked met in section 4 with the commit and date
+      checked: false
+changelog: Opened 2026-09-13 on the re-baseline as the acceptance task for CR-019 deliverable 11. The gate closes on recorded evidence, never on this task's status changing.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 16000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
 ## Live Status Protocol
 
 1. Status lives in the `Status` cells of the Phases, Sprints and Backlog Items tables. The board
    parser reads those cells, so editing a cell is what the board renders. Nothing else is a tracker.
 2. A Definition-of-Done criterion is ticked only against the command output it names. Command
    output, not assertion.
-3. This plan is `draft`. Ratifying it to `approved` is the owner's decision and is never
-   self-applied.
+3. This plan was `draft` until 2026-09-13, when the owner ratified it to `approved` together
+   with CR-019. Ratification is the owner's decision and is never self-applied; a later revision
+   that widens scope again needs its own Change Request.
 4. After editing this file, run `npm run govern` in this repository.
 5. **Commit this file.** It has already been lost once to a concurrent `git reset --hard` in this
    working tree while it was untracked. An uncommitted plan is not a plan.
@@ -1731,3 +2430,4 @@ ui_state:
 | 0.1.0 | 2026-08-20 | Initial authoring against baseline `6ad6ae9`. Proposal 24-week structure mapped onto the verified build: six phases, twelve sprints, thirty backlog items with complete Task Containers, eight acceptance gates restated from the proposal acceptance criteria. |
 | 0.2.0 | 2026-08-20 | Added section 5, Timeline and Provenance: repository creation date, day-by-day history, counting decisions, the anchored 24-week calendar, and the history-against-plan overlay. Phases and Sprints tables gained a Dates column. |
 | 0.3.0 | 2026-08-23 | **Re-baselined to `7d8c9d0`.** The 0.1.0 and 0.2.0 files were destroyed by a concurrent `git reset --hard` in this working tree while untracked, and the repository moved 105 commits in the interval. Corrections in this revision: churn is now measured with `--no-merges` and `awk` path filtering instead of a git pathspec, because a pathspec enables history simplification and inflated the earlier deletion figures; history extended from 10 to 13 days; features 91 to 93 declared and 80 to 82 live; test files 233 to 263; TASK-ZAI-005 closed because FR-071 went live on D11; TASK-ZAI-002 widened from four undeclared features to five; ADR-042 and ADR-043 added as governing sources for the Second Brain tasks; section 2.2 added to state that this plan is measured against a moving repository. |
+| 0.4.0 | 2026-09-13 | **Re-baselined to `2b7ad27d` and widened under [CR-019](../change-requests/CR-019-24W-PROGRAMME-DELIVERABLE-11-ERP-BUSINESS-MODULES.md); ratified `approved` by the owner.** Deliverable 11 (ERP business modules) and GATE-ZAI-09 added. Section 3 re-measured with the v0.3.0 column kept (requirements 93 → 200, implemented 82 → 100, decisions 43 → 82, domains 9 → 14, test files 263 → 761, commits 392 → 1,451); section 3.1 gained a v0.4.0 reality column and row 11; section 5.6 added for programme weeks 1 to 3. Closed on existing evidence: TASK-ZAI-002 (FR-087/088/089/091/093 declared 2026-08-26), TASK-ZAI-003 (FR-066 delivered 2026-08-27), TASK-ZAI-004 (FR-067 delivered 2026-08-27). Moved to review: TASK-ZAI-001 (FEAT-010 on main, production tail open), TASK-ZAI-006 (contract written across ADR-050/063/067/068/072, per-role writes wait on roles). Moved to in-progress early: TASK-ZAI-024 and TASK-ZAI-025 (deliverable 4 substrate, ADR-070/072/073/075). TASK-ZAI-017 re-stated as FlowAccount (FR-125, ADR-053). Added TASK-ZAI-031 to TASK-ZAI-044 with containers: nine deliverable-11 lanes as merged (031 to 040), the identity lifecycle under deliverables 9 and 10 (041), catalog convergence under deliverable 4 (042), production activation (043) and the GATE-ZAI-09 evidence run (044). Phase, sprint and calendar structure unchanged; progress recomputed under the board mapping. Code links re-pointed under `apps/server/` after the ADR-062 monorepo move. |

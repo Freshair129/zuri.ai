@@ -30,8 +30,10 @@ describe('Platform Programme Roadmap route contract', () => {
   it('preserves the submitted programme shape as a static projection', () => {
     expect(PROGRAMME_PHASES).toHaveLength(6)
     expect(PROGRAMME_PHASES.flatMap((phase) => phase.sprints)).toHaveLength(12)
-    expect(PROGRAMME_TASKS).toHaveLength(30)
-    expect(PROGRAMME_GATES).toHaveLength(8)
-    expect(PROGRAMME_DELIVERABLES).toHaveLength(10)
+    // v0.4.0 (CR-019, 2026-09-13): 30 → 44 tasks, 8 → 9 gates, 10 → 11 deliverables.
+    // Phases and sprints are unchanged on purpose — the proposal's six bands still line up.
+    expect(PROGRAMME_TASKS).toHaveLength(44)
+    expect(PROGRAMME_GATES).toHaveLength(9)
+    expect(PROGRAMME_DELIVERABLES).toHaveLength(11)
   })
 })
