@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.51.0b"
+version: "1.52.0b"
 status: active
 last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
 relations:
@@ -70,6 +70,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-036 | Connect LINE OA yourself — a Business owner connects a LINE Official Account from the browser: after a TOTP step-up they enter the Channel ID and Channel secret once, the server proves them with LINE, claims the bot for this installation, stores the secret write-only in the Integration vault (Supabase Vault, or an encrypted store on self-host) and mints short-lived tokens itself, sets and tests the webhook through LINE's API and decides on its own when the old transport has gone quiet — with no operator and no host file (ADR-089, `DOM-INTEGRATION`, `DOM-IDENTITY`, `DOM-LINE-OA-STUDIO`) | FR-223, FR-224, FR-225, FR-226, FR-227, FR-228 | declared |
 | FEAT-037 | Chat record, memory tiers and retention — every LINE conversation kept in the right place for its role: the complete business record in CRM (text, stickers, media references and events, searchable in the inbox), the agent's own 90-day conversation ledger and consolidated memory in MSP under a per-account policy and per-tier consent, declared retention windows a Tenant can only shorten, erasure that reaches every tier and shows what is still pending, and one Context Composer that decides what a model may see and leaves a receipt of it (ADR-091, `DOM-CRM`, `DOM-AGENT`, `DOM-LINE-OA-STUDIO`) | FR-229, FR-230, FR-231, FR-232, FR-233, FR-234 | declared |
 | FEAT-038 | LINE grounding and knowledge candidates — a LINE OA account can answer from the Business's published GKS corpus, with a traced fallback and never a model call without evidence, and what the business learns from LINE conversations enters that corpus only as a locator-only question-and-answer that an owner or publisher approved, with a report of the questions nobody could answer (ADR-090, `DOM-KNOWLEDGE`, `DOM-AGENT`, `DOM-LINE-OA-STUDIO`) | FR-235, FR-236, FR-237, FR-238 | declared |
+| FEAT-039 | Agent usage detail — for every measured lane, person and device, the programme board shows how the tokens split into input, output, thinking and cache, which tools the agents called and how often they failed or were denied, and how many prompts and compactions a session took, counted from agent logs by the meter and the harness plugin with names and numbers only (ADR-086 D7, `DOM-PLATFORM-CONTROL`) | FR-239, FR-240 | building |
 
 Version diff 1.39.0b → 1.40.0b (2026-09-12): FEAT-030 declared and implemented in the same change — audit events carry queryable scope (FR-198) and identity gains the two read models an access review needs (FR-199), under ADR-080. Closes the gap ADR-077's grant lifecycle assumed was already open.
 
@@ -864,6 +865,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FEAT-038",
     "primaryDomain": "knowledge",
     "useCase": "เจ้าของธุรกิจสลับบัญชี LINE OA ให้ตอบลูกค้าจากคลังความรู้ที่ publish แล้วใน GKS ดู trace ได้ว่าคำตอบอ้างเอกสารไหน อนุมัติคำถาม-คำตอบที่ได้จากแชทลูกค้าเข้าเป็นความรู้ของธุรกิจโดยไม่มีข้อมูลส่วนตัวของลูกค้าติดไป และเห็นรายงานว่าลูกค้าถามเรื่องสินค้าตัวไหนที่ระบบยังตอบไม่ได้"
+  },
+  {
+    "id": "FEAT-039",
+    "primaryDomain": "platform-control",
+    "useCase": "installation operator เปิดการ์ด phase บน /control/roadmap แล้วเห็นว่า token ที่ใช้แยกเป็น input, output, thinking และ cache อย่างละเท่าไร agent เรียก tool อะไรบ่อยที่สุด พลาดหรือถูกปฏิเสธกี่ครั้ง ใช้กี่ prompt และ compact กี่รอบ แยกตาม lane คน และเครื่อง โดยไม่มีข้อความของงานถูกเก็บ"
   }
 ]
 ```
@@ -902,3 +908,5 @@ Version diff 1.48.0b → 1.49.0b (2026-09-13): Added **FEAT-034** (FR-216..FR-21
 Version diff 1.49.0b → 1.50.0b (2026-09-14): Added **FEAT-035** (FR-220..FR-222) under **ADR-087** — the Zuri harness usage plugin with browser-paired devices and a report-only credential. Declared; building.
 
 Version diff 1.50.0b → 1.51.0b (2026-09-14): Added **FEAT-036** (FR-223..FR-228) under **ADR-089** — connect LINE OA yourself; **FEAT-037** (FR-229..FR-234) under **ADR-091** — chat record, memory tiers and retention; and **FEAT-038** (FR-235..FR-238) under **ADR-090** — LINE grounding and knowledge candidates. Owner-approved design, declared only: no code, model, route or migration.
+
+Version diff 1.51.0b → 1.52.0b (2026-09-14): Added **FEAT-039** (FR-239, FR-240) under **ADR-086 D7** — agent usage detail from agent logs: token types, tool calls, prompts and compactions per lane, person and device. Declared; building.

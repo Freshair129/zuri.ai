@@ -5,6 +5,22 @@
 // @tested tests/unit/zuri-harness-plugin.test.js
 import { execFile } from 'node:child_process'
 import { parseClaudeLine, parseCodexLines, normaliseRepository, summariseByBranch, toReportBody } from './usage.mjs'
+import { claudeActivity, claudeActivityCandidate, codexActivity } from './detail.mjs'
+
+// @req FR-239 — the session's usage detail (tool calls, prompts, compactions…) rides
+//   along with its tokens, counted by the rules lib/detail.mjs shares with the meter.
+function claudeEvents(lines) {
+  const events = []
+  for (const line of lines) {
+    if (!claudeActivityCandidate(line)) continue
+    try {
+      events.push(...claudeActivity(JSON.parse(line)))
+    } catch {
+      // a torn line is skipped, as the usage parser skips it
+    }
+  }
+  return events
+}
 import * as defaultQueue from './queue.mjs'
 import { flushQueue } from './client.mjs'
 
@@ -51,7 +67,7 @@ export function buildClaudeSessionReports({
   const requests = lines.map(parseClaudeLine).filter(Boolean)
   if (!requests.length) return []
   const repository = normaliseRepository(repositoryUrl)
-  return summariseByBranch(requests, { gapCapMinutes }).map((s) => toReportBody(s, { repository, aiAccount }))
+  return summariseByBranch(requests, { gapCapMinutes, events: claudeEvents(lines) }).map((s) => toReportBody(s, { repository, aiAccount }))
 }
 
 /**
@@ -65,7 +81,7 @@ export function buildCodexSessionReports({ lines, allowedRepositories, aiAccount
   const repositoryUrl = requests[0].repositoryUrl || ''
   if (!isAllowedRepository(repositoryUrl, allowedRepositories)) return []
   const repository = normaliseRepository(repositoryUrl)
-  return summariseByBranch(requests, { gapCapMinutes }).map((s) => toReportBody(s, { repository, aiAccount }))
+  return summariseByBranch(requests, { gapCapMinutes, events: codexActivity(lines) }).map((s) => toReportBody(s, { repository, aiAccount }))
 }
 
 /**

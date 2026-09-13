@@ -36,11 +36,11 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 145,
+    "featureCount": 146,
     "readyFeatureCount": 109,
-    "requirementCount": 238,
-    "verifiedRequirementCount": 210,
-    "progressPercent": 88.7,
+    "requirementCount": 240,
+    "verifiedRequirementCount": 212,
+    "progressPercent": 88.8,
     "gapCount": 28,
     "gaps": [
       {
@@ -3736,6 +3736,22 @@
           "status": "verified",
           "codeCount": 3,
           "testCount": 7
+        },
+        {
+          "id": "FR-239",
+          "title": "Agent usage detail capture",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 4
+        },
+        {
+          "id": "FR-240",
+          "title": "Usage detail on the programme board",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 6
         }
       ],
       "checks": {
@@ -3872,12 +3888,13 @@
       },
       "featureIds": [
         "FEAT-034",
+        "FEAT-039",
         "FR-105",
         "FR-142",
         "FR-145",
         "FR-211"
       ],
-      "featureCount": 5,
+      "featureCount": 6,
       "readyFeatureCount": 4,
       "progressPercent": 100
     },
@@ -9310,6 +9327,62 @@
         }
       ],
       "evidence": []
+    },
+    {
+      "id": "FEAT-039",
+      "title": "Agent usage detail — for every measured lane, person and device, the programme board shows how the tokens split into input, output, thinking and cache, which tools the agents called and how often they failed or were denied, and how many prompts and compactions a session took, counted from agent logs by the meter and the harness plugin with names and numbers only (ADR-086 D7, `DOM-PLATFORM-CONTROL`)",
+      "kind": "bundle",
+      "registryStatus": "building",
+      "requirementIds": [
+        "FR-239",
+        "FR-240"
+      ],
+      "primaryDomain": "platform-control",
+      "contributorDomains": [
+        "platform-control"
+      ],
+      "useCase": "installation operator เปิดการ์ด phase บน /control/roadmap แล้วเห็นว่า token ที่ใช้แยกเป็น input, output, thinking และ cache อย่างละเท่าไร agent เรียก tool อะไรบ่อยที่สุด พลาดหรือถูกปฏิเสธกี่ครั้ง ใช้กี่ prompt และ compact กี่รอบ แยกตาม lane คน และเครื่อง โดยไม่มีข้อความของงานถูกเก็บ",
+      "progressPercent": 100,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-039 registry status is building"
+      ],
+      "requirements": [
+        {
+          "id": "FR-239",
+          "title": "Agent usage detail capture",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 4
+        },
+        {
+          "id": "FR-240",
+          "title": "Usage detail on the programme board",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 2,
+          "testCount": 6
+        }
+      ],
+      "evidence": [
+        "apps/server/src/modules/platform-control/application/programme-usage-reports.js",
+        "apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
+        "apps/server/src/modules/platform-control/program-delivery-metrics.js",
+        "apps/server/tests/e2e/fr216-programme-delivery-telemetry.spec.js",
+        "apps/server/tests/unit/platform-control-domain-map.test.js",
+        "apps/server/tests/unit/platform-control-route-contract.test.js",
+        "apps/server/tests/unit/program-delivery-metrics.test.js",
+        "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
+        "apps/server/tests/unit/programme-usage-meter.test.js",
+        "apps/server/tests/unit/programme-usage-reports.test.js",
+        "apps/server/tests/unit/usage-detail.test.js",
+        "apps/server/tests/unit/zuri-harness-plugin.test.js",
+        "plugins/zuri-harness/lib/detail.mjs",
+        "plugins/zuri-harness/lib/report.mjs",
+        "plugins/zuri-harness/lib/usage.mjs"
+      ]
     },
     {
       "id": "FR-001",

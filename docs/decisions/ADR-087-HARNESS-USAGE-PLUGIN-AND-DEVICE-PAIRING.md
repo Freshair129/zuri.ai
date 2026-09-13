@@ -16,7 +16,9 @@ attributes:
 
 **Amends:** ADR-086 D5. The deployment bearer stays, but only for unattended automation. People's agents report through a paired device.
 
-**Relates to:** FR-123, FR-144, FR-217, FR-218, FR-220, FR-221, FR-222, FEAT-034, FEAT-035, ADR-052, SEC-025, ADR-057.
+**Relates to:** FR-123, FR-144, FR-217, FR-218, FR-220, FR-221, FR-222, FR-239, FEAT-034, FEAT-035, ADR-052, SEC-025, ADR-057.
+
+**Specification:** [Zuri harness plugin specification](../ZURI-HARNESS-PLUGIN-SPEC.md) — the CLI, hook, file, counting and keep/drop contract this decision governs.
 
 ## Context
 

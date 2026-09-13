@@ -73,9 +73,16 @@ Every report carries only:
 - start and end timestamps, and the model used
 - an optional `aiAccount` label, if configured, purely to split cost — never
   used as identity
+- usage detail (FR-239): thinking/reasoning tokens, cache writes by 5-minute
+  and 1-hour lifetime, web search and fetch requests, tool calls per tool
+  **name** with error counts, permission denials, user prompt count,
+  compactions, API errors, and requests per model — names and numbers only
 
-It never sends: prompt or response text, file contents, the zuri-ai password,
-or any browser cookie. The plugin never reads browser cookies and never asks
+The full rules are in the
+[plugin specification](../../docs/ZURI-HARNESS-PLUGIN-SPEC.md).
+
+It never sends: prompt, response or thinking text, tool arguments or tool
+output, file contents, the zuri-ai password, or any browser cookie. The plugin never reads browser cookies and never asks
 for a zuri-ai password — identity comes only from the paired credential.
 
 ## Where the credential lives
