@@ -39,8 +39,8 @@
     "featureCount": 147,
     "readyFeatureCount": 113,
     "requirementCount": 241,
-    "verifiedRequirementCount": 221,
-    "progressPercent": 93.4,
+    "verifiedRequirementCount": 223,
+    "progressPercent": 94,
     "gapCount": 40,
     "gaps": [
       {
@@ -966,7 +966,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 277,
+            "openApiPaths": 279,
             "missingFromOpenApi": 0
           }
         },
@@ -1294,7 +1294,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 277,
+            "openApiPaths": 279,
             "missingFromOpenApi": 0
           }
         },
@@ -1491,7 +1491,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 277,
+            "openApiPaths": 279,
             "missingFromOpenApi": 0
           }
         },
@@ -1726,6 +1726,22 @@
           "testCount": 14
         },
         {
+          "id": "FR-230",
+          "title": "Chat record and agent memory split with declared retention",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 11
+        },
+        {
+          "id": "FR-233",
+          "title": "Conversation inbox read models and search",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 6,
+          "testCount": 13
+        },
+        {
           "id": "FR-236",
           "title": "LINE FAQ knowledge candidates",
           "declared": "planned",
@@ -1820,8 +1836,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 12,
-            "present": 12
+            "models": 13,
+            "present": 13
           }
         },
         "authorization": {
@@ -1924,7 +1940,7 @@
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
-        "ownedModels": 12,
+        "ownedModels": 13,
         "featureNotes": 9
       },
       "featureIds": [
@@ -1939,7 +1955,7 @@
       ],
       "featureCount": 8,
       "readyFeatureCount": 4,
-      "progressPercent": 66.3
+      "progressPercent": 76.3
     },
     "identity": {
       "status": "partial",
@@ -2368,7 +2384,7 @@
           "details": {
             "routes": 27,
             "inventoried": 27,
-            "openApiPaths": 277,
+            "openApiPaths": 279,
             "missingFromOpenApi": 0
           }
         },
@@ -2878,7 +2894,7 @@
           "details": {
             "routes": 10,
             "inventoried": 10,
-            "openApiPaths": 277,
+            "openApiPaths": 279,
             "missingFromOpenApi": 0
           }
         },
@@ -3281,7 +3297,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 277,
+            "openApiPaths": 279,
             "missingFromOpenApi": 0
           }
         },
@@ -4207,7 +4223,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 277,
+            "openApiPaths": 279,
             "missingFromOpenApi": 0
           }
         },
@@ -4429,7 +4445,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 277,
+            "openApiPaths": 279,
             "missingFromOpenApi": 0
           }
         },
@@ -4596,7 +4612,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 277,
+            "openApiPaths": 279,
             "missingFromOpenApi": 0
           }
         },
@@ -4842,7 +4858,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 277,
+            "openApiPaths": 279,
             "missingFromOpenApi": 0
           }
         },
@@ -5023,7 +5039,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 277,
+            "openApiPaths": 279,
             "missingFromOpenApi": 0
           }
         },
@@ -6249,6 +6265,22 @@
           "testCount": 14
         },
         {
+          "id": "FR-230",
+          "title": "Chat record and agent memory split with declared retention",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 11
+        },
+        {
+          "id": "FR-233",
+          "title": "Conversation inbox read models and search",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 13
+        },
+        {
           "id": "FR-236",
           "title": "LINE FAQ knowledge candidates",
           "declared": "planned",
@@ -6343,9 +6375,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 134,
-            "inventoried": 134,
-            "openApiPaths": 277,
+            "routes": 136,
+            "inventoried": 136,
+            "openApiPaths": 279,
             "missingFromOpenApi": 0
           }
         },
@@ -6413,7 +6445,7 @@
           "details": {
             "mutations": 106,
             "guardedMutations": 104,
-            "reads": 64,
+            "reads": 66,
             "unguardedReads": 2
           }
         },
@@ -6569,8 +6601,8 @@
         }
       ],
       "details": {
-        "routes": 179,
-        "apiRoutes": 134,
+        "routes": 181,
+        "apiRoutes": 136,
         "pageRoutes": 45,
         "ownedModels": 31,
         "featureNotes": 33
@@ -10546,15 +10578,13 @@
         "project-manager"
       ],
       "useCase": "พนักงานเปิด Inbox แล้วเห็นบทสนทนา LINE ครบทั้งข้อความ สติกเกอร์ รูปที่ลูกค้าส่ง และเหตุการณ์อย่างการเพิ่มเพื่อนหรือบล็อก ค้นหาข้อความเก่าได้ ส่วนเจ้าของธุรกิจกำหนดได้ว่าบัญชีไหนให้ agent จำบริบทได้ รู้ว่าข้อมูลแต่ละชั้นเก็บนานเท่าไร และเมื่อลูกค้าขอลบข้อมูลก็เห็นว่าลบครบทุกชั้นแล้วหรือยังรออยู่ที่ไหน",
-      "progressPercent": 36.7,
+      "progressPercent": 63.3,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-037 registry status is declared",
-        "FR-230 is planned",
         "FR-231 is planned",
         "FR-232 is planned",
-        "FR-233 is planned",
         "FR-234 is partial"
       ],
       "requirements": [
@@ -10569,10 +10599,10 @@
         {
           "id": "FR-230",
           "title": "Chat record and agent memory split with declared retention",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 3,
+          "testCount": 11
         },
         {
           "id": "FR-231",
@@ -10593,10 +10623,10 @@
         {
           "id": "FR-233",
           "title": "Conversation inbox read models and search",
-          "status": "planned",
-          "progressPercent": 40,
-          "codeCount": 0,
-          "testCount": 1
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 9,
+          "testCount": 13
         },
         {
           "id": "FR-234",
@@ -10608,20 +10638,33 @@
         }
       ],
       "evidence": [
+        "apps/server/src/app/api/crm/conversations/event-counts/route.js",
+        "apps/server/src/app/api/crm/conversations/search/route.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/agent/context-composer.js",
         "apps/server/src/modules/agent/execution-trace.js",
         "apps/server/src/modules/agent/line-execution-trace.js",
         "apps/server/src/modules/agent/msp-thread-memory-port.js",
         "apps/server/src/modules/agent/server-line-answer.js",
+        "apps/server/src/modules/crm/conversation-preview-service.js",
+        "apps/server/src/modules/crm/conversation-read-model.js",
         "apps/server/src/modules/crm/conversation-redaction-service.js",
+        "apps/server/src/modules/crm/conversation-search-service.js",
         "apps/server/src/modules/crm/line-ingest-service.js",
+        "apps/server/src/modules/crm/reply-record-service.js",
+        "apps/server/src/modules/crm/retention-override-service.js",
+        "apps/server/src/modules/crm/retention-sweep-service.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/crm-conversation-inbox.test.js",
+        "apps/server/tests/integration/crm-conversation-search.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
+        "apps/server/tests/integration/crm-retention-override-service.test.js",
+        "apps/server/tests/integration/crm-retention-sweep.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/identity-erase.test.js",
@@ -10629,20 +10672,25 @@
         "apps/server/tests/integration/line-gks-grounding.test.js",
         "apps/server/tests/integration/line-ingest.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
+        "apps/server/tests/integration/line-reply-record.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-worker-memory.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/integration/server-line-trace.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
+        "apps/server/tests/unit/conversation-read-model.test.js",
         "apps/server/tests/unit/corpus-knowledge-reader.test.js",
+        "apps/server/tests/unit/crm-conversation-retention-migration.test.js",
         "apps/server/tests/unit/crm-message-attachments-events-migration.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/line-execution-trace.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
+        "apps/server/tests/unit/reply-record-service.test.js",
         "apps/server/tests/unit/server-line-answer.test.js"
       ]
     },

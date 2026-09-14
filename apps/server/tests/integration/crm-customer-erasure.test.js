@@ -153,6 +153,11 @@ describe('PDPA erasure from the CRM surface (FR-022)', () => {
     expect(messages[0].createdAt).toBeInstanceOf(Date)
     expect(messages[0].direction).toBe('INBOUND')
 
+    // 1b. FR-233 — the denormalised inbox preview is redacted by this same writer,
+    //   never left showing what the message row itself no longer does.
+    const erasedConversation = await prisma.conversation.findUnique({ where: { id: conversation.id } })
+    expect(erasedConversation.lastMessagePreview).toBe(CUSTOMER_ERASURE_TOMBSTONE)
+
     // 2. The raw evidence carries a tombstone rather than a gap — envelope intact.
     const mine = await prisma.rawExternalRecord.findMany({
       where: { tenantId: tenantA.id, externalId: { in: ['MSG-ERASE-1', 'U-erase-1'] } },
