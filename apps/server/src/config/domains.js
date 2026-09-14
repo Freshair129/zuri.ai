@@ -7,7 +7,7 @@ import {
   Workflow, Gauge, TrendingUp,
   PackageCheck, MessageCircle, LayoutGrid, QrCode,
   Warehouse, Truck, ClipboardList,
-  Layers, Bot, Cpu, Bookmark, Contact, Waypoints,
+  Layers, Bot, Cpu, Bookmark, Contact, Waypoints, FileText,
 } from 'lucide-react'
 import { businessHasCapability } from '@/lib/business-capabilities'
 
@@ -270,6 +270,7 @@ export const DOMAINS = [
     key: 'knowledge', label: 'Knowledge (GKS)', icon: Waypoints, basePath: '/knowledge',
     sub: [
       { label: 'Dashboard', path: '/knowledge', icon: LayoutDashboard, exact: true },
+      { label: 'Documents', path: '/knowledge/documents', icon: FileText },
       { label: 'Data Pipeline Map', path: '/knowledge/data-pipeline', icon: Workflow },
     ],
   },

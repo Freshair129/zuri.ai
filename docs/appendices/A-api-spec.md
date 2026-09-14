@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=273 -->
+<!-- api-spec-counts: route_handlers=274 -->
 
 ### Programme usage reports (FR-218, 2026-09-13)
 
@@ -778,6 +778,7 @@ that a Codex worker or Supabase apply executed.
 
 | Method | Path | Contract |
 |---|---|---|
+| GET | `/api/pipelines/health` | FR-215 (ADR-085 D5): bounded live health read model for the active Business only — aggregates `PipelineRun`, `LineConversationJob`, `LineOaRichMenuJob` and `AssetExtractionJob` statuses, failure counts and last run timestamps across backed edges |
 | GET | `/api/pipelines/runs` | scope-filtered bounded run list; `businessId`, `status`, `limit` and provenance filters are server-validated |
 | POST | `/api/pipelines/runs` | installation operator creates one idempotent `QUEUED` run envelope; source/artifact identity and scope are explicit |
 | GET | `/api/pipelines/runs/[executionRunId]` | server-filtered monitor read model with stage timeline, first failure, redacted record outcomes, reconciliation, gate evidence, freshness and lineage |
@@ -810,6 +811,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.72.0b | 2026-09-14 | candidate | FR-215 (ADR-085 D5): added `GET /api/pipelines/health` — live health overlay for Data Pipeline Map on active Business. Route handler count 270 -> 271 | working-tree | Antigravity |
 | 1.67.0b | 2026-09-13 | candidate | FR-208 / FR-209 (ADR-084 catalogue intake): six handler files under `/api/inventory/catalog-intakes` — the list, preview, commit, one intake (GET + CANCEL), the Business-specific workbook template and the workbook upload preview. Route handler count 257 -> 263 | working-tree | Claude Opus 5 |
 | 1.66.0b | 2026-09-13 | candidate | FR-201..FR-207 (ADR-083 SKU governance): five new handler files under `/api/inventory` — `products/resolve` (GET), `products/[id]/identifiers` and `products/[id]/unit-conversions` (GET/POST/PATCH), `catalog-hygiene` and `replenishment` (GET) — plus the nature / variant / lifecycle fields and refusals on the product collection and item and the `services` / `phaseOut` / `belowReorderPoint` counts on the stock summary. Route handler count 252 -> 257 | working-tree | Claude Fable 5.1 |
 | 1.65.0b | 2026-09-12 | candidate | FR-193 (ADR-078 D1): added the Employment WRITE path, which had been declared and built as a service and then left unreachable — `POST /api/people/employment` and `PATCH /api/people/employment/[employmentId]` (`on_leave` / `reinstate` / `end`, the last requiring a reason). `employment-service.js` shipped all four operations in 1.63.0b-era work and no route imported it, so the People Directory could only show rows the ADR-078 backfill created — and on production that was none, because no `Membership.employeeRef` values existed to carry over. The page told the owner to add a record and offered no control that wrote one. Route handler count 250 -> 252 | working-tree | Claude Opus 5 |

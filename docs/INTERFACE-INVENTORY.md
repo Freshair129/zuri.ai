@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=106; operational_domain_keys=16; operational_subdomain_entries=55; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=107; operational_domain_keys=16; operational_subdomain_entries=56; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -222,6 +222,7 @@ authority the lane consumes; GKS, MSP and GenesisBlockDB remain external systems
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
 | `/knowledge` | Knowledge Dashboard (domain `knowledge`) | BusinessShell → Knowledge (GKS) / Dashboard | the map's summary figures (chains by status, sources, entry surfaces, recipients), a link to the Data Pipeline Map, and the knowledge base console named as planned (TASK-ZAI-047) | server-side viewer resolution before render; 404 without `knowledge`; per-Business grant by the shell guard | implemented locally 2026-09-13 — FR-214; `tests/unit/knowledge-data-pipeline-map-ui.test.js` |
+| `/knowledge/documents` | Knowledge Documents & Intake | BusinessShell → Knowledge (GKS) / Documents | drag-and-drop file upload (.txt, .md, .json), direct Markdown editor with templates, 1-click admission from FileAssets, real-time admission queue and published corpus query testing | same admission as `/knowledge`; server-side viewer resolution before render; 404 without `knowledge` | implemented locally 2026-09-14 — FR-173; `tests/unit/knowledge-documents-ui.test.js` |
 | `/knowledge/data-pipeline` | Data Pipeline Map | BusinessShell → Knowledge (GKS) / Data Pipeline Map | layered node-edge SVG of sources, entry surfaces, processes, stores and recipients; chain (`?chain=CH-xx`), domain and status filters; detail panel for a node, edge or chain (domain, FEATs, requirements, surfaces, decisions, production evidence); list view with the same chains, nodes and edges as tables | same admission as `/knowledge`; read-only, no API | implemented locally 2026-09-13 — FR-213; `tests/unit/knowledge-data-pipeline-map-ui.test.js`, `tests/e2e/fr213-data-pipeline-map.spec.js` |
 ### 3.7 Workspace compatibility surfaces
 
