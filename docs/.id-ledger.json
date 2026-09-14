@@ -368,6 +368,7 @@
     "FR-238",
     "FR-239",
     "FR-240",
+    "FR-241",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -740,6 +741,7 @@
     "ADR-089",
     "ADR-090",
     "ADR-091",
+    "ADR-092",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -2670,7 +2672,7 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "df1c916f646897e030c4296a347bd27d4c4b914c6cd1d38a935d8cc86aa4bba9",
+      "statement_digest": "11ee4963097d48281f25f5111383d24ee4a643d47b746ebca4a4b4a0d1518cff",
       "history": [
         {
           "anchor": "platform programme roadmap",
@@ -2679,7 +2681,7 @@
         }
       ],
       "statement_digest_reviewed_at": "2026-09-13",
-      "statement_digest_reason": "Re-worded to name programme v0.4.7 after TASK-ZAI-076 to TASK-ZAI-103 were added on the owner's instruction for the LINE OA platform delivery plan; the subject anchor and the surface it names are unchanged"
+      "statement_digest_reason": "Names programme v0.4.8 (TASK-ZAI-104, the 30-day roadmap member view under ADR-092); subject unchanged."
     },
     "FR-106": {
       "family": "FR",
@@ -4520,6 +4522,19 @@
       "history": [
         {
           "anchor": "usage detail on the programme board",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-241": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "291c953c61ec8be5d036becf63848f4c0e33f8398c01f60e289bece7f6681ff6",
+      "history": [
+        {
+          "anchor": "programme roadmap member view",
           "since": "2026-09-13",
           "reason": "declared"
         }
@@ -9439,6 +9454,19 @@
       "history": [
         {
           "anchor": "the chat record and agent memory are split by role and a",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-092": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-092-TIME-BOXED-MEMBER-VIEW-OF-THE-PROGRAMME-ROADMAP.md",
+      "status": "current",
+      "statement_digest": "d9f671ce98259543627bb388be018bb61227bc2d80d57628b9ae625e7031b0d0",
+      "history": [
+        {
+          "anchor": "a time boxed member view of the programme roadmap",
           "since": "2026-09-13",
           "reason": "declared"
         }

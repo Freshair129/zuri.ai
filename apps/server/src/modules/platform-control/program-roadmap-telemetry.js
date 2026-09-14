@@ -1,5 +1,5 @@
 // @req FR-216, FR-217 — the Delivery Telemetry section of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.7): the sizing table and work lanes the owner declares, and the usage
+// (v0.4.8): the sizing table and work lanes the owner declares, and the usage
 // the meter measured from local agent session logs.
 // @spec ADR-086 D1-D4 — planned and measured stay separate; usage is never progress.
 // @tested tests/unit/programme-containers.test.js, tests/unit/program-delivery-metrics.test.js
@@ -184,12 +184,22 @@ export const PROGRAMME_LANES = [
     "branches": [
       "feat/line-memory-policy-erasure"
     ]
+  },
+  {
+    "id": "LANE-ROADMAP-MEMBER-VIEW",
+    "title": "Programme roadmap member view — plan and delivery",
+    "tasks": [
+      "TASK-ZAI-104"
+    ],
+    "branches": [
+      "feat/roadmap-member-view"
+    ]
   }
 ]
 
 export const PROGRAMME_USAGE = {
   "meter": "scripts/programme-usage-meter.mjs",
-  "measuredThrough": "2026-09-13T23:33:36.222Z",
+  "measuredThrough": "2026-09-14T00:04:21.334Z",
   "lanes": {
     "LANE-COST-QUOTE-PLAN": {
       "requests": 33,
@@ -518,24 +528,24 @@ export const PROGRAMME_USAGE = {
       }
     },
     "LANE-LINE-OA-VAULT": {
-      "requests": 180,
+      "requests": 196,
       "sessions": [
         "claude-code:aac0cfef-d023-4455-a10f-a729b17b61f6"
       ],
       "tokens": {
-        "input": 360,
-        "cacheWrite": 389767,
-        "cacheRead": 104718227,
-        "output": 272634
+        "input": 392,
+        "cacheWrite": 404963,
+        "cacheRead": 116822581,
+        "output": 281715
       },
       "bySource": {
         "claude-code": {
-          "requests": 180,
+          "requests": 196,
           "tokens": {
-            "input": 360,
-            "cacheWrite": 389767,
-            "cacheRead": 104718227,
-            "output": 272634
+            "input": 392,
+            "cacheWrite": 404963,
+            "cacheRead": 116822581,
+            "output": 281715
           }
         }
       },
@@ -543,27 +553,27 @@ export const PROGRAMME_USAGE = {
         "claude-opus-5"
       ],
       "firstActivityAt": "2026-09-13T22:04:31.684Z",
-      "lastActivityAt": "2026-09-13T23:33:36.222Z",
-      "activeMinutes": 89,
+      "lastActivityAt": "2026-09-14T00:04:21.334Z",
+      "activeMinutes": 107,
       "detail": {
-        "reasoningTokens": 59155,
+        "reasoningTokens": 60686,
         "cacheWrite5mTokens": 0,
-        "cacheWrite1hTokens": 389767,
+        "cacheWrite1hTokens": 404963,
         "webSearchRequests": 0,
         "webFetchRequests": 0,
-        "prompts": 0,
-        "toolCalls": 283,
-        "toolErrors": 10,
+        "prompts": 1,
+        "toolCalls": 299,
+        "toolErrors": 11,
         "toolDenials": 0,
         "compactions": 0,
         "apiErrors": 0,
         "tools": {
           "Bash": {
-            "calls": 25,
+            "calls": 26,
             "errors": 2
           },
           "Edit": {
-            "calls": 105,
+            "calls": 106,
             "errors": 0
           },
           "Grep": {
@@ -571,20 +581,103 @@ export const PROGRAMME_USAGE = {
             "errors": 0
           },
           "PowerShell": {
-            "calls": 56,
-            "errors": 8
+            "calls": 64,
+            "errors": 9
           },
           "Read": {
             "calls": 28,
             "errors": 0
           },
+          "ToolSearch": {
+            "calls": 1,
+            "errors": 0
+          },
           "Write": {
-            "calls": 45,
+            "calls": 46,
+            "errors": 0
+          },
+          "mcp__ccd_pr__bind_pr": {
+            "calls": 1,
+            "errors": 0
+          },
+          "mcp__ccd_pr__get_status": {
+            "calls": 3,
             "errors": 0
           }
         },
         "models": {
-          "claude-opus-5": 180
+          "claude-opus-5": 196
+        }
+      }
+    },
+    "LANE-ROADMAP-MEMBER-VIEW": {
+      "requests": 73,
+      "sessions": [
+        "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
+      ],
+      "tokens": {
+        "input": 150,
+        "cacheWrite": 127863,
+        "cacheRead": 25135090,
+        "output": 65912
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 73,
+          "tokens": {
+            "input": 150,
+            "cacheWrite": 127863,
+            "cacheRead": 25135090,
+            "output": 65912
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5"
+      ],
+      "firstActivityAt": "2026-09-13T23:02:24.792Z",
+      "lastActivityAt": "2026-09-13T23:46:13.091Z",
+      "activeMinutes": 44,
+      "detail": {
+        "reasoningTokens": 12285,
+        "cacheWrite5mTokens": 0,
+        "cacheWrite1hTokens": 127863,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 3,
+        "toolCalls": 96,
+        "toolErrors": 6,
+        "toolDenials": 1,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Bash": {
+            "calls": 32,
+            "errors": 2
+          },
+          "Edit": {
+            "calls": 28,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 1,
+            "errors": 0
+          },
+          "PowerShell": {
+            "calls": 21,
+            "errors": 4
+          },
+          "Read": {
+            "calls": 4,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 10,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 73
         }
       }
     },

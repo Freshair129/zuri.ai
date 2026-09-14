@@ -488,7 +488,7 @@ button{font:inherit;color:inherit;}
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
           <span class="pill pill-brand">approved</span>
           <span class="pill pill-planned mono">ROADMAP-ZURI-AI-24W-PROGRAM</span>
-          <span class="pill pill-planned mono">v0.4.7</span>
+          <span class="pill pill-planned mono">v0.4.8</span>
           <span class="pill pill-planned">updated 2026-09-13</span>
           <span class="pill pill-planned mono">CR-019</span>
           <span class="pill pill-planned">owner Owen</span>
@@ -678,7 +678,7 @@ button{font:inherit;color:inherit;}
 
 <script>
 /* ==================================================================
-   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.4.7 (CR-019,
+   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.4.8 (CR-019,
    2026-09-13) — the markdown is the source of truth, this array is
    its rendering. Tasks 031–044 were added on the re-baseline,
    045–051 (17-stage knowledge base + file system) the same day,
@@ -686,7 +686,8 @@ button{font:inherit;color:inherit;}
    060–063 (data pipeline map, v0.4.3) the same day,
    064–068 (delivery telemetry and task card badges, v0.4.4) the same day,
    069–072 (Zuri harness usage plugin, v0.4.5) on 2026-09-14,
-   073–075 (plugin specification and usage detail, v0.4.6) the same day.
+   073–075 (plugin specification and usage detail, v0.4.6) the same day,
+   104 (30-day roadmap member view, v0.4.8) the same day.
    ================================================================== */
 const PROGRESS_BY_STATE = { done:100, review:90, "in-progress":50, assigned:25, ready:10, planned:0, blocked:0 };
 
@@ -843,7 +844,7 @@ const PHASES = [
             "Given npm test, when the FR-066 unit suite runs, then onboarding order is asserted, not assumed",
             "ส่งมอบ 27 ส.ค. (ROADMAP.md TASK-FR-066-067) · FR-122 บังคับชื่อ-สกุล-โทรศัพท์ · CR-017 UX correction ติดตามในเลน Asset"]
         ]},
-      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract · นับ knowledge intake + Tier 1 ของ 17-stage ที่สร้างแล้ว · (CR-019) SCM, Marketing, billing/POS, catalog convergence และ identity lifecycle เข้า main · (v0.4.2) เปิด cost & quote engine: decision record + ใบต้นทุนโรงงาน · (v0.4.3) data pipeline registry + node-edge map ใน slot Knowledge (GKS) · (v0.4.4) delivery telemetry บน programme board: การ์ด phase มีตัวเลข, badge หลักฐานบนการ์ด task, usage meter และ endpoint รายงาน token จริง · (v0.4.5) plugin ของ Zuri สำหรับ agent เครื่องอื่น จับคู่เครื่องผ่าน browser · (v0.4.6) spec ของ plugin และรายละเอียดการใช้งาน: thinking tokens, tool call, prompt, compaction · (v0.4.7) ลงทะเบียนแผน LINE OA platform พร้อม lane ก่อนเริ่มงาน",
+      { id:"SPR-ZAI-02", weeks:"สัปดาห์ 3-4", goal:"ปิดเรื่อง tenancy, pipeline monitor และ memory contract · นับ knowledge intake + Tier 1 ของ 17-stage ที่สร้างแล้ว · (CR-019) SCM, Marketing, billing/POS, catalog convergence และ identity lifecycle เข้า main · (v0.4.2) เปิด cost & quote engine: decision record + ใบต้นทุนโรงงาน · (v0.4.3) data pipeline registry + node-edge map ใน slot Knowledge (GKS) · (v0.4.4) delivery telemetry บน programme board: การ์ด phase มีตัวเลข, badge หลักฐานบนการ์ด task, usage meter และ endpoint รายงาน token จริง · (v0.4.5) plugin ของ Zuri สำหรับ agent เครื่องอื่น จับคู่เครื่องผ่าน browser · (v0.4.6) spec ของ plugin และรายละเอียดการใช้งาน: thinking tokens, tool call, prompt, compaction · (v0.4.7) ลงทะเบียนแผน LINE OA platform พร้อม lane ก่อนเริ่มงาน · (v0.4.8) เปิด roadmap 30 วันให้ทุกคนที่ login แล้ว",
         exit:"pipeline รายงานได้ทุก stage, memory contract ผ่านการรีวิว, ไฟล์ที่รับเข้า Stage 1 ไปถึง Stage 8 พร้อม lineage ใต้เทสต์ และทุกเลนมี migration เขียนแล้ว",
         tasks:[
           ["TASK-ZAI-004","TSK-ZAI004","Workspace collaboration boundary and scoped invites, FR-067","FR","C-3","H3","done","Codex","TASK-ZAI-003","apps/server/src/modules/identity/access-invite-service.js","docs/PRD-SDD-v1.0.md","unavailable",40000,
@@ -1000,7 +1001,12 @@ const PHASES = [
             "Given ADR-089, ADR-090 and ADR-091 and their designs, when the plan is written, then every delivery phase (0 to 7) appears as tasks sized C-1 to C-3 with Given-When-Then criteria, the operator steps (production migration applies, channel credential entry, webhook cutover, the grounding switch) are tasks of their own, and phase 6 is blocked on MSP TASK-MEMOS-002 and TASK-MEMOS-004",
             "Given the Delivery Telemetry section, when the lanes are declared, then each delivery phase from 1 to 6 has one lane naming its branch and Phase 0 one lane naming both documentation branches, the generator accepts them (one programme phase per lane, one lane per branch, never main), and the section says how a session must run to be measured",
             "Given npm run govern and the programme container check on the plan branch merged with main, when they run, then both exit zero; the pull request is opened and left for the owner to merge",
-            "(v0.4.7) task นี้ — เขียนแผนทุก phase เป็น task พร้อมขนาดและเกณฑ์ · ผูก lane กับ branch ก่อนเริ่มงาน · การวัดละเอียด (token แยกประเภท, tool call) มาจาก TASK-ZAI-074/075 ที่ส่งมอบแล้วใน PR #393 · ระบุทางนำเข้า Project Manager · รัน meter"]
+            "(v0.4.7) task นี้ — เขียนแผนทุก phase เป็น task พร้อมขนาดและเกณฑ์ · ผูก lane กับ branch ก่อนเริ่มงาน · การวัดละเอียด (token แยกประเภท, tool call) มาจาก TASK-ZAI-074/075 ที่ส่งมอบแล้วใน PR #393 · ระบุทางนำเข้า Project Manager · รัน meter"],
+          ["TASK-ZAI-104","TSK-ZAI104","Programme roadmap member view — for 30 days any signed-in person reads the programme plan and the Domain map at /roadmap, with usage by person and device, tool and model names and the Agent devices tab removed on the server, closing by itself at 2026-10-15 00:00 Asia/Bangkok while /control/roadmap stays operator-only","FR","C-2","H2","review","Claude","TASK-ZAI-075","apps/server/src/app/roadmap/page.jsx","docs/decisions/ADR-092-TIME-BOXED-MEMBER-VIEW-OF-THE-PROGRAMME-ROADMAP.md","apps/server/tests/unit/programme-member-view.test.js",30000,
+            "Given a signed-in person who holds no operator grant, when they open /roadmap before 2026-10-15 00:00 Asia/Bangkok, then they read the programme board and the Domain map tab read-only, a visitor without a session is sent to /login, and /control/roadmap still answers that person with a 404",
+            "Given the member projection built on the server, when it is rendered, then it carries no usage by person or device, no tool or model name, no Agent devices tab and no report or credential row, and a test asserts those fields are absent from the data handed to the client",
+            "Given the window constant, when the clock passes its closing time, then /roadmap is a non-enumerating 404 for everyone including operators, and npm test covers open, closed, unauthenticated and the stripped projection",
+            "(v0.4.8) ตามคำสั่ง owner — เปิด roadmap 30 วันให้ทุกคนที่ login แล้ว · เห็นแผนงาน + domain map · ไม่แสดงยอดแยกตามคน/เครื่อง ชื่อ tool/model และแท็บ Agent devices · ปิดเอง 15 ต.ค. 2026 00:00 น. · /control/roadmap ยังเป็น operator เท่านั้น"]
         ]}
     ]
   },
@@ -1514,7 +1520,8 @@ const DOD_CHECKS = {
   "TASK-ZAI-100": [0,0,0],
   "TASK-ZAI-101": [0,0,0],
   "TASK-ZAI-102": [0,0,0],
-  "TASK-ZAI-103": [0,0,0]
+  "TASK-ZAI-103": [0,0,0],
+  "TASK-ZAI-104": [1,1,1]
 };
 
 /* ---------------------- theme ---------------------- */
