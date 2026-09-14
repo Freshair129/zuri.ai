@@ -50,11 +50,16 @@ import { assertMayPublish, assertMayView, notFound } from './line-oa-account-aut
 //   never thrown; only a call this port could not attempt at all throws.
 // @req FR-228 — ENABLE_SERVER's legacy handoff is typed for a mount-backed
 //   credential (unchanged) and derived for a vault-backed one (ADR-089 D8):
-//   LINE's own last-read webhook endpoint must equal this account's URL and
-//   no raw LINE evidence for the connection may have arrived in the last 120
-//   seconds, or it refuses 409 LINE_LEGACY_TRANSPORT_ACTIVE naming the last
-//   receipt time. The epoch fence, the SENDING/UNKNOWN refusal and the
-//   version check are unchanged (ADR-061 D3, D7).
+//   LINE's own last-registered webhook endpoint must equal this account's URL
+//   and be active, no raw LINE evidence for the connection may have arrived
+//   in the 120 s window ending at (and excluding) that registration's own
+//   timestamp, and the registration itself must be at least 120 s old — or it
+//   refuses 409 LINE_LEGACY_TRANSPORT_ACTIVE naming the last pre-cutover
+//   receipt time. Evidence at or after the registration is proof the cutover
+//   worked and never blocks — anchoring to "now" instead would let a busy,
+//   already-cutover account's own traffic block it forever (fixed on
+//   review). The epoch fence, the SENDING/UNKNOWN refusal and the version
+//   check are unchanged (ADR-061 D3, D7).
 // @spec ADR-089 D5, D7, D8; SEC-030
 // @tested tests/integration/fr146-line-oa-account.test.js, tests/integration/fr225-line-oa-self-serve-onboarding.test.js,
 //   tests/integration/fr227-line-oa-webhook-registration.test.js, tests/integration/fr228-line-oa-legacy-quiescence.test.js
@@ -142,22 +147,39 @@ async function defaultResolveWebhookCredential(row, { db }) {
 
 /**
  * ADR-089 D8: whether a vault-backed account may enable server ownership with
- * no typed confirmation. Two facts, both required:
+ * no typed confirmation.
+ *
+ * Once REGISTER_WEBHOOK's `PUT` succeeds, LINE only ever delivers to the
+ * newly-registered URL from that instant on — the cutover is structural, not
+ * probabilistic. So `RawExternalRecord` evidence timestamped **at or after**
+ * that registration is proof the cutover worked (native traffic), never a
+ * reason to refuse; only evidence strictly **before** it can be a straggler
+ * from whatever owned the webhook previously. An earlier version of this
+ * function anchored its 120 s window to "now" instead of to the
+ * registration, which meant a busy, already-cutover account kept producing
+ * exactly the evidence that blocked it — the busier (more genuinely
+ * quiesced-from-legacy) the account, the less likely it could ever enable.
+ * Fixed 2026-09-14 on review.
+ *
+ * Three facts, all required:
  *
  *   1. LINE's own webhook endpoint (as REGISTER_WEBHOOK last read it back,
  *      FR-227) equals this server's account URL, and was reported active.
- *   2. No raw LINE evidence for this account's connection was captured in the
- *      last 120 seconds.
+ *   2. No raw evidence for this account's connection arrived in the 120 s
+ *      window ending at (and excluding) that registration's own timestamp.
+ *   3. The registration itself is at least 120 s old by wall clock — a
+ *      message already in flight before the `PUT` can still land a moment
+ *      after it succeeds, so a same-instant retry must not race that
+ *      straggler by trusting a registration that just happened.
  *
  * Caveat honestly recorded here, not only in the report: `RawExternalRecord`
- * does not yet carry a field naming which ingress seam captured it (the
- * legacy `/api/agent/line-webhook` route and the native
+ * does not carry a field naming which ingress seam captured it (the legacy
+ * `/api/agent/line-webhook` route and the native
  * `/api/line-oa/accounts/{id}/webhook` route write through the identical
- * recorder). So condition 2 is "no evidence at all in the window", which is
- * strictly more cautious than "no *legacy* evidence" — it also counts our own
- * native route's traffic. That is fail-closed rather than fail-open: it can
- * make a genuinely quiesced account wait out a 120 s window it did not need
- * to, but it can never let an active legacy sender through undetected.
+ * recorder). Fact 2 is therefore "no evidence at all in the pre-registration
+ * window", stricter than "no *legacy* evidence" there — but bounded to
+ * before the cutover, so it no longer double-counts the account's own later
+ * success as a reason to refuse it.
  */
 async function defaultDeriveLegacyQuiescence(row, { db, env = process.env, now = () => new Date() } = {}) {
   const webhookState = parseWebhookState(row.webhookStateJson)
@@ -165,16 +187,38 @@ async function defaultDeriveLegacyQuiescence(row, { db, env = process.env, now =
   const endpointMatches = Boolean(webhookState) && webhookState.active === true
     && normalizeEndpoint(webhookState.endpoint) === normalizeEndpoint(expectedEndpoint)
 
-  const cutoff = new Date(now().getTime() - 120_000)
-  const recent = await db.rawExternalRecord.findFirst({
-    where: { connectionId: row.integrationConnectionId, createdAt: { gt: cutoff } },
+  if (!endpointMatches) {
+    // No successful registration to anchor a cutover on: any evidence at all
+    // for this connection is unexplained by this account's own traffic, so
+    // the most recent is reported as the last legacy receipt time.
+    const recent = await db.rawExternalRecord.findFirst({
+      where: { connectionId: row.integrationConnectionId },
+      orderBy: { createdAt: 'desc' },
+      select: { createdAt: true },
+    })
+    return { quiesced: false, lastLegacyReceiptAt: recent?.createdAt ? recent.createdAt.toISOString() : null }
+  }
+
+  const registeredAt = new Date(webhookState.lastTestAt)
+  if (!Number.isFinite(registeredAt.getTime())) {
+    // A malformed timestamp proves nothing (fail closed).
+    return { quiesced: false, lastLegacyReceiptAt: null }
+  }
+
+  const windowStart = new Date(registeredAt.getTime() - 120_000)
+  const priorEvidence = await db.rawExternalRecord.findFirst({
+    where: { connectionId: row.integrationConnectionId, createdAt: { gte: windowStart, lt: registeredAt } },
     orderBy: { createdAt: 'desc' },
     select: { createdAt: true },
   })
-  const lastLegacyReceiptAt = recent?.createdAt ? recent.createdAt.toISOString() : null
+  if (priorEvidence) return { quiesced: false, lastLegacyReceiptAt: priorEvidence.createdAt.toISOString() }
 
-  if (!endpointMatches) return { quiesced: false, lastLegacyReceiptAt }
-  if (recent) return { quiesced: false, lastLegacyReceiptAt }
+  if (now().getTime() - registeredAt.getTime() < 120_000) {
+    // The registration has not yet stood for a full quiescence window — no
+    // evidence names a specific straggler, so none is reported.
+    return { quiesced: false, lastLegacyReceiptAt: null }
+  }
+
   return { quiesced: true, lastLegacyReceiptAt: null }
 }
 
@@ -516,7 +560,7 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
           payload.legacyQuiescenceSource = 'TYPED_CONFIRMATION'
         } else {
           const deriveQuiescence = ports?.deriveLegacyQuiescence ?? defaultDeriveLegacyQuiescence
-          const quiescence = await deriveQuiescence(row, { db: tx })
+          const quiescence = await deriveQuiescence(row, { db: tx, now: ports?.now ?? (() => new Date()) })
           if (!quiescence.quiesced) throw failure(409, 'LINE_LEGACY_TRANSPORT_ACTIVE', { lastLegacyReceiptAt: quiescence.lastLegacyReceiptAt })
           payload.legacyQuiescenceSource = 'DERIVED'
           payload.lastLegacyReceiptAt = quiescence.lastLegacyReceiptAt

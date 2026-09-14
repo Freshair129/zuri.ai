@@ -1,9 +1,15 @@
 // @req FR-228 — ENABLE_SERVER's legacy handoff is typed for a mount-backed
 //   credential (unchanged) and derived for a vault-backed one: LINE's own
-//   webhook endpoint must equal this account's URL and no raw LINE evidence
-//   for the connection may have arrived in the last 120 seconds, or it
-//   refuses 409 LINE_LEGACY_TRANSPORT_ACTIVE naming the last receipt time.
-//   The epoch fence, the SENDING/UNKNOWN refusal and the version check are
+//   webhook endpoint must equal this account's URL and be active, no raw LINE
+//   evidence for the connection may have arrived in the 120 s window ending
+//   at (and excluding) that registration's own timestamp, and the
+//   registration itself must be at least 120 s old — or it refuses 409
+//   LINE_LEGACY_TRANSPORT_ACTIVE naming the last pre-cutover receipt time.
+//   Evidence timestamped at or after the registration is proof the cutover
+//   worked and never blocks (fixed 2026-09-14 on review: an earlier version
+//   anchored the window to "now" instead of to the registration, so a busy,
+//   already-cutover account's own traffic kept blocking it forever). The
+//   epoch fence, the SENDING/UNKNOWN refusal and the version check are
 //   unchanged (ADR-061 D3, D7).
 // @spec ADR-089 D5, D8; TC-TASK-ZAI-084
 // @tested tests/integration/fr228-line-oa-legacy-quiescence.test.js
@@ -72,16 +78,32 @@ async function mountBackedAccount(name) {
   }, { viewer: owner })
 }
 
-async function registerWebhookOk(account, { active = true } = {}) {
+/**
+ * Register the webhook, optionally pinning `webhookStateJson.lastTestAt` to a
+ * fixed instant (`registeredAt`) so a test can reason exactly about the 120 s
+ * window the derived-quiescence check anchors to that timestamp, rather than
+ * to real wall-clock time.
+ */
+async function registerWebhookOk(account, { active = true, registeredAt } = {}) {
   const endpoint = `https://zuri-fr228.ngrok.io/api/line-oa/accounts/${account.id}/webhook`
+  const testedAt = registeredAt ?? new Date()
   const lineAdmin = {
     setWebhookEndpoint: async () => ({ endpoint, status: 'SET' }),
     getWebhookEndpoint: async () => ({ endpoint, active }),
     testWebhookEndpoint: async () => (active
-      ? { success: true, code: 'LINE_OK', reason: 'OK', statusCode: 200, detail: null, testedAt: new Date().toISOString() }
+      ? { success: true, code: 'LINE_OK', reason: 'OK', statusCode: 200, detail: null, testedAt: testedAt.toISOString() }
       : { success: false, code: null, reason: null, statusCode: null, detail: null, testedAt: null }),
   }
-  return applyLineOaAccountAction(account.id, { action: 'REGISTER_WEBHOOK', version: account.version }, { viewer: owner, ports: { lineAdmin } })
+  return applyLineOaAccountAction(account.id, { action: 'REGISTER_WEBHOOK', version: account.version }, {
+    viewer: owner, ports: { lineAdmin, ...(registeredAt ? { now: () => registeredAt } : {}) },
+  })
+}
+
+/** ENABLE_SERVER with the derived-quiescence check evaluated at a fixed instant. */
+function enableServerAt(accountId, version, at) {
+  return applyLineOaAccountAction(accountId, { action: 'ENABLE_SERVER', version }, {
+    viewer: owner, ports: { ...validatePorts, now: () => at },
+  })
 }
 
 async function rawEvidence(connectionId, { createdAt } = {}) {
@@ -142,34 +164,86 @@ describe('FR-228 derived legacy quiescence', () => {
     expect(copy.message).toContain('transport เดิม')
   })
 
-  it('a vault-backed account whose webhook matches and has no recent evidence enables with no typed confirmation', async () => {
+  it('a vault-backed account whose webhook matches and has no pre-cutover evidence enables with no typed confirmation, once the registration itself is 120s old', async () => {
     const account = await vaultBackedAccount('Quiesced')
-    const registered = await registerWebhookOk(account)
+    const registeredAt = new Date('2026-09-14T10:00:00.000Z')
+    const registered = await registerWebhookOk(account, { registeredAt })
     expect(registered.health.webhook).toMatchObject({ active: true, lastTestReason: 'LINE_OK' })
 
     // No `legacyQuiesced` in the input at all — the point of this feature.
-    const enabled = await applyLineOaAccountAction(account.id, { action: 'ENABLE_SERVER', version: registered.version }, { viewer: owner, ports: validatePorts })
+    const enabled = await enableServerAt(account.id, registered.version, new Date(registeredAt.getTime() + 120_000))
     expect(enabled).toMatchObject({ serverEnabled: true, status: 'CONNECTED', effectiveStatus: 'LIVE' })
   })
 
-  it('recent raw evidence for the connection blocks activation and names the receipt time', async () => {
-    const account = await vaultBackedAccount('RecentEvidence')
-    const registered = await registerWebhookOk(account)
-    const receipt = await rawEvidence(account.integrationConnectionId)
+  // @req FR-228 — the blocker this suite exists to catch: once REGISTER_WEBHOOK's
+  // PUT succeeds, LINE only ever delivers to the newly-registered URL from that
+  // instant on, so evidence timestamped AFTER the registration is proof the
+  // cutover worked — a busy, already-cutover account — never a reason to refuse.
+  // The earlier version of this check looked at "any evidence in the last 120s"
+  // with no reference to the cutover, so a genuinely quiesced but busy account
+  // could never enable at all.
+  it('a busy account with native traffic arriving AFTER the registration still enables', async () => {
+    const account = await vaultBackedAccount('BusyAfterCutover')
+    const registeredAt = new Date('2026-09-14T10:00:00.000Z')
+    const registered = await registerWebhookOk(account, { registeredAt })
+    // Real, currently-messaging customer traffic, 5s after the cutover.
+    await rawEvidence(account.integrationConnectionId, { createdAt: new Date(registeredAt.getTime() + 5_000) })
 
-    const error = await applyLineOaAccountAction(account.id, { action: 'ENABLE_SERVER', version: registered.version }, { viewer: owner, ports: validatePorts }).catch(e => e)
+    const enabled = await enableServerAt(account.id, registered.version, new Date(registeredAt.getTime() + 120_000))
+    expect(enabled).toMatchObject({ serverEnabled: true, status: 'CONNECTED' })
+  })
+
+  it('evidence from BEFORE the registration, inside its 120s window, still blocks and names the receipt time', async () => {
+    const account = await vaultBackedAccount('PreCutoverEvidence')
+    const registeredAt = new Date('2026-09-14T10:00:00.000Z')
+    // A straggler from whatever owned the webhook before this cutover, 5s prior.
+    const receipt = await rawEvidence(account.integrationConnectionId, { createdAt: new Date(registeredAt.getTime() - 5_000) })
+    const registered = await registerWebhookOk(account, { registeredAt })
+
+    const error = await enableServerAt(account.id, registered.version, new Date(registeredAt.getTime() + 120_000)).catch(e => e)
     expect(error).toMatchObject({ status: 409, message: 'LINE_LEGACY_TRANSPORT_ACTIVE' })
     expect(new Date(error.lastLegacyReceiptAt).getTime()).toBe(new Date(receipt.createdAt).getTime())
     expect((await prisma.lineOaAccount.findUnique({ where: { id: account.id } })).serverEnabled).toBe(false)
   })
 
-  it('evidence older than 120 seconds no longer blocks activation', async () => {
-    const account = await vaultBackedAccount('StaleEvidence')
-    const registered = await registerWebhookOk(account)
-    await rawEvidence(account.integrationConnectionId, { createdAt: new Date(Date.now() - 121_000) })
+  it('evidence from more than 120s before the registration no longer blocks activation', async () => {
+    const account = await vaultBackedAccount('StalePreCutoverEvidence')
+    const registeredAt = new Date('2026-09-14T10:00:00.000Z')
+    await rawEvidence(account.integrationConnectionId, { createdAt: new Date(registeredAt.getTime() - 121_000) })
+    const registered = await registerWebhookOk(account, { registeredAt })
 
-    const enabled = await applyLineOaAccountAction(account.id, { action: 'ENABLE_SERVER', version: registered.version }, { viewer: owner, ports: validatePorts })
+    const enabled = await enableServerAt(account.id, registered.version, new Date(registeredAt.getTime() + 120_000))
     expect(enabled).toMatchObject({ serverEnabled: true, status: 'CONNECTED' })
+  })
+
+  it('the 120s pre-registration window is evaluated at both boundaries', async () => {
+    const registeredAt = new Date('2026-09-14T10:00:00.000Z')
+    const evalAt = new Date(registeredAt.getTime() + 120_000)
+
+    // Exactly at the window start (registeredAt - 120000ms, inclusive): blocks.
+    const atStart = await vaultBackedAccount('BoundaryWindowStart')
+    await rawEvidence(atStart.integrationConnectionId, { createdAt: new Date(registeredAt.getTime() - 120_000) })
+    const registeredStart = await registerWebhookOk(atStart, { registeredAt })
+    await expect(enableServerAt(atStart.id, registeredStart.version, evalAt))
+      .rejects.toMatchObject({ status: 409, message: 'LINE_LEGACY_TRANSPORT_ACTIVE' })
+
+    // Exactly at the registration instant itself: proof of success, not a
+    // straggler — never blocks.
+    const atRegistration = await vaultBackedAccount('BoundaryAtRegistration')
+    await rawEvidence(atRegistration.integrationConnectionId, { createdAt: new Date(registeredAt.getTime()) })
+    const registeredAtBoundary = await registerWebhookOk(atRegistration, { registeredAt })
+    const enabled = await enableServerAt(atRegistration.id, registeredAtBoundary.version, evalAt)
+    expect(enabled).toMatchObject({ serverEnabled: true, status: 'CONNECTED' })
+  })
+
+  it('a registration that has not yet stood for a full 120s refuses even with no evidence at all', async () => {
+    const account = await vaultBackedAccount('TooSoonAfterRegistration')
+    const registeredAt = new Date('2026-09-14T10:00:00.000Z')
+    const registered = await registerWebhookOk(account, { registeredAt })
+
+    // 119s after registration — one second short of the cooldown.
+    const error = await enableServerAt(account.id, registered.version, new Date(registeredAt.getTime() + 119_000)).catch(e => e)
+    expect(error).toMatchObject({ status: 409, message: 'LINE_LEGACY_TRANSPORT_ACTIVE', lastLegacyReceiptAt: null })
   })
 
   it('a webhook that is set but reported inactive still refuses activation', async () => {
@@ -183,8 +257,12 @@ describe('FR-228 derived legacy quiescence', () => {
 
   it('the epoch fence, the SENDING/UNKNOWN refusal and the version check are unchanged for a vault-backed account', async () => {
     const account = await vaultBackedAccount('EpochFence')
-    const registered = await registerWebhookOk(account)
+    const registeredAt = new Date('2026-09-14T10:00:00.000Z')
+    const registered = await registerWebhookOk(account, { registeredAt })
+    const evalAt = new Date(registeredAt.getTime() + 120_000)
 
+    // The version check happens before the quiescence derivation is even
+    // reached, so it needs no `now` override to prove it is unchanged.
     await expect(applyLineOaAccountAction(account.id, { action: 'ENABLE_SERVER', version: registered.version - 1 }, { viewer: owner, ports: validatePorts }))
       .rejects.toMatchObject({ status: 409, message: 'LINE_OA_ACCOUNT_VERSION_CONFLICT' })
 
@@ -201,11 +279,13 @@ describe('FR-228 derived legacy quiescence', () => {
         status: 'SENDING', expiresAt: new Date(Date.now() + 60000), correlationId: `fr228-job-${randomBytes(3).toString('hex')}`,
       },
     })
-    await expect(applyLineOaAccountAction(account.id, { action: 'ENABLE_SERVER', version: registered.version }, { viewer: owner, ports: validatePorts }))
+    // Quiescence passes (evaluated 120s after this account's own registration);
+    // the SENDING job still refuses, unaffected by this feature.
+    await expect(enableServerAt(account.id, registered.version, evalAt))
       .rejects.toMatchObject({ status: 409, message: 'LINE_OA_DELIVERY_RECONCILIATION_REQUIRED' })
 
     await prisma.lineConversationJob.update({ where: { id: job.id }, data: { status: 'QUEUED', sealedReplyToken: 'sealed' } })
-    const enabled = await applyLineOaAccountAction(account.id, { action: 'ENABLE_SERVER', version: registered.version }, { viewer: owner, ports: validatePorts })
+    const enabled = await enableServerAt(account.id, registered.version, evalAt)
     expect(enabled.transportEpoch).toBe(registered.transportEpoch + 1)
     expect((await prisma.lineConversationJob.findUnique({ where: { id: job.id } })).status).toBe('CANCELLED')
   })
