@@ -4,6 +4,7 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 import { hasPermission, LINE_OA_PUBLISH_PERMISSION } from '@/modules/identity/rbac'
+import { businessHasKnowledgeCandidatesEnabled } from '@/lib/business-knowledge-candidates'
 import { getConversationThread } from '@/modules/crm/conversation-read-model'
 import { readConversationConsentStatus } from '@/modules/crm/conversation-consent-reader'
 import { zKnowledgeCandidateDecision } from '@/lib/validation/enums'
@@ -30,8 +31,15 @@ import { admitKnowledge as defaultAdmitKnowledge } from '../knowledge-admission-
 //   2026-09-14: owner decision, FR-187 would deny an ordinary approved FAQ
 //   containing "ลูกค้า" or "ใบเสนอราคา"). Stage 5 classify re-runs the same
 //   function on the same admitted content (genesisrag17-executor.js).
+//   Drafting is additionally gated per-Business by
+//   `Business.knowledgeCandidatesEnabled` (TASK-ZAI-099: off by default,
+//   turned on per Business only on the owner's instruction), checked in
+//   `draftKnowledgeCandidate` before any authority check — never in
+//   update/decide, which stay reachable for a candidate already drafted even
+//   if the Business's flag is later turned off. Written only by
+//   `business-knowledge-candidates-service.js`.
 // @spec ADR-090 D6, D8; ADR-072; SEC-032; BR-002; SEC-001
-// @tested tests/integration/fr236-knowledge-candidate.test.js, tests/unit/knowledge-candidate-migration.test.js, tests/unit/conversation-consent-reader.test.js, tests/integration/fr236-stage5-zero-pii-agreement.test.js
+// @tested tests/integration/fr236-knowledge-candidate.test.js, tests/unit/knowledge-candidate-migration.test.js, tests/unit/conversation-consent-reader.test.js, tests/integration/fr236-stage5-zero-pii-agreement.test.js, tests/integration/fr236-knowledge-candidates-business-toggle.test.js, tests/unit/business-knowledge-candidates.test.js
 
 const ENTITY = 'KNOWLEDGE_CANDIDATE'
 const GRANTED = 'GRANTED'
@@ -95,6 +103,23 @@ function assertMayReview(viewer, businessId) {
   }
 }
 
+/**
+ * FR-236 per-Business gate (ADR-090 D6, revised 2026-09-14: owner decision —
+ * candidates are off by default per Business). Checked first, before
+ * `assertMayReview`, and with no dependency on it: an OWNER of a Business
+ * without the flag gets exactly the same refusal an ordinary member would,
+ * never a different one that would leak whether they'd otherwise have had
+ * review authority. A Business that cannot be loaded at all fails the same
+ * way a disabled one does — this function answers only "may a candidate be
+ * drafted for this businessId", never "does this Business exist".
+ */
+async function assertKnowledgeCandidatesEnabled(db, businessId) {
+  const business = await db.business.findUnique({ where: { id: businessId }, select: { knowledgeCandidatesEnabled: true } })
+  if (!businessHasKnowledgeCandidatesEnabled(business)) {
+    throw failure(403, 'Knowledge candidates are not enabled for this Business', 'KNOWLEDGE_CANDIDATES_DISABLED')
+  }
+}
+
 async function loadCandidate(db, id) {
   const candidateId = typeof id === 'string' ? id.trim() : ''
   if (!candidateId) throw failure(404, 'Knowledge candidate not found', 'KNOWLEDGE_CANDIDATE_NOT_FOUND')
@@ -113,6 +138,10 @@ async function loadCandidate(db, id) {
  */
 export async function draftKnowledgeCandidate(input, { viewer, db = prisma, now = new Date() } = {}) {
   const data = zDraftKnowledgeCandidate.parse(input)
+  // FR-236 per-Business gate, checked before any authority check (fail
+  // closed: "no flag" and "no authority" must never be distinguishable from
+  // the caller's role) — see assertKnowledgeCandidatesEnabled above.
+  await assertKnowledgeCandidatesEnabled(db, data.businessId)
   assertMayReview(viewer, data.businessId)
 
   // The consent-gated CRM read projection (ADR-090 Consequences): crm owns

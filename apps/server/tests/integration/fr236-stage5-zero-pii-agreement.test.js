@@ -71,6 +71,10 @@ describe('FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, re
     portfolio = await createPortfolio({ name: `KC5 portfolio ${suffix}`, code: `KC5-PF-${suffix}` })
     tenant = await createTenant({ portfolioId: portfolio.id, name: `KC5 tenant ${suffix}`, code: `KC5-TN-${suffix}` })
     business = await createBusiness({ tenantId: tenant.id, name: `KC5 business ${suffix}`, code: `KC5-BU-${suffix}` })
+    // @req FR-236 — candidates are off by default per Business (TASK-ZAI-099);
+    // this suite is not testing that gate, so it enables it directly rather
+    // than through the audited toggle service.
+    business = await prisma.business.update({ where: { id: business.id }, data: { knowledgeCandidatesEnabled: true } })
     operator = makeOperatorViewer({ visibleBusinessIds: [], ownedBusinessIds: [] })
     owner = makeViewer({ role: 'OWNER', visibleBusinessIds: [business.id], ownedBusinessIds: [business.id], visibleDomains: [...VIEWER_DOMAINS] })
     const provider = await prisma.integrationProvider.create({ data: { code: `KC5-${suffix}`, name: 'Knowledge candidate Stage 5 test source', status: 'ACTIVE' } })

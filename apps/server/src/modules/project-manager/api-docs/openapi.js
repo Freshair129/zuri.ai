@@ -117,6 +117,10 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']],
   // @req FR-169 — the only writer of Business.capabilitiesJson; PATCH only.
   ['/api/businesses/{id}/capabilities', ['PATCH']],
+  // @req FR-236 — the only writer of Business.knowledgeCandidatesEnabled
+  // (ADR-090 D6, TASK-ZAI-099); PATCH only, OWNER-scoped, same shape as the
+  // capability toggle above.
+  ['/api/businesses/{id}/knowledge-candidates-toggle', ['PATCH']],
   ['/api/containers', ['POST']], ['/api/containers/{id}', ['PATCH']],
   ['/api/crm/conversations', ['GET']], ['/api/crm/conversations/{id}', ['GET']],
   // @req FR-233 — the third, read-only reader: message search and per-account
