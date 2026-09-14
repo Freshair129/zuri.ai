@@ -16,6 +16,9 @@ import {
   zConversationAnalysisState,
   zBranchKind,
   zEmploymentType,
+  zMessageContentKind,
+  zMessageAttachmentKind,
+  zConversationEventKind,
 } from './enums'
 
 const zDate = z.coerce.date()
@@ -85,6 +88,8 @@ export const zResolveLineIdentityInput = z.object({
 })
 
 // FR-023 — one inbound LINE message → resolve identity → customer → conversation → message.
+// FR-229 — contentKind/attachment are additive: a plain text message never sets
+// them and keeps reading as TEXT with no attachment, exactly as before this change.
 export const zIngestLineMessageInput = z.object({
   tenantId: z.string().min(1),
   businessId: z.string().optional(),
@@ -95,8 +100,66 @@ export const zIngestLineMessageInput = z.object({
   text: z.string(),
   externalMessageId: z.string().optional(),
   direction: z.enum(['INBOUND', 'OUTBOUND']).default('INBOUND'),
+  contentKind: zMessageContentKind.default('TEXT'),
+  attachment: z.object({
+    kind: zMessageAttachmentKind,
+    providerContentId: z.string().min(1),
+  }).strict().optional(),
   // NFR-017 — carried through to the audit row so a webhook delivery can be joined to
   // the rows it created. Shape already validated by resolveCorrelationId at the edge.
+  correlationId: z.string().min(8).max(64).optional(),
+})
+
+// FR-229 — a non-message LINE webhook event with a resolvable individual identity
+// (follow, unfollow, postback, unsend all carry event.source.userId): the same
+// identity → customer → conversation resolution as an inbound message, but writing
+// a ConversationEvent instead of a Message. `payload` is bounded and id-only —
+// never free text — by construction of the caller (line-conversation-jobs.js).
+export const zIngestLineConversationEventInput = z.object({
+  tenantId: z.string().min(1),
+  businessId: z.string().optional(),
+  lineUserId: z.string().min(1),
+  channelAccountId: z.string().min(1).optional(),
+  displayName: z.string().optional(),
+  threadId: z.string().min(1),
+  kind: zConversationEventKind,
+  externalEventId: z.string().min(1),
+  payload: z.record(z.union([z.string(), z.number(), z.boolean(), z.array(z.string())])).default({}),
+  occurredAt: z.coerce.date().optional(),
+  correlationId: z.string().min(8).max(64).optional(),
+})
+
+// FR-229 — join/leave/memberJoined/memberLeft carry no individual identity in
+// LINE's own payload (a group/room "join" has no source.userId), so these attach
+// only to a conversation that already exists for the thread; when none does, the
+// event is skipped rather than fabricating a Customer with no real Person behind
+// it (see the crm charter's BR-002 discipline; documented as a scope decision).
+export const zRecordExistingConversationEventInput = z.object({
+  tenantId: z.string().min(1),
+  businessId: z.string().optional(),
+  channelAccountId: z.string().min(1).optional(),
+  threadId: z.string().min(1),
+  kind: zConversationEventKind,
+  externalEventId: z.string().min(1),
+  payload: z.record(z.union([z.string(), z.number(), z.boolean(), z.array(z.string())])).default({}),
+  occurredAt: z.coerce.date().optional(),
+  correlationId: z.string().min(8).max(64).optional(),
+})
+
+// FR-229 — an `unsend` event: unlike follow/unfollow/postback, this mints no
+// identity or Customer. It attaches only to a conversation that already exists
+// for the thread (same rule as join/leave), and when it does, tombstones the
+// referenced Message body and MessageAttachment when the named
+// externalMessageId is one this Business actually admitted. Recording the event
+// never fails when the referenced message is unknown (ADR-091 proof 4).
+export const zIngestLineUnsendEventInput = z.object({
+  tenantId: z.string().min(1),
+  businessId: z.string().optional(),
+  channelAccountId: z.string().min(1).optional(),
+  threadId: z.string().min(1),
+  externalEventId: z.string().min(1),
+  unsentExternalMessageId: z.string().min(1).optional(),
+  occurredAt: z.coerce.date().optional(),
   correlationId: z.string().min(8).max(64).optional(),
 })
 
