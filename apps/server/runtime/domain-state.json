@@ -184,6 +184,7 @@
           "apps/server/tests/integration/crm-conversation-analysis.test.js",
           "apps/server/tests/integration/fr075-restore-authorization.test.js",
           "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+          "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
           "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
           "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
           "apps/server/tests/integration/genesisrag17-parser-2.test.js",
@@ -196,6 +197,7 @@
           "apps/server/tests/integration/smartgift-catalog-admission.test.js",
           "apps/server/tests/unit/asset-management-navigation.test.js",
           "apps/server/tests/unit/business-capability-navigation.test.js",
+          "apps/server/tests/unit/business-knowledge-candidates.test.js",
           "apps/server/tests/unit/conversation-consent-reader.test.js",
           "apps/server/tests/unit/crm-group-navigation.test.js",
           "apps/server/tests/unit/domain-navigation.test.js",
@@ -277,6 +279,7 @@
           "apps/server/tests/integration/crm-conversation-analysis.test.js",
           "apps/server/tests/integration/fr075-restore-authorization.test.js",
           "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+          "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
           "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
           "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
           "apps/server/tests/integration/genesisrag17-parser-2.test.js",
@@ -289,6 +292,7 @@
           "apps/server/tests/integration/smartgift-catalog-admission.test.js",
           "apps/server/tests/unit/asset-management-navigation.test.js",
           "apps/server/tests/unit/business-capability-navigation.test.js",
+          "apps/server/tests/unit/business-knowledge-candidates.test.js",
           "apps/server/tests/unit/conversation-consent-reader.test.js",
           "apps/server/tests/unit/crm-group-navigation.test.js",
           "apps/server/tests/unit/domain-navigation.test.js",
@@ -414,6 +418,7 @@
           "apps/server/tests/integration/crm-conversation-analysis.test.js",
           "apps/server/tests/integration/fr075-restore-authorization.test.js",
           "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+          "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
           "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
           "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
           "apps/server/tests/integration/genesisrag17-parser-2.test.js",
@@ -426,6 +431,7 @@
           "apps/server/tests/integration/smartgift-catalog-admission.test.js",
           "apps/server/tests/unit/asset-management-navigation.test.js",
           "apps/server/tests/unit/business-capability-navigation.test.js",
+          "apps/server/tests/unit/business-knowledge-candidates.test.js",
           "apps/server/tests/unit/conversation-consent-reader.test.js",
           "apps/server/tests/unit/crm-group-navigation.test.js",
           "apps/server/tests/unit/domain-navigation.test.js",
@@ -591,10 +597,12 @@
         "check": "requirements",
         "summary": "FR-236 is partial",
         "evidence": [
+          "apps/server/src/app/api/businesses/[id]/knowledge-candidates-toggle/route.js",
           "apps/server/src/app/api/knowledge/candidates/[id]/decision/route.js",
           "apps/server/src/app/api/knowledge/candidates/[id]/route.js",
           "apps/server/src/app/api/knowledge/candidates/route.js",
           "apps/server/src/config/domains.js",
+          "apps/server/src/modules/business/application/business-knowledge-candidates-service.js",
           "apps/server/src/modules/project-manager/api-docs/openapi.js",
           "apps/server/src/modules/project-manager/application/backup-service.js",
           "apps/server/tests/e2e/fr041-business-first.spec.js",
@@ -602,6 +610,7 @@
           "apps/server/tests/integration/crm-conversation-analysis.test.js",
           "apps/server/tests/integration/fr075-restore-authorization.test.js",
           "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+          "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
           "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
           "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
           "apps/server/tests/integration/genesisrag17-parser-2.test.js",
@@ -614,6 +623,7 @@
           "apps/server/tests/integration/smartgift-catalog-admission.test.js",
           "apps/server/tests/unit/asset-management-navigation.test.js",
           "apps/server/tests/unit/business-capability-navigation.test.js",
+          "apps/server/tests/unit/business-knowledge-candidates.test.js",
           "apps/server/tests/unit/conversation-consent-reader.test.js",
           "apps/server/tests/unit/crm-group-navigation.test.js",
           "apps/server/tests/unit/domain-navigation.test.js",
@@ -991,7 +1001,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 279,
+            "openApiPaths": 280,
             "missingFromOpenApi": 0
           }
         },
@@ -1320,7 +1330,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 279,
+            "openApiPaths": 280,
             "missingFromOpenApi": 0
           }
         },
@@ -1517,7 +1527,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 279,
+            "openApiPaths": 280,
             "missingFromOpenApi": 0
           }
         },
@@ -1773,7 +1783,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 32,
+          "testCount": 34,
           "evidence": [
             "apps/server/src/modules/crm/conversation-consent-reader.js",
             "apps/server/tests/e2e/fr041-business-first.spec.js",
@@ -1781,6 +1791,7 @@
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
             "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/genesisrag17-parser-2.test.js",
@@ -1793,6 +1804,7 @@
             "apps/server/tests/integration/smartgift-catalog-admission.test.js",
             "apps/server/tests/unit/asset-management-navigation.test.js",
             "apps/server/tests/unit/business-capability-navigation.test.js",
+            "apps/server/tests/unit/business-knowledge-candidates.test.js",
             "apps/server/tests/unit/conversation-consent-reader.test.js",
             "apps/server/tests/unit/crm-group-navigation.test.js",
             "apps/server/tests/unit/domain-navigation.test.js",
@@ -1932,6 +1944,7 @@
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
             "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/genesisrag17-parser-2.test.js",
@@ -1944,6 +1957,7 @@
             "apps/server/tests/integration/smartgift-catalog-admission.test.js",
             "apps/server/tests/unit/asset-management-navigation.test.js",
             "apps/server/tests/unit/business-capability-navigation.test.js",
+            "apps/server/tests/unit/business-knowledge-candidates.test.js",
             "apps/server/tests/unit/conversation-consent-reader.test.js",
             "apps/server/tests/unit/crm-group-navigation.test.js",
             "apps/server/tests/unit/domain-navigation.test.js",
@@ -2410,7 +2424,7 @@
           "details": {
             "routes": 27,
             "inventoried": 27,
-            "openApiPaths": 279,
+            "openApiPaths": 280,
             "missingFromOpenApi": 0
           }
         },
@@ -2859,7 +2873,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 32,
+          "testCount": 34,
           "evidence": [
             "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
             "apps/server/tests/e2e/fr041-business-first.spec.js",
@@ -2867,6 +2881,7 @@
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
             "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/genesisrag17-parser-2.test.js",
@@ -2879,6 +2894,7 @@
             "apps/server/tests/integration/smartgift-catalog-admission.test.js",
             "apps/server/tests/unit/asset-management-navigation.test.js",
             "apps/server/tests/unit/business-capability-navigation.test.js",
+            "apps/server/tests/unit/business-knowledge-candidates.test.js",
             "apps/server/tests/unit/conversation-consent-reader.test.js",
             "apps/server/tests/unit/crm-group-navigation.test.js",
             "apps/server/tests/unit/domain-navigation.test.js",
@@ -2920,7 +2936,7 @@
           "details": {
             "routes": 10,
             "inventoried": 10,
-            "openApiPaths": 279,
+            "openApiPaths": 280,
             "missingFromOpenApi": 0
           }
         },
@@ -3051,6 +3067,7 @@
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
             "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/genesisrag17-parser-2.test.js",
@@ -3063,6 +3080,7 @@
             "apps/server/tests/integration/smartgift-catalog-admission.test.js",
             "apps/server/tests/unit/asset-management-navigation.test.js",
             "apps/server/tests/unit/business-capability-navigation.test.js",
+            "apps/server/tests/unit/business-knowledge-candidates.test.js",
             "apps/server/tests/unit/conversation-consent-reader.test.js",
             "apps/server/tests/unit/crm-group-navigation.test.js",
             "apps/server/tests/unit/domain-navigation.test.js",
@@ -3323,7 +3341,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 279,
+            "openApiPaths": 280,
             "missingFromOpenApi": 0
           }
         },
@@ -3689,7 +3707,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 5,
-          "testCount": 32,
+          "testCount": 34,
           "evidence": [
             "apps/server/src/app/(pm)/knowledge/candidates/page.jsx",
             "apps/server/src/modules/knowledge/application/knowledge-candidate-service.js",
@@ -3701,6 +3719,7 @@
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
             "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/genesisrag17-parser-2.test.js",
@@ -3713,6 +3732,7 @@
             "apps/server/tests/integration/smartgift-catalog-admission.test.js",
             "apps/server/tests/unit/asset-management-navigation.test.js",
             "apps/server/tests/unit/business-capability-navigation.test.js",
+            "apps/server/tests/unit/business-knowledge-candidates.test.js",
             "apps/server/tests/unit/conversation-consent-reader.test.js",
             "apps/server/tests/unit/crm-group-navigation.test.js",
             "apps/server/tests/unit/domain-navigation.test.js",
@@ -3958,6 +3978,7 @@
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
             "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/genesisrag17-parser-2.test.js",
@@ -3970,6 +3991,7 @@
             "apps/server/tests/integration/smartgift-catalog-admission.test.js",
             "apps/server/tests/unit/asset-management-navigation.test.js",
             "apps/server/tests/unit/business-capability-navigation.test.js",
+            "apps/server/tests/unit/business-knowledge-candidates.test.js",
             "apps/server/tests/unit/conversation-consent-reader.test.js",
             "apps/server/tests/unit/crm-group-navigation.test.js",
             "apps/server/tests/unit/domain-navigation.test.js",
@@ -4282,7 +4304,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 279,
+            "openApiPaths": 280,
             "missingFromOpenApi": 0
           }
         },
@@ -4525,7 +4547,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 279,
+            "openApiPaths": 280,
             "missingFromOpenApi": 0
           }
         },
@@ -4692,7 +4714,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 279,
+            "openApiPaths": 280,
             "missingFromOpenApi": 0
           }
         },
@@ -4938,7 +4960,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 279,
+            "openApiPaths": 280,
             "missingFromOpenApi": 0
           }
         },
@@ -5119,7 +5141,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 279,
+            "openApiPaths": 280,
             "missingFromOpenApi": 0
           }
         },
@@ -6365,13 +6387,15 @@
           "title": "LINE FAQ knowledge candidates",
           "declared": "planned",
           "status": "partial",
-          "codeCount": 6,
-          "testCount": 32,
+          "codeCount": 8,
+          "testCount": 34,
           "evidence": [
+            "apps/server/src/app/api/businesses/[id]/knowledge-candidates-toggle/route.js",
             "apps/server/src/app/api/knowledge/candidates/[id]/decision/route.js",
             "apps/server/src/app/api/knowledge/candidates/[id]/route.js",
             "apps/server/src/app/api/knowledge/candidates/route.js",
             "apps/server/src/config/domains.js",
+            "apps/server/src/modules/business/application/business-knowledge-candidates-service.js",
             "apps/server/src/modules/project-manager/api-docs/openapi.js",
             "apps/server/src/modules/project-manager/application/backup-service.js",
             "apps/server/tests/e2e/fr041-business-first.spec.js",
@@ -6379,6 +6403,7 @@
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
             "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/genesisrag17-parser-2.test.js",
@@ -6391,6 +6416,7 @@
             "apps/server/tests/integration/smartgift-catalog-admission.test.js",
             "apps/server/tests/unit/asset-management-navigation.test.js",
             "apps/server/tests/unit/business-capability-navigation.test.js",
+            "apps/server/tests/unit/business-knowledge-candidates.test.js",
             "apps/server/tests/unit/conversation-consent-reader.test.js",
             "apps/server/tests/unit/crm-group-navigation.test.js",
             "apps/server/tests/unit/domain-navigation.test.js",
@@ -6455,9 +6481,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 136,
-            "inventoried": 136,
-            "openApiPaths": 279,
+            "routes": 137,
+            "inventoried": 137,
+            "openApiPaths": 280,
             "missingFromOpenApi": 0
           }
         },
@@ -6523,8 +6549,8 @@
             }
           ],
           "details": {
-            "mutations": 106,
-            "guardedMutations": 104,
+            "mutations": 107,
+            "guardedMutations": 105,
             "reads": 66,
             "unguardedReads": 2
           }
@@ -6639,10 +6665,12 @@
           "check": "requirements",
           "summary": "FR-236 is partial",
           "evidence": [
+            "apps/server/src/app/api/businesses/[id]/knowledge-candidates-toggle/route.js",
             "apps/server/src/app/api/knowledge/candidates/[id]/decision/route.js",
             "apps/server/src/app/api/knowledge/candidates/[id]/route.js",
             "apps/server/src/app/api/knowledge/candidates/route.js",
             "apps/server/src/config/domains.js",
+            "apps/server/src/modules/business/application/business-knowledge-candidates-service.js",
             "apps/server/src/modules/project-manager/api-docs/openapi.js",
             "apps/server/src/modules/project-manager/application/backup-service.js",
             "apps/server/tests/e2e/fr041-business-first.spec.js",
@@ -6650,6 +6678,7 @@
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
             "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/genesisrag17-parser-2.test.js",
@@ -6662,6 +6691,7 @@
             "apps/server/tests/integration/smartgift-catalog-admission.test.js",
             "apps/server/tests/unit/asset-management-navigation.test.js",
             "apps/server/tests/unit/business-capability-navigation.test.js",
+            "apps/server/tests/unit/business-knowledge-candidates.test.js",
             "apps/server/tests/unit/conversation-consent-reader.test.js",
             "apps/server/tests/unit/crm-group-navigation.test.js",
             "apps/server/tests/unit/domain-navigation.test.js",
@@ -6681,8 +6711,8 @@
         }
       ],
       "details": {
-        "routes": 181,
-        "apiRoutes": 136,
+        "routes": 182,
+        "apiRoutes": 137,
         "pageRoutes": 45,
         "ownedModels": 31,
         "featureNotes": 33
@@ -10826,8 +10856,8 @@
           "title": "LINE FAQ knowledge candidates",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 13,
-          "testCount": 32
+          "codeCount": 16,
+          "testCount": 34
         },
         {
           "id": "FR-237",
@@ -10849,16 +10879,19 @@
       "evidence": [
         "apps/server/src/app/(pm)/knowledge/candidates/page.jsx",
         "apps/server/src/app/(pm)/knowledge/gap-report/page.jsx",
+        "apps/server/src/app/api/businesses/[id]/knowledge-candidates-toggle/route.js",
         "apps/server/src/app/api/knowledge/candidates/[id]/decision/route.js",
         "apps/server/src/app/api/knowledge/candidates/[id]/route.js",
         "apps/server/src/app/api/knowledge/candidates/route.js",
         "apps/server/src/app/api/knowledge/gap-report/route.js",
         "apps/server/src/config/domains.js",
+        "apps/server/src/lib/business-knowledge-candidates.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/agent/grounded-business-answer.js",
         "apps/server/src/modules/agent/line-execution-trace.js",
         "apps/server/src/modules/agent/line-knowledge-grounding.js",
         "apps/server/src/modules/agent/server-line-answer.js",
+        "apps/server/src/modules/business/application/business-knowledge-candidates-service.js",
         "apps/server/src/modules/crm/conversation-consent-reader.js",
         "apps/server/src/modules/knowledge/application/knowledge-candidate-service.js",
         "apps/server/src/modules/knowledge/application/knowledge-gap-report-service.js",
@@ -10892,6 +10925,7 @@
         "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
         "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
         "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+        "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
         "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
         "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
         "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
@@ -10913,6 +10947,7 @@
         "apps/server/tests/unit/activation-readiness-integration.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/business-knowledge-candidates.test.js",
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/conversation-consent-reader.test.js",

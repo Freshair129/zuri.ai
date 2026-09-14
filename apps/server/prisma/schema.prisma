@@ -205,6 +205,17 @@ model Business {
   // keys default per-capability in code, never here, so adding a new
   // capability is never a migration.
   capabilitiesJson String   @default("{}")
+  // @req FR-236 — whether this Business's viewers may draft LINE FAQ
+  // knowledge candidates at all (ADR-090 D6). Deliberately its own column, not
+  // a new `capabilitiesJson` key: capabilitiesJson says whether a module
+  // APPLIES to this Business (default ON — every existing Business keeps what
+  // it already had), while this says whether reviewed chat content may be
+  // ADMITTED into the knowledge corpus — a content-safety gate, not a module
+  // gate, so it defaults OFF for every Business, including ones that already
+  // use `knowledge`. Written only by
+  // `business-knowledge-candidates-service.js` (OWNER-only, versioned CAS,
+  // audited); read by `draftKnowledgeCandidate` before any authority check.
+  knowledgeCandidatesEnabled Boolean @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   version          Int      @default(1)

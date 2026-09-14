@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.74.0b |
+| **Version** | 1.75.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-09-14 |
+| **Last Updated** | 2026-09-15 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=279 -->
+<!-- api-spec-counts: route_handlers=280 -->
 
 ### Programme usage reports (FR-218, 2026-09-13)
 
@@ -120,6 +120,7 @@ Business differs from the Goal's (FR-043 isolation, extended to writes).
 | POST | `/api/business/goals/[id]/projects` | `{projectId}` | serialized Goal (with the link); re-linking an already-linked Project is `409` |
 | DELETE | `/api/business/goals/[id]/projects/[projectId]` | — | serialized Goal (without the link) |
 | PATCH | `/api/businesses/[id]/capabilities` | `{version, capability: 'physicalStock', enabled}` — OWNER-scoped, expected-version CAS (FR-169) | `{id, version, capabilities: {physicalStock: boolean}}`; `409` on a stale `version`, `404` on an unknown Business, `400` if the viewer does not own it |
+| PATCH | `/api/businesses/[id]/knowledge-candidates-toggle` | `{version, enabled, requestedBy, reason?}` — OWNER-scoped, expected-version CAS (FR-236, ADR-090 D6, TASK-ZAI-099); `requestedBy` records who asked, distinct from the acting principal | `{id, version, knowledgeCandidatesEnabled: boolean}`; `409` on a stale `version`, `404` on an unknown Business, `400` if the viewer does not own it or omits `requestedBy` |
 
 Isolation failures (`Roadmap does not belong to Business`, `Horizon does not
 belong to Business`, `Project does not belong to Business`, a mismatched
@@ -812,6 +813,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.75.0b | 2026-09-15 | candidate | FR-236 (ADR-090 D6, TASK-ZAI-099): one handler file, `PATCH /api/businesses/[id]/knowledge-candidates-toggle` — the only writer of `Business.knowledgeCandidatesEnabled`, gating LINE FAQ knowledge candidate drafting per Business (off by default). Same shape as the `capabilities` route (FR-169). Route handler count 279 -> 280 | working-tree | Claude Sonnet 5 |
 | 1.74.0b | 2026-09-14 | candidate | FR-237 (ADR-090 D7): one handler file, `GET /api/knowledge/gap-report` — aggregates `EVIDENCE_SELECTED` trace events with `reason=NO_EVIDENCE` per Business, returning counts, product locators and last-seen times only, never the question text. Route handler count 276 -> 277 | working-tree | Claude Sonnet 5 |
 | 1.73.0b | 2026-09-14 | candidate | FR-236 (ADR-090 D6): four handler files under `/api/knowledge/candidates` — list/draft, read/edit one, and the audited APPROVE/REJECT decision that admits an approved candidate through the existing ADR-072 admission service. Route handler count 273 -> 276 | working-tree | Claude Sonnet 5 |
 | 1.67.0b | 2026-09-13 | candidate | FR-208 / FR-209 (ADR-084 catalogue intake): six handler files under `/api/inventory/catalog-intakes` — the list, preview, commit, one intake (GET + CANCEL), the Business-specific workbook template and the workbook upload preview. Route handler count 257 -> 263 | working-tree | Claude Opus 5 |

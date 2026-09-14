@@ -196,8 +196,11 @@ describe('OpenAPI document', () => {
       // 276 + 2 = 278; 373 + 2 = 375.
       // FR-237 (ADR-090 D7) adds one path and one operation: the gap report
       // (GET). 278 + 1 = 279; 375 + 1 = 376.
-      pathCount: 279,
-      operationCount: 376,
+      // FR-236's per-Business toggle (ADR-090 D6, TASK-ZAI-099) adds one path
+      // and one operation: the knowledge-candidates-toggle route (PATCH
+      // only). 279 + 1 = 280; 376 + 1 = 377.
+      pathCount: 280,
+      operationCount: 377,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

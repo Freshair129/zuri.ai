@@ -1,8 +1,8 @@
 ---
 domain: knowledge
-version: "1.7.0b"
+version: "1.7.1"
 status: beta
-last_update: "2026-09-14T22:00:00+07:00,Claude Sonnet 5"
+last_update: "2026-09-15T00:30:00+07:00,Claude Sonnet 5"
 module: src/modules/knowledge
 owns_routes:
   - src/app/(pm)/knowledge/**
@@ -70,7 +70,18 @@ external systems with their own repositories and are never zuri-ai domains
   immutable `LINE_FAQ_CANDIDATE` TEXT source through the **same** ADR-072 admission
   service before Stage 1 — never a second write path into the corpus. No raw
   transcript, MSP episode or automatic promotion, and no Tier 1
-  `gks_knowledge_promote`.
+  `gks_knowledge_promote`. Drafting is further gated per Business by
+  `Business.knowledgeCandidatesEnabled` (TASK-ZAI-099), off by default for
+  every Business and turned on only through
+  `business-knowledge-candidates-service.js` (project-manager domain's
+  `business` module — same cross-domain shape as `capabilitiesJson`/FR-169:
+  this domain owns the model that answers "should this candidate be
+  admitted", `business` owns the Business row and the field's write path).
+  `draftKnowledgeCandidate` checks it before any authority check, so a
+  Business with the flag off refuses identically regardless of the caller's
+  role; `updateKnowledgeCandidate`/`decideKnowledgeCandidate` are unaffected,
+  so a candidate already drafted stays reviewable if the flag is later
+  turned off.
 - **"Owns no Prisma models" was this domain's boundary before ADR-072; it no
   longer is, and the exception ADR-090 D6 adds is `KnowledgeCandidate` alone.**
   Every other model in `owns_models` already existed before this decision
