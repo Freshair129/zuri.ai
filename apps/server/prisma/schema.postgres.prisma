@@ -1934,6 +1934,7 @@ model Conversation {
 
   customer    Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
   messages    Message[]
+  events      ConversationEvent[]
   analyses    ConversationAnalysis[]
   salesTasks  SalesTask[]
   salesOrders SalesOrder[]
@@ -1953,10 +1954,16 @@ model Message {
   direction         String // INBOUND | OUTBOUND
   body              String
   externalMessageId String?
+  // @req FR-229 — TEXT | STICKER | LOCATION | MEDIA_REF (ADR-091 D5). Media types
+  // collapse into MEDIA_REF; the specific kind lives on MessageAttachment.kind, so a
+  // new media type never touches this vocabulary. Defaulted so every row that
+  // predates this column reads as TEXT, which is what it always was.
+  contentKind       String   @default("TEXT")
   createdAt         DateTime @default(now())
 
   conversation Conversation         @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   lineJob      LineConversationJob?
+  attachments  MessageAttachment[]
 
   // @spec BR-002, SEC-001 — scoped to the conversation that owns the message rather
   // than to a tenant column: a Message has no tenant of its own, and denormalising one
@@ -1964,6 +1971,55 @@ model Message {
   // The conversation is already tenant-scoped, so isolation follows and cannot drift.
   // NULL stays non-conflicting in both engines, so unkeyed outbound messages are free.
   @@unique([conversationId, externalMessageId])
+  @@index([conversationId])
+}
+
+// @req FR-229 — a media message (image, video, audio, file) is recorded without
+// bytes (ADR-091 D5): LINE's own content id is kept so a later phase can fetch it
+// into FileAsset before LINE's retention window closes. mimeType/sizeBytes are
+// unknown at admission — LINE's webhook payload for these types carries neither —
+// and fileAssetId stays null until that fetch happens; none of the three is
+// written by this change.
+// @spec BR-002 — providerContentId is LINE's id, never a primary key here.
+// @tested tests/integration/line-non-text-admission.test.js
+model MessageAttachment {
+  id                String   @id @default(uuid())
+  messageId         String
+  kind              String // IMAGE | VIDEO | AUDIO | FILE
+  providerContentId String? // LINE's message id, used to fetch content later; cleared on unsend
+  fileAssetId       String? // plain reference, not a relation (file management owns FileAsset); null until fetched
+  fetchState        String   @default("PENDING") // PENDING | STORED | EXPIRED_AT_PROVIDER | ERASED
+  mimeType          String?
+  sizeBytes         Int?
+  createdAt         DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+  @@index([fileAssetId])
+}
+
+// @req FR-229 — non-message LINE webhook events (follow, unfollow, join, leave,
+// memberJoined, memberLeft, postback, unsend) become CRM rows instead of being
+// discarded (ADR-091 D5). The payload stays bounded and id-only — no display name,
+// no free text (e.g. postback's own `data` string is deliberately not stored) —
+// and `unsend` additionally tombstones the Message and MessageAttachment it names.
+// @spec BR-002 — externalEventId is LINE's id, never a primary key here.
+// @tested tests/integration/line-non-text-admission.test.js
+model ConversationEvent {
+  id              String   @id @default(uuid())
+  conversationId  String
+  kind            String // FOLLOW | UNFOLLOW | JOIN | LEAVE | MEMBER_JOINED | MEMBER_LEFT | POSTBACK | UNSEND
+  externalEventId String
+  payloadJson     String   @default("{}")
+  occurredAt      DateTime @default(now())
+  createdAt       DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  // Same idempotency shape as Message's (conversationId, externalMessageId): a
+  // redelivered webhook event must never produce a second row.
+  @@unique([conversationId, externalEventId])
   @@index([conversationId])
 }
 

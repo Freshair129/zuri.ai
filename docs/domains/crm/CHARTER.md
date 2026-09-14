@@ -1,7 +1,7 @@
 ---
-version: "0.3.0b"
+version: "0.4.0b"
 status: active
-last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-14T16:00:00+07:00,Claude Sonnet 5"
 id: ZAI:DOMAIN-CRM
 relations:
   - type: relates_to
@@ -25,6 +25,8 @@ owns_models:
   - CustomerImportReviewDecision
   - Conversation
   - Message
+  - MessageAttachment
+  - ConversationEvent
   - ConversationAnalysis
   - SalesTask
 ---
@@ -85,12 +87,14 @@ turn flows through before any agent work happens.
   transaction rather than writing the table directly. That is the target state both
   charters already name for the `Person` redaction debt below — this surface starts
   on the right side of it instead of adding a second exception. It replaces `body`
-  with a fixed tombstone and touches nothing else: ids, direction and timestamps
-  survive, because a thread that silently lost its messages would read as data loss
-  rather than as an honoured erasure. Tenant-scoped like every writer here, and
-  idempotent — a message already tombstoned is neither counted nor rewritten. If a
-  denormalised preview/snippet column is ever added to `Conversation`, it must be
-  redacted in this same call.
+  with a fixed tombstone; ids, direction and timestamps survive, because a thread
+  that silently lost its messages would read as data loss rather than as an
+  honoured erasure. It also redacts each message's `MessageAttachment` (FR-229):
+  `fetchState` moves to `ERASED` and `providerContentId` is cleared, so a later
+  fetch phase can never retrieve what was just erased. Tenant-scoped like every
+  writer here, and idempotent — a message or attachment already redacted is
+  neither counted nor rewritten. If a denormalised preview/snippet column is ever
+  added to `Conversation`, it must be redacted in this same call.
 - `recordConversationAnalysis` / `getConversationAnalyses` — the FR-127 derived
   CRM record boundary. A run is keyed by an internal `Conversation.id` and its
   generated analysis id; writes require ownership of the exact bound Business
@@ -103,6 +107,19 @@ turn flows through before any agent work happens.
   counts and boolean evidence flags. A Business-scoped Customer Data Reviewer
   may append a decision, but the queue never publishes a Customer or replays
   historical data through LINE.
+- `ingestLineConversationEvent` / `recordExistingConversationEvent` /
+  `ingestLineUnsendEvent` — the FR-229 non-text writers (ADR-091 D5), called only
+  from the ADR-061 native admission seam (`line-conversation-jobs.js`). The first
+  two resolve identity → customer → conversation exactly as `ingestLineMessage`
+  does (follow, unfollow, postback and unsend all carry `event.source.userId`);
+  `recordExistingConversationEvent` (join, leave, memberJoined, memberLeft) has no
+  individual identity to resolve in LINE's own payload and so attaches only to a
+  conversation that already exists for the thread, skipping otherwise rather than
+  minting a Customer with no Person behind it. `ingestLineUnsendEvent` additionally
+  tombstones the `Message.body` and `MessageAttachment` the unsend names, and
+  never errors on a message this Business never admitted. Every one of the three
+  is idempotent on `(conversationId, externalEventId)`, and none creates a
+  `LineConversationJob`.
 
 - `createSalesTask` / `applySalesTaskAction` / `listSalesTasks` / `getSalesTask`
   — the sales task writer and readers (FR-161, ADR-064). A fifth narrow writer:
@@ -143,17 +160,29 @@ linkage and legal retention read them — written first in the ADR-061 admission
 transaction. MSP's session events are the agent's ledger and never stand in for
 this record, and GKS never indexes it (ADR-090 D6).
 
-Planned under this charter, not in `owns_models` until each lands:
+**FR-229 landed (2026-09-14):** `MessageAttachment` (media recorded without bytes
+until a later phase fetches them into `FileAsset`) and `ConversationEvent` (follow,
+unfollow, join, leave, member joined, member left, postback, unsend) are now in
+`owns_models` and in the schema (migration `20260914150000`, written and not yet
+applied). `Message.contentKind` (`TEXT | STICKER | LOCATION | MEDIA_REF`) landed
+with them. Admission (`line-conversation-jobs.js`, the ADR-061 native seam) no
+longer skips these event/message kinds; none of them creates an answer job. An
+`unsend` tombstones the referenced `Message.body` (a distinct tombstone string from
+the PDPA one, `LINE_UNSEND_TOMBSTONE`) and its `MessageAttachment` (`fetchState` →
+`ERASED`, `providerContentId` cleared); the PDPA erasure writer now redacts
+attachments the same way. `join`/`leave`/`memberJoined`/`memberLeft` carry no
+individual identity in LINE's own payload, so they attach only to a conversation
+that already exists for the thread and are skipped otherwise — a documented scope
+decision, not a silent gap. The legacy `/api/agent/line-webhook` seam still skips
+every non-text event inline and does not call this admission path; it was left
+unchanged (see TASK-ZAI-088's report for why).
 
-- `MessageAttachment` (media recorded without bytes until a later phase fetches
-  them into `FileAsset`) and `ConversationEvent` (follow, unfollow, join, leave,
-  membership changes, postback, unsend) — FR-229. An unsend tombstones the
-  referenced message.
-- `Message` content kind, sender channel identity and retention expiry;
+Still planned under this charter, not in `owns_models` until each lands:
+
+- `Message` sender channel identity and retention expiry;
   `Conversation` last-message time, a preview of at most 120 characters, and a
-  retention class — FR-229, FR-230, FR-233. The erasure writer above already
-  promises to redact such a preview in the same call; it will also redact
-  attachments.
+  retention class — FR-230, FR-233. The erasure writer above already redacts
+  attachments (FR-229); it will also redact the preview once it exists.
 - A third read-only reader: message search (trigram on Postgres, `LIKE` on SQLite)
   scoped to visible Businesses and optionally one LINE OA account — FR-233.
 - Retention: message bodies and attachments keep 24 months by default, a Tenant
@@ -177,6 +206,7 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.4.0b | 2026-09-14 | FR-229 / FEAT-037 built (TASK-ZAI-088): `owns_models` += `MessageAttachment`, `ConversationEvent`; `Message.contentKind`; three new narrow writers; the ADR-061 native admission seam no longer skips non-text events and creates no answer job for them; unsend tombstones the message and attachment it names; the PDPA erasure writer now redacts attachments too; migration `20260914150000` written, not applied | Claude Sonnet 5 |
 | 0.3.0b | 2026-09-14 | ADR-091 / FEAT-037 declared: CRM is the business record of a conversation; planned `MessageAttachment`, `ConversationEvent`, message and conversation read-model columns, search reader and retention recorded as prose; no `owns_models` change | Claude Opus 5 |
 | 0.2.0b | 2026-09-06 | Claimed `SalesTask` (FR-161, ADR-064): the legacy Tasks section adapted as a CRM sales activity record with its own writer, `SALES_REP` role and `/customer/sales-tasks` page | Claude Fable 5.1 |
 | 0.1.0b | 2026-09-06 | Added document metadata and FEAT-019 handoff navigation; existing domain manifest retained | RWANG |
