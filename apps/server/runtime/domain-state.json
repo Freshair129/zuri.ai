@@ -3804,7 +3804,7 @@
         {
           "id": "FR-241",
           "title": "Programme roadmap member view",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 3,
           "testCount": 6
@@ -5234,7 +5234,7 @@
         {
           "id": "FR-241",
           "title": "Programme roadmap member view",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 1,
           "testCount": 6
