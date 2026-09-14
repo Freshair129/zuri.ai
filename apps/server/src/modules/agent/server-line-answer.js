@@ -41,19 +41,31 @@ function failure(code) {
 // prefixed by its packet section so `injectedMspPacket` can rebuild the
 // packet from exactly the slices the composer included — nothing else.
 //
-// Order fed to the composer (its budget cutoff is contiguous, not first-fit,
-// over the order given — see context-composer.js's own doc comment):
-//   1. participants — roster metadata `buildThreadContextPacket` never trims.
-//   2. protected (verified) facts — also never trimmed by MSP's own builder.
-//   3. recent exchanges, NEWEST FIRST — `memory.recentExchanges` is
-//      oldest-first in the packet (MSP's convention), but a budget cutoff
-//      must drop the OLDEST turns and keep a contiguous window of the most
-//      recent ones, never the reverse. Reversed here so "the first exchange
-//      that does not fit" is the oldest surviving candidate, and every older
-//      one after it is dropped too — no gap in the kept window.
+// Only exchanges declare a `sequence` ('exchanges'): the composer's
+// contiguous cutoff is scoped to a named sequence, never to the whole prompt
+// (context-composer.js's own doc comment on `mspSlices`), so a single
+// oversized participant or protected record is dropped on its own — it must
+// never close the budget for the exchanges that follow it in priority order,
+// which is exactly the regression a prior version of this fix introduced by
+// making the cutoff global.
+//
+// Order fed to the composer:
+//   1. participants — roster metadata `buildThreadContextPacket` never trims;
+//      each judged on its own fit, no sequence.
+//   2. protected (verified) facts — also never trimmed by MSP's own builder;
+//      each judged on its own fit, no sequence.
+//   3. recent exchanges, NEWEST FIRST, sequence 'exchanges' — `memory.
+//      recentExchanges` is oldest-first in the packet (MSP's convention), but
+//      a budget cutoff must drop the OLDEST turns and keep a contiguous
+//      window of the most recent ones, never the reverse. Reversed here so
+//      "the first exchange that does not fit" is the oldest surviving
+//      candidate, and every older one after it is dropped too — no gap in
+//      the kept window. The shared `sequence` name is what makes this
+//      contiguous cutoff apply only within the exchanges themselves.
 //   4. summaries — MSP's own builder trims these before touching exchanges
 //      at all (`buildThreadContextPacket` shifts summaries first), so they
-//      are ordered last here to mirror that same disposability.
+//      are ordered last here to mirror that same disposability; each judged
+//      on its own fit, no sequence (an oversized summary drops alone).
 // `packet.knowledge` (a separate, non-MSP field) is never turned into a slice
 // here — see injectedMspPacket's own note on why it is stripped instead.
 function mspPacketSlices(packet) {
@@ -62,7 +74,8 @@ function mspPacketSlices(packet) {
   const protectedRecords = Array.isArray(packet?.memory?.protectedMemory) ? packet.memory.protectedMemory : []
   const exchanges = Array.isArray(packet?.memory?.recentExchanges) ? packet.memory.recentExchanges : []
   const summaries = Array.isArray(packet?.memory?.summaries) ? packet.memory.summaries : []
-  const exchangeSlices = exchanges.map((exchange, index) => ({ id: `exchange:${exchange?.exchangeId ?? index}`, threadId, text: exchange }))
+  const exchangeSlices = exchanges.map((exchange, index) =>
+    ({ id: `exchange:${exchange?.exchangeId ?? index}`, threadId, sequence: 'exchanges', text: exchange }))
   return [
     ...participants.map((participant, index) => ({ id: `participant:${participant?.principalId ?? participant?.id ?? index}`, threadId, text: participant })),
     ...protectedRecords.map((record, index) => ({ id: `protected:${record?.recordId ?? index}`, threadId, text: record })),

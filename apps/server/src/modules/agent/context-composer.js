@@ -80,6 +80,9 @@ function normalizeSlice(raw, source, index) {
     // Caller-supplied correlation key used only to detect a record/memory
     // conflict on the same subject (see composeContext doc comment below).
     subjectKey: isObject && typeof raw.subjectKey === 'string' ? raw.subjectKey : null,
+    // Optional contiguity group for the budget cutoff (e.g. 'exchanges') — see
+    // composeContext's doc comment on `mspSlices` for what this controls.
+    sequence: isObject && typeof raw.sequence === 'string' ? raw.sequence : null,
     // The actual content a model would see. Carried on the slice — which this
     // module returns to the caller separately from the receipt — never on the
     // receipt itself.
@@ -134,12 +137,17 @@ function authorizationRequired() {
  * @param {Array<object|string>} [input.mspSlices] — MSP memory packet slices,
  *   split by the caller into provenance-bearing pieces (e.g. one per exchange
  *   or packet section) — never handed in as one opaque blob, or the budget can
- *   only ever keep or drop the whole thing. Order matters: the budget is a
- *   strict, contiguous cutoff over each source's slices in the order given,
- *   not first-fit — once one slice does not fit, every slice after it in that
- *   order is dropped too, even a smaller one that would fit alone. A caller
- *   that wants "keep the most recent, drop the oldest" (e.g. MSP exchanges)
- *   must order its slices newest-first.
+ *   only ever keep or drop the whole thing. A slice may declare a `sequence`
+ *   name (e.g. `'exchanges'`) to opt into a CONTIGUOUS cutoff within that named
+ *   group only: once one slice in a given sequence does not fit, every later
+ *   slice sharing that same sequence name is dropped too, even a smaller one
+ *   that would fit alone — this is what keeps a "most recent window" free of
+ *   gaps. A slice with no `sequence` is evaluated on its own: if it does not
+ *   fit, only it is dropped, and the loop keeps evaluating everything after it
+ *   — one oversized fact must never starve every slice that follows it, in its
+ *   own sequence or any other. A caller that wants "keep the most recent, drop
+ *   the oldest" for a sequence (e.g. MSP exchanges) must order that sequence's
+ *   slices newest-first; sequencing is independent of source/priority order.
  * @param {number} [input.maxBudgetChars] — one prompt-wide character budget.
  */
 export function composeContext({
@@ -215,22 +223,35 @@ export function composeContext({
     .sort((a, b) => (a.slice.priority - b.slice.priority) || (a.index - b.index))
     .map(({ slice }) => slice)
 
-  // Strict, contiguous cutoff — not first-fit. The first slice that does not
-  // fit closes the budget for everything after it, even a smaller slice that
-  // would individually still fit. First-fit would let a later, smaller slice
-  // fill the gap a bigger dropped one left behind, which for an ordered
-  // sequence like MSP exchanges turns "drop the oldest" into "drop whichever
-  // ones happen not to fit", opening a hole in the middle of the conversation.
+  // Contiguity is scoped to a named `sequence`, never to the whole prompt.
+  // Within one sequence this is a strict cutoff, not first-fit: the first
+  // slice in that sequence that does not fit closes it for every later slice
+  // sharing that name, even a smaller one that would individually still fit
+  // — first-fit would let a later, smaller slice fill the gap a bigger
+  // dropped one left behind, turning "drop the oldest exchange" into "drop
+  // whichever ones happen not to fit" and opening a hole mid-conversation.
+  // A slice with no `sequence` is judged only on its own fit: if it does not
+  // fit, only it is dropped and the loop moves on — one oversized record or
+  // participant must never close the budget for every slice after it,
+  // including an entire other sequence (e.g. the exchanges that follow it in
+  // priority order). This is what regressed when the cutoff was briefly
+  // global: a single large protected-memory record or participant, or (once
+  // FR-235 wires GKS evidence) one large knowledge slice, would starve every
+  // exchange after it even though they would have fit.
   let used = 0
-  let budgetExceeded = false
+  const exceededSequences = new Set()
   const included = []
   for (const slice of ordered) {
-    if (!budgetExceeded && used + slice.length <= maxBudgetChars) {
+    if (slice.sequence && exceededSequences.has(slice.sequence)) {
+      dropped.push({ id: slice.id, source: slice.source, reason: 'BUDGET_TRIMMED' })
+      continue
+    }
+    if (used + slice.length <= maxBudgetChars) {
       used += slice.length
       included.push(slice)
     } else {
-      budgetExceeded = true
       dropped.push({ id: slice.id, source: slice.source, reason: 'BUDGET_TRIMMED' })
+      if (slice.sequence) exceededSequences.add(slice.sequence)
     }
   }
 

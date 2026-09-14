@@ -465,6 +465,22 @@ describe('server answer memory composition', () => {
       expect(receipt.budget.trimmed).toBe(2)
     })
 
+    // Third review, defect — regression fix: an oversized non-sequenced slice
+    // (here, a protected-memory record) must be dropped on its own, never
+    // close the budget for the exchanges sequence that follows it in
+    // priority order. Before this fix, one such record wiped every exchange,
+    // including the customer's newest turn, even though it would have fit.
+    it('trims an oversized protected record on its own and still injects the newest exchanges', async () => {
+      const exchanges = [exchange('ex-1', 'สวัสดี')]
+      const protectedMemory = [{ recordId: 'p1', note: 'x'.repeat(5000) }] // alone exceeds the 4000-char budget
+      const { modelPacket, receipt } = await runBudget({ recentExchanges: exchanges, protectedMemory })
+      expect(modelPacket).not.toBeNull()
+      expect(modelPacket.memory.protectedMemory).toEqual([])
+      expect(modelPacket.memory.recentExchanges).toEqual(exchanges)
+      expect(receipt.dropped).toEqual([{ id: 'protected:p1', source: 'MSP', reason: 'BUDGET_TRIMMED' }])
+      expect(receipt.refs.msp).toEqual(['exchange:ex-1'])
+    })
+
     // Second review, defect 2 — `...packet` used to leak `memory.participants`
     // and the top-level `knowledge` field straight through, un-budgeted and
     // absent from the receipt. Both must now either go through the composer

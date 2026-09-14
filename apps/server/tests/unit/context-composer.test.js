@@ -133,25 +133,58 @@ describe('context-composer: budget', () => {
     expect(composed.receipt.budget.trimmed).toBe(0)
   })
 
-  // Second review, defect 1 — the cutoff is contiguous, not first-fit: once one
-  // slice in a source's given order does not fit, every slice after it in that
-  // order is dropped too, even a smaller one that would fit alone. A caller
-  // that ordered its slices to reflect "most important first" (e.g. MSP
-  // exchanges newest-first) relies on this to avoid a hole in the middle.
-  it('does not let a later, smaller slice fill the gap a bigger dropped one left (no first-fit)', () => {
-    const first = { id: 'msp-first', threadId: 'thread-1', text: 'x'.repeat(40) }
-    const second = { id: 'msp-second', threadId: 'thread-1', text: 'x'.repeat(40) } // does not fit after `first`
-    const third = { id: 'msp-third', threadId: 'thread-1', text: 'x' } // would fit alone, but comes after a drop
+  // Third review, defect — contiguity belongs to a named `sequence`, not to
+  // the whole prompt or even a whole source. Within one sequence the cutoff
+  // is strict, not first-fit: once one slice in that sequence does not fit,
+  // every LATER slice sharing that same sequence name is dropped too, even
+  // one that would fit in the budget that remains — this is the property a
+  // caller ordering a sequence "most important first" (e.g. MSP exchanges
+  // newest-first) relies on to avoid a hole in the middle of it.
+  it('does not let a later, smaller slice in the SAME sequence fill the gap a bigger dropped one left', () => {
+    const first = { id: 'msp-first', threadId: 'thread-1', sequence: 'conversation', text: 'x'.repeat(30) }
+    const second = { id: 'msp-second', threadId: 'thread-1', sequence: 'conversation', text: 'x'.repeat(30) } // 60 > 50: closes the sequence
+    const third = { id: 'msp-third', threadId: 'thread-1', sequence: 'conversation', text: 'x'.repeat(5) } // would fit in the 20 chars left, but the sequence is already closed
     const composed = composeContext({
       authorized: true, scope: { threadId: 'thread-1' },
       mspSlices: [first, second, third],
-      maxBudgetChars: 40,
+      maxBudgetChars: 50,
     })
     expect(composed.slices.map((slice) => slice.id)).toEqual(['msp-first'])
     expect(composed.dropped).toEqual([
       { id: 'msp-second', source: 'MSP', reason: 'BUDGET_TRIMMED' },
       { id: 'msp-third', source: 'MSP', reason: 'BUDGET_TRIMMED' },
     ])
+    expect(composed.receipt.budget.used).toBe(30) // third's 5 chars were never added — it was never attempted
+  })
+
+  // Third review, defect — the REGRESSION this fixes: a global cutoff let one
+  // oversized, un-sequenced slice (e.g. a protected-memory record or
+  // participant) starve every slice after it, including an entire other
+  // sequence that would otherwise fit. A slice with no `sequence` must be
+  // judged only on its own fit and never close the budget for anything else.
+  it('does not let an oversized non-sequenced slice starve a smaller sequenced slice after it', () => {
+    const oversizedRecord = { id: 'msp-oversized', threadId: 'thread-1', text: 'x'.repeat(100) } // no sequence
+    const exchange = { id: 'msp-exchange', threadId: 'thread-1', sequence: 'exchanges', text: 'newest turn' }
+    const composed = composeContext({
+      authorized: true, scope: { threadId: 'thread-1' },
+      mspSlices: [oversizedRecord, exchange],
+      maxBudgetChars: 50,
+    })
+    expect(composed.slices.map((slice) => slice.id)).toEqual(['msp-exchange'])
+    expect(composed.dropped).toEqual([{ id: 'msp-oversized', source: 'MSP', reason: 'BUDGET_TRIMMED' }])
+  })
+
+  it('does not let an oversized record slice wipe a smaller knowledge or MSP slice after it', () => {
+    const oversizedRecord = { id: 'record-oversized', text: 'x'.repeat(100) }
+    const smallEvidence = { id: 'evidence-small', citationId: 'gks:doc-small', text: 'small' }
+    const smallMemory = { id: 'msp-small', threadId: 'thread-1', text: 'small' }
+    const composed = composeContext({
+      authorized: true, scope: { threadId: 'thread-1' },
+      records: [oversizedRecord], knowledgeEvidence: [smallEvidence], mspSlices: [smallMemory],
+      maxBudgetChars: 50,
+    })
+    expect(composed.slices.map((slice) => slice.id)).toEqual(['evidence-small', 'msp-small'])
+    expect(composed.dropped).toEqual([{ id: 'record-oversized', source: 'RECORD', reason: 'BUDGET_TRIMMED' }])
   })
 
   // BLOCKER fix — the receipt must describe what a caller would actually inject.
