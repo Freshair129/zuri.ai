@@ -203,10 +203,10 @@ non-operator's device is `PENDING_ACTIVATION` until an operator activates it on
 the Agent devices tab. `describeHarnessReporters` is the read port the board uses
 for device labels and person names; it returns no key material.
 
-## Credential-write step-up gate and PDPA erasure fan-out (ADR-089, ADR-091 — gate built on a branch, erasure fan-out declared)
+## Credential-write step-up gate and PDPA erasure fan-out (ADR-089, ADR-091 — gate merged, erasure fan-out declared)
 
 - **Step-up gate (FR-224, [ADR-089](../../decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md) D4) —
-  built on `feat/integration-secret-store-vault` (TASK-ZAI-080, not merged).**
+  merged in #398 (main 2aef8caa; TASK-ZAI-080; migration 20260914140400 not applied).**
   `credential-write-gate.js` is the gate other lanes call before a credential write,
   rotation, revocation or live validation: `assertCredentialWriteAssurance` refuses a
   Person with no ACTIVE TOTP factor `MFA_FACTOR_REQUIRED` (with the enrolment path),

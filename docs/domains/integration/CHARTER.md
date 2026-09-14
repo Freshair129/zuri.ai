@@ -1,5 +1,5 @@
 ---
-version: "0.4.0b"
+version: "0.4.1b"
 status: active
 last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
 id: ZAI:DOMAIN-INTEGRATION
@@ -251,13 +251,13 @@ or publishing raw provider records into an owner domain.
 
 See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[ZAI:ADR-061]]. Phase ownership does not change this charter's model/route manifest. Server transport is independent of Edge execution; BR-011/FR-050 describe retained legacy forwarding only.
 
-## Credential vault and self-serve LINE OA onboarding (ADR-089, FEAT-036 — Phase 1 in progress)
+## Credential vault and self-serve LINE OA onboarding (ADR-089, FEAT-036 — Phase 1 merged, not deployed)
 
 [ADR-089](../../decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md)
 (accepted 2026-09-14) assigns this lane the credential vault and the LINE
 channel-admin port. `owns_models` above changes only in the slice that adds each model.
 
-**Built on `feat/integration-secret-store-vault` (TASK-ZAI-078, not merged; migrations
+**Merged in #398 (main 2aef8caa; TASK-ZAI-078; migrations
 written, not applied):**
 
 - `src/platform/integrations/core/secret-store/secret-store-port.js` — the
@@ -278,7 +278,7 @@ written, not applied):**
 - `IntegrationCredentialVersion` and the new `IntegrationCredential` columns
   (migration `20260914140000_integration_credential_lifecycle.sql`, with backfill).
 
-**Built on the same branch (TASK-ZAI-079, not merged; migration written, not applied):**
+**Merged in the same pull request (TASK-ZAI-079; migration written, not applied):**
 
 - `src/platform/integrations/core/channel-account-claim.js` — `ChannelAccountClaim`
   by sha256(destination), taken before any secret is stored; conflicts answer
@@ -294,7 +294,7 @@ written, not applied):**
   `connectLineChannelWithSecret`: validate with LINE → claim + connection → store
   and activate through the vault, with compensation.
 
-**Routes (TASK-ZAI-080, same branch):** `POST /api/line-oa/connections` takes the
+**Routes (TASK-ZAI-080, merged in #398):** `POST /api/line-oa/connections` takes the
 Channel ID and secret body (a `deployment-secret:` body still provisions the mount
 path, FR-149); `POST /api/line-oa/connections/[id]/credential` rotates,
 `…/credential/revoke` revokes with a typed `REVOKE` and fences the account, and
@@ -332,6 +332,7 @@ material in any response (`line-channel-credential-service.js` for the last thre
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.4.1b | 2026-09-14 | TASK-ZAI-078..080 merged in #398 (main 2aef8caa): the Phase 1 section now says merged instead of built on a branch; migrations 20260914140000..140400 still not applied, nothing deployed | Claude Opus 5 |
 | 0.4.0b | 2026-09-14 | TASK-ZAI-079 built on the same branch: `owns_models` += `ChannelAccountClaim`; claim service, LINE channel-admin port with the stateless token cache, and the connect-with-secret service listed; migration 20260914140100 written, not applied | Claude Opus 5 |
 | 0.3.0b | 2026-09-14 | TASK-ZAI-078 built on `feat/integration-secret-store-vault`: `owns_models` += `IntegrationCredentialVersion`, `IntegrationSecretEnvelope`; SecretStorePort, Supabase Vault and envelope stores, dispatching secret manager and credential lifecycle listed; migrations 20260914140000, 20260914140200 and 20260914140300 written, not applied | Claude Opus 5 |
 | 0.2.0b | 2026-09-14 | ADR-089 / FEAT-036 declared: the credential vault (`SecretStorePort`, Supabase Vault and envelope stores, mount operator-only), LINE channel-admin port and channel account claim assigned to this lane as planned prose; ADR-091 raw-payload retention noted; no `owns_models` change | Claude Opus 5 |
