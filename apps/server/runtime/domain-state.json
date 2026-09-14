@@ -39,9 +39,9 @@
     "featureCount": 147,
     "readyFeatureCount": 113,
     "requirementCount": 241,
-    "verifiedRequirementCount": 219,
-    "progressPercent": 92.5,
-    "gapCount": 40,
+    "verifiedRequirementCount": 221,
+    "progressPercent": 93.4,
+    "gapCount": 41,
     "gaps": [
       {
         "domain": "agent",
@@ -118,6 +118,8 @@
           "apps/server/tests/integration/fr146-line-oa-account.test.js",
           "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
           "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
+          "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
+          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
           "apps/server/tests/integration/knowledge-project.test.js",
           "apps/server/tests/integration/knowledge-query.test.js",
           "apps/server/tests/integration/line-gks-grounding.test.js",
@@ -182,6 +184,7 @@
           "apps/server/tests/integration/fr075-restore-authorization.test.js",
           "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
           "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
+          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
           "apps/server/tests/integration/genesisrag17-parser-2.test.js",
           "apps/server/tests/integration/genesisrag17-tier1.test.js",
           "apps/server/tests/integration/line-non-text-admission.test.js",
@@ -274,6 +277,7 @@
           "apps/server/tests/integration/fr075-restore-authorization.test.js",
           "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
           "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
+          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
           "apps/server/tests/integration/genesisrag17-parser-2.test.js",
           "apps/server/tests/integration/genesisrag17-tier1.test.js",
           "apps/server/tests/integration/line-non-text-admission.test.js",
@@ -367,6 +371,8 @@
           "apps/server/tests/integration/fr146-line-oa-account.test.js",
           "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
           "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
+          "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
+          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
           "apps/server/tests/integration/knowledge-project.test.js",
           "apps/server/tests/integration/knowledge-query.test.js",
           "apps/server/tests/integration/line-gks-grounding.test.js",
@@ -407,6 +413,7 @@
           "apps/server/tests/integration/fr075-restore-authorization.test.js",
           "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
           "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
+          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
           "apps/server/tests/integration/genesisrag17-parser-2.test.js",
           "apps/server/tests/integration/genesisrag17-tier1.test.js",
           "apps/server/tests/integration/line-non-text-admission.test.js",
@@ -469,6 +476,8 @@
           "apps/server/tests/integration/fr146-line-oa-account.test.js",
           "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
           "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
+          "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
+          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
           "apps/server/tests/integration/knowledge-project.test.js",
           "apps/server/tests/integration/knowledge-query.test.js",
           "apps/server/tests/integration/line-gks-grounding.test.js",
@@ -513,6 +522,16 @@
         "summary": "At least one owned UI surface is not marked implemented",
         "evidence": [
           "/assets/receiving"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "API-OPENAPI-001",
+        "severity": "high",
+        "check": "httpApi",
+        "summary": "API route is not represented in the machine-readable OpenAPI generator",
+        "evidence": [
+          "/api/knowledge/gap-report"
         ]
       },
       {
@@ -570,6 +589,7 @@
           "apps/server/tests/integration/fr075-restore-authorization.test.js",
           "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
           "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
+          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
           "apps/server/tests/integration/genesisrag17-parser-2.test.js",
           "apps/server/tests/integration/genesisrag17-tier1.test.js",
           "apps/server/tests/integration/line-non-text-admission.test.js",
@@ -742,7 +762,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-081",
@@ -814,7 +834,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-147",
@@ -838,7 +858,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 41
+          "testCount": 42
         },
         {
           "id": "FR-150",
@@ -905,7 +925,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 4,
-          "testCount": 24,
+          "testCount": 26,
           "evidence": [
             "apps/server/src/modules/agent/grounded-business-answer.js",
             "apps/server/src/modules/agent/line-execution-trace.js",
@@ -915,6 +935,8 @@
             "apps/server/tests/integration/fr146-line-oa-account.test.js",
             "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
             "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
+            "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/knowledge-project.test.js",
             "apps/server/tests/integration/knowledge-query.test.js",
             "apps/server/tests/integration/line-gks-grounding.test.js",
@@ -1128,6 +1150,8 @@
             "apps/server/tests/integration/fr146-line-oa-account.test.js",
             "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
             "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
+            "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/knowledge-project.test.js",
             "apps/server/tests/integration/knowledge-query.test.js",
             "apps/server/tests/integration/line-gks-grounding.test.js",
@@ -1261,7 +1285,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 20
+          "testCount": 21
         }
       ],
       "checks": {
@@ -1653,7 +1677,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-147",
@@ -1677,7 +1701,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-152",
@@ -1685,7 +1709,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-153",
@@ -1693,7 +1717,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-161",
@@ -1717,7 +1741,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 31,
+          "testCount": 32,
           "evidence": [
             "apps/server/src/modules/crm/conversation-consent-reader.js",
             "apps/server/tests/e2e/fr041-business-first.spec.js",
@@ -1726,6 +1750,7 @@
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/genesisrag17-parser-2.test.js",
             "apps/server/tests/integration/genesisrag17-tier1.test.js",
             "apps/server/tests/integration/line-non-text-admission.test.js",
@@ -1876,6 +1901,7 @@
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/genesisrag17-parser-2.test.js",
             "apps/server/tests/integration/genesisrag17-tier1.test.js",
             "apps/server/tests/integration/line-non-text-admission.test.js",
@@ -2182,7 +2208,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-146",
@@ -2190,7 +2216,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-148",
@@ -2593,7 +2619,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-081",
@@ -2713,7 +2739,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-149",
@@ -2721,7 +2747,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 41
+          "testCount": 42
         },
         {
           "id": "FR-152",
@@ -2729,7 +2755,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-173",
@@ -2737,7 +2763,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-187",
@@ -2745,7 +2771,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-188",
@@ -2761,7 +2787,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
-          "testCount": 32
+          "testCount": 33
         },
         {
           "id": "FR-224",
@@ -2777,7 +2803,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-226",
@@ -2801,7 +2827,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 31,
+          "testCount": 32,
           "evidence": [
             "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
             "apps/server/tests/e2e/fr041-business-first.spec.js",
@@ -2810,6 +2836,7 @@
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/genesisrag17-parser-2.test.js",
             "apps/server/tests/integration/genesisrag17-tier1.test.js",
             "apps/server/tests/integration/line-non-text-admission.test.js",
@@ -2993,6 +3020,7 @@
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/genesisrag17-parser-2.test.js",
             "apps/server/tests/integration/genesisrag17-tier1.test.js",
             "apps/server/tests/integration/line-non-text-admission.test.js",
@@ -3531,7 +3559,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-187",
@@ -3539,7 +3567,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-188",
@@ -3590,7 +3618,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 2,
-          "testCount": 24,
+          "testCount": 26,
           "evidence": [
             "apps/server/src/modules/knowledge/corpus-knowledge-reader.js",
             "apps/server/src/modules/knowledge/index.js",
@@ -3598,6 +3626,8 @@
             "apps/server/tests/integration/fr146-line-oa-account.test.js",
             "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
             "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
+            "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/knowledge-project.test.js",
             "apps/server/tests/integration/knowledge-query.test.js",
             "apps/server/tests/integration/line-gks-grounding.test.js",
@@ -3626,7 +3656,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 5,
-          "testCount": 31,
+          "testCount": 32,
           "evidence": [
             "apps/server/src/app/(pm)/knowledge/candidates/page.jsx",
             "apps/server/src/modules/knowledge/application/knowledge-candidate-service.js",
@@ -3639,6 +3669,7 @@
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/genesisrag17-parser-2.test.js",
             "apps/server/tests/integration/genesisrag17-tier1.test.js",
             "apps/server/tests/integration/line-non-text-admission.test.js",
@@ -3665,6 +3696,22 @@
             "apps/server/tests/unit/scm-group-navigation.test.js",
             "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
           ]
+        },
+        {
+          "id": "FR-237",
+          "title": "Knowledge gap report for LINE",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 3
+        },
+        {
+          "id": "FR-238",
+          "title": "LINE Studio descriptions as knowledge sources",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 13
         }
       ],
       "checks": {
@@ -3685,8 +3732,8 @@
             }
           ],
           "details": {
-            "routes": 3,
-            "inventoried": 3,
+            "routes": 4,
+            "inventoried": 4,
             "missing": 0
           }
         },
@@ -3837,6 +3884,8 @@
             "apps/server/tests/integration/fr146-line-oa-account.test.js",
             "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
             "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
+            "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/knowledge-project.test.js",
             "apps/server/tests/integration/knowledge-query.test.js",
             "apps/server/tests/integration/line-gks-grounding.test.js",
@@ -3876,6 +3925,7 @@
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/genesisrag17-parser-2.test.js",
             "apps/server/tests/integration/genesisrag17-tier1.test.js",
             "apps/server/tests/integration/line-non-text-admission.test.js",
@@ -3905,9 +3955,9 @@
         }
       ],
       "details": {
-        "routes": 3,
+        "routes": 4,
         "apiRoutes": 0,
-        "pageRoutes": 3,
+        "pageRoutes": 4,
         "ownedModels": 14,
         "featureNotes": 17
       },
@@ -3931,7 +3981,7 @@
       ],
       "featureCount": 16,
       "readyFeatureCount": 11,
-      "progressPercent": 83
+      "progressPercent": 90.4
     },
     "line-oa-studio": {
       "status": "partial",
@@ -3966,7 +4016,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-091",
@@ -3990,7 +4040,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 29,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-149",
@@ -3998,7 +4048,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 21,
-          "testCount": 41
+          "testCount": 42
         },
         {
           "id": "FR-150",
@@ -4014,7 +4064,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 21,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-152",
@@ -4022,7 +4072,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-153",
@@ -4030,7 +4080,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 13,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-171",
@@ -4062,7 +4112,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 32
+          "testCount": 33
         },
         {
           "id": "FR-224",
@@ -4078,7 +4128,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-226",
@@ -4102,7 +4152,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 3,
-          "testCount": 24,
+          "testCount": 26,
           "evidence": [
             "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
             "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
@@ -4111,6 +4161,8 @@
             "apps/server/tests/integration/fr146-line-oa-account.test.js",
             "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
             "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
+            "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/knowledge-project.test.js",
             "apps/server/tests/integration/knowledge-query.test.js",
             "apps/server/tests/integration/line-gks-grounding.test.js",
@@ -4132,6 +4184,14 @@
             "apps/server/tests/unit/runtime-isolation-probe.test.js",
             "apps/server/tests/unit/server-line-answer.test.js"
           ]
+        },
+        {
+          "id": "FR-238",
+          "title": "LINE Studio descriptions as knowledge sources",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 13
         }
       ],
       "checks": {
@@ -4295,6 +4355,8 @@
             "apps/server/tests/integration/fr146-line-oa-account.test.js",
             "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
             "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
+            "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/knowledge-project.test.js",
             "apps/server/tests/integration/knowledge-query.test.js",
             "apps/server/tests/integration/line-gks-grounding.test.js",
@@ -5346,7 +5408,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 27,
-          "testCount": 40
+          "testCount": 41
         },
         {
           "id": "FR-046",
@@ -5474,7 +5536,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 67
+          "testCount": 68
         },
         {
           "id": "FR-073",
@@ -5786,7 +5848,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-146",
@@ -5794,7 +5856,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-149",
@@ -5802,7 +5864,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 41
+          "testCount": 42
         },
         {
           "id": "FR-150",
@@ -5818,7 +5880,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-152",
@@ -5826,7 +5888,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-153",
@@ -5834,7 +5896,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-154",
@@ -5962,7 +6024,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-174",
@@ -6042,7 +6104,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-191",
@@ -6170,7 +6232,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 32
+          "testCount": 33
         },
         {
           "id": "FR-224",
@@ -6202,7 +6264,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 6,
-          "testCount": 31,
+          "testCount": 32,
           "evidence": [
             "apps/server/src/app/api/knowledge/candidates/[id]/decision/route.js",
             "apps/server/src/app/api/knowledge/candidates/[id]/route.js",
@@ -6216,6 +6278,7 @@
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/genesisrag17-parser-2.test.js",
             "apps/server/tests/integration/genesisrag17-tier1.test.js",
             "apps/server/tests/integration/line-non-text-admission.test.js",
@@ -6242,6 +6305,14 @@
             "apps/server/tests/unit/scm-group-navigation.test.js",
             "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
           ]
+        },
+        {
+          "id": "FR-237",
+          "title": "Knowledge gap report for LINE",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 3
         },
         {
           "id": "FR-241",
@@ -6275,17 +6346,26 @@
           }
         },
         "httpApi": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/appendices/A-api-spec.md",
             "src/modules/project-manager/api-docs/openapi.js"
           ],
-          "gaps": [],
+          "gaps": [
+            {
+              "id": "API-OPENAPI-001",
+              "severity": "high",
+              "summary": "API route is not represented in the machine-readable OpenAPI generator",
+              "evidence": [
+                "/api/knowledge/gap-report"
+              ]
+            }
+          ],
           "details": {
-            "routes": 133,
-            "inventoried": 133,
+            "routes": 134,
+            "inventoried": 134,
             "openApiPaths": 276,
-            "missingFromOpenApi": 0
+            "missingFromOpenApi": 1
           }
         },
         "mcp": {
@@ -6352,7 +6432,7 @@
           "details": {
             "mutations": 106,
             "guardedMutations": 104,
-            "reads": 63,
+            "reads": 64,
             "unguardedReads": 2
           }
         },
@@ -6430,6 +6510,15 @@
           ]
         },
         {
+          "id": "API-OPENAPI-001",
+          "severity": "high",
+          "check": "httpApi",
+          "summary": "API route is not represented in the machine-readable OpenAPI generator",
+          "evidence": [
+            "/api/knowledge/gap-report"
+          ]
+        },
+        {
           "id": "CONTRACT-001",
           "severity": "medium",
           "check": "runtimeContract",
@@ -6478,6 +6567,7 @@
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/genesisrag17-parser-2.test.js",
             "apps/server/tests/integration/genesisrag17-tier1.test.js",
             "apps/server/tests/integration/line-non-text-admission.test.js",
@@ -6507,8 +6597,8 @@
         }
       ],
       "details": {
-        "routes": 178,
-        "apiRoutes": 133,
+        "routes": 179,
+        "apiRoutes": 134,
         "pageRoutes": 45,
         "ownedModels": 31,
         "featureNotes": 33
@@ -6602,7 +6692,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 40
+          "testCount": 41
         },
         {
           "id": "FR-058",
@@ -6657,6 +6747,7 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr151-line-oa-rich-menu.test.js",
         "apps/server/tests/integration/fr184-inventory-stocktake-backup.test.js",
+        "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
@@ -6911,7 +7002,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 20
+          "testCount": 21
         }
       ],
       "evidence": [
@@ -6941,6 +7032,7 @@
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+        "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/line-oa-connection-health.test.js",
         "apps/server/tests/integration/line-oa-provider-migration.test.js",
         "apps/server/tests/integration/line-registry-scope.test.js",
@@ -7703,7 +7795,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 22,
-          "testCount": 38
+          "testCount": 39
         }
       ],
       "evidence": [
@@ -7762,6 +7854,7 @@
         "apps/server/tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
         "apps/server/tests/integration/fr129-catalog-publication-gate.test.js",
         "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+        "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/genesisrag17-parser-2.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
         "apps/server/tests/integration/knowledge-admission-backup.test.js",
@@ -8156,7 +8249,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 19,
-          "testCount": 20
+          "testCount": 21
         }
       ],
       "evidence": [
@@ -8194,6 +8287,7 @@
         "apps/server/tests/integration/fr144-edge-device-credential.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+        "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-evidence-extractor-contract.test.js",
         "apps/server/tests/unit/asset-evidence-route-schema-contract.test.js",
@@ -8247,7 +8341,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 37,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-147",
@@ -8263,7 +8357,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 26,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-152",
@@ -8271,7 +8365,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 17,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-153",
@@ -8279,7 +8373,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 16
+          "testCount": 17
         }
       ],
       "evidence": [
@@ -8351,6 +8445,7 @@
         "apps/server/tests/integration/fr152-line-oa-rich-menu-jobs.test.js",
         "apps/server/tests/integration/fr153-line-oa-liff-app.test.js",
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+        "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
@@ -8428,7 +8523,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 34,
-          "testCount": 41
+          "testCount": 42
         },
         {
           "id": "FR-150",
@@ -8501,6 +8596,7 @@
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
         "apps/server/tests/integration/fr149-line-server-configuration.test.js",
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+        "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/identity-resolve.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
         "apps/server/tests/integration/line-admission-reconciler.test.js",
@@ -9364,7 +9460,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-188",
@@ -9405,6 +9501,7 @@
         "apps/server/tests/acceptance/knowledge-admission-native.test.js",
         "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
         "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
+        "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/genesisrag17-parser-2.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
         "apps/server/tests/integration/knowledge-corpus.test.js",
@@ -10333,7 +10430,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 22,
-          "testCount": 32
+          "testCount": 33
         },
         {
           "id": "FR-224",
@@ -10349,7 +10446,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-226",
@@ -10422,6 +10519,7 @@
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
         "apps/server/tests/integration/fr149-line-server-configuration.test.js",
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+        "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/line-channel-credential-routes.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
@@ -10597,15 +10695,13 @@
         "project-manager"
       ],
       "useCase": "เจ้าของธุรกิจสลับบัญชี LINE OA ให้ตอบลูกค้าจากคลังความรู้ที่ publish แล้วใน GKS ดู trace ได้ว่าคำตอบอ้างเอกสารไหน อนุมัติคำถาม-คำตอบที่ได้จากแชทลูกค้าเข้าเป็นความรู้ของธุรกิจโดยไม่มีข้อมูลส่วนตัวของลูกค้าติดไป และเห็นรายงานว่าลูกค้าถามเรื่องสินค้าตัวไหนที่ระบบยังตอบไม่ได้",
-      "progressPercent": 40,
+      "progressPercent": 90,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-038 registry status is declared",
         "FR-235 is partial",
-        "FR-236 is partial",
-        "FR-237 is planned",
-        "FR-238 is planned"
+        "FR-236 is partial"
       ],
       "requirements": [
         {
@@ -10614,7 +10710,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 10,
-          "testCount": 24
+          "testCount": 26
         },
         {
           "id": "FR-236",
@@ -10622,30 +10718,32 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 13,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-237",
           "title": "Knowledge gap report for LINE",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 3
         },
         {
           "id": "FR-238",
           "title": "LINE Studio descriptions as knowledge sources",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 7,
+          "testCount": 13
         }
       ],
       "evidence": [
         "apps/server/src/app/(pm)/knowledge/candidates/page.jsx",
+        "apps/server/src/app/(pm)/knowledge/gap-report/page.jsx",
         "apps/server/src/app/api/knowledge/candidates/[id]/decision/route.js",
         "apps/server/src/app/api/knowledge/candidates/[id]/route.js",
         "apps/server/src/app/api/knowledge/candidates/route.js",
+        "apps/server/src/app/api/knowledge/gap-report/route.js",
         "apps/server/src/config/domains.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/agent/grounded-business-answer.js",
@@ -10654,12 +10752,19 @@
         "apps/server/src/modules/agent/server-line-answer.js",
         "apps/server/src/modules/crm/conversation-consent-reader.js",
         "apps/server/src/modules/knowledge/application/knowledge-candidate-service.js",
+        "apps/server/src/modules/knowledge/application/knowledge-gap-report-service.js",
         "apps/server/src/modules/knowledge/corpus-knowledge-reader.js",
         "apps/server/src/modules/knowledge/index.js",
         "apps/server/src/modules/knowledge/knowledge-admission-service.js",
         "apps/server/src/modules/knowledge/knowledge-candidate-zero-pii.js",
+        "apps/server/src/modules/knowledge/knowledge-corpus-service.js",
         "apps/server/src/modules/knowledge/ui/KnowledgeCandidateReview.jsx",
+        "apps/server/src/modules/knowledge/ui/KnowledgeGapReport.jsx",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+        "apps/server/src/modules/line-oa-studio/application/line-oa-liff-app-service.js",
+        "apps/server/src/modules/line-oa-studio/application/line-oa-rich-menu-jobs.js",
+        "apps/server/src/modules/line-oa-studio/application/line-oa-rich-menu-service.js",
+        "apps/server/src/modules/line-oa-studio/application/line-oa-studio-description-admission.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
@@ -10671,12 +10776,18 @@
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
+        "apps/server/tests/integration/fr151-line-oa-rich-menu.test.js",
+        "apps/server/tests/integration/fr152-line-oa-rich-menu-jobs.test.js",
+        "apps/server/tests/integration/fr153-line-oa-liff-app.test.js",
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
         "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
         "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
         "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
+        "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
+        "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/genesisrag17-parser-2.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
+        "apps/server/tests/integration/knowledge-corpus.test.js",
         "apps/server/tests/integration/knowledge-project.test.js",
         "apps/server/tests/integration/knowledge-query.test.js",
         "apps/server/tests/integration/line-gks-grounding.test.js",
@@ -10707,11 +10818,14 @@
         "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
         "apps/server/tests/unit/knowledge-candidates-ui.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
+        "apps/server/tests/unit/knowledge-gap-report-service.test.js",
+        "apps/server/tests/unit/knowledge-gap-report-ui.test.js",
         "apps/server/tests/unit/line-execution-trace.test.js",
         "apps/server/tests/unit/line-knowledge-grounding.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/line-oa-connect-wizard-render.test.js",
         "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
+        "apps/server/tests/unit/line-oa-studio-description-admission.test.js",
         "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
@@ -13807,7 +13921,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 31,
-          "testCount": 67
+          "testCount": 68
         }
       ],
       "evidence": [
@@ -13888,6 +14002,7 @@
         "apps/server/tests/integration/fr201-inventory-sku-governance.test.js",
         "apps/server/tests/integration/fr208-inventory-catalog-intake.test.js",
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+        "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/line-channel-credential-routes.test.js",
         "apps/server/tests/integration/project-authorization.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",

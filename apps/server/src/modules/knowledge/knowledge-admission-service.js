@@ -27,8 +27,16 @@ import {
 // @req FR-236 — the same boundary, unmodified, is the ADR-072 admission
 // service an approved LINE FAQ candidate is admitted through as one immutable
 // LINE_FAQ_CANDIDATE TEXT source — never a second write path into the corpus.
-// @spec ADR-072, ADR-075, ADR-090 D6, ZAI:KNOWLEDGE-ADMISSION-CONTRACT, SEC-001, SEC-008
-// @tested tests/unit/knowledge-admission-service.test.js, tests/unit/smartgift-catalog-adapter.test.js, tests/integration/smartgift-catalog-admission.test.js, tests/integration/fr236-knowledge-candidate.test.js
+// @req FR-238 — the same boundary, unmodified, admits a rich menu / LIFF app /
+// bot profile's human-readable description as one LINE_STUDIO_DESCRIPTION TEXT
+// source per publisher action (ADR-090 D7). It shares `textSource`'s shape and
+// `loadTextSource`'s loader byte-for-byte, so it carries no Stage 5 Zero-PII
+// gate — a provider absent from `ZERO_PII_POLICY_BY_PROVIDER`
+// (genesisrag17-executor.js) carries none, exactly like plain TEXT — a
+// deliberate, documented choice (operator-authored menu/LIFF/profile copy is
+// not customer conversation content; see the caller module's own comment).
+// @spec ADR-072, ADR-075, ADR-090 D6, D7, ZAI:KNOWLEDGE-ADMISSION-CONTRACT, SEC-001, SEC-008
+// @tested tests/unit/knowledge-admission-service.test.js, tests/unit/smartgift-catalog-adapter.test.js, tests/integration/smartgift-catalog-admission.test.js, tests/integration/fr236-knowledge-candidate.test.js, tests/integration/fr238-line-studio-description-admission.test.js
 
 const MAX_CONTENT_BYTES = 1024 * 1024
 const MAX_LIMIT = 100
@@ -67,6 +75,20 @@ const lineFaqCandidateSource = z.object({
   title: identifier.optional(),
   content: z.string().min(1),
 }).strict()
+// @req FR-238 — the ADR-090 D7 amendment to ADR-072 D1: a third TEXT source
+// kind, admitted through this exact service (never a second write path). Its
+// shape mirrors `textSource`/`lineFaqCandidateSource` deliberately — only
+// `kind` differs — and the content is always human-readable copy the
+// publisher's own service composed (a rich menu's name/labels/message text, a
+// LIFF app's name/description, or a bot profile's greeting/fallback/persona),
+// never the Flex/rich-menu JSON, coordinates, URLs or postback data.
+const lineStudioDescriptionSource = z.object({
+  kind: z.literal('LINE_STUDIO_DESCRIPTION'),
+  sourceKey: identifier,
+  version: identifier,
+  title: identifier.optional(),
+  content: z.string().min(1),
+}).strict()
 const fileSource = z.object({
   kind: z.literal('FILE'),
   fileAssetId: identifier,
@@ -90,7 +112,7 @@ export const knowledgeAdmissionInput = z.object({
   businessId: identifier,
   projectId: identifier.nullish(),
   idempotencyKey: identifier,
-  source: z.union([textSource, fileSource, lineFaqCandidateSource]),
+  source: z.union([textSource, fileSource, lineFaqCandidateSource, lineStudioDescriptionSource]),
 }).strict()
 
 function failure(status, code, message = code, details) {
@@ -208,7 +230,10 @@ function actorId(viewer) {
   return typeof viewer?.principal?.id === 'string' ? viewer.principal.id : null
 }
 
-function corpusKeyFor(businessId, projectId) {
+// Exported so a caller that must find an already-admitted source by its
+// (businessId, sourceKey) — the LINE Studio unpublish hook, FR-238 — resolves
+// the exact same corpus this service admits into, never a second derivation.
+export function corpusKeyFor(businessId, projectId) {
   return `knowledge:${hashGenesisRag17Json({ businessId, projectId: projectId || null })}`
 }
 
@@ -399,9 +424,9 @@ async function loadFileSource(value, { db, fileContentResolver = defaultResolveF
 async function loadTextSource(source) {
   const bytes = contentBytes(source.content)
   return {
-    // TEXT and LINE_FAQ_CANDIDATE (FR-236) share this loader byte-for-byte;
-    // the row's actual kind is preserved so the admitted KnowledgeSource
-    // records which one it is.
+    // TEXT, LINE_FAQ_CANDIDATE (FR-236) and LINE_STUDIO_DESCRIPTION (FR-238)
+    // share this loader byte-for-byte; the row's actual kind is preserved so
+    // the admitted KnowledgeSource records which one it is.
     kind: source.kind,
     content: source.content,
     contentHash: hashGenesisRag17Text(source.content),

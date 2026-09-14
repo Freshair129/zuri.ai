@@ -26,13 +26,13 @@
     ]
   },
   "summary": {
-    "nodes": 78,
-    "edges": 109,
+    "nodes": 79,
+    "edges": 110,
     "chains": 22,
     "byKind": {
       "SOURCE": 12,
       "ENTRY": 24,
-      "PROCESS": 18,
+      "PROCESS": 19,
       "STORE": 17,
       "RECIPIENT": 7
     },
@@ -47,7 +47,7 @@
       "BLOCKED": 1,
       "DECLARED": 1,
       "PARTIAL": 3,
-      "CODE_TESTS": 34,
+      "CODE_TESTS": 35,
       "PRODUCTION": 20
     },
     "internalBySurface": {
@@ -55,7 +55,7 @@
       "WORKER": 10,
       "MCP": 0,
       "ENDPOINT": 11,
-      "UI": 31
+      "UI": 32
     }
   },
   "nodes": [
@@ -1510,6 +1510,41 @@
       ],
       "surfaceLevel": "UI",
       "buildStatus": "PARTIAL",
+      "evidence": null,
+      "blocked": null
+    },
+    {
+      "id": "p.knowledge-gap-report",
+      "kind": "PROCESS",
+      "system": "zuri-ai",
+      "label": "LINE knowledge gap report",
+      "detail": "รวม EVIDENCE_SELECTED (reason=NO_EVIDENCE) ต่อ Business เป็นจำนวน, product locator (ถ้าทราบ) และเวลาล่าสุดเท่านั้น — คำนวณจาก AgentTraceEvent ที่มีอยู่ ไม่มี store ใหม่ ไม่มีข้อความคำถาม",
+      "domain": "knowledge",
+      "requirements": [
+        {
+          "id": "FR-237",
+          "status": "verified",
+          "title": "Knowledge gap report for LINE"
+        }
+      ],
+      "features": [
+        "FEAT-038"
+      ],
+      "decisions": [
+        "ADR-090"
+      ],
+      "surfaces": [
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/knowledge/gap-report"
+        },
+        {
+          "type": "UI",
+          "ref": "/knowledge/gap-report"
+        }
+      ],
+      "surfaceLevel": "UI",
+      "buildStatus": "CODE_TESTS",
       "evidence": null,
       "blocked": null
     },
@@ -3435,6 +3470,14 @@
       "label": "อนุมัติแล้วเท่านั้น → TEXT source LINE_FAQ_CANDIDATE ก่อน Stage 1 (FR-236)",
       "wired": true,
       "status": "PARTIAL"
+    },
+    {
+      "id": "e.agent-trace-to-gap-report",
+      "from": "s.agent-trace",
+      "to": "p.knowledge-gap-report",
+      "label": "อ่าน EVIDENCE_SELECTED (reason=NO_EVIDENCE) — คำนวณตอนอ่าน ไม่มี store ใหม่ (FR-237)",
+      "wired": true,
+      "status": "CODE_TESTS"
     },
     {
       "id": "e.agent-to-msp-session",

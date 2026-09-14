@@ -18,6 +18,12 @@ import {
   zLineOaAccountAction,
 } from '../domain/line-oa-account'
 import { assertMayPublish, assertMayView, notFound } from './line-oa-account-authority'
+import {
+  admitLineStudioDescription,
+  composeBotProfileDescription,
+  lineStudioDescriptionSourceKey,
+  withdrawLineStudioDescription,
+} from './line-oa-studio-description-admission'
 
 // @req FR-149 — server activation and execution policy fenced against delivery jobs.
 // @spec ADR-061
@@ -34,7 +40,11 @@ import { assertMayPublish, assertMayView, notFound } from './line-oa-account-aut
 // @req FR-225 — `toHealth` also surfaces the credential's store, version and
 //   last-validated time (metadata only) so the Studio card can offer the
 //   mount-to-vault migration and a truthful credential status line.
-// @tested tests/integration/fr146-line-oa-account.test.js, tests/integration/fr225-line-oa-self-serve-onboarding.test.js
+// @req FR-238 — CONNECT admits the bot profile's composed description as a
+//   LINE_STUDIO_DESCRIPTION TEXT source (ADR-090 D7); ARCHIVE withdraws it.
+//   Both calls are best-effort through line-oa-studio-description-admission.js
+//   and never fail this service's own write.
+// @tested tests/integration/fr146-line-oa-account.test.js, tests/integration/fr225-line-oa-self-serve-onboarding.test.js, tests/integration/fr238-line-studio-description-admission.test.js
 
 const ACTIONS = Object.freeze({
   ENABLE_SERVER: 'LINE_OA_SERVER_ENABLED',
@@ -264,6 +274,18 @@ export async function connectLineOaAccount(input, { viewer, db = prisma, ports }
     return row
   })
 
+  // @req FR-238 — the bot profile has no separate "publish" verb of its own
+  // (it is written once, at connect); CONNECT is the publisher action ADR-090
+  // D7 means for it. Best-effort and after the account's own transaction has
+  // committed, exactly like FR-236's candidate admission call.
+  await admitLineStudioDescription({
+    businessId: created.businessId,
+    sourceKey: lineStudioDescriptionSourceKey.botProfile(created.id),
+    version: created.version,
+    title: `Bot profile: ${created.displayName}`,
+    content: composeBotProfileDescription(data.botProfile ?? {}),
+  }, { db })
+
   const [dto] = await describe([created], db, ports)
   return dto
 }
@@ -440,6 +462,16 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
     })
     return tx.lineOaAccount.findUnique({ where: { id: row.id }, select: SELECT })
   })
+
+  // @req FR-238 — ARCHIVE is the bot profile's unpublish: withdraw whatever
+  // description was admitted at CONNECT. Best-effort, after commit; a no-op
+  // when nothing was ever admitted (knowledge disabled at connect time).
+  if (data.action === 'ARCHIVE') {
+    await withdrawLineStudioDescription({
+      businessId: updated.businessId,
+      sourceKey: lineStudioDescriptionSourceKey.botProfile(updated.id),
+    }, { db })
+  }
 
   const [dto] = await describe([updated], db, ports)
   return dto
