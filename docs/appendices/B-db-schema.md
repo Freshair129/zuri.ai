@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.46.0b |
+| **Version** | 1.47.0b |
 | **Status** | Draft |
 | **Last Updated** | 2026-09-14 |
 
@@ -542,3 +542,5 @@ Version diff 1.43.0b → 1.44.0b (2026-09-14): FR-223 (ADR-089 D1, D5; branch `f
 Version diff 1.44.0b → 1.45.0b (2026-09-14): FR-226 (ADR-089 D6; same branch, not merged) — new model `ChannelAccountClaim` (integration; exported). 157 models are now declared. Migration `20260914140100_channel_account_claim` (partial unique on live claims, backfill by sha256 of each LINE_OA destination, ACTIVE then oldest wins) written and NOT applied to production.
 
 Version diff 1.45.0b → 1.46.0b (2026-09-14): FR-224 (ADR-089 D4; same branch, not merged) — new model `RateLimitBucket` (identity; excluded from the backup snapshot as ephemeral). 158 models are now declared. Migration `20260914140400_rate_limit_bucket` written and NOT applied to production.
+
+Version diff 1.46.0b → 1.47.0b (2026-09-14): migrations `20260914140000_integration_credential_lifecycle`, `20260914140100_channel_account_claim`, `20260914140200_channel_secret_vault_functions`, `20260914140300_integration_secret_envelope`, `20260914140400_rate_limit_bucket` APPLIED on production 2026-09-14 (owner-instructed, ADR-057, ADR-089 proof 10 waived by the owner): read-only inventory, one rolled-back dry run of all five through the transaction pooler, then one transaction with five ledger rows; effect verified (IntegrationCredential 18 columns, IntegrationCredentialVersion 1 BACKFILL row, ChannelAccountClaim 2 rows, IntegrationSecretEnvelope and RateLimitBucket empty; all four new tables rls=t forced=t policies=1 and no anon/authenticated/service_role grant).
