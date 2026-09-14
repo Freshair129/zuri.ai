@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.71.0b |
+| **Version** | 1.72.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-14 |
 
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=270 -->
+<!-- api-spec-counts: route_handlers=273 -->
 
 ### Programme usage reports (FR-218, 2026-09-13)
 
@@ -881,7 +881,10 @@ canary evidence; those remain owner-gated release criteria.
 | GET | `/api/line-oa/jobs/failures?businessId=` | Studio Business visibility (same 404 for unknown, invisible or ungranted); read model only, never a retry or acknowledgement. `{ businessId, total, byErrorCode[], failures[] }` — the honest unwindowed count of `FAILED` conversation jobs for the Business, a per-`errorCode` breakdown (a null code is reported as `null`, never relabelled) and the 20 most recently updated rows in the same DTO shape as the per-account list. `400 LINE_OA_BUSINESS_REQUIRED`. |
 | POST | `/api/line-oa/jobs/[id]/acknowledge-unknown` | Studio publisher; `{version,acknowledgePossibleDelivery:true}` terminal audited closure without resend or delivery claim. |
 | GET | `/api/line-oa/jobs/[id]/trace` | Business owner plus Studio visibility; exact persisted execution evidence and read-only playback. Derives Tenant/Business from the job; no model, tool or transport calls. Missing or erased evidence returns `REPLAY_INCOMPLETE`. |
-| POST | `/api/line-oa/connections` | Business owner; register LINE provider connection and secret reference metadata. Secrets are mounted separately. |
+| POST | `/api/line-oa/connections` | Business owner. Body `{businessId,name,destination,secretRef:"deployment-secret:…"}` registers connection metadata for a mounted secret (FR-149). Body `{businessId,name,channelId,channelSecret,channelAccessToken?}` connects write-only (FR-223, FR-224, FR-226, ADR-089): ACTIVE TOTP factor and live AAL2 step-up (403 `MFA_FACTOR_REQUIRED` with `details[0].enrolmentPath`, 403 `ASSURANCE_LEVEL_INSUFFICIENT`), rate limit (429 `CREDENTIAL_RATE_LIMITED` + `retryAfterSeconds` and `Retry-After`), writable store required (503 `CHANNEL_SECRET_STORE_UNAVAILABLE`), live LINE validation (422 `LINE_CREDENTIALS_REJECTED` for a wrong Channel ID or secret alike, 422 `LINE_TOKEN_REJECTED`, 503 `LINE_UNAVAILABLE`), claim (409 `LINE_CHANNEL_ALREADY_CONNECTED` / `LINE_CHANNEL_CLAIMED_ELSEWHERE`, Thai sentence in `details`), then vault write (500 `CREDENTIAL_ORPHAN_PURGED` after compensation). Response `{connection,credential:{status,version,secretStore,displayHint,lastValidatedAt,expiresAt},bot,claim}` — never material. Body ≤ 16 KiB (413 `CREDENTIAL_INPUT_TOO_LARGE`), generic 400 `CREDENTIAL_INPUT_INVALID`, `Cache-Control: no-store`. |
+| POST | `/api/line-oa/connections/[id]/credential` | Business owner; FR-223/FR-224 rotation `{channelId,channelSecret,channelAccessToken?}` with the same gate, limit and validation; 422 `LINE_CHANNEL_MISMATCH` when the pair belongs to another bot; 409 `LINE_CONNECTION_NOT_ACTIVE`. The previous version resolves until the new one validates; no epoch bump. Response `{credential,bot}`; `no-store`. |
+| POST | `/api/line-oa/connections/[id]/credential/revoke` | Business owner; FR-223/FR-224 `{reason,confirmation:"REVOKE"}` with the gate and limit; fences the LINE OA account (server ownership off, epoch +1, queued jobs cancelled) before every version's material is purged. Response `{credential:{status,version}}`; `no-store`. |
+| POST | `/api/line-oa/connections/[id]/credential/validate` | Business owner; FR-223/FR-224 empty body with the gate and limit (a rejected validation counts twice); re-proves the stored credential with LINE bot information and records `lastValidatedAt`/`lastValidationCode`; 409 `CREDENTIAL_REENTRY_REQUIRED` when it no longer resolves, 422 `LINE_CHANNEL_MISMATCH`. Response `{credential,bot}`; `no-store`. |
 
 Execution contract: `contracts/line-conversation-execution.schema.json`. Job errors are redacted; Edge validation 400, missing credentials 401, unavailable/disabled 503, invisible job 404, stale lease/version 409. Transport ownership and execution policy changes increment account epoch and cancel waiting jobs; SENDING or unacknowledged UNKNOWN blocks handoff.
 
@@ -983,3 +986,5 @@ Version diff 1.68.0b → 1.69.0b (2026-09-14): add the six FR-220 harness pairin
 Version diff 1.69.0b → 1.70.0b (2026-09-14): no route added or changed; record that the MFA factor secret is sealed at rest (SEC-029, ADR-088) and the two 503 refusals that follow from a missing key or an unopenable factor. Handler count unchanged.
 
 Version diff 1.70.0b → 1.71.0b (2026-09-14): FR-239 optional `detail` object on `POST /api/platform/programme-usage-reports` (ADR-086 D7); no new handler.
+
+Version diff 1.71.0b → 1.72.0b (2026-09-14): ADR-089 Phase 1 (branch `feat/integration-secret-store-vault`, not merged) — the write-only Channel ID and secret body on `POST /api/line-oa/connections` and three new handlers under `/api/line-oa/connections/[id]/credential` (rotate, revoke, validate), all behind the FR-224 step-up gate and rate limit; 429 responses now carry `retryAfterSeconds` and `Retry-After`. Handler count 270 → 273.

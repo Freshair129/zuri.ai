@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.43.0b |
+| **Version** | 1.46.0b |
 | **Status** | Draft |
-| **Last Updated** | 2026-09-13 |
+| **Last Updated** | 2026-09-14 |
 
 Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
 Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)
@@ -71,7 +71,11 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | Team | code unique, businessId, deletedAt? | FR-089 — organisational grouping, Business-scoped (ADR-037 D2). Grants nothing: the identity module never reads it (BR-018) |
 | TeamMembership | (teamId,personId) unique | Person ↔ Team, deliberately separate from `Membership` — that one is the authority record, and merging the two is what let an unauthenticated POST mint owner authority on 2026-08-17. No `role` column, on purpose |
 | ProjectTeam | (projectId,teamId) unique | m2m: a Project is worked by several Teams and a Team works several Projects (ADR-037 D3) |
-| IntegrationProvider / IntegrationConnection / IntegrationCredential | code unique; (tenantId,providerId,externalAccountId) unique; connectionId unique | provider + Business-scoped connection registry, opaque secret ref (FR-079/FR-080) |
+| IntegrationProvider / IntegrationConnection / IntegrationCredential | code unique; (tenantId,providerId,externalAccountId) unique; connectionId unique | provider + Business-scoped connection registry, opaque secret ref (FR-079/FR-080); FR-223 adds secretStore (DEPLOYMENT_MOUNT / SUPABASE_VAULT / ENVELOPE), secretKind, displayHint? (Channel ID last four), lastValidatedAt?, lastValidationCode?, revokedAt?, revokeReason? — never material |
+| IntegrationCredentialVersion | (credentialId,versionNumber) unique; (tenantId,businessId,status); secretRef | FR-223 — append-only version history: PENDING_VALIDATION → ACTIVE → SUPERSEDED / REJECTED / REVOKED → PURGED; createdVia BROWSER_MFA / OPERATOR_CLI / BACKFILL. Exported with the snapshot (references only) |
+| RateLimitBucket | key unique | FR-224 — fixed-window counter (key from internal ids, windowStart, count) for the credential-write rate limit per Person and Business and installation-wide LINE validations. Excluded from backup as ephemeral |
+| ChannelAccountClaim | connectionId unique; (provider,externalAccountHash) unique — on Postgres only among rows with releasedAt IS NULL | FR-226 — one live claim per external bot across the installation, keyed by sha256(destination), never the raw id; taken before any secret is stored. Exported (no material) |
+| IntegrationSecretEnvelope | id = the uuid of `envelope:<uuid>`; (tenantId,businessId,connectionId) | FR-223 — envelope-store ciphertext (AES-256-GCM, DEK wrapped by the deployment KEK, AAD bound to scope and version). Purge deletes the row. Excluded from backup as credential material |
 | IngestionRun | connectionId, lane, resourceType, status, counts | one acquisition pass; inherits the connection's scope (FR-081) |
 | RawExternalRecord | idempotencyKey unique; (connectionId,entityType,externalId) | verbatim source payload as replayable evidence (FR-081) |
 | SyncCursor | (connectionId,resourceType) unique | incremental watermark per resource (FR-081) |
@@ -532,3 +536,9 @@ Version diff 1.40.0b → 1.41.0b (2026-09-14): migration `20260914100000_harness
 Version diff 1.41.0b → 1.42.0b (2026-09-14): FR-239 (ADR-086 D7) — `ProgrammeUsageReport` gains reasoningTokens, toolCallCount, toolErrorCount, promptCount and detailJson (names and numbers only). Migration `20260914120000_usage_detail` written in both trees and NOT applied to production.
 
 Version diff 1.42.0b → 1.43.0b (2026-09-14): migration `20260914120000_usage_detail` APPLIED on production 2026-09-14 (owner-instructed, ADR-057): read-only inventory (ProgrammeUsageReport 21 columns, 0 rows), a rolled-back dry run through the transaction pooler, then apply with ledger row `20260914120000 usage_detail`; effect verified (26 columns: reasoningTokens, toolCallCount, toolErrorCount, promptCount integer NOT NULL default 0, detailJson text nullable).
+
+Version diff 1.43.0b → 1.44.0b (2026-09-14): FR-223 (ADR-089 D1, D5; branch `feat/integration-secret-store-vault`, not merged) — `IntegrationCredential` gains secretStore, secretKind, displayHint, lastValidatedAt, lastValidationCode, revokedAt, revokeReason; new models `IntegrationCredentialVersion` (integration; exported) and `IntegrationSecretEnvelope` (integration; excluded from the backup snapshot). 156 models are now declared. Migrations `20260914140000_integration_credential_lifecycle` (with store/kind and version backfill), `20260914140200_channel_secret_vault_functions` (Supabase Vault definer functions and NOLOGIN roles) and `20260914140300_integration_secret_envelope` written and NOT applied to production.
+
+Version diff 1.44.0b → 1.45.0b (2026-09-14): FR-226 (ADR-089 D6; same branch, not merged) — new model `ChannelAccountClaim` (integration; exported). 157 models are now declared. Migration `20260914140100_channel_account_claim` (partial unique on live claims, backfill by sha256 of each LINE_OA destination, ACTIVE then oldest wins) written and NOT applied to production.
+
+Version diff 1.45.0b → 1.46.0b (2026-09-14): FR-224 (ADR-089 D4; same branch, not merged) — new model `RateLimitBucket` (identity; excluded from the backup snapshot as ephemeral). 158 models are now declared. Migration `20260914140400_rate_limit_bucket` written and NOT applied to production.

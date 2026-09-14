@@ -165,7 +165,16 @@ const SNAPSHOT_MODELS = [
   // it and delete before the Tenant/Business they reference. The three integration
   // metadata models were absent from this list entirely; a restore silently dropped
   // them, which the new foreign keys turn from invisible data loss into a hard error.
-  'integrationConnection', 'integrationCredential', 'ingestionRun', 'rawExternalRecord',
+  'integrationConnection', 'integrationCredential',
+  // @req FR-223 — a credential's version history hangs off the credential; it holds
+  // references and lifecycle metadata, never material (SEC-030), so it is exported
+  // whole. The material itself (IntegrationSecretEnvelope) is excluded below.
+  'integrationCredentialVersion',
+  // @req FR-226 — a claim names its connection by id only (no foreign key) and holds
+  // a destination hash, never material, so it is exported whole and restores after
+  // the connection it names.
+  'channelAccountClaim',
+  'ingestionRun', 'rawExternalRecord',
   'syncCursor', 'externalEntityRef', 'deadLetterRecord',
   // @req FR-092 — translated market state is restored after its Integration
   // evidence and before downstream projections exist.
@@ -360,6 +369,13 @@ export const SNAPSHOT_EXCLUDED_MODELS = {
     'FR-220 agent harness credentials are credential material — a SHA-256 lookup hash bound to one Person and ' +
     'installation. They are never exported or restored, so a recovery cannot resurrect a revoked device, and ' +
     'each harness pairs again under the authority that holds it then (ADR-087 D3).',
+  rateLimitBucket:
+    'FR-224 rate-limit counters are ephemeral request accounting, not business data. A restore starts every ' +
+    'window empty; carrying counts across installations would refuse or admit requests on another deployment’s traffic.',
+  integrationSecretEnvelope:
+    'FR-223 envelope-store ciphertext is credential material (SEC-030, ADR-089 D1). It is never exported: a ' +
+    'snapshot carries credential references and version history only, a restored credential must be entered ' +
+    'again (REENTRY_REQUIRED), and the key-encryption key that could open it is never part of any export.',
   localWorkspaceMount:
     'Device-local mount paths. Deleted explicitly before the sweep and never restored: a mount names a ' +
     'filesystem on one machine, so carrying it into another installation would point at a path that does ' +

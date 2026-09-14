@@ -410,7 +410,7 @@ Week numbers map to the calendar in section 5.4. W1 begins Mon 2026-08-24.
 | Phase | Weeks | Dates | Goal | Governing SoT | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
 | PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2); (v0.4.7) bind the LINE OA platform plan to lanes before its work starts | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, the cost and quote decision record is written, the data pipeline map renders every confirmed chain (v0.4.3), and the board shows measured time and tokens for done work (v0.4.4) | in-progress | 87 |
-| PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; give the seventeen-stage pipeline its knowledge base and file system on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one; (v0.4.7) a Business owner connects a LINE OA from the browser through a write-only credential vault, and the LINE chat record is complete with declared retention | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; a real document is admitted, parsed, published and cited on production; GATE-ZAI-09's migration ledger matches; one production LINE OA account runs on server transport from a vault credential its owner entered, with no operator file (v0.4.7) | planned | 0 |
+| PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; give the seventeen-stage pipeline its knowledge base and file system on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one; (v0.4.7) a Business owner connects a LINE OA from the browser through a write-only credential vault, and the LINE chat record is complete with declared retention | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; a real document is admitted, parsed, published and cited on production; GATE-ZAI-09's migration ledger matches; one production LINE OA account runs on server transport from a vault credential its owner entered, with no operator file (v0.4.7) | in-progress | 8 |
 | PHASE-ZAI-03 | 9-12 | 2026-10-19 to 2026-11-15 | Second business, cross-business analytics, first workflows and connectors; deliverable 11 accepted for Business one; (v0.4.7) one Context Composer for every LINE prompt, LINE answers grounded by the published corpus, reviewed knowledge candidates, and memory policy with erasure beyond Tier 1 once MSP can hold and erase it | `docs/ARCHITECTURE.md` | GATE-ZAI-04 and GATE-ZAI-07 are met for connectors one and two and workflows one and two; GATE-ZAI-09 is met; a SmartGift LINE answer cites the published corpus in the isolated harness with zero cross-tenant leakage (v0.4.7) | planned | 0 |
 | PHASE-ZAI-04 | 13-16 | 2026-11-16 to 2026-12-13 | Visual Office 2.5D and the agent activity experience | `docs/UI-DESIGN-SYSTEM.md` | GATE-ZAI-01 is met | planned | 0 |
 | PHASE-ZAI-05 | 17-20 | 2026-12-14 to 2027-01-10 | Second Brain, Node View 3D and the remaining automation | `docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md` | GATE-ZAI-02, GATE-ZAI-03 and GATE-ZAI-05 are met | in-progress | 17 |
@@ -431,7 +431,7 @@ locates the week.
 |---|---|---|---|---|---|---|---|
 | SPR-ZAI-01 | PHASE-ZAI-01 | 1-2 | 08-24 to 09-06 | Close identity, session and authorization to production standard; (CR-019) Inventory, Sales Tasks, Commerce, Procurement, Asset Management and LINE OA Studio lanes land | A request without a trusted session reaches no mutating route, proven by test; each lane merged with tests | in-progress | 93 |
 | SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake; (v0.4.3) the data pipeline registry and its node-edge map land under a Knowledge (GKS) slot; (v0.4.4) delivery telemetry on the programme board: phase card metrics, task card evidence badges with subtask progress, a usage meter over local session logs and a usage report endpoint; (v0.4.5) the Zuri harness usage plugin with browser-approved device pairing; (v0.4.6) the plugin specification and agent usage detail — thinking tokens, tool calls, prompts and compactions; (v0.4.7) the LINE OA platform plan registered with its lanes before work starts; (v0.4.8) a 30-day member view of the roadmap for signed-in people | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, supplier cost sheets land with a locked FX rate, and the map shows every inbound source, outbound recipient and combine chain with its surface level, a done task shows tokens measured from a named source, every task card shows its evidence badges, a paired agent on another machine reports its sessions (v0.4.5), the board shows tool calls and token types per lane and person (v0.4.6), and a signed-in non-operator reads the plan at /roadmap until the window closes (v0.4.8) | in-progress | 85 |
-| SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; stand up the knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending deliverable-11 migration on production; pricing rule set, the shared pricing engine and quotations; live pipeline health on the data pipeline map; (v0.4.7) the Integration credential vault with Supabase Vault and envelope stores, the LINE channel claim and channel-admin port, and the AAL2 credential-write gate | Each role resolves distinct tools, policy and memory partition; a PDF uploaded in the console is published as a cited corpus on production; the migration ledger matches the tree; a quote and the FR-181 tool price the same SKU to the same satang; a failed run is visible on its map edge for its own Business only; ADR-089 proofs 1 to 6 pass on both stores and a real test channel is validated in a dev deployment with no production migration applied (v0.4.7) | planned | 0 |
+| SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; stand up the knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending deliverable-11 migration on production; pricing rule set, the shared pricing engine and quotations; live pipeline health on the data pipeline map; (v0.4.7) the Integration credential vault with Supabase Vault and envelope stores, the LINE channel claim and channel-admin port, and the AAL2 credential-write gate | Each role resolves distinct tools, policy and memory partition; a PDF uploaded in the console is published as a cited corpus on production; the migration ledger matches the tree; a quote and the FR-181 tool price the same SKU to the same satang; a failed run is visible on its map edge for its own Business only; ADR-089 proofs 1 to 6 pass on both stores and a real test channel is validated in a dev deployment with no production migration applied (v0.4.7) | in-progress | 16 |
 | SPR-ZAI-04 | PHASE-ZAI-02 | 7-8 | 10-05 to 10-18 | Approval Gateway L1 to L4 with verification, notification and Mission Control binding; ladder quotation on LINE and knowledge structured records; (v0.4.7) the self-serve LINE OA wizard with automatic webhook registration and derived quiescence, the first production account moved off the mount, and the complete chat record with retention sweep and inbox search | An L4 action cannot execute without four recorded approvals; a LINE quotation request is answered from the shared engine with no margin in the payload; one production LINE OA account runs on server transport from a credential its owner entered, and non-text LINE events appear in the inbox (v0.4.7) | planned | 0 |
 | SPR-ZAI-05 | PHASE-ZAI-03 | 9-10 | 10-19 to 11-01 | Standard business template and Business number two onboarding; (v0.4.7) the Context Composer, and LINE grounding from the published corpus with its isolated acceptance | Business two is live and isolated from SmartGift under test; every LINE prompt carries one ContextReceipt and a grounded answer cites the corpus in the four-process harness (v0.4.7) | planned | 0 |
 | SPR-ZAI-06 | PHASE-ZAI-03 | 11-12 | 11-02 to 11-15 | Cross-business analytics, connector two, workflows one and two; GATE-ZAI-09 evidence run; (v0.4.7) the SmartGift grounding switch after ADR-075 Phase 3, LINE knowledge candidates, the gap report and Studio descriptions, and memory policy with erasure fan-out once MSP ships its thread and erase tools | Analytics obey per-business visibility, two workflows run end to end, and the ERP acceptance record is signed; an approved locator-only candidate is admitted with Zero-PII checked twice (v0.4.7) | planned | 0 |
@@ -523,10 +523,10 @@ locates the week.
 | TASK-ZAI-075 | SPR-ZAI-02 | task | Usage detail on the programme board — phase and task telemetry show input, output, thinking and cache tokens separately, tool calls with the most used tools and the error rate, prompts and compactions, per lane, person and device | P1 | Claude | done | TASK-ZAI-074 | Section 3.1 row 2; FR-216; FR-221; NFR-008 |
 | TASK-ZAI-076 | SPR-ZAI-02 | task | LINE OA platform decision record — ADR-089 credential vault and self-serve onboarding, ADR-090 GKS grounding and reviewed candidates, ADR-091 chat record, memory tiers and the Context Composer, with FR-223 to FR-238, SEC-030 to SEC-032, SDD-097 to SDD-100 and FEAT-036 to FEAT-038 declared | P0 | Claude | done | - | Section 3.1 rows 4 and 8; ADR-089; ADR-090; ADR-091 |
 | TASK-ZAI-077 | SPR-ZAI-02 | task | LINE OA platform delivery plan — every phase of ADR-089 to ADR-091 registered as sized tasks with acceptance criteria, lanes bound to branches before work starts, the usage-detail capture of TASK-ZAI-074 and TASK-ZAI-075 named as the measurement prerequisite, the Project Manager import path stated, and the usage meter run | P0 | Claude | in-progress | TASK-ZAI-076 | Section 3.1 rows 2, 4 and 8; ADR-086 D3; ADR-089; ADR-090; ADR-091 |
-| TASK-ZAI-078 | SPR-ZAI-03 | task | Integration credential vault — a SecretStorePort with the Supabase Vault and envelope stores, a dispatching secret manager by reference prefix, versioned write, activate, rotate, revoke and resolve with compensation and re-entry status, and design migrations 1, 3 and 4 — FR-223, SEC-030, SDD-097 | P0 | Claude | planned | TASK-ZAI-077; TASK-ZAI-074; TASK-ZAI-075 | Section 3.1 row 8; ADR-089 D1, D2, D5 |
-| TASK-ZAI-079 | SPR-ZAI-03 | task | LINE channel account claim and the Integration LINE channel-admin port — an installation-wide claim by destination hash taken before any secret is stored, stateless token minting with a per-version cache, bot info, and webhook set, read and test calls, with design migration 2 — FR-226, SDD-098 and the port half of FR-227 | P0 | Claude | planned | TASK-ZAI-078 | Section 3.1 row 8; ADR-089 D3, D6, D7 |
-| TASK-ZAI-080 | SPR-ZAI-03 | task | Credential-write step-up gate and the first rate limit — assertSessionAssurance AAL2 on every credential write, rotation, revocation and validation, an enrolment redirect when no factor exists, and a RateLimitBucket store answering 429 with retry hints, design migration 8 — FR-224 | P0 | Claude | planned | TASK-ZAI-078 | Section 3.1 row 8; ADR-089 D4 |
-| TASK-ZAI-081 | SPR-ZAI-03 | task | Phase 1 acceptance — ADR-089 proofs 1 to 6 on SQLite and Postgres with both stores, and one real LINE test channel validated end to end through the connection route in a dev deployment, before any production migration | P0 | Claude | planned | TASK-ZAI-079; TASK-ZAI-080 | ADR-089 required proof 1 to 6 and 10 |
+| TASK-ZAI-078 | SPR-ZAI-03 | task | Integration credential vault — a SecretStorePort with the Supabase Vault and envelope stores, a dispatching secret manager by reference prefix, versioned write, activate, rotate, revoke and resolve with compensation and re-entry status, and design migrations 1, 3 and 4 — FR-223, SEC-030, SDD-097 | P0 | Claude | review | TASK-ZAI-077; TASK-ZAI-074; TASK-ZAI-075 | Section 3.1 row 8; ADR-089 D1, D2, D5 |
+| TASK-ZAI-079 | SPR-ZAI-03 | task | LINE channel account claim and the Integration LINE channel-admin port — an installation-wide claim by destination hash taken before any secret is stored, stateless token minting with a per-version cache, bot info, and webhook set, read and test calls, with design migration 2 — FR-226, SDD-098 and the port half of FR-227 | P0 | Claude | review | TASK-ZAI-078 | Section 3.1 row 8; ADR-089 D3, D6, D7 |
+| TASK-ZAI-080 | SPR-ZAI-03 | task | Credential-write step-up gate and the first rate limit — assertSessionAssurance AAL2 on every credential write, rotation, revocation and validation, an enrolment redirect when no factor exists, and a RateLimitBucket store answering 429 with retry hints, design migration 8 — FR-224 | P0 | Claude | review | TASK-ZAI-078 | Section 3.1 row 8; ADR-089 D4 |
+| TASK-ZAI-081 | SPR-ZAI-03 | task | Phase 1 acceptance — ADR-089 proofs 1 to 6 on SQLite and Postgres with both stores, and one real LINE test channel validated end to end through the connection route in a dev deployment, before any production migration | P0 | Claude | blocked | TASK-ZAI-079; TASK-ZAI-080 | ADR-089 required proof 1 to 6 and 10 |
 | TASK-ZAI-082 | SPR-ZAI-04 | task | Self-serve LINE OA connection wizard — Thai step-up, Channel ID and secret entry with an optional override token, live proof with LINE, claim, vault write, connection, a masked credential card and a DRAFT account, and a mount-backed account moved into the vault on re-entry — FR-225 | P0 | Claude | planned | TASK-ZAI-081 | Section 3.1 row 8; ADR-089 D2, D3, D7 |
 | TASK-ZAI-083 | SPR-ZAI-04 | task | Automatic LINE webhook registration and health — a publisher action sets, reads back and tests the account webhook through LINE, stores webhook health in LineOaAccount.webhookStateJson with its migration, and falls back to a Thai manual card — FR-227 | P0 | Claude | planned | TASK-ZAI-082 | Section 3.1 row 8; ADR-089 D7 |
 | TASK-ZAI-084 | SPR-ZAI-04 | task | Derived legacy-transport quiescence and restore re-entry — ENABLE_SERVER derives quiescence for a vault-backed account from the endpoint LINE reports and 120 seconds without legacy evidence, validates through the dispatching secret manager, and a restored snapshot forces credential re-entry — FR-228 | P0 | Claude | planned | TASK-ZAI-083 | Section 3.1 row 8; ADR-089 D5, D8; ADR-061 D3, D7 |
@@ -4132,41 +4132,41 @@ title: Integration credential vault — a SecretStorePort with the Supabase Vaul
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: review
+version: 0.3.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: unavailable
+  code: apps/server/src/platform/integrations/core/secret-store/secret-store-port.js
   doc: docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md
-  test: unavailable
+  test: apps/server/tests/integration/credential-vault-lifecycle.test.js
 delivers: [FR-223, FEAT-036]
 subtasks:
   - id: P0
     title: SecretStorePort and dispatching secret manager with cross-store refusal
-    status: planned
+    status: done
   - id: P1
     title: Supabase Vault definer functions, NOLOGIN writer and reader roles, migration 3
-    status: planned
+    status: done
   - id: P2
     title: Envelope store with AES-256-GCM, per-secret data keys and AAD binding, migration 4
-    status: planned
+    status: done
   - id: P3
     title: Credential versions, rotation, revocation, compensation purge and REENTRY_REQUIRED, migration 1
-    status: planned
+    status: done
 definition_of_done:
   acceptance_criteria:
     - criterion: Given ZURI_SECRET_STORE set to supabase-vault or envelope, when a credential is written, activated, rotated, revoked and resolved through the SecretStorePort, then each write is a new PENDING_VALIDATION version that becomes ACTIVE only after validation, rotation keeps the previous version resolvable until the new one validates, revocation purges the material and fences the account, and a reference whose prefix has no configured store resolves Unavailable
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a store function or an envelope decrypt called with another Tenant's or Business's connection, when it runs, then it refuses from the database or the AAD check with CHANNEL_SECRET_SCOPE_MISMATCH, and a store write whose database transaction fails is purged by compensation and recorded
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test on both providers, when the vault suites run, then a scan of captured output finds the test secret in no response, log line, audit row, error, backup export or Prisma column (ADR-089 proofs 1 to 3), preflight Check 18 stays green with migrations 1, 3 and 4 written in both trees, and none is applied to production
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. Migration numbers follow the vault design's section 8.2 list; the Phase-1 model-credential resolver is left untouched (SDD-097). The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them.
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. Migration numbers follow the vault design's section 8.2 list; the Phase-1 model-credential resolver is left untouched (SDD-097). The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them. Started 2026-09-14 on feat/integration-secret-store-vault in worktree zuri-ai-secret-store-vault (lane LANE-LINE-OA-VAULT), branched from docs/line-oa-programme-plan (PR #392, open) because the lane and this container exist only there; baseline govern and npm test green before any code (640 files, 5263 tests). In progress, not review: no code yet. Implemented 2026-09-14 in commit 9b66e05b (not yet in a pull request, so still in-progress): P0 SecretStorePort and dispatching secret manager with cross-store refusal; P1 Supabase Vault definer functions with NOLOGIN writer and reader roles (migration 20260914140200, membership WITH INHERIT FALSE on PostgreSQL 16+); P2 envelope store with AES-256-GCM, wrapped data keys and AAD binding (migration 20260914140300); P3 credential versions, rotation, rejection, revocation with fence, compensation purge and REENTRY_REQUIRED (migration 20260914140000 with backfill). Evidence: npm test 647 files / 5317 tests passed; tests/integration/credential-vault.postgres.test.js 12 passed on a disposable postgres:17-alpine with an emulated vault schema (Supabase Vault itself not exercised); govern exit 0. No migration applied. Wiring REENTRY_REQUIRED into snapshot restore stays with TASK-ZAI-084. Review 2026-09-14: pull request #398 opened (base main, not merged). Criteria evidence — acceptance: tests/integration/credential-vault-lifecycle.test.js (write PENDING_VALIDATION, activation, rotation keeping the previous version resolvable, rejection, revocation with fence and purge) and tests/unit/integration/dispatching-secret-manager.test.js (unconfigured prefix resolves Unavailable); success: credential-vault.postgres.test.js (CHANNEL_SECRET_SCOPE_MISMATCH raised by the SQL function) and envelope-secret-store.test.js (AAD refusal), compensation in credential-vault-lifecycle.test.js; exit: leak scans in the lifecycle, routes and Postgres suites, preflight Check 18 green, migrations 20260914140000/140200/140300 written in both trees and not applied. npm test 653 files / 5363 tests, build clean, govern exit 0, Postgres suite 17 passed on postgres:17 with an emulated vault schema.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -4190,38 +4190,38 @@ title: LINE channel account claim and the Integration LINE channel-admin port �
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: review
+version: 0.3.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: unavailable
+  code: apps/server/src/platform/integrations/providers/line/line-channel-admin-port.js
   doc: docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md
-  test: unavailable
+  test: apps/server/tests/integration/channel-account-claim.test.js
 delivers: [FR-226, FR-227, FEAT-036]
 subtasks:
   - id: P0
     title: ChannelAccountClaim with its backfill migration and truthful refusals
-    status: planned
+    status: done
   - id: P1
     title: Stateless token minting and a cache keyed by credential version
-    status: planned
+    status: done
   - id: P2
     title: Bot info and webhook endpoint set, get and test port calls with mapped refusals
-    status: planned
+    status: done
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a Channel ID and secret, when the port validates them, then it mints a 15-minute stateless token at most once a minute per account, caches it for at most 13 minutes per credential version, reads the bot's destination, basic id and display name, and drops the cache on rotation or revocation
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a bot already claimed in the same Tenant or in another Tenant, when a connection is attempted, then it answers LINE_CHANNEL_ALREADY_CONNECTED or LINE_CHANNEL_CLAIMED_ELSEWHERE naming no Tenant or Business, only after possession of the secret is proved, and no secret is left stored (ADR-089 proofs 5 and 6)
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test with LINE's endpoints stubbed, when the port suites run, then a wrong Channel ID and a wrong secret are indistinguishable, a correct pair with a wrong override token is reported as the token's fault, every webhook set, get and test refusal maps to a reason, and migration 2 with its backfill is written in both trees and not applied
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. FR-227 is split across phases: the LINE API calls land here in the port; the publisher action, webhook health column and manual card are TASK-ZAI-083.
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. FR-227 is split across phases: the LINE API calls land here in the port; the publisher action, webhook health column and manual card are TASK-ZAI-083. Started 2026-09-14 on feat/integration-secret-store-vault after TASK-ZAI-078's implementation commit 9b66e05b. In progress, not review: no code yet. Implemented 2026-09-14 in commit 66a4eff1 (no pull request yet, so still in-progress): P0 ChannelAccountClaim by sha256(destination) with truthful refusals and migration 20260914140100 (partial unique on live claims, backfill); P1 stateless token minting and a cache keyed by credential version (13 minutes, one mint a minute per account); P2 bot info and webhook set, get and test calls with mapped refusals; plus connectLineChannelWithSecret (validate, claim, store) with no route yet. Evidence: npm test 650 files / 5341 tests passed; Postgres suite 15 passed on postgres:17; govern exit 0. Migration not applied. Review 2026-09-14: pull request #398 opened (base main, not merged). Criteria evidence — acceptance: tests/unit/platform/line-channel-admin-port.test.js (token cache 13 minutes per version, one mint a minute per account, invalidate) and the minting case in credential-vault-lifecycle.test.js; success: tests/integration/channel-account-claim.test.js (ALREADY_CONNECTED and CLAIMED_ELSEWHERE naming no Tenant or Business, only after the secret is proved, nothing stored) and the Postgres connection-flow case; exit: wrong Channel ID and wrong secret identical, override token reported as the token's fault, every webhook set/get/test refusal mapped (line-channel-admin-port.test.js), migration 20260914140100 with backfill written in both trees and not applied.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -4245,28 +4245,28 @@ title: Credential-write step-up gate and the first rate limit — assertSessionA
 requirement_type: FR
 complexity: C-2
 access_scope: H3
-status: planned
-version: 0.1.0
+status: review
+version: 0.3.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/modules/identity/session-assurance.js
+  code: apps/server/src/modules/identity/credential-write-gate.js
   doc: docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md
-  test: unavailable
+  test: apps/server/tests/integration/line-channel-credential-routes.test.js
 delivers: [FR-224, FEAT-036]
 definition_of_done:
   acceptance_criteria:
     - criterion: Given an AAL1 session, an expired elevation or a Person with no ACTIVE TOTP factor, when any credential write, rotation, revocation or validation route is called, then it is refused before any LINE call with ASSURANCE_LEVEL_INSUFFICIENT, or MFA_FACTOR_REQUIRED with an enrolment link
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given five writes or validations in fifteen minutes by one Person in one Business, or sixty LINE validation calls a minute on the installation, when the next arrives, then it answers 429 CREDENTIAL_RATE_LIMITED with retryAfterSeconds, and a rejected LINE validation counts twice
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the gate and limiter suites run, then ADR-089 proof 4 passes on both providers and migration 8 is written in both trees and not applied
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. RateLimitBucket is the identity lane's model (ADR-058 has no Redis).
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. RateLimitBucket is the identity lane's model (ADR-058 has no Redis). Started 2026-09-14 on feat/integration-secret-store-vault after TASK-ZAI-079's implementation commit 66a4eff1. In progress, not review: no code yet. Implemented 2026-09-14 in commit f6dd4c29 and opened for review in pull request #398 (base main, not merged). Criteria evidence — acceptance: tests/integration/line-channel-credential-routes.test.js (AAL1, an expired elevation whose row still says AAL2, no cookie, another person's session and no factor are each refused with no LINE call; MFA_FACTOR_REQUIRED carries the enrolment path); success: credential-rate-limit.test.js (5 in 15 minutes, 60 LINE validations a minute installation-wide, forced weights, concurrency) and the routes suite (429 with retryAfterSeconds and Retry-After after two rejected validations); exit: proof 4 on SQLite and on postgres:17 (credential-vault.postgres.test.js), migration 20260914140400 written in both trees and not applied. Finding for the owner: elevateSession leaves Session.assuranceLevel at AAL2 after the 900-second window, so the gate reads elevatedUntil only.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -4290,8 +4290,8 @@ title: Phase 1 acceptance — ADR-089 proofs 1 to 6 on SQLite and Postgres with 
 requirement_type: NFR
 complexity: C-2
 access_scope: H3
-status: planned
-version: 0.1.0
+status: blocked
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -4311,7 +4311,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given the production migration ledger, when it is read after the run, then no Phase 1 migration has been applied, and the evidence is recorded in this container's changelog
       checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. The test channel's secret is typed by a person; an agent session never enters a channel secret, token or password.
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. The test channel's secret is typed by a person; an agent session never enters a channel secret, token or password. Blocked 2026-09-14, needs the owner: the acceptance criterion needs a person to enter a real LINE test channel's Channel ID and secret through POST /api/line-oa/connections on a dev deployment running feat/integration-secret-store-vault (pull request #398) with ZURI_SECRET_STORE set, a TOTP factor and a live step-up — an agent session never enters a channel secret; the success criterion's supabase-vault run needs a Supabase project (the automated suites use an emulated vault schema on postgres:17, where proofs 1 to 6 pass for both stores); the exit criterion needs the production migration ledger read by the operator. Proofs already automated: 1 (leak scans), 2 (database and AAD scope refusal), 3 (cross-store refusal), 4 (gate and limit), 5 (indistinguishable wrong ID and secret), 6 (claimed elsewhere, nothing stored).
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -5669,7 +5669,7 @@ second run over the same logs writes the same block.
 ```json
 {
   "meter": "scripts/programme-usage-meter.mjs",
-  "measuredThrough": "2026-09-13T23:23:54.601Z",
+  "measuredThrough": "2026-09-14T00:04:21.334Z",
   "lanes": {
     "LANE-COST-QUOTE-PLAN": {
       "requests": 33,
@@ -5998,24 +5998,24 @@ second run over the same logs writes the same block.
       }
     },
     "LANE-LINE-OA-VAULT": {
-      "requests": 152,
+      "requests": 196,
       "sessions": [
         "claude-code:aac0cfef-d023-4455-a10f-a729b17b61f6"
       ],
       "tokens": {
-        "input": 304,
-        "cacheWrite": 347773,
-        "cacheRead": 84271440,
-        "output": 253021
+        "input": 392,
+        "cacheWrite": 404963,
+        "cacheRead": 116822581,
+        "output": 281715
       },
       "bySource": {
         "claude-code": {
-          "requests": 152,
+          "requests": 196,
           "tokens": {
-            "input": 304,
-            "cacheWrite": 347773,
-            "cacheRead": 84271440,
-            "output": 253021
+            "input": 392,
+            "cacheWrite": 404963,
+            "cacheRead": 116822581,
+            "output": 281715
           }
         }
       },
@@ -6023,70 +6023,82 @@ second run over the same logs writes the same block.
         "claude-opus-5"
       ],
       "firstActivityAt": "2026-09-13T22:04:31.684Z",
-      "lastActivityAt": "2026-09-13T23:20:30.145Z",
-      "activeMinutes": 76,
+      "lastActivityAt": "2026-09-14T00:04:21.334Z",
+      "activeMinutes": 107,
       "detail": {
-        "reasoningTokens": 56221,
+        "reasoningTokens": 60686,
         "cacheWrite5mTokens": 0,
-        "cacheWrite1hTokens": 347773,
+        "cacheWrite1hTokens": 404963,
         "webSearchRequests": 0,
         "webFetchRequests": 0,
-        "prompts": 0,
-        "toolCalls": 248,
-        "toolErrors": 10,
+        "prompts": 1,
+        "toolCalls": 299,
+        "toolErrors": 11,
         "toolDenials": 0,
         "compactions": 0,
         "apiErrors": 0,
         "tools": {
           "Bash": {
-            "calls": 19,
+            "calls": 26,
             "errors": 2
           },
           "Edit": {
-            "calls": 103,
+            "calls": 106,
             "errors": 0
           },
           "Grep": {
-            "calls": 22,
+            "calls": 24,
             "errors": 0
           },
           "PowerShell": {
-            "calls": 38,
-            "errors": 8
+            "calls": 64,
+            "errors": 9
           },
           "Read": {
-            "calls": 25,
+            "calls": 28,
+            "errors": 0
+          },
+          "ToolSearch": {
+            "calls": 1,
             "errors": 0
           },
           "Write": {
-            "calls": 41,
+            "calls": 46,
+            "errors": 0
+          },
+          "mcp__ccd_pr__bind_pr": {
+            "calls": 1,
+            "errors": 0
+          },
+          "mcp__ccd_pr__get_status": {
+            "calls": 3,
             "errors": 0
           }
         },
         "models": {
-          "claude-opus-5": 152
+          "claude-opus-5": 196
         }
       }
     },
     "LANE-ROADMAP-MEMBER-VIEW": {
-      "requests": 61,
+      "requests": 73,
       "sessions": [
         "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
       ],
       "tokens": {
-        "input": 124,
-        "cacheWrite": 116716,
-        "cacheRead": 20429621,
-        "output": 58133
+        "input": 150,
+        "cacheWrite": 127863,
+        "cacheRead": 25135090,
+        "output": 65912
       },
       "bySource": {
         "claude-code": {
-          "requests": 61,
+          "requests": 73,
           "tokens": {
-            "input": 124,
-            "cacheWrite": 116716,
-            "cacheRead": 20429621,
-            "output": 58133
+            "input": 150,
+            "cacheWrite": 127863,
+            "cacheRead": 25135090,
+            "output": 65912
           }
         }
       },
@@ -6094,27 +6106,27 @@ second run over the same logs writes the same block.
         "claude-opus-5"
       ],
       "firstActivityAt": "2026-09-13T23:02:24.792Z",
-      "lastActivityAt": "2026-09-13T23:23:54.601Z",
-      "activeMinutes": 21,
+      "lastActivityAt": "2026-09-13T23:46:13.091Z",
+      "activeMinutes": 44,
       "detail": {
-        "reasoningTokens": 11779,
+        "reasoningTokens": 12285,
         "cacheWrite5mTokens": 0,
-        "cacheWrite1hTokens": 116716,
+        "cacheWrite1hTokens": 127863,
         "webSearchRequests": 0,
         "webFetchRequests": 0,
-        "prompts": 1,
-        "toolCalls": 83,
+        "prompts": 3,
+        "toolCalls": 96,
         "toolErrors": 6,
         "toolDenials": 1,
         "compactions": 0,
         "apiErrors": 0,
         "tools": {
           "Bash": {
-            "calls": 30,
+            "calls": 32,
             "errors": 2
           },
           "Edit": {
-            "calls": 27,
+            "calls": 28,
             "errors": 0
           },
           "Grep": {
@@ -6122,20 +6134,20 @@ second run over the same logs writes the same block.
             "errors": 0
           },
           "PowerShell": {
-            "calls": 14,
+            "calls": 21,
             "errors": 4
           },
           "Read": {
-            "calls": 3,
+            "calls": 4,
             "errors": 0
           },
           "Write": {
-            "calls": 8,
+            "calls": 10,
             "errors": 0
           }
         },
         "models": {
-          "claude-opus-5": 61
+          "claude-opus-5": 73
         }
       }
     },
@@ -6238,5 +6250,5 @@ second run over the same logs writes the same block.
 | 0.4.4 | 2026-09-13 | **Delivery telemetry on the programme board** added on the owner's instruction, under deliverable 2 (no Change Request needed): each phase card shows its sprint count, task count, size and estimated duration, and once work is done the actual time taken and the tokens really used, measured by a surface rather than estimated; done cards tinted light green and review cards light orange. On the owner's follow-up the same day, every task card also shows [DOC] [CODE] [TEST] [FR] [NFR] [FEAT] [domain] [complexity] [priority] badges (green done, orange review, red needs fix, gray empty) and a task split into subtasks P0 to P3 carries a progress bar. The owner chose both sources for real usage — a meter over local Claude Code and Codex session logs and a report endpoint for agents without local logs — and the plan window plus complexity-based effort for the estimate. No actual usage figure exists before this: `total_token_usage` on done tasks is a copy of the prediction. SPR-ZAI-02 (current): TASK-ZAI-064 decision record amending ADR-048 D3 (in-progress), TASK-ZAI-065 phase card metrics, TASK-ZAI-066 usage meter, TASK-ZAI-067 usage report endpoint with its migration, TASK-ZAI-068 task card evidence badges and subtask progress. Sprint 02 and Phase 01 goals and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 76 → 61, PHASE-ZAI-01 82 → 70). Section 3.1 row 2 names the telemetry. Delivered the same day on feat/delivery-telemetry: TASK-ZAI-064 done (ADR-086; FR-216 to FR-219 and FEAT-034 declared), TASK-ZAI-065 to 068 in review (implemented locally with tests; the FR-218 migration written and not applied); a Delivery Telemetry section with the sizing table, work lanes and the meter's first measured usage block added; progress recomputed (SPR-ZAI-02 61 → 80, PHASE-ZAI-01 70 → 84). |
 | 0.4.5 | 2026-09-14 | **Zuri harness usage plugin** added on the owner's instruction, under deliverable 2 (no Change Request needed): agents on other machines report the tokens they used through a plugin for Claude Code and Codex instead of a shared deployment token. The owner chose a plugin over a connector (the harness, not the model, reads the billed usage) and accepted the recommended identity design — a device is paired once by browser approval with a check code (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; each report is attributed to the approving person and the installation, with the AI account kept as a declared label. SPR-ZAI-02 (current): TASK-ZAI-069 decision record (in-progress), TASK-ZAI-070 device pairing and report-only credential, TASK-ZAI-071 attribution to person, device and lane with resumed-session extension, TASK-ZAI-072 the plugin itself. A LANE-HARNESS-USAGE-PLUGIN work lane is declared before the work starts so the meter measures it. Sprint 02 goal and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 80 → 69, PHASE-ZAI-01 84 → 75). Delivered locally the same day on feat/harness-usage-plugin: TASK-ZAI-069 done (ADR-087; FR-220 to FR-222 and FEAT-035 declared), TASK-ZAI-070 to 072 in review (implemented locally with unit and e2e tests; migration 20260914100000_harness_usage_attribution written and not applied); progress recomputed (SPR-ZAI-02 69 → 82, PHASE-ZAI-01 75 → 85). |
 | 0.4.6 | 2026-09-14 | **Plugin specification and agent usage detail** added on the owner's instruction, under deliverable 2 (no Change Request needed): write the Zuri harness plugin's specification, and capture everything the agent logs can measure — especially token usage input and output and tool calling — with ids bound and the work lane declared before starting, then set statuses to what is true. The log survey found thinking and reasoning tokens, cache writes by lifetime, web search and fetch, tool calls by name with errors and denials, user prompts, compactions, API and hook errors, and models; only names and counts are captured. SPR-ZAI-02 (current): TASK-ZAI-073 plugin specification, TASK-ZAI-074 usage detail capture in the meter, plugin, endpoint and storage, TASK-ZAI-075 usage detail on the board; all planned. LANE-USAGE-DETAIL-AND-SPEC declared before work starts. Sprint 02 goal and exit criteria extended; progress recomputed (SPR-ZAI-02 82 → 73, PHASE-ZAI-01 85 → 78). Delivered locally the same day on feat/usage-detail-and-spec: TASK-ZAI-073, 074 and 075 set to review — implemented with tests and govern green, but not merged and the FR-239 migration 20260914120000_usage_detail not applied; progress recomputed (SPR-ZAI-02 73 → 82, PHASE-ZAI-01 78 → 85). Closed the same day: merged in #393, deployed as release-daca80fb and migration 20260914120000_usage_detail applied on production, so TASK-ZAI-073 to 075 move from review to done (SPR-ZAI-02 82 → 83, PHASE-ZAI-01 85 → 86). The same day the earlier telemetry and plugin tasks were set to what is true: TASK-ZAI-065 to 068 (merged #383, deployed, FR-218 migration applied) and TASK-ZAI-070 to 072 (merged #386, deployed, harness migration applied) move from review to done, with every definition-of-done criterion already checked (SPR-ZAI-02 83 → 85, PHASE-ZAI-01 85 → 87). |
-| 0.4.7 | 2026-09-14 | **LINE OA platform delivery plan** added on the owner's instruction of 2026-09-14: the whole plan behind ADR-089, ADR-090 and ADR-091 (merged in PR #389 as 8cd81196) is written into the roadmap and the Project Manager with tasks and lanes bound **before** any implementation starts, so that everything measurable is captured — especially token usage (input and output) and tool calling — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. **No Change Request is needed**, on the same reading as 0.4.1 to 0.4.6: the credential vault, self-serve onboarding and the complete LINE chat record sit under deliverable 8 (connectors, LINE deepened), and the Context Composer, corpus grounding, reviewed knowledge candidates and memory policy with erasure under deliverable 4 (Second Brain); LINE OA Studio is already a CR-019 lane. **Measurement detail comes from v0.4.6 and is delivered**: TASK-ZAI-074 (usage detail capture) and TASK-ZAI-075 (usage detail on the board) shipped in PR #393 (FR-239, FR-240, FEAT-039) and were closed done by PR #394, so the prerequisite is satisfied; they are not redefined here, and the entry task of each build chain (078, 088) keeps both as dependencies. Twenty-eight tasks, TASK-ZAI-076 to 103. **Phase 0** in SPR-ZAI-02 (current): 076 done (PR #389, CI green) and 077 this plan (in-progress). Backlog: SPR-ZAI-03 Phase 1 vault and LINE port (078 to 081); SPR-ZAI-04 Phase 2 wizard, webhook, derived quiescence and the operator steps — migration apply (085), the owner's channel credential entry (086, never an agent) and webhook cutover (087) — and Phase 3 chat record completeness with its migration apply (088 to 091); SPR-ZAI-05 Phase 3b Context Composer (092, before phases 4 and 6) and Phase 4 grounding with isolated acceptance (093, 094); SPR-ZAI-06 the SmartGift grounding switch after ADR-075 Phase 3 (095), Phase 5 candidates, gap report, Studio descriptions and migration apply (096 to 099), and Phase 6 memory policy, erasure fan-out and activation (100 to 102, **blocked** on MSP TASK-MEMOS-002 and TASK-MEMOS-004); SPR-ZAI-10 Phase 7, the vault generalised to other provider kinds (103), registered without a requirement as TASK-ZAI-007 to 030 were and without a lane until a branch is chosen. Design migration 7 is split so the webhook-state column lands with 083 and `memoryPolicy` with 100. Eight lanes declared (LANE-LINE-OA-PLATFORM-PLAN, LANE-LINE-OA-VAULT, LANE-LINE-OA-ONBOARDING, LANE-CRM-CHAT-RECORD, LANE-AGENT-CONTEXT-COMPOSER, LANE-LINE-GKS-GROUNDING, LANE-KNOWLEDGE-LINE-CANDIDATES, LANE-LINE-MEMORY-POLICY-ERASURE) and a "how to be measured" note added to the Delivery Telemetry section. First drafted as v0.4.6 with its own tool-call lane (TASK-ZAI-073 to 076); on the coordinator's instruction the same day that lane was removed and the rest renumbered, because PR #390 (opened earlier) claims v0.4.6 and TASK-ZAI-073 to 075 for the same measurement goal. Phase, sprint and deliverable goals and exits extended; progress recomputed under the board mapping (SPR-ZAI-02 83 → 83, PHASE-ZAI-01 86 → 85, PHASE-ZAI-05 20 → 17). Section 3.1 rows 4 and 8 name the work. |
+| 0.4.7 | 2026-09-14 | **LINE OA platform delivery plan** added on the owner's instruction of 2026-09-14: the whole plan behind ADR-089, ADR-090 and ADR-091 (merged in PR #389 as 8cd81196) is written into the roadmap and the Project Manager with tasks and lanes bound **before** any implementation starts, so that everything measurable is captured — especially token usage (input and output) and tool calling — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. **No Change Request is needed**, on the same reading as 0.4.1 to 0.4.6: the credential vault, self-serve onboarding and the complete LINE chat record sit under deliverable 8 (connectors, LINE deepened), and the Context Composer, corpus grounding, reviewed knowledge candidates and memory policy with erasure under deliverable 4 (Second Brain); LINE OA Studio is already a CR-019 lane. **Measurement detail comes from v0.4.6 and is delivered**: TASK-ZAI-074 (usage detail capture) and TASK-ZAI-075 (usage detail on the board) shipped in PR #393 (FR-239, FR-240, FEAT-039) and were closed done by PR #394, so the prerequisite is satisfied; they are not redefined here, and the entry task of each build chain (078, 088) keeps both as dependencies. Twenty-eight tasks, TASK-ZAI-076 to 103. **Phase 0** in SPR-ZAI-02 (current): 076 done (PR #389, CI green) and 077 this plan (in-progress). Backlog: SPR-ZAI-03 Phase 1 vault and LINE port (078 to 081); SPR-ZAI-04 Phase 2 wizard, webhook, derived quiescence and the operator steps — migration apply (085), the owner's channel credential entry (086, never an agent) and webhook cutover (087) — and Phase 3 chat record completeness with its migration apply (088 to 091); SPR-ZAI-05 Phase 3b Context Composer (092, before phases 4 and 6) and Phase 4 grounding with isolated acceptance (093, 094); SPR-ZAI-06 the SmartGift grounding switch after ADR-075 Phase 3 (095), Phase 5 candidates, gap report, Studio descriptions and migration apply (096 to 099), and Phase 6 memory policy, erasure fan-out and activation (100 to 102, **blocked** on MSP TASK-MEMOS-002 and TASK-MEMOS-004); SPR-ZAI-10 Phase 7, the vault generalised to other provider kinds (103), registered without a requirement as TASK-ZAI-007 to 030 were and without a lane until a branch is chosen. Design migration 7 is split so the webhook-state column lands with 083 and `memoryPolicy` with 100. Eight lanes declared (LANE-LINE-OA-PLATFORM-PLAN, LANE-LINE-OA-VAULT, LANE-LINE-OA-ONBOARDING, LANE-CRM-CHAT-RECORD, LANE-AGENT-CONTEXT-COMPOSER, LANE-LINE-GKS-GROUNDING, LANE-KNOWLEDGE-LINE-CANDIDATES, LANE-LINE-MEMORY-POLICY-ERASURE) and a "how to be measured" note added to the Delivery Telemetry section. First drafted as v0.4.6 with its own tool-call lane (TASK-ZAI-073 to 076); on the coordinator's instruction the same day that lane was removed and the rest renumbered, because PR #390 (opened earlier) claims v0.4.6 and TASK-ZAI-073 to 075 for the same measurement goal. Phase, sprint and deliverable goals and exits extended; progress recomputed under the board mapping (SPR-ZAI-02 83 → 83, PHASE-ZAI-01 86 → 85, PHASE-ZAI-05 20 → 17). Section 3.1 rows 4 and 8 name the work. Phase 1 delivery started the same day on feat/integration-secret-store-vault (lane LANE-LINE-OA-VAULT): TASK-ZAI-078, 079 and 080 implemented with tests and opened for review in pull request #398 (not merged; migrations 20260914140000..140400 written, none applied), TASK-ZAI-081 blocked on a person entering a real test channel in a dev deployment; progress recomputed (SPR-ZAI-03 0 → 16 and in-progress, PHASE-ZAI-02 0 → 8 and in-progress). |
 | 0.4.8 | 2026-09-14 | **Programme roadmap member view** added on the owner's instruction, under deliverable 2 (no Change Request needed): open the roadmap for 30 days. The owner chose anyone signed in, and the programme plan with the Domain map only. SPR-ZAI-02 (current): TASK-ZAI-104, planned; ADR-092 accepted and FR-241 declared in the same change; LANE-ROADMAP-MEMBER-VIEW declared before work starts. /control/roadmap stays operator-only. Sprint 02 goal and exit criteria extended; progress recomputed (SPR-ZAI-02 85 → 83, PHASE-ZAI-01 87 → 85). Delivered locally the same day on feat/roadmap-member-view: TASK-ZAI-104 set to review — implemented with unit tests and govern green, the e2e spec left to CI, not merged and not deployed; progress recomputed (SPR-ZAI-02 83 → 85, PHASE-ZAI-01 85 → 87). |

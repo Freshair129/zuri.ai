@@ -241,6 +241,19 @@ export const ASSET_PROCUREMENT_REF_TYPES = ['PR', 'PR_LINE', 'PO', 'PO_LINE', 'G
 export const ASSET_RESPONSIBILITY_ROLES = ['ACCOUNTABLE', 'CUSTODIAN', 'USER']
 export const ASSET_DEPRECIATION_METHODS = ['STRAIGHT_LINE']
 
+// @req FR-223 — Integration credential vault vocabulary (ADR-089 D1, D5; SDD-097).
+// A store is named by the reference prefix it answers (`supabase-vault:`,
+// `envelope:`, `deployment-secret:`); a version is PURGED once its material is gone.
+export const SECRET_STORES = ['DEPLOYMENT_MOUNT', 'SUPABASE_VAULT', 'ENVELOPE']
+export const SECRET_KINDS = ['LINE_CHANNEL', 'OAUTH_CLIENT', 'API_KEY', 'MODEL_PROVIDER_KEY']
+export const INTEGRATION_CREDENTIAL_STATUSES = ['PENDING_VALIDATION', 'ACTIVE', 'ROTATING', 'EXPIRED', 'REVOKED', 'REENTRY_REQUIRED']
+// ROTATING still resolves: the previous version stays live until the new one validates.
+export const INTEGRATION_CREDENTIAL_RESOLVABLE_STATUSES = INTEGRATION_CREDENTIAL_STATUSES.filter(status => status === 'ACTIVE' || status === 'ROTATING')
+export const INTEGRATION_CREDENTIAL_VERSION_STATUSES = ['PENDING_VALIDATION', 'ACTIVE', 'SUPERSEDED', 'REJECTED', 'REVOKED', 'PURGED']
+// Every version whose material may still exist in a store.
+export const INTEGRATION_CREDENTIAL_PURGEABLE_VERSION_STATUSES = INTEGRATION_CREDENTIAL_VERSION_STATUSES.filter(status => status !== 'PURGED')
+export const INTEGRATION_CREDENTIAL_CREATED_VIA = ['BROWSER_MFA', 'OPERATOR_CLI', 'BACKFILL']
+
 // @req FR-146 — LINE OA Studio account vocabulary (ADR-060 D2/D5). `LIVE` is
 // derived, never stored: the stored machine is DRAFT → CONNECTED → PAUSED |
 // ARCHIVED, and an account reads LIVE only while the agent lane reports an

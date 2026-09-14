@@ -1,6 +1,8 @@
 import prisma from '@/lib/db'
 import { LINE_OA_ACCOUNT_ACTIONS, LINE_OA_ACCOUNT_STATUSES } from '@/lib/validation/enums'
-import { resolveServerLineAccount, createServerLineSecretManagerFromEnv } from '@/platform/integrations/providers/line/server-line-transport'
+import { resolveServerLineAccount } from '@/platform/integrations/providers/line/server-line-transport'
+import { createLineSecretManagerFromEnv } from '@/platform/integrations/core/secret-store/dispatching-secret-manager'
+import { createPrismaRoleSql } from '@/platform/integrations/core/secret-store/supabase-vault-secret-store'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { readLineOaConnectionHealth } from '@/modules/integration/application/integration-management-service'
 import { LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
@@ -342,8 +344,13 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
       }
       case 'ENABLE_SERVER': {
         if (row.serverEnabled) throw failure(409, 'LINE_OA_SERVER_ALREADY_ENABLED')
+        // SDD-097: validation resolves through the dispatching secret manager, so a
+        // vault-backed credential validates the same way a mounted one does. The
+        // typed legacy confirmation above is unchanged (derived quiescence is FR-228).
         const validate = ports?.validateServerCredentials ?? (async () => {
-          const sm = createServerLineSecretManagerFromEnv()
+          // Envelope reads join this transaction (SQLite has one connection); a Vault
+          // call opens its own role-scoped transaction on the shared client.
+          const sm = createLineSecretManagerFromEnv(process.env, { db: tx, sql: createPrismaRoleSql(db) })
           return resolveServerLineAccount({
             accountId: row.id, db: tx, requireEnabled: false,
             secretManager: sm,
@@ -404,4 +411,46 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
 
   const [dto] = await describe([updated], db, ports)
   return dto
+}
+
+/**
+ * @req FR-223 — revoking a credential fences the account it serves (ADR-089 D5,
+ *   ADR-061 D7): server ownership ends, the transport epoch moves so every lease
+ *   already issued is stale, and queued work is cancelled. A send already in
+ *   flight is not recalled; it fails closed at its next resolution, because the
+ *   credential no longer resolves. The Integration lane calls this before it
+ *   revokes, so a store failure afterwards leaves the account stopped, not live.
+ * @tested tests/integration/credential-vault-lifecycle.test.js
+ */
+export async function fenceLineOaAccountForCredentialRevocation({ tenantId, businessId, connectionId, actorId = null, db = prisma } = {}) {
+  return db.$transaction(async (tx) => {
+    const row = await tx.lineOaAccount.findFirst({
+      where: { integrationConnectionId: connectionId, tenantId, businessId },
+      select: { id: true, version: true, transportEpoch: true, serverEnabled: true },
+    })
+    if (!row) return { fenced: false }
+    const moved = await tx.lineOaAccount.updateMany({
+      where: { id: row.id, version: row.version },
+      data: { serverEnabled: false, transportEpoch: { increment: 1 }, version: { increment: 1 } },
+    })
+    if (moved.count !== 1) throw failure(409, 'LINE_OA_ACCOUNT_VERSION_CONFLICT')
+    const cancelled = await tx.lineConversationJob.updateMany({
+      where: { accountId: row.id, status: { in: ['QUEUED', 'CLAIMED', 'READY'] } },
+      data: { status: 'CANCELLED', sealedReplyToken: null, claimantId: null, leaseExpiresAt: null, version: { increment: 1 } },
+    })
+    await recordAudit(tx, {
+      entityType: LINE_OA_ACCOUNT_ENTITY,
+      entityId: row.id,
+      action: 'LINE_OA_ACCOUNT_CREDENTIAL_REVOKED_FENCED',
+      actorId,
+      businessId,
+      payload: {
+        from: { serverEnabled: row.serverEnabled, transportEpoch: row.transportEpoch },
+        to: { serverEnabled: false, transportEpoch: row.transportEpoch + 1 },
+        cancelledTransportJobs: cancelled.count,
+        version: row.version + 1,
+      },
+    })
+    return { fenced: true, accountId: row.id, transportEpoch: row.transportEpoch + 1, cancelledTransportJobs: cancelled.count }
+  }, { timeout: 15000, maxWait: 5000 })
 }

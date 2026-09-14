@@ -3762,21 +3762,21 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-078",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "0.3.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "unavailable",
+      "code": "apps/server/src/platform/integrations/core/secret-store/secret-store-port.js",
       "doc": "docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md",
-      "test": "unavailable"
+      "test": "apps/server/tests/integration/credential-vault-lifecycle.test.js"
     },
     "linkState": {
-      "code": "unavailable",
+      "code": "present",
       "doc": "present",
-      "test": "unavailable"
+      "test": "present"
     },
     "delivers": [
       "FR-223",
@@ -3786,39 +3786,39 @@ export const PROGRAMME_CONTAINERS = {
       {
         "id": "P0",
         "title": "SecretStorePort and dispatching secret manager with cross-store refusal",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P1",
         "title": "Supabase Vault definer functions, NOLOGIN writer and reader roles, migration 3",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P2",
         "title": "Envelope store with AES-256-GCM, per-secret data keys and AAD binding, migration 4",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P3",
         "title": "Credential versions, rotation, revocation, compensation purge and REENTRY_REQUIRED, migration 1",
-        "status": "planned"
+        "status": "done"
       }
     ],
     "dod": {
       "acceptance": {
         "text": "Given ZURI_SECRET_STORE set to supabase-vault or envelope, when a credential is written, activated, rotated, revoked and resolved through the SecretStorePort, then each write is a new PENDING_VALIDATION version that becomes ACTIVE only after validation, rotation keeps the previous version resolvable until the new one validates, revocation purges the material and fences the account, and a reference whose prefix has no configured store resolves Unavailable",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a store function or an envelope decrypt called with another Tenant's or Business's connection, when it runs, then it refuses from the database or the AAD check with CHANNEL_SECRET_SCOPE_MISMATCH, and a store write whose database transaction fails is purged by compensation and recorded",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test on both providers, when the vault suites run, then a scan of captured output finds the test secret in no response, log line, audit row, error, backup export or Prisma column (ADR-089 proofs 1 to 3), preflight Check 18 stays green with migrations 1, 3 and 4 written in both trees, and none is applied to production",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. Migration numbers follow the vault design's section 8.2 list; the Phase-1 model-credential resolver is left untouched (SDD-097). The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. Migration numbers follow the vault design's section 8.2 list; the Phase-1 model-credential resolver is left untouched (SDD-097). The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them. Started 2026-09-14 on feat/integration-secret-store-vault in worktree zuri-ai-secret-store-vault (lane LANE-LINE-OA-VAULT), branched from docs/line-oa-programme-plan (PR #392, open) because the lane and this container exist only there; baseline govern and npm test green before any code (640 files, 5263 tests). In progress, not review: no code yet. Implemented 2026-09-14 in commit 9b66e05b (not yet in a pull request, so still in-progress): P0 SecretStorePort and dispatching secret manager with cross-store refusal; P1 Supabase Vault definer functions with NOLOGIN writer and reader roles (migration 20260914140200, membership WITH INHERIT FALSE on PostgreSQL 16+); P2 envelope store with AES-256-GCM, wrapped data keys and AAD binding (migration 20260914140300); P3 credential versions, rotation, rejection, revocation with fence, compensation purge and REENTRY_REQUIRED (migration 20260914140000 with backfill). Evidence: npm test 647 files / 5317 tests passed; tests/integration/credential-vault.postgres.test.js 12 passed on a disposable postgres:17-alpine with an emulated vault schema (Supabase Vault itself not exercised); govern exit 0. No migration applied. Wiring REENTRY_REQUIRED into snapshot restore stays with TASK-ZAI-084. Review 2026-09-14: pull request #398 opened (base main, not merged). Criteria evidence — acceptance: tests/integration/credential-vault-lifecycle.test.js (write PENDING_VALIDATION, activation, rotation keeping the previous version resolvable, rejection, revocation with fence and purge) and tests/unit/integration/dispatching-secret-manager.test.js (unconfigured prefix resolves Unavailable); success: credential-vault.postgres.test.js (CHANNEL_SECRET_SCOPE_MISMATCH raised by the SQL function) and envelope-secret-store.test.js (AAD refusal), compensation in credential-vault-lifecycle.test.js; exit: leak scans in the lifecycle, routes and Postgres suites, preflight Check 18 green, migrations 20260914140000/140200/140300 written in both trees and not applied. npm test 653 files / 5363 tests, build clean, govern exit 0, Postgres suite 17 passed on postgres:17 with an emulated vault schema.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 70000,
     "totalTokens": 0,
@@ -3833,21 +3833,21 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-079",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "0.3.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "unavailable",
+      "code": "apps/server/src/platform/integrations/providers/line/line-channel-admin-port.js",
       "doc": "docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md",
-      "test": "unavailable"
+      "test": "apps/server/tests/integration/channel-account-claim.test.js"
     },
     "linkState": {
-      "code": "unavailable",
+      "code": "present",
       "doc": "present",
-      "test": "unavailable"
+      "test": "present"
     },
     "delivers": [
       "FR-226",
@@ -3858,34 +3858,34 @@ export const PROGRAMME_CONTAINERS = {
       {
         "id": "P0",
         "title": "ChannelAccountClaim with its backfill migration and truthful refusals",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P1",
         "title": "Stateless token minting and a cache keyed by credential version",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P2",
         "title": "Bot info and webhook endpoint set, get and test port calls with mapped refusals",
-        "status": "planned"
+        "status": "done"
       }
     ],
     "dod": {
       "acceptance": {
         "text": "Given a Channel ID and secret, when the port validates them, then it mints a 15-minute stateless token at most once a minute per account, caches it for at most 13 minutes per credential version, reads the bot's destination, basic id and display name, and drops the cache on rotation or revocation",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a bot already claimed in the same Tenant or in another Tenant, when a connection is attempted, then it answers LINE_CHANNEL_ALREADY_CONNECTED or LINE_CHANNEL_CLAIMED_ELSEWHERE naming no Tenant or Business, only after possession of the secret is proved, and no secret is left stored (ADR-089 proofs 5 and 6)",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test with LINE's endpoints stubbed, when the port suites run, then a wrong Channel ID and a wrong secret are indistinguishable, a correct pair with a wrong override token is reported as the token's fault, every webhook set, get and test refusal maps to a reason, and migration 2 with its backfill is written in both trees and not applied",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. FR-227 is split across phases: the LINE API calls land here in the port; the publisher action, webhook health column and manual card are TASK-ZAI-083.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. FR-227 is split across phases: the LINE API calls land here in the port; the publisher action, webhook health column and manual card are TASK-ZAI-083. Started 2026-09-14 on feat/integration-secret-store-vault after TASK-ZAI-078's implementation commit 9b66e05b. In progress, not review: no code yet. Implemented 2026-09-14 in commit 66a4eff1 (no pull request yet, so still in-progress): P0 ChannelAccountClaim by sha256(destination) with truthful refusals and migration 20260914140100 (partial unique on live claims, backfill); P1 stateless token minting and a cache keyed by credential version (13 minutes, one mint a minute per account); P2 bot info and webhook set, get and test calls with mapped refusals; plus connectLineChannelWithSecret (validate, claim, store) with no route yet. Evidence: npm test 650 files / 5341 tests passed; Postgres suite 15 passed on postgres:17; govern exit 0. Migration not applied. Review 2026-09-14: pull request #398 opened (base main, not merged). Criteria evidence — acceptance: tests/unit/platform/line-channel-admin-port.test.js (token cache 13 minutes per version, one mint a minute per account, invalidate) and the minting case in credential-vault-lifecycle.test.js; success: tests/integration/channel-account-claim.test.js (ALREADY_CONNECTED and CLAIMED_ELSEWHERE naming no Tenant or Business, only after the secret is proved, nothing stored) and the Postgres connection-flow case; exit: wrong Channel ID and wrong secret identical, override token reported as the token's fault, every webhook set/get/test refusal mapped (line-channel-admin-port.test.js), migration 20260914140100 with backfill written in both trees and not applied.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 55000,
     "totalTokens": 0,
@@ -3898,21 +3898,21 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-080",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "0.3.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/src/modules/identity/session-assurance.js",
+      "code": "apps/server/src/modules/identity/credential-write-gate.js",
       "doc": "docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md",
-      "test": "unavailable"
+      "test": "apps/server/tests/integration/line-channel-credential-routes.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "unavailable"
+      "test": "present"
     },
     "delivers": [
       "FR-224",
@@ -3922,18 +3922,18 @@ export const PROGRAMME_CONTAINERS = {
     "dod": {
       "acceptance": {
         "text": "Given an AAL1 session, an expired elevation or a Person with no ACTIVE TOTP factor, when any credential write, rotation, revocation or validation route is called, then it is refused before any LINE call with ASSURANCE_LEVEL_INSUFFICIENT, or MFA_FACTOR_REQUIRED with an enrolment link",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given five writes or validations in fifteen minutes by one Person in one Business, or sixty LINE validation calls a minute on the installation, when the next arrives, then it answers 429 CREDENTIAL_RATE_LIMITED with retryAfterSeconds, and a rejected LINE validation counts twice",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test, when the gate and limiter suites run, then ADR-089 proof 4 passes on both providers and migration 8 is written in both trees and not applied",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. RateLimitBucket is the identity lane's model (ADR-058 has no Redis).",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. RateLimitBucket is the identity lane's model (ADR-058 has no Redis). Started 2026-09-14 on feat/integration-secret-store-vault after TASK-ZAI-079's implementation commit 66a4eff1. In progress, not review: no code yet. Implemented 2026-09-14 in commit f6dd4c29 and opened for review in pull request #398 (base main, not merged). Criteria evidence — acceptance: tests/integration/line-channel-credential-routes.test.js (AAL1, an expired elevation whose row still says AAL2, no cookie, another person's session and no factor are each refused with no LINE call; MFA_FACTOR_REQUIRED carries the enrolment path); success: credential-rate-limit.test.js (5 in 15 minutes, 60 LINE validations a minute installation-wide, forced weights, concurrency) and the routes suite (429 with retryAfterSeconds and Retry-After after two rejected validations); exit: proof 4 on SQLite and on postgres:17 (credential-vault.postgres.test.js), migration 20260914140400 written in both trees and not applied. Finding for the owner: elevateSession leaves Session.assuranceLevel at AAL2 after the 900-second window, so the gate reads elevatedUntil only.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 34000,
     "totalTokens": 0,
@@ -3946,7 +3946,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-081",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -3978,7 +3978,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. The test channel's secret is typed by a person; an agent session never enters a channel secret, token or password.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. The test channel's secret is typed by a person; an agent session never enters a channel secret, token or password. Blocked 2026-09-14, needs the owner: the acceptance criterion needs a person to enter a real LINE test channel's Channel ID and secret through POST /api/line-oa/connections on a dev deployment running feat/integration-secret-store-vault (pull request #398) with ZURI_SECRET_STORE set, a TOTP factor and a live step-up — an agent session never enters a channel secret; the success criterion's supabase-vault run needs a Supabase project (the automated suites use an emulated vault schema on postgres:17, where proofs 1 to 6 pass for both stores); the exit criterion needs the production migration ledger read by the operator. Proofs already automated: 1 (leak scans), 2 (database and AAD scope refusal), 3 (cross-store refusal), 4 (gate and limit), 5 (indistinguishable wrong ID and secret), 6 (claimed elsewhere, nothing stored).",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 24000,
     "totalTokens": 0,
