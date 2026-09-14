@@ -41,7 +41,7 @@
     "requirementCount": 241,
     "verifiedRequirementCount": 221,
     "progressPercent": 93.4,
-    "gapCount": 41,
+    "gapCount": 40,
     "gaps": [
       {
         "domain": "agent",
@@ -526,16 +526,6 @@
       },
       {
         "domain": "project-manager",
-        "id": "API-OPENAPI-001",
-        "severity": "high",
-        "check": "httpApi",
-        "summary": "API route is not represented in the machine-readable OpenAPI generator",
-        "evidence": [
-          "/api/knowledge/gap-report"
-        ]
-      },
-      {
-        "domain": "project-manager",
         "id": "CONTRACT-001",
         "severity": "medium",
         "check": "runtimeContract",
@@ -976,7 +966,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 276,
+            "openApiPaths": 277,
             "missingFromOpenApi": 0
           }
         },
@@ -1304,7 +1294,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 276,
+            "openApiPaths": 277,
             "missingFromOpenApi": 0
           }
         },
@@ -1501,7 +1491,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 276,
+            "openApiPaths": 277,
             "missingFromOpenApi": 0
           }
         },
@@ -2378,7 +2368,7 @@
           "details": {
             "routes": 27,
             "inventoried": 27,
-            "openApiPaths": 276,
+            "openApiPaths": 277,
             "missingFromOpenApi": 0
           }
         },
@@ -2888,7 +2878,7 @@
           "details": {
             "routes": 10,
             "inventoried": 10,
-            "openApiPaths": 276,
+            "openApiPaths": 277,
             "missingFromOpenApi": 0
           }
         },
@@ -3291,7 +3281,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 276,
+            "openApiPaths": 277,
             "missingFromOpenApi": 0
           }
         },
@@ -3703,7 +3693,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-238",
@@ -4217,7 +4207,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 276,
+            "openApiPaths": 277,
             "missingFromOpenApi": 0
           }
         },
@@ -4439,7 +4429,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 276,
+            "openApiPaths": 277,
             "missingFromOpenApi": 0
           }
         },
@@ -4606,7 +4596,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 276,
+            "openApiPaths": 277,
             "missingFromOpenApi": 0
           }
         },
@@ -4852,7 +4842,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 276,
+            "openApiPaths": 277,
             "missingFromOpenApi": 0
           }
         },
@@ -5033,7 +5023,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 276,
+            "openApiPaths": 277,
             "missingFromOpenApi": 0
           }
         },
@@ -6311,8 +6301,8 @@
           "title": "Knowledge gap report for LINE",
           "declared": "done",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 3
+          "codeCount": 2,
+          "testCount": 4
         },
         {
           "id": "FR-241",
@@ -6346,26 +6336,17 @@
           }
         },
         "httpApi": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/appendices/A-api-spec.md",
             "src/modules/project-manager/api-docs/openapi.js"
           ],
-          "gaps": [
-            {
-              "id": "API-OPENAPI-001",
-              "severity": "high",
-              "summary": "API route is not represented in the machine-readable OpenAPI generator",
-              "evidence": [
-                "/api/knowledge/gap-report"
-              ]
-            }
-          ],
+          "gaps": [],
           "details": {
             "routes": 134,
             "inventoried": 134,
-            "openApiPaths": 276,
-            "missingFromOpenApi": 1
+            "openApiPaths": 277,
+            "missingFromOpenApi": 0
           }
         },
         "mcp": {
@@ -6507,15 +6488,6 @@
           "summary": "At least one owned UI surface is not marked implemented",
           "evidence": [
             "/assets/receiving"
-          ]
-        },
-        {
-          "id": "API-OPENAPI-001",
-          "severity": "high",
-          "check": "httpApi",
-          "summary": "API route is not represented in the machine-readable OpenAPI generator",
-          "evidence": [
-            "/api/knowledge/gap-report"
           ]
         },
         {
@@ -10725,8 +10697,8 @@
           "title": "Knowledge gap report for LINE",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 3
+          "codeCount": 5,
+          "testCount": 4
         },
         {
           "id": "FR-238",
