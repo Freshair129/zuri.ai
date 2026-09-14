@@ -8,7 +8,7 @@ import { getConversationThread } from '@/modules/crm/conversation-read-model'
 import { readConversationConsentStatus } from '@/modules/crm/conversation-consent-reader'
 import { zKnowledgeCandidateDecision } from '@/lib/validation/enums'
 import { hashGenesisRag17Json } from '../genesisrag17-contract'
-import { assertCandidateZeroPii } from '../knowledge-candidate-zero-pii'
+import { assertCandidateProseZeroPii, composeCandidateContent } from '../knowledge-candidate-zero-pii'
 import { admitKnowledge as defaultAdmitKnowledge } from '../knowledge-admission-service'
 
 // @req FR-236 — the knowledge domain's one writer of KnowledgeCandidate: a
@@ -22,9 +22,16 @@ import { admitKnowledge as defaultAdmitKnowledge } from '../knowledge-admission-
 //   through crm's own narrow `readConversationConsentStatus` contract
 //   (`conversation-consent-reader.js`) — never a raw cross-domain query —
 //   and fails closed to refusal on any missing/unreadable/malformed source
-//   reference, not only an explicit non-GRANTED status.
+//   reference, not only an explicit non-GRANTED status. Zero-PII at
+//   creation/edit/decision runs the candidate prose policy
+//   (`knowledge-candidate-zero-pii.js`, `line-faq-candidate-zero-pii-1`) on
+//   `composeCandidateContent`'s output — the exact text the admission service
+//   stores — never FR-187's structured-record policy (ADR-090 D6, revised
+//   2026-09-14: owner decision, FR-187 would deny an ordinary approved FAQ
+//   containing "ลูกค้า" or "ใบเสนอราคา"). Stage 5 classify re-runs the same
+//   function on the same admitted content (genesisrag17-executor.js).
 // @spec ADR-090 D6, D8; ADR-072; SEC-032; BR-002; SEC-001
-// @tested tests/integration/fr236-knowledge-candidate.test.js, tests/unit/knowledge-candidate-migration.test.js, tests/unit/conversation-consent-reader.test.js
+// @tested tests/integration/fr236-knowledge-candidate.test.js, tests/unit/knowledge-candidate-migration.test.js, tests/unit/conversation-consent-reader.test.js, tests/unit/knowledge-candidate-zero-pii-agreement.test.js
 
 const ENTITY = 'KNOWLEDGE_CANDIDATE'
 const GRANTED = 'GRANTED'
@@ -119,8 +126,9 @@ export async function draftKnowledgeCandidate(input, { viewer, db = prisma, now 
   const unknown = data.messageIds.filter((id) => !knownMessageIds.has(id))
   if (unknown.length) throw failure(422, 'One or more messageIds do not belong to this conversation', 'KNOWLEDGE_CANDIDATE_MESSAGE_NOT_FOUND')
 
-  // Zero-PII at creation (ADR-090 D6, first of its two checks).
-  assertCandidateZeroPii({ question: data.question, answer: data.answer })
+  // Zero-PII at creation, on the exact text admission will store (ADR-090
+  // D6, first of its two checks — both run the candidate prose policy).
+  assertCandidateProseZeroPii(composeCandidateContent({ question: data.question, answer: data.answer }))
 
   const sortedMessageIds = [...data.messageIds].sort()
   const idempotencyKey = data.idempotencyKey || hashGenesisRag17Json({ conversationId: data.conversationId, messageIds: sortedMessageIds })
@@ -191,7 +199,7 @@ export async function updateKnowledgeCandidate(id, input, { viewer, db = prisma 
     if (row.version !== data.version) throw failure(409, 'Candidate version conflict', 'KNOWLEDGE_CANDIDATE_VERSION_CONFLICT')
     const question = data.question ?? row.question
     const answer = data.answer ?? row.answer
-    assertCandidateZeroPii({ question, answer })
+    assertCandidateProseZeroPii(composeCandidateContent({ question, answer }))
     const contentHash = hashGenesisRag17Json({ question, answer })
     const result = await tx.knowledgeCandidate.updateMany({
       where: { id: row.id, version: row.version },
@@ -250,7 +258,11 @@ export async function decideKnowledgeCandidate(id, input, { viewer, db = prisma,
       'KNOWLEDGE_CANDIDATE_CONSENT_NOT_GRANTED',
     )
   }
-  assertCandidateZeroPii({ question: row.question, answer: row.answer })
+  // The exact text admission will store, checked against the exact function
+  // Stage 5 classify re-runs on the admitted content (ADR-090 D6, revised
+  // 2026-09-14): one policy, one entry point, byte-identical input both times.
+  const content = composeCandidateContent({ question: row.question, answer: row.answer })
+  assertCandidateProseZeroPii(content)
 
   const decidedAt = typeof now === 'function' ? now() : (now || new Date())
   const actor = actorId(viewer)
@@ -278,7 +290,6 @@ export async function decideKnowledgeCandidate(id, input, { viewer, db = prisma,
   // recoverable state — the source is admitted and the next `decideKnowledge
   // Candidate` retry with the same input reaches the identical `unchanged:
   // true` admission and completes the row flip.
-  const content = JSON.stringify({ question: row.question, answer: row.answer })
   const admission = await admit({
     businessId: row.businessId,
     idempotencyKey: `knowledge-candidate:${row.id}`,

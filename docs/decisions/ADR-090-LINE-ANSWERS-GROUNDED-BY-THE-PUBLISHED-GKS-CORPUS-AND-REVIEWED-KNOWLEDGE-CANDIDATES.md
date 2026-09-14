@@ -1,7 +1,7 @@
 ---
-version: "1.0.0"
+version: "1.1.0"
 created_at: "2026-09-14T15:00:00+07:00,Claude Opus 5"
-last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-14T21:00:00+07:00,Claude Sonnet 5"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -27,6 +27,11 @@ table of the LINE OA platform design.
 - **ADR-072 D1** — the admission service's source kinds. Two TEXT source kinds are added:
   `LINE_FAQ_CANDIDATE` (D6) and, in a later phase, `LINE_STUDIO_DESCRIPTION` (D7). Both are text; D1's
   "no binary/OCR parser, no fabricated stage report" is unchanged.
+- **ADR-075 D5** — "Stage 5 classify applies the Zero-PII deny policy." That policy is now
+  provider-scoped, not one function for every structured/candidate provider: `SMARTGIFT_CATALOG` keeps
+  exactly the FR-187 category-word policy D5 named; `LINE_FAQ_CANDIDATE` runs the candidate prose policy
+  D6 below defines instead (owner decision, 2026-09-14). D5's own text is otherwise unchanged — this is
+  the second provider Stage 5 classify has ever gated, and the first to use a different policy from it.
 
 **Relates to:** ADR-042, ADR-043, ADR-050, ADR-061, ADR-063, ADR-068, ADR-070, ADR-072, ADR-073,
 ADR-075, ADR-085, ADR-089, ADR-091, FR-049, FR-127, FR-171, FR-173, FR-187, FR-189, FR-235, FR-236,
@@ -114,10 +119,25 @@ routing decision.
 The only LINE-derived content that may enter GKS is a **`KnowledgeCandidate`**: a canonical question
 and answer written with product locators (`Product.code`, FlowAccount SKU), policy names and amounts —
 no names, no LINE ids, no quoted customer wording — drawn from consent-GRANTED conversations. Zero-PII
-is enforced **twice**: at candidate creation (the FR-187 deny policy) and again at Stage 5 classify
-(ADR-075 D5). A Business **OWNER or `LINE_OA_PUBLISHER`** edits it and approves or rejects it, audited.
-An approved candidate is admitted as one immutable **TEXT source of kind `LINE_FAQ_CANDIDATE`** through
-the ADR-072 admission service **before Stage 1**, and travels all seventeen stages.
+is enforced **twice**: at candidate creation/edit/decision and again at Stage 5 classify (ADR-075 D5).
+
+**Revised 2026-09-14 (owner decision):** both checks run the same **candidate prose policy**
+(`line-faq-candidate-zero-pii-1`, `knowledge-candidate-zero-pii.js`) — names, phone numbers, LINE user
+ids, quoted customer wording — not FR-187's structured-record category-word policy. FR-187
+(`structured-record-policy.js`) denies the *literal words* ลูกค้า / ใบเสนอราคา / customer / contact /
+quotation wherever they occur, which is the right rule for a locator-field-shaped SmartGift catalog
+record and the wrong rule for prose: a candidate is admitted as free-text TEXT, and an ordinary,
+already-approved FAQ such as "ขอใบเสนอราคาได้ไหม" or "คุณลูกค้าสามารถสั่งขั้นต่ำ 50 ชิ้นได้ค่ะ" would be
+denied by FR-187's pattern at Stage 5 even though it names no person, phone number or quoted wording.
+**FR-187 is unchanged for `SMARTGIFT_CATALOG`** — this is a second, provider-scoped rule, not a
+relaxation of the first. The candidate prose policy runs from one exported function in the knowledge
+lane, called on the *exact composed text the admission service stores* — creation, edit and decision all
+validate what will actually be admitted, and Stage 5 re-validates the same text through the same
+function, so the two checks cannot silently disagree.
+
+A Business **OWNER or `LINE_OA_PUBLISHER`** edits it and approves or rejects it, audited. An approved
+candidate is admitted as one immutable **TEXT source of kind `LINE_FAQ_CANDIDATE`** through the ADR-072
+admission service **before Stage 1**, and travels all seventeen stages.
 
 Refused, explicitly: raw transcripts; MSP episodes or summaries admitted as sources; automatic
 promotion of anything; a Tier 1 call to `gks_knowledge_promote` (that verb stays MSP's, ADR-068 D4).
@@ -190,8 +210,11 @@ Consequence 2), because the generator refuses a surface that does not exist on d
 4. No evidence from any allowed source: deterministic reply, zero model calls.
 5. A job of Business A can never read Business B's corpus, through scope, capability or binding.
 6. With the worker stopped, the answer is the deterministic reply, not an error or a model-only answer.
-7. Candidates: Thai PII fixtures are refused at creation and again at Stage 5; no candidate is admitted
-   without an OWNER or `LINE_OA_PUBLISHER` decision; approval and rejection are audited.
+7. Candidates: Thai PII fixtures are refused by the candidate prose policy at creation and again at
+   Stage 5 on the admitted content, with the same verdict both times; realistic FAQ prose naming no
+   person (including sentences containing "ลูกค้า" or "ใบเสนอราคา") is approved and passes Stage 5; no
+   candidate is admitted without an OWNER or `LINE_OA_PUBLISHER` decision; approval and rejection are
+   audited; a SmartGift catalog record is still denied by the unchanged FR-187 policy.
 8. Erasure of a person tombstones their candidates, withdraws an admitted source and denies a late citation.
 
 ## Delivery phases (shared numbering with ADR-089 and ADR-091)
@@ -223,4 +246,5 @@ D3 all forbid it, and GKS cannot erase.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.1.0 | 2026-09-14 | accepted | Owner decision (2026-09-14, TASK-ZAI-096 review): D6 revised — both the candidate-creation/edit/decision Zero-PII check and Stage 5 classify run the candidate prose policy (`line-faq-candidate-zero-pii-1`), never FR-187's structured-record category-word policy, for `LINE_FAQ_CANDIDATE`. Reason: FR-187 denies the literal words ลูกค้า/ใบเสนอราคา/customer/contact/quotation, which an approved, ordinary FAQ answer legitimately contains as free text; FR-187 stays exactly as ADR-075 D5 defined it for `SMARTGIFT_CATALOG`. Amends ADR-075 D5 by pointer (Stage 5 classify's Zero-PII gate is now provider-scoped); proof 7 reworded to name the candidate prose policy and require the same verdict at creation and Stage 5 | working-tree | Claude Sonnet 5 |
 | 1.0.0 | 2026-09-14 | accepted | Per-account knowledge grounding over the published corpus through an in-process `knowledge.query` reader with a 2 500 ms / top-5 / 8 KiB budget and a traced, mode-gated fallback; SmartGift first after ADR-075 Phase 3; LINE-derived knowledge only as locator-only candidates approved by OWNER or LINE_OA_PUBLISHER and admitted as `LINE_FAQ_CANDIDATE` TEXT sources; Studio descriptions later; gap report never enters GKS; amends ADR-061's implementation-validation note and ADR-072 D1 by pointer; Phase 0 declaration only | working-tree | Claude Opus 5 |

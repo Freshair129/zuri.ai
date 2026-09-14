@@ -27,17 +27,21 @@ export const STRUCTURED_RECORD_DENY_POLICY = 'smartgift-zero-pii-1'
 
 /**
  * Providers whose payload is a structured record rather than prose. Only these
- * carry the Zero-PII gate; every existing text/Markdown flow is unchanged.
+ * carry this Zero-PII gate; every existing text/Markdown flow is unchanged.
  *
- * `LINE_FAQ_CANDIDATE` (FR-236, ADR-090 D6) is the second: "Zero-PII is
- * enforced twice: at candidate creation … and again at Stage 5 classify" names
- * this exact function both times. Candidate creation additionally runs the
- * stronger prose scan in `knowledge-candidate-zero-pii.js` (names, phone
- * numbers, LINE user ids, quoted wording) that this structural, locator-field
- * policy does not attempt; Stage 5 re-runs this one, unmodified, against the
- * same admitted content, exactly as SmartGift's records already do.
+ * `LINE_FAQ_CANDIDATE` (FR-236) is deliberately NOT here (ADR-090 D6, revised
+ * 2026-09-14, owner decision). This policy denies the literal words ลูกค้า /
+ * ใบเสนอราคา / customer / contact / quotation wherever they occur — correct
+ * for a locator-field-shaped SmartGift catalog record, wrong for a candidate's
+ * free-text prose: an ordinary, already-approved FAQ such as
+ * "ขอใบเสนอราคาได้ไหม" would be denied here even though it names no person,
+ * phone number or quoted wording. Stage 5 classify routes `LINE_FAQ_CANDIDATE`
+ * to the candidate prose policy instead (`knowledge-candidate-zero-pii.js`,
+ * `line-faq-candidate-zero-pii-1`) — see the explicit provider→policy map in
+ * `genesisrag17-executor.js`. This module and its policy are unchanged for
+ * `SMARTGIFT_CATALOG`.
  */
-export const STRUCTURED_RECORD_PROVIDERS = Object.freeze(['SMARTGIFT_CATALOG', 'LINE_FAQ_CANDIDATE'])
+export const STRUCTURED_RECORD_PROVIDERS = Object.freeze(['SMARTGIFT_CATALOG'])
 
 export function isStructuredRecordProvider(provider) {
   return typeof provider === 'string' && STRUCTURED_RECORD_PROVIDERS.includes(provider)

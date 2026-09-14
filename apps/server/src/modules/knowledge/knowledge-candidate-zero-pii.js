@@ -1,20 +1,26 @@
-import { findZeroPiiViolation } from './structured-record-policy'
-
-// @req FR-236 — the Zero-PII deny policy a LINE FAQ candidate's canonical
-// question/answer must pass at creation, at every edit and again before a
-// decision is recorded (an owner editing the answer can re-introduce a name
-// or phone number just as easily as the original draft could).
-// @spec ADR-090 D6 — "Zero-PII is enforced twice: at candidate creation (the
-// FR-187 deny policy) and again at Stage 5 classify." This module IS the
-// candidate-creation half: it reuses FR-187's own function (never a copy of
-// it — imported from structured-record-policy.js, called exactly as it is
-// there: against the {question, answer} RECORD, so it only ever inspects
-// field names and locator-shaped values, precisely as its own module comment
-// promises — "descriptive text is not scanned") and adds the prose-level
-// checks that function deliberately does not attempt on free text: names,
-// phone numbers, LINE ids and quoted wording. The candidate's question/answer
-// ARE the free text FR-236 must keep clean, so this module scans them, on top
-// of — never instead of — the shared FR-187 rule.
+// @req FR-236 — the Zero-PII policy a LINE FAQ candidate's admitted content
+// must pass at creation, at every edit, again before a decision is recorded
+// (an owner editing the answer can re-introduce a name or phone number just
+// as easily as the original draft could) and again at Stage 5 classify once
+// admitted.
+// @spec ADR-090 D6 (revised 2026-09-14, owner decision) — both checks run
+// this SAME candidate prose policy (`line-faq-candidate-zero-pii-1`), not
+// FR-187's structured-record category-word policy (`structured-record-
+// policy.js`). FR-187 denies the literal words ลูกค้า / ใบเสนอราคา /
+// customer / contact / quotation wherever they occur — the right rule for a
+// locator-field-shaped SmartGift catalog record, the wrong rule for a
+// candidate's free-text prose: an ordinary, already-approved FAQ such as
+// "ขอใบเสนอราคาได้ไหม" or "คุณลูกค้าสามารถสั่งขั้นต่ำ 50 ชิ้นได้ค่ะ" would be
+// denied by FR-187's pattern even though it names no person, phone number or
+// quoted wording. FR-187 is unchanged for `SMARTGIFT_CATALOG`.
+//
+// ONE ENTRY POINT: `findCandidateProseViolation(content)` takes exactly the
+// text the admission service will store (`composeCandidateContent`'s output)
+// and returns a violation or null. Every caller — the candidate service at
+// creation/edit/decision, and Stage 5 classify in genesisrag17-executor.js —
+// calls this same function on this same composed text, so the two checks the
+// ADR names cannot silently disagree: what is validated before admission is
+// byte-identical to what Stage 5 re-validates after it.
 //
 // The Thai name check below is an ALLOW-LIST heuristic, not a name database:
 // Thai has no spaces between words, so it starts from every honorific
@@ -28,6 +34,16 @@ import { findZeroPiiViolation } from './structured-record-policy'
 // @tested tests/unit/knowledge-candidate-zero-pii.test.js
 
 export const CANDIDATE_ZERO_PII_POLICY = 'line-faq-candidate-zero-pii-1'
+
+/**
+ * The exact text the admission service stores for a LINE_FAQ_CANDIDATE
+ * source. Both this module's callers and `knowledge-candidate-service.js`'s
+ * admission call build content through this one function, so validation
+ * (creation/edit/decision) and the real admitted bytes can never drift apart.
+ */
+export function composeCandidateContent({ question, answer }) {
+  return JSON.stringify({ question, answer })
+}
 
 // A LINE user id, exactly as LINE issues it: "U" + 32 lowercase hex chars.
 const LINE_USER_ID_PATTERN = /\bU[0-9a-f]{32}\b/i
@@ -55,10 +71,11 @@ const THAI_HONORIFICS = ['นางสาว', 'นาย', 'นาง', 'คุ
 // Every one of these starts with one of THAI_HONORIFICS above and is ordinary
 // prose, never a personal name — the pronoun forms ("คุณสามารถ") are what
 // makes almost any FAQ answer addressed to the reader trip a naive honorific
-// scan, and the noun compounds are what makes ordinary product copy
-// ("...คุณภาพดี", "คุณสมบัติของ...") trip it. Not exhaustive — a heuristic
-// list can never be — but named explicitly so it can grow with evidence
-// rather than by guessing, and it only ever narrows a match, never widens one.
+// scan, and the role/kinship and noun compounds are what makes ordinary
+// product copy and polite customer address ("...คุณภาพดี", "คุณสมบัติของ...",
+// "คุณลูกค้าสามารถ...") trip it. Not exhaustive — a heuristic list can never
+// be — but named explicitly so it can grow with evidence rather than by
+// guessing, and it only ever narrows a match, never widens one.
 const THAI_NAME_FALSE_POSITIVES = [
   'คุณภาพ', 'คุณสมบัติ', 'คุณค่า', 'คุณประโยชน์', 'คุณธรรม', 'คุณูปการ',
   'คุณสามารถ', 'คุณจะ', 'คุณต้อง', 'คุณควร', 'คุณอาจ', 'คุณเอง', 'คุณไม่',
@@ -108,11 +125,7 @@ function findThaiNameViolation(text) {
 // ("Smart Gift", "Express Delivery", "Buy One Get One") — FR-236 explicitly
 // allows product locators and policy names, so this heuristic is dropped
 // rather than "narrowed": there is no regex-expressible line between the two
-// shapes. Neither the checks above nor FR-187's structural check (see
-// `findCandidateZeroPiiViolation` below) inspect prose for a bare Latin name;
-// Stage 5's own re-application of the exact FR-187 function against the full
-// admitted content is the backstop this candidate-creation pass does not need
-// to duplicate.
+// shapes.
 
 const CHECKS = Object.freeze([
   ['line_user_id', LINE_USER_ID_PATTERN],
@@ -131,39 +144,45 @@ function scanProse(text, field) {
 }
 
 /**
- * Return the first violation in `question`/`answer`, or null when both are
- * clean. Two independent layers, deliberately not merged into one scan:
+ * The one entry point every caller uses — the candidate service at creation,
+ * edit and decision, and Stage 5 classify for a `LINE_FAQ_CANDIDATE` source.
+ * `content` is exactly the text as admitted (`composeCandidateContent`'s
+ * output, or Stage 5's `value.content`, which is byte-identical to it).
  *
- * 1. The prose checks above, per field — names, phone numbers, LINE ids,
- *    quoted wording. These are the checks FR-187's own structural function
- *    never attempts on free text.
- * 2. `findZeroPiiViolation({question, answer})` — FR-187's own function,
- *    called on the candidate exactly as a structured record, so it inspects
- *    `question`/`answer` as field NAMES (neither matches its deny pattern)
- *    and would inspect their VALUES only if the key looked like a locator
- *    (`file`/`path`/`uri`/…, which "question"/"answer" never do). For this
- *    shape it is normally a no-op, and that is correct, not a gap: ordinary
- *    Thai customer-service prose says "ลูกค้า" ("customer") constantly
- *    ("คุณลูกค้าสามารถ…"), and FR-187 was never meant to refuse that — only
- *    to catch a record whose FIELD NAMES betray a CRM shape. Calling it this
- *    way is what "reused, not copied" means for a two-field prose record: the
- *    exact function, given the exact object shape it already knows how to
- *    read, not a re-derived string test that would drift from it.
+ * Internally this parses the known `{question, answer}` shape back out so a
+ * refusal can still name which field it came from — a presentation detail,
+ * never a second code path: whether parsing succeeds or not, the same prose
+ * checks run over the same characters either way (a malformed/non-JSON
+ * `content` is scanned whole, under the field name `"content"`).
  */
-export function findCandidateZeroPiiViolation({ question, answer } = {}) {
-  const prose = scanProse(question, 'question') || scanProse(answer, 'answer')
-  if (prose) return prose
-  const structural = findZeroPiiViolation({ question, answer })
-  return structural ? { field: structural.field, term: 'deny_term' } : null
+export function findCandidateProseViolation(content) {
+  if (typeof content !== 'string' || !content) return null
+  let parsed = null
+  try {
+    const value = JSON.parse(content)
+    if (value && typeof value === 'object' && !Array.isArray(value)) parsed = value
+  } catch {
+    parsed = null
+  }
+  if (parsed && (typeof parsed.question === 'string' || typeof parsed.answer === 'string')) {
+    return scanProse(parsed.question, 'question') || scanProse(parsed.answer, 'answer')
+  }
+  return scanProse(content, 'content')
 }
 
-/** Throw the 422 a candidate write path treats as a permanent refusal. */
-export function assertCandidateZeroPii(candidate = {}) {
-  const violation = findCandidateZeroPiiViolation(candidate)
+/** Throw the 422 a candidate write path (or Stage 5) treats as a permanent refusal. */
+export function assertCandidateProseZeroPii(content, { sourceId, sourceUri } = {}) {
+  const violation = findCandidateProseViolation(content)
   if (!violation) return
   const error = new Error(`Knowledge candidate denied by the Zero-PII policy on ${violation.field}`)
   error.status = 422
   error.code = 'KNOWLEDGE_CANDIDATE_ZERO_PII_DENIED'
-  error.details = { policy: CANDIDATE_ZERO_PII_POLICY, field: violation.field, term: violation.term }
+  error.details = {
+    policy: CANDIDATE_ZERO_PII_POLICY,
+    field: violation.field,
+    term: violation.term,
+    ...(sourceId ? { sourceId } : {}),
+    ...(sourceUri ? { sourceUri } : {}),
+  }
   throw error
 }
