@@ -1,5 +1,14 @@
 // @req FR-146, FR-149, FR-151, FR-152, FR-153 — LINE Studio Edge & Transport Console
-// @spec ADR-041, ADR-043, ADR-061, SEC-001, SDD-060
+// @req FR-225 — the connect form below is the Thai self-serve wizard
+//   (`LineOaConnectWizard`); it no longer asks for a `deployment-secret:`
+//   reference (that field is FR-149's operator-only path, still reachable from
+//   the API but not from this page). `AccountCard`'s "ย้ายข้อมูลรับรองเข้า
+//   Vault" affordance is the mount-to-vault migration for an account connected
+//   before this wizard existed.
+// @spec ADR-041, ADR-043, ADR-061, ADR-089 D2, D7, §4.9; SEC-001, SDD-060
+// @tested tests/unit/line-oa-connect-wizard-render.test.js,
+//   tests/e2e/fr149-line-server-console.spec.js,
+//   tests/e2e/fr225-line-oa-self-serve-wizard.spec.js
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
@@ -22,13 +31,14 @@ import {
   HelpCircle,
   Copy,
   Check,
-  Sparkles,
   ArrowRight
 } from "lucide-react";
 import { Card, SectionTitle, StatusPill } from "@/components/ui";
 import { useScope } from "@/context/ScopeContext";
 import { edgePairingDownload } from "@/modules/identity/edge-pairing-download";
 import { resolveBrowserOrigin, resolvePublicBaseUrl } from "@/lib/public-base-url";
+import LineOaConnectWizard from "./LineOaConnectWizard";
+import LineOaCredentialMigrationCard from "./LineOaCredentialMigrationCard";
 
 async function api(url, method = "GET", body) {
   const response = await fetch(url, {
@@ -200,58 +210,14 @@ export default function LineStudioEdgeConnection() {
     await run(() => api(`/api/line-oa/accounts/${account.id}`, "PATCH", { ...data, version: account.version }));
   }
 
-  async function handleConnectAccount(event) {
-    event.preventDefault();
-    if (!business?.id) return;
-    const form = new FormData(event.currentTarget);
-    const displayName = form.get("displayName")?.trim() || "LINE Official Account";
-    const basicId = form.get("basicId")?.trim() || "";
-    const destination = form.get("destination")?.trim() || "";
-    const secretRef = form.get("secretRef")?.trim() || "";
-
-    if (!/^U[0-9a-fA-F]{32}$/.test(destination)) {
-      setError("ต้องระบุ LINE bot destination ที่ออกโดยผู้ให้บริการจริง (U ตามด้วย hex 32 ตัว)");
-      return;
-    }
-    if (!/^deployment-secret:[A-Za-z0-9_-]{1,100}$/.test(secretRef)) {
-      setError("ต้องระบุ deployment-secret reference ที่มีอยู่แล้ว ห้ามสร้างชื่ออ้างอิงอัตโนมัติ");
-      return;
-    }
-
-    // Auto-generate clean account code from basicId or displayName
-    const cleanSlug = (basicId ? basicId.replace(/^@/, "") : displayName)
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "") || "line-oa";
-    const code = form.get("code")?.trim() || `${cleanSlug}-${Date.now().toString(36).slice(-4)}`;
-
-    await run(async () => {
-      // Step 1: Provision connection
-      const conn = await api("/api/line-oa/connections", "POST", {
-        businessId: business.id,
-        name: displayName,
-        destination,
-        secretRef
-      });
-
-      // Step 2: Connect account
-      await api("/api/line-oa/accounts", "POST", {
-        businessId: business.id,
-        integrationConnectionId: conn.id,
-        code,
-        displayName,
-        ...(basicId ? { basicId } : {})
-      });
-
-      // Creating an account deliberately does NOT enable server transport.
-      // FR-149 resolves a webhook only against an *explicitly* enabled account,
-      // and `legacyQuiesced` is the operator's word that the legacy consumer has
-      // stopped — asserting it on their behalf would risk both transports
-      // reading the same webhook. The account card's "เปิด Server Transport"
-      // button is where a person says it, and this form must not pre-empt it.
-      setMessage(`เชื่อมต่อบัญชี ${displayName} แล้ว — กด "เปิด Server Transport (Live)" ที่การ์ดบัญชีเมื่อหยุด transport เดิมเรียบร้อย`);
-      event.target.reset();
-    });
+  // FR-225: the wizard below (`LineOaConnectWizard`) creates the connection and
+  // the DRAFT account itself; this page only needs to know when to refresh the
+  // list and show its own confirmation. Creating an account deliberately does
+  // NOT enable server transport — the account card's "เปิด Server Transport"
+  // button is where a person says the legacy consumer has stopped.
+  async function handleWizardConnected(account) {
+    setMessage(`เชื่อมต่อบัญชี ${account?.displayName ?? ""} แล้ว — กด "เปิด Server Transport (Live)" ที่การ์ดบัญชีเมื่อหยุด transport เดิมเรียบร้อย`);
+    await refresh();
   }
 
   const copyToken = (text) => {
@@ -494,6 +460,7 @@ export default function LineStudioEdgeConnection() {
                     key={account.id}
                     account={account}
                     onAction={action}
+                    onRefresh={refresh}
                     busy={busy}
                   />
                 ))}
@@ -501,100 +468,16 @@ export default function LineStudioEdgeConnection() {
             )}
           </div>
 
-          {/* Unified Real LINE OA Connection Form */}
-          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#06C755] to-emerald-600 text-white flex items-center justify-center font-bold shadow-xs">
-                  <span>💬</span>
-                </div>
-                <div>
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-white">
-                    เชื่อมต่อ LINE Official Account (Messaging API)
-                  </h4>
-                  <p className="text-xs text-slate-500">
-                    กรอกข้อมูลจริงจาก <strong>LINE Official Account Manager</strong> หรือ <strong>LINE Developers Console</strong>
-                  </p>
-                </div>
-              </div>
-              <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20 self-start md:self-auto">
-                1-Click Connection
-              </span>
-            </div>
-
-            <form onSubmit={handleConnectAccount} className="space-y-4">
-              <fieldset disabled={busy || !business} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                  {/* Field 1: Display Name */}
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
-                    <span className="flex items-center justify-between">
-                      <span>ชื่อบัญชี LINE OA (Display Name) <span className="text-rose-500">*</span></span>
-                      <span className="text-[10px] text-slate-400 font-normal">ชื่อร้าน/แบรนด์</span>
-                    </span>
-                    <input
-                      name="displayName"
-                      className={fieldClass}
-                      placeholder="เช่น Smart Gift Thailand"
-                      required
-                      maxLength={200}
-                    />
-                  </label>
-
-                  {/* Field 2: Basic ID */}
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
-                    <span className="flex items-center justify-between">
-                      <span>LINE Basic ID / Premium ID</span>
-                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-normal">มี @ นำหน้า</span>
-                    </span>
-                    <input
-                      name="basicId"
-                      className={fieldClass}
-                      placeholder="เช่น @smartgift"
-                      maxLength={50}
-                    />
-                  </label>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
-                    <span className="flex items-center justify-between">
-                      <span>LINE bot destination <span className="text-rose-500">*</span></span>
-                      <span className="text-[10px] text-slate-400 font-normal">ค่าจริงจาก LINE provider</span>
-                    </span>
-                    <input name="destination" className={fieldClass} placeholder="U… (32 hex chars)" pattern="U[0-9a-fA-F]{32}" required />
-                  </label>
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
-                    <span className="flex items-center justify-between">
-                      <span>Deployment secret reference <span className="text-rose-500">*</span></span>
-                      <span className="text-[10px] text-slate-400 font-normal">ต้อง mount ไว้แล้ว</span>
-                    </span>
-                    <input name="secretRef" className={fieldClass} placeholder="deployment-secret:line-main" pattern="deployment-secret:[A-Za-z0-9_-]{1,100}" required />
-                  </label>
-                </div>
-                <label className="block space-y-1">
-                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">รหัสบัญชีในระบบ (ปล่อยว่างเพื่อสร้างจาก Basic ID)</span>
-                  <input name="code" className={fieldClass} placeholder="เช่น oa-smart-gift" pattern="[a-z0-9]+(-[a-z0-9]+)*" />
-                </label>
-
-                {/* Submit Action */}
-                <button
-                  type="submit"
-                  disabled={busy || !business}
-                  className="w-full py-3 rounded-xl bg-brand-amber hover:bg-brand-hover active:scale-[0.99] text-white text-xs font-bold transition-all shadow-md shadow-brand-amber/20 flex items-center justify-center gap-2"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span>{busy ? "กำลังเชื่อมต่อ LINE OA..." : "เชื่อมต่อ LINE Official Account ทันที"}</span>
-                </button>
-              </fieldset>
-            </form>
-          </div>
+          {/* FR-225: the Thai self-serve connect wizard replaces the old
+              deployment-secret-only form. */}
+          <LineOaConnectWizard businessId={business?.id} onConnected={handleWizardConnected} />
         </div>
       </div>
     </div>
   );
 }
 
-function AccountCard({ account, onAction, busy }) {
+function AccountCard({ account, onAction, onRefresh, busy }) {
   const [mode, setMode] = useState(account.executionMode);
   const [access, setAccess] = useState(account.modelAccess);
   const [push, setPush] = useState(account.allowDelayedPush);
@@ -660,6 +543,11 @@ function AccountCard({ account, onAction, busy }) {
           <p>Tenant ID: {account.tenantId}</p>
         </div>
       </details>
+
+      {/* FR-225: credential status is metadata only (no material) — and the
+          mount-to-vault migration card only for a DEPLOYMENT_MOUNT-backed
+          connection (design §4.9 step 4). */}
+      <LineOaCredentialMigrationCard account={account} onMigrated={onRefresh} />
 
       <fieldset disabled={busy || account.status === "ARCHIVED"} className="grid gap-3 pt-1">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">

@@ -20,8 +20,15 @@ import { createLineChannelAdminPort, processLineChannelTokenCache } from '@/plat
 //   the vault — so a refused claim leaves no secret behind.
 // @req FR-223 — the credential is written, validated and activated through the
 //   SecretStorePort, with compensation when the connection cannot be completed.
+// @req FR-225 — this is the server half of the self-serve wizard's acceptance
+//   ("no operator, no host file"): a wrong Channel ID and a wrong secret both
+//   answer 422 LINE_CREDENTIALS_REJECTED, a LINE outage answers 503 with
+//   nothing stored, and this same function also carries a mount-backed
+//   connection's re-entered secret into the vault (`rotateLineChannelCredential`
+//   in `line-channel-credential-service.js` reuses `storeValidatedCredential`
+//   below unconditionally of the credential's prior `secretStore`).
 // @spec ADR-089 D2, D3, D6, D7; SEC-030; FR-072 (404-shaped refusals)
-// @tested tests/integration/channel-account-claim.test.js
+// @tested tests/integration/channel-account-claim.test.js, tests/integration/fr225-line-oa-self-serve-onboarding.test.js
 //
 // Order (ADR-089 D7, design §5.1) and why:
 //   1. input, authority and the write gate — nothing leaves the building for a

@@ -11,8 +11,10 @@ import {
   initialStoredStatus,
   nextStoredStatus,
   parseBotProfile,
+  suggestLineOaAccountCode,
   zConnectLineOaAccount,
   zLineOaAccountAction,
+  zLineOaAccountCode,
 } from '@/modules/line-oa-studio/domain/line-oa-account'
 import { LINE_OA_ACCOUNT_STATUSES, LINE_OA_TRANSPORT_MODES } from '@/lib/validation/enums'
 
@@ -89,5 +91,38 @@ describe('FR-146 LineOaAccount domain rules', () => {
     expect(parseBotProfile('not json')).toEqual({})
     expect(parseBotProfile('{"apiKey":"leak"}')).toEqual({})
     expect(parseBotProfile(null)).toEqual({})
+  })
+})
+
+// @req FR-225 — the self-serve wizard's auto-generated account code, always a
+//   valid zLineOaAccountCode so the caller never has to special-case its output.
+describe('FR-225 suggestLineOaAccountCode', () => {
+  it('slugs a Basic ID, stripping the leading @', () => {
+    const code = suggestLineOaAccountCode({ basicId: '@SmartGift.Thailand' })
+    expect(code).toBe('smartgift-thailand')
+    expect(() => zLineOaAccountCode.parse(code)).not.toThrow()
+  })
+
+  it('falls back to the display name when there is no Basic ID', () => {
+    const code = suggestLineOaAccountCode({ displayName: 'Smart Gift Thailand' })
+    expect(code).toBe('smart-gift-thailand')
+  })
+
+  it('never produces a code shorter than the schema allows', () => {
+    const code = suggestLineOaAccountCode({ basicId: '@ok' })
+    expect(code.length).toBeGreaterThanOrEqual(3)
+    expect(() => zLineOaAccountCode.parse(code)).not.toThrow()
+  })
+
+  it('falls back to a fixed label when there is nothing to slug', () => {
+    expect(suggestLineOaAccountCode({})).toBe('line-oa')
+    expect(suggestLineOaAccountCode({ basicId: '@***' })).toBe('line-oa-account')
+    expect(zLineOaAccountCode.parse(suggestLineOaAccountCode({ basicId: '@***' }))).toMatch(/^line-oa-/)
+  })
+
+  it('never exceeds the 64-character schema bound', () => {
+    const code = suggestLineOaAccountCode({ basicId: `@${'a'.repeat(120)}` })
+    expect(code.length).toBeLessThanOrEqual(64)
+    expect(() => zLineOaAccountCode.parse(code)).not.toThrow()
   })
 })

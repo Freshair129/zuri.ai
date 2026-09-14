@@ -6,6 +6,9 @@ import {
 } from '@/lib/validation/enums'
 
 // @req FR-149 — server transport and optional execution policy.
+// @req FR-225 — `suggestLineOaAccountCode` is the pure half of the self-serve
+//   wizard's auto-generated account code; the wizard shows it editable and the
+//   service layer still enforces `zLineOaAccountCode` and uniqueness.
 // @req FR-146 — the pure vocabulary and rules of the LineOaAccount aggregate:
 //   the input contracts, the stored status machine, the derived effective
 //   status and the transport-mode default. Nothing here opens a database; the
@@ -120,6 +123,22 @@ export function deriveEffectiveStatus(storedStatus, bindingStatus, { serverEnabl
 /** ADR-061: LINE transport defaults to the server regardless of paired workers. */
 export function defaultTransportMode() {
   return 'CLOUD'
+}
+
+/**
+ * A suggested `zLineOaAccountCode` from a bot's Basic ID or display name, for the
+ * self-serve wizard's success card (FR-225, design §5.3 "รหัสบัญชีในระบบ … สร้างให้
+ * จาก Basic ID; แก้ไขได้"). Never called by anything that opens a database — the
+ * uniqueness check and the disambiguating suffix on a collision are the caller's.
+ */
+export function suggestLineOaAccountCode({ basicId, displayName } = {}) {
+  const source = (basicId ? basicId.replace(/^@/, '') : displayName) || 'line-oa'
+  const slug = source
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  const padded = slug.length >= 3 ? slug : `line-oa-${slug || 'account'}`
+  return padded.slice(0, 64).replace(/-+$/g, '') || 'line-oa-account'
 }
 
 /** A stored presentation profile, or an empty one when the column cannot be trusted. */

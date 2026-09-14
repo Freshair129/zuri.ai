@@ -39,8 +39,8 @@
     "featureCount": 147,
     "readyFeatureCount": 113,
     "requirementCount": 241,
-    "verifiedRequirementCount": 217,
-    "progressPercent": 90.5,
+    "verifiedRequirementCount": 218,
+    "progressPercent": 91,
     "gapCount": 28,
     "gaps": [
       {
@@ -406,7 +406,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-081",
@@ -478,7 +478,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-147",
@@ -502,7 +502,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 38
+          "testCount": 40
         },
         {
           "id": "FR-150",
@@ -799,7 +799,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 19
+          "testCount": 20
         }
       ],
       "checks": {
@@ -1191,7 +1191,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 24
+          "testCount": 26
         },
         {
           "id": "FR-147",
@@ -1215,7 +1215,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-152",
@@ -1223,7 +1223,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-153",
@@ -1231,7 +1231,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-161",
@@ -1605,7 +1605,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-146",
@@ -1613,7 +1613,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 24
+          "testCount": 26
         },
         {
           "id": "FR-148",
@@ -1749,7 +1749,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 7
+          "testCount": 10
         }
       ],
       "checks": {
@@ -2016,7 +2016,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-081",
@@ -2136,7 +2136,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 24
+          "testCount": 26
         },
         {
           "id": "FR-149",
@@ -2144,7 +2144,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 38
+          "testCount": 40
         },
         {
           "id": "FR-152",
@@ -2152,7 +2152,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-173",
@@ -2184,7 +2184,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
-          "testCount": 28
+          "testCount": 30
         },
         {
           "id": "FR-224",
@@ -2192,7 +2192,15 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 7
+          "testCount": 10
+        },
+        {
+          "id": "FR-225",
+          "title": "Self-serve LINE OA connection",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 14
         },
         {
           "id": "FR-226",
@@ -2200,7 +2208,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 13
+          "testCount": 15
         },
         {
           "id": "FR-227",
@@ -2374,7 +2382,7 @@
       ],
       "featureCount": 9,
       "readyFeatureCount": 6,
-      "progressPercent": 81.3
+      "progressPercent": 87.5
     },
     "inventory": {
       "status": "partial",
@@ -3137,7 +3145,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-091",
@@ -3161,7 +3169,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 29,
-          "testCount": 24
+          "testCount": 26
         },
         {
           "id": "FR-149",
@@ -3169,7 +3177,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 21,
-          "testCount": 38
+          "testCount": 40
         },
         {
           "id": "FR-150",
@@ -3185,7 +3193,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 21,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-152",
@@ -3193,7 +3201,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-153",
@@ -3201,7 +3209,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 13,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-171",
@@ -3232,8 +3240,32 @@
           "title": "Integration credential vault",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 28
+          "codeCount": 4,
+          "testCount": 30
+        },
+        {
+          "id": "FR-224",
+          "title": "Credential-write step-up gate",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 10
+        },
+        {
+          "id": "FR-225",
+          "title": "Self-serve LINE OA connection",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 7,
+          "testCount": 14
+        },
+        {
+          "id": "FR-226",
+          "title": "LINE channel account claim",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 15
         }
       ],
       "checks": {
@@ -4517,7 +4549,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 66
+          "testCount": 67
         },
         {
           "id": "FR-073",
@@ -4829,7 +4861,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-146",
@@ -4837,7 +4869,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 24
+          "testCount": 26
         },
         {
           "id": "FR-149",
@@ -4845,7 +4877,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 38
+          "testCount": 40
         },
         {
           "id": "FR-150",
@@ -4861,7 +4893,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-152",
@@ -4869,7 +4901,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-153",
@@ -4877,7 +4909,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-154",
@@ -5213,7 +5245,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 28
+          "testCount": 30
         },
         {
           "id": "FR-224",
@@ -5221,7 +5253,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 7
+          "testCount": 10
         },
         {
           "id": "FR-226",
@@ -5229,7 +5261,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 15
         },
         {
           "id": "FR-241",
@@ -5853,7 +5885,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 19
+          "testCount": 20
         }
       ],
       "evidence": [
@@ -5882,6 +5914,7 @@
         "apps/server/tests/integration/agent-context.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
+        "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
         "apps/server/tests/integration/line-oa-connection-health.test.js",
         "apps/server/tests/integration/line-oa-provider-migration.test.js",
         "apps/server/tests/integration/line-registry-scope.test.js",
@@ -7085,7 +7118,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 19,
-          "testCount": 19
+          "testCount": 20
         }
       ],
       "evidence": [
@@ -7122,6 +7155,7 @@
         "apps/server/tests/integration/fr143-asset-extraction-job.test.js",
         "apps/server/tests/integration/fr144-edge-device-credential.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
+        "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-evidence-extractor-contract.test.js",
         "apps/server/tests/unit/asset-evidence-route-schema-contract.test.js",
@@ -7175,7 +7209,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 37,
-          "testCount": 24
+          "testCount": 26
         },
         {
           "id": "FR-147",
@@ -7191,7 +7225,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 26,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-152",
@@ -7199,7 +7233,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 17,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-153",
@@ -7207,7 +7241,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 14
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -7278,6 +7312,7 @@
         "apps/server/tests/integration/fr151-line-oa-rich-menu.test.js",
         "apps/server/tests/integration/fr152-line-oa-rich-menu-jobs.test.js",
         "apps/server/tests/integration/fr153-line-oa-liff-app.test.js",
+        "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
@@ -7294,6 +7329,7 @@
         "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/line-oa-account-routes.test.js",
         "apps/server/tests/unit/line-oa-account-schema-contract.test.js",
+        "apps/server/tests/unit/line-oa-connect-wizard-render.test.js",
         "apps/server/tests/unit/line-oa-liff-app-domain.test.js",
         "apps/server/tests/unit/line-oa-liff-app-routes.test.js",
         "apps/server/tests/unit/line-oa-rich-menu-console.test.js",
@@ -7352,7 +7388,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 34,
-          "testCount": 38
+          "testCount": 40
         },
         {
           "id": "FR-150",
@@ -7424,6 +7460,7 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
         "apps/server/tests/integration/fr149-line-server-configuration.test.js",
+        "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
         "apps/server/tests/integration/identity-resolve.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
         "apps/server/tests/integration/line-admission-reconciler.test.js",
@@ -7452,6 +7489,7 @@
         "apps/server/tests/unit/line-job-failures-route.test.js",
         "apps/server/tests/unit/line-job-failures.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
+        "apps/server/tests/unit/line-oa-connect-wizard-render.test.js",
         "apps/server/tests/unit/line-oa-worker-route-reconciler.test.js",
         "apps/server/tests/unit/line-studio-job-failures.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
@@ -9205,7 +9243,7 @@
       "id": "FEAT-036",
       "title": "Connect LINE OA yourself — a Business owner connects a LINE Official Account from the browser: after a TOTP step-up they enter the Channel ID and Channel secret once, the server proves them with LINE, claims the bot for this installation, stores the secret write-only in the Integration vault (Supabase Vault, or an encrypted store on self-host) and mints short-lived tokens itself, sets and tests the webhook through LINE's API and decides on its own when the old transport has gone quiet — with no operator and no host file (ADR-089, `DOM-INTEGRATION`, `DOM-IDENTITY`, `DOM-LINE-OA-STUDIO`)",
       "kind": "bundle",
-      "registryStatus": "declared",
+      "registryStatus": "building",
       "requirementIds": [
         "FR-223",
         "FR-224",
@@ -9222,12 +9260,11 @@
         "project-manager"
       ],
       "useCase": "เจ้าของธุรกิจเปิดหน้าเชื่อมต่อ LINE OA ยืนยันตัวตนด้วยรหัส TOTP แล้วกรอก Channel ID กับ Channel secret จาก LINE Developers Console ครั้งเดียว ระบบตรวจกับ LINE ดึงชื่อบอทมาให้ ตั้งและทดสอบ Webhook ให้เอง แล้วกดเปิดใช้งานได้ทันทีโดยไม่ต้องให้ผู้ดูแลระบบใส่ไฟล์บนเครื่องเซิร์ฟเวอร์ และหลังบันทึกไม่มีหน้าไหนแสดง secret ซ้ำอีก",
-      "progressPercent": 66.7,
+      "progressPercent": 83.3,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-036 registry status is declared",
-        "FR-225 is planned",
+        "FEAT-036 registry status is building",
         "FR-228 is planned"
       ],
       "requirements": [
@@ -9236,32 +9273,32 @@
           "title": "Integration credential vault",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 21,
-          "testCount": 28
+          "codeCount": 22,
+          "testCount": 30
         },
         {
           "id": "FR-224",
           "title": "Credential-write step-up gate",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 10,
-          "testCount": 7
+          "codeCount": 11,
+          "testCount": 10
         },
         {
           "id": "FR-225",
           "title": "Self-serve LINE OA connection",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 11,
+          "testCount": 14
         },
         {
           "id": "FR-226",
           "title": "LINE channel account claim",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 13
+          "codeCount": 6,
+          "testCount": 15
         },
         {
           "id": "FR-227",
@@ -9282,6 +9319,7 @@
       ],
       "evidence": [
         "apps/server/src/app/api/_helpers.js",
+        "apps/server/src/app/api/line-oa/accounts/route.js",
         "apps/server/src/app/api/line-oa/connections/[id]/credential/revoke/route.js",
         "apps/server/src/app/api/line-oa/connections/[id]/credential/route.js",
         "apps/server/src/app/api/line-oa/connections/[id]/credential/validate/route.js",
@@ -9296,6 +9334,11 @@
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
         "apps/server/src/modules/line-oa-studio/application/server-line-rich-menu-runtime.js",
         "apps/server/src/modules/line-oa-studio/application/server-line-runtime.js",
+        "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+        "apps/server/src/modules/line-oa-studio/domain/line-oa-connect-wizard-copy.js",
+        "apps/server/src/modules/line-oa-studio/ui/LineOaConnectWizard.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineOaCredentialMigrationCard.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/platform/integrations/core/channel-account-claim.js",
@@ -9307,6 +9350,9 @@
         "apps/server/src/platform/integrations/core/secret-store/supabase-vault-secret-store.js",
         "apps/server/src/platform/integrations/providers/line/line-channel-admin-port.js",
         "apps/server/src/platform/integrations/providers/line/server-line-transport.js",
+        "apps/server/tests/e2e/fr149-line-server-console.spec.js",
+        "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+        "apps/server/tests/e2e/fr225-line-oa-self-serve-wizard.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/channel-account-claim.test.js",
         "apps/server/tests/integration/credential-rate-limit.test.js",
@@ -9316,6 +9362,7 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
         "apps/server/tests/integration/fr149-line-server-configuration.test.js",
+        "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
         "apps/server/tests/integration/line-channel-credential-routes.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
@@ -9336,7 +9383,12 @@
         "apps/server/tests/unit/integration/envelope-secret-store.test.js",
         "apps/server/tests/unit/integration/secret-store-port.test.js",
         "apps/server/tests/unit/integration/supabase-vault-secret-store.test.js",
+        "apps/server/tests/unit/line-oa-account-domain.test.js",
+        "apps/server/tests/unit/line-oa-account-routes.test.js",
+        "apps/server/tests/unit/line-oa-connect-wizard-copy.test.js",
+        "apps/server/tests/unit/line-oa-connect-wizard-render.test.js",
         "apps/server/tests/unit/line-oa-rich-menu-jobs-routes.test.js",
+        "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/platform/line-channel-admin-port.test.js",
         "apps/server/tests/unit/platform/server-line-transport.test.js"
@@ -12562,7 +12614,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 31,
-          "testCount": 66
+          "testCount": 67
         }
       ],
       "evidence": [
@@ -12642,6 +12694,7 @@
         "apps/server/tests/integration/fr196-segregation-of-duties.test.js",
         "apps/server/tests/integration/fr201-inventory-sku-governance.test.js",
         "apps/server/tests/integration/fr208-inventory-catalog-intake.test.js",
+        "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
         "apps/server/tests/integration/line-channel-credential-routes.test.js",
         "apps/server/tests/integration/project-authorization.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",

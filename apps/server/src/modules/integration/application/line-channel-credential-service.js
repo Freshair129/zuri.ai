@@ -19,8 +19,14 @@ import { LINE_CHANNEL_FIELDS, credentialView, parseCredentialInput, refusal } fr
 //   validation re-proves the stored pair with LINE and records the outcome.
 // @req FR-224 — each one passes the write gate (AAL2 step-up and rate limits)
 //   before LINE or the store is touched.
+// @req FR-225 — `rotateLineChannelCredential` is also the mount-to-vault migration
+//   path (design §4.9 step 4, "ย้ายข้อมูลรับรองเข้า Vault"): it stores through
+//   `ports.store` (the configured writable store) unconditionally of whatever
+//   `secretStore` the current credential carries, so a DEPLOYMENT_MOUNT-backed
+//   connection's owner re-entering Channel ID + secret here is the whole
+//   migration — no separate code path.
 // @spec ADR-089 D2, D4, D5, D7; SEC-030; FR-072 (404-shaped refusals)
-// @tested tests/integration/line-channel-credential-routes.test.js
+// @tested tests/integration/line-channel-credential-routes.test.js, tests/integration/fr225-line-oa-self-serve-onboarding.test.js
 
 const zRotate = z.object({ ...LINE_CHANNEL_FIELDS }).strict()
 const zRevoke = z.object({
