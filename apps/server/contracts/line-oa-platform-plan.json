@@ -369,7 +369,7 @@
           "containerCode": "WST-LINE-OA-ONBOARDING-SPR-ZAI-04",
           "subtype": "TASK",
           "title": "Apply the credential vault and onboarding migrations on production — design migrations 1 to 4 and 8 and the webhook-state column, under ADR-057 with an inventory, a rolled-back dry run and a verified effect, recorded in the migration notes",
-          "status": "PLANNED",
+          "status": "IN_PROGRESS",
           "weight": 2,
           "metadata": {
             "source": "docs/roadmap/ROADMAP-zuri-ai-24w-program.md",

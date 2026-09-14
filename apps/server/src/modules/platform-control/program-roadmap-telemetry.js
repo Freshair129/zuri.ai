@@ -199,7 +199,7 @@ export const PROGRAMME_LANES = [
 
 export const PROGRAMME_USAGE = {
   "meter": "scripts/programme-usage-meter.mjs",
-  "measuredThrough": "2026-09-14T00:34:06.134Z",
+  "measuredThrough": "2026-09-14T00:36:22.737Z",
   "lanes": {
     "LANE-COST-QUOTE-PLAN": {
       "requests": 33,
@@ -528,24 +528,24 @@ export const PROGRAMME_USAGE = {
       }
     },
     "LANE-LINE-OA-VAULT": {
-      "requests": 227,
+      "requests": 237,
       "sessions": [
         "claude-code:aac0cfef-d023-4455-a10f-a729b17b61f6"
       ],
       "tokens": {
-        "input": 454,
-        "cacheWrite": 543020,
-        "cacheRead": 129903073,
-        "output": 301577
+        "input": 474,
+        "cacheWrite": 551610,
+        "cacheRead": 131724625,
+        "output": 305122
       },
       "bySource": {
         "claude-code": {
-          "requests": 227,
+          "requests": 237,
           "tokens": {
-            "input": 454,
-            "cacheWrite": 543020,
-            "cacheRead": 129903073,
-            "output": 301577
+            "input": 474,
+            "cacheWrite": 551610,
+            "cacheRead": 131724625,
+            "output": 305122
           }
         }
       },
@@ -553,23 +553,23 @@ export const PROGRAMME_USAGE = {
         "claude-opus-5"
       ],
       "firstActivityAt": "2026-09-13T22:04:31.684Z",
-      "lastActivityAt": "2026-09-14T00:34:06.134Z",
-      "activeMinutes": 136,
+      "lastActivityAt": "2026-09-14T00:36:22.737Z",
+      "activeMinutes": 138,
       "detail": {
-        "reasoningTokens": 66266,
+        "reasoningTokens": 67014,
         "cacheWrite5mTokens": 0,
-        "cacheWrite1hTokens": 543020,
+        "cacheWrite1hTokens": 551610,
         "webSearchRequests": 0,
         "webFetchRequests": 0,
         "prompts": 5,
-        "toolCalls": 333,
+        "toolCalls": 343,
         "toolErrors": 13,
         "toolDenials": 0,
         "compactions": 1,
         "apiErrors": 0,
         "tools": {
           "Bash": {
-            "calls": 35,
+            "calls": 44,
             "errors": 3
           },
           "Edit": {
@@ -577,7 +577,7 @@ export const PROGRAMME_USAGE = {
             "errors": 0
           },
           "Grep": {
-            "calls": 28,
+            "calls": 29,
             "errors": 0
           },
           "PowerShell": {
@@ -610,7 +610,7 @@ export const PROGRAMME_USAGE = {
           }
         },
         "models": {
-          "claude-opus-5": 227
+          "claude-opus-5": 237
         }
       }
     },

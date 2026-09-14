@@ -206,7 +206,7 @@ for device labels and person names; it returns no key material.
 ## Credential-write step-up gate and PDPA erasure fan-out (ADR-089, ADR-091 — gate merged, erasure fan-out declared)
 
 - **Step-up gate (FR-224, [ADR-089](../../decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md) D4) —
-  merged in #398 (main 2aef8caa; TASK-ZAI-080; migration 20260914140400 not applied).**
+  merged in #398 (main 2aef8caa; TASK-ZAI-080; migration 20260914140400 applied on production 2026-09-14, not deployed).**
   `credential-write-gate.js` is the gate other lanes call before a credential write,
   rotation, revocation or live validation: `assertCredentialWriteAssurance` refuses a
   Person with no ACTIVE TOTP factor `MFA_FACTOR_REQUIRED` (with the enrolment path),
@@ -215,7 +215,7 @@ for device labels and person names; it returns no key material.
   `assuranceLevel`, because `elevateSession` leaves that column at AAL2 after the
   900-second window ends. `createCredentialWriteGuard` composes the gate with the
   product's first rate limit (`rate-limit.js`, model `RateLimitBucket`, migration
-  `20260914140400_rate_limit_bucket.sql`, not applied): five writes or validations in
+  `20260914140400_rate_limit_bucket.sql`, applied on production 2026-09-14): five writes or validations in
   fifteen minutes per Person and Business, a rejected LINE validation counting twice,
   and sixty LINE validation calls a minute per installation, answering 429
   `CREDENTIAL_RATE_LIMITED` with `retryAfterSeconds`. This does not change MFA
