@@ -3258,6 +3258,11 @@ model LineOaAccount {
   serverEnabled           Boolean               @default(false)
   executionMode           String                @default("SERVER")
   modelAccess             String                @default("LOCAL_ONLY")
+  // @req FR-235 — publisher-set grounding mode (ADR-090 D1): BUSINESS_KNOWLEDGE
+  // (default, every existing account, unchanged behaviour) | GKS_CORPUS |
+  // GKS_THEN_BUSINESS_KNOWLEDGE. Additive, opt-in; nothing reads a corpus until
+  // a publisher switches it.
+  knowledgeGrounding      String                @default("BUSINESS_KNOWLEDGE")
   allowDelayedPush        Boolean               @default(false)
   transportEpoch          Int                   @default(1)
   conversationJobs        LineConversationJob[]
