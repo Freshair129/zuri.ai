@@ -4,7 +4,10 @@
 // @req FR-NEW — resolve() also serves OAUTH_CLIENT and MODEL_PROVIDER_KEY,
 //   scoped by the credential's stored secretKind (cross-kind refusal) instead
 //   of the LINE-only provider/destination check, which stays exactly as it was
-//   for LINE_CHANNEL (ADR-089 §4.8 phase 7).
+//   for LINE_CHANNEL (ADR-089 §4.8 phase 7). write() refuses a kind that
+//   disagrees with an existing credential's stored secretKind, live or dead,
+//   before sealing any material — a connectionId's kind cannot be silently
+//   switched by a plain write (CREDENTIAL_KIND_MISMATCH).
 // @spec ADR-089 D1, D5; SDD-097; SEC-030
 // @tested tests/unit/integration/envelope-secret-store.test.js, tests/integration/credential-vault-lifecycle.test.js,
 //   tests/integration/credential-vault-provider-kinds-lifecycle.test.js
@@ -232,6 +235,11 @@ export function createEnvelopeSecretStore({ db = prisma, env = process.env, now 
         const result = await db.$transaction(async tx => {
           await scopedConnection(tx, scope)
           const credential = await tx.integrationCredential.findUnique({ where: { connectionId }, include: { versions: true } })
+          // A connection's kind never changes underneath its credential by a plain
+          // write, live or dead: refused before any material is sealed or a version
+          // row is touched, in both the "rotate" and "replace a dead row" branches
+          // below. Revoke first, or use a fresh connection, to change kind.
+          if (credential && credential.secretKind !== kind) throw new SecretStoreError('CREDENTIAL_KIND_MISMATCH')
           const versionNumber = (credential?.version ?? 0) + 1
           const id = randomUUID()
           const secretRef = secretRefFor('ENVELOPE', id)

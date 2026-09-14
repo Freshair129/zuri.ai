@@ -205,6 +205,40 @@ describe('cross-kind refusal (a reference never resolves as the wrong kind)', ()
     expect(resolved.material).toBeDefined()
   })
 
+  it('writing a different kind to a connectionId that already holds a credential is refused, live or dead, before anything is written (regression: silent cross-kind rotation)', async () => {
+    const { scope } = await newConnection()
+    const line = await storeValidatedCredential({
+      store, ...scope, kind: 'LINE_CHANNEL',
+      bundle: { channelId: '1234567891', channelSecret: randomBytes(16).toString('hex') },
+      validationCode: 'LINE_OK',
+    })
+    const before = await prisma.integrationSecretEnvelope.count()
+
+    // The live LINE_CHANNEL row must not be rotated into an OAUTH_CLIENT or
+    // MODEL_PROVIDER_KEY version — that would leave secretKind='LINE_CHANNEL' on
+    // a row whose latest version is actually OAuth/model material, and a caller
+    // resolving with the default kind would decrypt the wrong thing as LINE.
+    await expect(store.write({ ...scope, kind: 'OAUTH_CLIENT', bundle: generateOauthClientBundle(), createdVia: 'BROWSER_MFA' }))
+      .rejects.toMatchObject({ code: 'CREDENTIAL_KIND_MISMATCH', status: 409 })
+    await expect(store.write({ ...scope, kind: 'MODEL_PROVIDER_KEY', bundle: generateModelProviderKeyBundle(), createdVia: 'BROWSER_MFA' }))
+      .rejects.toMatchObject({ code: 'CREDENTIAL_KIND_MISMATCH', status: 409 })
+    expect(await prisma.integrationSecretEnvelope.count()).toBe(before)
+    const credential = await credentialOf(scope.connectionId)
+    expect(credential).toMatchObject({ status: 'ACTIVE', secretKind: 'LINE_CHANNEL', secretRef: line.secretRef, version: 1 })
+    // The right kind still writes and resolves fine after the refusals above.
+    await expect(store.write({ ...scope, kind: 'LINE_CHANNEL', bundle: { channelId: '1234567892', channelSecret: randomBytes(16).toString('hex') }, createdVia: 'BROWSER_MFA' }))
+      .resolves.toMatchObject({ versionNumber: 2 })
+  })
+
+  it('the same guard also refuses the reverse direction: a MODEL_PROVIDER_KEY connection cannot be silently switched to OAUTH_CLIENT or LINE_CHANNEL', async () => {
+    const { scope } = await newConnection()
+    await storeValidatedCredential({ store, ...scope, kind: 'MODEL_PROVIDER_KEY', bundle: generateModelProviderKeyBundle(), validationCode: 'VALIDATED' })
+    await expect(store.write({ ...scope, kind: 'OAUTH_CLIENT', bundle: generateOauthClientBundle(), createdVia: 'BROWSER_MFA' }))
+      .rejects.toMatchObject({ code: 'CREDENTIAL_KIND_MISMATCH' })
+    await expect(store.write({ ...scope, kind: 'LINE_CHANNEL', bundle: { channelId: '1234567893', channelSecret: randomBytes(16).toString('hex') }, createdVia: 'BROWSER_MFA' }))
+      .rejects.toMatchObject({ code: 'CREDENTIAL_KIND_MISMATCH' })
+  })
+
   it('an unrecognized kind is refused, never default-permitted', async () => {
     const { scope } = await newConnection()
     const written = await storeValidatedCredential({

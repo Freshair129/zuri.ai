@@ -133,6 +133,19 @@ describe('OAUTH_CLIENT and MODEL_PROVIDER_KEY dispatch to the provider_secret_* 
     await createSupabaseVaultSecretStore({ sql }).write({ ...scope, kind: 'LINE_CHANNEL', bundle, createdVia: 'BROWSER_MFA' })
     expect(sql.calls[0].text).toBe(CHANNEL_SECRET_SQL.write)
   })
+
+  // Regression: provider_secret_write's own kind-mismatch guard (a connectionId
+  // already holding a different-kind credential) raises CREDENTIAL_KIND_MISMATCH
+  // from the database; the adapter must surface it as a 409, not fall through to
+  // the generic 503 CHANNEL_SECRET_STORE_UNAVAILABLE the way an unrecognized code
+  // would.
+  it('maps provider_secret_write\'s CREDENTIAL_KIND_MISMATCH to a 409, for both new kinds', async () => {
+    for (const [kind, bundle] of [['OAUTH_CLIENT', generateOauthClientBundle()], ['MODEL_PROVIDER_KEY', generateModelProviderKeyBundle()]]) {
+      const failing = { run: async () => { throw new Error('P0001: CREDENTIAL_KIND_MISMATCH') } }
+      const error = await createSupabaseVaultSecretStore({ sql: failing }).write({ ...scope, kind, bundle, createdVia: 'BROWSER_MFA' }).catch(e => e)
+      expect(error).toMatchObject({ code: 'CREDENTIAL_KIND_MISMATCH', status: 409 })
+    }
+  })
 })
 
 describe('role-scoped executors', () => {

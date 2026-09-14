@@ -49,6 +49,13 @@ const STATUS_BY_CODE = Object.freeze({
   CHANNEL_SECRET_KIND_UNSUPPORTED: 400,
   CREDENTIAL_VALIDATION_CODE_INVALID: 400,
   CREDENTIAL_VERSION_CONFLICT: 409,
+  // FR-NEW — a connectionId already holds a credential of a different kind. Refused
+  // before either the "rotate" or the "replace a dead row" branch runs, in every
+  // store: a connection's kind never changes underneath its live or dead credential
+  // by a plain write (revoke first, then a fresh connection or a fresh write can
+  // pick a new kind). Same 409 family as CREDENTIAL_VERSION_CONFLICT — both are
+  // "this row is not in the state your write assumed", not a malformed request.
+  CREDENTIAL_KIND_MISMATCH: 409,
   CHANNEL_SECRET_STORE_UNAVAILABLE: 503,
   SECRET_STORE_CONFIGURATION_INVALID: 503,
   CREDENTIAL_ORPHAN_PURGED: 500,

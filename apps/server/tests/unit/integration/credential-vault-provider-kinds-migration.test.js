@@ -75,6 +75,17 @@ describe('the new functions', () => {
     expect(resolve).toContain('cr."secretKind" = p_kind')
   })
 
+  it('refuses to rotate or replace a connection\'s credential into a different kind (regression: silent cross-kind rotation)', () => {
+    const write = bodyOf('provider_secret_write')
+    const guard = write.indexOf('is distinct from p_kind')
+    expect(guard).toBeGreaterThan(-1)
+    expect(write.slice(Math.max(0, guard - 80), guard + 40)).toContain('v_credential."secretKind"')
+    expect(write).toContain("raise exception 'CREDENTIAL_KIND_MISMATCH'")
+    // The guard must run before vault.create_secret, not merely before the insert —
+    // no secret should ever reach the vault for a refused write.
+    expect(write.indexOf("raise exception 'CREDENTIAL_KIND_MISMATCH'")).toBeLessThan(write.indexOf('vault.create_secret'))
+  })
+
   it('re-prove the connection scope from rows in write, and never invent a destination or provider-code check in resolve', () => {
     const write = bodyOf('provider_secret_write')
     expect(write).toContain('c."tenantId" = p_tenant_id')

@@ -21,7 +21,21 @@
 --   * zuri_core.provider_secret_write   — OAUTH_CLIENT / MODEL_PROVIDER_KEY bundle
 --     validation and version insert. Refuses LINE_CHANNEL and anything else with
 --     CHANNEL_SECRET_KIND_UNSUPPORTED — it is not a second way to write a LINE
---     channel credential.
+--     channel credential. It also refuses, with CREDENTIAL_KIND_MISMATCH before
+--     any secret reaches the vault, a write whose kind disagrees with a
+--     connectionId's existing credential (live or dead): without this a
+--     connectionId already holding an ACTIVE credential of one kind could have
+--     its row silently rotated to a different kind's material while its
+--     secretKind column, and every reader that trusts it, stayed unaware —
+--     exactly the class of bug behind this repo's LINE outages (.brain/rca/).
+--     channel_secret_write has the same shape of gap in the opposite direction
+--     (writing LINE_CHANNEL over a connectionId already holding a live
+--     OAUTH_CLIENT/MODEL_PROVIDER_KEY row would rotate it without checking
+--     secretKind either) and is not guarded here because this migration does
+--     not touch that function's body at all, per the design choice above; the
+--     application-level rule until that gap is closed is that a connection's
+--     kind is fixed for its life — nothing today writes a second kind at a
+--     connectionId already provisioned for LINE_OA.
 --   * zuri_core.provider_secret_resolve — resolves an ACTIVE version filtered by
 --     `cr."secretKind" = p_kind` (the cross-kind refusal: a MODEL_PROVIDER_KEY
 --     reference can never come back for an OAUTH_CLIENT request or vice versa,
@@ -152,6 +166,17 @@ begin
   from public."IntegrationCredential" cr
   where cr."connectionId" = p_connection_id
   for update;
+
+  -- A connection's kind never changes underneath its credential by a plain
+  -- write, live or dead: refused before any secret reaches the vault, in both
+  -- the "rotate" and "replace a dead row" branches below. Without this, a
+  -- connectionId already holding an ACTIVE LINE_CHANNEL (or the other new
+  -- kind) credential could have its live row silently rotated to a different
+  -- kind's material while its secretKind column and every reader that trusts
+  -- it stayed unaware.
+  if v_credential."id" is not null and v_credential."secretKind" is distinct from p_kind then
+    raise exception 'CREDENTIAL_KIND_MISMATCH';
+  end if;
 
   v_next := coalesce(v_credential."version", 0) + 1;
   v_secret_id := vault.create_secret(
@@ -302,7 +327,7 @@ grant execute on function zuri_core.provider_secret_write(text, text, text, text
 grant execute on function zuri_core.provider_secret_resolve(text, text, text, text, text) to zuri_channel_vault_reader;
 
 comment on function zuri_core.provider_secret_write(text, text, text, text, jsonb, timestamptz, text, text) is
-  'FR-NEW — write an OAUTH_CLIENT or MODEL_PROVIDER_KEY credential version PENDING_VALIDATION into Supabase Vault; refuses LINE_CHANNEL and anything else. zuri_channel_vault_writer only.';
+  'FR-NEW — write an OAUTH_CLIENT or MODEL_PROVIDER_KEY credential version PENDING_VALIDATION into Supabase Vault; refuses LINE_CHANNEL and anything else, and refuses a connectionId already holding a credential of a different kind (CREDENTIAL_KIND_MISMATCH) before any secret reaches the vault. zuri_channel_vault_writer only.';
 comment on function zuri_core.provider_secret_resolve(text, text, text, text, text) is
   'FR-NEW — resolve an ACTIVE OAUTH_CLIENT or MODEL_PROVIDER_KEY version for its exact Tenant, Business and connection; no row for every refusal, and never for LINE_CHANNEL. zuri_channel_vault_reader only.';
 
