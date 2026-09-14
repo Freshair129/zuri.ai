@@ -199,7 +199,7 @@ export const PROGRAMME_LANES = [
 
 export const PROGRAMME_USAGE = {
   "meter": "scripts/programme-usage-meter.mjs",
-  "measuredThrough": "2026-09-14T00:04:21.334Z",
+  "measuredThrough": "2026-09-14T00:34:06.134Z",
   "lanes": {
     "LANE-COST-QUOTE-PLAN": {
       "requests": 33,
@@ -528,24 +528,24 @@ export const PROGRAMME_USAGE = {
       }
     },
     "LANE-LINE-OA-VAULT": {
-      "requests": 196,
+      "requests": 227,
       "sessions": [
         "claude-code:aac0cfef-d023-4455-a10f-a729b17b61f6"
       ],
       "tokens": {
-        "input": 392,
-        "cacheWrite": 404963,
-        "cacheRead": 116822581,
-        "output": 281715
+        "input": 454,
+        "cacheWrite": 543020,
+        "cacheRead": 129903073,
+        "output": 301577
       },
       "bySource": {
         "claude-code": {
-          "requests": 196,
+          "requests": 227,
           "tokens": {
-            "input": 392,
-            "cacheWrite": 404963,
-            "cacheRead": 116822581,
-            "output": 281715
+            "input": 454,
+            "cacheWrite": 543020,
+            "cacheRead": 129903073,
+            "output": 301577
           }
         }
       },
@@ -553,47 +553,47 @@ export const PROGRAMME_USAGE = {
         "claude-opus-5"
       ],
       "firstActivityAt": "2026-09-13T22:04:31.684Z",
-      "lastActivityAt": "2026-09-14T00:04:21.334Z",
-      "activeMinutes": 107,
+      "lastActivityAt": "2026-09-14T00:34:06.134Z",
+      "activeMinutes": 136,
       "detail": {
-        "reasoningTokens": 60686,
+        "reasoningTokens": 66266,
         "cacheWrite5mTokens": 0,
-        "cacheWrite1hTokens": 404963,
+        "cacheWrite1hTokens": 543020,
         "webSearchRequests": 0,
         "webFetchRequests": 0,
-        "prompts": 1,
-        "toolCalls": 299,
-        "toolErrors": 11,
+        "prompts": 5,
+        "toolCalls": 333,
+        "toolErrors": 13,
         "toolDenials": 0,
-        "compactions": 0,
+        "compactions": 1,
         "apiErrors": 0,
         "tools": {
           "Bash": {
-            "calls": 26,
-            "errors": 2
+            "calls": 35,
+            "errors": 3
           },
           "Edit": {
             "calls": 106,
             "errors": 0
           },
           "Grep": {
-            "calls": 24,
-            "errors": 0
-          },
-          "PowerShell": {
-            "calls": 64,
-            "errors": 9
-          },
-          "Read": {
             "calls": 28,
             "errors": 0
           },
+          "PowerShell": {
+            "calls": 78,
+            "errors": 10
+          },
+          "Read": {
+            "calls": 30,
+            "errors": 0
+          },
           "ToolSearch": {
-            "calls": 1,
+            "calls": 2,
             "errors": 0
           },
           "Write": {
-            "calls": 46,
+            "calls": 48,
             "errors": 0
           },
           "mcp__ccd_pr__bind_pr": {
@@ -601,12 +601,16 @@ export const PROGRAMME_USAGE = {
             "errors": 0
           },
           "mcp__ccd_pr__get_status": {
-            "calls": 3,
+            "calls": 4,
+            "errors": 0
+          },
+          "mcp__ccd_pr__set_auto_merge": {
+            "calls": 1,
             "errors": 0
           }
         },
         "models": {
-          "claude-opus-5": 196
+          "claude-opus-5": 227
         }
       }
     },
