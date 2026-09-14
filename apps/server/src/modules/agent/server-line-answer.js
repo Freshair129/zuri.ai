@@ -8,9 +8,14 @@ import { composeContext } from './context-composer'
 // @req FR-149, FR-150 — answer an already-admitted durable conversation job;
 // @req FR-171 — persist selected evidence and pass the trace observer to the actual provider.
 // execution placement and external model permission are distinct decisions.
-// @req FR-234 — on the MSP-opt-in path, the assembled MSP packet is composed
-// through `context-composer.js` (thread-scoped, budgeted, one `ContextReceipt`
-// per model invocation) instead of being handed to the model unexamined.
+// @req FR-234 — on the MSP-opt-in path, the MSP packet is split into
+// provenance-bearing slices (one per exchange/summary/protected record) and
+// run through `context-composer.js`; the model and the MSP injection receipt
+// receive ONLY the packet rebuilt from the composer's included slices, and
+// the recorded `ContextReceipt` describes exactly that rebuilt packet — never
+// the original, un-composed one. Coverage today is partial: the LOCAL_ONLY /
+// non-opt-in path's business-evidence model invocation does not run through
+// the composer and records no receipt (see the composer module's own note).
 // @spec ADR-061, SEC-001, SEC-010 — public scoped knowledge by default; the
 // persisted opt-in may compose the trusted MSP thread without a second CRM
 // ingest, write action or implicit external model fallback.
@@ -21,6 +26,57 @@ function failure(code) {
   const error = new Error(code)
   error.code = code
   return error
+}
+
+// @req FR-234 — split one MSP thread-context packet into provenance-bearing
+// slices the Context Composer can budget and drop independently, instead of
+// treating the whole packet as one opaque blob (which can only ever be kept
+// or dropped whole, defeating priority-ordered trimming). Each slice's id is
+// prefixed by its packet section so `injectedMspPacket` can rebuild the
+// packet from exactly the slices the composer included — nothing else.
+// Ordered exchanges-first, then protected (verified) facts, then summaries
+// last: recent turns and verified facts are kept ahead of older, already-
+// condensed summaries when the shared budget runs out, mirroring the MSP
+// packet builder's own trim order (buildThreadContextPacket drops summaries
+// before recent exchanges).
+function mspPacketSlices(packet) {
+  const threadId = packet?.thread?.threadId ?? null
+  const exchanges = Array.isArray(packet?.memory?.recentExchanges) ? packet.memory.recentExchanges : []
+  const protectedRecords = Array.isArray(packet?.memory?.protectedMemory) ? packet.memory.protectedMemory : []
+  const summaries = Array.isArray(packet?.memory?.summaries) ? packet.memory.summaries : []
+  return [
+    ...exchanges.map((exchange, index) => ({ id: `exchange:${exchange?.exchangeId ?? index}`, threadId, text: exchange })),
+    ...protectedRecords.map((record, index) => ({ id: `protected:${record?.recordId ?? index}`, threadId, text: record })),
+    ...summaries.map((summary, index) => ({ id: `summary:${summary?.summaryId ?? index}`, threadId, text: summary })),
+  ]
+}
+
+/**
+ * Rebuild the packet actually handed to the model and to MSP's injection
+ * receipt from the Context Composer's included MSP slices ONLY. Returns
+ * `null` when nothing survived composition — "no memory is injected" must
+ * mean no packet, not an empty-looking one that still carries policy/identity
+ * metadata a reader could mistake for content.
+ */
+function injectedMspPacket(packet, includedMspSlices) {
+  if (!packet) return null
+  const byPrefix = (prefix) => includedMspSlices
+    .filter((slice) => slice.id.startsWith(prefix))
+    .map((slice) => slice.content)
+  const recentExchanges = byPrefix('exchange:')
+  const protectedMemory = byPrefix('protected:')
+  const summaries = byPrefix('summary:')
+  if (!recentExchanges.length && !protectedMemory.length && !summaries.length) return null
+  return {
+    ...packet,
+    memory: { ...packet.memory, recentExchanges, summaries, protectedMemory },
+    manifest: packet.manifest ? {
+      ...packet.manifest,
+      effectiveRecentExchangeCount: recentExchanges.length,
+      summaryCount: summaries.length,
+      protectedRecordCount: protectedMemory.length,
+    } : packet.manifest,
+  }
 }
 
 const MEMORY_AUDIENCES = new Set(['DIRECT', 'GROUP', 'ROOM'])
@@ -174,6 +230,7 @@ export function createServerLineAnswer({
       let memoryContext = null
       let memoryInbound = null
       let contextReceipt = null
+      let injectedPacket = null
       if (memoryOptIn) {
         await assertMemoryJobLive(job, memoryStateReader)
         const serverScope = memoryServerScope(job, route)
@@ -215,29 +272,34 @@ export function createServerLineAnswer({
         if (route.audienceKind !== 'DIRECT' && memoryContext.threadMemory.policyDecision === 'ALLOW') {
           throw failure('LINE_MEMORY_AUDIENCE_DENIED')
         }
+        // @req FR-234 — compose the MSP packet through the Context Composer
+        // BEFORE it reaches the model: split into provenance-bearing slices,
+        // thread-scoped and budgeted by priority. GKS evidence and CRM/ERP
+        // facts are not wired into this turn yet (FR-235, FR-231 are separate
+        // phases), so both are empty here; the composer's own "no evidence and
+        // no facts" rule is therefore never the reason a memory-opt-in turn
+        // skips its model call today — that stays governed by
+        // `answerBusinessQuestion`'s existing business-evidence gate.
+        const authorizedForMemory = memoryContext.threadMemory.policyDecision === 'ALLOW'
+        const composed = composeContext({
+          authorized: authorizedForMemory,
+          scope: { threadId: memoryContext.thread.threadId },
+          audienceKind: route.audienceKind,
+          mspSlices: authorizedForMemory ? mspPacketSlices(memoryContext.threadMemory) : [],
+        })
+        contextReceipt = composed.receipt
+        // The packet handed to the model and to MSP's injection receipt is
+        // rebuilt from ONLY the slices the composer included — never the
+        // original packet — so the receipt this turn records can never
+        // describe less than what the model actually saw.
+        injectedPacket = injectedMspPacket(memoryContext.threadMemory,
+          composed.slices.filter((slice) => slice.source === 'MSP'))
         trace?.recordThreadMemory?.({
-          contextPacket: memoryContext.threadMemory,
+          contextPacket: injectedPacket,
           thread: memoryContext.thread,
           exchangeId: memoryInbound.message.exchangeId,
           inboundMessageId: memoryInbound.message.messageId,
         })
-        // @req FR-234 — compose the MSP packet through the Context Composer before
-        // it reaches the model: thread-scoped, budgeted and receipted. GKS
-        // evidence and CRM/ERP facts are not wired into this turn yet (FR-235,
-        // FR-231 are separate phases), so both are empty here; the composer's
-        // own "no evidence and no facts" rule is therefore never the reason a
-        // memory-opt-in turn skips its model call today — that stays governed by
-        // `answerBusinessQuestion`'s existing business-evidence gate.
-        const composed = composeContext({
-          authorized: memoryContext.threadMemory.policyDecision === 'ALLOW',
-          scope: { threadId: memoryContext.thread.threadId },
-          audienceKind: route.audienceKind,
-          mspSlices: memoryContext.threadMemory.policyDecision === 'ALLOW'
-            ? [{ id: memoryContext.threadMemory.injectionId ?? memoryContext.thread.threadId,
-                threadId: memoryContext.thread.threadId, text: memoryContext.threadMemory }]
-            : [],
-        })
-        contextReceipt = composed.receipt
         if (typeof trace?.recordContextReceipt === 'function') await trace.recordContextReceipt(contextReceipt)
       }
       const tracedKnowledge = trace ? { query: async input => {
@@ -245,8 +307,13 @@ export function createServerLineAnswer({
         await trace.recordEvidence(input, evidence)
         return evidence
       } } : businessKnowledge
+      // `injectedPacket` — never `memoryContext.threadMemory` — is what MSP's
+      // injection receipt hashes and what the model actually receives below;
+      // a packet the composer denied or fully trimmed is `null` here, so
+      // `withInjectionReceipt` correctly skips wrapping (no injection to
+      // attest) and the model gets no memory content at all.
       const invocationModel = memoryOptIn && typeof selectedThreadMemory.withInjectionReceipt === 'function'
-        ? selectedThreadMemory.withInjectionReceipt({ model, contextPacket: memoryContext.threadMemory,
+        ? selectedThreadMemory.withInjectionReceipt({ model, contextPacket: injectedPacket,
           threadId: memoryContext.thread.threadId, exchangeId: memoryInbound.message.exchangeId,
           authorization: { authContext: memoryContext.authContext }, requesterId: memoryContext.identity.principalId,
           contextReceiptId: contextReceipt?.receiptId ?? null })
@@ -257,7 +324,7 @@ export function createServerLineAnswer({
       if (memoryOptIn) await assertMemoryJobLive(job, memoryStateReader)
       const result = await answerBusinessQuestion({ tenantId, businessId, question }, {
         knowledge: tracedKnowledge, model: invocationModel, trace,
-        contextPacket: memoryOptIn ? memoryContext.threadMemory : null,
+        contextPacket: memoryOptIn ? injectedPacket : null,
       })
       // Grounding may choose a deterministic fallback after a provider failure;
       // a failed journal write must never be mistaken for that safe fallback.

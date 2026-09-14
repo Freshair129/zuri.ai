@@ -646,7 +646,9 @@ export const CONTEXT_DROP_REASONS = [
   // A CRM/ERP record outranks MSP memory; a memory slice naming the same subject
   // as a record is dropped, never silently overridden.
   'SUPERSEDED_BY_RECORD',
-  // A group/room thread's slices never cross into another thread.
+  // A group/room thread's slices never cross into another thread; a slice
+  // carrying no thread at all once a thread is in scope is treated the same
+  // way (fail closed), never passed through by omission.
   'THREAD_SCOPE_MISMATCH',
   // Passport/cross-thread recall is denied to a non-DIRECT audience.
   'AUDIENCE_SCOPE_DENIED',
@@ -654,3 +656,9 @@ export const CONTEXT_DROP_REASONS = [
   'BUDGET_TRIMMED',
 ]
 export const zContextDropReason = z.enum(CONTEXT_DROP_REASONS)
+
+// The default reason `composeContext` reports when the caller's authorization
+// decision was `false` — named here rather than left as a literal inside the
+// composer, same as every drop reason above.
+export const CONTEXT_DENIAL_REASONS = ['CONTEXT_DENIED']
+export const zContextDenialReason = z.enum(CONTEXT_DENIAL_REASONS)

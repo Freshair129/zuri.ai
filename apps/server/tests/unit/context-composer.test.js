@@ -29,15 +29,35 @@ describe('context-composer: authorization', () => {
     expect(composed.receipt.dropped).toEqual([])
   })
 
-  it('defaults to authorized so an ADR-091-unaware caller keeps composing', () => {
-    const composed = composeContext({ records: [RECORD] })
+  it('defaults the denial reason from the enums.js vocabulary, not a bare literal', () => {
+    const composed = composeContext({ authorized: false, records: [RECORD] })
+    expect(composed.denialReason).toBe('CONTEXT_DENIED')
+  })
+
+  // FIX 2 — fail closed: a caller MUST resolve and pass an explicit boolean.
+  // Defaulting to `true` let a caller that forgot the flag receive a full packet.
+  it('throws rather than defaulting to authorized when the flag is omitted', () => {
+    expect(() => composeContext({ records: [RECORD] })).toThrow('CONTEXT_COMPOSER_AUTHORIZED_REQUIRED')
+    expect(() => composeContext({})).toThrow('CONTEXT_COMPOSER_AUTHORIZED_REQUIRED')
+  })
+
+  it('throws for a non-boolean authorized value instead of coercing it', () => {
+    for (const value of [undefined, null, 'true', 1, 0, {}]) {
+      expect(() => composeContext({ authorized: value, records: [RECORD] })).toThrow('CONTEXT_COMPOSER_AUTHORIZED_REQUIRED')
+    }
+  })
+
+  it('composes normally when authorized is explicitly true', () => {
+    const composed = composeContext({ authorized: true, scope: { threadId: 'thread-1' }, records: [RECORD] })
     expect(composed.authorized).toBe(true)
+    expect(composed.slices).toHaveLength(1)
   })
 })
 
 describe('context-composer: precedence', () => {
   it('orders CRM/ERP record over GKS evidence over MSP memory', () => {
     const composed = composeContext({
+      authorized: true,
       scope: { threadId: 'thread-1' },
       audienceKind: 'DIRECT',
       records: [RECORD],
@@ -54,6 +74,7 @@ describe('context-composer: precedence', () => {
   it('drops a memory slice that names the same subject as a record, reason SUPERSEDED_BY_RECORD', () => {
     const conflictingMemory = { id: 'msp-conflict', threadId: 'thread-1', subjectKey: 'customer:42', text: 'ลูกค้าบอกว่าคงเหลือ 3 ชิ้น' }
     const composed = composeContext({
+      authorized: true,
       scope: { threadId: 'thread-1' },
       audienceKind: 'DIRECT',
       records: [RECORD],
@@ -67,6 +88,7 @@ describe('context-composer: precedence', () => {
   it('does not drop a memory slice whose subject was never named by a record', () => {
     const unrelatedMemory = { id: 'msp-unrelated', threadId: 'thread-1', subjectKey: 'customer:99', text: 'คนละเรื่อง' }
     const composed = composeContext({
+      authorized: true,
       scope: { threadId: 'thread-1' },
       records: [RECORD],
       mspSlices: [unrelatedMemory],
@@ -82,6 +104,7 @@ describe('context-composer: budget', () => {
     const bigEvidence = { id: 'evidence-big', citationId: 'gks:doc-big', text: 'y'.repeat(30) }
     const bigMemory = { id: 'msp-big', threadId: 'thread-1', text: 'z'.repeat(30) }
     const composed = composeContext({
+      authorized: true,
       scope: { threadId: 'thread-1' },
       records: [bigRecord],
       knowledgeEvidence: [bigEvidence],
@@ -100,6 +123,7 @@ describe('context-composer: budget', () => {
 
   it('keeps every slice and reports zero trims when the budget is not exceeded', () => {
     const composed = composeContext({
+      authorized: true,
       scope: { threadId: 'thread-1' },
       records: [RECORD],
       knowledgeEvidence: [EVIDENCE],
@@ -108,25 +132,76 @@ describe('context-composer: budget', () => {
     expect(composed.dropped).toEqual([])
     expect(composed.receipt.budget.trimmed).toBe(0)
   })
+
+  // BLOCKER fix — the receipt must describe what a caller would actually inject.
+  // The composer itself cannot prove that (it never sees the caller's downstream
+  // packet), but it must at minimum hand back the INCLUDED slice's content so a
+  // caller has no reason to reach past it: this asserts that contract directly.
+  it('returns the included content on each kept slice, for the caller to assemble its model input from', () => {
+    const composed = composeContext({
+      authorized: true, scope: { threadId: 'thread-1' }, records: [RECORD], mspSlices: [MSP_SLICE],
+    })
+    const record = composed.slices.find((slice) => slice.id === 'record-1')
+    const msp = composed.slices.find((slice) => slice.id === 'msp-1')
+    expect(record.content).toBe(RECORD.text)
+    expect(msp.content).toBe(MSP_SLICE.text)
+  })
+
+  it('never returns the content of a dropped slice', () => {
+    const bigMemory = { id: 'msp-big', threadId: 'thread-1', text: 'z'.repeat(999) }
+    const composed = composeContext({
+      authorized: true, scope: { threadId: 'thread-1' }, mspSlices: [bigMemory], maxBudgetChars: 10,
+    })
+    expect(composed.slices).toEqual([])
+    expect(composed.dropped).toEqual([{ id: 'msp-big', source: 'MSP', reason: 'BUDGET_TRIMMED' }])
+  })
 })
 
 describe('context-composer: thread and audience scope', () => {
   it('never lets a group thread\'s slice cross into another thread', () => {
     const otherThreadSlice = { id: 'msp-other-thread', threadId: 'thread-2', text: 'ข้อความจาก thread อื่น' }
     const composed = composeContext({
-      scope: { threadId: 'thread-1' },
-      mspSlices: [otherThreadSlice],
+      authorized: true, scope: { threadId: 'thread-1' }, mspSlices: [otherThreadSlice],
     })
     expect(composed.slices).toEqual([])
     expect(composed.dropped).toEqual([{ id: 'msp-other-thread', source: 'MSP', reason: 'THREAD_SCOPE_MISMATCH' }])
   })
 
+  // FIX 3 — fail closed: a slice with NO threadId must not pass just because it
+  // never explicitly named a different one. This was the fail-open gap: only an
+  // explicit mismatch used to be dropped.
+  it('drops an MSP slice with no threadId at all once a thread is in scope (GROUP audience)', () => {
+    const noThreadSlice = { id: 'msp-no-thread', text: 'ไม่มี threadId ติดมาด้วย' }
+    const composed = composeContext({
+      authorized: true, scope: { threadId: 'group-thread' }, audienceKind: 'GROUP', mspSlices: [noThreadSlice],
+    })
+    expect(composed.slices).toEqual([])
+    expect(composed.dropped).toEqual([{ id: 'msp-no-thread', source: 'MSP', reason: 'THREAD_SCOPE_MISMATCH' }])
+  })
+
+  it('drops an MSP slice with no threadId at all for a DIRECT audience too — the gap was universal', () => {
+    const noThreadSlice = { id: 'msp-no-thread-direct', text: 'ไม่มี threadId' }
+    const composed = composeContext({
+      authorized: true, scope: { threadId: 'direct-thread' }, audienceKind: 'DIRECT', mspSlices: [noThreadSlice],
+    })
+    expect(composed.slices).toEqual([])
+    expect(composed.dropped).toEqual([{ id: 'msp-no-thread-direct', source: 'MSP', reason: 'THREAD_SCOPE_MISMATCH' }])
+  })
+
+  it('does not thread-scope a CRM/ERP record or GKS evidence slice (they are not tied to one thread)', () => {
+    const composed = composeContext({
+      authorized: true, scope: { threadId: 'thread-1' },
+      records: [{ id: 'record-no-thread', text: 'no threadId here either' }],
+      knowledgeEvidence: [{ id: 'evidence-no-thread', citationId: 'gks:doc-2', text: 'nor here' }],
+    })
+    expect(composed.slices.map((slice) => slice.id)).toEqual(['record-no-thread', 'evidence-no-thread'])
+    expect(composed.dropped).toEqual([])
+  })
+
   it('denies a passport/cross-thread slice to a non-DIRECT audience', () => {
     const passportSlice = { id: 'msp-passport', threadId: 'group-thread', scope: 'PASSPORT', text: 'ข้อมูลถาวรของลูกค้า' }
     const composed = composeContext({
-      scope: { threadId: 'group-thread' },
-      audienceKind: 'GROUP',
-      mspSlices: [passportSlice],
+      authorized: true, scope: { threadId: 'group-thread' }, audienceKind: 'GROUP', mspSlices: [passportSlice],
     })
     expect(composed.slices).toEqual([])
     expect(composed.dropped).toEqual([{ id: 'msp-passport', source: 'MSP', reason: 'AUDIENCE_SCOPE_DENIED' }])
@@ -135,9 +210,7 @@ describe('context-composer: thread and audience scope', () => {
   it('allows an in-thread slice for a non-DIRECT audience when it is not passport/cross-thread scoped', () => {
     const inThreadSlice = { id: 'msp-in-thread', threadId: 'group-thread', text: 'ข้อความในห้องนี้' }
     const composed = composeContext({
-      scope: { threadId: 'group-thread' },
-      audienceKind: 'GROUP',
-      mspSlices: [inThreadSlice],
+      authorized: true, scope: { threadId: 'group-thread' }, audienceKind: 'GROUP', mspSlices: [inThreadSlice],
     })
     expect(composed.slices.map((slice) => slice.id)).toEqual(['msp-in-thread'])
     expect(composed.dropped).toEqual([])
@@ -147,10 +220,8 @@ describe('context-composer: thread and audience scope', () => {
 describe('context-composer: receipt shape and content', () => {
   it('records references, a hash and the budget, never content', () => {
     const composed = composeContext({
-      scope: { threadId: 'thread-1' },
-      records: [RECORD],
-      knowledgeEvidence: [EVIDENCE],
-      mspSlices: [MSP_SLICE],
+      authorized: true, scope: { threadId: 'thread-1' },
+      records: [RECORD], knowledgeEvidence: [EVIDENCE], mspSlices: [MSP_SLICE],
     })
     const { receipt } = composed
     expect(Object.keys(receipt).sort()).toEqual(['budget', 'dropped', 'hash', 'receiptId', 'refs'])
@@ -161,10 +232,13 @@ describe('context-composer: receipt shape and content', () => {
     expect(serialized).not.toContain(RECORD.text)
     expect(serialized).not.toContain(EVIDENCE.text)
     expect(serialized).not.toContain(MSP_SLICE.text)
+    // The returned slices (a separate value from the receipt) are where content
+    // legitimately lives, for the caller to build its model input from.
+    expect(composed.slices.some((slice) => slice.content === RECORD.text)).toBe(true)
   })
 
   it('produces the same hash for the same references/budget/dropped and a fresh receiptId each call', () => {
-    const build = () => composeContext({ scope: { threadId: 'thread-1' }, records: [RECORD] }).receipt
+    const build = () => composeContext({ authorized: true, scope: { threadId: 'thread-1' }, records: [RECORD] }).receipt
     const first = build()
     const second = build()
     expect(first.hash).toBe(second.hash)
@@ -174,32 +248,33 @@ describe('context-composer: receipt shape and content', () => {
 
 describe('context-composer: model-call gate', () => {
   it('reports no evidence and no facts, so the caller places no model call', () => {
-    const composed = composeContext({ scope: { threadId: 'thread-1' }, mspSlices: [MSP_SLICE] })
+    const composed = composeContext({ authorized: true, scope: { threadId: 'thread-1' }, mspSlices: [MSP_SLICE] })
     expect(composed.hasEvidence).toBe(false)
     expect(composed.hasFacts).toBe(false)
     expect(composed.shouldCallModel).toBe(false)
   })
 
   it('calls the model when there is knowledge evidence even without a record', () => {
-    const composed = composeContext({ scope: { threadId: 'thread-1' }, knowledgeEvidence: [EVIDENCE] })
+    const composed = composeContext({ authorized: true, scope: { threadId: 'thread-1' }, knowledgeEvidence: [EVIDENCE] })
     expect(composed.shouldCallModel).toBe(true)
   })
 
   it('calls the model when there is a CRM/ERP record even without knowledge evidence', () => {
-    const composed = composeContext({ scope: { threadId: 'thread-1' }, records: [RECORD] })
+    const composed = composeContext({ authorized: true, scope: { threadId: 'thread-1' }, records: [RECORD] })
     expect(composed.shouldCallModel).toBe(true)
   })
 })
 
 describe('context-composer: input validation', () => {
   it('rejects a negative or non-finite budget', () => {
-    expect(() => composeContext({ maxBudgetChars: -1 })).toThrow('CONTEXT_BUDGET_INVALID')
-    expect(() => composeContext({ maxBudgetChars: NaN })).toThrow('CONTEXT_BUDGET_INVALID')
+    expect(() => composeContext({ authorized: true, maxBudgetChars: -1 })).toThrow('CONTEXT_BUDGET_INVALID')
+    expect(() => composeContext({ authorized: true, maxBudgetChars: NaN })).toThrow('CONTEXT_BUDGET_INVALID')
   })
 
   it('tolerates string slices with no metadata, assigning a positional id', () => {
-    const composed = composeContext({ scope: { threadId: 'thread-1' }, records: ['a plain string fact'] })
+    const composed = composeContext({ authorized: true, scope: { threadId: 'thread-1' }, records: ['a plain string fact'] })
     expect(composed.slices).toHaveLength(1)
     expect(composed.slices[0].id).toBe('record:0')
+    expect(composed.slices[0].content).toBe('a plain string fact')
   })
 })

@@ -309,7 +309,10 @@ describe('server answer memory composition', () => {
 
   // @req FR-234 — the Context Composer runs on the memory-opt-in path: exactly one
   // ContextReceipt (references, hash, budget — never content) is recorded per
-  // model invocation, and MSP's own injection receipt references it by id.
+  // model invocation, and MSP's own injection receipt references it by id. This
+  // fixture's packet has no recorded exchanges yet (a fresh thread), so the
+  // receipt correctly reports nothing included — the richer packet-composition
+  // tests below (with real exchanges) prove the non-empty, budget-trimmed case.
   it('composes the MSP packet, records exactly one ContextReceipt and hands its id to the injection receipt', async () => {
     const composedAnswer = composed('DIRECT')
     const trace = { recordThreadMemory: vi.fn(), recordEvidence: vi.fn(), assertHealthy: vi.fn(), recordContextReceipt: vi.fn() }
@@ -317,13 +320,15 @@ describe('server answer memory composition', () => {
     expect(result).toContain('AB-1')
     expect(trace.recordContextReceipt).toHaveBeenCalledOnce()
     const receipt = trace.recordContextReceipt.mock.calls[0][0]
-    expect(receipt).toMatchObject({ refs: { msp: ['msp-thread'], citations: [], records: [] } })
+    expect(receipt).toMatchObject({ refs: { msp: [], citations: [], records: [] } })
     expect(receipt.budget).toMatchObject({ trimmed: 0 })
     expect(typeof receipt.hash).toBe('string')
     expect(receipt.dropped).toEqual([])
     expect(JSON.stringify(receipt)).not.toContain('AB-1')
+    // Nothing survived composition (no exchanges existed to include), so
+    // "no memory is injected" means no packet — not an empty-looking one.
     expect(composedAnswer.threadMemory.withInjectionReceipt).toHaveBeenCalledWith(
-      expect.objectContaining({ contextReceiptId: receipt.receiptId }))
+      expect.objectContaining({ contextReceiptId: receipt.receiptId, contextPacket: null }))
   })
 
   it('never records a ContextReceipt when the trace observer has not adopted one', async () => {
@@ -342,6 +347,111 @@ describe('server answer memory composition', () => {
     expect(trace.recordContextReceipt).toHaveBeenCalledOnce()
     const receipt = trace.recordContextReceipt.mock.calls[0][0]
     expect(receipt.refs).toEqual({ msp: [], citations: [], records: [] })
+  })
+
+  // @req FR-234 — what a model actually receives must be derived from the
+  // Context Composer's output, never the original un-composed MSP packet, and
+  // the recorded ContextReceipt must describe exactly that. These tests use a
+  // real spy model (EXTERNAL_MODEL_ALLOWED) so "what the model received" is
+  // observed directly, not inferred from the deterministic LOCAL_ONLY model
+  // (which ignores its contextPacket argument entirely).
+  describe('Context Composer packet composition reaches the model', () => {
+    function exchange(id, text) {
+      return { exchangeId: id, messages: [{ sequence: 1, text }] }
+    }
+
+    function budgetJob() {
+      return { tenantId: tenant.id, businessId: business.id, modelAccess: 'EXTERNAL_MODEL_ALLOWED',
+        account: { tenantId: tenant.id, businessId: business.id, bindingCode: 'memory-binding' },
+        channelAccountId: 'memory-binding', transportEpoch: 1, executionMode: 'SERVER',
+        memorySyncOptIn: true, audienceKind: 'DIRECT', eventId: 'event-budget', sourceUserId: 'user-budget',
+        inbound: { id: 'inbound-budget', body: 'AB-1 ราคาเท่าไร', conversation: { tenantId: tenant.id, businessId: business.id,
+          channel: 'LINE', channelAccountId: 'memory-binding', externalThreadId: 'thread-budget' } } }
+    }
+
+    function spySetup(recentExchanges) {
+      const appendMessage = vi.fn(async input => input.direction === 'INBOUND'
+        ? { message: { messageId: 'inbound-budget', exchangeId: 'exchange-budget' }, session: { sessionId: 'session-budget' } }
+        : { message: { messageId: 'agent-budget', exchangeId: 'exchange-budget' }, session: { sessionId: 'session-budget' } })
+      const withInjectionReceipt = vi.fn(({ model }) => model)
+      const threadMemory = { appendMessage, withInjectionReceipt }
+      const contextAssembler = vi.fn(async () => ({
+        identity: { principalId: 'person-budget', verified: true },
+        thread: { threadId: 'msp-thread-budget', businessId: business.id, audienceKind: 'DIRECT' },
+        authContext: { scope: { tenantId: tenant.id, businessId: business.id } },
+        policy: { version: 'memory-policy-budget', privateMemoryAllowed: true },
+        threadMemory: { policyDecision: 'ALLOW', injectionId: 'injection-budget',
+          thread: { threadId: 'msp-thread-budget', businessId: business.id, audienceKind: 'DIRECT' },
+          identity: { principalId: 'person-budget', verified: true },
+          memory: { recentExchanges, summaries: [], protectedMemory: [] },
+          manifest: { budget: { maxContextBytes: 24000 } } },
+      }))
+      const authorizationResolver = policyFor('DIRECT')
+      const spyModel = { provider: 'test', model: 'spy', generate: vi.fn(async () => ({ provider: 'test', model: 'spy', status: 'ok', text: 'รับทราบค่ะ' })) }
+      const runtimeFactory = vi.fn(async () => ({
+        businessKnowledge: { query: async () => ({ records: [{ name: 'แก้ว', product_code: 'AB-1', sell_price: 50,
+          currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: now.toISOString() }] }) },
+        resolveModel: async () => spyModel, threadMemory,
+      }))
+      const answer = createServerLineAnswer({ threadMemory, contextAssembler, authorizationResolver, runtimeFactory })
+      return { answer, appendMessage, withInjectionReceipt, spyModel, runtimeFactory }
+    }
+
+    it('over budget: the model and the injection receipt see only the slices the composer kept, and the ContextReceipt agrees', async () => {
+      const exchanges = [exchange('ex-1', 'x'.repeat(2000)), exchange('ex-2', 'x'.repeat(2000)), exchange('ex-3', 'x'.repeat(2000))]
+      const { answer, spyModel, withInjectionReceipt } = spySetup(exchanges)
+      const trace = { recordThreadMemory: vi.fn(), recordEvidence: vi.fn(), assertHealthy: vi.fn(), recordContextReceipt: vi.fn() }
+      const result = await answer(budgetJob(), { trace })
+      expect(result).toContain('รับทราบ')
+
+      expect(spyModel.generate).toHaveBeenCalledOnce()
+      const modelPacket = spyModel.generate.mock.calls[0][0].contextPacket
+      expect(modelPacket.memory.recentExchanges).toEqual([exchanges[0]])
+
+      // The same reduced packet — not the original — is what MSP's injection
+      // receipt would hash: reference-equal to what the model actually saw.
+      const injectionPacket = withInjectionReceipt.mock.calls[0][0].contextPacket
+      expect(injectionPacket).toBe(modelPacket)
+
+      const receipt = trace.recordContextReceipt.mock.calls[0][0]
+      expect(receipt.refs).toEqual({ msp: ['exchange:ex-1'], citations: [], records: [] })
+      expect(receipt.budget).toMatchObject({ trimmed: 2 })
+      expect(receipt.dropped).toEqual([
+        { id: 'exchange:ex-2', source: 'MSP', reason: 'BUDGET_TRIMMED' },
+        { id: 'exchange:ex-3', source: 'MSP', reason: 'BUDGET_TRIMMED' },
+      ])
+      expect(JSON.stringify(receipt)).not.toContain('x'.repeat(50))
+    })
+
+    it('within budget: every exchange reaches the model and the ContextReceipt reports zero trims', async () => {
+      const exchanges = [exchange('ex-1', 'สวัสดี'), exchange('ex-2', 'ขอบคุณค่ะ')]
+      const { answer, spyModel } = spySetup(exchanges)
+      const trace = { recordThreadMemory: vi.fn(), recordEvidence: vi.fn(), assertHealthy: vi.fn(), recordContextReceipt: vi.fn() }
+      await answer(budgetJob(), { trace })
+
+      const modelPacket = spyModel.generate.mock.calls[0][0].contextPacket
+      expect(modelPacket.memory.recentExchanges).toEqual(exchanges)
+
+      const receipt = trace.recordContextReceipt.mock.calls[0][0]
+      expect(receipt.refs).toEqual({ msp: ['exchange:ex-1', 'exchange:ex-2'], citations: [], records: [] })
+      expect(receipt.budget.trimmed).toBe(0)
+      expect(receipt.dropped).toEqual([])
+    })
+
+    it('drops every slice and injects no packet at all when nothing survives composition', async () => {
+      // Two huge exchanges: even the first one alone exceeds the budget, so
+      // nothing is included — "no memory injected" must mean a null packet.
+      const exchanges = [exchange('ex-1', 'x'.repeat(5000)), exchange('ex-2', 'x'.repeat(5000))]
+      const { answer, spyModel, withInjectionReceipt } = spySetup(exchanges)
+      const trace = { recordThreadMemory: vi.fn(), recordEvidence: vi.fn(), assertHealthy: vi.fn(), recordContextReceipt: vi.fn() }
+      await answer(budgetJob(), { trace })
+
+      expect(spyModel.generate.mock.calls[0][0].contextPacket).toBeNull()
+      expect(withInjectionReceipt.mock.calls[0][0].contextPacket).toBeNull()
+      const receipt = trace.recordContextReceipt.mock.calls[0][0]
+      expect(receipt.refs).toEqual({ msp: [], citations: [], records: [] })
+      expect(receipt.budget.trimmed).toBe(2)
+    })
   })
 
   it('rejects an MSP thread or packet identity that differs from the persisted route before model invocation', async () => {
