@@ -112,7 +112,16 @@ describe('channel account claim (FR-226)', () => {
 
     const seen = await connect({ businessId: businessA2.id, name: 'Again', ...bundle }, ownerA, { lineAdmin: line.port }).catch(e => e)
     expect(seen).toMatchObject({ status: 409, message: 'LINE_CHANNEL_ALREADY_CONNECTED' })
-    expect(seen.details).toEqual([{ code: 'LINE_CHANNEL_ALREADY_CONNECTED', message: expect.stringContaining('LINE'), businessId: businessA.id, connectionId: first.connection.id }])
+    // FR-225 resume path: enough of the sibling's non-secret state (never
+    // material) that a wizard retry can finish an interrupted account-create
+    // itself — accountId is null here because this fixture never calls
+    // connectLineOaAccount, exactly the "claimed and credentialed, no account
+    // yet" state a dropped second call leaves.
+    expect(seen.details).toEqual([{
+      code: 'LINE_CHANNEL_ALREADY_CONNECTED', message: expect.stringContaining('LINE'),
+      businessId: businessA.id, connectionId: first.connection.id,
+      accountId: null, basicId: '@shop', displayName: 'Shop', secretStore: 'ENVELOPE', displayHint: bundle.channelId.slice(-4),
+    }])
 
     const unseen = await connect({ businessId: businessA2.id, name: 'Again', ...bundle }, ownerA2Only, { lineAdmin: line.port }).catch(e => e)
     expect(unseen).toMatchObject({ status: 409, message: 'LINE_CHANNEL_ALREADY_CONNECTED' })

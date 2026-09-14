@@ -151,6 +151,62 @@ describe('FR-225 self-serve LINE OA connection wizard', () => {
     expect(findLeaks({ connected, account }, secretNeedles(bundle))).toEqual([])
   })
 
+  // @req FR-225 — the resume path (reviewer blocker, 2026-09-14). The connect
+  // call and the account-create call are not atomic: a dropped network, a
+  // closed tab or any account-create failure other than a code clash between
+  // them leaves a claimed, credentialed connection with no LineOaAccount —
+  // invisible on the Studio page (accounts only) and, without this, reachable
+  // only through an operator, contrary to FR-225's "no operator". Retrying the
+  // wizard with the same Channel ID/secret must answer with enough for the
+  // owner to finish the job themselves.
+  it('a retry after a dropped account-create answers enough to finish the account itself, and never again once it exists', async () => {
+    const { bundle } = channel()
+    const connected = await call(CONNECT, 'http://local/api/line-oa/connections', { businessId: business.id, name: 'Interrupted', ...bundle })
+    expect(connected.status).toBe(200)
+    const before = await storedCount()
+
+    // The tab closed / the network dropped before POST /accounts ever ran —
+    // simulated by simply never calling it. Retrying the wizard with the
+    // identical credentials is the natural thing an owner does next.
+    const retry = await call(CONNECT, 'http://local/api/line-oa/connections', { businessId: business.id, name: 'Interrupted', ...bundle })
+    expect(retry.status).toBe(409)
+    expect(retry.json.error).toBe('LINE_CHANNEL_ALREADY_CONNECTED')
+    expect(retry.json.details).toEqual([{
+      code: 'LINE_CHANNEL_ALREADY_CONNECTED',
+      message: expect.any(String),
+      businessId: business.id,
+      connectionId: connected.json.connection.id,
+      accountId: null, // the dead end: claimed and credentialed, no account
+      basicId: connected.json.bot.basicId,
+      displayName: connected.json.bot.displayName,
+      secretStore: connected.json.credential.secretStore,
+      displayHint: connected.json.credential.displayHint,
+    }])
+    // The retry's own transaction rolled back cleanly: no second connection,
+    // no second credential, no orphan left by the retry itself.
+    expect(await storedCount()).toEqual(before)
+
+    // The wizard uses exactly this to finish the account step itself. The
+    // fixture's bot always answers the same Basic ID, so the suggested code
+    // is disambiguated the same way the wizard's own retry loop would.
+    const sibling = retry.json.details[0]
+    const code = `${suggestLineOaAccountCode({ basicId: sibling.basicId, displayName: sibling.displayName })}-${randomBytes(3).toString('hex')}`
+    const account = await call(CREATE_ACCOUNT, 'http://local/api/line-oa/accounts', {
+      businessId: business.id, integrationConnectionId: sibling.connectionId, code,
+      displayName: sibling.displayName, basicId: sibling.basicId,
+    })
+    expect(account.status).toBe(200)
+    expect(account.json).toMatchObject({ status: 'DRAFT', integrationConnectionId: connected.json.connection.id })
+
+    // Once the account exists, a further retry names it instead of resuming —
+    // the wizard must tell "already live" apart from "still a dead end".
+    const afterFixed = await call(CONNECT, 'http://local/api/line-oa/connections', { businessId: business.id, name: 'Interrupted', ...bundle })
+    expect(afterFixed.status).toBe(409)
+    expect(afterFixed.json.details[0].accountId).toBe(account.json.id)
+
+    expect(findLeaks({ connected, retry, afterFixed, account }, secretNeedles(bundle))).toEqual([])
+  })
+
   it('a wrong Channel ID and a wrong secret both answer 422 LINE_CREDENTIALS_REJECTED and store nothing', async () => {
     const { bundle } = channel()
     const before = await storedCount()

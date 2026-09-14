@@ -155,6 +155,25 @@ export default function LineOaConnectWizard({ businessId, onConnected }) {
           setPhase("stepUp");
           return;
         }
+        // FR-225 resume path: the connect call and the account-create call are
+        // not atomic. If a previous attempt got this far — the bot claimed, the
+        // credential stored — but the account was never created (a dropped
+        // network, a closed tab), retrying the same Channel ID/secret answers
+        // this same 409 for this same Business. `accountId: null` on the
+        // server's own sibling is the dead end this closes: finish the account
+        // step right here instead of sending the owner to an operator.
+        const sibling = json.details?.[0];
+        if (json.error === "LINE_CHANNEL_ALREADY_CONNECTED" && sibling?.businessId === businessId && sibling?.connectionId && !sibling?.accountId) {
+          setNotice("พบการเชื่อมต่อที่ทำไว้ก่อนหน้าแต่ยังไม่ได้สร้างบัญชี — ดำเนินการต่อจากขั้นตอนนี้");
+          setConnected({
+            connection: { id: sibling.connectionId, businessId: sibling.businessId },
+            credential: { secretStore: sibling.secretStore ?? null, displayHint: sibling.displayHint ?? null },
+            bot: { basicId: sibling.basicId ?? null, displayName: sibling.displayName ?? null },
+          });
+          setAccountCode(suggestLineOaAccountCode({ basicId: sibling.basicId, displayName: sibling.displayName }));
+          setPhase("accountConfirm");
+          return;
+        }
         setError(describeLineOaConnectError(json.error, { details: json.details, retryAfterSeconds: json.retryAfterSeconds }));
         return;
       }
@@ -231,7 +250,7 @@ export default function LineOaConnectWizard({ businessId, onConnected }) {
         </div>
       </div>
 
-      {notice && phase === "form" && (
+      {notice && (phase === "form" || phase === "accountConfirm") && (
         <p className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
           <CheckCircle2 className="w-4 h-4 shrink-0" /> <span>{notice}</span>
         </p>

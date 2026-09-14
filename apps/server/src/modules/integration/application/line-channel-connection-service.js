@@ -26,7 +26,12 @@ import { createLineChannelAdminPort, processLineChannelTokenCache } from '@/plat
 //   nothing stored, and this same function also carries a mount-backed
 //   connection's re-entered secret into the vault (`rotateLineChannelCredential`
 //   in `line-channel-credential-service.js` reuses `storeValidatedCredential`
-//   below unconditionally of the credential's prior `secretStore`).
+//   below unconditionally of the credential's prior `secretStore`). The same-Tenant
+//   409 also names an existing connection's account id (`null` for an orphan)
+//   plus its bot metadata and secret store, so a wizard retry after a dropped
+//   second call (creating the LineOaAccount) can finish the job itself — the
+//   two calls are not atomic, and without this the owner has no way to close
+//   that gap except an operator, which is the one thing FR-225 rules out.
 // @spec ADR-089 D2, D3, D6, D7; SEC-030; FR-072 (404-shaped refusals)
 // @tested tests/integration/channel-account-claim.test.js, tests/integration/fr225-line-oa-self-serve-onboarding.test.js
 //
@@ -69,6 +74,16 @@ export function parseCredentialInput(schema, input) {
   const parsed = schema.safeParse(input)
   if (!parsed.success) throw refusal(400, 'CREDENTIAL_INPUT_INVALID')
   return parsed.data
+}
+
+/** The same defensive parse `integration-management-service.js` uses for this column. */
+function parseConnectionMetadata(json) {
+  try {
+    const parsed = JSON.parse(json ?? '{}')
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    return {}
+  }
 }
 
 export function credentialView(credential) {
@@ -152,8 +167,36 @@ export async function connectLineChannelWithSecret(input, { viewer, db = prisma,
       if (answer.code !== 'LINE_CHANNEL_ALREADY_CONNECTED') answer = refusal(409, 'LINE_CHANNEL_ALREADY_CONNECTED')
     }
     // Name the sibling only to a viewer who may see its Business (FR-226).
+    //
+    // @req FR-225 — the resume path. The claim, the connection and the credential
+    // are three separate writes (D7); a crash, a lost network or a closed tab
+    // between this call succeeding and the wizard's next one (creating the
+    // LineOaAccount) leaves exactly the sibling this branch already finds:
+    // claimed, credentialed, no account. Before this, the owner's only way
+    // forward on retry was an operator, because the response named the
+    // conflict but not enough to finish it — contrary to "no operator" (FR-225).
+    // `accountId` lets the wizard tell that dead end apart from a connection
+    // that is genuinely already live (in which case it links to it instead);
+    // `basicId`/`displayName`/`secretStore` are the same non-secret
+    // presentation fields a successful connect already returns, never material
+    // (SEC-030), and disclosed under the identical `seesBusiness` gate already
+    // guarding the id pair below — no wider than what this branch already told.
     if (answer?.code === 'LINE_CHANNEL_ALREADY_CONNECTED' && answer.claim && seesBusiness(viewer, answer.claim.businessId) && Array.isArray(answer.details)) {
-      answer.details = [{ ...answer.details[0], businessId: answer.claim.businessId, connectionId: answer.claim.connectionId }]
+      const sibling = await db.integrationConnection.findUnique({
+        where: { id: answer.claim.connectionId },
+        select: { metadataJson: true, lineOaAccount: { select: { id: true } }, credential: { select: { secretStore: true, displayHint: true } } },
+      }).catch(() => null)
+      const meta = parseConnectionMetadata(sibling?.metadataJson)
+      answer.details = [{
+        ...answer.details[0],
+        businessId: answer.claim.businessId,
+        connectionId: answer.claim.connectionId,
+        accountId: sibling?.lineOaAccount?.id ?? null,
+        basicId: meta.basicId ?? null,
+        displayName: meta.displayName ?? null,
+        secretStore: sibling?.credential?.secretStore ?? null,
+        displayHint: sibling?.credential?.displayHint ?? null,
+      }]
     }
     throw answer
   }

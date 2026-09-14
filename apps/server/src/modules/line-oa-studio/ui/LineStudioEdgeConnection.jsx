@@ -4,14 +4,18 @@
 //   reference (that field is FR-149's operator-only path, still reachable from
 //   the API but not from this page). `AccountCard`'s "ย้ายข้อมูลรับรองเข้า
 //   Vault" affordance is the mount-to-vault migration for an account connected
-//   before this wizard existed.
+//   before this wizard existed. `refresh` is guarded against an out-of-order
+//   response (found chasing an e2e flake on this exact save-then-reload path:
+//   an older in-flight GET landing after a newer one could silently repaint
+//   the account list with stale data) the same way `LineStudioShell.jsx`
+//   already guards its own account fetch.
 // @spec ADR-041, ADR-043, ADR-061, ADR-089 D2, D7, §4.9; SEC-001, SDD-060
 // @tested tests/unit/line-oa-connect-wizard-render.test.js,
 //   tests/e2e/fr149-line-server-console.spec.js,
 //   tests/e2e/fr225-line-oa-self-serve-wizard.spec.js
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Server,
   Cpu,
@@ -60,7 +64,6 @@ export default function LineStudioEdgeConnection() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [connectionId, setConnectionId] = useState("");
   const [copiedKey, setCopiedKey] = useState(false);
 
   // Static architecture reference (ADR-043) — not live telemetry, no per-device
@@ -169,22 +172,31 @@ export default function LineStudioEdgeConnection() {
     URL.revokeObjectURL(url);
   }
 
+  // `refresh` runs both on mount and after every account action; the mount
+  // call and an action's call can be in flight together (e.g. React 18's dev
+  // double-invoke, or a slow first call overlapping a fast one right after a
+  // save), and whichever response lands last used to win regardless of which
+  // request was actually newest — an older read could silently overwrite a
+  // just-saved value on screen. `refreshRequestId` is the same stale-response
+  // guard `LineStudioShell.jsx` already uses for its own account list.
+  const refreshRequestId = useRef(0);
   const refresh = useCallback(async () => {
+    const requestId = ++refreshRequestId.current;
     if (!business?.id) {
-      setAccounts([]);
+      if (requestId === refreshRequestId.current) setAccounts([]);
       return;
     }
     try {
       const result = await api(`/api/line-oa/accounts?businessId=${encodeURIComponent(business.id)}`);
+      if (requestId !== refreshRequestId.current) return;
       setAccounts(result.accounts || []);
     } catch (err) {
-      setError(err.message);
+      if (requestId === refreshRequestId.current) setError(err.message);
     }
   }, [business?.id]);
 
   useEffect(() => {
     setAccounts([]);
-    setConnectionId("");
     setMessage("");
     setError("");
     setMinted(null);

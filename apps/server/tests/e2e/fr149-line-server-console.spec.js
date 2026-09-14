@@ -79,6 +79,12 @@ test('LINE account onboarding persists and activation requires an explicit hando
   await panel.getByRole('button', { name: 'บันทึกการประมวลผล', exact: true }).click()
   expect((await saved).ok()).toBe(true)
   await expect(page.locator('p[role="alert"]')).toHaveCount(0)
+  // This flaked before the console's `refresh()` guarded against an
+  // out-of-order response (fixed in LineStudioEdgeConnection.jsx): the click's
+  // own refresh and an earlier still-pending one could resolve in either
+  // order, and whichever landed last used to win regardless of which request
+  // was actually newest. With that fixed, the default timeout is enough.
+  await expect(panel.getByLabel('ประมวลผลคำตอบ', { exact: true })).toHaveValue('EDGE')
   await page.reload()
   await expect(page.getByRole('heading', { name: tag })).toBeVisible()
   const restored = page.getByRole('heading', { name: tag }).locator('xpath=../../..')
