@@ -195,6 +195,23 @@ export const CUSTOMER_CONSENT_STATUSES = ['PENDING', 'GRANTED', 'DECLINED', 'GRA
 export const CONVERSATION_ANALYSIS_CONTACT_TYPES = ['NEW_LEAD', 'RETURNING', 'SUPPORT']
 export const CONVERSATION_ANALYSIS_STATES = ['HOT', 'WARM', 'COLD', 'CLOSED_WON', 'CLOSED_LOST']
 
+// FR-229 — non-text LINE content in the CRM record (ADR-091 D5). Message.contentKind
+// stays coarse on purpose: every media type collapses into MEDIA_REF and the
+// specific kind lives on MessageAttachment.kind, so a new media type never touches
+// Message's own vocabulary.
+export const MESSAGE_CONTENT_KINDS = ['TEXT', 'STICKER', 'LOCATION', 'MEDIA_REF']
+export const MESSAGE_ATTACHMENT_KINDS = ['IMAGE', 'VIDEO', 'AUDIO', 'FILE']
+// STORED/EXPIRED_AT_PROVIDER belong to the later fetch phase FR-229 explicitly
+// defers; only PENDING (admission) and ERASED (unsend/erasure tombstone) are
+// written by this change.
+export const MESSAGE_ATTACHMENT_FETCH_STATES = ['PENDING', 'STORED', 'EXPIRED_AT_PROVIDER', 'ERASED']
+// Exactly FR-229's own list: follow, unfollow, join, leave, member joined, member
+// left, postback and unsend. DELIVERY/READ read receipts are a different, undecided
+// requirement and are deliberately not declared here.
+export const CONVERSATION_EVENT_KINDS = [
+  'FOLLOW', 'UNFOLLOW', 'JOIN', 'LEAVE', 'MEMBER_JOINED', 'MEMBER_LEFT', 'POSTBACK', 'UNSEND',
+]
+
 // FR-066/FR-067 — Workspace collaboration boundary (ADR-027 D5). "Workspace"
 // here is the top-level container, schema Portfolio — never schema Workspace,
 // which is a Space (see WORKSPACE_SCOPE_TYPES above, a different axis).
@@ -538,6 +555,10 @@ export const zEmploymentType = z.enum(EMPLOYMENT_TYPES)
 export const zRoadmapStatus = z.enum(ROADMAP_STATUSES)
 export const zGoalStatus = z.enum(GOAL_STATUSES)
 export const zGoalPriority = z.enum(GOAL_PRIORITIES)
+export const zMessageContentKind = z.enum(MESSAGE_CONTENT_KINDS)
+export const zMessageAttachmentKind = z.enum(MESSAGE_ATTACHMENT_KINDS)
+export const zMessageAttachmentFetchState = z.enum(MESSAGE_ATTACHMENT_FETCH_STATES)
+export const zConversationEventKind = z.enum(CONVERSATION_EVENT_KINDS)
 
 // Container subtype vocabulary per mode (open set; these are the documented ones).
 export const CONTAINER_SUBTYPES = [
