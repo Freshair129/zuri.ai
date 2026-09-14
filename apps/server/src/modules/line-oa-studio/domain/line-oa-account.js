@@ -14,6 +14,10 @@ import {
 //   (default) | GKS_CORPUS | GKS_THEN_BUSINESS_KNOWLEDGE, applied through the
 //   same versioned CONFIGURE_KNOWLEDGE_GROUNDING action as the account's other
 //   configuration writes.
+// @req FR-227, FR-228 — REGISTER_WEBHOOK and ENABLE_SERVER's `legacyQuiesced`
+//   are declared here; ENABLE_SERVER's conditional requirement of
+//   `legacyQuiesced` (mount-backed only, ADR-089 D8) is enforced in the
+//   service, which alone knows the account's credential store.
 // @req FR-146 — the pure vocabulary and rules of the LineOaAccount aggregate:
 //   the input contracts, the stored status machine, the derived effective
 //   status and the transport-mode default. Nothing here opens a database; the
@@ -23,7 +27,8 @@ import {
 //   transportMode is EDGE or CLOUD; ADR-061 makes CLOUD the unconditional default.
 // @spec BR-002 — LINE identifiers (basic id, channel id, bot user id) are
 //   attributes here, never keys.
-// @tested tests/unit/line-oa-account-domain.test.js
+// @tested tests/unit/line-oa-account-domain.test.js, tests/integration/fr227-line-oa-webhook-registration.test.js,
+//   tests/integration/fr228-line-oa-legacy-quiescence.test.js
 
 export const LINE_OA_ACCOUNT_ENTITY = 'LINE_OA_ACCOUNT'
 export const LINE_OA_DOMAIN_KEY = 'line-oa'
@@ -72,9 +77,11 @@ export const zLineOaAccountAction = z.object({
   if (value.action === 'CONFIGURE_EXECUTION' && (!value.executionMode || !value.modelAccess || typeof value.allowDelayedPush !== 'boolean')) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Execution mode, model access and delayed push policy are required' })
   }
-  if (value.action === 'ENABLE_SERVER' && value.legacyQuiesced !== true) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['legacyQuiesced'], message: 'Confirm the legacy LINE transport is stopped before enabling server ownership' })
-  }
+  // @req FR-228 — whether ENABLE_SERVER needs the typed `legacyQuiesced` literal
+  // depends on the account's credential store (mount-backed keeps it; a
+  // vault-backed account derives it instead, ADR-089 D8) — data this pure
+  // schema cannot see, so the service enforces it after loading the row rather
+  // than here. This schema only shapes the field when it is present.
   if (value.action === 'SWITCH_TRANSPORT_MODE' && !value.transportMode) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['transportMode'], message: 'transportMode is required for SWITCH_TRANSPORT_MODE' })
   }
