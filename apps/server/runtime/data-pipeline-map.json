@@ -653,6 +653,10 @@
         {
           "type": "UI",
           "ref": "/files"
+        },
+        {
+          "type": "UI",
+          "ref": "/knowledge/documents"
         }
       ],
       "surfaceLevel": "UI",
