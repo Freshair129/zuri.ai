@@ -36,10 +36,10 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 147,
-    "readyFeatureCount": 113,
-    "requirementCount": 241,
-    "verifiedRequirementCount": 223,
+    "featureCount": 148,
+    "readyFeatureCount": 114,
+    "requirementCount": 242,
+    "verifiedRequirementCount": 224,
     "progressPercent": 94.4,
     "gapCount": 41,
     "gaps": [
@@ -2911,6 +2911,14 @@
             "apps/server/tests/unit/scm-group-navigation.test.js",
             "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
           ]
+        },
+        {
+          "id": "FR-242",
+          "title": "The credential vault (SecretStorePort, FR-223) generalises beyond LINE_CHANNEL to OAUTH_CLIENT ({clientId, clientSecret}, the ADR-053…",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 7
         }
       ],
       "checks": {
@@ -3115,11 +3123,12 @@
         "FR-106",
         "FR-125",
         "FR-129",
-        "FR-130"
+        "FR-130",
+        "FR-242"
       ],
-      "featureCount": 9,
-      "readyFeatureCount": 6,
-      "progressPercent": 92.5
+      "featureCount": 10,
+      "readyFeatureCount": 7,
+      "progressPercent": 92.9
     },
     "inventory": {
       "status": "partial",
@@ -16228,6 +16237,46 @@
         "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
         "apps/server/tests/unit/programme-member-view.test.js",
         "apps/server/tests/unit/sign-out.test.js"
+      ]
+    },
+    {
+      "id": "FR-242",
+      "title": "The credential vault (SecretStorePort, FR-223) generalises beyond `LINE_CHANNEL` to `OAUTH_CLIENT` (`{clientId, clientSecret}`, the ADR-053 provisioning shape) and `MODEL_PROVIDER_KEY` (`{apiKey}`), each validated against its own bundle schema and carrying the same write→activate→rotate→revoke→resolve lifecycle guarantees a `LINE_CHANNEL` credential already has — versioning, compensation on a failed follow-up, and scope re-check on every operation. A credential written under one kind never resolves as another (SEC-033), and a write that would silently change an existing connectionId's stored kind is refused (`CREDENTIAL_KIND_MISMATCH`) before any secret reaches a store, in both the envelope store and the Supabase Vault SQL layer. Neither new kind carries a provider-code allow-list or a destination concept, since ADR-053 is not yet implemented and no fixed provider list exists for model providers; `activate`/`revoke` are reused unchanged for every kind, since neither reads `secretKind`. This does not retire the Phase-1 model-credential resolver (`phase1-runtime.js`, `zuri_core.resolve_phase1_line_secret`) — a separate mechanism live production Anthropic-key resolution still runs through — which is ADR-089 §4.8 phase 7's second half, left as a distinct follow-up requirement.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-242"
+      ],
+      "primaryDomain": "integration",
+      "contributorDomains": [
+        "integration"
+      ],
+      "useCase": "ทีมพัฒนาต่อยอด vault เดิมที่เก็บ LINE channel secret ให้เก็บ OAuth client (เช่น FlowAccount ในอนาคต) และ model provider API key ได้ด้วย ผ่านขั้นตอนเขียน-ยืนยัน-หมุน-เพิกถอน-อ่านแบบเดียวกัน โดยเขียนทับ credential ผิดประเภทลง connection เดิมไม่ได้ (ระบบปฏิเสธก่อนข้อมูลลับจะถูกเก็บ) และอ่านข้าม kind กันไม่ให้เอา OAuth key ไปอ่านเป็น LINE channel secret",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-242",
+          "title": "The credential vault (SecretStorePort, FR-223) generalises beyond LINE_CHANNEL to OAUTH_CLIENT ({clientId, clientSecret}, the ADR-053…",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 3,
+          "testCount": 7
+        }
+      ],
+      "evidence": [
+        "apps/server/src/platform/integrations/core/secret-store/envelope-secret-store.js",
+        "apps/server/src/platform/integrations/core/secret-store/secret-store-port.js",
+        "apps/server/src/platform/integrations/core/secret-store/supabase-vault-secret-store.js",
+        "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+        "apps/server/tests/integration/credential-vault-provider-kinds-lifecycle.test.js",
+        "apps/server/tests/integration/credential-vault.postgres.test.js",
+        "apps/server/tests/unit/integration/credential-vault-provider-kinds-migration.test.js",
+        "apps/server/tests/unit/integration/envelope-secret-store.test.js",
+        "apps/server/tests/unit/integration/secret-store-port.test.js",
+        "apps/server/tests/unit/integration/supabase-vault-secret-store.test.js"
       ]
     }
   ],

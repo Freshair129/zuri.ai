@@ -1,8 +1,16 @@
 // @req FR-223 — the envelope store: the SecretStorePort for self-host, generic
 //   Postgres and SQLite dev/test, where encryption happens in the app and the
 //   database holds only ciphertext.
-// @spec ADR-089 D1, D5; SDD-097; SEC-030
-// @tested tests/unit/integration/envelope-secret-store.test.js, tests/integration/credential-vault-lifecycle.test.js
+// @req FR-242 — resolve() also serves OAUTH_CLIENT and MODEL_PROVIDER_KEY,
+//   scoped by the credential's stored secretKind (cross-kind refusal) instead
+//   of the LINE-only provider/destination check, which stays exactly as it was
+//   for LINE_CHANNEL (ADR-089 §4.8 phase 7). write() refuses a kind that
+//   disagrees with an existing credential's stored secretKind, live or dead,
+//   before sealing any material — a connectionId's kind cannot be silently
+//   switched by a plain write (CREDENTIAL_KIND_MISMATCH).
+// @spec ADR-089 D1, D5; SDD-097; SDD-101; SEC-030; SEC-033
+// @tested tests/unit/integration/envelope-secret-store.test.js, tests/integration/credential-vault-lifecycle.test.js,
+//   tests/integration/credential-vault-provider-kinds-lifecycle.test.js
 //
 // Key hierarchy (ADR-089 D1, design §4.1):
 //
@@ -32,6 +40,7 @@ import { createCipheriv, createDecipheriv, createHash, randomBytes, randomUUID }
 import prisma from '@/lib/db'
 import { INTEGRATION_CREDENTIAL_PURGEABLE_VERSION_STATUSES, INTEGRATION_CREDENTIAL_RESOLVABLE_STATUSES } from '@/lib/validation/enums'
 import {
+  RESOLVABLE_SECRET_KINDS,
   SecretStoreError,
   displayHintFor,
   normalizeSecretStoreError,
@@ -226,12 +235,17 @@ export function createEnvelopeSecretStore({ db = prisma, env = process.env, now 
         const result = await db.$transaction(async tx => {
           await scopedConnection(tx, scope)
           const credential = await tx.integrationCredential.findUnique({ where: { connectionId }, include: { versions: true } })
+          // A connection's kind never changes underneath its credential by a plain
+          // write, live or dead: refused before any material is sealed or a version
+          // row is touched, in both the "rotate" and "replace a dead row" branches
+          // below. Revoke first, or use a fresh connection, to change kind.
+          if (credential && credential.secretKind !== kind) throw new SecretStoreError('CREDENTIAL_KIND_MISMATCH')
           const versionNumber = (credential?.version ?? 0) + 1
           const id = randomUUID()
           const secretRef = secretRefFor('ENVELOPE', id)
           await tx.integrationSecretEnvelope.create({
             data: {
-              ...sealSecretEnvelope({ id, ...scope, versionNumber, plaintext: serializeSecretBundle(parsed) }, env),
+              ...sealSecretEnvelope({ id, ...scope, versionNumber, plaintext: serializeSecretBundle(kind, parsed) }, env),
               expiresAt,
             },
           })
@@ -382,21 +396,34 @@ export function createEnvelopeSecretStore({ db = prisma, env = process.env, now 
       })
     },
 
-    async resolve(secretRef, { tenantId, businessId, connectionId, destination } = {}) {
+    // `kind` defaults to LINE_CHANNEL so every existing caller (the LINE runtime,
+    // the dispatching manager, every test that predates FR-242) is unaffected: it
+    // gets exactly today's checks — destination required, provider must be
+    // LINE_OA. A caller resolving OAUTH_CLIENT or MODEL_PROVIDER_KEY material
+    // passes its kind explicitly; the credential's stored `secretKind` must
+    // equal it, which is the cross-kind refusal (a MODEL_PROVIDER_KEY ref never
+    // resolves as LINE_CHANNEL or vice versa) — and neither new kind has a
+    // provider-code allow-list, since no fixed provider list exists for them yet
+    // (documented choice, not an oversight; see FR-242 draft notes).
+    async resolve(secretRef, { tenantId, businessId, connectionId, destination, kind = 'LINE_CHANNEL' } = {}) {
       const id = secretIdFromRef(secretRef, 'ENVELOPE')
-      if (!id || typeof destination !== 'string' || !destination) throw new SecretStoreError('CHANNEL_SECRET_SCOPE_MISMATCH')
+      if (!id || !RESOLVABLE_SECRET_KINDS.includes(kind)) throw new SecretStoreError('CHANNEL_SECRET_SCOPE_MISMATCH')
+      if (kind === 'LINE_CHANNEL' && (typeof destination !== 'string' || !destination)) {
+        throw new SecretStoreError('CHANNEL_SECRET_SCOPE_MISMATCH')
+      }
       const scope = parseStoreScope({ tenantId, businessId, connectionId })
       return guarded(async () => {
         const at = now()
         const ref = secretRefFor('ENVELOPE', id)
         const credential = await db.integrationCredential.findFirst({
-          where: { secretRef: ref, connectionId: scope.connectionId, status: { in: INTEGRATION_CREDENTIAL_RESOLVABLE_STATUSES } },
+          where: { secretRef: ref, connectionId: scope.connectionId, secretKind: kind, status: { in: INTEGRATION_CREDENTIAL_RESOLVABLE_STATUSES } },
           include: { connection: { include: { provider: true } }, versions: { where: { secretRef: ref, status: 'ACTIVE' } } },
         })
         const connection = credential?.connection
         if (!credential || !connection || connection.tenantId !== scope.tenantId || connection.businessId !== scope.businessId
-          || connection.externalAccountId !== destination || connection.status !== 'ACTIVE'
-          || connection.authorizationType !== 'SECRET_MANAGER' || connection.provider?.code !== 'LINE_OA'
+          || connection.status !== 'ACTIVE' || connection.authorizationType !== 'SECRET_MANAGER'
+          || (kind === 'LINE_CHANNEL' && connection.provider?.code !== 'LINE_OA')
+          || (destination !== undefined && destination !== null && connection.externalAccountId !== destination)
           || (credential.expiresAt && credential.expiresAt.getTime() <= at.getTime())
           || credential.versions.length !== 1) {
           throw new SecretStoreError('CHANNEL_SECRET_SCOPE_MISMATCH')

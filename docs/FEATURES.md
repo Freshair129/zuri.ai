@@ -875,6 +875,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FR-241",
     "primaryDomain": "platform-control",
     "useCase": "ใครก็ตามที่ login zuri-ai แล้ว เปิด /roadmap ได้ในช่วง 30 วันจนถึง 15 ต.ค. 2026 เพื่ออ่านแผนงาน 24 สัปดาห์กับ Domain map แบบอ่านอย่างเดียว โดยไม่เห็นยอดการใช้งานแยกตามคนหรือเครื่อง ชื่อ tool/model หรือรายการเครื่องที่จับคู่ ส่วน /control/roadmap ยังเปิดได้เฉพาะ operator"
+  },
+  {
+    "id": "FR-242",
+    "primaryDomain": "integration",
+    "useCase": "ทีมพัฒนาต่อยอด vault เดิมที่เก็บ LINE channel secret ให้เก็บ OAuth client (เช่น FlowAccount ในอนาคต) และ model provider API key ได้ด้วย ผ่านขั้นตอนเขียน-ยืนยัน-หมุน-เพิกถอน-อ่านแบบเดียวกัน โดยเขียนทับ credential ผิดประเภทลง connection เดิมไม่ได้ (ระบบปฏิเสธก่อนข้อมูลลับจะถูกเก็บ) และอ่านข้าม kind กันไม่ให้เอา OAuth key ไปอ่านเป็น LINE channel secret"
   }
 ]
 ```

@@ -369,6 +369,7 @@
     "FR-239",
     "FR-240",
     "FR-241",
+    "FR-242",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -491,6 +492,7 @@
     "SDD-098",
     "SDD-099",
     "SDD-100",
+    "SDD-101",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -523,6 +525,7 @@
     "SEC-030",
     "SEC-031",
     "SEC-032",
+    "SEC-033",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -4540,6 +4543,19 @@
         }
       ]
     },
+    "FR-242": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "47af76e44a685684f1544903458bd569b6f232fa8c3fa23500e091b61e5c3772",
+      "history": [
+        {
+          "anchor": "the credential vault secretstoreport fr 223 generalises",
+          "since": "2026-09-14",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -6148,6 +6164,19 @@
         }
       ]
     },
+    "SDD-101": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "906d44ccf406f19a813f2e551103310905dd3b757a6983cb47589e8e76d34b70",
+      "history": [
+        {
+          "anchor": "a store s bundle validation canonical serialization and",
+          "since": "2026-09-14",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -6570,6 +6599,19 @@
         {
           "anchor": "customer conversation content never becomes gks knowledge",
           "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-033": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d929befe78f0b440aaf0276a6a4126d9b8c5e98258a6dc669c2f4474ccbc2b1b",
+      "history": [
+        {
+          "anchor": "resolving a secret reference under an incorrect secretkind",
+          "since": "2026-09-14",
           "reason": "declared"
         }
       ]

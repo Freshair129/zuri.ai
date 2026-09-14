@@ -1,9 +1,12 @@
 // @req FR-223 — the SecretStorePort vocabulary: references name their store, bundles
 //   are validated without echoing a value, and errors carry a code and nothing else.
+// @req FR-242 — OAUTH_CLIENT and MODEL_PROVIDER_KEY bundle schemas, dispatched by
+//   an explicit map keyed by kind; a kind absent from the map is refused.
 // @spec SDD-097, SEC-030
 // @tested tests/unit/integration/secret-store-port.test.js
 import { describe, expect, it } from 'vitest'
 import {
+  RESOLVABLE_SECRET_KINDS,
   SecretStoreError,
   assertSecretStorePort,
   displayHintFor,
@@ -14,7 +17,12 @@ import {
   secretStoreForRef,
   serializeSecretBundle,
 } from '@/platform/integrations/core/secret-store/secret-store-port'
-import { errorTrace, generateLineChannelBundle } from '../../helpers/credential-vault-fixtures'
+import {
+  errorTrace,
+  generateLineChannelBundle,
+  generateModelProviderKeyBundle,
+  generateOauthClientBundle,
+} from '../../helpers/credential-vault-fixtures'
 
 const UUID = '3f1c2a9e-6b7d-4c8e-9a1f-2b3c4d5e6f70'
 
@@ -44,7 +52,7 @@ describe('bundles (ADR-089 D3)', () => {
     expect({ ...parsed }).toEqual({})
     expect(Object.keys(parsed)).toEqual([])
     expect(parsed.channelSecret).toBe(input.channelSecret)
-    expect(JSON.parse(serializeSecretBundle(parsed))).toEqual(input)
+    expect(JSON.parse(serializeSecretBundle('LINE_CHANNEL', parsed))).toEqual(input)
     expect(displayHintFor('LINE_CHANNEL', parsed)).toBe(input.channelId.slice(-4))
   })
 
@@ -65,7 +73,64 @@ describe('bundles (ADR-089 D3)', () => {
       expect(errorTrace(error)).not.toContain(input.channelSecret)
       expect(error.message).toBe('CHANNEL_SECRET_BUNDLE_INVALID')
     }
-    expect(() => parseSecretBundle('OAUTH_CLIENT', input)).toThrow('CHANNEL_SECRET_KIND_UNSUPPORTED')
+    // A LINE-shaped bundle handed to a different kind is a shape mismatch, not an
+    // unsupported kind — OAUTH_CLIENT and MODEL_PROVIDER_KEY are both mapped now.
+    expect(() => parseSecretBundle('OAUTH_CLIENT', input)).toThrow('CHANNEL_SECRET_BUNDLE_INVALID')
+    expect(() => parseSecretBundle('MODEL_PROVIDER_KEY', input)).toThrow('CHANNEL_SECRET_BUNDLE_INVALID')
+    // API_KEY is declared in the wider SECRET_KINDS registry but has no bundle
+    // schema yet (fail closed, never default-permitted) — and a kind the
+    // registry itself has never heard of reads as a malformed bundle, not a
+    // supported-but-unimplemented one.
+    expect(() => parseSecretBundle('API_KEY', generateModelProviderKeyBundle())).toThrow('CHANNEL_SECRET_KIND_UNSUPPORTED')
+    expect(() => parseSecretBundle('NOT_A_REAL_KIND', generateModelProviderKeyBundle())).toThrow('CHANNEL_SECRET_BUNDLE_INVALID')
+  })
+
+  it('accepts an OAuth-client bundle (ADR-053 shape) and hints on the client id, never the secret', () => {
+    const input = generateOauthClientBundle()
+    const parsed = parseSecretBundle('OAUTH_CLIENT', input)
+    expect(JSON.stringify(parsed)).toBe('{}')
+    expect(parsed.clientSecret).toBe(input.clientSecret)
+    expect(JSON.parse(serializeSecretBundle('OAUTH_CLIENT', parsed))).toEqual(input)
+    expect(displayHintFor('OAUTH_CLIENT', parsed)).toBe(input.clientId.slice(-4))
+  })
+
+  it('refuses an invalid OAuth-client bundle the same way, without naming the field', () => {
+    const input = generateOauthClientBundle()
+    const cases = [
+      { ...input, clientSecret: 'too-short' },
+      { ...input, extra: 'x' },
+      { clientId: input.clientId },
+      { ...input, clientId: '' },
+    ]
+    for (const bundle of cases) {
+      let error
+      try { parseSecretBundle('OAUTH_CLIENT', bundle) } catch (caught) { error = caught }
+      expect(error).toMatchObject({ code: 'CHANNEL_SECRET_BUNDLE_INVALID' })
+      expect(errorTrace(error)).not.toContain(input.clientSecret)
+    }
+  })
+
+  it('accepts a model-provider-key bundle and never hints on any part of the key', () => {
+    const input = generateModelProviderKeyBundle()
+    const parsed = parseSecretBundle('MODEL_PROVIDER_KEY', input)
+    expect(JSON.stringify(parsed)).toBe('{}')
+    expect(parsed.apiKey).toBe(input.apiKey)
+    expect(JSON.parse(serializeSecretBundle('MODEL_PROVIDER_KEY', parsed))).toEqual(input)
+    expect(displayHintFor('MODEL_PROVIDER_KEY', parsed)).toBeNull()
+  })
+
+  it('refuses an invalid model-provider-key bundle the same way, without naming the field', () => {
+    const input = generateModelProviderKeyBundle()
+    for (const bundle of [{ apiKey: 'too-short' }, { ...input, extra: 'x' }, {}]) {
+      let error
+      try { parseSecretBundle('MODEL_PROVIDER_KEY', bundle) } catch (caught) { error = caught }
+      expect(error).toMatchObject({ code: 'CHANNEL_SECRET_BUNDLE_INVALID' })
+      expect(errorTrace(error)).not.toContain(input.apiKey)
+    }
+  })
+
+  it('declares exactly the kinds a store can write and resolve today', () => {
+    expect(RESOLVABLE_SECRET_KINDS).toEqual(['LINE_CHANNEL', 'OAUTH_CLIENT', 'MODEL_PROVIDER_KEY'])
   })
 })
 

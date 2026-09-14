@@ -1,7 +1,11 @@
 // @req FR-223 — the SecretStorePort contract: write, activate, revoke and resolve a
 //   provider credential through one port whatever store holds it; the vocabulary,
 //   the reference grammar and the one bundle schema both stores validate against.
-// @spec ADR-089 D1, D2, D5; SDD-097; SEC-030
+// @req FR-242 — generalise the bundle schema and display-hint rule to OAUTH_CLIENT
+//   and MODEL_PROVIDER_KEY, dispatched by an explicit map keyed by kind (never a
+//   boolean flag or an `if` chain), so an unmapped kind is refused rather than
+//   silently accepted (ADR-089 §4.8 phase 7).
+// @spec ADR-089 D1, D2, D5; SDD-097; SDD-101; SEC-030; SEC-033
 // @tested tests/unit/integration/secret-store-port.test.js
 //
 // A reference names its store by prefix, and that is the only way a caller learns
@@ -45,6 +49,13 @@ const STATUS_BY_CODE = Object.freeze({
   CHANNEL_SECRET_KIND_UNSUPPORTED: 400,
   CREDENTIAL_VALIDATION_CODE_INVALID: 400,
   CREDENTIAL_VERSION_CONFLICT: 409,
+  // FR-242 — a connectionId already holds a credential of a different kind. Refused
+  // before either the "rotate" or the "replace a dead row" branch runs, in every
+  // store: a connection's kind never changes underneath its live or dead credential
+  // by a plain write (revoke first, then a fresh connection or a fresh write can
+  // pick a new kind). Same 409 family as CREDENTIAL_VERSION_CONFLICT — both are
+  // "this row is not in the state your write assumed", not a malformed request.
+  CREDENTIAL_KIND_MISMATCH: 409,
   CHANNEL_SECRET_STORE_UNAVAILABLE: 503,
   SECRET_STORE_CONFIGURATION_INVALID: 503,
   CREDENTIAL_ORPHAN_PURGED: 500,
@@ -98,40 +109,99 @@ export const LINE_CHANNEL_ID_PATTERN = /^[0-9]{6,20}$/
 export const LINE_CHANNEL_SECRET_PATTERN = /^[0-9a-f]{32}$/
 export const LINE_CHANNEL_ACCESS_TOKEN_PATTERN = /^[A-Za-z0-9+/=_-]{40,4096}$/
 
+// FR-242 — the two kinds ADR-089 §4.8 phase 7 generalises to. Neither carries a
+// "destination" concept the way a LINE channel does (D6 of ADR-053: grant_type,
+// scope and base URL are adapter constants, never bundle fields), so their
+// bundles are exactly the credential material and nothing else.
+export const OAUTH_CLIENT_ID_PATTERN = /^[!-~]{1,200}$/
+export const OAUTH_CLIENT_SECRET_PATTERN = /^[!-~]{16,4096}$/
+export const MODEL_PROVIDER_API_KEY_PATTERN = /^[!-~]{20,4096}$/
+
 const zLineChannelBundle = z.object({
   channelId: z.string().regex(LINE_CHANNEL_ID_PATTERN),
   channelSecret: z.string().regex(LINE_CHANNEL_SECRET_PATTERN),
   channelAccessToken: z.string().regex(LINE_CHANNEL_ACCESS_TOKEN_PATTERN).optional(),
 }).strict()
 
+// ADR-053 §"Provisioning" — { clientId, clientSecret }; grant_type/scope/base URL
+// stay adapter constants, never fields a caller can set (closes SSRF and drift).
+const zOauthClientBundle = z.object({
+  clientId: z.string().regex(OAUTH_CLIENT_ID_PATTERN),
+  clientSecret: z.string().regex(OAUTH_CLIENT_SECRET_PATTERN),
+}).strict()
+
+// A model-provider API key has no non-secret identifier at all (unlike a LINE
+// channel ID or an OAuth client ID) — the whole bundle is credential material.
+const zModelProviderKeyBundle = z.object({
+  apiKey: z.string().regex(MODEL_PROVIDER_API_KEY_PATTERN),
+}).strict()
+
+// Explicit map keyed by kind (the ZERO_PII_POLICY_BY_PROVIDER style this repo
+// already uses elsewhere), never a boolean flag or an `if` chain: a kind absent
+// from this map has no bundle schema and is refused, not silently accepted.
+const BUNDLE_SCHEMA_BY_KIND = Object.freeze({
+  LINE_CHANNEL: zLineChannelBundle,
+  OAUTH_CLIENT: zOauthClientBundle,
+  MODEL_PROVIDER_KEY: zModelProviderKeyBundle,
+})
+
+// The field order `serializeSecretBundle` and the sealed copy in
+// `parseSecretBundle` keep for each kind — canonical, so two writes of an
+// equal bundle serialize identically.
+const BUNDLE_FIELDS_BY_KIND = Object.freeze({
+  LINE_CHANNEL: ['channelId', 'channelSecret', 'channelAccessToken'],
+  OAUTH_CLIENT: ['clientId', 'clientSecret'],
+  MODEL_PROVIDER_KEY: ['apiKey'],
+})
+
+// The kinds a SecretStorePort implementation (envelope or Supabase Vault) can
+// actually write and resolve today. `SECRET_KINDS` is the wider enum registry —
+// API_KEY is declared there but has no bundle schema yet, so it is refused here
+// exactly like any other unmapped kind (fail closed, never default-permitted).
+export const RESOLVABLE_SECRET_KINDS = Object.freeze(Object.keys(BUNDLE_SCHEMA_BY_KIND))
+
 /**
  * Validate a bundle for its kind and return a canonical copy whose every field is
  * non-enumerable, so the object cannot leak through JSON, a spread or a logger.
- * Throws CHANNEL_SECRET_BUNDLE_INVALID without saying which field failed.
+ * Throws CHANNEL_SECRET_BUNDLE_INVALID without saying which field failed, and
+ * CHANNEL_SECRET_KIND_UNSUPPORTED for a kind this port declares but does not
+ * (yet) implement — never CHANNEL_SECRET_BUNDLE_INVALID for that case, so a
+ * caller can tell "your kind isn't built" from "your bundle is malformed".
  */
 export function parseSecretBundle(kind, bundle) {
-  if (kind !== 'LINE_CHANNEL') {
+  const schema = BUNDLE_SCHEMA_BY_KIND[kind]
+  if (!schema) {
     throw new SecretStoreError(SECRET_KINDS.includes(kind) ? 'CHANNEL_SECRET_KIND_UNSUPPORTED' : 'CHANNEL_SECRET_BUNDLE_INVALID')
   }
-  const parsed = zLineChannelBundle.safeParse(bundle)
+  const parsed = schema.safeParse(bundle)
   if (!parsed.success) throw new SecretStoreError('CHANNEL_SECRET_BUNDLE_INVALID')
   const sealed = {}
-  for (const key of ['channelId', 'channelSecret', 'channelAccessToken']) {
+  for (const key of BUNDLE_FIELDS_BY_KIND[kind]) {
     if (parsed.data[key] !== undefined) Object.defineProperty(sealed, key, { value: parsed.data[key], enumerable: false })
   }
   return Object.freeze(sealed)
 }
 
-/** Canonical JSON of a parsed bundle, fixed key order — the only form a store keeps. */
-export function serializeSecretBundle(bundle) {
-  const plain = { channelId: bundle.channelId, channelSecret: bundle.channelSecret }
-  if (bundle.channelAccessToken !== undefined) plain.channelAccessToken = bundle.channelAccessToken
+/** Canonical JSON of a parsed bundle for its kind, fixed key order — the only form a store keeps. */
+export function serializeSecretBundle(kind, bundle) {
+  const plain = {}
+  for (const key of BUNDLE_FIELDS_BY_KIND[kind] ?? []) {
+    if (bundle[key] !== undefined) plain[key] = bundle[key]
+  }
   return JSON.stringify(plain)
 }
 
-/** Last four characters of the non-secret identifier (ADR-089 D2) — never of a secret. */
+/**
+ * The non-secret display hint for a kind (ADR-089 D2), never a secret itself:
+ * the LINE channel ID and the OAuth client ID are both identifiers, not
+ * material, so their last four characters are safe to show. A model-provider
+ * API key has no non-secret identifier at all, so its hint is always null
+ * rather than exposing four characters of the key itself.
+ */
 export function displayHintFor(kind, bundle) {
-  return kind === 'LINE_CHANNEL' ? bundle.channelId.slice(-4) : null
+  if (kind === 'LINE_CHANNEL') return bundle.channelId.slice(-4)
+  if (kind === 'OAUTH_CLIENT') return bundle.clientId.slice(-4)
+  return null
 }
 
 const zScope = z.object({
