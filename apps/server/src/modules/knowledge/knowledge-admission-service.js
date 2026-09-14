@@ -24,8 +24,11 @@ import {
 // @req FR-187 — the same boundary admits one SmartGift structured-record
 // projection as N immutable per-record sources before Stage 1, through the
 // existing queue rather than a second caller or a second write path.
-// @spec ADR-072, ADR-075, ZAI:KNOWLEDGE-ADMISSION-CONTRACT, SEC-001, SEC-008
-// @tested tests/unit/knowledge-admission-service.test.js, tests/unit/smartgift-catalog-adapter.test.js, tests/integration/smartgift-catalog-admission.test.js
+// @req FR-236 — the same boundary, unmodified, is the ADR-072 admission
+// service an approved LINE FAQ candidate is admitted through as one immutable
+// LINE_FAQ_CANDIDATE TEXT source — never a second write path into the corpus.
+// @spec ADR-072, ADR-075, ADR-090 D6, ZAI:KNOWLEDGE-ADMISSION-CONTRACT, SEC-001, SEC-008
+// @tested tests/unit/knowledge-admission-service.test.js, tests/unit/smartgift-catalog-adapter.test.js, tests/integration/smartgift-catalog-admission.test.js, tests/integration/fr236-knowledge-candidate.test.js
 
 const MAX_CONTENT_BYTES = 1024 * 1024
 const MAX_LIMIT = 100
@@ -47,6 +50,18 @@ const STRUCTURED_FORMATS = Object.freeze([SMARTGIFT_CATALOG_FORMAT])
 const identifier = z.string().trim().min(1).max(200)
 const textSource = z.object({
   kind: z.literal('TEXT'),
+  sourceKey: identifier,
+  version: identifier,
+  title: identifier.optional(),
+  content: z.string().min(1),
+}).strict()
+// @req FR-236 — the ADR-090 D6 amendment to ADR-072 D1: a second TEXT source
+// kind, admitted through this exact service (never a second write path). Its
+// shape mirrors `textSource` deliberately — the only difference the pipeline
+// needs to see is the `kind`, which selects the Stage 5 Zero-PII gate
+// (structured-record-policy.js) for this provider.
+const lineFaqCandidateSource = z.object({
+  kind: z.literal('LINE_FAQ_CANDIDATE'),
   sourceKey: identifier,
   version: identifier,
   title: identifier.optional(),
@@ -75,7 +90,7 @@ export const knowledgeAdmissionInput = z.object({
   businessId: identifier,
   projectId: identifier.nullish(),
   idempotencyKey: identifier,
-  source: z.union([textSource, fileSource]),
+  source: z.union([textSource, fileSource, lineFaqCandidateSource]),
 }).strict()
 
 function failure(status, code, message = code, details) {
@@ -384,7 +399,10 @@ async function loadFileSource(value, { db, fileContentResolver = defaultResolveF
 async function loadTextSource(source) {
   const bytes = contentBytes(source.content)
   return {
-    kind: 'TEXT',
+    // TEXT and LINE_FAQ_CANDIDATE (FR-236) share this loader byte-for-byte;
+    // the row's actual kind is preserved so the admitted KnowledgeSource
+    // records which one it is.
+    kind: source.kind,
     content: source.content,
     contentHash: hashGenesisRag17Text(source.content),
     sourceKey: source.sourceKey,
@@ -683,7 +701,8 @@ export async function admitKnowledge(input, {
         title: value.source.title,
       }
     : {
-        kind: 'TEXT',
+        // TEXT and LINE_FAQ_CANDIDATE (FR-236) share this descriptor shape.
+        kind: value.source.kind,
         sourceKey: value.source.sourceKey,
         version: value.source.version,
         title: value.source.title,
@@ -722,6 +741,13 @@ export async function admitKnowledge(input, {
     if (format) {
       return await admitStructuredRecords({ value, source, scope, policy, viewer, repository, admittedAt })
     }
+    // @req FR-236 — the descriptor Stage 5 classify reads to select the deny
+    // policy (structuredSourceDescriptor in knowledge-runtime.js): naming the
+    // provider is what turns on the Zero-PII gate for this source's Stage 5
+    // pass (structured-record-policy.js), the second of ADR-090 D6's two checks.
+    const structured = value.source.kind === 'LINE_FAQ_CANDIDATE'
+      ? { provider: 'LINE_FAQ_CANDIDATE', entityType: 'LINE_FAQ_CANDIDATE', contentType: 'application/json' }
+      : undefined
     const sourceMetaJson = JSON.stringify(sourceMeta({
       source: value.source,
       asset: source.asset,
@@ -730,6 +756,7 @@ export async function admitKnowledge(input, {
       sourceVersion: source.sourceVersion,
       title: source.title,
       projectId: value.projectId,
+      structured,
     }))
     return await repository.transaction(async (tx) => {
       const corpus = await resolveCorpus(tx, { value, scope, policy, admittedAt })

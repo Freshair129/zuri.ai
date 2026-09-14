@@ -1,7 +1,7 @@
 ---
-version: "0.4.1b"
+version: "0.4.2b"
 status: active
-last_update: "2026-09-14T17:00:00+07:00,Claude Sonnet 5"
+last_update: "2026-09-14T20:00:00+07:00,Claude Sonnet 5"
 id: ZAI:DOMAIN-CRM
 relations:
   - type: relates_to
@@ -130,6 +130,15 @@ turn flows through before any agent work happens.
   none creates a
   `LineConversationJob`.
 
+- `readConversationConsentStatus` — a narrow, internal (non-viewer) consent
+  reader for the knowledge lane's candidate decision (FR-236, ADR-090 D6):
+  given a Tenant/Business/Conversation id it returns only the Customer's
+  `consentStatus`, or `null` ("not readable") on any mismatch or a missing
+  row — never a viewer, never message content, and deliberately distinct from
+  `getConversationThread`'s `customer` domain gate, because a Business OWNER
+  or `LINE_OA_PUBLISHER` deciding a candidate has already proven authority
+  over that exact Business through the knowledge domain and must not be
+  refused for lacking an unrelated CRM inbox grant. Read-only by construction.
 - `createSalesTask` / `applySalesTaskAction` / `listSalesTasks` / `getSalesTask`
   — the sales task writer and readers (FR-161, ADR-064). A fifth narrow writer:
   a follow-up a salesperson owes a customer (call, LINE message, email, meeting,
@@ -229,6 +238,7 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.4.2b | 2026-09-14 | Added `readConversationConsentStatus` (FR-236, ADR-090 D6): a narrow, internal, viewer-free consent reader the knowledge lane's candidate decision calls instead of re-authorizing through `getConversationThread`'s `customer` domain gate; a sixth narrow read-only export, no `owns_models` change | Claude Sonnet 5 |
 | 0.4.1b | 2026-09-14 | Review fixes on FR-229 (same task): placeholder bodies are now genuinely fixed (no packageId/stickerId/lat/lng ever reach `Message.body`); the migration's two new-table foreign keys are explicit `ON DELETE CASCADE` (schema.prisma's cascade was previously Postgres-invisible); memberJoined/memberLeft payload carries a `memberCount`, never a raw LINE user id (closes an erasure gap — `ConversationEvent` is Tier 1); `unsend` for a thread with no existing conversation is skipped rather than minting a Customer and Conversation for nothing | Claude Sonnet 5 |
 | 0.4.0b | 2026-09-14 | FR-229 / FEAT-037 built (TASK-ZAI-088): `owns_models` += `MessageAttachment`, `ConversationEvent`; `Message.contentKind`; three new narrow writers; the ADR-061 native admission seam no longer skips non-text events and creates no answer job for them; unsend tombstones the message and attachment it names; the PDPA erasure writer now redacts attachments too; migration `20260914150000` written, not applied | Claude Sonnet 5 |
 | 0.3.0b | 2026-09-14 | ADR-091 / FEAT-037 declared: CRM is the business record of a conversation; planned `MessageAttachment`, `ConversationEvent`, message and conversation read-model columns, search reader and retention recorded as prose; no `owns_models` change | Claude Opus 5 |

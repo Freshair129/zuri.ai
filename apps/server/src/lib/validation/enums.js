@@ -446,6 +446,13 @@ export const PAYMENT_METHODS = ['TRANSFER', 'CASH', 'QR', 'CARD', 'OTHER']
 export const PAYMENT_STATUSES = ['PENDING', 'VERIFIED', 'REJECTED']
 export const PAYMENT_ACTIONS = ['VERIFY', 'REJECT']
 
+// FR-236 (knowledge, ADR-090 D6) — a LINE FAQ knowledge candidate: drafted
+// from one consent-GRANTED Conversation, decided by a Business OWNER or
+// LINE_OA_PUBLISHER, admitted as one immutable LINE_FAQ_CANDIDATE TEXT source
+// on APPROVED. TOMBSTONED is FR-232's erasure outcome, never a user action.
+export const KNOWLEDGE_CANDIDATE_STATUSES = ['PENDING_REVIEW', 'APPROVED', 'REJECTED', 'TOMBSTONED']
+export const KNOWLEDGE_CANDIDATE_DECISIONS = ['APPROVE', 'REJECT']
+
 // @req FR-164, FR-165 — Procurement (ADR-066), the buy side. A supplier is
 // ACTIVE until archived (the row stays). A purchase order is DRAFT until SENT
 // to the supplier; RECEIVED is set by the goods receipt that completes every
@@ -552,6 +559,8 @@ export const zPaymentKind = z.enum(PAYMENT_KINDS)
 export const zPaymentMethod = z.enum(PAYMENT_METHODS)
 export const zPaymentStatus = z.enum(PAYMENT_STATUSES)
 export const zPaymentAction = z.enum(PAYMENT_ACTIONS)
+export const zKnowledgeCandidateStatus = z.enum(KNOWLEDGE_CANDIDATE_STATUSES)
+export const zKnowledgeCandidateDecision = z.enum(KNOWLEDGE_CANDIDATE_DECISIONS)
 export const zSupplierStatus = z.enum(SUPPLIER_STATUSES)
 export const zSupplierAction = z.enum(SUPPLIER_ACTIONS)
 export const zPurchaseOrderStatus = z.enum(PURCHASE_ORDER_STATUSES)

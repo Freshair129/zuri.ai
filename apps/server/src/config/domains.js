@@ -271,6 +271,8 @@ export const DOMAINS = [
     sub: [
       { label: 'Dashboard', path: '/knowledge', icon: LayoutDashboard, exact: true },
       { label: 'Data Pipeline Map', path: '/knowledge/data-pipeline', icon: Workflow },
+      // @req FR-236 — the review surface for LINE FAQ candidates (ADR-090 D6).
+      { label: 'LINE FAQ candidates', path: '/knowledge/candidates', icon: MessagesSquare },
     ],
   },
   {

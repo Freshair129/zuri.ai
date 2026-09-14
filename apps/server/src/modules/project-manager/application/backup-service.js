@@ -315,6 +315,12 @@ const SNAPSHOT_MODELS = [
   // optionally Customer and Conversation, so it restores after all of them.
   // Operating data, no secret: exported whole.
   'salesTask',
+  // @req FR-236 — a knowledge candidate hangs off Tenant, Business and
+  // optionally Conversation, so it restores after all of them. `sourceRefJson`
+  // names only internal ids (Conversation.id, Message.id) — no LINE identity,
+  // no secret. `admittedSourceId`/`admittedIngestionId` are references into
+  // the knowledge admission rows above, restored before this line.
+  'knowledgeCandidate',
   // @req FR-166, FR-163 — an order hangs off Business, Customer and
   // Conversation, its lines off the order and Product, a payment off the order
   // and the slip FileAsset — all restored above this line, so these restore

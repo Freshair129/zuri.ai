@@ -19,6 +19,9 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/knowledge/ingestions', ['GET', 'POST']], ['/api/knowledge/ingestions/{runId}', ['GET']],
   ['/api/knowledge/queries', ['POST']], ['/api/knowledge/citations/{citationId}', ['GET']],
   ['/api/knowledge/sources/{sourceId}', ['DELETE']],
+  // @req FR-236 — LINE FAQ knowledge candidates (ADR-090 D6).
+  ['/api/knowledge/candidates', ['GET', 'POST']], ['/api/knowledge/candidates/{id}', ['GET', 'PATCH']],
+  ['/api/knowledge/candidates/{id}/decision', ['POST']],
   // @req FR-159, FR-158 — Business-scoped Strategy lifecycle and PM handoff.
   ['/api/growth/plans', ['GET', 'POST']], ['/api/growth/plans/{id}', ['GET', 'PATCH']],
   ['/api/growth/plans/{id}/handoff', ['POST']],

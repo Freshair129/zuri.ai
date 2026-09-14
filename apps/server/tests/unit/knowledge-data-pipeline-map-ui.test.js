@@ -25,6 +25,8 @@ describe('FR-214 Knowledge (GKS) slot', () => {
     expect(knowledge.sub.map((item) => [item.label, item.path])).toEqual([
       ['Dashboard', '/knowledge'],
       ['Data Pipeline Map', '/knowledge/data-pipeline'],
+      // @req FR-236 — the LINE FAQ candidate review surface (ADR-090 D6).
+      ['LINE FAQ candidates', '/knowledge/candidates'],
     ])
     expect(VIEWER_DOMAINS).toContain('knowledge')
     expect(domainForPath('/knowledge/data-pipeline').key).toBe('knowledge')

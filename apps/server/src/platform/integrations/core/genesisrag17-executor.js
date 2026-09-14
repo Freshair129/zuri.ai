@@ -41,9 +41,12 @@ import {
 } from '@/modules/knowledge/genesisrag17-source'
 import {
   assertZeroPii,
-  isStructuredRecordProvider,
   STRUCTURED_RECORD_DENY_POLICY,
 } from '@/modules/knowledge/structured-record-policy'
+import {
+  assertCandidateProseZeroPii,
+  CANDIDATE_ZERO_PII_POLICY,
+} from '@/modules/knowledge/knowledge-candidate-zero-pii'
 
 // @req FR-173 — only the exact admitted knowledge run accepts private runtime authority.
 // @req FR-109 — one real raw entry produces one document/run, immutable raw
@@ -54,6 +57,13 @@ import {
 // @req FR-187 — a structured-record source runs the SmartGift Zero-PII deny
 // policy at Stage 5 classify; a denied record stops there with terminal
 // evidence and never reaches Stage 6 or a Stage 9 batch (ADR-075 D5).
+// @req FR-236 — a LINE_FAQ_CANDIDATE source runs the candidate prose policy
+// (`knowledge-candidate-zero-pii.js`) at this same Stage 5 gate instead of
+// FR-187's structured-record policy (ADR-090 D6, revised 2026-09-14, owner
+// decision): FR-187 denies the literal words ลูกค้า/ใบเสนอราคา/customer/
+// contact/quotation, which an approved, ordinary FAQ answer legitimately
+// contains as free text. See `ZERO_PII_POLICY_BY_PROVIDER` below; FR-187
+// itself is unchanged for SMARTGIFT_CATALOG.
 // @req FR-188 — a SMARTGIFT_CATALOG source is parsed by genesisrag17-parser-2
 // and recognized by genesisrag17-structured-recognizer-1; its batch carries
 // the rendered parsed content so every chunk stays an exact substring of it.
@@ -63,6 +73,19 @@ import {
 const RAW_SOURCE_TYPE = 'TEXT'
 const RAW_CONTENT_TYPE = 'text/plain'
 const RAW_ENTITY_TYPE = 'KNOWLEDGE_DOCUMENT'
+
+// @req FR-187, FR-236 — Stage 5 classify's Zero-PII gate, explicit per
+// provider (ADR-090 D6, revised 2026-09-14, owner decision). Two different
+// rules for two different payload shapes: SMARTGIFT_CATALOG is a structured
+// record (locator fields, category words), LINE_FAQ_CANDIDATE is free-text
+// prose (names, phone numbers, LINE ids, quoted wording) — sharing one
+// function between them denied ordinary approved FAQs containing "ลูกค้า" or
+// "ใบเสนอราคา". A provider absent from this map carries no Stage 5 Zero-PII
+// gate at all, exactly as before this map existed.
+const ZERO_PII_POLICY_BY_PROVIDER = Object.freeze({
+  SMARTGIFT_CATALOG: { assert: assertZeroPii, policy: STRUCTURED_RECORD_DENY_POLICY },
+  LINE_FAQ_CANDIDATE: { assert: assertCandidateProseZeroPii, policy: CANDIDATE_ZERO_PII_POLICY },
+})
 
 function serviceError(status, message, code = null) {
   const error = new Error(message)
@@ -1165,12 +1188,14 @@ export async function ingestGenesisRag17Raw(input, {
       stageId: 'DPS-KI-CLASSIFY',
       recordsIn: 1,
       action: async () => {
-        // FR-187 / ADR-075 D5 — a structured provider's record is refused here,
-        // before dedupe, chunking or any Stage 8 mention could exist. The throw
-        // is a 422, which runLocalStage commits as terminal STEP_FAILED
-        // evidence and the admission runtime treats as permanent.
-        const structured = isStructuredRecordProvider(value.provider)
-        if (structured) assertZeroPii(value.content, { sourceId: value.sourceId, sourceUri: value.sourceUri })
+        // FR-187 / FR-236 / ADR-075 D5 / ADR-090 D6 — a provider named in
+        // ZERO_PII_POLICY_BY_PROVIDER is refused here, before dedupe, chunking
+        // or any Stage 8 mention could exist, under its own policy (never a
+        // shared one — see the map's comment above). The throw is a 422, which
+        // runLocalStage commits as terminal STEP_FAILED evidence and the
+        // admission runtime treats as permanent.
+        const zeroPii = ZERO_PII_POLICY_BY_PROVIDER[value.provider]
+        if (zeroPii) zeroPii.assert(value.content, { sourceId: value.sourceId, sourceUri: value.sourceUri })
         // The frozen v1 policy carries only the two processing permissions; the
         // six-field scope is still explicit and is validated before indexing.
         classification = { scope: value.scope, policy: value.policy, indexable: value.policy.allowEmbedding, publishable: value.policy.allowPublication }
@@ -1182,7 +1207,7 @@ export async function ingestGenesisRag17Raw(input, {
             policy: value.policy,
             indexable: classification.indexable,
             publishable: classification.publishable,
-            ...(structured ? { zeroPiiPolicy: STRUCTURED_RECORD_DENY_POLICY } : {}),
+            ...(zeroPii ? { zeroPiiPolicy: zeroPii.policy } : {}),
           },
         }
       },

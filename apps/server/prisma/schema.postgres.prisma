@@ -116,6 +116,8 @@ model Tenant {
   marketingBroadcastIntents MarketingBroadcastIntent[]
   // @req FR-195 — a TENANT-scoped AccessInvite hangs off the Tenant directly.
   accessInvites             AccessInvite[]
+  // @req FR-236 — LINE FAQ knowledge candidates (ADR-090 D6).
+  knowledgeCandidates       KnowledgeCandidate[]
 
   @@index([portfolioId])
 }
@@ -289,6 +291,8 @@ model Business {
   marketingBroadcastIntents MarketingBroadcastIntent[]
   // @req FR-195 — a BUSINESS-scoped AccessInvite hangs off the Business directly.
   accessInvites             AccessInvite[]
+  // @req FR-236 — LINE FAQ knowledge candidates (ADR-090 D6).
+  knowledgeCandidates       KnowledgeCandidate[]
 
   @@index([tenantId])
 }
@@ -1932,12 +1936,16 @@ model Conversation {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  customer    Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  messages    Message[]
-  events      ConversationEvent[]
-  analyses    ConversationAnalysis[]
-  salesTasks  SalesTask[]
-  salesOrders SalesOrder[]
+  customer            Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  messages            Message[]
+  events              ConversationEvent[]
+  analyses            ConversationAnalysis[]
+  salesTasks          SalesTask[]
+  salesOrders         SalesOrder[]
+  // @req FR-236 — the candidate names its source conversation only through
+  //   this relation and `sourceRefJson`; a deleted conversation clears the
+  //   reference rather than deleting the candidate (erasure fan-out is FR-232).
+  knowledgeCandidates KnowledgeCandidate[]
 
   // @spec BR-002, SEC-001 — a provider thread id is envelope data, not a key. Scoping
   // it by tenant, channel and account isolates the external namespace:
@@ -2720,6 +2728,69 @@ model KnowledgeCorpusGeneration {
   corpus KnowledgeCorpus @relation(fields: [corpusId], references: [id], onDelete: Restrict)
 
   @@unique([corpusId, number])
+}
+
+// @req FR-236 — a LINE FAQ knowledge candidate: a canonical question/answer
+//   drawn from one consent-GRANTED Conversation, reviewed and decided by a
+//   Business OWNER or LINE_OA_PUBLISHER, admitted through the ADR-072
+//   admission service (knowledge-admission-service.js) as one immutable
+//   LINE_FAQ_CANDIDATE TEXT source on APPROVED — never a second write path
+//   into the corpus.
+// @spec ADR-090 D6, D8; SEC-032; FR-187 (Zero-PII deny policy, reused)
+// @tested tests/unit/knowledge-candidate-service.test.js, tests/integration/fr236-knowledge-candidate.test.js
+model KnowledgeCandidate {
+  id     String @id @default(uuid())
+  // @spec BR-002 — the Business is the write scope; tenantId is carried for
+  //   the same reason every other CRM-adjacent model carries it (query
+  //   locality), never as a second source of truth for scope.
+  tenantId   String
+  businessId String
+  // @req FR-236/ADR-090 D8 — the ONLY fields that name a source conversation.
+  //   `conversationId` is the internal Conversation.id (never the LINE
+  //   externalThreadId / user id); `sourceRefJson` repeats it alongside
+  //   internal `Message.id`s only. FR-232's erasure fan-out tombstones a
+  //   candidate by walking exactly these two fields — nothing else on this
+  //   row may ever come to name a conversation.
+  conversationId String?
+  sourceRefJson  String
+  // PENDING_REVIEW | APPROVED | REJECTED | TOMBSTONED (docs/domains/knowledge/CHARTER.md)
+  status String @default("PENDING_REVIEW")
+  // Canonical, locator-only prose: product locators, policy names, amounts —
+  // no names, no LINE ids, no quoted customer wording (Zero-PII, enforced at
+  // create/edit/decide by knowledge-candidate-zero-pii.js).
+  question    String
+  answer      String
+  contentHash String
+  // Consent snapshot at draft time (must have been GRANTED) — evidence for
+  // ADR-090 proof 7, not re-derived from the live Customer row after the fact.
+  consentStatusAtDraft String
+  // Namespaced per Business, mirroring knowledge-admission-service's own
+  // idempotency contract: the same key with the same content is a no-op
+  // replay; a changed key is a new draft.
+  idempotencyKey    String
+  requestHash       String
+  createdByPersonId String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  decidedByPersonId String?
+  decidedAt         DateTime?
+  decisionReason    String?
+  // Set only on APPROVED, once admission succeeds — the KnowledgeSource/
+  // KnowledgeIngestion this candidate became, through the existing service.
+  admittedSourceId    String?
+  admittedIngestionId String?
+  // FR-232 erasure marks this without deleting the row (GKS cannot delete —
+  // ADR-072 D11); a tombstoned candidate is refused for decision or admission.
+  tombstonedAt DateTime?
+  version      Int       @default(1)
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business     Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  conversation Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+
+  @@unique([businessId, idempotencyKey])
+  @@index([businessId, status])
+  @@index([conversationId])
 }
 
 // @req FR-079 — provider-neutral Business-scoped runtime connection metadata.

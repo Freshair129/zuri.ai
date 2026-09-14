@@ -188,8 +188,11 @@ describe('OpenAPI document', () => {
       // FR-223/FR-224 (ADR-089) add three paths and three operations: credential
       // rotate, revoke and validate under /api/line-oa/connections/{id} (POST each).
       // 270 + 3 = 273; 365 + 3 = 368.
-      pathCount: 273,
-      operationCount: 368,
+      // FR-236 (ADR-090 D6) adds three paths and five operations: the candidate
+      // list/draft collection (GET, POST), one candidate (GET, PATCH) and the
+      // audited APPROVE/REJECT decision (POST). 273 + 3 = 276; 368 + 5 = 373.
+      pathCount: 276,
+      operationCount: 373,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
