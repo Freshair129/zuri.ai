@@ -4,7 +4,10 @@
 //   call instead of writing another domain's table by hand. That is the target
 //   state both charters already name for the `Person` redaction debt; this new
 //   surface starts on the right side of it rather than adding a second exception.
+// @req FR-229 — also redacts each message's MessageAttachment (fetchState → ERASED,
+//   providerContentId cleared) in the same call.
 // @spec BR-001, SEC-005, SDD-048
+// @spec ADR-091 D5
 // @tested tests/integration/crm-customer-erasure.test.js, tests/integration/identity-erase.test.js
 //
 // WHY A TOMBSTONE AND NOT A DELETE
@@ -20,6 +23,13 @@
 // last-message text (prisma/schema.prisma), and the FR-091 inbox derives its preview
 // from the `Message` rows this function rewrites. If a preview column is ever added,
 // it must be redacted here in the same call.
+//
+// FR-229 — a media message's MessageAttachment is redacted alongside its Message:
+// `fetchState` moves to ERASED and `providerContentId` (LINE's own content id, the
+// only thing a later fetch phase would need) is cleared, so a byte fetch can never
+// retrieve what this call just erased. Nothing else on the row changes — `kind` and
+// `mimeType`/`sizeBytes` (when a later phase has set them) survive, exactly as
+// `direction` and timestamps survive on the Message itself.
 
 /**
  * The one string an erased message body carries. Thai, because a Business owner reads
@@ -58,6 +68,10 @@ export async function redactConversationContentForCustomers(tx, { tenantId, cust
     where: { conversationId: { in: conversationIds }, body: { not: CUSTOMER_ERASURE_TOMBSTONE } },
     data: { body: CUSTOMER_ERASURE_TOMBSTONE },
   })
+  const redactedAttachments = await tx.messageAttachment.updateMany({
+    where: { message: { conversationId: { in: conversationIds } }, fetchState: { not: 'ERASED' } },
+    data: { fetchState: 'ERASED', providerContentId: null },
+  })
 
-  return { conversations: conversations.length, redactedMessages: redacted.count }
+  return { conversations: conversations.length, redactedMessages: redacted.count, redactedAttachments: redactedAttachments.count }
 }

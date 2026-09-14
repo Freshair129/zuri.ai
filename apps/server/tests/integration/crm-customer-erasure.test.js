@@ -223,6 +223,30 @@ describe('PDPA erasure from the CRM surface (FR-022)', () => {
     expect(afterSecond.payloadJson).toBe(afterFirst.payloadJson)
   })
 
+  // @req FR-229 — the crm charter promises the erasure writer "will also redact
+  // attachments"; this proves it does, end to end through the same public surface.
+  it('also redacts the MessageAttachment of a media message the erased customer sent', async () => {
+    const result = await ingestLineMessage({
+      tenantId: tenantA.id, businessId: busA1.id, lineUserId: 'U-erase-attachment-1',
+      displayName: 'ลูกค้าทดสอบ', threadId: 'TH-ERASE-ATTACHMENT-1', text: '[รูปภาพ]',
+      externalMessageId: 'MSG-ERASE-ATTACHMENT-1', contentKind: 'MEDIA_REF',
+      attachment: { kind: 'IMAGE', providerContentId: 'MSG-ERASE-ATTACHMENT-1' },
+    })
+
+    await eraseCustomerPrincipal(
+      result.customerId,
+      { businessId: busA1.id, confirmation: 'ERASE' },
+      { viewer: await ownerOf(busA1.id) },
+    )
+
+    const message = await prisma.message.findUnique({
+      where: { id: result.messageId }, include: { attachments: true },
+    })
+    expect(message.body).toBe(CUSTOMER_ERASURE_TOMBSTONE)
+    expect(message.attachments).toHaveLength(1)
+    expect(message.attachments[0]).toMatchObject({ fetchState: 'ERASED', providerContentId: null })
+  })
+
   it('a Member who can see the Business is refused as not-found, and nothing is erased', async () => {
     const r = await seedCustomer({
       tenant: tenantA, business: busA1, lineUserId: 'U-erase-3',
