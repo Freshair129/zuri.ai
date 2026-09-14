@@ -2,10 +2,12 @@ import { randomUUID, createHash, createHmac } from 'node:crypto'
 
 // @req FR-025, FR-057, FR-097, FR-148 — resolve the MSP-owned thread and
 // retrieve speaker-labelled session memory through an injected transport.
+// @req FR-234 — the injection receipt optionally carries a Context Composer
+// `ContextReceipt` id so MSP's own receipt references it (ADR-091 D7).
 // @spec ADR-044, ADR-045, SDD-030, SEC-013, SEC-018 — LINE routing is supplied
 // by the trusted integration seam; this adapter never resolves a provider id,
 // grants access, or accepts a vault/thread choice from message text.
-// @tested tests/integration/agent-msp-thread-memory.test.js
+// @tested tests/integration/agent-msp-thread-memory.test.js, tests/integration/line-worker-memory.test.js
 
 const DEFAULT_IDLE_TIMEOUT_MINUTES = 30
 const DEFAULT_RECENT_EXCHANGES = 6
@@ -343,12 +345,17 @@ export function createMspThreadMemoryPort({
     return result
   }
 
-  function withInjectionReceipt({ model, contextPacket, threadId, exchangeId, authorization, requesterId }) {
+  // @req FR-234 — when the caller composed a `ContextReceipt` for this model
+  // invocation, MSP's injection receipt references it by id rather than
+  // duplicating its content (ADR-091 D7). Optional and additive: a caller with
+  // no Context Composer wired yet omits it and this receipt is unchanged.
+  function withInjectionReceipt({ model, contextPacket, threadId, exchangeId, authorization, requesterId, contextReceiptId = null }) {
     if (!contextPacket || contextPacket.policyDecision !== 'ALLOW') return model
     const packetHash = createHash('sha256').update(JSON.stringify(contextPacket)).digest('hex')
     const receipt = { thread_id: threadId, exchange_id: exchangeId, injection_id: contextPacket.injectionId,
       packet_hash: packetHash, policy_revision: authorization.authContext.policy.version ?? 'default',
-      model_ref: `${model.provider ?? 'configured'}:${model.model ?? 'configured'}` }
+      model_ref: `${model.provider ?? 'configured'}:${model.model ?? 'configured'}`,
+      ...(contextReceiptId ? { context_receipt_id: contextReceiptId } : {}) }
     const record = (state) => callTool('msp_thread_injection_record', { ...receipt, state }, claimsFor(threadId, authorization, requesterId))
     const recordWithRetry = async (state) => {
       try {

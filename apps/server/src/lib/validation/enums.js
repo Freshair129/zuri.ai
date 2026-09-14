@@ -654,3 +654,32 @@ export const MODE_SLUGS = {
 export const SLUG_BY_MODE = Object.fromEntries(
   Object.entries(MODE_SLUGS).map(([slug, mode]) => [mode, slug])
 )
+
+// @req FR-234 — the Context Composer's slice sources and drop/trim reasons are a
+// single enumerated vocabulary, so a `ContextReceipt` never reports free text for
+// why a slice was excluded.
+// @spec ADR-091 D7, SDD-100
+// @tested tests/unit/context-composer.test.js
+export const CONTEXT_SLICE_SOURCES = ['RECORD', 'KNOWLEDGE', 'MSP']
+export const zContextSliceSource = z.enum(CONTEXT_SLICE_SOURCES)
+
+export const CONTEXT_DROP_REASONS = [
+  // A CRM/ERP record outranks MSP memory; a memory slice naming the same subject
+  // as a record is dropped, never silently overridden.
+  'SUPERSEDED_BY_RECORD',
+  // A group/room thread's slices never cross into another thread; a slice
+  // carrying no thread at all once a thread is in scope is treated the same
+  // way (fail closed), never passed through by omission.
+  'THREAD_SCOPE_MISMATCH',
+  // Passport/cross-thread recall is denied to a non-DIRECT audience.
+  'AUDIENCE_SCOPE_DENIED',
+  // The one prompt-wide budget could not fit the slice; every trim is reported.
+  'BUDGET_TRIMMED',
+]
+export const zContextDropReason = z.enum(CONTEXT_DROP_REASONS)
+
+// The default reason `composeContext` reports when the caller's authorization
+// decision was `false` — named here rather than left as a literal inside the
+// composer, same as every drop reason above.
+export const CONTEXT_DENIAL_REASONS = ['CONTEXT_DENIED']
+export const zContextDenialReason = z.enum(CONTEXT_DENIAL_REASONS)

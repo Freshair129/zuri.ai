@@ -307,6 +307,232 @@ describe('server answer memory composition', () => {
     expect(trace.recordThreadMemory).toHaveBeenCalledWith(expect.objectContaining({ inboundMessageId: 'msp-inbound', exchangeId: 'msp-exchange' }))
   })
 
+  // @req FR-234 — the Context Composer runs on the memory-opt-in path: exactly one
+  // ContextReceipt (references, hash, budget — never content) is recorded per
+  // model invocation, and MSP's own injection receipt references it by id. This
+  // fixture's packet has no recorded exchanges yet (a fresh thread), so the
+  // receipt correctly reports nothing included — the richer packet-composition
+  // tests below (with real exchanges) prove the non-empty, budget-trimmed case.
+  it('composes the MSP packet, records exactly one ContextReceipt and hands its id to the injection receipt', async () => {
+    const composedAnswer = composed('DIRECT')
+    const trace = { recordThreadMemory: vi.fn(), recordEvidence: vi.fn(), assertHealthy: vi.fn(), recordContextReceipt: vi.fn() }
+    const result = await composedAnswer.answer(answerJob(), { trace })
+    expect(result).toContain('AB-1')
+    expect(trace.recordContextReceipt).toHaveBeenCalledOnce()
+    const receipt = trace.recordContextReceipt.mock.calls[0][0]
+    expect(receipt).toMatchObject({ refs: { msp: [], citations: [], records: [] } })
+    expect(receipt.budget).toMatchObject({ trimmed: 0 })
+    expect(typeof receipt.hash).toBe('string')
+    expect(receipt.dropped).toEqual([])
+    expect(JSON.stringify(receipt)).not.toContain('AB-1')
+    // Nothing survived composition (no exchanges existed to include), so
+    // "no memory is injected" means no packet — not an empty-looking one.
+    expect(composedAnswer.threadMemory.withInjectionReceipt).toHaveBeenCalledWith(
+      expect.objectContaining({ contextReceiptId: receipt.receiptId, contextPacket: null }))
+  })
+
+  it('never records a ContextReceipt when the trace observer has not adopted one', async () => {
+    const composedAnswer = composed('DIRECT')
+    // The pre-FR-234 trace shape (no recordContextReceipt): the default path's
+    // behaviour is unchanged, and composing a receipt never throws for it.
+    const trace = { recordThreadMemory: vi.fn(), recordEvidence: vi.fn(), assertHealthy: vi.fn() }
+    await expect(composedAnswer.answer(answerJob(), { trace })).resolves.toContain('AB-1')
+  })
+
+  it('excludes the MSP slice from the receipt when private memory is denied for a GROUP thread', async () => {
+    const composedAnswer = composed('GROUP')
+    const trace = { recordThreadMemory: vi.fn(), recordEvidence: vi.fn(), assertHealthy: vi.fn(), recordContextReceipt: vi.fn() }
+    const result = await composedAnswer.answer(answerJob('GROUP'), { trace })
+    expect(result).toContain('AB-1')
+    expect(trace.recordContextReceipt).toHaveBeenCalledOnce()
+    const receipt = trace.recordContextReceipt.mock.calls[0][0]
+    expect(receipt.refs).toEqual({ msp: [], citations: [], records: [] })
+  })
+
+  // @req FR-234 — what a model actually receives must be derived from the
+  // Context Composer's output, never the original un-composed MSP packet, and
+  // the recorded ContextReceipt must describe exactly that. These tests use a
+  // real spy model (EXTERNAL_MODEL_ALLOWED) so "what the model received" is
+  // observed directly, not inferred from the deterministic LOCAL_ONLY model
+  // (which ignores its contextPacket argument entirely).
+  describe('Context Composer packet composition reaches the model', () => {
+    function exchange(id, text) {
+      return { exchangeId: id, messages: [{ sequence: 1, text }] }
+    }
+
+    function budgetJob() {
+      return { tenantId: tenant.id, businessId: business.id, modelAccess: 'EXTERNAL_MODEL_ALLOWED',
+        account: { tenantId: tenant.id, businessId: business.id, bindingCode: 'memory-binding' },
+        channelAccountId: 'memory-binding', transportEpoch: 1, executionMode: 'SERVER',
+        memorySyncOptIn: true, audienceKind: 'DIRECT', eventId: 'event-budget', sourceUserId: 'user-budget',
+        inbound: { id: 'inbound-budget', body: 'AB-1 ราคาเท่าไร', conversation: { tenantId: tenant.id, businessId: business.id,
+          channel: 'LINE', channelAccountId: 'memory-binding', externalThreadId: 'thread-budget' } } }
+    }
+
+    function spySetup({ recentExchanges = [], summaries = [], protectedMemory = [], participants = [], knowledge = null } = {}) {
+      const appendMessage = vi.fn(async input => input.direction === 'INBOUND'
+        ? { message: { messageId: 'inbound-budget', exchangeId: 'exchange-budget' }, session: { sessionId: 'session-budget' } }
+        : { message: { messageId: 'agent-budget', exchangeId: 'exchange-budget' }, session: { sessionId: 'session-budget' } })
+      const withInjectionReceipt = vi.fn(({ model }) => model)
+      const threadMemory = { appendMessage, withInjectionReceipt }
+      const contextAssembler = vi.fn(async () => ({
+        identity: { principalId: 'person-budget', verified: true },
+        thread: { threadId: 'msp-thread-budget', businessId: business.id, audienceKind: 'DIRECT' },
+        authContext: { scope: { tenantId: tenant.id, businessId: business.id } },
+        policy: { version: 'memory-policy-budget', privateMemoryAllowed: true },
+        threadMemory: { policyDecision: 'ALLOW', injectionId: 'injection-budget',
+          thread: { threadId: 'msp-thread-budget', businessId: business.id, audienceKind: 'DIRECT' },
+          identity: { principalId: 'person-budget', verified: true },
+          memory: { recentExchanges, summaries, protectedMemory, participants },
+          knowledge,
+          manifest: { budget: { maxContextBytes: 24000 }, omittedRanges: [], coverageGap: false } },
+      }))
+      const authorizationResolver = policyFor('DIRECT')
+      const spyModel = { provider: 'test', model: 'spy', generate: vi.fn(async () => ({ provider: 'test', model: 'spy', status: 'ok', text: 'รับทราบค่ะ' })) }
+      const runtimeFactory = vi.fn(async () => ({
+        businessKnowledge: { query: async () => ({ records: [{ name: 'แก้ว', product_code: 'AB-1', sell_price: 50,
+          currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: now.toISOString() }] }) },
+        resolveModel: async () => spyModel, threadMemory,
+      }))
+      const answer = createServerLineAnswer({ threadMemory, contextAssembler, authorizationResolver, runtimeFactory })
+      return { answer, appendMessage, withInjectionReceipt, spyModel, runtimeFactory }
+    }
+
+    async function runBudget(setupInput) {
+      const { answer, spyModel, withInjectionReceipt } = spySetup(setupInput)
+      const trace = { recordThreadMemory: vi.fn(), recordEvidence: vi.fn(), assertHealthy: vi.fn(), recordContextReceipt: vi.fn() }
+      const result = await answer(budgetJob(), { trace })
+      return { result, spyModel, withInjectionReceipt, trace,
+        modelPacket: spyModel.generate.mock.calls[0][0].contextPacket,
+        receipt: trace.recordContextReceipt.mock.calls[0][0] }
+    }
+
+    // Second review, defect 1 — MSP's own packet is oldest-first
+    // (buildThreadContextPacket trims with `.shift()`, i.e. drops the
+    // oldest); the budget must keep a contiguous window of the MOST RECENT
+    // turns and drop older ones, never the reverse.
+    it('over budget: keeps the NEWEST exchange (not the oldest) and the injection receipt agrees', async () => {
+      const exchanges = [exchange('ex-1', 'x'.repeat(2000)), exchange('ex-2', 'x'.repeat(2000)), exchange('ex-3', 'x'.repeat(2000))]
+      const { result, modelPacket, withInjectionReceipt, receipt } = await runBudget({ recentExchanges: exchanges })
+      expect(result).toContain('รับทราบ')
+      expect(modelPacket.memory.recentExchanges).toEqual([exchanges[2]]) // ex-3, the newest — not ex-1
+
+      // The same reduced packet — not the original — is what MSP's injection
+      // receipt would hash: reference-equal to what the model actually saw.
+      expect(withInjectionReceipt.mock.calls[0][0].contextPacket).toBe(modelPacket)
+
+      expect(receipt.refs).toEqual({ msp: ['exchange:ex-3'], citations: [], records: [] })
+      expect(receipt.budget).toMatchObject({ trimmed: 2 })
+      expect(receipt.dropped).toEqual([
+        { id: 'exchange:ex-2', source: 'MSP', reason: 'BUDGET_TRIMMED' },
+        { id: 'exchange:ex-1', source: 'MSP', reason: 'BUDGET_TRIMMED' },
+      ])
+      expect(JSON.stringify(receipt)).not.toContain('x'.repeat(50))
+    })
+
+    // Second review, defect 1 — proves no gap: with three exchanges where the
+    // two newest fit together but the oldest does not, the kept window is
+    // CONTIGUOUS (ex-2 and ex-3, not ex-3 alone with ex-1 sneaking back in)
+    // and the rebuilt packet presents them in chronological order.
+    it('over budget with three exchanges: keeps a contiguous newest window with no gap, in chronological order', async () => {
+      const exchanges = [exchange('ex-1', 'x'.repeat(1450)), exchange('ex-2', 'x'.repeat(1450)), exchange('ex-3', 'x'.repeat(1450))]
+      const { modelPacket, receipt } = await runBudget({ recentExchanges: exchanges })
+      // ex-3 (1509) + ex-2 (1509) = 3018, fits under 4000; + ex-1 = 4527, does not.
+      expect(modelPacket.memory.recentExchanges).toEqual([exchanges[1], exchanges[2]]) // chronological: ex-2 then ex-3
+      expect(receipt.refs.msp).toEqual(['exchange:ex-3', 'exchange:ex-2']) // receipt keeps composer's own (newest-first) order
+      expect(receipt.dropped).toEqual([{ id: 'exchange:ex-1', source: 'MSP', reason: 'BUDGET_TRIMMED' }])
+    })
+
+    it('within budget: every exchange reaches the model and the ContextReceipt reports zero trims', async () => {
+      const exchanges = [exchange('ex-1', 'สวัสดี'), exchange('ex-2', 'ขอบคุณค่ะ')]
+      const { modelPacket, receipt } = await runBudget({ recentExchanges: exchanges })
+      // Rebuilt for the model in chronological order (oldest-first)...
+      expect(modelPacket.memory.recentExchanges).toEqual(exchanges)
+      // ...but the receipt reports the composer's own newest-first inclusion order.
+      expect(receipt.refs).toEqual({ msp: ['exchange:ex-2', 'exchange:ex-1'], citations: [], records: [] })
+      expect(receipt.budget.trimmed).toBe(0)
+      expect(receipt.dropped).toEqual([])
+    })
+
+    it('drops every slice and injects no packet at all when nothing survives composition', async () => {
+      // Two huge exchanges: even the newest one alone exceeds the budget, so
+      // nothing is included — "no memory injected" must mean a null packet.
+      const exchanges = [exchange('ex-1', 'x'.repeat(5000)), exchange('ex-2', 'x'.repeat(5000))]
+      const { modelPacket, withInjectionReceipt, receipt } = await runBudget({ recentExchanges: exchanges })
+      expect(modelPacket).toBeNull()
+      expect(withInjectionReceipt.mock.calls[0][0].contextPacket).toBeNull()
+      expect(receipt.refs).toEqual({ msp: [], citations: [], records: [] })
+      expect(receipt.budget.trimmed).toBe(2)
+    })
+
+    // Third review, defect — regression fix: an oversized non-sequenced slice
+    // (here, a protected-memory record) must be dropped on its own, never
+    // close the budget for the exchanges sequence that follows it in
+    // priority order. Before this fix, one such record wiped every exchange,
+    // including the customer's newest turn, even though it would have fit.
+    it('trims an oversized protected record on its own and still injects the newest exchanges', async () => {
+      const exchanges = [exchange('ex-1', 'สวัสดี')]
+      const protectedMemory = [{ recordId: 'p1', note: 'x'.repeat(5000) }] // alone exceeds the 4000-char budget
+      const { modelPacket, receipt } = await runBudget({ recentExchanges: exchanges, protectedMemory })
+      expect(modelPacket).not.toBeNull()
+      expect(modelPacket.memory.protectedMemory).toEqual([])
+      expect(modelPacket.memory.recentExchanges).toEqual(exchanges)
+      expect(receipt.dropped).toEqual([{ id: 'protected:p1', source: 'MSP', reason: 'BUDGET_TRIMMED' }])
+      expect(receipt.refs.msp).toEqual(['exchange:ex-1'])
+    })
+
+    // Second review, defect 2 — `...packet` used to leak `memory.participants`
+    // and the top-level `knowledge` field straight through, un-budgeted and
+    // absent from the receipt. Both must now either go through the composer
+    // (participants, as MSP slices) or be removed entirely (knowledge, which
+    // has no composer-representable citation shape yet).
+    it('never leaks packet.knowledge to the model, and only composer-included participants reach it', async () => {
+      const participants = [{ principalId: 'person-a', displayName: 'A' }, { principalId: 'person-b', displayName: 'B' }]
+      const knowledge = { principalId: 'person-budget', found: true, relations: [{ rel: 'IS_PRINCIPAL', node: { id: 'c1', type: 'Customer', label: 'A' } }] }
+      const { modelPacket, receipt } = await runBudget({ participants, knowledge })
+      expect(modelPacket.knowledge).toBeNull()
+      expect(JSON.stringify(modelPacket)).not.toContain('IS_PRINCIPAL')
+      expect(modelPacket.memory.participants).toEqual(participants)
+      expect(receipt.refs.msp).toEqual(['participant:person-a', 'participant:person-b'])
+      // Nothing of packet.knowledge ever entered the composer, so the receipt
+      // correctly shows no citation for it — there is nothing to cite because
+      // the model received nothing from that field.
+      expect(receipt.refs.citations).toEqual([])
+    })
+
+    it('includes every participant within budget, going through the same composer path as exchanges', async () => {
+      const participants = [{ principalId: 'person-a', displayName: 'a'.repeat(30) }, { principalId: 'person-b', displayName: 'b'.repeat(30) }]
+      const { modelPacket, receipt } = await runBudget({ participants, recentExchanges: [] })
+      expect(modelPacket.memory.participants).toEqual(participants)
+      expect(receipt.dropped).toEqual([])
+      // Participants share the generic MSP budget/drop mechanism proven for
+      // exchanges above (context-composer.test.js proves the drop path itself
+      // is source-agnostic), so a separate over-budget case is not repeated here.
+    })
+
+    // Second review, defect 3 — the rebuilt manifest must fold in the
+    // composer's OWN drops, or a trimmed packet can claim nothing was
+    // truncated.
+    it('marks the rebuilt manifest truncated and lists the composer\'s own drops in omittedRanges', async () => {
+      const exchanges = [exchange('ex-1', 'x'.repeat(2000)), exchange('ex-2', 'x'.repeat(2000)), exchange('ex-3', 'x'.repeat(2000))]
+      const { modelPacket } = await runBudget({ recentExchanges: exchanges })
+      expect(modelPacket.manifest.budget.truncated).toBe(true)
+      expect(modelPacket.manifest.coverageGap).toBe(true)
+      expect(modelPacket.manifest.omittedRanges).toEqual(expect.arrayContaining([
+        { exchangeId: 'ex-2', reason: 'BUDGET_TRIMMED' },
+        { exchangeId: 'ex-1', reason: 'BUDGET_TRIMMED' },
+      ]))
+    })
+
+    it('leaves the manifest untruncated when nothing is dropped', async () => {
+      const exchanges = [exchange('ex-1', 'สวัสดี')]
+      const { modelPacket } = await runBudget({ recentExchanges: exchanges })
+      expect(modelPacket.manifest.budget.truncated).toBe(false)
+      expect(modelPacket.manifest.coverageGap).toBe(false)
+      expect(modelPacket.manifest.omittedRanges).toEqual([])
+    })
+  })
+
   it('rejects an MSP thread or packet identity that differs from the persisted route before model invocation', async () => {
     const mismatchedPacket = composed('DIRECT', {}, { packetThread: { businessId: 'other-business' } })
     await expect(mismatchedPacket.answer(answerJob())).rejects.toThrow('LINE_ANSWER_UNAVAILABLE')

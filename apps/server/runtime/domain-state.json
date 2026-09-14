@@ -40,8 +40,8 @@
     "readyFeatureCount": 113,
     "requirementCount": 241,
     "verifiedRequirementCount": 218,
-    "progressPercent": 91.1,
-    "gapCount": 28,
+    "progressPercent": 91.5,
+    "gapCount": 29,
     "gaps": [
       {
         "domain": "agent",
@@ -76,6 +76,29 @@
         "check": "requirements",
         "summary": "FR-132 is planned",
         "evidence": []
+      },
+      {
+        "domain": "agent",
+        "id": "REQ-FR-234",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-234 is partial",
+        "evidence": [
+          "apps/server/src/modules/agent/context-composer.js",
+          "apps/server/src/modules/agent/execution-trace.js",
+          "apps/server/src/modules/agent/line-execution-trace.js",
+          "apps/server/src/modules/agent/msp-thread-memory-port.js",
+          "apps/server/src/modules/agent/server-line-answer.js",
+          "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+          "apps/server/tests/integration/execution-trace.test.js",
+          "apps/server/tests/integration/line-worker-memory.test.js",
+          "apps/server/tests/integration/server-line-trace.test.js",
+          "apps/server/tests/integration/xlsx-intake.test.js",
+          "apps/server/tests/unit/context-composer.test.js",
+          "apps/server/tests/unit/conversation-analysis-contract.test.js",
+          "apps/server/tests/unit/plan-schema.test.js",
+          "apps/server/tests/unit/server-line-answer.test.js"
+        ]
       },
       {
         "domain": "asset-management",
@@ -273,7 +296,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-026",
@@ -390,7 +413,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-079",
@@ -438,7 +461,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-098",
@@ -494,7 +517,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-149",
@@ -510,7 +533,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-171",
@@ -535,6 +558,30 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 7
+        },
+        {
+          "id": "FR-234",
+          "title": "Context Composer",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 5,
+          "testCount": 9,
+          "evidence": [
+            "apps/server/src/modules/agent/context-composer.js",
+            "apps/server/src/modules/agent/execution-trace.js",
+            "apps/server/src/modules/agent/line-execution-trace.js",
+            "apps/server/src/modules/agent/msp-thread-memory-port.js",
+            "apps/server/src/modules/agent/server-line-answer.js",
+            "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+            "apps/server/tests/integration/execution-trace.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/integration/server-line-trace.test.js",
+            "apps/server/tests/integration/xlsx-intake.test.js",
+            "apps/server/tests/unit/context-composer.test.js",
+            "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/server-line-answer.test.js"
+          ]
         }
       ],
       "checks": {
@@ -687,6 +734,28 @@
           "check": "requirements",
           "summary": "FR-132 is planned",
           "evidence": []
+        },
+        {
+          "id": "REQ-FR-234",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-234 is partial",
+          "evidence": [
+            "apps/server/src/modules/agent/context-composer.js",
+            "apps/server/src/modules/agent/execution-trace.js",
+            "apps/server/src/modules/agent/line-execution-trace.js",
+            "apps/server/src/modules/agent/msp-thread-memory-port.js",
+            "apps/server/src/modules/agent/server-line-answer.js",
+            "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+            "apps/server/tests/integration/execution-trace.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/integration/server-line-trace.test.js",
+            "apps/server/tests/integration/xlsx-intake.test.js",
+            "apps/server/tests/unit/context-composer.test.js",
+            "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/server-line-answer.test.js"
+          ]
         }
       ],
       "details": {
@@ -727,7 +796,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 40
+          "testCount": 41
         },
         {
           "id": "FR-134",
@@ -735,7 +804,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-135",
@@ -743,7 +812,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-136",
@@ -751,7 +820,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-137",
@@ -981,7 +1050,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-196",
@@ -1167,7 +1236,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-103",
@@ -1191,7 +1260,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-147",
@@ -1207,7 +1276,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-151",
@@ -1354,7 +1423,7 @@
       ],
       "featureCount": 8,
       "readyFeatureCount": 4,
-      "progressPercent": 61.3
+      "progressPercent": 66.3
     },
     "identity": {
       "status": "partial",
@@ -1525,7 +1594,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-098",
@@ -1621,7 +1690,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-148",
@@ -1629,7 +1698,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-154",
@@ -1661,7 +1730,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-166",
@@ -1677,7 +1746,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-192",
@@ -1685,7 +1754,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-193",
@@ -1693,7 +1762,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-195",
@@ -1701,7 +1770,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-196",
@@ -2136,7 +2205,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-146",
@@ -2144,7 +2213,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-149",
@@ -2192,7 +2261,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-224",
@@ -2792,7 +2861,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-112",
@@ -3169,7 +3238,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 29,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-149",
@@ -3185,7 +3254,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-151",
@@ -3241,7 +3310,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-229",
@@ -3980,7 +4049,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-165",
@@ -3988,7 +4057,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-168",
@@ -4221,7 +4290,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-013",
@@ -4597,7 +4666,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-087",
@@ -4605,7 +4674,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-088",
@@ -4669,7 +4738,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-100",
@@ -4781,7 +4850,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
-          "testCount": 40
+          "testCount": 41
         },
         {
           "id": "FR-134",
@@ -4789,7 +4858,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-135",
@@ -4797,7 +4866,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-136",
@@ -4805,7 +4874,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-137",
@@ -4853,7 +4922,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-149",
@@ -4869,7 +4938,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-151",
@@ -4973,7 +5042,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-165",
@@ -4981,7 +5050,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-166",
@@ -5109,7 +5178,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-193",
@@ -5117,7 +5186,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-194",
@@ -5125,7 +5194,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-195",
@@ -5133,7 +5202,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-197",
@@ -5229,7 +5298,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-224",
@@ -6136,7 +6205,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-087",
@@ -6144,7 +6213,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-088",
@@ -6200,6 +6269,7 @@
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
@@ -6376,7 +6446,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-098",
@@ -6451,6 +6521,7 @@
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-oa-evidence-convergence.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/line-worker-memory.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/mfa-totp-lifecycle.test.js",
@@ -6659,7 +6730,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-173",
@@ -6741,6 +6812,7 @@
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/agent-requestable-sensitivity.test.js",
         "apps/server/tests/unit/asset-management-pipeline-contract.test.js",
+        "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
@@ -6877,7 +6949,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 25,
-          "testCount": 40
+          "testCount": 41
         },
         {
           "id": "FR-134",
@@ -6885,7 +6957,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-135",
@@ -6893,7 +6965,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 27,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-136",
@@ -6901,7 +6973,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 19
+          "testCount": 20
         }
       ],
       "evidence": [
@@ -6967,6 +7039,7 @@
         "apps/server/tests/unit/asset-register-service.test.js",
         "apps/server/tests/unit/asset-scanner-ui.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
@@ -7207,7 +7280,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 37,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-147",
@@ -7318,6 +7391,7 @@
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/api-error-mapping.test.js",
         "apps/server/tests/unit/connection-health.test.js",
+        "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
@@ -7377,7 +7451,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-149",
@@ -7393,7 +7467,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -8023,7 +8097,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 31
+          "testCount": 32
         },
         {
           "id": "FR-165",
@@ -8031,7 +8105,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
-          "testCount": 29
+          "testCount": 30
         }
       ],
       "evidence": [
@@ -8073,6 +8147,7 @@
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/command-palette-index.test.js",
+        "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
@@ -8401,7 +8476,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-192",
@@ -8409,7 +8484,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -8447,6 +8522,7 @@
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/auth-service.test.js",
+        "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/fr036-team-authorization.test.js",
@@ -8497,7 +8573,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-194",
@@ -8505,7 +8581,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 21
+          "testCount": 22
         }
       ],
       "evidence": [
@@ -8549,6 +8625,7 @@
         "apps/server/tests/integration/scope-and-isolation.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/commerce-billing-domain.test.js",
+        "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
@@ -8590,7 +8667,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-196",
@@ -8661,6 +8738,7 @@
         "apps/server/tests/unit/audit-page.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/commerce-domain.test.js",
+        "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
@@ -9282,7 +9360,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 21,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-224",
@@ -9371,6 +9449,7 @@
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/api-error-mapping.test.js",
         "apps/server/tests/unit/connection-health.test.js",
+        "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr080-integration-management.test.js",
@@ -9403,12 +9482,13 @@
       ],
       "primaryDomain": "crm",
       "contributorDomains": [
+        "agent",
         "crm",
         "line-oa-studio",
         "project-manager"
       ],
       "useCase": "พนักงานเปิด Inbox แล้วเห็นบทสนทนา LINE ครบทั้งข้อความ สติกเกอร์ รูปที่ลูกค้าส่ง และเหตุการณ์อย่างการเพิ่มเพื่อนหรือบล็อก ค้นหาข้อความเก่าได้ ส่วนเจ้าของธุรกิจกำหนดได้ว่าบัญชีไหนให้ agent จำบริบทได้ รู้ว่าข้อมูลแต่ละชั้นเก็บนานเท่าไร และเมื่อลูกค้าขอลบข้อมูลก็เห็นว่าลบครบทุกชั้นแล้วหรือยังรออยู่ที่ไหน",
-      "progressPercent": 23.3,
+      "progressPercent": 36.7,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
@@ -9417,7 +9497,7 @@
         "FR-231 is planned",
         "FR-232 is planned",
         "FR-233 is planned",
-        "FR-234 is planned"
+        "FR-234 is partial"
       ],
       "requirements": [
         {
@@ -9463,31 +9543,46 @@
         {
           "id": "FR-234",
           "title": "Context Composer",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 6,
+          "testCount": 9
         }
       ],
       "evidence": [
+        "apps/server/src/lib/validation/enums.js",
+        "apps/server/src/modules/agent/context-composer.js",
+        "apps/server/src/modules/agent/execution-trace.js",
+        "apps/server/src/modules/agent/line-execution-trace.js",
+        "apps/server/src/modules/agent/msp-thread-memory-port.js",
+        "apps/server/src/modules/agent/server-line-answer.js",
         "apps/server/src/modules/crm/conversation-redaction-service.js",
         "apps/server/src/modules/crm/line-ingest-service.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
+        "apps/server/tests/integration/execution-trace.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/identity-erase.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
         "apps/server/tests/integration/line-ingest.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/line-worker-memory.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
+        "apps/server/tests/integration/server-line-trace.test.js",
+        "apps/server/tests/integration/xlsx-intake.test.js",
+        "apps/server/tests/unit/context-composer.test.js",
+        "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/crm-message-attachments-events-migration.test.js",
-        "apps/server/tests/unit/fr045-backup-contract.test.js"
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/plan-schema.test.js",
+        "apps/server/tests/unit/server-line-answer.test.js"
       ]
     },
     {
@@ -10123,7 +10218,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 21
+          "testCount": 22
         }
       ],
       "evidence": [
@@ -10149,6 +10244,7 @@
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/api-path-reachability.test.js",
+        "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/contract-plan-artifacts.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/plan-import-commit-transaction.test.js",
@@ -10712,7 +10808,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 8
+          "testCount": 9
         }
       ],
       "evidence": [
@@ -10728,6 +10824,7 @@
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-multi-principal.test.js",
         "apps/server/tests/integration/agent-tools.test.js",
+        "apps/server/tests/integration/line-worker-memory.test.js",
         "apps/server/tests/integration/msp-vault-memory-port.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js"
       ]
@@ -12086,7 +12183,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 13
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -12105,6 +12202,7 @@
         "apps/server/tests/integration/agent-request-envelope.test.js",
         "apps/server/tests/integration/agent-runtime.test.js",
         "apps/server/tests/integration/fr110-knowledge-evidence-chain.test.js",
+        "apps/server/tests/integration/line-worker-memory.test.js",
         "apps/server/tests/integration/memory-trace-linkage.test.js",
         "apps/server/tests/integration/msp-vault-memory-port.test.js",
         "apps/server/tests/unit/agent-requestable-sensitivity.test.js",
