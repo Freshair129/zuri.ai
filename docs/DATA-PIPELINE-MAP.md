@@ -270,6 +270,9 @@ chain คือเส้นทางจากต้นทางภายนอ�
       "surfaces": [
         { "type": "ENDPOINT", "ref": "/api/knowledge/candidates" }, { "type": "ENDPOINT", "ref": "/api/knowledge/candidates/[id]" },
         { "type": "ENDPOINT", "ref": "/api/knowledge/candidates/[id]/decision" }, { "type": "UI", "ref": "/knowledge/candidates" }] },
+    { "id": "p.knowledge-gap-report", "kind": "PROCESS", "system": "zuri-ai", "domain": "knowledge", "label": "LINE knowledge gap report", "detail": "รวม EVIDENCE_SELECTED (reason=NO_EVIDENCE) ต่อ Business เป็นจำนวน, product locator (ถ้าทราบ) และเวลาล่าสุดเท่านั้น — คำนวณจาก AgentTraceEvent ที่มีอยู่ ไม่มี store ใหม่ ไม่มีข้อความคำถาม",
+      "requirements": ["FR-237"], "decisions": ["ADR-090"],
+      "surfaces": [{ "type": "ENDPOINT", "ref": "/api/knowledge/gap-report" }, { "type": "UI", "ref": "/knowledge/gap-report" }] },
     { "id": "p.raw-ingestion", "kind": "PROCESS", "system": "zuri-ai", "domain": "integration", "label": "Raw external ingestion boundary", "detail": "envelope เดียว, redaction, ExternalRef",
       "requirements": ["FR-081"],
       "surfaces": [{ "type": "FILE", "ref": "apps/server/src/platform/integrations/core/raw-ingest-service.js" }] },
@@ -487,6 +490,7 @@ chain คือเส้นทางจากต้นทางภายนอ�
     { "id": "e.crm-to-candidate-review", "from": "s.crm", "to": "p.knowledge-candidate-review", "label": "บทสนทนาที่ consent = GRANTED (FR-236, CRM read projection)" },
     { "id": "e.candidate-review-to-store", "from": "p.knowledge-candidate-review", "to": "s.knowledge-candidates", "label": "draft · edit · decision (audited)" },
     { "id": "e.candidate-review-to-admission", "from": "p.knowledge-candidate-review", "to": "in.knowledge-admission", "label": "อนุมัติแล้วเท่านั้น → TEXT source LINE_FAQ_CANDIDATE ก่อน Stage 1 (FR-236)" },
+    { "id": "e.agent-trace-to-gap-report", "from": "s.agent-trace", "to": "p.knowledge-gap-report", "label": "อ่าน EVIDENCE_SELECTED (reason=NO_EVIDENCE) — คำนวณตอนอ่าน ไม่มี store ใหม่ (FR-237)" },
     { "id": "e.agent-to-msp-session", "from": "p.agent-turn", "to": "r.msp", "label": "MSP session tier ตาม memoryPolicy (FR-231, ADR-091, ปิดไว้จนกว่า MSP main มี thread + erase tool)", "wired": false }
   ],
 

@@ -191,8 +191,13 @@ describe('OpenAPI document', () => {
       // FR-236 (ADR-090 D6) adds three paths and five operations: the candidate
       // list/draft collection (GET, POST), one candidate (GET, PATCH) and the
       // audited APPROVE/REJECT decision (POST). 273 + 3 = 276; 368 + 5 = 373.
-      pathCount: 278,
-      operationCount: 375,
+      // FR-233 (ADR-091 D5) adds two paths and two operations: conversation
+      // search (GET) and per-account follow/unfollow event counts (GET).
+      // 276 + 2 = 278; 373 + 2 = 375.
+      // FR-237 (ADR-090 D7) adds one path and one operation: the gap report
+      // (GET). 278 + 1 = 279; 375 + 1 = 376.
+      pathCount: 279,
+      operationCount: 376,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
