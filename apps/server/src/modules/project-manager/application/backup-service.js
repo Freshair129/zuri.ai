@@ -9,6 +9,10 @@
 // @req FR-078 - customer import batches, review cases, decisions and provenance
 // must survive snapshot restore.
 // @req FR-045 - portable FileAsset metadata, optional content and explicit remount gaps.
+// @req FR-229 - MessageAttachment and ConversationEvent restore alongside the
+// Message/Conversation they hang off; media reference and bounded event metadata,
+// no secret and no bytes.
+// @tested tests/integration/line-non-text-admission.test.js
 // @req FR-075 - restore is an installation-wide operation and requires operator
 // authority. This is what took /api/backup/import off the route-viewer baseline.
 // The route was unrepayable for as long as the only holdable authority was
@@ -303,6 +307,10 @@ const SNAPSHOT_MODELS = [
   // which the model never persists in the first place.
   'apiAccessKey',
   'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation', 'message',
+  // @req FR-229 — an attachment hangs off Message, an event off Conversation;
+  // both restore after their parent above and delete before it in reverse.
+  // Media reference and bounded event metadata, no secret and no bytes.
+  'messageAttachment', 'conversationEvent',
   // @req FR-161 — a sales task hangs off Business, Person (assignee) and
   // optionally Customer and Conversation, so it restores after all of them.
   // Operating data, no secret: exported whole.

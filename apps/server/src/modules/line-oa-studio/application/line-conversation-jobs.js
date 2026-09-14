@@ -1,7 +1,7 @@
 import { createCipheriv, createDecipheriv, randomBytes, randomUUID } from 'node:crypto'
 import { z } from 'zod'
 import prisma from '@/lib/db'
-import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
+import { ingestLineMessage, ingestLineConversationEvent, recordExistingConversationEvent, ingestLineUnsendEvent } from '@/modules/crm/line-ingest-service'
 import { appendOutbound } from '@/modules/crm/reply-record-service'
 import { assertMayView, assertMayPublish, notFound } from './line-oa-account-authority'
 import { recordAudit } from '@/modules/project-manager/application/audit'
@@ -12,8 +12,11 @@ import { prepareMemoryDeliveryPending, reconcileLineMemoryDeliveries } from './l
 
 // @req FR-149, FR-150 — durable admission, optional compute, fenced send and receipt recovery.
 // @req FR-171 — context and execution journal, attempt identity and truthful send observations.
+// @req FR-229 — non-text message kinds and non-message events are admitted into the
+//   CRM record instead of being discarded; none of them creates an answer job.
 // @spec ADR-061, SEC-001, FR-148 — queue and CRM share a transaction; devices cannot send.
-// @tested tests/integration/server-line-jobs.test.js
+// @spec ADR-091 D5
+// @tested tests/integration/server-line-jobs.test.js, tests/integration/line-non-text-admission.test.js
 
 export const LINE_JOB_LEASE_MS = 300_000
 const JOB_TTL_MS = 30 * 60_000
@@ -63,6 +66,53 @@ function activeAccount(account, job) {
     && account.status === 'CONNECTED' && (!job || account.transportEpoch === job.transportEpoch)
 }
 
+// FR-229 — LINE message.type values that are media (recorded with a
+// MessageAttachment); STICKER and LOCATION are message types too but carry no
+// attachment (design §6.3).
+const MEDIA_ATTACHMENT_KINDS = { image: 'IMAGE', video: 'VIDEO', audio: 'AUDIO', file: 'FILE' }
+const NON_TEXT_MESSAGE_TYPES = new Set(['sticker', 'location', ...Object.keys(MEDIA_ATTACHMENT_KINDS)])
+// Event types whose payload carries a resolvable individual (event.source.userId
+// is always present on these, per LINE's own webhook contract).
+const DIRECT_IDENTITY_EVENT_KINDS = { follow: 'FOLLOW', unfollow: 'UNFOLLOW', postback: 'POSTBACK' }
+// Event types with no individual identity in the payload at all (a group/room
+// join/leave has no source.userId); memberJoined/memberLeft carry member ids
+// under event.joined/event.left rather than event.source, but still name no
+// single "sender" the way follow/unfollow/postback do — see admitLineThreadEvent.
+const THREAD_ONLY_EVENT_KINDS = { join: 'JOIN', leave: 'LEAVE', memberJoined: 'MEMBER_JOINED', memberLeft: 'MEMBER_LEFT' }
+const MEDIA_PLACEHOLDERS = { IMAGE: '[รูปภาพ]', VIDEO: '[วิดีโอ]', AUDIO: '[ไฟล์เสียง]', FILE: '[ไฟล์แนบ]' }
+
+// FR-229 says "a fixed placeholder body" — fixed, not "fixed shape with the
+// provider's own values interpolated in". A sticker's packageId/stickerId are
+// harmless as ids, but location's latitude/longitude are personal data (often a
+// home or delivery address), and Message.body is exactly what the FR-091 inbox
+// preview, FR-233 search and any future prompt read — so both stay genuinely
+// fixed strings with nothing provider-supplied inside them. The raw LINE payload
+// (packageId/stickerId/lat/lng included) is still available in RawExternalRecord
+// under its own retention window; this placeholder is never where that detail
+// needs to live.
+const STICKER_PLACEHOLDER = '[สติกเกอร์]'
+const LOCATION_PLACEHOLDER = '[ตำแหน่ง]'
+
+/**
+ * FR-229 — classify a non-text `message` event into what admission must write.
+ * Returns `{}` (no contentKind) for a message type this admission does not yet
+ * understand, which the caller treats as skipped, exactly like an unrecognised
+ * event type.
+ */
+function classifyNonTextMessage(message) {
+  const type = message?.type
+  if (type === 'sticker') return { contentKind: 'STICKER', body: STICKER_PLACEHOLDER }
+  if (type === 'location') return { contentKind: 'LOCATION', body: LOCATION_PLACEHOLDER }
+  const attachmentKind = MEDIA_ATTACHMENT_KINDS[type]
+  if (attachmentKind) {
+    return {
+      contentKind: 'MEDIA_REF', body: MEDIA_PLACEHOLDERS[attachmentKind],
+      attachment: { kind: attachmentKind, providerContentId: message.id },
+    }
+  }
+  return {}
+}
+
 async function atomic(db, work) {
   for (let attempt = 0; ; attempt++) {
     try {
@@ -80,9 +130,38 @@ async function atomic(db, work) {
   }
 }
 
-/** Called only after signature and destination validation. No authority from event text. */
-export async function admitLineConversation({ account, event, correlationId, now = new Date(), ingressReceivedAt = now, env = process.env, db = prisma }) {
-  if (event.type !== 'message' || event.message?.type !== 'text') return { skipped: true }
+/**
+ * Called only after signature and destination validation. No authority from event
+ * text. FR-229 dispatches to the right narrow writer by event/message type; every
+ * non-text branch returns `{ skipped: true, ... }` because none of them creates an
+ * answer job (bounded text replies only, ADR-061 D8).
+ */
+export async function admitLineConversation(args) {
+  const { event } = args
+  if (event.type === 'message') {
+    if (event.message?.type === 'text') return admitLineTextMessage(args)
+    if (NON_TEXT_MESSAGE_TYPES.has(event.message?.type)) return admitLineNonTextMessage(args)
+    return { skipped: true }
+  }
+  if (event.type === 'unsend') return admitLineUnsend(args)
+  if (DIRECT_IDENTITY_EVENT_KINDS[event.type]) return admitLineDirectEvent(args, DIRECT_IDENTITY_EVENT_KINDS[event.type])
+  if (THREAD_ONLY_EVENT_KINDS[event.type]) return admitLineThreadEvent(args, THREAD_ONLY_EVENT_KINDS[event.type])
+  return { skipped: true }
+}
+
+/** Resolve the current account inside the admission transaction and check it is
+ * still the CLOUD owner for this epoch — the guard every admitted event shares,
+ * text or not. */
+async function withAdmittedAccount(db, account, work) {
+  return atomic(db, async (tx) => {
+    const current = await tx.lineOaAccount.findUnique({ where: { id: account.id } })
+    if (!activeAccount(current) || current.transportEpoch !== account.transportEpoch) throw failure(409, 'LINE_ACCOUNT_NOT_SERVER_OWNED')
+    const channelAccountId = current.bindingCode || current.id
+    return work(tx, current, channelAccountId)
+  })
+}
+
+async function admitLineTextMessage({ account, event, correlationId, now = new Date(), ingressReceivedAt = now, env = process.env, db = prisma }) {
   const userId = event.source?.userId
   const threadId = event.source?.groupId || event.source?.roomId || userId
   const audienceKind = event.source?.type === 'group' ? 'GROUP' : event.source?.type === 'room' ? 'ROOM' : 'DIRECT'
@@ -139,6 +218,108 @@ export async function admitLineConversation({ account, event, correlationId, now
     // its own later transaction and keeps the real guard.
     }, now, { bypassTurnGuard: true })
     return { jobId: job.id, created: true, inboundMessageId: inbound.messageId }
+  })
+}
+
+/**
+ * FR-229 — a non-text message (sticker, location, image, video, audio, file):
+ * admission no longer skips it. A Message is created with its `contentKind` and,
+ * for media, a `MessageAttachment` recorded without bytes. No answer job — the
+ * return shape mirrors the text path's "no reply needed" branch on purpose.
+ */
+async function admitLineNonTextMessage({ account, event, correlationId, db = prisma }) {
+  const userId = event.source?.userId
+  const threadId = event.source?.groupId || event.source?.roomId || userId
+  const eventId = event.webhookEventId || event.message?.id
+  if (!userId || !threadId || !eventId || !event.message?.id) return { skipped: true }
+  const { contentKind, body, attachment } = classifyNonTextMessage(event.message)
+  if (!contentKind) return { skipped: true }
+  return withAdmittedAccount(db, account, async (tx, current, channelAccountId) => {
+    const inbound = await ingestLineMessage({
+      tenantId: current.tenantId, businessId: current.businessId, channelAccountId,
+      lineUserId: userId, threadId, text: body, externalMessageId: event.message.id,
+      contentKind, attachment, correlationId,
+    }, { db: tx })
+    return { skipped: true, inboundMessageId: inbound.messageId, conversationId: inbound.conversationId }
+  })
+}
+
+/**
+ * FR-229 — follow, unfollow, postback: these always carry `event.source.userId`, so
+ * they resolve identity and create-or-attach a Conversation exactly as an inbound
+ * message would, then record a `ConversationEvent`. No answer job.
+ */
+async function admitLineDirectEvent({ account, event, correlationId, db = prisma }, kind) {
+  const userId = event.source?.userId
+  const threadId = event.source?.groupId || event.source?.roomId || userId
+  const eventId = event.webhookEventId
+  if (!userId || !threadId || !eventId) return { skipped: true }
+  return withAdmittedAccount(db, account, async (tx, current, channelAccountId) => {
+    // POSTBACK's own `data` string is deliberately not stored — it is free text, not
+    // an id, and FR-229 requires the payload to carry ids only. The raw evidence row
+    // (RawExternalRecord) already keeps it for the retained evidence window.
+    const result = await ingestLineConversationEvent({
+      tenantId: current.tenantId, businessId: current.businessId, channelAccountId,
+      lineUserId: userId, threadId, kind, externalEventId: eventId, payload: {}, correlationId,
+    }, { db: tx })
+    return { skipped: true, conversationId: result.conversationId, eventId: result.eventId }
+  })
+}
+
+/**
+ * FR-229 — join, leave, memberJoined, memberLeft: none of these names an
+ * individual the way follow/unfollow/postback do (a group/room join has no
+ * `source.userId`), so the event attaches only to a conversation that already
+ * exists for the thread; when none does, it is skipped (documented scope decision
+ * — see the task report).
+ *
+ * Raw LINE user ids for the joining/leaving members are deliberately never
+ * persisted here: `ConversationEvent` is Tier 1 (inside the erasure boundary),
+ * and this admission path resolves no identity for a member and mints no
+ * Customer for them (the join/leave decision above), so there is no erasure hook
+ * that could ever reach a raw id sitting in this payload — it would outlive the
+ * very principal it named. `memberCount` carries the fact LINE reported without
+ * carrying anyone's provider identifier.
+ */
+async function admitLineThreadEvent({ account, event, db = prisma, correlationId }, kind) {
+  const threadId = event.source?.groupId || event.source?.roomId
+  const eventId = event.webhookEventId
+  if (!threadId || !eventId) return { skipped: true }
+  const memberCount = kind === 'MEMBER_JOINED' ? (event.joined?.members ?? []).length
+    : kind === 'MEMBER_LEFT' ? (event.left?.members ?? []).length
+      : 0
+  return withAdmittedAccount(db, account, async (tx, current, channelAccountId) => {
+    const result = await recordExistingConversationEvent({
+      tenantId: current.tenantId, businessId: current.businessId, channelAccountId,
+      threadId, kind, externalEventId: eventId, payload: memberCount ? { memberCount } : {}, correlationId,
+    }, { db: tx })
+    return { skipped: true, conversationId: result.conversationId ?? null, eventId: result.eventId ?? null }
+  })
+}
+
+/**
+ * FR-229 — `unsend`: unlike follow/unfollow/postback, this resolves no identity
+ * and mints no Customer — it attaches only to a conversation that already exists
+ * for the thread (same rule as join/leave/memberJoined/memberLeft) and is skipped
+ * otherwise, since a thread with no record has nothing to tombstone. When the
+ * conversation exists, it additionally tombstones the referenced Message body and
+ * MessageAttachment; recording never fails when the referenced message is unknown
+ * to this Business (ADR-091 proof 4).
+ */
+async function admitLineUnsend({ account, event, correlationId, db = prisma }) {
+  const threadId = event.source?.groupId || event.source?.roomId || event.source?.userId
+  const eventId = event.webhookEventId
+  const unsentExternalMessageId = event.unsend?.messageId
+  if (!threadId || !eventId) return { skipped: true }
+  return withAdmittedAccount(db, account, async (tx, current, channelAccountId) => {
+    const result = await ingestLineUnsendEvent({
+      tenantId: current.tenantId, businessId: current.businessId, channelAccountId,
+      threadId, externalEventId: eventId, unsentExternalMessageId, correlationId,
+    }, { db: tx })
+    return {
+      skipped: true, conversationId: result.conversationId ?? null, eventId: result.eventId ?? null,
+      tombstonedMessage: result.tombstonedMessage ?? false,
+    }
   })
 }
 

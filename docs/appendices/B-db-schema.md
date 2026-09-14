@@ -158,6 +158,8 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | CustomerImportReviewCase | batchId, tenantId, businessId, reasonCode, groupFingerprint, status, itemCount, redacted evidence, version | deterministic duplicate-group queue identity for FR-078; no raw PII |
 | CustomerImportReviewDecision | reviewCaseId, provenanceId, decisionVersion, action, targetCustomerId?, decidedByPersonId, decidedAt | append-only human decision ledger; no update/delete path |
 | ConversationAnalysis | id UUID, conversationId, analyzedDate, analyzedAt, contactType, state, cta?, tags, summary, rawOutputJson? | FR-127 / ADR-054 — one derived row per analysis run; same-day reruns have separate ids. Scope and consent come from Conversation/Customer. Raw output is private; source deletion cascades, principal erasure removes analyses including those of already soft-deleted customers, and snapshots include this table after Conversation. Production DDL is an unapplied artifact. |
+| MessageAttachment | id UUID, messageId → Message (Cascade), kind (IMAGE / VIDEO / AUDIO / FILE), providerContentId?, fileAssetId? (plain reference, not a relation), fetchState (PENDING / STORED / EXPIRED_AT_PROVIDER / ERASED), mimeType?, sizeBytes?, createdAt | FR-229 / ADR-091 D5 — a media message's attachment recorded without bytes; `providerContentId` is LINE's content id for a later fetch phase and is cleared on unsend or erasure. Restored after Message; production DDL is an unapplied artifact (migration `20260914150000`). |
+| ConversationEvent | id UUID, conversationId → Conversation (Cascade), kind (FOLLOW / UNFOLLOW / JOIN / LEAVE / MEMBER_JOINED / MEMBER_LEFT / POSTBACK / UNSEND), externalEventId, payloadJson (id-only, bounded), occurredAt, createdAt | FR-229 / ADR-091 D5 — non-message LINE webhook events, one row per delivery; `@@unique([conversationId, externalEventId])` makes a redelivery a no-op. Restored after Conversation; production DDL is an unapplied artifact (migration `20260914150000`). |
 | RegisteredAsset | tenantId, businessId, assetCode, intakeId?, lotId?, categoryCode, serialNumber?, status, version | FR-133 / ADR-055 — Business-scoped physical identity and lifecycle root; `assetCode` is unique only inside the Business and evidence content remains in `FileAsset` |
 | AssetIntake | tenantId, businessId, intakeCode, schemaVersion, sourceChannel+sourceCorrelationId, origin, status, submit/approve actors, version | FR-134 — converged envelope lifecycle and correlation; source input never establishes authority |
 | AssetEvidence | intakeId, registeredAssetId?, fileAssetId, role, sha256?, paymentReference?, extraction/review JSON, status, version | FR-134 — Asset-owned evidence role and review state referencing existing `FileAsset`; OCR/Vision stays candidate evidence |
@@ -287,8 +289,10 @@ unique(tenantId, personId) — a CRM record per principal per tenant (shared acr
 tenant's businesses).
 `Conversation { tenantId, businessId?, customerId→Customer, channel, externalThreadId, status }`
   — `@@unique([tenantId, channel, externalThreadId])`
-`Message { conversationId→Conversation, direction, body, externalMessageId?, createdAt }`
+`Message { conversationId→Conversation, direction, body, externalMessageId?, contentKind, createdAt }`
   — `@@unique([conversationId, externalMessageId])`
+  — `contentKind` (FR-229): TEXT | STICKER | LOCATION | MEDIA_REF, default TEXT; a media
+    message's specific kind lives on its `MessageAttachment.kind` instead.
 
 Both external ids were globally unique until 2026-08-19, which made a provider id an
 effective primary key across every tenant (BR-002) and let one tenant's thread or
