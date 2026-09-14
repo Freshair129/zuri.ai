@@ -3,14 +3,19 @@ import { answerBusinessQuestion, createDeterministicBusinessModel } from './grou
 import { createLineReadQueryFromEnv, createPhase1BusinessAgentPortsFromEnv } from './phase1-runtime'
 import { assembleAgentContext } from './context'
 import { resolveAgentAuthorization } from './auth-context'
+import { composeContext } from './context-composer'
 
 // @req FR-149, FR-150 — answer an already-admitted durable conversation job;
 // @req FR-171 — persist selected evidence and pass the trace observer to the actual provider.
 // execution placement and external model permission are distinct decisions.
+// @req FR-234 — on the MSP-opt-in path, the assembled MSP packet is composed
+// through `context-composer.js` (thread-scoped, budgeted, one `ContextReceipt`
+// per model invocation) instead of being handed to the model unexamined.
 // @spec ADR-061, SEC-001, SEC-010 — public scoped knowledge by default; the
 // persisted opt-in may compose the trusted MSP thread without a second CRM
 // ingest, write action or implicit external model fallback.
-// @tested tests/unit/server-line-answer.test.js
+// @spec ADR-091 D7, SDD-100 — Context Composer placement and receipt shape.
+// @tested tests/unit/server-line-answer.test.js, tests/integration/line-worker-memory.test.js
 
 function failure(code) {
   const error = new Error(code)
@@ -168,6 +173,7 @@ export function createServerLineAnswer({
 
       let memoryContext = null
       let memoryInbound = null
+      let contextReceipt = null
       if (memoryOptIn) {
         await assertMemoryJobLive(job, memoryStateReader)
         const serverScope = memoryServerScope(job, route)
@@ -215,6 +221,24 @@ export function createServerLineAnswer({
           exchangeId: memoryInbound.message.exchangeId,
           inboundMessageId: memoryInbound.message.messageId,
         })
+        // @req FR-234 — compose the MSP packet through the Context Composer before
+        // it reaches the model: thread-scoped, budgeted and receipted. GKS
+        // evidence and CRM/ERP facts are not wired into this turn yet (FR-235,
+        // FR-231 are separate phases), so both are empty here; the composer's
+        // own "no evidence and no facts" rule is therefore never the reason a
+        // memory-opt-in turn skips its model call today — that stays governed by
+        // `answerBusinessQuestion`'s existing business-evidence gate.
+        const composed = composeContext({
+          authorized: memoryContext.threadMemory.policyDecision === 'ALLOW',
+          scope: { threadId: memoryContext.thread.threadId },
+          audienceKind: route.audienceKind,
+          mspSlices: memoryContext.threadMemory.policyDecision === 'ALLOW'
+            ? [{ id: memoryContext.threadMemory.injectionId ?? memoryContext.thread.threadId,
+                threadId: memoryContext.thread.threadId, text: memoryContext.threadMemory }]
+            : [],
+        })
+        contextReceipt = composed.receipt
+        if (typeof trace?.recordContextReceipt === 'function') await trace.recordContextReceipt(contextReceipt)
       }
       const tracedKnowledge = trace ? { query: async input => {
         const evidence = await businessKnowledge.query(input)
@@ -224,7 +248,8 @@ export function createServerLineAnswer({
       const invocationModel = memoryOptIn && typeof selectedThreadMemory.withInjectionReceipt === 'function'
         ? selectedThreadMemory.withInjectionReceipt({ model, contextPacket: memoryContext.threadMemory,
           threadId: memoryContext.thread.threadId, exchangeId: memoryInbound.message.exchangeId,
-          authorization: { authContext: memoryContext.authContext }, requesterId: memoryContext.identity.principalId })
+          authorization: { authContext: memoryContext.authContext }, requesterId: memoryContext.identity.principalId,
+          contextReceiptId: contextReceipt?.receiptId ?? null })
         : model
       if (memoryOptIn && (!invocationModel || typeof invocationModel.generate !== 'function')) {
         throw failure('LINE_MEMORY_INJECTION_RECEIPT_UNAVAILABLE')

@@ -307,6 +307,43 @@ describe('server answer memory composition', () => {
     expect(trace.recordThreadMemory).toHaveBeenCalledWith(expect.objectContaining({ inboundMessageId: 'msp-inbound', exchangeId: 'msp-exchange' }))
   })
 
+  // @req FR-234 — the Context Composer runs on the memory-opt-in path: exactly one
+  // ContextReceipt (references, hash, budget — never content) is recorded per
+  // model invocation, and MSP's own injection receipt references it by id.
+  it('composes the MSP packet, records exactly one ContextReceipt and hands its id to the injection receipt', async () => {
+    const composedAnswer = composed('DIRECT')
+    const trace = { recordThreadMemory: vi.fn(), recordEvidence: vi.fn(), assertHealthy: vi.fn(), recordContextReceipt: vi.fn() }
+    const result = await composedAnswer.answer(answerJob(), { trace })
+    expect(result).toContain('AB-1')
+    expect(trace.recordContextReceipt).toHaveBeenCalledOnce()
+    const receipt = trace.recordContextReceipt.mock.calls[0][0]
+    expect(receipt).toMatchObject({ refs: { msp: ['msp-thread'], citations: [], records: [] } })
+    expect(receipt.budget).toMatchObject({ trimmed: 0 })
+    expect(typeof receipt.hash).toBe('string')
+    expect(receipt.dropped).toEqual([])
+    expect(JSON.stringify(receipt)).not.toContain('AB-1')
+    expect(composedAnswer.threadMemory.withInjectionReceipt).toHaveBeenCalledWith(
+      expect.objectContaining({ contextReceiptId: receipt.receiptId }))
+  })
+
+  it('never records a ContextReceipt when the trace observer has not adopted one', async () => {
+    const composedAnswer = composed('DIRECT')
+    // The pre-FR-234 trace shape (no recordContextReceipt): the default path's
+    // behaviour is unchanged, and composing a receipt never throws for it.
+    const trace = { recordThreadMemory: vi.fn(), recordEvidence: vi.fn(), assertHealthy: vi.fn() }
+    await expect(composedAnswer.answer(answerJob(), { trace })).resolves.toContain('AB-1')
+  })
+
+  it('excludes the MSP slice from the receipt when private memory is denied for a GROUP thread', async () => {
+    const composedAnswer = composed('GROUP')
+    const trace = { recordThreadMemory: vi.fn(), recordEvidence: vi.fn(), assertHealthy: vi.fn(), recordContextReceipt: vi.fn() }
+    const result = await composedAnswer.answer(answerJob('GROUP'), { trace })
+    expect(result).toContain('AB-1')
+    expect(trace.recordContextReceipt).toHaveBeenCalledOnce()
+    const receipt = trace.recordContextReceipt.mock.calls[0][0]
+    expect(receipt.refs).toEqual({ msp: [], citations: [], records: [] })
+  })
+
   it('rejects an MSP thread or packet identity that differs from the persisted route before model invocation', async () => {
     const mismatchedPacket = composed('DIRECT', {}, { packetThread: { businessId: 'other-business' } })
     await expect(mismatchedPacket.answer(answerJob())).rejects.toThrow('LINE_ANSWER_UNAVAILABLE')
