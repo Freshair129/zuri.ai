@@ -26,27 +26,27 @@
     ]
   },
   "summary": {
-    "nodes": 76,
-    "edges": 107,
+    "nodes": 78,
+    "edges": 109,
     "chains": 22,
     "byKind": {
       "SOURCE": 12,
       "ENTRY": 24,
-      "PROCESS": 17,
-      "STORE": 16,
+      "PROCESS": 18,
+      "STORE": 17,
       "RECIPIENT": 7
     },
     "chainsByStatus": {
       "BLOCKED": 0,
-      "DECLARED": 5,
-      "PARTIAL": 0,
+      "DECLARED": 4,
+      "PARTIAL": 1,
       "CODE_TESTS": 14,
       "PRODUCTION": 3
     },
     "internalByStatus": {
       "BLOCKED": 1,
       "DECLARED": 1,
-      "PARTIAL": 1,
+      "PARTIAL": 3,
       "CODE_TESTS": 34,
       "PRODUCTION": 20
     },
@@ -55,7 +55,7 @@
       "WORKER": 10,
       "MCP": 0,
       "ENDPOINT": 11,
-      "UI": 29
+      "UI": 31
     }
   },
   "nodes": [
@@ -1471,6 +1471,49 @@
       "blocked": null
     },
     {
+      "id": "p.knowledge-candidate-review",
+      "kind": "PROCESS",
+      "system": "zuri-ai",
+      "label": "LINE FAQ candidate draft + review",
+      "detail": "consent-gated extractor เหนือ CRM read projection → OWNER / LINE_OA_PUBLISHER แก้ไข อนุมัติ หรือปฏิเสธ (audited)",
+      "domain": "knowledge",
+      "requirements": [
+        {
+          "id": "FR-236",
+          "status": "partial",
+          "title": "LINE FAQ knowledge candidates"
+        }
+      ],
+      "features": [
+        "FEAT-038"
+      ],
+      "decisions": [
+        "ADR-090"
+      ],
+      "surfaces": [
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/knowledge/candidates"
+        },
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/knowledge/candidates/[id]"
+        },
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/knowledge/candidates/[id]/decision"
+        },
+        {
+          "type": "UI",
+          "ref": "/knowledge/candidates"
+        }
+      ],
+      "surfaceLevel": "UI",
+      "buildStatus": "PARTIAL",
+      "evidence": null,
+      "blocked": null
+    },
+    {
       "id": "p.raw-ingestion",
       "kind": "PROCESS",
       "system": "zuri-ai",
@@ -2096,6 +2139,37 @@
       "surfaces": [],
       "surfaceLevel": "NONE",
       "buildStatus": "CODE_TESTS",
+      "evidence": null,
+      "blocked": null
+    },
+    {
+      "id": "s.knowledge-candidates",
+      "kind": "STORE",
+      "system": "zuri-ai",
+      "label": "KnowledgeCandidate (LINE FAQ, PENDING_REVIEW · APPROVED · REJECTED · TOMBSTONED)",
+      "detail": "",
+      "domain": "knowledge",
+      "requirements": [
+        {
+          "id": "FR-236",
+          "status": "partial",
+          "title": "LINE FAQ knowledge candidates"
+        }
+      ],
+      "features": [
+        "FEAT-038"
+      ],
+      "decisions": [
+        "ADR-090"
+      ],
+      "surfaces": [
+        {
+          "type": "UI",
+          "ref": "/knowledge/candidates"
+        }
+      ],
+      "surfaceLevel": "UI",
+      "buildStatus": "PARTIAL",
       "evidence": null,
       "blocked": null
     },
@@ -3339,12 +3413,28 @@
       "status": "DECLARED"
     },
     {
-      "id": "e.crm-to-candidate-admission",
+      "id": "e.crm-to-candidate-review",
       "from": "s.crm",
+      "to": "p.knowledge-candidate-review",
+      "label": "บทสนทนาที่ consent = GRANTED (FR-236, CRM read projection)",
+      "wired": true,
+      "status": "PARTIAL"
+    },
+    {
+      "id": "e.candidate-review-to-store",
+      "from": "p.knowledge-candidate-review",
+      "to": "s.knowledge-candidates",
+      "label": "draft · edit · decision (audited)",
+      "wired": true,
+      "status": "PARTIAL"
+    },
+    {
+      "id": "e.candidate-review-to-admission",
+      "from": "p.knowledge-candidate-review",
       "to": "in.knowledge-admission",
-      "label": "Q/A แบบ locator-only ที่ OWNER / LINE_OA_PUBLISHER อนุมัติ → TEXT source LINE_FAQ_CANDIDATE (FR-236, ยังไม่ wire)",
-      "wired": false,
-      "status": "DECLARED"
+      "label": "อนุมัติแล้วเท่านั้น → TEXT source LINE_FAQ_CANDIDATE ก่อน Stage 1 (FR-236)",
+      "wired": true,
+      "status": "PARTIAL"
     },
     {
       "id": "e.agent-to-msp-session",
@@ -4084,26 +4174,30 @@
         "e.line-to-webhook",
         "e.webhook-to-jobs",
         "e.jobs-to-crm",
-        "e.crm-to-candidate-admission",
+        "e.crm-to-candidate-review",
+        "e.candidate-review-to-admission",
         "e.admission-to-tier1",
         "e.tier1-to-msp"
       ],
       "branches": [
+        "e.candidate-review-to-store",
         "e.staff-to-admission",
         "e.tier1-to-corpus"
       ],
       "nodeIds": [
         "in.knowledge-admission",
         "in.line-webhook",
+        "p.knowledge-candidate-review",
         "p.knowledge-tier1",
         "p.line-jobs",
         "r.msp",
         "s.crm",
+        "s.knowledge-candidates",
         "s.knowledge-corpus",
         "src.line-users",
         "src.staff"
       ],
-      "status": "DECLARED",
+      "status": "PARTIAL",
       "domains": [
         "crm",
         "knowledge",
@@ -4114,6 +4208,7 @@
         "FEAT-013",
         "FEAT-019",
         "FEAT-026",
+        "FEAT-038",
         "FR-023",
         "FR-190"
       ]

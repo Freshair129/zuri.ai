@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.72.0b |
+| **Version** | 1.73.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-14 |
 
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=273 -->
+<!-- api-spec-counts: route_handlers=276 -->
 
 ### Programme usage reports (FR-218, 2026-09-13)
 
@@ -810,6 +810,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.73.0b | 2026-09-14 | candidate | FR-236 (ADR-090 D6): four handler files under `/api/knowledge/candidates` — list/draft, read/edit one, and the audited APPROVE/REJECT decision that admits an approved candidate through the existing ADR-072 admission service. Route handler count 273 -> 276 | working-tree | Claude Sonnet 5 |
 | 1.67.0b | 2026-09-13 | candidate | FR-208 / FR-209 (ADR-084 catalogue intake): six handler files under `/api/inventory/catalog-intakes` — the list, preview, commit, one intake (GET + CANCEL), the Business-specific workbook template and the workbook upload preview. Route handler count 257 -> 263 | working-tree | Claude Opus 5 |
 | 1.66.0b | 2026-09-13 | candidate | FR-201..FR-207 (ADR-083 SKU governance): five new handler files under `/api/inventory` — `products/resolve` (GET), `products/[id]/identifiers` and `products/[id]/unit-conversions` (GET/POST/PATCH), `catalog-hygiene` and `replenishment` (GET) — plus the nature / variant / lifecycle fields and refusals on the product collection and item and the `services` / `phaseOut` / `belowReorderPoint` counts on the stock summary. Route handler count 252 -> 257 | working-tree | Claude Fable 5.1 |
 | 1.65.0b | 2026-09-12 | candidate | FR-193 (ADR-078 D1): added the Employment WRITE path, which had been declared and built as a service and then left unreachable — `POST /api/people/employment` and `PATCH /api/people/employment/[employmentId]` (`on_leave` / `reinstate` / `end`, the last requiring a reason). `employment-service.js` shipped all four operations in 1.63.0b-era work and no route imported it, so the People Directory could only show rows the ADR-078 backfill created — and on production that was none, because no `Membership.employeeRef` values existed to carry over. The page told the owner to add a record and offered no control that wrote one. Route handler count 250 -> 252 | working-tree | Claude Opus 5 |
@@ -964,6 +965,11 @@ Five paths / six operations share the [admission contract](../plans/KNOWLEDGE-AD
 | POST | `/api/knowledge/queries` | `{businessId,projectId?,query,topK?}`; pins one corpus manifest, queries explicit native snapshots through MSP, checks lineage and current access, returns ranked results and citationId. |
 | GET | `/api/knowledge/citations/[citationId]` | Resolves a historical source/version/chunk only while current corpus/source/file/project access permits it. |
 | DELETE | `/api/knowledge/sources/[sourceId]` | `{expectedVersion}`; corpus writer atomically withdraws membership, retaining immutable history. This does not modify the FileAsset, and remains available to clean up membership after a file is deleted. |
+| GET | `/api/knowledge/candidates` | `?businessId&status?`; lists `KnowledgeCandidate` rows for a Business, domain-visible (`knowledge`) read only. |
+| POST | `/api/knowledge/candidates` | `{businessId,conversationId,messageIds?,question,answer,idempotencyKey?}`; drafts one candidate from a consent-GRANTED Conversation (crm read projection); OWNER/LINE_OA_PUBLISHER only; Zero-PII checked; idempotent on (businessId, idempotencyKey). |
+| GET | `/api/knowledge/candidates/[id]` | Reads one candidate, domain-visible (`knowledge`) read only. |
+| PATCH | `/api/knowledge/candidates/[id]` | `{question?,answer?,version}`; edits a PENDING_REVIEW draft; OWNER/LINE_OA_PUBLISHER only; Zero-PII re-checked; optimistic concurrency on `version`. |
+| POST | `/api/knowledge/candidates/[id]/decision` | `{decision:APPROVE\|REJECT,version,reason?}`; audited. APPROVE admits one immutable `LINE_FAQ_CANDIDATE` TEXT source through the existing ADR-072 admission service; REJECT never calls it. OWNER/LINE_OA_PUBLISHER only (FR-236, ADR-090 D6). |
 
 Validation: 400 invalid body, 401 no session/key, 404 inaccessible target, 409 version/hash/CAS conflict, 413 over 1 MiB, 415 unsupported file type, 422 invalid UTF-8/empty content, 503 unconfigured runtime. Machine grants are explicit per action; MCP continues using its existing session resolver. Isolated acceptance is not production activation.
 

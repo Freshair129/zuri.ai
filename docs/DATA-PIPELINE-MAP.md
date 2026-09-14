@@ -121,7 +121,7 @@ chain คือเส้นทางจากต้นทางภายนอ�
 | CH-19 | Broadcast planning → LINE | broadcast intent → dispatch (ยังไม่เปิด FR-185) |
 | CH-20 | ประวัติลูกค้าจาก SmartGift → บริบทของรอบสนทนา | backfill → CRM → evidence ของ agent → LINE |
 | CH-21 | LINE turn — grounded ด้วย corpus ที่ publish แล้ว | คำถาม + snapshot ที่ publish (citation) → evidence packet → model → คำตอบที่ตรวจแล้ว → LINE; business_knowledge เป็น fallback ที่บันทึกใน trace (ADR-090, declared) |
-| CH-22 | FAQ candidate จาก LINE → review → 17 stage → corpus | บทสนทนาที่มี consent → Q/A แบบ locator-only → คนอนุมัติ → Text admission → Stage 1–17 → corpus manifest (ADR-090, declared) |
+| CH-22 | FAQ candidate จาก LINE → review → 17 stage → corpus | บทสนทนาที่มี consent → Q/A แบบ locator-only → OWNER / LINE_OA_PUBLISHER อนุมัติ (audited) → Text admission → Stage 1–17 → corpus manifest (ADR-090 D6, FR-236 built) |
 
 ## 6. แก้ map เมื่อไหร่
 
@@ -265,6 +265,11 @@ chain คือเส้นทางจากต้นทางภายนอ�
     { "id": "p.knowledge-tier1", "kind": "PROCESS", "system": "zuri-ai", "domain": "knowledge", "label": "GenesisRAG17 Tier 1 (Stage 1–8) + MSP handoff",
       "requirements": ["FR-109", "FR-173"], "decisions": ["ADR-050", "ADR-073"],
       "surfaces": [{ "type": "FILE", "ref": "apps/server/src/modules/knowledge/ingestion-job.js" }, { "type": "FILE", "ref": "apps/server/src/platform/integrations/core/genesisrag17-worker.js" }] },
+    { "id": "p.knowledge-candidate-review", "kind": "PROCESS", "system": "zuri-ai", "domain": "knowledge", "label": "LINE FAQ candidate draft + review", "detail": "consent-gated extractor เหนือ CRM read projection → OWNER / LINE_OA_PUBLISHER แก้ไข อนุมัติ หรือปฏิเสธ (audited)",
+      "requirements": ["FR-236"], "decisions": ["ADR-090"],
+      "surfaces": [
+        { "type": "ENDPOINT", "ref": "/api/knowledge/candidates" }, { "type": "ENDPOINT", "ref": "/api/knowledge/candidates/[id]" },
+        { "type": "ENDPOINT", "ref": "/api/knowledge/candidates/[id]/decision" }, { "type": "UI", "ref": "/knowledge/candidates" }] },
     { "id": "p.raw-ingestion", "kind": "PROCESS", "system": "zuri-ai", "domain": "integration", "label": "Raw external ingestion boundary", "detail": "envelope เดียว, redaction, ExternalRef",
       "requirements": ["FR-081"],
       "surfaces": [{ "type": "FILE", "ref": "apps/server/src/platform/integrations/core/raw-ingest-service.js" }] },
@@ -320,6 +325,9 @@ chain คือเส้นทางจากต้นทางภายนอ�
       "surfaces": [{ "type": "ENDPOINT", "ref": "/api/pipelines/runs/[executionRunId]" }, { "type": "UI", "ref": "/execution/[mode]" }] },
     { "id": "s.knowledge-corpus", "kind": "STORE", "system": "zuri-ai", "domain": "knowledge", "label": "Knowledge lineage, receipts และ corpus generations",
       "requirements": ["FR-110", "FR-173"] },
+    { "id": "s.knowledge-candidates", "kind": "STORE", "system": "zuri-ai", "domain": "knowledge", "label": "KnowledgeCandidate (LINE FAQ, PENDING_REVIEW · APPROVED · REJECTED · TOMBSTONED)",
+      "requirements": ["FR-236"], "decisions": ["ADR-090"],
+      "surfaces": [{ "type": "UI", "ref": "/knowledge/candidates" }] },
     { "id": "s.business-knowledge", "kind": "STORE", "system": "zuri-ai", "domain": "knowledge", "label": "zuri_core.business_knowledge", "detail": "registered queries เท่านั้น, PUBLIC sensitivity",
       "requirements": ["FR-047"],
       "production": { "evidence": "FR-047 status: Phase 1 active - owner-approved 2026-08-14" } },
@@ -476,7 +484,9 @@ chain คือเส้นทางจากต้นทางภายนอ�
     { "id": "e.github-to-projection", "from": "src.github", "to": "in.github-projection", "label": "repo metadata", "wired": false },
     { "id": "e.github-to-project", "from": "in.github-projection", "to": "s.project-data", "label": "Repository links (local metadata)" },
     { "id": "e.corpus-to-agent", "from": "s.knowledge-corpus", "to": "p.agent-turn", "label": "published corpus → evidence ตาม grounding mode ของบัญชี (FR-235, ADR-090, ยังไม่ wire)", "wired": false },
-    { "id": "e.crm-to-candidate-admission", "from": "s.crm", "to": "in.knowledge-admission", "label": "Q/A แบบ locator-only ที่ OWNER / LINE_OA_PUBLISHER อนุมัติ → TEXT source LINE_FAQ_CANDIDATE (FR-236, ยังไม่ wire)", "wired": false },
+    { "id": "e.crm-to-candidate-review", "from": "s.crm", "to": "p.knowledge-candidate-review", "label": "บทสนทนาที่ consent = GRANTED (FR-236, CRM read projection)" },
+    { "id": "e.candidate-review-to-store", "from": "p.knowledge-candidate-review", "to": "s.knowledge-candidates", "label": "draft · edit · decision (audited)" },
+    { "id": "e.candidate-review-to-admission", "from": "p.knowledge-candidate-review", "to": "in.knowledge-admission", "label": "อนุมัติแล้วเท่านั้น → TEXT source LINE_FAQ_CANDIDATE ก่อน Stage 1 (FR-236)" },
     { "id": "e.agent-to-msp-session", "from": "p.agent-turn", "to": "r.msp", "label": "MSP session tier ตาม memoryPolicy (FR-231, ADR-091, ปิดไว้จนกว่า MSP main มี thread + erase tool)", "wired": false }
   ],
 
@@ -532,8 +542,8 @@ chain คือเส้นทางจากต้นทางภายนอ�
       "path": ["e.line-to-webhook", "e.webhook-to-jobs", "e.jobs-to-agent", "e.agent-to-jobs", "e.jobs-to-line"],
       "branches": ["e.corpus-to-agent", "e.knowledge-to-agent", "e.agent-to-models", "e.agent-to-trace", "e.agent-to-msp-session", "e.jobs-to-crm"] },
     { "id": "CH-22", "name": "FAQ candidate จาก LINE → review → 17 stage → corpus", "summary": "ADR-090: ความรู้จากแชทเข้า GKS ได้เฉพาะ Q/A แบบ locator-only ที่คนอนุมัติ",
-      "path": ["e.line-to-webhook", "e.webhook-to-jobs", "e.jobs-to-crm", "e.crm-to-candidate-admission", "e.admission-to-tier1", "e.tier1-to-msp"],
-      "branches": ["e.staff-to-admission", "e.tier1-to-corpus"] }
+      "path": ["e.line-to-webhook", "e.webhook-to-jobs", "e.jobs-to-crm", "e.crm-to-candidate-review", "e.candidate-review-to-admission", "e.admission-to-tier1", "e.tier1-to-msp"],
+      "branches": ["e.candidate-review-to-store", "e.staff-to-admission", "e.tier1-to-corpus"] }
   ]
 }
 ```
