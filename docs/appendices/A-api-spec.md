@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=276 -->
+<!-- api-spec-counts: route_handlers=278 -->
 
 ### Programme usage reports (FR-218, 2026-09-13)
 
@@ -252,6 +252,8 @@ conversations owned by no Business or by one already in the viewer's scope.
 |---|---|---|
 | GET | `/api/crm/conversations` | implemented: authorized conversation list for the Business's tenant — customer, channel, message count, last-message preview, owning-Business label, plus counts by direction and channel. `limit` is capped server-side at 200 and the response says whether it truncated |
 | GET | `/api/crm/conversations/[id]` | implemented: one thread, messages oldest-first, with the customer behind it. A conversation outside the resolved scope answers **404**, never 403 — a "denied" would confirm the row exists |
+| GET | `/api/crm/conversations/search` | implemented: FR-233 third read-only reader — full-text search over `Message.body` (`pg_trgm` on Postgres, `LIKE` on SQLite), scoped to the viewer's visible Businesses within the Tenant `businessId` anchors, optionally to one LINE OA account (`channelAccountId`). A literal path segment ahead of `[id]/route.js`, so it never collides with a conversation id |
+| GET | `/api/crm/conversations/event-counts` | implemented: FR-233 per-account follow/unfollow counts from `ConversationEvent`, same scope as search and the inbox |
 | POST | `/api/crm/customers/[customerId]/consent` | implemented: FR-103 / SEC-005 PDPA consent attestation — a Business **owner** (not merely a Member) records `GRANTED`/`DECLINED` for a Customer reached through their own Business's tenant (BR-001). Writes only `Customer.consent*`; never touches Conversation or Message |
 | POST | `/api/crm/customers/[customerId]/erasure` | implemented: FR-022 PDPA erasure — the production trigger for `erasePrincipal`, which until now had no route, UI or script. Same authority as the consent row above (per-Business **owner** over a Business in the Customer's tenant, BR-001) or the installation operator. Body `{ businessId, confirmation: 'ERASE' }`; any other confirmation is **400** and is checked before any lookup. Every authority refusal is **404**, indistinguishable from a fabricated id (FR-072) — an irreversible action must not double as an existence oracle. Revokes identities/sessions/link tokens, soft-deletes and redacts the Customer, deletes ConversationAnalysis, tombstones `Message.body` and the matching `RawExternalRecord` payloads in one transaction. The response carries counts only, never personal data |
 | POST | `/api/agent/line-delivery` | implemented: transport delivery receipt endpoint recording outbound LINE reply messages into Conversation/Message history (FR-093 / SDD-051) |
