@@ -10,7 +10,12 @@ import {
   createPrismaRoleSql,
   createSupabaseVaultSecretStore,
 } from '@/platform/integrations/core/secret-store/supabase-vault-secret-store'
-import { errorTrace, generateLineChannelBundle } from '../../helpers/credential-vault-fixtures'
+import {
+  errorTrace,
+  generateLineChannelBundle,
+  generateModelProviderKeyBundle,
+  generateOauthClientBundle,
+} from '../../helpers/credential-vault-fixtures'
 
 vi.mock('@/lib/db', () => ({ default: {} }))
 
@@ -76,6 +81,57 @@ describe('each port method is one bound call under its role', () => {
     await expect(createSupabaseVaultSecretStore({ sql }).write({ ...scope, kind: 'LINE_CHANNEL', bundle: { channelId: '1' }, createdVia: 'BROWSER_MFA' }))
       .rejects.toMatchObject({ code: 'CHANNEL_SECRET_BUNDLE_INVALID' })
     expect(sql.calls).toHaveLength(0)
+  })
+})
+
+describe('OAUTH_CLIENT and MODEL_PROVIDER_KEY dispatch to the provider_secret_* functions', () => {
+  it('writes OAUTH_CLIENT through provider_secret_write, never channel_secret_write', async () => {
+    const bundle = generateOauthClientBundle()
+    const sql = recorder([{ secret_ref: `supabase-vault:${randomUUID()}`, version_number: 1 }])
+    const store = createSupabaseVaultSecretStore({ sql })
+    const written = await store.write({ ...scope, kind: 'OAUTH_CLIENT', bundle, createdVia: 'BROWSER_MFA' })
+    expect(written.versionNumber).toBe(1)
+    const [call] = sql.calls
+    expect(call.text).toBe(CHANNEL_SECRET_SQL.writeProvider)
+    expect(call.text).not.toBe(CHANNEL_SECRET_SQL.write)
+    expect(call.text).not.toContain(bundle.clientSecret)
+    expect(JSON.parse(call.params[4])).toEqual(bundle)
+    expect(call.params.slice(0, 4)).toEqual(['c1', 't1', 'b1', 'OAUTH_CLIENT'])
+  })
+
+  it('writes MODEL_PROVIDER_KEY through provider_secret_write', async () => {
+    const bundle = generateModelProviderKeyBundle()
+    const sql = recorder([{ secret_ref: `supabase-vault:${randomUUID()}`, version_number: 1 }])
+    const store = createSupabaseVaultSecretStore({ sql })
+    await store.write({ ...scope, kind: 'MODEL_PROVIDER_KEY', bundle, createdVia: 'OPERATOR_CLI' })
+    expect(sql.calls[0].text).toBe(CHANNEL_SECRET_SQL.writeProvider)
+    expect(JSON.parse(sql.calls[0].params[4])).toEqual(bundle)
+  })
+
+  it('resolves OAUTH_CLIENT and MODEL_PROVIDER_KEY through provider_secret_resolve, with kind as the last parameter and no destination', async () => {
+    for (const kind of ['OAUTH_CLIENT', 'MODEL_PROVIDER_KEY']) {
+      const material = kind === 'OAUTH_CLIENT' ? JSON.stringify(generateOauthClientBundle()) : JSON.stringify(generateModelProviderKeyBundle())
+      const reader = recorder([{ secret_material: material, version: 'credential-v1', expires_at: new Date(Date.now() + 60_000) }])
+      const resolved = await createSupabaseVaultSecretStore({ sql: reader }).resolve(`supabase-vault:${randomUUID()}`, { ...scope, kind })
+      expect(reader.calls[0].role).toBe('zuri_channel_vault_reader')
+      expect(reader.calls[0].text).toBe(CHANNEL_SECRET_SQL.resolveProvider)
+      expect(reader.calls[0].params.at(-1)).toBe(kind)
+      expect(resolved.material).toBe(material)
+    }
+  })
+
+  it('never resolves without a recognized kind, and never falls through to the LINE function', async () => {
+    const empty = recorder([])
+    const store = createSupabaseVaultSecretStore({ sql: empty })
+    await expect(store.resolve(`supabase-vault:${randomUUID()}`, { ...scope, kind: 'NOT_A_KIND' })).rejects.toMatchObject({ code: 'CHANNEL_SECRET_SCOPE_MISMATCH' })
+    expect(empty.calls).toHaveLength(0)
+  })
+
+  it('a LINE-shaped write default (no kind override in scope) still calls channel_secret_write unchanged', async () => {
+    const bundle = generateLineChannelBundle()
+    const sql = recorder([{ secret_ref: `supabase-vault:${randomUUID()}`, version_number: 1 }])
+    await createSupabaseVaultSecretStore({ sql }).write({ ...scope, kind: 'LINE_CHANNEL', bundle, createdVia: 'BROWSER_MFA' })
+    expect(sql.calls[0].text).toBe(CHANNEL_SECRET_SQL.write)
   })
 })
 

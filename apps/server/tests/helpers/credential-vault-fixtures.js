@@ -15,10 +15,22 @@ export function generateLineChannelBundle({ withToken = false } = {}) {
   return bundle
 }
 
-/** The strings a leak scan looks for: the secret, the token, and their base64 forms. */
+/** A fresh OAuth-client-shaped bundle (ADR-053 §"Provisioning" shape). Random, not real. */
+export function generateOauthClientBundle() {
+  return {
+    clientId: `client_${randomBytes(8).toString('hex')}`,
+    clientSecret: randomBytes(24).toString('base64url'),
+  }
+}
+
+/** A fresh model-provider-key-shaped bundle. Random, not a real provider key. */
+export function generateModelProviderKeyBundle() {
+  return { apiKey: `sk-test-${randomBytes(24).toString('hex')}` }
+}
+
+/** The strings a leak scan looks for: every secret field and their base64 forms. */
 export function secretNeedles(bundle) {
-  const needles = [bundle.channelSecret]
-  if (bundle.channelAccessToken) needles.push(bundle.channelAccessToken)
+  const needles = [bundle.channelSecret, bundle.channelAccessToken, bundle.clientSecret, bundle.apiKey].filter(Boolean)
   for (const value of [...needles]) {
     needles.push(Buffer.from(value, 'utf8').toString('base64'))
     needles.push(Buffer.from(value, 'utf8').toString('base64url'))
