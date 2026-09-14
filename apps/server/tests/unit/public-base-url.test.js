@@ -7,6 +7,7 @@ import { describe, expect, it } from 'vitest'
 import {
   DEFAULT_PUBLIC_BASE_URL,
   LINE_WEBHOOK_PATH,
+  isPublicBaseUrlConfigured,
   lineWebhookUrl,
   resolveBrowserOrigin,
   resolvePublicBaseUrl,
@@ -48,6 +49,23 @@ describe('resolveBrowserOrigin', () => {
   it('falls back to the environment during server rendering', () => {
     expect(resolveBrowserOrigin({ env: { NEXT_PUBLIC_APP_URL: 'http://localhost:4000' } })).toBe('http://localhost:4000')
     expect(resolveBrowserOrigin({ location: { origin: 'null' }, env: {} })).toBe(DEFAULT_PUBLIC_BASE_URL)
+  })
+})
+
+// @req FR-227 — distinct from resolvePublicBaseUrl's dev-friendly fallback:
+// this answers whether the deployment actually set its own origin.
+describe('isPublicBaseUrlConfigured', () => {
+  it('is true when either env var names a real http(s) origin', () => {
+    expect(isPublicBaseUrlConfigured({ PUBLIC_BASE_URL: 'https://my-zuri.ngrok-free.app' })).toBe(true)
+    expect(isPublicBaseUrlConfigured({ NEXT_PUBLIC_APP_URL: 'http://localhost:4000' })).toBe(true)
+  })
+
+  it('is false with nothing set, an empty string, or an unparsable/non-HTTP value', () => {
+    expect(isPublicBaseUrlConfigured({})).toBe(false)
+    expect(isPublicBaseUrlConfigured(undefined)).toBe(false)
+    expect(isPublicBaseUrlConfigured({ PUBLIC_BASE_URL: '' })).toBe(false)
+    expect(isPublicBaseUrlConfigured({ PUBLIC_BASE_URL: 'not-a-url' })).toBe(false)
+    expect(isPublicBaseUrlConfigured({ PUBLIC_BASE_URL: 'ftp://files.example' })).toBe(false)
   })
 })
 

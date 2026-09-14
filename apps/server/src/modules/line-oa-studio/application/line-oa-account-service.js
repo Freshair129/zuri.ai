@@ -1,8 +1,10 @@
 import prisma from '@/lib/db'
 import { LINE_OA_ACCOUNT_ACTIONS, LINE_OA_ACCOUNT_STATUSES } from '@/lib/validation/enums'
 import { resolveServerLineAccount } from '@/platform/integrations/providers/line/server-line-transport'
+import { createLineChannelAdminPort } from '@/platform/integrations/providers/line/line-channel-admin-port'
 import { createLineSecretManagerFromEnv } from '@/platform/integrations/core/secret-store/dispatching-secret-manager'
 import { createPrismaRoleSql } from '@/platform/integrations/core/secret-store/supabase-vault-secret-store'
+import { isPublicBaseUrlConfigured, resolvePublicBaseUrl } from '@/lib/public-base-url'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { readLineOaConnectionHealth } from '@/modules/integration/application/integration-management-service'
 import { LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
@@ -17,6 +19,11 @@ import {
   zConnectLineOaAccount,
   zLineOaAccountAction,
 } from '../domain/line-oa-account'
+// @req FR-227, FR-228 — reuse FR-190's own pure webhook-URL and endpoint-match
+// rules rather than a second copy: the account's expected native URL and a
+// tolerant (trailing-slash/case) comparison are exactly what both REGISTER_WEBHOOK
+// and ENABLE_SERVER's derived quiescence need.
+import { expectedWebhookEndpoint, normalizeEndpoint } from '../domain/transport-health'
 import { assertMayPublish, assertMayView, notFound } from './line-oa-account-authority'
 
 // @req FR-149 — server activation and execution policy fenced against delivery jobs.
@@ -34,7 +41,28 @@ import { assertMayPublish, assertMayView, notFound } from './line-oa-account-aut
 // @req FR-225 — `toHealth` also surfaces the credential's store, version and
 //   last-validated time (metadata only) so the Studio card can offer the
 //   mount-to-vault migration and a truthful credential status line.
-// @tested tests/integration/fr146-line-oa-account.test.js, tests/integration/fr225-line-oa-self-serve-onboarding.test.js
+// @req FR-227 — REGISTER_WEBHOOK: set, read back and test the account's LINE
+//   webhook endpoint through the LINE channel-admin port, storing the outcome
+//   as computed health (`webhookStateJson`). Idempotent and retryable — it
+//   resolves its own credential through the dispatching secret manager, so a
+//   retry needs no secret re-entry. LINE's own refusals (URL rejected,
+//   inactive toggle, failed test, signature mismatch) are recorded as health,
+//   never thrown; only a call this port could not attempt at all throws.
+// @req FR-228 — ENABLE_SERVER's legacy handoff is typed for a mount-backed
+//   credential (unchanged) and derived for a vault-backed one (ADR-089 D8):
+//   LINE's own last-registered webhook endpoint must equal this account's URL
+//   and be active, no raw LINE evidence for the connection may have arrived
+//   in the 120 s window ending at (and excluding) that registration's own
+//   timestamp, and the registration itself must be at least 120 s old — or it
+//   refuses 409 LINE_LEGACY_TRANSPORT_ACTIVE naming the last pre-cutover
+//   receipt time. Evidence at or after the registration is proof the cutover
+//   worked and never blocks — anchoring to "now" instead would let a busy,
+//   already-cutover account's own traffic block it forever (fixed on
+//   review). The epoch fence, the SENDING/UNKNOWN refusal and the version
+//   check are unchanged (ADR-061 D3, D7).
+// @spec ADR-089 D5, D7, D8; SEC-030
+// @tested tests/integration/fr146-line-oa-account.test.js, tests/integration/fr225-line-oa-self-serve-onboarding.test.js,
+//   tests/integration/fr227-line-oa-webhook-registration.test.js, tests/integration/fr228-line-oa-legacy-quiescence.test.js
 
 const ACTIONS = Object.freeze({
   ENABLE_SERVER: 'LINE_OA_SERVER_ENABLED',
@@ -46,12 +74,152 @@ const ACTIONS = Object.freeze({
   SET_DEFAULT: 'LINE_OA_ACCOUNT_DEFAULT_SET',
   SWITCH_TRANSPORT_MODE: 'LINE_OA_ACCOUNT_TRANSPORT_MODE_SWITCHED',
   CONFIGURE_KNOWLEDGE_GROUNDING: 'LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_CONFIGURED',
+  REGISTER_WEBHOOK: 'LINE_OA_ACCOUNT_WEBHOOK_REGISTERED',
 })
 
-function failure(status, message) {
+function failure(status, message, extra = {}) {
   const error = new Error(message)
   error.status = status
+  Object.assign(error, extra)
   return error
+}
+
+/** The account's own JSON-parsed `webhookStateJson`, or `null` on any doubt (FR-227). */
+function parseWebhookState(json) {
+  if (typeof json !== 'string' || !json) return null
+  try {
+    const parsed = JSON.parse(json)
+    return parsed && typeof parsed === 'object' ? parsed : null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Set, read back and test the account's LINE webhook endpoint (FR-227, design
+ * §5.1, §5.5). Never throws for an outcome LINE itself reported — a refused
+ * URL, an inactive toggle, a failed test and a signature mismatch are all
+ * answers, not exceptions — so the caller can always persist what actually
+ * happened; only a LINE call this port could not attempt at all throws, via
+ * the same admin-port error codes callers already know (LINE_UNAVAILABLE,
+ * LINE_CREDENTIALS_REJECTED).
+ *
+ * @returns {Promise<{endpoint: string, active: boolean, lastTestAt: string,
+ *   lastTestReason: string, lastTestStatusCode: number|null}>}
+ */
+async function registerWebhookOutcome({ accountId, accessToken, endpoint, lineAdmin, now }) {
+  const nowIso = () => now().toISOString()
+  try {
+    await lineAdmin.setWebhookEndpoint({ accessToken, endpoint })
+  } catch (error) {
+    // The PUT itself was refused — nothing to read back or test yet, but the
+    // endpoint we tried is exactly what the manual card needs (design §5.4).
+    if (error?.code === 'LINE_WEBHOOK_SET_FAILED') {
+      return { endpoint, active: false, lastTestAt: nowIso(), lastTestReason: 'LINE_WEBHOOK_SET_FAILED', lastTestStatusCode: null }
+    }
+    throw error
+  }
+
+  const read = await lineAdmin.getWebhookEndpoint({ accessToken })
+  if (!read.active) {
+    return { endpoint: read.endpoint ?? endpoint, active: false, lastTestAt: nowIso(), lastTestReason: 'LINE_WEBHOOK_INACTIVE', lastTestStatusCode: null }
+  }
+
+  const test = await lineAdmin.testWebhookEndpoint({ accessToken, endpoint })
+  return {
+    endpoint: read.endpoint ?? endpoint,
+    active: true,
+    lastTestAt: test.testedAt ?? nowIso(),
+    lastTestReason: test.code,
+    lastTestStatusCode: test.statusCode,
+  }
+}
+
+/** The credentials needed to call LINE's admin API for one account (FR-227). No
+ * secret ever leaves this function — only the minted, short-lived access token
+ * `resolveServerLineAccount` already exposes non-enumerably for one call.
+ */
+async function defaultResolveWebhookCredential(row, { db }) {
+  const secretManager = createLineSecretManagerFromEnv(process.env, { db, sql: createPrismaRoleSql(db) })
+  const account = await resolveServerLineAccount({ accountId: row.id, db, requireEnabled: false, secretManager })
+  return account.channelAccessToken
+}
+
+/**
+ * ADR-089 D8: whether a vault-backed account may enable server ownership with
+ * no typed confirmation.
+ *
+ * Once REGISTER_WEBHOOK's `PUT` succeeds, LINE only ever delivers to the
+ * newly-registered URL from that instant on — the cutover is structural, not
+ * probabilistic. So `RawExternalRecord` evidence timestamped **at or after**
+ * that registration is proof the cutover worked (native traffic), never a
+ * reason to refuse; only evidence strictly **before** it can be a straggler
+ * from whatever owned the webhook previously. An earlier version of this
+ * function anchored its 120 s window to "now" instead of to the
+ * registration, which meant a busy, already-cutover account kept producing
+ * exactly the evidence that blocked it — the busier (more genuinely
+ * quiesced-from-legacy) the account, the less likely it could ever enable.
+ * Fixed 2026-09-14 on review.
+ *
+ * Three facts, all required:
+ *
+ *   1. LINE's own webhook endpoint (as REGISTER_WEBHOOK last read it back,
+ *      FR-227) equals this server's account URL, and was reported active.
+ *   2. No raw evidence for this account's connection arrived in the 120 s
+ *      window ending at (and excluding) that registration's own timestamp.
+ *   3. The registration itself is at least 120 s old by wall clock — a
+ *      message already in flight before the `PUT` can still land a moment
+ *      after it succeeds, so a same-instant retry must not race that
+ *      straggler by trusting a registration that just happened.
+ *
+ * Caveat honestly recorded here, not only in the report: `RawExternalRecord`
+ * does not carry a field naming which ingress seam captured it (the legacy
+ * `/api/agent/line-webhook` route and the native
+ * `/api/line-oa/accounts/{id}/webhook` route write through the identical
+ * recorder). Fact 2 is therefore "no evidence at all in the pre-registration
+ * window", stricter than "no *legacy* evidence" there — but bounded to
+ * before the cutover, so it no longer double-counts the account's own later
+ * success as a reason to refuse it.
+ */
+async function defaultDeriveLegacyQuiescence(row, { db, env = process.env, now = () => new Date() } = {}) {
+  const webhookState = parseWebhookState(row.webhookStateJson)
+  const expectedEndpoint = expectedWebhookEndpoint({ baseUrl: resolvePublicBaseUrl(env), accountId: row.id })
+  const endpointMatches = Boolean(webhookState) && webhookState.active === true
+    && normalizeEndpoint(webhookState.endpoint) === normalizeEndpoint(expectedEndpoint)
+
+  if (!endpointMatches) {
+    // No successful registration to anchor a cutover on: any evidence at all
+    // for this connection is unexplained by this account's own traffic, so
+    // the most recent is reported as the last legacy receipt time.
+    const recent = await db.rawExternalRecord.findFirst({
+      where: { connectionId: row.integrationConnectionId },
+      orderBy: { createdAt: 'desc' },
+      select: { createdAt: true },
+    })
+    return { quiesced: false, lastLegacyReceiptAt: recent?.createdAt ? recent.createdAt.toISOString() : null }
+  }
+
+  const registeredAt = new Date(webhookState.lastTestAt)
+  if (!Number.isFinite(registeredAt.getTime())) {
+    // A malformed timestamp proves nothing (fail closed).
+    return { quiesced: false, lastLegacyReceiptAt: null }
+  }
+
+  const windowStart = new Date(registeredAt.getTime() - 120_000)
+  const priorEvidence = await db.rawExternalRecord.findFirst({
+    where: { connectionId: row.integrationConnectionId, createdAt: { gte: windowStart, lt: registeredAt } },
+    orderBy: { createdAt: 'desc' },
+    select: { createdAt: true },
+  })
+  if (priorEvidence) return { quiesced: false, lastLegacyReceiptAt: priorEvidence.createdAt.toISOString() }
+
+  if (now().getTime() - registeredAt.getTime() < 120_000) {
+    // The registration has not yet stood for a full quiescence window — no
+    // evidence names a specific straggler, so none is reported.
+    return { quiesced: false, lastLegacyReceiptAt: null }
+  }
+
+  return { quiesced: true, lastLegacyReceiptAt: null }
 }
 
 /**
@@ -96,6 +264,7 @@ const SELECT = {
   isDefaultForBusiness: true, botProfileJson: true, archivedAt: true, createdAt: true,
   updatedAt: true, version: true, serverEnabled: true, executionMode: true,
   modelAccess: true, allowDelayedPush: true, transportEpoch: true, knowledgeGrounding: true,
+  webhookStateJson: true,
 }
 
 function toHealth(row, { connection, bindingStatus, transportJobs }) {
@@ -121,11 +290,16 @@ function toHealth(row, { connection, bindingStatus, transportJobs }) {
       code: row.bindingCode,
       status: bindingStatus ?? 'UNKNOWN',
     },
+    // @req FR-227 — the account's own computed webhook health, from the last
+    // REGISTER_WEBHOOK run. `null` (never a guessed default) until a
+    // publisher has run it at least once for this account.
+    webhook: parseWebhookState(row.webhookStateJson),
     transportJobs,
     quota: null,
     sources: {
       connection: 'integration read model (FR-080) — computed, never stored',
       binding: BINDING_SOURCES[bindingStatus ?? 'UNKNOWN'] ?? BINDING_SOURCES.UNKNOWN,
+      webhook: 'LineOaAccount.webhookStateJson — written only by REGISTER_WEBHOOK, from what LINE reported (FR-227)',
       transportJobs: 'persistent LineConversationJob status counts (FR-149)',
       quota: 'not built (ADR-060 Phase 4)',
     },
@@ -368,9 +542,32 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
       }
       case 'ENABLE_SERVER': {
         if (row.serverEnabled) throw failure(409, 'LINE_OA_SERVER_ALREADY_ENABLED')
+        if (!LINE_OA_ACCOUNT_STATUSES.filter(status => status !== 'ARCHIVED').includes(row.status) || row.transportMode !== 'CLOUD') throw failure(409, 'LINE_OA_SERVER_ACTIVATION_INVALID')
+
+        // @req FR-228 — whether the legacy handoff is typed or derived depends on
+        // where this account's credential lives (ADR-089 D8): a mount-backed
+        // account keeps the exact behaviour it always had (D7 unchanged); a
+        // vault-backed account derives it instead of asking a person to type it,
+        // because automatic webhook replacement (FR-227) already did the one
+        // thing the typed checkbox used to stand in for.
+        const credential = await tx.integrationCredential.findUnique({
+          where: { connectionId: row.integrationConnectionId },
+          select: { secretStore: true },
+        })
+        const mountBacked = (credential?.secretStore ?? 'DEPLOYMENT_MOUNT') === 'DEPLOYMENT_MOUNT'
+        if (mountBacked) {
+          if (data.legacyQuiesced !== true) throw failure(409, 'LINE_OA_LEGACY_CONFIRMATION_REQUIRED')
+          payload.legacyQuiescenceSource = 'TYPED_CONFIRMATION'
+        } else {
+          const deriveQuiescence = ports?.deriveLegacyQuiescence ?? defaultDeriveLegacyQuiescence
+          const quiescence = await deriveQuiescence(row, { db: tx, now: ports?.now ?? (() => new Date()) })
+          if (!quiescence.quiesced) throw failure(409, 'LINE_LEGACY_TRANSPORT_ACTIVE', { lastLegacyReceiptAt: quiescence.lastLegacyReceiptAt })
+          payload.legacyQuiescenceSource = 'DERIVED'
+          payload.lastLegacyReceiptAt = quiescence.lastLegacyReceiptAt
+        }
+
         // SDD-097: validation resolves through the dispatching secret manager, so a
-        // vault-backed credential validates the same way a mounted one does. The
-        // typed legacy confirmation above is unchanged (derived quiescence is FR-228).
+        // vault-backed credential validates the same way a mounted one does.
         const validate = ports?.validateServerCredentials ?? (async () => {
           // Envelope reads join this transaction (SQLite has one connection); a Vault
           // call opens its own role-scoped transaction on the shared client.
@@ -380,12 +577,31 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
             secretManager: sm,
           })
         })
-        if (!LINE_OA_ACCOUNT_STATUSES.filter(status => status !== 'ARCHIVED').includes(row.status) || row.transportMode !== 'CLOUD') throw failure(409, 'LINE_OA_SERVER_ACTIVATION_INVALID')
         await validate(row, { db: tx })
         change.serverEnabled = true
         change.status = 'CONNECTED'
         payload.to.serverEnabled = true
-        payload.legacyQuiesced = data.legacyQuiesced
+        payload.legacyQuiesced = true
+        break
+      }
+      // @req FR-227 — set, read back and test the account's LINE webhook
+      // endpoint; store the outcome as computed health. Idempotent and
+      // retryable: it re-derives the credential and re-calls LINE every time,
+      // so a retry needs no secret re-entry (ADR-089 D7). Never fences work:
+      // it changes no credential, transport owner or execution policy.
+      case 'REGISTER_WEBHOOK': {
+        if (row.status === 'ARCHIVED') throw failure(409, 'LINE_OA_ACCOUNT_ARCHIVED')
+        if (!isPublicBaseUrlConfigured(process.env)) throw failure(503, 'PUBLIC_BASE_URL_NOT_CONFIGURED')
+
+        const resolveCredential = ports?.resolveWebhookCredential ?? defaultResolveWebhookCredential
+        const accessToken = await resolveCredential(row, { db: tx })
+        const endpoint = expectedWebhookEndpoint({ baseUrl: resolvePublicBaseUrl(process.env), accountId: row.id })
+        const lineAdmin = ports?.lineAdmin ?? createLineChannelAdminPort()
+        const now = ports?.now ?? (() => new Date())
+
+        const outcome = await registerWebhookOutcome({ accountId: row.id, accessToken, endpoint, lineAdmin, now })
+        change.webhookStateJson = JSON.stringify(outcome)
+        payload.webhook = outcome
         break
       }
       case 'DISABLE_SERVER': {
@@ -408,7 +624,11 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
     // cancel replies customers are already waiting for on every mode switch;
     // the mode a job answered with is read live and recorded on that job's
     // own EVIDENCE_SELECTED trace instead (line-knowledge-grounding.js).
-    const fencesWork = LINE_OA_ACCOUNT_ACTIONS.filter(action => action !== 'RESUME' && action !== 'SET_DEFAULT' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING').includes(data.action)
+    // @req FR-227 — REGISTER_WEBHOOK joins CONFIGURE_KNOWLEDGE_GROUNDING as a
+    // health-only write: it changes no credential, transport owner or
+    // execution policy, so fencing it would cancel replies customers are
+    // already waiting for every time a publisher re-checks webhook health.
+    const fencesWork = LINE_OA_ACCOUNT_ACTIONS.filter(action => action !== 'RESUME' && action !== 'SET_DEFAULT' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING' && action !== 'REGISTER_WEBHOOK').includes(data.action)
     if (fencesWork) {
       change.transportEpoch = { increment: 1 }
       if (data.action === 'ARCHIVE') change.serverEnabled = false

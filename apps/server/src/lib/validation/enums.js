@@ -313,7 +313,11 @@ export const INTEGRATION_CREDENTIAL_CREATED_VIA = ['BROWSER_MFA', 'OPERATOR_CLI'
 export const LINE_OA_ACCOUNT_STATUSES = ['DRAFT', 'CONNECTED', 'PAUSED', 'ARCHIVED']
 export const LINE_OA_ACCOUNT_EFFECTIVE_STATUSES = [...LINE_OA_ACCOUNT_STATUSES, 'LIVE']
 export const LINE_OA_TRANSPORT_MODES = ['EDGE', 'CLOUD']
-export const LINE_OA_ACCOUNT_ACTIONS = ['PAUSE', 'RESUME', 'ARCHIVE', 'SET_DEFAULT', 'SWITCH_TRANSPORT_MODE', 'CONFIGURE_EXECUTION', 'ENABLE_SERVER', 'DISABLE_SERVER', 'CONFIGURE_KNOWLEDGE_GROUNDING']
+// @req FR-227 — REGISTER_WEBHOOK sets, reads back and tests the account's LINE
+// webhook endpoint, storing the outcome as computed health (`webhookStateJson`).
+// It never fences transport work: it changes no credential, no transport owner
+// and no execution policy — only which health the account reports.
+export const LINE_OA_ACCOUNT_ACTIONS = ['PAUSE', 'RESUME', 'ARCHIVE', 'SET_DEFAULT', 'SWITCH_TRANSPORT_MODE', 'CONFIGURE_EXECUTION', 'ENABLE_SERVER', 'DISABLE_SERVER', 'CONFIGURE_KNOWLEDGE_GROUNDING', 'REGISTER_WEBHOOK']
 // @req FR-235 — per-account grounding mode (ADR-090 D1): BUSINESS_KNOWLEDGE is
 // the default and every existing account's unchanged behaviour; GKS_CORPUS and
 // GKS_THEN_BUSINESS_KNOWLEDGE read the Business's published corpus generation

@@ -40,8 +40,8 @@
     "readyFeatureCount": 113,
     "requirementCount": 241,
     "verifiedRequirementCount": 221,
-    "progressPercent": 93.2,
-    "gapCount": 40,
+    "progressPercent": 93.5,
+    "gapCount": 41,
     "gaps": [
       {
         "domain": "agent",
@@ -117,6 +117,7 @@
           "apps/server/tests/integration/credential-vault-lifecycle.test.js",
           "apps/server/tests/integration/fr146-line-oa-account.test.js",
           "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+          "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
           "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
           "apps/server/tests/integration/knowledge-project.test.js",
           "apps/server/tests/integration/knowledge-query.test.js",
@@ -366,6 +367,7 @@
           "apps/server/tests/integration/credential-vault-lifecycle.test.js",
           "apps/server/tests/integration/fr146-line-oa-account.test.js",
           "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+          "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
           "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
           "apps/server/tests/integration/knowledge-project.test.js",
           "apps/server/tests/integration/knowledge-query.test.js",
@@ -457,6 +459,26 @@
       },
       {
         "domain": "line-oa-studio",
+        "id": "REQ-FR-228",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-228 is partial",
+        "evidence": [
+          "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+          "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+          "apps/server/src/modules/line-oa-studio/domain/line-oa-webhook-copy.js",
+          "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+          "apps/server/tests/integration/fr146-line-oa-account.test.js",
+          "apps/server/tests/integration/fr149-line-server-configuration.test.js",
+          "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+          "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
+          "apps/server/tests/integration/fr228-line-oa-legacy-quiescence.test.js",
+          "apps/server/tests/unit/line-oa-account-domain.test.js",
+          "apps/server/tests/unit/line-oa-webhook-copy.test.js"
+        ]
+      },
+      {
+        "domain": "line-oa-studio",
         "id": "REQ-FR-235",
         "severity": "medium",
         "check": "requirements",
@@ -468,6 +490,7 @@
           "apps/server/tests/integration/credential-vault-lifecycle.test.js",
           "apps/server/tests/integration/fr146-line-oa-account.test.js",
           "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+          "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
           "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
           "apps/server/tests/integration/knowledge-project.test.js",
           "apps/server/tests/integration/knowledge-query.test.js",
@@ -838,7 +861,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 41
+          "testCount": 43
         },
         {
           "id": "FR-150",
@@ -905,7 +928,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 4,
-          "testCount": 24,
+          "testCount": 25,
           "evidence": [
             "apps/server/src/modules/agent/grounded-business-answer.js",
             "apps/server/src/modules/agent/line-execution-trace.js",
@@ -914,6 +937,7 @@
             "apps/server/tests/integration/credential-vault-lifecycle.test.js",
             "apps/server/tests/integration/fr146-line-oa-account.test.js",
             "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
             "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
             "apps/server/tests/integration/knowledge-project.test.js",
             "apps/server/tests/integration/knowledge-query.test.js",
@@ -1127,6 +1151,7 @@
             "apps/server/tests/integration/credential-vault-lifecycle.test.js",
             "apps/server/tests/integration/fr146-line-oa-account.test.js",
             "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
             "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
             "apps/server/tests/integration/knowledge-project.test.js",
             "apps/server/tests/integration/knowledge-query.test.js",
@@ -1653,7 +1678,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-147",
@@ -2206,7 +2231,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-148",
@@ -2729,7 +2754,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-149",
@@ -2737,7 +2762,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 41
+          "testCount": 43
         },
         {
           "id": "FR-152",
@@ -2793,7 +2818,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-226",
@@ -2809,7 +2834,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 1
+          "testCount": 12
         },
         {
           "id": "FR-236",
@@ -3057,7 +3082,7 @@
       ],
       "featureCount": 9,
       "readyFeatureCount": 6,
-      "progressPercent": 87.5
+      "progressPercent": 92.5
     },
     "inventory": {
       "status": "partial",
@@ -3606,13 +3631,14 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 2,
-          "testCount": 24,
+          "testCount": 25,
           "evidence": [
             "apps/server/src/modules/knowledge/corpus-knowledge-reader.js",
             "apps/server/src/modules/knowledge/index.js",
             "apps/server/tests/integration/credential-vault-lifecycle.test.js",
             "apps/server/tests/integration/fr146-line-oa-account.test.js",
             "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
             "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
             "apps/server/tests/integration/knowledge-project.test.js",
             "apps/server/tests/integration/knowledge-query.test.js",
@@ -3852,6 +3878,7 @@
             "apps/server/tests/integration/credential-vault-lifecycle.test.js",
             "apps/server/tests/integration/fr146-line-oa-account.test.js",
             "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
             "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
             "apps/server/tests/integration/knowledge-project.test.js",
             "apps/server/tests/integration/knowledge-query.test.js",
@@ -4006,7 +4033,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 29,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-149",
@@ -4014,7 +4041,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 21,
-          "testCount": 41
+          "testCount": 43
         },
         {
           "id": "FR-150",
@@ -4061,8 +4088,8 @@
           "title": "Server-owned LINE transport reports its own reachability, so a silent channel is visible instead of inferred",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 8
+          "codeCount": 7,
+          "testCount": 11
         },
         {
           "id": "FR-210",
@@ -4094,7 +4121,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-226",
@@ -4103,6 +4130,35 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 16
+        },
+        {
+          "id": "FR-227",
+          "title": "Automatic LINE webhook registration",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 12
+        },
+        {
+          "id": "FR-228",
+          "title": "Derived legacy-transport quiescence",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 3,
+          "testCount": 8,
+          "evidence": [
+            "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+            "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+            "apps/server/src/modules/line-oa-studio/domain/line-oa-webhook-copy.js",
+            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+            "apps/server/tests/integration/fr146-line-oa-account.test.js",
+            "apps/server/tests/integration/fr149-line-server-configuration.test.js",
+            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
+            "apps/server/tests/integration/fr228-line-oa-legacy-quiescence.test.js",
+            "apps/server/tests/unit/line-oa-account-domain.test.js",
+            "apps/server/tests/unit/line-oa-webhook-copy.test.js"
+          ]
         },
         {
           "id": "FR-229",
@@ -4118,7 +4174,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 3,
-          "testCount": 24,
+          "testCount": 25,
           "evidence": [
             "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
             "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
@@ -4126,6 +4182,7 @@
             "apps/server/tests/integration/credential-vault-lifecycle.test.js",
             "apps/server/tests/integration/fr146-line-oa-account.test.js",
             "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
             "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
             "apps/server/tests/integration/knowledge-project.test.js",
             "apps/server/tests/integration/knowledge-query.test.js",
@@ -4299,6 +4356,25 @@
           "summary": "At least one requirement lacks complete code-and-test evidence"
         },
         {
+          "id": "REQ-FR-228",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-228 is partial",
+          "evidence": [
+            "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+            "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+            "apps/server/src/modules/line-oa-studio/domain/line-oa-webhook-copy.js",
+            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+            "apps/server/tests/integration/fr146-line-oa-account.test.js",
+            "apps/server/tests/integration/fr149-line-server-configuration.test.js",
+            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
+            "apps/server/tests/integration/fr228-line-oa-legacy-quiescence.test.js",
+            "apps/server/tests/unit/line-oa-account-domain.test.js",
+            "apps/server/tests/unit/line-oa-webhook-copy.test.js"
+          ]
+        },
+        {
           "id": "REQ-FR-235",
           "severity": "medium",
           "check": "requirements",
@@ -4310,6 +4386,7 @@
             "apps/server/tests/integration/credential-vault-lifecycle.test.js",
             "apps/server/tests/integration/fr146-line-oa-account.test.js",
             "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
             "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
             "apps/server/tests/integration/knowledge-project.test.js",
             "apps/server/tests/integration/knowledge-query.test.js",
@@ -5810,7 +5887,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-149",
@@ -5818,7 +5895,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 41
+          "testCount": 43
         },
         {
           "id": "FR-150",
@@ -8279,7 +8356,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 37,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-147",
@@ -8383,6 +8460,7 @@
         "apps/server/tests/integration/fr152-line-oa-rich-menu-jobs.test.js",
         "apps/server/tests/integration/fr153-line-oa-liff-app.test.js",
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+        "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
@@ -8460,7 +8538,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 34,
-          "testCount": 41
+          "testCount": 43
         },
         {
           "id": "FR-150",
@@ -8533,6 +8611,8 @@
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
         "apps/server/tests/integration/fr149-line-server-configuration.test.js",
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+        "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
+        "apps/server/tests/integration/fr228-line-oa-legacy-quiescence.test.js",
         "apps/server/tests/integration/identity-resolve.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
         "apps/server/tests/integration/line-admission-reconciler.test.js",
@@ -10351,12 +10431,12 @@
         "project-manager"
       ],
       "useCase": "เจ้าของธุรกิจเปิดหน้าเชื่อมต่อ LINE OA ยืนยันตัวตนด้วยรหัส TOTP แล้วกรอก Channel ID กับ Channel secret จาก LINE Developers Console ครั้งเดียว ระบบตรวจกับ LINE ดึงชื่อบอทมาให้ ตั้งและทดสอบ Webhook ให้เอง แล้วกดเปิดใช้งานได้ทันทีโดยไม่ต้องให้ผู้ดูแลระบบใส่ไฟล์บนเครื่องเซิร์ฟเวอร์ และหลังบันทึกไม่มีหน้าไหนแสดง secret ซ้ำอีก",
-      "progressPercent": 83.3,
+      "progressPercent": 96.7,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-036 registry status is building",
-        "FR-228 is planned"
+        "FR-228 is partial"
       ],
       "requirements": [
         {
@@ -10381,7 +10461,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-226",
@@ -10396,16 +10476,16 @@
           "title": "Automatic LINE webhook registration",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 1,
-          "testCount": 1
+          "codeCount": 6,
+          "testCount": 12
         },
         {
           "id": "FR-228",
           "title": "Derived legacy-transport quiescence",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 3,
+          "testCount": 8
         }
       ],
       "evidence": [
@@ -10415,6 +10495,7 @@
         "apps/server/src/app/api/line-oa/connections/[id]/credential/route.js",
         "apps/server/src/app/api/line-oa/connections/[id]/credential/validate/route.js",
         "apps/server/src/app/api/line-oa/connections/route.js",
+        "apps/server/src/lib/public-base-url.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/identity/credential-write-gate.js",
         "apps/server/src/modules/identity/rate-limit.js",
@@ -10427,6 +10508,7 @@
         "apps/server/src/modules/line-oa-studio/application/server-line-runtime.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-connect-wizard-copy.js",
+        "apps/server/src/modules/line-oa-studio/domain/line-oa-webhook-copy.js",
         "apps/server/src/modules/line-oa-studio/ui/LineOaConnectWizard.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineOaCredentialMigrationCard.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
@@ -10454,6 +10536,8 @@
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
         "apps/server/tests/integration/fr149-line-server-configuration.test.js",
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+        "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
+        "apps/server/tests/integration/fr228-line-oa-legacy-quiescence.test.js",
         "apps/server/tests/integration/line-channel-credential-routes.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
@@ -10482,9 +10566,11 @@
         "apps/server/tests/unit/line-oa-connect-wizard-render.test.js",
         "apps/server/tests/unit/line-oa-rich-menu-jobs-routes.test.js",
         "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
+        "apps/server/tests/unit/line-oa-webhook-copy.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/platform/line-channel-admin-port.test.js",
-        "apps/server/tests/unit/platform/server-line-transport.test.js"
+        "apps/server/tests/unit/platform/server-line-transport.test.js",
+        "apps/server/tests/unit/public-base-url.test.js"
       ]
     },
     {
@@ -10662,7 +10748,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 10,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-236",
@@ -10720,6 +10806,7 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+        "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
         "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
         "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
         "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
@@ -15906,17 +15993,21 @@
           "title": "Server-owned LINE transport reports its own reachability, so a silent channel is visible instead of inferred",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 8
+          "codeCount": 7,
+          "testCount": 11
         }
       ],
       "evidence": [
         "apps/server/src/app/api/line-oa/accounts/[id]/transport-health/route.js",
         "apps/server/src/app/api/line-oa/worker/route.js",
+        "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
         "apps/server/src/modules/line-oa-studio/application/line-transport-health.js",
         "apps/server/src/modules/line-oa-studio/domain/transport-health-presentation.js",
         "apps/server/src/modules/line-oa-studio/domain/transport-health.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+        "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+        "apps/server/tests/integration/fr146-line-oa-account.test.js",
+        "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
         "apps/server/tests/integration/line-admission-reconciler.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",

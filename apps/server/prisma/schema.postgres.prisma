@@ -3381,6 +3381,10 @@ model LineOaAccount {
   knowledgeGrounding      String                @default("BUSINESS_KNOWLEDGE")
   allowDelayedPush        Boolean               @default(false)
   transportEpoch          Int                   @default(1)
+  // @req FR-227 — computed webhook health only LINE can report: {endpoint, active,
+  // lastTestAt, lastTestReason, lastTestStatusCode}. Written only by the
+  // REGISTER_WEBHOOK action; null until a publisher runs it at least once.
+  webhookStateJson        String?
   conversationJobs        LineConversationJob[]
   richMenuJobs            LineOaRichMenuJob[]
   liffApps                LineOaLiffApp[]
