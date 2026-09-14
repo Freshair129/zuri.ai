@@ -55,3 +55,14 @@ export function resolveBrowserOrigin({ location, env = process.env } = {}) {
 export function lineWebhookUrl(origin) {
   return `${normalizeOrigin(origin) || DEFAULT_PUBLIC_BASE_URL}${LINE_WEBHOOK_PATH}`
 }
+
+/**
+ * @req FR-227 — whether a deployment has actually set its own public origin,
+ * as distinct from silently running on the development default. Webhook
+ * registration refuses `PUBLIC_BASE_URL_NOT_CONFIGURED` on `false` rather than
+ * registering `http://localhost:3100` with LINE, which it would refuse anyway
+ * (not https) but for the wrong, operator-invisible reason.
+ */
+export function isPublicBaseUrlConfigured(env = process.env) {
+  return Boolean(normalizeOrigin(env?.PUBLIC_BASE_URL) || normalizeOrigin(env?.NEXT_PUBLIC_APP_URL))
+}
