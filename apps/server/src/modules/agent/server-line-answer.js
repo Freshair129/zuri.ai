@@ -1,9 +1,14 @@
-import { createPostgresBusinessKnowledgeReader } from '@/modules/knowledge'
+import { createPostgresBusinessKnowledgeReader, createCorpusKnowledgeReader } from '@/modules/knowledge'
 import { answerBusinessQuestion, createDeterministicBusinessModel } from './grounded-business-answer'
 import { createLineReadQueryFromEnv, createPhase1BusinessAgentPortsFromEnv } from './phase1-runtime'
 import { assembleAgentContext } from './context'
 import { resolveAgentAuthorization } from './auth-context'
 import { composeContext } from './context-composer'
+import {
+  createLineGroundingReader,
+  lineKnowledgeGroundingBudgetFromEnv,
+  resolveLineKnowledgeGroundingMode,
+} from './line-knowledge-grounding'
 
 // @req FR-149, FR-150 — answer an already-admitted durable conversation job;
 // @req FR-171 — persist selected evidence and pass the trace observer to the actual provider.
@@ -22,11 +27,25 @@ import { composeContext } from './context-composer'
 // Coverage today is partial: the LOCAL_ONLY / non-opt-in path's
 // business-evidence model invocation does not run through the composer and
 // records no receipt (see the composer module's own note).
+// @req FR-235 — the account's `knowledgeGrounding` mode (ADR-090 D1) selects
+// the reader `answerBusinessQuestion`'s single `knowledge.query` call uses.
+// `BUSINESS_KNOWLEDGE` (default) is completely unwrapped — same reader, same
+// external trace wrapper as before this requirement, so its trace and answer
+// stay byte-identical. `GKS_CORPUS` / `GKS_THEN_BUSINESS_KNOWLEDGE` replace
+// `businessKnowledge` with a mode-gated grounding reader
+// (`line-knowledge-grounding.js`) that itself traces every hop it attempts
+// and, for a non-empty corpus read, composes the hit through the Context
+// Composer for its citation-bearing `ContextReceipt` — so the evidence the
+// model actually receives (`evidence.records`) is exactly the composer's
+// included knowledge slices, never a wider, uncomposed set.
 // @spec ADR-061, SEC-001, SEC-010 — public scoped knowledge by default; the
 // persisted opt-in may compose the trusted MSP thread without a second CRM
 // ingest, write action or implicit external model fallback.
+// @spec ADR-090 D1-D5, SEC-032, SDD-099 — grounding mode, mode-gated fallback,
+// budget, retrievalRefs and Business scoping.
 // @spec ADR-091 D7, SDD-100 — Context Composer placement and receipt shape.
-// @tested tests/unit/server-line-answer.test.js, tests/integration/line-worker-memory.test.js
+// @tested tests/unit/server-line-answer.test.js, tests/integration/line-worker-memory.test.js,
+//   tests/unit/line-knowledge-grounding.test.js, tests/integration/line-gks-grounding.test.js
 
 function failure(code) {
   const error = new Error(code)
@@ -300,6 +319,24 @@ export function createServerLineAnswer({
         if (memoryOptIn && !selectedThreadMemory) selectedThreadMemory = ports.threadMemory
       }
 
+      // @req FR-235 — a missing/unrecognised mode always resolves to
+      // BUSINESS_KNOWLEDGE (fail closed to today's behaviour, never to a
+      // corpus read). `job.account`'s scope was already asserted to match
+      // `tenantId`/`businessId` above, or is absent — this reads no other
+      // field from it, and the corpus reader is built from the job's own
+      // verified scope, never from the account row's identity.
+      const groundingMode = resolveLineKnowledgeGroundingMode(job.account?.knowledgeGrounding)
+      if (groundingMode !== 'BUSINESS_KNOWLEDGE') {
+        const corpusReader = createCorpusKnowledgeReader({
+          tenantId, businessId, trace,
+          ...lineKnowledgeGroundingBudgetFromEnv(env),
+        })
+        businessKnowledge = createLineGroundingReader({
+          mode: groundingMode, corpusReader, businessKnowledgeReader: businessKnowledge, trace,
+          budgetMs: lineKnowledgeGroundingBudgetFromEnv(env).budgetMs,
+        })
+      }
+
       let memoryContext = null
       let memoryInbound = null
       let contextReceipt = null
@@ -347,12 +384,16 @@ export function createServerLineAnswer({
         }
         // @req FR-234 — compose the MSP packet through the Context Composer
         // BEFORE it reaches the model: split into provenance-bearing slices,
-        // thread-scoped and budgeted by priority. GKS evidence and CRM/ERP
-        // facts are not wired into this turn yet (FR-235, FR-231 are separate
-        // phases), so both are empty here; the composer's own "no evidence and
-        // no facts" rule is therefore never the reason a memory-opt-in turn
-        // skips its model call today — that stays governed by
-        // `answerBusinessQuestion`'s existing business-evidence gate.
+        // thread-scoped and budgeted by priority. This composition is MSP-only
+        // — CRM/ERP facts (FR-231) are still a separate phase, so `records` is
+        // empty here. GKS evidence (FR-235) is composed separately, inside the
+        // grounding reader itself (`corpus-knowledge-reader.js`), once per
+        // corpus hop rather than once per turn here, and its own ContextReceipt
+        // is traced there — so this composition's own "no evidence and no
+        // facts" rule is never the reason a memory-opt-in turn skips its model
+        // call today; that stays governed by `answerBusinessQuestion`'s
+        // existing business-evidence gate over whatever `businessKnowledge`
+        // (plain reader or grounding reader) returns.
         const authorizedForMemory = memoryContext.threadMemory.policyDecision === 'ALLOW'
         const composed = composeContext({
           authorized: authorizedForMemory,
@@ -376,7 +417,14 @@ export function createServerLineAnswer({
         })
         if (typeof trace?.recordContextReceipt === 'function') await trace.recordContextReceipt(contextReceipt)
       }
-      const tracedKnowledge = trace ? { query: async input => {
+      // @req FR-235 — a grounding-mode reader (GKS_CORPUS /
+      // GKS_THEN_BUSINESS_KNOWLEDGE) already traces every hop it attempts
+      // internally (line-knowledge-grounding.js), tagged with the source that
+      // hop actually used; wrapping it here too would double-trace the same
+      // turn under the wrong, hard-coded 'BUSINESS_QUERY' source. Only the
+      // untouched BUSINESS_KNOWLEDGE path keeps this external wrapper, so its
+      // trace stays exactly what it was before this requirement.
+      const tracedKnowledge = trace && groundingMode === 'BUSINESS_KNOWLEDGE' ? { query: async input => {
         const evidence = await businessKnowledge.query(input)
         await trace.recordEvidence(input, evidence)
         return evidence

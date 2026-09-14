@@ -21,14 +21,18 @@ import { CONTEXT_SLICE_SOURCES, CONTEXT_DENIAL_REASONS } from '@/lib/validation/
 // content, returned separately from the receipt) so the two can never disagree:
 // a slice this module dropped must never reach a model, and a slice a model
 // received must always be named in the receipt that documents that call.
-// @tested tests/unit/context-composer.test.js, tests/integration/line-worker-memory.test.js
+// @tested tests/unit/context-composer.test.js, tests/integration/line-worker-memory.test.js,
+//   tests/unit/corpus-knowledge-reader.test.js
 //
 // Scope for this phase (ADR-091 phase 3b): a pure, side-effect-free function.
 // It never calls MSP, GKS, CRM/ERP or a model — callers pass already-fetched
-// slices through the ports those lanes own. FR-235 (GKS grounding) and FR-231
-// (memory projection policy) are separate, later phases; this module only
-// accepts their shapes as inputs (`knowledgeEvidence`, and MSP slices through
-// whatever thread-memory port is wired today).
+// slices through the ports those lanes own. FR-231 (CRM/ERP fact records) is
+// still a separate, later phase; `records` stays empty on every caller today.
+// FR-235 (GKS grounding) now calls this module directly from
+// `knowledge/corpus-knowledge-reader.js`, composing one Business's already-
+// budgeted corpus hits into `knowledgeEvidence` slices for their citation-
+// bearing receipt — a second, independent composition from the MSP one
+// `server-line-answer.js` runs for thread memory, not a merge of the two.
 //
 // KNOWN COVERAGE GAP (left open by review, see the calling module's own
 // annotation): only server-line-answer.js's MSP-opt-in branch calls this

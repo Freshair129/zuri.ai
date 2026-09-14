@@ -1,5 +1,14 @@
 // @req FR-049 — answer from a bounded evidence packet and reject unsupported claims.
 // @req FR-171 — pass an execution observer through to each provider attempt.
+// @req FR-235 — `evidence.records` may now also be `{kind:'CORPUS_CHUNK', text,
+// citationId, ...}` rows from the GKS grounding reader (ADR-090), not only
+// `zuri_core.business_knowledge` product rows. `verifyCandidate` already works
+// unchanged (it only stringifies `evidence.records` looking for numbers/codes);
+// `deterministicFallback` gets one added branch so a LOCAL_ONLY/deterministic
+// or a provider-fallback answer over corpus evidence returns the chunk text
+// instead of reading product-row fields corpus evidence does not have. Every
+// existing evidence shape is untouched: this branch only ever fires for a
+// record actually carrying `kind: 'CORPUS_CHUNK'`.
 // @spec SDD-025, SEC-009 — provider wording is advisory; evidence remains authoritative.
 // @tested tests/unit/grounded-business-answer.test.js
 
@@ -49,6 +58,10 @@ function formatValue(value) {
 
 function deterministicFallback(evidence) {
   const record = evidence.records[0]
+  if (record?.kind === 'CORPUS_CHUNK') {
+    const text = typeof record.text === 'string' ? record.text.trim() : ''
+    return text || 'ยังไม่พบข้อมูลสินค้าที่ตรงกับคำถามนี้ค่ะ ลองระบุรหัสสินค้า หรือชื่อสินค้าเพิ่มอีกหนึ่งอย่างได้ไหมคะ'
+  }
   const facts = [`${record.name} (${record.product_code})`]
   if (record.sell_price !== null) facts.push(`ราคา ${formatValue(record.sell_price)} ${record.currency ?? 'THB'}/${record.unit ?? 'ชิ้น'}`)
   if (record.moq !== null) facts.push(`ขั้นต่ำ ${formatValue(record.moq)} ${record.unit ?? 'ชิ้น'}`)
