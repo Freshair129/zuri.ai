@@ -53,8 +53,11 @@ describe('knowledge candidate Zero-PII policy (FR-236)', () => {
     expect(findCandidateZeroPiiViolation({ ...CLEAN, answer: 'ลูกค้าบอกว่า "ของเสียหายตอนส่ง" และขอเปลี่ยนใหม่' })).toMatchObject({ term: 'quoted_wording' })
   })
 
-  it('refuses the structural FR-187 deny terms it reuses (never a copy)', () => {
-    expect(findCandidateZeroPiiViolation({ ...CLEAN, answer: 'กรุณาติดต่อฝ่าย customer service' })).toMatchObject({ term: 'deny_term' })
+  it('reuses the exact FR-187 function structurally — it inspects the {question, answer} record the same way FR-187 inspects any record (field names and locator-shaped values only), so an unserializable field is still denied, but ordinary prose mentioning "customer"/"ลูกค้า" is not, because FR-187 never scans descriptive prose values', () => {
+    const circular = {}
+    circular.self = circular
+    expect(findCandidateZeroPiiViolation({ question: CLEAN.question, answer: circular })).toMatchObject({ term: 'deny_term' })
+    expect(findCandidateZeroPiiViolation({ ...CLEAN, answer: 'กรุณาติดต่อฝ่าย customer service' })).toBeNull()
   })
 
   it('names which rule matched, so a reviewer can rephrase rather than guess', () => {
@@ -89,6 +92,15 @@ describe('knowledge candidate Zero-PII policy (FR-236)', () => {
     'คุณต้องกรอกรหัสส่วนลดก่อนชำระเงิน',
     'คุณควรเก็บใบเสร็จไว้เป็นหลักฐาน',
     'คุณอาจได้รับ SMS แจ้งเตือนก่อนจัดส่ง',
+    // "คุณลูกค้า" ("dear customer") is the standard polite way Thai shops
+    // address customers, and "คุณแม่"/"คุณพ่อ" the standard polite way they
+    // refer to a parent buying a gift — these will appear in a large share
+    // of real candidates.
+    'คุณลูกค้าต้องการใบกำกับภาษีไหมคะ',
+    'คุณแม่ซื้อเป็นของขวัญได้ไหม',
+    'คุณลูกค้าสามารถสั่งขั้นต่ำ 50 ชิ้นได้ค่ะ',
+    'คุณพ่อคุณแม่สั่งเป็นของขวัญได้',
+    'กรุณาติดต่อฝ่าย customer service',
   ]
 
   it('lists at least 15 realistic negative fixtures', () => {

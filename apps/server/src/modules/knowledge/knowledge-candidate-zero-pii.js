@@ -1,4 +1,4 @@
-import { STRUCTURED_RECORD_DENY_PATTERN } from './structured-record-policy'
+import { findZeroPiiViolation } from './structured-record-policy'
 
 // @req FR-236 — the Zero-PII deny policy a LINE FAQ candidate's canonical
 // question/answer must pass at creation, at every edit and again before a
@@ -6,12 +6,25 @@ import { STRUCTURED_RECORD_DENY_PATTERN } from './structured-record-policy'
 // or phone number just as easily as the original draft could).
 // @spec ADR-090 D6 — "Zero-PII is enforced twice: at candidate creation (the
 // FR-187 deny policy) and again at Stage 5 classify." This module IS the
-// candidate-creation half: it reuses FR-187's own deny pattern (never a copy
-// of it — imported from structured-record-policy.js) and adds the prose-level
-// checks that pattern deliberately does not attempt on free text (its own
-// comment: "Descriptive text is not scanned"). The candidate's question/answer
+// candidate-creation half: it reuses FR-187's own function (never a copy of
+// it — imported from structured-record-policy.js, called exactly as it is
+// there: against the {question, answer} RECORD, so it only ever inspects
+// field names and locator-shaped values, precisely as its own module comment
+// promises — "descriptive text is not scanned") and adds the prose-level
+// checks that function deliberately does not attempt on free text: names,
+// phone numbers, LINE ids and quoted wording. The candidate's question/answer
 // ARE the free text FR-236 must keep clean, so this module scans them, on top
-// of — never instead of — the shared FR-187 pattern.
+// of — never instead of — the shared FR-187 rule.
+//
+// The Thai name check below is an ALLOW-LIST heuristic, not a name database:
+// Thai has no spaces between words, so it starts from every honorific
+// substring (which over-matches enormously — "คุณ" alone is the everyday
+// second-person pronoun, and "คุณลูกค้า"/"คุณภาพ"/"นายหน้า" are ordinary
+// prose) and narrows by EXCLUDING the specific continuations documented and
+// evidenced below. It will always have gaps on both sides — an unlisted
+// compound refused, or (much more rarely) an unusual glued name missed — so
+// every refusal names exactly which rule matched (`violation.term`) and which
+// field, so a human reviewer can rephrase rather than guess why.
 // @tested tests/unit/knowledge-candidate-zero-pii.test.js
 
 export const CANDIDATE_ZERO_PII_POLICY = 'line-faq-candidate-zero-pii-1'
@@ -49,6 +62,11 @@ const THAI_HONORIFICS = ['นางสาว', 'นาย', 'นาง', 'คุ
 const THAI_NAME_FALSE_POSITIVES = [
   'คุณภาพ', 'คุณสมบัติ', 'คุณค่า', 'คุณประโยชน์', 'คุณธรรม', 'คุณูปการ',
   'คุณสามารถ', 'คุณจะ', 'คุณต้อง', 'คุณควร', 'คุณอาจ', 'คุณเอง', 'คุณไม่',
+  // Role/kinship nouns that follow an honorific in ordinary polite Thai —
+  // "คุณลูกค้า" ("dear customer") is the standard way Thai shops address
+  // customers and will appear in a large share of real candidates.
+  'คุณลูกค้า', 'คุณแม่', 'คุณพ่อ', 'คุณผู้ใช้', 'คุณผู้ซื้อ', 'คุณผู้รับ',
+  'คุณครู', 'คุณหมอ', 'คุณพนักงาน', 'คุณเจ้าของ', 'คุณสมาชิก',
   'นายหน้า', 'นายทุน', 'นายจ้าง', 'นายแบบ',
   'นางฟ้า', 'นางแบบ', 'นางงาม',
 ]
@@ -90,18 +108,17 @@ function findThaiNameViolation(text) {
 // ("Smart Gift", "Express Delivery", "Buy One Get One") — FR-236 explicitly
 // allows product locators and policy names, so this heuristic is dropped
 // rather than "narrowed": there is no regex-expressible line between the two
-// shapes. A Latin personal name still falls to the structural FR-187 pattern
-// if it happens to sit next to a denied keyword, and to Stage 5's re-check.
+// shapes. Neither the checks above nor FR-187's structural check (see
+// `findCandidateZeroPiiViolation` below) inspect prose for a bare Latin name;
+// Stage 5's own re-application of the exact FR-187 function against the full
+// admitted content is the backstop this candidate-creation pass does not need
+// to duplicate.
 
 const CHECKS = Object.freeze([
   ['line_user_id', LINE_USER_ID_PATTERN],
   ['phone_number', THAI_PHONE_PATTERN],
   ['phone_number', INTERNATIONAL_PHONE_PATTERN],
   ['quoted_wording', QUOTED_WORDING_PATTERN],
-  // The same structural keyword pattern FR-187 uses (customer/contact/
-  // quotation and their Thai equivalents) — reused, not duplicated, so the
-  // two policies cannot drift into two different rules.
-  ['deny_term', STRUCTURED_RECORD_DENY_PATTERN],
 ])
 
 function scanProse(text, field) {
@@ -113,9 +130,31 @@ function scanProse(text, field) {
   return null
 }
 
-/** Return the first violation in `question`/`answer`, or null when both are clean. */
+/**
+ * Return the first violation in `question`/`answer`, or null when both are
+ * clean. Two independent layers, deliberately not merged into one scan:
+ *
+ * 1. The prose checks above, per field — names, phone numbers, LINE ids,
+ *    quoted wording. These are the checks FR-187's own structural function
+ *    never attempts on free text.
+ * 2. `findZeroPiiViolation({question, answer})` — FR-187's own function,
+ *    called on the candidate exactly as a structured record, so it inspects
+ *    `question`/`answer` as field NAMES (neither matches its deny pattern)
+ *    and would inspect their VALUES only if the key looked like a locator
+ *    (`file`/`path`/`uri`/…, which "question"/"answer" never do). For this
+ *    shape it is normally a no-op, and that is correct, not a gap: ordinary
+ *    Thai customer-service prose says "ลูกค้า" ("customer") constantly
+ *    ("คุณลูกค้าสามารถ…"), and FR-187 was never meant to refuse that — only
+ *    to catch a record whose FIELD NAMES betray a CRM shape. Calling it this
+ *    way is what "reused, not copied" means for a two-field prose record: the
+ *    exact function, given the exact object shape it already knows how to
+ *    read, not a re-derived string test that would drift from it.
+ */
 export function findCandidateZeroPiiViolation({ question, answer } = {}) {
-  return scanProse(question, 'question') || scanProse(answer, 'answer')
+  const prose = scanProse(question, 'question') || scanProse(answer, 'answer')
+  if (prose) return prose
+  const structural = findZeroPiiViolation({ question, answer })
+  return structural ? { field: structural.field, term: 'deny_term' } : null
 }
 
 /** Throw the 422 a candidate write path treats as a permanent refusal. */
