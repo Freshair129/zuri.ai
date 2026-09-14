@@ -21,14 +21,21 @@ import { CONTEXT_SLICE_SOURCES, CONTEXT_DENIAL_REASONS } from '@/lib/validation/
 // content, returned separately from the receipt) so the two can never disagree:
 // a slice this module dropped must never reach a model, and a slice a model
 // received must always be named in the receipt that documents that call.
-// @tested tests/unit/context-composer.test.js, tests/integration/line-worker-memory.test.js
+// @tested tests/unit/context-composer.test.js, tests/integration/line-worker-memory.test.js,
+//   tests/integration/line-gks-grounding.test.js
 //
 // Scope for this phase (ADR-091 phase 3b): a pure, side-effect-free function.
 // It never calls MSP, GKS, CRM/ERP or a model — callers pass already-fetched
-// slices through the ports those lanes own. FR-235 (GKS grounding) and FR-231
-// (memory projection policy) are separate, later phases; this module only
-// accepts their shapes as inputs (`knowledgeEvidence`, and MSP slices through
-// whatever thread-memory port is wired today).
+// slices through the ports those lanes own. FR-231 (CRM/ERP fact records) is
+// still a separate, later phase; `records` stays empty on every caller today.
+// FR-235 (GKS grounding): on a memory-opt-in turn, `server-line-answer.js`
+// composes a Business's already-budgeted corpus evidence into
+// `knowledgeEvidence` slices IN THE SAME CALL as the turn's MSP slices, under
+// one shared budget — never a second, independent composition (that would be
+// a second `ContextReceipt` for one model invocation, which FR-234/SDD-100
+// forbid). The knowledge-grounding reader itself
+// (`knowledge/corpus-knowledge-reader.js`) never calls this module — it
+// returns evidence only.
 //
 // KNOWN COVERAGE GAP (left open by review, see the calling module's own
 // annotation): only server-line-answer.js's MSP-opt-in branch calls this

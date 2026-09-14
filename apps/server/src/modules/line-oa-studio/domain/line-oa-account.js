@@ -1,11 +1,16 @@
 import { z } from 'zod'
 import {
+  KNOWLEDGE_GROUNDING_MODES,
   LINE_OA_ACCOUNT_ACTIONS,
   LINE_OA_ACCOUNT_STATUSES,
   LINE_OA_TRANSPORT_MODES,
 } from '@/lib/validation/enums'
 
 // @req FR-149 — server transport and optional execution policy.
+// @req FR-235 — publisher-set grounding mode (ADR-090 D1): BUSINESS_KNOWLEDGE
+//   (default) | GKS_CORPUS | GKS_THEN_BUSINESS_KNOWLEDGE, applied through the
+//   same versioned CONFIGURE_KNOWLEDGE_GROUNDING action as the account's other
+//   configuration writes.
 // @req FR-146 — the pure vocabulary and rules of the LineOaAccount aggregate:
 //   the input contracts, the stored status machine, the derived effective
 //   status and the transport-mode default. Nothing here opens a database; the
@@ -58,6 +63,8 @@ export const zLineOaAccountAction = z.object({
   modelAccess: z.enum(['LOCAL_ONLY', 'EXTERNAL_MODEL_ALLOWED']).optional(),
   allowDelayedPush: z.boolean().optional(),
   legacyQuiesced: z.literal(true).optional(),
+  // @req FR-235 — publisher-set grounding mode (ADR-090 D1).
+  knowledgeGrounding: z.enum(KNOWLEDGE_GROUNDING_MODES).optional(),
 }).strict().superRefine((value, ctx) => {
   if (value.action === 'CONFIGURE_EXECUTION' && (!value.executionMode || !value.modelAccess || typeof value.allowDelayedPush !== 'boolean')) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Execution mode, model access and delayed push policy are required' })
@@ -67,6 +74,9 @@ export const zLineOaAccountAction = z.object({
   }
   if (value.action === 'SWITCH_TRANSPORT_MODE' && !value.transportMode) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['transportMode'], message: 'transportMode is required for SWITCH_TRANSPORT_MODE' })
+  }
+  if (value.action === 'CONFIGURE_KNOWLEDGE_GROUNDING' && !value.knowledgeGrounding) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['knowledgeGrounding'], message: 'knowledgeGrounding is required for CONFIGURE_KNOWLEDGE_GROUNDING' })
   }
 })
 

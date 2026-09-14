@@ -40,8 +40,8 @@
     "readyFeatureCount": 113,
     "requirementCount": 241,
     "verifiedRequirementCount": 218,
-    "progressPercent": 91.8,
-    "gapCount": 35,
+    "progressPercent": 92.1,
+    "gapCount": 40,
     "gaps": [
       {
         "domain": "agent",
@@ -91,12 +91,50 @@
           "apps/server/src/modules/agent/server-line-answer.js",
           "apps/server/tests/integration/agent-msp-thread-memory.test.js",
           "apps/server/tests/integration/execution-trace.test.js",
+          "apps/server/tests/integration/line-gks-grounding.test.js",
           "apps/server/tests/integration/line-worker-memory.test.js",
           "apps/server/tests/integration/server-line-trace.test.js",
           "apps/server/tests/integration/xlsx-intake.test.js",
           "apps/server/tests/unit/context-composer.test.js",
           "apps/server/tests/unit/conversation-analysis-contract.test.js",
+          "apps/server/tests/unit/corpus-knowledge-reader.test.js",
+          "apps/server/tests/unit/line-execution-trace.test.js",
           "apps/server/tests/unit/plan-schema.test.js",
+          "apps/server/tests/unit/server-line-answer.test.js"
+        ]
+      },
+      {
+        "domain": "agent",
+        "id": "REQ-FR-235",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-235 is partial",
+        "evidence": [
+          "apps/server/src/modules/agent/grounded-business-answer.js",
+          "apps/server/src/modules/agent/line-execution-trace.js",
+          "apps/server/src/modules/agent/line-knowledge-grounding.js",
+          "apps/server/src/modules/agent/server-line-answer.js",
+          "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+          "apps/server/tests/integration/fr146-line-oa-account.test.js",
+          "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
+          "apps/server/tests/integration/knowledge-project.test.js",
+          "apps/server/tests/integration/knowledge-query.test.js",
+          "apps/server/tests/integration/line-gks-grounding.test.js",
+          "apps/server/tests/integration/line-worker-memory.test.js",
+          "apps/server/tests/integration/server-line-trace.test.js",
+          "apps/server/tests/integration/xlsx-intake.test.js",
+          "apps/server/tests/unit/activation-readiness-integration.test.js",
+          "apps/server/tests/unit/context-composer.test.js",
+          "apps/server/tests/unit/conversation-analysis-contract.test.js",
+          "apps/server/tests/unit/corpus-knowledge-reader.test.js",
+          "apps/server/tests/unit/grounded-business-answer.test.js",
+          "apps/server/tests/unit/line-execution-trace.test.js",
+          "apps/server/tests/unit/line-knowledge-grounding.test.js",
+          "apps/server/tests/unit/line-oa-account-domain.test.js",
+          "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
+          "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
+          "apps/server/tests/unit/plan-schema.test.js",
+          "apps/server/tests/unit/runtime-isolation-probe.test.js",
           "apps/server/tests/unit/server-line-answer.test.js"
         ]
       },
@@ -316,6 +354,39 @@
       },
       {
         "domain": "knowledge",
+        "id": "REQ-FR-235",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-235 is partial",
+        "evidence": [
+          "apps/server/src/modules/knowledge/corpus-knowledge-reader.js",
+          "apps/server/src/modules/knowledge/index.js",
+          "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+          "apps/server/tests/integration/fr146-line-oa-account.test.js",
+          "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
+          "apps/server/tests/integration/knowledge-project.test.js",
+          "apps/server/tests/integration/knowledge-query.test.js",
+          "apps/server/tests/integration/line-gks-grounding.test.js",
+          "apps/server/tests/integration/line-worker-memory.test.js",
+          "apps/server/tests/integration/server-line-trace.test.js",
+          "apps/server/tests/integration/xlsx-intake.test.js",
+          "apps/server/tests/unit/activation-readiness-integration.test.js",
+          "apps/server/tests/unit/context-composer.test.js",
+          "apps/server/tests/unit/conversation-analysis-contract.test.js",
+          "apps/server/tests/unit/corpus-knowledge-reader.test.js",
+          "apps/server/tests/unit/grounded-business-answer.test.js",
+          "apps/server/tests/unit/line-execution-trace.test.js",
+          "apps/server/tests/unit/line-knowledge-grounding.test.js",
+          "apps/server/tests/unit/line-oa-account-domain.test.js",
+          "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
+          "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
+          "apps/server/tests/unit/plan-schema.test.js",
+          "apps/server/tests/unit/runtime-isolation-probe.test.js",
+          "apps/server/tests/unit/server-line-answer.test.js"
+        ]
+      },
+      {
+        "domain": "knowledge",
         "id": "REQ-FR-236",
         "severity": "medium",
         "check": "requirements",
@@ -361,10 +432,58 @@
       },
       {
         "domain": "line-oa-studio",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "line-oa-studio",
         "id": "AUTH-001",
         "severity": "high",
         "check": "authorization",
         "summary": "At least one mutating route lacks a recognizable request viewer seam"
+      },
+      {
+        "domain": "line-oa-studio",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "line-oa-studio",
+        "id": "REQ-FR-235",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-235 is partial",
+        "evidence": [
+          "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+          "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+          "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+          "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+          "apps/server/tests/integration/fr146-line-oa-account.test.js",
+          "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
+          "apps/server/tests/integration/knowledge-project.test.js",
+          "apps/server/tests/integration/knowledge-query.test.js",
+          "apps/server/tests/integration/line-gks-grounding.test.js",
+          "apps/server/tests/integration/line-worker-memory.test.js",
+          "apps/server/tests/integration/server-line-trace.test.js",
+          "apps/server/tests/integration/xlsx-intake.test.js",
+          "apps/server/tests/unit/activation-readiness-integration.test.js",
+          "apps/server/tests/unit/context-composer.test.js",
+          "apps/server/tests/unit/conversation-analysis-contract.test.js",
+          "apps/server/tests/unit/corpus-knowledge-reader.test.js",
+          "apps/server/tests/unit/grounded-business-answer.test.js",
+          "apps/server/tests/unit/line-execution-trace.test.js",
+          "apps/server/tests/unit/line-knowledge-grounding.test.js",
+          "apps/server/tests/unit/line-oa-account-domain.test.js",
+          "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
+          "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
+          "apps/server/tests/unit/plan-schema.test.js",
+          "apps/server/tests/unit/runtime-isolation-probe.test.js",
+          "apps/server/tests/unit/server-line-answer.test.js"
+        ]
       },
       {
         "domain": "platform-control",
@@ -713,7 +832,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-150",
@@ -729,7 +848,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-181",
@@ -753,7 +872,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 5,
-          "testCount": 9,
+          "testCount": 12,
           "evidence": [
             "apps/server/src/modules/agent/context-composer.js",
             "apps/server/src/modules/agent/execution-trace.js",
@@ -762,12 +881,51 @@
             "apps/server/src/modules/agent/server-line-answer.js",
             "apps/server/tests/integration/agent-msp-thread-memory.test.js",
             "apps/server/tests/integration/execution-trace.test.js",
+            "apps/server/tests/integration/line-gks-grounding.test.js",
             "apps/server/tests/integration/line-worker-memory.test.js",
             "apps/server/tests/integration/server-line-trace.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/unit/context-composer.test.js",
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/corpus-knowledge-reader.test.js",
+            "apps/server/tests/unit/line-execution-trace.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/server-line-answer.test.js"
+          ]
+        },
+        {
+          "id": "FR-235",
+          "title": "LINE answer grounding from the published knowledge corpus",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 4,
+          "testCount": 22,
+          "evidence": [
+            "apps/server/src/modules/agent/grounded-business-answer.js",
+            "apps/server/src/modules/agent/line-execution-trace.js",
+            "apps/server/src/modules/agent/line-knowledge-grounding.js",
+            "apps/server/src/modules/agent/server-line-answer.js",
+            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+            "apps/server/tests/integration/fr146-line-oa-account.test.js",
+            "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
+            "apps/server/tests/integration/knowledge-project.test.js",
+            "apps/server/tests/integration/knowledge-query.test.js",
+            "apps/server/tests/integration/line-gks-grounding.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/integration/server-line-trace.test.js",
+            "apps/server/tests/integration/xlsx-intake.test.js",
+            "apps/server/tests/unit/activation-readiness-integration.test.js",
+            "apps/server/tests/unit/context-composer.test.js",
+            "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/corpus-knowledge-reader.test.js",
+            "apps/server/tests/unit/grounded-business-answer.test.js",
+            "apps/server/tests/unit/line-execution-trace.test.js",
+            "apps/server/tests/unit/line-knowledge-grounding.test.js",
+            "apps/server/tests/unit/line-oa-account-domain.test.js",
+            "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
+            "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
+            "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/runtime-isolation-probe.test.js",
             "apps/server/tests/unit/server-line-answer.test.js"
           ]
         }
@@ -936,12 +1094,49 @@
             "apps/server/src/modules/agent/server-line-answer.js",
             "apps/server/tests/integration/agent-msp-thread-memory.test.js",
             "apps/server/tests/integration/execution-trace.test.js",
+            "apps/server/tests/integration/line-gks-grounding.test.js",
             "apps/server/tests/integration/line-worker-memory.test.js",
             "apps/server/tests/integration/server-line-trace.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/unit/context-composer.test.js",
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/corpus-knowledge-reader.test.js",
+            "apps/server/tests/unit/line-execution-trace.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/server-line-answer.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-235",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-235 is partial",
+          "evidence": [
+            "apps/server/src/modules/agent/grounded-business-answer.js",
+            "apps/server/src/modules/agent/line-execution-trace.js",
+            "apps/server/src/modules/agent/line-knowledge-grounding.js",
+            "apps/server/src/modules/agent/server-line-answer.js",
+            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+            "apps/server/tests/integration/fr146-line-oa-account.test.js",
+            "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
+            "apps/server/tests/integration/knowledge-project.test.js",
+            "apps/server/tests/integration/knowledge-query.test.js",
+            "apps/server/tests/integration/line-gks-grounding.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/integration/server-line-trace.test.js",
+            "apps/server/tests/integration/xlsx-intake.test.js",
+            "apps/server/tests/unit/activation-readiness-integration.test.js",
+            "apps/server/tests/unit/context-composer.test.js",
+            "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/corpus-knowledge-reader.test.js",
+            "apps/server/tests/unit/grounded-business-answer.test.js",
+            "apps/server/tests/unit/line-execution-trace.test.js",
+            "apps/server/tests/unit/line-knowledge-grounding.test.js",
+            "apps/server/tests/unit/line-oa-account-domain.test.js",
+            "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
+            "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
+            "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/runtime-isolation-probe.test.js",
             "apps/server/tests/unit/server-line-answer.test.js"
           ]
         }
@@ -1472,7 +1667,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-152",
@@ -1480,7 +1675,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-153",
@@ -1488,7 +1683,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-161",
@@ -2516,7 +2711,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-152",
@@ -2524,7 +2719,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-173",
@@ -3372,6 +3567,40 @@
           "testCount": 12
         },
         {
+          "id": "FR-235",
+          "title": "LINE answer grounding from the published knowledge corpus",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 2,
+          "testCount": 22,
+          "evidence": [
+            "apps/server/src/modules/knowledge/corpus-knowledge-reader.js",
+            "apps/server/src/modules/knowledge/index.js",
+            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+            "apps/server/tests/integration/fr146-line-oa-account.test.js",
+            "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
+            "apps/server/tests/integration/knowledge-project.test.js",
+            "apps/server/tests/integration/knowledge-query.test.js",
+            "apps/server/tests/integration/line-gks-grounding.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/integration/server-line-trace.test.js",
+            "apps/server/tests/integration/xlsx-intake.test.js",
+            "apps/server/tests/unit/activation-readiness-integration.test.js",
+            "apps/server/tests/unit/context-composer.test.js",
+            "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/corpus-knowledge-reader.test.js",
+            "apps/server/tests/unit/grounded-business-answer.test.js",
+            "apps/server/tests/unit/line-execution-trace.test.js",
+            "apps/server/tests/unit/line-knowledge-grounding.test.js",
+            "apps/server/tests/unit/line-oa-account-domain.test.js",
+            "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
+            "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
+            "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/runtime-isolation-probe.test.js",
+            "apps/server/tests/unit/server-line-answer.test.js"
+          ]
+        },
+        {
           "id": "FR-236",
           "title": "LINE FAQ knowledge candidates",
           "declared": "planned",
@@ -3577,6 +3806,38 @@
           ]
         },
         {
+          "id": "REQ-FR-235",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-235 is partial",
+          "evidence": [
+            "apps/server/src/modules/knowledge/corpus-knowledge-reader.js",
+            "apps/server/src/modules/knowledge/index.js",
+            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+            "apps/server/tests/integration/fr146-line-oa-account.test.js",
+            "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
+            "apps/server/tests/integration/knowledge-project.test.js",
+            "apps/server/tests/integration/knowledge-query.test.js",
+            "apps/server/tests/integration/line-gks-grounding.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/integration/server-line-trace.test.js",
+            "apps/server/tests/integration/xlsx-intake.test.js",
+            "apps/server/tests/unit/activation-readiness-integration.test.js",
+            "apps/server/tests/unit/context-composer.test.js",
+            "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/corpus-knowledge-reader.test.js",
+            "apps/server/tests/unit/grounded-business-answer.test.js",
+            "apps/server/tests/unit/line-execution-trace.test.js",
+            "apps/server/tests/unit/line-knowledge-grounding.test.js",
+            "apps/server/tests/unit/line-oa-account-domain.test.js",
+            "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
+            "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
+            "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/runtime-isolation-probe.test.js",
+            "apps/server/tests/unit/server-line-answer.test.js"
+          ]
+        },
+        {
           "id": "REQ-FR-236",
           "severity": "medium",
           "check": "requirements",
@@ -3648,7 +3909,7 @@
       ],
       "featureCount": 16,
       "readyFeatureCount": 11,
-      "progressPercent": 80
+      "progressPercent": 83
     },
     "line-oa-studio": {
       "status": "partial",
@@ -3715,7 +3976,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 21,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-150",
@@ -3731,7 +3992,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 21,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-152",
@@ -3739,7 +4000,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-153",
@@ -3747,7 +4008,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 13,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-171",
@@ -3755,7 +4016,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-190",
@@ -3788,6 +4049,41 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 14
+        },
+        {
+          "id": "FR-235",
+          "title": "LINE answer grounding from the published knowledge corpus",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 3,
+          "testCount": 22,
+          "evidence": [
+            "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+            "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+            "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+            "apps/server/tests/integration/fr146-line-oa-account.test.js",
+            "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
+            "apps/server/tests/integration/knowledge-project.test.js",
+            "apps/server/tests/integration/knowledge-query.test.js",
+            "apps/server/tests/integration/line-gks-grounding.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/integration/server-line-trace.test.js",
+            "apps/server/tests/integration/xlsx-intake.test.js",
+            "apps/server/tests/unit/activation-readiness-integration.test.js",
+            "apps/server/tests/unit/context-composer.test.js",
+            "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/corpus-knowledge-reader.test.js",
+            "apps/server/tests/unit/grounded-business-answer.test.js",
+            "apps/server/tests/unit/line-execution-trace.test.js",
+            "apps/server/tests/unit/line-knowledge-grounding.test.js",
+            "apps/server/tests/unit/line-oa-account-domain.test.js",
+            "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
+            "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
+            "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/runtime-isolation-probe.test.js",
+            "apps/server/tests/unit/server-line-answer.test.js"
+          ]
         }
       ],
       "checks": {
@@ -3830,12 +4126,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "not_applicable",
@@ -3873,11 +4175,17 @@
           }
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -3909,10 +4217,55 @@
       ],
       "gaps": [
         {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
           "id": "AUTH-001",
           "severity": "high",
           "check": "authorization",
           "summary": "At least one mutating route lacks a recognizable request viewer seam"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-235",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-235 is partial",
+          "evidence": [
+            "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+            "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+            "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+            "apps/server/tests/integration/fr146-line-oa-account.test.js",
+            "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
+            "apps/server/tests/integration/knowledge-project.test.js",
+            "apps/server/tests/integration/knowledge-query.test.js",
+            "apps/server/tests/integration/line-gks-grounding.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/integration/server-line-trace.test.js",
+            "apps/server/tests/integration/xlsx-intake.test.js",
+            "apps/server/tests/unit/activation-readiness-integration.test.js",
+            "apps/server/tests/unit/context-composer.test.js",
+            "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/corpus-knowledge-reader.test.js",
+            "apps/server/tests/unit/grounded-business-answer.test.js",
+            "apps/server/tests/unit/line-execution-trace.test.js",
+            "apps/server/tests/unit/line-knowledge-grounding.test.js",
+            "apps/server/tests/unit/line-oa-account-domain.test.js",
+            "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
+            "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
+            "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/runtime-isolation-probe.test.js",
+            "apps/server/tests/unit/server-line-answer.test.js"
+          ]
         }
       ],
       "details": {
@@ -5399,7 +5752,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-150",
@@ -5415,7 +5768,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-152",
@@ -5423,7 +5776,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-153",
@@ -5431,7 +5784,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-154",
@@ -7858,7 +8211,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 26,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-152",
@@ -7866,7 +8219,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 17,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-153",
@@ -7874,7 +8227,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 15
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -8021,7 +8374,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 34,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-150",
@@ -8123,6 +8476,7 @@
         "apps/server/tests/unit/line-job-failures.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/line-oa-worker-route-reconciler.test.js",
+        "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
         "apps/server/tests/unit/line-studio-job-failures.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/platform/server-line-transport.test.js",
@@ -10111,7 +10465,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 6,
-          "testCount": 9
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -10133,6 +10487,7 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/identity-erase.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
+        "apps/server/tests/integration/line-gks-grounding.test.js",
         "apps/server/tests/integration/line-ingest.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
@@ -10144,8 +10499,10 @@
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
+        "apps/server/tests/unit/corpus-knowledge-reader.test.js",
         "apps/server/tests/unit/crm-message-attachments-events-migration.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/line-execution-trace.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/server-line-answer.test.js"
       ]
@@ -10163,18 +10520,20 @@
       ],
       "primaryDomain": "knowledge",
       "contributorDomains": [
+        "agent",
         "crm",
         "integration",
         "knowledge",
+        "line-oa-studio",
         "project-manager"
       ],
       "useCase": "เจ้าของธุรกิจสลับบัญชี LINE OA ให้ตอบลูกค้าจากคลังความรู้ที่ publish แล้วใน GKS ดู trace ได้ว่าคำตอบอ้างเอกสารไหน อนุมัติคำถาม-คำตอบที่ได้จากแชทลูกค้าเข้าเป็นความรู้ของธุรกิจโดยไม่มีข้อมูลส่วนตัวของลูกค้าติดไป และเห็นรายงานว่าลูกค้าถามเรื่องสินค้าตัวไหนที่ระบบยังตอบไม่ได้",
-      "progressPercent": 20,
+      "progressPercent": 40,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-038 registry status is declared",
-        "FR-235 is planned",
+        "FR-235 is partial",
         "FR-236 is partial",
         "FR-237 is planned",
         "FR-238 is planned"
@@ -10183,10 +10542,10 @@
         {
           "id": "FR-235",
           "title": "LINE answer grounding from the published knowledge corpus",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 10,
+          "testCount": 22
         },
         {
           "id": "FR-236",
@@ -10219,44 +10578,76 @@
         "apps/server/src/app/api/knowledge/candidates/[id]/route.js",
         "apps/server/src/app/api/knowledge/candidates/route.js",
         "apps/server/src/config/domains.js",
+        "apps/server/src/lib/validation/enums.js",
+        "apps/server/src/modules/agent/grounded-business-answer.js",
+        "apps/server/src/modules/agent/line-execution-trace.js",
+        "apps/server/src/modules/agent/line-knowledge-grounding.js",
+        "apps/server/src/modules/agent/server-line-answer.js",
         "apps/server/src/modules/crm/conversation-consent-reader.js",
         "apps/server/src/modules/knowledge/application/knowledge-candidate-service.js",
+        "apps/server/src/modules/knowledge/corpus-knowledge-reader.js",
+        "apps/server/src/modules/knowledge/index.js",
         "apps/server/src/modules/knowledge/knowledge-admission-service.js",
         "apps/server/src/modules/knowledge/knowledge-candidate-zero-pii.js",
         "apps/server/src/modules/knowledge/ui/KnowledgeCandidateReview.jsx",
+        "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+        "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/fr146-line-oa-account.test.js",
+        "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
         "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
         "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
         "apps/server/tests/integration/genesisrag17-parser-2.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
+        "apps/server/tests/integration/knowledge-project.test.js",
+        "apps/server/tests/integration/knowledge-query.test.js",
+        "apps/server/tests/integration/line-gks-grounding.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/line-worker-memory.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/server-line-trace.test.js",
         "apps/server/tests/integration/smartgift-catalog-admission.test.js",
+        "apps/server/tests/integration/xlsx-intake.test.js",
+        "apps/server/tests/unit/activation-readiness-integration.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/context-composer.test.js",
+        "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/conversation-consent-reader.test.js",
+        "apps/server/tests/unit/corpus-knowledge-reader.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/grounded-business-answer.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-admission-service.test.js",
         "apps/server/tests/unit/knowledge-candidate-migration.test.js",
         "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
         "apps/server/tests/unit/knowledge-candidates-ui.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
+        "apps/server/tests/unit/line-execution-trace.test.js",
+        "apps/server/tests/unit/line-knowledge-grounding.test.js",
+        "apps/server/tests/unit/line-oa-account-domain.test.js",
+        "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
+        "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
+        "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/runtime-isolation-probe.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
+        "apps/server/tests/unit/server-line-answer.test.js",
         "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
       ]
     },
@@ -15193,7 +15584,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 19
+          "testCount": 20
         }
       ],
       "evidence": [
@@ -15224,6 +15615,7 @@
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/integration/server-line-trace.test.js",
         "apps/server/tests/unit/grounded-business-answer.test.js",
+        "apps/server/tests/unit/line-execution-trace.test.js",
         "apps/server/tests/unit/line-trace-route.test.js",
         "apps/server/tests/unit/model-provider-port.test.js",
         "apps/server/tests/unit/model-provider-trace.test.js",
