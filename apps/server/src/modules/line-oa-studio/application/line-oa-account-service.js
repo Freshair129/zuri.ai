@@ -31,7 +31,10 @@ import { assertMayPublish, assertMayView, notFound } from './line-oa-account-aut
 //   stored; server transport is the ADR-061 default), D5 (an audited,
 //   versioned switch changes the transport owner), D11 (refusals 404-shaped).
 // @spec SEC-001, BR-002, BR-012, FR-072, FR-080, FR-144
-// @tested tests/integration/fr146-line-oa-account.test.js
+// @req FR-225 — `toHealth` also surfaces the credential's store, version and
+//   last-validated time (metadata only) so the Studio card can offer the
+//   mount-to-vault migration and a truthful credential status line.
+// @tested tests/integration/fr146-line-oa-account.test.js, tests/integration/fr225-line-oa-self-serve-onboarding.test.js
 
 const ACTIONS = Object.freeze({
   ENABLE_SERVER: 'LINE_OA_SERVER_ENABLED',
@@ -104,6 +107,14 @@ function toHealth(row, { connection, bindingStatus, transportJobs }) {
         secretConfigured: connection.secretConfigured,
         health: connection.health,
         lastWebhookAt: connection.lastEventAt ?? null,
+        // @req FR-225 — carried through so the account card can offer "move into
+        // Vault" only for a DEPLOYMENT_MOUNT-backed credential, and can show the
+        // credential status line (version, last validated) without a second read
+        // of the integration lane's tables (SEC-030: no material, metadata only).
+        secretStore: connection.secretStore ?? null,
+        credentialVersion: connection.credentialVersion ?? null,
+        displayHint: connection.displayHint ?? null,
+        lastValidatedAt: connection.lastValidatedAt ?? null,
       }
       : null,
     binding: {
