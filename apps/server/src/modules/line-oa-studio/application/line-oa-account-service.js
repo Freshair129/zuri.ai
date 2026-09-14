@@ -45,6 +45,7 @@ const ACTIONS = Object.freeze({
   ARCHIVE: 'LINE_OA_ACCOUNT_ARCHIVED',
   SET_DEFAULT: 'LINE_OA_ACCOUNT_DEFAULT_SET',
   SWITCH_TRANSPORT_MODE: 'LINE_OA_ACCOUNT_TRANSPORT_MODE_SWITCHED',
+  CONFIGURE_KNOWLEDGE_GROUNDING: 'LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_CONFIGURED',
 })
 
 function failure(status, message) {
@@ -94,7 +95,7 @@ const SELECT = {
   bindingCode: true, displayName: true, basicId: true, status: true, transportMode: true,
   isDefaultForBusiness: true, botProfileJson: true, archivedAt: true, createdAt: true,
   updatedAt: true, version: true, serverEnabled: true, executionMode: true,
-  modelAccess: true, allowDelayedPush: true, transportEpoch: true,
+  modelAccess: true, allowDelayedPush: true, transportEpoch: true, knowledgeGrounding: true,
 }
 
 function toHealth(row, { connection, bindingStatus, transportJobs }) {
@@ -149,6 +150,7 @@ function toDto(row, health) {
     executionMode: row.executionMode,
     modelAccess: row.modelAccess,
     allowDelayedPush: row.allowDelayedPush,
+    knowledgeGrounding: row.knowledgeGrounding,
     transportEpoch: row.transportEpoch,
     isDefaultForBusiness: row.isDefaultForBusiness,
     botProfile: parseBotProfile(row.botProfileJson),
@@ -353,6 +355,17 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
         }
         break
       }
+      // @req FR-235 — the publisher's grounding-mode switch (ADR-090 D1).
+      // Nothing reads a corpus until this write happens; the row default
+      // (BUSINESS_KNOWLEDGE) is set at account creation and never overridden here.
+      case 'CONFIGURE_KNOWLEDGE_GROUNDING': {
+        if (row.status === 'ARCHIVED') throw failure(409, 'LINE_OA_ACCOUNT_ARCHIVED')
+        if (row.knowledgeGrounding === data.knowledgeGrounding) throw failure(409, 'LINE_OA_KNOWLEDGE_GROUNDING_UNCHANGED')
+        change.knowledgeGrounding = data.knowledgeGrounding
+        payload.from.knowledgeGrounding = row.knowledgeGrounding
+        payload.to.knowledgeGrounding = data.knowledgeGrounding
+        break
+      }
       case 'ENABLE_SERVER': {
         if (row.serverEnabled) throw failure(409, 'LINE_OA_SERVER_ALREADY_ENABLED')
         // SDD-097: validation resolves through the dispatching secret manager, so a
@@ -387,7 +400,15 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
 
     // An external send cannot be recalled. Resolve uncertain delivery before
     // handing ownership away; in-flight generation is cancelled by an epoch fence.
-    const fencesWork = LINE_OA_ACCOUNT_ACTIONS.filter(action => action !== 'RESUME' && action !== 'SET_DEFAULT').includes(data.action)
+    // @req FR-235 — CONFIGURE_KNOWLEDGE_GROUNDING never fences. It changes
+    // neither the transport, the credential nor execution permission (the
+    // things the epoch fence protects, by cancelling QUEUED/CLAIMED/READY
+    // jobs so an old owner cannot deliver after a handoff) — it only changes
+    // which evidence source the NEXT answer reads. Fencing it would silently
+    // cancel replies customers are already waiting for on every mode switch;
+    // the mode a job answered with is read live and recorded on that job's
+    // own EVIDENCE_SELECTED trace instead (line-knowledge-grounding.js).
+    const fencesWork = LINE_OA_ACCOUNT_ACTIONS.filter(action => action !== 'RESUME' && action !== 'SET_DEFAULT' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING').includes(data.action)
     if (fencesWork) {
       change.transportEpoch = { increment: 1 }
       if (data.action === 'ARCHIVE') change.serverEnabled = false

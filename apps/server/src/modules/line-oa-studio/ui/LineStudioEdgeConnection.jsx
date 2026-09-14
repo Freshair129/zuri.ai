@@ -9,10 +9,15 @@
 //   an older in-flight GET landing after a newer one could silently repaint
 //   the account list with stale data) the same way `LineStudioShell.jsx`
 //   already guards its own account fetch.
-// @spec ADR-041, ADR-043, ADR-061, ADR-089 D2, D7, §4.9; SEC-001, SDD-060
+// @req FR-235 — the publisher's knowledgeGrounding control (ADR-090 D1):
+//   BUSINESS_KNOWLEDGE (default) | GKS_CORPUS | GKS_THEN_BUSINESS_KNOWLEDGE,
+//   applied through the existing versioned CONFIGURE_KNOWLEDGE_GROUNDING
+//   account action, audited the same way as every other account write.
+// @spec ADR-041, ADR-043, ADR-061, ADR-089 D2, D7, §4.9; SEC-001, SDD-060, ADR-090 D1
 // @tested tests/unit/line-oa-connect-wizard-render.test.js,
 //   tests/e2e/fr149-line-server-console.spec.js,
-//   tests/e2e/fr225-line-oa-self-serve-wizard.spec.js
+//   tests/e2e/fr225-line-oa-self-serve-wizard.spec.js,
+//   tests/unit/line-studio-edge-connection-render.test.js
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
@@ -493,6 +498,7 @@ function AccountCard({ account, onAction, onRefresh, busy }) {
   const [mode, setMode] = useState(account.executionMode);
   const [access, setAccess] = useState(account.modelAccess);
   const [push, setPush] = useState(account.allowDelayedPush);
+  const [grounding, setGrounding] = useState(account.knowledgeGrounding);
   const [quiesced, setQuiesced] = useState(false);
   const [jobs, setJobs] = useState(null);
   const [acknowledged, setAcknowledged] = useState({});
@@ -503,6 +509,7 @@ function AccountCard({ account, onAction, onRefresh, busy }) {
     setMode(account.executionMode);
     setAccess(account.modelAccess);
     setPush(account.allowDelayedPush);
+    setGrounding(account.knowledgeGrounding);
   }, [account]);
 
   async function loadJobs() {
@@ -604,6 +611,25 @@ function AccountCard({ account, onAction, onRefresh, busy }) {
           <span>อนุญาต Push คำตอบภายหลัง หาก reply token หมดอายุ</span>
         </label>
 
+        <div>
+          <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+            แหล่งความรู้สำหรับตอบคำถาม
+          </label>
+          <select
+            aria-label="แหล่งความรู้สำหรับตอบคำถาม"
+            className={fieldClass}
+            value={grounding}
+            onChange={(e) => setGrounding(e.target.value)}
+          >
+            <option value="BUSINESS_KNOWLEDGE">ฐานความรู้ธุรกิจ (ค่าเริ่มต้น)</option>
+            <option value="GKS_CORPUS">คลังความรู้ GKS ที่เผยแพร่แล้วเท่านั้น</option>
+            <option value="GKS_THEN_BUSINESS_KNOWLEDGE">คลังความรู้ GKS ก่อน แล้วสำรองด้วยฐานความรู้ธุรกิจ</option>
+          </select>
+          <p className="text-[10px] text-slate-500 mt-1">
+            เปลี่ยนแหล่งข้อมูลที่ Zuri ใช้ตอบคำถามลูกค้าทาง LINE — ไม่กระทบบัญชีอื่น
+          </p>
+        </div>
+
         <div className="flex flex-wrap gap-2 pt-1">
           <button
             type="button"
@@ -611,6 +637,15 @@ function AccountCard({ account, onAction, onRefresh, busy }) {
             onClick={() => onAction(account, { action: "CONFIGURE_EXECUTION", executionMode: mode, modelAccess: access, allowDelayedPush: push })}
           >
             บันทึกการประมวลผล
+          </button>
+
+          <button
+            type="button"
+            disabled={grounding === account.knowledgeGrounding}
+            className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => onAction(account, { action: "CONFIGURE_KNOWLEDGE_GROUNDING", knowledgeGrounding: grounding })}
+          >
+            บันทึกแหล่งความรู้
           </button>
 
           {account.serverEnabled ? (
