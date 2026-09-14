@@ -57,6 +57,12 @@ describe('FR-236 KnowledgeCandidate (ADR-090 D6)', () => {
     tenant = await createTenant({ portfolioId: portfolio.id, name: `KC tenant ${suffix}`, code: `KC-TN-${suffix}` })
     business = await createBusiness({ tenantId: tenant.id, name: `KC business ${suffix}`, code: `KC-BU-${suffix}` })
     otherBusiness = await createBusiness({ tenantId: tenant.id, name: `KC other ${suffix}`, code: `KC-BU2-${suffix}` })
+    // @req FR-236 — candidates are off by default per Business (TASK-ZAI-099);
+    // this suite predates that gate and exercises every OTHER refusal/success
+    // path on an already-enabled Business, so it turns the flag on directly
+    // here rather than through the audited service (that service has its own
+    // suite: tests/integration/fr236-knowledge-candidates-business-toggle.test.js).
+    business = await prisma.business.update({ where: { id: business.id }, data: { knowledgeCandidatesEnabled: true } })
 
     const scope = {
       portfolioId: portfolio.id, tenantId: tenant.id, businessId: business.id,
