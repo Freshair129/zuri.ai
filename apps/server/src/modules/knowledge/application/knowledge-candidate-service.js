@@ -31,7 +31,7 @@ import { admitKnowledge as defaultAdmitKnowledge } from '../knowledge-admission-
 //   containing "ลูกค้า" or "ใบเสนอราคา"). Stage 5 classify re-runs the same
 //   function on the same admitted content (genesisrag17-executor.js).
 // @spec ADR-090 D6, D8; ADR-072; SEC-032; BR-002; SEC-001
-// @tested tests/integration/fr236-knowledge-candidate.test.js, tests/unit/knowledge-candidate-migration.test.js, tests/unit/conversation-consent-reader.test.js, tests/unit/knowledge-candidate-zero-pii-agreement.test.js
+// @tested tests/integration/fr236-knowledge-candidate.test.js, tests/unit/knowledge-candidate-migration.test.js, tests/unit/conversation-consent-reader.test.js, tests/integration/fr236-stage5-zero-pii-agreement.test.js
 
 const ENTITY = 'KNOWLEDGE_CANDIDATE'
 const GRANTED = 'GRANTED'
