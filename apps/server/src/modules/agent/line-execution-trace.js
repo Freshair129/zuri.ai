@@ -39,6 +39,14 @@ export function createLineExecutionTrace({ db, job }) {
       // trace write, while the existing trace observer remains the write boundary.
       memoryContext = details && typeof details === 'object' ? details : null
     },
+    // @req FR-234 — exactly one ContextReceipt per model invocation: references,
+    // a hash and the budget, never content (ADR-091 D7, SDD-100).
+    async recordContextReceipt(receipt) {
+      if (failure) throw failure
+      if (!receipt?.receiptId) throw new Error('CONTEXT_RECEIPT_REQUIRED')
+      await record('CONTEXT_RECEIPT', `context-receipt:${receipt.receiptId}`, receipt)
+      return receipt
+    },
     async beforeModelCall({ provider, model, requestBody, promptVersion, systemPrompt }) {
       if (failure) throw failure
       const ctxId = randomUUID()
