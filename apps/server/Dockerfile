@@ -67,6 +67,13 @@ COPY --from=builder --chown=node:node /app/certs ./certs
 # green. tests/unit/server-line-worker-cadence.test.js now fails if an import listed in
 # the supervisor is missing here.
 COPY --from=builder --chown=node:node /app/scripts/server-line-worker.mjs /app/scripts/worker-cadence.mjs ./scripts/
+# FR-230 — the single-shot nightly retention sweep worker (invoked via
+# `docker compose exec web node scripts/server-retention-sweep-worker.mjs` by
+# the host scheduler, not by an always-on container) and the testable core it
+# imports. Same reasoning as the line-worker pair above: listed file by file,
+# and tests/unit/server-retention-sweep-worker-script.test.js fails if an
+# import the script names is missing from this line.
+COPY --from=builder --chown=node:node /app/scripts/server-retention-sweep-worker.mjs /app/scripts/retention-sweep-worker-run.mjs ./scripts/
 # src/modules/integration/application/sot-plan.js reads contracts/sot-pipeline-plan.v1.json
 # from process.cwd() at request time, so the tracer cannot see it — ship the folder.
 COPY --from=builder --chown=node:node /app/contracts ./contracts

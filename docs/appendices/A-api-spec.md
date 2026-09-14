@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=280 -->
+<!-- api-spec-counts: route_handlers=281 -->
 
 ### Programme usage reports (FR-218, 2026-09-13)
 
@@ -258,6 +258,21 @@ conversations owned by no Business or by one already in the viewer's scope.
 | POST | `/api/crm/customers/[customerId]/consent` | implemented: FR-103 / SEC-005 PDPA consent attestation — a Business **owner** (not merely a Member) records `GRANTED`/`DECLINED` for a Customer reached through their own Business's tenant (BR-001). Writes only `Customer.consent*`; never touches Conversation or Message |
 | POST | `/api/crm/customers/[customerId]/erasure` | implemented: FR-022 PDPA erasure — the production trigger for `erasePrincipal`, which until now had no route, UI or script. Same authority as the consent row above (per-Business **owner** over a Business in the Customer's tenant, BR-001) or the installation operator. Body `{ businessId, confirmation: 'ERASE' }`; any other confirmation is **400** and is checked before any lookup. Every authority refusal is **404**, indistinguishable from a fabricated id (FR-072) — an irreversible action must not double as an existence oracle. Revokes identities/sessions/link tokens, soft-deletes and redacts the Customer, deletes ConversationAnalysis, tombstones `Message.body` and the matching `RawExternalRecord` payloads in one transaction. The response carries counts only, never personal data |
 | POST | `/api/agent/line-delivery` | implemented: transport delivery receipt endpoint recording outbound LINE reply messages into Conversation/Message history (FR-093 / SDD-051) |
+
+### CRM retention sweep worker (FR-230, ADR-091 D1/D2, 2026-09-15)
+
+The scheduled entry point for the nightly retention sweep (`retention-sweep-service.js`,
+built by TASK-ZAI-089): until this route existed nothing in the running system ever
+called it. Deployment-authenticated like the LINE worker and the programme usage
+reports endpoint — the bearer is compared in constant time before any work happens,
+and no browser viewer is resolved. Invoked once a day by
+`scripts/server-retention-sweep-worker.mjs`, itself invoked by the host's own
+scheduler (see `scripts/register-retention-sweep-task.ps1`) — not by an always-on
+container.
+
+| Method | Route | Contract | Failure |
+|---|---|---|---|
+| POST | `/api/crm/retention-sweep` | implemented (FR-230): under `Authorization: Bearer $ZURI_RETENTION_SWEEP_TOKEN` (at least 32 characters), runs the crm-owned slice of the nightly retention sweep across every Tenant and returns `{ auditEventId, countsByClass, alreadyRanToday }` — the exact per-class counts the sweep's own `RETENTION_SWEEP_COMPLETED` audit event carries, never message or customer content. A second call inside the same UTC day answers from the existing audit event (`alreadyRanToday: true`) instead of running the sweep or writing a second audit event, so a scheduler retry cannot double-count or duplicate the day's audit trail | `401 RETENTION_SWEEP_CREDENTIAL_REQUIRED`; `503 RETENTION_SWEEP_UNAVAILABLE` (database, or the sweep exceeded its own 10-minute bound) |
 
 ## Market Intelligence reader and translation trigger (FR-092 / SDD-049 / ADR-038)
 
@@ -813,6 +828,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.76.0b | 2026-09-15 | candidate | FR-230 (ADR-091 D1, D2): one handler file, `POST /api/crm/retention-sweep` — the missing scheduled entry point for the nightly retention sweep, deployment-authenticated, same-UTC-day idempotency guard against a scheduler retry. Route handler count 280 -> 281 | working-tree | Claude Sonnet 5 |
 | 1.75.0b | 2026-09-15 | candidate | FR-236 (ADR-090 D6, TASK-ZAI-099): one handler file, `PATCH /api/businesses/[id]/knowledge-candidates-toggle` — the only writer of `Business.knowledgeCandidatesEnabled`, gating LINE FAQ knowledge candidate drafting per Business (off by default). Same shape as the `capabilities` route (FR-169). Route handler count 279 -> 280 | working-tree | Claude Sonnet 5 |
 | 1.74.0b | 2026-09-14 | candidate | FR-237 (ADR-090 D7): one handler file, `GET /api/knowledge/gap-report` — aggregates `EVIDENCE_SELECTED` trace events with `reason=NO_EVIDENCE` per Business, returning counts, product locators and last-seen times only, never the question text. Route handler count 276 -> 277 | working-tree | Claude Sonnet 5 |
 | 1.73.0b | 2026-09-14 | candidate | FR-236 (ADR-090 D6): four handler files under `/api/knowledge/candidates` — list/draft, read/edit one, and the audited APPROVE/REJECT decision that admits an approved candidate through the existing ADR-072 admission service. Route handler count 273 -> 276 | working-tree | Claude Sonnet 5 |

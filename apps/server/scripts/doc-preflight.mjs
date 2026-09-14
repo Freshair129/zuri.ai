@@ -920,6 +920,13 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
       // time before the body is read; the agent has no browser session by construction. Proven by
       // tests/unit/programme-usage-reports.test.js.
       rel(file) === 'src/app/api/platform/programme-usage-reports/route.js' ||
+      // ADR-091 D1, D2 / FR-230 (owner decision 2026-09-14): the nightly retention sweep's
+      // scheduled entry point, called once a day by scripts/server-retention-sweep-worker.mjs under
+      // the deployment bearer ZURI_RETENTION_SWEEP_TOKEN, checked in constant time before any work
+      // happens; the host scheduler has no browser session by construction, same class as the LINE
+      // worker and the programme usage reports endpoint above. Proven by
+      // tests/unit/crm-retention-sweep-route.test.js.
+      rel(file) === 'src/app/api/crm/retention-sweep/route.js' ||
       // ADR-087 D1 / FR-220: harness pairing start is anonymous and bounded (no credential minted),
       // and poll is authenticated by the initiating device secret, exactly as FR-144's edge pairing
       // start/poll are; approve keeps its browser viewer. Proven by tests/unit/harness-pairing.test.js.

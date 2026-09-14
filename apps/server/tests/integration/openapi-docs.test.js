@@ -199,8 +199,10 @@ describe('OpenAPI document', () => {
       // FR-236's per-Business toggle (ADR-090 D6, TASK-ZAI-099) adds one path
       // and one operation: the knowledge-candidates-toggle route (PATCH
       // only). 279 + 1 = 280; 376 + 1 = 377.
-      pathCount: 280,
-      operationCount: 377,
+      // FR-230 (ADR-091 D1, D2) adds one more path and one more operation: the
+      // retention sweep's scheduled entry point (POST). 280 + 1 = 281; 377 + 1 = 378.
+      pathCount: 281,
+      operationCount: 378,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
