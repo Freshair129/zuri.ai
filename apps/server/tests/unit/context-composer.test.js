@@ -133,6 +133,27 @@ describe('context-composer: budget', () => {
     expect(composed.receipt.budget.trimmed).toBe(0)
   })
 
+  // Second review, defect 1 — the cutoff is contiguous, not first-fit: once one
+  // slice in a source's given order does not fit, every slice after it in that
+  // order is dropped too, even a smaller one that would fit alone. A caller
+  // that ordered its slices to reflect "most important first" (e.g. MSP
+  // exchanges newest-first) relies on this to avoid a hole in the middle.
+  it('does not let a later, smaller slice fill the gap a bigger dropped one left (no first-fit)', () => {
+    const first = { id: 'msp-first', threadId: 'thread-1', text: 'x'.repeat(40) }
+    const second = { id: 'msp-second', threadId: 'thread-1', text: 'x'.repeat(40) } // does not fit after `first`
+    const third = { id: 'msp-third', threadId: 'thread-1', text: 'x' } // would fit alone, but comes after a drop
+    const composed = composeContext({
+      authorized: true, scope: { threadId: 'thread-1' },
+      mspSlices: [first, second, third],
+      maxBudgetChars: 40,
+    })
+    expect(composed.slices.map((slice) => slice.id)).toEqual(['msp-first'])
+    expect(composed.dropped).toEqual([
+      { id: 'msp-second', source: 'MSP', reason: 'BUDGET_TRIMMED' },
+      { id: 'msp-third', source: 'MSP', reason: 'BUDGET_TRIMMED' },
+    ])
+  })
+
   // BLOCKER fix — the receipt must describe what a caller would actually inject.
   // The composer itself cannot prove that (it never sees the caller's downstream
   // packet), but it must at minimum hand back the INCLUDED slice's content so a

@@ -9,13 +9,19 @@ import { composeContext } from './context-composer'
 // @req FR-171 — persist selected evidence and pass the trace observer to the actual provider.
 // execution placement and external model permission are distinct decisions.
 // @req FR-234 — on the MSP-opt-in path, the MSP packet is split into
-// provenance-bearing slices (one per exchange/summary/protected record) and
-// run through `context-composer.js`; the model and the MSP injection receipt
-// receive ONLY the packet rebuilt from the composer's included slices, and
-// the recorded `ContextReceipt` describes exactly that rebuilt packet — never
-// the original, un-composed one. Coverage today is partial: the LOCAL_ONLY /
-// non-opt-in path's business-evidence model invocation does not run through
-// the composer and records no receipt (see the composer module's own note).
+// provenance-bearing slices (one per exchange/summary/protected record/
+// participant) and run through `context-composer.js`; the model and the MSP
+// injection receipt receive ONLY the packet rebuilt from the composer's
+// included slices, and the recorded `ContextReceipt` describes exactly that
+// rebuilt packet — never the original, un-composed one. Exchanges are
+// budgeted newest-first (a contiguous window of the most recent turns is
+// kept, oldest dropped) and rebuilt chronologically; `packet.knowledge` has
+// no composer-representable shape yet and is stripped rather than leaked
+// unbudgeted; the rebuilt manifest folds in the composer's own drops so it
+// cannot claim nothing was truncated when the composer trimmed something.
+// Coverage today is partial: the LOCAL_ONLY / non-opt-in path's
+// business-evidence model invocation does not run through the composer and
+// records no receipt (see the composer module's own note).
 // @spec ADR-061, SEC-001, SEC-010 — public scoped knowledge by default; the
 // persisted opt-in may compose the trusted MSP thread without a second CRM
 // ingest, write action or implicit external model fallback.
@@ -34,47 +40,101 @@ function failure(code) {
 // or dropped whole, defeating priority-ordered trimming). Each slice's id is
 // prefixed by its packet section so `injectedMspPacket` can rebuild the
 // packet from exactly the slices the composer included — nothing else.
-// Ordered exchanges-first, then protected (verified) facts, then summaries
-// last: recent turns and verified facts are kept ahead of older, already-
-// condensed summaries when the shared budget runs out, mirroring the MSP
-// packet builder's own trim order (buildThreadContextPacket drops summaries
-// before recent exchanges).
+//
+// Order fed to the composer (its budget cutoff is contiguous, not first-fit,
+// over the order given — see context-composer.js's own doc comment):
+//   1. participants — roster metadata `buildThreadContextPacket` never trims.
+//   2. protected (verified) facts — also never trimmed by MSP's own builder.
+//   3. recent exchanges, NEWEST FIRST — `memory.recentExchanges` is
+//      oldest-first in the packet (MSP's convention), but a budget cutoff
+//      must drop the OLDEST turns and keep a contiguous window of the most
+//      recent ones, never the reverse. Reversed here so "the first exchange
+//      that does not fit" is the oldest surviving candidate, and every older
+//      one after it is dropped too — no gap in the kept window.
+//   4. summaries — MSP's own builder trims these before touching exchanges
+//      at all (`buildThreadContextPacket` shifts summaries first), so they
+//      are ordered last here to mirror that same disposability.
+// `packet.knowledge` (a separate, non-MSP field) is never turned into a slice
+// here — see injectedMspPacket's own note on why it is stripped instead.
 function mspPacketSlices(packet) {
   const threadId = packet?.thread?.threadId ?? null
-  const exchanges = Array.isArray(packet?.memory?.recentExchanges) ? packet.memory.recentExchanges : []
+  const participants = Array.isArray(packet?.memory?.participants) ? packet.memory.participants : []
   const protectedRecords = Array.isArray(packet?.memory?.protectedMemory) ? packet.memory.protectedMemory : []
+  const exchanges = Array.isArray(packet?.memory?.recentExchanges) ? packet.memory.recentExchanges : []
   const summaries = Array.isArray(packet?.memory?.summaries) ? packet.memory.summaries : []
+  const exchangeSlices = exchanges.map((exchange, index) => ({ id: `exchange:${exchange?.exchangeId ?? index}`, threadId, text: exchange }))
   return [
-    ...exchanges.map((exchange, index) => ({ id: `exchange:${exchange?.exchangeId ?? index}`, threadId, text: exchange })),
+    ...participants.map((participant, index) => ({ id: `participant:${participant?.principalId ?? participant?.id ?? index}`, threadId, text: participant })),
     ...protectedRecords.map((record, index) => ({ id: `protected:${record?.recordId ?? index}`, threadId, text: record })),
+    ...[...exchangeSlices].reverse(),
     ...summaries.map((summary, index) => ({ id: `summary:${summary?.summaryId ?? index}`, threadId, text: summary })),
   ]
 }
 
+const MSP_SLICE_PREFIXES = Object.freeze(['participant:', 'protected:', 'exchange:', 'summary:'])
+
+function sliceIdSuffix(id, prefix) {
+  return id.slice(prefix.length)
+}
+
 /**
  * Rebuild the packet actually handed to the model and to MSP's injection
- * receipt from the Context Composer's included MSP slices ONLY. Returns
- * `null` when nothing survived composition — "no memory is injected" must
- * mean no packet, not an empty-looking one that still carries policy/identity
+ * receipt from the Context Composer's included MSP slices ONLY — nothing
+ * this packet originally carried is passed through untouched. Returns `null`
+ * when nothing survived composition — "no memory is injected" must mean no
+ * packet, not an empty-looking one that still carries policy/identity
  * metadata a reader could mistake for content.
+ *
+ * `droppedMspSlices` — this same call's own drops (BUDGET_TRIMMED,
+ * THREAD_SCOPE_MISMATCH, AUDIENCE_SCOPE_DENIED, SUPERSEDED_BY_RECORD) — are
+ * folded into the rebuilt manifest's `omittedRanges`/`budget.truncated`/
+ * `coverageGap`, so a packet the composer trimmed cannot claim nothing was
+ * truncated, which is what MSP's own manifest fields would otherwise say.
  */
-function injectedMspPacket(packet, includedMspSlices) {
+function injectedMspPacket(packet, includedMspSlices, droppedMspSlices = []) {
   if (!packet) return null
   const byPrefix = (prefix) => includedMspSlices
     .filter((slice) => slice.id.startsWith(prefix))
     .map((slice) => slice.content)
-  const recentExchanges = byPrefix('exchange:')
+  const participants = byPrefix('participant:')
   const protectedMemory = byPrefix('protected:')
+  // Composed newest-first for the budget (see mspPacketSlices); rebuilt
+  // chronologically (oldest-first) to match MSP's own packet convention.
+  const recentExchanges = byPrefix('exchange:').reverse()
   const summaries = byPrefix('summary:')
-  if (!recentExchanges.length && !protectedMemory.length && !summaries.length) return null
+  if (!participants.length && !protectedMemory.length && !recentExchanges.length && !summaries.length) return null
+
+  const omittedRanges = [...(packet.manifest?.omittedRanges ?? [])]
+  for (const entry of droppedMspSlices) {
+    const prefix = MSP_SLICE_PREFIXES.find((candidate) => entry.id.startsWith(candidate))
+    if (prefix === 'exchange:') omittedRanges.push({ exchangeId: sliceIdSuffix(entry.id, prefix), reason: entry.reason })
+    else if (prefix === 'summary:') omittedRanges.push({ summaryId: sliceIdSuffix(entry.id, prefix), reason: entry.reason })
+    else if (prefix === 'protected:') omittedRanges.push({ protectedRecordId: sliceIdSuffix(entry.id, prefix), reason: entry.reason })
+    else if (prefix === 'participant:') omittedRanges.push({ participantId: sliceIdSuffix(entry.id, prefix), reason: entry.reason })
+  }
+  const truncated = droppedMspSlices.length > 0
+
   return {
     ...packet,
-    memory: { ...packet.memory, recentExchanges, summaries, protectedMemory },
+    // @req FR-234 — `packet.knowledge` is the agent's own graph-relation
+    // lookup (queryKnowledge: a principal's relations, not a GKS corpus
+    // citation), with no per-item shape this composer can budget or receipt
+    // yet. Rather than invent citation semantics it does not have, it is
+    // stripped entirely: every content-bearing field the model receives must
+    // either go through the composer or be removed (see the review this
+    // fixes), and this field has no composer-representable shape today.
+    knowledge: null,
+    memory: { participants, recentExchanges, summaries, protectedMemory },
     manifest: packet.manifest ? {
       ...packet.manifest,
       effectiveRecentExchangeCount: recentExchanges.length,
       summaryCount: summaries.length,
       protectedRecordCount: protectedMemory.length,
+      omittedRanges,
+      coverageGap: Boolean(packet.manifest.coverageGap) || truncated,
+      budget: packet.manifest.budget
+        ? { ...packet.manifest.budget, truncated: Boolean(packet.manifest.budget.truncated) || truncated }
+        : packet.manifest.budget,
     } : packet.manifest,
   }
 }
@@ -293,7 +353,8 @@ export function createServerLineAnswer({
         // original packet — so the receipt this turn records can never
         // describe less than what the model actually saw.
         injectedPacket = injectedMspPacket(memoryContext.threadMemory,
-          composed.slices.filter((slice) => slice.source === 'MSP'))
+          composed.slices.filter((slice) => slice.source === 'MSP'),
+          composed.dropped.filter((entry) => entry.source === 'MSP'))
         trace?.recordThreadMemory?.({
           contextPacket: injectedPacket,
           thread: memoryContext.thread,

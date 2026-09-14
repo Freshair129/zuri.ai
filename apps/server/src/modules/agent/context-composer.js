@@ -134,7 +134,12 @@ function authorizationRequired() {
  * @param {Array<object|string>} [input.mspSlices] — MSP memory packet slices,
  *   split by the caller into provenance-bearing pieces (e.g. one per exchange
  *   or packet section) — never handed in as one opaque blob, or the budget can
- *   only ever keep or drop the whole thing.
+ *   only ever keep or drop the whole thing. Order matters: the budget is a
+ *   strict, contiguous cutoff over each source's slices in the order given,
+ *   not first-fit — once one slice does not fit, every slice after it in that
+ *   order is dropped too, even a smaller one that would fit alone. A caller
+ *   that wants "keep the most recent, drop the oldest" (e.g. MSP exchanges)
+ *   must order its slices newest-first.
  * @param {number} [input.maxBudgetChars] — one prompt-wide character budget.
  */
 export function composeContext({
@@ -210,15 +215,23 @@ export function composeContext({
     .sort((a, b) => (a.slice.priority - b.slice.priority) || (a.index - b.index))
     .map(({ slice }) => slice)
 
+  // Strict, contiguous cutoff — not first-fit. The first slice that does not
+  // fit closes the budget for everything after it, even a smaller slice that
+  // would individually still fit. First-fit would let a later, smaller slice
+  // fill the gap a bigger dropped one left behind, which for an ordered
+  // sequence like MSP exchanges turns "drop the oldest" into "drop whichever
+  // ones happen not to fit", opening a hole in the middle of the conversation.
   let used = 0
+  let budgetExceeded = false
   const included = []
   for (const slice of ordered) {
-    if (used + slice.length > maxBudgetChars) {
+    if (!budgetExceeded && used + slice.length <= maxBudgetChars) {
+      used += slice.length
+      included.push(slice)
+    } else {
+      budgetExceeded = true
       dropped.push({ id: slice.id, source: slice.source, reason: 'BUDGET_TRIMMED' })
-      continue
     }
-    used += slice.length
-    included.push(slice)
   }
 
   const trimmed = dropped.filter((entry) => entry.reason === 'BUDGET_TRIMMED').length
