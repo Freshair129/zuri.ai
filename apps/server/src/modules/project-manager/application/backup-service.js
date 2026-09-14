@@ -306,6 +306,9 @@ const SNAPSHOT_MODELS = [
   // sotDataPlaneKey above: only its hash restores, never the raw secret,
   // which the model never persists in the first place.
   'apiAccessKey',
+  // @req FR-230 — a Tenant's retention override hangs off Tenant only, no
+  // secret and no PII (a data class name and a day count).
+  'tenantRetentionOverride',
   'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation', 'message',
   // @req FR-229 — an attachment hangs off Message, an event off Conversation;
   // both restore after their parent above and delete before it in reverse.
