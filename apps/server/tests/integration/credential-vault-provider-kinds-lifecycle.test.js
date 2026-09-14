@@ -1,4 +1,4 @@
-// @req FR-NEW — an OAUTH_CLIENT or MODEL_PROVIDER_KEY credential follows the same
+// @req FR-242 — an OAUTH_CLIENT or MODEL_PROVIDER_KEY credential follows the same
 //   write-only, versioned, scope-rechecked lifecycle as a LINE channel credential
 //   (SEC-030) through the existing SecretStorePort: version + PENDING_VALIDATION,
 //   activate, rotate (previous version stays resolvable until the new one

@@ -1,12 +1,12 @@
 // @req FR-223 — the Supabase Vault store: the SecretStorePort for the hosted
 //   product, where encryption happens in the database and the app never holds a key.
-// @req FR-NEW — write/resolve dispatch to zuri_core.provider_secret_write and
+// @req FR-242 — write/resolve dispatch to zuri_core.provider_secret_write and
 //   zuri_core.provider_secret_resolve (20260915000000) for OAUTH_CLIENT and
 //   MODEL_PROVIDER_KEY, leaving zuri_core.channel_secret_write/resolve — and the
 //   live LINE_CHANNEL traffic that already calls them — completely untouched
 //   (ADR-089 §4.8 phase 7). activate/revoke stay the same LINE functions for
 //   every kind: neither one reads secretKind, so nothing about them is LINE-only.
-// @spec ADR-089 D1, D5; SDD-097; SEC-030
+// @spec ADR-089 D1, D5; SDD-097; SDD-101; SEC-030; SEC-033
 // @tested tests/unit/integration/supabase-vault-secret-store.test.js, tests/integration/credential-vault.postgres.test.js
 //
 // This adapter holds no lifecycle logic of its own. Each method is one call to a
@@ -44,7 +44,7 @@ export const CHANNEL_SECRET_SQL = Object.freeze({
   activate: 'select secret_ref, version_number, superseded_count, purge_failed_count from zuri_core.channel_secret_activate($1, $2, $3, $4::int, $5)',
   revoke: 'select credential_status, revoked_count, purged_count, purge_failed_count from zuri_core.channel_secret_revoke($1, $2, $3, $4, $5::int)',
   resolve: 'select secret_material, version, expires_at from zuri_core.channel_secret_resolve($1, $2, $3, $4, $5)',
-  // FR-NEW (20260915000000) — OAUTH_CLIENT / MODEL_PROVIDER_KEY only. activate and
+  // FR-242 (20260915000000) — OAUTH_CLIENT / MODEL_PROVIDER_KEY only. activate and
   // revoke are shared with LINE_CHANNEL above: neither reads secretKind.
   writeProvider: 'select secret_ref, version_number from zuri_core.provider_secret_write($1, $2, $3, $4, $5::jsonb, $6::timestamptz, $7, $8)',
   resolveProvider: 'select secret_material, version, expires_at from zuri_core.provider_secret_resolve($1, $2, $3, $4, $5)',

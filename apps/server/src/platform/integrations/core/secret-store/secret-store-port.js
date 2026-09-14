@@ -1,11 +1,11 @@
 // @req FR-223 — the SecretStorePort contract: write, activate, revoke and resolve a
 //   provider credential through one port whatever store holds it; the vocabulary,
 //   the reference grammar and the one bundle schema both stores validate against.
-// @req FR-NEW — generalise the bundle schema and display-hint rule to OAUTH_CLIENT
+// @req FR-242 — generalise the bundle schema and display-hint rule to OAUTH_CLIENT
 //   and MODEL_PROVIDER_KEY, dispatched by an explicit map keyed by kind (never a
 //   boolean flag or an `if` chain), so an unmapped kind is refused rather than
 //   silently accepted (ADR-089 §4.8 phase 7).
-// @spec ADR-089 D1, D2, D5; SDD-097; SEC-030
+// @spec ADR-089 D1, D2, D5; SDD-097; SDD-101; SEC-030; SEC-033
 // @tested tests/unit/integration/secret-store-port.test.js
 //
 // A reference names its store by prefix, and that is the only way a caller learns
@@ -49,7 +49,7 @@ const STATUS_BY_CODE = Object.freeze({
   CHANNEL_SECRET_KIND_UNSUPPORTED: 400,
   CREDENTIAL_VALIDATION_CODE_INVALID: 400,
   CREDENTIAL_VERSION_CONFLICT: 409,
-  // FR-NEW — a connectionId already holds a credential of a different kind. Refused
+  // FR-242 — a connectionId already holds a credential of a different kind. Refused
   // before either the "rotate" or the "replace a dead row" branch runs, in every
   // store: a connection's kind never changes underneath its live or dead credential
   // by a plain write (revoke first, then a fresh connection or a fresh write can
@@ -109,7 +109,7 @@ export const LINE_CHANNEL_ID_PATTERN = /^[0-9]{6,20}$/
 export const LINE_CHANNEL_SECRET_PATTERN = /^[0-9a-f]{32}$/
 export const LINE_CHANNEL_ACCESS_TOKEN_PATTERN = /^[A-Za-z0-9+/=_-]{40,4096}$/
 
-// FR-NEW — the two kinds ADR-089 §4.8 phase 7 generalises to. Neither carries a
+// FR-242 — the two kinds ADR-089 §4.8 phase 7 generalises to. Neither carries a
 // "destination" concept the way a LINE channel does (D6 of ADR-053: grant_type,
 // scope and base URL are adapter constants, never bundle fields), so their
 // bundles are exactly the credential material and nothing else.

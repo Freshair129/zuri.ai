@@ -1,4 +1,4 @@
-// @req FR-NEW — static guarantees of 20260915000000_credential_vault_provider_kinds.sql
+// @req FR-242 — static guarantees of 20260915000000_credential_vault_provider_kinds.sql
 //   that CI checks on every run (the PostgreSQL suite that executes it needs a
 //   disposable cluster): it is additive, never edits the LINE channel functions,
 //   and the new functions raise only fixed codes and re-prove scope from rows.

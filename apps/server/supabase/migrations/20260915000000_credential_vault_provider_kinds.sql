@@ -1,8 +1,8 @@
--- @req FR-NEW — generalise the Supabase Vault credential store beyond LINE_CHANNEL:
+-- @req FR-242 — generalise the Supabase Vault credential store beyond LINE_CHANNEL:
 -- new SECURITY DEFINER functions write and resolve OAUTH_CLIENT and
 -- MODEL_PROVIDER_KEY bundles, reusing the same two NOLOGIN roles and the same
 -- purge helper as the LINE channel functions.
--- @spec ADR-089 §4.8 phase 7; SDD-097; SEC-030
+-- @spec ADR-089 §4.8 phase 7; SDD-097; SDD-101; SEC-030; SEC-033
 -- @tested tests/unit/integration/credential-vault-provider-kinds-migration.test.js,
 --   tests/unit/integration/supabase-vault-secret-store.test.js,
 --   tests/integration/credential-vault-provider-kinds-lifecycle.test.js
@@ -182,7 +182,7 @@ begin
   v_secret_id := vault.create_secret(
     p_bundle::text,
     format('zuri:%s:%s:v%s:%s', p_kind, p_connection_id, v_next, gen_random_uuid()),
-    format('FR-NEW credential: tenant=%s business=%s connection=%s version=%s', p_tenant_id, p_business_id, p_connection_id, v_next)
+    format('FR-242 credential: tenant=%s business=%s connection=%s version=%s', p_tenant_id, p_business_id, p_connection_id, v_next)
   );
   v_ref := 'supabase-vault:' || v_secret_id::text;
 
@@ -327,8 +327,8 @@ grant execute on function zuri_core.provider_secret_write(text, text, text, text
 grant execute on function zuri_core.provider_secret_resolve(text, text, text, text, text) to zuri_channel_vault_reader;
 
 comment on function zuri_core.provider_secret_write(text, text, text, text, jsonb, timestamptz, text, text) is
-  'FR-NEW — write an OAUTH_CLIENT or MODEL_PROVIDER_KEY credential version PENDING_VALIDATION into Supabase Vault; refuses LINE_CHANNEL and anything else, and refuses a connectionId already holding a credential of a different kind (CREDENTIAL_KIND_MISMATCH) before any secret reaches the vault. zuri_channel_vault_writer only.';
+  'FR-242 — write an OAUTH_CLIENT or MODEL_PROVIDER_KEY credential version PENDING_VALIDATION into Supabase Vault; refuses LINE_CHANNEL and anything else, and refuses a connectionId already holding a credential of a different kind (CREDENTIAL_KIND_MISMATCH) before any secret reaches the vault. zuri_channel_vault_writer only.';
 comment on function zuri_core.provider_secret_resolve(text, text, text, text, text) is
-  'FR-NEW — resolve an ACTIVE OAUTH_CLIENT or MODEL_PROVIDER_KEY version for its exact Tenant, Business and connection; no row for every refusal, and never for LINE_CHANNEL. zuri_channel_vault_reader only.';
+  'FR-242 — resolve an ACTIVE OAUTH_CLIENT or MODEL_PROVIDER_KEY version for its exact Tenant, Business and connection; no row for every refusal, and never for LINE_CHANNEL. zuri_channel_vault_reader only.';
 
 commit;

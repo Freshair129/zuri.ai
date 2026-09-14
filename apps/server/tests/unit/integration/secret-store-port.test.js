@@ -1,6 +1,6 @@
 // @req FR-223 — the SecretStorePort vocabulary: references name their store, bundles
 //   are validated without echoing a value, and errors carry a code and nothing else.
-// @req FR-NEW — OAUTH_CLIENT and MODEL_PROVIDER_KEY bundle schemas, dispatched by
+// @req FR-242 — OAUTH_CLIENT and MODEL_PROVIDER_KEY bundle schemas, dispatched by
 //   an explicit map keyed by kind; a kind absent from the map is refused.
 // @spec SDD-097, SEC-030
 // @tested tests/unit/integration/secret-store-port.test.js

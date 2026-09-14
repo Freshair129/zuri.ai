@@ -548,7 +548,7 @@ locates the week.
 | TASK-ZAI-100 | SPR-ZAI-06 | task | LINE memory projection policy and receipts — LineOaAccount.memoryPolicy defaulting to OFF, per-job capture of session-tier and memory-tier eligibility by policy, consent and audience, MemoryProjectionReceipt in the delivery settlement, and a projector that refuses until MSP main ships thread and erase tools — FR-231 | P1 | Claude | blocked | TASK-ZAI-092; TASK-ZAI-089 | Section 3.1 row 4; ADR-091 D3, D4; PLAN-MSP-MEMORY-OS-LINE-AGENT TASK-MEMOS-002, TASK-MEMOS-004 |
 | TASK-ZAI-101 | SPR-ZAI-06 | task | Erasure propagation beyond Tier 1 — one transaction tombstones CRM bodies, previews, attachments, LINE job fields, raw payloads, trace inputs and knowledge candidates, and leaves durable MSP erase calls per projection receipt and knowledge-source withdrawals, with PENDING_MSP until acknowledged — FR-232, SEC-031 | P1 | Claude | blocked | TASK-ZAI-100; TASK-ZAI-096 | Section 3.1 row 4; ADR-091 D6; ADR-090 D8; PLAN-MSP-MEMORY-OS-LINE-AGENT TASK-MEMOS-004 |
 | TASK-ZAI-102 | SPR-ZAI-06 | task | Memory policy production activation — apply the memory policy and projection receipt migrations under ADR-057 and, only on the owner's instruction, enable projection for one DIRECT account after the MSP canary (TASK-MEMOS-006) passes, recorded with a rollback | P1 | ATHER | blocked | TASK-ZAI-101 | ADR-057; ADR-091 D3; PLAN-MSP-MEMORY-OS-LINE-AGENT TASK-MEMOS-006 |
-| TASK-ZAI-103 | SPR-ZAI-10 | task | Generalise the credential vault to other provider kinds — OAUTH_CLIENT for FlowAccount (ADR-053) and MODEL_PROVIDER_KEY on the same SecretStorePort, and retire the Phase-1 model-credential resolver; requirements declared first | P2 | Claude | planned | TASK-ZAI-085 | Section 3.1 row 8; ADR-089 phase 7; ADR-053 D3 |
+| TASK-ZAI-103 | SPR-ZAI-10 | task | Generalise the credential vault to other provider kinds, FR-242 — OAUTH_CLIENT for FlowAccount (ADR-053) and MODEL_PROVIDER_KEY on the same SecretStorePort, built and tested; retiring the Phase-1 model-credential resolver is a separate follow-up | P2 | Claude | review | TASK-ZAI-085 | Section 3.1 row 8; ADR-089 phase 7; ADR-053 D3 |
 | TASK-ZAI-104 | SPR-ZAI-02 | task | Programme roadmap member view — for 30 days any signed-in person reads the programme plan and the Domain map at /roadmap, with usage by person and device, tool and model names and the Agent devices tab removed on the server, closing by itself at 2026-10-15 00:00 Asia/Bangkok while /control/roadmap stays operator-only | P1 | Claude | done | TASK-ZAI-075 | Section 3.1 row 2; FR-105; FR-211; ADR-048; ADR-092 |
 
 ## Assignments
@@ -5330,28 +5330,28 @@ title: Generalise the credential vault to other provider kinds — OAUTH_CLIENT 
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: unavailable
+  code: apps/server/src/platform/integrations/core/secret-store/secret-store-port.js, apps/server/src/platform/integrations/core/secret-store/envelope-secret-store.js, apps/server/src/platform/integrations/core/secret-store/supabase-vault-secret-store.js, apps/server/supabase/migrations/20260915000000_credential_vault_provider_kinds.sql
   doc: docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md
-  test: unavailable
-delivers: []
+  test: apps/server/tests/integration/credential-vault-provider-kinds-lifecycle.test.js, apps/server/tests/unit/integration/credential-vault-provider-kinds-migration.test.js
+delivers: [FR-242]
 definition_of_done:
   acceptance_criteria:
     - criterion: Given ADR-089 phase 7, when this task opens, then its requirements are declared in the PRD and pinned before any code, because no requirement covers these kinds today
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given an OAUTH_CLIENT or MODEL_PROVIDER_KEY credential, when it is written, rotated, revoked and resolved, then it follows the same write-only, versioned and scope-rechecked lifecycle as a LINE channel credential and SEC-030 holds
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given the Phase-1 resolver retired, when npm test and npm run phase1:isolation:verify run, then model credentials resolve through the port and no resolver reads zuri_core.integration_* directly
       checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Registered as backlog without a requirement: the programme already registers work whose requirement is declared at sprint entry (TASK-ZAI-007 to TASK-ZAI-030), and ADR-089 names this phase. No lane is declared because no branch has been chosen; one must be declared before work starts, or its sessions are not measured.
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Registered as backlog without a requirement: the programme already registers work whose requirement is declared at sprint entry (TASK-ZAI-007 to TASK-ZAI-030), and ADR-089 names this phase. No lane is declared because no branch has been chosen; one must be declared before work starts, or its sessions are not measured. 2026-09-15: lane `feat/vault-provider-kinds-generalization`. **FR-242 declared and pinned** (PRD-SDD v1.223.0b) alongside SDD-101 and SEC-033. Built and tested: the port generalises to OAUTH_CLIENT and MODEL_PROVIDER_KEY with the same lifecycle guarantees a LINE_CHANNEL credential has; a review round found the first draft would have let a write of a different kind silently rotate an existing connectionId's live credential while leaving its stored `secretKind` unchanged (exactly the class of bug behind this repo's LINE outages), fixed with a `CREDENTIAL_KIND_MISMATCH` refusal in both the envelope store and the new `zuri_core.provider_secret_write` SQL function before any material reaches the vault, with regression tests. Acceptance and success criteria now hold; exit criterion stays unchecked because the Phase-1 resolver retirement (this task's other half) is deliberately not attempted here — left as a separate follow-up requirement, since retiring it touches the live path production Anthropic-key resolution runs through today and could not be proven safe within this task without a live/staging smoke test. Migration `20260915000000` written, not applied. Not merged, not deployed.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
