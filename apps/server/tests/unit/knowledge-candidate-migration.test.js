@@ -11,8 +11,8 @@ import path from 'node:path'
 // @spec ADR-090 D6, D8; ADR-057 (not applied by this test or this change)
 const root = process.cwd()
 const require = createRequire(path.join(root, 'package.json'))
-const sqlite = readFileSync(path.join(root, 'prisma/migrations/20260914150000_knowledge_candidate/migration.sql'), 'utf8')
-const postgres = readFileSync(path.join(root, 'supabase/migrations/20260914150000_knowledge_candidate.sql'), 'utf8')
+const sqlite = readFileSync(path.join(root, 'prisma/migrations/20260914150200_knowledge_candidate/migration.sql'), 'utf8')
+const postgres = readFileSync(path.join(root, 'supabase/migrations/20260914150200_knowledge_candidate.sql'), 'utf8')
 
 describe('KnowledgeCandidate migration (FR-236)', () => {
   it('creates the table with its FKs against a real SQLite engine', () => {

@@ -5,6 +5,7 @@ import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 import { hasPermission, LINE_OA_PUBLISH_PERMISSION } from '@/modules/identity/rbac'
 import { getConversationThread } from '@/modules/crm/conversation-read-model'
+import { readConversationConsentStatus } from '@/modules/crm/conversation-consent-reader'
 import { zKnowledgeCandidateDecision } from '@/lib/validation/enums'
 import { hashGenesisRag17Json } from '../genesisrag17-contract'
 import { assertCandidateZeroPii } from '../knowledge-candidate-zero-pii'
@@ -17,9 +18,13 @@ import { admitKnowledge as defaultAdmitKnowledge } from '../knowledge-admission-
 //   and the audited APPROVE/REJECT decision that, on APPROVE only, admits it
 //   through the ADR-072 admission service as one immutable LINE_FAQ_CANDIDATE
 //   TEXT source — never a second write path into the corpus, and never a
-//   Tier 1 call to `gks_knowledge_promote`.
+//   Tier 1 call to `gks_knowledge_promote`. The decision re-checks consent
+//   through crm's own narrow `readConversationConsentStatus` contract
+//   (`conversation-consent-reader.js`) — never a raw cross-domain query —
+//   and fails closed to refusal on any missing/unreadable/malformed source
+//   reference, not only an explicit non-GRANTED status.
 // @spec ADR-090 D6, D8; ADR-072; SEC-032; BR-002; SEC-001
-// @tested tests/integration/fr236-knowledge-candidate.test.js, tests/unit/knowledge-candidate-migration.test.js
+// @tested tests/integration/fr236-knowledge-candidate.test.js, tests/unit/knowledge-candidate-migration.test.js, tests/unit/conversation-consent-reader.test.js
 
 const ENTITY = 'KNOWLEDGE_CANDIDATE'
 const GRANTED = 'GRANTED'
@@ -224,25 +229,26 @@ export async function decideKnowledgeCandidate(id, input, { viewer, db = prisma,
 
   // Fail closed: consent may have changed since the draft (a withdrawal
   // between draft and decision must stop the admission, not merely the next
-  // draft). This is a direct, internal re-check — not another call through
-  // the CRM's user-facing read model — because the reviewer here has already
-  // proven OWNER/LINE_OA_PUBLISHER authority over this exact Business above;
-  // requiring the separate `customer` domain grant on top of that would
-  // refuse a LINE_OA_PUBLISHER who was never granted the CRM inbox, for a
-  // reason unrelated to their authority to decide a knowledge candidate.
+  // draft), and a missing or malformed sourceRef must refuse exactly like a
+  // withdrawn one — never silently admit. The read goes through crm's own
+  // narrow, internal consent contract (`conversation-consent-reader.js`), not
+  // another call through the CRM's viewer-facing read model: the reviewer
+  // here has already proven OWNER/LINE_OA_PUBLISHER authority over this exact
+  // Business above, and requiring the separate `customer` domain grant on top
+  // of that would refuse a LINE_OA_PUBLISHER who was never granted the CRM
+  // inbox, for a reason unrelated to their authority to decide a candidate.
   // Zero-PII re-runs a second time either way, per ADR-090 D6.
   const sourceRef = JSON.parse(row.sourceRefJson || '{}')
-  if (sourceRef.conversationId) {
-    const conversation = await db.conversation.findUnique({
-      where: { id: sourceRef.conversationId },
-      select: { tenantId: true, businessId: true, customer: { select: { consentStatus: true } } },
-    })
-    if (!conversation || conversation.tenantId !== row.tenantId || (conversation.businessId && conversation.businessId !== row.businessId)) {
-      throw failure(409, 'Source conversation is no longer readable', 'KNOWLEDGE_CANDIDATE_CONSENT_NOT_GRANTED')
-    }
-    if (conversation.customer.consentStatus !== GRANTED) {
-      throw failure(409, `Conversation consent is ${conversation.customer.consentStatus}, not GRANTED`, 'KNOWLEDGE_CANDIDATE_CONSENT_NOT_GRANTED')
-    }
+  const consentStatus = await readConversationConsentStatus(
+    { tenantId: row.tenantId, businessId: row.businessId, conversationId: sourceRef.conversationId },
+    { db },
+  )
+  if (consentStatus !== GRANTED) {
+    throw failure(
+      409,
+      consentStatus ? `Conversation consent is ${consentStatus}, not GRANTED` : 'Source conversation is not readable',
+      'KNOWLEDGE_CANDIDATE_CONSENT_NOT_GRANTED',
+    )
   }
   assertCandidateZeroPii({ question: row.question, answer: row.answer })
 

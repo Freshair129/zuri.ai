@@ -1,7 +1,7 @@
 ---
-version: "0.3.0b"
+version: "0.4.0b"
 status: active
-last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-14T20:00:00+07:00,Claude Sonnet 5"
 id: ZAI:DOMAIN-CRM
 relations:
   - type: relates_to
@@ -104,6 +104,15 @@ turn flows through before any agent work happens.
   may append a decision, but the queue never publishes a Customer or replays
   historical data through LINE.
 
+- `readConversationConsentStatus` — a narrow, internal (non-viewer) consent
+  reader for the knowledge lane's candidate decision (FR-236, ADR-090 D6):
+  given a Tenant/Business/Conversation id it returns only the Customer's
+  `consentStatus`, or `null` ("not readable") on any mismatch or a missing
+  row — never a viewer, never message content, and deliberately distinct from
+  `getConversationThread`'s `customer` domain gate, because a Business OWNER
+  or `LINE_OA_PUBLISHER` deciding a candidate has already proven authority
+  over that exact Business through the knowledge domain and must not be
+  refused for lacking an unrelated CRM inbox grant. Read-only by construction.
 - `createSalesTask` / `applySalesTaskAction` / `listSalesTasks` / `getSalesTask`
   — the sales task writer and readers (FR-161, ADR-064). A fifth narrow writer:
   a follow-up a salesperson owes a customer (call, LINE message, email, meeting,
@@ -177,6 +186,7 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.4.0b | 2026-09-14 | Added `readConversationConsentStatus` (FR-236, ADR-090 D6): a narrow, internal, viewer-free consent reader the knowledge lane's candidate decision calls instead of re-authorizing through `getConversationThread`'s `customer` domain gate; a sixth narrow read-only export, no `owns_models` change | Claude Sonnet 5 |
 | 0.3.0b | 2026-09-14 | ADR-091 / FEAT-037 declared: CRM is the business record of a conversation; planned `MessageAttachment`, `ConversationEvent`, message and conversation read-model columns, search reader and retention recorded as prose; no `owns_models` change | Claude Opus 5 |
 | 0.2.0b | 2026-09-06 | Claimed `SalesTask` (FR-161, ADR-064): the legacy Tasks section adapted as a CRM sales activity record with its own writer, `SALES_REP` role and `/customer/sales-tasks` page | Claude Fable 5.1 |
 | 0.1.0b | 2026-09-06 | Added document metadata and FEAT-019 handoff navigation; existing domain manifest retained | RWANG |

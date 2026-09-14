@@ -128,6 +128,25 @@ describe('FR-236 KnowledgeCandidate (ADR-090 D6)', () => {
       .rejects.toMatchObject({ status: 404 })
   })
 
+  it('fails closed at decision time when consent is withdrawn after the draft', async () => {
+    const drawn = await draftAConversation({ suffix: 'withdrawn-later' })
+    const draft = await draftKnowledgeCandidate({ businessId: business.id, conversationId: drawn.conversationId, messageIds: [drawn.messageId], idempotencyKey: 'withdrawn-later-test', ...CLEAN }, { viewer: owner })
+    await prisma.customer.update({ where: { id: drawn.customerId }, data: { consentStatus: 'DECLINED' } })
+    await expect(decideKnowledgeCandidate(draft.id, { decision: 'APPROVE', version: draft.version }, { viewer: owner }))
+      .rejects.toMatchObject({ status: 409, code: 'KNOWLEDGE_CANDIDATE_CONSENT_NOT_GRANTED' })
+    expect(await prisma.knowledgeSource.count({ where: { sourceKey: `knowledge-candidate:${draft.id}` } })).toBe(0)
+  })
+
+  it('fails closed at decision time when sourceRef names no readable conversation (missing/malformed, never a bypass)', async () => {
+    const draft = await draftKnowledgeCandidate({ businessId: business.id, conversationId, messageIds: [messageId], idempotencyKey: 'malformed-source-ref-test', ...CLEAN }, { viewer: owner })
+    // Simulate a row whose sourceRef never named a conversation (or was
+    // corrupted) — this must refuse exactly like a withdrawn one, never admit.
+    await prisma.knowledgeCandidate.update({ where: { id: draft.id }, data: { sourceRefJson: '{}' } })
+    await expect(decideKnowledgeCandidate(draft.id, { decision: 'APPROVE', version: draft.version }, { viewer: owner }))
+      .rejects.toMatchObject({ status: 409, code: 'KNOWLEDGE_CANDIDATE_CONSENT_NOT_GRANTED' })
+    expect(await prisma.knowledgeSource.count({ where: { sourceKey: `knowledge-candidate:${draft.id}` } })).toBe(0)
+  })
+
   it('drafts, is idempotent on a redelivered extraction, and conflicts on a changed payload for the same key', async () => {
     const key = `extract-${randomUUID().slice(0, 8)}`
     const first = await draftKnowledgeCandidate({ businessId: business.id, conversationId, messageIds: [messageId], idempotencyKey: key, ...CLEAN }, { viewer: owner })

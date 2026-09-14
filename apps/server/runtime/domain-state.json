@@ -41,7 +41,7 @@
     "requirementCount": 241,
     "verifiedRequirementCount": 217,
     "progressPercent": 90.9,
-    "gapCount": 31,
+    "gapCount": 33,
     "gaps": [
       {
         "domain": "agent",
@@ -90,6 +90,57 @@
         "severity": "medium",
         "check": "authorization",
         "summary": "At least one read route lacks a recognizable request viewer seam"
+      },
+      {
+        "domain": "crm",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "crm",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "crm",
+        "id": "REQ-FR-236",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-236 is partial",
+        "evidence": [
+          "apps/server/src/modules/crm/conversation-consent-reader.js",
+          "apps/server/tests/e2e/fr041-business-first.spec.js",
+          "apps/server/tests/integration/backup.test.js",
+          "apps/server/tests/integration/crm-conversation-analysis.test.js",
+          "apps/server/tests/integration/fr075-restore-authorization.test.js",
+          "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+          "apps/server/tests/integration/line-server-backup.test.js",
+          "apps/server/tests/integration/marketing-backup.test.js",
+          "apps/server/tests/integration/marketing-content-backup.test.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/integration/smartgift-catalog-admission.test.js",
+          "apps/server/tests/unit/asset-management-navigation.test.js",
+          "apps/server/tests/unit/business-capability-navigation.test.js",
+          "apps/server/tests/unit/conversation-consent-reader.test.js",
+          "apps/server/tests/unit/crm-group-navigation.test.js",
+          "apps/server/tests/unit/domain-navigation.test.js",
+          "apps/server/tests/unit/fr045-api-ui-contract.test.js",
+          "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/inventory-routes.test.js",
+          "apps/server/tests/unit/knowledge-admission-service.test.js",
+          "apps/server/tests/unit/knowledge-candidate-migration.test.js",
+          "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
+          "apps/server/tests/unit/knowledge-candidates-ui.test.js",
+          "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
+          "apps/server/tests/unit/marketing-navigation.test.js",
+          "apps/server/tests/unit/procurement-routes.test.js",
+          "apps/server/tests/unit/scm-group-navigation.test.js",
+          "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
+        ]
       },
       {
         "domain": "identity",
@@ -215,9 +266,11 @@
           "apps/server/tests/integration/line-server-backup.test.js",
           "apps/server/tests/integration/marketing-backup.test.js",
           "apps/server/tests/integration/marketing-content-backup.test.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
           "apps/server/tests/integration/smartgift-catalog-admission.test.js",
           "apps/server/tests/unit/asset-management-navigation.test.js",
           "apps/server/tests/unit/business-capability-navigation.test.js",
+          "apps/server/tests/unit/conversation-consent-reader.test.js",
           "apps/server/tests/unit/crm-group-navigation.test.js",
           "apps/server/tests/unit/domain-navigation.test.js",
           "apps/server/tests/unit/fr045-api-ui-contract.test.js",
@@ -267,18 +320,6 @@
       },
       {
         "domain": "project-manager",
-        "id": "API-OPENAPI-001",
-        "severity": "high",
-        "check": "httpApi",
-        "summary": "API route is not represented in the machine-readable OpenAPI generator",
-        "evidence": [
-          "/api/knowledge/candidates",
-          "/api/knowledge/candidates/[id]",
-          "/api/knowledge/candidates/[id]/decision"
-        ]
-      },
-      {
-        "domain": "project-manager",
         "id": "CONTRACT-001",
         "severity": "medium",
         "check": "runtimeContract",
@@ -324,6 +365,7 @@
           "apps/server/src/app/api/knowledge/candidates/[id]/route.js",
           "apps/server/src/app/api/knowledge/candidates/route.js",
           "apps/server/src/config/domains.js",
+          "apps/server/src/modules/project-manager/api-docs/openapi.js",
           "apps/server/src/modules/project-manager/application/backup-service.js",
           "apps/server/tests/e2e/fr041-business-first.spec.js",
           "apps/server/tests/integration/backup.test.js",
@@ -333,9 +375,11 @@
           "apps/server/tests/integration/line-server-backup.test.js",
           "apps/server/tests/integration/marketing-backup.test.js",
           "apps/server/tests/integration/marketing-content-backup.test.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
           "apps/server/tests/integration/smartgift-catalog-admission.test.js",
           "apps/server/tests/unit/asset-management-navigation.test.js",
           "apps/server/tests/unit/business-capability-navigation.test.js",
+          "apps/server/tests/unit/conversation-consent-reader.test.js",
           "apps/server/tests/unit/crm-group-navigation.test.js",
           "apps/server/tests/unit/domain-navigation.test.js",
           "apps/server/tests/unit/fr045-api-ui-contract.test.js",
@@ -644,7 +688,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 273,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -909,7 +953,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 273,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -1106,7 +1150,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 273,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -1202,7 +1246,7 @@
       "progressPercent": 100
     },
     "crm": {
-      "status": "verified",
+      "status": "partial",
       "requirements": [
         {
           "id": "FR-022",
@@ -1331,6 +1375,44 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 25
+        },
+        {
+          "id": "FR-236",
+          "title": "LINE FAQ knowledge candidates",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 27,
+          "evidence": [
+            "apps/server/src/modules/crm/conversation-consent-reader.js",
+            "apps/server/tests/e2e/fr041-business-first.spec.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
+            "apps/server/tests/unit/asset-management-navigation.test.js",
+            "apps/server/tests/unit/business-capability-navigation.test.js",
+            "apps/server/tests/unit/conversation-consent-reader.test.js",
+            "apps/server/tests/unit/crm-group-navigation.test.js",
+            "apps/server/tests/unit/domain-navigation.test.js",
+            "apps/server/tests/unit/fr045-api-ui-contract.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/inventory-routes.test.js",
+            "apps/server/tests/unit/knowledge-admission-service.test.js",
+            "apps/server/tests/unit/knowledge-candidate-migration.test.js",
+            "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
+            "apps/server/tests/unit/knowledge-candidates-ui.test.js",
+            "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
+            "apps/server/tests/unit/marketing-navigation.test.js",
+            "apps/server/tests/unit/procurement-routes.test.js",
+            "apps/server/tests/unit/scm-group-navigation.test.js",
+            "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
+          ]
         }
       ],
       "checks": {
@@ -1357,12 +1439,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "verified",
@@ -1388,11 +1476,17 @@
           "gaps": []
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -1417,7 +1511,56 @@
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-236",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-236 is partial",
+          "evidence": [
+            "apps/server/src/modules/crm/conversation-consent-reader.js",
+            "apps/server/tests/e2e/fr041-business-first.spec.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
+            "apps/server/tests/unit/asset-management-navigation.test.js",
+            "apps/server/tests/unit/business-capability-navigation.test.js",
+            "apps/server/tests/unit/conversation-consent-reader.test.js",
+            "apps/server/tests/unit/crm-group-navigation.test.js",
+            "apps/server/tests/unit/domain-navigation.test.js",
+            "apps/server/tests/unit/fr045-api-ui-contract.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/inventory-routes.test.js",
+            "apps/server/tests/unit/knowledge-admission-service.test.js",
+            "apps/server/tests/unit/knowledge-candidate-migration.test.js",
+            "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
+            "apps/server/tests/unit/knowledge-candidates-ui.test.js",
+            "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
+            "apps/server/tests/unit/marketing-navigation.test.js",
+            "apps/server/tests/unit/procurement-routes.test.js",
+            "apps/server/tests/unit/scm-group-navigation.test.js",
+            "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
+          ]
+        }
+      ],
       "details": {
         "routes": 0,
         "apiRoutes": 0,
@@ -1866,7 +2009,7 @@
           "details": {
             "routes": 27,
             "inventoried": 27,
-            "openApiPaths": 273,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -2325,7 +2468,7 @@
           "details": {
             "routes": 10,
             "inventoried": 10,
-            "openApiPaths": 273,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -2687,7 +2830,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 273,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -3014,7 +3157,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 5,
-          "testCount": 25,
+          "testCount": 27,
           "evidence": [
             "apps/server/src/app/(pm)/knowledge/candidates/page.jsx",
             "apps/server/src/modules/knowledge/application/knowledge-candidate-service.js",
@@ -3029,9 +3172,11 @@
             "apps/server/tests/integration/line-server-backup.test.js",
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/integration/smartgift-catalog-admission.test.js",
             "apps/server/tests/unit/asset-management-navigation.test.js",
             "apps/server/tests/unit/business-capability-navigation.test.js",
+            "apps/server/tests/unit/conversation-consent-reader.test.js",
             "apps/server/tests/unit/crm-group-navigation.test.js",
             "apps/server/tests/unit/domain-navigation.test.js",
             "apps/server/tests/unit/fr045-api-ui-contract.test.js",
@@ -3226,9 +3371,11 @@
             "apps/server/tests/integration/line-server-backup.test.js",
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/integration/smartgift-catalog-admission.test.js",
             "apps/server/tests/unit/asset-management-navigation.test.js",
             "apps/server/tests/unit/business-capability-navigation.test.js",
+            "apps/server/tests/unit/conversation-consent-reader.test.js",
             "apps/server/tests/unit/crm-group-navigation.test.js",
             "apps/server/tests/unit/domain-navigation.test.js",
             "apps/server/tests/unit/fr045-api-ui-contract.test.js",
@@ -3430,7 +3577,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 273,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -3591,7 +3738,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 273,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -3758,7 +3905,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 273,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -4004,7 +4151,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 273,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -4185,7 +4332,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 273,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -5407,13 +5554,14 @@
           "title": "LINE FAQ knowledge candidates",
           "declared": "planned",
           "status": "partial",
-          "codeCount": 5,
-          "testCount": 25,
+          "codeCount": 6,
+          "testCount": 27,
           "evidence": [
             "apps/server/src/app/api/knowledge/candidates/[id]/decision/route.js",
             "apps/server/src/app/api/knowledge/candidates/[id]/route.js",
             "apps/server/src/app/api/knowledge/candidates/route.js",
             "apps/server/src/config/domains.js",
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
             "apps/server/src/modules/project-manager/application/backup-service.js",
             "apps/server/tests/e2e/fr041-business-first.spec.js",
             "apps/server/tests/integration/backup.test.js",
@@ -5423,9 +5571,11 @@
             "apps/server/tests/integration/line-server-backup.test.js",
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/integration/smartgift-catalog-admission.test.js",
             "apps/server/tests/unit/asset-management-navigation.test.js",
             "apps/server/tests/unit/business-capability-navigation.test.js",
+            "apps/server/tests/unit/conversation-consent-reader.test.js",
             "apps/server/tests/unit/crm-group-navigation.test.js",
             "apps/server/tests/unit/domain-navigation.test.js",
             "apps/server/tests/unit/fr045-api-ui-contract.test.js",
@@ -5474,28 +5624,17 @@
           }
         },
         "httpApi": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/appendices/A-api-spec.md",
             "src/modules/project-manager/api-docs/openapi.js"
           ],
-          "gaps": [
-            {
-              "id": "API-OPENAPI-001",
-              "severity": "high",
-              "summary": "API route is not represented in the machine-readable OpenAPI generator",
-              "evidence": [
-                "/api/knowledge/candidates",
-                "/api/knowledge/candidates/[id]",
-                "/api/knowledge/candidates/[id]/decision"
-              ]
-            }
-          ],
+          "gaps": [],
           "details": {
             "routes": 133,
             "inventoried": 133,
-            "openApiPaths": 273,
-            "missingFromOpenApi": 3
+            "openApiPaths": 276,
+            "missingFromOpenApi": 0
           }
         },
         "mcp": {
@@ -5640,17 +5779,6 @@
           ]
         },
         {
-          "id": "API-OPENAPI-001",
-          "severity": "high",
-          "check": "httpApi",
-          "summary": "API route is not represented in the machine-readable OpenAPI generator",
-          "evidence": [
-            "/api/knowledge/candidates",
-            "/api/knowledge/candidates/[id]",
-            "/api/knowledge/candidates/[id]/decision"
-          ]
-        },
-        {
           "id": "CONTRACT-001",
           "severity": "medium",
           "check": "runtimeContract",
@@ -5691,6 +5819,7 @@
             "apps/server/src/app/api/knowledge/candidates/[id]/route.js",
             "apps/server/src/app/api/knowledge/candidates/route.js",
             "apps/server/src/config/domains.js",
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
             "apps/server/src/modules/project-manager/application/backup-service.js",
             "apps/server/tests/e2e/fr041-business-first.spec.js",
             "apps/server/tests/integration/backup.test.js",
@@ -5700,9 +5829,11 @@
             "apps/server/tests/integration/line-server-backup.test.js",
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/integration/smartgift-catalog-admission.test.js",
             "apps/server/tests/unit/asset-management-navigation.test.js",
             "apps/server/tests/unit/business-capability-navigation.test.js",
+            "apps/server/tests/unit/conversation-consent-reader.test.js",
             "apps/server/tests/unit/crm-group-navigation.test.js",
             "apps/server/tests/unit/domain-navigation.test.js",
             "apps/server/tests/unit/fr045-api-ui-contract.test.js",
@@ -9709,6 +9840,7 @@
       ],
       "primaryDomain": "knowledge",
       "contributorDomains": [
+        "crm",
         "knowledge",
         "project-manager"
       ],
@@ -9737,8 +9869,8 @@
           "title": "LINE FAQ knowledge candidates",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 10,
-          "testCount": 25
+          "codeCount": 12,
+          "testCount": 27
         },
         {
           "id": "FR-237",
@@ -9763,10 +9895,12 @@
         "apps/server/src/app/api/knowledge/candidates/[id]/route.js",
         "apps/server/src/app/api/knowledge/candidates/route.js",
         "apps/server/src/config/domains.js",
+        "apps/server/src/modules/crm/conversation-consent-reader.js",
         "apps/server/src/modules/knowledge/application/knowledge-candidate-service.js",
         "apps/server/src/modules/knowledge/knowledge-admission-service.js",
         "apps/server/src/modules/knowledge/knowledge-candidate-zero-pii.js",
         "apps/server/src/modules/knowledge/ui/KnowledgeCandidateReview.jsx",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/integration/backup.test.js",
@@ -9776,9 +9910,11 @@
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/smartgift-catalog-admission.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/conversation-consent-reader.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",

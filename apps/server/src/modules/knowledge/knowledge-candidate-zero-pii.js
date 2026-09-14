@@ -28,20 +28,76 @@ const INTERNATIONAL_PHONE_PATTERN = /\+\d[\d\s-]{7,}\d\b/
 // doing so is exactly what "quoted customer wording" looks like in text.
 const QUOTED_WORDING_PATTERN = /["“”«»].{2,}?["“”«»]/
 
-// Thai honorific + a Thai name token, and a two-token Latin "Firstname
-// Lastname" shape. Both are heuristics, not a name database — the policy's
-// job is to deny the fixture shapes a candidate must never carry, not to
-// parse every human name on earth.
-const THAI_NAME_PATTERN = /(?:นาย|นาง|นางสาว|คุณ)\s?[ก-๙]+(?:\s[ก-๙]+)?/
-const LATIN_NAME_PATTERN = /\b[A-Z][a-z]{1,}\s[A-Z][a-z]{1,}\b/
+// Thai has no spaces between words, so a bare honorific substring is not a
+// name signal by itself — "คุณ" alone is also the everyday second-person
+// pronoun ("คุณสามารถ...", "you can..."), and "คุณภาพ" (quality), "คุณสมบัติ"
+// (property/specification), "นายหน้า" (broker) are ordinary product/FAQ
+// vocabulary that happens to start with an honorific string. Scanning for the
+// honorific string is still the right starting point; `findThaiNameViolation`
+// below is what makes it precise: it requires either whitespace after the
+// honorific (an explicit "คุณ สมหญิง" form) or an immediate Thai continuation
+// that is NOT one of the known non-name compounds/pronoun uses.
+const THAI_HONORIFICS = ['นางสาว', 'นาย', 'นาง', 'คุณ']
+
+// Every one of these starts with one of THAI_HONORIFICS above and is ordinary
+// prose, never a personal name — the pronoun forms ("คุณสามารถ") are what
+// makes almost any FAQ answer addressed to the reader trip a naive honorific
+// scan, and the noun compounds are what makes ordinary product copy
+// ("...คุณภาพดี", "คุณสมบัติของ...") trip it. Not exhaustive — a heuristic
+// list can never be — but named explicitly so it can grow with evidence
+// rather than by guessing, and it only ever narrows a match, never widens one.
+const THAI_NAME_FALSE_POSITIVES = [
+  'คุณภาพ', 'คุณสมบัติ', 'คุณค่า', 'คุณประโยชน์', 'คุณธรรม', 'คุณูปการ',
+  'คุณสามารถ', 'คุณจะ', 'คุณต้อง', 'คุณควร', 'คุณอาจ', 'คุณเอง', 'คุณไม่',
+  'นายหน้า', 'นายทุน', 'นายจ้าง', 'นายแบบ',
+  'นางฟ้า', 'นางแบบ', 'นางงาม',
+]
+
+/**
+ * True when `text` names a person after a Thai honorific. Walks every
+ * occurrence of every honorific rather than testing one regex once, because
+ * whether a given occurrence is a name depends on what immediately follows
+ * IT — a single pattern cannot express "here it's a name, three words later
+ * the same honorific string is a compound word".
+ */
+function findThaiNameViolation(text) {
+  for (const honorific of THAI_HONORIFICS) {
+    let from = 0
+    for (;;) {
+      const at = text.indexOf(honorific, from)
+      if (at === -1) break
+      from = at + honorific.length
+      const rest = text.slice(from)
+      if (/^\s/.test(rest)) {
+        // Explicit "คุณ สมหญิง" form: whitespace then another Thai word.
+        if (/^\s+[ก-๙]/.test(rest)) return true
+        continue
+      }
+      // Glued form: "คุณสมชาย". Skip a known non-name compound/pronoun use;
+      // two more glued Thai characters otherwise reads as a name syllable.
+      const isKnownCompound = THAI_NAME_FALSE_POSITIVES.some(
+        (word) => word.startsWith(honorific) && rest.startsWith(word.slice(honorific.length)),
+      )
+      if (isKnownCompound) continue
+      if (/^[ก-๙]{2,}/.test(rest)) return true
+    }
+  }
+  return false
+}
+
+// Latin two-capitalized-word shapes ("John Smith") are indistinguishable by
+// capitalization alone from a brand, product or promotion name in Title Case
+// ("Smart Gift", "Express Delivery", "Buy One Get One") — FR-236 explicitly
+// allows product locators and policy names, so this heuristic is dropped
+// rather than "narrowed": there is no regex-expressible line between the two
+// shapes. A Latin personal name still falls to the structural FR-187 pattern
+// if it happens to sit next to a denied keyword, and to Stage 5's re-check.
 
 const CHECKS = Object.freeze([
   ['line_user_id', LINE_USER_ID_PATTERN],
   ['phone_number', THAI_PHONE_PATTERN],
   ['phone_number', INTERNATIONAL_PHONE_PATTERN],
   ['quoted_wording', QUOTED_WORDING_PATTERN],
-  ['personal_name', THAI_NAME_PATTERN],
-  ['personal_name', LATIN_NAME_PATTERN],
   // The same structural keyword pattern FR-187 uses (customer/contact/
   // quotation and their Thai equivalents) — reused, not duplicated, so the
   // two policies cannot drift into two different rules.
@@ -50,6 +106,7 @@ const CHECKS = Object.freeze([
 
 function scanProse(text, field) {
   if (typeof text !== 'string' || !text) return null
+  if (findThaiNameViolation(text)) return { field, term: 'personal_name' }
   for (const [term, pattern] of CHECKS) {
     if (pattern.test(text)) return { field, term }
   }

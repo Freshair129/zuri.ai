@@ -8,7 +8,14 @@ import { isStructuredRecordProvider, assertZeroPii } from '@/modules/knowledge/s
 
 // @req FR-236 — the Zero-PII deny policy a candidate's canonical question/
 //   answer must pass, with fixtures for every shape ADR-090 D6 names: a Thai
-//   name, a Thai phone number, a LINE user id, and quoted customer wording.
+//   name, a Thai phone number, a LINE user id, and quoted customer wording —
+//   and, just as importantly, a wide negative-fixture set of ordinary Thai/
+//   English FAQ prose that must NOT be refused. Thai has no spaces between
+//   words, so a bare honorific substring ("คุณ", "นาย", "นาง") is not a name
+//   signal on its own: "คุณ" is also the everyday second-person pronoun and
+//   "คุณภาพ"/"คุณสมบัติ"/"นายหน้า" are ordinary product vocabulary that merely
+//   starts with an honorific string. A policy that cannot tell these apart
+//   refuses every realistic candidate, which defeats FR-236 entirely.
 // @spec ADR-090 D6, FR-187
 const CLEAN = { question: 'ค่าจัดส่งไปต่างจังหวัดเท่าไหร่', answer: 'ค่าจัดส่งมาตรฐานคือ 50 บาท ตามนโยบายจัดส่งของร้าน (Product.code: SHIP-STD)' }
 
@@ -18,16 +25,14 @@ describe('knowledge candidate Zero-PII policy (FR-236)', () => {
     expect(() => assertCandidateZeroPii(CLEAN)).not.toThrow()
   })
 
-  it('refuses a Thai personal name', () => {
-    const violation = findCandidateZeroPiiViolation({ ...CLEAN, answer: 'คุณสมชาย ใจดี ได้รับของแล้วครับ' })
-    expect(violation).toMatchObject({ field: 'answer', term: 'personal_name' })
-    expect(() => assertCandidateZeroPii({ ...CLEAN, answer: 'คุณสมชาย ใจดี ได้รับของแล้วครับ' })).toThrow(
-      expect.objectContaining({ status: 422, code: 'KNOWLEDGE_CANDIDATE_ZERO_PII_DENIED' }),
-    )
-  })
-
-  it('refuses a Latin two-token personal name', () => {
-    expect(findCandidateZeroPiiViolation({ ...CLEAN, answer: 'John Smith confirmed the order' })).toMatchObject({ field: 'answer', term: 'personal_name' })
+  it('refuses a Thai personal name after an honorific, glued or spaced', () => {
+    for (const answer of ['คุณสมชาย ใจดี ได้รับของแล้วครับ', 'ติดต่อคุณสมชาย ใจดี ได้เลย', 'คุณ สมหญิง เป็นผู้ติดต่อหลัก']) {
+      const violation = findCandidateZeroPiiViolation({ ...CLEAN, answer })
+      expect(violation, answer).toMatchObject({ field: 'answer', term: 'personal_name' })
+      expect(() => assertCandidateZeroPii({ ...CLEAN, answer })).toThrow(
+        expect.objectContaining({ status: 422, code: 'KNOWLEDGE_CANDIDATE_ZERO_PII_DENIED' }),
+      )
+    }
   })
 
   it('refuses a Thai phone number', () => {
@@ -52,8 +57,47 @@ describe('knowledge candidate Zero-PII policy (FR-236)', () => {
     expect(findCandidateZeroPiiViolation({ ...CLEAN, answer: 'กรุณาติดต่อฝ่าย customer service' })).toMatchObject({ term: 'deny_term' })
   })
 
+  it('names which rule matched, so a reviewer can rephrase rather than guess', () => {
+    expect(findCandidateZeroPiiViolation({ ...CLEAN, answer: 'คุณสมชาย ใจดี' })?.term).toBe('personal_name')
+    expect(findCandidateZeroPiiViolation({ ...CLEAN, answer: '081-234-5678' })?.term).toBe('phone_number')
+  })
+
   it('carries its own policy identity distinct from FR-187 SmartGift policy', () => {
     expect(CANDIDATE_ZERO_PII_POLICY).toBe('line-faq-candidate-zero-pii-1')
+  })
+
+  // Every one of these is realistic FAQ/product prose FR-236 explicitly
+  // allows (product locators, policy names, amounts, ordinary Thai "you"
+  // phrasing and Title Case brand/product names) and must be approvable.
+  // Includes the five sentences a false-positive honorific/Latin-name rule
+  // was refusing before this fix.
+  const REALISTIC_NEGATIVE_FIXTURES = [
+    'กระเป๋าผ้าคุณภาพดี ราคา 120 บาท',
+    'คุณสมบัติของแก้วเก็บความเย็น',
+    'สั่งผ่านนายหน้าได้ไหม',
+    'Smart Gift รับสกรีนโลโก้',
+    'ส่งแบบ Express Delivery ภายใน 3 วัน',
+    CLEAN.answer,
+    'คุณสามารถชำระเงินผ่าน QR code ได้ทันที',
+    'คุณจะได้รับสินค้าใน 3-5 วันทำการ',
+    'สินค้ามีคุณค่าทางโภชนาการสูง',
+    'บริษัทดำเนินธุรกิจด้วยคุณธรรมและความโปร่งใส',
+    'กระเป๋าลายนางฟ้าเป็นสินค้าขายดี',
+    'เสื้อยืด Cotton 100% ระบายอากาศดี ใส่สบาย',
+    'โปรโมชั่น Buy One Get One ถึงสิ้นเดือนนี้',
+    'รับประกันสินค้า 1 ปีเต็ม ตามเงื่อนไขบริษัท',
+    'คุณต้องกรอกรหัสส่วนลดก่อนชำระเงิน',
+    'คุณควรเก็บใบเสร็จไว้เป็นหลักฐาน',
+    'คุณอาจได้รับ SMS แจ้งเตือนก่อนจัดส่ง',
+  ]
+
+  it('lists at least 15 realistic negative fixtures', () => {
+    expect(REALISTIC_NEGATIVE_FIXTURES.length).toBeGreaterThanOrEqual(15)
+  })
+
+  it.each(REALISTIC_NEGATIVE_FIXTURES)('does not refuse realistic FAQ prose: %s', (answer) => {
+    expect(findCandidateZeroPiiViolation({ ...CLEAN, answer })).toBeNull()
+    expect(() => assertCandidateZeroPii({ ...CLEAN, answer })).not.toThrow()
   })
 })
 

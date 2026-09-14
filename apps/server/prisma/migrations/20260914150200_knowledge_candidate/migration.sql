@@ -1,5 +1,5 @@
 -- @req FR-236 — KnowledgeCandidate, a LINE FAQ knowledge candidate (knowledge).
--- Twin of supabase/migrations/20260914150000_knowledge_candidate.sql.
+-- Twin of supabase/migrations/20260914150200_knowledge_candidate.sql.
 -- @spec ADR-090 D6, D8; ADR-072; SEC-032; BR-002
 -- Additive: one new table, its indexes and foreign keys; nothing existing changes.
 
