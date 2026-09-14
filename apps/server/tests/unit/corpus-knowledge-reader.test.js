@@ -52,7 +52,7 @@ describe('createCorpusKnowledgeReader (FR-235)', () => {
     expect(result.records).toEqual([])
   })
 
-  it('maps corpus hits into CORPUS_CHUNK records carrying retrieval references, and composes a receipt', async () => {
+  it('maps corpus hits into CORPUS_CHUNK records carrying retrieval references, and never composes or records anything itself', async () => {
     const queryKnowledgeCorpus = vi.fn(async () => ({
       corpusGeneration: 7, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60',
       results: [hit({ id: 'a' }), hit({ id: 'b', citationId: 'cit-2', text: 'ข้อมูลอีกชิ้น' })],
@@ -69,7 +69,10 @@ describe('createCorpusKnowledgeReader (FR-235)', () => {
     }
     expect(result.retrievalRefs).toHaveLength(2)
     expect(result.retrievalRefs[0]).toMatchObject({ citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 1, corpusGeneration: 7 })
-    expect(result.receipt).toMatchObject({ refs: { citations: expect.arrayContaining(['cit-1', 'cit-2']) } })
+    // @req FR-234/SDD-100 — this reader returns evidence only. Composition
+    // and its ContextReceipt are owned entirely by server-line-answer.js, so
+    // one model invocation can never get two receipts for one turn.
+    expect(result).not.toHaveProperty('receipt')
   })
 
   it('enforces the byte budget: an over-budget hit is dropped, an earlier smaller hit is kept', async () => {
@@ -90,20 +93,5 @@ describe('createCorpusKnowledgeReader (FR-235)', () => {
     const result = await reader.query({ queryId: 'product_detail', params: { productCode: 'X' }, limit: 1 })
     expect(result.records).toEqual([])
     expect(result.retrievalRefs).toEqual([])
-  })
-
-  it('records the composed ContextReceipt on the trace exactly when it produced evidence', async () => {
-    const queryKnowledgeCorpus = vi.fn(async () => ({ corpusGeneration: 1, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [hit()] }))
-    const recordContextReceipt = vi.fn()
-    const reader = createCorpusKnowledgeReader({ tenantId: TENANT_ID, businessId: BUSINESS_ID, queryKnowledgeCorpus, trace: { recordContextReceipt } })
-    await reader.query({ queryId: 'product_detail', params: { productCode: 'X' }, limit: 1 })
-    expect(recordContextReceipt).toHaveBeenCalledTimes(1)
-    expect(recordContextReceipt.mock.calls[0][0].refs.citations).toEqual(['cit-1'])
-
-    recordContextReceipt.mockClear()
-    const emptyQuery = vi.fn(async () => ({ corpusGeneration: 1, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [] }))
-    const emptyReader = createCorpusKnowledgeReader({ tenantId: TENANT_ID, businessId: BUSINESS_ID, queryKnowledgeCorpus: emptyQuery, trace: { recordContextReceipt } })
-    await emptyReader.query({ queryId: 'product_detail', params: { productCode: 'X' }, limit: 1 })
-    expect(recordContextReceipt).not.toHaveBeenCalled()
   })
 })

@@ -34,12 +34,15 @@ export function createLineExecutionTrace({ db, job }) {
   }
   return {
     assertHealthy() { if (failure) throw failure },
-    // @req FR-235 — a grounding-mode-aware caller may report which source this
-    // hop actually read (`meta.source`), why (`meta.reason`), its retrieval
-    // references (`meta.retrievalRefs` — citation/source/snapshot/generation,
-    // never content) and its measured budget (`meta.budgetMs`). Omitting
-    // `meta` entirely — every caller before FR-235 — keeps the original single
-    // `source: 'BUSINESS_QUERY'` shape byte-for-byte (ADR-090 "Required proof" 1).
+    // @req FR-235 — a grounding-mode-aware caller may report the account's
+    // grounding mode (`meta.mode`), which source this hop actually read
+    // (`meta.source`), why (`meta.reason`), its retrieval references
+    // (`meta.retrievalRefs` — citation/source/snapshot/generation, never
+    // content) and its measured budget (`meta.budgetMs`), so the console trace
+    // shows which mode answered without inferring it from `source` alone.
+    // Omitting `meta` entirely — every caller before FR-235 — keeps the
+    // original single `source: 'BUSINESS_QUERY'` shape byte-for-byte
+    // (ADR-090 "Required proof" 1).
     async recordEvidence(query, evidence, meta = {}) {
       retrieval = {
         retrievalRunId: randomUUID(),
@@ -48,6 +51,7 @@ export function createLineExecutionTrace({ db, job }) {
         evidence,
         snapshotHash: digest(evidence),
         observedAt: new Date().toISOString(),
+        ...(meta.mode !== undefined ? { mode: meta.mode } : {}),
         ...(meta.reason !== undefined ? { reason: meta.reason } : {}),
         ...(meta.retrievalRefs !== undefined ? { retrievalRefs: meta.retrievalRefs } : {}),
         ...(meta.budgetMs !== undefined ? { budgetMs: meta.budgetMs } : {}),

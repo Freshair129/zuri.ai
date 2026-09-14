@@ -27,7 +27,12 @@ function normalizedCodes(value) {
   return new Set((String(value).match(PRODUCT_CODE) ?? []).map((item) => item.toLocaleUpperCase()))
 }
 
-function selectRegisteredQuery(question) {
+// @req FR-235 — exported so a caller that must pre-fetch this turn's evidence
+// (server-line-answer.js, to compose knowledge evidence with MSP slices under
+// one budget before answerBusinessQuestion decides whether to call a model)
+// derives the exact same registered query answerBusinessQuestion would, from
+// a pure function of `question` alone — never a second, diverging derivation.
+export function selectRegisteredQuery(question) {
   const codes = [...normalizedCodes(question)].filter((code) => /\d/.test(code))
   if (/(เทียบ|เปรียบเทียบ|ต่างกัน)/i.test(question) && codes.length >= 2) {
     return { queryId: 'product_compare', params: { productCodes: codes.slice(0, 3) }, limit: 3 }

@@ -389,7 +389,15 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
 
     // An external send cannot be recalled. Resolve uncertain delivery before
     // handing ownership away; in-flight generation is cancelled by an epoch fence.
-    const fencesWork = LINE_OA_ACCOUNT_ACTIONS.filter(action => action !== 'RESUME' && action !== 'SET_DEFAULT').includes(data.action)
+    // @req FR-235 — CONFIGURE_KNOWLEDGE_GROUNDING never fences. It changes
+    // neither the transport, the credential nor execution permission (the
+    // things the epoch fence protects, by cancelling QUEUED/CLAIMED/READY
+    // jobs so an old owner cannot deliver after a handoff) — it only changes
+    // which evidence source the NEXT answer reads. Fencing it would silently
+    // cancel replies customers are already waiting for on every mode switch;
+    // the mode a job answered with is read live and recorded on that job's
+    // own EVIDENCE_SELECTED trace instead (line-knowledge-grounding.js).
+    const fencesWork = LINE_OA_ACCOUNT_ACTIONS.filter(action => action !== 'RESUME' && action !== 'SET_DEFAULT' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING').includes(data.action)
     if (fencesWork) {
       change.transportEpoch = { increment: 1 }
       if (data.action === 'ARCHIVE') change.serverEnabled = false

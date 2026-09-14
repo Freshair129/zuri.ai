@@ -1,6 +1,7 @@
 // @req FR-235 — the publisher control for LineOaAccount.knowledgeGrounding.
 // @spec ADR-090 D1, ADR-060 D5, D11 (versioned, audited configuration writes)
 // @tested tests/integration/fr235-line-oa-knowledge-grounding-control.test.js
+import { randomUUID } from 'node:crypto'
 import { beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
@@ -8,6 +9,7 @@ import { makeViewer } from '../factories/viewer'
 import { provisionLineServerConnection } from '@/modules/integration/application/line-server-provisioning-service'
 import { connectLineOaAccount, applyLineOaAccountAction } from '@/modules/line-oa-studio/application/line-oa-account-service'
 import { zLineOaAccountAction } from '@/modules/line-oa-studio/domain/line-oa-account'
+import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 
 let business, owner, member, account
 
@@ -52,6 +54,31 @@ describe('FR-235 — LineOaAccount knowledgeGrounding publisher control', () => 
     expect(payload.from.knowledgeGrounding).toBe('BUSINESS_KNOWLEDGE')
     expect(payload.to.knowledgeGrounding).toBe('GKS_THEN_BUSINESS_KNOWLEDGE')
     expect(JSON.stringify(payload)).not.toMatch(/secret|token|password/i)
+  })
+
+  // @req FR-235 — a grounding-mode switch is not a transport, credential or
+  // execution-permission change: it never fences (bumps the transport epoch
+  // or cancels QUEUED/CLAIMED/READY jobs), unlike CONFIGURE_EXECUTION,
+  // SWITCH_TRANSPORT_MODE, ENABLE_SERVER, DISABLE_SERVER, PAUSE and ARCHIVE.
+  it('never fences in-flight work: transportEpoch is unchanged and a queued job survives the switch', async () => {
+    const inbound = await ingestLineMessage({
+      tenantId: account.tenantId, businessId: account.businessId, channelAccountId: account.id,
+      lineUserId: 'line-fence-user', threadId: 'line-fence-thread', text: 'Hello',
+      externalMessageId: `fence-check-${randomUUID()}`,
+    })
+    const job = await prisma.lineConversationJob.create({ data: {
+      accountId: account.id, inboundMessageId: inbound.messageId, eventId: `event-${randomUUID()}`,
+      tenantId: account.tenantId, businessId: account.businessId, channelAccountId: account.id,
+      transportEpoch: account.transportEpoch, executionMode: 'SERVER', modelAccess: 'LOCAL_ONLY',
+      recipientId: 'line-fence-user', sourceUserId: 'line-fence-user',
+      status: 'QUEUED', expiresAt: new Date(Date.now() + 60000), correlationId: `fence-check-${randomUUID()}`,
+    } })
+    const beforeEpoch = account.transportEpoch
+    account = await applyLineOaAccountAction(account.id, { action: 'CONFIGURE_KNOWLEDGE_GROUNDING', version: account.version, knowledgeGrounding: 'GKS_CORPUS' }, { viewer: owner })
+    expect(account.transportEpoch).toBe(beforeEpoch)
+    const survivedJob = await prisma.lineConversationJob.findUnique({ where: { id: job.id } })
+    expect(survivedJob.status).toBe('QUEUED')
+    expect(survivedJob.transportEpoch).toBe(beforeEpoch)
   })
 
   it('a stale version conflicts rather than silently applying', async () => {

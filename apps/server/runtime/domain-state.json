@@ -91,11 +91,13 @@
           "apps/server/src/modules/agent/server-line-answer.js",
           "apps/server/tests/integration/agent-msp-thread-memory.test.js",
           "apps/server/tests/integration/execution-trace.test.js",
+          "apps/server/tests/integration/line-gks-grounding.test.js",
           "apps/server/tests/integration/line-worker-memory.test.js",
           "apps/server/tests/integration/server-line-trace.test.js",
           "apps/server/tests/integration/xlsx-intake.test.js",
           "apps/server/tests/unit/context-composer.test.js",
           "apps/server/tests/unit/conversation-analysis-contract.test.js",
+          "apps/server/tests/unit/corpus-knowledge-reader.test.js",
           "apps/server/tests/unit/line-execution-trace.test.js",
           "apps/server/tests/unit/plan-schema.test.js",
           "apps/server/tests/unit/server-line-answer.test.js"
@@ -682,7 +684,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 5,
-          "testCount": 10,
+          "testCount": 12,
           "evidence": [
             "apps/server/src/modules/agent/context-composer.js",
             "apps/server/src/modules/agent/execution-trace.js",
@@ -691,11 +693,13 @@
             "apps/server/src/modules/agent/server-line-answer.js",
             "apps/server/tests/integration/agent-msp-thread-memory.test.js",
             "apps/server/tests/integration/execution-trace.test.js",
+            "apps/server/tests/integration/line-gks-grounding.test.js",
             "apps/server/tests/integration/line-worker-memory.test.js",
             "apps/server/tests/integration/server-line-trace.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/unit/context-composer.test.js",
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/line-execution-trace.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
             "apps/server/tests/unit/server-line-answer.test.js"
@@ -902,11 +906,13 @@
             "apps/server/src/modules/agent/server-line-answer.js",
             "apps/server/tests/integration/agent-msp-thread-memory.test.js",
             "apps/server/tests/integration/execution-trace.test.js",
+            "apps/server/tests/integration/line-gks-grounding.test.js",
             "apps/server/tests/integration/line-worker-memory.test.js",
             "apps/server/tests/integration/server-line-trace.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/unit/context-composer.test.js",
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/line-execution-trace.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
             "apps/server/tests/unit/server-line-answer.test.js"
@@ -9846,7 +9852,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 6,
-          "testCount": 10
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -9858,11 +9864,13 @@
         "apps/server/src/modules/agent/server-line-answer.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
+        "apps/server/tests/integration/line-gks-grounding.test.js",
         "apps/server/tests/integration/line-worker-memory.test.js",
         "apps/server/tests/integration/server-line-trace.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
+        "apps/server/tests/unit/corpus-knowledge-reader.test.js",
         "apps/server/tests/unit/line-execution-trace.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/server-line-answer.test.js"

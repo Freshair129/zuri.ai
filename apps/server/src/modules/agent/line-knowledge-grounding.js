@@ -126,6 +126,7 @@ export function createLineGroundingReader({
       }
       const elapsedMs = Date.now() - startedAt
       await traceHop(input, { records: corpusEvidence.records }, {
+        mode,
         source: 'GKS_CORPUS',
         reason: corpusReason,
         retrievalRefs: corpusEvidence.retrievalRefs ?? [],
@@ -136,14 +137,14 @@ export function createLineGroundingReader({
       if (mode === 'GKS_CORPUS') {
         // No fallback for this mode (ADR-090 D2): the deterministic
         // "no evidence" reply is answerBusinessQuestion's own, unchanged rule.
-        await traceHop(input, { records: [] }, { source: 'NONE', reason: 'NO_EVIDENCE' })
+        await traceHop(input, { records: [] }, { mode, source: 'NONE', reason: 'NO_EVIDENCE' })
         return { records: [] }
       }
 
       const fallbackEvidence = await businessKnowledgeReader.query(input)
-      await traceHop(input, fallbackEvidence, { source: 'BUSINESS_KNOWLEDGE', reason: corpusReason })
+      await traceHop(input, fallbackEvidence, { mode, source: 'BUSINESS_KNOWLEDGE', reason: corpusReason })
       if (hasRecords(fallbackEvidence)) return fallbackEvidence
-      await traceHop(input, { records: [] }, { source: 'NONE', reason: 'NO_EVIDENCE' })
+      await traceHop(input, { records: [] }, { mode, source: 'NONE', reason: 'NO_EVIDENCE' })
       return fallbackEvidence
     },
   }

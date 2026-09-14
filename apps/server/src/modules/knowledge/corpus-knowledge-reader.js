@@ -1,5 +1,4 @@
 import { queryKnowledgeCorpus as defaultQueryKnowledgeCorpus } from './knowledge-corpus-service'
-import { composeContext as defaultComposeContext } from '@/modules/agent/context-composer'
 
 // @req FR-235 — an in-process implementation of the existing `knowledge.query`
 // port, backed by `queryKnowledgeCorpus` (FR-173), never an HTTP self-call
@@ -17,16 +16,19 @@ import { composeContext as defaultComposeContext } from '@/modules/agent/context
 // `maxPacketBytes` (default 8 KiB): once a hit no longer fits, every hit after
 // it in rank order is dropped too (rank order already puts the best-scored
 // first, so dropping the tail is dropping the least relevant, not an
-// arbitrary cut). Composition through the Context Composer (ADR-091 D7) is
-// used only for its citation/receipt bookkeeping here — the byte budget above
-// is the real trim, so the composer is given a budget far larger than any
-// already-8-KiB-bounded packet can reach and therefore never trims a second,
-// disagreeing time.
+// arbitrary cut).
+//
+// This module returns evidence only — records and retrieval references — and
+// never composes or records anything. Composition through the Context
+// Composer (ADR-091 D7), when it happens at all, is exactly one call per
+// turn owned by `server-line-answer.js`, merging this evidence with MSP
+// slices under one shared budget; a second, independent composition here
+// (an earlier version of this file had one) produced a second ContextReceipt
+// for the same model invocation, which FR-234/SDD-100 forbid.
 // @tested tests/unit/corpus-knowledge-reader.test.js
 
 const DEFAULT_TOP_K = 5
 const DEFAULT_MAX_PACKET_BYTES = 8192
-const COMPOSER_PASSTHROUGH_BUDGET_CHARS = 10_000_000
 
 function byteLength(text) {
   return Buffer.byteLength(typeof text === 'string' ? text : '', 'utf8')
@@ -60,17 +62,13 @@ function emptyResult() {
  * @param {string} input.businessId — the one Business this reader may ever read.
  * @param {number} [input.topK] — ADR-090 D3 budget, default 5.
  * @param {number} [input.maxPacketBytes] — ADR-090 D3 budget, default 8192.
- * @param {object} [input.trace] — optional; if given, receives the composed
- *   `ContextReceipt` for a non-empty read (ADR-091 D7 wiring for FR-235).
  */
 export function createCorpusKnowledgeReader({
   tenantId,
   businessId,
   topK = DEFAULT_TOP_K,
   maxPacketBytes = DEFAULT_MAX_PACKET_BYTES,
-  trace,
   queryKnowledgeCorpus: queryCorpus = defaultQueryKnowledgeCorpus,
-  composeContext: compose = defaultComposeContext,
 } = {}) {
   if (typeof tenantId !== 'string' || !tenantId.trim() || typeof businessId !== 'string' || !businessId.trim()) {
     throw Object.assign(new Error('CORPUS_KNOWLEDGE_READER_SCOPE_REQUIRED'), { code: 'CORPUS_KNOWLEDGE_READER_SCOPE_REQUIRED' })
@@ -83,45 +81,39 @@ export function createCorpusKnowledgeReader({
     async query(input) {
       const queryText = queryTextFromRegisteredQuery(input).trim()
       if (!queryText) return emptyResult()
+      // NOTE: queryKnowledgeCorpus takes no AbortSignal today (grep of its
+      // options and the underlying msp_pipeline_query/worker loopback contract
+      // confirms this), so the budget timeout in line-knowledge-grounding.js
+      // stops WAITING at the deadline but cannot cancel this in-flight call;
+      // it keeps running detached and its late result is discarded. Passing a
+      // signal through once the corpus service accepts one is a follow-up.
       const result = await queryCorpus({ businessId, query: queryText, topK }, { viewer })
       const hits = Array.isArray(result?.results) ? result.results : []
       if (!hits.length) return emptyResult()
 
-      const refsById = new Map()
-      const sliceInputs = []
+      const records = []
+      const retrievalRefs = []
       let usedBytes = 0
-      for (const [index, hit] of hits.entries()) {
+      for (const hit of hits) {
         const size = byteLength(hit.text)
         // One oversized (or later) hit is dropped on its own; it never blocks
         // an earlier, smaller hit that already fit (ADR-090 D3).
         if (usedBytes + size > maxPacketBytes) continue
         usedBytes += size
-        const id = `corpus:${hit.citationId ?? index}`
-        refsById.set(id, {
+        const ref = {
           citationId: hit.citationId,
           sourceId: hit.sourceId,
           snapshotId: hit.snapshotId,
           generation: hit.generation,
           corpusGeneration: result.corpusGeneration,
           manifestHash: result.manifestHash,
-        })
-        sliceInputs.push({ id, citationId: hit.citationId, sequence: 'knowledge', text: hit.text })
+        }
+        records.push({ kind: 'CORPUS_CHUNK', text: hit.text, ...ref })
+        retrievalRefs.push(ref)
       }
-      if (!sliceInputs.length) return emptyResult()
-
-      const composed = compose({
-        authorized: true,
-        knowledgeEvidence: sliceInputs,
-        maxBudgetChars: COMPOSER_PASSTHROUGH_BUDGET_CHARS,
-      })
-      const included = composed.slices.filter((slice) => slice.source === 'KNOWLEDGE')
-      const records = included.map((slice) => ({ kind: 'CORPUS_CHUNK', text: slice.content, ...refsById.get(slice.id) }))
-      const retrievalRefs = included.map((slice) => refsById.get(slice.id))
-      if (trace && typeof trace.recordContextReceipt === 'function') await trace.recordContextReceipt(composed.receipt)
       return {
         records,
         retrievalRefs,
-        receipt: composed.receipt,
         meta: { corpusGeneration: result.corpusGeneration, manifestHash: result.manifestHash, ranking: result.ranking },
       }
     },
