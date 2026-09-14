@@ -1,7 +1,7 @@
 ---
-version: "1.25.0b"
+version: "1.26.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-14T18:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-14T19:00:00+07:00,Claude Sonnet 5"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=106; operational_domain_keys=16; operational_subdomain_entries=55; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=107; operational_domain_keys=16; operational_subdomain_entries=56; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -223,6 +223,7 @@ authority the lane consumes; GKS, MSP and GenesisBlockDB remain external systems
 |---|---|---|---|---|---|
 | `/knowledge` | Knowledge Dashboard (domain `knowledge`) | BusinessShell → Knowledge (GKS) / Dashboard | the map's summary figures (chains by status, sources, entry surfaces, recipients), a link to the Data Pipeline Map, and the knowledge base console named as planned (TASK-ZAI-047) | server-side viewer resolution before render; 404 without `knowledge`; per-Business grant by the shell guard | implemented locally 2026-09-13 — FR-214; `tests/unit/knowledge-data-pipeline-map-ui.test.js` |
 | `/knowledge/data-pipeline` | Data Pipeline Map | BusinessShell → Knowledge (GKS) / Data Pipeline Map | layered node-edge SVG of sources, entry surfaces, processes, stores and recipients; chain (`?chain=CH-xx`), domain and status filters; detail panel for a node, edge or chain (domain, FEATs, requirements, surfaces, decisions, production evidence); list view with the same chains, nodes and edges as tables | same admission as `/knowledge`; read-only, no API | implemented locally 2026-09-13 — FR-213; `tests/unit/knowledge-data-pipeline-map-ui.test.js`, `tests/e2e/fr213-data-pipeline-map.spec.js` |
+| `/knowledge/candidates` | LINE FAQ candidates | BusinessShell → Knowledge (GKS) / LINE FAQ candidates | one card per `KnowledgeCandidate` for the active Business: canonical question/answer, editable while PENDING_REVIEW, Approve/Reject buttons, the admitted `KnowledgeSource` id once APPROVED | API-authorized (client component): `knowledge` domain to read, Business OWNER or `LINE_OA_PUBLISHER` to draft/edit/decide | implemented locally 2026-09-14 — FR-236, ADR-090 D6; `tests/unit/knowledge-candidates-ui.test.js`, `tests/integration/fr236-knowledge-candidate.test.js` |
 ### 3.7 Workspace compatibility surfaces
 
 These pages remain routable Project Manager Space surfaces. They are not a second
@@ -400,6 +401,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.26.0b | 2026-09-14 | candidate | Added the LINE FAQ candidates review page `/knowledge/candidates` (FR-236, ADR-090 D6), the third Knowledge (GKS) sub-item; page routes 106 -> 107, operational subdomain entries 55 -> 56 | working-tree | Claude Sonnet 5 |
 | 1.23.0b | 2026-09-13 | active | Added the Knowledge (GKS) domain (FR-214, ADR-085) with its Dashboard `/knowledge` and the Data Pipeline Map `/knowledge/data-pipeline` (FR-213); page routes 102 -> 104, operational domain keys 15 -> 16, operational subdomain entries 53 -> 55 | working-tree | Claude Opus 5 |
 | 1.22.0b | 2026-09-13 | active | Added the Import tab `/inventory/catalog-intake` (FR-208 / FR-209, ADR-084), the seventh Inventory tab; page routes 101 -> 102, operational subdomain entries 52 -> 53 | working-tree | Claude Opus 5 |
 | 1.21.0b | 2026-09-13 | active | Added the SKU detail page `/inventory/products/[productId]` (FR-203 identifier desk, FR-204 unit-conversion desk; reached from the Dashboard, not a tab); page routes 100 -> 101, operational subdomain entries unchanged | working-tree | Claude Opus 5 |

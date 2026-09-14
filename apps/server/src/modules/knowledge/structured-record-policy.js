@@ -28,8 +28,16 @@ export const STRUCTURED_RECORD_DENY_POLICY = 'smartgift-zero-pii-1'
 /**
  * Providers whose payload is a structured record rather than prose. Only these
  * carry the Zero-PII gate; every existing text/Markdown flow is unchanged.
+ *
+ * `LINE_FAQ_CANDIDATE` (FR-236, ADR-090 D6) is the second: "Zero-PII is
+ * enforced twice: at candidate creation … and again at Stage 5 classify" names
+ * this exact function both times. Candidate creation additionally runs the
+ * stronger prose scan in `knowledge-candidate-zero-pii.js` (names, phone
+ * numbers, LINE user ids, quoted wording) that this structural, locator-field
+ * policy does not attempt; Stage 5 re-runs this one, unmodified, against the
+ * same admitted content, exactly as SmartGift's records already do.
  */
-export const STRUCTURED_RECORD_PROVIDERS = Object.freeze(['SMARTGIFT_CATALOG'])
+export const STRUCTURED_RECORD_PROVIDERS = Object.freeze(['SMARTGIFT_CATALOG', 'LINE_FAQ_CANDIDATE'])
 
 export function isStructuredRecordProvider(provider) {
   return typeof provider === 'string' && STRUCTURED_RECORD_PROVIDERS.includes(provider)

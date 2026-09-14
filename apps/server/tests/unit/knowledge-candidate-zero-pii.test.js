@@ -1,0 +1,78 @@
+import { describe, expect, it } from 'vitest'
+import {
+  assertCandidateZeroPii,
+  CANDIDATE_ZERO_PII_POLICY,
+  findCandidateZeroPiiViolation,
+} from '@/modules/knowledge/knowledge-candidate-zero-pii'
+import { isStructuredRecordProvider, assertZeroPii } from '@/modules/knowledge/structured-record-policy'
+
+// @req FR-236 — the Zero-PII deny policy a candidate's canonical question/
+//   answer must pass, with fixtures for every shape ADR-090 D6 names: a Thai
+//   name, a Thai phone number, a LINE user id, and quoted customer wording.
+// @spec ADR-090 D6, FR-187
+const CLEAN = { question: 'ค่าจัดส่งไปต่างจังหวัดเท่าไหร่', answer: 'ค่าจัดส่งมาตรฐานคือ 50 บาท ตามนโยบายจัดส่งของร้าน (Product.code: SHIP-STD)' }
+
+describe('knowledge candidate Zero-PII policy (FR-236)', () => {
+  it('passes a clean, locator-only Q/A', () => {
+    expect(findCandidateZeroPiiViolation(CLEAN)).toBeNull()
+    expect(() => assertCandidateZeroPii(CLEAN)).not.toThrow()
+  })
+
+  it('refuses a Thai personal name', () => {
+    const violation = findCandidateZeroPiiViolation({ ...CLEAN, answer: 'คุณสมชาย ใจดี ได้รับของแล้วครับ' })
+    expect(violation).toMatchObject({ field: 'answer', term: 'personal_name' })
+    expect(() => assertCandidateZeroPii({ ...CLEAN, answer: 'คุณสมชาย ใจดี ได้รับของแล้วครับ' })).toThrow(
+      expect.objectContaining({ status: 422, code: 'KNOWLEDGE_CANDIDATE_ZERO_PII_DENIED' }),
+    )
+  })
+
+  it('refuses a Latin two-token personal name', () => {
+    expect(findCandidateZeroPiiViolation({ ...CLEAN, answer: 'John Smith confirmed the order' })).toMatchObject({ field: 'answer', term: 'personal_name' })
+  })
+
+  it('refuses a Thai phone number', () => {
+    expect(findCandidateZeroPiiViolation({ ...CLEAN, answer: 'โทรกลับที่ 081-234-5678 ได้เลย' })).toMatchObject({ field: 'answer', term: 'phone_number' })
+    expect(findCandidateZeroPiiViolation({ ...CLEAN, question: 'ติดต่อที่เบอร์ 0891234567 ใช่ไหม' })).toMatchObject({ field: 'question', term: 'phone_number' })
+  })
+
+  it('refuses an international phone number', () => {
+    expect(findCandidateZeroPiiViolation({ ...CLEAN, answer: 'Call +66 81 234 5678 for support' })).toMatchObject({ term: 'phone_number' })
+  })
+
+  it('refuses a LINE user id', () => {
+    const lineId = `U${'a1b2c3d4e5f60718293a4b5c6d7e8f90'}`
+    expect(findCandidateZeroPiiViolation({ ...CLEAN, answer: `อ้างอิงจากแชท ${lineId}` })).toMatchObject({ field: 'answer', term: 'line_user_id' })
+  })
+
+  it('refuses quoted customer wording', () => {
+    expect(findCandidateZeroPiiViolation({ ...CLEAN, answer: 'ลูกค้าบอกว่า "ของเสียหายตอนส่ง" และขอเปลี่ยนใหม่' })).toMatchObject({ term: 'quoted_wording' })
+  })
+
+  it('refuses the structural FR-187 deny terms it reuses (never a copy)', () => {
+    expect(findCandidateZeroPiiViolation({ ...CLEAN, answer: 'กรุณาติดต่อฝ่าย customer service' })).toMatchObject({ term: 'deny_term' })
+  })
+
+  it('carries its own policy identity distinct from FR-187 SmartGift policy', () => {
+    expect(CANDIDATE_ZERO_PII_POLICY).toBe('line-faq-candidate-zero-pii-1')
+  })
+})
+
+describe('Stage 5 classify reuses the exact FR-187 function for LINE_FAQ_CANDIDATE (ADR-090 D6, second check)', () => {
+  it('is registered as a structured-record provider', () => {
+    expect(isStructuredRecordProvider('LINE_FAQ_CANDIDATE')).toBe(true)
+    expect(isStructuredRecordProvider('SMARTGIFT_CATALOG')).toBe(true)
+    expect(isStructuredRecordProvider('KNOWLEDGE_ADMISSION')).toBe(false)
+  })
+
+  it('the shared FR-187 assertZeroPii denies admitted content carrying a deny term', () => {
+    const content = JSON.stringify({ question: 'ติดต่อเรายังไง', answer: 'ติดต่อฝ่าย customer ได้ที่ไลน์' })
+    expect(() => assertZeroPii(content, { sourceId: 'knowledge-candidate:kc-1' })).toThrow(
+      expect.objectContaining({ status: 422, code: 'GENESISRAG17_ZERO_PII_DENIED' }),
+    )
+  })
+
+  it('the shared FR-187 assertZeroPii passes clean admitted content', () => {
+    const content = JSON.stringify(CLEAN)
+    expect(() => assertZeroPii(content, { sourceId: 'knowledge-candidate:kc-2' })).not.toThrow()
+  })
+})
