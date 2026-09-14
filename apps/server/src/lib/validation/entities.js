@@ -146,17 +146,16 @@ export const zRecordExistingConversationEventInput = z.object({
   correlationId: z.string().min(8).max(64).optional(),
 })
 
-// FR-229 — an `unsend` event: resolved via the same identity path as follow/
-// unfollow/postback (it too carries event.source.userId), and additionally
-// tombstones the referenced Message body and MessageAttachment when the named
+// FR-229 — an `unsend` event: unlike follow/unfollow/postback, this mints no
+// identity or Customer. It attaches only to a conversation that already exists
+// for the thread (same rule as join/leave), and when it does, tombstones the
+// referenced Message body and MessageAttachment when the named
 // externalMessageId is one this Business actually admitted. Recording the event
 // never fails when the referenced message is unknown (ADR-091 proof 4).
 export const zIngestLineUnsendEventInput = z.object({
   tenantId: z.string().min(1),
   businessId: z.string().optional(),
-  lineUserId: z.string().min(1),
   channelAccountId: z.string().min(1).optional(),
-  displayName: z.string().optional(),
   threadId: z.string().min(1),
   externalEventId: z.string().min(1),
   unsentExternalMessageId: z.string().min(1).optional(),

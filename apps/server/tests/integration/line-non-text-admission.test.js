@@ -61,7 +61,7 @@ afterEach(async () => {
 })
 
 describe('FR-229 — non-text message kinds', () => {
-  it('records a sticker with contentKind STICKER, a bounded Thai placeholder body, no attachment, and no job', async () => {
+  it('records a sticker with contentKind STICKER and a genuinely fixed placeholder body — no packageId/stickerId in Message', async () => {
     const account = await makeAccount()
     const event = {
       type: 'message', ...directEvent('sticker-1'),
@@ -72,14 +72,18 @@ describe('FR-229 — non-text message kinds', () => {
     expect(result.jobId).toBeUndefined()
 
     const message = await findMessageByExternalId('msg-sticker-1')
-    expect(message).toMatchObject({ contentKind: 'STICKER', body: '[สติกเกอร์ 1/2]' })
+    expect(message).toMatchObject({ contentKind: 'STICKER', body: '[สติกเกอร์]' })
     expect(message.attachments).toHaveLength(0)
+    // FR-229 says "a fixed placeholder body" — fixed, not "carries the provider's
+    // own ids". Neither value from the LINE payload leaks into the stored body.
+    expect(message.body).not.toContain('1')
+    expect(message.body).not.toContain('2')
 
     const jobs = await prisma.lineConversationJob.count({ where: { accountId: account.id } })
     expect(jobs).toBe(0)
   })
 
-  it('records a location with contentKind LOCATION and lat/lng in the placeholder', async () => {
+  it('records a location with contentKind LOCATION and a fixed placeholder body — no coordinates anywhere in Message', async () => {
     const account = await makeAccount()
     const event = {
       type: 'message', ...directEvent('location-1'),
@@ -87,7 +91,16 @@ describe('FR-229 — non-text message kinds', () => {
     }
     await admit(account, event)
     const message = await findMessageByExternalId('msg-location-1')
-    expect(message).toMatchObject({ contentKind: 'LOCATION', body: '[ตำแหน่ง 13.75,100.5]' })
+    expect(message).toMatchObject({ contentKind: 'LOCATION', body: '[ตำแหน่ง]' })
+    // Coordinates are personal data (often a home or delivery address) and
+    // Message.body is exactly what the inbox preview, FR-233 search and any
+    // future prompt read — the raw lat/lng must never land there.
+    expect(message.body).not.toContain('13.75')
+    expect(message.body).not.toContain('100.5')
+    const anyMessageWithCoordinates = await prisma.message.findFirst({
+      where: { OR: [{ body: { contains: '13.75' } }, { body: { contains: '100.5' } }] },
+    })
+    expect(anyMessageWithCoordinates).toBeNull()
   })
 
   it.each([
@@ -219,7 +232,12 @@ describe('FR-229 — non-message conversation events', () => {
     await admit(account, memberJoined)
     const memberEvent = await findEvent(conversation.id, 'event-member-joined-1')
     expect(memberEvent).toMatchObject({ kind: 'MEMBER_JOINED' })
-    expect(JSON.parse(memberEvent.payloadJson)).toEqual({ memberIds: ['user-new-member'] })
+    // FR-229's payload must carry ids only, and ConversationEvent is inside the
+    // erasure boundary; a raw LINE userId here would outlive the very principal
+    // it named (no identity is ever resolved for a joining/leaving member, so
+    // erasure has nothing to redact it through). Only a count is stored.
+    expect(JSON.parse(memberEvent.payloadJson)).toEqual({ memberCount: 1 })
+    expect(memberEvent.payloadJson).not.toContain('user-new-member')
 
     const leave = { type: 'leave', webhookEventId: 'event-leave-1', source: { type: 'group', groupId: threadId } }
     await admit(account, leave)
@@ -271,17 +289,47 @@ describe('FR-229 — unsend tombstones the referenced message and attachment', (
     expect(jobs).toBe(0)
   })
 
-  it('records an unsend for a message the Business never received without error (ADR-091 proof 4)', async () => {
+  it('records an unsend for a message the Business never received without error, when the conversation already exists (ADR-091 proof 4)', async () => {
     const account = await makeAccount()
-    const userId = 'user-unsend-unknown'
+    const userId = 'user-unsend-known-thread'
+    // Establish the conversation first — the Business has talked to this person —
+    // so the gap being proven is specifically "this one message id is unknown",
+    // not "this thread is unknown" (that is the next test).
+    const seed = {
+      type: 'message', webhookEventId: 'event-seed-unsend-1', source: { type: 'user', userId },
+      message: { id: 'msg-seed-unsend-1', type: 'text', text: 'สวัสดีครับ' },
+    }
+    await admit(account, seed)
+
     const unsend = {
       type: 'unsend', webhookEventId: 'event-unsend-unknown-1', source: { type: 'user', userId },
       unsend: { messageId: 'msg-never-admitted' },
     }
     const result = await admit(account, unsend)
     expect(result).toMatchObject({ skipped: true, tombstonedMessage: false })
+    expect(result.conversationId).toBeTruthy()
     const event = await findEvent(result.conversationId, 'event-unsend-unknown-1')
     expect(event).toMatchObject({ kind: 'UNSEND' })
+    expect(JSON.parse(event.payloadJson)).toEqual({ unsentExternalMessageId: 'msg-never-admitted' })
+  })
+
+  it('skips an unsend entirely when no conversation exists yet for the thread — no Customer or Conversation is minted just to record it', async () => {
+    const account = await makeAccount()
+    const userId = 'user-unsend-no-thread'
+    const unsend = {
+      type: 'unsend', webhookEventId: 'event-unsend-no-thread-1', source: { type: 'user', userId },
+      unsend: { messageId: 'msg-irrelevant' },
+    }
+    const result = await admit(account, unsend)
+    expect(result).toEqual({ skipped: true, conversationId: null, eventId: null, tombstonedMessage: false })
+
+    const conversation = await prisma.conversation.findFirst({ where: { externalThreadId: userId } })
+    expect(conversation).toBeNull()
+    const event = await prisma.conversationEvent.findFirst({ where: { externalEventId: 'event-unsend-no-thread-1' } })
+    expect(event).toBeNull()
+    // Nothing was minted for this LINE user — the identity resolver never ran.
+    const identity = await prisma.externalIdentity.findFirst({ where: { providerSubject: userId } })
+    expect(identity).toBeNull()
   })
 
   it('is idempotent: redelivering the same unsend does not re-apply or duplicate anything', async () => {

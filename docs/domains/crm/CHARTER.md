@@ -1,7 +1,7 @@
 ---
-version: "0.4.0b"
+version: "0.4.1b"
 status: active
-last_update: "2026-09-14T16:00:00+07:00,Claude Sonnet 5"
+last_update: "2026-09-14T17:00:00+07:00,Claude Sonnet 5"
 id: ZAI:DOMAIN-CRM
 relations:
   - type: relates_to
@@ -109,16 +109,25 @@ turn flows through before any agent work happens.
   historical data through LINE.
 - `ingestLineConversationEvent` / `recordExistingConversationEvent` /
   `ingestLineUnsendEvent` — the FR-229 non-text writers (ADR-091 D5), called only
-  from the ADR-061 native admission seam (`line-conversation-jobs.js`). The first
-  two resolve identity → customer → conversation exactly as `ingestLineMessage`
-  does (follow, unfollow, postback and unsend all carry `event.source.userId`);
-  `recordExistingConversationEvent` (join, leave, memberJoined, memberLeft) has no
-  individual identity to resolve in LINE's own payload and so attaches only to a
-  conversation that already exists for the thread, skipping otherwise rather than
-  minting a Customer with no Person behind it. `ingestLineUnsendEvent` additionally
-  tombstones the `Message.body` and `MessageAttachment` the unsend names, and
-  never errors on a message this Business never admitted. Every one of the three
-  is idempotent on `(conversationId, externalEventId)`, and none creates a
+  from the ADR-061 native admission seam (`line-conversation-jobs.js`).
+  `ingestLineConversationEvent` (follow, unfollow, postback) resolves identity →
+  customer → conversation exactly as `ingestLineMessage` does, since these three
+  carry `event.source.userId`. `recordExistingConversationEvent` (join, leave,
+  memberJoined, memberLeft) and `ingestLineUnsendEvent` (unsend) both mint no
+  Customer or Conversation and instead attach only to a conversation that already
+  exists for the thread, skipping otherwise: join/leave/memberJoined/memberLeft
+  have no individual identity to resolve in LINE's own payload at all, and an
+  unsend for a thread with no record has nothing to tombstone, so minting one just
+  to record the event would be waste, not completeness.
+  `recordExistingConversationEvent`'s memberJoined/memberLeft payload carries a
+  `memberCount`, never a raw LINE user id — `ConversationEvent` is Tier 1 (inside
+  the erasure boundary) and no identity is ever resolved for a joining/leaving
+  member, so a raw id here would have no erasure hook to be redacted through and
+  would outlive the very principal it named. `ingestLineUnsendEvent` additionally
+  tombstones the `Message.body` and `MessageAttachment` the unsend names when the
+  conversation exists, and never errors on a message this Business never admitted.
+  Every one of the three is idempotent on `(conversationId, externalEventId)`, and
+  none creates a
   `LineConversationJob`.
 
 - `createSalesTask` / `applySalesTaskAction` / `listSalesTasks` / `getSalesTask`
@@ -164,18 +173,32 @@ this record, and GKS never indexes it (ADR-090 D6).
 until a later phase fetches them into `FileAsset`) and `ConversationEvent` (follow,
 unfollow, join, leave, member joined, member left, postback, unsend) are now in
 `owns_models` and in the schema (migration `20260914150000`, written and not yet
-applied). `Message.contentKind` (`TEXT | STICKER | LOCATION | MEDIA_REF`) landed
-with them. Admission (`line-conversation-jobs.js`, the ADR-061 native seam) no
-longer skips these event/message kinds; none of them creates an answer job. An
-`unsend` tombstones the referenced `Message.body` (a distinct tombstone string from
-the PDPA one, `LINE_UNSEND_TOMBSTONE`) and its `MessageAttachment` (`fetchState` →
-`ERASED`, `providerContentId` cleared); the PDPA erasure writer now redacts
-attachments the same way. `join`/`leave`/`memberJoined`/`memberLeft` carry no
+applied; both new-table foreign keys are explicit, `ON DELETE CASCADE`, matching
+the `onDelete: Cascade` schema.prisma already declared — SQLite's `prisma db push`
+gives that to tests for free, so a missing Postgres FK was invisible until it was
+checked for directly). `Message.contentKind` (`TEXT | STICKER | LOCATION |
+MEDIA_REF`) landed with them, and every placeholder body is genuinely fixed — no
+provider value is interpolated into it: a sticker's packageId/stickerId and a
+location's own latitude/longitude (personal data, often a home or delivery
+address) never reach `Message.body`, which is exactly what the FR-091 preview,
+FR-233 search and any future prompt read. Admission (`line-conversation-jobs.js`,
+the ADR-061 native seam) no longer skips these event/message kinds; none of them
+creates an answer job. `join`/`leave`/`memberJoined`/`memberLeft` carry no
 individual identity in LINE's own payload, so they attach only to a conversation
 that already exists for the thread and are skipped otherwise — a documented scope
-decision, not a silent gap. The legacy `/api/agent/line-webhook` seam still skips
-every non-text event inline and does not call this admission path; it was left
-unchanged (see TASK-ZAI-088's report for why).
+decision, not a silent gap; `memberJoined`/`memberLeft` record only a
+`memberCount`, never a raw LINE user id, because `ConversationEvent` is inside the
+Tier 1 erasure boundary and no identity is ever resolved for a joining/leaving
+member for erasure to redact later. `unsend` follows the same "existing
+conversation only" rule — it mints no Customer or Conversation, so a thread the
+Business has no record of yet is skipped rather than minted just to record an
+event with nothing to tombstone — and when the conversation exists, tombstones the
+referenced `Message.body` (a distinct tombstone string from the PDPA one,
+`LINE_UNSEND_TOMBSTONE`) and its `MessageAttachment` (`fetchState` → `ERASED`,
+`providerContentId` cleared); the PDPA erasure writer now redacts attachments the
+same way. The legacy `/api/agent/line-webhook` seam still skips every non-text
+event inline and does not call this admission path; it was left unchanged (see
+TASK-ZAI-088's report for why).
 
 Still planned under this charter, not in `owns_models` until each lands:
 
@@ -206,6 +229,7 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.4.1b | 2026-09-14 | Review fixes on FR-229 (same task): placeholder bodies are now genuinely fixed (no packageId/stickerId/lat/lng ever reach `Message.body`); the migration's two new-table foreign keys are explicit `ON DELETE CASCADE` (schema.prisma's cascade was previously Postgres-invisible); memberJoined/memberLeft payload carries a `memberCount`, never a raw LINE user id (closes an erasure gap — `ConversationEvent` is Tier 1); `unsend` for a thread with no existing conversation is skipped rather than minting a Customer and Conversation for nothing | Claude Sonnet 5 |
 | 0.4.0b | 2026-09-14 | FR-229 / FEAT-037 built (TASK-ZAI-088): `owns_models` += `MessageAttachment`, `ConversationEvent`; `Message.contentKind`; three new narrow writers; the ADR-061 native admission seam no longer skips non-text events and creates no answer job for them; unsend tombstones the message and attachment it names; the PDPA erasure writer now redacts attachments too; migration `20260914150000` written, not applied | Claude Sonnet 5 |
 | 0.3.0b | 2026-09-14 | ADR-091 / FEAT-037 declared: CRM is the business record of a conversation; planned `MessageAttachment`, `ConversationEvent`, message and conversation read-model columns, search reader and retention recorded as prose; no `owns_models` change | Claude Opus 5 |
 | 0.2.0b | 2026-09-06 | Claimed `SalesTask` (FR-161, ADR-064): the legacy Tasks section adapted as a CRM sales activity record with its own writer, `SALES_REP` role and `/customer/sales-tasks` page | Claude Fable 5.1 |

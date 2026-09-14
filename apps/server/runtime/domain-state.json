@@ -40,7 +40,7 @@
     "readyFeatureCount": 113,
     "requirementCount": 241,
     "verifiedRequirementCount": 218,
-    "progressPercent": 91,
+    "progressPercent": 91.1,
     "gapCount": 28,
     "gaps": [
       {
@@ -1354,7 +1354,7 @@
       ],
       "featureCount": 8,
       "readyFeatureCount": 4,
-      "progressPercent": 58.8
+      "progressPercent": 61.3
     },
     "identity": {
       "status": "partial",
@@ -9408,7 +9408,7 @@
         "project-manager"
       ],
       "useCase": "พนักงานเปิด Inbox แล้วเห็นบทสนทนา LINE ครบทั้งข้อความ สติกเกอร์ รูปที่ลูกค้าส่ง และเหตุการณ์อย่างการเพิ่มเพื่อนหรือบล็อก ค้นหาข้อความเก่าได้ ส่วนเจ้าของธุรกิจกำหนดได้ว่าบัญชีไหนให้ agent จำบริบทได้ รู้ว่าข้อมูลแต่ละชั้นเก็บนานเท่าไร และเมื่อลูกค้าขอลบข้อมูลก็เห็นว่าลบครบทุกชั้นแล้วหรือยังรออยู่ที่ไหน",
-      "progressPercent": 16.7,
+      "progressPercent": 23.3,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
@@ -9456,9 +9456,9 @@
           "id": "FR-233",
           "title": "Conversation inbox read models and search",
           "status": "planned",
-          "progressPercent": 0,
+          "progressPercent": 40,
           "codeCount": 0,
-          "testCount": 0
+          "testCount": 1
         },
         {
           "id": "FR-234",

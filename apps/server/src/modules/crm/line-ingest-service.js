@@ -262,11 +262,14 @@ export async function recordExistingConversationEvent(input, { db = prisma } = {
 export const LINE_UNSEND_TOMBSTONE = '[ข้อความถูกเรียกคืนโดยผู้ส่ง]'
 
 /**
- * FR-229 — an `unsend` event: resolved via the same identity path as follow/
- * unfollow/postback (source.userId is always present), and additionally tombstones
- * the referenced Message body and MessageAttachment when this Business actually
- * admitted that externalMessageId. Recording the event never fails when the
- * referenced message is unknown — "a message the Business never received" is
+ * FR-229 — an `unsend` event. Unlike follow/unfollow/postback, this never mints a
+ * Customer or Conversation: an unsend for a thread the Business has no record of
+ * yet has nothing to tombstone and no established relationship to attach to, so it
+ * is skipped exactly like join/leave (documented scope decision — see the task
+ * report). When a conversation already exists for the thread, this additionally
+ * tombstones the referenced Message body and MessageAttachment when this Business
+ * actually admitted that externalMessageId — recording the event never fails when
+ * the referenced message is unknown: "a message the Business never received" is
  * recorded as an event with no error (ADR-091 proof 4).
  */
 export async function ingestLineUnsendEvent(input, { db = prisma } = {}) {
@@ -281,46 +284,20 @@ export async function ingestLineUnsendEvent(input, { db = prisma } = {}) {
     }
   }
 
-  const { tenantId, businessId, lineUserId, displayName, threadId, externalEventId, unsentExternalMessageId, occurredAt, correlationId } = data
+  const { tenantId, businessId, threadId, externalEventId, unsentExternalMessageId, occurredAt, correlationId } = data
   const channelAccountId = data.channelAccountId?.trim() || LEGACY_CHANNEL_ACCOUNT_ID
-  if (channelAccountId !== LEGACY_CHANNEL_ACCOUNT_ID && !businessId) throw failure(400, 'BUSINESS_REQUIRED_FOR_CHANNEL_ACCOUNT')
-  if (businessId) {
-    const business = await db.business.findFirst({ where: { id: businessId, tenantId }, select: { id: true } })
-    if (!business) throw failure(404, 'BUSINESS_NOT_FOUND')
-  }
 
-  let conversation = await db.conversation.findUnique({ where: conversationKey(tenantId, channelAccountId, threadId) })
-  if (conversation && businessId !== undefined && conversation.businessId !== businessId) {
+  const conversation = await db.conversation.findUnique({ where: conversationKey(tenantId, channelAccountId, threadId) })
+  if (!conversation) return { skipped: true }
+  if (businessId !== undefined && conversation.businessId !== businessId) {
     throw failure(409, 'CONVERSATION_BUSINESS_SCOPE_CONFLICT')
-  }
-
-  const identity = await resolveLineIdentity({ tenantId, lineUserId, channelAccountId, displayName }, { db })
-
-  let customer = await db.customer.findUnique({ where: { tenantId_personId: { tenantId, personId: identity.personId } } })
-  const createdCustomer = !customer
-  if (!customer) {
-    const code = await uniqueHumanCode('CUS', displayName || lineUserId,
-      async (candidate) => Boolean(await db.customer.findUnique({ where: { code: candidate } })))
-    customer = await db.customer.create({
-      data: { code, tenantId, businessId: businessId ?? null, personId: identity.personId, displayName: displayName || 'LINE customer' },
-    })
-  }
-
-  const createdConversation = !conversation
-  if (!conversation) {
-    conversation = await db.conversation.create({
-      data: { tenantId, businessId: businessId ?? null, customerId: customer.id, channel: CHANNEL, channelAccountId, externalThreadId: threadId },
-    })
   }
 
   const existingEvent = await db.conversationEvent.findUnique({
     where: { conversationId_externalEventId: { conversationId: conversation.id, externalEventId } },
   })
   if (existingEvent) {
-    return {
-      personId: identity.personId, customerId: customer.id, conversationId: conversation.id,
-      eventId: existingEvent.id, tombstonedMessage: false, created: { customer: false, conversation: false, event: false },
-    }
+    return { conversationId: conversation.id, eventId: existingEvent.id, tombstonedMessage: false, created: false }
   }
 
   let tombstonedMessage = false
@@ -347,13 +324,10 @@ export async function ingestLineUnsendEvent(input, { db = prisma } = {}) {
   await recordAudit(db, {
     entityType: 'CONVERSATION', entityId: conversation.id, action: 'CONVERSATION_EVENT_RECORDED', actorType: 'LINE',
     payload: {
-      tenantId, businessId: conversation.businessId, channelAccountId, customerId: customer.id, kind: 'UNSEND',
+      tenantId, businessId: conversation.businessId, channelAccountId, kind: 'UNSEND',
       eventId: event.id, tombstonedMessage, ...(correlationId ? { correlationId } : {}),
     },
   })
 
-  return {
-    personId: identity.personId, customerId: customer.id, conversationId: conversation.id, eventId: event.id,
-    tombstonedMessage, created: { customer: createdCustomer, conversation: createdConversation, event: true },
-  }
+  return { conversationId: conversation.id, eventId: event.id, tombstonedMessage, created: true }
 }

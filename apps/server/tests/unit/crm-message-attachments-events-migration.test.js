@@ -49,4 +49,20 @@ describe('migration 5 (CRM part) — Message.contentKind, MessageAttachment, Con
     expect(sql).toContain('REVOKE ALL ON TABLE "ConversationEvent" FROM public, anon, authenticated, service_role')
     expect(sql).toContain('GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE "ConversationEvent" TO zuri_app_runtime, zuri_web_login')
   })
+
+  // schema.prisma declares onDelete: Cascade on both relations; SQLite's `prisma
+  // db push` gives tests that cascade for free, so only a check against the
+  // migration text itself catches a Postgres deployment left without it.
+  it('declares the same cascading foreign keys schema.prisma promises, guarded against a pre-existing constraint', () => {
+    expect(schema).toMatch(/message\s+Message\s+@relation\(fields: \[messageId\], references: \[id\], onDelete: Cascade\)/)
+    expect(schema).toMatch(/conversation\s+Conversation\s+@relation\(fields: \[conversationId\], references: \[id\], onDelete: Cascade\)/)
+
+    expect(sql).toContain("SELECT 1 FROM pg_constraint WHERE conname = 'MessageAttachment_messageId_fkey'")
+    expect(sql).toContain('ADD CONSTRAINT "MessageAttachment_messageId_fkey"')
+    expect(sql).toContain('FOREIGN KEY ("messageId") REFERENCES "Message"("id") ON DELETE CASCADE ON UPDATE CASCADE')
+
+    expect(sql).toContain("SELECT 1 FROM pg_constraint WHERE conname = 'ConversationEvent_conversationId_fkey'")
+    expect(sql).toContain('ADD CONSTRAINT "ConversationEvent_conversationId_fkey"')
+    expect(sql).toContain('FOREIGN KEY ("conversationId") REFERENCES "Conversation"("id") ON DELETE CASCADE ON UPDATE CASCADE')
+  })
 })
