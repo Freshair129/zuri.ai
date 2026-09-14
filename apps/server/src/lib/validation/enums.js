@@ -212,6 +212,40 @@ export const CONVERSATION_EVENT_KINDS = [
   'FOLLOW', 'UNFOLLOW', 'JOIN', 'LEAVE', 'MEMBER_JOINED', 'MEMBER_LEFT', 'POSTBACK', 'UNSEND',
 ]
 
+// FR-230 — every copy of a person's conversation content has a declared retention
+// data class and an installation-default window (ADR-091 D2, SEC-031). A Tenant
+// may only shorten a window (TenantRetentionOverride); lengthening one is refused
+// by the writer. Only MESSAGE_BODY_AND_ATTACHMENTS is swept by this codebase today
+// — the other three name a model this crm-scoped change does not own:
+//   RAW_LINE_PAYLOAD        — RawExternalRecord.payloadJson, integration's charter
+//   AGENT_TRACE_EVENT       — AgentTraceEvent payloads, agent's charter
+//   MSP_SESSION_CONTENT     — MSP's own storage, a separate repository this
+//                             codebase never reaches
+// Their entries here exist so a Tenant can already declare an override for them
+// (and TenantRetentionOverride never needs a schema change when their own
+// sweepers land), not because this change sweeps them.
+export const RETENTION_DATA_CLASSES = [
+  'RAW_LINE_PAYLOAD', 'MESSAGE_BODY_AND_ATTACHMENTS', 'AGENT_TRACE_EVENT', 'MSP_SESSION_CONTENT',
+]
+// Days. 24 months is approximated as 365 * 2 — this repository has no existing
+// month-to-day convention to match, and the owner's numbers are policy, not law
+// (ADR-091 "Retention numbers are product policy, not law").
+export const RETENTION_DEFAULT_WINDOW_DAYS = Object.freeze({
+  RAW_LINE_PAYLOAD: 90,
+  MESSAGE_BODY_AND_ATTACHMENTS: 365 * 2,
+  AGENT_TRACE_EVENT: 90,
+  MSP_SESSION_CONTENT: 90,
+})
+// The subset of RETENTION_DATA_CLASSES this codebase can actually tombstone —
+// see the module comment above. retention-sweep-service.js sweeps exactly this
+// list; a class outside it is not this crm-scoped change's model to write.
+export const CRM_OWNED_RETENTION_CLASSES = ['MESSAGE_BODY_AND_ATTACHMENTS']
+// LineConversationJob's own status vocabulary is deliberately NOT registered
+// here — see the FR-152 comment above this block: a registry entry would read
+// every file's own narrower, purpose-built subset (line-conversation-jobs.js's
+// own `WAITING`, and others) as a "hand copy" of it. retention-sweep-service.js
+// keeps its own local non-terminal list for exactly that reason.
+
 // FR-066/FR-067 — Workspace collaboration boundary (ADR-027 D5). "Workspace"
 // here is the top-level container, schema Portfolio — never schema Workspace,
 // which is a Space (see WORKSPACE_SCOPE_TYPES above, a different axis).
@@ -705,3 +739,6 @@ export const zContextDropReason = z.enum(CONTEXT_DROP_REASONS)
 // composer, same as every drop reason above.
 export const CONTEXT_DENIAL_REASONS = ['CONTEXT_DENIED']
 export const zContextDenialReason = z.enum(CONTEXT_DENIAL_REASONS)
+
+// FR-230 — retention data class, for TenantRetentionOverride input validation.
+export const zRetentionDataClass = z.enum(RETENTION_DATA_CLASSES)

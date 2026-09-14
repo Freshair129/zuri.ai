@@ -50,6 +50,8 @@ model Tenant {
   channelIdentities          ChannelIdentity[]
   identityLinkTokens         IdentityLinkToken[]
   customers                  Customer[]
+  // @req FR-230 — this Tenant's per-data-class retention shortenings (ADR-091 D2).
+  tenantRetentionOverrides   TenantRetentionOverride[]
   roleBindings               RoleBinding[]
   customerImportBatches      CustomerImportBatch[]
   customerImportReviewCases  CustomerImportReviewCase[]
@@ -1926,7 +1928,22 @@ model Conversation {
   channelAccountId String   @default("LEGACY:LINE")
   externalThreadId String
   status           String   @default("OPEN")
-  createdAt        DateTime @default(now())
+  // @req FR-233 — inbox read-model columns (ADR-091 D5, design §6.9). Denormalised
+  // from Message on write (conversation-preview-service.js) so the inbox needs no
+  // per-row N+1 to show them; unreadCount stays computed on read instead (it needs
+  // no storage: it is a function of the messages already on the row).
+  // lastMessagePreview is redacted by the same writer as Message.body — PDPA
+  // erasure (conversation-redaction-service.js) and the retention sweep
+  // (retention-sweep-service.js) both refresh it, never leaving a preview that
+  // outlives the message it was taken from.
+  lastMessageAt      DateTime?
+  lastMessagePreview String?
+  // @req FR-230 — which retention data class governs this conversation's Message
+  // rows (ADR-091 D2). Fixed today (every Conversation's messages fall under
+  // MESSAGE_BODY_AND_ATTACHMENTS); stored rather than inferred so a future
+  // per-conversation class never becomes a silent migration.
+  retentionClass String @default("MESSAGE_BODY_AND_ATTACHMENTS")
+  createdAt      DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
   customer            Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
@@ -2022,6 +2039,34 @@ model ConversationEvent {
   // redelivered webhook event must never produce a second row.
   @@unique([conversationId, externalEventId])
   @@index([conversationId])
+}
+
+// @req FR-230 — a Tenant may shorten (never lengthen) an installation-default
+// retention window (ADR-091 D2). One row per (tenant, data class); the
+// installation default in RETENTION_DEFAULT_WINDOW_DAYS is the ceiling — the
+// writer (retention-override-service.js) refuses a windowDays above it, and the
+// sweep (retention-sweep-service.js) applies a defensive min() against it too,
+// so a row that ever got past the writer some other way still cannot lengthen
+// anything. dataClass names one of RETENTION_DATA_CLASSES
+// (src/lib/validation/enums.js) — a class this codebase does not yet sweep
+// (RAW_LINE_PAYLOAD: integration's RawExternalRecord; AGENT_TRACE_EVENT: agent's
+// AgentTraceEvent; MSP_SESSION_CONTENT: a separate repository) may still declare
+// an override row here; only its sweeper, once one exists, would read it.
+// @spec BR-002, SEC-031
+// @tested tests/integration/crm-retention-override-service.test.js, tests/integration/crm-retention-sweep.test.js
+model TenantRetentionOverride {
+  id         String   @id @default(uuid())
+  tenantId   String
+  dataClass  String
+  windowDays Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  version    Int      @default(1)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, dataClass])
+  @@index([tenantId])
 }
 
 // @req FR-127 — each recomputable, advisory analysis run belongs to an internal

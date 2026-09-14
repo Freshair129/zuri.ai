@@ -1,11 +1,13 @@
 import { z } from 'zod'
 import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
+import { refreshConversationPreview } from './conversation-preview-service'
 
 // @req FR-148 — account/business scoped outbound append participates in caller transactions.
 // @req FR-093 — the outbound half of a conversation becomes a row. Until this existed
 //   nothing anywhere wrote a Message with `direction: 'OUTBOUND'`: the reply was
 //   assembled, handed to the transport, sent to the customer and then forgotten.
+// @req FR-233 — a reply refreshes Conversation.lastMessageAt/lastMessagePreview too.
 // @spec SDD-051, BR-011, SEC-001, SDD-048
 // @tested tests/integration/line-reply-record.test.js, tests/unit/reply-record-service.test.js, tests/integration/line-account-isolation.test.js
 //
@@ -109,6 +111,9 @@ export async function recordLineReply({ tenantId, businessId, channelAccountId, 
         ...(acceptance?.acceptedAt ? { createdAt: new Date(acceptance.acceptedAt) } : data.deliveredAt ? { createdAt: new Date(data.deliveredAt) } : {}),
       },
     })
+
+    // @req FR-233 — the reply is a new message too; keep the inbox summary current.
+    await refreshConversationPreview(tx, inbound.conversationId)
 
     await recordAudit(tx, {
       entityType: 'CONVERSATION',

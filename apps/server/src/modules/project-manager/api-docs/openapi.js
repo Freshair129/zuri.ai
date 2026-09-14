@@ -116,7 +116,11 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-169 — the only writer of Business.capabilitiesJson; PATCH only.
   ['/api/businesses/{id}/capabilities', ['PATCH']],
   ['/api/containers', ['POST']], ['/api/containers/{id}', ['PATCH']],
-  ['/api/crm/conversations', ['GET']], ['/api/crm/conversations/{id}', ['GET']], ['/api/crm/customers/{customerId}/consent', ['POST']],
+  ['/api/crm/conversations', ['GET']], ['/api/crm/conversations/{id}', ['GET']],
+  // @req FR-233 — the third, read-only reader: message search and per-account
+  // follow/unfollow counts. GET only, same as the inbox above.
+  ['/api/crm/conversations/search', ['GET']], ['/api/crm/conversations/event-counts', ['GET']],
+  ['/api/crm/customers/{customerId}/consent', ['POST']],
   // @req FR-022 — the PDPA erasure trigger. POST only: there is no preview of an
   // erasure, and the redacted Customer row survives, so DELETE would misdescribe it.
   ['/api/crm/customers/{customerId}/erasure', ['POST']],

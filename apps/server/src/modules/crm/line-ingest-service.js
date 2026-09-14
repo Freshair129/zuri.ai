@@ -9,15 +9,18 @@ import {
   zRecordExistingConversationEventInput,
   zIngestLineUnsendEventInput,
 } from '@/lib/validation/entities'
+import { refreshConversationPreview } from './conversation-preview-service'
 
 // @req FR-023 — inbound LINE identity, customer, conversation and message are atomic.
 // @req FR-097 — trusted channel account is carried into identity discovery.
 // @req FR-148 — account-scoped threads, business isolation and transaction composition.
 // @req FR-229 — non-text LINE content: contentKind/attachment on ingestLineMessage,
 //   plus three narrow writers for non-message events (ADR-091 D5).
+// @req FR-233 — every write here that touches Message content refreshes
+//   Conversation.lastMessageAt/lastMessagePreview (conversation-preview-service.js).
 // @spec ADR-061, ADR-044, ADR-045, BR-001, BR-002, SEC-001, SEC-018
 // @tested tests/integration/line-ingest.test.js, tests/integration/line-account-isolation.test.js,
-//   tests/integration/line-non-text-admission.test.js
+//   tests/integration/line-non-text-admission.test.js, tests/integration/crm-conversation-inbox.test.js
 
 const CHANNEL = 'LINE'
 const conversationKey = (tenantId, channelAccountId, threadId) => ({
@@ -110,6 +113,9 @@ export async function ingestLineMessage(input, { db = prisma } = {}) {
     })
   }
   await db.conversation.update({ where: { id: conversation.id }, data: { updatedAt: new Date() } })
+  // @req FR-233 — the inbox's last-message-at/preview columns follow every new
+  //   message, inbound or outbound (reply-record-service.js does the same).
+  await refreshConversationPreview(db, conversation.id)
   await recordAudit(db, {
     entityType: 'CONVERSATION', entityId: conversation.id, action: 'MESSAGE_INGESTED', actorType: 'LINE',
     // @spec NFR-017 — durable correlation without duplicating message content.
@@ -311,6 +317,9 @@ export async function ingestLineUnsendEvent(input, { db = prisma } = {}) {
         where: { messageId: message.id, fetchState: { not: 'ERASED' } },
         data: { fetchState: 'ERASED', providerContentId: null },
       })
+      // @req FR-233 — an unsend may tombstone the conversation's current latest
+      //   message; refresh rather than assume, since it may equally be an older one.
+      await refreshConversationPreview(db, conversation.id)
       tombstonedMessage = true
     }
   }

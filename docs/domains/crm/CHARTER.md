@@ -1,7 +1,7 @@
 ---
-version: "0.4.2b"
+version: "0.5.0b"
 status: active
-last_update: "2026-09-14T20:00:00+07:00,Claude Sonnet 5"
+last_update: "2026-09-14T21:15:00+07:00,Claude Sonnet 5"
 id: ZAI:DOMAIN-CRM
 relations:
   - type: relates_to
@@ -29,6 +29,7 @@ owns_models:
   - ConversationEvent
   - ConversationAnalysis
   - SalesTask
+  - TenantRetentionOverride
 ---
 
 # Domain charter — crm
@@ -130,6 +131,47 @@ turn flows through before any agent work happens.
   none creates a
   `LineConversationJob`.
 
+- `getEffectiveRetentionWindowDays` / `setTenantRetentionOverride` — the FR-230
+  retention override reader/writer (ADR-091 D2). A Tenant may shorten (never
+  lengthen) the installation-default window for a retention data class; the
+  writer refuses a value above the default outright rather than clamping it,
+  audited as `TENANT_RETENTION_OVERRIDE`/`RETENTION_OVERRIDE_SET`. Declares all
+  four `RETENTION_DATA_CLASSES` (`src/lib/validation/enums.js`) so a Tenant can
+  already record an override for a class this codebase does not yet sweep; only
+  that class's own sweeper, once one exists, would read it.
+- `runRetentionSweep` — the FR-230 nightly sweep, and today it sweeps exactly
+  one data class: `MESSAGE_BODY_AND_ATTACHMENTS` (`Message.body` /
+  `MessageAttachment`, 24-month installation default). It tombstones content
+  past its effective per-Tenant window, keeps envelope columns (the same shape
+  `redactConversationContentForCustomers` already keeps), skips a row a
+  non-terminal `LineConversationJob` still references
+  (`LINE_CONVERSATION_JOB_NON_TERMINAL_STATUSES`), refreshes
+  `Conversation.lastMessageAt`/`lastMessagePreview` for every conversation it
+  touches, and writes exactly one `RETENTION_SWEEP`/`RETENTION_SWEEP_COMPLETED`
+  audit event per run naming the counts it actually produced. It does **not**
+  sweep `RawExternalRecord.payloadJson` (integration's charter) or
+  `AgentTraceEvent` payloads (agent's charter) — each is another domain's model
+  to write, not this one's — and it cannot reach MSP session content at all
+  (a separate repository). `RETENTION_DATA_CLASSES` and
+  `RETENTION_DEFAULT_WINDOW_DAYS` already declare all four classes so neither
+  of those sweepers, once built, needs a schema change to slot in.
+- `getConversationInbox` (extended, FR-233) — each row now carries
+  `lastMessageAt`, `lastMessagePreview`, `retentionClass` (denormalised columns
+  kept current by `conversation-preview-service.js` on every Message write —
+  ingest, reply, unsend, PDPA erasure and the retention sweep all call it) and
+  a per-Business `unreadCount` computed on read: INBOUND messages newer than
+  the conversation's own newest OUTBOUND message (every INBOUND message, if
+  none exists yet) — no stored "last read" marker, and no extra query, since it
+  reuses the messages already fetched for `lastMessage`.
+- `searchConversationMessages` / `getConversationEventCounts` — the FR-233
+  third reader (design §6.9): full-text search over `Message.body` (a `pg_trgm`
+  GIN index on Postgres; `LIKE` on SQLite — one Prisma `contains` query either
+  way, only the physical index differs) and per-account follow/unfollow counts
+  from `ConversationEvent`, both through the exact scope predicate
+  `getConversationInbox` uses (`resolveScope`, exported for this reuse) so a
+  message or count can never surface from a Business the viewer cannot see.
+  Read-only by construction, same enforcement as the rest of this module.
+
 - `readConversationConsentStatus` — a narrow, internal (non-viewer) consent
   reader for the knowledge lane's candidate decision (FR-236, ADR-090 D6):
   given a Tenant/Business/Conversation id it returns only the Customer's
@@ -209,18 +251,28 @@ same way. The legacy `/api/agent/line-webhook` seam still skips every non-text
 event inline and does not call this admission path; it was left unchanged (see
 TASK-ZAI-088's report for why).
 
-Still planned under this charter, not in `owns_models` until each lands:
+**FR-230 / FR-233 landed (2026-09-14):** `Conversation.lastMessageAt` /
+`lastMessagePreview` / `retentionClass` are now in `owns_models`' schema, kept
+current by `conversation-preview-service.js` on every Message write (ingest,
+reply, unsend, PDPA erasure, the retention sweep). `TenantRetentionOverride` is
+a new owned model (a Tenant's per-data-class shortening, never a lengthening —
+`retention-override-service.js`). `retention-sweep-service.js` sweeps
+`MESSAGE_BODY_AND_ATTACHMENTS` nightly, tombstoning past the effective window,
+skipping a row a non-terminal `LineConversationJob` references, one audit event
+per run. `conversation-search-service.js` adds the third reader: message search
+(`pg_trgm` on Postgres, `LIKE` on SQLite) and per-account follow/unfollow counts
+from `ConversationEvent`. `getConversationInbox` gained a per-Business
+`unreadCount` computed on read. Migration `20260914150400`, written and not yet
+applied. `Message` sender channel identity is **not** part of this landing —
+no FR-230/FR-233 acceptance criterion names it, and it stays declared-only here
+until a requirement actually needs it.
 
-- `Message` sender channel identity and retention expiry;
-  `Conversation` last-message time, a preview of at most 120 characters, and a
-  retention class — FR-230, FR-233. The erasure writer above already redacts
-  attachments (FR-229); it will also redact the preview once it exists.
-- A third read-only reader: message search (trigram on Postgres, `LIKE` on SQLite)
-  scoped to visible Businesses and optionally one LINE OA account — FR-233.
-- Retention: message bodies and attachments keep 24 months by default, a Tenant
-  may only shorten it, and a nightly sweep tombstones past the window — FR-230.
+Still planned under this charter, not in `owns_models` until it lands:
+
 - A consent-gated read projection for the knowledge lane's candidate extractor
   (ADR-090 D6), in the shape of `getConversationAnalyses`; crm gains no writer for it.
+- `Message` sender channel identity (mentioned in the original ADR-091 design
+  evidence, not yet required by any FR).
 
 Consent keeps its current meaning and gains one: it never gates recording an
 inbound message, and it now also gates episodic, passport and cross-thread agent
@@ -238,6 +290,7 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.5.0b | 2026-09-14 | FR-230 / FR-233 / FEAT-037 built (TASK-ZAI-089, TASK-ZAI-090): `owns_models` += `TenantRetentionOverride`; `Conversation` gains `lastMessageAt`/`lastMessagePreview`/`retentionClass`, kept current by a new shared `conversation-preview-service.js` helper called from ingest, reply, unsend and PDPA erasure; new `retention-override-service.js` (downward-only Tenant override) and `retention-sweep-service.js` (nightly sweep of the one crm-owned retention class, `MESSAGE_BODY_AND_ATTACHMENTS`; `RAW_LINE_PAYLOAD`/`AGENT_TRACE_EVENT`/`MSP_SESSION_CONTENT` are each another domain's model or another repository, not swept here); new `conversation-search-service.js` (message search + ConversationEvent follow/unfollow counts, both through the existing inbox scope predicate); `getConversationInbox` gains a computed-on-read `unreadCount`; migration `20260914150400`, written, not applied | Claude Sonnet 5 |
 | 0.4.2b | 2026-09-14 | Added `readConversationConsentStatus` (FR-236, ADR-090 D6): a narrow, internal, viewer-free consent reader the knowledge lane's candidate decision calls instead of re-authorizing through `getConversationThread`'s `customer` domain gate; a sixth narrow read-only export, no `owns_models` change | Claude Sonnet 5 |
 | 0.4.1b | 2026-09-14 | Review fixes on FR-229 (same task): placeholder bodies are now genuinely fixed (no packageId/stickerId/lat/lng ever reach `Message.body`); the migration's two new-table foreign keys are explicit `ON DELETE CASCADE` (schema.prisma's cascade was previously Postgres-invisible); memberJoined/memberLeft payload carries a `memberCount`, never a raw LINE user id (closes an erasure gap — `ConversationEvent` is Tier 1); `unsend` for a thread with no existing conversation is skipped rather than minting a Customer and Conversation for nothing | Claude Sonnet 5 |
 | 0.4.0b | 2026-09-14 | FR-229 / FEAT-037 built (TASK-ZAI-088): `owns_models` += `MessageAttachment`, `ConversationEvent`; `Message.contentKind`; three new narrow writers; the ADR-061 native admission seam no longer skips non-text events and creates no answer job for them; unsend tombstones the message and attachment it names; the PDPA erasure writer now redacts attachments too; migration `20260914150000` written, not applied | Claude Sonnet 5 |
