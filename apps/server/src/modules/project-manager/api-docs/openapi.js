@@ -126,6 +126,10 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-022 — the PDPA erasure trigger. POST only: there is no preview of an
   // erasure, and the redacted Customer row survives, so DELETE would misdescribe it.
   ['/api/crm/customers/{customerId}/erasure', ['POST']],
+  // @req FR-230 — the nightly retention sweep's scheduled entry point (ADR-091 D1,
+  // D2). Deployment-authenticated (ZURI_RETENTION_SWEEP_TOKEN), same shape as
+  // /api/line-oa/worker and /api/platform/programme-usage-reports below.
+  ['/api/crm/retention-sweep', ['POST']],
   // @req FR-161 — sales tasks: the collection (list + create) and the item
   // (read + versioned action; cancel is an action, never a DELETE).
   ['/api/crm/sales-tasks', ['GET', 'POST']], ['/api/crm/sales-tasks/{id}', ['GET', 'PATCH']],
