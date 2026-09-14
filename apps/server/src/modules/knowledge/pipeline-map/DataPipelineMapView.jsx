@@ -2,7 +2,9 @@
 
 // @req FR-213 — Data Pipeline Map: Dark Slate Canvas, Compact KPIs, Static Stage Columns,
 //   Pan & Zoom, Motion Flow Edges, and 3D WebGL Matrix Mode.
-// @spec ADR-085 D3, D6; NFR-008 (status never travels by colour alone)
+// @req FR-215 — Live pipeline health on the map: per-edge run and job counts for the active Business
+//   from the FR-071 ledger and transport job tables; unbacked edges show no number rather than zero.
+// @spec ADR-085 D3, D5, D6; NFR-008 (status never travels by colour alone)
 // @tested tests/unit/knowledge-data-pipeline-map-ui.test.js
 
 import React, { useMemo, useState, useRef, useEffect, useCallback } from 'react'
@@ -26,9 +28,19 @@ import {
   ArrowRight,
 } from 'lucide-react'
 import { PageHeader } from '@/components/ui'
+import { useScope } from '@/context/ScopeContext'
 import { GEOMETRY, layoutPipelineMap, COLUMNS, COLUMN_LABELS } from './pipeline-map-layout'
 import DataPipelineMap3D from './DataPipelineMap3D'
+import { usePipelineHealth } from './use-pipeline-health'
 import styles from './data-pipeline-map.module.css'
+
+function useSafeScope() {
+  try {
+    return useScope()
+  } catch {
+    return null
+  }
+}
 
 export const STATUS_LABEL = {
   PRODUCTION: 'production',
@@ -56,6 +68,16 @@ const KIND_LABEL = {
 
 const isInternal = (node) => node.kind !== 'SOURCE' && node.kind !== 'RECIPIENT'
 const truncate = (text, max) => (text && text.length > max ? `${text.slice(0, max - 1)}…` : text || '')
+
+export const SCM_DOMAINS = new Set(['inventory', 'procurement', 'commerce', 'warehouse'])
+export const CRM_DOMAINS = new Set(['customer', 'market'])
+
+export const matchDomain = (nodeDomain, filterDomain) => {
+  if (!filterDomain) return true
+  if (filterDomain === 'group:scm') return SCM_DOMAINS.has(nodeDomain)
+  if (filterDomain === 'group:crm') return CRM_DOMAINS.has(nodeDomain)
+  return nodeDomain === filterDomain
+}
 
 function StatusChip({ status }) {
   if (!status) return null
@@ -150,7 +172,7 @@ function NodeDetail({ node, map, onSelectChain }) {
   )
 }
 
-function EdgeDetail({ edge, nodeById }) {
+function EdgeDetail({ edge, nodeById, health }) {
   return (
     <div className={styles.detailBody} data-testid={`pipeline-detail-${edge.id}`}>
       <div className={styles.detailHead}>
@@ -170,6 +192,65 @@ function EdgeDetail({ edge, nodeById }) {
         <dt>เชื่อมต่อแล้ว</dt>
         <dd>{edge.wired ? 'ใช่' : 'ยังไม่ต่อ (เส้นประ)'}</dd>
       </dl>
+
+      {/* FR-215 Live Pipeline Health & Monitor Surface */}
+      {health ? (
+        <div className={styles.healthSection} data-testid="edge-health-detail">
+          <h4 className={styles.healthTitle}>
+            <Activity className="w-3.5 h-3.5 text-amber-500" />
+            สถานะและกิจกรรมสด ({health.table})
+          </h4>
+          <dl className={styles.facts}>
+            <dt>จำนวนงาน</dt>
+            <dd>
+              <strong>{health.total}</strong> รายการ
+            </dd>
+            <dt>สถานะย่อย</dt>
+            <dd className={styles.statusChipsWrap}>
+              {Object.keys(health.countsByStatus).length > 0 ? (
+                Object.entries(health.countsByStatus).map(([st, count]) => (
+                  <span
+                    key={st}
+                    className={styles.statusMiniTag}
+                    data-status={st}
+                  >
+                    {st}: {count}
+                  </span>
+                ))
+              ) : (
+                <span className={styles.muted}>ไม่มีประวัติงาน</span>
+              )}
+            </dd>
+            <dt>ข้อผิดพลาด</dt>
+            <dd className={health.failedCount > 0 ? styles.failText : ''}>
+              {health.failedCount > 0
+                ? `⚠️ ${health.failedCount} รายการที่ล้มเหลว`
+                : 'ไม่มีข้อผิดพลาด (ปกติ)'}
+            </dd>
+            <dt>ทำงานล่าสุด</dt>
+            <dd>
+              {health.lastRunAt
+                ? new Date(health.lastRunAt).toLocaleString('th-TH')
+                : '—'}
+            </dd>
+          </dl>
+          {health.monitorUrl && (
+            <Link
+              href={health.monitorUrl}
+              className={styles.monitorButton}
+              data-testid="edge-monitor-link"
+            >
+              เปิดหน้าจอตรวจสอบ <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          )}
+        </div>
+      ) : (
+        <div className={styles.unbackedNotice} data-testid="edge-unbacked-notice">
+          <p className={styles.mutedText}>
+            ไม่มีตารางบันทึกการทำงานผูกกับท่อนี้ (Unbacked Edge — ไม่มีการนับตัวเลข)
+          </p>
+        </div>
+      )}
     </div>
   )
 }
@@ -246,7 +327,18 @@ function ChainDetail({ chain, edgeById, nodeById, onSelectEdge }) {
   )
 }
 
-export default function DataPipelineMapView({ map, initialChainId = null }) {
+export default function DataPipelineMapView({
+  map,
+  initialChainId = null,
+  initialBusinessId = null,
+  initialHealth = null,
+}) {
+  const scope = useSafeScope()
+  const activeBusinessId = initialBusinessId || scope?.shell?.activeBusinessId || scope?.currentBusiness?.id || null
+  const [showHealthOverlay, setShowHealthOverlay] = useState(true)
+  const { health: fetchedHealth, loading: healthLoading } = usePipelineHealth(showHealthOverlay ? activeBusinessId : null)
+  const healthData = initialHealth || fetchedHealth
+
   const layout = useMemo(() => layoutPipelineMap(map), [map])
   const nodeById = useMemo(() => new Map(map.nodes.map((n) => [n.id, n])), [map])
   const edgeById = useMemo(() => new Map(map.edges.map((e) => [e.id, e])), [map])
@@ -284,12 +376,12 @@ export default function DataPipelineMapView({ map, initialChainId = null }) {
     if (chain && !chain.nodeIds.includes(node.id)) return false
     if (domain) {
       if (isInternal(node)) {
-        if (node.domain !== domain) return false
+        if (!matchDomain(node.domain, domain)) return false
       } else if (
         !map.edges.some(
           (e) =>
-            (e.from === node.id && nodeById.get(e.to)?.domain === domain) ||
-            (e.to === node.id && nodeById.get(e.from)?.domain === domain)
+            (e.from === node.id && matchDomain(nodeById.get(e.to)?.domain, domain)) ||
+            (e.to === node.id && matchDomain(nodeById.get(e.from)?.domain, domain))
         )
       ) {
         return false
@@ -308,12 +400,12 @@ export default function DataPipelineMapView({ map, initialChainId = null }) {
 
   const edgeMatches = (edge) => {
     if (chain && !chainEdges.has(edge.id)) return false
-    if (
-      domain &&
-      nodeById.get(edge.from)?.domain !== domain &&
-      nodeById.get(edge.to)?.domain !== domain
-    ) {
-      return false
+    if (domain) {
+      const fromDomain = nodeById.get(edge.from)?.domain
+      const toDomain = nodeById.get(edge.to)?.domain
+      if (!matchDomain(fromDomain, domain) && !matchDomain(toDomain, domain)) {
+        return false
+      }
     }
     if (status && edge.status !== status) return false
     return true
@@ -373,12 +465,30 @@ export default function DataPipelineMapView({ map, initialChainId = null }) {
     }
   }, [isDragging, handleMouseMove, handleMouseUp])
 
-  // Mouse wheel zoom
-  const handleWheel = (e) => {
-    e.preventDefault()
-    const zoomFactor = e.deltaY > 0 ? 0.92 : 1.08
-    setZoom((prevZoom) => Math.max(0.35, Math.min(2.5, prevZoom * zoomFactor)))
-  }
+  // Native wheel handler on canvas: prevent page scrolling, support pinch/wheel zoom and Shift-pan
+  useEffect(() => {
+    const el = canvasRef.current
+    if (!el) return
+
+    const onWheel = (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      if (e.shiftKey) {
+        // Shift + Wheel = horizontal pan
+        setPan((prev) => ({ ...prev, x: prev.x - e.deltaY }))
+      } else if (Math.abs(e.deltaX) > 0 && Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        // Trackpad horizontal swipe
+        setPan((prev) => ({ x: prev.x - e.deltaX, y: prev.y - e.deltaY }))
+      } else {
+        // Wheel zoom
+        const zoomFactor = e.deltaY > 0 ? 0.92 : 1.08
+        setZoom((prevZoom) => Math.max(0.35, Math.min(2.5, prevZoom * zoomFactor)))
+      }
+    }
+
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [viewMode])
 
   const handleZoomBtn = (factor) => {
     setZoom((prevZoom) => Math.max(0.35, Math.min(2.5, prevZoom * factor)))
@@ -407,7 +517,13 @@ export default function DataPipelineMapView({ map, initialChainId = null }) {
     )
   }
   if (selected?.type === 'edge' && edgeById.has(selected.id)) {
-    detail = <EdgeDetail edge={edgeById.get(selected.id)} nodeById={nodeById} />
+    detail = (
+      <EdgeDetail
+        edge={edgeById.get(selected.id)}
+        nodeById={nodeById}
+        health={healthData?.edges?.[selected.id]}
+      />
+    )
   }
   if (selected?.type === 'chain' && chainById.has(selected.id)) {
     detail = (
@@ -422,11 +538,13 @@ export default function DataPipelineMapView({ map, initialChainId = null }) {
 
   return (
     <div className={styles.page} data-testid="data-pipeline-map">
-      <PageHeader
-        eyebrow="KNOWLEDGE (GKS) · DATA PIPELINE MAP"
-        title="แผนที่ Data Pipeline"
-        subtitle="ภาพรวมการไหลของข้อมูลจากต้นทาง เข้าสู่แต่ละ Vault และส่งต่อให้ผู้รับ — Static topological stages พร้อม Motion flow"
-      />
+      <div className={styles.headerWrap}>
+        <PageHeader
+          eyebrow="KNOWLEDGE (GKS) · DATA PIPELINE MAP"
+          title="แผนที่ Data Pipeline"
+          subtitle="ภาพรวมการไหลของข้อมูลจากต้นทาง เข้าสู่แต่ละ Vault และส่งต่อให้ผู้รับ — Static topological stages พร้อม Motion flow"
+        />
+      </div>
 
       {/* ====================================================================
           Compact Mini-KPIs Strip (Reduced Height)
@@ -536,11 +654,22 @@ export default function DataPipelineMapView({ map, initialChainId = null }) {
               aria-label="กรองตามโดเมน"
             >
               <option value="">ทุกโดเมน ({domains.length})</option>
-              {domains.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
+              <optgroup label="ERP Domain Groups">
+                <option value="group:scm">📦 SCM (Inventory · Procurement · Commerce)</option>
+                <option value="group:crm">👥 CRM (Customer · Market Intelligence)</option>
+              </optgroup>
+              <optgroup label="Individual Domains">
+                {domains.map((d) => {
+                  let label = d
+                  if (SCM_DOMAINS.has(d)) label = `${d} (SCM)`
+                  else if (CRM_DOMAINS.has(d)) label = `${d} (CRM)`
+                  return (
+                    <option key={d} value={d}>
+                      {label}
+                    </option>
+                  )
+                })}
+              </optgroup>
             </select>
           </label>
 
@@ -576,8 +705,24 @@ export default function DataPipelineMapView({ map, initialChainId = null }) {
           )}
         </div>
 
-        {/* Legend status indicators */}
+        {/* Legend status indicators & Live Health Toggle */}
         <div className={styles.legend}>
+          <button
+            type="button"
+            className={`${styles.healthToggle} ${showHealthOverlay ? styles.healthToggleActive : ''}`}
+            onClick={() => setShowHealthOverlay((v) => !v)}
+            title="แสดงสถานะและการทำงานสดบนท่อส่งข้อมูล (FR-215)"
+            data-testid="pipeline-health-toggle"
+          >
+            <Activity className={`w-3.5 h-3.5 ${healthData?.summary?.hasFailures ? 'text-rose-500 animate-pulse' : 'text-emerald-500'}`} />
+            <span>
+              {healthLoading
+                ? 'กำลังโหลด...'
+                : healthData
+                ? `Live Health (${healthData.summary.totalTracked}${healthData.summary.totalFailures > 0 ? ` · ⚠️ ${healthData.summary.totalFailures} fail` : ''})`
+                : 'Live Health'}
+            </span>
+          </button>
           <StatusChip status="PRODUCTION" />
           <StatusChip status="CODE_TESTS" />
           <StatusChip status="PARTIAL" />
@@ -601,7 +746,6 @@ export default function DataPipelineMapView({ map, initialChainId = null }) {
                   ref={canvasRef}
                   className={`${styles.canvasViewport} ${isDragging ? styles.isDragging : ''}`}
                   onMouseDown={handleMouseDown}
-                  onWheel={handleWheel}
                 >
                   <svg
                     width={layout.width}
@@ -674,6 +818,8 @@ export default function DataPipelineMapView({ map, initialChainId = null }) {
                         const inChain = chainEdges.has(edge.id)
                         const isSelected = selected?.type === 'edge' && selected.id === edge.id
                         const isBackward = edge.d && edge.d.includes('C') && edge.labelY > layout.positions.get(edge.from)?.y
+                        const edgeHealth = healthData?.edges?.[edge.id]
+                        const hasFailures = edgeHealth?.failedCount > 0
 
                         return (
                           <g
@@ -683,11 +829,12 @@ export default function DataPipelineMapView({ map, initialChainId = null }) {
                             data-dim={filtering && !active ? 'true' : 'false'}
                             data-path={onPath ? 'true' : 'false'}
                             data-selected={isSelected ? 'true' : 'false'}
+                            data-has-failures={hasFailures ? 'true' : 'false'}
                             onClick={() => selectEdge(edge.id)}
                           >
                             {/* Hit Area */}
                             <path d={edge.d} className={styles.edgeHit}>
-                              <title>{`${nodeById.get(edge.from)?.label} → ${nodeById.get(edge.to)?.label}: ${edge.label} (${STATUS_LABEL[edge.status]})`}</title>
+                              <title>{`${nodeById.get(edge.from)?.label} → ${nodeById.get(edge.to)?.label}: ${edge.label} (${STATUS_LABEL[edge.status]})${edgeHealth ? ` · ${edgeHealth.table}: ${edgeHealth.total} runs (${edgeHealth.failedCount} fail)` : ''}`}</title>
                             </path>
 
                             {/* Base Trace Line */}
@@ -722,11 +869,51 @@ export default function DataPipelineMapView({ map, initialChainId = null }) {
                               </circle>
                             )}
 
+                            {/* Live Health Badge (FR-215 / ADR-085 D5) */}
+                            {showHealthOverlay && edgeHealth && (() => {
+                              const hasFail = edgeHealth.failedCount > 0
+                              return (
+                                <g
+                                  transform={`translate(${edge.labelX}, ${edge.labelY})`}
+                                  className={styles.healthBadge}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    selectEdge(edge.id)
+                                  }}
+                                  data-testid={`edge-health-${edge.id}`}
+                                >
+                                  <title>{`${edgeHealth.table}: ${edgeHealth.total} งาน (${edgeHealth.failedCount} fail)`}</title>
+                                  {hasFail ? (
+                                    <>
+                                      <rect x={-18} y={-8} width={36} height={16} rx={8} className={styles.badgeFailBg} />
+                                      <text x={0} y={3.5} textAnchor="middle" className={styles.badgeFailText}>
+                                        {edgeHealth.failedCount} fail
+                                      </text>
+                                    </>
+                                  ) : edgeHealth.total > 0 ? (
+                                    <>
+                                      <rect x={-14} y={-8} width={28} height={16} rx={8} className={styles.badgeOkBg} />
+                                      <text x={0} y={3.5} textAnchor="middle" className={styles.badgeOkText}>
+                                        {edgeHealth.total}
+                                      </text>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <rect x={-12} y={-8} width={24} height={16} rx={8} className={styles.badgeIdleBg} />
+                                      <text x={0} y={3.5} textAnchor="middle" className={styles.badgeIdleText}>
+                                        0
+                                      </text>
+                                    </>
+                                  )}
+                                </g>
+                              )
+                            })()}
+
                             {/* Edge Label on hover / selection */}
                             {(isSelected || (onPath && active)) && (
                               <text
                                 x={edge.labelX}
-                                y={edge.labelY - 4}
+                                y={edge.labelY - (showHealthOverlay && edgeHealth ? 12 : 4)}
                                 textAnchor="middle"
                                 className={styles.edgeLabel}
                               >
@@ -876,7 +1063,7 @@ export default function DataPipelineMapView({ map, initialChainId = null }) {
                       .filter(
                         (c) =>
                           (!chain || c.id === chain.id) &&
-                          (!domain || c.domains.includes(domain)) &&
+                          (!domain || c.domains.some((d) => matchDomain(d, domain))) &&
                           (!status || c.status === status)
                       )
                       .map((c) => (

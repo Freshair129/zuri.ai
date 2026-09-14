@@ -811,6 +811,7 @@ that a Codex worker or Supabase apply executed.
 
 | Method | Path | Contract |
 |---|---|---|
+| GET | `/api/pipelines/health` | FR-215 (ADR-085 D5): bounded live health read model for the active Business only — aggregates `PipelineRun`, `LineConversationJob`, `LineOaRichMenuJob` and `AssetExtractionJob` statuses, failure counts and last run timestamps across backed edges |
 | GET | `/api/pipelines/runs` | scope-filtered bounded run list; `businessId`, `status`, `limit` and provenance filters are server-validated |
 | POST | `/api/pipelines/runs` | installation operator creates one idempotent `QUEUED` run envelope; source/artifact identity and scope are explicit |
 | GET | `/api/pipelines/runs/[executionRunId]` | server-filtered monitor read model with stage timeline, first failure, redacted record outcomes, reconciliation, gate evidence, freshness and lineage |

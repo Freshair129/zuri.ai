@@ -508,7 +508,7 @@ locates the week.
 | TASK-ZAI-060 | SPR-ZAI-02 | task | Data pipeline map decision record — the ADR for a Knowledge (GKS) navigation slot that consumes GKS without becoming it, and the requirement and FEAT declarations | P0 | Claude | done | - | Section 3.1 row 4; ADR-063 D4; ADR-050; SYSTEM-DIAGRAM; ARCHITECTURE-DIAGRAMS section 3 |
 | TASK-ZAI-061 | SPR-ZAI-02 | task | Data pipeline registry — the written map of inbound sources, outbound recipients and combine chains, a validated JSON registry, a generated runtime projection and a preflight check | P0 | Claude | review | TASK-ZAI-060 | Section 3.1 row 4; FR-124 precedent; ADR-081 D2 |
 | TASK-ZAI-062 | SPR-ZAI-02 | task | Data Pipeline Map node-edge view under the Knowledge (GKS) slot — layered graph, chain, domain and status filters, edge detail with domain, FEAT and surface level, and a list view | P0 | Claude | review | TASK-ZAI-061 | Section 3.1 row 4; FR-040 and FR-101 hand-rolled SVG precedent; FR-061 |
-| TASK-ZAI-063 | SPR-ZAI-03 | task | Live pipeline health on the map — per-edge run and job counts for the active Business from the FR-071 ledger and the transport job tables | P1 | Claude | planned | TASK-ZAI-062; TASK-ZAI-047 | Section 3.1 row 4; FR-071; FR-149; FR-152; FR-143 |
+| TASK-ZAI-063 | SPR-ZAI-03 | task | Live pipeline health on the map — per-edge run and job counts for the active Business from the FR-071 ledger and the transport job tables | P1 | Claude | done | TASK-ZAI-062; TASK-ZAI-047 | Section 3.1 row 4; FR-071; FR-149; FR-152; FR-143 |
 | TASK-ZAI-064 | SPR-ZAI-02 | task | Delivery telemetry decision record — the ADR that lets the programme board show measured time and tokens beside the plan without turning either into completion, the sizing table, and the requirement and FEAT declarations | P0 | Claude | done | - | Section 3.1 row 2; ADR-048 D3; FR-105 |
 | TASK-ZAI-065 | SPR-ZAI-02 | task | Phase card delivery metrics — sprint and task counts, size in complexity points, plan window and effort estimate, actual time and measured tokens once done, and done or review cards tinted green or orange | P0 | Claude | done | TASK-ZAI-064 | Section 3.1 row 2; FR-105; FR-211; NFR-008 |
 | TASK-ZAI-066 | SPR-ZAI-02 | task | Usage meter — measured tokens and active time per task from Claude Code and Codex session logs, attributed by the branches each Task Container declares and written back with provenance | P0 | Claude | done | TASK-ZAI-064 | Section 3.1 row 2; ADR-048 D3; section 5.3 measurement precedent |
@@ -3375,29 +3375,29 @@ title: Live pipeline health on the map — per-edge run and job counts for the a
 requirement_type: FR
 complexity: C-2
 access_scope: H3
-status: planned
-version: 0.1.0
-pic: Claude
-executor: Claude
+status: done
+version: 1.0.0
+pic: Antigravity
+executor: Antigravity
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/platform/integrations/core/pipeline-tracking-service.js
-  doc: docs/domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md
-  test: unavailable
+  code: apps/server/src/modules/knowledge/pipeline-map/pipeline-health-service.js
+  doc: docs/decisions/ADR-085-KNOWLEDGE-GKS-SLOT-AND-THE-DATA-PIPELINE-MAP.md
+  test: apps/server/tests/unit/pipeline-health-service.test.js
 delivers: [FR-215]
 definition_of_done:
   acceptance_criteria:
     - criterion: Given the active Business, when the map loads its live overlay, then each edge backed by a ledger or job table shows counts by status and the last run time for that Business only, read through the owning domain's read port, and an edge with no backing table shows no number rather than zero
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a failed knowledge run or a failed LINE or rich menu job, when the owner opens the map, then the affected edge is marked and links to the existing monitor or job surface for that record
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the overlay suites run, then a viewer of another Business sees none of these counts, the overlay issues one bounded read per backing table, and the static map still renders when every read fails
-      checked: false
-changelog: Opened 2026-09-13 (v0.4.3) as the only live part of the map; the registry and view stay static projections. Sequenced after the knowledge base console so both read the same ledger surfaces.
-created_at: 2026-09-13T00:00:00Z,Claude,pending
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.3). Completed 2026-09-14 (v1.0.0) under ADR-085 D5 and FR-215 — implemented pipeline-health-service with 4 bounded table reads (PipelineRun, LineConversationJob, LineOaRichMenuJob, AssetExtractionJob), GET /api/pipelines/health route, usePipelineHealth hook, and live overlay on DataPipelineMapView with status badges, failure highlights, and inspector monitor links.
+created_at: 2026-09-13T00:00:00Z,Claude,done
 token_telemetry:
   model_name: claude-opus-5
   context_length: 200k
