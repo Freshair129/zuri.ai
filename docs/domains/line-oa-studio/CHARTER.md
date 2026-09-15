@@ -216,6 +216,11 @@ slice so preflight can enforce unique model ownership.
   refusals are 404-shaped (FR-072); client, prompt, model or flow values may
   attenuate but never widen server-owned scope (BR-020, SEC-018).
 - Thai copy on user-facing surfaces; English for code, ids and contracts.
+- `server-line-runtime.js`'s `serverLinePorts` (account resolution, push and
+  reply transports) is reached from outside this domain exactly once, by crm's
+  `sendStaffReply` (FR-246, 2026-09-16) — the same shape identity's
+  `resolveLineIdentity` is already called from crm's ingest seam. crm still
+  resolves no credential itself; it calls this port, which alone reaches Vault.
 
 ## Public contract direction
 
@@ -416,6 +421,7 @@ no model call. A session closing never loads or unloads a model.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.15.0b | 2026-09-16 | phase-1-building | FR-246 (not merged): notes `serverLinePorts` as reachable from crm's `sendStaffReply`, the one place outside this domain that calls it | working-tree | Claude Sonnet 5 |
 | 0.14.0b | 2026-09-16 | phase-1-building | FR-243 (TASK-ZAI-107, not merged): `LineConversationJob.sessionId` copied at admission (migration `20260916120000`); `listLineConversationJobs` filters by session code within the account; the Edge Connection card sets `CONFIGURE_SESSION_TIMEOUT` (audited as `LINE_OA_ACCOUNT_SESSION_TIMEOUT_CONFIGURED`, health-only, never fences) and shows each job's trace | working-tree | Claude Opus 5 |
 | 0.13.0b | 2026-09-16 | phase-1-building | FR-243 (TASK-ZAI-106, not merged): `LineOaAccount.sessionIdleTimeoutMinutes` added (default 30, CHECK 10–120 in migration `20260916090000`); admission passes it and LINE's clamped `event.timestamp` to the crm writers for every message and event; the account setting UI is TASK-ZAI-107 | working-tree | Claude Opus 5 |
 | 0.12.0b | 2026-09-16 | phase-1-building | ADR-094 accepted: `LineOaAccount` session idle timeout, business hours and out-of-hours reply declared (FR-243, FR-244); nothing built | working-tree | Claude Opus 5 |

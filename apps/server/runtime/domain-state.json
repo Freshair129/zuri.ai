@@ -39,8 +39,8 @@
     "featureCount": 150,
     "readyFeatureCount": 114,
     "requirementCount": 246,
-    "verifiedRequirementCount": 225,
-    "progressPercent": 93.3,
+    "verifiedRequirementCount": 226,
+    "progressPercent": 93.7,
     "gapCount": 41,
     "gaps": [
       {
@@ -1009,7 +1009,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 281,
+            "openApiPaths": 282,
             "missingFromOpenApi": 0
           }
         },
@@ -1338,7 +1338,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 281,
+            "openApiPaths": 282,
             "missingFromOpenApi": 0
           }
         },
@@ -1535,7 +1535,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 281,
+            "openApiPaths": 282,
             "missingFromOpenApi": 0
           }
         },
@@ -1837,6 +1837,14 @@
           "status": "verified",
           "codeCount": 5,
           "testCount": 32
+        },
+        {
+          "id": "FR-246",
+          "title": "Staff replies are recorded",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 8
         }
       ],
       "checks": {
@@ -1924,6 +1932,7 @@
         "docs/domains/crm/features/FR-127-conversation-intelligence-analysis.md",
         "docs/domains/crm/features/FR-148-account-scoped-conversations.md",
         "docs/domains/crm/features/FR-161-sales-tasks.md",
+        "docs/domains/crm/features/FR-246-staff-reply.md",
         "docs/domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md",
         "docs/domains/crm/features/PHASE-FR-149-P5-server-line-transport.md",
         "prisma/schema.prisma",
@@ -1997,7 +2006,7 @@
         "apiRoutes": 0,
         "pageRoutes": 0,
         "ownedModels": 14,
-        "featureNotes": 9
+        "featureNotes": 10
       },
       "featureIds": [
         "FEAT-006",
@@ -2013,7 +2022,7 @@
       ],
       "featureCount": 10,
       "readyFeatureCount": 4,
-      "progressPercent": 66
+      "progressPercent": 71
     },
     "identity": {
       "status": "partial",
@@ -2442,7 +2451,7 @@
           "details": {
             "routes": 27,
             "inventoried": 27,
-            "openApiPaths": 281,
+            "openApiPaths": 282,
             "missingFromOpenApi": 0
           }
         },
@@ -2962,7 +2971,7 @@
           "details": {
             "routes": 10,
             "inventoried": 10,
-            "openApiPaths": 281,
+            "openApiPaths": 282,
             "missingFromOpenApi": 0
           }
         },
@@ -3368,7 +3377,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 281,
+            "openApiPaths": 282,
             "missingFromOpenApi": 0
           }
         },
@@ -4339,7 +4348,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 281,
+            "openApiPaths": 282,
             "missingFromOpenApi": 0
           }
         },
@@ -4582,7 +4591,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 281,
+            "openApiPaths": 282,
             "missingFromOpenApi": 0
           }
         },
@@ -4749,7 +4758,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 281,
+            "openApiPaths": 282,
             "missingFromOpenApi": 0
           }
         },
@@ -4995,7 +5004,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 281,
+            "openApiPaths": 282,
             "missingFromOpenApi": 0
           }
         },
@@ -5176,7 +5185,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 281,
+            "openApiPaths": 282,
             "missingFromOpenApi": 0
           }
         },
@@ -6492,6 +6501,14 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 32
+        },
+        {
+          "id": "FR-246",
+          "title": "Staff replies are recorded",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 8
         }
       ],
       "checks": {
@@ -6524,9 +6541,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 138,
-            "inventoried": 138,
-            "openApiPaths": 281,
+            "routes": 139,
+            "inventoried": 139,
+            "openApiPaths": 282,
             "missingFromOpenApi": 0
           }
         },
@@ -6592,8 +6609,8 @@
             }
           ],
           "details": {
-            "mutations": 108,
-            "guardedMutations": 105,
+            "mutations": 109,
+            "guardedMutations": 106,
             "reads": 66,
             "unguardedReads": 2
           }
@@ -6754,8 +6771,8 @@
         }
       ],
       "details": {
-        "routes": 183,
-        "apiRoutes": 138,
+        "routes": 184,
+        "apiRoutes": 139,
         "pageRoutes": 45,
         "ownedModels": 31,
         "featureNotes": 33
@@ -11187,15 +11204,17 @@
         "FR-246"
       ],
       "primaryDomain": "crm",
-      "contributorDomains": [],
+      "contributorDomains": [
+        "crm",
+        "project-manager"
+      ],
       "useCase": "เมื่อลูกค้าอ้างว่าเคยได้รับส่วนลดเมื่อสองปีก่อน เจ้าของธุรกิจยืนยันตัวตนสองชั้นแล้วดึงข้อความของลูกค้าคนนั้นตามช่วงวันที่จาก archive ที่เข้ารหัสบนดิสก์ในเครื่อง พร้อม hash ที่พิสูจน์ว่าไม่ถูกแก้ ข้อความที่พนักงานตอบจาก inbox อยู่ในหลักฐานด้วย และข้อมูลที่อยู่ภายใต้ legal hold ไม่ถูกลบจนกว่าข้อพิพาทจะจบ",
-      "progressPercent": 0,
+      "progressPercent": 50,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-041 registry status is declared",
-        "FR-245 is planned",
-        "FR-246 is planned"
+        "FR-245 is planned"
       ],
       "requirements": [
         {
@@ -11209,13 +11228,26 @@
         {
           "id": "FR-246",
           "title": "Staff replies are recorded",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 8
         }
       ],
-      "evidence": []
+      "evidence": [
+        "apps/server/src/app/(pm)/customer/conversations/page.jsx",
+        "apps/server/src/app/api/crm/conversations/[id]/reply/route.js",
+        "apps/server/src/modules/crm/reply-record-service.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
+        "apps/server/tests/e2e/fr246-staff-reply.spec.js",
+        "apps/server/tests/integration/crm-staff-reply.test.js",
+        "apps/server/tests/integration/line-account-isolation.test.js",
+        "apps/server/tests/integration/line-reply-record.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
+        "apps/server/tests/unit/reply-record-service.test.js"
+      ]
     },
     {
       "id": "FR-001",

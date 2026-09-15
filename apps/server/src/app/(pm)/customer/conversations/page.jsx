@@ -9,6 +9,11 @@ import { LoadingCard, useFetch } from '@/modules/project-manager/components/useA
 
 // @req FR-091 — the CRM Conversation Inbox: the first surface able to read what the
 // LINE ingress has been writing since FR-023.
+// @req FR-246 — the one write this page makes on Message: a Business OWNER replies
+//   to a LINE conversation from here, delivered as a push message and recorded with
+//   reply source STAFF (ADR-093 evidence gap). This is not the automatic reply BR-011
+//   governs — BR-011 stops two owners racing one inbound event's replyToken, and a
+//   staff reply answers no replyToken and races nothing.
 // @req FR-103 — the SEC-005 PDPA consent attestation control sits on the same
 // thread header, gated on per-Business OWNER authority (never a Member/DEV grant).
 // @req FR-022 — and beside it, the other half of the same obligation: the PDPA
@@ -19,12 +24,15 @@ import { LoadingCard, useFetch } from '@/modules/project-manager/components/useA
 // naming the session code and when it opened (ADR-094 D4).
 // @spec SDD-050, SDD-053, BR-001, BR-011, SDD-007, SEC-005
 // @tested tests/unit/fr091-inbox-ui-contract.test.js, tests/e2e/fr091-conversation-inbox.spec.js,
+//   tests/e2e/fr246-staff-reply.spec.js,
 //   tests/unit/conversation-session-ui.test.js, tests/e2e/fr243-conversation-sessions.spec.js
 //
-// There is no reply box on this page and its absence is the design (BR-011): the reply
-// token lives for about thirty seconds and belongs to the edge runtime that received
-// the message. A second reply owner is the failure that rule exists to prevent. The
-// consent control is a different concern — it never touches Message, only Customer.
+// The one reply box on this page (ReplyComposer, FR-246) sends through LINE's Push
+// API, never Reply — it never touches a replyToken, so it is not a second owner of
+// the automatic answer BR-011 protects: that reply token lives about thirty seconds
+// and belongs to the edge runtime alone, unchanged by this page's own write. The
+// consent control is a different concern again — it never touches Message, only
+// Customer.
 
 const DIRECTION_LABEL = { INBOUND: 'ลูกค้า', OUTBOUND: 'ร้าน' }
 
@@ -308,10 +316,71 @@ function Thread({ businessId, conversationId, isOwner }) {
         })}
       </div>
 
+      {isOwner && (
+        <ReplyComposer businessId={businessId} conversationId={conversationId} onSent={thread.reload} />
+      )}
+
       <p className="mt-3 border-t border-[var(--border)] pt-3 text-[10px] text-muted">
-        หน้านี้อ่านอย่างเดียว — การตอบกลับเป็นหน้าที่ของ runtime ที่รับข้อความ (BR-011) ไม่ใช่ของ console
+        ข้อความที่พิมพ์ใน LINE Official Account Manager โดยตรงจะไม่ถูกบันทึกที่นี่ — ตอบจากช่องด้านบนแทน (FR-246)
       </p>
     </Card>
+  )
+}
+
+function ReplyComposer({ businessId, conversationId, onSent }) {
+  const [text, setText] = useState('')
+  const [sending, setSending] = useState(false)
+  const [error, setError] = useState(null)
+
+  async function send(event) {
+    event.preventDefault()
+    const trimmed = text.trim()
+    if (!trimmed || sending) return
+    setSending(true)
+    setError(null)
+    try {
+      const res = await fetch(`/api/crm/conversations/${encodeURIComponent(conversationId)}/reply`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ businessId, text: trimmed, clientRequestId: crypto.randomUUID() }),
+      })
+      const body = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(body?.error || 'ส่งข้อความไม่สำเร็จ')
+      setText('')
+      onSent()
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setSending(false)
+    }
+  }
+
+  return (
+    <form onSubmit={send} className="mt-3 flex flex-col gap-1.5 border-t border-[var(--border)] pt-3">
+      <label htmlFor={`reply-${conversationId}`} className="text-[10px] font-semibold text-muted">
+        ตอบลูกค้าทาง LINE
+      </label>
+      <div className="flex gap-2">
+        <textarea
+          id={`reply-${conversationId}`}
+          value={text}
+          onChange={(event) => setText(event.target.value)}
+          rows={2}
+          maxLength={5000}
+          placeholder="พิมพ์ข้อความตอบกลับ..."
+          className="flex-1 rounded-lg border border-[var(--border)] bg-transparent p-2 text-xs"
+          disabled={sending}
+        />
+        <button
+          type="submit"
+          className="btn h-8 self-end px-3 text-[11px]"
+          disabled={sending || !text.trim()}
+        >
+          {sending ? 'กำลังส่ง…' : 'ส่ง'}
+        </button>
+      </div>
+      {error && <span role="alert" className="text-[10px] text-[var(--danger)]">{error}</span>}
+    </form>
   )
 }
 

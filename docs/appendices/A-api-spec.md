@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=281 -->
+<!-- api-spec-counts: route_handlers=282 -->
 
 ### Programme usage reports (FR-218, 2026-09-13)
 
@@ -253,6 +253,7 @@ conversations owned by no Business or by one already in the viewer's scope.
 |---|---|---|
 | GET | `/api/crm/conversations` | implemented: authorized conversation list for the Business's tenant — customer, channel, message count, last-message preview, owning-Business label, plus counts by direction and channel. `limit` is capped server-side at 200 and the response says whether it truncated |
 | GET | `/api/crm/conversations/[id]` | implemented: one thread, messages oldest-first, with the customer behind it. A conversation outside the resolved scope answers **404**, never 403 — a "denied" would confirm the row exists |
+| POST | `/api/crm/conversations/[id]/reply` | implemented: FR-246 — a Business **owner** sends a reply from the Inbox composer, pushed through the account's LINE transport (never the Reply API) and recorded OUTBOUND with reply source `STAFF`, idempotent on a caller-supplied `clientRequestId` (never the inbound message, so several staff messages may follow one inbound). Refused before any push for a viewer without owner authority, the legacy channel, or an account that is not server-enabled — nothing is recorded on a push LINE does not accept |
 | GET | `/api/crm/conversations/search` | implemented: FR-233 third read-only reader — full-text search over `Message.body` (`pg_trgm` on Postgres, `LIKE` on SQLite), scoped to the viewer's visible Businesses within the Tenant `businessId` anchors, optionally to one LINE OA account (`channelAccountId`). A literal path segment ahead of `[id]/route.js`, so it never collides with a conversation id |
 | GET | `/api/crm/conversations/event-counts` | implemented: FR-233 per-account follow/unfollow counts from `ConversationEvent`, same scope as search and the inbox |
 | POST | `/api/crm/customers/[customerId]/consent` | implemented: FR-103 / SEC-005 PDPA consent attestation — a Business **owner** (not merely a Member) records `GRANTED`/`DECLINED` for a Customer reached through their own Business's tenant (BR-001). Writes only `Customer.consent*`; never touches Conversation or Message |
@@ -828,6 +829,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.77.0b | 2026-09-16 | candidate | FR-246 (ADR-093 evidence gap, TASK-ZAI-110): one handler file, `POST /api/crm/conversations/[id]/reply` — the staff reply writer, a Business owner replying from the Inbox composer, pushed through the LINE transport and recorded only on acceptance. Route handler count 281 -> 282 | working-tree | Claude Sonnet 5 |
 | 1.76.0b | 2026-09-15 | candidate | FR-230 (ADR-091 D1, D2): one handler file, `POST /api/crm/retention-sweep` — the missing scheduled entry point for the nightly retention sweep, deployment-authenticated, same-UTC-day idempotency guard against a scheduler retry. Route handler count 280 -> 281 | working-tree | Claude Sonnet 5 |
 | 1.75.0b | 2026-09-15 | candidate | FR-236 (ADR-090 D6, TASK-ZAI-099): one handler file, `PATCH /api/businesses/[id]/knowledge-candidates-toggle` — the only writer of `Business.knowledgeCandidatesEnabled`, gating LINE FAQ knowledge candidate drafting per Business (off by default). Same shape as the `capabilities` route (FR-169). Route handler count 279 -> 280 | working-tree | Claude Sonnet 5 |
 | 1.74.0b | 2026-09-14 | candidate | FR-237 (ADR-090 D7): one handler file, `GET /api/knowledge/gap-report` — aggregates `EVIDENCE_SELECTED` trace events with `reason=NO_EVIDENCE` per Business, returning counts, product locators and last-seen times only, never the question text. Route handler count 276 -> 277 | working-tree | Claude Sonnet 5 |

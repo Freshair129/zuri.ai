@@ -123,6 +123,10 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/businesses/{id}/knowledge-candidates-toggle', ['PATCH']],
   ['/api/containers', ['POST']], ['/api/containers/{id}', ['PATCH']],
   ['/api/crm/conversations', ['GET']], ['/api/crm/conversations/{id}', ['GET']],
+  // @req FR-246 — the staff reply writer: a Business owner sends a reply from the
+  // Inbox composer, pushed through the LINE transport and recorded only on
+  // acceptance (ADR-093 evidence gap). POST only.
+  ['/api/crm/conversations/{id}/reply', ['POST']],
   // @req FR-233 — the third, read-only reader: message search and per-account
   // follow/unfollow counts. GET only, same as the inbox above.
   ['/api/crm/conversations/search', ['GET']], ['/api/crm/conversations/event-counts', ['GET']],

@@ -1,5 +1,5 @@
 ---
-version: "0.8.0b"
+version: "0.9.0b"
 status: active
 last_update: "2026-09-16T09:00:00+07:00,Claude Opus 5"
 id: ZAI:DOMAIN-CRM
@@ -65,17 +65,37 @@ turn flows through before any agent work happens.
 - FR-078 owns the historical Customer Profile backfill contract. It defines
   source identity, entity resolution, PII boundaries and rollback gates; it
   does not authorize a write until its approvals and target-schema gate pass.
-- `recordLineReply` — the outbound writer (FR-093). Resolves the inbound
-  `Message` the reply answers and derives the conversation from that row, so the
-  conversation is never taken from the request and a cross-tenant attachment is
-  unsayable rather than merely refused. Idempotent per inbound message.
+- `recordLineReply` — the automatic outbound writer (FR-093). Resolves the
+  inbound `Message` the reply answers and derives the conversation from that
+  row, so the conversation is never taken from the request and a cross-tenant
+  attachment is unsayable rather than merely refused. Idempotent per inbound
+  message — one stack answer per inbound message, matching LINE's own
+  one-reply-per-token rule.
+- `sendStaffReply` — the second outbound writer, and the one exception to
+  "no reply box" (FR-246, ADR-093 evidence gap). A Business OWNER's reply,
+  composed in the Inbox, is authorized (`assertDomainVisible` then
+  `ownsBusiness`, the same order and gate `recordCustomerConsent` uses,
+  before that same viewer's `principal.id` names the actor), pushed through
+  `@/modules/line-oa-studio/application/server-line-runtime`'s
+  `serverLinePorts` (the one place this file reaches outside its own domain,
+  the same shape identity's `resolveLineIdentity` is already called from
+  `ingestLineMessage`) and recorded only once LINE accepts it. Idempotent on
+  a caller-supplied `clientRequestId`, not on the inbound message it
+  answers — a human composing from the console has no one-reply ceiling, so
+  several staff messages may follow one inbound with none of
+  `recordLineReply`'s per-token collision. Refuses before any push for the
+  legacy channel, an account that is not server-enabled, or a viewer without
+  owner authority. Consumes no replyToken, so it is not the second reply
+  owner BR-011 exists to prevent — that rule is otherwise unchanged.
 - `getConversationInbox` / `getConversationThread` — the read side (FR-091).
-  Read-only by construction: the module exports no writer, so the reader cannot
-  become a second write path into the models the ingest seam owns. It answers
-  within the Tenant of a Business the viewer can see (BR-001) and never replies
-  — the reply belongs to the edge runtime (BR-011). It also reads (never sets)
-  the FR-103 consent fields below, so the console can show current status
-  without a second request.
+  Read-only by construction: the module exports no writer of its own, so the
+  reader cannot become a second write path into the models the ingest seam
+  owns — the two writers above are separate functions a viewer reaches
+  through their own routes, never through a read call. It answers within the
+  Tenant of a Business the viewer can see (BR-001), and the automatic reply
+  still belongs to the edge runtime alone (BR-011). It also reads (never
+  sets) the FR-103 consent fields below, so the console can show current
+  status without a second request.
 - `recordCustomerConsent` — SEC-005's PDPA consent attestation (FR-103). A third
   narrow writer alongside the ingest seam and `recordLineReply`: it only ever
   touches Customer's `consent*` fields, requires per-Business OWNER authority
@@ -294,8 +314,13 @@ this one, never in place of it.
 SDD-103): the retention sweep writes and verifies an encrypted local archive file
 before it tombstones a message body, a manifest model chains the files per Tenant,
 and a legal-hold record on a Customer is the one thing that defers destroying their
-archive key on erasure. **FR-246** adds a staff reply writer (reply source `STAFF`)
-beside `appendOutbound`. Models join `owns_models` when each exists.
+archive key on erasure. Not yet built; no new model exists.
+
+**FR-246 built (2026-09-16, TASK-ZAI-110, branch `feat/crm-staff-reply`, not
+merged):** `sendStaffReply`, above, needed no new model or migration — it writes
+`Message`/`AuditEvent` through the columns FR-093's writer already established
+(reply source is audit-only, the same way `STACK`/`TRANSPORT_FALLBACK` always
+were) and reads the FR-243 session the message it answers already carries.
 
 ## Account-aware transport (ADR-061)
 
@@ -309,6 +334,7 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.9.0b | 2026-09-16 | FR-246 built (TASK-ZAI-110, not merged): second outbound writer `sendStaffReply` (FR-093's `recordLineReply` is now "the automatic" writer); pushes through line-oa-studio's `serverLinePorts` (a declared cross-domain reach, matching identity's `resolveLineIdentity` precedent), idempotent on `clientRequestId`, refuses before any push for the legacy channel/non-owner/non-server-enabled account; no new model | Claude Sonnet 5 |
 | 0.8.0b | 2026-09-16 | FR-243 surfaces (TASK-ZAI-107, not merged): the thread read model returns each message's session id, code and opening time; the Inbox draws a divider per session; the backfill also copies each LINE job's session from its inbound message | Claude Opus 5 |
 | 0.7.0b | 2026-09-16 | FR-243 built (TASK-ZAI-106, not merged): `owns_models` += `ConversationSession`; `conversation-session-service.js` assigns a message's session inside the writer's transaction, `line-ingest-service.js` and `reply-record-service.js` call it, events take the open session, `conversation-session-backfill.js` and its script assign existing rows; migration `20260916090000` written, not applied | Claude Opus 5 |
 | 0.6.0b | 2026-09-16 | ADR-093 and ADR-094 accepted: declared `ConversationSession` (FR-243), the chat evidence archive and legal hold (FR-245, SEC-034) and the staff reply writer (FR-246); nothing built | Claude Opus 5 |
