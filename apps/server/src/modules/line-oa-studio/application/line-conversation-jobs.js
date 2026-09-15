@@ -29,6 +29,9 @@ const failure = (status, message) => Object.assign(new Error(message), { status 
 const sourceTimeMs = timestamp => Number.isFinite(timestamp) && Number.isFinite(new Date(timestamp).getTime())
   ? new Date(timestamp).getTime() : null
 const sourceTime = timestamp => { const ms = sourceTimeMs(timestamp); return ms === null ? null : new Date(ms).toISOString() }
+// @req FR-243 — the time a message belongs to for its session: LINE's own timestamp,
+//   clamped to our clock so a skewed future value cannot move a session (SDD-102).
+const providerTime = (timestamp, now = new Date()) => { const ms = sourceTimeMs(timestamp); return new Date(ms === null ? now.getTime() : Math.min(ms, now.getTime())) }
 
 function traceEvent(db, job, kind, key, payload, occurredAt = new Date(), options) {
   return appendTraceEvent(db, { scope: { tenantId: job.tenantId, businessId: job.businessId },
@@ -184,7 +187,8 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     if (existing) return { jobId: existing.id, created: false, inboundMessageId: existing.inboundMessageId }
     const channelAccountId = current.bindingCode || current.id
     const inbound = await ingestLineMessage({ tenantId: current.tenantId, businessId: current.businessId,
-      channelAccountId, lineUserId: userId, threadId, text, externalMessageId: event.message.id, correlationId }, { db: tx })
+      channelAccountId, lineUserId: userId, threadId, text, externalMessageId: event.message.id, correlationId,
+      occurredAt: providerTime(event.timestamp, ingressReceivedAt), sessionIdleTimeoutMinutes: current.sessionIdleTimeoutMinutes }, { db: tx })
     if (!shouldReply) return { skipped: true, inboundMessageId: inbound.messageId }
     const prior = await tx.lineConversationJob.findUnique({ where: { inboundMessageId: inbound.messageId } })
     if (prior) return { jobId: prior.id, created: false, inboundMessageId: inbound.messageId }
@@ -239,6 +243,7 @@ async function admitLineNonTextMessage({ account, event, correlationId, db = pri
       tenantId: current.tenantId, businessId: current.businessId, channelAccountId,
       lineUserId: userId, threadId, text: body, externalMessageId: event.message.id,
       contentKind, attachment, correlationId,
+      occurredAt: providerTime(event.timestamp), sessionIdleTimeoutMinutes: current.sessionIdleTimeoutMinutes,
     }, { db: tx })
     return { skipped: true, inboundMessageId: inbound.messageId, conversationId: inbound.conversationId }
   })
@@ -261,6 +266,7 @@ async function admitLineDirectEvent({ account, event, correlationId, db = prisma
     const result = await ingestLineConversationEvent({
       tenantId: current.tenantId, businessId: current.businessId, channelAccountId,
       lineUserId: userId, threadId, kind, externalEventId: eventId, payload: {}, correlationId,
+      occurredAt: providerTime(event.timestamp), sessionIdleTimeoutMinutes: current.sessionIdleTimeoutMinutes,
     }, { db: tx })
     return { skipped: true, conversationId: result.conversationId, eventId: result.eventId }
   })
@@ -292,6 +298,7 @@ async function admitLineThreadEvent({ account, event, db = prisma, correlationId
     const result = await recordExistingConversationEvent({
       tenantId: current.tenantId, businessId: current.businessId, channelAccountId,
       threadId, kind, externalEventId: eventId, payload: memberCount ? { memberCount } : {}, correlationId,
+      occurredAt: providerTime(event.timestamp), sessionIdleTimeoutMinutes: current.sessionIdleTimeoutMinutes,
     }, { db: tx })
     return { skipped: true, conversationId: result.conversationId ?? null, eventId: result.eventId ?? null }
   })
@@ -315,6 +322,7 @@ async function admitLineUnsend({ account, event, correlationId, db = prisma }) {
     const result = await ingestLineUnsendEvent({
       tenantId: current.tenantId, businessId: current.businessId, channelAccountId,
       threadId, externalEventId: eventId, unsentExternalMessageId, correlationId,
+      occurredAt: providerTime(event.timestamp), sessionIdleTimeoutMinutes: current.sessionIdleTimeoutMinutes,
     }, { db: tx })
     return {
       skipped: true, conversationId: result.conversationId ?? null, eventId: result.eventId ?? null,

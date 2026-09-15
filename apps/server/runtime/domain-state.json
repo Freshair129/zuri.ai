@@ -39,8 +39,8 @@
     "featureCount": 150,
     "readyFeatureCount": 114,
     "requirementCount": 246,
-    "verifiedRequirementCount": 224,
-    "progressPercent": 92.8,
+    "verifiedRequirementCount": 225,
+    "progressPercent": 93.3,
     "gapCount": 41,
     "gaps": [
       {
@@ -1821,6 +1821,14 @@
             "apps/server/tests/unit/scm-group-navigation.test.js",
             "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
           ]
+        },
+        {
+          "id": "FR-243",
+          "title": "Conversation sessions",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 17
         }
       ],
       "checks": {
@@ -1874,8 +1882,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 13,
-            "present": 13
+            "models": 14,
+            "present": 14
           }
         },
         "authorization": {
@@ -1980,7 +1988,7 @@
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
-        "ownedModels": 13,
+        "ownedModels": 14,
         "featureNotes": 9
       },
       "featureIds": [
@@ -1997,7 +2005,7 @@
       ],
       "featureCount": 10,
       "readyFeatureCount": 4,
-      "progressPercent": 61
+      "progressPercent": 66
     },
     "identity": {
       "status": "partial",
@@ -4290,6 +4298,14 @@
           "status": "verified",
           "codeCount": 5,
           "testCount": 13
+        },
+        {
+          "id": "FR-243",
+          "title": "Conversation sessions",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 17
         }
       ],
       "checks": {
@@ -6460,6 +6476,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 6
+        },
+        {
+          "id": "FR-243",
+          "title": "Conversation sessions",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 17
         }
       ],
       "checks": {
@@ -11062,24 +11086,27 @@
         "FR-244"
       ],
       "primaryDomain": "crm",
-      "contributorDomains": [],
+      "contributorDomains": [
+        "crm",
+        "line-oa-studio",
+        "project-manager"
+      ],
       "useCase": "เจ้าของธุรกิจเปิด inbox แล้วเห็นบทสนทนา LINE ของลูกค้าแบ่งเป็น session ตามช่วงที่คุยกัน โดย session ปิดเองเมื่อเงียบเกิน 30 นาที ตั้งค่าได้ 10–120 นาทีต่อบัญชี ย้อนดู job และ trace ของแต่ละ session ได้ ส่วน model บนเครื่อง edge โหลดไว้เฉพาะเวลาทำการของบัญชี และนอกเวลาทำการลูกค้าได้รับข้อความตอบกลับที่ตั้งไว้",
-      "progressPercent": 0,
+      "progressPercent": 50,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-040 registry status is declared",
-        "FR-243 is planned",
         "FR-244 is planned"
       ],
       "requirements": [
         {
           "id": "FR-243",
           "title": "Conversation sessions",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 7,
+          "testCount": 17
         },
         {
           "id": "FR-244",
@@ -11090,7 +11117,32 @@
           "testCount": 0
         }
       ],
-      "evidence": []
+      "evidence": [
+        "apps/server/src/lib/validation/entities.js",
+        "apps/server/src/modules/crm/conversation-session-backfill.js",
+        "apps/server/src/modules/crm/conversation-session-service.js",
+        "apps/server/src/modules/crm/line-ingest-service.js",
+        "apps/server/src/modules/crm/reply-record-service.js",
+        "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/crm-conversation-sessions.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/line-account-isolation.test.js",
+        "apps/server/tests/integration/line-ingest.test.js",
+        "apps/server/tests/integration/line-non-text-admission.test.js",
+        "apps/server/tests/integration/line-reply-record.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/server-line-jobs.test.js",
+        "apps/server/tests/unit/conversation-session-service.test.js",
+        "apps/server/tests/unit/crm-conversation-sessions-migration.test.js",
+        "apps/server/tests/unit/crm-message-attachments-events-migration.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/reply-record-service.test.js"
+      ]
     },
     {
       "id": "FEAT-041",

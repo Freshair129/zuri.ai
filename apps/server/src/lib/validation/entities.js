@@ -108,6 +108,11 @@ export const zIngestLineMessageInput = z.object({
   // NFR-017 — carried through to the audit row so a webhook delivery can be joined to
   // the rows it created. Shape already validated by resolveCorrelationId at the edge.
   correlationId: z.string().min(8).max(64).optional(),
+  // @req FR-243 — the provider's time for the message, used to decide its session
+  //   (SDD-102); the caller clamps it to its own clock. Omitted means now.
+  occurredAt: z.coerce.date().optional(),
+  // @req FR-243 — the account's idle timeout in minutes; out of range falls back to 30.
+  sessionIdleTimeoutMinutes: z.number().int().optional(),
 })
 
 // FR-229 — a non-message LINE webhook event with a resolvable individual identity
@@ -127,6 +132,8 @@ export const zIngestLineConversationEventInput = z.object({
   payload: z.record(z.union([z.string(), z.number(), z.boolean(), z.array(z.string())])).default({}),
   occurredAt: z.coerce.date().optional(),
   correlationId: z.string().min(8).max(64).optional(),
+  // @req FR-243 — the account's idle timeout, to find the session open at occurredAt.
+  sessionIdleTimeoutMinutes: z.number().int().optional(),
 })
 
 // FR-229 — join/leave/memberJoined/memberLeft carry no individual identity in
@@ -144,6 +151,8 @@ export const zRecordExistingConversationEventInput = z.object({
   payload: z.record(z.union([z.string(), z.number(), z.boolean(), z.array(z.string())])).default({}),
   occurredAt: z.coerce.date().optional(),
   correlationId: z.string().min(8).max(64).optional(),
+  // @req FR-243 — the account's idle timeout, to find the session open at occurredAt.
+  sessionIdleTimeoutMinutes: z.number().int().optional(),
 })
 
 // FR-229 — an `unsend` event: unlike follow/unfollow/postback, this mints no
@@ -161,6 +170,8 @@ export const zIngestLineUnsendEventInput = z.object({
   unsentExternalMessageId: z.string().min(1).optional(),
   occurredAt: z.coerce.date().optional(),
   correlationId: z.string().min(8).max(64).optional(),
+  // @req FR-243 — the account's idle timeout, to find the session open at occurredAt.
+  sessionIdleTimeoutMinutes: z.number().int().optional(),
 })
 
 // FR-022 — account linking: issue a single-use token for an existing Person, then

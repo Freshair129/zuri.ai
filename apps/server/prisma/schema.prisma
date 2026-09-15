@@ -1967,6 +1967,8 @@ model Conversation {
   //   this relation and `sourceRefJson`; a deleted conversation clears the
   //   reference rather than deleting the candidate (erasure fan-out is FR-232).
   knowledgeCandidates KnowledgeCandidate[]
+  // @req FR-243 — a long-lived conversation reads as separate sittings (ADR-094 D1).
+  sessions            ConversationSession[]
 
   // @spec BR-002, SEC-001 — a provider thread id is envelope data, not a key. Scoping
   // it by tenant, channel and account isolates the external namespace:
@@ -1988,9 +1990,13 @@ model Message {
   // new media type never touches this vocabulary. Defaulted so every row that
   // predates this column reads as TEXT, which is what it always was.
   contentKind       String   @default("TEXT")
+  // @req FR-243 — the sitting this message belongs to (ADR-094 D2, SDD-102). Null only
+  //   for a row written before sessions existed and not yet backfilled.
+  sessionId         String?
   createdAt         DateTime @default(now())
 
   conversation Conversation         @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  session      ConversationSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
   lineJob      LineConversationJob?
   attachments  MessageAttachment[]
 
@@ -2001,6 +2007,7 @@ model Message {
   // NULL stays non-conflicting in both engines, so unkeyed outbound messages are free.
   @@unique([conversationId, externalMessageId])
   @@index([conversationId])
+  @@index([sessionId])
 }
 
 // @req FR-229 — a media message (image, video, audio, file) is recorded without
@@ -2042,14 +2049,50 @@ model ConversationEvent {
   externalEventId String
   payloadJson     String   @default("{}")
   occurredAt      DateTime @default(now())
+  // @req FR-243 — the session open when the event occurred, or null (ADR-094 D2).
+  sessionId       String?
   createdAt       DateTime @default(now())
 
-  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversation Conversation         @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  session      ConversationSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
 
   // Same idempotency shape as Message's (conversationId, externalMessageId): a
   // redelivered webhook event must never produce a second row.
   @@unique([conversationId, externalEventId])
   @@index([conversationId])
+  @@index([sessionId])
+}
+
+// @req FR-243 — one sitting of a conversation: messages that follow each other within
+//   the account's idle timeout (ADR-094 D1–D4, SDD-102). Owned by crm; the id of the
+//   business record's session. MSP's own chat session id is stored beside it when MSP
+//   thread memory is on, never in its place.
+// @spec ADR-094, SDD-102, BR-002
+model ConversationSession {
+  id                 String    @id @default(uuid())
+  code               String
+  tenantId           String
+  businessId         String?
+  conversationId     String
+  customerId         String
+  channelAccountId   String
+  openedAt           DateTime
+  lastMessageAt      DateTime
+  closedAt           DateTime?
+  idleTimeoutMinutes Int
+  inboundCount       Int       @default(0)
+  outboundCount      Int       @default(0)
+  mspSessionId       String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  conversation Conversation        @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  messages     Message[]
+  events       ConversationEvent[]
+
+  @@unique([tenantId, code])
+  @@index([conversationId, openedAt])
+  @@index([tenantId, businessId, openedAt])
 }
 
 // @req FR-230 — a Tenant may shorten (never lengthen) an installation-default
@@ -3394,6 +3437,9 @@ model LineOaAccount {
   liffApps                LineOaLiffApp[]
   isDefaultForBusiness    Boolean               @default(false)
   botProfileJson          String                @default("{}")
+  // @req FR-243 — minutes of silence after which the next message opens a new
+  //   conversation session; 10 to 120, 30 by default (ADR-094 D3).
+  sessionIdleTimeoutMinutes Int                 @default(30)
   archivedAt              DateTime?
   createdAt               DateTime              @default(now())
   updatedAt               DateTime              @updatedAt
