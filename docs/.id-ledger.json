@@ -745,6 +745,7 @@
     "ADR-090",
     "ADR-091",
     "ADR-092",
+    "ADR-094",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -9510,6 +9511,19 @@
         {
           "anchor": "a time boxed member view of the programme roadmap",
           "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-094": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md",
+      "status": "current",
+      "statement_digest": "2c3d7728188e402c5413b37039fb45d7596586e899a0e07be0f8d25c41ed1e9e",
+      "history": [
+        {
+          "anchor": "a line conversation is split into idle bounded sessions",
+          "since": "2026-09-15",
           "reason": "declared"
         }
       ]
