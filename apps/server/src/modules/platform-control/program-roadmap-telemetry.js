@@ -1,5 +1,5 @@
 // @req FR-216, FR-217 — the Delivery Telemetry section of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.8): the sizing table and work lanes the owner declares, and the usage
+// (v0.4.9): the sizing table and work lanes the owner declares, and the usage
 // the meter measured from local agent session logs.
 // @spec ADR-086 D1-D4 — planned and measured stay separate; usage is never progress.
 // @tested tests/unit/programme-containers.test.js, tests/unit/program-delivery-metrics.test.js
@@ -194,12 +194,68 @@ export const PROGRAMME_LANES = [
     "branches": [
       "feat/roadmap-member-view"
     ]
+  },
+  {
+    "id": "LANE-CHAT-SESSIONS-EVIDENCE-PLAN",
+    "title": "Conversation sessions and chat evidence — decision records and plan",
+    "tasks": [
+      "TASK-ZAI-105"
+    ],
+    "branches": [
+      "docs/adr-093-094-accepted"
+    ]
+  },
+  {
+    "id": "LANE-CONVERSATION-SESSIONS",
+    "title": "Conversation sessions — model, assignment, surfaces and production apply",
+    "tasks": [
+      "TASK-ZAI-106",
+      "TASK-ZAI-107",
+      "TASK-ZAI-108"
+    ],
+    "branches": [
+      "feat/crm-conversation-sessions"
+    ]
+  },
+  {
+    "id": "LANE-MODEL-RESIDENCY",
+    "title": "Local model residency by business hours",
+    "tasks": [
+      "TASK-ZAI-109"
+    ],
+    "branches": [
+      "feat/edge-model-residency"
+    ]
+  },
+  {
+    "id": "LANE-STAFF-REPLY",
+    "title": "Staff replies recorded from the inbox",
+    "tasks": [
+      "TASK-ZAI-110"
+    ],
+    "branches": [
+      "feat/crm-staff-reply"
+    ]
+  },
+  {
+    "id": "LANE-CHAT-EVIDENCE-ARCHIVE",
+    "title": "Chat evidence archive — writer, retrieval, key destruction, production and offline copy",
+    "tasks": [
+      "TASK-ZAI-111",
+      "TASK-ZAI-112",
+      "TASK-ZAI-113",
+      "TASK-ZAI-114",
+      "TASK-ZAI-115"
+    ],
+    "branches": [
+      "feat/crm-chat-evidence-archive"
+    ]
   }
 ]
 
 export const PROGRAMME_USAGE = {
   "meter": "scripts/programme-usage-meter.mjs",
-  "measuredThrough": "2026-09-14T00:36:22.737Z",
+  "measuredThrough": "2026-09-14T13:43:56.014Z",
   "lanes": {
     "LANE-COST-QUOTE-PLAN": {
       "requests": 33,
@@ -273,6 +329,103 @@ export const PROGRAMME_USAGE = {
         },
         "models": {
           "claude-fable-5-1": 33
+        }
+      }
+    },
+    "LANE-CRM-CHAT-RECORD": {
+      "requests": 750,
+      "sessions": [
+        "claude-code:2336907c-db1d-4fa3-a836-d1a731e3f9d5"
+      ],
+      "tokens": {
+        "input": 1512,
+        "cacheWrite": 8442801,
+        "cacheRead": 262763566,
+        "output": 609566
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 750,
+          "tokens": {
+            "input": 1512,
+            "cacheWrite": 8442801,
+            "cacheRead": 262763566,
+            "output": 609566
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5",
+        "claude-sonnet-5"
+      ],
+      "firstActivityAt": "2026-09-14T05:21:56.578Z",
+      "lastActivityAt": "2026-09-14T07:04:35.715Z",
+      "activeMinutes": 103,
+      "detail": {
+        "reasoningTokens": 278215,
+        "cacheWrite5mTokens": 8348033,
+        "cacheWrite1hTokens": 94768,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 7,
+        "toolCalls": 779,
+        "toolErrors": 10,
+        "toolDenials": 0,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Agent": {
+            "calls": 1,
+            "errors": 0
+          },
+          "Bash": {
+            "calls": 415,
+            "errors": 4
+          },
+          "Edit": {
+            "calls": 131,
+            "errors": 0
+          },
+          "Glob": {
+            "calls": 2,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 17,
+            "errors": 0
+          },
+          "Monitor": {
+            "calls": 4,
+            "errors": 0
+          },
+          "Read": {
+            "calls": 181,
+            "errors": 3
+          },
+          "SendMessage": {
+            "calls": 5,
+            "errors": 0
+          },
+          "ToolSearch": {
+            "calls": 2,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 17,
+            "errors": 1
+          },
+          "mcp__ccd_session__mark_chapter": {
+            "calls": 2,
+            "errors": 0
+          },
+          "mcp__ccd_session__read_widget_context": {
+            "calls": 2,
+            "errors": 2
+          }
+        },
+        "models": {
+          "claude-opus-5": 43,
+          "claude-sonnet-5": 707
         }
       }
     },
@@ -524,6 +677,217 @@ export const PROGRAMME_USAGE = {
         "models": {
           "claude-opus-5": 71,
           "claude-sonnet-5": 42
+        }
+      }
+    },
+    "LANE-KNOWLEDGE-LINE-CANDIDATES": {
+      "requests": 199,
+      "sessions": [
+        "claude-code:2336907c-db1d-4fa3-a836-d1a731e3f9d5"
+      ],
+      "tokens": {
+        "input": 404,
+        "cacheWrite": 2851081,
+        "cacheRead": 96534707,
+        "output": 179723
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 199,
+          "tokens": {
+            "input": 404,
+            "cacheWrite": 2851081,
+            "cacheRead": 96534707,
+            "output": 179723
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5",
+        "claude-sonnet-5"
+      ],
+      "firstActivityAt": "2026-09-14T07:57:55.235Z",
+      "lastActivityAt": "2026-09-14T13:43:56.014Z",
+      "activeMinutes": 54,
+      "detail": {
+        "reasoningTokens": 81176,
+        "cacheWrite5mTokens": 2800569,
+        "cacheWrite1hTokens": 50512,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 4,
+        "toolCalls": 193,
+        "toolErrors": 2,
+        "toolDenials": 0,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Agent": {
+            "calls": 1,
+            "errors": 0
+          },
+          "Bash": {
+            "calls": 113,
+            "errors": 2
+          },
+          "Edit": {
+            "calls": 44,
+            "errors": 0
+          },
+          "Read": {
+            "calls": 25,
+            "errors": 0
+          },
+          "SendMessage": {
+            "calls": 4,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 6,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 23,
+          "claude-sonnet-5": 176
+        }
+      }
+    },
+    "LANE-LINE-GKS-GROUNDING": {
+      "requests": 450,
+      "sessions": [
+        "claude-code:2336907c-db1d-4fa3-a836-d1a731e3f9d5"
+      ],
+      "tokens": {
+        "input": 902,
+        "cacheWrite": 4694788,
+        "cacheRead": 154434629,
+        "output": 297513
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 450,
+          "tokens": {
+            "input": 902,
+            "cacheWrite": 4694788,
+            "cacheRead": 154434629,
+            "output": 297513
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5",
+        "claude-sonnet-5"
+      ],
+      "firstActivityAt": "2026-09-14T07:09:26.263Z",
+      "lastActivityAt": "2026-09-14T07:57:31.054Z",
+      "activeMinutes": 48,
+      "detail": {
+        "reasoningTokens": 137766,
+        "cacheWrite5mTokens": 4687649,
+        "cacheWrite1hTokens": 7139,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 1,
+        "toolCalls": 448,
+        "toolErrors": 3,
+        "toolDenials": 0,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Bash": {
+            "calls": 249,
+            "errors": 2
+          },
+          "Edit": {
+            "calls": 78,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 15,
+            "errors": 0
+          },
+          "Read": {
+            "calls": 84,
+            "errors": 1
+          },
+          "Write": {
+            "calls": 22,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 5,
+          "claude-sonnet-5": 445
+        }
+      }
+    },
+    "LANE-LINE-OA-ONBOARDING": {
+      "requests": 19,
+      "sessions": [
+        "claude-code:2336907c-db1d-4fa3-a836-d1a731e3f9d5"
+      ],
+      "tokens": {
+        "input": 38,
+        "cacheWrite": 266321,
+        "cacheRead": 2819722,
+        "output": 18417
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 19,
+          "tokens": {
+            "input": 38,
+            "cacheWrite": 266321,
+            "cacheRead": 2819722,
+            "output": 18417
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5",
+        "claude-sonnet-5"
+      ],
+      "firstActivityAt": "2026-09-14T05:20:24.927Z",
+      "lastActivityAt": "2026-09-14T07:09:18.814Z",
+      "activeMinutes": 18,
+      "detail": {
+        "reasoningTokens": 2919,
+        "cacheWrite5mTokens": 255351,
+        "cacheWrite1hTokens": 10970,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 0,
+        "toolCalls": 24,
+        "toolErrors": 0,
+        "toolDenials": 0,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Agent": {
+            "calls": 5,
+            "errors": 0
+          },
+          "Bash": {
+            "calls": 16,
+            "errors": 0
+          },
+          "Read": {
+            "calls": 1,
+            "errors": 0
+          },
+          "ToolSearch": {
+            "calls": 1,
+            "errors": 0
+          },
+          "mcp__ccd_pr__get_status": {
+            "calls": 1,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 4,
+          "claude-sonnet-5": 15
         }
       }
     },

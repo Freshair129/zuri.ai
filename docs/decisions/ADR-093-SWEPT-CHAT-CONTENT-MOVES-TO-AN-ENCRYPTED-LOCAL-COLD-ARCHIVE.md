@@ -1,8 +1,8 @@
 ---
-version: "0.1.0"
+version: "1.0.0"
 created_at: "2026-09-15T23:00:00+07:00,Claude Opus 5"
-last_update: "2026-09-15T23:00:00+07:00,Claude Opus 5"
-status: "proposed"
+last_update: "2026-09-16T09:00:00+07:00,Claude Opus 5"
+status: "accepted"
 superseded_by: null
 attributes:
   domain: "crm"
@@ -12,9 +12,11 @@ attributes:
 
 # ADR-093 — Swept chat content moves to an encrypted local cold archive kept as dispute evidence
 
-**Status:** Proposed on 2026-09-15 at the owner's request. Not accepted. Nothing is built, declared or pinned until the owner answers the open decisions below.
+**Status:** Accepted on the owner's instruction of 2026-09-16 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"): every proposed default below is the decision. Phase 0 only — requirements declared, nothing built.
 
-**Would amend, on acceptance:** ADR-091 D2 for the `MESSAGE_BODY_AND_ATTACHMENTS` class only. SEC-031 as well, if D6 option B is chosen.
+**Pending outside the owner's decision:** counsel's confirmation of the 10-year term (D5) and of the legal-hold basis (D6). The owner accepted both defaults without it; if counsel changes either, this ADR is amended, not silently re-read.
+
+**Amends:** ADR-091 D2 for the `MESSAGE_BODY_AND_ATTACHMENTS` class only, and SEC-031 (D6 option B).
 
 **Relates to:** FR-022, FR-093, FR-224, FR-229, FR-230, SEC-031, ADR-057, ADR-061, ADR-089, ADR-091.
 
@@ -39,7 +41,7 @@ Two further facts shape the design:
 - **Database backups already hold message bodies beyond any window.** `scripts/readonly-supabase-logical-backup.mjs` snapshots and Supabase's own backups are outside the sweep. This ADR does not decide their retention.
 - **The production host has two physical disks.** `C:` holds the OS, Docker and the repository, with 78.6 GB free of 954 GB. `F:` is a separate physical SSD with 268 GB free.
 
-## Decision (proposed)
+## Decision
 
 ### D1 — Only the CRM business record is archived
 
@@ -84,16 +86,18 @@ Nobody browses the archive. An OWNER at AAL2, through the FR-224 step-up gate, r
 
 One local disk is a single point of failure for evidence. Proposed: once a month, new archive files are copied to an external drive the owner keeps offline, and the copy is verified against the manifest hashes. The archive key needs its own offline backup, because losing `ZURI_ARCHIVE_KEK` makes the whole archive unreadable.
 
-## Open decisions for the owner
+## Owner decisions (2026-09-16)
 
-| Decision | Proposed default | Alternatives |
+The owner accepted every proposed default.
+
+| Decision | Chosen | Not chosen |
 |---|---|---|
 | D3 where the archive lives | `F:\zuri-cold-archive` on the second physical SSD | another local disk or a NAS |
 | D5 how long the archive keeps a message | 10 years from the message date, confirmed by counsel | 5 years |
 | D6 what a PDPA erasure does to the archive | option B, legal hold only when a dispute is recorded | option A, always destroy |
 | D7 who may retrieve | OWNER at AAL2 with a case reference | installation operator on the owner's written instruction |
 | D8 second copy | monthly copy to an offline external drive | none, or cloud storage with object lock |
-| Evidence gaps first | record staff replies before building the archive | archive first |
+| Evidence gaps first | record staff replies before building the archive (FR-246) | archive first |
 
 ## Consequences
 
@@ -102,15 +106,16 @@ One local disk is a single point of failure for evidence. Proposed: once a month
 - **New moving parts.** One crm model for the manifest, and a legal-hold record if D6 option B is chosen. One secret, one compose overlay, one retrieval route and a monthly copy routine.
 - **The archive proves only what was recorded.** Until staff replies and media bytes reach the record, the archive cannot answer the owner's example when the promise was made in LINE Official Account Manager or in an image.
 
-## Requirements to declare on acceptance
+## Requirements
 
-One FR for archive-before-tombstone and retrieval, one SEC for archive encryption, access, retention and key destruction, and one SDD for the file format, manifest chain and overlay. The ids are taken at acceptance, and nothing is pinned by this proposal.
+Declared on acceptance: **FR-245** archive before tombstone, retention, retrieval and the offline copy; **FR-246** staff replies recorded, the evidence gap the owner chose to close first; **SEC-034** archive encryption, integrity chain, access and key destruction with the legal hold; **SDD-103** file format, write-verify order and overlay. **SEC-031** is re-worded to name the archive and the legal hold. **FEAT-041** bundles FR-245 and FR-246.
 
 ## Delivery phases
 
 | Phase | Scope | Gate |
 |---|---|---|
-| 0 | Owner answers the open decisions, counsel confirms D5 and D6, the ADR is accepted and the requirements are declared | owner |
+| 0 | Owner answers the open decisions, the ADR is accepted and the requirements are declared (done 2026-09-16); counsel confirms D5 and D6 | owner |
+| 0b | Staff replies from the inbox recorded as `OUTBOUND` with source `STAFF` (FR-246), before any archive code | a staff reply appears in the record and its session |
 | 1 | Manifest model and migration, archive writer with per-Customer keys, sweep integration failing closed | tests prove no tombstone without a verified archive |
 | 2 | OWNER retrieval at AAL2 with case reference and hashed export | audit event per retrieval |
 | 3 | Erasure destroys archive keys, and the legal hold if D6 option B is chosen | SEC-031 reworded if B |
@@ -130,4 +135,5 @@ No message is eligible before 2028-09-08, so these phases can follow the evidenc
 
 | Version | Date | Status | Change |
 |---|---|---|---|
+| 1.0.0 | 2026-09-16 | accepted | Owner accepted every proposed default; FR-245, FR-246, SEC-034, SDD-103 and FEAT-041 declared, SEC-031 re-worded; counsel confirmation of D5 and D6 recorded as pending |
 | 0.1.0 | 2026-09-15 | proposed | First draft at the owner's request, with production facts, the three evidence gaps, eight proposed decisions and the open decisions table |

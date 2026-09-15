@@ -370,6 +370,10 @@
     "FR-240",
     "FR-241",
     "FR-242",
+    "FR-243",
+    "FR-244",
+    "FR-245",
+    "FR-246",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -493,6 +497,8 @@
     "SDD-099",
     "SDD-100",
     "SDD-101",
+    "SDD-102",
+    "SDD-103",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -526,6 +532,7 @@
     "SEC-031",
     "SEC-032",
     "SEC-033",
+    "SEC-034",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -565,6 +572,8 @@
     "FEAT-037",
     "FEAT-038",
     "FEAT-039",
+    "FEAT-040",
+    "FEAT-041",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -4558,6 +4567,58 @@
         }
       ]
     },
+    "FR-243": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "7fe017e78d275496d4bc2a5ef0d49a120557173119549311ad1d5015b64a40f2",
+      "history": [
+        {
+          "anchor": "conversation sessions",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-244": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "7b32decd7a2eefaae5a1be8730799f6431c28adff8ed19ce56d463e3bcb377d0",
+      "history": [
+        {
+          "anchor": "local model residency follows business hours",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-245": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "46362142797879f68142aac8315e3667d201a8cc7e00682dc80875252fbbc60f",
+      "history": [
+        {
+          "anchor": "chat evidence cold archive",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-246": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "e1fc98828f0ff44bf242e7f9ccb30e0ea053fc46d44da77c1fda7ab5b1e0f79f",
+      "history": [
+        {
+          "anchor": "staff replies are recorded",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -6179,6 +6240,32 @@
         }
       ]
     },
+    "SDD-102": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4987dddf908f18407034433a8f3efa3603f9466310924ba2ae761a1b0b408328",
+      "history": [
+        {
+          "anchor": "one function assigns a message s session inside the",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-103": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "493b6231999bce45459bfc2b67ea50f1b87f65158af3043543ac2fd316dc3aed",
+      "history": [
+        {
+          "anchor": "an archive file is tenantid yyyy runid zca",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -6583,14 +6670,16 @@
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "04061a209b0f8fccfdee557fe156c9654fa930b7bf3b9a52767ccacc2dbc6fdf",
+      "statement_digest": "5026ab037a5278a597ba432f872ed01206a73130b07ec3355aa283c774eeed9b",
       "history": [
         {
           "anchor": "every copy of a person s conversation content has a",
           "since": "2026-09-13",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-15",
+      "statement_digest_reason": "ADR-093 D6 (accepted 2026-09-16): the statement now names the chat evidence archive among the copies and allows an OWNER-recorded legal hold as the one deferral of erasure; the subject anchor is unchanged"
     },
     "SEC-032": {
       "family": "SEC",
@@ -6614,6 +6703,19 @@
         {
           "anchor": "resolving a secret reference under an incorrect secretkind",
           "since": "2026-09-14",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-034": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "5e1b17e72674d3741ed2f4054d613fbf1639e613485125d9cc32d8cdfacface8",
+      "history": [
+        {
+          "anchor": "the chat evidence archive fr 245 is encrypted at rest with",
+          "since": "2026-09-15",
           "reason": "declared"
         }
       ]
@@ -7146,6 +7248,32 @@
         {
           "anchor": "agent usage detail",
           "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-040": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "8b2b8c2a7b96c56a098f6c91beb957cf789e8c7b8c5ec440be0002fad4d1e4ae",
+      "history": [
+        {
+          "anchor": "conversation sessions and model residency",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-041": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "6cfa3397fd72a03727cf8f39cd82a2cead9340a4f44922663c89df6b758d1c96",
+      "history": [
+        {
+          "anchor": "chat evidence",
+          "since": "2026-09-15",
           "reason": "declared"
         }
       ]

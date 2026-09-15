@@ -1,5 +1,5 @@
 ---
-version: "1.0.0"
+version: "1.1.0"
 created_at: "2026-09-14T15:00:00+07:00,Claude Opus 5"
 last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
 status: "accepted"
@@ -15,6 +15,8 @@ attributes:
 **Status:** Accepted on the owner's instruction of 2026-09-14 ("ใช้ค่าที่เสนอทุกข้อ"). Phase 0
 (declaration) only: no model, column, sweep, receipt, module or migration exists yet, and MSP projection
 stays switched off.
+
+**Amended by:** [ADR-093](ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md) — `MESSAGE_BODY_AND_ATTACHMENTS` content past its D2 window moves to an encrypted local archive before it is tombstoned; the other three classes stay delete-only. **Refined by:** [ADR-094](ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md) — D1's CRM record owns the conversation session id; MSP's chat session stays the memory unit.
 
 **Decided by:** the owner, 2026-09-14, accepting decisions 7, 8, 9, 17C, 18, 19 and 20 of the
 consolidated decision table of the LINE OA platform design.
@@ -240,4 +242,5 @@ add a transport with nothing to isolate.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.1.0 | 2026-09-16 | accepted | Amended by ADR-093 (archive before tombstone for message bodies) and refined by ADR-094 (the record owns the session id); D1–D7 otherwise unchanged | working-tree | Claude Opus 5 |
 | 1.0.0 | 2026-09-14 | accepted | CRM is the business record and MSP's session tier the agent's 90-day ledger consolidated into episodic and passport memory; retention defaults with downward-only Tenant overrides; MSP projection off until MSP main ships thread and erase tools; session tier needs policy, memory beyond it consent and DIRECT; non-text content recorded without bytes; erasure transactional inside Tier 1 and acknowledged outside; the Context Composer as an agent-lane module with one `ContextReceipt` per model call; reconciles PHASE-04 with ADR-061; Phase 0 declaration only | working-tree | Claude Opus 5 |

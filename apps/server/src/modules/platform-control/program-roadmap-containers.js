@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.8, 2026-09-15) so the board can open a task the way the html board
+// (v0.4.9, 2026-09-16) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -5168,5 +5168,641 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-075"
     ],
     "evidence": "Section 3.1 row 2; FR-105; FR-211; ADR-048; ADR-092"
+  },
+  "TASK-ZAI-105": {
+    "container": "TC-TASK-ZAI-105",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "docs/PRD-SDD-v1.0.md",
+      "doc": "docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md",
+      "test": "apps/server/tests/unit/id-anchor-stability.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "ADR-093 and ADR-094 accepted with every proposed default",
+        "status": "done"
+      },
+      {
+        "id": "P1",
+        "title": "Requirements, features and the SEC-031 re-word declared and pinned",
+        "status": "done"
+      },
+      {
+        "id": "P2",
+        "title": "Tasks 105 to 115 and their lanes registered",
+        "status": "done"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given the owner's acceptance of every proposed default, when the decision records are updated, then ADR-093 and ADR-094 read accepted with the chosen values and counsel's pending confirmation of the 10-year term and the legal hold is stated",
+        "checked": true
+      },
+      "success": {
+        "text": "Given PRD-SDD and FEATURES, when the requirements are declared, then FR-243 to FR-246, SEC-034, SDD-102, SDD-103, FEAT-040 and FEAT-041 are pinned in the id ledger and SEC-031's re-word is reviewed",
+        "checked": true
+      },
+      "exit": {
+        "text": "Given npm run govern and the programme container check, when they run on the plan branch, then both exit zero and the pull request is left for the owner to merge",
+        "checked": true
+      }
+    },
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "created": "2026-09-16T00:00:00Z,Claude,pending",
+    "predictedTokens": 40000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-091"
+    ],
+    "evidence": "Section 3.1 row 8; ADR-091; ADR-093; ADR-094"
+  },
+  "TASK-ZAI-106": {
+    "container": "TC-TASK-ZAI-106",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-03",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
+      "doc": "docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md",
+      "test": "apps/server/tests/integration/crm-conversation-sessions.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "missing"
+    },
+    "delivers": [
+      "FR-243"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "ConversationSession model, Message and ConversationEvent session columns, LineOaAccount idle timeout, Supabase migration",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "Session assignment in admission and reply recording, serialized per conversation",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "Backfill script for existing messages",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given two inbound messages 29 minutes apart and a third 31 minutes after the second, when they are admitted, then the first two share a session, the third opens a new one and the previous session's closedAt is written",
+        "checked": false
+      },
+      "success": {
+        "text": "Given two deliveries for the same conversation admitted concurrently after an idle gap, when both commit, then exactly one new session exists, and a reply recorded hours later joins the session of the inbound message it answers",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test, npm run build and npm run govern, when they run, then all pass, the migration is written and not applied, and the backfill assigns every existing message on a copy of the dev database",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "created": "2026-09-16T00:00:00Z,Claude,pending",
+    "predictedTokens": 60000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-105"
+    ],
+    "evidence": "Section 3.1 row 8; ADR-094 D1 to D3; SDD-102"
+  },
+  "TASK-ZAI-107": {
+    "container": "TC-TASK-ZAI-107",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-03",
+    "version": "0.1.0",
+    "priority": "P1",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/crm/conversation-preview-service.js",
+      "doc": "docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md",
+      "test": "apps/server/tests/e2e/fr243-conversation-sessions.spec.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "missing"
+    },
+    "delivers": [
+      "FR-243"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Session id on the LINE job and trace filter",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "Inbox session divider",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "Idle timeout setting on the LINE OA account page, 10 to 120 minutes",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given a conversation with two sessions, when an owner opens it in the inbox, then a divider with the session code and start time separates them",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a session code, when the operator filters the LINE trace view by it, then only that session's jobs and trace events are listed",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given an account timeout set to 121 or 9 minutes, when it is saved, then it is refused, and the e2e spec shows two sessions for a gap past the timeout",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "created": "2026-09-16T00:00:00Z,Claude,pending",
+    "predictedTokens": 40000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-106"
+    ],
+    "evidence": "Section 3.1 row 8; ADR-094 D3, D4"
+  },
+  "TASK-ZAI-108": {
+    "container": "TC-TASK-ZAI-108",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-03",
+    "version": "0.1.0",
+    "priority": "P1",
+    "pic": "ATHER",
+    "executor": "ATHER",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/supabase/migrations",
+      "doc": "docs/DB-MIGRATION-NOTES.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given the owner's instruction naming the migration, when the operator applies it, then it is preceded by an inventory and a rolled-back dry run",
+        "checked": false
+      },
+      "success": {
+        "text": "Given the backfill, when it runs on production, then every existing message has a session and the session count is recorded",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given docs/DB-MIGRATION-NOTES.md, when the apply is recorded, then it names its date and session and the redeploy keeps the ADR-061 overlay with clean container logs",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "created": "2026-09-16T00:00:00Z,Claude,pending",
+    "predictedTokens": 10000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-107"
+    ],
+    "evidence": "ADR-057; ADR-094 phase 1"
+  },
+  "TASK-ZAI-109": {
+    "container": "TC-TASK-ZAI-109",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-04",
+    "version": "0.1.0",
+    "priority": "P1",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/edge/src/answer/providers/model-warmer.ts",
+      "doc": "docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md",
+      "test": "apps/edge/tests/model-residency.test.ts"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "missing"
+    },
+    "delivers": [
+      "FR-244"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Business hours and out-of-hours reply on LineOaAccount with its migration",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "Edge residency schedule using keep_alive -1 and 0",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "Out-of-hours reply without a model call, recorded as a reply",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given an account open 09:00 to 18:00 Asia/Bangkok, when the clock passes 18:00 with no other account open, then the edge worker unloads the model and ollama ps is empty",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a message at 20:00 for that account, when it is answered, then the reply is the account's out-of-hours text, no model is called and the reply is recorded",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given an account with no declared hours, when the schedule runs, then the model stays loaded as today, and the first reply after 09:00 is measured and recorded",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "created": "2026-09-16T00:00:00Z,Claude,pending",
+    "predictedTokens": 40000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-105"
+    ],
+    "evidence": "Section 3.1 row 8; ADR-094 D6 option A"
+  },
+  "TASK-ZAI-110": {
+    "container": "TC-TASK-ZAI-110",
+    "phase": "PHASE-ZAI-02",
+    "sprint": "SPR-ZAI-04",
+    "version": "0.1.0",
+    "priority": "P0",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/crm/reply-record-service.js",
+      "doc": "docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md",
+      "test": "apps/server/tests/integration/crm-staff-reply.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "missing"
+    },
+    "delivers": [
+      "FR-246"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Staff reply writer with reply source STAFF and the person",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "Reply route and push through the account transport",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "Inbox composer with the Official Account Manager notice",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given a member with CRM write access, when they send a reply from the inbox, then the customer receives it and an OUTBOUND message with source STAFF naming that person is recorded in the open session",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a member without CRM write access or another Business's conversation, when a reply is attempted, then it is refused before any push and nothing is recorded",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given the inbox, when a conversation is opened, then it states that replies typed in LINE Official Account Manager are not recorded, and npm test covers the writer, the route and the refusals",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "created": "2026-09-16T00:00:00Z,Claude,pending",
+    "predictedTokens": 50000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-106"
+    ],
+    "evidence": "Section 3.1 row 8; ADR-093 evidence gap; FR-093"
+  },
+  "TASK-ZAI-111": {
+    "container": "TC-TASK-ZAI-111",
+    "phase": "PHASE-ZAI-03",
+    "sprint": "SPR-ZAI-05",
+    "version": "0.1.0",
+    "priority": "P1",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/crm/retention-sweep-service.js",
+      "doc": "docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md",
+      "test": "apps/server/tests/integration/crm-chat-evidence-archive.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "missing"
+    },
+    "delivers": [
+      "FR-245"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Manifest model with the per-Tenant hash chain and its migration",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "Archive file writer with per-Customer data keys",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "Sweep integration that tombstones only verified rows",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given a message past its window, when the sweep runs, then an archive file is written, read back and verified, its manifest row chains to the previous one, and only then is the body tombstoned",
+        "checked": false
+      },
+      "success": {
+        "text": "Given an archive write that fails or a file whose hash does not match, when the sweep runs, then nothing is tombstoned for that Tenant and the audit event counts the failure",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test, when the archive suites run, then decrypting a segment with another Customer's key fails, a tampered file breaks the chain, and the migration is written and not applied",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "created": "2026-09-16T00:00:00Z,Claude,pending",
+    "predictedTokens": 60000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-108",
+      "TASK-ZAI-110"
+    ],
+    "evidence": "Section 3.1 row 8; ADR-093 D1 to D4; SDD-103; SEC-034"
+  },
+  "TASK-ZAI-112": {
+    "container": "TC-TASK-ZAI-112",
+    "phase": "PHASE-ZAI-03",
+    "sprint": "SPR-ZAI-05",
+    "version": "0.1.0",
+    "priority": "P1",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/crm/retention-sweep-service.js",
+      "doc": "docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md",
+      "test": "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "missing"
+    },
+    "delivers": [
+      "FR-245"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Retrieval service verifying the chain before decrypting",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "AAL2-gated route with a required case reference",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "Hashed export and the ARCHIVE_RETRIEVED audit event",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given an OWNER at AAL2 with a case reference, when they retrieve a Customer's range, then the export lists the messages by session with the file and manifest hashes",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a viewer who is not an OWNER, is not at AAL2 or gives no case reference, when retrieval is attempted, then it is refused and nothing is decrypted",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given every retrieval, when it completes, then one ARCHIVE_RETRIEVED audit event names the Customer, the range and the case reference, and no page lists the archive",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "created": "2026-09-16T00:00:00Z,Claude,pending",
+    "predictedTokens": 40000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-111"
+    ],
+    "evidence": "Section 3.1 row 8; ADR-093 D7; SEC-034; FR-224"
+  },
+  "TASK-ZAI-113": {
+    "container": "TC-TASK-ZAI-113",
+    "phase": "PHASE-ZAI-03",
+    "sprint": "SPR-ZAI-05",
+    "version": "0.1.0",
+    "priority": "P1",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/identity/erase-principal.js",
+      "doc": "docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md",
+      "test": "apps/server/tests/integration/crm-archive-legal-hold.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "missing"
+    },
+    "delivers": [],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Legal hold record with reason and end date",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "Erasure destroys the archive key or shows the hold",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "Expiry destroys keys and deletes fully expired files",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given a Customer with no legal hold, when a PDPA erasure runs, then their archive data key is destroyed and their archived lines can no longer be decrypted",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a Customer with an active legal hold, when a PDPA erasure runs, then every other copy is erased, the archive key survives, and the erasure status shows the hold until it ends",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given a message older than 10 years, when the expiry runs, then its Customer's key is destroyed once no unexpired line remains and a file whose lines have all expired is deleted",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "created": "2026-09-16T00:00:00Z,Claude,pending",
+    "predictedTokens": 50000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-112"
+    ],
+    "evidence": "Section 3.1 row 8; ADR-093 D5, D6; SEC-031; SEC-034"
+  },
+  "TASK-ZAI-114": {
+    "container": "TC-TASK-ZAI-114",
+    "phase": "PHASE-ZAI-03",
+    "sprint": "SPR-ZAI-06",
+    "version": "0.1.0",
+    "priority": "P1",
+    "pic": "ATHER",
+    "executor": "ATHER",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/scripts/register-retention-sweep-task.ps1",
+      "doc": "docs/DB-MIGRATION-NOTES.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given the owner's instruction, when the overlay and key are provisioned, then COMPOSE_FILE names the overlay, the container sees /archive and the key's offline backup is confirmed by the owner",
+        "checked": false
+      },
+      "success": {
+        "text": "Given the migrations applied and the scheduled task registered, when the sweep first runs, then its audit event carries a manifest hash, or zero rows when nothing is eligible",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given docs/DB-MIGRATION-NOTES.md, when the apply is recorded, then it names its date and session and the redeploy keeps both the ADR-061 and the cold-archive overlays",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "created": "2026-09-16T00:00:00Z,Claude,pending",
+    "predictedTokens": 15000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-113"
+    ],
+    "evidence": "ADR-057; ADR-093 phase 4; TASK-ZAI-091"
+  },
+  "TASK-ZAI-115": {
+    "container": "TC-TASK-ZAI-115",
+    "phase": "PHASE-ZAI-03",
+    "sprint": "SPR-ZAI-06",
+    "version": "0.1.0",
+    "priority": "P2",
+    "pic": "Owen",
+    "executor": "Owen",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "unavailable",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given a month's new archive files, when the owner copies them to the offline drive, then each copied file's SHA-256 matches its manifest row",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a mismatch, when the verification runs, then the copy is repeated and the mismatch is recorded rather than ignored",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given the first verified copy, when it completes, then its date and file count are recorded in the migration notes",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "created": "2026-09-16T00:00:00Z,Claude,pending",
+    "predictedTokens": 5000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-114"
+    ],
+    "evidence": "ADR-093 D8; FR-245"
   }
 }

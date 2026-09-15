@@ -1,8 +1,8 @@
 ---
-version: "0.1.0"
+version: "1.0.0"
 created_at: "2026-09-15T23:40:00+07:00,Claude Opus 5"
-last_update: "2026-09-15T23:40:00+07:00,Claude Opus 5"
-status: "proposed"
+last_update: "2026-09-16T09:00:00+07:00,Claude Opus 5"
+status: "accepted"
 superseded_by: null
 attributes:
   domain: "crm"
@@ -12,9 +12,9 @@ attributes:
 
 # ADR-094 — A LINE conversation is split into idle-bounded sessions
 
-**Status:** Proposed on 2026-09-15 at the owner's request. Not accepted. Nothing is built, declared or pinned beyond this ADR's own id until the owner answers the open decisions below.
+**Status:** Accepted on the owner's instruction of 2026-09-16 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"): every proposed default below is the decision. Phase 0 only — requirements declared, nothing built.
 
-**Would refine, on acceptance:** ADR-091 D1, by naming which store owns the session id of the business record.
+**Refines:** ADR-091 D1, by naming which store owns the session id of the business record.
 
 **Relates to:** FR-093, FR-148, FR-171, FR-229, FR-230, FR-233, FR-234, ADR-061, ADR-091.
 
@@ -30,7 +30,7 @@ What exists today:
 - **Local model memory is pinned on purpose.** The edge worker loads the model with Ollama `keep_alive: -1` (`apps/edge/src/answer/providers/model-warmer.ts`). Measured on the RTX 3060 12 GB host, a cold load costs 21.2 s for `qwen3.5:4b`, 37.7 s for `pathumma-thaillm-8b` and 91.1 s for `qwen3.5:9b`, against a LINE reply token that expires in about 30 s. The warmer also has an unload call (`keep_alive: 0`).
 - **VRAM is not held per conversation.** Ollama allocates VRAM when a model loads, for the weights and a context buffer sized by `num_ctx` (8192 by default here), and holds it for as long as the model stays loaded, whichever conversations use it. Closing a session frees none of it. What a session bounds is the prompt: fewer history tokens per turn, which is less compute and a faster answer.
 
-## Decision (proposed)
+## Decision
 
 ### D1 — The CRM record owns the business session id; MSP's session stays the memory unit
 
@@ -66,9 +66,11 @@ Because a session closing frees no VRAM, model residency is decided separately:
 - **Option B, idle across all sessions.** Unload the model when no session on the device has been open for 45 minutes, and warm it on the next inbound message. With `qwen3.5:4b` the 21.2 s cold load may still beat the 30 s reply token; with `pathumma-thaillm-8b` or `qwen3.5:9b` it cannot, and that first message gets no model answer.
 - **Option C, today.** Keep the model pinned at all times.
 
-## Open decisions for the owner
+## Owner decisions (2026-09-16)
 
-| Decision | Proposed default | Alternatives |
+The owner accepted every proposed default.
+
+| Decision | Chosen | Not chosen |
 |---|---|---|
 | D3 idle timeout | 30 minutes | 15, 60 or 120 minutes |
 | D3 per-account override | allowed between 10 and 120 minutes | one value for the installation |
@@ -83,15 +85,15 @@ Because a session closing frees no VRAM, model residency is decided separately:
 - **One more write on the hottest path.** The admission transaction reads the conversation's last message time and may insert a session row. The admission latency budget must be measured after the change.
 - **VRAM is only saved if D6 changes.** Sessions alone do not unload the model.
 
-## Requirements to declare on acceptance
+## Requirements
 
-One FR for session derivation and the ids on the record, job and trace. One FR for model residency on the edge, if D6 is not option C. One SDD for the session rule, the per-conversation serialization and the MSP id mapping. The ids are taken at acceptance.
+Declared on acceptance: **FR-243** session derivation, the ids on the record and job, inbox dividers and the per-account timeout; **FR-244** local model residency by business hours with the out-of-hours reply (D6 option A); **SDD-102** the session rule, per-conversation serialization and the MSP id mapping. **FEAT-040** bundles FR-243 and FR-244.
 
 ## Delivery phases
 
 | Phase | Scope | Gate |
 |---|---|---|
-| 0 | Owner answers the open decisions, the ADR is accepted and the requirements are declared | owner |
+| 0 | Owner answers the open decisions, the ADR is accepted and the requirements are declared | done 2026-09-16 |
 | 1 | `ConversationSession` model and migration, assignment in admission and reply recording, backfill | concurrent deliveries open one session; replies never open one |
 | 2 | Session id on job and trace, inbox dividers, trace filter | e2e shows two sessions for a gap past the timeout |
 | 3 | MSP alignment: idle minutes per call, MSP session id stored | after the MSP canary (TASK-MEMOS-006) |
@@ -108,4 +110,5 @@ One FR for session derivation and the ids on the record, job and trace. One FR f
 
 | Version | Date | Status | Change |
 |---|---|---|---|
+| 1.0.0 | 2026-09-16 | accepted | Owner accepted every proposed default; FR-243, FR-244, SDD-102 and FEAT-040 declared |
 | 0.1.0 | 2026-09-15 | proposed | First draft at the owner's request, with production facts, MSP's existing session model, the VRAM measurements and six proposed decisions |
