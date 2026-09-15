@@ -18,7 +18,11 @@ function modelFields(modelName) {
     .map((line) => /^\s+(\w+)\s+\w/.exec(line)?.[1])
     .filter(Boolean)
     // Relation fields (Conversation/Message/Model[]) have no column of their own.
-    .filter((name) => !['message', 'conversation'].includes(name))
+    .filter((name) => !['message', 'conversation', 'session'].includes(name))
+    // FR-243 — `sessionId` arrives in a later migration (20260916090000_crm_conversation_sessions),
+    // whose own test (crm-conversation-sessions-migration.test.js) checks it; this file
+    // guards only what migration 5 created.
+    .filter((name) => name !== 'sessionId')
 }
 
 describe('migration 5 (CRM part) — Message.contentKind, MessageAttachment, ConversationEvent', () => {

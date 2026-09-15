@@ -10,17 +10,22 @@ import {
   zIngestLineUnsendEventInput,
 } from '@/lib/validation/entities'
 import { refreshConversationPreview } from './conversation-preview-service'
+import { assignMessageSession, openSessionIdAt } from './conversation-session-service'
 
 // @req FR-023 — inbound LINE identity, customer, conversation and message are atomic.
 // @req FR-097 — trusted channel account is carried into identity discovery.
 // @req FR-148 — account-scoped threads, business isolation and transaction composition.
 // @req FR-229 — non-text LINE content: contentKind/attachment on ingestLineMessage,
 //   plus three narrow writers for non-message events (ADR-091 D5).
+// @req FR-243 — every Message written here is assigned its session inside the same
+//   transaction, and every ConversationEvent takes the session open when it occurred
+//   (ADR-094 D2, SDD-102).
 // @req FR-233 — every write here that touches Message content refreshes
 //   Conversation.lastMessageAt/lastMessagePreview (conversation-preview-service.js).
 // @spec ADR-061, ADR-044, ADR-045, BR-001, BR-002, SEC-001, SEC-018
 // @tested tests/integration/line-ingest.test.js, tests/integration/line-account-isolation.test.js,
-//   tests/integration/line-non-text-admission.test.js, tests/integration/crm-conversation-inbox.test.js
+//   tests/integration/line-non-text-admission.test.js, tests/integration/crm-conversation-inbox.test.js,
+//   tests/integration/crm-conversation-sessions.test.js
 
 const CHANNEL = 'LINE'
 const conversationKey = (tenantId, channelAccountId, threadId) => ({
@@ -53,7 +58,7 @@ export async function ingestLineMessage(input, { db = prisma } = {}) {
     }
   }
 
-  const { tenantId, businessId, lineUserId, displayName, threadId, text, externalMessageId, direction, correlationId, contentKind, attachment } = data
+  const { tenantId, businessId, lineUserId, displayName, threadId, text, externalMessageId, direction, correlationId, contentKind, attachment, occurredAt, sessionIdleTimeoutMinutes } = data
   const channelAccountId = data.channelAccountId?.trim() || LEGACY_CHANNEL_ACCOUNT_ID
   if (channelAccountId !== LEGACY_CHANNEL_ACCOUNT_ID && !businessId) throw failure(400, 'BUSINESS_REQUIRED_FOR_CHANNEL_ACCOUNT')
   if (businessId) {
@@ -76,7 +81,7 @@ export async function ingestLineMessage(input, { db = prisma } = {}) {
     if (duplicate) {
       return {
         personId: identity.personId, customerId: conversation.customerId,
-        conversationId: conversation.id, messageId: duplicate.id,
+        conversationId: conversation.id, messageId: duplicate.id, sessionId: duplicate.sessionId ?? null,
         created: { customer: false, conversation: false, message: false },
       }
     }
@@ -98,9 +103,14 @@ export async function ingestLineMessage(input, { db = prisma } = {}) {
       data: { tenantId, businessId: businessId ?? null, customerId: customer.id, channel: CHANNEL, channelAccountId, externalThreadId: threadId },
     })
   }
+  // @req FR-243 — decided before the message exists, under the Conversation row lock
+  //   the assignment itself takes, so concurrent deliveries open one session.
+  const { session } = await assignMessageSession(db, {
+    conversation, occurredAt: occurredAt ?? new Date(), direction, idleTimeoutMinutes: sessionIdleTimeoutMinutes,
+  })
   const message = await db.message.create({
     data: { conversationId: conversation.id, direction, body: text, externalMessageId: externalMessageId ?? null,
-      contentKind: contentKind ?? 'TEXT' },
+      contentKind: contentKind ?? 'TEXT', sessionId: session.id },
   })
   // FR-229 — a media message also gets a MessageAttachment recorded without bytes.
   // Created in the same transaction as the message it belongs to, so a redelivery
@@ -112,7 +122,6 @@ export async function ingestLineMessage(input, { db = prisma } = {}) {
       data: { messageId: message.id, kind: attachment.kind, providerContentId: attachment.providerContentId, fetchState: 'PENDING' },
     })
   }
-  await db.conversation.update({ where: { id: conversation.id }, data: { updatedAt: new Date() } })
   // @req FR-233 — the inbox's last-message-at/preview columns follow every new
   //   message, inbound or outbound (reply-record-service.js does the same).
   await refreshConversationPreview(db, conversation.id)
@@ -127,7 +136,7 @@ export async function ingestLineMessage(input, { db = prisma } = {}) {
   })
   return {
     personId: identity.personId, customerId: customer.id,
-    conversationId: conversation.id, messageId: message.id, attachmentId: attachment_?.id ?? null,
+    conversationId: conversation.id, messageId: message.id, attachmentId: attachment_?.id ?? null, sessionId: session.id,
     created: { customer: createdCustomer, conversation: createdConversation, message: true },
   }
 }
@@ -151,7 +160,7 @@ export async function ingestLineConversationEvent(input, { db = prisma } = {}) {
     }
   }
 
-  const { tenantId, businessId, lineUserId, displayName, threadId, kind, externalEventId, payload, occurredAt, correlationId } = data
+  const { tenantId, businessId, lineUserId, displayName, threadId, kind, externalEventId, payload, occurredAt, correlationId, sessionIdleTimeoutMinutes } = data
   const channelAccountId = data.channelAccountId?.trim() || LEGACY_CHANNEL_ACCOUNT_ID
   if (channelAccountId !== LEGACY_CHANNEL_ACCOUNT_ID && !businessId) throw failure(400, 'BUSINESS_REQUIRED_FOR_CHANNEL_ACCOUNT')
   if (businessId) {
@@ -193,9 +202,11 @@ export async function ingestLineConversationEvent(input, { db = prisma } = {}) {
     }
   }
 
+  const eventAt = occurredAt ?? new Date()
+  const sessionId = await openSessionIdAt(db, { conversationId: conversation.id, occurredAt: eventAt, idleTimeoutMinutes: sessionIdleTimeoutMinutes })
   const event = await db.conversationEvent.create({
     data: { conversationId: conversation.id, kind, externalEventId,
-      payloadJson: JSON.stringify(payload ?? {}), occurredAt: occurredAt ?? new Date() },
+      payloadJson: JSON.stringify(payload ?? {}), occurredAt: eventAt, sessionId },
   })
   await db.conversation.update({ where: { id: conversation.id }, data: { updatedAt: new Date() } })
   await recordAudit(db, {
@@ -231,7 +242,7 @@ export async function recordExistingConversationEvent(input, { db = prisma } = {
     }
   }
 
-  const { tenantId, businessId, threadId, kind, externalEventId, payload, occurredAt, correlationId } = data
+  const { tenantId, businessId, threadId, kind, externalEventId, payload, occurredAt, correlationId, sessionIdleTimeoutMinutes } = data
   const channelAccountId = data.channelAccountId?.trim() || LEGACY_CHANNEL_ACCOUNT_ID
 
   const conversation = await db.conversation.findUnique({ where: conversationKey(tenantId, channelAccountId, threadId) })
@@ -245,9 +256,11 @@ export async function recordExistingConversationEvent(input, { db = prisma } = {
   })
   if (existingEvent) return { conversationId: conversation.id, eventId: existingEvent.id, created: false }
 
+  const eventAt = occurredAt ?? new Date()
+  const sessionId = await openSessionIdAt(db, { conversationId: conversation.id, occurredAt: eventAt, idleTimeoutMinutes: sessionIdleTimeoutMinutes })
   const event = await db.conversationEvent.create({
     data: { conversationId: conversation.id, kind, externalEventId,
-      payloadJson: JSON.stringify(payload ?? {}), occurredAt: occurredAt ?? new Date() },
+      payloadJson: JSON.stringify(payload ?? {}), occurredAt: eventAt, sessionId },
   })
   await db.conversation.update({ where: { id: conversation.id }, data: { updatedAt: new Date() } })
   await recordAudit(db, {
@@ -290,7 +303,7 @@ export async function ingestLineUnsendEvent(input, { db = prisma } = {}) {
     }
   }
 
-  const { tenantId, businessId, threadId, externalEventId, unsentExternalMessageId, occurredAt, correlationId } = data
+  const { tenantId, businessId, threadId, externalEventId, unsentExternalMessageId, occurredAt, correlationId, sessionIdleTimeoutMinutes } = data
   const channelAccountId = data.channelAccountId?.trim() || LEGACY_CHANNEL_ACCOUNT_ID
 
   const conversation = await db.conversation.findUnique({ where: conversationKey(tenantId, channelAccountId, threadId) })
@@ -324,10 +337,12 @@ export async function ingestLineUnsendEvent(input, { db = prisma } = {}) {
     }
   }
 
+  const eventAt = occurredAt ?? new Date()
+  const sessionId = await openSessionIdAt(db, { conversationId: conversation.id, occurredAt: eventAt, idleTimeoutMinutes: sessionIdleTimeoutMinutes })
   const event = await db.conversationEvent.create({
     data: { conversationId: conversation.id, kind: 'UNSEND', externalEventId,
       payloadJson: JSON.stringify({ unsentExternalMessageId: unsentExternalMessageId ?? null }),
-      occurredAt: occurredAt ?? new Date() },
+      occurredAt: eventAt, sessionId },
   })
   await db.conversation.update({ where: { id: conversation.id }, data: { updatedAt: new Date() } })
   await recordAudit(db, {

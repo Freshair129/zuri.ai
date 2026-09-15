@@ -6244,14 +6244,16 @@
       "family": "SDD",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "4987dddf908f18407034433a8f3efa3603f9466310924ba2ae761a1b0b408328",
+      "statement_digest": "b06671a583da6b0e0b0a38c029e2207de8f7ac0232fa0ec223f75941d8d48024",
       "history": [
         {
           "anchor": "one function assigns a message s session inside the",
           "since": "2026-09-15",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-15",
+      "statement_digest_reason": "TASK-ZAI-106 implementation: the per-conversation lock is taken by writing the Conversation row (a row lock on Postgres, a serialized write on SQLite) instead of a raw SELECT FOR UPDATE, keeping one code path for both engines; the rule is unchanged"
     },
     "SDD-103": {
       "family": "SDD",

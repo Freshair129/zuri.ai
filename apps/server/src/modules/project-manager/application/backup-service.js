@@ -309,7 +309,10 @@ const SNAPSHOT_MODELS = [
   // @req FR-230 — a Tenant's retention override hangs off Tenant only, no
   // secret and no PII (a data class name and a day count).
   'tenantRetentionOverride',
-  'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation', 'message',
+  'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation',
+  // @req FR-243 — a session hangs off Conversation and Message/ConversationEvent
+  // point at it, so it restores between them. Ids, counts and times, no content.
+  'conversationSession', 'message',
   // @req FR-229 — an attachment hangs off Message, an event off Conversation;
   // both restore after their parent above and delete before it in reverse.
   // Media reference and bounded event metadata, no secret and no bytes.

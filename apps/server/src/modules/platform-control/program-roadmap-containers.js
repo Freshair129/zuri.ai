@@ -5234,7 +5234,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-106",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -5248,7 +5248,7 @@ export const PROGRAMME_CONTAINERS = {
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "missing"
+      "test": "present"
     },
     "delivers": [
       "FR-243"
@@ -5257,34 +5257,34 @@ export const PROGRAMME_CONTAINERS = {
       {
         "id": "P0",
         "title": "ConversationSession model, Message and ConversationEvent session columns, LineOaAccount idle timeout, Supabase migration",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P1",
         "title": "Session assignment in admission and reply recording, serialized per conversation",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P2",
         "title": "Backfill script for existing messages",
-        "status": "planned"
+        "status": "done"
       }
     ],
     "dod": {
       "acceptance": {
         "text": "Given two inbound messages 29 minutes apart and a third 31 minutes after the second, when they are admitted, then the first two share a session, the third opens a new one and the previous session's closedAt is written",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given two deliveries for the same conversation admitted concurrently after an idle gap, when both commit, then exactly one new session exists, and a reply recorded hours later joins the session of the inbound message it answers",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test, npm run build and npm run govern, when they run, then all pass, the migration is written and not applied, and the backfill assigns every existing message on a copy of the dev database",
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured. In review 2026-09-16: built on `feat/crm-conversation-sessions` (stacked on the plan branch). `conversation-session-service.js` assigns a session inside the writer's transaction after writing the Conversation row (the Postgres row lock), comparing LINE's clamped timestamp with the latest session's last message against the account's timeout; replies join the session of the message they answer and do not stretch a session already closed; events take the open session or none; `conversation-session-backfill.js` never regroups a row that has a session and joins unassigned rows to a live session's span. Migration `20260916090000_crm_conversation_sessions` written, not applied. Evidence: npm test: 701 files, 693 passed and 2 failed on the first full run — the programme container snapshot and the FR-229 migration field list, both caused by this change — then both fixed and re-run green; npm run build clean; npm run govern 0 CRITICAL; the backfill script ran dry, apply and dry again on a copy of the dev database, which holds no conversations, so regrouping is proven by the integration suite. The exit criterion stays unchecked: its \"backfill on a copy of the dev database\" clause ran but had no conversations to assign, which proves the script runs, not that it assigns.",
     "created": "2026-09-16T00:00:00Z,Claude,pending",
     "predictedTokens": 60000,
     "totalTokens": 0,

@@ -2,12 +2,15 @@ import { z } from 'zod'
 import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { refreshConversationPreview } from './conversation-preview-service'
+import { joinReplySession } from './conversation-session-service'
 
 // @req FR-148 — account/business scoped outbound append participates in caller transactions.
 // @req FR-093 — the outbound half of a conversation becomes a row. Until this existed
 //   nothing anywhere wrote a Message with `direction: 'OUTBOUND'`: the reply was
 //   assembled, handed to the transport, sent to the customer and then forgotten.
 // @req FR-233 — a reply refreshes Conversation.lastMessageAt/lastMessagePreview too.
+// @req FR-243 — a reply joins the session of the inbound message it answers and never
+//   opens one (ADR-094 D2, SDD-102).
 // @spec SDD-051, BR-011, SEC-001, SDD-048
 // @tested tests/integration/line-reply-record.test.js, tests/unit/reply-record-service.test.js, tests/integration/line-account-isolation.test.js
 //
@@ -81,7 +84,7 @@ export async function recordLineReply({ tenantId, businessId, channelAccountId, 
       ...(businessId !== undefined ? { businessId } : {}),
       ...(channelAccountId !== undefined ? { channel: 'LINE', channelAccountId } : {}),
     } },
-    select: { id: true, conversationId: true, direction: true },
+    select: { id: true, conversationId: true, direction: true, sessionId: true },
   })
   if (!inbound) throw failure(404, 'INBOUND_MESSAGE_NOT_FOUND')
 
@@ -100,6 +103,10 @@ export async function recordLineReply({ tenantId, businessId, channelAccountId, 
   }
 
   const append = async (tx) => {
+    const repliedAt = acceptance?.acceptedAt ? new Date(acceptance.acceptedAt) : data.deliveredAt ? new Date(data.deliveredAt) : new Date()
+    const session = await joinReplySession(tx, {
+      conversationId: inbound.conversationId, inboundSessionId: inbound.sessionId, occurredAt: repliedAt,
+    })
     const message = await tx.message.create({
       data: {
         conversationId: inbound.conversationId,
@@ -108,6 +115,7 @@ export async function recordLineReply({ tenantId, businessId, channelAccountId, 
         // The audit distinguishes those outcomes; neither proves the user read it.
         body: data.text,
         externalMessageId,
+        sessionId: session?.id ?? null,
         ...(acceptance?.acceptedAt ? { createdAt: new Date(acceptance.acceptedAt) } : data.deliveredAt ? { createdAt: new Date(data.deliveredAt) } : {}),
       },
     })
