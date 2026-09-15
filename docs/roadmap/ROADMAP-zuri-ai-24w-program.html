@@ -488,7 +488,7 @@ button{font:inherit;color:inherit;}
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
           <span class="pill pill-brand">approved</span>
           <span class="pill pill-planned mono">ROADMAP-ZURI-AI-24W-PROGRAM</span>
-          <span class="pill pill-planned mono">v0.4.8</span>
+          <span class="pill pill-planned mono">v0.4.9</span>
           <span class="pill pill-planned">updated 2026-09-13</span>
           <span class="pill pill-planned mono">CR-019</span>
           <span class="pill pill-planned">owner Owen</span>
@@ -678,7 +678,7 @@ button{font:inherit;color:inherit;}
 
 <script>
 /* ==================================================================
-   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.4.8 (CR-019,
+   Data. Mirrors ROADMAP-zuri-ai-24w-program.md v0.4.9 (CR-019,
    2026-09-13) — the markdown is the source of truth, this array is
    its rendering. Tasks 031–044 were added on the re-baseline,
    045–051 (17-stage knowledge base + file system) the same day,
@@ -687,7 +687,8 @@ button{font:inherit;color:inherit;}
    064–068 (delivery telemetry and task card badges, v0.4.4) the same day,
    069–072 (Zuri harness usage plugin, v0.4.5) on 2026-09-14,
    073–075 (plugin specification and usage detail, v0.4.6) the same day,
-   104 (30-day roadmap member view, v0.4.8) the same day.
+   104 (30-day roadmap member view, v0.4.8) the same day, and
+   105–115 (conversation sessions and chat evidence, v0.4.9) on 2026-09-16.
    ================================================================== */
 const PROGRESS_BY_STATE = { done:100, review:90, "in-progress":50, assigned:25, ready:10, planned:0, blocked:0 };
 
@@ -1006,7 +1007,12 @@ const PHASES = [
             "Given a signed-in person who holds no operator grant, when they open /roadmap before 2026-10-15 00:00 Asia/Bangkok, then they read the programme board and the Domain map tab read-only, a visitor without a session is sent to /login, and /control/roadmap still answers that person with a 404",
             "Given the member projection built on the server, when it is rendered, then it carries no usage by person or device, no tool or model name, no Agent devices tab and no report or credential row, and a test asserts those fields are absent from the data handed to the client",
             "Given the window constant, when the clock passes its closing time, then /roadmap is a non-enumerating 404 for everyone including operators, and npm test covers open, closed, unauthenticated and the stripped projection",
-            "(v0.4.8) ตามคำสั่ง owner — เปิด roadmap 30 วันให้ทุกคนที่ login แล้ว · เห็นแผนงาน + domain map · ไม่แสดงยอดแยกตามคน/เครื่อง ชื่อ tool/model และแท็บ Agent devices · ปิดเอง 15 ต.ค. 2026 00:00 น. · /control/roadmap ยังเป็น operator เท่านั้น"]
+            "(v0.4.8) ตามคำสั่ง owner — เปิด roadmap 30 วันให้ทุกคนที่ login แล้ว · เห็นแผนงาน + domain map · ไม่แสดงยอดแยกตามคน/เครื่อง ชื่อ tool/model และแท็บ Agent devices · ปิดเอง 15 ต.ค. 2026 00:00 น. · /control/roadmap ยังเป็น operator เท่านั้น"],
+          ["TASK-ZAI-105","TSK-ZAI105","Conversation sessions and chat evidence decision records — ADR-093 and ADR-094 accepted with the owner's choices, FR-243 to FR-246, SEC-034, SDD-102, SDD-103, FEAT-040 and FEAT-041 declared, SEC-031 re-worded, and tasks 105 to 115 bound to lanes","NFR","C-2","H2","review","Claude","TASK-ZAI-091","docs/PRD-SDD-v1.0.md","docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md","apps/server/tests/unit/id-anchor-stability.test.js",40000,
+            "Given the owner's acceptance of every proposed default, when the decision records are updated, then ADR-093 and ADR-094 read accepted with the chosen values and counsel's pending confirmation of the 10-year term and the legal hold is stated",
+            "Given PRD-SDD and FEATURES, when the requirements are declared, then FR-243 to FR-246, SEC-034, SDD-102, SDD-103, FEAT-040 and FEAT-041 are pinned in the id ledger and SEC-031's re-word is reviewed",
+            "Given npm run govern and the programme container check, when they run on the plan branch, then both exit zero and the pull request is left for the owner to merge",
+            "(v0.4.9) ตามคำสั่ง owner — รับค่าที่เสนอทั้งหมดของ ADR-093 และ ADR-094 · ประกาศ FR/SEC/SDD/FEAT · ผูก task กับ lane ก่อนเริ่มงาน"]
         ]}
     ]
   },
@@ -1104,7 +1110,22 @@ const PHASES = [
             "Given the Phase 1 build on a dev deployment, when a person enters a real test channel's Channel ID and secret through the connection route, then the pair is validated with LINE, the bot claimed, the credential stored and resolved for one send, and nothing readable is left anywhere proof 1 inspects",
             "Given the same run with ZURI_SECRET_STORE set to supabase-vault and then to envelope, when the proofs are repeated, then proofs 1 to 6 pass for both stores and the evidence names the commit, store and date",
             "Given the production migration ledger, when it is read after the run, then no Phase 1 migration has been applied, and the evidence is recorded in this container's changelog",
-            "(v0.4.7) ปิด Phase 1 — พิสูจน์ข้อ 1–6 ทั้ง SQLite/Postgres ทั้งสอง store · ช่อง LINE ทดสอบจริงบน dev (คนเป็นผู้กรอก secret) · ยังไม่ apply migration production"]
+            "(v0.4.7) ปิด Phase 1 — พิสูจน์ข้อ 1–6 ทั้ง SQLite/Postgres ทั้งสอง store · ช่อง LINE ทดสอบจริงบน dev (คนเป็นผู้กรอก secret) · ยังไม่ apply migration production"],
+          ["TASK-ZAI-106","TSK-ZAI106","Conversation sessions, FR-243 — ConversationSession model and migration, session assignment inside LINE admission and reply recording, the per-account idle timeout column, and a backfill of existing messages by the same rule","FR","C-3","H3","planned","Claude","TASK-ZAI-105","apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js","docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md","apps/server/tests/integration/crm-conversation-sessions.test.js",60000,
+            "Given two inbound messages 29 minutes apart and a third 31 minutes after the second, when they are admitted, then the first two share a session, the third opens a new one and the previous session's closedAt is written",
+            "Given two deliveries for the same conversation admitted concurrently after an idle gap, when both commit, then exactly one new session exists, and a reply recorded hours later joins the session of the inbound message it answers",
+            "Given npm test, npm run build and npm run govern, when they run, then all pass, the migration is written and not applied, and the backfill assigns every existing message on a copy of the dev database",
+            "(v0.4.9) ADR-094 phase 1 — ตาราง session, กำหนด session ตอนรับข้อความ, timeout ต่อบัญชี, backfill ข้อความเดิม"],
+          ["TASK-ZAI-107","TSK-ZAI107","Sessions on the LINE job, trace and inbox, FR-243 — the session id on LineConversationJob, a trace filter by session, a divider between sessions in the inbox, and the account setting for the idle timeout","FR","C-2","H2","planned","Claude","TASK-ZAI-106","apps/server/src/modules/crm/conversation-preview-service.js","docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md","apps/server/tests/e2e/fr243-conversation-sessions.spec.js",40000,
+            "Given a conversation with two sessions, when an owner opens it in the inbox, then a divider with the session code and start time separates them",
+            "Given a session code, when the operator filters the LINE trace view by it, then only that session's jobs and trace events are listed",
+            "Given an account timeout set to 121 or 9 minutes, when it is saved, then it is refused, and the e2e spec shows two sessions for a gap past the timeout",
+            "(v0.4.9) ADR-094 phase 2 — session id บน job/trace, ตัวคั่นใน inbox, ตั้ง timeout ต่อบัญชี"],
+          ["TASK-ZAI-108","TSK-ZAI108","Apply the conversation session migration on production and run the backfill, under ADR-057 with an inventory, a rolled-back dry run and a verified effect, recorded in the migration notes","NFR","C-1","H4","planned","ATHER","TASK-ZAI-107","apps/server/supabase/migrations","docs/DB-MIGRATION-NOTES.md","unavailable",10000,
+            "Given the owner's instruction naming the migration, when the operator applies it, then it is preceded by an inventory and a rolled-back dry run",
+            "Given the backfill, when it runs on production, then every existing message has a session and the session count is recorded",
+            "Given docs/DB-MIGRATION-NOTES.md, when the apply is recorded, then it names its date and session and the redeploy keeps the ADR-061 overlay with clean container logs",
+            "(v0.4.9) apply migration ของ session บน production พร้อม backfill ตาม ADR-057"]
         ]},
       { id:"SPR-ZAI-04", weeks:"สัปดาห์ 7-8", goal:"Approval Gateway L1–L4 พร้อม verification, notification และผูก Mission Control · ladder quote ใน LINE และ knowledge structured records · (v0.4.7) wizard เชื่อม LINE OA เอง, webhook อัตโนมัติ, quiescence ที่ระบบตรวจเอง, ย้ายบัญชีแรกออกจาก mount · บันทึกแชทครบ, retention และค้นหาใน inbox",
         exit:"action ระดับ L4 ทำงานไม่ได้ถ้ายังไม่มีการอนุมัติครบสี่ครั้งที่บันทึกไว้",
@@ -1183,7 +1204,17 @@ const PHASES = [
             "Given the owner's instruction naming the migrations, when the operator applies them, then each is preceded by an inventory and a rolled-back dry run, and pg_trgm is confirmed available before the index migration",
             "Given the apply, when its effect is verified, then the new tables and columns with their RLS and grants exist, and the retention sweep's first production run writes its audit event with counts per class",
             "Given docs/DB-MIGRATION-NOTES.md, when the apply is recorded, then each migration names its date and session and the redeploy keeps the ADR-061 overlay with clean container logs",
-            "(v0.4.7) งาน operator — apply migration บันทึกแชทบน production ตามคำสั่ง owner"]
+            "(v0.4.7) งาน operator — apply migration บันทึกแชทบน production ตามคำสั่ง owner"],
+          ["TASK-ZAI-109","TSK-ZAI109","Local model residency by business hours, FR-244 — per-account business hours and out-of-hours reply, the edge worker loading the model during any served account's hours and unloading it after the last closes, and no model call outside hours","FR","C-2","H3","planned","Claude","TASK-ZAI-105","apps/edge/src/answer/providers/model-warmer.ts","docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md","apps/edge/tests/model-residency.test.ts",40000,
+            "Given an account open 09:00 to 18:00 Asia/Bangkok, when the clock passes 18:00 with no other account open, then the edge worker unloads the model and ollama ps is empty",
+            "Given a message at 20:00 for that account, when it is answered, then the reply is the account's out-of-hours text, no model is called and the reply is recorded",
+            "Given an account with no declared hours, when the schedule runs, then the model stays loaded as today, and the first reply after 09:00 is measured and recorded",
+            "(v0.4.9) ADR-094 phase 4 — โหลด model เฉพาะเวลาทำการ, นอกเวลาตอบข้อความตั้งไว้โดยไม่เรียก model"],
+          ["TASK-ZAI-110","TSK-ZAI110","Staff replies recorded, FR-246 — a member with CRM write access replies from the inbox, the server pushes it through the account's LINE transport and records an OUTBOUND message with reply source STAFF in the conversation's session","FR","C-3","H3","planned","Claude","TASK-ZAI-106","apps/server/src/modules/crm/reply-record-service.js","docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md","apps/server/tests/integration/crm-staff-reply.test.js",50000,
+            "Given a member with CRM write access, when they send a reply from the inbox, then the customer receives it and an OUTBOUND message with source STAFF naming that person is recorded in the open session",
+            "Given a member without CRM write access or another Business's conversation, when a reply is attempted, then it is refused before any push and nothing is recorded",
+            "Given the inbox, when a conversation is opened, then it states that replies typed in LINE Official Account Manager are not recorded, and npm test covers the writer, the route and the refusals",
+            "(v0.4.9) ADR-093 ปิดช่องหลักฐานก่อน — พนักงานตอบจาก inbox แล้วระบบบันทึกเป็นข้อความขาออก source STAFF"]
         ]}
     ]
   },
@@ -1226,7 +1257,22 @@ const PHASES = [
             "Given the four-process isolated harness with a published corpus generation, when a LINE job for an account in GKS_CORPUS mode is answered, then the reply is grounded and GET /api/line-oa/jobs/{id}/trace shows retrievalRefs (ADR-090 proof 2)",
             "Given a second Business in the harness and a stopped worker, when jobs are answered, then no cross-tenant evidence appears and the stopped worker yields the deterministic reply rather than an error or a model-only answer (proofs 5 and 6)",
             "Given the measured MSP spawn time inside a four-wide worker tick, when it is recorded, then the evidence states whether the 2 500 ms budget holds, and if spawn dominates the finding is written for the MSP daemon transport decision instead of widening the budget",
-            "(v0.4.7) Phase 4 — ทดสอบแยกสี่โปรเซส: ตอบจาก corpus จริง, citation บน trace, ไม่รั่วข้าม tenant, worker หยุด = ตอบแบบ deterministic, วัดเวลา spawn MSP"]
+            "(v0.4.7) Phase 4 — ทดสอบแยกสี่โปรเซส: ตอบจาก corpus จริง, citation บน trace, ไม่รั่วข้าม tenant, worker หยุด = ตอบแบบ deterministic, วัดเวลา spawn MSP"],
+          ["TASK-ZAI-111","TSK-ZAI111","Chat evidence archive writer, FR-245 — archive manifest model and migration, per-Customer AES-256-GCM segments under ZURI_ARCHIVE_KEK, write-flush-verify before tombstone inside the retention sweep, failing closed","FR","C-3","H3","planned","Claude","TASK-ZAI-108; TASK-ZAI-110","apps/server/src/modules/crm/retention-sweep-service.js","docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md","apps/server/tests/integration/crm-chat-evidence-archive.test.js",60000,
+            "Given a message past its window, when the sweep runs, then an archive file is written, read back and verified, its manifest row chains to the previous one, and only then is the body tombstoned",
+            "Given an archive write that fails or a file whose hash does not match, when the sweep runs, then nothing is tombstoned for that Tenant and the audit event counts the failure",
+            "Given npm test, when the archive suites run, then decrypting a segment with another Customer's key fails, a tampered file breaks the chain, and the migration is written and not applied",
+            "(v0.4.9) ADR-093 phase 1 — เขียน archive เข้ารหัสรายลูกค้า, ห่วงโซ่ hash, ลบเฉพาะเมื่อ archive ยืนยันแล้ว"],
+          ["TASK-ZAI-112","TSK-ZAI112","Chat evidence retrieval, FR-245 — an OWNER at AAL2 retrieves one Customer's archived messages for a date range by session with a case reference, as an export carrying file and manifest hashes, audited","FR","C-2","H3","planned","Claude","TASK-ZAI-111","apps/server/src/modules/crm/retention-sweep-service.js","docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md","apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",40000,
+            "Given an OWNER at AAL2 with a case reference, when they retrieve a Customer's range, then the export lists the messages by session with the file and manifest hashes",
+            "Given a viewer who is not an OWNER, is not at AAL2 or gives no case reference, when retrieval is attempted, then it is refused and nothing is decrypted",
+            "Given every retrieval, when it completes, then one ARCHIVE_RETRIEVED audit event names the Customer, the range and the case reference, and no page lists the archive",
+            "(v0.4.9) ADR-093 phase 2 — OWNER ยืนยันตัวตนสองชั้นดึงข้อความรายลูกค้าพร้อมเลขเคสและ hash"],
+          ["TASK-ZAI-113","TSK-ZAI113","Archive key destruction and the legal hold, SEC-034 — expiry and PDPA erasure destroy a Customer's archive data key unless an OWNER-recorded legal hold with a reason and end date is active, shown on the erasure status","FR","C-3","H3","planned","Claude","TASK-ZAI-112","apps/server/src/modules/identity/erase-principal.js","docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md","apps/server/tests/integration/crm-archive-legal-hold.test.js",50000,
+            "Given a Customer with no legal hold, when a PDPA erasure runs, then their archive data key is destroyed and their archived lines can no longer be decrypted",
+            "Given a Customer with an active legal hold, when a PDPA erasure runs, then every other copy is erased, the archive key survives, and the erasure status shows the hold until it ends",
+            "Given a message older than 10 years, when the expiry runs, then its Customer's key is destroyed once no unexpired line remains and a file whose lines have all expired is deleted",
+            "(v0.4.9) ADR-093 phase 3 — ทำลายกุญแจเมื่อหมดอายุหรือขอลบ เว้นแต่มี legal hold"]
         ]},
       { id:"SPR-ZAI-06", weeks:"สัปดาห์ 11-12", goal:"Cross-business analytics, connector #2, workflow 1–2 · (v0.4.7) สลับ grounding ของ SmartGift หลัง ADR-075 Phase 3, knowledge candidates, รายงานคำถามที่ไม่มีคำตอบ · memory policy และ erasure (ถูกบล็อก รอ MSP)",
         exit:"analytics เคารพ per-business visibility และ workflow สองตัวรันครบวงจร",
@@ -1290,7 +1336,17 @@ const PHASES = [
             "Given MSP main with thread and erase tools deployed and the owner's instruction, when the operator applies the memory policy and receipt migrations, then each is preceded by an inventory and a rolled-back dry run and followed by a verified effect",
             "Given one DIRECT account set to a memory policy other than OFF, when a customer converses across a worker restart, then in-thread recall works, no other person's thread is readable, and an erasure test shows PENDING_MSP and then acknowledged",
             "Given the kill switch, when it is exercised, then projection stops on the next job, and the activation, test and rollback are recorded in the migration notes",
-            "(v0.4.7) งาน operator (ถูกบล็อก) — apply migration ความจำ และเปิด projection ให้บัญชี DIRECT หนึ่งบัญชีตามคำสั่ง owner หลัง canary ของ MSP ผ่าน · มี kill switch"]
+            "(v0.4.7) งาน operator (ถูกบล็อก) — apply migration ความจำ และเปิด projection ให้บัญชี DIRECT หนึ่งบัญชีตามคำสั่ง owner หลัง canary ของ MSP ผ่าน · มี kill switch"],
+          ["TASK-ZAI-114","TSK-ZAI114","Chat evidence archive on production — the cold-archive compose overlay on F:, ZURI_ARCHIVE_KEK with its offline backup, the migrations applied under ADR-057, the sweep token and 03:00 scheduled task, and the first recorded manifest","NFR","C-2","H4","planned","ATHER","TASK-ZAI-113","apps/server/scripts/register-retention-sweep-task.ps1","docs/DB-MIGRATION-NOTES.md","unavailable",15000,
+            "Given the owner's instruction, when the overlay and key are provisioned, then COMPOSE_FILE names the overlay, the container sees /archive and the key's offline backup is confirmed by the owner",
+            "Given the migrations applied and the scheduled task registered, when the sweep first runs, then its audit event carries a manifest hash, or zero rows when nothing is eligible",
+            "Given docs/DB-MIGRATION-NOTES.md, when the apply is recorded, then it names its date and session and the redeploy keeps both the ADR-061 and the cold-archive overlays",
+            "(v0.4.9) ADR-093 phase 4 — overlay บนไดรฟ์ F:, กุญแจพร้อมสำรองออฟไลน์, apply migration, ตั้ง token และ task 03:00"],
+          ["TASK-ZAI-115","TSK-ZAI115","Monthly offline copy of the chat evidence archive — new archive files copied to an offline external drive and verified against the manifest hashes, with the first verified copy recorded","NFR","C-1","H4","planned","Owen","TASK-ZAI-114","unavailable","docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md","unavailable",5000,
+            "Given a month's new archive files, when the owner copies them to the offline drive, then each copied file's SHA-256 matches its manifest row",
+            "Given a mismatch, when the verification runs, then the copy is repeated and the mismatch is recorded rather than ignored",
+            "Given the first verified copy, when it completes, then its date and file count are recorded in the migration notes",
+            "(v0.4.9) ADR-093 phase 5 — owner copy archive ลงไดรฟ์ออฟไลน์ทุกเดือนและตรวจ hash"]
         ]}
     ]
   },
@@ -1521,7 +1577,18 @@ const DOD_CHECKS = {
   "TASK-ZAI-101": [0,0,0],
   "TASK-ZAI-102": [0,0,0],
   "TASK-ZAI-103": [0,0,0],
-  "TASK-ZAI-104": [1,1,1]
+  "TASK-ZAI-104": [1,1,1],
+  "TASK-ZAI-105": [1,1,1],
+  "TASK-ZAI-106": [0,0,0],
+  "TASK-ZAI-107": [0,0,0],
+  "TASK-ZAI-108": [0,0,0],
+  "TASK-ZAI-109": [0,0,0],
+  "TASK-ZAI-110": [0,0,0],
+  "TASK-ZAI-111": [0,0,0],
+  "TASK-ZAI-112": [0,0,0],
+  "TASK-ZAI-113": [0,0,0],
+  "TASK-ZAI-114": [0,0,0],
+  "TASK-ZAI-115": [0,0,0]
 };
 
 /* ---------------------- theme ---------------------- */

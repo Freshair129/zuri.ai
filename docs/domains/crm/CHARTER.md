@@ -1,7 +1,7 @@
 ---
-version: "0.5.0b"
+version: "0.6.0b"
 status: active
-last_update: "2026-09-14T21:15:00+07:00,Claude Sonnet 5"
+last_update: "2026-09-16T09:00:00+07:00,Claude Opus 5"
 id: ZAI:DOMAIN-CRM
 relations:
   - type: relates_to
@@ -278,6 +278,24 @@ Consent keeps its current meaning and gains one: it never gates recording an
 inbound message, and it now also gates episodic, passport and cross-thread agent
 memory (ADR-091 D4, SEC-031).
 
+## Declared, not yet in schema (FEAT-040, FEAT-041, ADR-093, ADR-094)
+
+[ADR-094](../../decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md)
+(accepted 2026-09-16) gives this lane **`ConversationSession`** (FR-243, SDD-102): the
+session id of the business record, assigned inside the ADR-061 admission
+transaction by a 30-minute idle rule the account may set between 10 and 120
+minutes. `Message`, `ConversationEvent` and `LineConversationJob` will carry it;
+MSP's own `chat_sessions` stay the memory unit, and their id is stored beside
+this one, never in place of it.
+
+[ADR-093](../../decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md)
+(accepted 2026-09-16) gives this lane the **chat evidence archive** (FR-245, SEC-034,
+SDD-103): the retention sweep writes and verifies an encrypted local archive file
+before it tombstones a message body, a manifest model chains the files per Tenant,
+and a legal-hold record on a Customer is the one thing that defers destroying their
+archive key on erasure. **FR-246** adds a staff reply writer (reply source `STAFF`)
+beside `appendOutbound`. Models join `owns_models` when each exists.
+
 ## Account-aware transport (ADR-061)
 
 FR-148 adds account-scoped Conversation identity and transaction-capable inbound/accepted outbound contracts. Legacy rows stay LEGACY:LINE. The server job ledger calls CRM; it never writes Message directly. Provider acceptance is not delivery or reading.
@@ -290,6 +308,7 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.6.0b | 2026-09-16 | ADR-093 and ADR-094 accepted: declared `ConversationSession` (FR-243), the chat evidence archive and legal hold (FR-245, SEC-034) and the staff reply writer (FR-246); nothing built | Claude Opus 5 |
 | 0.5.0b | 2026-09-14 | FR-230 / FR-233 / FEAT-037 built (TASK-ZAI-089, TASK-ZAI-090): `owns_models` += `TenantRetentionOverride`; `Conversation` gains `lastMessageAt`/`lastMessagePreview`/`retentionClass`, kept current by a new shared `conversation-preview-service.js` helper called from ingest, reply, unsend and PDPA erasure; new `retention-override-service.js` (downward-only Tenant override) and `retention-sweep-service.js` (nightly sweep of the one crm-owned retention class, `MESSAGE_BODY_AND_ATTACHMENTS`; `RAW_LINE_PAYLOAD`/`AGENT_TRACE_EVENT`/`MSP_SESSION_CONTENT` are each another domain's model or another repository, not swept here); new `conversation-search-service.js` (message search + ConversationEvent follow/unfollow counts, both through the existing inbox scope predicate); `getConversationInbox` gains a computed-on-read `unreadCount`; migration `20260914150400`, written, not applied | Claude Sonnet 5 |
 | 0.4.2b | 2026-09-14 | Added `readConversationConsentStatus` (FR-236, ADR-090 D6): a narrow, internal, viewer-free consent reader the knowledge lane's candidate decision calls instead of re-authorizing through `getConversationThread`'s `customer` domain gate; a sixth narrow read-only export, no `owns_models` change | Claude Sonnet 5 |
 | 0.4.1b | 2026-09-14 | Review fixes on FR-229 (same task): placeholder bodies are now genuinely fixed (no packageId/stickerId/lat/lng ever reach `Message.body`); the migration's two new-table foreign keys are explicit `ON DELETE CASCADE` (schema.prisma's cascade was previously Postgres-invisible); memberJoined/memberLeft payload carries a `memberCount`, never a raw LINE user id (closes an erasure gap — `ConversationEvent` is Tier 1); `unsend` for a thread with no existing conversation is skipped rather than minting a Customer and Conversation for nothing | Claude Sonnet 5 |

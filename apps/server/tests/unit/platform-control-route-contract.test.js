@@ -40,8 +40,8 @@ describe('Platform Programme Roadmap route contract', () => {
     // v0.4.5 (2026-09-14): 68 → 72 tasks for the Zuri harness usage plugin (TASK-ZAI-069 to 072).
     // v0.4.6 (2026-09-14): 72 → 75 tasks for the plugin specification and agent usage detail (TASK-ZAI-073 to 075).
     // v0.4.7 (same day): 75 → 103 tasks for the LINE OA platform plan (TASK-ZAI-076 to 103).
-    // v0.4.8 (2026-09-14): 103 → 104 tasks for the 30-day roadmap member view (TASK-ZAI-104).
-    expect(PROGRAMME_TASKS).toHaveLength(104)
+    // v0.4.9 (2026-09-16): 104 → 115 tasks for conversation sessions and chat evidence (TASK-ZAI-105 to 115).
+    expect(PROGRAMME_TASKS).toHaveLength(115)
     expect(PROGRAMME_GATES).toHaveLength(9)
     expect(PROGRAMME_DELIVERABLES).toHaveLength(11)
   })

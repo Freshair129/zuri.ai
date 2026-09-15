@@ -402,10 +402,21 @@ code or schema; each column enters the model in the slice that implements it.
 - [ADR-059 edge-executed evidence extraction](../../decisions/ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION.md) — the pull-model job precedent
 - [ADR-041 edge device topology](../../decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md) — where LINE secrets live
 
+## Declared, not yet in schema (FEAT-040, ADR-094)
+
+[ADR-094](../../decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md)
+(accepted 2026-09-16) adds three per-account settings to `LineOaAccount`: the
+conversation session idle timeout (FR-243, 30 minutes by default, 10 to 120),
+business hours in Asia/Bangkok, and a fixed out-of-hours reply (FR-244). The edge
+worker reads the hours of the accounts it serves to decide when the local model
+stays loaded; a message outside hours is answered with the out-of-hours reply and
+no model call. A session closing never loads or unloads a model.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.12.0b | 2026-09-16 | phase-1-building | ADR-094 accepted: `LineOaAccount` session idle timeout, business hours and out-of-hours reply declared (FR-243, FR-244); nothing built | working-tree | Claude Opus 5 |
 | 0.11.0b | 2026-09-14 | phase-1-building | TASK-ZAI-082 built on branch `feat/line-oa-self-serve-onboarding` (not merged): FR-225 Thai self-serve connect wizard (`LineOaConnectWizard.jsx`, `LineOaCredentialMigrationCard.jsx`) replaces the Studio's `deployment-secret:` field; no new server code needed beyond what TASK-ZAI-078..080 already merged — the wizard is a pure caller of the existing connections/accounts/rotate routes; FR-227/FR-228 (webhook, quiescence) remain undone | working-tree | Claude Sonnet 5 |
 | 0.10.0b | 2026-09-14 | phase-1-building | ADR-089/090/091 declared (FEAT-036..038): connect wizard with write-only credentials posted to the integration lane, `REGISTER_WEBHOOK` and derived legacy quiescence, planned `webhookStateJson`, `memoryPolicy` and `knowledgeGrounding` columns, non-text admission; recorded as prose, no `owns_models` change | working-tree | Claude Opus 5 |
 | 0.9.0b | 2026-09-13 | phase-1-building | FR-210 (ADR-084 D4): `POST /api/line-oa/worker` passes `withLineCatalogCommand(createServerLineAnswer(...))` as the answer port, so a DIRECT `#sku` message from a verified sender with Inventory write authority is answered by the Inventory catalogue intake; admission, delivery, the reply transports and every other message are unchanged | working-tree | Claude Opus 5 |
