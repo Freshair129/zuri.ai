@@ -54,6 +54,17 @@ edge runtime*, not a write from this page, and it gets its own requirement.
 The module therefore exports no writer at all. That is enforcement, not
 etiquette: a reader that exports only readers cannot quietly grow a write path.
 
+**Reopened by owner instruction on 2026-09-16 — see [FR-246](FR-246-staff-reply.md).**
+Decision 2's absolute form ("the inbox cannot reply... the module therefore
+exports no writer at all") is no longer true. What stays true is the reasoning:
+BR-011 gives the *automatic* reply to exactly one owner racing an expiring
+`replyToken`, and nothing here may become a second owner of that. FR-246 adds a
+narrow, separate write — `sendStaffReply` — that goes through LINE's **Push**
+API instead, answers no `replyToken`, and races nothing BR-011 protects. The
+module now exports two writers, never one growing to cover both cases:
+`recordLineReply` (automatic) stays exactly as this section describes it, and
+`sendStaffReply` (human, owner-gated) is the new, separate one.
+
 ## Decision 3 — the read model exists to keep the query count flat
 
 The list shows, per row, a message count and the last message. Done naively
@@ -89,7 +100,9 @@ the customer received.
 
 ## What is deliberately not here
 
-- **Reply / outbound** — Decision 2.
+- **Automatic reply / outbound from this page as a side effect of reading it**
+  — Decision 2 stands for that. A deliberate, owner-gated manual reply exists
+  since 2026-09-16 — see the reopening note above and [FR-246](FR-246-staff-reply.md).
 - **`Conversation.status` transitions.** Nothing writes the field in this
   slice, so no enum is declared for it. Declaring `CONVERSATION_STATUSES`
   against values no code writes would put a guess in the one file the repo

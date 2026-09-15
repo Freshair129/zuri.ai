@@ -201,8 +201,8 @@ describe('OpenAPI document', () => {
       // only). 279 + 1 = 280; 376 + 1 = 377.
       // FR-230 (ADR-091 D1, D2) adds one more path and one more operation: the
       // retention sweep's scheduled entry point (POST). 280 + 1 = 281; 377 + 1 = 378.
-      pathCount: 281,
-      operationCount: 378,
+      pathCount: 282,
+      operationCount: 379,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

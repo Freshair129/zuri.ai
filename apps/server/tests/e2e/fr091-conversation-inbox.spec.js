@@ -148,24 +148,24 @@ test.describe('FR-091 CRM Conversation Inbox', () => {
     await expect(page.locator('.card').filter({ hasText: 'BR-011' }).getByText('GRANTED', { exact: true })).toBeVisible()
   })
 
-  test('offers no way to reply — the reply owner is the runtime that received the message', async ({ page }) => {
+  test('offers the FR-246 reply composer to the owner, and states LINE Official Account Manager replies are not recorded', async ({ page }) => {
     await chooseBusiness(page)
-    await ingest(page, {
-      thread: 'e2e-noreply',
-      userId: 'Ue2e-noreply',
-      // Deliberately NOT a name containing the phrase asserted below: the first
-      // version of this test named the customer 'ลูกค้าอ่านอย่างเดียว', which made
-      // the locator match the row and the footer and fail on strict mode.
-      displayName: 'คุณทดสอบไม่ตอบ',
+    const sent = await ingest(page, {
+      thread: 'e2e-composer',
+      userId: 'Ue2e-composer',
+      displayName: 'คุณทดสอบตอบได้',
       messages: ['ทดสอบครับ'],
     })
 
     await page.goto('/customer/conversations')
-    // BR-011: a console that could reply would be a second reply owner racing a token
-    // that expires in about thirty seconds.
-    await expect(page.locator('textarea')).toHaveCount(0)
-    await expect(page.getByRole('textbox')).toHaveCount(0)
-    await expect(page.getByText(/อ่านอย่างเดียว/)).toBeVisible()
+    await openConversationRow(page, sent.displayName)
+    const thread = page.locator('.card').filter({ hasText: 'BR-011' })
+    // BR-011 stays true unchanged: this composer sends through Push and never
+    // touches the automatic reply's token, so it is not a second owner of it —
+    // see tests/e2e/fr246-staff-reply.spec.js for the send path itself.
+    await expect(thread.getByRole('textbox')).toBeVisible()
+    await expect(thread.getByRole('button', { name: 'ส่ง' })).toBeVisible()
+    await expect(thread.getByText(/LINE Official Account Manager/)).toBeVisible()
   })
 
   test('the CRM Dashboard reconciles with the list one click away', async ({ page }) => {

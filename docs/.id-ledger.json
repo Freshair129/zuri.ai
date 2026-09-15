@@ -2511,7 +2511,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "e7e399ec7c7e8dc9ef7b048c3ab964864bfefea20177ea1fc4a76a64b12115c8"
+      "statement_digest": "e4940acd0cc1f32e6b8c6548548702312a845d5666989df39aed7ae93d2168a8",
+      "statement_digest_reviewed_at": "2026-09-15",
+      "statement_digest_reason": "TASK-ZAI-110: reworded to name the one write this surface now makes (FR-246's staff reply, sent through Push, never Reply) and why it is not BR-011's second reply owner; subject anchor unchanged"
     },
     "FR-092": {
       "family": "FR",
