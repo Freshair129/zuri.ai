@@ -745,6 +745,7 @@
     "ADR-090",
     "ADR-091",
     "ADR-092",
+    "ADR-093",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -9510,6 +9511,19 @@
         {
           "anchor": "a time boxed member view of the programme roadmap",
           "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-093": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md",
+      "status": "current",
+      "statement_digest": "5fa927c87c69c807ebe472464662a21e5b355e5df32e642850b1cf15745258ed",
+      "history": [
+        {
+          "anchor": "swept chat content moves to an encrypted local cold archive",
+          "since": "2026-09-15",
           "reason": "declared"
         }
       ]
