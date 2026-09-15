@@ -114,7 +114,7 @@ test.describe('FR-091 CRM Conversation Inbox', () => {
 
     // Opening the row shows the thread oldest-first — the order a conversation reads in.
     await row.getByRole('button').click()
-    const thread = page.locator('.card').filter({ hasText: 'BR-011' })
+    const thread = page.locator('.card').filter({ hasText: 'FR-246' })
     await expect(thread).toContainText('สวัสดีครับ ขอราคาหน่อย')
     await expect(thread).toContainText('เอา 10 ชุดครับ')
   })
@@ -131,7 +131,7 @@ test.describe('FR-091 CRM Conversation Inbox', () => {
     await page.goto('/customer/conversations')
     await openConversationRow(page, sent.displayName)
 
-    const thread = page.locator('.card').filter({ hasText: 'BR-011' })
+    const thread = page.locator('.card').filter({ hasText: 'FR-246' })
     // A brand new Customer starts PENDING, so the attestation buttons are visible.
     await expect(thread.getByText('PENDING', { exact: true })).toBeVisible()
     await thread.getByRole('button', { name: 'ลูกค้ายินยอมแล้ว' }).click()
@@ -145,7 +145,7 @@ test.describe('FR-091 CRM Conversation Inbox', () => {
     // shows GRANTED.
     await page.reload()
     await openConversationRow(page, sent.displayName)
-    await expect(page.locator('.card').filter({ hasText: 'BR-011' }).getByText('GRANTED', { exact: true })).toBeVisible()
+    await expect(page.locator('.card').filter({ hasText: 'FR-246' }).getByText('GRANTED', { exact: true })).toBeVisible()
   })
 
   test('offers the FR-246 reply composer to the owner, and states LINE Official Account Manager replies are not recorded', async ({ page }) => {
@@ -159,7 +159,7 @@ test.describe('FR-091 CRM Conversation Inbox', () => {
 
     await page.goto('/customer/conversations')
     await openConversationRow(page, sent.displayName)
-    const thread = page.locator('.card').filter({ hasText: 'BR-011' })
+    const thread = page.locator('.card').filter({ hasText: 'FR-246' })
     // BR-011 stays true unchanged: this composer sends through Push and never
     // touches the automatic reply's token, so it is not a second owner of it —
     // see tests/e2e/fr246-staff-reply.spec.js for the send path itself.
