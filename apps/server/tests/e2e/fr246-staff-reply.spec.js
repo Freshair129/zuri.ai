@@ -69,7 +69,7 @@ test.describe('FR-246 staff reply', () => {
     }).toPass({ timeout: 45000 })
     await row.getByRole('button').click()
 
-    const thread = page.locator('.card').filter({ hasText: 'BR-011' })
+    const thread = page.locator('.card').filter({ hasText: 'FR-246' })
     const textarea = thread.getByRole('textbox')
     await expect(textarea).toBeVisible()
     await textarea.fill('ขอบคุณที่ติดต่อมาครับ เดี๋ยวเช็คให้')
