@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { MessageSquare, RefreshCw } from 'lucide-react'
 
 import { Card, EmptyState, ErrorState, PageHeader, StatusPill, TruncationNotice } from '@/components/ui'
@@ -15,8 +15,11 @@ import { LoadingCard, useFetch } from '@/modules/project-manager/components/useA
 // erasure action. Consent is what a Business may keep; erasure is what it must give
 // back. Same header, same owner gate, one difference — erasure cannot be undone, so
 // it is the only control on this page that makes the owner type a word first.
+// @req FR-243 — the thread draws a divider where the conversation session changes,
+// naming the session code and when it opened (ADR-094 D4).
 // @spec SDD-050, SDD-053, BR-001, BR-011, SDD-007, SEC-005
-// @tested tests/unit/fr091-inbox-ui-contract.test.js, tests/e2e/fr091-conversation-inbox.spec.js
+// @tested tests/unit/fr091-inbox-ui-contract.test.js, tests/e2e/fr091-conversation-inbox.spec.js,
+//   tests/unit/conversation-session-ui.test.js, tests/e2e/fr243-conversation-sessions.spec.js
 //
 // There is no reply box on this page and its absence is the design (BR-011): the reply
 // token lives for about thirty seconds and belongs to the edge runtime that received
@@ -268,10 +271,27 @@ function Thread({ businessId, conversationId, isOwner }) {
 
       <div className="mt-3 flex-1 space-y-3 overflow-y-auto">
         {messages.length === 0 && <p className="text-xs text-muted">ห้องนี้ยังไม่มีข้อความ</p>}
-        {messages.map((message) => {
+        {messages.map((message, index) => {
           const inbound = message.direction === 'INBOUND'
+          // @req FR-243 — a divider where the conversation session changes, naming the
+          //   session and when it opened (ADR-094 D4). A message without a session
+          //   (written before the backfill) draws none.
+          const opensSession = Boolean(message.sessionId) && message.sessionId !== messages[index - 1]?.sessionId
           return (
-            <div key={message.id} className={`flex ${inbound ? 'justify-start' : 'justify-end'}`}>
+            <Fragment key={message.id}>
+            {opensSession && (
+              <div
+                role="separator"
+                aria-label={`เริ่ม session ${message.sessionCode}`}
+                data-session-code={message.sessionCode}
+                className="flex items-center gap-2 py-1 text-[10px] text-muted"
+              >
+                <span className="h-px flex-1 bg-[var(--border)]" />
+                <span className="font-mono">session {message.sessionCode} · เริ่ม {timeOf(message.sessionOpenedAt || message.createdAt)}</span>
+                <span className="h-px flex-1 bg-[var(--border)]" />
+              </div>
+            )}
+            <div className={`flex ${inbound ? 'justify-start' : 'justify-end'}`}>
               <div
                 className={`max-w-[75%] rounded-2xl px-3 py-2 text-xs ${
                   inbound ? 'bg-[var(--surface-2,rgba(0,0,0,0.04))]' : 'bg-[var(--brand-tint)]'
@@ -283,6 +303,7 @@ function Thread({ businessId, conversationId, isOwner }) {
                 </p>
               </div>
             </div>
+            </Fragment>
           )
         })}
       </div>

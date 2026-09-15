@@ -166,6 +166,13 @@ describe('FR-243 backfill of existing rows', () => {
     await prisma.conversationEvent.create({ data: {
       conversationId: conversation.id, kind: 'FOLLOW', externalEventId: 'bf-follow', occurredAt: new Date(minute(10)),
     } })
+    // A LINE job admitted before the job column existed reads as no session (TASK-ZAI-107).
+    await prisma.lineConversationJob.create({ data: {
+      accountId: account.id, inboundMessageId: 'bf-message-1', eventId: 'bf-job-event', tenantId: tenant.id,
+      businessId: business.id, channelAccountId: account.bindingCode, transportEpoch: account.transportEpoch,
+      executionMode: 'SERVER', modelAccess: 'EXTERNAL_MODEL_ALLOWED', recipientId: 'user-backfill', sourceUserId: 'user-backfill',
+      status: 'RECORDED', expiresAt: new Date(minute(60)), correlationId: 'corr-backfill-job',
+    } })
     // A message admitted live after the migration already holds a session.
     const live = await ingestLineMessage({
       tenantId: tenant.id, businessId: business.id, channelAccountId: account.bindingCode, lineUserId: 'user-backfill',
@@ -194,8 +201,11 @@ describe('FR-243 backfill of existing rows', () => {
 
     const follow = await prisma.conversationEvent.findFirst({ where: { externalEventId: 'bf-follow' } })
     expect(follow.sessionId).toBe(rows[0].sessionId)
+    const job = await prisma.lineConversationJob.findFirst({ where: { eventId: 'bf-job-event' } })
+    expect(job.sessionId).toBe(rows[0].sessionId)
 
     const again = await backfillConversationSessions({ tenantId: tenant.id, apply: true })
     expect(again.messagesToAssign).toBe(0)
+    expect(again.jobsToAssign).toBe(0)
   })
 })

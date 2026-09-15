@@ -37,7 +37,7 @@ export async function handleAgentTurn(
 ) {
   const {
     tenantId, businessId, lineUserId, displayName, text, threadId, externalMessageId, action,
-    sessionId, instanceId, eventId, capability, sensitivity, consent, correlationId,
+    sessionId, instanceId, eventId, capability, sensitivity, consent, correlationId, occurredAt,
   } =
     zHandleAgentTurnInput.parse(input)
 
@@ -52,6 +52,7 @@ export async function handleAgentTurn(
     text,
     externalMessageId,
     correlationId,
+    occurredAt,
   })
 
   // @req FR-093 — everything below can fail, and when it does the transport still

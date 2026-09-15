@@ -85,6 +85,8 @@ const ACTIONS = Object.freeze({
   SWITCH_TRANSPORT_MODE: 'LINE_OA_ACCOUNT_TRANSPORT_MODE_SWITCHED',
   CONFIGURE_KNOWLEDGE_GROUNDING: 'LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_CONFIGURED',
   REGISTER_WEBHOOK: 'LINE_OA_ACCOUNT_WEBHOOK_REGISTERED',
+  // @req FR-243 — the conversation session idle timeout (ADR-094 D3).
+  CONFIGURE_SESSION_TIMEOUT: 'LINE_OA_ACCOUNT_SESSION_TIMEOUT_CONFIGURED',
 })
 
 function failure(status, message, extra = {}) {
@@ -274,7 +276,7 @@ const SELECT = {
   isDefaultForBusiness: true, botProfileJson: true, archivedAt: true, createdAt: true,
   updatedAt: true, version: true, serverEnabled: true, executionMode: true,
   modelAccess: true, allowDelayedPush: true, transportEpoch: true, knowledgeGrounding: true,
-  webhookStateJson: true,
+  webhookStateJson: true, sessionIdleTimeoutMinutes: true,
 }
 
 function toHealth(row, { connection, bindingStatus, transportJobs }) {
@@ -335,6 +337,7 @@ function toDto(row, health) {
     modelAccess: row.modelAccess,
     allowDelayedPush: row.allowDelayedPush,
     knowledgeGrounding: row.knowledgeGrounding,
+    sessionIdleTimeoutMinutes: row.sessionIdleTimeoutMinutes,
     transportEpoch: row.transportEpoch,
     isDefaultForBusiness: row.isDefaultForBusiness,
     botProfile: parseBotProfile(row.botProfileJson),
@@ -562,6 +565,17 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
         payload.to.knowledgeGrounding = data.knowledgeGrounding
         break
       }
+      // @req FR-243 — the conversation session idle timeout (ADR-094 D3). It decides
+      // only where the next message's session starts, so it is health-only like the
+      // grounding switch and never fences queued work.
+      case 'CONFIGURE_SESSION_TIMEOUT': {
+        if (row.status === 'ARCHIVED') throw failure(409, 'LINE_OA_ACCOUNT_ARCHIVED')
+        if (row.sessionIdleTimeoutMinutes === data.sessionIdleTimeoutMinutes) throw failure(409, 'LINE_OA_SESSION_TIMEOUT_UNCHANGED')
+        change.sessionIdleTimeoutMinutes = data.sessionIdleTimeoutMinutes
+        payload.from.sessionIdleTimeoutMinutes = row.sessionIdleTimeoutMinutes
+        payload.to.sessionIdleTimeoutMinutes = data.sessionIdleTimeoutMinutes
+        break
+      }
       case 'ENABLE_SERVER': {
         if (row.serverEnabled) throw failure(409, 'LINE_OA_SERVER_ALREADY_ENABLED')
         if (!LINE_OA_ACCOUNT_STATUSES.filter(status => status !== 'ARCHIVED').includes(row.status) || row.transportMode !== 'CLOUD') throw failure(409, 'LINE_OA_SERVER_ACTIVATION_INVALID')
@@ -650,7 +664,7 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
     // health-only write: it changes no credential, transport owner or
     // execution policy, so fencing it would cancel replies customers are
     // already waiting for every time a publisher re-checks webhook health.
-    const fencesWork = LINE_OA_ACCOUNT_ACTIONS.filter(action => action !== 'RESUME' && action !== 'SET_DEFAULT' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING' && action !== 'REGISTER_WEBHOOK').includes(data.action)
+    const fencesWork = LINE_OA_ACCOUNT_ACTIONS.filter(action => action !== 'RESUME' && action !== 'SET_DEFAULT' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING' && action !== 'REGISTER_WEBHOOK' && action !== 'CONFIGURE_SESSION_TIMEOUT').includes(data.action)
     if (fencesWork) {
       change.transportEpoch = { increment: 1 }
       if (data.action === 'ARCHIVE') change.serverEnabled = false

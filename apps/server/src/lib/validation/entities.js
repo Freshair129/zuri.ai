@@ -255,6 +255,9 @@ export const zHandleAgentTurnInput = z.object({
   externalMessageId: z.string().optional(),
   // NFR-017 — the turn is one hop in the correlation chain, not its own trace.
   correlationId: z.string().min(8).max(64).optional(),
+  // @req FR-243 — LINE's time for the message, already clamped by the webhook route;
+  //   it decides the conversation session (SDD-102).
+  occurredAt: z.coerce.date().optional(),
   sessionId: z.string().min(1).optional(),
   instanceId: z.string().min(1).optional(),
   eventId: z.string().min(1).optional(),

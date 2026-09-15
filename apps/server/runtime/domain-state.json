@@ -130,12 +130,12 @@
           "apps/server/tests/unit/activation-readiness-integration.test.js",
           "apps/server/tests/unit/context-composer.test.js",
           "apps/server/tests/unit/conversation-analysis-contract.test.js",
+          "apps/server/tests/unit/conversation-session-ui.test.js",
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
           "apps/server/tests/unit/grounded-business-answer.test.js",
           "apps/server/tests/unit/line-execution-trace.test.js",
           "apps/server/tests/unit/line-knowledge-grounding.test.js",
           "apps/server/tests/unit/line-oa-account-domain.test.js",
-          "apps/server/tests/unit/line-oa-connect-wizard-render.test.js",
           "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
           "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
           "apps/server/tests/unit/plan-schema.test.js",
@@ -388,12 +388,12 @@
           "apps/server/tests/unit/activation-readiness-integration.test.js",
           "apps/server/tests/unit/context-composer.test.js",
           "apps/server/tests/unit/conversation-analysis-contract.test.js",
+          "apps/server/tests/unit/conversation-session-ui.test.js",
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
           "apps/server/tests/unit/grounded-business-answer.test.js",
           "apps/server/tests/unit/line-execution-trace.test.js",
           "apps/server/tests/unit/line-knowledge-grounding.test.js",
           "apps/server/tests/unit/line-oa-account-domain.test.js",
-          "apps/server/tests/unit/line-oa-connect-wizard-render.test.js",
           "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
           "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
           "apps/server/tests/unit/plan-schema.test.js",
@@ -517,12 +517,12 @@
           "apps/server/tests/unit/activation-readiness-integration.test.js",
           "apps/server/tests/unit/context-composer.test.js",
           "apps/server/tests/unit/conversation-analysis-contract.test.js",
+          "apps/server/tests/unit/conversation-session-ui.test.js",
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
           "apps/server/tests/unit/grounded-business-answer.test.js",
           "apps/server/tests/unit/line-execution-trace.test.js",
           "apps/server/tests/unit/line-knowledge-grounding.test.js",
           "apps/server/tests/unit/line-oa-account-domain.test.js",
-          "apps/server/tests/unit/line-oa-connect-wizard-render.test.js",
           "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
           "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
           "apps/server/tests/unit/plan-schema.test.js",
@@ -882,7 +882,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 44
+          "testCount": 45
         },
         {
           "id": "FR-150",
@@ -971,18 +971,26 @@
             "apps/server/tests/unit/activation-readiness-integration.test.js",
             "apps/server/tests/unit/context-composer.test.js",
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/conversation-session-ui.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/grounded-business-answer.test.js",
             "apps/server/tests/unit/line-execution-trace.test.js",
             "apps/server/tests/unit/line-knowledge-grounding.test.js",
             "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-connect-wizard-render.test.js",
             "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
             "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
             "apps/server/tests/unit/runtime-isolation-probe.test.js",
             "apps/server/tests/unit/server-line-answer.test.js"
           ]
+        },
+        {
+          "id": "FR-243",
+          "title": "Conversation sessions",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 32
         }
       ],
       "checks": {
@@ -1187,12 +1195,12 @@
             "apps/server/tests/unit/activation-readiness-integration.test.js",
             "apps/server/tests/unit/context-composer.test.js",
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/conversation-session-ui.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/grounded-business-answer.test.js",
             "apps/server/tests/unit/line-execution-trace.test.js",
             "apps/server/tests/unit/line-knowledge-grounding.test.js",
             "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-connect-wizard-render.test.js",
             "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
             "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
@@ -1827,8 +1835,8 @@
           "title": "Conversation sessions",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 17
+          "codeCount": 5,
+          "testCount": 32
         }
       ],
       "checks": {
@@ -2803,7 +2811,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 44
+          "testCount": 45
         },
         {
           "id": "FR-152",
@@ -2859,7 +2867,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-226",
@@ -3707,12 +3715,12 @@
             "apps/server/tests/unit/activation-readiness-integration.test.js",
             "apps/server/tests/unit/context-composer.test.js",
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/conversation-session-ui.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/grounded-business-answer.test.js",
             "apps/server/tests/unit/line-execution-trace.test.js",
             "apps/server/tests/unit/line-knowledge-grounding.test.js",
             "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-connect-wizard-render.test.js",
             "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
             "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
@@ -3968,12 +3976,12 @@
             "apps/server/tests/unit/activation-readiness-integration.test.js",
             "apps/server/tests/unit/context-composer.test.js",
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/conversation-session-ui.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/grounded-business-answer.test.js",
             "apps/server/tests/unit/line-execution-trace.test.js",
             "apps/server/tests/unit/line-knowledge-grounding.test.js",
             "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-connect-wizard-render.test.js",
             "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
             "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
@@ -4123,7 +4131,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 21,
-          "testCount": 44
+          "testCount": 45
         },
         {
           "id": "FR-150",
@@ -4203,7 +4211,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-226",
@@ -4278,12 +4286,12 @@
             "apps/server/tests/unit/activation-readiness-integration.test.js",
             "apps/server/tests/unit/context-composer.test.js",
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/conversation-session-ui.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/grounded-business-answer.test.js",
             "apps/server/tests/unit/line-execution-trace.test.js",
             "apps/server/tests/unit/line-knowledge-grounding.test.js",
             "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-connect-wizard-render.test.js",
             "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
             "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
@@ -4304,8 +4312,8 @@
           "title": "Conversation sessions",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 17
+          "codeCount": 5,
+          "testCount": 32
         }
       ],
       "checks": {
@@ -4501,12 +4509,12 @@
             "apps/server/tests/unit/activation-readiness-integration.test.js",
             "apps/server/tests/unit/context-composer.test.js",
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/conversation-session-ui.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/grounded-business-answer.test.js",
             "apps/server/tests/unit/line-execution-trace.test.js",
             "apps/server/tests/unit/line-knowledge-grounding.test.js",
             "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-connect-wizard-render.test.js",
             "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
             "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
@@ -5999,7 +6007,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 44
+          "testCount": 45
         },
         {
           "id": "FR-150",
@@ -6482,8 +6490,8 @@
           "title": "Conversation sessions",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 17
+          "codeCount": 2,
+          "testCount": 32
         }
       ],
       "checks": {
@@ -8606,6 +8614,7 @@
         "apps/server/tests/unit/connection-health.test.js",
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
+        "apps/server/tests/unit/conversation-session-ui.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
@@ -8614,7 +8623,6 @@
         "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/line-oa-account-routes.test.js",
         "apps/server/tests/unit/line-oa-account-schema-contract.test.js",
-        "apps/server/tests/unit/line-oa-connect-wizard-render.test.js",
         "apps/server/tests/unit/line-oa-liff-app-domain.test.js",
         "apps/server/tests/unit/line-oa-liff-app-routes.test.js",
         "apps/server/tests/unit/line-oa-rich-menu-console.test.js",
@@ -8673,7 +8681,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 34,
-          "testCount": 44
+          "testCount": 45
         },
         {
           "id": "FR-150",
@@ -8741,6 +8749,7 @@
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
+        "apps/server/tests/integration/crm-conversation-session-surfaces.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
@@ -8767,6 +8776,7 @@
         "apps/server/tests/unit/api-error-mapping.test.js",
         "apps/server/tests/unit/conversation-channel-account-migration.test.js",
         "apps/server/tests/unit/conversation-read-model.test.js",
+        "apps/server/tests/unit/conversation-session-ui.test.js",
         "apps/server/tests/unit/data-pipeline-map.test.js",
         "apps/server/tests/unit/doc-identities.test.js",
         "apps/server/tests/unit/doc-links.test.js",
@@ -8778,7 +8788,6 @@
         "apps/server/tests/unit/line-job-failures-route.test.js",
         "apps/server/tests/unit/line-job-failures.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
-        "apps/server/tests/unit/line-oa-connect-wizard-render.test.js",
         "apps/server/tests/unit/line-oa-worker-route-reconciler.test.js",
         "apps/server/tests/unit/line-studio-job-failures.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
@@ -10598,7 +10607,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-226",
@@ -10688,6 +10697,7 @@
         "apps/server/tests/unit/connection-health.test.js",
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
+        "apps/server/tests/unit/conversation-session-ui.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr080-integration-management.test.js",
         "apps/server/tests/unit/identity/rate-limit-bucket-migration.test.js",
@@ -10991,6 +11001,7 @@
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/conversation-consent-reader.test.js",
+        "apps/server/tests/unit/conversation-session-ui.test.js",
         "apps/server/tests/unit/corpus-knowledge-reader.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
@@ -11008,7 +11019,6 @@
         "apps/server/tests/unit/line-execution-trace.test.js",
         "apps/server/tests/unit/line-knowledge-grounding.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
-        "apps/server/tests/unit/line-oa-connect-wizard-render.test.js",
         "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
         "apps/server/tests/unit/line-oa-studio-description-admission.test.js",
         "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
@@ -11087,6 +11097,7 @@
       ],
       "primaryDomain": "crm",
       "contributorDomains": [
+        "agent",
         "crm",
         "line-oa-studio",
         "project-manager"
@@ -11105,8 +11116,8 @@
           "title": "Conversation sessions",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 17
+          "codeCount": 14,
+          "testCount": 32
         },
         {
           "id": "FR-244",
@@ -11118,29 +11129,51 @@
         }
       ],
       "evidence": [
+        "apps/server/src/app/(pm)/customer/conversations/page.jsx",
+        "apps/server/src/app/api/agent/line-webhook/route.js",
+        "apps/server/src/app/api/line-oa/accounts/[id]/jobs/route.js",
         "apps/server/src/lib/validation/entities.js",
+        "apps/server/src/modules/crm/conversation-read-model.js",
         "apps/server/src/modules/crm/conversation-session-backfill.js",
         "apps/server/src/modules/crm/conversation-session-service.js",
         "apps/server/src/modules/crm/line-ingest-service.js",
         "apps/server/src/modules/crm/reply-record-service.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
+        "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+        "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+        "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
         "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
+        "apps/server/tests/e2e/fr243-conversation-sessions.spec.js",
+        "apps/server/tests/integration/agent-webhook-route.test.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/crm-conversation-inbox.test.js",
+        "apps/server/tests/integration/crm-conversation-session-surfaces.test.js",
         "apps/server/tests/integration/crm-conversation-sessions.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/fr146-line-oa-account.test.js",
+        "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
+        "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
+        "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
         "apps/server/tests/integration/line-ingest.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
+        "apps/server/tests/integration/line-oa-evidence-convergence.test.js",
         "apps/server/tests/integration/line-reply-record.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
+        "apps/server/tests/unit/conversation-read-model.test.js",
         "apps/server/tests/unit/conversation-session-service.test.js",
+        "apps/server/tests/unit/conversation-session-ui.test.js",
         "apps/server/tests/unit/crm-conversation-sessions-migration.test.js",
         "apps/server/tests/unit/crm-message-attachments-events-migration.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
+        "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/reply-record-service.test.js"
       ]
     },

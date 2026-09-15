@@ -73,6 +73,9 @@ export const zLineOaAccountAction = z.object({
   legacyQuiesced: z.literal(true).optional(),
   // @req FR-235 — publisher-set grounding mode (ADR-090 D1).
   knowledgeGrounding: z.enum(KNOWLEDGE_GROUNDING_MODES).optional(),
+  // @req FR-243 — minutes of silence before the next message opens a new conversation
+  //   session; 10 to 120 (ADR-094 D3). Out of range is refused, never clamped.
+  sessionIdleTimeoutMinutes: z.number().int().min(10).max(120).optional(),
 }).strict().superRefine((value, ctx) => {
   if (value.action === 'CONFIGURE_EXECUTION' && (!value.executionMode || !value.modelAccess || typeof value.allowDelayedPush !== 'boolean')) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Execution mode, model access and delayed push policy are required' })
@@ -84,6 +87,9 @@ export const zLineOaAccountAction = z.object({
   // than here. This schema only shapes the field when it is present.
   if (value.action === 'SWITCH_TRANSPORT_MODE' && !value.transportMode) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['transportMode'], message: 'transportMode is required for SWITCH_TRANSPORT_MODE' })
+  }
+  if (value.action === 'CONFIGURE_SESSION_TIMEOUT' && value.sessionIdleTimeoutMinutes === undefined) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['sessionIdleTimeoutMinutes'], message: 'sessionIdleTimeoutMinutes is required for CONFIGURE_SESSION_TIMEOUT' })
   }
   if (value.action === 'CONFIGURE_KNOWLEDGE_GROUNDING' && !value.knowledgeGrounding) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['knowledgeGrounding'], message: 'knowledgeGrounding is required for CONFIGURE_KNOWLEDGE_GROUNDING' })

@@ -131,14 +131,20 @@ async function backfillConversation(db, conversation, { apply }) {
     db.conversationSession.findMany({ where: { conversationId: conversation.id } }),
     db.conversationEvent.findMany({ where: { conversationId: conversation.id, sessionId: null }, select: { id: true, occurredAt: true } }),
   ])
+  // @req FR-243 — a LINE job carries its inbound message's session (TASK-ZAI-107).
+  const jobs = await db.lineConversationJob.findMany({
+    where: { sessionId: null, inbound: { conversationId: conversation.id } },
+    select: { id: true, inboundMessageId: true },
+  })
   const sittings = planSittings({ messages, sessions, idleTimeoutMinutes: timeout })
   const report = {
     conversationId: conversation.id,
     sessionsToCreate: sittings.filter((s) => !s.sessionId).length,
     messagesToAssign: messages.filter((m) => !m.sessionId).length,
     eventsToCheck: events.length,
+    jobsToAssign: jobs.length,
   }
-  if (!apply || (report.messagesToAssign === 0 && report.eventsToCheck === 0)) return report
+  if (!apply || (report.messagesToAssign === 0 && report.eventsToCheck === 0 && report.jobsToAssign === 0)) return report
 
   const resolved = []
   for (const [index, sitting] of sittings.entries()) {
@@ -172,6 +178,17 @@ async function backfillConversation(db, conversation, { apply }) {
       await db.message.updateMany({ where: { id: { in: sitting.messageIds }, sessionId: null }, data: { sessionId } })
     }
   }
+  if (jobs.length) {
+    const assignedNow = await db.message.findMany({
+      where: { id: { in: jobs.map((job) => job.inboundMessageId) }, sessionId: { not: null } },
+      select: { id: true, sessionId: true },
+    })
+    const sessionByMessage = new Map(assignedNow.map((message) => [message.id, message.sessionId]))
+    for (const job of jobs) {
+      const sessionId = sessionByMessage.get(job.inboundMessageId)
+      if (sessionId) await db.lineConversationJob.update({ where: { id: job.id }, data: { sessionId } })
+    }
+  }
   for (const event of events) {
     const index = sittingIndexAt(resolved, event.occurredAt, timeout)
     if (index >= 0) await db.conversationEvent.update({ where: { id: event.id }, data: { sessionId: resolved[index].sessionId } })
@@ -189,7 +206,11 @@ export async function backfillConversationSessions({ db = prisma, apply = false,
   const conversations = await db.conversation.findMany({
     where: {
       ...(tenantId ? { tenantId } : {}),
-      OR: [{ messages: { some: { sessionId: null } } }, { events: { some: { sessionId: null } } }],
+      OR: [
+        { messages: { some: { sessionId: null } } },
+        { events: { some: { sessionId: null } } },
+        { messages: { some: { lineJob: { is: { sessionId: null } } } } },
+      ],
     },
     select: { id: true, tenantId: true, businessId: true, customerId: true, channelAccountId: true },
     orderBy: { createdAt: 'asc' },
@@ -203,5 +224,6 @@ export async function backfillConversationSessions({ db = prisma, apply = false,
   return {
     apply, conversations: reports.length,
     sessionsToCreate: total('sessionsToCreate'), messagesToAssign: total('messagesToAssign'), eventsToCheck: total('eventsToCheck'),
+    jobsToAssign: total('jobsToAssign'),
   }
 }
