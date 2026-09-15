@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.8, 2026-09-14) so the board can open a task the way the html board
+// (v0.4.8, 2026-09-15) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -4449,7 +4449,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-091",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-04",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "priority": "P1",
     "pic": "ATHER",
     "executor": "ATHER",
@@ -4481,7 +4481,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Operator step (ADR-057). To be measured, run it from a worktree on feat/crm-chat-record-completeness. In progress 2026-09-14 23:20: both chat-record migrations applied on production the same way as TASK-ZAI-085 — read-only inventory, a rolled-back dry run, then applied with ledger rows, through the transaction pooler on :6543 from the web container's own connection environment (no .env read, no credential printed): 20260914150000_crm_message_attachments_events (non-text content; PR #404, merged) and 20260914150400_crm_conversation_retention_and_search (read-model columns, the `pg_trgm` extension and its `Message_body_trgm_idx` GIN index, and `TenantRetentionOverride` with forced RLS, one policy and grants to `zuri_app_runtime` only; PR #411, merged). `pg_trgm` was confirmed installed as part of the same migration, satisfying that half of the acceptance criterion. The web image was rebuilt from the same merged main (release-538c1958) and redeployed; the ADR-061 overlay survived (both compose files named, `ZURI_LINE_SERVER_ENABLED` true), both container logs are clean. Acceptance and exit criteria are now both checked. Left open: the retention sweep (`retention-sweep-service.js`) has not yet been triggered in production — no scheduled job invokes it yet — so its first production run and audit event are still to come; the success criterion stays unchecked and the task stays in-progress rather than done until that run is observed.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Operator step (ADR-057). To be measured, run it from a worktree on feat/crm-chat-record-completeness. In progress 2026-09-14 23:20: both chat-record migrations applied on production the same way as TASK-ZAI-085 — read-only inventory, a rolled-back dry run, then applied with ledger rows, through the transaction pooler on :6543 from the web container's own connection environment (no .env read, no credential printed): 20260914150000_crm_message_attachments_events (non-text content; PR #404, merged) and 20260914150400_crm_conversation_retention_and_search (read-model columns, the `pg_trgm` extension and its `Message_body_trgm_idx` GIN index, and `TenantRetentionOverride` with forced RLS, one policy and grants to `zuri_app_runtime` only; PR #411, merged). `pg_trgm` was confirmed installed as part of the same migration, satisfying that half of the acceptance criterion. The web image was rebuilt from the same merged main (release-538c1958) and redeployed; the ADR-061 overlay survived (both compose files named, `ZURI_LINE_SERVER_ENABLED` true), both container logs are clean. Acceptance and exit criteria are now both checked. Left open: the retention sweep (`retention-sweep-service.js`) has not yet been triggered in production — no scheduled job invokes it yet — so its first production run and audit event are still to come; the success criterion stays unchecked and the task stays in-progress rather than done until that run is observed. 2026-09-15: PR #414 (main 087f3025) gave the sweep its entry point — `POST /api/crm/retention-sweep` behind `ZURI_RETENTION_SWEEP_TOKEN`, the single-shot `scripts/server-retention-sweep-worker.mjs`, and `scripts/register-retention-sweep-task.ps1` for the daily 03:00 task — and it is now deployed in release-087f3025 (no migration). The first production run has still not happened: the token is not set in `apps/server/.env` and the scheduled task is not registered; both are operator steps awaiting the owner's instruction.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 12000,
     "totalTokens": 0,
@@ -4875,7 +4875,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-099",
     "phase": "PHASE-ZAI-03",
     "sprint": "SPR-ZAI-06",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P1",
     "pic": "ATHER",
     "executor": "ATHER",
@@ -4896,7 +4896,7 @@ export const PROGRAMME_CONTAINERS = {
     "dod": {
       "acceptance": {
         "text": "Given the owner's instruction, when the operator applies the KnowledgeCandidate migration, then it is preceded by an inventory and a rolled-back dry run and followed by a verified effect",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given candidates are off by default per Business, when the owner turns them on for SmartGift, then the switch is recorded with its date and who asked",
@@ -4904,10 +4904,10 @@ export const PROGRAMME_CONTAINERS = {
       },
       "exit": {
         "text": "Given docs/DB-MIGRATION-NOTES.md, when the apply is recorded, then the migration names its date and session and the redeploy keeps the ADR-061 overlay",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Operator step (ADR-057). To be measured, run it from a worktree on feat/knowledge-line-candidates.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Operator step (ADR-057). To be measured, run it from a worktree on feat/knowledge-line-candidates. In progress 2026-09-15: on the owner's instruction the migration `20260914150550_knowledge_candidates_business_toggle` (PR #413, merged in main 087f3025) was applied on production from the web container's own connection environment (no .env read, no credential printed) — read-only inventory first (column absent, ledger tail 20260914150400), a rolled-back dry run with the effect verified before rollback, then applied in one transaction with its ledger row; verified effect: `Business.knowledgeCandidatesEnabled` boolean NOT NULL DEFAULT false, all 4 Business rows false. Applied before the redeploy on purpose, because the new image's Prisma client reads the column. Main 087f3025 was then built as `zuri-ai-web:release-087f3025` and redeployed with the ADR-061 overlay intact (both compose files named, `ZURI_LINE_SERVER_ENABLED` true, `/api/health` 200, both container logs clean). Acceptance and exit criteria checked. Left open: the success criterion — candidates stay off for every Business, including SmartGift, until the owner asks; the switch is `scripts/enable-smartgift-knowledge-candidates.mjs`, not run.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 10000,
     "totalTokens": 0,
@@ -5063,7 +5063,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-103",
     "phase": "PHASE-ZAI-05",
     "sprint": "SPR-ZAI-10",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "priority": "P2",
     "pic": "Claude",
     "executor": "Claude",
@@ -5097,7 +5097,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Registered as backlog without a requirement: the programme already registers work whose requirement is declared at sprint entry (TASK-ZAI-007 to TASK-ZAI-030), and ADR-089 names this phase. No lane is declared because no branch has been chosen; one must be declared before work starts, or its sessions are not measured. 2026-09-15: lane `feat/vault-provider-kinds-generalization`. **FR-242 declared and pinned** (PRD-SDD v1.223.0b) alongside SDD-101 and SEC-033. Built and tested: the port generalises to OAUTH_CLIENT and MODEL_PROVIDER_KEY with the same lifecycle guarantees a LINE_CHANNEL credential has; a review round found the first draft would have let a write of a different kind silently rotate an existing connectionId's live credential while leaving its stored `secretKind` unchanged (exactly the class of bug behind this repo's LINE outages), fixed with a `CREDENTIAL_KIND_MISMATCH` refusal in both the envelope store and the new `zuri_core.provider_secret_write` SQL function before any material reaches the vault, with regression tests. Acceptance and success criteria now hold; exit criterion stays unchecked because the Phase-1 resolver retirement (this task's other half) is deliberately not attempted here — left as a separate follow-up requirement, since retiring it touches the live path production Anthropic-key resolution runs through today and could not be proven safe within this task without a live/staging smoke test. Migration `20260915000000` written, not applied. Not merged, not deployed.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Registered as backlog without a requirement: the programme already registers work whose requirement is declared at sprint entry (TASK-ZAI-007 to TASK-ZAI-030), and ADR-089 names this phase. No lane is declared because no branch has been chosen; one must be declared before work starts, or its sessions are not measured. 2026-09-15: lane `feat/vault-provider-kinds-generalization`. **FR-242 declared and pinned** (PRD-SDD v1.223.0b) alongside SDD-101 and SEC-033. Built and tested: the port generalises to OAUTH_CLIENT and MODEL_PROVIDER_KEY with the same lifecycle guarantees a LINE_CHANNEL credential has; a review round found the first draft would have let a write of a different kind silently rotate an existing connectionId's live credential while leaving its stored `secretKind` unchanged (exactly the class of bug behind this repo's LINE outages), fixed with a `CREDENTIAL_KIND_MISMATCH` refusal in both the envelope store and the new `zuri_core.provider_secret_write` SQL function before any material reaches the vault, with regression tests. Acceptance and success criteria now hold; exit criterion stays unchecked because the Phase-1 resolver retirement (this task's other half) is deliberately not attempted here — left as a separate follow-up requirement, since retiring it touches the live path production Anthropic-key resolution runs through today and could not be proven safe within this task without a live/staging smoke test. Migration `20260915000000` written, not applied. Not merged, not deployed. Later on 2026-09-15: merged in PR #415 as main 087f3025; on the owner's instruction the migration was applied on production from the web container (inventory: no `provider_secret_*` function, both vault roles present, executor reads `vault.decrypted_secrets`; rolled-back dry run; then one transaction with the ledger row) — verified effect: `zuri_core.provider_secret_write` and `provider_secret_resolve` SECURITY DEFINER owned by postgres, execute granted only to `zuri_channel_vault_writer` / `zuri_channel_vault_reader`, none for anon, authenticated, service_role, zuri_app_runtime or zuri_web_login; the one live LINE_CHANNEL credential untouched. Deployed as `zuri-ai-web:release-087f3025` with the ADR-061 overlay intact. Still review, not done: the exit criterion (retire the Phase-1 resolver) is the deliberately separate follow-up.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 50000,
     "totalTokens": 0,
