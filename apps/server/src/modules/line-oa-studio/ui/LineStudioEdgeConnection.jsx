@@ -13,8 +13,12 @@
 //   BUSINESS_KNOWLEDGE (default) | GKS_CORPUS | GKS_THEN_BUSINESS_KNOWLEDGE,
 //   applied through the existing versioned CONFIGURE_KNOWLEDGE_GROUNDING
 //   account action, audited the same way as every other account write.
-// @spec ADR-041, ADR-043, ADR-061, ADR-089 D2, D7, §4.9; SEC-001, SDD-060, ADR-090 D1
-// @tested tests/unit/line-oa-connect-wizard-render.test.js,
+// @req FR-243 — the account's conversation session idle timeout (10 to 120 minutes)
+//   through the versioned CONFIGURE_SESSION_TIMEOUT action, and the delivery job list
+//   filtered by session code with each job's trace events (ADR-094 D3, D4).
+// @spec ADR-041, ADR-043, ADR-061, ADR-089 D2, D7, §4.9; SEC-001, SDD-060, ADR-090 D1, ADR-094
+// @tested tests/unit/conversation-session-ui.test.js,
+//   tests/unit/line-oa-connect-wizard-render.test.js,
 //   tests/e2e/fr149-line-server-console.spec.js,
 //   tests/e2e/fr225-line-oa-self-serve-wizard.spec.js,
 //   tests/unit/line-studio-edge-connection-render.test.js
@@ -499,8 +503,12 @@ function AccountCard({ account, onAction, onRefresh, busy }) {
   const [access, setAccess] = useState(account.modelAccess);
   const [push, setPush] = useState(account.allowDelayedPush);
   const [grounding, setGrounding] = useState(account.knowledgeGrounding);
+  const [sessionTimeout, setSessionTimeout] = useState(String(account.sessionIdleTimeoutMinutes ?? 30));
   const [quiesced, setQuiesced] = useState(false);
   const [jobs, setJobs] = useState(null);
+  const [sessionFilter, setSessionFilter] = useState("");
+  const [filteredSession, setFilteredSession] = useState(null);
+  const [traces, setTraces] = useState({});
   const [acknowledged, setAcknowledged] = useState({});
   const [resolving, setResolving] = useState(false);
   const [error, setError] = useState("");
@@ -510,13 +518,34 @@ function AccountCard({ account, onAction, onRefresh, busy }) {
     setAccess(account.modelAccess);
     setPush(account.allowDelayedPush);
     setGrounding(account.knowledgeGrounding);
+    setSessionTimeout(String(account.sessionIdleTimeoutMinutes ?? 30));
   }, [account]);
 
-  async function loadJobs() {
+  const timeoutMinutes = Number(sessionTimeout);
+  const timeoutValid = Number.isInteger(timeoutMinutes) && timeoutMinutes >= 10 && timeoutMinutes <= 120;
+
+  async function loadJobs(code = "") {
     try {
       setError("");
-      const result = await api(`/api/line-oa/accounts/${account.id}/jobs`);
+      setTraces({});
+      const query = code ? `?session=${encodeURIComponent(code.trim().toUpperCase())}` : "";
+      const result = await api(`/api/line-oa/accounts/${account.id}/jobs${query}`);
       setJobs(result.jobs ?? result);
+      setFilteredSession(code ? result.session ?? { code: code.trim().toUpperCase(), missing: true } : null);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function toggleTrace(job) {
+    if (traces[job.id]) {
+      setTraces((current) => { const next = { ...current }; delete next[job.id]; return next; });
+      return;
+    }
+    try {
+      setError("");
+      const result = await api(`/api/line-oa/jobs/${job.id}/trace`);
+      setTraces((current) => ({ ...current, [job.id]: result.events ?? [] }));
     } catch (err) {
       setError(err.message);
     }
@@ -630,6 +659,29 @@ function AccountCard({ account, onAction, onRefresh, busy }) {
           </p>
         </div>
 
+        <div>
+          <label htmlFor={`session-timeout-${account.id}`} className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+            เวลาเงียบก่อนเริ่ม session ใหม่ (นาที)
+          </label>
+          <input
+            id={`session-timeout-${account.id}`}
+            type="number"
+            min={10}
+            max={120}
+            step={1}
+            inputMode="numeric"
+            className={fieldClass}
+            value={sessionTimeout}
+            onChange={(e) => setSessionTimeout(e.target.value)}
+            aria-invalid={!timeoutValid}
+          />
+          <p className={`text-[10px] mt-1 ${timeoutValid ? "text-slate-500" : "text-rose-600"}`}>
+            {timeoutValid
+              ? "ถ้าลูกค้าเงียบนานกว่านี้ ข้อความถัดไปจะเริ่ม session ใหม่ ค่าเริ่มต้น 30 นาที"
+              : "ใส่ตัวเลขเต็มระหว่าง 10 ถึง 120 นาที"}
+          </p>
+        </div>
+
         <div className="flex flex-wrap gap-2 pt-1">
           <button
             type="button"
@@ -646,6 +698,15 @@ function AccountCard({ account, onAction, onRefresh, busy }) {
             onClick={() => onAction(account, { action: "CONFIGURE_KNOWLEDGE_GROUNDING", knowledgeGrounding: grounding })}
           >
             บันทึกแหล่งความรู้
+          </button>
+
+          <button
+            type="button"
+            disabled={!timeoutValid || timeoutMinutes === (account.sessionIdleTimeoutMinutes ?? 30)}
+            className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => onAction(account, { action: "CONFIGURE_SESSION_TIMEOUT", sessionIdleTimeoutMinutes: timeoutMinutes })}
+          >
+            บันทึกเวลา session
           </button>
 
           {account.serverEnabled ? (
@@ -684,7 +745,7 @@ function AccountCard({ account, onAction, onRefresh, busy }) {
           <button
             type="button"
             className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-white"
-            onClick={loadJobs}
+            onClick={() => loadJobs()}
           >
             ดูสถานะข้อความ
           </button>
@@ -696,28 +757,76 @@ function AccountCard({ account, onAction, onRefresh, busy }) {
       {jobs && (
         <div className="mt-3 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3">
           <h5 className="font-bold text-xs text-slate-800 dark:text-slate-200 mb-2">คิวข้อความล่าสุด (Delivery Jobs)</h5>
+          <form
+            className="mb-2 flex flex-wrap items-center gap-2"
+            onSubmit={(event) => { event.preventDefault(); loadJobs(sessionFilter); }}
+          >
+            <label htmlFor={`session-filter-${account.id}`} className="text-[11px] text-slate-600 dark:text-slate-400">กรองตาม session</label>
+            <input
+              id={`session-filter-${account.id}`}
+              className="w-48 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1.5 font-mono text-[11px]"
+              placeholder="S-20260916-XXXXXX"
+              value={sessionFilter}
+              onChange={(e) => setSessionFilter(e.target.value)}
+            />
+            <button type="submit" className="rounded-xl bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white">กรอง</button>
+            {filteredSession && (
+              <button type="button" className="text-[11px] text-slate-500 underline" onClick={() => { setSessionFilter(""); loadJobs(); }}>ล้างตัวกรอง</button>
+            )}
+          </form>
+          {filteredSession && (
+            <p className="mb-2 text-[11px] text-slate-600 dark:text-slate-400" data-session-filter={filteredSession.code}>
+              {filteredSession.missing
+                ? `ไม่พบ session ${filteredSession.code} ในบัญชีนี้`
+                : `session ${filteredSession.code} · ข้อความเข้า ${filteredSession.inboundCount} · ตอบกลับ ${filteredSession.outboundCount}`}
+            </p>
+          )}
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-500">
                 <th className="p-1.5">เวลา</th>
                 <th className="p-1.5">งาน</th>
+                <th className="p-1.5">Session</th>
                 <th className="p-1.5">สถานะ</th>
                 <th className="p-1.5">รายละเอียด</th>
+                <th className="p-1.5">Trace</th>
               </tr>
             </thead>
             <tbody>
               {Array.isArray(jobs) && jobs.map((job) => (
-                <tr key={job.id} className="border-b border-slate-100 dark:border-slate-800 font-mono text-[11px]">
-                  <td className="p-1.5">{new Date(job.createdAt).toLocaleTimeString()}</td>
-                  <td className="p-1.5">{job.id.slice(0, 8)}</td>
-                  <td className="p-1.5 font-bold">{job.status}</td>
-                  <td className="p-1.5">{job.errorCode || job.executionMode}</td>
-                </tr>
+                <React.Fragment key={job.id}>
+                  <tr className="border-b border-slate-100 dark:border-slate-800 font-mono text-[11px]">
+                    <td className="p-1.5">{new Date(job.createdAt).toLocaleTimeString()}</td>
+                    <td className="p-1.5">{job.id.slice(0, 8)}</td>
+                    <td className="p-1.5">{job.sessionCode || "—"}</td>
+                    <td className="p-1.5 font-bold">{job.status}</td>
+                    <td className="p-1.5">{job.errorCode || job.executionMode}</td>
+                    <td className="p-1.5">
+                      <button type="button" className="text-[11px] text-slate-700 underline dark:text-slate-300" onClick={() => toggleTrace(job)}>
+                        {traces[job.id] ? "ซ่อน" : "ดู trace"}
+                      </button>
+                    </td>
+                  </tr>
+                  {traces[job.id] && (
+                    <tr className="border-b border-slate-100 dark:border-slate-800">
+                      <td colSpan={6} className="p-1.5">
+                        <ol className="grid gap-0.5 font-mono text-[10px] text-slate-600 dark:text-slate-400" aria-label={`trace ของงาน ${job.id.slice(0, 8)}`}>
+                          {traces[job.id].length === 0 && <li>ยังไม่มี trace event</li>}
+                          {traces[job.id].map((event, index) => (
+                            <li key={event.id ?? `${job.id}-${index}`}>
+                              {new Date(event.occurredAt).toLocaleTimeString()} · {event.kind}
+                            </li>
+                          ))}
+                        </ol>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               ))}
             </tbody>
           </table>
           {Array.isArray(jobs) && jobs.length === 0 && (
-            <p className="p-2 text-center text-slate-400 text-xs">ยังไม่มีข้อความในคิว</p>
+            <p className="p-2 text-center text-slate-400 text-xs">{filteredSession ? "ไม่มีงานใน session นี้" : "ยังไม่มีข้อความในคิว"}</p>
           )}
         </div>
       )}

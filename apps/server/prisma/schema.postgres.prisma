@@ -2093,9 +2093,10 @@ model ConversationSession {
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
-  conversation Conversation        @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversation Conversation           @relation(fields: [conversationId], references: [id], onDelete: Cascade)
   messages     Message[]
   events       ConversationEvent[]
+  lineJobs     LineConversationJob[]
 
   @@unique([tenantId, code])
   @@index([conversationId, openedAt])
@@ -3637,18 +3638,23 @@ model LineConversationJob {
   memoryDeliveryAttempts      Int       @default(0)
   memoryDeliveryNextAttemptAt DateTime?
   memoryDeliveryLeaseUntil    DateTime?
+  // @req FR-243 — the conversation session of the inbound message this job answers,
+  //   copied at admission so the job list and trace can be filtered by session (ADR-094 D4).
+  sessionId                   String?
   correlationId               String
   createdAt                   DateTime  @default(now())
   updatedAt                   DateTime  @updatedAt
   version                     Int       @default(1)
 
-  account LineOaAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  inbound Message       @relation(fields: [inboundMessageId], references: [id], onDelete: Cascade)
+  account LineOaAccount        @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  inbound Message              @relation(fields: [inboundMessageId], references: [id], onDelete: Cascade)
+  session ConversationSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
 
   @@unique([accountId, eventId])
   @@index([status, executionMode, availableAt])
   @@index([tenantId, businessId, status])
   @@index([memoryDeliveryState, memoryDeliveryNextAttemptAt, createdAt])
+  @@index([sessionId])
 }
 
 // @req FR-159 — Business-scoped strategy identity and immutable evidence.

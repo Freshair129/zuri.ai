@@ -194,6 +194,8 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     if (prior) return { jobId: prior.id, created: false, inboundMessageId: inbound.messageId }
     const job = await tx.lineConversationJob.create({ data: {
       accountId: current.id, inboundMessageId: inbound.messageId, eventId,
+      // @req FR-243 — the session the inbound message was just assigned (ADR-094 D4).
+      sessionId: inbound.sessionId ?? null,
       tenantId: current.tenantId, businessId: current.businessId, channelAccountId,
       transportEpoch: current.transportEpoch, executionMode: current.executionMode,
       modelAccess: current.modelAccess, allowDelayedPush: current.allowDelayedPush,
@@ -777,15 +779,39 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
   return { id: job.id, status: changed.count ? status : 'FENCED' }
 }
 
-/** Bounded operational DTO; never exposes LINE ids, tokens or question/answer text. */
-export async function listLineConversationJobs(accountId, { viewer, db = prisma } = {}) {
+/** `S-YYYYMMDD-XXXXXX`, the ConversationSession human code (FR-243). */
+export const SESSION_CODE_PATTERN = /^S-\d{8}-[0-9A-Z]{6}$/
+
+/**
+ * Bounded operational DTO; never exposes LINE ids, tokens or question/answer text.
+ *
+ * @req FR-243 — `sessionCode` narrows the list to one conversation session of this
+ *   account's Tenant and account (ADR-094 D4). A code that names no session of this
+ *   account answers an empty list, never another account's jobs; a malformed code
+ *   is refused before any read.
+ */
+export async function listLineConversationJobs(accountId, { viewer, sessionCode, db = prisma } = {}) {
   const account = await db.lineOaAccount.findUnique({ where: { id: accountId } })
   if (!account) throw notFound()
   assertMayView(viewer, account.businessId)
-  const jobs = await db.lineConversationJob.findMany({ where: { accountId }, orderBy: { createdAt: 'desc' }, take: 100,
+  let session = null
+  const where = { accountId }
+  if (sessionCode !== undefined && sessionCode !== null && sessionCode !== '') {
+    const code = String(sessionCode).trim().toUpperCase()
+    if (!SESSION_CODE_PATTERN.test(code)) throw failure(400, 'SESSION_CODE_INVALID')
+    session = await db.conversationSession.findFirst({
+      where: { tenantId: account.tenantId, code, channelAccountId: account.bindingCode || account.id },
+      select: { id: true, code: true, openedAt: true, lastMessageAt: true, closedAt: true, inboundCount: true, outboundCount: true },
+    })
+    if (!session) return { accountId, session: null, jobs: [] }
+    where.sessionId = session.id
+  }
+  const rows = await db.lineConversationJob.findMany({ where, orderBy: { createdAt: 'desc' }, take: 100,
     select: { id: true, status: true, executionMode: true, modelAccess: true, sendMethod: true,
-      attempts: true, errorCode: true, acceptedAt: true, createdAt: true, updatedAt: true, version: true } })
-  return { accountId, jobs }
+      attempts: true, errorCode: true, acceptedAt: true, createdAt: true, updatedAt: true, version: true,
+      sessionId: true, session: { select: { code: true } } } })
+  const jobs = rows.map(({ session: jobSession, ...job }) => ({ ...job, sessionCode: jobSession?.code ?? null }))
+  return { accountId, session, jobs }
 }
 
 /** Payload inspection needs Business ownership in addition to Studio visibility. */

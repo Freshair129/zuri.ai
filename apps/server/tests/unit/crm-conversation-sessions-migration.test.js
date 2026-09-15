@@ -4,6 +4,7 @@
 //   that is set to NULL when a session is deleted; LineOaAccount gains a bounded
 //   idle timeout defaulting to 30. Additive, idempotent and unapplied.
 // @spec ADR-094 D1–D3; SDD-102; ADR-057
+// @req FR-243 — and the LINE job's sessionId (20260916120000, TASK-ZAI-107).
 // @tested tests/unit/crm-conversation-sessions-migration.test.js
 import fs from 'node:fs'
 import path from 'node:path'
@@ -54,5 +55,19 @@ describe('migration — conversation sessions', () => {
     expect(sql).toContain('ALTER TABLE "ConversationSession" FORCE ROW LEVEL SECURITY')
     expect(sql).toContain('REVOKE ALL ON TABLE "ConversationSession" FROM public, anon, authenticated, service_role')
     expect(sql).toContain('GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE "ConversationSession" TO zuri_app_runtime, zuri_web_login')
+  })
+})
+
+describe('migration — LINE job session', () => {
+  const [jobFile] = fs.readdirSync(dir).filter((name) => name.endsWith('_line_job_session.sql'))
+  const jobSql = fs.readFileSync(path.join(dir, jobFile), 'utf8')
+
+  it('adds a nullable, indexed sessionId to LineConversationJob that is cleared when its session goes, after the session table exists', () => {
+    expect(jobFile > file).toBe(true)
+    expect(jobSql).toContain('ALTER TABLE "LineConversationJob" ADD COLUMN IF NOT EXISTS "sessionId" TEXT;')
+    expect(jobSql).toContain('CREATE INDEX IF NOT EXISTS "LineConversationJob_sessionId_idx" ON "LineConversationJob"("sessionId")')
+    expect(jobSql).toContain('REFERENCES "ConversationSession"("id") ON DELETE SET NULL')
+    expect(jobSql).toContain('LINE_JOB_SESSION_PRECONDITION_FAILED')
+    expect(jobSql).toMatch(/NOT APPLIED to production by this change/)
   })
 })

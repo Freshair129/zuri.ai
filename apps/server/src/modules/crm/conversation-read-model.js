@@ -319,7 +319,11 @@ export async function getConversationThread({ viewer, businessId, conversationId
       },
       messages: {
         orderBy: { createdAt: 'asc' },
-        select: { id: true, direction: true, body: true, externalMessageId: true, createdAt: true },
+        select: {
+          id: true, direction: true, body: true, externalMessageId: true, createdAt: true,
+          // @req FR-243 — the inbox draws a divider where the session changes (ADR-094 D4).
+          sessionId: true, session: { select: { code: true, openedAt: true } },
+        },
       },
     },
   })
@@ -347,6 +351,9 @@ export async function getConversationThread({ viewer, businessId, conversationId
       body: message.body,
       externalMessageId: message.externalMessageId,
       createdAt: message.createdAt.toISOString(),
+      sessionId: message.sessionId ?? null,
+      sessionCode: message.session?.code ?? null,
+      sessionOpenedAt: message.session?.openedAt ? message.session.openedAt.toISOString() : null,
     })),
   }
 }

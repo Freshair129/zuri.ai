@@ -5173,7 +5173,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-105",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -5221,7 +5221,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured. Done 2026-09-16: merged in PR #419 (main 8616363e) on the owner's instruction.",
     "created": "2026-09-16T00:00:00Z,Claude,pending",
     "predictedTokens": 40000,
     "totalTokens": 0,
@@ -5234,7 +5234,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-106",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -5284,7 +5284,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured. In review 2026-09-16: built on `feat/crm-conversation-sessions` (stacked on the plan branch). `conversation-session-service.js` assigns a session inside the writer's transaction after writing the Conversation row (the Postgres row lock), comparing LINE's clamped timestamp with the latest session's last message against the account's timeout; replies join the session of the message they answer and do not stretch a session already closed; events take the open session or none; `conversation-session-backfill.js` never regroups a row that has a session and joins unassigned rows to a live session's span. Migration `20260916090000_crm_conversation_sessions` written, not applied. Evidence: npm test: 701 files, 693 passed and 2 failed on the first full run — the programme container snapshot and the FR-229 migration field list, both caused by this change — then both fixed and re-run green; npm run build clean; npm run govern 0 CRITICAL; the backfill script ran dry, apply and dry again on a copy of the dev database, which holds no conversations, so regrouping is proven by the integration suite. The exit criterion stays unchecked: its \"backfill on a copy of the dev database\" clause ran but had no conversations to assign, which proves the script runs, not that it assigns.",
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured. In review 2026-09-16: built on `feat/crm-conversation-sessions` (stacked on the plan branch). `conversation-session-service.js` assigns a session inside the writer's transaction after writing the Conversation row (the Postgres row lock), comparing LINE's clamped timestamp with the latest session's last message against the account's timeout; replies join the session of the message they answer and do not stretch a session already closed; events take the open session or none; `conversation-session-backfill.js` never regroups a row that has a session and joins unassigned rows to a live session's span. Migration `20260916090000_crm_conversation_sessions` written, not applied. Evidence: npm test: 701 files, 693 passed and 2 failed on the first full run — the programme container snapshot and the FR-229 migration field list, both caused by this change — then both fixed and re-run green; npm run build clean; npm run govern 0 CRITICAL; the backfill script ran dry, apply and dry again on a copy of the dev database, which holds no conversations, so regrouping is proven by the integration suite. The exit criterion stays unchecked: its \"backfill on a copy of the dev database\" clause ran but had no conversations to assign, which proves the script runs, not that it assigns. Merged in PR #420 (main 000b26f1) on the owner's instruction 2026-09-16; stays review until that clause is shown on real data (TASK-ZAI-108).",
     "created": "2026-09-16T00:00:00Z,Claude,pending",
     "predictedTokens": 60000,
     "totalTokens": 0,
@@ -5297,7 +5297,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-107",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P1",
     "pic": "Claude",
     "executor": "Claude",
@@ -5311,7 +5311,7 @@ export const PROGRAMME_CONTAINERS = {
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "missing"
+      "test": "present"
     },
     "delivers": [
       "FR-243"
@@ -5320,34 +5320,34 @@ export const PROGRAMME_CONTAINERS = {
       {
         "id": "P0",
         "title": "Session id on the LINE job and trace filter",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P1",
         "title": "Inbox session divider",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P2",
         "title": "Idle timeout setting on the LINE OA account page, 10 to 120 minutes",
-        "status": "planned"
+        "status": "done"
       }
     ],
     "dod": {
       "acceptance": {
         "text": "Given a conversation with two sessions, when an owner opens it in the inbox, then a divider with the session code and start time separates them",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a session code, when the operator filters the LINE trace view by it, then only that session's jobs and trace events are listed",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given an account timeout set to 121 or 9 minutes, when it is saved, then it is refused, and the e2e spec shows two sessions for a gap past the timeout",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured. In review 2026-09-16 on `feat/crm-conversation-sessions` after #416, #419 and #420 merged: `LineConversationJob.sessionId` is set from the inbound message at admission (migration `20260916120000_line_job_session`, written, not applied); `listLineConversationJobs` takes `?session=` and answers only that account's session, empty for another account's code and 400 for a malformed one; the LINE studio card filters by session, shows the session column and opens each job's trace from the existing owner-only trace route; the Inbox thread reads session id, code and opening time and draws a divider per session; `CONFIGURE_SESSION_TIMEOUT` is bounded 10–120 in the schema, refused when unchanged, audited as `LINE_OA_ACCOUNT_SESSION_TIMEOUT_CONFIGURED` and excluded from transport fencing; the legacy webhook passes LINE's clamped timestamp so its messages are sessioned by LINE time. Evidence: npm test: 703 files, 696 passed and 1 failed — the programme container snapshot, whose link state flips when this task's e2e spec starts to exist — regenerated and re-run green; e2e: fr243-conversation-sessions and fr091-conversation-inbox, 8 of 8 passed including warm-up; npm run build clean; npm run govern 0 CRITICAL; new tests: crm-conversation-session-surfaces (5), conversation-session-ui (7), the LINE job migration assertion and the job backfill assertion.",
     "created": "2026-09-16T00:00:00Z,Claude,pending",
     "predictedTokens": 40000,
     "totalTokens": 0,

@@ -1,5 +1,5 @@
 ---
-version: "0.7.0b"
+version: "0.8.0b"
 status: active
 last_update: "2026-09-16T09:00:00+07:00,Claude Opus 5"
 id: ZAI:DOMAIN-CRM
@@ -309,6 +309,7 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.8.0b | 2026-09-16 | FR-243 surfaces (TASK-ZAI-107, not merged): the thread read model returns each message's session id, code and opening time; the Inbox draws a divider per session; the backfill also copies each LINE job's session from its inbound message | Claude Opus 5 |
 | 0.7.0b | 2026-09-16 | FR-243 built (TASK-ZAI-106, not merged): `owns_models` += `ConversationSession`; `conversation-session-service.js` assigns a message's session inside the writer's transaction, `line-ingest-service.js` and `reply-record-service.js` call it, events take the open session, `conversation-session-backfill.js` and its script assign existing rows; migration `20260916090000` written, not applied | Claude Opus 5 |
 | 0.6.0b | 2026-09-16 | ADR-093 and ADR-094 accepted: declared `ConversationSession` (FR-243), the chat evidence archive and legal hold (FR-245, SEC-034) and the staff reply writer (FR-246); nothing built | Claude Opus 5 |
 | 0.5.0b | 2026-09-14 | FR-230 / FR-233 / FEAT-037 built (TASK-ZAI-089, TASK-ZAI-090): `owns_models` += `TenantRetentionOverride`; `Conversation` gains `lastMessageAt`/`lastMessagePreview`/`retentionClass`, kept current by a new shared `conversation-preview-service.js` helper called from ingest, reply, unsend and PDPA erasure; new `retention-override-service.js` (downward-only Tenant override) and `retention-sweep-service.js` (nightly sweep of the one crm-owned retention class, `MESSAGE_BODY_AND_ATTACHMENTS`; `RAW_LINE_PAYLOAD`/`AGENT_TRACE_EVENT`/`MSP_SESSION_CONTENT` are each another domain's model or another repository, not swept here); new `conversation-search-service.js` (message search + ConversationEvent follow/unfollow counts, both through the existing inbox scope predicate); `getConversationInbox` gains a computed-on-read `unreadCount`; migration `20260914150400`, written, not applied | Claude Sonnet 5 |
