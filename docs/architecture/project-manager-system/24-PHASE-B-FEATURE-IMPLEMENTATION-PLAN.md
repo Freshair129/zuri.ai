@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-FEATURE-IMPLEMENTATION-PLAN
 title: Project Manager Phase B Feature implementation plan
-version: "0.3.2b"
+version: "0.3.3b"
 status: candidate
 created_at: "2026-09-17T01:17:02+07:00,Luna Max,f061a113584aa15db68934dc8451f14b9a1011e1"
-last_update: "2026-09-17T02:35:21+07:00,RWANG final integrator"
+last_update: "2026-09-17T03:23:00+07:00,RWANG final integrator"
 superseded_by: null
 attributes:
   doc_type: implementation-plan
@@ -28,6 +28,16 @@ relations:
 ---
 
 # Project Manager Phase B Feature implementation plan
+
+**Current entry record:** The owner approved v0.3.2b at e5ccfd7a; B2 registered
+FR-252 and ADR-097 at 50b5e1dd with governance passing. ADR-097 is the approval
+authority and supersedes historical B1/B2-pending labels below. This v0.3.3b
+aligns restore prerequisites, owner-only snapshot listing and wire refusals
+with that approved behavior. Independent review must pass before application
+entry. W1 must additionally publish its exact per-table RLS/adapter policy for
+independent review and root approval before Phase B DDL or adapter activation;
+Identity P2 is independent of that database gate. Runtime and production proof
+remain NOT_RUN.
 
 **Candidate only.** This document composes the UX packet and backend packet
 into one proposed Phase B design. It is not owner approval, an implementation
@@ -338,7 +348,7 @@ set explicit and transactional.
 | --- | --- | --- |
 | GET /api/projects/{projectId}/feature-view | Scope-first aggregate of active, non-deleted ProjectFeatures and active relationship rows | Direct FeatureView DTO. |
 | GET /api/projects/{projectId}/features | Stable list ordered by code then id; visibility ACTIVE (default) includes DRAFT, ACTIVE and RETIRED rows while excluding soft-deleted rows; visibility DELETED requires Business-owner restore authority; optional lifecycle filter DRAFT, ACTIVE or RETIRED; limit 1..50 (default 50); signed opaque cursor. | FeatureRecordPage. |
-| GET /api/projects/{projectId}/governance-snapshots | Owner-scoped immutable snapshot metadata list; limit 1..50 and signed cursor. Source manifests are not returned in the list. | GovernanceSnapshotPage of owner-safe metadata. |
+| GET /api/projects/{projectId}/governance-snapshots | Business-owner-only immutable metadata list after full Project hierarchy/read authorization; invalid or foreign scope is redacted 404, an authorized non-owner is 403 CAPABILITY_DENIED before lookup. Limit 1..50, signed cursor, no source manifests. | GovernanceSnapshotPage of owner-safe metadata. |
 | POST /api/projects/{projectId}/governance-snapshots | Owner-admitted verified append-only snapshot capture; never implicit in Feature create. Only a server-verified VALID result is persisted. | SnapshotCaptureResult { snapshot, receipt }; 201 new, 200 idempotent replay. |
 | POST /api/projects/{projectId}/features | Creates one base ProjectFeature DRAFT; server derives scope and audit identity | 201 MutationReceipt plus strong ETag. |
 | GET /api/projects/{projectId}/features/{featureId} | Project then Feature scope check, non-deleted record | FeatureRecord. |
@@ -797,6 +807,16 @@ ENABLE/FORCE ROW LEVEL SECURITY and exact runtime predicates; no generic RLS
 function is assumed. SQLite must use scoped repositories, foreign keys and
 CAS transaction tests.
 
+W1's first deliverable is an exact policy/adapter contract, before any Phase B
+DDL or adapter activation. It must name the trusted transaction-local scope
+inputs and setter after hierarchy/viewer authorization, missing-context denial,
+Tenant/Business/Project/WorkItem joins, INSERT/UPDATE checks, allowed runtime
+roles, forced RLS/revokes, append-only evidence privileges and executable
+negative cross-scope/context-reset cases. The independent Luna Max verifier and
+root must approve that artifact before W1 proceeds. Role-only USING (true) or
+WITH CHECK (true) policies cannot satisfy it. This database gate does not block
+Identity P2 once the corrected overall contract entry review passes.
+
 Production write dependency: before any Phase B production write or migration,
 the composed release must close the approved least-privilege runtime
 credential/real-role isolation gate. A preflight catalog check or a bypass-RLS
@@ -818,7 +838,10 @@ The migration gate must prove:
 Backup and restore are additive family work, not a reason to weaken legacy
 snapshots:
 
-1. Restore GovernanceSnapshot after Repository/Tenant/Business.
+1. Restore GovernanceSnapshot after Tenant, Business, Workspace, Project,
+   Repository and ProjectRepository. Validate the immutable ProjectRepository
+   reference against its Project/Workspace/Business/Tenant chain and the
+   same-Business Repository before inserting evidence; refuse mismatches.
 2. Restore ProjectFeature after Project and referenced snapshot.
 3. Restore FeatureContribution after ProjectFeature.
 4. Restore FeatureWorkLink after ProjectFeature and WorkItem.
@@ -1036,6 +1059,7 @@ document.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 | --- | --- | --- | --- | --- | --- |
+| 0.3.3b | 2026-09-17 | candidate | Reconcile restore prerequisites and owner-only snapshot listing; record B1/B2 completion and explicit independent/root pre-DDL RLS policy gate | 61e28ac9 | RWANG |
 | 0.2.0b | 2026-09-17 | candidate | Composed candidate Phase B Feature authority, typed machine contract input, source provenance bounds, approval-gate/wave separation, UX/state model, restore/privacy and acceptance gates; no implementation or IDs. | f061a113 | Luna Max |
 | 0.3.0b | 2026-09-17 | candidate | Closed verifier contract findings: six-record authority, Project Feature capacity, WorkItem-derived allocation and graph lock/ETag rules, VALID-only snapshot proof, typed receipts, Identity CSRF/Origin, redacted fields and worker allowlists; no implementation or IDs. | f061a113 | Luna Max |
 | 0.3.1b | 2026-09-17 | candidate | Correct the ERD to optional typed receipt references and the canonical snapshot pin; preserve the selected storage/API contract | composed ecc30b94 | RWANG |

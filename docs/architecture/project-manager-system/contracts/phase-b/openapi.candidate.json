@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Zuri Project Manager Phase B Feature API",
-    "version": "0.3.2b",
+    "version": "0.3.3b",
     "description": "Candidate machine contract for the Project Manager Phase B Feature authority. Phase B routes and schemas remain documentation input until B1 owner approval and B2 registration; no route, schema migration, code generation or runtime operation is claimed."
   },
   "servers": [
@@ -39,7 +39,7 @@
         ],
         "summary": "Issue the session-bound API-write CSRF token",
         "description": "Identity-owned supporting contract. The token is opaque, API-write audience scoped, bound to the live zuri_session and same-origin policy, and is never the plugin-consent token. Issuance requires the configured Origin; an absent Origin is accepted only with Sec-Fetch-Site same-origin or a same-origin Referer. An unproven or foreign request is 403 CSRF_INVALID, following plan 24.",
-        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
         "security": [
           {
             "SessionAuth": []
@@ -86,7 +86,7 @@
         ],
         "summary": "Read the authorized Project Feature aggregate",
         "description": "Scope-first read of active, non-deleted ProjectFeatures and active relationship rows. The Project URL is context, never a grant. The direct response is FeatureView.",
-        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
         "responses": {
           "200": {
             "description": "Direct Project Feature aggregate.",
@@ -126,7 +126,7 @@
         ],
         "summary": "List authorized Project Features",
         "description": "Stable list ordered by code then id. Cursor is signed by the server. visibility=ACTIVE includes DRAFT, ACTIVE and RETIRED rows and excludes soft-deleted rows; visibility=DELETED is available only to an authorized Business owner restoring them and returns owner-only DeletedFeatureRecord tombstones without relationship payload. lifecycle is an independent optional filter over the stored lifecycle in either visibility.",
-        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
         "parameters": [
           {
             "$ref": "#/components/parameters/FeatureListVisibility"
@@ -173,7 +173,7 @@
         ],
         "summary": "Create a Project Feature draft",
         "description": "Creates only the base ProjectFeature. Relationship sets are replaced with their explicit commands. Scope, actor, version, timestamps, audit identity and deletedAt are server-derived.",
-        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
@@ -236,7 +236,7 @@
         ],
         "summary": "Read one authorized Project Feature",
         "description": "Checks the Project before the Feature. Missing, deleted, foreign and cross-scope targets use the same redacted refusal.",
-        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
         "responses": {
           "200": {
             "description": "Feature detail.",
@@ -266,7 +266,7 @@
         ],
         "summary": "Update base Project Feature fields with CAS",
         "description": "Partial base update. Lifecycle transitions are DRAFT to ACTIVE to RETIRED; unchanged lifecycle is allowed during edits. RETIRED allows authorized metadata/relationship edits, soft delete and restore under the same CAS rules but cannot return to ACTIVE or DRAFT. Soft-delete restore preserves the prior lifecycle.",
-        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
         "parameters": [
           {
             "$ref": "#/components/parameters/IfMatch"
@@ -325,7 +325,7 @@
         ],
         "summary": "Soft-delete a Project Feature",
         "description": "Soft-deletes the Feature and only currently active relationship rows with one new deleteBatchId and shared tombstone timestamp. Unconditional Feature and child uniqueness remains; audit history and immutable identifiers remain. A later restore never redistributes allocation and may refuse atomically with ALLOCATION_RESTORE_CONFLICT.",
-        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
         "parameters": [
           {
             "$ref": "#/components/parameters/IfMatch"
@@ -381,7 +381,7 @@
         ],
         "summary": "Replace the complete Feature contribution set",
         "description": "Unchanged row ids are retained; new rows receive server UUIDs; omitted active rows are soft-deleted with a child-set deleteBatchId. Re-adding an omitted key revives the same UUID and increments its version. Unconditional uniqueness and duplicate/primary-domain rejection are enforced atomically.",
-        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
         "parameters": [
           {
             "$ref": "#/components/parameters/IfMatch"
@@ -450,7 +450,7 @@
         ],
         "summary": "Replace one Feature's complete WorkItem link set",
         "description": "Validates all active links for every affected WorkItem in the Project, including links owned by other Features. Allocation basis points apply to one WorkItem across Features, never to unrelated WorkItems; omitted links use a distinct child-set deleteBatchId and re-add revives the same UUID with an incremented version.",
-        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
         "parameters": [
           {
             "$ref": "#/components/parameters/IfMatch"
@@ -516,7 +516,7 @@
         ],
         "summary": "Redistribute one WorkItem across multiple Features atomically",
         "description": "Names at most 50 Feature sets, unique by featureId, and an exact affected WorkItem set. Every submitted link and every existing active link for a named Feature contributes its workItemId; missing or extra affected IDs refuse before the transaction. Unspecified Features remain unchanged, but all ProjectFeature rows (including tombstones) and every link for each affected WorkItem are locked and revalidated. The graph ETag is SHA-256 over the exact canonical JSON bytes described by GraphIfMatch and is rechecked inside the Project-lock transaction; no graph-state table is introduced.",
-        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
         "parameters": [
           {
             "$ref": "#/components/parameters/GraphIfMatch"
@@ -585,7 +585,7 @@
         ],
         "summary": "Replace the complete pinned requirement set",
         "description": "Every active binding requires an in-scope VALID GovernanceSnapshot and its immutable source revision hash. Omitted active bindings receive a distinct child-set deleteBatchId; re-adding the same key revives its UUID and increments its version under the unconditional unique key.",
-        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
         "parameters": [
           {
             "$ref": "#/components/parameters/IfMatch"
@@ -650,8 +650,8 @@
           "Governance snapshots"
         ],
         "summary": "List immutable Project GovernanceSnapshots",
-        "description": "Owner-scoped metadata listing. Payloads are provenance metadata only; source manifests are not returned as a grant or client-editable authority.",
-        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "description": "Owner-scoped metadata listing. Payloads are provenance metadata only; source manifests are not returned as a grant or client-editable authority. Resolve and authorize the full Project hierarchy first (foreign or invalid scope is redacted 404); an authorized Project reader without Business-owner capability receives 403 CAPABILITY_DENIED before any snapshot lookup.",
+        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
         "parameters": [
           {
             "$ref": "#/components/parameters/Limit50"
@@ -674,6 +674,9 @@
           "401": {
             "$ref": "#/components/responses/AuthRequired"
           },
+          "403": {
+            "$ref": "#/components/responses/CsrfOrCapabilityDenied"
+          },
           "404": {
             "$ref": "#/components/responses/ResourceNotFound"
           },
@@ -689,7 +692,7 @@
         ],
         "summary": "Capture a verified immutable GovernanceSnapshot",
         "description": "Owner-admitted append-only command. Request metadata is intent only. Identity passes the request to a server-local Git verifier selected by an operator-registered Repository-to-checkout binding, requiring the active same-Business Repository and ProjectRepository link for the URL Project. No arbitrary URL, filesystem path or caller script is used. Only a server-verified VALID result is persisted; Feature create never captures a snapshot implicitly.",
-        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
@@ -751,8 +754,8 @@
           "Feature mutations"
         ],
         "summary": "Restore a soft-deleted Project Feature",
-        "description": "Restores the Feature and only children bearing the same deleteBatchId when original scope and Project dependencies still resolve. Older child-set removal tombstones remain deleted; an allocation overflow refuses atomically with ALLOCATION_RESTORE_CONFLICT. A deleted Feature code remains reserved and must be restored rather than re-created.",
-        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "description": "Restores the Feature and only children bearing the same deleteBatchId when original scope and Project dependencies still resolve. Older child-set removal tombstones remain deleted; an allocation overflow refuses atomically with ALLOCATION_RESTORE_CONFLICT. A deleted Feature code remains reserved and must be restored rather than re-created. At 200 non-deleted Features, restore refuses atomically with 422 FEATURE_LIMIT_REACHED.",
+        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
         "parameters": [
           {
             "$ref": "#/components/parameters/IfMatch"
@@ -782,6 +785,9 @@
           },
           "412": {
             "$ref": "#/components/responses/VersionMismatch"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationFailed"
           },
           "428": {
             "$ref": "#/components/responses/PreconditionRequired"
@@ -1587,7 +1593,8 @@
           },
           "nextCursor": {
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "maxLength": 4096
           },
           "observedAt": {
             "type": "string",
@@ -2100,7 +2107,8 @@
           },
           "nextCursor": {
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "maxLength": 4096
           },
           "observedAt": {
             "type": "string",
@@ -2647,7 +2655,8 @@
           },
           "currentEtag": {
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "maxLength": 4096
           },
           "fields": {
             "type": "array",
@@ -3123,5 +3132,13 @@
         "version": null
       }
     }
+  },
+  "x-approval-record": {
+    "decision": "ZAI:ADR-097",
+    "requirement": "ZAI:FR-252",
+    "ownerApprovalCommit": "e5ccfd7a8051cce551b95453b7435ac850f66d9d",
+    "registrationCommit": "50b5e1dd4d6278f3b252a07729b7de2f9be2a28f",
+    "implementation": "NOT_RUN",
+    "rule": "B1 is approved and B2 registered; independent entry review and the pre-DDL W1 policy review remain required. Approval does not prove runtime or production readiness."
   }
 }

@@ -1,13 +1,14 @@
 {
-  "schemaVersion": "0.2.2b",
-  "version": "0.2.2b",
+  "schemaVersion": "0.2.3b",
+  "version": "0.2.3b",
   "id": "ZAI:PM-PHASE-B-DATA-MODEL-CANDIDATE",
   "title": "Project Manager Phase B selected data model",
-  "status": "CANDIDATE",
+  "status": "APPROVED_DESIGN_UNIMPLEMENTED",
   "codegenReady": false,
   "codegenBlockers": [
-    "B1 owner approval of the full selected Phase B proposal, including records, routes, security, receipt and restore semantics",
-    "B2 root canonical ADR/FR/FEAT/ledger registration and governance composition before implementation"
+    "Independent implementation-entry review must pass on the current selected contracts.",
+    "W1 must publish the exact per-table RLS and adapter scope policy for independent review and root approval before any Phase B DDL or adapter activation.",
+    "Code generation and runtime implementation have not been validated."
   ],
   "sourceSHA": "f061a113584aa15db68934dc8451f14b9a1011e1",
   "contractAuthoringSHA": "ecc30b94f545ac1e9ddde3b59618c89f558bdc49",
@@ -105,7 +106,7 @@
       "name": "GovernanceSnapshot",
       "kind": "PRODUCT_RECORD",
       "disposition": "NEW_LOGICAL_AUTHORITY",
-      "status": "CANDIDATE_B1_PENDING",
+      "status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
       "owner": "project-manager",
       "purpose": "Immutable verified repository governance evidence that can prove a RequirementBinding.",
       "fields": [
@@ -332,7 +333,7 @@
           "businessId"
         ],
         "context": "Project URL resolves the trusted Business; repositoryId must belong to that Business.",
-        "read": "Authorized Project read may list snapshot metadata; source evidence is returned only when available.",
+        "read": "Snapshot metadata listing requires Business-owner capability after full Project hierarchy and read authorization: invalid/foreign hierarchy is redacted 404; an authorized non-owner is 403 CAPABILITY_DENIED before any snapshot lookup. Shared Project readers may still read their Feature projections, never the owner-only snapshot listing.",
         "write": "Business-owner capability through assertProjectWritable plus Identity CSRF/Origin binding.",
         "clientMayProvide": [
           "repositoryId",
@@ -359,22 +360,25 @@
       "restoreOrder": {
         "order": 1,
         "after": [
-          "Repository",
           "Tenant",
-          "Business"
+          "Business",
+          "Workspace",
+          "Project",
+          "Repository",
+          "ProjectRepository"
         ],
         "before": [
           "ProjectFeature",
           "RequirementBinding"
         ],
-        "rule": "Restore only after referenced Repository and trusted scope rows are valid."
+        "rule": "Restore only after the immutable ProjectRepository reference and its Project/Workspace/Business/Tenant chain and same-Business Repository have been restored and validated; refuse a mismatched Project or scope before insert."
       }
     },
     {
       "name": "ProjectFeature",
       "kind": "PRODUCT_RECORD",
       "disposition": "NEW_LOGICAL_AUTHORITY",
-      "status": "CANDIDATE_B1_PENDING",
+      "status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
       "owner": "project-manager",
       "purpose": "Project-local Feature identity independent from the Execution Domain catalog.",
       "fields": [
@@ -641,7 +645,7 @@
       "name": "FeatureContribution",
       "kind": "PRODUCT_RECORD",
       "disposition": "NEW_LOGICAL_AUTHORITY",
-      "status": "CANDIDATE_B1_PENDING",
+      "status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
       "owner": "project-manager",
       "purpose": "One supporting execution Domain responsibility for a ProjectFeature.",
       "fields": [
@@ -835,7 +839,7 @@
       "name": "FeatureWorkLink",
       "kind": "PRODUCT_RECORD",
       "disposition": "NEW_LOGICAL_AUTHORITY",
-      "status": "CANDIDATE_B1_PENDING",
+      "status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
       "owner": "project-manager",
       "purpose": "Deduplicated relationship between one ProjectFeature and one active WorkItem.",
       "fields": [
@@ -1052,7 +1056,7 @@
       "name": "RequirementBinding",
       "kind": "PRODUCT_RECORD",
       "disposition": "NEW_LOGICAL_AUTHORITY",
-      "status": "CANDIDATE_B1_PENDING",
+      "status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
       "owner": "project-manager",
       "purpose": "Pinned requirement reference with immutable revision evidence and acceptance reference.",
       "fields": [
@@ -1280,7 +1284,7 @@
       "name": "ProjectFeatureMutationReceipt",
       "kind": "TECHNICAL_SUPPORT_RECORD",
       "disposition": "NEW_REQUIRED_IDEMPOTENCY_AUTHORITY",
-      "status": "CANDIDATE_B1_PENDING",
+      "status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
       "owner": "project-manager",
       "purpose": "Durable scoped ledger for committed Feature mutations and deterministic replay.",
       "fields": [
@@ -2134,9 +2138,12 @@
       "order": 1,
       "record": "GovernanceSnapshot",
       "after": [
-        "Repository",
         "Tenant",
-        "Business"
+        "Business",
+        "Workspace",
+        "Project",
+        "Repository",
+        "ProjectRepository"
       ]
     },
     {
@@ -2221,7 +2228,7 @@
     ]
   },
   "migrationAndRollbackGate": {
-    "status": "NOT_AUTHORIZED",
+    "status": "LOCAL_IMPLEMENTATION_GATED_PRODUCTION_NOT_AUTHORIZED",
     "schema": "No Prisma model or migration in this contract packet.",
     "sqlite": [
       "Scoped repositories with foreign keys enabled.",
@@ -2258,6 +2265,27 @@
       "noUrlFetch": true,
       "noArbitraryPath": true,
       "noCallerScript": true
+    },
+    "rlsPolicyPrerequisite": {
+      "state": "REQUIRED_BEFORE_DDL_OR_ADAPTER",
+      "owner": "W1 data worker",
+      "reviewers": [
+        "independent Luna Max verifier",
+        "RWANG root final gate"
+      ],
+      "requiredArtifact": "Exact per-table PostgreSQL policy and adapter scope contract, reviewed before any schema/migration DDL execution or adapter activation.",
+      "mustSpecify": [
+        "Trusted transaction-local tenant/business scope values and their setter after full hierarchy and viewer authorization; never caller body/header scope.",
+        "Missing, null, empty or mismatched scope must deny SELECT/INSERT/UPDATE; scope cannot leak between pooled transactions.",
+        "Tenant/Business/Project/WorkItem consistency for each parent and child, including INSERT/UPDATE checks and immutable evidence references.",
+        "Exact runtime roles, least privileges, forced RLS, explicit revokes and append-only snapshot/receipt access.",
+        "Executable positive and negative real-role cases for cross-Tenant/Business/Project/WorkItem, no context, context reset, immutable evidence and rollback."
+      ],
+      "forbidden": [
+        "Reuse of role-only USING(true)/WITH CHECK(true) as scoped isolation.",
+        "Production migration, runtime credential/grant cutover, or a bypass-RLS role as isolation proof."
+      ],
+      "independentLane": "Identity P2 may start after the overall corrected contract entry review passes; its files do not activate database DDL or persistence adapters."
     }
   },
   "versionHistory": [
@@ -2295,7 +2323,7 @@
     }
   ],
   "snapshotCapture": {
-    "status": "CANDIDATE_B1_PENDING",
+    "status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
     "route": "POST /api/projects/{projectId}/governance-snapshots",
     "requestSchema": "CaptureSnapshotInput",
     "requestIntentOnly": [
@@ -2337,7 +2365,15 @@
       "validationStatus"
     ],
     "invalidResult": "Refuse before persistence; create no GovernanceSnapshot, mutation receipt or successful-capture AuditEvent. Only VALID proof-backed evidence is stored.",
-    "readList": "GovernanceSnapshotMetadata only, bounded 1..50 pages; sourceManifest is not a grant.",
+    "readList": "Business-owner-only GovernanceSnapshotMetadata, bounded 1..50 pages after complete Project hierarchy/read guard; authorized non-owner 403 CAPABILITY_DENIED, invalid/foreign Project redacted404; sourceManifest is not a grant.",
     "proofSchema": "GovernanceVerificationProof (typed local OpenAPI ref; no loose JSON)"
+  },
+  "approvalRecord": {
+    "decision": "ZAI:ADR-097",
+    "requirement": "ZAI:FR-252",
+    "ownerApprovalCommit": "e5ccfd7a8051cce551b95453b7435ac850f66d9d",
+    "registrationCommit": "50b5e1dd4d6278f3b252a07729b7de2f9be2a28f",
+    "implementation": "NOT_RUN",
+    "rule": "B1 is approved and B2 registered; independent entry review and the pre-DDL W1 policy review remain required. Approval does not prove runtime or production readiness."
   }
 }

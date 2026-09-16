@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-097
 title: Project Feature authority and scoped write contract
-version: "0.1.1b"
+version: "0.1.2b"
 status: beta
 created_at: "2026-09-17T02:46:11+07:00,RWANG,approved e5ccfd7a"
-last_update: "2026-09-17T03:12:00+07:00,RWANG"
+last_update: "2026-09-17T03:23:00+07:00,RWANG"
 author: RWANG
 attributes:
   doc_type: architecture-decision
@@ -101,6 +101,16 @@ plan24 already require; selected OpenAPI v0.3.2b documents the issuer's
 403 CSRF_INVALID refusal when its existing Origin policy is not satisfied.
 The independent reviewer must include these corrections in the entry verdict.
 
+The bounded re-review additionally requires ProjectRepository and its complete
+hierarchy before snapshot restore, the already-required 422 Feature capacity
+refusal on restore, and consistent Business-owner-only snapshot listing.
+Plan24 v0.3.3b, data v0.2.3b and OpenAPI v0.3.3b reconcile those points and bound
+cursor/ETag output to the existing 4096-character input limit. A separately
+reviewed W1 RLS policy artifact is an explicit pre-DDL/adapter gate, approved by
+the independent verifier and root. Identity P2 can proceed after overall entry
+review while this database gate remains held. These are enforcement details of
+the approved authority, not permission for production access changes.
+
 The [runtime-role RCA](../../.brain/rca/2026-09-17-pm-release-runtime-role-carry-forward.md)
 records the pre-existing bypass-RLS connection. A separately reviewed real-role
 isolation proof must close before any Phase B production write or migration.
@@ -110,5 +120,6 @@ No grant, credential, scheduler, archive or knowledge activation is included.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.1.2b | 2026-09-17 | beta | Reconcile frozen re-review restore/list/response gaps and make the independent/root W1 policy gate explicit | 61e28ac9 | RWANG |
 | 0.1.1b | 2026-09-17 | beta | Align selected data/OpenAPI artifacts with approved VALID-only evidence and issuer Origin refusal; behavior unchanged | 50b5e1dd | RWANG |
 | 0.1.0b | 2026-09-17 | beta | Register the owner-approved Phase B design and preserve verification/production gates | e5ccfd7a | RWANG |
