@@ -4,7 +4,7 @@ import { applyPricingRuleAction } from '@/modules/commerce/application/pricing-r
 
 // @req FR-253 — OWNER approval and revocation with immutable rule content.
 // @spec ADR-098; SEC-001
-// @tested tests/unit/fr252-pricing-routes.test.js
+// @tested tests/unit/fr253-pricing-routes.test.js
 export const dynamic = 'force-dynamic'
 
 export async function POST(request, { params }) {

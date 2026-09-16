@@ -4,7 +4,7 @@ import { admitPricingCatalog } from '@/modules/commerce/application/pricing-cata
 
 // @req FR-253 — deliberate owner approval of ledger-backed sell-side prices.
 // @spec ADR-098; ADR-075; SEC-001
-// @tested tests/integration/fr252-pricing-catalog.test.js
+// @tested tests/integration/fr253-pricing-catalog.test.js
 export const dynamic = 'force-dynamic'
 
 export async function POST(request) {

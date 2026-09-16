@@ -6,7 +6,7 @@ import { calculatePrice, calculatePricingCustomization, validatePricingRules } f
 // Commerce evaluator without disclosing the private rule document or widening
 // the owner-only editor. Ledger cost is supplied by the trusted Inventory caller.
 // @spec ADR-098; BR-027; SEC-001
-// @tested tests/integration/fr181-smartgift-agent-tools.test.js, tests/integration/fr252-pricing-catalog.test.js
+// @tested tests/integration/fr181-smartgift-agent-tools.test.js, tests/integration/fr253-pricing-catalog.test.js
 
 const fail = (status, message) => Object.assign(new Error(message), { status })
 const METHODS = Object.freeze({ NONE: 'none', LASER_ENGRAVING: 'engrave', SILK_SCREEN: 'silk', UV_DIGITAL_PRINT: 'uv', HOT_STAMP_FOIL: 'hotstamp' })

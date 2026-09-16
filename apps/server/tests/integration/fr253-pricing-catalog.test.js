@@ -1,6 +1,6 @@
 // @req FR-253 — ledger-only sell-side admission, immutable retry and no fabricated publication.
 // @spec ADR-098; ADR-075; SEC-001; BR-002
-// @tested tests/integration/fr252-pricing-catalog.test.js
+// @tested tests/integration/fr253-pricing-catalog.test.js
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import prisma from '@/lib/db'
 import { createBusiness, createPortfolio, createTenant } from '../factories/scope'

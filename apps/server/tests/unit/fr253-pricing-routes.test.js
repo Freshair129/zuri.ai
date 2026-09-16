@@ -1,6 +1,6 @@
 // @req FR-253 — pricing HTTP handlers preserve trusted viewer and structured refusals.
 // @spec ADR-098; SEC-001
-// @tested tests/unit/fr252-pricing-routes.test.js
+// @tested tests/unit/fr253-pricing-routes.test.js
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeViewer } from '../factories/viewer'
 

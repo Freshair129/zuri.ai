@@ -9,7 +9,7 @@ import { isApiAccessFor, ownsBusiness, seesBusiness } from '@/modules/identity/v
 // scope or a global role label.
 // @req FR-253 — computed catalog reads and publication check live Commerce policy.
 // @spec ADR-072, ADR-098, SEC-001, SEC-008
-// @tested tests/integration/knowledge-corpus.test.js, tests/integration/fr252-pricing-catalog.test.js
+// @tested tests/integration/knowledge-corpus.test.js, tests/integration/fr253-pricing-catalog.test.js
 
 const ACTIVE = 'ACTIVE'
 

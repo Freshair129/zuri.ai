@@ -1,6 +1,6 @@
 // @req FR-253 — real persistence, authorization, immutable lineage and lifecycle gates.
 // @spec ADR-098; SEC-001; BR-001; BR-002
-// @tested tests/integration/fr252-pricing-rules.test.js
+// @tested tests/integration/fr253-pricing-rules.test.js
 import { beforeEach, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import { createBusiness, createPortfolio, createTenant } from '../factories/scope'

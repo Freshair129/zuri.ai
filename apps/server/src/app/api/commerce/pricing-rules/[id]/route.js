@@ -4,7 +4,7 @@ import { updatePricingRuleSet } from '@/modules/commerce/application/pricing-rul
 
 // @req FR-253 — draft-only OWNER writes with optimistic revision checks.
 // @spec ADR-098; SEC-001
-// @tested tests/unit/fr252-pricing-routes.test.js
+// @tested tests/unit/fr253-pricing-routes.test.js
 export const dynamic = 'force-dynamic'
 
 export async function PATCH(request, { params }) {

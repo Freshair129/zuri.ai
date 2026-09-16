@@ -5,7 +5,7 @@ import { Field, SelectField, money } from './PricingRulesEditor'
 
 // @req FR-253 — explicit approval sends ledger-backed sell prices into governed Knowledge admission.
 // @spec ADR-098, ADR-075, SEC-001
-// @tested tests/unit/pricing-rules-ui.test.js, tests/e2e/fr252-pricing-rules.spec.js
+// @tested tests/unit/pricing-rules-ui.test.js, tests/e2e/fr253-pricing-rules.spec.js
 
 export default function PricingCatalogSubmit({ businessId, activeRule }) {
   const [products, setProducts] = useState([]), [loading, setLoading] = useState(Boolean(activeRule))

@@ -2,7 +2,7 @@
 
 // @req FR-253 — typed policy controls, safe formula authoring and server-result comparison.
 // @spec ADR-098
-// @tested tests/unit/pricing-rules-ui.test.js, tests/e2e/fr252-pricing-rules.spec.js
+// @tested tests/unit/pricing-rules-ui.test.js, tests/e2e/fr253-pricing-rules.spec.js
 
 export const fieldClass = 'w-full rounded-lg border border-[var(--border)] bg-white p-2 text-sm disabled:bg-[var(--surface-mid)]'
 export const money = (satang) => satang == null ? '—' : `${new Intl.NumberFormat('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(Number(satang) / 100)} บาท`

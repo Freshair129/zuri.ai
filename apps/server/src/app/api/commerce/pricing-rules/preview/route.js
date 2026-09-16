@@ -4,7 +4,7 @@ import { previewPricingRules } from '@/modules/commerce/application/pricing-rule
 
 // @req FR-253 — OWNER preview and comparison share the authoritative evaluator.
 // @spec ADR-098; SEC-001
-// @tested tests/unit/fr252-pricing-routes.test.js
+// @tested tests/unit/fr253-pricing-routes.test.js
 export const dynamic = 'force-dynamic'
 
 export async function POST(request) {

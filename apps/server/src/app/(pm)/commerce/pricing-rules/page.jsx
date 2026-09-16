@@ -10,7 +10,7 @@ import { Field, SelectField, PricingVariables, PricingFormulas, PricingPreviewIn
 
 // @req FR-253 — Business OWNER policy editor, exact server preview, immutable approval history.
 // @spec ADR-098, SEC-001
-// @tested tests/unit/pricing-rules-ui.test.js, tests/e2e/fr252-pricing-rules.spec.js
+// @tested tests/unit/pricing-rules-ui.test.js, tests/e2e/fr253-pricing-rules.spec.js
 
 const BASE = '/api/commerce/pricing-rules'
 const TABS = [['formulas', 'สูตร'], ['variables', 'ตัวแปร'], ['preview', 'ทดลองคำนวณ'], ['versions', 'เปรียบเทียบและประวัติ']]

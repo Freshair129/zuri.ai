@@ -4,7 +4,7 @@ const { loginAsOwner, loginRequest, readScope, E2E_PASSWORD } = require('./e2e-a
 
 // @req FR-253 — actual persisted policy/formula edits, server preview and OWNER activation.
 // @spec ADR-098; SEC-001
-// @tested tests/e2e/fr252-pricing-rules.spec.js
+// @tested tests/e2e/fr253-pricing-rules.spec.js
 
 test('FR-253 — OWNER edits variables and expressions, previews, approves and clones immutable policy', async ({ page }) => {
   await loginAsOwner(page)

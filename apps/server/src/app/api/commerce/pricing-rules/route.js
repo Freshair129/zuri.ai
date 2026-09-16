@@ -4,7 +4,7 @@ import { listPricingRules, createPricingRuleSet } from '@/modules/commerce/appli
 
 // @req FR-253 — OWNER-only scoped rule drafts and internal rule inventory.
 // @spec ADR-098; SEC-001
-// @tested tests/unit/fr252-pricing-routes.test.js
+// @tested tests/unit/fr253-pricing-routes.test.js
 export const dynamic = 'force-dynamic'
 
 export async function GET(request) {

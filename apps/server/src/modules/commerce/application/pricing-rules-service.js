@@ -9,7 +9,7 @@ import { calculatePrice, defaultPricingRules, normalizePricingInput, pricingHash
 // snapshots and effective-date/expiry/revocation gates. Browser input never
 // asserts verified source or publishable-price authority.
 // @spec ADR-098; SEC-001; BR-001; BR-002
-// @tested tests/integration/fr252-pricing-rules.test.js
+// @tested tests/integration/fr253-pricing-rules.test.js
 
 const id = z.string().trim().min(1).max(200)
 const revision = z.number().int().positive()

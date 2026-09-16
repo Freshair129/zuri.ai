@@ -20,7 +20,7 @@ import { priceLandedInventoryQuote } from './pricing-inventory-service'
 // managed file identity make retries stable; no calculation/publication claim
 // from the client can promote a trial input into verified source data.
 // @spec ADR-098; ADR-075; SEC-001; BR-002
-// @tested tests/integration/fr252-pricing-catalog.test.js
+// @tested tests/integration/fr253-pricing-catalog.test.js
 
 const schema = z.object({
   businessId: z.string().trim().min(1).max(200),
