@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.79.0b |
+| **Version** | 1.80.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-16 |
 
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=284 -->
+<!-- api-spec-counts: route_handlers=286 -->
 
 ### Local model residency by business hours (FR-244, 2026-09-16)
 
@@ -52,6 +52,8 @@ ADR-087. A Claude Code or Codex installation pairs like an Edge Device; its cred
 | POST | `/api/platform/harness-pairing/poll` | implemented (FR-220): `Authorization: Bearer <deviceSecret>`, `{ requestId, cancel? }` → `PENDING \| DENIED \| CANCELLED`, or once `{ state: PAIRED, pairing: { key, installationId, personDisplayName, status: ACTIVE \| PENDING_ACTIVATION, deviceLabel, apiBaseUrl } }`; the credential is minted in a transaction and audited `HARNESS_CREDENTIAL` / `MINTED` without key material | `410 PAIRING_EXPIRED_OR_UNAVAILABLE \| PAIRING_ALREADY_USED_START_AGAIN`; `429 PAIRING_POLL_TOO_FAST`; `403 PAIRING_REDEMPTION_FAILED` (authority lost) |
 | GET | `/api/platform/harness-devices` | implemented (FR-220): installation operator only; `{ devices: [{ id, installationId, personDisplayName, harness, deviceLabel, osUser, keyPrefix, status, createdAt, activatedAt, lastUsedAt, revokedAt, version }] }` — never a hash or key | `404` for any non-operator |
 | PATCH | `/api/platform/harness-devices/[id]` | implemented (FR-220): operator only; `{ action: activate \| revoke, version, reason? }`; audited `ACTIVATED` / `REVOKED`; effective on the device's next use | `404`; `400 HARNESS_DEVICE_ACTION_INVALID \| HARNESS_DEVICE_VERSION_REQUIRED`; `409 HARNESS_DEVICE_VERSION_CONFLICT \| HARNESS_DEVICE_REVOKED \| HARNESS_DEVICE_NOT_PENDING` |
+| GET | `/api/platform/error-events` | implemented (FR-247): installation operator only, audited `ERROR_EVENTS_READ`; `{ events: [{ id, fingerprint, name, message, frames, occurrenceCount, firstSeenAt, lastSeenAt, correlationId, route, resolvedAt, resolvedByPersonId }] }`, active rows before resolved ones, newest active first — never request/response content | `404` for any non-operator |
+| PATCH | `/api/platform/error-events/[id]` | implemented (FR-247): operator only, audited `ERROR_EVENT_RESOLVED`; sets `resolvedAt`/`resolvedByPersonId`, stops the fingerprint counting as active | `404` for any non-operator |
 | GET | `/api/platform/programme-usage-reports/whoami` | implemented (FR-220): the only read a harness credential allows — `{ installationId, personDisplayName, deviceLabel, harness, status }` of that credential | `401 HARNESS_CREDENTIAL_REQUIRED`; `503` |
 
 `POST /api/platform/programme-usage-reports` (FR-221) also accepts an active harness credential: the report stores the credential's person and installation, `branch` (key `(source, sessionId, branch)`), optional `repository` and `aiAccount` label, and `taskCode` becomes optional when a branch is named; a resumed session from the same installation whose counts only grow answers `200 { extended: true }` (audited `EXTENDED`); a pending device answers `403 HARNESS_NOT_ACTIVATED` and an unknown or revoked one `401 HARNESS_CREDENTIAL_REQUIRED`.
@@ -838,6 +840,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.80.0b | 2026-09-16 | candidate | FR-247 (ADR-095 D1): two handler files, `GET /api/platform/error-events` and `PATCH /api/platform/error-events/[id]` — the deduplicated error list and its resolve action, both operator-only and audited, never request/response content. Route handler count 284 -> 286 | working-tree | Claude Sonnet 5 |
 | 1.79.0b | 2026-09-16 | candidate | FR-245 (ADR-093 D7, TASK-ZAI-112): one handler file, `POST /api/crm/customers/[customerId]/chat-evidence/retrieve` — the archive's one retrieval path, OWNER at AAL2 through the FR-224 gate, grouped by session, every attempt audited. Route handler count 283 -> 284 | working-tree | Claude Sonnet 5 |
 | 1.78.0b | 2026-09-16 | candidate | FR-244 (ADR-094 D6 option A, TASK-ZAI-109): one handler file, `POST /api/edge/model-residency` — the compute-owned edge worker's identity-free residency poll, returning one aggregate `shouldBeWarm` boolean derived from every server-enabled account's declared business hours, never an account id or a per-account schedule (ADR-061). Route handler count 282 -> 283 | working-tree | Claude Sonnet 5 |
 | 1.77.0b | 2026-09-16 | candidate | FR-246 (ADR-093 evidence gap, TASK-ZAI-110): one handler file, `POST /api/crm/conversations/[id]/reply` — the staff reply writer, a Business owner replying from the Inbox composer, pushed through the LINE transport and recorded only on acceptance. Route handler count 281 -> 282 | working-tree | Claude Sonnet 5 |

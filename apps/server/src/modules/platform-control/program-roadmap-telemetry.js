@@ -1,5 +1,5 @@
 // @req FR-216, FR-217 — the Delivery Telemetry section of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.9): the sizing table and work lanes the owner declares, and the usage
+// (v0.4.10): the sizing table and work lanes the owner declares, and the usage
 // the meter measured from local agent session logs.
 // @spec ADR-086 D1-D4 — planned and measured stay separate; usage is never progress.
 // @tested tests/unit/programme-containers.test.js, tests/unit/program-delivery-metrics.test.js
@@ -249,6 +249,19 @@ export const PROGRAMME_LANES = [
     ],
     "branches": [
       "feat/crm-chat-evidence-archive"
+    ]
+  },
+  {
+    "id": "LANE-OBSERVABILITY-ERROR-AND-USAGE",
+    "title": "Observability — error tracking and per-person feature usage",
+    "tasks": [
+      "TASK-ZAI-116",
+      "TASK-ZAI-117",
+      "TASK-ZAI-118"
+    ],
+    "branches": [
+      "docs/observability-gaps-cr",
+      "feat/observability-error-and-usage"
     ]
   }
 ]
