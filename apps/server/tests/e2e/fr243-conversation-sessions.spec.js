@@ -77,8 +77,18 @@ test.describe('FR-243 conversation sessions', () => {
     }).toPass({ timeout: 45000 })
     await row.getByRole('button').click()
 
-    const thread = page.locator('.card').filter({ hasText: 'BR-011' })
-    await expect(thread).toContainText('กลับมาถามอีกรอบ ส่งวันไหนได้ครับ')
+    // The thread card's current visible identity is the unique customer name
+    // rendered in its header. BR-011 is a transport rule and is not Inbox DOM
+    // content; using it here made the test fail before checking session output.
+    const thread = page.locator('.card').filter({ hasText: displayName })
+    await expect(thread).toHaveCount(1)
+    for (const message of [
+      'สวัสดีครับ ขอราคาแก้วหน่อย',
+      'เอา 20 ใบครับ',
+      'กลับมาถามอีกรอบ ส่งวันไหนได้ครับ',
+    ]) {
+      await expect(thread).toContainText(message)
+    }
     const dividers = thread.getByRole('separator')
     await expect(dividers).toHaveCount(2)
     const codes = await dividers.evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-session-code')))

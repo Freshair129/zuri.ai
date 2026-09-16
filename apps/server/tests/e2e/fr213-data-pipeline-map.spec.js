@@ -41,7 +41,21 @@ test.describe('FR-213 Data Pipeline Map', () => {
     await expect(webhook).toHaveAttribute('data-dim', 'false')
     await webhook.focus()
     await page.keyboard.press('Enter')
+    await expect(webhook).toBeFocused()
     await expect(map.getByTestId('pipeline-detail-in.line-webhook')).toContainText('/api/line-oa/accounts/[id]/webhook')
+
+    // Space activates the same focused node after the previous selection is cleared,
+    // and its default page-scroll action is suppressed.
+    await map.getByRole('button', { name: 'ล้างตัวกรอง' }).click()
+    await expect(webhook).toHaveAttribute('data-selected', 'false')
+    await webhook.focus()
+    await expect(webhook).toBeFocused()
+    const scrollBeforeSpace = await page.evaluate(() => document.scrollingElement.scrollTop)
+    await page.keyboard.press('Space')
+    await expect(webhook).toBeFocused()
+    await expect(webhook).toHaveAttribute('data-selected', 'true')
+    await expect(map.getByTestId('pipeline-detail-in.line-webhook')).toContainText('/api/line-oa/accounts/[id]/webhook')
+    await expect.poll(() => page.evaluate(() => document.scrollingElement.scrollTop)).toBe(scrollBeforeSpace)
 
     await map.getByRole('tab', { name: 'รายการ' }).click()
     const list = map.getByTestId('data-pipeline-map-list')
