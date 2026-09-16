@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-SYSTEM-DESIGN
 title: Project Manager complete system design
-version: "0.9.0b"
+version: "0.10.0b"
 status: candidate
 created_at: "2026-09-15T23:49:58+07:00,RWANG,base 087f30258a6831865afd751e28804e36505aff30"
-last_update: "2026-09-16T15:34:10+07:00,RWANG"
+last_update: "2026-09-16T21:49:20+07:00,RWANG"
 superseded_by: null
 attributes:
   doc_type: architecture-specification
@@ -25,19 +25,21 @@ relations:
 
 # Project Manager — Full System Design
 
-**Version:** 0.8.0b · **Status:** Candidate · **Risk:** HIGH · **Complexity:** C-3
-**Evidence baseline:** repository `087f30258a6831865afd751e28804e36505aff30`.
-**Deliverable:** เอกสารออกแบบและสัญญาแบบเครื่องอ่านได้; ยังไม่มี implementation หรือ production activation จากชุดนี้
+**Version:** 0.10.0b · **Status:** Candidate · **Risk:** HIGH · **Complexity:** C-3
+**Evidence baseline:** original design `087f30258a6831865afd751e28804e36505aff30`; MA-I02 source audit `138db6630e650e3c695b81158eff3cecdad6d0a5`.
+**Deliverable:** เอกสารออกแบบและสัญญาแบบเครื่องอ่านได้; navigation FR-250 ส่งมอบแล้ว ส่วน Domain/Feature Phase A/B ในเอกสาร 23 ยังเป็นข้อเสนอ ไม่มี implementation หรือ production activation จาก packet ใหม่นี้
 
 **Spec completeness:** [16 Spec readiness & API reference](16-SPEC-READINESS-AND-API-REFERENCE.md) ตรวจไฟล์จริงแล้ว: มี contracts / API schemas / OpenAPI references และเพิ่ม Swagger UI ใน local review แต่ยังต้องปิด SPEC-G01–G09 ก่อน spec-to-code. 132 schema definitions เป็น API/JSON shapes ไม่ใช่ตารางฐานข้อมูล; ห้ามตีความ structural validation ว่า implementation-ready.
 
-ชุดเอกสารประกอบด้วย 23 Markdown documents, 30 diagrams, 33 requirements/acceptance families และ OpenAPI candidates 80 operations (72 original + 8 workforce) พร้อม workflow schema/example, architecture/traceability, navigation และ UX/UI models; UX/UI supplement มี 37 screen families, 10 journeys, 13 forms / 83 fields และ 14 UI acceptance scenarios; เพิ่ม semantic audit ของ 9 Project sections, 14 routes และ 7 Work views ก่อนจัดเมนูใหม่
+ชุดเอกสารประกอบด้วย 24 Markdown documents, 30 diagrams, 33 requirements/acceptance families และ OpenAPI candidates 80 operations (72 original + 8 workforce) พร้อม workflow schema/example, architecture/traceability, navigation และ UX/UI models; UX/UI supplement มี 37 screen families, 10 journeys, 13 forms / 83 fields และ 14 UI acceptance scenarios; เพิ่ม semantic audit ของ 9 Project sections, 14 routes และ 7 Work views ก่อนจัดเมนูใหม่
 
 **ตรวจแท็บเดิมก่อนจัดหมวด:** [14 Existing tab semantics](14-EXISTING-PROJECT-TAB-SEMANTICS.md) คืน Inventory ที่หลุดจากตาราง และรักษา Risks/Resources เป็น planned capabilities แยก; Resource Coordination ไม่ได้ทดแทน Resources และ Team เดิมเกี่ยวข้องกับ Business Membership
 
 **อ่านข้อสรุปล่าสุดก่อน:** [13 Domain placement & navigation boundaries](13-DOMAIN-TAXONOMY-AND-NAVIGATION-BOUNDARIES.md) — ตามคำชี้แจงของเจ้าของ ให้ Top bar = Domain, Sidebar = subdomain/module, Tabs = views/sections และ Business Home = shortcuts ข้าม Domain เสนอชื่อ Projects & Work แทน Development โดยคง key เดิม
 
-**Navigation review state:** [22 Core navigation baseline](22-NAVIGATION-IMPLEMENTATION-BASELINE.md) reconciles the core machine model into six logical sidebar modules and module-local tabs. Import is one shared Project action. Deferred screen families retain explicitly historical, non-generatable bindings; this does not implement or approve all 37 screens. [ADR-096](../../decisions/ADR-096-PROJECTS-AND-WORK-HIERARCHICAL-NAVIGATION.md) and [FR-250](../../domains/project-manager/features/FR-250-hierarchical-project-navigation.md) register the proposed navigation slice.
+**Navigation delivery state:** [22 Core navigation baseline](22-NAVIGATION-IMPLEMENTATION-BASELINE.md) defines six logical sidebar modules and module-local tabs. Import is one shared Project action. [ADR-096](../../decisions/ADR-096-PROJECTS-AND-WORK-HIERARCHICAL-NAVIGATION.md) and [FR-250](../../domains/project-manager/features/FR-250-hierarchical-project-navigation.md) were approved and delivered in PR435 (`e8fc84bd`). Deferred screen families retain explicitly historical, non-generatable bindings; this does not implement or approve all 37 screens.
+
+**Project / Domain / Feature Phase A packet:** [23 Project, Domain and Feature implementation baseline](23-PROJECT-DOMAIN-FEATURE-IMPLEMENTATION-BASELINE.md) is candidate `0.3.0b` with the Domain-view OpenAPI response and redacted 401/404 refusal contract composed. A1 owner approval is pending; A2 canonical registration and governance remain pending. Phase B Feature authority, persistence, CSRF and migration remain deferred and unapproved.
 
 **ส่วนเพิ่มล่าสุด:** [UX strategy](10-UX-STRATEGY-AND-JOURNEYS.md) → [UI system](11-UI-SYSTEM-AND-INTERACTIONS.md) → [37 wireframes / screen specs](12-WIREFRAMES-AND-SCREEN-SPECS.md). เป็นส่วนต่อยอดจากผังเมนู v0.2.0b; application code ยังไม่เปลี่ยน
 
@@ -243,6 +245,8 @@ Domain และ Feature เป็นคนละแกน:
 | 0.6.1b | 2026-09-16 | candidate | Distinguish schema validity from implementation readiness; add real Swagger review and explicit gap audit | design base 087f3025; uncommitted | RWANG |
 | 0.7.0b | 2026-09-16 | candidate | Add SRS, 85-record table dictionary, nine ERDs and system blueprint with trace models | design base 087f3025; uncommitted | RWANG |
 | 0.8.0b | 2026-09-16 | candidate | Add bounded Luna Max delivery workflow, independent verification and root integration plan | design base 087f3025; uncommitted | RWANG |
+| 0.9.0b | 2026-09-16 | candidate | Reconcile allocation/error contracts, hierarchical navigation candidate and bounded document delivery; application code and migrations remain unchanged | design base 087f3025; uncommitted | RWANG |
+| 0.10.0b | 2026-09-16 | candidate | Link the MA-I02 Phase A baseline and record the composed Domain-view DTO/refusal contract while retaining pending A1/A2 and deferred Feature status | source 138db663; uncommitted | RWANG |
 
 ## Version diff — 0.8.0b → 0.9.0b
 
@@ -255,3 +259,11 @@ Domain และ Feature เป็นคนละแกน:
 | 21 Markdown / 13 contracts | 23 package Markdown / 15 contracts, plus two canonical navigation documents |
 
 Application code, database migration and production activation remain unchanged. Existing-app baseline tests and documentation validation are separate evidence classes.
+
+## Version diff — 0.9.0b → 0.10.0b
+
+| Before | This review |
+|---|---|
+| Domain / Feature implementation baseline was not linked from the index; the candidate DomainView required non-null snapshot and blocker values | Link document 23 v0.3.0b and compose one existing Domain-view operation with nullable `snapshotId` / `blockerCount`, explicit `UNAVAILABLE` states, Phase A `featureIds: []`, and redacted 401/404 responses |
+| Phase A approval state was implicit | A1 owner approval remains pending; A2 canonical registration and governance remain pending; Phase B Feature authority and writes remain deferred |
+| 23 package Markdown / 15 contracts; 80 candidate operations / 132 schema definitions | 24 package Markdown / 15 contracts; the operation/schema counts stay 80/132. No new operation or Feature authority; one existing candidate operation and its response contract are revised |
