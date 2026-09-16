@@ -114,7 +114,8 @@ test('FR-253 — authenticated outsider cannot read or create another Business p
   const templateResponse = await request.get(`/api/commerce/pricing-rules?businessId=${businessId}`)
   expect(templateResponse.ok()).toBe(true)
   const { template } = await templateResponse.json()
-  const signup = await request.post('/api/auth/signup', { data: { email: `pricing-outsider-${randomUUID()}@example.test`, displayName: 'Pricing outsider', password: E2E_PASSWORD } })
+  // This independent fixture must not consume the other suites' loopback signup quota.
+  const signup = await request.post('/api/auth/signup', { headers: { 'x-forwarded-for': '192.0.2.253' }, data: { email: `pricing-outsider-${randomUUID()}@example.test`, displayName: 'Pricing outsider', password: E2E_PASSWORD } })
   expect(signup.status()).toBe(201)
   expect((await request.get(`/api/commerce/pricing-rules?businessId=${businessId}`)).status()).toBe(404)
   expect((await request.post('/api/commerce/pricing-rules', { data: { businessId, name: 'Forbidden', rules: template } })).status()).toBe(404)

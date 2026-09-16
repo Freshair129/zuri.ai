@@ -18,7 +18,7 @@ Migration `20260917030000_commerce_pricing_rules` creates only `PricingRuleSet` 
 
 The exact SQL body was executed inside an explicit transaction after removing its outer BEGIN/COMMIT and was rolled back. Validation passed: 36 columns, 8 indexes, 6 foreign keys, forced RLS on both tables, runtime grants including inherited restore DELETE, and no access for anon/authenticated/service_role. Both tables were absent again after rollback. Sanitized receipts are retained outside git in the release QA directory; no credential or connection URL is recorded here.
 
-The live image, LINE overlay, credential mount, environment fingerprint and rollback image were inventoried. Promotion must preserve their identities and verify local/public health and the LINE worker. Additive pricing tables remain after image rollback; rollback never drops evidence.
+The live image, LINE overlay, credential mount, environment fingerprint and rollback image were inventoried. During preparation another task added the cold archive overlay and F:/zuri-cold-archive -> /archive mount. A second loopback canary used all three current compose files and verified identical environment and mounts, health/database OK and unauthenticated pricing HTTP 401. The canary was removed; live web/worker were not replaced. Promotion must recheck and preserve current configuration. Additive pricing tables remain after image rollback; rollback never drops evidence.
 
 ## Existing release limitations
 
@@ -29,7 +29,11 @@ The exact-live CRM backup implementation also allows old snapshots omitting Cust
 ## Verification status
 
 - Original pricing tree: 6,136 tests passed; 32 existing skips; browser 201 passed/4 skips/0 flaky; build passed; native regression 36/36 and final computed-price 1/1 passed.
-- Composed release: governance and focused/full verification IN_PROGRESS; hosted CI NOT_RUN; image build NOT_RUN.
+- Composed release: governance PASS (0 critical / 1 existing warning); focused regression 87/87 PASS; full unit/integration 6,148 passed / 32 skipped across 724 passing and six skipped files.
+- Exact application candidate e2d9665f: Docker image build PASS; loopback canary PASS with final live environment/mount parity. Subsequent changes are pricing test-fixture isolation and release/RCA documentation only.
+- Browser first composed run: 200 passed / four skipped / one failure (shared signup quota). The fixture isolation correction passed both pricing tests and the formerly failing Marketing reviewer path; existing signup tests passed 23/23.
+- Browser corrected full run: 200 passed / four skipped / one flaky Marketing Save revision test; exit 1. Focused diagnostic 5/5 passed without retries, but root cause remains UNKNOWN and the browser gate is NOT_PASSED. See [RCA](../rca/2026-09-17-marketing-revision-release-flake.md).
+- Hosted CI NOT_RUN. Automatic approval review rejected push to the public Freshair129/zuri.ai repository; explicit user approval to publish the candidate remains pending. No branch push or PR was performed.
 - Production migration: DRY_RUN_PASSED / NOT_APPLIED.
 - Production deployment: NOT_DEPLOYED.
 
