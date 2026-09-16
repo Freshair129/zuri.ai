@@ -324,6 +324,26 @@ const SNAPSHOT_MODELS = [
   // both restore after their parent above and delete before it in reverse.
   // Media reference and bounded event metadata, no secret and no bytes.
   'messageAttachment', 'conversationEvent',
+  // @req FR-245 — INCLUDED, not excluded like credential material (ADR-093
+  // D4, SEC-034). `CustomerArchiveKey.wrappedDek` is ciphertext, exportable
+  // for the same reason `integrationCredentialVersion` and `mfaFactor` above
+  // are: the key-encryption key that could open it (ZURI_ARCHIVE_KEK) is
+  // never part of any snapshot, so the row alone grants no decrypt capability
+  // either way. Unlike a credential, though, a randomly generated archive key
+  // has NO re-entry path — excluding it would let a routine restore silently
+  // and permanently destroy access to retained dispute evidence, the same
+  // failure mode `mfaFactor`'s own comment above exists to prevent ("must
+  // survive restore to prevent lockout"). `ArchiveManifest` restores
+  // alongside it for a sharper reason than "it is recoverable": without its
+  // rows, `chat-evidence-retrieval-service.js` has no manifest to enumerate
+  // at all — it finds archive files strictly by walking `archiveManifest`
+  // rows per Tenant, so losing this table makes every archived message
+  // undiscoverable even when the files themselves are intact on disk (or
+  // brought back by the ADR-093 D8 offline copy). Neither model has a Prisma
+  // `@relation` to Tenant/Customer, so restore order here is a convention,
+  // not a constraint the database enforces — this position (after `customer`,
+  // `conversation` and `message`, above) keeps it truthful anyway.
+  'customerArchiveKey', 'archiveManifest',
   // @req FR-161 — a sales task hangs off Business, Person (assignee) and
   // optionally Customer and Conversation, so it restores after all of them.
   // Operating data, no secret: exported whole.
@@ -407,15 +427,6 @@ export const SNAPSHOT_EXCLUDED_MODELS = {
     'Device-local mount paths. Deleted explicitly before the sweep and never restored: a mount names a ' +
     'filesystem on one machine, so carrying it into another installation would point at a path that does ' +
     'not exist there (SEC-007).',
-  customerArchiveKey:
-    'FR-245 chat evidence archive data keys are credential material (SEC-034, ADR-093 D4). They are never ' +
-    'exported: the wrapped key that could open a Customer\'s archived lines is not part of any snapshot, and ' +
-    'the key-encryption key that could open it (ZURI_ARCHIVE_KEK) is never part of any export either.',
-  archiveManifest:
-    'FR-245 archive manifest rows are a chain of custody over files on the archive host\'s own disk (ADR-093 ' +
-    'D2-D4, SDD-103), not business data a restore recovers. A restored installation has none of the archive ' +
-    'files these rows point at, so carrying the rows forward would name evidence the restore target does not ' +
-    'hold; a fresh installation\'s chain starts empty exactly as a fresh archive directory does.',
 }
 
 function localAssets(snapshot) {
