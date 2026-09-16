@@ -1,0 +1,1711 @@
+{
+  "schemaVersion": "1.2.0",
+  "version": "0.3.0b",
+  "status": "candidate",
+  "attempt": 3,
+  "packetId": "PM-20260916-D02-01-A3",
+  "workPackageId": "MA-D02",
+  "worker": "luna-max-worker-a",
+  "sourceRef": {
+    "repository": "zuri-pm-execution",
+    "commit": "eddd3dd8d884a0b19a65f9a3019758c05c815b48",
+    "sourceMode": "READ_ONLY",
+    "designAuthority": "docs/architecture/project-manager-system/13-DOMAIN-TAXONOMY-AND-NAVIGATION-BOUNDARIES.md"
+  },
+  "previousAttempt": {
+    "directory": "../attempt-2",
+    "preserved": true,
+    "receiptSha256": "f1573c9e1a737eb0fa08192acebaa33eba064bcaa855f7060c04d6bf99a801d4"
+  },
+  "implementationAuthorized": false,
+  "runtimeImplemented": false,
+  "canonicalIdsRegistered": false,
+  "idPolicy": {
+    "proposalIdsAreNotCanonical": true,
+    "reuseExistingRequirementSubjects": true,
+    "newIdsRequireRootLedgerAllocation": true,
+    "rootAllocationHintsOnly": {
+      "navigationHierarchy": "FR-247 if root verifies it is free and subject-appropriate",
+      "displayLabelAmendment": "ADR-095 if root verifies the ledger and approves an ADR-071 D4 amendment"
+    }
+  },
+  "domain": {
+    "stableKey": "projects",
+    "stableProductId": "DOM-DEVELOPMENT",
+    "currentDisplayLabel": "Development",
+    "proposedDisplayLabel": "Projects & Work",
+    "basePath": "/projects",
+    "grantKey": "projects",
+    "changeKind": "display-label-only",
+    "grantEffect": "NONE",
+    "domainGroup": null,
+    "sidebarModel": "six logical modules under one standalone Projects & Work domain"
+  },
+  "informationArchitecture": {
+    "levels": [
+      "Business scope",
+      "Projects & Work domain",
+      "logical module sidebar",
+      "module-local tab or view",
+      "content or action"
+    ],
+    "sidebarModuleCount": 6,
+    "sidebarModuleCardinality": "one active module at a time",
+    "localSurfaceCardinality": "one active local tab or view within the selected module",
+    "oldFlatBusinessSidebarAsPrimaryProjectModel": false,
+    "allEightBusinessDestinationsRetained": true,
+    "allEightBusinessDestinationsAreTopLevelModules": false,
+    "projectTabsRenderedAsOneGlobalRail": false,
+    "projectTabsReuse": "refactor section semantics into the owning module-local surface",
+    "workViewTabsReuse": "seven Work views appear when Work Management is selected in Project context",
+    "importPlacement": "One PM-owned persistent Import plan action is exposed from every authorized live Project module shell; never a local tab; one existing route; current-page cue and Project return.",
+    "plannedModulesHaveNoHref": true,
+    "projectWorkGroup": {
+      "id": "wm.project-work-views",
+      "label": "Project work views",
+      "surfaceKind": "VIEW_GROUP",
+      "viewIds": [
+        "wm.roadmap",
+        "wm.structure",
+        "wm.board",
+        "wm.work-items",
+        "wm.schedule",
+        "wm.milestones",
+        "wm.dependency-map"
+      ],
+      "defaultViewId": "wm.structure",
+      "scope": "PROJECT"
+    }
+  },
+  "historicalPolicyWithdrawal": {
+    "withdrawnValues": [
+      {
+        "field": "projectSidebarReplacesBusinessSidebar",
+        "historicalValue": true,
+        "proposedValue": false,
+        "reason": "Business destinations are relocated into logical module-local tabs"
+      },
+      {
+        "field": "projectTabRailRemoved",
+        "historicalValue": true,
+        "proposedValue": false,
+        "reason": "ProjectTabs semantics are reused locally, not deleted"
+      },
+      {
+        "field": "workEntry",
+        "historicalValue": "p.work-items",
+        "proposedValue": "p.structure",
+        "reason": "Structure Plan remains the default Work view"
+      },
+      {
+        "field": "workViewCount",
+        "historicalValue": 8,
+        "proposedValue": 7,
+        "reason": "Calendar is not source-backed in this slice"
+      },
+      {
+        "field": "allProjectTabsSimultaneouslyAboveWorkViews",
+        "historicalValue": "implied",
+        "proposedValue": false,
+        "reason": "Doc13 requires module selection before module-local tabs/views"
+      },
+      {
+        "field": "importAsTabAndAction",
+        "historicalValue": "duplicated",
+        "proposedValue": "header action only",
+        "reason": "Import is an action with a route, not a second local tab"
+      },
+      {
+        "field": "workIdentity",
+        "historicalValue": "b.work in UX base",
+        "proposedValue": "b.all-work",
+        "reason": "canonical /work identity; b.work is source alias only"
+      },
+      {
+        "field": "importReachability",
+        "historicalValue": "PM header only",
+        "proposedValue": "one PM-owned action referenced by every authorized live Project module shell",
+        "reason": "ADR-095 and FR-247 acceptance 5"
+      }
+    ],
+    "conflictRule": "Do not merge withdrawn historical policies with this candidate."
+  },
+  "modules": [
+    {
+      "id": "module.project-management",
+      "label": "Project Management",
+      "status": "CORE_LIVE",
+      "owner": "project-manager",
+      "sidebarEntry": {
+        "label": "Project Management",
+        "path": "/projects",
+        "pathKind": "LIVE_BUSINESS_ENTRY",
+        "scope": "BUSINESS"
+      },
+      "projectContextEntry": {
+        "path": "/projects/{projectId}",
+        "pathKind": "LIVE_PROJECT_ENTRY",
+        "scope": "PROJECT"
+      },
+      "localTabs": [
+        {
+          "id": "pm.projects",
+          "label": "Projects",
+          "legacyBusinessId": "b.dashboard",
+          "path": "/projects",
+          "status": "LIVE",
+          "scope": "BUSINESS"
+        },
+        {
+          "id": "pm.project-overview",
+          "label": "Project Overview",
+          "legacySection": "Project",
+          "path": "/projects/{projectId}",
+          "status": "LIVE",
+          "scope": "PROJECT"
+        },
+        {
+          "id": "pm.inventory",
+          "label": "Inventory",
+          "legacySection": "Inventory",
+          "path": "/projects/{projectId}/inventory",
+          "status": "LIVE_READ_ONLY",
+          "scope": "PROJECT",
+          "writer": null
+        }
+      ],
+      "headerActions": [
+        {
+          "id": "pm.import",
+          "label": "Import plan",
+          "legacySection": "Import",
+          "path": "/projects/{projectId}/import",
+          "status": "LIVE_ACTION_AND_ROUTE",
+          "scope": "PROJECT",
+          "localTab": false,
+          "actionFlow": "validate -> dry-run -> conflicts -> commit -> receipt",
+          "ownerModuleId": "module.project-management",
+          "persistent": true,
+          "surfaceKind": "ACTION",
+          "reachableFromAuthorizedProjectModules": [
+            "module.project-management",
+            "module.work-management",
+            "module.resource-coordination"
+          ],
+          "currentPageCue": true,
+          "returnPath": "/projects/{projectId}",
+          "oneRoute": true,
+          "noDuplicateRoute": true
+        }
+      ],
+      "plannedContent": [],
+      "sharedActionRefs": [
+        "pm.import"
+      ]
+    },
+    {
+      "id": "module.work-management",
+      "label": "Work Management",
+      "status": "CORE_LIVE",
+      "owner": "project-manager",
+      "sidebarEntry": {
+        "label": "Work Management",
+        "path": "/work",
+        "pathKind": "LIVE_BUSINESS_ENTRY",
+        "scope": "BUSINESS"
+      },
+      "projectContextEntry": {
+        "path": "/projects/{projectId}/structure",
+        "pathKind": "LIVE_PROJECT_ENTRY",
+        "scope": "PROJECT"
+      },
+      "localTabs": [
+        {
+          "id": "wm.all-work",
+          "label": "All Work",
+          "legacyBusinessId": "b.all-work",
+          "path": "/work",
+          "status": "LIVE",
+          "scope": "BUSINESS"
+        },
+        {
+          "id": "wm.execution",
+          "label": "Execution",
+          "legacyBusinessId": "b.execution",
+          "path": "/execution",
+          "status": "LIVE",
+          "scope": "BUSINESS"
+        },
+        {
+          "id": "wm.timeline",
+          "label": "Timeline",
+          "legacyBusinessId": "b.timeline",
+          "path": "/timeline",
+          "status": "LIVE",
+          "scope": "BUSINESS"
+        },
+        {
+          "id": "wm.dependencies",
+          "label": "Dependencies",
+          "legacyBusinessId": "b.dependencies",
+          "path": "/dependencies",
+          "status": "LIVE",
+          "scope": "BUSINESS"
+        },
+        {
+          "id": "wm.milestones",
+          "label": "Milestones & Gates",
+          "legacyBusinessId": "b.milestones",
+          "path": "/milestones",
+          "status": "LIVE",
+          "scope": "BUSINESS"
+        }
+      ],
+      "projectWorkViews": [
+        {
+          "id": "wm.roadmap",
+          "label": "Execution Roadmap",
+          "path": "/projects/{projectId}/roadmap",
+          "status": "LIVE",
+          "default": false
+        },
+        {
+          "id": "wm.structure",
+          "label": "Structure Plan",
+          "path": "/projects/{projectId}/structure",
+          "status": "LIVE",
+          "default": true
+        },
+        {
+          "id": "wm.board",
+          "label": "Board",
+          "path": "/projects/{projectId}/board",
+          "status": "LIVE",
+          "default": false
+        },
+        {
+          "id": "wm.work-items",
+          "label": "Work Items",
+          "path": "/projects/{projectId}/all-work",
+          "status": "LIVE",
+          "default": false
+        },
+        {
+          "id": "wm.schedule",
+          "label": "Schedule",
+          "businessLabel": "Timeline",
+          "path": "/projects/{projectId}/timeline",
+          "status": "LIVE",
+          "default": false
+        },
+        {
+          "id": "wm.milestones",
+          "label": "Milestones",
+          "businessLabel": "Milestones & Gates",
+          "path": "/projects/{projectId}/milestones",
+          "status": "LIVE",
+          "default": false
+        },
+        {
+          "id": "wm.dependency-map",
+          "label": "Dependency Map",
+          "businessLabel": "Dependencies",
+          "path": "/projects/{projectId}/dependencies",
+          "status": "LIVE",
+          "default": false
+        }
+      ],
+      "plannedContent": [
+        {
+          "id": "wm.calendar",
+          "label": "Calendar",
+          "path": null,
+          "status": "PLANNED_NO_ROUTE",
+          "noHref": true
+        }
+      ],
+      "sharedActionRefs": [
+        "pm.import"
+      ],
+      "localSurfaceGroups": [
+        {
+          "id": "wm.project-work-views",
+          "label": "Project work views",
+          "surfaceKind": "VIEW_GROUP",
+          "viewIds": [
+            "wm.roadmap",
+            "wm.structure",
+            "wm.board",
+            "wm.work-items",
+            "wm.schedule",
+            "wm.milestones",
+            "wm.dependency-map"
+          ],
+          "defaultViewId": "wm.structure",
+          "scope": "PROJECT"
+        }
+      ]
+    },
+    {
+      "id": "module.delivery-design",
+      "label": "Delivery Design",
+      "status": "PLANNED_MODULE",
+      "owner": "project-manager",
+      "sidebarEntry": {
+        "label": "Delivery Design",
+        "path": null,
+        "pathKind": "PLANNED_NO_ROUTE",
+        "scope": "BUSINESS",
+        "noHref": true,
+        "disclosure": "planned named content"
+      },
+      "projectContextEntry": null,
+      "localTabs": [
+        {
+          "id": "dd.domains",
+          "label": "Domains",
+          "path": null,
+          "status": "PLANNED_NO_ROUTE",
+          "noHref": true
+        },
+        {
+          "id": "dd.features",
+          "label": "Features",
+          "path": null,
+          "status": "PLANNED_NO_ROUTE",
+          "noHref": true
+        },
+        {
+          "id": "dd.requirements",
+          "label": "Requirements",
+          "legacySection": "Requirements",
+          "path": null,
+          "status": "PLANNED_NO_ROUTE",
+          "noHref": true
+        },
+        {
+          "id": "dd.architecture",
+          "label": "Architecture",
+          "path": null,
+          "status": "PLANNED_NO_ROUTE",
+          "noHref": true
+        },
+        {
+          "id": "dd.api",
+          "label": "API",
+          "path": null,
+          "status": "PLANNED_NO_ROUTE",
+          "noHref": true
+        },
+        {
+          "id": "dd.docs-decisions",
+          "label": "Docs & Decisions",
+          "path": null,
+          "status": "PLANNED_NO_ROUTE",
+          "noHref": true,
+          "plannedViews": [
+            "Documents",
+            "Decisions"
+          ],
+          "semantics": [
+            "revision-pinned document reading",
+            "diff/comments/review references",
+            "architecture decision reading and review"
+          ]
+        }
+      ],
+      "plannedContent": [],
+      "sharedActionRefs": []
+    },
+    {
+      "id": "module.resource-coordination",
+      "label": "Resource Coordination",
+      "status": "CORE_LIVE_WITH_PLANNED_WORKFORCE",
+      "owner": "project-manager plus identity/integration owner boundaries",
+      "sidebarEntry": {
+        "label": "Resource Coordination",
+        "path": "/files",
+        "pathKind": "LIVE_BUSINESS_ENTRY",
+        "scope": "BUSINESS"
+      },
+      "projectContextEntry": {
+        "path": "/projects/{projectId}/team",
+        "pathKind": "LIVE_PROJECT_ENTRY",
+        "scope": "PROJECT"
+      },
+      "localTabs": [
+        {
+          "id": "rc.files",
+          "label": "Files",
+          "legacyBusinessId": "b.files",
+          "legacySection": "Files",
+          "path": "/files",
+          "projectPath": "/projects/{projectId}/files",
+          "status": "LIVE",
+          "scope": "BUSINESS_OR_PROJECT"
+        },
+        {
+          "id": "rc.repositories",
+          "label": "Repositories",
+          "legacyBusinessId": "b.repositories",
+          "path": "/repositories",
+          "projectPath": "/projects/{projectId}/repositories",
+          "status": "LIVE",
+          "scope": "BUSINESS_OR_PROJECT",
+          "capabilitySection": "Inventory"
+        },
+        {
+          "id": "rc.team",
+          "label": "Team",
+          "legacySection": "Team",
+          "path": "/projects/{projectId}/team",
+          "status": "LIVE",
+          "scope": "PROJECT",
+          "authority": "identity",
+          "membershipScope": "Business/Tenant Membership"
+        }
+      ],
+      "plannedContent": [
+        {
+          "id": "rc.resources",
+          "label": "Resources",
+          "legacySection": "Resources",
+          "path": null,
+          "status": "PLANNED_NO_ROUTE",
+          "noHref": true,
+          "deferredTo": "MA-D02W",
+          "plannedViews": [
+            "Overview",
+            "Workload",
+            "Schedule",
+            "Performance"
+          ]
+        },
+        {
+          "id": "rc.connections",
+          "label": "Connections Used",
+          "path": null,
+          "status": "PLANNED_NO_ROUTE",
+          "noHref": true,
+          "owner": "integration"
+        }
+      ],
+      "sharedActionRefs": [
+        "pm.import"
+      ]
+    },
+    {
+      "id": "module.delivery-governance",
+      "label": "Delivery Governance",
+      "status": "PLANNED_MODULE",
+      "owner": "project-manager",
+      "sidebarEntry": {
+        "label": "Delivery Governance",
+        "path": null,
+        "pathKind": "PLANNED_NO_ROUTE",
+        "scope": "BUSINESS",
+        "noHref": true,
+        "disclosure": "planned named content"
+      },
+      "projectContextEntry": null,
+      "localTabs": [
+        {
+          "id": "dg.risks",
+          "label": "Risks",
+          "legacySection": "Risks",
+          "path": null,
+          "status": "PLANNED_NO_ROUTE",
+          "noHref": true
+        },
+        {
+          "id": "dg.reviews",
+          "label": "Reviews",
+          "path": null,
+          "status": "PLANNED_NO_ROUTE",
+          "noHref": true
+        },
+        {
+          "id": "dg.test-release",
+          "label": "Test & Release Evidence",
+          "path": null,
+          "status": "PLANNED_NO_ROUTE",
+          "noHref": true
+        },
+        {
+          "id": "dg.activity",
+          "label": "Activity",
+          "path": null,
+          "status": "PLANNED_NO_ROUTE",
+          "noHref": true
+        }
+      ],
+      "crossModuleLinks": [
+        {
+          "label": "Milestones & Gates",
+          "targetModule": "module.work-management",
+          "targetPath": "/milestones",
+          "linkKind": "owner-route",
+          "duplicateTab": false
+        }
+      ],
+      "plannedContent": [],
+      "sharedActionRefs": []
+    },
+    {
+      "id": "module.agent-delivery",
+      "label": "Agent Delivery",
+      "status": "PLANNED_MODULE",
+      "owner": "project-manager delivery profile plus Integration runtime ports",
+      "sidebarEntry": {
+        "label": "Agent Delivery",
+        "path": null,
+        "pathKind": "PLANNED_NO_ROUTE",
+        "scope": "BUSINESS",
+        "noHref": true,
+        "disclosure": "planned named content"
+      },
+      "projectContextEntry": null,
+      "localTabs": [
+        {
+          "id": "ad.command-center",
+          "label": "Command Center",
+          "path": null,
+          "status": "PLANNED_NO_ROUTE",
+          "noHref": true
+        },
+        {
+          "id": "ad.agents",
+          "label": "Agents",
+          "path": null,
+          "status": "PLANNED_NO_ROUTE",
+          "noHref": true
+        },
+        {
+          "id": "ad.fleets",
+          "label": "Fleets",
+          "path": null,
+          "status": "PLANNED_NO_ROUTE",
+          "noHref": true
+        },
+        {
+          "id": "ad.workflows",
+          "label": "Workflows",
+          "path": null,
+          "status": "PLANNED_NO_ROUTE",
+          "noHref": true
+        }
+      ],
+      "plannedContent": [],
+      "sharedActionRefs": []
+    }
+  ],
+  "businessDestinationRelocation": [
+    {
+      "legacyId": "b.dashboard",
+      "legacyLabel": "Dashboard",
+      "path": "/projects",
+      "moduleId": "module.project-management",
+      "localSurfaceId": "pm.projects",
+      "status": "LIVE",
+      "grantKey": "projects"
+    },
+    {
+      "legacyId": "b.all-work",
+      "legacyLabel": "All Work",
+      "path": "/work",
+      "moduleId": "module.work-management",
+      "localSurfaceId": "wm.all-work",
+      "status": "LIVE",
+      "grantKey": "projects"
+    },
+    {
+      "legacyId": "b.execution",
+      "legacyLabel": "Execution",
+      "path": "/execution",
+      "moduleId": "module.work-management",
+      "localSurfaceId": "wm.execution",
+      "status": "LIVE",
+      "grantKey": "projects"
+    },
+    {
+      "legacyId": "b.timeline",
+      "legacyLabel": "Timeline",
+      "path": "/timeline",
+      "moduleId": "module.work-management",
+      "localSurfaceId": "wm.timeline",
+      "status": "LIVE",
+      "grantKey": "projects"
+    },
+    {
+      "legacyId": "b.dependencies",
+      "legacyLabel": "Dependencies",
+      "path": "/dependencies",
+      "moduleId": "module.work-management",
+      "localSurfaceId": "wm.dependencies",
+      "status": "LIVE",
+      "grantKey": "projects"
+    },
+    {
+      "legacyId": "b.milestones",
+      "legacyLabel": "Milestones & Gates",
+      "path": "/milestones",
+      "moduleId": "module.work-management",
+      "localSurfaceId": "wm.milestones",
+      "status": "LIVE",
+      "grantKey": "projects"
+    },
+    {
+      "legacyId": "b.files",
+      "legacyLabel": "Files",
+      "path": "/files",
+      "moduleId": "module.resource-coordination",
+      "localSurfaceId": "rc.files",
+      "status": "LIVE",
+      "grantKey": "projects"
+    },
+    {
+      "legacyId": "b.repositories",
+      "legacyLabel": "Repositories",
+      "path": "/repositories",
+      "moduleId": "module.resource-coordination",
+      "localSurfaceId": "rc.repositories",
+      "status": "LIVE",
+      "grantKey": "projects"
+    }
+  ],
+  "projectSections": [
+    {
+      "id": "section.project",
+      "label": "Project",
+      "moduleId": "module.project-management",
+      "localSurfaceId": "pm.project-overview",
+      "status": "LIVE",
+      "route": "/projects/{projectId}"
+    },
+    {
+      "id": "section.inventory",
+      "label": "Inventory",
+      "moduleId": "module.project-management",
+      "localSurfaceId": "pm.inventory",
+      "status": "LIVE_READ_ONLY",
+      "route": "/projects/{projectId}/inventory",
+      "relatedRoute": "/projects/{projectId}/repositories",
+      "writer": null
+    },
+    {
+      "id": "section.team",
+      "label": "Team",
+      "moduleId": "module.resource-coordination",
+      "localSurfaceId": "rc.team",
+      "status": "LIVE",
+      "route": "/projects/{projectId}/team",
+      "authority": "identity"
+    },
+    {
+      "id": "section.work",
+      "label": "Work",
+      "moduleId": "module.work-management",
+      "localSurfaceId": "wm.project-work-views",
+      "status": "LIVE",
+      "route": "/projects/{projectId}/structure",
+      "defaultViewId": "wm.structure",
+      "surfaceKind": "VIEW_GROUP",
+      "viewIds": [
+        "wm.roadmap",
+        "wm.structure",
+        "wm.board",
+        "wm.work-items",
+        "wm.schedule",
+        "wm.milestones",
+        "wm.dependency-map"
+      ]
+    },
+    {
+      "id": "section.files",
+      "label": "Files",
+      "moduleId": "module.resource-coordination",
+      "localSurfaceId": "rc.files",
+      "status": "LIVE",
+      "route": "/projects/{projectId}/files"
+    },
+    {
+      "id": "section.import",
+      "label": "Import",
+      "moduleId": "module.project-management",
+      "localSurfaceId": null,
+      "status": "LIVE_ACTION_AND_ROUTE",
+      "route": "/projects/{projectId}/import",
+      "renderAs": "header-action",
+      "localTab": false,
+      "surfaceKind": "ACTION",
+      "actionId": "pm.import",
+      "sharedAction": true
+    },
+    {
+      "id": "section.requirements",
+      "label": "Requirements",
+      "moduleId": "module.delivery-design",
+      "localSurfaceId": "dd.requirements",
+      "status": "PLANNED_NO_ROUTE",
+      "route": null
+    },
+    {
+      "id": "section.risks",
+      "label": "Risks",
+      "moduleId": "module.delivery-governance",
+      "localSurfaceId": "dg.risks",
+      "status": "PLANNED_NO_ROUTE",
+      "route": null
+    },
+    {
+      "id": "section.resources",
+      "label": "Resources",
+      "moduleId": "module.resource-coordination",
+      "localSurfaceId": "rc.resources",
+      "status": "PLANNED_NO_ROUTE",
+      "route": null,
+      "deferredTo": "MA-D02W"
+    }
+  ],
+  "routeCrosswalk": [
+    {
+      "ordinal": 1,
+      "route": "/projects/{projectId}",
+      "sectionId": "section.project",
+      "moduleId": "module.project-management",
+      "localSurface": "pm.project-overview",
+      "activeModule": "Project Management",
+      "pageTitle": "Project"
+    },
+    {
+      "ordinal": 2,
+      "route": "/projects/{projectId}/execution/{mode}",
+      "sectionId": "section.project",
+      "moduleId": "module.project-management",
+      "localSurface": "pm.project-overview",
+      "activeModule": "Project Management",
+      "pageTitle": "Execution",
+      "modeSet": "seven canonical execution modes"
+    },
+    {
+      "ordinal": 3,
+      "route": "/projects/{projectId}/inventory",
+      "sectionId": "section.inventory",
+      "moduleId": "module.project-management",
+      "localSurface": "pm.inventory",
+      "activeModule": "Project Management",
+      "pageTitle": "Inventory",
+      "readOnly": true
+    },
+    {
+      "ordinal": 4,
+      "route": "/projects/{projectId}/repositories",
+      "sectionId": "section.inventory",
+      "moduleId": "module.resource-coordination",
+      "localSurface": "rc.repositories",
+      "activeModule": "Resource Coordination",
+      "pageTitle": "Repositories",
+      "capabilitySection": "Inventory"
+    },
+    {
+      "ordinal": 5,
+      "route": "/projects/{projectId}/team",
+      "sectionId": "section.team",
+      "moduleId": "module.resource-coordination",
+      "localSurface": "rc.team",
+      "activeModule": "Resource Coordination",
+      "pageTitle": "Team",
+      "authority": "identity"
+    },
+    {
+      "ordinal": 6,
+      "route": "/projects/{projectId}/files",
+      "sectionId": "section.files",
+      "moduleId": "module.resource-coordination",
+      "localSurface": "rc.files",
+      "activeModule": "Resource Coordination",
+      "pageTitle": "Files"
+    },
+    {
+      "ordinal": 7,
+      "route": "/projects/{projectId}/import",
+      "sectionId": "section.import",
+      "moduleId": "module.project-management",
+      "localSurface": null,
+      "activeModule": "Project Management",
+      "pageTitle": "Import",
+      "renderAs": "header-action",
+      "localTab": false,
+      "surfaceKind": "ACTION",
+      "actionId": "pm.import",
+      "sharedAction": true,
+      "ownerModuleId": "module.project-management",
+      "reachableFromAuthorizedProjectModules": [
+        "module.project-management",
+        "module.work-management",
+        "module.resource-coordination"
+      ]
+    },
+    {
+      "ordinal": 8,
+      "route": "/projects/{projectId}/roadmap",
+      "sectionId": "section.work",
+      "moduleId": "module.work-management",
+      "localSurface": "wm.roadmap",
+      "activeModule": "Work Management",
+      "pageTitle": "Execution Roadmap",
+      "view": "Execution Roadmap"
+    },
+    {
+      "ordinal": 9,
+      "route": "/projects/{projectId}/structure",
+      "sectionId": "section.work",
+      "moduleId": "module.work-management",
+      "localSurface": "wm.structure",
+      "activeModule": "Work Management",
+      "pageTitle": "Structure Plan",
+      "view": "Structure Plan",
+      "default": true
+    },
+    {
+      "ordinal": 10,
+      "route": "/projects/{projectId}/board",
+      "sectionId": "section.work",
+      "moduleId": "module.work-management",
+      "localSurface": "wm.board",
+      "activeModule": "Work Management",
+      "pageTitle": "Board",
+      "view": "Board"
+    },
+    {
+      "ordinal": 11,
+      "route": "/projects/{projectId}/all-work",
+      "sectionId": "section.work",
+      "moduleId": "module.work-management",
+      "localSurface": "wm.work-items",
+      "activeModule": "Work Management",
+      "pageTitle": "Work Items",
+      "view": "Work Items"
+    },
+    {
+      "ordinal": 12,
+      "route": "/projects/{projectId}/timeline",
+      "sectionId": "section.work",
+      "moduleId": "module.work-management",
+      "localSurface": "wm.schedule",
+      "activeModule": "Work Management",
+      "pageTitle": "Schedule",
+      "view": "Schedule",
+      "businessLabel": "Timeline"
+    },
+    {
+      "ordinal": 13,
+      "route": "/projects/{projectId}/milestones",
+      "sectionId": "section.work",
+      "moduleId": "module.work-management",
+      "localSurface": "wm.milestones",
+      "activeModule": "Work Management",
+      "pageTitle": "Milestones & Gates",
+      "view": "Milestones",
+      "businessLabel": "Milestones & Gates"
+    },
+    {
+      "ordinal": 14,
+      "route": "/projects/{projectId}/dependencies",
+      "sectionId": "section.work",
+      "moduleId": "module.work-management",
+      "localSurface": "wm.dependency-map",
+      "activeModule": "Work Management",
+      "pageTitle": "Dependency Map",
+      "view": "Dependency Map",
+      "businessLabel": "Dependencies"
+    }
+  ],
+  "executionModes": [
+    "SOFTWARE_SPRINT",
+    "DATA_MIGRATION",
+    "B2B_SALES",
+    "B2C_CAMPAIGN",
+    "PRODUCT_LAUNCH",
+    "OPERATIONS",
+    "BUSINESS_EXPANSION"
+  ],
+  "contextRetention": {
+    "businessScope": {
+      "guard": "apps/server/src/lib/business-shell-guard.js::resolveBusinessShellDecision",
+      "source": "selected Business and ScopeContext.projects before AppShell",
+      "grantRule": "module navigation never adds a domain grant"
+    },
+    "projectScope": {
+      "routeKey": "{projectId}",
+      "clientUseParamsRole": "active-state and link construction only",
+      "targetReadAuthority": "apps/server/src/app/api/projects/[id]/route.js::assertProjectReadable",
+      "localPersistence": "existing UI selection may persist as convenience; no project grant is persisted locally",
+      "moduleSwitch": "retain projectId when target module supports project context; keep Business scope; clear incompatible local filters explicitly rather than silently",
+      "crossProject": "All Work/Timeline/Dependencies business surfaces retain all-authorized-project scope; opening a project route narrows to that project"
+    },
+    "history": "browser back/forward restores full path and recomputes active module plus local tab/view",
+    "query": "filters may remain in query; query does not change module or view identity",
+    "boundary": "complete path-segment matching; no unbounded substring active-state match"
+  },
+  "ownerBoundaries": [
+    {
+      "surface": "Projects & Work domain label/key/grant",
+      "owner": "root plus Identity registry",
+      "effect": "display-only proposal; no new grant"
+    },
+    {
+      "surface": "Project Management and Work Management",
+      "owner": "project-manager",
+      "effect": "route and local surface mapping"
+    },
+    {
+      "surface": "Team membership",
+      "owner": "identity",
+      "effect": "Business/Tenant Membership; navigation cannot add/remove or grant"
+    },
+    {
+      "surface": "Files and Repositories",
+      "owner": "project-manager / existing resource authorities",
+      "effect": "preserve routes; Repositories local tab under Resource Coordination; Inventory semantics remain read-only"
+    },
+    {
+      "surface": "Connections Used and provider registry",
+      "owner": "integration",
+      "effect": "planned/local reference only; no cloud/local/MCP behavior in D02"
+    },
+    {
+      "surface": "Workforce Resources",
+      "owner": "project-manager workforce lane",
+      "effect": "planned; MA-D02W; staffing does not require fleets"
+    },
+    {
+      "surface": "Agent Delivery",
+      "owner": "project-manager delivery profile plus Integration runtime",
+      "effect": "planned named content; no command-center/single-run/fleet implementation"
+    },
+    {
+      "surface": "Business Home",
+      "owner": "non-owning cross-domain landing",
+      "effect": "owner-linked references; existing target authorization; no grant"
+    }
+  ],
+  "canonicalReuseAndNewPlaceholders": [
+    {
+      "id": "FR-006",
+      "action": "REUSE_EXACT",
+      "subject": "milestones and gates view",
+      "evidence": "docs/architecture/project-manager-system/14-EXISTING-PROJECT-TAB-SEMANTICS.md"
+    },
+    {
+      "id": "FR-012",
+      "action": "REUSE_EXACT",
+      "subject": "project/work navigation semantics",
+      "evidence": "docs/architecture/project-manager-system/14-EXISTING-PROJECT-TAB-SEMANTICS.md"
+    },
+    {
+      "id": "FR-018",
+      "action": "REUSE_EXACT",
+      "subject": "plan import lifecycle",
+      "evidence": "docs/architecture/project-manager-system/14-EXISTING-PROJECT-TAB-SEMANTICS.md"
+    },
+    {
+      "id": "FR-036",
+      "action": "REUSE_EXACT",
+      "subject": "Business/Tenant Membership authority for Team",
+      "evidence": "docs/architecture/project-manager-system/14-EXISTING-PROJECT-TAB-SEMANTICS.md"
+    },
+    {
+      "id": "FR-039",
+      "action": "REUSE_EXACT",
+      "subject": "shell scope and navigation ceiling",
+      "evidence": "apps/server/src/lib/business-shell-guard.js; apps/server/src/components/layouts/DomainBar.jsx"
+    },
+    {
+      "id": "FR-040",
+      "action": "REUSE_EXACT",
+      "subject": "seven Project Work views",
+      "evidence": "apps/server/src/modules/project-manager/components/WorkViewTabs.jsx"
+    },
+    {
+      "id": "FR-043",
+      "action": "REUSE_EXACT",
+      "subject": "Project context is Business-owned",
+      "evidence": "apps/server/src/app/(pm)/projects/[projectId]/page.jsx"
+    },
+    {
+      "id": "FR-060",
+      "action": "REUSE_EXACT",
+      "subject": "Business Home and owner route split",
+      "evidence": "apps/server/src/app/(pm)/overview/page.jsx"
+    },
+    {
+      "id": "FR-061",
+      "action": "REUSE_EXACT",
+      "subject": "per-Business domain visibility",
+      "evidence": "apps/server/src/modules/identity/viewer-domains.js"
+    },
+    {
+      "id": "FR-065",
+      "action": "REUSE_EXACT",
+      "subject": "Import authorization and lifecycle",
+      "evidence": "apps/server/src/app/(pm)/projects/[projectId]/import/page.jsx"
+    },
+    {
+      "id": "FR-077",
+      "action": "REUSE_EXACT",
+      "subject": "read-only project inventory",
+      "evidence": "apps/server/src/app/(pm)/projects/[projectId]/inventory/page.jsx"
+    },
+    {
+      "id": "ADR-036",
+      "action": "NARROW_AMENDMENT",
+      "subject": "Development first sidebar item opens Dashboard/Projects at /projects",
+      "evidence": "docs/decisions/ADR-036-PROJECTS-OVERVIEW-AND-THE-FIELDS-IT-NEEDS.md",
+      "amendment": "Project Management remains first module and opens the same /projects surface; this six-module change is narrow and does not rewrite Dashboard-first behavior for other domains"
+    },
+    {
+      "id": "ADR-069",
+      "action": "REUSE_EXACT",
+      "subject": "ERP grouping is presentation and does not create grants",
+      "evidence": ".claude/AGENTS.md; ADR-069"
+    },
+    {
+      "id": "ADR-071",
+      "action": "AMENDMENT_REQUIRED",
+      "subject": "Development remains standalone while display label becomes Projects & Work",
+      "evidence": ".claude/AGENTS.md; ADR-071 D4",
+      "rootAllocationHint": "ADR-095"
+    },
+    {
+      "id": null,
+      "action": "NEW_ID_REQUIRED",
+      "subject": "six logical modules with module-local navigation and preserved route identities",
+      "rootAllocationHint": "FR-247 if free; root verifies ledger",
+      "canonicalStatus": "NOT_REGISTERED"
+    }
+  ],
+  "coverage": {
+    "sidebarLogicalModuleCount": 6,
+    "liveSidebarModuleEntryCount": 3,
+    "plannedSidebarModuleEntryCount": 3,
+    "businessDestinationCount": 8,
+    "projectSectionCount": 9,
+    "projectRouteCount": 14,
+    "projectWorkViewCount": 7,
+    "plannedProjectSectionCount": 3,
+    "executionModeCount": 7,
+    "importLocalTabCount": 0,
+    "importHeaderActionCount": 1,
+    "calendarCoreStatus": "DEFERRED",
+    "workforceStatus": "DEFERRED_TO_MA-D02W",
+    "providerStatus": "OUT_OF_SCOPE_FOR_CORE_NAV",
+    "importSharedAuthorizedProjectModuleCount": 3,
+    "importLocalSurfaceCount": 0,
+    "legacySourceIdCount": 42,
+    "legacyClassificationCount": 42,
+    "activeCoreScreenCount": 10,
+    "fullUxScreenCount": 37,
+    "deferredLegacyBindingCount": 16,
+    "preservedOutOfD02LegacyBindingCount": 3
+  },
+  "conformanceRefs": [
+    "TAX-A1",
+    "TAX-A2",
+    "TAX-A3",
+    "TAX-A4",
+    "TAX-A5",
+    "TAX-A6",
+    "TAX-A7",
+    "TAX-A8",
+    "TAX-A9",
+    "TAX-A10"
+  ],
+  "verificationStatus": "NOT_RUN",
+  "notes": [
+    "Attempt 3 is a bounded semantic rework of D08 findings D08-001 through D08-005.",
+    "One pm.import definition is PM-owned and referenced by all three authorized live Project module shells; no local Import tab or duplicate route.",
+    "The full 37-screen UX model distinguishes 10 core active, 15 planned no-route, 4 preserved no-route, and 8 preserved out-of-D02 screens.",
+    "The canonical /work identity is b.all-work; b.work is a classified source alias correction only.",
+    "WF-13 remains Docs & Decisions with document and decision semantics and no invented route.",
+    "No canonical IDs are allocated; runtime implementation and migrations remain outside this packet.",
+    "Canonical navigation/requirement authority is root-authored by FR-247 and ADR-095; this worker allocates no canonical IDs and only uses candidate-local surface/action ids."
+  ],
+  "authorityRefs": {
+    "adr095": "zuri-pm-execution/docs/decisions/ADR-095-PROJECTS-AND-WORK-HIERARCHICAL-NAVIGATION.md",
+    "fr247": "zuri-pm-execution/docs/domains/project-manager/features/FR-247-hierarchical-project-navigation.md",
+    "independentVerifier": "pm-execution-qa/verifier/d08-nav-draft-verification.json"
+  },
+  "sharedProjectActions": [
+    {
+      "id": "pm.import",
+      "ownerModuleId": "module.project-management",
+      "label": "Import plan",
+      "path": "/projects/{projectId}/import",
+      "scope": "PROJECT",
+      "persistent": true,
+      "localTab": false,
+      "surfaceKind": "ACTION",
+      "status": "LIVE_ACTION_AND_ROUTE",
+      "reachableFromAuthorizedProjectModules": [
+        "module.project-management",
+        "module.work-management",
+        "module.resource-coordination"
+      ],
+      "currentPageCue": true,
+      "returnPath": "/projects/{projectId}",
+      "actionFlow": "validate -> dry-run -> conflicts -> commit -> receipt",
+      "oneRoute": true,
+      "noDuplicateRoute": true
+    }
+  ],
+  "legacyNavigationPolicy": {
+    "policyVersion": "0.3.0b",
+    "sourceOfTruth": "classification records in this candidate; raw base navIds are never generator input",
+    "sourceBaseUx": "zuri-pm-design/docs/architecture/project-manager-system/contracts/ux-ui.candidate.json",
+    "sourceLegacyIds": [
+      "b.dashboard",
+      "b.work",
+      "b.timeline",
+      "b.dependencies",
+      "b.milestones",
+      "p.overview",
+      "p.domains",
+      "p.features",
+      "p.work",
+      "p.work-items",
+      "p.board",
+      "p.structure",
+      "p.timeline",
+      "p.milestones",
+      "p.dependencies",
+      "p.roadmap",
+      "p.calendar",
+      "p.execution",
+      "b.execution",
+      "p.requirements",
+      "p.architecture",
+      "p.api",
+      "p.documents",
+      "p.command",
+      "p.agents",
+      "p.fleets",
+      "p.workflows",
+      "p.team",
+      "p.files",
+      "b.files",
+      "p.repositories",
+      "b.repositories",
+      "p.index",
+      "p.connections",
+      "p.budget",
+      "p.risks",
+      "p.releases",
+      "p.activity",
+      "p.settings",
+      "p.import",
+      "b.create",
+      "i.registry"
+    ],
+    "canonicalLegacyIds": [
+      "b.dashboard",
+      "b.all-work",
+      "b.timeline",
+      "b.dependencies",
+      "b.milestones",
+      "p.overview",
+      "p.domains",
+      "p.features",
+      "p.work",
+      "p.work-items",
+      "p.board",
+      "p.structure",
+      "p.timeline",
+      "p.milestones",
+      "p.dependencies",
+      "p.roadmap",
+      "p.calendar",
+      "p.execution",
+      "b.execution",
+      "p.requirements",
+      "p.architecture",
+      "p.api",
+      "p.documents",
+      "p.command",
+      "p.agents",
+      "p.fleets",
+      "p.workflows",
+      "p.team",
+      "p.files",
+      "b.files",
+      "p.repositories",
+      "b.repositories",
+      "p.index",
+      "p.connections",
+      "p.budget",
+      "p.risks",
+      "p.releases",
+      "p.activity",
+      "p.settings",
+      "p.import",
+      "b.create",
+      "i.registry"
+    ],
+    "classifications": {
+      "mapped": [
+        {
+          "legacyId": "b.dashboard",
+          "canonicalLegacyId": "b.dashboard",
+          "targetKind": "surface",
+          "targetId": "pm.projects",
+          "screenIds": [
+            "WF-01"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "b.work",
+          "canonicalLegacyId": "b.all-work",
+          "targetKind": "surface",
+          "targetId": "wm.all-work",
+          "screenIds": [
+            "WF-02"
+          ],
+          "classification": "mapped",
+          "sourceAliasCorrected": true,
+          "correctionReason": "canonical /work identity is b.all-work"
+        },
+        {
+          "legacyId": "b.timeline",
+          "canonicalLegacyId": "b.timeline",
+          "targetKind": "surface",
+          "targetId": "wm.timeline",
+          "screenIds": [
+            "WF-02"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "b.dependencies",
+          "canonicalLegacyId": "b.dependencies",
+          "targetKind": "surface",
+          "targetId": "wm.dependencies",
+          "screenIds": [
+            "WF-02"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "b.milestones",
+          "canonicalLegacyId": "b.milestones",
+          "targetKind": "surface",
+          "targetId": "wm.milestones",
+          "screenIds": [
+            "WF-02"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "p.overview",
+          "canonicalLegacyId": "p.overview",
+          "targetKind": "surface",
+          "targetId": "pm.project-overview",
+          "screenIds": [
+            "WF-03"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "p.work",
+          "canonicalLegacyId": "p.work",
+          "targetKind": "group",
+          "targetId": "wm.project-work-views",
+          "screenIds": [
+            "WF-08"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "p.work-items",
+          "canonicalLegacyId": "p.work-items",
+          "targetKind": "surface",
+          "targetId": "wm.work-items",
+          "screenIds": [
+            "WF-08"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "p.board",
+          "canonicalLegacyId": "p.board",
+          "targetKind": "surface",
+          "targetId": "wm.board",
+          "screenIds": [
+            "WF-08"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "p.structure",
+          "canonicalLegacyId": "p.structure",
+          "targetKind": "surface",
+          "targetId": "wm.structure",
+          "screenIds": [
+            "WF-08"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "p.timeline",
+          "canonicalLegacyId": "p.timeline",
+          "targetKind": "surface",
+          "targetId": "wm.schedule",
+          "screenIds": [
+            "WF-08"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "p.milestones",
+          "canonicalLegacyId": "p.milestones",
+          "targetKind": "surface",
+          "targetId": "wm.milestones",
+          "screenIds": [
+            "WF-08"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "p.dependencies",
+          "canonicalLegacyId": "p.dependencies",
+          "targetKind": "surface",
+          "targetId": "wm.dependency-map",
+          "screenIds": [
+            "WF-08"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "p.roadmap",
+          "canonicalLegacyId": "p.roadmap",
+          "targetKind": "surface",
+          "targetId": "wm.roadmap",
+          "screenIds": [
+            "WF-08"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "p.execution",
+          "canonicalLegacyId": "p.execution",
+          "targetKind": "surface",
+          "targetId": "pm.project-overview",
+          "screenIds": [
+            "WF-09"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "b.execution",
+          "canonicalLegacyId": "b.execution",
+          "targetKind": "surface",
+          "targetId": "wm.execution",
+          "screenIds": [
+            "WF-09"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "p.team",
+          "canonicalLegacyId": "p.team",
+          "targetKind": "surface",
+          "targetId": "rc.team",
+          "screenIds": [
+            "WF-20"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "p.files",
+          "canonicalLegacyId": "p.files",
+          "targetKind": "surface",
+          "targetId": "rc.files",
+          "screenIds": [
+            "WF-21"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "b.files",
+          "canonicalLegacyId": "b.files",
+          "targetKind": "surface",
+          "targetId": "rc.files",
+          "screenIds": [
+            "WF-21"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "p.repositories",
+          "canonicalLegacyId": "p.repositories",
+          "targetKind": "surface",
+          "targetId": "rc.repositories",
+          "screenIds": [
+            "WF-22"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "b.repositories",
+          "canonicalLegacyId": "b.repositories",
+          "targetKind": "surface",
+          "targetId": "rc.repositories",
+          "screenIds": [
+            "WF-22"
+          ],
+          "classification": "mapped"
+        },
+        {
+          "legacyId": "p.index",
+          "canonicalLegacyId": "p.index",
+          "targetKind": "surface",
+          "targetId": "pm.inventory",
+          "screenIds": [
+            "WF-23"
+          ],
+          "classification": "mapped"
+        }
+      ],
+      "actionMigrated": [
+        {
+          "legacyId": "p.import",
+          "actionId": "pm.import",
+          "ownerModuleId": "module.project-management",
+          "screenIds": [
+            "WF-30"
+          ],
+          "reason": "one shared PM-owned action; no local tab"
+        }
+      ],
+      "deferredNonGeneratable": [
+        {
+          "legacyId": "p.domains",
+          "targetId": "dd.domains",
+          "screenIds": [
+            "WF-04"
+          ],
+          "reason": "Delivery Design is planned with no route in D02"
+        },
+        {
+          "legacyId": "p.features",
+          "targetId": "dd.features",
+          "screenIds": [
+            "WF-06"
+          ],
+          "reason": "Delivery Design is planned with no route in D02"
+        },
+        {
+          "legacyId": "p.calendar",
+          "targetId": "wm.calendar",
+          "screenIds": [
+            "WF-08"
+          ],
+          "reason": "Calendar is a planned Work view with no source-backed route in D02"
+        },
+        {
+          "legacyId": "p.requirements",
+          "targetId": "dd.requirements",
+          "screenIds": [
+            "WF-10"
+          ],
+          "reason": "Requirements is named planned content with no route"
+        },
+        {
+          "legacyId": "p.architecture",
+          "targetId": "dd.architecture",
+          "screenIds": [
+            "WF-11"
+          ],
+          "reason": "Architecture is named planned content with no route"
+        },
+        {
+          "legacyId": "p.api",
+          "targetId": "dd.api",
+          "screenIds": [
+            "WF-12"
+          ],
+          "reason": "API is named planned content with no route"
+        },
+        {
+          "legacyId": "p.documents",
+          "targetId": "dd.docs-decisions",
+          "screenIds": [
+            "WF-13"
+          ],
+          "reason": "Docs & Decisions is planned; document and decision semantics remain visible"
+        },
+        {
+          "legacyId": "p.command",
+          "targetId": "ad.command-center",
+          "screenIds": [
+            "WF-14"
+          ],
+          "reason": "Agent Delivery is planned with no route"
+        },
+        {
+          "legacyId": "p.agents",
+          "targetId": "ad.agents",
+          "screenIds": [
+            "WF-16"
+          ],
+          "reason": "Agent Delivery is planned with no route"
+        },
+        {
+          "legacyId": "p.fleets",
+          "targetId": "ad.fleets",
+          "screenIds": [
+            "WF-18"
+          ],
+          "reason": "Agent Delivery is planned with no route"
+        },
+        {
+          "legacyId": "p.workflows",
+          "targetId": "ad.workflows",
+          "screenIds": [
+            "WF-19"
+          ],
+          "reason": "Agent Delivery is planned with no route"
+        },
+        {
+          "legacyId": "p.connections",
+          "targetId": "rc.connections",
+          "screenIds": [
+            "WF-24"
+          ],
+          "reason": "Connections Used is planned with no route"
+        },
+        {
+          "legacyId": "p.budget",
+          "targetId": "rc.resources",
+          "screenIds": [
+            "WF-25"
+          ],
+          "reason": "Workforce Resources is deferred to MA-D02W with no route"
+        },
+        {
+          "legacyId": "p.risks",
+          "targetId": "dg.risks",
+          "screenIds": [
+            "WF-26"
+          ],
+          "reason": "Delivery Governance is planned with no route"
+        },
+        {
+          "legacyId": "p.releases",
+          "targetId": "dg.test-release",
+          "screenIds": [
+            "WF-27"
+          ],
+          "reason": "Delivery Governance is planned with no route"
+        },
+        {
+          "legacyId": "p.activity",
+          "targetId": "dg.activity",
+          "screenIds": [
+            "WF-28"
+          ],
+          "reason": "Delivery Governance is planned with no route"
+        }
+      ],
+      "preservedOutOfD02": [
+        {
+          "legacyId": "p.settings",
+          "screenIds": [
+            "WF-29"
+          ],
+          "reason": "Project Settings is preserved outside D02"
+        },
+        {
+          "legacyId": "b.create",
+          "screenIds": [
+            "WF-31"
+          ],
+          "reason": "Create Project is preserved outside D02"
+        },
+        {
+          "legacyId": "i.registry",
+          "screenIds": [
+            "WF-32"
+          ],
+          "reason": "Provider & MCP Registry is preserved outside D02 and integration-owned"
+        }
+      ]
+    },
+    "identityCorrections": [
+      {
+        "sourceLegacyId": "b.work",
+        "canonicalLegacyId": "b.all-work",
+        "path": "/work",
+        "reason": "latest D02 candidate canonical identity"
+      }
+    ],
+    "expectedLegacyIds": [
+      "b.dashboard",
+      "b.work",
+      "b.timeline",
+      "b.dependencies",
+      "b.milestones",
+      "p.overview",
+      "p.domains",
+      "p.features",
+      "p.work",
+      "p.work-items",
+      "p.board",
+      "p.structure",
+      "p.timeline",
+      "p.milestones",
+      "p.dependencies",
+      "p.roadmap",
+      "p.calendar",
+      "p.execution",
+      "b.execution",
+      "p.requirements",
+      "p.architecture",
+      "p.api",
+      "p.documents",
+      "p.command",
+      "p.agents",
+      "p.fleets",
+      "p.workflows",
+      "p.team",
+      "p.files",
+      "b.files",
+      "p.repositories",
+      "b.repositories",
+      "p.index",
+      "p.connections",
+      "p.budget",
+      "p.risks",
+      "p.releases",
+      "p.activity",
+      "p.settings",
+      "p.import",
+      "b.create",
+      "i.registry"
+    ],
+    "unknownLegacyIdsForbidden": true,
+    "rawLegacyNavIdsNeverActive": true,
+    "generatorRule": "Generate only from composed navIds/actionIds and typed module surfaces. Read legacyNavIds only through classifications."
+  },
+  "canonicalIdStatus": {
+    "status": "ROOT_AUTHORED_WORKER_DID_NOT_ALLOCATE",
+    "rootAuthoredReferences": [
+      "FR-247",
+      "ADR-095"
+    ],
+    "workerAllocatedIds": [],
+    "candidateLocalSurfaceIds": true,
+    "registrationAuthority": "root integrator after ledger verification",
+    "workerScope": "No canonical NAV/FR/ADR IDs are allocated by this packet."
+  }
+}

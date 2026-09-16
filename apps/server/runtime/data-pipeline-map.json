@@ -39,15 +39,15 @@
     "chainsByStatus": {
       "BLOCKED": 0,
       "DECLARED": 4,
-      "PARTIAL": 1,
-      "CODE_TESTS": 14,
+      "PARTIAL": 0,
+      "CODE_TESTS": 15,
       "PRODUCTION": 3
     },
     "internalByStatus": {
       "BLOCKED": 1,
       "DECLARED": 1,
-      "PARTIAL": 3,
-      "CODE_TESTS": 35,
+      "PARTIAL": 1,
+      "CODE_TESTS": 37,
       "PRODUCTION": 20
     },
     "internalBySurface": {
@@ -1480,7 +1480,7 @@
       "requirements": [
         {
           "id": "FR-236",
-          "status": "partial",
+          "status": "verified",
           "title": "LINE FAQ knowledge candidates"
         }
       ],
@@ -1509,7 +1509,7 @@
         }
       ],
       "surfaceLevel": "UI",
-      "buildStatus": "PARTIAL",
+      "buildStatus": "CODE_TESTS",
       "evidence": null,
       "blocked": null
     },
@@ -2187,7 +2187,7 @@
       "requirements": [
         {
           "id": "FR-236",
-          "status": "partial",
+          "status": "verified",
           "title": "LINE FAQ knowledge candidates"
         }
       ],
@@ -2204,7 +2204,7 @@
         }
       ],
       "surfaceLevel": "UI",
-      "buildStatus": "PARTIAL",
+      "buildStatus": "CODE_TESTS",
       "evidence": null,
       "blocked": null
     },
@@ -3453,7 +3453,7 @@
       "to": "p.knowledge-candidate-review",
       "label": "บทสนทนาที่ consent = GRANTED (FR-236, CRM read projection)",
       "wired": true,
-      "status": "PARTIAL"
+      "status": "CODE_TESTS"
     },
     {
       "id": "e.candidate-review-to-store",
@@ -3461,7 +3461,7 @@
       "to": "s.knowledge-candidates",
       "label": "draft · edit · decision (audited)",
       "wired": true,
-      "status": "PARTIAL"
+      "status": "CODE_TESTS"
     },
     {
       "id": "e.candidate-review-to-admission",
@@ -3469,7 +3469,7 @@
       "to": "in.knowledge-admission",
       "label": "อนุมัติแล้วเท่านั้น → TEXT source LINE_FAQ_CANDIDATE ก่อน Stage 1 (FR-236)",
       "wired": true,
-      "status": "PARTIAL"
+      "status": "CODE_TESTS"
     },
     {
       "id": "e.agent-trace-to-gap-report",
@@ -4240,7 +4240,7 @@
         "src.line-users",
         "src.staff"
       ],
-      "status": "PARTIAL",
+      "status": "CODE_TESTS",
       "domains": [
         "crm",
         "knowledge",

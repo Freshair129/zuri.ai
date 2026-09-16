@@ -1,0 +1,419 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:zuri:proposal:project-manager:workflow:1.0",
+  "title": "Candidate project workflow definition",
+  "description": "Design contract only. Runtime requires approved registry resolution, authorization and semantic graph checks.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "code",
+    "name",
+    "version",
+    "executionKind",
+    "agentBindings",
+    "inputSchema",
+    "outputSchema",
+    "steps",
+    "limits",
+    "resultFrom"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0"
+    },
+    "code": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_-]{2,63}$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 160
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:b)?$"
+    },
+    "executionKind": {
+      "enum": [
+        "PROJECT_DELIVERY",
+        "BUSINESS_AUTOMATION"
+      ]
+    },
+    "exampleOnly": {
+      "type": "boolean",
+      "default": false,
+      "description": "True prevents dispatch; synthetic fixtures are documentation only."
+    },
+    "agentBindings": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "roleKey",
+          "agentVersionId",
+          "ownerDomain"
+        ],
+        "properties": {
+          "roleKey": {
+            "$ref": "#/$defs/stepKey"
+          },
+          "agentVersionId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "ownerDomain": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          }
+        }
+      }
+    },
+    "inputSchema": {
+      "$ref": "#/$defs/schemaDocument"
+    },
+    "outputSchema": {
+      "$ref": "#/$defs/schemaDocument"
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 100,
+      "items": {
+        "$ref": "#/$defs/step"
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "maxConcurrency",
+        "maxRunSeconds",
+        "maxToolCalls",
+        "maxIterations",
+        "maxOutputBytes",
+        "budget"
+      ],
+      "properties": {
+        "maxConcurrency": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "maxRunSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 86400
+        },
+        "maxToolCalls": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1000
+        },
+        "maxIterations": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100
+        },
+        "maxOutputBytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 104857600
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "currency",
+            "limitMinorUnits",
+            "maxTokens"
+          ],
+          "properties": {
+            "currency": {
+              "type": "string",
+              "pattern": "^[A-Z]{3}$"
+            },
+            "limitMinorUnits": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "maxTokens": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 10000000
+            }
+          }
+        }
+      }
+    },
+    "resultFrom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stepKey",
+        "outputName"
+      ],
+      "properties": {
+        "stepKey": {
+          "$ref": "#/$defs/stepKey"
+        },
+        "outputName": {
+          "$ref": "#/$defs/stepKey"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "stepKey": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]{1,63}$"
+    },
+    "schemaDocument": {
+      "type": "object",
+      "description": "JSON Schema document; full metaschema validation is an additional compile gate.",
+      "required": [
+        "type"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "object",
+            "array",
+            "string",
+            "number",
+            "integer",
+            "boolean",
+            "null"
+          ]
+        }
+      }
+    },
+    "step": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "key",
+        "kind",
+        "ownerDomain",
+        "dependsOn",
+        "effectClass",
+        "inputRefs",
+        "outputs",
+        "timeoutSeconds",
+        "retry",
+        "approval"
+      ],
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/stepKey"
+        },
+        "kind": {
+          "enum": [
+            "AGENT",
+            "DOMAIN_TOOL",
+            "HUMAN_APPROVAL",
+            "JOIN"
+          ]
+        },
+        "ownerDomain": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "agentRole": {
+          "$ref": "#/$defs/stepKey"
+        },
+        "executorProfileRef": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "toolBindingRef": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512
+        },
+        "modelPolicyVersionId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "dependsOn": {
+          "type": "array",
+          "maxItems": 100,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/stepKey"
+          }
+        },
+        "effectClass": {
+          "enum": [
+            "READ_ONLY",
+            "ISOLATED_WRITE",
+            "BUSINESS_WRITE",
+            "EXTERNAL_EFFECT"
+          ]
+        },
+        "inputRefs": {
+          "type": "array",
+          "maxItems": 50,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "from",
+              "output"
+            ],
+            "properties": {
+              "from": {
+                "type": "string",
+                "pattern": "^(input|[a-z][a-z0-9-]{1,63})$"
+              },
+              "output": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              }
+            }
+          }
+        },
+        "outputs": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "artifactType",
+              "schema"
+            ],
+            "properties": {
+              "name": {
+                "$ref": "#/$defs/stepKey"
+              },
+              "artifactType": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              "schema": {
+                "$ref": "#/$defs/schemaDocument"
+              }
+            }
+          }
+        },
+        "timeoutSeconds": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3600
+        },
+        "retry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "maxAttempts",
+            "onUnknownEffect"
+          ],
+          "properties": {
+            "maxAttempts": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3
+            },
+            "onUnknownEffect": {
+              "const": "RECONCILE"
+            }
+          }
+        },
+        "approval": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "independentReviewer"
+          ],
+          "properties": {
+            "mode": {
+              "enum": [
+                "NONE",
+                "BEFORE_EFFECT",
+                "REVIEW_OUTPUT"
+              ]
+            },
+            "independentReviewer": {
+              "type": "boolean"
+            },
+            "capability": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            }
+          }
+        },
+        "requiredForSuccess": {
+          "type": "boolean",
+          "default": true
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "AGENT"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "agentRole",
+              "executorProfileRef",
+              "modelPolicyVersionId"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "DOMAIN_TOOL"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "toolBindingRef"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "effectClass": {
+                "enum": [
+                  "BUSINESS_WRITE",
+                  "EXTERNAL_EFFECT"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "approval": {
+                "properties": {
+                  "mode": {
+                    "const": "BEFORE_EFFECT"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
