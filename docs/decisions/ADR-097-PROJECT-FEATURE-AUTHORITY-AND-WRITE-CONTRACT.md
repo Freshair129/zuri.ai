@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-097
 title: Project Feature authority and scoped write contract
-version: "0.1.0b"
+version: "0.1.1b"
 status: beta
 created_at: "2026-09-17T02:46:11+07:00,RWANG,approved e5ccfd7a"
-last_update: "2026-09-17T02:46:11+07:00,RWANG"
+last_update: "2026-09-17T03:12:00+07:00,RWANG"
 author: RWANG
 attributes:
   doc_type: architecture-decision
@@ -94,6 +94,13 @@ migration, authorization, race and product-browser proof are NOT_RUN for Phase B
 Independent re-review is still required; root cannot label its own composition
 an independent PASS.
 
+The implementation-entry audit reconciles two mechanical contract omissions
+without changing the approved behavior: selected data model v0.2.2b allows only
+VALID snapshot persistence and a non-null sourceManifest, as decision 5 and
+plan24 already require; selected OpenAPI v0.3.2b documents the issuer's
+403 CSRF_INVALID refusal when its existing Origin policy is not satisfied.
+The independent reviewer must include these corrections in the entry verdict.
+
 The [runtime-role RCA](../../.brain/rca/2026-09-17-pm-release-runtime-role-carry-forward.md)
 records the pre-existing bypass-RLS connection. A separately reviewed real-role
 isolation proof must close before any Phase B production write or migration.
@@ -103,4 +110,5 @@ No grant, credential, scheduler, archive or knowledge activation is included.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.1.1b | 2026-09-17 | beta | Align selected data/OpenAPI artifacts with approved VALID-only evidence and issuer Origin refusal; behavior unchanged | 50b5e1dd | RWANG |
 | 0.1.0b | 2026-09-17 | beta | Register the owner-approved Phase B design and preserve verification/production gates | e5ccfd7a | RWANG |

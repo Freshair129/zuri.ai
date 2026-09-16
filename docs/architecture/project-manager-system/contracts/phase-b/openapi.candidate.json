@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Zuri Project Manager Phase B Feature API",
-    "version": "0.3.1b",
+    "version": "0.3.2b",
     "description": "Candidate machine contract for the Project Manager Phase B Feature authority. Phase B routes and schemas remain documentation input until B1 owner approval and B2 registration; no route, schema migration, code generation or runtime operation is claimed."
   },
   "servers": [
@@ -38,7 +38,7 @@
           "Identity CSRF"
         ],
         "summary": "Issue the session-bound API-write CSRF token",
-        "description": "Identity-owned supporting contract. The token is opaque, API-write audience scoped, bound to the live zuri_session and same-origin policy, and is never the plugin-consent token.",
+        "description": "Identity-owned supporting contract. The token is opaque, API-write audience scoped, bound to the live zuri_session and same-origin policy, and is never the plugin-consent token. Issuance requires the configured Origin; an absent Origin is accepted only with Sec-Fetch-Site same-origin or a same-origin Referer. An unproven or foreign request is 403 CSRF_INVALID, following plan 24.",
         "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
         "security": [
           {
@@ -63,6 +63,9 @@
           },
           "401": {
             "$ref": "#/components/responses/AuthRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/CsrfOrCapabilityDenied"
           },
           "503": {
             "$ref": "#/components/responses/SessionUnavailable"

@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "0.2.1b",
-  "version": "0.2.1b",
+  "schemaVersion": "0.2.2b",
+  "version": "0.2.2b",
   "id": "ZAI:PM-PHASE-B-DATA-MODEL-CANDIDATE",
   "title": "Project Manager Phase B selected data model",
   "status": "CANDIDATE",
@@ -232,8 +232,7 @@
           "type": "enum",
           "nullable": false,
           "values": [
-            "VALID",
-            "INVALID"
+            "VALID"
           ],
           "readOnly": true
         },
@@ -243,7 +242,7 @@
           "nullable": false,
           "schemaRef": "SourceManifest",
           "maxBytes": 1048576,
-          "wireNullable": true,
+          "wireNullable": false,
           "readOnly": true,
           "wireSchemaRef": "./openapi.candidate.json#/components/schemas/SourceManifest"
         }
@@ -324,7 +323,7 @@
         },
         {
           "name": "invalidNonAuthority",
-          "rule": "An invalid verification may persist only as validationStatus INVALID and can never satisfy a RequirementBinding or readiness claim."
+          "rule": "An invalid or unverifiable capture is refused before persistence: no GovernanceSnapshot, mutation receipt or successful-capture AuditEvent is created. Only VALID proof-backed evidence is stored, as selected by plan 24 and ADR-097."
         }
       ],
       "scope": {
@@ -2337,7 +2336,7 @@
       "verificationProof",
       "validationStatus"
     ],
-    "invalidResult": "Persist only as clearly non-authoritative validationStatus INVALID; it cannot satisfy RequirementBinding.",
+    "invalidResult": "Refuse before persistence; create no GovernanceSnapshot, mutation receipt or successful-capture AuditEvent. Only VALID proof-backed evidence is stored.",
     "readList": "GovernanceSnapshotMetadata only, bounded 1..50 pages; sourceManifest is not a grant.",
     "proofSchema": "GovernanceVerificationProof (typed local OpenAPI ref; no loose JSON)"
   }
