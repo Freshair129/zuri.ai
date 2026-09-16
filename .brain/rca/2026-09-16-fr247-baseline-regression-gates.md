@@ -1,7 +1,7 @@
 ---
-version: "0.2.0b"
+version: "0.2.1b"
 created_at: "2026-09-16T17:17:00+07:00,RWANG,d33254aa"
-last_update: "2026-09-16T17:50:00+07:00,RWANG"
+last_update: "2026-09-16T18:13:00+07:00,RWANG"
 status: beta
 attributes:
   domain: cross-domain-verification
@@ -32,7 +32,7 @@ Pointer interaction exercises the map's click handler but does not establish key
 
 ## Proposed prevention and boundary
 
-Track a separate FR-213 keyboard correction, preserving Enter/Space semantics, and replace the FR-243 thread locator with a verified current thread identity while retaining message and separator assertions. Do not weaken these assertions, raise timeouts or label the full suite green. These source/test repairs are outside the approved PM navigation slice; this delivery records them without modifying those files.
+The original navigation delivery proposed a separate FR-213 keyboard correction, preserving Enter/Space semantics, and replacement of the FR-243 thread locator with a verified current thread identity while retaining message and separator assertions. These repairs were outside that delivery's approved PM scope, so it recorded the findings without modifying those files. The subsequent authorization and correction are recorded below; no assertion weakening or timeout increase is permitted.
 
 ## Authorized correction — 2026-09-16
 
@@ -48,7 +48,22 @@ The Knowledge worker owns the SVG node keyboard handler and the FR-213 browser r
 4. A normal composed browser run must finish with no failures or flaky cases before the repository browser gate can be recorded as passing. An interrupted test harness is never sufficient.
 5. Relevant unit checks, optimized build, governance, and independent verification must pass. Hosted CI and production remain separate, unrun gates.
 
-Validation is pending for this authorized follow-up. New evidence is stored separately under `pm-execution-qa/regression-fix-20260916/`; the original failed reports are retained unchanged.
+## Verified local correction
+
+Source and tests are frozen at `86de7f61ac02bda893d7ccbc9756957d52ea4c24`. The independent Luna Max source gate accepted the three source/test files at their recorded hashes. Root observed Enter and Space activation on the actual local map, with Space retaining scrollTop 0.
+
+| Gate | Result |
+|---|---|
+| Relevant unit/integration checks | 47 passed across six files; exit 0; nonzero-execution wrapper passed |
+| Optimized build | PASS, exit 0 |
+| Complete browser suite | 194 passed, 4 existing skipped, 0 failed, 0 flaky; normal exit 0 in 13.5 minutes |
+| Affected browser cases | FR-213 3/3, FR-243 1/1, FR-247 10/10 passed |
+| Suite integrity | All 198 case identities and the four skipped case identities match the original complete run |
+| Hosted CI / merge / production | NOT_RUN |
+
+The two original failures are closed locally. No assertions were removed, no timeout was raised and no additional case was skipped. The earlier interrupted baseline comparison remains an interrupted historical run; this passing result comes from a separate normal full-suite completion.
+
+Evidence is stored separately under `pm-execution-qa/regression-fix-20260916/`, including the complete JSON report, screenshots, independent review and root receipt. Original failed reports remain unchanged. The earlier full unit result (5,843 passed / 32 skipped) is historical; this correction ran the 47 relevant checks and does not claim another full unit run.
 
 ## CHANGELOG
 
@@ -56,3 +71,4 @@ Validation is pending for this authorized follow-up. New evidence is stored sepa
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-16 | candidate | Preserve complete-suite failures, source-supported causes and recurrence on the pre-navigation baseline; distinguish observed test outcomes from incomplete baseline teardown | d33254aa; baseline d23a9396 | RWANG |
 | 0.2.0b | 2026-09-16 | beta | Record owner's fix instruction, bounded Knowledge/CRM ownership and acceptance criteria; preserve original failed-run evidence | follow-up base 56b05c8f | RWANG |
+| 0.2.1b | 2026-09-16 | beta | Close both findings locally with normal full browser exit, unchanged case/skip inventories, focused unit and build evidence | source 86de7f61 | RWANG |

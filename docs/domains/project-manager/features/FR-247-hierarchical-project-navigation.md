@@ -4,10 +4,10 @@ title: Hierarchical Projects and Work navigation
 feature: FR-247
 domain: project-manager
 source: v2-native
-version: "0.2.0b"
+version: "0.2.1b"
 status: beta
 created_at: "2026-09-16T14:38:26+07:00,RWANG,base eddd3dd8"
-last_update: "2026-09-16T17:35:00+07:00,RWANG"
+last_update: "2026-09-16T18:13:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:FR-247
@@ -54,7 +54,15 @@ The project-manager lane owns this presentation. Domain/grant identity, API owne
 10. SCM/CRM grouping and other domain navigation still work. Business Home shortcuts remain owner links and cannot grant access.
 11. Named landmarks, one current module/view, keyboard-operable disclosures, focus return, readable explanations and narrow-screen behavior pass browser checks.
 
-## Validation and delivery state
+## Current delivery state
+
+The owner subsequently instructed **"fix it"** for the two cross-domain browser failures. The bounded correction is implemented at `86de7f61`: Knowledge SVG nodes activate with Enter/Space, and the CRM session test identifies one current thread by its unique customer name while checking all three messages and both distinct session codes. Navigation source is unchanged by this follow-up.
+
+The normal complete browser run now passes **194 cases, with the same 4 existing skips, 0 failures and 0 flaky cases**, exit 0. All 198 case identities and the skipped-case inventory match the original run. FR-213 passes 3/3, FR-243 1/1 and FR-247 10/10. The correction also passes 47 relevant unit/integration checks and the optimized build. Independent Luna Max source/test review and root runtime verification are separate receipts under `pm-execution-qa/regression-fix-20260916/`.
+
+The local browser gate is passing. Hosted CI, merge and production remain unperformed. The earlier full unit run is retained below as historical evidence; 47 affected checks ran on the correction.
+
+## Original navigation validation — historical evidence at d33254aa
 
 The owner explicitly approved ADR-095 / FR-247 on 2026-09-16 after reviewing document commit `3f36668fbe70bc447a0f0da4fd7dfcdfbae66617`. The composed document/prototype gate passed 35 navigation checks, 148 contract checks and root browser review. These are design evidence, not application implementation evidence.
 
@@ -75,7 +83,7 @@ The implemented application source and acceptance tests are frozen at `d33254aa`
 
 The complete run logs, screenshots and independent receipts are retained in the task artifact folder `pm-execution-qa/navigation-implementation/`. The source delta does not change API handlers, Prisma schema, ScopeContext or BusinessShellGuard. Existing null-owner shared Projects retain the same guard semantics. The first failed unit assertions and visual findings are preserved in [the integration RCA](../../../../.brain/rca/2026-09-16-fr247-navigation-integration.md).
 
-The two complete-suite failures have a separate [cross-domain gate RCA](../../../../.brain/rca/2026-09-16-fr247-baseline-regression-gates.md). Scope acceptance and repository release readiness are recorded separately; no production or complete-suite pass is claimed.
+The two original complete-suite failures and their subsequent correction are recorded in the [cross-domain gate RCA](../../../../.brain/rca/2026-09-16-fr247-baseline-regression-gates.md). The table above preserves the original failed run. Current full-browser evidence is stated in Current delivery state; no production release is claimed.
 
 No new API, database schema, resource calculation, risk register, agent executor or provider registry is included in this slice. Those remain explicit work packages in the PM delivery plan.
 
@@ -86,3 +94,4 @@ No new API, database schema, resource calculation, risk register, agent executor
 | 0.1.0b | 2026-09-16 | candidate | Register the owner-requested navigation behavior and preservation checks | eddd3dd8; uncommitted | RWANG |
 | 0.1.1b | 2026-09-16 | beta | Record owner approval and start bounded application implementation; preserve all acceptance criteria | approved baseline 3f36668f | RWANG |
 | 0.2.0b | 2026-09-16 | beta | Record implemented navigation, independent source review, runtime evidence and release limits | implementation d33254aa | RWANG |
+| 0.2.1b | 2026-09-16 | beta | Record owner-authorized cross-domain fixes and normal full browser pass; retain original failed run as historical evidence | correction 86de7f61 | RWANG |
