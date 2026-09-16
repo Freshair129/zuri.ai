@@ -1,12 +1,12 @@
 'use client'
 
-// @req FR-247 — Project-local navigation follows the active logical module.
+// @req FR-250 — Project-local navigation follows the active logical module.
 // Project Management and Resource Coordination expose their live local tabs;
 // Work keeps its existing seven-view row in WorkViewTabs.
 // @req FR-065 — one PM-owned Import plan action is reachable from every
 // authorized live Project module shell and returns to the Project overview.
 // @req FR-077 — Inventory remains a read-only Project Management surface.
-// @spec ADR-095, SDD-019
+// @spec ADR-096, SDD-019
 // @tested tests/unit/project-work-route.test.js
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'

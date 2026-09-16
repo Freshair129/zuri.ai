@@ -31,14 +31,14 @@ sub-features, with an explicit root contract per domain** — and binds it to V2
 > Business, Space or Project. Business Routing remains the gate before BusinessShell;
 > this is a documentation target and is not yet runtime behavior.
 
-> **Approved Projects & Work amendment (FR-247 / ADR-095, 2026-09-16):**
+> **Approved Projects & Work amendment (FR-250 / ADR-096, 2026-09-16):**
 > the existing `projects` domain is labelled Projects & Work. Its sidebar selects
 > six logical modules; module-local tabs select the existing Business or authorized
 > Project views. The updated sections 3 and 5.1 below supersede the older
 > Development label and project-tab examples retained elsewhere in this document.
 > Business remains the scope ceiling. Domain keys, grants and URLs are unchanged.
 > Implementation evidence is recorded in the
-> [FR-247 note](domains/project-manager/features/FR-247-hierarchical-project-navigation.md).
+> [FR-250 note](domains/project-manager/features/FR-250-hierarchical-project-navigation.md).
 
 ## 1. The three navigation tiers
 
@@ -242,7 +242,7 @@ Instagram, GA4 and SEO in a draft are channel intent, not connected accounts.
 Reserved domains render as reserved here, never as zero — a slot with no module has
 no number to report, and a zero would read as "measured and bad".
 
-### Projects & Work — six logical modules *(existing `projects` route key, FR-247)*
+### Projects & Work — six logical modules *(existing `projects` route key, FR-250)*
 
 | Sidebar module | Business-local views | Authorized Project-local views |
 |---|---|---|

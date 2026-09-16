@@ -39,7 +39,7 @@ test.describe('FR-040 Project Work views', () => {
     await expect(page.getByRole('navigation', { name: 'Project work views' })).toBeVisible()
   })
 
-  // @req FR-006, FR-247 — the Work sub-view bar and the six-module sidebar
+  // @req FR-006, FR-250 — the Work sub-view bar and the six-module sidebar
   // render together on every project Work route. Only the selected module's
   // local views are shown, and the retired full Project row is absent.
   // @spec SDD-019, ADR-012

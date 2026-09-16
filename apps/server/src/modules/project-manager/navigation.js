@@ -13,11 +13,11 @@ import {
   Users,
 } from 'lucide-react'
 
-// @req FR-247 — Projects & Work presents six logical modules while retaining
+// @req FR-250 — Projects & Work presents six logical modules while retaining
 // the existing Business and Project routes. This registry is presentation
 // metadata only: grants, route guards, and API ownership remain unchanged.
-// @spec ADR-095, docs/architecture/project-manager-system/22-NAVIGATION-IMPLEMENTATION-BASELINE.md
-// @tested tests/unit/fr247-navigation.test.js, tests/e2e/fr247-navigation.spec.js
+// @spec ADR-096, docs/architecture/project-manager-system/22-NAVIGATION-IMPLEMENTATION-BASELINE.md
+// @tested tests/unit/fr250-navigation.test.js, tests/e2e/fr250-navigation.spec.js
 
 const PROJECT_PREFIX = '/projects/'
 const EXECUTION_MODES = new Set([

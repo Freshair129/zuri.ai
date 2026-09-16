@@ -1,7 +1,7 @@
 ---
-id: ZAI:FR-247-NOTE
+id: ZAI:FR-250-NOTE
 title: Hierarchical Projects and Work navigation
-feature: FR-247
+feature: FR-250
 domain: project-manager
 source: v2-native
 version: "0.2.1b"
@@ -10,16 +10,16 @@ created_at: "2026-09-16T14:38:26+07:00,RWANG,base eddd3dd8"
 last_update: "2026-09-16T18:13:00+07:00,RWANG"
 relations:
   - type: references
-    target: ZAI:FR-247
+    target: ZAI:FR-250
   - type: references
-    target: ZAI:ADR-095
+    target: ZAI:ADR-096
   - type: references
     target: ZAI:PM-DOMAIN-NAV-BOUNDARIES
   - type: references
     target: ZAI:PM-EXISTING-TAB-SEMANTICS
 ---
 
-# FR-247 — Hierarchical Projects and Work navigation
+# FR-250 — Hierarchical Projects and Work navigation
 
 ## Behavior and ownership
 
@@ -58,13 +58,13 @@ The project-manager lane owns this presentation. Domain/grant identity, API owne
 
 The owner subsequently instructed **"fix it"** for the two cross-domain browser failures. The bounded correction is implemented at `86de7f61`: Knowledge SVG nodes activate with Enter/Space, and the CRM session test identifies one current thread by its unique customer name while checking all three messages and both distinct session codes. Navigation source is unchanged by this follow-up.
 
-The normal complete browser run now passes **194 cases, with the same 4 existing skips, 0 failures and 0 flaky cases**, exit 0. All 198 case identities and the skipped-case inventory match the original run. FR-213 passes 3/3, FR-243 1/1 and FR-247 10/10. The correction also passes 47 relevant unit/integration checks and the optimized build. Independent Luna Max source/test review and root runtime verification are separate receipts under `pm-execution-qa/regression-fix-20260916/`.
+The normal complete browser run now passes **194 cases, with the same 4 existing skips, 0 failures and 0 flaky cases**, exit 0. All 198 case identities and the skipped-case inventory match the original run. FR-213 passes 3/3, FR-243 1/1 and FR-250 10/10. The correction also passes 47 relevant unit/integration checks and the optimized build. Independent Luna Max source/test review and root runtime verification are separate receipts under `pm-execution-qa/regression-fix-20260916/`.
 
 The local browser gate is passing. Hosted CI, merge and production remain unperformed. The earlier full unit run is retained below as historical evidence; 47 affected checks ran on the correction.
 
 ## Original navigation validation — historical evidence at d33254aa
 
-The owner explicitly approved ADR-095 / FR-247 on 2026-09-16 after reviewing document commit `3f36668fbe70bc447a0f0da4fd7dfcdfbae66617`. The composed document/prototype gate passed 35 navigation checks, 148 contract checks and root browser review. These are design evidence, not application implementation evidence.
+The owner explicitly approved ADR-096 / FR-250 on 2026-09-16 after reviewing document commit `3f36668fbe70bc447a0f0da4fd7dfcdfbae66617`. The composed document/prototype gate passed 35 navigation checks, 148 contract checks and root browser review. These are design evidence, not application implementation evidence.
 
 The implemented application source and acceptance tests are frozen at `d33254aa`, based on upstream integration `d23a9396`. Luna Max authored the source and test packets separately; an independent Luna Max verifier reviewed the source, rendered-link coverage and final corrections. Root composed the packets and ran the application gates. The initial 62-unit/20-browser baseline remains historical evidence only.
 
@@ -76,14 +76,14 @@ The implemented application source and acceptance tests are frozen at `d33254aa`
 | Focused browser run | 72 passed; 4 existing skipped | Import clicks from all three live modules, all eight Business destinations, all seven Work views, Project context/history, planned disclosures, Inventory drilldown, seven execution modes, and 390px layout |
 | Build | PASS | `npm --prefix apps/server run build`; optimized build completed on the composed application source |
 | Governance | PASS with existing warning | Graph/check/strict preflight: 0 CRITICAL; 1 existing warning for synthetic unknown requirement IDs in the program-task-evidence test fixture |
-| Full browser regression | 192 passed; 4 skipped; 2 failed; 0 flaky | Frozen source at `d33254aa`; all 10 FR-247 cases pass. FR-213 keyboard selection and FR-243 retired thread locator fail in unchanged files; repository-wide browser gate is not green |
+| Full browser regression | 192 passed; 4 skipped; 2 failed; 0 flaky | Frozen source at `d33254aa`; all 10 FR-250 cases pass. FR-213 keyboard selection and FR-243 retired thread locator fail in unchanged files; repository-wide browser gate is not green |
 | Pre-navigation comparison | Same two test cases fail on both attempts | Original specs on `d23a9396`, isolated port/database, normal warmup; baseline harness stalled after tests during final cleanup, so no normal exit or completed gate is claimed. See cross-domain RCA and final gate receipt |
 | Root visual review | PASS | Actual seeded application at 1440px and 390px; full-word labels, one Work view row, Import reachability and keyboard focus return inspected |
 | Hosted CI / production | NOT_RUN | These local results do not claim a production release |
 
-The complete run logs, screenshots and independent receipts are retained in the task artifact folder `pm-execution-qa/navigation-implementation/`. The source delta does not change API handlers, Prisma schema, ScopeContext or BusinessShellGuard. Existing null-owner shared Projects retain the same guard semantics. The first failed unit assertions and visual findings are preserved in [the integration RCA](../../../../.brain/rca/2026-09-16-fr247-navigation-integration.md).
+The complete run logs, screenshots and independent receipts are retained in the task artifact folder `pm-execution-qa/navigation-implementation/`. The source delta does not change API handlers, Prisma schema, ScopeContext or BusinessShellGuard. Existing null-owner shared Projects retain the same guard semantics. The first failed unit assertions and visual findings are preserved in [the integration RCA](../../../../.brain/rca/2026-09-16-fr250-navigation-integration.md).
 
-The two original complete-suite failures and their subsequent correction are recorded in the [cross-domain gate RCA](../../../../.brain/rca/2026-09-16-fr247-baseline-regression-gates.md). The table above preserves the original failed run. Current full-browser evidence is stated in Current delivery state; no production release is claimed.
+The two original complete-suite failures and their subsequent correction are recorded in the [cross-domain gate RCA](../../../../.brain/rca/2026-09-16-fr250-baseline-regression-gates.md). The table above preserves the original failed run. Current full-browser evidence is stated in Current delivery state; no production release is claimed.
 
 No new API, database schema, resource calculation, risk register, agent executor or provider registry is included in this slice. Those remain explicit work packages in the PM delivery plan.
 

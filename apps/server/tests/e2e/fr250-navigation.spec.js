@@ -1,7 +1,7 @@
-// @req FR-247 — execution children retain their Project parent, Inventory
+// @req FR-250 — execution children retain their Project parent, Inventory
 // drilldowns remain usable, and missing Project scope cannot render navigation.
-// @spec ADR-095, SDD-019
-// @tested tests/e2e/fr247-navigation.spec.js
+// @spec ADR-096, SDD-019
+// @tested tests/e2e/fr250-navigation.spec.js
 const { test, expect } = require('@playwright/test')
 const { loginAsOwner } = require('./e2e-auth')
 const { api } = require('./reconnecting-request')
@@ -18,7 +18,7 @@ async function openProject(page) {
   return id
 }
 
-test.describe('FR-247 navigation boundaries', () => {
+test.describe('FR-250 navigation boundaries', () => {
   for (const mode of ['sprint', 'migration', 'b2b-sales', 'b2c-campaign', 'product-launch', 'operations', 'expansion']) {
     test(`execution ${mode} keeps its Project Overview parent and return link`, async ({ page }) => {
       const id = await openProject(page)

@@ -37,7 +37,7 @@ relations:
 
 **อ่านข้อสรุปล่าสุดก่อน:** [13 Domain placement & navigation boundaries](13-DOMAIN-TAXONOMY-AND-NAVIGATION-BOUNDARIES.md) — ตามคำชี้แจงของเจ้าของ ให้ Top bar = Domain, Sidebar = subdomain/module, Tabs = views/sections และ Business Home = shortcuts ข้าม Domain เสนอชื่อ Projects & Work แทน Development โดยคง key เดิม
 
-**Navigation review state:** [22 Core navigation baseline](22-NAVIGATION-IMPLEMENTATION-BASELINE.md) reconciles the core machine model into six logical sidebar modules and module-local tabs. Import is one shared Project action. Deferred screen families retain explicitly historical, non-generatable bindings; this does not implement or approve all 37 screens. [ADR-095](../../decisions/ADR-095-PROJECTS-AND-WORK-HIERARCHICAL-NAVIGATION.md) and [FR-247](../../domains/project-manager/features/FR-247-hierarchical-project-navigation.md) register the proposed navigation slice.
+**Navigation review state:** [22 Core navigation baseline](22-NAVIGATION-IMPLEMENTATION-BASELINE.md) reconciles the core machine model into six logical sidebar modules and module-local tabs. Import is one shared Project action. Deferred screen families retain explicitly historical, non-generatable bindings; this does not implement or approve all 37 screens. [ADR-096](../../decisions/ADR-096-PROJECTS-AND-WORK-HIERARCHICAL-NAVIGATION.md) and [FR-250](../../domains/project-manager/features/FR-250-hierarchical-project-navigation.md) register the proposed navigation slice.
 
 **ส่วนเพิ่มล่าสุด:** [UX strategy](10-UX-STRATEGY-AND-JOURNEYS.md) → [UI system](11-UI-SYSTEM-AND-INTERACTIONS.md) → [37 wireframes / screen specs](12-WIREFRAMES-AND-SCREEN-SPECS.md). เป็นส่วนต่อยอดจากผังเมนู v0.2.0b; application code ยังไม่เปลี่ยน
 
@@ -250,7 +250,7 @@ Domain และ Feature เป็นคนละแกน:
 |---|---|
 | Allocation identity/unit and mutation receipts disagreed between candidates | One proposed human allocation writer and composed examples; generic CSRF owner port remains open |
 | Core machine navigation retained the withdrawn layout | Six modules with local tabs, one persistent Project Import action, explicit deferred bindings |
-| Proposal-local navigation only | Candidate ADR-095 / FR-247 with ledger registration; approval and application implementation pending |
+| Proposal-local navigation only | Candidate ADR-096 / FR-250 with ledger registration; approval and application implementation pending |
 | Planning-only worker packets | Luna Max document workers, independent Luna Max verification and root composition; failed attempts retained in local QA |
 | 21 Markdown / 13 contracts | 23 package Markdown / 15 contracts, plus two canonical navigation documents |
 

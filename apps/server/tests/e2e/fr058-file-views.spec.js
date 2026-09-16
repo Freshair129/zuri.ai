@@ -48,7 +48,7 @@ test.describe('FR-058 File Manager view switcher', () => {
     const diagramUrl = `https://example.test/fr058/${diagramName}`
 
     await chooseBusiness(page)
-    // FR-060 / FR-247 — landing is Business Home; Files is a Resource
+    // FR-060 / FR-250 — landing is Business Home; Files is a Resource
     // Coordination Business destination.
     await page.getByRole('link', { name: 'Projects & Work' }).first().click()
     await expect(page).toHaveURL(/\/projects$/)

@@ -1,7 +1,7 @@
-// @req FR-247 — Projects & Work keeps one domain identity while presenting
+// @req FR-250 — Projects & Work keeps one domain identity while presenting
 // six logical modules, scoped Project surfaces, and one shared Import action.
-// @spec ADR-095, docs/architecture/project-manager-system/22-NAVIGATION-IMPLEMENTATION-BASELINE.md
-// @tested tests/unit/fr247-navigation.test.js
+// @spec ADR-096, docs/architecture/project-manager-system/22-NAVIGATION-IMPLEMENTATION-BASELINE.md
+// @tested tests/unit/fr250-navigation.test.js
 import { describe, expect, it } from 'vitest'
 import { EXECUTION_NAV } from '@/config/modules'
 import {
@@ -28,7 +28,7 @@ const MODULE_LABELS = [
 
 const PROJECT_ID = 'project-01'
 
-describe('FR-247 Projects & Work navigation registry', () => {
+describe('FR-250 Projects & Work navigation registry', () => {
   it('declares exactly six logical modules with three live and three planned entries', () => {
     expect(PM_MODULES).toHaveLength(6)
     expect(PM_MODULES.map((module) => module.label)).toEqual(MODULE_LABELS)

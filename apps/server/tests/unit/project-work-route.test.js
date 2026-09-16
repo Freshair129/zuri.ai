@@ -1,7 +1,7 @@
-// @req FR-006, FR-012, FR-040, FR-068, FR-247 — Project Work owns one
+// @req FR-006, FR-012, FR-040, FR-068, FR-250 — Project Work owns one
 // seven-view local row; Project Management and Resource Coordination own their
 // own local tabs, and Import is one shared Project action.
-// @spec SDD-019, SDD-039, ADR-012, ADR-028, ADR-095
+// @spec SDD-019, SDD-039, ADR-012, ADR-028, ADR-096
 // @tested tests/unit/project-work-route.test.js
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'

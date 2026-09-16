@@ -93,23 +93,23 @@ with no sibling to consolidate.
 
 ## Projects & Work
 
-The owner approved [ADR-095](decisions/ADR-095-PROJECTS-AND-WORK-HIERARCHICAL-NAVIGATION.md)
-and FR-247 on 2026-09-16. The existing `projects` key, `DOM-DEVELOPMENT`
+The owner approved [ADR-096](decisions/ADR-096-PROJECTS-AND-WORK-HIERARCHICAL-NAVIGATION.md)
+and FR-250 on 2026-09-16. The existing `projects` key, `DOM-DEVELOPMENT`
 identity and project-manager charter remain. This is one domain with six logical
 modules; it creates neither a new ERP parent nor six grants. Business Home links
 to owner surfaces and remains a cross-domain projection.
 
 | Logical module | Lane and authority | FRs | State and boundary |
 |---|---|---|---|
-| Project Management | project-manager; `projects` | FR-247, FR-086, FR-077, FR-012 | Existing Project and read-only Inventory surfaces; shared Import plan action |
-| Work Management | project-manager; `projects` | FR-247, FR-005, FR-006, FR-007, FR-009, FR-040, FR-064, FR-068 | Existing Business work surfaces and seven Project Work views |
-| Delivery Design | presentation in project-manager; referenced artifact owners retain authority | FR-247 | Planned disclosure only; Domains, Features, Requirements, Architecture, API and Docs & Decisions |
-| Resource Coordination | project-manager navigation; identity owns Membership | FR-247, FR-036, FR-045, FR-008 | Existing Team, Files and Repositories; workforce Resources remains planned and is not represented by Team |
-| Delivery Governance | project-manager presentation; future capability ownership follows its specification | FR-247 | Planned disclosure only; Risks, Reviews, Test & Release Evidence and Activity |
-| Agent Delivery | project-manager presentation; agent/provider execution retains its owner lanes | FR-247 | Planned disclosure only; Command Center, Agents, Fleets and Workflows |
+| Project Management | project-manager; `projects` | FR-250, FR-086, FR-077, FR-012 | Existing Project and read-only Inventory surfaces; shared Import plan action |
+| Work Management | project-manager; `projects` | FR-250, FR-005, FR-006, FR-007, FR-009, FR-040, FR-064, FR-068 | Existing Business work surfaces and seven Project Work views |
+| Delivery Design | presentation in project-manager; referenced artifact owners retain authority | FR-250 | Planned disclosure only; Domains, Features, Requirements, Architecture, API and Docs & Decisions |
+| Resource Coordination | project-manager navigation; identity owns Membership | FR-250, FR-036, FR-045, FR-008 | Existing Team, Files and Repositories; workforce Resources remains planned and is not represented by Team |
+| Delivery Governance | project-manager presentation; future capability ownership follows its specification | FR-250 | Planned disclosure only; Risks, Reviews, Test & Release Evidence and Activity |
+| Agent Delivery | project-manager presentation; agent/provider execution retains its owner lanes | FR-250 | Planned disclosure only; Command Center, Agents, Fleets and Workflows |
 
 The navigation implementation is tracked separately from each capability in the
-[FR-247 delivery record](domains/project-manager/features/FR-247-hierarchical-project-navigation.md).
+[FR-250 delivery record](domains/project-manager/features/FR-250-hierarchical-project-navigation.md).
 A visible planned module is not evidence that its API, model or workflow exists.
 
 ## Adding a row

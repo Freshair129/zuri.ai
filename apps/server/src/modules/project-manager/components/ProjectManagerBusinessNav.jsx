@@ -4,10 +4,10 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { moduleForBusinessPath, pathMatches } from '@/modules/project-manager/navigation'
 
-// @req FR-247 — Business destinations stay in the Projects & Work domain and
+// @req FR-250 — Business destinations stay in the Projects & Work domain and
 // are presented as local tabs within the selected live module.
 // @req FR-039 — this component is presentation-only and does not decide grants.
-// @spec ADR-095, docs/architecture/project-manager-system/22-NAVIGATION-IMPLEMENTATION-BASELINE.md
+// @spec ADR-096, docs/architecture/project-manager-system/22-NAVIGATION-IMPLEMENTATION-BASELINE.md
 // @tested tests/unit/project-work-route.test.js
 export default function ProjectManagerBusinessNav() {
   const pathname = usePathname()

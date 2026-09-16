@@ -59,7 +59,7 @@ Landing → credential Login → signed viewer resolution → Business Routing
 | **EntryShell** | no authenticated viewer or pre-shell entry | `/`, `/login`, `/signup`, `/reset-password` | `src/components/layouts/EntryShell.jsx` | no domain bar, sidebar or Business context |
 | **BusinessRoutingShell** | viewer exists but Business is not selected | `/businesses`, `/onboarding/profile`, `/waiting-room`, `/workspace-home` | `src/components/layouts/BusinessRoutingShell.jsx` | displays only authorized Business choices; offers sign-out (FR-046/FR-095) |
 | **BusinessShell** | trusted viewer plus authorized `activeBusinessId` | `/overview` and Business domains | `src/app/(pm)/layout.jsx`, `BusinessShellGuard.jsx` | selection occurs before final chrome mounts; Topbar offers sign-out (FR-046/FR-095) |
-| **ProjectResourceShell** | BusinessShell plus opened `projectId` | `/projects/[projectId]/**` | `src/app/(pm)/projects/[projectId]/layout.jsx` | Authorized Project module-local views and one shared Import plan action remain inside the selected Business (FR-247) |
+| **ProjectResourceShell** | BusinessShell plus opened `projectId` | `/projects/[projectId]/**` | `src/app/(pm)/projects/[projectId]/layout.jsx` | Authorized Project module-local views and one shared Import plan action remain inside the selected Business (FR-250) |
 | **PlatformControlShell** | trusted installation operator; no Business selection | `/control/**` | `src/app/(control)/layout.jsx` | no DomainBar, Business sidebar, Business context or Business navigation entry; offers sign-out (FR-046/FR-095) |
 
 `/overview` is Business Home's Dashboard and the BusinessShell root. It is not a
@@ -93,9 +93,9 @@ mean production identity, external providers or cutover gates are complete.
 ### 3.2 Projects & Work domain — global surfaces
 
 The route registry retains eight Projects & Work destinations, including Files;
-the Business Home slot is excluded from this count. ADR-095 / FR-247 presents
+the Business Home slot is excluded from this count. ADR-096 / FR-250 presents
 these through six logical sidebar modules. The count describes flat route entries,
-not the number of visible modules. Delivery evidence is in the FR-247 feature note.
+not the number of visible modules. Delivery evidence is in the FR-250 feature note.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|

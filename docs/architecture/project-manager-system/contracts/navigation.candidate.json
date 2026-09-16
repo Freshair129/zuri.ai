@@ -25,8 +25,8 @@
     "reuseExistingRequirementSubjects": true,
     "newIdsRequireRootLedgerAllocation": true,
     "rootAllocationHintsOnly": {
-      "navigationHierarchy": "FR-247 if root verifies it is free and subject-appropriate",
-      "displayLabelAmendment": "ADR-095 if root verifies the ledger and approves an ADR-071 D4 amendment"
+      "navigationHierarchy": "FR-250 if root verifies it is free and subject-appropriate",
+      "displayLabelAmendment": "ADR-096 if root verifies the ledger and approves an ADR-071 D4 amendment"
     }
   },
   "domain": {
@@ -125,7 +125,7 @@
         "field": "importReachability",
         "historicalValue": "PM header only",
         "proposedValue": "one PM-owned action referenced by every authorized live Project module shell",
-        "reason": "ADR-095 and FR-247 acceptance 5"
+        "reason": "ADR-096 and FR-250 acceptance 5"
       }
     ],
     "conflictRule": "Do not merge withdrawn historical policies with this candidate."
@@ -1075,13 +1075,13 @@
       "action": "AMENDMENT_REQUIRED",
       "subject": "Development remains standalone while display label becomes Projects & Work",
       "evidence": ".claude/AGENTS.md; ADR-071 D4",
-      "rootAllocationHint": "ADR-095"
+      "rootAllocationHint": "ADR-096"
     },
     {
       "id": null,
       "action": "NEW_ID_REQUIRED",
       "subject": "six logical modules with module-local navigation and preserved route identities",
-      "rootAllocationHint": "FR-247 if free; root verifies ledger",
+      "rootAllocationHint": "FR-250 if free; root verifies ledger",
       "canonicalStatus": "NOT_REGISTERED"
     }
   ],
@@ -1129,11 +1129,11 @@
     "The canonical /work identity is b.all-work; b.work is a classified source alias correction only.",
     "WF-13 remains Docs & Decisions with document and decision semantics and no invented route.",
     "No canonical IDs are allocated; runtime implementation and migrations remain outside this packet.",
-    "Canonical navigation/requirement authority is root-authored by FR-247 and ADR-095; this worker allocates no canonical IDs and only uses candidate-local surface/action ids."
+    "Canonical navigation/requirement authority is root-authored by FR-250 and ADR-096; this worker allocates no canonical IDs and only uses candidate-local surface/action ids."
   ],
   "authorityRefs": {
-    "adr095": "zuri-pm-execution/docs/decisions/ADR-095-PROJECTS-AND-WORK-HIERARCHICAL-NAVIGATION.md",
-    "fr247": "zuri-pm-execution/docs/domains/project-manager/features/FR-247-hierarchical-project-navigation.md",
+    "adr096": "zuri-pm-execution/docs/decisions/ADR-096-PROJECTS-AND-WORK-HIERARCHICAL-NAVIGATION.md",
+    "fr250": "zuri-pm-execution/docs/domains/project-manager/features/FR-250-hierarchical-project-navigation.md",
     "independentVerifier": "pm-execution-qa/verifier/d08-nav-draft-verification.json"
   },
   "sharedProjectActions": [
@@ -1700,8 +1700,8 @@
   "canonicalIdStatus": {
     "status": "ROOT_AUTHORED_WORKER_DID_NOT_ALLOCATE",
     "rootAuthoredReferences": [
-      "FR-247",
-      "ADR-095"
+      "FR-250",
+      "ADR-096"
     ],
     "workerAllocatedIds": [],
     "candidateLocalSurfaceIds": true,

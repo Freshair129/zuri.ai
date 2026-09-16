@@ -1,6 +1,6 @@
-// @req FR-039, FR-247 — sidebar exposes the active Business domain's six
+// @req FR-039, FR-250 — sidebar exposes the active Business domain's six
 // Projects & Work modules without inventing grants or routes.
-// @spec SDD-018, ADR-011, ADR-095, SITEMAP-V2-DOMAIN-NAV §3
+// @spec SDD-018, ADR-011, ADR-096, SITEMAP-V2-DOMAIN-NAV §3
 // @tested tests/unit/sidebar-visible-subdomains.test.js
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -24,7 +24,7 @@ describe('sidebar sub-domain visibility', () => {
     expect(sidebar).toContain('max-md:opacity-0')
   })
 
-  // @req FR-060, FR-247 — the heading stays static; the first Projects & Work
+  // @req FR-060, FR-250 — the heading stays static; the first Projects & Work
   // module points at `/projects`, since `/overview` belongs to Business Home.
   it('keeps the domain heading static and renders the six Projects & Work modules', () => {
     const projects = DOMAINS.find((domain) => domain.key === 'projects')

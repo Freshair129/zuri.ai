@@ -5,10 +5,10 @@ last_update: "2026-09-16T16:50:00+07:00,RWANG"
 status: beta
 attributes:
   domain: project-manager
-  scope: FR-247 local implementation gate
+  scope: FR-250 local implementation gate
 ---
 
-# FR-247 navigation integration findings
+# FR-250 navigation integration findings
 
 ## Symptom
 

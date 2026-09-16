@@ -1,6 +1,6 @@
-// @req FR-039, FR-247 — Projects & Work is the display label for the existing
+// @req FR-039, FR-250 — Projects & Work is the display label for the existing
 // projects domain key; the six logical modules remain presentation metadata.
-// @spec SDD-018, ADR-011, ADR-095
+// @spec SDD-018, ADR-011, ADR-096
 // @tested tests/unit/domain-navigation.test.js
 import { describe, expect, it } from 'vitest'
 import { DOMAINS, domainForPath } from '@/config/domains'
@@ -8,7 +8,7 @@ import { modules } from '@/config/modules'
 import { PM_MODULES } from '@/modules/project-manager/navigation'
 
 describe('Business domain navigation', () => {
-  // @req FR-247 — Projects & Work keeps the existing route key and `/projects`
+  // @req FR-250 — Projects & Work keeps the existing route key and `/projects`
   // root. The route registry retains its eight destinations; the presentation
   // sidebar's six logical modules are pinned in the PM navigation registry.
   it('uses Projects & Work for the existing projects domain and preserves route entries', () => {

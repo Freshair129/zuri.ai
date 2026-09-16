@@ -5,7 +5,7 @@
   "runtimeImplemented": false,
   "sourceRef": "zuri-pm-design/docs/architecture/project-manager-system/contracts/ux-ui.candidate.json",
   "navigationRef": "navigation.candidate.json",
-  "requirementsRef": "zuri-pm-execution/docs/domains/project-manager/features/FR-247-hierarchical-project-navigation.md",
+  "requirementsRef": "zuri-pm-execution/docs/domains/project-manager/features/FR-250-hierarchical-project-navigation.md",
   "documents": [
     "../10-UX-STRATEGY-AND-JOURNEYS.md",
     "../11-UI-SYSTEM-AND-INTERACTIONS.md",

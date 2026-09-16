@@ -47,7 +47,7 @@ test.describe('FR-044 entry to BusinessShell', () => {
     await expect(page.locator('aside').getByRole('link', { name: 'Overview' })).toHaveCount(0)
     await expect(page.locator('aside').getByText('Business Home', { exact: true })).toHaveCount(1)
     await expect(page.locator('aside').getByRole('link', { name: 'Business Home' })).toHaveCount(0)
-    // FR-060 / FR-247 — Projects & Work roots at its Project Management
+    // FR-060 / FR-250 — Projects & Work roots at its Project Management
     // surface now.
     await expect(page.getByRole('link', { name: 'Projects & Work' }).first()).toHaveAttribute('href', '/projects')
 

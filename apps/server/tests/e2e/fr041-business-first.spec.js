@@ -37,7 +37,7 @@ test.describe('FR-041/042 Business-first shell', () => {
     await expect(page.getByText(/Project Team is a separate Project-local view/)).toBeVisible()
     const projectsWorkLink = page.getByRole('link', { name: 'Projects & Work' }).first()
     await expect(projectsWorkLink).toBeVisible()
-    // FR-060 / FR-247 — Projects & Work roots at its Project Management
+    // FR-060 / FR-250 — Projects & Work roots at its Project Management
     // surface; `/overview` remains the Business Home Dashboard.
     await expect(projectsWorkLink).toHaveAttribute('href', '/projects')
   })

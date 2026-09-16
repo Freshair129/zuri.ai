@@ -208,7 +208,7 @@ The deliverable is a candidate plan. All work packages remain PLANNED; product i
 
 ## 12. First document-closure wave — package v0.9.0b
 
-Current source baseline is `eddd3dd8d884a0b19a65f9a3019758c05c815b48` in the isolated `codex/pm-delivery-20260916` worktree. A later registry refresh to `fd9a505240f15bcc10f8359f54259516abb1cbca` preserved six unrelated requirement-status corrections; it changed no navigation source. PRD is 1.230.0b and candidate navigation is registered as ADR-095 / FR-247. This is not owner approval of the new application behavior.
+Current source baseline is `eddd3dd8d884a0b19a65f9a3019758c05c815b48` in the isolated `codex/pm-delivery-20260916` worktree. A later registry refresh to `fd9a505240f15bcc10f8359f54259516abb1cbca` preserved six unrelated requirement-status corrections; it changed no navigation source. PRD is 1.230.0b and candidate navigation is registered as ADR-096 / FR-250. This is not owner approval of the new application behavior.
 
 Luna Max document workers submitted bounded contract and core-navigation packets. Independent Luna Max verification rejected early attempts. Root repaired six reproduced contract gaps, composed the accepted artifacts, reconciled registry rows and checked the final documentation prototype. Failed attempts and exact-revision receipts remain in the local `pm-execution-qa` evidence directory.
 

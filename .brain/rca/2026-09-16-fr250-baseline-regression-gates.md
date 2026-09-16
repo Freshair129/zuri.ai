@@ -5,7 +5,7 @@ last_update: "2026-09-16T18:13:00+07:00,RWANG"
 status: beta
 attributes:
   domain: cross-domain-verification
-  scope: existing FR-213 and FR-243 failures observed during FR-247 acceptance
+  scope: existing FR-213 and FR-243 failures observed during FR-250 acceptance
 ---
 
 # Existing cross-domain browser gate findings
@@ -57,7 +57,7 @@ Source and tests are frozen at `86de7f61ac02bda893d7ccbc9756957d52ea4c24`. The i
 | Relevant unit/integration checks | 47 passed across six files; exit 0; nonzero-execution wrapper passed |
 | Optimized build | PASS, exit 0 |
 | Complete browser suite | 194 passed, 4 existing skipped, 0 failed, 0 flaky; normal exit 0 in 13.5 minutes |
-| Affected browser cases | FR-213 3/3, FR-243 1/1, FR-247 10/10 passed |
+| Affected browser cases | FR-213 3/3, FR-243 1/1, FR-250 10/10 passed |
 | Suite integrity | All 198 case identities and the four skipped case identities match the original complete run |
 | Hosted CI / merge / production | NOT_RUN |
 

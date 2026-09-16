@@ -20,12 +20,12 @@ attributes:
 
 ## 1. Decision boundary
 
-**Approval transition, 2026-09-16:** the owner approved ADR-095 / FR-247 after
+**Approval transition, 2026-09-16:** the owner approved ADR-096 / FR-250 after
 independent document verification and root review of commit `3f36668f`.
 The application navigation implementation may proceed within that exact scope.
 The attempt-specific evidence and limitations below describe the preserved design
 packet; current implementation evidence belongs to the
-[FR-247 delivery record](../../domains/project-manager/features/FR-247-hierarchical-project-navigation.md).
+[FR-250 delivery record](../../domains/project-manager/features/FR-250-hierarchical-project-navigation.md).
 
 This is a design candidate for the Projects & Work navigation slice. It does not claim a runtime implementation, route migration, data migration, generated canonical ID, governance pass, test pass, browser pass, or deployment. Attempt 2 remains immutable in ../attempt-2/.
 
@@ -94,8 +94,8 @@ The validator parses the full candidate, applies keyed patch expectations agains
 | docs/architecture/project-manager-system/13-DOMAIN-TAXONOMY-AND-NAVIGATION-BOUNDARIES.md | b7834a2e8087c1582af327d633e778e0945839d0ed0f09a3bbce5ba472edf498 |
 | docs/architecture/project-manager-system/14-EXISTING-PROJECT-TAB-SEMANTICS.md | 9d3c9b5938e06ac50d85183c11a352a8be0a8c2544153d913ca66115ed32b4c4 |
 | docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md | 244792688df0daa70ca9c73b74b49f85fc16ba49346622b6afe12130254c7524 |
-| docs/decisions/ADR-095-PROJECTS-AND-WORK-HIERARCHICAL-NAVIGATION.md | 38cab0c22e4f08940dda6c7f2689ea076deabeca47eaed80335ae01d6cf5b3a2 |
-| docs/domains/project-manager/features/FR-247-hierarchical-project-navigation.md | 4ccaac73e12cf8715dd61422ca681ece5b2ea7d20d685d9d37a6d24a90aa85bc |
+| docs/decisions/ADR-096-PROJECTS-AND-WORK-HIERARCHICAL-NAVIGATION.md | 38cab0c22e4f08940dda6c7f2689ea076deabeca47eaed80335ae01d6cf5b3a2 |
+| docs/domains/project-manager/features/FR-250-hierarchical-project-navigation.md | 4ccaac73e12cf8715dd61422ca681ece5b2ea7d20d685d9d37a6d24a90aa85bc |
 
 ## 8. Source route evidence
 
@@ -139,4 +139,4 @@ Root must independently verify this attempt, reconcile shared files, allocate or
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.3.0b | 2026-09-16T15:22:16+07:00 | candidate | Attempt 3 closes D08-001..005 at design level with shared action, typed refs, legacy policy, /work identity correction, and full UX composition | eddd3dd8d884a0b19a65f9a3019758c05c815b48 | Luna Max worker A |
-| 0.3.1b | 2026-09-16 | beta | Record owner approval and bind subsequent application evidence to FR-247; preserve the immutable attempt record | approved baseline 3f36668f | RWANG |
+| 0.3.1b | 2026-09-16 | beta | Record owner approval and bind subsequent application evidence to FR-250; preserve the immutable attempt record | approved baseline 3f36668f | RWANG |

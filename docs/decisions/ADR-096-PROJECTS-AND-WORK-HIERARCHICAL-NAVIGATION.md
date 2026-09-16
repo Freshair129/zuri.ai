@@ -1,5 +1,5 @@
 ---
-id: ZAI:ADR-095
+id: ZAI:ADR-096
 title: Projects and Work uses domain, module and local view navigation
 version: "0.2.1b"
 status: beta
@@ -22,7 +22,7 @@ relations:
     target: ZAI:PM-EXISTING-TAB-SEMANTICS
 ---
 
-# ADR-095 — Projects and Work uses domain, module and local view navigation
+# ADR-096 — Projects and Work uses domain, module and local view navigation
 
 **Status:** Approved for application implementation by the owner's explicit “approve” on 2026-09-16, following the review of commit `3f36668fbe70bc447a0f0da4fd7dfcdfbae66617`. Independent Luna verification and root document acceptance passed before this approval. Production release is separate.
 

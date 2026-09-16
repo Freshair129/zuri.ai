@@ -1,9 +1,9 @@
 'use client'
 
-// @req FR-247 — Projects & Work composes module-local Business navigation and
+// @req FR-250 — Projects & Work composes module-local Business navigation and
 // a compact mobile module menu inside the existing guarded shell.
-// @spec ADR-095, SDD-019
-// @tested tests/e2e/fr247-navigation.spec.js, tests/e2e/navigation-reachability.spec.js
+// @spec ADR-096, SDD-019
+// @tested tests/e2e/fr250-navigation.spec.js, tests/e2e/navigation-reachability.spec.js
 
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
