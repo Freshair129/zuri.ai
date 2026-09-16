@@ -1,8 +1,8 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-09-16T18:00:00+07:00,Claude Sonnet 5,b6e002ef"
-last_update: "2026-09-16T18:00:00+07:00,Claude Sonnet 5"
-status: candidate
+last_update: "2026-09-16T18:20:00+07:00,Claude Sonnet 5"
+status: accepted
 superseded_by: null
 attributes:
   domain: platform-control
@@ -16,10 +16,10 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 0.1.0b |
-| **Status** | Candidate — proposal for the owner's decision; no FR declared, no code |
-| Complexity / risk | Error tracking: C-2, LOW-MEDIUM if built on the existing logger; C-3 if a third-party service is added. Feature usage: C-2, MEDIUM — the risk is entirely in the privacy questions in §4, not the code |
-| Identity | No domain owns this today. Likely lane: `platform-control` — every existing measurement surface (ADR-086 usage meter, ADR-087 harness plugin, ADR-092 member view) already lives there and reads the same allowlist discipline this proposal extends |
+| **Version** | 0.2.0b |
+| **Status** | **Accepted by the owner 2026-09-16** — §7 records the decision; work proceeds as ADR + FR declarations, then code |
+| Complexity / risk | Error tracking: C-2, LOW-MEDIUM, built on the existing logger. Feature usage: C-3 — accepted at both route and action level, per person, which is the more expensive and more privacy-sensitive of the two options laid out in §3.2 |
+| Identity | `platform-control` — every existing measurement surface (ADR-086 usage meter, ADR-087 harness plugin, ADR-092 member view) already lives there and reads the same allowlist discipline this proposal extends |
 | Baseline | `b6e002ef`, inspected 2026-09-16 |
 | Change | New — written after the owner asked "log ของระบบเราเก็บอะไรบ้าง" and a full-repository survey found these two gaps with nothing partially built to extend |
 
@@ -135,3 +135,23 @@ route-level + aggregate (ไม่ผูกคน) เป็นจุดเร�
 ผ่านมาแล้ว): ประกาศ FR (และ ADR ถ้าต้องบันทึกเหตุผลการตัดสินใจ เหมือน ADR-086/ADR-092)
 → `docs:ids -- --write` → ทำงานใน chartered lane → annotate → `npm run govern`
 ไม่มีทางลัดเพราะมาจาก CR
+
+## 7. คำตอบของ owner (2026-09-16)
+
+- **Error tracking → ตัวเลือก A**: ต่อยอดจาก `logger.js` เดิม ไม่ใช้บริการภายนอก
+- **Feature usage → เก็บทุกระดับ**: ทั้ง route-level และ action-level พร้อมกัน ไม่ใช่
+  เลือกแบบเดียวตามที่ §3.2 เสนอไว้เป็นทางเลือก
+- **Feature usage → แยกตามคน (per-person)**: ไม่ใช่ตัวเลือก aggregate ที่ §3.3 เสนอเป็น
+  จุดเริ่มต้นปลอดภัยสุด — owner เลือกตัวที่ละเอียดและมีความเสี่ยง privacy สูงกว่าโดยตรง
+
+คำถามใน §4 ที่ยังไม่ถูกตอบตรงๆ (retention, consent, domain) — จะกำหนดเป็นค่าเริ่มต้นตอน
+เขียน ADR โดยระบุไว้ชัดว่าเป็นค่าที่เสนอ ไม่ใช่คำตอบของ owner โดยตรง เพื่อให้แก้ทีหลังได้
+ง่ายถ้าไม่ตรงใจ:
+- **Retention**: เหตุการณ์ระดับคนดิบ 90 วัน (ตามแบบแผนเดิมของระบบ — `RawExternalRecord`
+  payload text, MSP session content, `AgentTraceEvent` payload ล้วนใช้ 90 วัน) หลังจากนั้น
+  ยุบเหลือแค่ยอดรวมรายวันแบบไม่ผูกคน (aggregate) — ทำให้ข้อมูลที่ผูกกับตัวบุคคลมีอายุจำกัด
+  โดยอัตโนมัติแม้จะเก็บแบบ per-person
+- **Consent**: ไม่มี consent screen แยก เพราะเป็นเครื่องมือภายใน (operator/staff ที่ signed-in
+  แล้ว) ไม่ใช่ข้อมูลลูกค้าภายนอก เหมือนกับที่ audit log และ access history วันนี้ไม่มี consent
+  screen เช่นกัน — แจ้งใน privacy note ของหน้า operator เท่านั้น ไม่ใช่ gate
+- **Owner ของ domain**: `platform-control` ตามที่เสนอใน header ด้านบน ไม่มีข้อคัดค้าน
