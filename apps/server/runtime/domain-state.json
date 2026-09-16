@@ -36,12 +36,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 151,
+    "featureCount": 150,
     "readyFeatureCount": 114,
-    "requirementCount": 247,
+    "requirementCount": 246,
     "verifiedRequirementCount": 231,
-    "progressPercent": 94,
-    "gapCount": 29,
+    "progressPercent": 94.4,
+    "gapCount": 28,
     "gaps": [
       {
         "domain": "agent",
@@ -260,14 +260,6 @@
         "severity": "medium",
         "check": "requirements",
         "summary": "FR-082 is planned",
-        "evidence": []
-      },
-      {
-        "domain": "project-manager",
-        "id": "REQ-FR-247",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-247 is planned",
         "evidence": []
       }
     ]
@@ -5525,14 +5517,6 @@
           "status": "verified",
           "codeCount": 3,
           "testCount": 8
-        },
-        {
-          "id": "FR-247",
-          "title": "Hierarchical Projects and Work navigation",
-          "declared": "planned",
-          "status": "planned",
-          "codeCount": 0,
-          "testCount": 0
         }
       ],
       "checks": {
@@ -5692,7 +5676,6 @@
         "docs/domains/project-manager/features/FR-124-product-readiness-dashboard.md",
         "docs/domains/project-manager/features/FR-193-employment-record.md",
         "docs/domains/project-manager/features/FR-194-legal-entity-and-tax-branch.md",
-        "docs/domains/project-manager/features/FR-247-hierarchical-project-navigation.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -5743,13 +5726,6 @@
           "check": "requirements",
           "summary": "FR-082 is planned",
           "evidence": []
-        },
-        {
-          "id": "REQ-FR-247",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-247 is planned",
-          "evidence": []
         }
       ],
       "details": {
@@ -5757,7 +5733,7 @@
         "apiRoutes": 140,
         "pageRoutes": 45,
         "ownedModels": 31,
-        "featureNotes": 34
+        "featureNotes": 33
       },
       "featureIds": [
         "FEAT-001",
@@ -5806,12 +5782,11 @@
         "FR-072",
         "FR-073",
         "FR-074",
-        "FR-124",
-        "FR-247"
+        "FR-124"
       ],
-      "featureCount": 48,
+      "featureCount": 47,
       "readyFeatureCount": 43,
-      "progressPercent": 91.9
+      "progressPercent": 93.4
     }
   },
   "features": [
@@ -15466,37 +15441,6 @@
         "apps/server/tests/unit/integration/secret-store-port.test.js",
         "apps/server/tests/unit/integration/supabase-vault-secret-store.test.js"
       ]
-    },
-    {
-      "id": "FR-247",
-      "title": "Hierarchical Projects and Work navigation: the existing projects domain displays Projects & Work and offers six logical sidebar modules, with only the selected module’s sections or views in content navigation; all eight Business destinations, fourteen Project route templates, nine Project section meanings and seven Work views remain reachable, Import is one persistent Project action, and planned capabilities stay named and route-free. Module changes preserve authorized Project context; the Business shell, route/grant keys and target API authorization remain authoritative.",
-      "kind": "requirement",
-      "registryStatus": "planned",
-      "requirementIds": [
-        "FR-247"
-      ],
-      "primaryDomain": "project-manager",
-      "contributorDomains": [
-        "project-manager"
-      ],
-      "useCase": "ผู้ใช้เปิด Projects & Work แล้วเลือกหมวด Project Management, Work Management หรือ Resource Coordination จาก sidebar และเลือกแท็บภายในหมวดนั้น โดยยังอยู่ในโปรเจกต์เดิม เปิด Inventory, Team และ Work views เดิมได้ครบ ใช้ Import plan จากปุ่มเดียว และเห็น Requirements, Risks, Resources กับ Agent Delivery ว่าส่วนใดยัง Planned โดยเมนูไม่เพิ่มสิทธิ์",
-      "progressPercent": 0,
-      "ready": false,
-      "readiness": "not_ready",
-      "blockers": [
-        "FR-247 is planned"
-      ],
-      "requirements": [
-        {
-          "id": "FR-247",
-          "title": "Hierarchical Projects and Work navigation",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
-        }
-      ],
-      "evidence": []
     }
   ],
   "nonFunctionalRequirements": [

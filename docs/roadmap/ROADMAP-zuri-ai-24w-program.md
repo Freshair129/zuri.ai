@@ -4346,38 +4346,38 @@ title: Self-serve LINE OA connection wizard — Thai step-up, Channel ID and sec
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: done
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/modules/integration/application/line-server-provisioning-service.js
+  code: apps/server/src/modules/line-oa-studio/components/LineOaConnectWizard.jsx, apps/server/src/app/api/line-oa/connections/route.js, apps/server/src/app/api/line-oa/accounts/route.js
   doc: docs/plans/LINE-OA-CREDENTIAL-VAULT-ONBOARDING-AND-CHAT-HISTORY-DESIGN.md
-  test: unavailable
+  test: apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js, apps/server/tests/e2e/fr225-line-oa-self-serve-wizard.spec.js
 delivers: [FR-225, FEAT-036]
 subtasks:
   - id: P0
     title: Thai wizard steps with inline enrolment and the design error table
-    status: planned
+    status: done
   - id: P1
     title: Connection route writing through the vault and returning masked metadata only
-    status: planned
+    status: done
   - id: P2
     title: Studio form without deployment-secret references; mount-backed account moves on re-entry
-    status: planned
+    status: done
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a Business owner at AAL2, when they enter a Channel ID and secret in the Thai wizard, then the server proves the pair with LINE, fills destination, basic id and display name, claims the bot, writes the credential through FR-223 and creates the LINE_OA connection and a DRAFT LineOaAccount with no operator and no host file
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a wrong Channel ID or a wrong secret, a LINE outage, or a refused claim, when the wizard submits, then both wrong inputs answer 422 LINE_CREDENTIALS_REJECTED, the outage answers 503 with nothing stored, the claim refusal shows its Thai message, and no response carries more than connection, masked credential and bot metadata
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given the e2e journey and npm test, when they run, then the Studio form no longer accepts a deployment-secret reference, a mount-backed account moves into the vault when its owner re-enters the secret, and no secret remains in page state after submit
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 2 of ADR-089.
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 2 of ADR-089. 2026-09-16: status corrected — built and merged as PR #406 (main 9b7d8d59) on 2026-09-14 and deployed since release-087f3025, but this container was never updated past "planned"; found while reconciling every LINE OA Platform task's status against actual git history. No production account has used the wizard yet, since TASK-ZAI-081 (a real test channel) stays blocked.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -4401,8 +4401,8 @@ title: Automatic LINE webhook registration and health — a publisher action set
 requirement_type: FR
 complexity: C-2
 access_scope: H3
-status: planned
-version: 0.1.0
+status: done
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -4410,19 +4410,19 @@ auditor: ATHER
 symbol_links:
   code: apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js
   doc: docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md
-  test: unavailable
+  test: apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js, apps/server/tests/unit/line-oa-webhook-copy.test.js
 delivers: [FR-227, FEAT-036]
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a DRAFT account with a validated credential, when a publisher runs register webhook, then LINE's endpoint is set to this server's account webhook URL, read back with its active flag and tested, and endpoint, active flag, last test time, reason and HTTP status are stored as webhook health; running it again is idempotent and needs no secret re-entry
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given LINE refusing the URL, an unset public base URL, the Use webhook toggle off or a failed test, when the action runs, then the account shows the reason in Thai with a manual card carrying the URL, and a test whose signature does not verify is reported as a stored secret that does not belong to the channel with a link to rotation (ADR-089 proof 8)
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test with LINE stubbed and the webhook-state migration written in both trees, when the suites and preflight run, then every refusal maps to its reason and Check 18 stays green; the column is not applied to production by this task
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 2 of ADR-089. The design's migration 7 carries both LineOaAccount columns; this plan writes the webhook-state column here and the memoryPolicy column with TASK-ZAI-100, so no column lands before its writer.
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 2 of ADR-089. The design's migration 7 carries both LineOaAccount columns; this plan writes the webhook-state column here and the memoryPolicy column with TASK-ZAI-100, so no column lands before its writer. 2026-09-16: status corrected — built and merged as PR #410 (main 6d6b16ba) on 2026-09-14, migration 20260914150300 applied on production the same day, deployed since release-087f3025; this container was never updated past "planned". No production account has registered a webhook yet, since TASK-ZAI-081 stays blocked.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -4446,8 +4446,8 @@ title: Derived legacy-transport quiescence and restore re-entry — ENABLE_SERVE
 requirement_type: FR
 complexity: C-2
 access_scope: H3
-status: planned
-version: 0.1.0
+status: done
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -4455,19 +4455,19 @@ auditor: ATHER
 symbol_links:
   code: apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js
   doc: docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md
-  test: unavailable
+  test: apps/server/tests/integration/fr228-line-oa-legacy-quiescence.test.js
 delivers: [FR-228, FEAT-036]
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a vault-backed account, when ENABLE_SERVER runs, then it succeeds with no typed confirmation only when LINE reports this server's account URL and the legacy seam recorded no evidence for the destination in the last 120 seconds, and otherwise refuses 409 LINE_LEGACY_TRANSPORT_ACTIVE with the last legacy receipt time
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a mount-backed account, when ENABLE_SERVER runs, then the typed confirmation is still required, and for every account the epoch fence, the refusal while SENDING or UNKNOWN jobs exist and the version check are unchanged (ADR-061 D3, D7)
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given a backup restored into a test database and npm test, when the suites run, then every restored credential reads REENTRY_REQUIRED, rotation keeps sends flowing and revocation fails queued sends closed (ADR-089 proofs 7 and 9)
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 2 of ADR-089.
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 2 of ADR-089. 2026-09-16: status corrected — built and merged as PR #410 (main 6d6b16ba) on 2026-09-14, deployed since release-087f3025; this container was never updated past "planned". No production account has exercised it yet, since TASK-ZAI-081 stays blocked.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -4626,8 +4626,8 @@ title: Non-text LINE content in the CRM record — sticker, location and media m
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: done
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -4635,29 +4635,29 @@ auditor: ATHER
 symbol_links:
   code: apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js
   doc: docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md
-  test: unavailable
+  test: apps/server/tests/integration/line-non-text-admission.test.js, apps/server/tests/unit/crm-message-attachments-events-migration.test.js
 delivers: [FR-229, FEAT-037]
 subtasks:
   - id: P0
     title: Message content kind and MessageAttachment recorded without bytes
-    status: planned
+    status: done
   - id: P1
     title: ConversationEvent rows with id-only bounded payloads
-    status: planned
+    status: done
   - id: P2
     title: Unsend tombstone and no answer job for any non-text event
-    status: planned
+    status: done
 definition_of_done:
   acceptance_criteria:
     - criterion: Given LINE webhook events of every non-text type, when admission runs, then each produces its CRM row (a Message with content kind and placeholder body, a MessageAttachment without bytes, or a ConversationEvent with an id-only payload) in the ADR-061 admission transaction, and none creates an answer job
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given an unsend event, when it is admitted, then the referenced message body and attachment are tombstoned, and an unsend for a message the Business never received is recorded as an event without error (ADR-091 proof 4)
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test on both providers and the CRM part of design migration 5 written in both trees, when the suites and preflight run, then non-text events are visible in the inbox and Check 18 stays green; no media byte is fetched or stored
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3 of ADR-091. Fetching media bytes into FileAsset is a later phase that needs its own requirement (FR-229 says so). The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them.
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3 of ADR-091. Fetching media bytes into FileAsset is a later phase that needs its own requirement (FR-229 says so). The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them. 2026-09-16: status corrected — built and merged as PR #404 (main 1267910e) on 2026-09-14, migration 20260914150000 applied on production the same day, deployed since release-087f3025; this container was never updated past "planned".
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -4681,28 +4681,28 @@ title: Declared retention classes and the nightly sweep — installation default
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: done
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: unavailable
+  code: apps/server/src/modules/crm/retention-sweep-service.js, apps/server/src/modules/crm/retention-override-service.js
   doc: docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md
-  test: unavailable
+  test: apps/server/tests/integration/crm-retention-sweep.test.js, apps/server/tests/integration/crm-retention-override-service.test.js, apps/server/tests/unit/crm-conversation-retention-migration.test.js
 delivers: [FR-230, FEAT-037]
 definition_of_done:
   acceptance_criteria:
     - criterion: Given the defaults (raw payload text 90 days, message bodies and attachments 24 months, AgentTraceEvent payloads 90 days, MSP session content 90 days), when the nightly sweep runs, then it tombstones exactly the rows past each window, keeps envelope columns and skips rows a non-terminal LineConversationJob references
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a Tenant override, when it shortens a window it is honoured and when it would lengthen one it is refused, and each sweep run writes one audit event with counts per class (ADR-091 proof 5)
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test with fixtures on both providers, when the retention suites run, then the sweep is idempotent and reports retention truthfully (ADR-070 D3), and the override store's migration is written in both trees and not applied
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3 of ADR-091. The retention numbers are the owner's accepted defaults of 2026-09-14 (design Q9), not law.
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3 of ADR-091. The retention numbers are the owner's accepted defaults of 2026-09-14 (design Q9), not law. 2026-09-16: status corrected — built and merged as PR #411 (main 0d70f06d) on 2026-09-14, migration 20260914150400 applied on production the same day, deployed since release-087f3025; this container was never updated past "planned". The sweep's first real production run and its audit event are proven under TASK-ZAI-091.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -4726,28 +4726,28 @@ title: Conversation inbox read models and message search — last-message time, 
 requirement_type: FR
 complexity: C-2
 access_scope: H2
-status: planned
-version: 0.1.0
+status: done
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: unavailable
+  code: apps/server/src/modules/crm/conversation-search-service.js, apps/server/src/modules/crm/conversation-preview-service.js
   doc: docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md
-  test: unavailable
+  test: apps/server/tests/integration/crm-conversation-inbox.test.js, apps/server/tests/integration/crm-conversation-search.test.js
 delivers: [FR-233, FEAT-037]
 definition_of_done:
   acceptance_criteria:
     - criterion: Given conversations with new messages, when the inbox reads them, then each shows its last-message time, a preview of at most 120 characters that the erasure writer redacts, its retention class and a per-Business unread count computed on read
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a search term, when the search reader runs, then it returns matches only from the viewer's visible Businesses and, when one is given, one LINE OA account, using a trigram index on Postgres and LIKE on SQLite
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test and the inbox e2e, when they run, then another Business's messages never appear, follow and unfollow counts per account come from ConversationEvent, and the index migration is written in both trees and not applied
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3 of ADR-091. Thai trigram quality is accepted for an inbox; a tokenizer is a later requirement (design risk table).
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3 of ADR-091. Thai trigram quality is accepted for an inbox; a tokenizer is a later requirement (design risk table). 2026-09-16: status corrected — built and merged as PR #411 (main 0d70f06d) on 2026-09-14, migration 20260914150400 and pg_trgm applied on production the same day, deployed since release-087f3025; this container was never updated past "planned".
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -4771,16 +4771,16 @@ title: Apply the chat record migrations on production — non-text content, read
 requirement_type: NFR
 complexity: C-1
 access_scope: H4
-status: in-progress
-version: 0.3.0
+status: done
+version: 0.4.0
 pic: ATHER
 executor: ATHER
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/supabase/migrations
+  code: apps/server/supabase/migrations, apps/server/src/app/api/crm/retention-sweep/route.js, apps/server/scripts/server-retention-sweep-worker.mjs, apps/server/scripts/register-retention-sweep-task.ps1
   doc: docs/DB-MIGRATION-NOTES.md
-  test: unavailable
+  test: apps/server/tests/unit/crm-retention-sweep-route.test.js, apps/server/tests/unit/retention-sweep-worker-run.test.js
 delivers: []
 definition_of_done:
   acceptance_criteria:
@@ -4788,11 +4788,11 @@ definition_of_done:
       checked: true
   success_criteria:
     - criterion: Given the apply, when its effect is verified, then the new tables and columns with their RLS and grants exist, and the retention sweep's first production run writes its audit event with counts per class
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given docs/DB-MIGRATION-NOTES.md, when the apply is recorded, then each migration names its date and session and the redeploy keeps the ADR-061 overlay with clean container logs
       checked: true
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Operator step (ADR-057). To be measured, run it from a worktree on feat/crm-chat-record-completeness. In progress 2026-09-14 23:20: both chat-record migrations applied on production the same way as TASK-ZAI-085 — read-only inventory, a rolled-back dry run, then applied with ledger rows, through the transaction pooler on :6543 from the web container's own connection environment (no .env read, no credential printed): 20260914150000_crm_message_attachments_events (non-text content; PR #404, merged) and 20260914150400_crm_conversation_retention_and_search (read-model columns, the `pg_trgm` extension and its `Message_body_trgm_idx` GIN index, and `TenantRetentionOverride` with forced RLS, one policy and grants to `zuri_app_runtime` only; PR #411, merged). `pg_trgm` was confirmed installed as part of the same migration, satisfying that half of the acceptance criterion. The web image was rebuilt from the same merged main (release-538c1958) and redeployed; the ADR-061 overlay survived (both compose files named, `ZURI_LINE_SERVER_ENABLED` true), both container logs are clean. Acceptance and exit criteria are now both checked. Left open: the retention sweep (`retention-sweep-service.js`) has not yet been triggered in production — no scheduled job invokes it yet — so its first production run and audit event are still to come; the success criterion stays unchecked and the task stays in-progress rather than done until that run is observed. 2026-09-15: PR #414 (main 087f3025) gave the sweep its entry point — `POST /api/crm/retention-sweep` behind `ZURI_RETENTION_SWEEP_TOKEN`, the single-shot `scripts/server-retention-sweep-worker.mjs`, and `scripts/register-retention-sweep-task.ps1` for the daily 03:00 task — and it is now deployed in release-087f3025 (no migration). The first production run has still not happened: the token is not set in `apps/server/.env` and the scheduled task is not registered; both are operator steps awaiting the owner's instruction.
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Operator step (ADR-057). To be measured, run it from a worktree on feat/crm-chat-record-completeness. In progress 2026-09-14 23:20: both chat-record migrations applied on production the same way as TASK-ZAI-085 — read-only inventory, a rolled-back dry run, then applied with ledger rows, through the transaction pooler on :6543 from the web container's own connection environment (no .env read, no credential printed): 20260914150000_crm_message_attachments_events (non-text content; PR #404, merged) and 20260914150400_crm_conversation_retention_and_search (read-model columns, the `pg_trgm` extension and its `Message_body_trgm_idx` GIN index, and `TenantRetentionOverride` with forced RLS, one policy and grants to `zuri_app_runtime` only; PR #411, merged). `pg_trgm` was confirmed installed as part of the same migration, satisfying that half of the acceptance criterion. The web image was rebuilt from the same merged main (release-538c1958) and redeployed; the ADR-061 overlay survived (both compose files named, `ZURI_LINE_SERVER_ENABLED` true), both container logs are clean. Acceptance and exit criteria are now both checked. Left open: the retention sweep (`retention-sweep-service.js`) has not yet been triggered in production — no scheduled job invokes it yet — so its first production run and audit event are still to come; the success criterion stays unchecked and the task stays in-progress rather than done until that run is observed. 2026-09-15: PR #414 (main 087f3025) gave the sweep its entry point — `POST /api/crm/retention-sweep` behind `ZURI_RETENTION_SWEEP_TOKEN`, the single-shot `scripts/server-retention-sweep-worker.mjs`, and `scripts/register-retention-sweep-task.ps1` for the daily 03:00 task — and it is now deployed in release-087f3025 (no migration). The first production run has still not happened: the token is not set in `apps/server/.env` and the scheduled task is not registered; both are operator steps awaiting the owner's instruction. 2026-09-16 (v0.4.0): both operator steps done. `ZURI_RETENTION_SWEEP_TOKEN` (32 random bytes, generated on the production host, never committed or logged) set in `apps/server/.env`; stack recreated to pick it up (`config_files` names both compose files, `ZURI_LINE_SERVER_ENABLED=true`, `/api/health` and `/login` both 200, line-worker ticks clean after a brief restart blip). Ran `docker compose exec -T web node scripts/server-retention-sweep-worker.mjs` directly, twice: first call wrote a real `RETENTION_SWEEP_COMPLETED` AuditEvent (counts 0/0/0 — correct, since nothing has yet aged past the 90-day/24-month windows), satisfying the success criterion; second call the same day returned the identical `auditEventId` with `alreadyRanToday: true`, proving the idempotency guard against real production data. Registering the Windows Scheduled Task (`register-retention-sweep-task.ps1`, written in PR #414 but never executed until now) surfaced two real bugs, fixed in PR #426: (1) the action named a bare `docker`, which Task Scheduler's execution environment does not resolve from PATH the way an interactive shell does — every triggered run failed with `LastTaskResult 0x80070002` (ERROR_FILE_NOT_FOUND); fixed by resolving `(Get-Command docker).Source` at registration time; (2) the file had no UTF-8 BOM despite containing multi-byte em-dash characters, so Windows PowerShell 5.1 read it under the system ANSI codepage and corrupted those sequences into cascading parse errors — fixed by adding the BOM. Re-registered with the fixed script and triggered via `Start-ScheduledTask`: `LastTaskResult: 0`. The daily 03:00 run is now live and proven end to end, not merely deployed.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -4816,38 +4816,38 @@ title: Context Composer — one agent-lane module assembling every LINE model pr
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: done
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/modules/agent/server-line-answer.js
+  code: apps/server/src/modules/agent/context-composer.js
   doc: docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md
-  test: unavailable
+  test: apps/server/tests/unit/context-composer.test.js
 delivers: [FR-234, FEAT-037]
 subtasks:
   - id: P0
     title: Context assembly extracted from createServerLineAnswer with the default path unchanged
-    status: planned
+    status: done
   - id: P1
     title: Truth order, SUPERSEDED_BY_RECORD, group-thread scope and an empty packet on denial
-    status: planned
+    status: done
   - id: P2
     title: Prompt-wide budget with reported trims and the ContextReceipt on AgentTraceEvent
-    status: planned
+    status: done
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a LINE turn, when the composer assembles the prompt, then authorization is checked first and a denial yields an empty packet, CRM and ERP records outrank GKS evidence which outranks MSP memory, and memory that contradicts a record is dropped with reason SUPERSEDED_BY_RECORD
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given one prompt-wide budget, when the slices exceed it, then they are trimmed by priority and every trim is reported, group-thread slices never cross threads, and exactly one ContextReceipt of references, hash and budget, never content, is recorded per model invocation
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test and the existing worker-route contract test, when they run, then the default path's answers and traces are unchanged by the extraction, no evidence and no facts means zero model calls, and ADR-091 proof 7 passes
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3b of ADR-091: it must land before phases 4 and 6, so grounding (TASK-ZAI-093) and memory projection (TASK-ZAI-100) plug into one assembler instead of two.
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3b of ADR-091: it must land before phases 4 and 6, so grounding (TASK-ZAI-093) and memory projection (TASK-ZAI-100) plug into one assembler instead of two. 2026-09-16: status corrected — built and merged as PR #405 (main 22767b64) on 2026-09-14, deployed since release-087f3025, no migration; this container was never updated past "planned".
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -4871,38 +4871,38 @@ title: LINE grounding from the published corpus — an in-process knowledge.quer
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: done
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/modules/knowledge/knowledge-corpus-service.js
+  code: apps/server/src/modules/knowledge/corpus-knowledge-reader.js, apps/server/src/modules/agent/line-knowledge-grounding.js
   doc: docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md
-  test: unavailable
+  test: apps/server/tests/integration/line-gks-grounding.test.js, apps/server/tests/unit/corpus-knowledge-reader.test.js, apps/server/tests/unit/line-knowledge-grounding.test.js
 delivers: [FR-235, FEAT-038]
 subtasks:
   - id: P0
     title: Corpus reader implementing knowledge.query in process with the job-derived scope
-    status: planned
+    status: done
   - id: P1
     title: knowledgeGrounding column, writer and publisher control defaulting to BUSINESS_KNOWLEDGE
-    status: planned
+    status: done
   - id: P2
     title: Budget, mode-gated fallback, retrievalRefs and composition through the Context Composer
-    status: planned
+    status: done
 definition_of_done:
   acceptance_criteria:
     - criterion: Given an account in BUSINESS_KNOWLEDGE mode, when a LINE job is answered, then answers and traces are byte-identical to today's path; given GKS_CORPUS or GKS_THEN_BUSINESS_KNOWLEDGE, then the reader reads the Business's published corpus generation under the job's server-derived Tenant and Business and records retrievalRefs with citation, source, snapshot and corpus generation
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a hop over 2 500 ms or an error, when the mode is GKS_THEN_BUSINESS_KNOWLEDGE, then the result is GKS_UNAVAILABLE and the fallback is traced with its reason; in GKS_CORPUS there is no fallback; with no evidence from any allowed source the deterministic reply is sent and no model is called
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the grounding suites run, then a job of Business A never reads Business B's corpus through scope, capability or binding, the mode migration is written in both trees and not applied, and ADR-090 proofs 1, 3, 4 and 5 pass
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 4 of ADR-090, placed after the Context Composer (TASK-ZAI-092) on the owner-delegated ordering. Nothing changes for any account until a publisher switches its mode.
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 4 of ADR-090, placed after the Context Composer (TASK-ZAI-092) on the owner-delegated ordering. Nothing changes for any account until a publisher switches its mode. 2026-09-16: status corrected — built and merged as PR #407 (main af3f7822) on 2026-09-14, migration 20260914150100 applied on production the same day, deployed since release-087f3025; this container was never updated past "planned". No account has switched off BUSINESS_KNOWLEDGE yet — that is TASK-ZAI-095, blocked on ADR-075 Phase 3.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -5016,38 +5016,38 @@ title: LINE FAQ knowledge candidates — locator-only question-and-answer candid
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: done
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: unavailable
+  code: apps/server/src/modules/knowledge/knowledge-candidate-service.js, apps/server/src/modules/knowledge/knowledge-candidate-zero-pii.js
   doc: docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md
-  test: unavailable
+  test: apps/server/tests/integration/fr236-knowledge-candidate.test.js, apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js
 delivers: [FR-236, FEAT-038]
 subtasks:
   - id: P0
     title: KnowledgeCandidate model, migration and consent-gated extractor over a CRM read projection
-    status: planned
+    status: done
   - id: P1
     title: Review surface in the Knowledge (GKS) slot with edit, approve and reject audited
-    status: planned
+    status: done
   - id: P2
     title: Admission hook as a LINE_FAQ_CANDIDATE TEXT source before Stage 1, and pipeline map rows
-    status: planned
+    status: done
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a consent-GRANTED conversation, when a candidate is drafted, then it carries a canonical question and answer with product locators, policy names and amounts and no names, LINE ids or quoted customer wording, and Thai PII fixtures are refused at creation and again at Stage 5 classify
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a candidate, when a Business OWNER or LINE_OA_PUBLISHER edits and approves or rejects it, then the decision is audited, only an approved candidate is admitted as one immutable LINE_FAQ_CANDIDATE TEXT source through the admission service, and nothing is promoted automatically or through gks_knowledge_promote
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test and preflight, when they run, then ADR-090 proof 7 passes, the knowledge charter claims KnowledgeCandidate, the pipeline map gains the candidate nodes with their surfaces, and the migration is written in both trees and not applied
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 5 of ADR-090. Candidates stay off by default per Business (design risk R-5).
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 5 of ADR-090. 2026-09-16: status corrected — built and merged as PR #408 (main 2e4b94b3) on 2026-09-14, migration 20260914150200 applied on production the same day, deployed since release-087f3025; this container was never updated past "planned". Correction to this changelog's own earlier claim: candidates were NOT off by default per Business in this PR — that per-Business gate (design risk R-5) was a real gap found on review and built separately as TASK-ZAI-099 (PR #413), which is what actually keeps every Business's candidates off until the owner asks.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -5071,28 +5071,28 @@ title: Knowledge gap report for LINE — NO_EVIDENCE retrievals aggregated per B
 requirement_type: FR
 complexity: C-1
 access_scope: H2
-status: planned
-version: 0.1.0
+status: done
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: unavailable
+  code: apps/server/src/modules/knowledge/application/knowledge-gap-report-service.js
   doc: docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md
-  test: unavailable
+  test: apps/server/tests/integration/fr237-knowledge-gap-report.test.js, apps/server/tests/unit/knowledge-gap-report-service.test.js
 delivers: [FR-237, FEAT-038]
 definition_of_done:
   acceptance_criteria:
     - criterion: Given EVIDENCE_SELECTED trace events with reason NO_EVIDENCE, when the gap report renders for the active Business, then it shows counts, product locators and last-seen times only
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given another Business's events, when the report renders, then none of them are counted and no question text appears in the report
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the report suite runs, then the aggregation is scoped per Business and nothing from the report is admitted into knowledge
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 5 of ADR-090.
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 5 of ADR-090. 2026-09-16: status corrected — built and merged as PR #409 (main 538c1958) on 2026-09-14, deployed since release-087f3025, no migration; this container was never updated past "planned".
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -5116,28 +5116,28 @@ title: LINE Studio descriptions as knowledge sources — on a publisher action, 
 requirement_type: FR
 complexity: C-2
 access_scope: H2
-status: planned
-version: 0.1.0
+status: done
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: unavailable
+  code: apps/server/src/modules/line-oa-studio/line-oa-studio-description-admission.js
   doc: docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md
-  test: unavailable
+  test: apps/server/tests/integration/fr238-line-studio-description-admission.test.js, apps/server/tests/unit/line-oa-studio-description-admission.test.js
 delivers: [FR-238, FEAT-038]
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a published rich menu, LIFF app or bot profile, when a publisher admits its description, then one LINE_STUDIO_DESCRIPTION TEXT source is admitted through the admission service with the human-readable text only
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given the item is unpublished, when the unpublish completes, then the source is withdrawn and later citations are denied
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the suites run, then no Flex or rich menu JSON reaches admission, and admission and withdrawal are both audited
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. ADR-090 calls this a later phase; the owner-delegated plan places it in Phase 5 with the candidates because both use the same admission hook.
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. ADR-090 calls this a later phase; the owner-delegated plan places it in Phase 5 with the candidates because both use the same admission hook. 2026-09-16: status corrected — built and merged as PR #409 (main 538c1958) on 2026-09-14, deployed since release-087f3025, no migration; this container was never updated past "planned".
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
