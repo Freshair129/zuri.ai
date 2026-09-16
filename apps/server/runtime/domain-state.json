@@ -2200,7 +2200,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-118",
@@ -2296,7 +2296,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-223",
@@ -2921,7 +2921,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-111",
@@ -3025,7 +3025,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-189",
@@ -5001,7 +5001,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-123",
@@ -7052,7 +7052,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-111",
@@ -7155,6 +7155,7 @@
         "apps/server/tests/unit/genesisrag17-source.test.js",
         "apps/server/tests/unit/genesisrag17-supabase-migration.test.js",
         "apps/server/tests/unit/genesisrag17-worker.test.js",
+        "apps/server/tests/unit/ki17-acceptance-harness.test.js",
         "apps/server/tests/unit/knowledge-admission-mcp.test.js",
         "apps/server/tests/unit/knowledge-admission-routes.test.js",
         "apps/server/tests/unit/knowledge-admission-service.test.js",
@@ -8745,7 +8746,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-189",
@@ -8785,6 +8786,7 @@
         "apps/server/tests/integration/smartgift-catalog-admission.test.js",
         "apps/server/tests/unit/genesisrag17-parser-2.test.js",
         "apps/server/tests/unit/genesisrag17-source.test.js",
+        "apps/server/tests/unit/ki17-acceptance-harness.test.js",
         "apps/server/tests/unit/ki17-build-stage.test.js",
         "apps/server/tests/unit/knowledge-admission-mcp.test.js",
         "apps/server/tests/unit/knowledge-admission-routes.test.js",
