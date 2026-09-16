@@ -13,34 +13,17 @@ import { bearerMatches } from '@/modules/platform-control/application/programme-
 
 export const dynamic = 'force-dynamic'
 
-function utcDayWindow(now) {
-  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
-  return { start, end: new Date(start.getTime() + 24 * 60 * 60 * 1000) }
-}
-
 export async function POST(request) {
   if (!bearerMatches(request.headers.get('authorization'), process.env.ZURI_USAGE_ROLLUP_TOKEN)) {
     return NextResponse.json({ error: 'USAGE_ROLLUP_CREDENTIAL_REQUIRED' }, { status: 401 })
   }
   const now = new Date()
   try {
-    // Same once-a-day idempotency guard as the retention sweep: a scheduler
-    // retry must not write a second audit event for a window already swept —
-    // running the rollup twice is otherwise harmless (a second pass over an
-    // already-rolled-up row finds nothing stale to move), but a duplicate
-    // audit row is still a duplicate audit row.
-    const { start, end } = utcDayWindow(now)
-    const already = await prisma.auditEvent.findFirst({
-      where: { entityType: 'USAGE_EVENT_ROLLUP', action: 'USAGE_EVENT_ROLLUP_COMPLETED', occurredAt: { gte: start, lt: end } },
-      orderBy: { occurredAt: 'desc' },
-      select: { id: true, payloadJson: true },
-    })
-    if (already) {
-      const payload = JSON.parse(already.payloadJson)
-      return NextResponse.json({ auditEventId: already.id, rolledUpCount: payload.rolledUpCount, groupCount: payload.groupCount, alreadyRanToday: true })
-    }
-    const result = await rollupUsageEvents(prisma, { now })
-    return NextResponse.json({ ...result, alreadyRanToday: false })
+    // The once-per-day predicate lives inside rollupUsageEvents' Serializable
+    // transaction. Keeping it there makes the audit claim and the raw-row
+    // replacement one database decision under concurrent scheduler retries.
+    const result = await rollupUsageEvents(prisma, { now, oncePerDay: true })
+    return NextResponse.json(result)
   } catch {
     return NextResponse.json({ error: 'USAGE_ROLLUP_UNAVAILABLE' }, { status: 503 })
   }

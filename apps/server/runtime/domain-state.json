@@ -1312,7 +1312,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 13
+          "testCount": 15
         },
         {
           "id": "FR-246",
@@ -1553,7 +1553,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-076",
@@ -1793,7 +1793,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-198",
@@ -3926,7 +3926,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-095",
@@ -4046,7 +4046,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-249",
@@ -4054,7 +4054,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 19
+          "testCount": 20
         }
       ],
       "checks": {
@@ -4461,7 +4461,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-014",
@@ -4789,7 +4789,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-077",
@@ -5373,7 +5373,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-198",
@@ -5549,7 +5549,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 13
+          "testCount": 15
         },
         {
           "id": "FR-246",
@@ -5573,7 +5573,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-249",
@@ -5581,7 +5581,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-250",
@@ -8969,7 +8969,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-200",
@@ -9016,6 +9016,7 @@
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/release-safety-backup.test.js",
         "apps/server/tests/integration/superadmin-access.test.js",
         "apps/server/tests/integration/workspace-collaboration-roster.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
@@ -10268,7 +10269,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 13
+          "testCount": 15
         },
         {
           "id": "FR-246",
@@ -10306,6 +10307,8 @@
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/release-safety-backup.test.js",
+        "apps/server/tests/unit/archive-storage-readiness.test.js",
         "apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
@@ -10349,7 +10352,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-249",
@@ -10357,7 +10360,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 19
+          "testCount": 20
         }
       ],
       "evidence": [
@@ -10388,6 +10391,7 @@
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/release-safety-backup.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/error-events-view.test.js",
         "apps/server/tests/unit/error-events.test.js",
@@ -10973,7 +10977,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -10988,6 +10992,7 @@
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/release-safety-backup.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js"
       ]
@@ -13656,7 +13661,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 38
+          "testCount": 39
         }
       ],
       "evidence": [
@@ -13690,6 +13695,7 @@
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/platform-grant-revoke.test.js",
+        "apps/server/tests/integration/release-safety-backup.test.js",
         "apps/server/tests/integration/scope-and-isolation.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
