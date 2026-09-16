@@ -1,6 +1,6 @@
 ---
-id: ZAI:FR-252-NOTE
-feature: FR-252
+id: ZAI:FR-253-NOTE
+feature: FR-253
 domain: commerce
 source: v2-native
 version: "1.0.0b"
@@ -17,7 +17,7 @@ attributes:
   evidence: "Isolated local implementation and acceptance; production NOT_RUN; see phase report"
 ---
 
-Approved by Boss on 2026-09-17 in the implementation task. ADR-097 and FR-252 carry this contract in the owner repository. Historical proposal wording below records the approved scope.
+Approved by Boss on 2026-09-17 in the implementation task. ADR-098 and FR-253 carry this contract in the owner repository. Historical proposal wording below records the approved scope.
 
 # Price engine + หน้าจัดการสูตร/ตัวแปร + GenesisRAG17
 

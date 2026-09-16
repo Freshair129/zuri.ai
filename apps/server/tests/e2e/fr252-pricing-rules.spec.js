@@ -2,11 +2,11 @@ const { test, expect } = require('@playwright/test')
 const { randomUUID } = require('node:crypto')
 const { loginAsOwner, loginRequest, readScope, E2E_PASSWORD } = require('./e2e-auth')
 
-// @req FR-252 — actual persisted policy/formula edits, server preview and OWNER activation.
-// @spec ADR-097; SEC-001
+// @req FR-253 — actual persisted policy/formula edits, server preview and OWNER activation.
+// @spec ADR-098; SEC-001
 // @tested tests/e2e/fr252-pricing-rules.spec.js
 
-test('FR-252 — OWNER edits variables and expressions, previews, approves and clones immutable policy', async ({ page }) => {
+test('FR-253 — OWNER edits variables and expressions, previews, approves and clones immutable policy', async ({ page }) => {
   await loginAsOwner(page)
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
   await expect(page).toHaveURL(/\/overview$/)
@@ -107,7 +107,7 @@ test('FR-252 — OWNER edits variables and expressions, previews, approves and c
   await page.screenshot({ path: 'output/playwright/fr252-pricing-rules.png', fullPage: true })
 })
 
-test('FR-252 — authenticated outsider cannot read or create another Business pricing policy', async ({ request }) => {
+test('FR-253 — authenticated outsider cannot read or create another Business pricing policy', async ({ request }) => {
   expect((await loginRequest(request)).ok()).toBe(true)
   const scope = await readScope(request)
   const businessId = scope.businesses.find((business) => business.code === 'BUS-001').id

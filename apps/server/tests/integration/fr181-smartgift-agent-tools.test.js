@@ -41,7 +41,7 @@ describe('FR-181 SmartGift agent tools', () => {
     manager = makeViewer({ visibleBusinessIds: [b()], ownedBusinessIds: [], visibleDomains: DOMAINS, rolesByBusinessId: { [b()]: [ROLE_INVENTORY_MANAGER] } })
     member = makeViewer({ visibleBusinessIds: [b()], ownedBusinessIds: [], visibleDomains: DOMAINS })
 
-    // FR-252: the business explicitly activates its versioned policy; no runtime defaults.
+    // FR-253: the business explicitly activates its versioned policy; no runtime defaults.
     const policy = await createPricingRuleSet({ businessId: b(), name: 'Approved test policy', rules: defaultPricingRules() }, { viewer: owner, now: NOW })
     await applyPricingRuleAction(policy.id, { businessId: b(), version: policy.version, action: 'APPROVE', reason: 'Pricing integration fixture' }, { viewer: owner, now: NOW })
     const category = await createCategory({ businessId: b(), code: 'giftset', nameTh: 'ชุดของขวัญ', nameEn: 'Gift set' }, { viewer: owner })
@@ -148,7 +148,7 @@ describe('FR-181 SmartGift agent tools', () => {
     expect(island.tier).toBe('100')
   })
 
-  it('FR-252 — a receipt produced by landedUnitCostSatang includes its truck exactly once', async () => {
+  it('FR-253 — a receipt produced by landedUnitCostSatang includes its truck exactly once', async () => {
     const landed = landedUnitCostSatang({ factoryCostSatang: 10000, inboundTruckSatang: 250000, batchQty: 500 })
     const product = await createProduct({ businessId: b(), code: 'LANDED-FREIGHT-ONCE', productMasterId: master.id, name: 'Landed fixture' }, { viewer: manager })
     await recordMovement({ businessId: b(), productId: product.id, kind: 'RECEIPT', quantity: 500, targetLocationId: rawLoc.id, costSatang: landed.unitCostSatang, occurredAt: NOW }, { viewer: manager })
@@ -163,7 +163,7 @@ describe('FR-181 SmartGift agent tools', () => {
     expect(explicitZero).toMatchObject({ unitCostSatang: 10500, freightSatang: 0, freightAbsorbedSatang: 0, freightCostBasis: 'ADDITIONAL_DELIVERY' })
   })
 
-  it('FR-252 — active branding requires positive locations, including explicit workshop rates', async () => {
+  it('FR-253 — active branding requires positive locations, including explicit workshop rates', async () => {
     const tool = smartgiftReadTools(ctx(member)).get('calculate_smartgift_quote')
     for (const rates of [{}, { setupCostSatang: 0, runCostSatang: 0 }]) {
       await expect(tool.handler({ skuCode: tumbler.code, quantity: 100, customization: { technique: 'LASER_ENGRAVING', locationsCount: 0, ...rates } })).rejects.toMatchObject({ status: 422, message: 'PRICING_INPUT_INVALID' })
@@ -181,13 +181,13 @@ describe('FR-181 SmartGift agent tools', () => {
     [{ quantity: 0.5, costSatang: 100 }],
     [{ quantity: Number.MAX_SAFE_INTEGER + 1, costSatang: 100 }],
     [{ quantity: 1, costSatang: Number.MAX_SAFE_INTEGER + 1 }],
-  ])('FR-252 — rejects incomplete or invalid ledger receipts %#', async (...receipts) => {
+  ])('FR-253 — rejects incomplete or invalid ledger receipts %#', async (...receipts) => {
     const db = { product: prisma.product, stockMovement: { findMany: async () => receipts } }
     const tool = smartgiftReadTools({ ...ctx(member), db }).get('calculate_smartgift_quote')
     await expect(tool.handler({ skuCode: tumbler.code, quantity: 100 })).rejects.toMatchObject({ status: 422, message: 'INVENTORY_COST_UNKNOWN' })
   })
 
-  it('FR-252 — weighted receipts use exact ceil division beyond the Number aggregate range', async () => {
+  it('FR-253 — weighted receipts use exact ceil division beyond the Number aggregate range', async () => {
     const db = {
       product: prisma.product, productRecipe: prisma.productRecipe, business: prisma.business, pricingRuleSet: prisma.pricingRuleSet,
       stockMovement: { findMany: async () => [{ quantity: Number.MAX_SAFE_INTEGER, costSatang: 100000 }, { quantity: 1, costSatang: 100001 }] },

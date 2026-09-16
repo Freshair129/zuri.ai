@@ -1,5 +1,5 @@
-// @req FR-252 — ledger-only sell-side admission, immutable retry and no fabricated publication.
-// @spec ADR-097; ADR-075; SEC-001; BR-002
+// @req FR-253 — ledger-only sell-side admission, immutable retry and no fabricated publication.
+// @spec ADR-098; ADR-075; SEC-001; BR-002
 // @tested tests/integration/fr252-pricing-catalog.test.js
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import prisma from '@/lib/db'
@@ -23,7 +23,7 @@ const storage = {
   async remove({ ref }) { blobs.delete(ref) },
 }
 
-describe('FR-252 computed catalog admission', () => {
+describe('FR-253 computed catalog admission', () => {
   afterAll(async () => {
     // This run shares its DB with durable-worker tests. Retire only this
     // fixture's queue rows after its admission assertions have completed.

@@ -5,10 +5,10 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 import { loadBusiness, notFound } from './commerce-authority'
 import { calculatePrice, defaultPricingRules, normalizePricingInput, pricingHash, validatePricingRules } from '../domain/pricing-engine'
 
-// @req FR-252 — owner-only rule revisions, atomic audit, immutable calculation
+// @req FR-253 — owner-only rule revisions, atomic audit, immutable calculation
 // snapshots and effective-date/expiry/revocation gates. Browser input never
 // asserts verified source or publishable-price authority.
-// @spec ADR-097; SEC-001; BR-001; BR-002
+// @spec ADR-098; SEC-001; BR-001; BR-002
 // @tested tests/integration/fr252-pricing-rules.test.js
 
 const id = z.string().trim().min(1).max(200)

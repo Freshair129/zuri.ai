@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import prisma from '@/lib/db'
 import { priceLandedInventoryQuote } from '@/modules/commerce'
-// @req FR-252 — prices use the active Commerce rules, never local margin defaults.
+// @req FR-253 — prices use the active Commerce rules, never local margin defaults.
 import { CUSTOMIZATION_TECHNIQUES } from '@/lib/validation/enums'
 import {
   assertMayView as assertMayViewInventory,

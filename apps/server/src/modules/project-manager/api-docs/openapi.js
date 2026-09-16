@@ -17,7 +17,7 @@ extendZodWithOpenApi(z)
 // integration test enumerates src/app/api/**/route.js and fails when this
 // inventory or the generated document falls behind a route change.
 export const CURRENT_API_ROUTE_INVENTORY = [
-  // @req FR-252 — private Commerce rules and explicit sell-side admission.
+  // @req FR-253 — private Commerce rules and explicit sell-side admission.
   ['/api/commerce/pricing-rules', ['GET', 'POST']],
   ['/api/commerce/pricing-rules/{id}', ['PATCH']],
   ['/api/commerce/pricing-rules/{id}/actions', ['POST']],

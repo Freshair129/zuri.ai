@@ -2,8 +2,8 @@ import { handle } from '@/app/api/_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { admitPricingCatalog } from '@/modules/commerce/application/pricing-catalog-service'
 
-// @req FR-252 — deliberate owner approval of ledger-backed sell-side prices.
-// @spec ADR-097; ADR-075; SEC-001
+// @req FR-253 — deliberate owner approval of ledger-backed sell-side prices.
+// @spec ADR-098; ADR-075; SEC-001
 // @tested tests/integration/fr252-pricing-catalog.test.js
 export const dynamic = 'force-dynamic'
 

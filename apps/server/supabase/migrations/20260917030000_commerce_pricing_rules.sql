@@ -1,8 +1,8 @@
 -- NOT APPLIED to production. Owner-directed ADR-057 dry run/deployment required.
 BEGIN;
 
--- @req FR-252 — additive rule versions and immutable calculation snapshots.
--- @spec ADR-097
+-- @req FR-253 — additive rule versions and immutable calculation snapshots.
+-- @spec ADR-098
 CREATE TABLE IF NOT EXISTS "PricingRuleSet" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "tenantId" TEXT NOT NULL,

@@ -1,5 +1,5 @@
 ---
-id: ZAI:ADR-097
+id: ZAI:ADR-098
 title: Commerce pricing rules and governed Knowledge publication
 version: "1.0.0b"
 status: accepted
@@ -15,10 +15,10 @@ relations:
   - type: relates_to
     target: ZAI:ADR-075
   - type: references
-    target: ZAI:FR-252
+    target: ZAI:FR-253
 ---
 
-# ADR-097 — Commerce pricing rules and governed Knowledge publication
+# ADR-098 — Commerce pricing rules and governed Knowledge publication
 
 **Status:** Owner approved on 2026-09-17 in the implementation task, replying
 `approve` to the 0.1.0b pricing-engine/rules-console/GenesisRAG17 spec.
@@ -29,7 +29,7 @@ Complexity C-3; risk HIGH. Implementation approval is not deployment approval.
 The [approved cost/quote proposal](../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md)
 already assigns TASK-ZAI-055/056/059 to versioned pricing rules, one price engine
 and structured sell-side Knowledge records. It leaves TASK-ZAI-052 to declare
-the governing decision and requirements. FR-252 implements this bounded slice;
+the governing decision and requirements. FR-253 implements this bounded slice;
 Procurement intake, ledger-cost changes, the full Quote lifecycle and LINE
 sending remain their existing tasks.
 
@@ -83,7 +83,7 @@ Source snapshots and calculated prices remain distinguishable.
 
 ## Verification
 
-FR-252's feature note records the API, UI and acceptance contract. Proof requires
+FR-253's feature note records the API, UI and acceptance contract. Proof requires
 exact calculation and legacy parity/deliberate-difference vectors; formula abuse,
 invalid config and input tests; real isolated persistence/scope/concurrency tests;
 browser editing/preview/version activation; and scoped Knowledge admission tests.

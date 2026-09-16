@@ -1,5 +1,5 @@
-// @req FR-252 — bounded, typed pricing expressions with exact decimal arithmetic.
-// @spec ADR-097
+// @req FR-253 — bounded, typed pricing expressions with exact decimal arithmetic.
+// @spec ADR-098
 // @tested tests/unit/pricing-engine.test.js
 
 export function pricingError(message, field = 'rules', code = 'INVALID_PRICING_RULES') {

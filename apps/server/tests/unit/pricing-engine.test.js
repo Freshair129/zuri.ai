@@ -1,5 +1,5 @@
-// @req FR-252 — exact money, source import, typed formulas and floor enforcement.
-// @spec ADR-097
+// @req FR-253 — exact money, source import, typed formulas and floor enforcement.
+// @spec ADR-098
 import { describe, it, expect } from 'vitest'
 import { stringify } from 'yaml'
 import { calculatePrice, calculatePricingCustomization, defaultPricingRules, importPricingRulesYaml, validatePricingRules, validatePricingFormula, pricingHash, Decimal } from '../../src/modules/commerce/domain/pricing-engine'

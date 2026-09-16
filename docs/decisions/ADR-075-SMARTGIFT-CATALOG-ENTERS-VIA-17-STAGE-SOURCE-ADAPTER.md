@@ -246,7 +246,7 @@ and nothing beyond it.
 ### D9 — Non-goals
 
 - **The structured adapter carries catalog facts, not a pricing engine.**
-  [ADR-097](ADR-097-COMMERCE-PRICING-RULES-AND-KNOWLEDGE-PUBLICATION.md), approved
+  [ADR-098](ADR-098-COMMERCE-PRICING-RULES-AND-KNOWLEDGE-PUBLICATION.md), approved
   2026-09-17, supersedes only the former SmartGift-only execution placement:
   Commerce owns the shared versioned pricing engine under the approved SmartGift
   policy. GKS remains Knowledge authority and does not execute business pricing.
@@ -359,7 +359,7 @@ citable published generation once Phase 4 lands.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 1.3.1b | 2026-09-17 | approved | ADR-097 narrowly supersedes D9 engine ownership; pre-Stage-1 source boundary and existing cutover gates retained | uncommitted | RWANG |
+| 1.3.1b | 2026-09-17 | approved | ADR-098 narrowly supersedes D9 engine ownership; pre-Stage-1 source boundary and existing cutover gates retained | uncommitted | RWANG |
 | 1.3.0 | 2026-09-11 | approved | Owner approved Phases 3–5. Phase 3 (edge-device deployment for the SmartGift structured-record profile) deploys only after Phase 2 acceptance passes, as a separate owner-triggered operator step. Phase 4 is FR-189 shadow-then-cutover with the 120-day fallback window. Phase 5 is conditional on the window elapsing and zero shadow mismatches over Christmas 2026 and New Year 2027. The New Year 2027 dates still need owner confirmation. ADR-073 amended; deployment design added | — | Claude Opus 5 |
 | 1.2.0 | 2026-09-11 | approved | Owner answered questions 2–4 (edge device, 120-day v4 fallback window, `FileAsset`) and opened the Phase 2 gate: Option A chosen, Option B deferred as a future option, contract revision 2 recorded (worker changes too, `ontology_v2` superset with accept-before-produce rollout, one claim chunk per relation) | — | Claude Opus 5 |
 | 1.1.0 | 2026-09-11 | approved | Owner approved the direction and Phase 1 on PR #321; questions 2–4 recorded as working assumptions to re-confirm at their phase gates | PR #321 | Claude Fable 5.1 |

@@ -1,5 +1,5 @@
-// @req FR-252 — real persistence, authorization, immutable lineage and lifecycle gates.
-// @spec ADR-097; SEC-001; BR-001; BR-002
+// @req FR-253 — real persistence, authorization, immutable lineage and lifecycle gates.
+// @spec ADR-098; SEC-001; BR-001; BR-002
 // @tested tests/integration/fr252-pricing-rules.test.js
 import { beforeEach, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
@@ -14,7 +14,7 @@ const input = () => ({ costBasis: 'landed', landedUnitCostThb: '123.45', quantit
 let business, other, owner, member, foreignOwner
 let fixture = 0
 
-describe('FR-252 scoped pricing lifecycle', () => {
+describe('FR-253 scoped pricing lifecycle', () => {
   beforeEach(async () => {
     fixture += 1
     const portfolio = await createPortfolio({ code: `PF-FR252-${fixture}`, name: 'Pricing fixture' })

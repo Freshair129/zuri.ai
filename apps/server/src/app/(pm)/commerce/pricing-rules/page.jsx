@@ -8,8 +8,8 @@ import { useScope } from '@/context/ScopeContext'
 import PricingCatalogSubmit from '@/modules/commerce/ui/PricingCatalogSubmit'
 import { Field, SelectField, PricingVariables, PricingFormulas, PricingPreviewInputs, PricingResults, PricingDiff, emptyPreviewInput } from '@/modules/commerce/ui/PricingRulesEditor'
 
-// @req FR-252 — Business OWNER policy editor, exact server preview, immutable approval history.
-// @spec ADR-097, SEC-001
+// @req FR-253 — Business OWNER policy editor, exact server preview, immutable approval history.
+// @spec ADR-098, SEC-001
 // @tested tests/unit/pricing-rules-ui.test.js, tests/e2e/fr252-pricing-rules.spec.js
 
 const BASE = '/api/commerce/pricing-rules'

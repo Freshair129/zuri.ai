@@ -1,5 +1,5 @@
-// @req FR-252 — explicit sell-side allowlist keeps private costing evidence out of Knowledge.
-// @spec ADR-097; ADR-075; BR-002
+// @req FR-253 — explicit sell-side allowlist keeps private costing evidence out of Knowledge.
+// @spec ADR-098; ADR-075; BR-002
 // @tested tests/integration/fr252-pricing-catalog.test.js
 export function buildPricingCatalogProjection(product, quantity, unitPriceSatang, now) {
   const fileName = `commerce-price-${product.id}.json`

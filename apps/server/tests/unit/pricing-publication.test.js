@@ -1,5 +1,5 @@
-// @req FR-252 — stale computed catalogs cannot be disclosed as current prices.
-// @spec ADR-097; SEC-001
+// @req FR-253 — stale computed catalogs cannot be disclosed as current prices.
+// @spec ADR-098; SEC-001
 import { describe, expect, it, vi } from 'vitest'
 import { assertPricingCatalogCurrent } from '@/modules/commerce/pricing-publication'
 

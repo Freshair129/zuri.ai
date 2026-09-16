@@ -212,7 +212,7 @@ describe('OpenAPI document', () => {
       // a path, plus the deployment-authenticated rollup (POST) on its own
       // path. 286 + 2 = 288; 383 + 3 = 386.
       // FR-251 adds one read-only Project Domain-view path and GET operation.
-      // FR-252 adds six pricing paths and seven HTTP operations.
+      // FR-253 adds six pricing paths and seven HTTP operations.
       pathCount: 295,
       operationCount: 394,
     })

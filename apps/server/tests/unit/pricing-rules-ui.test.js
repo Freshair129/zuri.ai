@@ -1,5 +1,5 @@
-// @req FR-252 — pricing inputs expose units, immutable edits and truthful server previews.
-// @spec ADR-097
+// @req FR-253 — pricing inputs expose units, immutable edits and truthful server previews.
+// @spec ADR-098
 // @tested tests/unit/pricing-rules-ui.test.js
 import React, { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
@@ -17,7 +17,7 @@ vi.mock('next/navigation', () => ({ usePathname: () => '/commerce/pricing-rules'
 vi.mock('@/context/ScopeContext', async () => { const { createScopeContextDouble } = await import('../factories/scope-context'); return createScopeContextDouble() })
 const render = (component, props) => renderToStaticMarkup(createElement(component, props))
 
-describe('FR-252 pricing console', () => {
+describe('FR-253 pricing console', () => {
   it('does not allow a draft preview to become a Knowledge publication', () => {
     const html = render(PricingCatalogSubmit, { businessId: 'biz-1', activeRule: null })
     expect(html).toContain('ไม่ใช้ตัวเลขทดลองด้านบน')

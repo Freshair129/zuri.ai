@@ -1,5 +1,5 @@
--- @req FR-252 — additive rule versions and immutable calculation snapshots.
--- @spec ADR-097
+-- @req FR-253 — additive rule versions and immutable calculation snapshots.
+-- @spec ADR-098
 CREATE TABLE "PricingRuleSet" (
   "id" TEXT NOT NULL PRIMARY KEY,
   "tenantId" TEXT NOT NULL,

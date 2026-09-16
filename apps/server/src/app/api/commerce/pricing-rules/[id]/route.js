@@ -2,8 +2,8 @@ import { handle } from '@/app/api/_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { updatePricingRuleSet } from '@/modules/commerce/application/pricing-rules-service'
 
-// @req FR-252 — draft-only OWNER writes with optimistic revision checks.
-// @spec ADR-097; SEC-001
+// @req FR-253 — draft-only OWNER writes with optimistic revision checks.
+// @spec ADR-098; SEC-001
 // @tested tests/unit/fr252-pricing-routes.test.js
 export const dynamic = 'force-dynamic'
 

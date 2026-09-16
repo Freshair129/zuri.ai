@@ -35,9 +35,9 @@ import { admitPricingCatalog } from '@/modules/commerce/application/pricing-cata
 // resolves back through the durable Tier 1 lineage.
 // @spec ADR-075, ADR-073, .brain/proposals/2026-09-11-genesisrag17-structured-record-profile.md
 // @tested tests/acceptance/genesisrag17-smartgift.test.js
-// @req FR-252 — actual ledger-backed computed product and price records also
+// @req FR-253 — actual ledger-backed computed product and price records also
 // reach the native worker, Stage 17 receipt and citation-preserving query.
-// @spec ADR-097
+// @spec ADR-098
 
 const corpus = JSON.parse(readFileSync(path.resolve('tests/fixtures/genesisrag17-smartgift-corpus-v1.json'), 'utf8'))
 const nativeRequire = createRequire(path.resolve('package.json'))

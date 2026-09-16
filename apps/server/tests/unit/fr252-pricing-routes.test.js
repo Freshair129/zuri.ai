@@ -1,5 +1,5 @@
-// @req FR-252 — pricing HTTP handlers preserve trusted viewer and structured refusals.
-// @spec ADR-097; SEC-001
+// @req FR-253 — pricing HTTP handlers preserve trusted viewer and structured refusals.
+// @spec ADR-098; SEC-001
 // @tested tests/unit/fr252-pricing-routes.test.js
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeViewer } from '../factories/viewer'
@@ -20,7 +20,7 @@ import { admitPricingCatalog } from '@/modules/commerce/application/pricing-cata
 const viewer = makeViewer({ visibleBusinessIds: ['b-pricing'], ownedBusinessIds: ['b-pricing'], visibleDomains: ['commerce'] })
 const request = (body, method = 'POST') => new Request('http://localhost/api/commerce/pricing-rules?businessId=b-pricing', { method, ...(method === 'GET' ? {} : { body: JSON.stringify(body), headers: { 'content-type': 'application/json' } }) })
 
-describe('FR-252 pricing HTTP boundary', () => {
+describe('FR-253 pricing HTTP boundary', () => {
   beforeEach(() => { vi.resetAllMocks(); resolveRequestViewer.mockResolvedValue(viewer) })
 
   it('resolves the trusted viewer for private rule collection reads', async () => {

@@ -15,11 +15,11 @@ import { buildPricingCatalogProjection } from '../domain/pricing-catalog-project
 import { getActivePricingRuleSet } from './pricing-rules-service'
 import { priceLandedInventoryQuote } from './pricing-inventory-service'
 
-// @req FR-252 — explicit OWNER-approved, ledger-backed sell-side projection
+// @req FR-253 — explicit OWNER-approved, ledger-backed sell-side projection
 // enters the existing FR-187 pre-Stage-1 admission queue. Frozen snapshots and
 // managed file identity make retries stable; no calculation/publication claim
 // from the client can promote a trial input into verified source data.
-// @spec ADR-097; ADR-075; SEC-001; BR-002
+// @spec ADR-098; ADR-075; SEC-001; BR-002
 // @tested tests/integration/fr252-pricing-catalog.test.js
 
 const schema = z.object({

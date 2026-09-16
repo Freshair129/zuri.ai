@@ -1,9 +1,9 @@
 import prisma from '@/lib/db'
 
-// @req FR-252 — a computed sell-side source remains usable only while its
+// @req FR-253 — a computed sell-side source remains usable only while its
 // pinned approved policy is the current effective policy for the Business.
 // Public Commerce read port: returns no rules, costs, margins or source evidence.
-// @spec ADR-097; SEC-001
+// @spec ADR-098; SEC-001
 // @tested tests/unit/pricing-publication.test.js
 const CATALOG_CODE = /^PCAT-([a-f0-9]{64})$/
 const unavailable = () => Object.assign(new Error('Computed catalog price is no longer current'), { status: 409, code: 'PRICING_CATALOG_NOT_CURRENT' })

@@ -1,6 +1,6 @@
 // @req FR-149 — restored LINE jobs preserve delivery evidence but cannot resume sends.
-// @req FR-252 — pricing evidence restores in scoped derivation order without legacy erasure.
-// @spec ADR-097
+// @req FR-253 — pricing evidence restores in scoped derivation order without legacy erasure.
+// @spec ADR-098
 // @tested tests/unit/pricing-backup.test.js
 // @spec ADR-061
 // @tested tests/integration/line-server-backup.test.js
@@ -182,7 +182,7 @@ const SNAPSHOT_MODELS = [
   // authoritative seller records.  The profile and numbering sequence must
   // restore before a CommerceDocument can be recreated.
   'businessBillingProfile', 'commerceDocumentSequence',
-  // @req FR-252 — immutable price results restore after their scoped rule versions.
+  // @req FR-253 — immutable price results restore after their scoped rule versions.
   'pricingRuleSet', 'pricingCalculation',
   // @req FR-081 — the ingestion tables hang off a connection, so they restore after
   // it and delete before the Tenant/Business they reference. The three integration

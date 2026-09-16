@@ -12,7 +12,7 @@ import {
 import { businessHasCapability } from '@/lib/business-capabilities'
 
 // @req FR-042 - HR / People is a peer domain with route key `people`.
-// @req FR-252 — Commerce's versioned pricing formula console.
+// @req FR-253 — Commerce's versioned pricing formula console.
 // @req FR-045 - Files is a Business-scoped Development subdomain.
 // @spec ADR-013, SITEMAP-V2-DOMAIN-NAV
 // @tested tests/unit/domain-navigation.test.js, tests/unit/fr045-api-ui-contract.test.js, tests/e2e/fr041-business-first.spec.js

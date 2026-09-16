@@ -3,8 +3,8 @@ import { parseDocument } from 'yaml'
 import { Decimal, pricingError, validatePricingFormula } from './pricing-formula'
 import { SOURCE_RULES, SOURCE_SHA256 } from './pricing-source'
 
-// @req FR-252 — strict rules import, all supported variable groups and source lineage.
-// @spec ADR-097
+// @req FR-253 — strict rules import, all supported variable groups and source lineage.
+// @spec ADR-098
 // @tested tests/unit/pricing-engine.test.js
 
 const forbidden = new Set(['__proto__', 'prototype', 'constructor'])

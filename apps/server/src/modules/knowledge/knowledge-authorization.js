@@ -7,8 +7,8 @@ import { isApiAccessFor, ownsBusiness, seesBusiness } from '@/modules/identity/v
 // @req FR-173 — knowledge admission, retrieval, citation and withdrawal use
 // the live Business/Project/FileAsset authority instead of request-selected
 // scope or a global role label.
-// @req FR-252 — computed catalog reads and publication check live Commerce policy.
-// @spec ADR-072, ADR-097, SEC-001, SEC-008
+// @req FR-253 — computed catalog reads and publication check live Commerce policy.
+// @spec ADR-072, ADR-098, SEC-001, SEC-008
 // @tested tests/integration/knowledge-corpus.test.js, tests/integration/fr252-pricing-catalog.test.js
 
 const ACTIVE = 'ACTIVE'

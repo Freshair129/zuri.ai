@@ -1,5 +1,5 @@
-// @req FR-252 — reproducible read-only legacy oracle capture, never a runtime dependency.
-// @spec ADR-097
+// @req FR-253 — reproducible read-only legacy oracle capture, never a runtime dependency.
+// @spec ADR-098
 // Usage: node tests/fixtures/pricing-legacy-capture.mjs <SmartGift root> <Python executable>
 import fs from 'node:fs'
 import path from 'node:path'

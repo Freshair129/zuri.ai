@@ -1,8 +1,8 @@
 import { Decimal, pricingError, validatePricingFormula, evaluatePricingFormula } from './pricing-formula'
 import { validatePricingRules, pricingHash, plainJson, exact, decimal, integer, choice } from './pricing-rules'
 
-// @req FR-252 — one deterministic Commerce calculator for preview and runtime.
-// @spec ADR-097
+// @req FR-253 — one deterministic Commerce calculator for preview and runtime.
+// @spec ADR-098
 // @tested tests/unit/pricing-engine.test.js
 
 export { defaultPricingRules, importPricingRulesYaml, validatePricingRules, pricingHash } from './pricing-rules'

@@ -1,5 +1,5 @@
-// @req FR-252 — backup retains scoped immutable pricing lineage in self-FK order.
-// @spec ADR-097
+// @req FR-253 — backup retains scoped immutable pricing lineage in self-FK order.
+// @spec ADR-098
 import { describe, expect, it, vi } from 'vitest'
 import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'

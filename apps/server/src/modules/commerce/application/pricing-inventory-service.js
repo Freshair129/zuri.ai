@@ -2,10 +2,10 @@ import prisma from '@/lib/db'
 import { assertMayView } from '@/modules/inventory'
 import { calculatePrice, calculatePricingCustomization, validatePricingRules } from '../domain/pricing-engine'
 
-// @req FR-252, FR-181 — the Inventory-authorized Agent read port uses the
+// @req FR-253, FR-181 — the Inventory-authorized Agent read port uses the
 // Commerce evaluator without disclosing the private rule document or widening
 // the owner-only editor. Ledger cost is supplied by the trusted Inventory caller.
-// @spec ADR-097; BR-027; SEC-001
+// @spec ADR-098; BR-027; SEC-001
 // @tested tests/integration/fr181-smartgift-agent-tools.test.js, tests/integration/fr252-pricing-catalog.test.js
 
 const fail = (status, message) => Object.assign(new Error(message), { status })

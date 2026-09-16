@@ -2,8 +2,8 @@ import { handle, queryParams } from '@/app/api/_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { listPricingRules, createPricingRuleSet } from '@/modules/commerce/application/pricing-rules-service'
 
-// @req FR-252 — OWNER-only scoped rule drafts and internal rule inventory.
-// @spec ADR-097; SEC-001
+// @req FR-253 — OWNER-only scoped rule drafts and internal rule inventory.
+// @spec ADR-098; SEC-001
 // @tested tests/unit/fr252-pricing-routes.test.js
 export const dynamic = 'force-dynamic'
 

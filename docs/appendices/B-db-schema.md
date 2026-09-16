@@ -563,7 +563,7 @@ Version diff 1.50.0b → 1.51.0b (2026-09-16): TASK-ZAI-111 (FR-245, ADR-093 D2-
 Version diff 1.51.0b → 1.52.0b (2026-09-16): no model or migration changes — `CustomerArchiveKey` and `ArchiveManifest` **moved from excluded to included** in the backup snapshot (`SNAPSHOT_MODELS`, `backup-service.js`). The exclusion's own stated reasons did not hold up: its confidentiality argument was moot (the KEK that could open the wrapped key is never part of any snapshot either way, excluded or not) and its FK-ordering argument was moot (neither model has a real Prisma `@relation`, so there is no FK for a restore to violate). What exclusion actually cost: a randomly generated archive key has no re-entry path (unlike a credential), so a routine restore would silently and permanently destroy access to retained dispute evidence — and without `ArchiveManifest` rows, `chat-evidence-retrieval-service.js` (TASK-ZAI-112) has no index onto the archive files at all, making them undiscoverable even when intact on disk. New test: `backup.test.js`'s round trip proves both rows survive a delete-then-restore.
 
 
-## Commerce pricing rules (FR-252 / ADR-097)
+## Commerce pricing rules (FR-253 / ADR-098)
 
 - **PricingRuleSet**: tenant/Business-scoped immutable approved JSON policy, hash, optimistic version, approval/effective/expiry/revocation evidence and source-version ancestry.
 - **PricingCalculation**: immutable rule/input/evaluator snapshots and hashes, ledger-versus-trial provenance and scoped idempotency key. Included in backup after its rule set.

@@ -1,5 +1,5 @@
-// @req FR-252 — immutable reviewed source defaults, imported as a fresh canonical document.
-// @spec ADR-097
+// @req FR-253 — immutable reviewed source defaults, imported as a fresh canonical document.
+// @spec ADR-098
 // @tested tests/unit/pricing-engine.test.js
 // Source: SmartGift config/pricing_rules_formula.yaml; infinities serialize as null unbounded tiers.
 export const SOURCE_SHA256 = "fe511dccfaae6c02fe48d6f830aa7632824823efa4dbfde68a0cb848ca081538"

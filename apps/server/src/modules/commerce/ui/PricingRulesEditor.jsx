@@ -1,7 +1,7 @@
 'use client'
 
-// @req FR-252 — typed policy controls, safe formula authoring and server-result comparison.
-// @spec ADR-097
+// @req FR-253 — typed policy controls, safe formula authoring and server-result comparison.
+// @spec ADR-098
 // @tested tests/unit/pricing-rules-ui.test.js, tests/e2e/fr252-pricing-rules.spec.js
 
 export const fieldClass = 'w-full rounded-lg border border-[var(--border)] bg-white p-2 text-sm disabled:bg-[var(--surface-mid)]'
