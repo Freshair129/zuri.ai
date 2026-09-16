@@ -64,7 +64,7 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 import { assertCredentialWriteAssurance } from '@/modules/identity/credential-write-gate'
-import { getOrCreateCustomerArchiveKeyDek, computeManifestHash, resolveArchiveBaseDir, verifyManifestChain } from './chat-evidence-archive-service'
+import { assertArchiveStorageReady, getOrCreateCustomerArchiveKeyDek, computeManifestHash, resolveArchiveBaseDir, verifyManifestChain } from './chat-evidence-archive-service'
 import { openArchiveSegment, ChatEvidenceArchiveCryptoError } from './chat-evidence-archive-crypto'
 import { RETENTION_SWEEP_TOMBSTONE } from './retention-sweep-tombstone'
 
@@ -112,7 +112,7 @@ function manifestSelfConsistent(manifest) {
  */
 export async function retrieveArchivedChatEvidence(customerId, input, {
   viewer, request = null, session = undefined, db = prisma,
-  baseDir = resolveArchiveBaseDir(), env = process.env,
+  baseDir, env = process.env,
 } = {}) {
   if (!customerId) throw failure(400, 'CUSTOMER_ID_REQUIRED')
   const data = zRetrieveChatEvidence.parse(input)
@@ -142,6 +142,9 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
   })
   if (!customer) throw failure(404, 'CUSTOMER_NOT_FOUND')
 
+  const resolvedBaseDir = baseDir ?? resolveArchiveBaseDir(env)
+  await assertArchiveStorageReady(resolvedBaseDir, env)
+
   const { start, end } = utcDayRange(data.startDate, data.endDate)
   const rangeMessages = await db.message.findMany({
     where: { conversation: { customerId: customer.id }, createdAt: { gte: start, lte: end } },
@@ -164,11 +167,11 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
     // A broken chain refuses the whole retrieval: every wanted id stays in
     // `missingMessageIds`, no key is opened, no file this call would
     // otherwise have read is read.
-    chainIntegrity = await verifyManifestChain(db, customer.tenantId, { baseDir, checkFiles: true })
+    chainIntegrity = await verifyManifestChain(db, customer.tenantId, { baseDir: resolvedBaseDir, checkFiles: true })
   }
 
   if (wanted.size > 0 && chainIntegrity.valid) {
-    const dek = await getOrCreateCustomerArchiveKeyDek(db, { tenantId: customer.tenantId, customerId: customer.id }, env)
+    const dek = await getOrCreateCustomerArchiveKeyDek(db, { tenantId: customer.tenantId, customerId: customer.id }, env, { baseDir: resolvedBaseDir })
     try {
       const found = new Map()
       const manifests = await db.archiveManifest.findMany({ where: { tenantId: customer.tenantId }, orderBy: { createdAt: 'asc' } })
@@ -178,7 +181,7 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
 
         let raw
         try {
-          raw = await readFile(path.join(baseDir, manifest.filePath))
+          raw = await readFile(path.join(resolvedBaseDir, manifest.filePath))
         } catch {
           continue // file offline or not mounted here (ADR-093 D8's second copy) — reported via missingMessageIds, not a hard failure
         }

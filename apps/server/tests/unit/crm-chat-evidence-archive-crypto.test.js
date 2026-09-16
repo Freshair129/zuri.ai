@@ -160,10 +160,10 @@ describe('manifest chain hashing', () => {
 
   it('exit criterion: a tampered manifest row breaks the chain, at exactly the tampered row', async () => {
     const tenantId = randomUUID()
-    const first = { tenantId, runId: 'r1', filePath: 't/2026/r1.zca', fileSha256: 'a'.repeat(64), messageCount: 1, messageIdListHash: 'x'.repeat(64), previousManifestHash: null }
+    const first = { tenantId, runId: 'r1', filePath: 't/2026/r1.zca', fileSha256: 'a'.repeat(64), messageCount: 1, messageIdListHash: 'x'.repeat(64), previousManifestId: null, previousManifestHash: null }
     first.id = 'm1'
     first.manifestHash = computeManifestHash(first)
-    const second = { tenantId, runId: 'r2', filePath: 't/2026/r2.zca', fileSha256: 'b'.repeat(64), messageCount: 2, messageIdListHash: 'y'.repeat(64), previousManifestHash: first.manifestHash }
+    const second = { tenantId, runId: 'r2', filePath: 't/2026/r2.zca', fileSha256: 'b'.repeat(64), messageCount: 2, messageIdListHash: 'y'.repeat(64), previousManifestId: 'm1', previousManifestHash: first.manifestHash }
     second.id = 'm2'
     second.manifestHash = computeManifestHash(second)
 
@@ -182,12 +182,12 @@ describe('manifest chain hashing', () => {
 
   it('detects a broken previous-hash link even when both rows are individually self-consistent', async () => {
     const tenantId = randomUUID()
-    const first = { tenantId, runId: 'r1', filePath: 't/2026/r1.zca', fileSha256: 'a'.repeat(64), messageCount: 1, messageIdListHash: 'x'.repeat(64), previousManifestHash: null }
+    const first = { tenantId, runId: 'r1', filePath: 't/2026/r1.zca', fileSha256: 'a'.repeat(64), messageCount: 1, messageIdListHash: 'x'.repeat(64), previousManifestId: null, previousManifestHash: null }
     first.id = 'm1'
     first.manifestHash = computeManifestHash(first)
     // Second row claims a previousManifestHash that does not match the first row's
     // actual hash, but its OWN manifestHash is internally consistent with that claim.
-    const second = { tenantId, runId: 'r2', filePath: 't/2026/r2.zca', fileSha256: 'b'.repeat(64), messageCount: 2, messageIdListHash: 'y'.repeat(64), previousManifestHash: 'd'.repeat(64) }
+    const second = { tenantId, runId: 'r2', filePath: 't/2026/r2.zca', fileSha256: 'b'.repeat(64), messageCount: 2, messageIdListHash: 'y'.repeat(64), previousManifestId: 'm1', previousManifestHash: 'd'.repeat(64) }
     second.id = 'm2'
     second.manifestHash = computeManifestHash(second)
     const db = { archiveManifest: { findMany: async () => [first, second] } }
