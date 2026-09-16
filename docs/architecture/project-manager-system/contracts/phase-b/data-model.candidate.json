@@ -1,0 +1,2338 @@
+{
+  "schemaVersion": "0.2.0b",
+  "version": "0.2.0b",
+  "id": "ZAI:PM-PHASE-B-DATA-MODEL-CANDIDATE",
+  "title": "Project Manager Phase B selected data model",
+  "status": "CANDIDATE",
+  "codegenReady": false,
+  "codegenBlockers": [
+    "B1 owner approval of the full selected Phase B proposal, including records, routes, security, receipt and restore semantics",
+    "B2 root canonical ADR/FR/FEAT/ledger registration and governance composition before implementation"
+  ],
+  "sourceSHA": "f061a113584aa15db68934dc8451f14b9a1011e1",
+  "contractAuthoringSHA": "ecc30b94f545ac1e9ddde3b59618c89f558bdc49",
+  "scope": {
+    "owner": "project-manager",
+    "boundary": "MA-I02 Phase B Feature persistence and contract",
+    "evidence": "Candidate logical contract; no Prisma model, migration, application code, runtime route, generated ID, or production operation.",
+    "productAuthority": "ProjectFeature and its explicit relationship records; the FR-251 Execution Domain projection remains a separate read authority.",
+    "includes": [
+      "ProjectFeature",
+      "FeatureContribution",
+      "FeatureWorkLink",
+      "RequirementBinding",
+      "GovernanceSnapshot",
+      "ProjectFeatureMutationReceipt",
+      "derived FeatureView and allocation-state projections"
+    ],
+    "excludes": [
+      "Domain create/update/catalog/grants",
+      "Workstream progress mutation",
+      "WorkContainer deletion field",
+      "Workforce, Fleet, agent, provider and MCP records",
+      "new requirement or canonical Feature ID allocation"
+    ],
+    "reusedAuthorities": [
+      "Project and hierarchy scope",
+      "Workstream and active WorkItem identity",
+      "Repository and existing AuditEvent append-only stream",
+      "assertProjectRoadmapReadable for reads",
+      "assertProjectWritable for Business-owner writes",
+      "Identity live zuri_session and generic API CSRF owner port"
+    ]
+  },
+  "precedence": {
+    "broadCandidate": "../data-model.candidate.json",
+    "overridesOnlyEntities": [
+      "GovernanceSnapshot",
+      "ProjectFeature",
+      "FeatureContribution",
+      "FeatureWorkLink",
+      "RequirementBinding"
+    ],
+    "rule": "For exactly the five listed entities, this Phase B candidate is the selected field, type, nullability, key, index and invariant proposal when it conflicts with the broad candidate. It does not override unrelated entities, existing source models, the API candidate outside these records, Identity ownership, or root canonical ID registration. ProjectFeatureMutationReceipt and derived graph allocation are Phase B additions and do not rewrite unrelated broad-candidate records."
+  },
+  "sharedFieldRules": {
+    "internalId": {
+      "type": "uuid",
+      "nullable": false,
+      "generated": "server",
+      "externalInput": false,
+      "rule": "Internal UUID primary identity; no external or document identifier is allocated here."
+    },
+    "trustedScope": {
+      "fields": [
+        "tenantId",
+        "businessId"
+      ],
+      "input": "server-derived",
+      "rule": "Resolved from the authorized Project, Repository or Feature chain. Request body scope never authorizes a row."
+    },
+    "timestamps": {
+      "fields": [
+        "createdAt",
+        "updatedAt"
+      ],
+      "type": "instant",
+      "rule": "Server-generated; mutable records update updatedAt in the same transaction as their version."
+    },
+    "version": {
+      "type": "int",
+      "minimum": 1,
+      "rule": "Optimistic concurrency token; parent Feature version is the aggregate CAS boundary."
+    },
+    "mutableDeletion": {
+      "field": "deletedAt",
+      "companionField": "deleteBatchId",
+      "type": "instant",
+      "nullable": true,
+      "companionType": "uuid",
+      "companionNullable": true,
+      "rule": "Mutable Feature and relationship rows retain deletedAt plus an explicit server-generated deleteBatchId. A delete command assigns one batch UUID to the Feature and only currently active child rows; restore matches that batch and never infers membership from timestamps. GovernanceSnapshot and receipts are append-only and have no deletion fields."
+    },
+    "jsonPolicy": {
+      "rule": "No unbounded JSON or additionalProperties are part of this selected contract. JSON values must use a named schema with explicit object keys and collection limits.",
+      "allowedSchemas": [
+        "SourceManifest"
+      ]
+    },
+    "projectLock": {
+      "rule": "Every Feature create, edit, child-set replacement, graph allocation, delete and restore acquires the existing Project row lock before receipt lookup/aggregate work; PostgreSQL uses SELECT FOR UPDATE and SQLite uses BEGIN IMMEDIATE. No graph-state table is introduced."
+    }
+  },
+  "selectedPhaseBRecords": [
+    {
+      "name": "GovernanceSnapshot",
+      "kind": "PRODUCT_RECORD",
+      "disposition": "NEW_LOGICAL_AUTHORITY",
+      "status": "CANDIDATE_B1_PENDING",
+      "owner": "project-manager",
+      "purpose": "Immutable verified repository governance evidence that can prove a RequirementBinding.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "key": "PK",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "tenantId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Tenant",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "businessId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Business",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "createdAt",
+          "type": "instant",
+          "nullable": false,
+          "format": "date-time",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "repositoryId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Repository",
+          "readOnly": true
+        },
+        {
+          "name": "projectRepositoryId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "ProjectRepository",
+          "readOnly": true,
+          "description": "Active same-Business ProjectRepository link used by the verifier."
+        },
+        {
+          "name": "checkoutBindingId",
+          "type": "string",
+          "nullable": false,
+          "minLength": 1,
+          "maxLength": 256,
+          "readOnly": true,
+          "description": "Operator-registered Repository-to-local-checkout binding identity."
+        },
+        {
+          "name": "commitSha",
+          "type": "string",
+          "nullable": false,
+          "minLength": 1,
+          "maxLength": 200,
+          "readOnly": true,
+          "pattern": "^[a-f0-9]{40}(?:[a-f0-9]{24})?$"
+        },
+        {
+          "name": "manifestHash",
+          "type": "sha256",
+          "nullable": false,
+          "pattern": "^[0-9a-f]{64}$",
+          "readOnly": true
+        },
+        {
+          "name": "capturedAt",
+          "type": "instant",
+          "nullable": false,
+          "format": "date-time",
+          "readOnly": true
+        },
+        {
+          "name": "verifiedAt",
+          "type": "instant",
+          "nullable": false,
+          "format": "date-time",
+          "readOnly": true
+        },
+        {
+          "name": "verifierId",
+          "type": "string",
+          "nullable": false,
+          "minLength": 1,
+          "maxLength": 128,
+          "readOnly": true
+        },
+        {
+          "name": "verifierVersion",
+          "type": "string",
+          "nullable": false,
+          "minLength": 1,
+          "maxLength": 64,
+          "readOnly": true
+        },
+        {
+          "name": "proofId",
+          "type": "uuid",
+          "nullable": false,
+          "readOnly": true
+        },
+        {
+          "name": "verificationProof",
+          "type": "object",
+          "nullable": false,
+          "schemaRef": "GovernanceVerificationProof",
+          "additionalProperties": false,
+          "readOnly": true,
+          "description": "Typed server-local verifier proof; only proof-backed output is persisted.",
+          "wireSchemaRef": "./openapi.candidate.json#/components/schemas/GovernanceVerificationProof"
+        },
+        {
+          "name": "validationStatus",
+          "type": "enum",
+          "nullable": false,
+          "values": [
+            "VALID",
+            "INVALID"
+          ],
+          "readOnly": true
+        },
+        {
+          "name": "sourceManifest",
+          "type": "object",
+          "nullable": false,
+          "schemaRef": "SourceManifest",
+          "maxBytes": 1048576,
+          "wireNullable": true,
+          "readOnly": true,
+          "wireSchemaRef": "./openapi.candidate.json#/components/schemas/SourceManifest"
+        }
+      ],
+      "keys": {
+        "primary": [
+          "id"
+        ],
+        "unique": [
+          [
+            "businessId",
+            "repositoryId",
+            "commitSha",
+            "manifestHash"
+          ]
+        ],
+        "foreign": [
+          {
+            "fields": [
+              "tenantId"
+            ],
+            "references": "Tenant.id"
+          },
+          {
+            "fields": [
+              "businessId"
+            ],
+            "references": "Business.id"
+          },
+          {
+            "fields": [
+              "repositoryId"
+            ],
+            "references": "Repository.id"
+          },
+          {
+            "fields": [
+              "projectRepositoryId"
+            ],
+            "references": "ProjectRepository.id"
+          }
+        ]
+      },
+      "indexes": [
+        {
+          "columns": [
+            "businessId",
+            "repositoryId",
+            "capturedAt"
+          ],
+          "unique": false
+        }
+      ],
+      "checks": [
+        {
+          "name": "immutableAppendOnly",
+          "rule": "No update or delete after insert; source identity labels cannot change."
+        },
+        {
+          "name": "verifiedCapture",
+          "rule": "Only the server-local Git verifier may produce persisted repository, projectRepository, checkoutBinding, commitSha, manifestHash, sourceManifest, capturedAt, verifiedAt, verifier identity/version, proofId, verificationProof and validationStatus. Caller metadata is capture intent and cannot mark evidence VALID."
+        },
+        {
+          "name": "digestFormat",
+          "rule": "manifestHash is exactly 64 lower-case hexadecimal characters and identifies the canonical SourceManifest."
+        },
+        {
+          "name": "scopeChain",
+          "rule": "repositoryId belongs to businessId and businessId belongs to tenantId."
+        },
+        {
+          "name": "producerBoundary",
+          "rule": "The verifier reads only an operator-registered Repository-to-local-checkout mapping; no URL fetch, arbitrary filesystem path, or caller-supplied script is executed."
+        },
+        {
+          "name": "projectRepositoryScope",
+          "rule": "Capture requires an active same-Business Repository and an active ProjectRepository link for the URL Project; repositoryId is not accepted from another project or Business."
+        },
+        {
+          "name": "invalidNonAuthority",
+          "rule": "An invalid verification may persist only as validationStatus INVALID and can never satisfy a RequirementBinding or readiness claim."
+        }
+      ],
+      "scope": {
+        "columns": [
+          "tenantId",
+          "businessId"
+        ],
+        "context": "Project URL resolves the trusted Business; repositoryId must belong to that Business.",
+        "read": "Authorized Project read may list snapshot metadata; source evidence is returned only when available.",
+        "write": "Business-owner capability through assertProjectWritable plus Identity CSRF/Origin binding.",
+        "clientMayProvide": [
+          "repositoryId",
+          "commitSha",
+          "manifestHash",
+          "sourceManifest"
+        ],
+        "serverDerives": [
+          "id",
+          "tenantId",
+          "businessId",
+          "createdAt",
+          "capturedAt",
+          "validationStatus",
+          "projectRepositoryId",
+          "checkoutBindingId",
+          "verifiedAt",
+          "verifierId",
+          "verifierVersion",
+          "proofId",
+          "verificationProof"
+        ]
+      },
+      "restoreOrder": {
+        "order": 1,
+        "after": [
+          "Repository",
+          "Tenant",
+          "Business"
+        ],
+        "before": [
+          "ProjectFeature",
+          "RequirementBinding"
+        ],
+        "rule": "Restore only after referenced Repository and trusted scope rows are valid."
+      }
+    },
+    {
+      "name": "ProjectFeature",
+      "kind": "PRODUCT_RECORD",
+      "disposition": "NEW_LOGICAL_AUTHORITY",
+      "status": "CANDIDATE_B1_PENDING",
+      "owner": "project-manager",
+      "purpose": "Project-local Feature identity independent from the Execution Domain catalog.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "key": "PK",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "tenantId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Tenant",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "businessId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Business",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "projectId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Project",
+          "readOnly": true
+        },
+        {
+          "name": "code",
+          "type": "string",
+          "nullable": false,
+          "minLength": 1,
+          "maxLength": 128
+        },
+        {
+          "name": "title",
+          "type": "string",
+          "nullable": false,
+          "minLength": 1,
+          "maxLength": 500
+        },
+        {
+          "name": "problem",
+          "type": "string",
+          "nullable": false,
+          "minLength": 1,
+          "maxLength": 5000
+        },
+        {
+          "name": "outcome",
+          "type": "string",
+          "nullable": false,
+          "minLength": 1,
+          "maxLength": 5000
+        },
+        {
+          "name": "primaryDomainId",
+          "type": "string",
+          "nullable": false,
+          "minLength": 1,
+          "maxLength": 128,
+          "registry": "FR-070 execution-purpose domain key",
+          "tableForeignKey": false
+        },
+        {
+          "name": "canonicalFeatureKey",
+          "type": "string",
+          "nullable": true,
+          "maxLength": 200,
+          "registry": "Root-owned canonical Feature registry reference",
+          "tableForeignKey": false
+        },
+        {
+          "name": "governanceSnapshotId",
+          "type": "uuid",
+          "nullable": true,
+          "references": "GovernanceSnapshot"
+        },
+        {
+          "name": "lifecycle",
+          "type": "enum",
+          "nullable": false,
+          "values": [
+            "DRAFT",
+            "ACTIVE",
+            "RETIRED"
+          ]
+        },
+        {
+          "name": "createdAt",
+          "type": "instant",
+          "nullable": false,
+          "format": "date-time",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "instant",
+          "nullable": false,
+          "format": "date-time",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "nullable": false,
+          "minimum": 1
+        },
+        {
+          "name": "deletedAt",
+          "type": "instant",
+          "nullable": true,
+          "format": "date-time"
+        },
+        {
+          "name": "deleteBatchId",
+          "type": "uuid",
+          "nullable": true,
+          "generated": "server-on-delete",
+          "readOnly": true,
+          "description": "Delete-family membership token; restore matches this value exactly."
+        }
+      ],
+      "keys": {
+        "primary": [
+          "id"
+        ],
+        "unique": [
+          [
+            "projectId",
+            "code"
+          ]
+        ],
+        "foreign": [
+          {
+            "fields": [
+              "tenantId"
+            ],
+            "references": "Tenant.id"
+          },
+          {
+            "fields": [
+              "businessId"
+            ],
+            "references": "Business.id"
+          },
+          {
+            "fields": [
+              "projectId"
+            ],
+            "references": "Project.id"
+          },
+          {
+            "fields": [
+              "governanceSnapshotId"
+            ],
+            "references": "GovernanceSnapshot.id",
+            "nullable": true
+          }
+        ]
+      },
+      "indexes": [
+        {
+          "columns": [
+            "businessId",
+            "projectId",
+            "lifecycle"
+          ],
+          "unique": false
+        }
+      ],
+      "checks": [
+        {
+          "name": "onePrimaryDomain",
+          "rule": "Exactly one primaryDomainId is stored; it is a canonical execution-purpose domain key, never a new Domain row."
+        },
+        {
+          "name": "canonicalPair",
+          "rule": "canonicalFeatureKey and governanceSnapshotId are both present or both null."
+        },
+        {
+          "name": "snapshotProof",
+          "rule": "When the pair is present, governanceSnapshotId resolves to an in-scope VALID GovernanceSnapshot that proves canonicalFeatureKey."
+        },
+        {
+          "name": "lifecycle",
+          "rule": "Allowed values are DRAFT, ACTIVE and RETIRED; forward mutation is DRAFT to ACTIVE to RETIRED and restore retains the prior lifecycle."
+        },
+        {
+          "name": "scope",
+          "rule": "projectId resolves to the trusted businessId and tenantId; a body-supplied scope is ignored."
+        },
+        {
+          "name": "softDelete",
+          "rule": "deletedAt and deleteBatchId are set atomically on the Feature; one deleteBatchId is reused only for currently active children in the same command. Restore matches the current Feature deleteBatchId and does not infer membership from deletedAt."
+        },
+        {
+          "name": "deletedCodeReuse",
+          "rule": "The unconditional (projectId, code) unique key remains across tombstones. A new Feature using a deleted Feature code returns 409 DUPLICATE_FEATURE_CODE and the caller must restore the original row."
+        },
+        {
+          "name": "allocationDeleteRestore",
+          "rule": "Deleting a Feature never infers redistribution. Remaining links are re-evaluated as PARTIAL or UNALLOCATED; restoring old links that would overflow a WorkItem returns 409 ALLOCATION_RESTORE_CONFLICT atomically with no row changes."
+        },
+        {
+          "name": "featureLimit",
+          "rule": "An active/non-deleted Project has at most 200 ProjectFeature rows. Create and restore count under the Project lock and return 422 FEATURE_LIMIT_REACHED without changes on overflow; the view never silently truncates."
+        }
+      ],
+      "scope": {
+        "columns": [
+          "tenantId",
+          "businessId",
+          "projectId"
+        ],
+        "read": "assertProjectRoadmapReadable; preserves authorized TENANT/PORTFOLIO shared Workspace reads.",
+        "write": "assertProjectWritable; Business owner only.",
+        "clientMayProvide": [
+          "code",
+          "title",
+          "problem",
+          "outcome",
+          "primaryDomainId",
+          "canonicalFeatureKey",
+          "governanceSnapshotId",
+          "lifecycle"
+        ],
+        "serverDerives": [
+          "id",
+          "tenantId",
+          "businessId",
+          "createdAt",
+          "updatedAt",
+          "version",
+          "deletedAt",
+          "audit identity"
+        ]
+      },
+      "restoreOrder": {
+        "order": 2,
+        "after": [
+          "Project",
+          "GovernanceSnapshot"
+        ],
+        "before": [
+          "FeatureContribution",
+          "FeatureWorkLink",
+          "RequirementBinding",
+          "ProjectFeatureMutationReceipt"
+        ],
+        "conditionalDependencies": "GovernanceSnapshot is required only when the canonicalFeatureKey/governanceSnapshotId pair is present."
+      }
+    },
+    {
+      "name": "FeatureContribution",
+      "kind": "PRODUCT_RECORD",
+      "disposition": "NEW_LOGICAL_AUTHORITY",
+      "status": "CANDIDATE_B1_PENDING",
+      "owner": "project-manager",
+      "purpose": "One supporting execution Domain responsibility for a ProjectFeature.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "key": "PK",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "tenantId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Tenant",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "businessId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Business",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "featureId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "ProjectFeature",
+          "readOnly": true
+        },
+        {
+          "name": "domainId",
+          "type": "string",
+          "nullable": false,
+          "minLength": 1,
+          "maxLength": 128,
+          "registry": "FR-070 execution-purpose domain key",
+          "tableForeignKey": false
+        },
+        {
+          "name": "responsibility",
+          "type": "string",
+          "nullable": false,
+          "minLength": 1,
+          "maxLength": 2000
+        },
+        {
+          "name": "createdAt",
+          "type": "instant",
+          "nullable": false,
+          "format": "date-time",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "instant",
+          "nullable": false,
+          "format": "date-time",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "nullable": false,
+          "minimum": 1
+        },
+        {
+          "name": "deletedAt",
+          "type": "instant",
+          "nullable": true,
+          "format": "date-time"
+        },
+        {
+          "name": "deleteBatchId",
+          "type": "uuid",
+          "nullable": true,
+          "generated": "server-on-delete",
+          "readOnly": true,
+          "description": "Delete-family membership token; restore matches this value exactly."
+        }
+      ],
+      "keys": {
+        "primary": [
+          "id"
+        ],
+        "unique": [
+          [
+            "featureId",
+            "domainId"
+          ]
+        ],
+        "foreign": [
+          {
+            "fields": [
+              "tenantId"
+            ],
+            "references": "Tenant.id"
+          },
+          {
+            "fields": [
+              "businessId"
+            ],
+            "references": "Business.id"
+          },
+          {
+            "fields": [
+              "featureId"
+            ],
+            "references": "ProjectFeature.id"
+          }
+        ]
+      },
+      "indexes": [
+        {
+          "columns": [
+            "businessId",
+            "domainId"
+          ],
+          "unique": false
+        }
+      ],
+      "checks": [
+        {
+          "name": "supportOnly",
+          "rule": "The row is supporting responsibility metadata; it cannot replace primaryDomainId, create a Domain, grant access or alter Domain labels."
+        },
+        {
+          "name": "noPrimaryDuplicate",
+          "rule": "domainId must differ from its parent ProjectFeature.primaryDomainId."
+        },
+        {
+          "name": "catalogWriteGate",
+          "rule": "Human writes accept only approved catalog keys; imported unknown keys are retained as UNMAPPED only through an explicit import authority."
+        },
+        {
+          "name": "setAtomicity",
+          "rule": "Complete-set replacement validates all rows before any child insert/update/soft-delete and leaves the old set unchanged on failure."
+        },
+        {
+          "name": "unconditionalUnique",
+          "rule": "The (featureId, domainId) unique key includes deleted rows. A complete-set command revives a matching tombstone by key with its UUID preserved and version incremented; it does not insert a duplicate."
+        },
+        {
+          "name": "batchRestore",
+          "rule": "Restore considers only currently deleted rows whose deleteBatchId equals the parent Feature delete batch; no deletedAt timestamp matching is used."
+        },
+        {
+          "name": "setBounds",
+          "rule": "A contribution replacement contains at most 200 rows and rejects duplicate domainId keys before the transaction."
+        }
+      ],
+      "scope": {
+        "columns": [
+          "tenantId",
+          "businessId",
+          "featureId"
+        ],
+        "context": "Project scope is inherited from the resolved parent ProjectFeature.",
+        "read": "Only through an authorized Project Feature read.",
+        "write": "Business owner through the parent ProjectFeature write capability.",
+        "clientMayProvide": [
+          "domainId",
+          "responsibility"
+        ],
+        "serverDerives": [
+          "id",
+          "tenantId",
+          "businessId",
+          "featureId",
+          "createdAt",
+          "updatedAt",
+          "version",
+          "deletedAt"
+        ]
+      },
+      "restoreOrder": {
+        "order": 3,
+        "after": [
+          "ProjectFeature"
+        ],
+        "rule": "Restore only after the parent Feature is present and scope-valid."
+      }
+    },
+    {
+      "name": "FeatureWorkLink",
+      "kind": "PRODUCT_RECORD",
+      "disposition": "NEW_LOGICAL_AUTHORITY",
+      "status": "CANDIDATE_B1_PENDING",
+      "owner": "project-manager",
+      "purpose": "Deduplicated relationship between one ProjectFeature and one active WorkItem.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "key": "PK",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "tenantId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Tenant",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "businessId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Business",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "featureId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "ProjectFeature",
+          "readOnly": true
+        },
+        {
+          "name": "workItemId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "WorkItem",
+          "readOnly": true
+        },
+        {
+          "name": "allocationBps",
+          "type": "int",
+          "nullable": true,
+          "minimum": 0,
+          "maximum": 10000,
+          "description": "This WorkItem's share allocated to this Feature."
+        },
+        {
+          "name": "createdAt",
+          "type": "instant",
+          "nullable": false,
+          "format": "date-time",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "instant",
+          "nullable": false,
+          "format": "date-time",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "nullable": false,
+          "minimum": 1
+        },
+        {
+          "name": "deletedAt",
+          "type": "instant",
+          "nullable": true,
+          "format": "date-time"
+        },
+        {
+          "name": "deleteBatchId",
+          "type": "uuid",
+          "nullable": true,
+          "generated": "server-on-delete",
+          "readOnly": true,
+          "description": "Delete-family membership token; restore matches this value exactly."
+        }
+      ],
+      "keys": {
+        "primary": [
+          "id"
+        ],
+        "unique": [
+          [
+            "featureId",
+            "workItemId"
+          ]
+        ],
+        "foreign": [
+          {
+            "fields": [
+              "tenantId"
+            ],
+            "references": "Tenant.id"
+          },
+          {
+            "fields": [
+              "businessId"
+            ],
+            "references": "Business.id"
+          },
+          {
+            "fields": [
+              "featureId"
+            ],
+            "references": "ProjectFeature.id"
+          },
+          {
+            "fields": [
+              "workItemId"
+            ],
+            "references": "WorkItem.id"
+          }
+        ]
+      },
+      "indexes": [
+        {
+          "columns": [
+            "businessId",
+            "workItemId"
+          ],
+          "unique": false
+        }
+      ],
+      "checks": [
+        {
+          "name": "sameProject",
+          "rule": "The active WorkItem's Workstream resolves to the URL Project and trusted Business; one WorkItem FK alone is insufficient."
+        },
+        {
+          "name": "activeWorkOnly",
+          "rule": "A link may target only an active WorkItem; invalid hierarchy or inactive target fails closed."
+        },
+        {
+          "name": "allocationRange",
+          "rule": "allocationBps is null or an integer from 0 through 10000 inclusive."
+        },
+        {
+          "name": "perWorkItemAllocation",
+          "rule": "For each WorkItem independently across all active FeatureWorkLinks in the Project, UNALLOCATED commands total at most 10000 for present values; COMPLETE_SPLIT commands require every affected active link to be non-null and total exactly 10000. Unrelated WorkItems are never combined."
+        },
+        {
+          "name": "noProgressMutation",
+          "rule": "Link writes do not mutate Workstream progressStrategy, progressWeight, progress evidence, progressCache or the weighted Project roll-up."
+        },
+        {
+          "name": "setAtomicity",
+          "rule": "Single-Feature replacement rechecks all links for affected WorkItems; graph replacement locks and validates all named Feature sets in one transaction."
+        },
+        {
+          "name": "unconditionalUnique",
+          "rule": "The (featureId, workItemId) unique key includes deleted rows. A complete-set command revives a matching tombstone by key with its UUID preserved and version incremented; it does not insert a duplicate."
+        },
+        {
+          "name": "batchRestore",
+          "rule": "Restore considers only currently deleted rows whose deleteBatchId equals the parent Feature delete batch; no deletedAt timestamp matching is used."
+        },
+        {
+          "name": "setBounds",
+          "rule": "A WorkItem-link replacement contains at most 200 rows and rejects duplicate workItemId keys before the transaction."
+        },
+        {
+          "name": "allocationDeleteRestore",
+          "rule": "allocationState is derived from the active per-WorkItem totals. Feature deletion makes remaining links PARTIAL or UNALLOCATED without inferred redistribution; restore overflow returns 409 ALLOCATION_RESTORE_CONFLICT and leaves all rows unchanged."
+        }
+      ],
+      "scope": {
+        "columns": [
+          "tenantId",
+          "businessId",
+          "featureId",
+          "workItemId"
+        ],
+        "context": "Project scope is inherited from the Feature and verified again through WorkItem -> Workstream -> Project.",
+        "read": "Only active, non-deleted links whose Feature and WorkItem are in the authorized Project.",
+        "write": "Business owner through the parent ProjectFeature write capability.",
+        "clientMayProvide": [
+          "workItemId",
+          "allocationBps",
+          "allocationMode",
+          "affectedWorkItemIds",
+          "featureSets"
+        ],
+        "serverDerives": [
+          "id",
+          "tenantId",
+          "businessId",
+          "featureId",
+          "createdAt",
+          "updatedAt",
+          "version",
+          "deletedAt"
+        ]
+      },
+      "restoreOrder": {
+        "order": 4,
+        "after": [
+          "ProjectFeature",
+          "WorkItem",
+          "Workstream"
+        ],
+        "rule": "Restore only same-Project active WorkItems; no WorkContainer.deletedAt is introduced or read as a requirement."
+      }
+    },
+    {
+      "name": "RequirementBinding",
+      "kind": "PRODUCT_RECORD",
+      "disposition": "NEW_LOGICAL_AUTHORITY",
+      "status": "CANDIDATE_B1_PENDING",
+      "owner": "project-manager",
+      "purpose": "Pinned requirement reference with immutable revision evidence and acceptance reference.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "key": "PK",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "tenantId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Tenant",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "businessId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Business",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "featureId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "ProjectFeature",
+          "readOnly": true
+        },
+        {
+          "name": "governanceSnapshotId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "GovernanceSnapshot",
+          "readOnly": true
+        },
+        {
+          "name": "sourceNamespace",
+          "type": "string",
+          "nullable": false,
+          "minLength": 1,
+          "maxLength": 128,
+          "readOnly": true
+        },
+        {
+          "name": "requirementKey",
+          "type": "string",
+          "nullable": false,
+          "minLength": 1,
+          "maxLength": 128,
+          "readOnly": true
+        },
+        {
+          "name": "revisionHash",
+          "type": "sha256",
+          "nullable": false,
+          "pattern": "^[0-9a-f]{64}$",
+          "readOnly": true
+        },
+        {
+          "name": "acceptanceRef",
+          "type": "string",
+          "nullable": false,
+          "minLength": 1,
+          "maxLength": 1000
+        },
+        {
+          "name": "createdAt",
+          "type": "instant",
+          "nullable": false,
+          "format": "date-time",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "updatedAt",
+          "type": "instant",
+          "nullable": false,
+          "format": "date-time",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "nullable": false,
+          "minimum": 1
+        },
+        {
+          "name": "deletedAt",
+          "type": "instant",
+          "nullable": true,
+          "format": "date-time"
+        },
+        {
+          "name": "deleteBatchId",
+          "type": "uuid",
+          "nullable": true,
+          "generated": "server-on-delete",
+          "readOnly": true,
+          "description": "Delete-family membership token; restore matches this value exactly."
+        }
+      ],
+      "keys": {
+        "primary": [
+          "id"
+        ],
+        "unique": [
+          [
+            "featureId",
+            "governanceSnapshotId",
+            "sourceNamespace",
+            "requirementKey"
+          ]
+        ],
+        "foreign": [
+          {
+            "fields": [
+              "tenantId"
+            ],
+            "references": "Tenant.id"
+          },
+          {
+            "fields": [
+              "businessId"
+            ],
+            "references": "Business.id"
+          },
+          {
+            "fields": [
+              "featureId"
+            ],
+            "references": "ProjectFeature.id"
+          },
+          {
+            "fields": [
+              "governanceSnapshotId"
+            ],
+            "references": "GovernanceSnapshot.id"
+          }
+        ]
+      },
+      "indexes": [
+        {
+          "columns": [
+            "businessId",
+            "requirementKey"
+          ],
+          "unique": false
+        }
+      ],
+      "checks": [
+        {
+          "name": "validSnapshot",
+          "rule": "governanceSnapshotId is in the same trusted scope and has validationStatus VALID."
+        },
+        {
+          "name": "immutableRevision",
+          "rule": "revisionHash is lower-case SHA-256 evidence; canonical requirement subject is read-only and is not stored as client text."
+        },
+        {
+          "name": "sourceNamespaceCanonical",
+          "rule": "sourceNamespace is the sole API/storage spelling; namespace is not an alias."
+        },
+        {
+          "name": "setAtomicity",
+          "rule": "Complete-set replacement validates every binding and snapshot before any child mutation."
+        },
+        {
+          "name": "unconditionalUnique",
+          "rule": "The (featureId, governanceSnapshotId, sourceNamespace, requirementKey) unique key includes deleted rows. A complete-set command revives a matching tombstone by key with its UUID preserved and version incremented; it does not insert a duplicate."
+        },
+        {
+          "name": "batchRestore",
+          "rule": "Restore considers only currently deleted rows whose deleteBatchId equals the parent Feature delete batch; no deletedAt timestamp matching is used."
+        },
+        {
+          "name": "setBounds",
+          "rule": "A requirement-binding replacement contains at most 200 rows and rejects duplicate (governanceSnapshotId, sourceNamespace, requirementKey) keys before the transaction."
+        }
+      ],
+      "scope": {
+        "columns": [
+          "tenantId",
+          "businessId",
+          "featureId"
+        ],
+        "context": "Project scope is inherited from the resolved parent ProjectFeature; snapshot scope is checked independently.",
+        "read": "Only through an authorized Project Feature read.",
+        "write": "Business owner through the parent ProjectFeature write capability, with Identity CSRF/Origin.",
+        "clientMayProvide": [
+          "governanceSnapshotId",
+          "sourceNamespace",
+          "requirementKey",
+          "revisionHash",
+          "acceptanceRef"
+        ],
+        "serverDerives": [
+          "id",
+          "tenantId",
+          "businessId",
+          "featureId",
+          "createdAt",
+          "updatedAt",
+          "version",
+          "deletedAt",
+          "canonicalSubject"
+        ]
+      },
+      "restoreOrder": {
+        "order": 5,
+        "after": [
+          "ProjectFeature",
+          "GovernanceSnapshot"
+        ],
+        "rule": "Restore only when both the Feature and the proving snapshot are present and scope-valid."
+      }
+    },
+    {
+      "name": "ProjectFeatureMutationReceipt",
+      "kind": "TECHNICAL_SUPPORT_RECORD",
+      "disposition": "NEW_REQUIRED_IDEMPOTENCY_AUTHORITY",
+      "status": "CANDIDATE_B1_PENDING",
+      "owner": "project-manager",
+      "purpose": "Durable scoped ledger for committed Feature mutations and deterministic replay.",
+      "fields": [
+        {
+          "name": "id",
+          "type": "uuid",
+          "nullable": false,
+          "key": "PK",
+          "generated": "server",
+          "readOnly": true,
+          "apiName": "receiptId"
+        },
+        {
+          "name": "tenantId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Tenant",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "businessId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Business",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "projectId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "Project",
+          "generated": "server",
+          "readOnly": true
+        },
+        {
+          "name": "featureId",
+          "type": "uuid",
+          "nullable": true,
+          "references": "ProjectFeature",
+          "readOnly": true
+        },
+        {
+          "name": "targetId",
+          "type": "uuid",
+          "nullable": false,
+          "generated": "server",
+          "readOnly": true,
+          "description": "Idempotency target: Feature, Project or snapshot route target."
+        },
+        {
+          "name": "targetType",
+          "type": "enum",
+          "nullable": false,
+          "values": [
+            "FEATURE",
+            "PROJECT",
+            "SNAPSHOT"
+          ],
+          "readOnly": true
+        },
+        {
+          "name": "httpMethod",
+          "type": "enum",
+          "nullable": false,
+          "values": [
+            "POST",
+            "PATCH",
+            "PUT",
+            "DELETE"
+          ],
+          "readOnly": true
+        },
+        {
+          "name": "principalId",
+          "type": "uuid",
+          "nullable": false,
+          "generated": "server",
+          "readOnly": true,
+          "description": "Authenticated Identity principal."
+        },
+        {
+          "name": "operation",
+          "type": "enum",
+          "nullable": false,
+          "values": [
+            "CREATE_FEATURE",
+            "UPDATE_FEATURE",
+            "REPLACE_CONTRIBUTIONS",
+            "REPLACE_WORK_LINKS",
+            "REPLACE_FEATURE_WORK_GRAPH",
+            "REPLACE_REQUIREMENT_BINDINGS",
+            "DELETE_FEATURE",
+            "RESTORE_FEATURE",
+            "CAPTURE_GOVERNANCE_SNAPSHOT"
+          ],
+          "readOnly": true
+        },
+        {
+          "name": "idempotencyKey",
+          "type": "string",
+          "nullable": false,
+          "minLength": 8,
+          "maxLength": 128,
+          "readOnly": true
+        },
+        {
+          "name": "payloadHash",
+          "type": "sha256",
+          "nullable": false,
+          "pattern": "^[0-9a-f]{64}$",
+          "readOnly": true
+        },
+        {
+          "name": "resourceId",
+          "type": "uuid",
+          "nullable": false,
+          "readOnly": true,
+          "polymorphic": true,
+          "description": "Typed by resourceType: ProjectFeature UUID, Project UUID for graph, or GovernanceSnapshot UUID."
+        },
+        {
+          "name": "resourceType",
+          "type": "enum",
+          "nullable": false,
+          "values": [
+            "PROJECT_FEATURE",
+            "PROJECT_FEATURE_GRAPH",
+            "GOVERNANCE_SNAPSHOT"
+          ],
+          "readOnly": true,
+          "description": "Typed by resourceType: ProjectFeature UUID, Project UUID for graph, or GovernanceSnapshot UUID."
+        },
+        {
+          "name": "version",
+          "type": "int",
+          "nullable": true,
+          "minimum": 1,
+          "readOnly": true,
+          "description": "Committed ProjectFeature version; null for PROJECT_FEATURE_GRAPH and GOVERNANCE_SNAPSHOT."
+        },
+        {
+          "name": "etag",
+          "type": "string",
+          "nullable": false,
+          "minLength": 1,
+          "maxLength": 4096,
+          "readOnly": true,
+          "description": "Strong Feature, graph or immutable snapshot ETag; always present."
+        },
+        {
+          "name": "auditEventId",
+          "type": "uuid",
+          "nullable": false,
+          "references": "AuditEvent",
+          "readOnly": true
+        },
+        {
+          "name": "status",
+          "type": "enum",
+          "nullable": false,
+          "values": [
+            "COMMITTED"
+          ],
+          "readOnly": true
+        },
+        {
+          "name": "createdAt",
+          "type": "instant",
+          "nullable": false,
+          "format": "date-time",
+          "generated": "server",
+          "readOnly": true,
+          "apiName": "recordedAt"
+        }
+      ],
+      "keys": {
+        "primary": [
+          "id"
+        ],
+        "unique": [
+          [
+            "tenantId",
+            "businessId",
+            "principalId",
+            "operation",
+            "targetId",
+            "idempotencyKey"
+          ]
+        ],
+        "foreign": [
+          {
+            "fields": [
+              "tenantId"
+            ],
+            "references": "Tenant.id"
+          },
+          {
+            "fields": [
+              "businessId"
+            ],
+            "references": "Business.id"
+          },
+          {
+            "fields": [
+              "projectId"
+            ],
+            "references": "Project.id"
+          },
+          {
+            "fields": [
+              "featureId"
+            ],
+            "references": "ProjectFeature.id",
+            "nullable": true
+          },
+          {
+            "fields": [
+              "auditEventId"
+            ],
+            "references": "AuditEvent.id"
+          }
+        ]
+      },
+      "indexes": [
+        {
+          "columns": [
+            "tenantId",
+            "businessId",
+            "principalId",
+            "operation",
+            "targetId",
+            "idempotencyKey"
+          ],
+          "unique": true,
+          "purpose": "scoped replay lookup"
+        }
+      ],
+      "checks": [
+        {
+          "name": "scopedKey",
+          "rule": "The unique idempotency key is scoped by trusted tenant, business, authenticated principal, canonical operation and explicit targetId; httpMethod/path semantics are normalized into operation before lookup."
+        },
+        {
+          "name": "sameHashReplay",
+          "rule": "Same scoped target and normalized payloadHash returns the stored durable resource/version/etag/audit effect with HTTP 200 for replay and fresh requestId; receipt status remains COMMITTED and no second child set or AuditEvent is appended."
+        },
+        {
+          "name": "changedHashConflict",
+          "rule": "Same scoped key with a different payloadHash returns 409 IDEMPOTENCY_KEY_REUSED and performs no mutation."
+        },
+        {
+          "name": "atomicReceipt",
+          "rule": "Receipt, resource changes and one aggregate AuditEvent commit in the same transaction when the operation has an AuditEvent; snapshot capture uses its snapshot receipt contract."
+        },
+        {
+          "name": "transportRequestId",
+          "rule": "requestId is a fresh response correlation UUID and is not durable receipt state; X-Request-ID equals it on success and refusal."
+        },
+        {
+          "name": "typedTarget",
+          "rule": "targetType is FEATURE for Feature mutations, PROJECT for graph allocation, and SNAPSHOT for governance capture. targetId is the URL/route target resolved after full scope validation."
+        },
+        {
+          "name": "polymorphicResource",
+          "rule": "resourceType PROJECT_FEATURE maps resourceId to ProjectFeature, PROJECT_FEATURE_GRAPH maps it to Project, and GOVERNANCE_SNAPSHOT maps it to GovernanceSnapshot. The polymorphic resourceId has no false single-table FK; a typed service/trigger guard validates it. auditEventId retains its FK."
+        },
+        {
+          "name": "versionAndEtag",
+          "rule": "version is non-null only for FEATURE; graph and snapshot receipts use null. etag is always persisted and returned."
+        },
+        {
+          "name": "snapshotReplay",
+          "rule": "Governance snapshot capture returns a SnapshotCaptureResult with the same durable snapshot and receipt on replay; first commit is 201 and replay is 200."
+        }
+      ],
+      "scope": {
+        "columns": [
+          "tenantId",
+          "businessId",
+          "projectId",
+          "principalId",
+          "operation",
+          "targetId",
+          "idempotencyKey"
+        ],
+        "context": "The full Project/Workspace/Business/Tenant scope and authenticated principal are resolved before target and receipt lookup.",
+        "read": "Only the current fully scoped mutation path may retrieve a receipt for replay; no cross-scope collision disclosure.",
+        "write": "Written only by the transaction after live session, CSRF, Origin, capability and Project-lock checks.",
+        "clientMayProvide": [
+          "idempotencyKey"
+        ],
+        "serverDerives": [
+          "id",
+          "tenantId",
+          "businessId",
+          "projectId",
+          "featureId",
+          "targetId",
+          "targetType",
+          "principalId",
+          "operation",
+          "httpMethod",
+          "payloadHash",
+          "resourceId",
+          "resourceType",
+          "version",
+          "etag",
+          "auditEventId",
+          "status",
+          "createdAt"
+        ]
+      },
+      "restoreOrder": {
+        "order": 6,
+        "after": [
+          "ProjectFeature",
+          "FeatureContribution",
+          "FeatureWorkLink",
+          "RequirementBinding",
+          "GovernanceSnapshot",
+          "AuditEvent"
+        ],
+        "rule": "Restore only after the typed resource target and existing append-only AuditEvent reference are valid; preserve AuditEvent order."
+      }
+    }
+  ],
+  "namedSchemas": {
+    "SourceManifest": {
+      "$ref": "./openapi.candidate.json#/components/schemas/SourceManifest",
+      "storageLimitBytes": 1048576
+    },
+    "SourceManifestEntry": {
+      "$ref": "./openapi.candidate.json#/components/schemas/SourceManifestEntry"
+    },
+    "GovernanceVerificationProof": {
+      "$ref": "./openapi.candidate.json#/components/schemas/GovernanceVerificationProof"
+    }
+  },
+  "graphAllocation": {
+    "status": "DERIVED_COMMAND_AND_READ_STATE",
+    "persistedRecord": false,
+    "relationshipRecord": "FeatureWorkLink",
+    "version": {
+      "name": "graphETag",
+      "type": "string",
+      "nullable": false,
+      "pattern": "^PROJECT_FEATURE_GRAPH/.+/[0-9a-f]{64}$",
+      "derivation": "SHA-256 of canonical UTF-8 JSON: sorted array of every ProjectFeature row in the Project, including tombstones, with exactly id, version and deletedAt.",
+      "rechecked": "Inside the same Project-lock transaction before writing.",
+      "canonicalInput": "[{\"id\":\"<uuid>\",\"version\":<int>,\"deletedAt\":\"<instant>|null\"},...] sorted by id ascending; no other fields."
+    },
+    "inputFields": {
+      "allocationMode": {
+        "type": "enum",
+        "nullable": false,
+        "values": [
+          "UNALLOCATED",
+          "COMPLETE_SPLIT"
+        ]
+      },
+      "affectedWorkItemIds": {
+        "type": "array<uuid>",
+        "nullable": false,
+        "minItems": 1,
+        "uniqueItems": true,
+        "maxItems": 200,
+        "description": "Exact set of affected WorkItem UUIDs: union of active links currently owned by named Features and submitted links; unique, no missing or extra IDs."
+      },
+      "featureSets": {
+        "type": "array<FeatureWorkSet>",
+        "nullable": false,
+        "minItems": 1,
+        "maxItems": 50,
+        "uniqueBy": [
+          "featureId"
+        ]
+      }
+    },
+    "featureWorkSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "featureId",
+        "links"
+      ],
+      "fields": [
+        {
+          "name": "featureId",
+          "type": "uuid",
+          "nullable": false
+        },
+        {
+          "name": "links",
+          "type": "array<WorkLinkInput>",
+          "nullable": false,
+          "maxItems": 200
+        }
+      ]
+    },
+    "linkReadState": {
+      "name": "allocationState",
+      "type": "enum",
+      "nullable": false,
+      "values": [
+        "UNALLOCATED",
+        "PARTIAL",
+        "COMPLETE_SPLIT"
+      ],
+      "persisted": false,
+      "wireSchema": "FeatureWorkLink.allocationState"
+    },
+    "stateDerivation": {
+      "UNALLOCATED": "No active link for the WorkItem has allocationBps.",
+      "PARTIAL": "At least one active link has allocationBps, but the affected WorkItem does not satisfy the complete-split rule.",
+      "COMPLETE_SPLIT": "Every active link for the affected WorkItem has non-null allocationBps and that WorkItem total is exactly 10000."
+    },
+    "rules": [
+      "allocationState is derived from active totals for each WorkItem; it is not a persisted graph row.",
+      "UNALLOCATED means no active link for the WorkItem has allocationBps; PARTIAL means at least one value exists but the complete-split rule is not met; COMPLETE_SPLIT means every active link is non-null and the WorkItem total is exactly 10000.",
+      "UNALLOCATED commands accept optional allocationBps and require each affected WorkItem present-value total at most 10000; COMPLETE_SPLIT requires every affected active link to be non-null and each affected WorkItem total exactly 10000.",
+      "A Feature delete never infers redistribution: remaining links are re-evaluated as PARTIAL or UNALLOCATED.",
+      "A restore that would overflow an affected WorkItem returns 409 ALLOCATION_RESTORE_CONFLICT and leaves Feature, links, receipts and AuditEvent unchanged.",
+      "Single-Feature and graph replacements recheck and lock all affected WorkItem links inside the Project lock; unrelated WorkItems are never combined.",
+      "The graph command does not persist a graph state table; graphETag is the CAS/version token.",
+      "affectedWorkItemIds equals the union of old active and submitted links for the named Feature sets; reject missing or extra IDs. Unlisted Features remain unchanged, but all their links for those WorkItems are read and validated under the Project lock."
+    ],
+    "lockScope": {
+      "lockOrder": [
+        "existing Project row",
+        "all ProjectFeature rows including tombstones",
+        "all FeatureWorkLink rows for every affected WorkItem"
+      ],
+      "postgres": "SELECT FOR UPDATE on the existing Project row first; then deterministic feature/link row order.",
+      "sqlite": "BEGIN IMMEDIATE before scope/receipt/aggregate work.",
+      "raceRule": "Every Feature create/edit/delete/restore/child-set and graph command uses this same Project lock, so an unlisted Feature C cannot change concurrently.",
+      "noNewGraphStateTable": true
+    }
+  },
+  "wireAgreement": {
+    "openapiCandidate": "./openapi.candidate.json",
+    "status": "FIELD_PARITY_REQUIRED_BEFORE_CODEGEN",
+    "directResponses": true,
+    "errorShape": {
+      "required": [
+        "code",
+        "message",
+        "requestId",
+        "retryable"
+      ],
+      "additionalProperties": false,
+      "xRequestIdMatchesBody": true,
+      "stableCodes": {
+        "conflict409": [
+          "IDEMPOTENCY_KEY_REUSED",
+          "DUPLICATE_FEATURE_CODE",
+          "ALLOCATION_RESTORE_CONFLICT"
+        ],
+        "precondition412": [
+          "VERSION_MISMATCH"
+        ],
+        "validation422": [
+          "DOMAIN_ID_UNRECOGNIZED",
+          "PRIMARY_DOMAIN_DUPLICATE",
+          "CROSS_PROJECT_WORK_LINK",
+          "INVALID_ALLOCATION",
+          "SNAPSHOT_REQUIRED",
+          "SNAPSHOT_INVALID",
+          "REQUIREMENT_REVISION_MISMATCH",
+          "INVALID_LIFECYCLE",
+          "FEATURE_LIMIT_REACHED"
+        ],
+        "payload413": [
+          "FEATURE_VIEW_LIMIT_EXCEEDED"
+        ]
+      }
+    },
+    "schemas": {
+      "DomainReference": {
+        "$ref": "./openapi.candidate.json#/components/schemas/DomainReference"
+      },
+      "FeatureContribution": {
+        "$ref": "./openapi.candidate.json#/components/schemas/FeatureContribution"
+      },
+      "FeatureWorkLink": {
+        "$ref": "./openapi.candidate.json#/components/schemas/FeatureWorkLink"
+      },
+      "RequirementBinding": {
+        "$ref": "./openapi.candidate.json#/components/schemas/RequirementBinding"
+      },
+      "Evidence": {
+        "$ref": "./openapi.candidate.json#/components/schemas/Evidence"
+      },
+      "SourceManifest": {
+        "$ref": "./openapi.candidate.json#/components/schemas/SourceManifest"
+      },
+      "SourceManifestEntry": {
+        "$ref": "./openapi.candidate.json#/components/schemas/SourceManifestEntry"
+      },
+      "FeatureRecord": {
+        "$ref": "./openapi.candidate.json#/components/schemas/FeatureRecord"
+      },
+      "DeletedFeatureRecord": {
+        "$ref": "./openapi.candidate.json#/components/schemas/DeletedFeatureRecord"
+      },
+      "FeatureView": {
+        "$ref": "./openapi.candidate.json#/components/schemas/FeatureView"
+      },
+      "FeatureRecordPage": {
+        "$ref": "./openapi.candidate.json#/components/schemas/FeatureRecordPage"
+      },
+      "FeatureCreateInput": {
+        "$ref": "./openapi.candidate.json#/components/schemas/FeatureCreateInput"
+      },
+      "FeaturePatchInput": {
+        "$ref": "./openapi.candidate.json#/components/schemas/FeaturePatchInput"
+      },
+      "ContributionsReplaceInput": {
+        "$ref": "./openapi.candidate.json#/components/schemas/ContributionsReplaceInput"
+      },
+      "ContributionInput": {
+        "$ref": "./openapi.candidate.json#/components/schemas/ContributionInput"
+      },
+      "WorkLinksReplaceInput": {
+        "$ref": "./openapi.candidate.json#/components/schemas/WorkLinksReplaceInput"
+      },
+      "WorkLinkInput": {
+        "$ref": "./openapi.candidate.json#/components/schemas/WorkLinkInput"
+      },
+      "FeatureWorkGraphInput": {
+        "$ref": "./openapi.candidate.json#/components/schemas/FeatureWorkGraphInput"
+      },
+      "FeatureWorkSet": {
+        "$ref": "./openapi.candidate.json#/components/schemas/FeatureWorkSet"
+      },
+      "RequirementBindingsReplaceInput": {
+        "$ref": "./openapi.candidate.json#/components/schemas/RequirementBindingsReplaceInput"
+      },
+      "RequirementBindingInput": {
+        "$ref": "./openapi.candidate.json#/components/schemas/RequirementBindingInput"
+      },
+      "CaptureSnapshotInput": {
+        "$ref": "./openapi.candidate.json#/components/schemas/CaptureSnapshotInput"
+      },
+      "GovernanceSnapshot": {
+        "$ref": "./openapi.candidate.json#/components/schemas/GovernanceSnapshot"
+      },
+      "GovernanceSnapshotPage": {
+        "$ref": "./openapi.candidate.json#/components/schemas/GovernanceSnapshotPage"
+      },
+      "GovernanceSnapshotMetadata": {
+        "$ref": "./openapi.candidate.json#/components/schemas/GovernanceSnapshotMetadata"
+      },
+      "MutationReceipt": {
+        "$ref": "./openapi.candidate.json#/components/schemas/MutationReceipt"
+      },
+      "Error": {
+        "$ref": "./openapi.candidate.json#/components/schemas/Error"
+      },
+      "SnapshotCaptureResult": {
+        "$ref": "./openapi.candidate.json#/components/schemas/SnapshotCaptureResult"
+      },
+      "GovernanceVerificationProof": {
+        "$ref": "./openapi.candidate.json#/components/schemas/GovernanceVerificationProof"
+      },
+      "FeatureTombstone": {
+        "$ref": "./openapi.candidate.json#/components/schemas/DeletedFeatureRecord",
+        "aliasOf": "DeletedFeatureRecord"
+      },
+      "FeatureTombstonePage": {
+        "$ref": "./openapi.candidate.json#/components/schemas/FeatureRecordPage",
+        "aliasOf": "FeatureRecordPage"
+      }
+    },
+    "listContract": {
+      "defaultVisibility": "ACTIVE",
+      "activeIncludesLifecycle": [
+        "DRAFT",
+        "ACTIVE",
+        "RETIRED"
+      ],
+      "activeExcludesDeleted": true,
+      "deletedVisibility": "DELETED",
+      "deletedRequires": "Business-owner restore capability",
+      "deletedResponse": "FeatureRecordPage containing DeletedFeatureRecord items only; no relationships, evidence or WorkItem projection.",
+      "lifecycleFilter": {
+        "optional": true,
+        "values": [
+          "DRAFT",
+          "ACTIVE",
+          "RETIRED"
+        ]
+      },
+      "limit": {
+        "min": 1,
+        "max": 50,
+        "default": 50
+      },
+      "cursor": {
+        "type": "signed-opaque",
+        "maxLength": 4096,
+        "binds": [
+          "tenantId",
+          "businessId",
+          "projectId",
+          "visibility",
+          "lifecycle",
+          "ordering"
+        ],
+        "expires": true,
+        "invalid": "400 INVALID_CURSOR"
+      },
+      "deletedRecordSchema": "DeletedFeatureRecord"
+    },
+    "schemaAuthority": "All wire DTO fields, nullability, enums, bounds and response shapes resolve from the local phase-b OpenAPI candidate; selectedPhaseBRecords remains authoritative for persistence/service invariants.",
+    "phaseBInvariants": {
+      "featureView": "FeatureView.features max 200 active/non-deleted rows; create and restore enforce 422 FEATURE_LIMIT_REACHED under the Project lock; no silent truncation.",
+      "aggregateSnapshot": "FeatureView.snapshotId is always null and snapshotState is UNAVAILABLE in Phase B; no aggregate publisher.",
+      "mutationReplay": "MutationReceipt.status remains COMMITTED on replay; first create/capture is 201, same scoped hash replay is 200 with fresh requestId.",
+      "resourceDiscriminator": "resourceType is exactly PROJECT_FEATURE, PROJECT_FEATURE_GRAPH or GOVERNANCE_SNAPSHOT; targetType is exactly FEATURE, PROJECT or SNAPSHOT; no aliases."
+    }
+  },
+  "routeBindings": {
+    "openapiCandidate": "./openapi.candidate.json",
+    "operations": [
+      "GET /api/auth/csrf",
+      "GET /api/projects/{projectId}/feature-view",
+      "GET /api/projects/{projectId}/features",
+      "POST /api/projects/{projectId}/features",
+      "GET /api/projects/{projectId}/features/{featureId}",
+      "PATCH /api/projects/{projectId}/features/{featureId}",
+      "PUT /api/projects/{projectId}/features/{featureId}/contributions",
+      "PUT /api/projects/{projectId}/features/{featureId}/work-links",
+      "PUT /api/projects/{projectId}/feature-work-links",
+      "PUT /api/projects/{projectId}/features/{featureId}/requirement-bindings",
+      "GET /api/projects/{projectId}/governance-snapshots",
+      "POST /api/projects/{projectId}/governance-snapshots",
+      "DELETE /api/projects/{projectId}/features/{featureId}",
+      "POST /api/projects/{projectId}/features/{featureId}/restore"
+    ],
+    "deleteRouteDecision": "Use the currently enumerated OpenAPI candidate DELETE route; any alternate POST delete path requires explicit root composition before codegen.",
+    "listVisibility": {
+      "defaultVisibility": "ACTIVE",
+      "activeIncludesLifecycle": [
+        "DRAFT",
+        "ACTIVE",
+        "RETIRED"
+      ],
+      "activeExcludesDeleted": true,
+      "deletedVisibility": "DELETED",
+      "deletedRequires": "Business-owner restore capability",
+      "deletedResponse": "FeatureRecordPage containing DeletedFeatureRecord items only; no relationships, evidence or WorkItem projection.",
+      "lifecycleFilter": {
+        "optional": true,
+        "values": [
+          "DRAFT",
+          "ACTIVE",
+          "RETIRED"
+        ]
+      },
+      "limit": {
+        "min": 1,
+        "max": 50,
+        "default": 50
+      },
+      "cursor": {
+        "type": "signed-opaque",
+        "maxLength": 4096,
+        "binds": [
+          "tenantId",
+          "businessId",
+          "projectId",
+          "visibility",
+          "lifecycle",
+          "ordering"
+        ],
+        "expires": true,
+        "invalid": "400 INVALID_CURSOR"
+      },
+      "featureView": {
+        "maxActiveNonDeleted": 200,
+        "overflow": "422 FEATURE_LIMIT_REACHED",
+        "noSilentTruncate": true
+      }
+    },
+    "graphConcurrency": {
+      "etag": "PROJECT_FEATURE_GRAPH/<projectId>/<sha256>",
+      "digestInput": "All ProjectFeature id/version/deletedAt rows in canonical JSON sorted by id, including tombstones",
+      "lock": "Existing Project row first, then all affected Feature/WorkLink rows",
+      "omittedFeatureRace": "Serialized by the same Project lock used by the single-Feature mutation path.",
+      "affectedWorkItemIds": "Must equal union of existing active and submitted links for named Feature sets; unique with no missing/extra IDs; unlisted Features stay unchanged but their affected links are validated under lock."
+    },
+    "snapshotCapture": {
+      "request": "CaptureSnapshotInput metadata is intent only",
+      "result": "SnapshotCaptureResult",
+      "committedStatus": 201,
+      "replayStatus": 200
+    },
+    "receipt": {
+      "resourceTypes": [
+        "PROJECT_FEATURE",
+        "PROJECT_FEATURE_GRAPH",
+        "GOVERNANCE_SNAPSHOT"
+      ],
+      "targetTypes": [
+        "FEATURE",
+        "PROJECT",
+        "SNAPSHOT"
+      ],
+      "targetIdRequired": true,
+      "httpMethodRequired": true,
+      "targetResourceMapping": {
+        "createFeature": {
+          "httpMethod": "POST",
+          "targetType": "PROJECT",
+          "targetId": "projectId",
+          "resourceType": "PROJECT_FEATURE",
+          "resourceId": "new featureId",
+          "version": "int >= 1",
+          "etag": "Feature ETag"
+        },
+        "updateFeature": {
+          "httpMethod": "PATCH",
+          "targetType": "FEATURE",
+          "targetId": "featureId",
+          "resourceType": "PROJECT_FEATURE",
+          "resourceId": "featureId",
+          "version": "int >= 1",
+          "etag": "Feature ETag"
+        },
+        "replaceChildSet": {
+          "httpMethod": "PUT",
+          "targetType": "FEATURE",
+          "targetId": "featureId",
+          "resourceType": "PROJECT_FEATURE",
+          "resourceId": "featureId",
+          "version": "int >= 1",
+          "etag": "Feature ETag"
+        },
+        "graph": {
+          "httpMethod": "PUT",
+          "targetType": "PROJECT",
+          "targetId": "projectId",
+          "resourceType": "PROJECT_FEATURE_GRAPH",
+          "resourceId": "projectId",
+          "version": null,
+          "etag": "graph ETag"
+        },
+        "captureSnapshot": {
+          "httpMethod": "POST",
+          "targetType": "PROJECT",
+          "targetId": "projectId",
+          "resourceType": "GOVERNANCE_SNAPSHOT",
+          "resourceId": "new snapshotId",
+          "version": null,
+          "etag": "snapshot ETag"
+        },
+        "deleteFeature": {
+          "httpMethod": "DELETE",
+          "targetType": "FEATURE",
+          "targetId": "featureId",
+          "resourceType": "PROJECT_FEATURE",
+          "resourceId": "featureId",
+          "version": "int >= 1",
+          "etag": "Feature ETag"
+        },
+        "restoreFeature": {
+          "httpMethod": "POST",
+          "targetType": "FEATURE",
+          "targetId": "featureId",
+          "resourceType": "PROJECT_FEATURE",
+          "resourceId": "featureId",
+          "version": "int >= 1",
+          "etag": "Feature ETag"
+        }
+      },
+      "replay": "Response status is 201 for first create/capture and 200 for idempotent replay; durable receipt status stays COMMITTED and requestId is fresh."
+    }
+  },
+  "authorizationProtocol": {
+    "session": {
+      "resolver": "resolveRequestViewer",
+      "cookie": "zuri_session",
+      "missingOrInvalid": "401 AUTH_REQUIRED",
+      "sessionStoreFailure": "503 SESSION_UNAVAILABLE"
+    },
+    "read": {
+      "scopeFirst": true,
+      "projectGuard": "assertProjectRoadmapReadable",
+      "preservesSharedVisibility": [
+        "TENANT",
+        "PORTFOLIO"
+      ],
+      "aggregateAfterScope": true,
+      "scopeResolver": "resolvePhaseBProjectScope before assertProjectRoadmapReadable and aggregate reads"
+    },
+    "write": {
+      "projectGuard": "resolvePhaseBProjectScope then assertProjectWritable; assertProjectWritable alone is insufficient.",
+      "capability": "Business owner",
+      "csrfHeader": "X-CSRF-Token",
+      "csrfOwner": "Identity generic API-write issuer/verifier bound to live zuri_session",
+      "origin": "Trusted same-origin Origin check before body validation or mutation",
+      "pluginConsentTokenAccepted": false,
+      "ifMatch": "Required for existing Feature/child/graph/delete/restore mutation; missing 428, stale 412",
+      "idempotencyKey": "Required for every mutation; 8-128 characters and scoped by trusted target/principal/operation",
+      "projectLock": "Every Feature create, edit, child-set replacement, graph allocation, delete and restore acquires the existing Project row lock before receipt lookup/aggregate work; PostgreSQL uses SELECT FOR UPDATE and SQLite uses BEGIN IMMEDIATE. No graph-state table is introduced.",
+      "allFeatureMutations": true
+    },
+    "scopeResolver": {
+      "name": "resolvePhaseBProjectScope",
+      "order": "Before any Feature, child, snapshot aggregate, receipt lookup or write.",
+      "validates": [
+        "Project",
+        "Workspace",
+        "Business",
+        "Tenant"
+      ],
+      "rules": [
+        "Project is resolved from the URL and its Workspace/Business/Tenant chain must be internally consistent.",
+        "The authenticated viewer is authorized for that Project through the existing read or write capability after the hierarchy check.",
+        "URL/body scope fields never repair a mismatch and are never used as authority.",
+        "Invalid/missing hierarchy uses the existing redacted RESOURCE_NOT_FOUND refusal; service/store failure uses the stable 503 family.",
+        "The full chain is re-read and rechecked inside the Project-lock transaction."
+      ],
+      "assertProjectWritableInsufficient": true
+    },
+    "csrf": {
+      "issuer": "Identity issueApiWriteCsrfToken",
+      "verifier": "Identity assertApiWriteCsrfToken",
+      "audience": "zuri_api_write.v1",
+      "algorithm": "HMAC-SHA256 using the existing requireSessionSecret",
+      "binding": "Token carries a digest of the zuri_session cookie plus issuedAt and expiresAt; expiry is capped at 15 minutes and the live session expiry; comparison is constant-time.",
+      "reuse": "Reusable within its valid TTL; scoped Idempotency-Key prevents duplicate mutation effects.",
+      "invalidation": "Invalidate on session rotation, logout or revocation.",
+      "rejectedTokens": [
+        "plugin-consent tokens",
+        "tokens with another audience",
+        "expired tokens",
+        "tokens bound to another session"
+      ],
+      "origin": {
+        "source": "Explicit configured PUBLIC_BASE_URL only",
+        "proxyFallback": false,
+        "mutation": "Missing, null or cross-origin Origin returns 403 CSRF_INVALID; origin/secret configuration failure returns 503 SESSION_UNAVAILABLE.",
+        "issuerGet": "GET /api/auth/csrf is no-store, sends no CORS token, and keeps the token in server memory.",
+        "absentOrigin": "Allow absent Origin only when Sec-Fetch-Site or Referer proves same origin; otherwise require the exact configured origin."
+      }
+    }
+  },
+  "restoreOrder": [
+    {
+      "order": 1,
+      "record": "GovernanceSnapshot",
+      "after": [
+        "Repository",
+        "Tenant",
+        "Business"
+      ]
+    },
+    {
+      "order": 2,
+      "record": "ProjectFeature",
+      "after": [
+        "Project",
+        "GovernanceSnapshot"
+      ]
+    },
+    {
+      "order": 3,
+      "record": "FeatureContribution",
+      "after": [
+        "ProjectFeature"
+      ]
+    },
+    {
+      "order": 4,
+      "record": "FeatureWorkLink",
+      "after": [
+        "ProjectFeature",
+        "WorkItem",
+        "Workstream"
+      ]
+    },
+    {
+      "order": 5,
+      "record": "RequirementBinding",
+      "after": [
+        "ProjectFeature",
+        "GovernanceSnapshot"
+      ]
+    },
+    {
+      "order": 6,
+      "record": "ProjectFeatureMutationReceipt",
+      "after": [
+        "ProjectFeature",
+        "FeatureContribution",
+        "FeatureWorkLink",
+        "RequirementBinding",
+        "GovernanceSnapshot",
+        "AuditEvent"
+      ],
+      "rule": "Typed resource target and AuditEvent reference must be valid; resourceId is polymorphic and is checked by service/trigger guard."
+    }
+  ],
+  "restoreProtocol": {
+    "phase": "CANDIDATE_B2_PENDING",
+    "familyPresence": {
+      "previewAndCommit": true,
+      "missingFamily": "Refuse unless an explicit legacy snapshot proves that family has zero rows; never silently convert missing to an empty array.",
+      "malformedFamily": "Refuse as malformed; never treat malformed or wrong-type data as missing or empty.",
+      "presentEmptyArray": "Accept only when the family key is present, schema-valid and the authoritative family is empty.",
+      "receiptFamily": "The mutation-receipt family is protected and follows the same missing/malformed rules; its polymorphic resource target and AuditEvent FK are validated before insert."
+    },
+    "validationBeforeCommit": [
+      "Validate all present protected families before any destructive delete or insert.",
+      "Validate UUIDs, immutable IDs, versions, hashes, deleteBatchId, deletedAt and trusted Tenant/Business/Project chains.",
+      "Validate active Project/WorkItem/Workstream parents and same-Project FeatureWorkLinks.",
+      "Validate GovernanceSnapshot dependencies, RequirementBinding revision hashes and Feature canonical pair.",
+      "Validate receipt targetType/resourceType/resourceId/version/etag compatibility and retained AuditEvent references.",
+      "Acquire the existing Project lock and recheck scope, graph digest and all affected WorkItem links before commit.",
+      "Preserve unrelated data and protected rows on any failed preview or commit."
+    ],
+    "tombstone": {
+      "delete": "One server-generated deleteBatchId and one command deletedAt are applied to the Feature and only currently active child rows; IDs, versions and AuditEvents remain.",
+      "restore": "Restore only currently deleted Feature/child rows whose deleteBatchId matches the Feature batch. A child tombstoned in an earlier batch remains deleted. No timestamp inference.",
+      "codeReuse": "Unconditional unique keys make a new Feature code conflict with a deleted original; return 409 DUPLICATE_FEATURE_CODE and restore the original.",
+      "allocationConflict": "If restoring matching links would overflow any affected WorkItem total, return 409 ALLOCATION_RESTORE_CONFLICT with the complete transaction unchanged.",
+      "scope": "Restore cannot move a Feature across Project, Business or Tenant."
+    },
+    "derivedState": "Recompute allocationState from active per-WorkItem links and graphETag from all ProjectFeature id/version/deletedAt rows including tombstones; no graph state row is restored.",
+    "protectedFamilies": [
+      "GovernanceSnapshot",
+      "ProjectFeature",
+      "FeatureContribution",
+      "FeatureWorkLink",
+      "RequirementBinding",
+      "ProjectFeatureMutationReceipt"
+    ]
+  },
+  "migrationAndRollbackGate": {
+    "status": "NOT_AUTHORIZED",
+    "schema": "No Prisma model or migration in this contract packet.",
+    "sqlite": [
+      "Scoped repositories with foreign keys enabled.",
+      "CAS transaction boundary and BEGIN IMMEDIATE where the adapter requires a write lock.",
+      "Service checks prove same-Project WorkItem integrity."
+    ],
+    "postgres": [
+      "One additive migration after B1 approval for both Prisma schemas.",
+      "Explicit grants, ENABLE/FORCE ROW LEVEL SECURITY and exact reviewed runtime predicates.",
+      "Serializable transaction with bounded serialization/deadlock retry; re-read receipt and aggregate after retry.",
+      "No assumed generic scope function and no public/anonymous access."
+    ],
+    "rollback": "Disable writer/read route admission or feature flag; do not drop tables or destroy evidence.",
+    "projectLock": {
+      "rule": "Every Feature create, edit, child-set replacement, graph allocation, delete and restore acquires the existing Project row lock before receipt lookup/aggregate work; PostgreSQL uses SELECT FOR UPDATE and SQLite uses BEGIN IMMEDIATE. No graph-state table is introduced."
+    },
+    "noGraphStateTable": true,
+    "receipt": "Add the typed polymorphic receipt with explicit targetId/targetType/httpMethod, resourceType and always-present etag; resourceId has no false Feature FK and auditEventId retains its FK.",
+    "backupFamilies": [
+      "GovernanceSnapshot",
+      "ProjectFeature",
+      "FeatureContribution",
+      "FeatureWorkLink",
+      "RequirementBinding",
+      "ProjectFeatureMutationReceipt"
+    ],
+    "uniquePolicy": "Use unconditional unique keys over tombstones plus deterministic revive-by-key for child sets; do not use active-only partial uniqueness.",
+    "snapshotProducer": {
+      "owner": "project-manager governance adapter",
+      "source": "server-local Git verifier",
+      "checkoutAuthority": "operator-registered Repository-to-local-checkout mapping",
+      "projectRepositoryRequired": true,
+      "sameBusinessRequired": true,
+      "noUrlFetch": true,
+      "noArbitraryPath": true,
+      "noCallerScript": true
+    }
+  },
+  "versionHistory": [
+    {
+      "version": "0.1.0b",
+      "date": "2026-09-17",
+      "status": "CANDIDATE",
+      "summary": "Selected Phase B records, exact field/nullability/key/index/check contract, graph allocation derivation, API parity, scope, restore and migration gates; codegen remains blocked pending B1/B2.",
+      "sourceSHA": "f061a113584aa15db68934dc8451f14b9a1011e1",
+      "agent": "Luna Max"
+    },
+    {
+      "version": "0.2.0b",
+      "date": "2026-09-17",
+      "status": "CANDIDATE",
+      "summary": "Resolved independent review: derived allocation/delete-restore semantics, Project-lock/all-feature graph digest, delete batches/revive-by-key, typed polymorphic receipts, verified snapshot capture/result, full hierarchy scope resolver, visibility bounds and protected restore family.",
+      "sourceSHA": "f061a113584aa15db68934dc8451f14b9a1011e1",
+      "agent": "Luna Max"
+    },
+    {
+      "version": "0.2.0b-correction",
+      "date": "2026-09-17",
+      "status": "candidate",
+      "summary": "Bound graph affected-WorkItem union, selected Identity API-write CSRF protocol, 200-feature cap and OpenAPI-backed wire DTO references. and persisted verifier proof fields",
+      "sourceSHA": "f061a113584aa15db68934dc8451f14b9a1011e1",
+      "agent": "Luna Max"
+    }
+  ],
+  "snapshotCapture": {
+    "status": "CANDIDATE_B1_PENDING",
+    "route": "POST /api/projects/{projectId}/governance-snapshots",
+    "requestSchema": "CaptureSnapshotInput",
+    "requestIntentOnly": [
+      "repositoryId",
+      "commitSha",
+      "manifestHash",
+      "sourceManifest"
+    ],
+    "resultSchema": "SnapshotCaptureResult",
+    "statusCodes": {
+      "committed": 201,
+      "replayed": 200
+    },
+    "idempotency": "Same scoped method/operation/target/payload hash returns the same snapshot and receipt; changed hash returns 409 IDEMPOTENCY_KEY_REUSED.",
+    "ifMatch": false,
+    "producer": {
+      "owner": "project-manager governance adapter",
+      "source": "server-local Git verifier",
+      "checkoutAuthority": "operator-registered Repository-to-local-checkout mapping",
+      "projectRepositoryRequired": true,
+      "sameBusinessRequired": true,
+      "noUrlFetch": true,
+      "noArbitraryPath": true,
+      "noCallerScript": true
+    },
+    "persistedVerifiedOutput": [
+      "repositoryId",
+      "projectRepositoryId",
+      "checkoutBindingId",
+      "commitSha",
+      "manifestHash",
+      "sourceManifest",
+      "capturedAt",
+      "verifiedAt",
+      "verifierId",
+      "verifierVersion",
+      "proofId",
+      "verificationProof",
+      "validationStatus"
+    ],
+    "invalidResult": "Persist only as clearly non-authoritative validationStatus INVALID; it cannot satisfy RequirementBinding.",
+    "readList": "GovernanceSnapshotMetadata only, bounded 1..50 pages; sourceManifest is not a grant.",
+    "proofSchema": "GovernanceVerificationProof (typed local OpenAPI ref; no loose JSON)"
+  }
+}

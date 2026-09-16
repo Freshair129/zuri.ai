@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-SYSTEM-DESIGN
 title: Project Manager complete system design
-version: "0.11.0b"
+version: "0.12.0b"
 status: candidate
 created_at: "2026-09-15T23:49:58+07:00,RWANG,base 087f30258a6831865afd751e28804e36505aff30"
-last_update: "2026-09-17T00:32:00+07:00,RWANG"
+last_update: "2026-09-17T01:25:33+07:00,RWANG"
 superseded_by: null
 attributes:
   doc_type: architecture-specification
@@ -25,13 +25,21 @@ relations:
 
 # Project Manager — Full System Design
 
-**Version:** 0.11.0b · **Status:** Candidate · **Risk:** HIGH · **Complexity:** C-3
+**Version:** 0.12.0b · **Status:** Candidate · **Risk:** HIGH · **Complexity:** C-3
 **Evidence baseline:** original design `087f30258a6831865afd751e28804e36505aff30`; MA-I02 source audit `138db6630e650e3c695b81158eff3cecdad6d0a5`.
-**Deliverable:** เอกสารออกแบบและสัญญาแบบเครื่องอ่านได้; navigation FR-250 ส่งมอบแล้ว ส่วน Domain View Phase A ในเอกสาร 23 ได้รับอนุมัติ ลงทะเบียน FR-251 และผ่าน local server/build/browser/governance แล้ว; ติดตาม hosted CI และ release แยกใน PR443 ส่วน Feature Phase B ยังเป็นข้อเสนอ ไม่มี production activation จาก packet ใหม่นี้
+**Deliverable:** เอกสารออกแบบและสัญญาแบบเครื่องอ่านได้; navigation FR-250 และ Domain View Phase A (FR-251) ส่งมอบแล้ว โดย Phase A merge/deploy ที่ `c07cfaba` พร้อม archive/rollup repair ใน PR444 เมื่อ 2026-09-17 ส่วน Feature Phase B เป็นข้อเสนอสำหรับ B1 review และ B2 registration ก่อนเขียน application/schema code
 
-**Spec completeness:** [16 Spec readiness & API reference](16-SPEC-READINESS-AND-API-REFERENCE.md) ตรวจไฟล์จริงแล้ว: มี contracts / API schemas / OpenAPI references และเพิ่ม Swagger UI ใน local review แต่ยังต้องปิด SPEC-G01–G09 ก่อน spec-to-code. 132 schema definitions เป็น API/JSON shapes ไม่ใช่ตารางฐานข้อมูล; ห้ามตีความ structural validation ว่า implementation-ready.
+**Spec completeness:** [16 Spec readiness & API reference](16-SPEC-READINESS-AND-API-REFERENCE.md) เป็น baseline audit ของ contracts / API schemas / OpenAPI references และ Swagger UI ใน local review; จำนวน 132 schema definitions ใน audit นั้นเป็น API/JSON shapes ไม่ใช่ตารางฐานข้อมูล ส่วน Phase B ใช้ selected contract ในเอกสาร 24 และต้องผ่าน B1/B2 ก่อน code; ห้ามตีความ structural validation ว่า implementation-ready หรือว่าปิด SPEC-G01–G09 ของทั้งระบบแล้ว
 
-ชุดเอกสารประกอบด้วย 24 Markdown documents, 30 diagrams, 33 requirements/acceptance families และ OpenAPI candidates 80 operations (72 original + 8 workforce) พร้อม workflow schema/example, architecture/traceability, navigation และ UX/UI models; UX/UI supplement มี 37 screen families, 10 journeys, 13 forms / 83 fields และ 14 UI acceptance scenarios; เพิ่ม semantic audit ของ 9 Project sections, 14 routes และ 7 Work views ก่อนจัดเมนูใหม่
+ฐานเอกสารก่อน Phase B มี 24 Markdown documents, 30 diagrams, 33 requirements/acceptance families และ OpenAPI candidates 80 operations (72 original + 8 workforce) พร้อม workflow schema/example, architecture/traceability, navigation และ UX/UI models; UX/UI supplement มี 37 screen families, 10 journeys, 13 forms / 83 fields และ 14 UI acceptance scenarios; เพิ่ม semantic audit ของ 9 Project sections, 14 routes และ 7 Work views ก่อนจัดเมนูใหม่ ชุด Phase B เพิ่มเอกสาร 24 และสัญญาเฉพาะ Feature โดยระบุสิ่งที่แทนข้อเสนอเดิมอย่างชัดเจน
+
+**Phase B plan:** [24 Feature implementation plan](24-PHASE-B-FEATURE-IMPLEMENTATION-PLAN.md)
+รวม schema/ERD, API, UX wireframes, snapshot provenance, CSRF, concurrency,
+backup/restore และแผนแบ่ง Luna Max workers → Luna Max verify gate → root final gate.
+เป็นข้อเสนอสำหรับ B1 review; B2 registration และ application code ยังไม่เริ่ม
+Phase B OpenAPI มี 14 operations ที่อ้างอิงจาก OpenAPI หลักชุดเดียว
+ส่วน release ของ Phase A กับ archive/rollup repair แยกจากเอกสารนี้ที่ PR443/PR444
+และ merged commit `c07cfaba8eedb53f677e313977a1e2344fb5c8c5`.
 
 **ตรวจแท็บเดิมก่อนจัดหมวด:** [14 Existing tab semantics](14-EXISTING-PROJECT-TAB-SEMANTICS.md) คืน Inventory ที่หลุดจากตาราง และรักษา Risks/Resources เป็น planned capabilities แยก; Resource Coordination ไม่ได้ทดแทน Resources และ Team เดิมเกี่ยวข้องกับ Business Membership
 
@@ -39,7 +47,7 @@ relations:
 
 **Navigation delivery state:** [22 Core navigation baseline](22-NAVIGATION-IMPLEMENTATION-BASELINE.md) defines six logical sidebar modules and module-local tabs. Import is one shared Project action. [ADR-096](../../decisions/ADR-096-PROJECTS-AND-WORK-HIERARCHICAL-NAVIGATION.md) and [FR-250](../../domains/project-manager/features/FR-250-hierarchical-project-navigation.md) were approved and delivered in PR435 (`e8fc84bd`). Deferred screen families retain explicitly historical, non-generatable bindings; this does not implement or approve all 37 screens.
 
-**Project / Domain / Feature Phase A packet:** [23 Project, Domain and Feature implementation baseline](23-PROJECT-DOMAIN-FEATURE-IMPLEMENTATION-BASELINE.md) is `0.4.0b`: Phase A is owner-approved on baseline `7465080f` and registered as FR-251, with the Domain-view response and redacted 401/404 refusal contract implemented. A2 governance passed with 0 critical findings and 2 existing warnings before worker code. The [FR-251 delivery note](../../domains/project-manager/features/FR-251-project-execution-domains.md) records local verification and separate hosted/release gates. Phase B Feature authority, persistence, CSRF and migration remain deferred and unapproved.
+**Project / Domain / Feature packet:** [23 Project, Domain and Feature implementation baseline](23-PROJECT-DOMAIN-FEATURE-IMPLEMENTATION-BASELINE.md) is `0.5.0b`: Phase A was approved on baseline `7465080f`, registered as FR-251 and deployed at `c07cfaba`. A2 governance passed with 0 critical findings and 2 existing warnings before worker code. The [FR-251 delivery note](../../domains/project-manager/features/FR-251-project-execution-domains.md) separates local, hosted and production evidence. Phase B's concrete Feature authority, persistence, CSRF and migration proposal is in document 24; B1/B2 remain open.
 
 **ส่วนเพิ่มล่าสุด:** [UX strategy](10-UX-STRATEGY-AND-JOURNEYS.md) → [UI system](11-UI-SYSTEM-AND-INTERACTIONS.md) → [37 wireframes / screen specs](12-WIREFRAMES-AND-SCREEN-SPECS.md). เป็นส่วนต่อยอดจากผังเมนู v0.2.0b; application code ยังไม่เปลี่ยน
 
@@ -103,6 +111,10 @@ Domain และ Feature เป็นคนละแกน:
 | [20 Multi-agent delivery](20-MULTI-AGENT-DELIVERY-PLAN.md) | Work packages, ownership, dependencies, exact-revision gates and first dispatch wave |
 | [21 Contract foundation](21-CONTRACT-FOUNDATION.md) | One human allocation writer, typed identities, receipt/error/idempotency and remaining CSRF owner binding |
 | [22 Navigation implementation baseline](22-NAVIGATION-IMPLEMENTATION-BASELINE.md) | Six modules, retained 8/9/14/7 source semantics, current core bindings and deferred scope |
+| [23 Domain / Feature baseline](23-PROJECT-DOMAIN-FEATURE-IMPLEMENTATION-BASELINE.md) | Approved Phase A and the separate B1/B2 gates for Feature authority |
+| [24 Phase B Feature implementation plan](24-PHASE-B-FEATURE-IMPLEMENTATION-PLAN.md) | Selected data/API/security/UX proposal, diagrams, disjoint worker waves, independent verification and root integration |
+| [Phase B selected data contract](contracts/phase-b/data-model.candidate.json) | Six selected candidate records, constraints, restore cohorts and mutation receipts |
+| [Phase B OpenAPI](contracts/phase-b/openapi.candidate.json) | One Feature HTTP contract referenced by the broad OpenAPI candidate |
 | [Contract examples](contracts/contract-foundation.examples.json) | Positive and negative schema examples; not service tests |
 | [Navigation conformance](contracts/nav-conformance.fixtures.json) | Machine-readable documentation invariants; not browser implementation evidence |
 | [Delivery plan index](contracts/delivery-plan.candidate.json) | Non-executable planning data, model policy and ordered work packages |
@@ -247,6 +259,8 @@ Domain และ Feature เป็นคนละแกน:
 | 0.8.0b | 2026-09-16 | candidate | Add bounded Luna Max delivery workflow, independent verification and root integration plan | design base 087f3025; uncommitted | RWANG |
 | 0.9.0b | 2026-09-16 | candidate | Reconcile allocation/error contracts, hierarchical navigation candidate and bounded document delivery; application code and migrations remain unchanged | design base 087f3025; uncommitted | RWANG |
 | 0.10.0b | 2026-09-16 | candidate | Link the MA-I02 Phase A baseline and record the composed Domain-view DTO/refusal contract while retaining pending A1/A2 and deferred Feature status | source 138db663; uncommitted | RWANG |
+| 0.11.0b | 2026-09-17 | candidate | Record approved FR-251 Phase A implementation and local verification | reviewed 7465080f; PR443 | RWANG |
+| 0.12.0b | 2026-09-17 | candidate | Record Phase A deployment and add the selected Phase B plan, data/API contracts and parallel verification gates | deployed c07cfaba; planning base ecc30b94 | RWANG |
 
 ## Version diff — 0.8.0b → 0.9.0b
 
@@ -269,3 +283,11 @@ Application code, database migration and production activation remain unchanged.
 | 23 package Markdown / 15 contracts; 80 candidate operations / 132 schema definitions | 24 package Markdown / 15 contracts; the operation/schema counts stay 80/132. No new operation or Feature authority; one existing candidate operation and its response contract are revised |
 
 Version diff 0.10.0b → 0.11.0b: record owner approval, canonical FR-251 registration, implementation and local verification of read-only Phase A; Phase B remains unapproved and no production deployment is claimed.
+
+## Version diff — 0.11.0b → 0.12.0b
+
+- Add the concrete Phase B Feature plan and machine-readable candidate contracts.
+- Unify `sourceNamespace` and define allocation across Features for one WorkItem.
+- Record parallel worker ownership, independent Luna Max verification and root final gate.
+- Preserve B1 owner review and B2 registration before application/schema code.
+- Keep deployment evidence attached to the exact release revision; this planning packet does not activate Feature writes.

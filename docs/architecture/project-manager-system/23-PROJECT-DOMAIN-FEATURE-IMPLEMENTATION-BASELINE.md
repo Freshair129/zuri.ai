@@ -1,16 +1,16 @@
 ---
 id: ZAI:PM-PROJECT-DOMAIN-FEATURE-BASELINE
 title: Project, Domain and Feature implementation baseline
-version: "0.4.0b"
+version: "0.5.0b"
 status: candidate
 created_at: "2026-09-16T21:17:02+07:00,Luna Max,base 138db6630e650e3c695b81158eff3cecdad6d0a5"
-last_update: "2026-09-17T00:32:00+07:00,RWANG"
+last_update: "2026-09-17T01:25:33+07:00,RWANG"
 superseded_by: null
 attributes:
   doc_type: implementation-baseline
   domain: project-manager
   scope: "MA-I02 Project, Domain and Feature views with strategy progress"
-  evidence_level: "PHASE_A_IMPLEMENTED_LOCAL_VERIFIED; PHASE_B_CANDIDATE"
+  evidence_level: "PHASE_A_DEPLOYED_C07CFABA; PHASE_B_CANDIDATE"
   packet: "PM-20260916-MA-I02"
   source_commit: "138db6630e650e3c695b81158eff3cecdad6d0a5"
   canonical_id_status: "PHASE_A_FR-251_REGISTERED; NO_PHASE_B_IDS_ALLOCATED"
@@ -55,6 +55,8 @@ relations:
   - type: references
     target: ZAI:FR-251
   - type: references
+    target: ZAI:PM-PHASE-B-FEATURE-IMPLEMENTATION-PLAN
+  - type: references
     target: ZAI:ADR-096
 ---
 
@@ -65,8 +67,10 @@ The owner approved Phase A on reviewed document commit `7465080f` on
 2026-09-16. FR-251 registers its read-only route and Project navigation.
 The source audit below is pinned to `138db6630e650e3c695b81158eff3cecdad6d0a5`;
 it describes that baseline, not later implementation. No Prisma model, migration
-or Feature write API is approved. Phase A is implemented and verified locally;
-hosted CI and release are tracked separately in PR443.
+or Feature write API is approved. Phase A was merged in PR443 and deployed at
+`c07cfaba8eedb53f677e313977a1e2344fb5c8c5` on 2026-09-17. Required hosted checks,
+the local 199-pass browser suite, live health/worker checks and public bundle
+identity passed. The FR-251 delivery note separates these evidence classes.
 
 **Candidate API status:** `contracts/openapi.candidate.yaml` now composes the
 Phase A `GET /api/projects/{projectId}/domain-view` DTO and its redacted 401/404
@@ -313,14 +317,23 @@ Phase B is part of full MA-I02 but is **deferred pending owner approval** of the
 new persistence, authorization, CSRF, migration and restore contract. It cannot
 be replaced by a disabled tab or by reading global Product Readiness.
 
-The minimum authority is exactly these records (the selected fields mirror
-18-DATABASE-TABLES-AND-ERD.md):
+The concrete proposal is now [24 Phase B implementation plan](24-PHASE-B-FEATURE-IMPLEMENTATION-PLAN.md).
+Its selected field, transport, concurrency, snapshot, restore and worker-wave
+contracts refine the minimum scope below. The four product records remain;
+supporting snapshot and mutation-receipt records are explicit candidates.
+Allocation state and the graph ETag are derived under the existing Project lock;
+there is no separate allocation-state table. B1 approval and B2 registration
+remain open; planning dispatch does not authorize application code or migration.
+
+The minimum product authority is these four records. Document 24 and its
+selected data-model overlay refine their fields, including delete batches;
+document 18 retains the earlier full-system catalog as a historical proposal:
 
 | Record | Required selected fields and invariants |
 |---|---|
 | `ProjectFeature` | UUID `id`, `tenantId`, `businessId`, `projectId`, timestamps, `version`, optional `deletedAt`, `code`, `title`, `problem`, `outcome`, `primaryDomainId`, lifecycle `DRAFT\|ACTIVE\|RETIRED`; optional `canonicalFeatureKey` and `governanceSnapshotId` are both present or both absent; unique `(projectId, code)`. |
 | `FeatureContribution` | Common scope/audit fields, `featureId`, canonical `domainId`, `responsibility`; unique `(featureId, domainId)`; exactly one ProjectFeature primary domain remains in `ProjectFeature`; contribution links do not create Domain records or duplicate progress. |
-| `FeatureWorkLink` | Common scope/audit fields, `featureId`, `workItemId`, optional `allocationBps` in `0..10000`; unique `(featureId, workItemId)`; linked WorkItem must resolve to the same Project. An explicit split may sum to 10000; otherwise allocation is unallocated and explanatory only. |
+| `FeatureWorkLink` | Common scope/audit fields, `featureId`, `workItemId`, optional `allocationBps` in `0..10000`; unique `(featureId, workItemId)`; linked WorkItem must resolve to the same Project. An explicit complete split sums to 10000 across Features linked to the same WorkItem. Different WorkItems are never summed as one split. Allocation remains explanatory only. |
 | `RequirementBinding` | Common scope/audit fields, `featureId`, required `governanceSnapshotId`, `sourceNamespace`, `requirementKey`, immutable `revisionHash` (sha256), `acceptanceRef`; unique `(featureId, governanceSnapshotId, sourceNamespace, requirementKey)`. Canonical requirement subject is read-only. |
 
 `GovernanceSnapshot` is a required supporting authority for
@@ -333,11 +346,14 @@ The Phase B read/write surface is:
 
 * `GET /api/projects/{projectId}/feature-view` — one scope-first aggregate;
 * `GET/POST /api/projects/{projectId}/features` — list/create;
-* `GET/PATCH /api/projects/{projectId}/features/{featureId}` — detail/update;
+* `GET/PATCH/DELETE /api/projects/{projectId}/features/{featureId}` — detail/update/tombstone;
+* document 24 additionally defines explicit restore, child-set replacement,
+  graph allocation, snapshot capture/read and the Identity-owned CSRF route;
 * project-context UI `/projects/{projectId}/feature-view`, with the Features
   tab enabled only when the read contract and route are live.
 
-The aggregate returns `projectId`, nullable `snapshotId` plus state,
+The aggregate returns `projectId`, `snapshotId: null` and `snapshotState: UNAVAILABLE`
+(Phase B has no aggregate snapshot publisher),
 `observedAt`, a project-level `uniqueWorkCount`, and Feature rows containing
 the immutable Feature fields, primary/contributing domains, requirement
 bindings, evidence states, and deduplicated `uniqueWorkCount`. A WorkItem linked
@@ -365,10 +381,10 @@ There is no migration in this assignment. Before Phase B code, owner approval
 must cover the additive migration described in 18-DATABASE-TABLES-AND-ERD.md:
 
 1. enumerate actual owner tables, scope adapters and grants at the implementation
-   SHA; add only the four reviewed tables plus the required snapshot authority,
-   indexes and constraints;
-2. backfill only verifiable existing facts (Workstream bindings and WorkItem
-   links); never infer Features from tags, titles, or global readiness;
+   SHA; add only the four reviewed product tables plus snapshot and mutation
+   receipt authorities, indexes and constraints in the selected six-record contract;
+2. start Feature authorities empty; do not synthesize Features or links from
+   Workstream bindings, tags, titles or global readiness;
 3. run a shadow read projection, then enable one authorized writer after
    transaction, RLS/grant, negative-scope, concurrency and audit checks;
 4. keep the first rollout additive and rollback by feature flag/read-path
@@ -393,7 +409,7 @@ are outside MA-I02 and are not migration or acceptance blockers.
   navigation contracts and runs governance. Immutable existing FR/FEAT subjects
   are not expanded silently.
 * **B1:** separately close and approve the four-record Feature authority plus
-  snapshot authority, scope constraints, repository ports, exact CRUD/DTO and
+  snapshot and mutation-receipt authorities, scope constraints, repository ports, exact CRUD/DTO and
   AuditEvent behavior, Identity-owned CSRF issuance/verification, migration and
   restore plan. The selected-field table is a design input, not a dispatchable
   schema or an approved CRUD implementation.
@@ -491,9 +507,14 @@ is established by the local results.
 
 ## CHANGELOG
 
+Version diff 0.4.0b → 0.5.0b: link the concrete Phase B candidate and clarify
+the per-WorkItem allocation axis. No Phase B approval, canonical ID, route or
+table is created by this document revision.
+
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-16 | candidate | Source-backed MA-I02 baseline: Project reuse, real Domain read phase, and gated Feature authority/surface | 138db6630e650e3c695b81158eff3cecdad6d0a5 | Luna Max |
 | 0.2.0b | 2026-09-16 | candidate | Root review: explicit Phase A domain catalog, DTO totals, scope/unknown semantics, navigation and exact new-file list; separate A and B gates and retain incomplete Feature write contract honestly | 138db6630e650e3c695b81158eff3cecdad6d0a5 | RWANG |
 | 0.3.0b | 2026-09-16 | candidate | Compose the Phase A Domain-view OpenAPI DTO and redacted 401/404 contract; retain pending A1 approval, pending A2 registration/governance and deferred Feature authority | 138db6630e650e3c695b81158eff3cecdad6d0a5 | RWANG |
 | 0.4.0b | 2026-09-17 | candidate | Record owner approval, FR-251 registration, implementation and local verification; retain unapproved Phase B and separate release gates | reviewed baseline 7465080f; PR443 | RWANG |
+| 0.5.0b | 2026-09-17 | candidate | Link concrete Phase B proposal and clarify allocation across Features for one WorkItem; B1/B2 remain open | composed ecc30b94; merged c07cfaba | RWANG |

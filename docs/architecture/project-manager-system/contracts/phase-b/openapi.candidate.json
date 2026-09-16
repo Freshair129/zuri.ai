@@ -1,0 +1,3124 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Zuri Project Manager Phase B Feature API",
+    "version": "0.3.0b",
+    "description": "Candidate machine contract for the Project Manager Phase B Feature authority. Phase B routes and schemas remain documentation input until B1 owner approval and B2 registration; no route, schema migration, code generation or runtime operation is claimed."
+  },
+  "servers": [
+    {
+      "url": "https://pm-design.invalid",
+      "description": "Reserved non-routable documentation target; no live service."
+    }
+  ],
+  "security": [
+    {
+      "SessionAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Feature view"
+    },
+    {
+      "name": "Feature mutations"
+    },
+    {
+      "name": "Governance snapshots"
+    },
+    {
+      "name": "Identity CSRF"
+    }
+  ],
+  "paths": {
+    "/api/auth/csrf": {
+      "get": {
+        "operationId": "getApiWriteCsrfToken",
+        "tags": [
+          "Identity CSRF"
+        ],
+        "summary": "Issue the session-bound API-write CSRF token",
+        "description": "Identity-owned supporting contract. The token is opaque, API-write audience scoped, bound to the live zuri_session and same-origin policy, and is never the plugin-consent token.",
+        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "security": [
+          {
+            "SessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session-bound token; response is no-store.",
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CsrfToken"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/AuthRequired"
+          },
+          "503": {
+            "$ref": "#/components/responses/SessionUnavailable"
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/feature-view": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ProjectId"
+        }
+      ],
+      "get": {
+        "operationId": "getProjectFeatureView",
+        "tags": [
+          "Feature view"
+        ],
+        "summary": "Read the authorized Project Feature aggregate",
+        "description": "Scope-first read of active, non-deleted ProjectFeatures and active relationship rows. The Project URL is context, never a grant. The direct response is FeatureView.",
+        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "responses": {
+          "200": {
+            "description": "Direct Project Feature aggregate.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeatureView"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/AuthRequired"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "413": {
+            "$ref": "#/components/responses/FeatureViewLimitExceeded"
+          },
+          "503": {
+            "$ref": "#/components/responses/DataIntegrityUnavailable"
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/features": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ProjectId"
+        }
+      ],
+      "get": {
+        "operationId": "listProjectFeatures",
+        "tags": [
+          "Feature view"
+        ],
+        "summary": "List authorized Project Features",
+        "description": "Stable list ordered by code then id. Cursor is signed by the server. visibility=ACTIVE includes DRAFT, ACTIVE and RETIRED rows and excludes soft-deleted rows; visibility=DELETED is available only to an authorized Business owner restoring them and returns owner-only DeletedFeatureRecord tombstones without relationship payload. lifecycle is an independent optional filter over the stored lifecycle in either visibility.",
+        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/FeatureListVisibility"
+          },
+          {
+            "$ref": "#/components/parameters/FeatureListLifecycle"
+          },
+          {
+            "$ref": "#/components/parameters/Limit50"
+          },
+          {
+            "$ref": "#/components/parameters/SignedCursor"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stable Feature page.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeatureRecordPage"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/MalformedRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/AuthRequired"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "503": {
+            "$ref": "#/components/responses/DataIntegrityUnavailable"
+          }
+        }
+      },
+      "post": {
+        "operationId": "createProjectFeature",
+        "tags": [
+          "Feature mutations"
+        ],
+        "summary": "Create a Project Feature draft",
+        "description": "Creates only the base ProjectFeature. Relationship sets are replaced with their explicit commands. Scope, actor, version, timestamps, audit identity and deletedAt are server-derived.",
+        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CsrfToken"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeatureCreateInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/MutationCreated"
+          },
+          "400": {
+            "$ref": "#/components/responses/MalformedRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/AuthRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/CsrfOrCapabilityDenied"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/MutationConflict"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationFailed"
+          },
+          "503": {
+            "$ref": "#/components/responses/SessionUnavailable"
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/features/{featureId}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ProjectId"
+        },
+        {
+          "$ref": "#/components/parameters/FeatureId"
+        }
+      ],
+      "get": {
+        "operationId": "getProjectFeature",
+        "tags": [
+          "Feature view"
+        ],
+        "summary": "Read one authorized Project Feature",
+        "description": "Checks the Project before the Feature. Missing, deleted, foreign and cross-scope targets use the same redacted refusal.",
+        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "responses": {
+          "200": {
+            "description": "Feature detail.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FeatureRecord"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/AuthRequired"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "503": {
+            "$ref": "#/components/responses/DataIntegrityUnavailable"
+          }
+        }
+      },
+      "patch": {
+        "operationId": "updateProjectFeature",
+        "tags": [
+          "Feature mutations"
+        ],
+        "summary": "Update base Project Feature fields with CAS",
+        "description": "Partial base update. DRAFT to ACTIVE to RETIRED is monotonic. Soft-delete restore is a separate command and preserves prior lifecycle.",
+        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IfMatch"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CsrfToken"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeaturePatchInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/MutationAccepted"
+          },
+          "401": {
+            "$ref": "#/components/responses/AuthRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/CsrfOrCapabilityDenied"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/MutationConflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/VersionMismatch"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationFailed"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "503": {
+            "$ref": "#/components/responses/SessionUnavailable"
+          }
+        }
+      },
+      "delete": {
+        "operationId": "deleteProjectFeature",
+        "tags": [
+          "Feature mutations"
+        ],
+        "summary": "Soft-delete a Project Feature",
+        "description": "Soft-deletes the Feature and only currently active relationship rows with one new deleteBatchId and shared tombstone timestamp. Unconditional Feature and child uniqueness remains; audit history and immutable identifiers remain. A later restore never redistributes allocation and may refuse atomically with ALLOCATION_RESTORE_CONFLICT.",
+        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IfMatch"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CsrfToken"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/MutationAccepted"
+          },
+          "401": {
+            "$ref": "#/components/responses/AuthRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/CsrfOrCapabilityDenied"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/MutationConflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/VersionMismatch"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "503": {
+            "$ref": "#/components/responses/SessionUnavailable"
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/features/{featureId}/contributions": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ProjectId"
+        },
+        {
+          "$ref": "#/components/parameters/FeatureId"
+        }
+      ],
+      "put": {
+        "operationId": "replaceProjectFeatureContributions",
+        "tags": [
+          "Feature mutations"
+        ],
+        "summary": "Replace the complete Feature contribution set",
+        "description": "Unchanged row ids are retained; new rows receive server UUIDs; omitted active rows are soft-deleted with a child-set deleteBatchId. Re-adding an omitted key revives the same UUID and increments its version. Unconditional uniqueness and duplicate/primary-domain rejection are enforced atomically.",
+        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IfMatch"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CsrfToken"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ContributionsReplaceInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/MutationAccepted"
+          },
+          "401": {
+            "$ref": "#/components/responses/AuthRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/CsrfOrCapabilityDenied"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/MutationConflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/VersionMismatch"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationFailed"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "503": {
+            "$ref": "#/components/responses/SessionUnavailable"
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/features/{featureId}/work-links": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ProjectId"
+        },
+        {
+          "$ref": "#/components/parameters/FeatureId"
+        }
+      ],
+      "put": {
+        "operationId": "replaceProjectFeatureWorkLinks",
+        "tags": [
+          "Feature mutations"
+        ],
+        "summary": "Replace one Feature's complete WorkItem link set",
+        "description": "Validates all active links for every affected WorkItem in the Project, including links owned by other Features. Allocation basis points apply to one WorkItem across Features, never to unrelated WorkItems; omitted links use a distinct child-set deleteBatchId and re-add revives the same UUID with an incremented version.",
+        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IfMatch"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CsrfToken"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkLinksReplaceInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/MutationAccepted"
+          },
+          "401": {
+            "$ref": "#/components/responses/AuthRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/CsrfOrCapabilityDenied"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/MutationConflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/VersionMismatch"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationFailed"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "503": {
+            "$ref": "#/components/responses/SessionUnavailable"
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/feature-work-links": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ProjectId"
+        }
+      ],
+      "put": {
+        "operationId": "redistributeProjectFeatureWorkLinks",
+        "tags": [
+          "Feature mutations"
+        ],
+        "summary": "Redistribute one WorkItem across multiple Features atomically",
+        "description": "Names at most 50 Feature sets, unique by featureId, and an exact affected WorkItem set. Every submitted link and every existing active link for a named Feature contributes its workItemId; missing or extra affected IDs refuse before the transaction. Unspecified Features remain unchanged, but all ProjectFeature rows (including tombstones) and every link for each affected WorkItem are locked and revalidated. The graph ETag is SHA-256 over the exact canonical JSON bytes described by GraphIfMatch and is rechecked inside the Project-lock transaction; no graph-state table is introduced.",
+        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/GraphIfMatch"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CsrfToken"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeatureWorkGraphInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/MutationAccepted"
+          },
+          "401": {
+            "$ref": "#/components/responses/AuthRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/CsrfOrCapabilityDenied"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/MutationConflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/VersionMismatch"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationFailed"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "503": {
+            "$ref": "#/components/responses/SessionUnavailable"
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/features/{featureId}/requirement-bindings": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ProjectId"
+        },
+        {
+          "$ref": "#/components/parameters/FeatureId"
+        }
+      ],
+      "put": {
+        "operationId": "replaceProjectFeatureRequirementBindings",
+        "tags": [
+          "Feature mutations"
+        ],
+        "summary": "Replace the complete pinned requirement set",
+        "description": "Every active binding requires an in-scope VALID GovernanceSnapshot and its immutable source revision hash. Omitted active bindings receive a distinct child-set deleteBatchId; re-adding the same key revives its UUID and increments its version under the unconditional unique key.",
+        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IfMatch"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CsrfToken"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequirementBindingsReplaceInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/MutationAccepted"
+          },
+          "401": {
+            "$ref": "#/components/responses/AuthRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/CsrfOrCapabilityDenied"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/MutationConflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/VersionMismatch"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationFailed"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "503": {
+            "$ref": "#/components/responses/SessionUnavailable"
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/governance-snapshots": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ProjectId"
+        }
+      ],
+      "get": {
+        "operationId": "listProjectGovernanceSnapshots",
+        "tags": [
+          "Governance snapshots"
+        ],
+        "summary": "List immutable Project GovernanceSnapshots",
+        "description": "Owner-scoped metadata listing. Payloads are provenance metadata only; source manifests are not returned as a grant or client-editable authority.",
+        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Limit50"
+          },
+          {
+            "$ref": "#/components/parameters/SignedCursor"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Immutable snapshot metadata page.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GovernanceSnapshotPage"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/AuthRequired"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "503": {
+            "$ref": "#/components/responses/DataIntegrityUnavailable"
+          }
+        }
+      },
+      "post": {
+        "operationId": "captureProjectGovernanceSnapshot",
+        "tags": [
+          "Governance snapshots"
+        ],
+        "summary": "Capture a verified immutable GovernanceSnapshot",
+        "description": "Owner-admitted append-only command. Request metadata is intent only. Identity passes the request to a server-local Git verifier selected by an operator-registered Repository-to-checkout binding, requiring the active same-Business Repository and ProjectRepository link for the URL Project. No arbitrary URL, filesystem path or caller script is used. Only a server-verified VALID result is persisted; Feature create never captures a snapshot implicitly.",
+        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CsrfToken"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CaptureSnapshotInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/SnapshotCaptureReplayed"
+          },
+          "201": {
+            "$ref": "#/components/responses/SnapshotCaptureCreated"
+          },
+          "401": {
+            "$ref": "#/components/responses/AuthRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/CsrfOrCapabilityDenied"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/MutationConflict"
+          },
+          "422": {
+            "$ref": "#/components/responses/ValidationFailed"
+          },
+          "503": {
+            "$ref": "#/components/responses/SessionUnavailable"
+          }
+        }
+      }
+    },
+    "/api/projects/{projectId}/features/{featureId}/restore": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ProjectId"
+        },
+        {
+          "$ref": "#/components/parameters/FeatureId"
+        }
+      ],
+      "post": {
+        "operationId": "restoreProjectFeature",
+        "tags": [
+          "Feature mutations"
+        ],
+        "summary": "Restore a soft-deleted Project Feature",
+        "description": "Restores the Feature and only children bearing the same deleteBatchId when original scope and Project dependencies still resolve. Older child-set removal tombstones remain deleted; an allocation overflow refuses atomically with ALLOCATION_RESTORE_CONFLICT. A deleted Feature code remains reserved and must be restored rather than re-created.",
+        "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/IfMatch"
+          },
+          {
+            "$ref": "#/components/parameters/IdempotencyKey"
+          },
+          {
+            "$ref": "#/components/parameters/CsrfToken"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/MutationAccepted"
+          },
+          "401": {
+            "$ref": "#/components/responses/AuthRequired"
+          },
+          "403": {
+            "$ref": "#/components/responses/CsrfOrCapabilityDenied"
+          },
+          "404": {
+            "$ref": "#/components/responses/ResourceNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/MutationConflict"
+          },
+          "412": {
+            "$ref": "#/components/responses/VersionMismatch"
+          },
+          "428": {
+            "$ref": "#/components/responses/PreconditionRequired"
+          },
+          "503": {
+            "$ref": "#/components/responses/SessionUnavailable"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "SessionAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "zuri_session",
+        "description": "Live authenticated session; cookie presence alone is not authority."
+      }
+    },
+    "parameters": {
+      "ProjectId": {
+        "name": "projectId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "description": "Authorized Project UUID. URL value is context, never a grant."
+      },
+      "FeatureId": {
+        "name": "featureId",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "FeatureListVisibility": {
+        "name": "visibility",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "ACTIVE",
+            "DELETED"
+          ],
+          "default": "ACTIVE"
+        },
+        "description": "ACTIVE excludes soft-deleted rows. DELETED is available only to an authorized Business owner."
+      },
+      "FeatureListLifecycle": {
+        "name": "lifecycle",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "enum": [
+            "DRAFT",
+            "ACTIVE",
+            "RETIRED"
+          ]
+        },
+        "description": "Optional lifecycle filter. DRAFT is discoverable by default when lifecycle is omitted."
+      },
+      "Limit50": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 50,
+          "default": 50
+        }
+      },
+      "SignedCursor": {
+        "name": "cursor",
+        "in": "query",
+        "required": false,
+        "schema": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "description": "Opaque signed cursor; clients do not parse or construct it."
+      },
+      "IfMatch": {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": "Strong aggregate ETag."
+      },
+      "GraphIfMatch": {
+        "name": "If-Match",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "pattern": "^\"PROJECT_FEATURE_GRAPH/[^\"]+\"$"
+        },
+        "description": "Strong Project Feature graph ETag. SHA-256 covers the UTF-8 bytes of canonical JSON [{\"id\":\"<uuid>\",\"version\":<int>,\"deletedAt\":\"<ISO-8601 instant>\"|null},...] with no whitespace or other fields, sorted lexicographically by (id, version, deletedAt), including every ProjectFeature tombstone."
+      },
+      "IdempotencyKey": {
+        "name": "Idempotency-Key",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 128
+        },
+        "description": "Scoped by method/path, trusted scope, principal and target."
+      },
+      "CsrfToken": {
+        "name": "X-CSRF-Token",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        },
+        "description": "Identity-issued API-write token bound to the live session and same-origin request."
+      }
+    },
+    "headers": {
+      "RequestId": {
+        "description": "Fresh request correlation UUID.",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "ETag": {
+        "description": "Strong aggregate ETag.",
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "NoStore": {
+        "description": "CSRF response must not be cached.",
+        "schema": {
+          "type": "string",
+          "enum": [
+            "no-store"
+          ]
+        }
+      }
+    },
+    "schemas": {
+      "CsrfToken": {
+        "type": "object",
+        "required": [
+          "token",
+          "expiresAt"
+        ],
+        "properties": {
+          "token": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Opaque API-write token; never the plugin-consent token."
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Response token issued by Identity issueApiWriteCsrfToken for the zuri_api_write.v1 audience. It is bound to the live zuri_session, expires at the earlier of 15 minutes or live-session expiry, and is kept in client memory only."
+      },
+      "DomainReference": {
+        "type": "object",
+        "required": [
+          "domainId",
+          "label",
+          "mappingState"
+        ],
+        "properties": {
+          "domainId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "mappingState": {
+            "type": "string",
+            "enum": [
+              "MAPPED",
+              "UNMAPPED"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "FeatureContribution": {
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "domainId",
+          "label",
+          "mappingState",
+          "responsibility"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "deletedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "readOnly": true,
+            "description": "Tombstone metadata is emitted only in an authorized deleted-row representation."
+          },
+          "deleteBatchId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "readOnly": true,
+            "description": "Server-created deletion batch; child-set removal batches are distinct from a Feature deletion batch."
+          },
+          "domainId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "label": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 200
+          },
+          "mappingState": {
+            "type": "string",
+            "enum": [
+              "MAPPED",
+              "UNMAPPED"
+            ]
+          },
+          "responsibility": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "additionalProperties": false
+      },
+      "FeatureWorkLink": {
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "workItemId",
+          "allocationBps",
+          "allocationState",
+          "workItem"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "deletedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "readOnly": true,
+            "description": "Tombstone metadata is emitted only in an authorized deleted-row representation."
+          },
+          "deleteBatchId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "readOnly": true,
+            "description": "Server-created deletion batch; child-set removal batches are distinct from a Feature deletion batch."
+          },
+          "workItemId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "allocationBps": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "maximum": 10000
+          },
+          "allocationState": {
+            "type": "string",
+            "enum": [
+              "UNALLOCATED",
+              "PARTIAL",
+              "COMPLETE_SPLIT"
+            ]
+          },
+          "workItem": {
+            "type": "object",
+            "required": [
+              "code",
+              "title"
+            ],
+            "properties": {
+              "code": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequirementBinding": {
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "governanceSnapshotId",
+          "sourceNamespace",
+          "requirementKey",
+          "revisionHash",
+          "acceptanceRef",
+          "bindingState"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "deletedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time",
+            "readOnly": true,
+            "description": "Tombstone metadata is emitted only in an authorized deleted-row representation."
+          },
+          "deleteBatchId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "readOnly": true,
+            "description": "Server-created deletion batch; child-set removal batches are distinct from a Feature deletion batch."
+          },
+          "governanceSnapshotId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sourceNamespace": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "requirementKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "revisionHash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "acceptanceRef": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          },
+          "canonicalSubject": {
+            "type": "string",
+            "nullable": true,
+            "readOnly": true
+          },
+          "bindingState": {
+            "type": "string",
+            "enum": [
+              "PINNED",
+              "UNAVAILABLE"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "Evidence": {
+        "type": "object",
+        "required": [
+          "state"
+        ],
+        "properties": {
+          "state": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "UNKNOWN",
+              "UNAVAILABLE"
+            ]
+          },
+          "ref": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 1000
+          }
+        },
+        "additionalProperties": false
+      },
+      "SourceManifest": {
+        "type": "object",
+        "x-maxBytes": 1048576,
+        "required": [
+          "schemaVersion",
+          "entries"
+        ],
+        "properties": {
+          "schemaVersion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32
+          },
+          "entries": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 1000,
+            "items": {
+              "$ref": "#/components/schemas/SourceManifestEntry"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "SourceManifestEntry": {
+        "type": "object",
+        "required": [
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512,
+            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*\\\\).{1,512}$"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "additionalProperties": false
+      },
+      "FeatureRecord": {
+        "type": "object",
+        "required": [
+          "id",
+          "version",
+          "projectId",
+          "code",
+          "title",
+          "problem",
+          "outcome",
+          "primaryDomain",
+          "contributions",
+          "workLinks",
+          "requirementBindings",
+          "canonicalFeatureKey",
+          "governanceSnapshotId",
+          "lifecycle",
+          "uniqueWorkCount",
+          "evidence",
+          "evidenceState"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "problem": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5000
+          },
+          "outcome": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5000
+          },
+          "primaryDomain": {
+            "$ref": "#/components/schemas/DomainReference"
+          },
+          "contributions": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/FeatureContribution"
+            }
+          },
+          "workLinks": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/FeatureWorkLink"
+            }
+          },
+          "requirementBindings": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/RequirementBinding"
+            }
+          },
+          "canonicalFeatureKey": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 200
+          },
+          "governanceSnapshotId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "lifecycle": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "RETIRED"
+            ]
+          },
+          "deletedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "deleteBatchId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "readOnly": true,
+            "description": "Owner-only tombstone batch identifier; restore matches this batch without changing unconditional Feature code uniqueness."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "uniqueWorkCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "evidence": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/Evidence"
+            }
+          },
+          "evidenceState": {
+            "type": "string",
+            "enum": [
+              "AVAILABLE",
+              "UNKNOWN",
+              "UNAVAILABLE"
+            ]
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "canonicalFeatureKey": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "governanceSnapshotId": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          },
+          {
+            "properties": {
+              "canonicalFeatureKey": {
+                "nullable": true,
+                "enum": [
+                  null
+                ],
+                "type": "string"
+              },
+              "governanceSnapshotId": {
+                "nullable": true,
+                "enum": [
+                  null
+                ],
+                "type": "string"
+              }
+            },
+            "description": "Both optional provenance fields are explicitly null."
+          }
+        ],
+        "additionalProperties": false,
+        "description": "Project-local Feature authority. Relationship arrays are complete, bounded sets; allocationState is derived per WorkItem. Deleted rows use the owner-only tombstone projection."
+      },
+      "DeletedFeatureRecord": {
+        "type": "object",
+        "description": "Owner-only tombstone projection returned when visibility=DELETED; it contains no relationship payload or hidden scope fields.",
+        "required": [
+          "id",
+          "projectId",
+          "code",
+          "lifecycle",
+          "version",
+          "deletedAt",
+          "deleteBatchId"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "readOnly": true
+          },
+          "lifecycle": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "RETIRED"
+            ],
+            "readOnly": true
+          },
+          "version": {
+            "type": "integer",
+            "minimum": 1,
+            "readOnly": true
+          },
+          "deletedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "deleteBatchId": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "FeatureView": {
+        "type": "object",
+        "description": "Phase B aggregate provenance is intentionally unavailable: snapshotId is always null and snapshotState is always UNAVAILABLE. Exact snapshot references remain on Feature and RequirementBinding records. The Project limit is 200 non-deleted Features; the aggregate never truncates.",
+        "required": [
+          "schemaVersion",
+          "projectId",
+          "snapshotId",
+          "snapshotState",
+          "observedAt",
+          "uniqueWorkCount",
+          "features"
+        ],
+        "properties": {
+          "schemaVersion": {
+            "type": "string",
+            "enum": [
+              "1.0"
+            ]
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "snapshotId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid"
+          },
+          "snapshotState": {
+            "type": "string",
+            "enum": [
+              "UNAVAILABLE"
+            ]
+          },
+          "observedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "uniqueWorkCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "features": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/FeatureRecord"
+            }
+          }
+        },
+        "oneOf": [
+          {
+            "properties": {
+              "snapshotId": {
+                "nullable": true,
+                "enum": [
+                  null
+                ],
+                "type": "string"
+              },
+              "snapshotState": {
+                "type": "string",
+                "enum": [
+                  "UNAVAILABLE"
+                ]
+              }
+            },
+            "description": "The Phase B aggregate has no project-wide snapshot publisher."
+          }
+        ],
+        "additionalProperties": false
+      },
+      "FeatureRecordPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "nextCursor",
+          "observedAt"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/FeatureRecord"
+                },
+                {
+                  "$ref": "#/components/schemas/DeletedFeatureRecord"
+                }
+              ]
+            },
+            "description": "ACTIVE visibility returns FeatureRecord items. DELETED visibility returns owner-only DeletedFeatureRecord tombstones."
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          },
+          "observedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Stable page. ACTIVE visibility returns all non-deleted DRAFT, ACTIVE and RETIRED records; DELETED visibility returns only the minimal owner-only tombstone projection."
+      },
+      "FeatureCreateInput": {
+        "type": "object",
+        "required": [
+          "code",
+          "title",
+          "problem",
+          "outcome",
+          "primaryDomainId"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "problem": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5000
+          },
+          "outcome": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5000
+          },
+          "primaryDomainId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "canonicalFeatureKey": {
+            "type": "string",
+            "nullable": true,
+            "maxLength": 200,
+            "description": "Must be supplied together with governanceSnapshotId, or both must be null."
+          },
+          "governanceSnapshotId": {
+            "type": "string",
+            "nullable": true,
+            "format": "uuid",
+            "description": "Must be supplied together with canonicalFeatureKey, or both must be null."
+          },
+          "lifecycle": {
+            "type": "string",
+            "enum": [
+              "DRAFT"
+            ]
+          }
+        },
+        "oneOf": [
+          {
+            "description": "No canonical registry reference is selected; both optional provenance fields must be absent.",
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "canonicalFeatureKey"
+                  ]
+                },
+                {
+                  "required": [
+                    "governanceSnapshotId"
+                  ]
+                }
+              ]
+            }
+          },
+          {
+            "description": "An explicit unavailable pair; both optional provenance fields are present and null.",
+            "required": [
+              "canonicalFeatureKey",
+              "governanceSnapshotId"
+            ],
+            "properties": {
+              "canonicalFeatureKey": {
+                "type": "string",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              },
+              "governanceSnapshotId": {
+                "type": "string",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            }
+          },
+          {
+            "description": "A proven canonical pair; both fields are present and non-null.",
+            "required": [
+              "canonicalFeatureKey",
+              "governanceSnapshotId"
+            ],
+            "properties": {
+              "canonicalFeatureKey": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "governanceSnapshotId": {
+                "type": "string",
+                "format": "uuid"
+              }
+            }
+          }
+        ],
+        "additionalProperties": false,
+        "description": "Creates one Project-local DRAFT. A Project may contain at most 200 non-deleted Features; the service enforces the limit under the Project lock."
+      },
+      "FeaturePatchInput": {
+        "type": "object",
+        "minProperties": 1,
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "problem": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5000
+          },
+          "outcome": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5000
+          },
+          "primaryDomainId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "lifecycle": {
+            "type": "string",
+            "enum": [
+              "DRAFT",
+              "ACTIVE",
+              "RETIRED"
+            ]
+          }
+        },
+        "additionalProperties": false
+      },
+      "ContributionsReplaceInput": {
+        "type": "object",
+        "required": [
+          "contributions"
+        ],
+        "properties": {
+          "contributions": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/ContributionInput"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "ContributionInput": {
+        "type": "object",
+        "required": [
+          "domainId",
+          "responsibility"
+        ],
+        "properties": {
+          "domainId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "responsibility": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkLinksReplaceInput": {
+        "type": "object",
+        "required": [
+          "allocationMode",
+          "links"
+        ],
+        "properties": {
+          "allocationMode": {
+            "type": "string",
+            "enum": [
+              "UNALLOCATED",
+              "COMPLETE_SPLIT"
+            ]
+          },
+          "links": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/WorkLinkInput"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "WorkLinkInput": {
+        "type": "object",
+        "required": [
+          "workItemId",
+          "allocationBps"
+        ],
+        "properties": {
+          "workItemId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "allocationBps": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 0,
+            "maximum": 10000
+          }
+        },
+        "additionalProperties": false
+      },
+      "FeatureWorkGraphInput": {
+        "type": "object",
+        "required": [
+          "allocationMode",
+          "affectedWorkItemIds",
+          "featureSets"
+        ],
+        "properties": {
+          "allocationMode": {
+            "type": "string",
+            "enum": [
+              "UNALLOCATED",
+              "COMPLETE_SPLIT"
+            ]
+          },
+          "affectedWorkItemIds": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 200,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "featureSets": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 50,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/components/schemas/FeatureWorkSet"
+            },
+            "x-uniqueBy": [
+              "featureId"
+            ],
+            "description": "At most 50 named Feature sets, unique by featureId."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Complete graph allocation command. featureSets is unique by featureId (not merely by identical JSON object). Every submitted link workItemId and every existing active link for a named Feature must be represented in affectedWorkItemIds; the set is exact and rejects missing or extra IDs before the transaction."
+      },
+      "FeatureWorkSet": {
+        "type": "object",
+        "required": [
+          "featureId",
+          "links"
+        ],
+        "properties": {
+          "featureId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "links": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/WorkLinkInput"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "description": "One complete active link set for one unique Feature; duplicate featureId entries are invalid."
+      },
+      "RequirementBindingsReplaceInput": {
+        "type": "object",
+        "required": [
+          "bindings"
+        ],
+        "properties": {
+          "bindings": {
+            "type": "array",
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/RequirementBindingInput"
+            }
+          }
+        },
+        "additionalProperties": false
+      },
+      "RequirementBindingInput": {
+        "type": "object",
+        "required": [
+          "governanceSnapshotId",
+          "sourceNamespace",
+          "requirementKey",
+          "revisionHash",
+          "acceptanceRef"
+        ],
+        "properties": {
+          "governanceSnapshotId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "sourceNamespace": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "requirementKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "revisionHash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "acceptanceRef": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        },
+        "additionalProperties": false
+      },
+      "CaptureSnapshotInput": {
+        "type": "object",
+        "required": [
+          "repositoryId",
+          "commitSha",
+          "manifestHash",
+          "sourceManifest"
+        ],
+        "properties": {
+          "repositoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "commitSha": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{40}(?:[a-f0-9]{24})?$"
+          },
+          "manifestHash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "sourceManifest": {
+            "$ref": "#/components/schemas/SourceManifest"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GovernanceSnapshot": {
+        "type": "object",
+        "required": [
+          "id",
+          "tenantId",
+          "businessId",
+          "createdAt",
+          "repositoryId",
+          "projectRepositoryId",
+          "checkoutBindingId",
+          "commitSha",
+          "manifestHash",
+          "capturedAt",
+          "verifiedAt",
+          "verifierId",
+          "verifierVersion",
+          "proofId",
+          "verificationProof",
+          "validationStatus",
+          "sourceManifest"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "tenantId": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "businessId": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "repositoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "commitSha": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{40}(?:[a-f0-9]{24})?$"
+          },
+          "manifestHash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "capturedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "validationStatus": {
+            "type": "string",
+            "enum": [
+              "VALID"
+            ]
+          },
+          "sourceManifest": {
+            "$ref": "#/components/schemas/SourceManifest",
+            "readOnly": true,
+            "description": "Typed manifest returned by the verifier; capture output is non-null."
+          },
+          "projectRepositoryId": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true,
+            "description": "Active same-Business ProjectRepository link used by the verifier."
+          },
+          "checkoutBindingId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256,
+            "readOnly": true,
+            "description": "Opaque operator-registered Repository-to-local-checkout binding identity."
+          },
+          "verifiedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "verifierId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128,
+            "readOnly": true
+          },
+          "verifierVersion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64,
+            "readOnly": true
+          },
+          "proofId": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "verificationProof": {
+            "$ref": "#/components/schemas/GovernanceVerificationProof",
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Immutable server-produced, VALID GovernanceSnapshot. Capture persists only typed evidence returned by the bound server-local verifier; an invalid or unverifiable result is refused and has no snapshot or receipt."
+      },
+      "GovernanceSnapshotPage": {
+        "type": "object",
+        "required": [
+          "items",
+          "nextCursor",
+          "observedAt"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "$ref": "#/components/schemas/GovernanceSnapshotMetadata"
+            }
+          },
+          "nextCursor": {
+            "type": "string",
+            "nullable": true
+          },
+          "observedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GovernanceSnapshotMetadata": {
+        "type": "object",
+        "required": [
+          "id",
+          "repositoryId",
+          "commitSha",
+          "manifestHash",
+          "capturedAt",
+          "validationStatus"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "repositoryId": {
+            "type": "string",
+            "format": "uuid",
+            "readOnly": true
+          },
+          "commitSha": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{40}(?:[a-f0-9]{24})?$",
+            "readOnly": true
+          },
+          "manifestHash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "readOnly": true
+          },
+          "capturedAt": {
+            "type": "string",
+            "format": "date-time",
+            "readOnly": true
+          },
+          "validationStatus": {
+            "type": "string",
+            "enum": [
+              "VALID"
+            ],
+            "readOnly": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MutationReceipt": {
+        "type": "object",
+        "required": [
+          "receiptId",
+          "targetId",
+          "targetType",
+          "operation",
+          "httpMethod",
+          "resourceId",
+          "resourceType",
+          "status",
+          "version",
+          "etag",
+          "recordedAt",
+          "auditRef",
+          "requestId"
+        ],
+        "properties": {
+          "receiptId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resourceId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "resourceType": {
+            "type": "string",
+            "enum": [
+              "PROJECT_FEATURE",
+              "PROJECT_FEATURE_GRAPH",
+              "GOVERNANCE_SNAPSHOT"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "COMMITTED"
+            ]
+          },
+          "version": {
+            "type": "integer",
+            "nullable": true,
+            "description": "Integer >=1 for PROJECT_FEATURE; strictly null for PROJECT_FEATURE_GRAPH and GOVERNANCE_SNAPSHOT."
+          },
+          "recordedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "auditRef": {
+            "type": "string",
+            "minLength": 1
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "targetId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Explicit target: Project UUID for collection create, graph and snapshot capture intent; Feature UUID for update, child-set, delete and restore."
+          },
+          "targetType": {
+            "type": "string",
+            "enum": [
+              "PROJECT",
+              "FEATURE"
+            ]
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "CREATE_FEATURE",
+              "UPDATE_FEATURE",
+              "REPLACE_CONTRIBUTIONS",
+              "REPLACE_WORK_LINKS",
+              "REPLACE_FEATURE_WORK_GRAPH",
+              "REPLACE_REQUIREMENT_BINDINGS",
+              "DELETE_FEATURE",
+              "RESTORE_FEATURE",
+              "CAPTURE_GOVERNANCE_SNAPSHOT"
+            ]
+          },
+          "httpMethod": {
+            "type": "string",
+            "enum": [
+              "POST",
+              "PATCH",
+              "PUT",
+              "DELETE"
+            ]
+          },
+          "etag": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 4096,
+            "description": "Strong Feature, graph or snapshot ETag; present on every receipt."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Durable scoped idempotency receipt. resourceId is polymorphic and is interpreted only with resourceType; there is no universal Feature foreign key. Feature receipts use an integer version; PROJECT_FEATURE_GRAPH and GOVERNANCE_SNAPSHOT receipts use strictly null version and always carry an ETag. Replay retains status COMMITTED while returning a fresh requestId.",
+        "oneOf": [
+          {
+            "required": [
+              "targetType",
+              "operation",
+              "httpMethod",
+              "resourceType",
+              "version"
+            ],
+            "properties": {
+              "targetType": {
+                "type": "string",
+                "enum": [
+                  "PROJECT"
+                ]
+              },
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "CREATE_FEATURE"
+                ]
+              },
+              "httpMethod": {
+                "type": "string",
+                "enum": [
+                  "POST"
+                ]
+              },
+              "resourceType": {
+                "type": "string",
+                "enum": [
+                  "PROJECT_FEATURE"
+                ]
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          {
+            "required": [
+              "targetType",
+              "operation",
+              "httpMethod",
+              "resourceType",
+              "version"
+            ],
+            "properties": {
+              "targetType": {
+                "type": "string",
+                "enum": [
+                  "FEATURE"
+                ]
+              },
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "UPDATE_FEATURE"
+                ]
+              },
+              "httpMethod": {
+                "type": "string",
+                "enum": [
+                  "PATCH"
+                ]
+              },
+              "resourceType": {
+                "type": "string",
+                "enum": [
+                  "PROJECT_FEATURE"
+                ]
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          {
+            "required": [
+              "targetType",
+              "operation",
+              "httpMethod",
+              "resourceType",
+              "version"
+            ],
+            "properties": {
+              "targetType": {
+                "type": "string",
+                "enum": [
+                  "FEATURE"
+                ]
+              },
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "REPLACE_CONTRIBUTIONS"
+                ]
+              },
+              "httpMethod": {
+                "type": "string",
+                "enum": [
+                  "PUT"
+                ]
+              },
+              "resourceType": {
+                "type": "string",
+                "enum": [
+                  "PROJECT_FEATURE"
+                ]
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          {
+            "required": [
+              "targetType",
+              "operation",
+              "httpMethod",
+              "resourceType",
+              "version"
+            ],
+            "properties": {
+              "targetType": {
+                "type": "string",
+                "enum": [
+                  "FEATURE"
+                ]
+              },
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "REPLACE_WORK_LINKS"
+                ]
+              },
+              "httpMethod": {
+                "type": "string",
+                "enum": [
+                  "PUT"
+                ]
+              },
+              "resourceType": {
+                "type": "string",
+                "enum": [
+                  "PROJECT_FEATURE"
+                ]
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          {
+            "required": [
+              "targetType",
+              "operation",
+              "httpMethod",
+              "resourceType",
+              "version"
+            ],
+            "properties": {
+              "targetType": {
+                "type": "string",
+                "enum": [
+                  "PROJECT"
+                ]
+              },
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "REPLACE_FEATURE_WORK_GRAPH"
+                ]
+              },
+              "httpMethod": {
+                "type": "string",
+                "enum": [
+                  "PUT"
+                ]
+              },
+              "resourceType": {
+                "type": "string",
+                "enum": [
+                  "PROJECT_FEATURE_GRAPH"
+                ]
+              },
+              "version": {
+                "type": "integer",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            }
+          },
+          {
+            "required": [
+              "targetType",
+              "operation",
+              "httpMethod",
+              "resourceType",
+              "version"
+            ],
+            "properties": {
+              "targetType": {
+                "type": "string",
+                "enum": [
+                  "FEATURE"
+                ]
+              },
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "REPLACE_REQUIREMENT_BINDINGS"
+                ]
+              },
+              "httpMethod": {
+                "type": "string",
+                "enum": [
+                  "PUT"
+                ]
+              },
+              "resourceType": {
+                "type": "string",
+                "enum": [
+                  "PROJECT_FEATURE"
+                ]
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          {
+            "required": [
+              "targetType",
+              "operation",
+              "httpMethod",
+              "resourceType",
+              "version"
+            ],
+            "properties": {
+              "targetType": {
+                "type": "string",
+                "enum": [
+                  "FEATURE"
+                ]
+              },
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "DELETE_FEATURE"
+                ]
+              },
+              "httpMethod": {
+                "type": "string",
+                "enum": [
+                  "DELETE"
+                ]
+              },
+              "resourceType": {
+                "type": "string",
+                "enum": [
+                  "PROJECT_FEATURE"
+                ]
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          {
+            "required": [
+              "targetType",
+              "operation",
+              "httpMethod",
+              "resourceType",
+              "version"
+            ],
+            "properties": {
+              "targetType": {
+                "type": "string",
+                "enum": [
+                  "FEATURE"
+                ]
+              },
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "RESTORE_FEATURE"
+                ]
+              },
+              "httpMethod": {
+                "type": "string",
+                "enum": [
+                  "POST"
+                ]
+              },
+              "resourceType": {
+                "type": "string",
+                "enum": [
+                  "PROJECT_FEATURE"
+                ]
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          {
+            "required": [
+              "targetType",
+              "operation",
+              "httpMethod",
+              "resourceType",
+              "version"
+            ],
+            "properties": {
+              "targetType": {
+                "type": "string",
+                "enum": [
+                  "PROJECT"
+                ]
+              },
+              "operation": {
+                "type": "string",
+                "enum": [
+                  "CAPTURE_GOVERNANCE_SNAPSHOT"
+                ]
+              },
+              "httpMethod": {
+                "type": "string",
+                "enum": [
+                  "POST"
+                ]
+              },
+              "resourceType": {
+                "type": "string",
+                "enum": [
+                  "GOVERNANCE_SNAPSHOT"
+                ]
+              },
+              "version": {
+                "type": "integer",
+                "nullable": true,
+                "enum": [
+                  null
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "code",
+          "message",
+          "requestId",
+          "retryable"
+        ],
+        "properties": {
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "retryable": {
+            "type": "boolean"
+          },
+          "currentVersion": {
+            "type": "integer",
+            "nullable": true,
+            "minimum": 1
+          },
+          "currentEtag": {
+            "type": "string",
+            "nullable": true
+          },
+          "fields": {
+            "type": "array",
+            "maxItems": 50,
+            "items": {
+              "type": "object",
+              "required": [
+                "path",
+                "code",
+                "message"
+              ],
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "code": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 128
+                },
+                "message": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 1000
+                }
+              },
+              "additionalProperties": false
+            },
+            "description": "Bounded redacted request-field details; absent when no field detail is disclosed."
+          }
+        },
+        "additionalProperties": false,
+        "description": "PM error contract. Optional fields is an array of bounded {path,code,message} entries, never a map of server-only keys."
+      },
+      "SnapshotCaptureResult": {
+        "type": "object",
+        "description": "Capture result containing the immutable verified snapshot and its scoped receipt.",
+        "required": [
+          "snapshot",
+          "receipt"
+        ],
+        "properties": {
+          "snapshot": {
+            "$ref": "#/components/schemas/GovernanceSnapshot"
+          },
+          "receipt": {
+            "$ref": "#/components/schemas/MutationReceipt"
+          }
+        },
+        "additionalProperties": false
+      },
+      "GovernanceVerificationProof": {
+        "type": "object",
+        "description": "Server-local verifier proof identity and binding provenance. Only VALID proofs are persisted.",
+        "required": [
+          "proofId",
+          "verifierId",
+          "verifierVersion",
+          "verifiedAt",
+          "projectId",
+          "projectRepositoryId",
+          "checkoutBindingId",
+          "repositoryId",
+          "commitSha",
+          "manifestHash",
+          "outcome"
+        ],
+        "properties": {
+          "proofId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "verifierId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "verifierVersion": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "verifiedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "projectId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "projectRepositoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "checkoutBindingId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "repositoryId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "commitSha": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{40}(?:[a-f0-9]{24})?$"
+          },
+          "manifestHash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "VALID"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "responses": {
+      "MutationCreated": {
+        "description": "Mutation committed. Receipt status is COMMITTED.",
+        "headers": {
+          "ETag": {
+            "$ref": "#/components/headers/ETag"
+          },
+          "X-Request-ID": {
+            "$ref": "#/components/headers/RequestId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/MutationReceipt"
+            }
+          }
+        }
+      },
+      "MutationAccepted": {
+        "description": "Mutation committed or idempotent replay. Receipt status remains COMMITTED on replay; HTTP replay status is 200 with a fresh requestId.",
+        "headers": {
+          "ETag": {
+            "$ref": "#/components/headers/ETag"
+          },
+          "X-Request-ID": {
+            "$ref": "#/components/headers/RequestId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/MutationReceipt"
+            }
+          }
+        }
+      },
+      "MalformedRequest": {
+        "description": "Malformed request or cursor.",
+        "headers": {
+          "X-Request-ID": {
+            "$ref": "#/components/headers/RequestId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            },
+            "examples": {
+              "malformed": {
+                "value": {
+                  "code": "MALFORMED_REQUEST",
+                  "message": "Request is invalid.",
+                  "requestId": "00000000-0000-0000-0000-000000000000",
+                  "retryable": false
+                }
+              }
+            }
+          }
+        }
+      },
+      "AuthRequired": {
+        "description": "No valid live session.",
+        "headers": {
+          "X-Request-ID": {
+            "$ref": "#/components/headers/RequestId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "CsrfOrCapabilityDenied": {
+        "description": "CSRF or mutation capability refusal.",
+        "headers": {
+          "X-Request-ID": {
+            "$ref": "#/components/headers/RequestId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "ResourceNotFound": {
+        "description": "Redacted missing, deleted, foreign, invalid-hierarchy or cross-scope target.",
+        "headers": {
+          "X-Request-ID": {
+            "$ref": "#/components/headers/RequestId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "MutationConflict": {
+        "description": "Duplicate, idempotency-key reuse, graph membership/version conflict, deleted-code restore requirement or allocation restore overflow. Stable codes include DUPLICATE_FEATURE_CODE, DELETED_FEATURE_CODE_REQUIRES_RESTORE and ALLOCATION_RESTORE_CONFLICT.",
+        "headers": {
+          "X-Request-ID": {
+            "$ref": "#/components/headers/RequestId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "VersionMismatch": {
+        "description": "Stale expected aggregate or graph ETag.",
+        "headers": {
+          "X-Request-ID": {
+            "$ref": "#/components/headers/RequestId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "PreconditionRequired": {
+        "description": "If-Match is absent for an existing target mutation.",
+        "headers": {
+          "X-Request-ID": {
+            "$ref": "#/components/headers/RequestId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "ValidationFailed": {
+        "description": "Scope-valid input violates a Feature or binding invariant.",
+        "headers": {
+          "X-Request-ID": {
+            "$ref": "#/components/headers/RequestId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "SessionUnavailable": {
+        "description": "Session/Identity or mutation transaction prerequisite unavailable; no mutation is committed.",
+        "headers": {
+          "X-Request-ID": {
+            "$ref": "#/components/headers/RequestId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "DataIntegrityUnavailable": {
+        "description": "Stored hierarchy or source integrity cannot be trusted; no aggregate or mutation is returned.",
+        "headers": {
+          "X-Request-ID": {
+            "$ref": "#/components/headers/RequestId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "FeatureViewLimitExceeded": {
+        "description": "Aggregate exceeds the bounded FeatureView response; no partial aggregate is returned.",
+        "headers": {
+          "X-Request-ID": {
+            "$ref": "#/components/headers/RequestId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Error"
+            }
+          }
+        }
+      },
+      "SnapshotCaptureCreated": {
+        "description": "New server-verified VALID snapshot and durable COMMITTED receipt committed.",
+        "headers": {
+          "ETag": {
+            "$ref": "#/components/headers/ETag"
+          },
+          "X-Request-ID": {
+            "$ref": "#/components/headers/RequestId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SnapshotCaptureResult"
+            }
+          }
+        }
+      },
+      "SnapshotCaptureReplayed": {
+        "description": "The same durable server-verified snapshot and COMMITTED receipt effect is returned for an idempotent replay; request correlation is fresh and ETag is unchanged.",
+        "headers": {
+          "ETag": {
+            "$ref": "#/components/headers/ETag"
+          },
+          "X-Request-ID": {
+            "$ref": "#/components/headers/RequestId"
+          }
+        },
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/SnapshotCaptureResult"
+            }
+          }
+        }
+      }
+    }
+  },
+  "x-phase-b-contract": {
+    "status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
+    "sourceCommit": "f061a113584aa15db68934dc8451f14b9a1011e1",
+    "authority": "Project Manager with Identity CSRF and governance verifier owner ports",
+    "canonicalIdsAllocated": false,
+    "schemaMigration": "NOT_RUN",
+    "codegen": "NOT_RUN",
+    "allocationBasis": "Per WorkItem across active FeatureWorkLinks in the Project",
+    "featureDetailUi": "Project route /projects/{projectId}/feature-view with ?featureId=UUID drawer",
+    "plannedBusinessRoutes": "No href for Business Delivery Design, Governance or Agent Delivery",
+    "contractVersion": "0.3.0b",
+    "records": "Four product records plus immutable GovernanceSnapshot and technical mutation receipt support (six logical records).",
+    "featureCapacity": "At most 200 non-deleted ProjectFeatures per Project; create/restore refuses 422 FEATURE_LIMIT_REACHED under the Project lock.",
+    "graphAllocation": "Per WorkItem; derived allocationState; exact affectedWorkItemIds; Project lock; canonical tombstone-inclusive graph ETag over fixed id/version/deletedAt JSON.",
+    "snapshotEvidence": "Only server-local verifier-produced VALID output persists; SnapshotCaptureResult returns snapshot plus receipt.",
+    "errorFields": "{path,code,message}[] bounded array; no map.",
+    "csrf": "Identity issueApiWriteCsrfToken/assertApiWriteCsrfToken, zuri_api_write.v1, live-session binding and explicit PUBLIC_BASE_URL Origin.",
+    "parentComposition": "Root composes Phase B operations/schemas into the parent PM OpenAPI; this overlay remains the candidate source until that parity gate.",
+    "receiptStatus": "COMMITTED for first commit and replay; replay HTTP status is 200 with a fresh requestId.",
+    "targetResourceMapping": {
+      "createFeature": {
+        "httpMethod": "POST",
+        "targetType": "PROJECT",
+        "targetId": "projectId",
+        "operation": "CREATE_FEATURE",
+        "resourceType": "PROJECT_FEATURE",
+        "resourceId": "featureId",
+        "version": "integer >=1"
+      },
+      "updateFeature": {
+        "httpMethod": "PATCH",
+        "targetType": "FEATURE",
+        "targetId": "featureId",
+        "operation": "UPDATE_FEATURE",
+        "resourceType": "PROJECT_FEATURE",
+        "resourceId": "featureId",
+        "version": "integer >=1"
+      },
+      "replaceContributions": {
+        "httpMethod": "PUT",
+        "targetType": "FEATURE",
+        "targetId": "featureId",
+        "operation": "REPLACE_CONTRIBUTIONS",
+        "resourceType": "PROJECT_FEATURE",
+        "resourceId": "featureId",
+        "version": "integer >=1"
+      },
+      "replaceWorkLinks": {
+        "httpMethod": "PUT",
+        "targetType": "FEATURE",
+        "targetId": "featureId",
+        "operation": "REPLACE_WORK_LINKS",
+        "resourceType": "PROJECT_FEATURE",
+        "resourceId": "featureId",
+        "version": "integer >=1"
+      },
+      "graph": {
+        "httpMethod": "PUT",
+        "targetType": "PROJECT",
+        "targetId": "projectId",
+        "operation": "REPLACE_FEATURE_WORK_GRAPH",
+        "resourceType": "PROJECT_FEATURE_GRAPH",
+        "resourceId": "projectId",
+        "version": null
+      },
+      "replaceRequirementBindings": {
+        "httpMethod": "PUT",
+        "targetType": "FEATURE",
+        "targetId": "featureId",
+        "operation": "REPLACE_REQUIREMENT_BINDINGS",
+        "resourceType": "PROJECT_FEATURE",
+        "resourceId": "featureId",
+        "version": "integer >=1"
+      },
+      "deleteFeature": {
+        "httpMethod": "DELETE",
+        "targetType": "FEATURE",
+        "targetId": "featureId",
+        "operation": "DELETE_FEATURE",
+        "resourceType": "PROJECT_FEATURE",
+        "resourceId": "featureId",
+        "version": "integer >=1"
+      },
+      "restoreFeature": {
+        "httpMethod": "POST",
+        "targetType": "FEATURE",
+        "targetId": "featureId",
+        "operation": "RESTORE_FEATURE",
+        "resourceType": "PROJECT_FEATURE",
+        "resourceId": "featureId",
+        "version": "integer >=1"
+      },
+      "captureSnapshot": {
+        "httpMethod": "POST",
+        "targetType": "PROJECT",
+        "targetId": "projectId",
+        "operation": "CAPTURE_GOVERNANCE_SNAPSHOT",
+        "resourceType": "GOVERNANCE_SNAPSHOT",
+        "resourceId": "snapshotId",
+        "version": null
+      }
+    }
+  }
+}

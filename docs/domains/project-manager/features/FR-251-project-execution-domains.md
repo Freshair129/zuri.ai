@@ -4,10 +4,10 @@ title: Project Execution Domains view
 feature: FR-251
 domain: project-manager
 source: v2-native
-version: "0.1.0b"
+version: "0.1.1b"
 status: beta
 created_at: "2026-09-16T23:01:00+07:00,RWANG,reviewed baseline 7465080f"
-last_update: "2026-09-17T00:32:00+07:00,RWANG"
+last_update: "2026-09-17T01:55:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:FR-251
@@ -101,11 +101,40 @@ corrections are preserved in the
 [integration RCA](../../../../.brain/rca/2026-09-16-fr251-domain-view-integration.md).
 Hosted CI is associated with the implementation commit in
 [PR443](https://github.com/Freshair129/zuri.ai/pull/443); it is a separate gate
-from these local results. This slice is not merged or deployed, does not complete
-MA-I02, and does not authorize Phase B.
+from these local results.
+
+### Release on 2026-09-17
+
+PR444's archive/rollup repair was merged first at `db84ff39`; PR443 composed it
+with this slice. Required hosted checks passed on composition
+`ecc30b94f545ac1e9ddde3b59618c89f558bdc49`, with a fresh local full browser result
+of 199 passed, four existing skips and zero failures/flakes. Merge commit
+`c07cfaba8eedb53f677e313977a1e2344fb5c8c5` has the identical tested tree.
+
+The clean-archive runner image `zuri-ai-web:release-c07cfaba` was promoted to web
+and LINE worker. Read-only schema inspection found all 2355 expected columns;
+no schema diff or migration was required. Local/public health and login passed,
+unauthenticated Project/Domain APIs returned 401, fresh worker ticks returned
+200/IDLE, and all 11 public JS bundles matched the image bytes. Environment,
+mounts and ngrok topology were preserved; the previous `release-e8fc84bd` image
+remains available for rollback. Authenticated production Domain behavior was
+not exercised; its behavior proof is the isolated local browser suite.
+
+The existing application database role bypasses RLS. This pre-existing P1 was
+carried forward without a credential/grant change; catalog correctness is not
+proof of effective runtime isolation. The [runtime-role RCA](../../../../.brain/rca/2026-09-17-pm-release-runtime-role-carry-forward.md)
+records the observation and requires separately reviewed remediation before
+Phase B production writes. Archive keys/mount activation, retention scheduling,
+usage-rollup activation and KI17 runtime activation were not introduced.
+
+Main's required server/Edge checks passed for the merge SHA. Its separately
+scheduled post-merge browser job is recorded in the release QA packet; it must
+not be inferred from those required checks. This release does not complete
+MA-I02 or approve Phase B.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-17 | beta | Register and implement owner-approved read-only Phase A; record local server, build, browser, contract and independent review proof | reviewed baseline 7465080f; implementation tracked in PR443 | RWANG |
+| 0.1.1b | 2026-09-17 | beta | Record merged/deployed revision, exact-tree and live evidence, rollback and the carried-forward runtime-role limitation | c07cfaba | RWANG |
