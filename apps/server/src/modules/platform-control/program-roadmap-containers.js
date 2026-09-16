@@ -4449,21 +4449,21 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-091",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-04",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "priority": "P1",
     "pic": "ATHER",
     "executor": "ATHER",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/supabase/migrations",
+      "code": "apps/server/supabase/migrations, apps/server/src/app/api/crm/retention-sweep/route.js, apps/server/scripts/server-retention-sweep-worker.mjs, apps/server/scripts/register-retention-sweep-task.ps1",
       "doc": "docs/DB-MIGRATION-NOTES.md",
-      "test": "unavailable"
+      "test": "apps/server/tests/unit/crm-retention-sweep-route.test.js, apps/server/tests/unit/retention-sweep-worker-run.test.js"
     },
     "linkState": {
-      "code": "present",
+      "code": "missing",
       "doc": "present",
-      "test": "unavailable"
+      "test": "missing"
     },
     "delivers": [],
     "subtasks": [],
@@ -4474,14 +4474,14 @@ export const PROGRAMME_CONTAINERS = {
       },
       "success": {
         "text": "Given the apply, when its effect is verified, then the new tables and columns with their RLS and grants exist, and the retention sweep's first production run writes its audit event with counts per class",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given docs/DB-MIGRATION-NOTES.md, when the apply is recorded, then each migration names its date and session and the redeploy keeps the ADR-061 overlay with clean container logs",
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Operator step (ADR-057). To be measured, run it from a worktree on feat/crm-chat-record-completeness. In progress 2026-09-14 23:20: both chat-record migrations applied on production the same way as TASK-ZAI-085 — read-only inventory, a rolled-back dry run, then applied with ledger rows, through the transaction pooler on :6543 from the web container's own connection environment (no .env read, no credential printed): 20260914150000_crm_message_attachments_events (non-text content; PR #404, merged) and 20260914150400_crm_conversation_retention_and_search (read-model columns, the `pg_trgm` extension and its `Message_body_trgm_idx` GIN index, and `TenantRetentionOverride` with forced RLS, one policy and grants to `zuri_app_runtime` only; PR #411, merged). `pg_trgm` was confirmed installed as part of the same migration, satisfying that half of the acceptance criterion. The web image was rebuilt from the same merged main (release-538c1958) and redeployed; the ADR-061 overlay survived (both compose files named, `ZURI_LINE_SERVER_ENABLED` true), both container logs are clean. Acceptance and exit criteria are now both checked. Left open: the retention sweep (`retention-sweep-service.js`) has not yet been triggered in production — no scheduled job invokes it yet — so its first production run and audit event are still to come; the success criterion stays unchecked and the task stays in-progress rather than done until that run is observed. 2026-09-15: PR #414 (main 087f3025) gave the sweep its entry point — `POST /api/crm/retention-sweep` behind `ZURI_RETENTION_SWEEP_TOKEN`, the single-shot `scripts/server-retention-sweep-worker.mjs`, and `scripts/register-retention-sweep-task.ps1` for the daily 03:00 task — and it is now deployed in release-087f3025 (no migration). The first production run has still not happened: the token is not set in `apps/server/.env` and the scheduled task is not registered; both are operator steps awaiting the owner's instruction.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Operator step (ADR-057). To be measured, run it from a worktree on feat/crm-chat-record-completeness. In progress 2026-09-14 23:20: both chat-record migrations applied on production the same way as TASK-ZAI-085 — read-only inventory, a rolled-back dry run, then applied with ledger rows, through the transaction pooler on :6543 from the web container's own connection environment (no .env read, no credential printed): 20260914150000_crm_message_attachments_events (non-text content; PR #404, merged) and 20260914150400_crm_conversation_retention_and_search (read-model columns, the `pg_trgm` extension and its `Message_body_trgm_idx` GIN index, and `TenantRetentionOverride` with forced RLS, one policy and grants to `zuri_app_runtime` only; PR #411, merged). `pg_trgm` was confirmed installed as part of the same migration, satisfying that half of the acceptance criterion. The web image was rebuilt from the same merged main (release-538c1958) and redeployed; the ADR-061 overlay survived (both compose files named, `ZURI_LINE_SERVER_ENABLED` true), both container logs are clean. Acceptance and exit criteria are now both checked. Left open: the retention sweep (`retention-sweep-service.js`) has not yet been triggered in production — no scheduled job invokes it yet — so its first production run and audit event are still to come; the success criterion stays unchecked and the task stays in-progress rather than done until that run is observed. 2026-09-15: PR #414 (main 087f3025) gave the sweep its entry point — `POST /api/crm/retention-sweep` behind `ZURI_RETENTION_SWEEP_TOKEN`, the single-shot `scripts/server-retention-sweep-worker.mjs`, and `scripts/register-retention-sweep-task.ps1` for the daily 03:00 task — and it is now deployed in release-087f3025 (no migration). The first production run has still not happened: the token is not set in `apps/server/.env` and the scheduled task is not registered; both are operator steps awaiting the owner's instruction. 2026-09-16 (v0.4.0): both operator steps done. `ZURI_RETENTION_SWEEP_TOKEN` (32 random bytes, generated on the production host, never committed or logged) set in `apps/server/.env`; stack recreated to pick it up (`config_files` names both compose files, `ZURI_LINE_SERVER_ENABLED=true`, `/api/health` and `/login` both 200, line-worker ticks clean after a brief restart blip). Ran `docker compose exec -T web node scripts/server-retention-sweep-worker.mjs` directly, twice: first call wrote a real `RETENTION_SWEEP_COMPLETED` AuditEvent (counts 0/0/0 — correct, since nothing has yet aged past the 90-day/24-month windows), satisfying the success criterion; second call the same day returned the identical `auditEventId` with `alreadyRanToday: true`, proving the idempotency guard against real production data. Registering the Windows Scheduled Task (`register-retention-sweep-task.ps1`, written in PR #414 but never executed until now) surfaced two real bugs, fixed in PR #426: (1) the action named a bare `docker`, which Task Scheduler's execution environment does not resolve from PATH the way an interactive shell does — every triggered run failed with `LastTaskResult 0x80070002` (ERROR_FILE_NOT_FOUND); fixed by resolving `(Get-Command docker).Source` at registration time; (2) the file had no UTF-8 BOM despite containing multi-byte em-dash characters, so Windows PowerShell 5.1 read it under the system ANSI codepage and corrupted those sequences into cascading parse errors — fixed by adding the BOM. Re-registered with the fixed script and triggered via `Start-ScheduledTask`: `LastTaskResult: 0`. The daily 03:00 run is now live and proven end to end, not merely deployed.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 12000,
     "totalTokens": 0,
