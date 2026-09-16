@@ -1,0 +1,70 @@
+{
+  "manifestVersion": 1,
+  "id": "ZAI:KI17-DEPLOYMENT-PINS",
+  "cycle": "ADR-075 Phase 3 — GenesisRAG17 edge deployment (SmartGift structured-record profile)",
+  "design": "docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md",
+  "recordedAt": "2026-09-16",
+  "note": "The four commits this deployment cycle targets. Each repository's own main may have moved further; these are the versions the ki17 build stage pulls and the pre-deploy gate G-4 checks against the G-2 acceptance record. Never edit a commit here without re-running the acceptance that produced it.",
+  "runtime": {
+    "node": "24.18.0",
+    "nodePlatform": "linux-x64",
+    "nodeShasums": "https://nodejs.org/dist/v24.18.0/SHASUMS256.txt",
+    "python": "3.12",
+    "pythonImage": "python:3.12-slim-bookworm",
+    "modelRepository": "intfloat/multilingual-e5-small",
+    "modelRevision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+    "workerPort": 19417
+  },
+  "repositories": {
+    "zuri-ai": {
+      "repository": "Freshair129/zuri.ai",
+      "commit": "09d60d248218db27a3a3939b14e11c4db57d0809",
+      "buildContext": null,
+      "verifiedInBuild": false,
+      "note": "This repository is the build's own main context, and .dockerignore excludes .git from it, so the build cannot read its own HEAD. Recorded for the G-4 gate and verified by the operator on the host before the build (`git rev-parse HEAD`).",
+      "entrypoints": []
+    },
+    "msp": {
+      "repository": "Freshair129/Memory-and-Soul-Passport",
+      "commit": "49fe7de7d5603a4a75b279bcd72b16619fdc0046",
+      "buildContext": "msp",
+      "verifiedInBuild": true,
+      "installRoot": "/opt/ki17/msp",
+      "entrypoints": [
+        "apps/msp-server/bin/msp-server.mjs",
+        "package.json",
+        "package-lock.json"
+      ]
+    },
+    "gks": {
+      "repository": "Freshair129/Genesis-Knowledge-System",
+      "commit": "ecf1e4de269e949406a6a5f791f9ff8fe30c9578",
+      "buildContext": "gks",
+      "verifiedInBuild": true,
+      "installRoot": "/opt/ki17/gks",
+      "entrypoints": [
+        "apps/gks-server/bin/gks-server.mjs",
+        "package.json",
+        "package-lock.json"
+      ]
+    },
+    "genesisblock": {
+      "repository": "Freshair129/GenesisBlock",
+      "commit": "907b0ff4ca66e5940741bfa284e92c157dc783f7",
+      "buildContext": "genesisblock",
+      "verifiedInBuild": true,
+      "installRoot": "/opt/ki17/genesisblock",
+      "entrypoints": [
+        "genesisrag17-worker/src/cli.mjs",
+        "genesisrag17-worker/requirements.txt",
+        "index.js"
+      ],
+      "pendingArtifacts": [
+        {
+          "path": "npm/linux-x64-gnu/index.linux-x64-gnu.node",
+          "note": "P-2. The x86_64-unknown-linux-gnu napi build of the GenesisBlock addon, built from this same commit. It is added by the sibling GenesisBlock pull request on branch feat/genesisrag17-worker-linux-x64. Until that lands the `genesis-worker` build target fails at the KI17_GENESISBLOCK_LINUX_ADDON_MISSING assertion — by design (C11, and the runtime-image lesson: a missing file must fail the build, not the container)."
+        }
+      ]
+    }
+  }
+}
