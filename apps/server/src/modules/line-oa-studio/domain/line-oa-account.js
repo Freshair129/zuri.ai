@@ -43,6 +43,12 @@ export const zLineOaAccountCode = z.string().trim().min(3).max(64)
 // LINE "basic id" (@handle) is presentation metadata, stored as typed.
 const BASIC_ID_PATTERN = /^@[a-z0-9._-]{1,50}$/i
 
+// @req FR-244 — "HH:MM", 24-hour, the account's own declared clock (Asia/Bangkok;
+//   ADR-094 D6 option A). Same-day windows only — close must be later than open;
+//   an overnight window (e.g. open 22:00, close 06:00) is out of this slice's scope.
+const TIME_OF_DAY_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/
+export const zTimeOfDay = z.string().regex(TIME_OF_DAY_PATTERN, 'must be "HH:MM", 24-hour')
+
 export const zBotProfile = z.object({
   greeting: z.string().trim().max(1000).optional(),
   fallbackText: z.string().trim().max(1000).optional(),
@@ -76,6 +82,13 @@ export const zLineOaAccountAction = z.object({
   // @req FR-243 — minutes of silence before the next message opens a new conversation
   //   session; 10 to 120 (ADR-094 D3). Out of range is refused, never clamped.
   sessionIdleTimeoutMinutes: z.number().int().min(10).max(120).optional(),
+  // @req FR-244 — business hours and the out-of-hours reply (ADR-094 D6 option A).
+  //   Declaring sets all three together; `clearBusinessHours` unsets all three,
+  //   returning the account to "no declared hours" (always resident).
+  businessHoursOpen: zTimeOfDay.optional(),
+  businessHoursClose: zTimeOfDay.optional(),
+  outOfHoursReplyText: z.string().trim().min(1).max(1000).optional(),
+  clearBusinessHours: z.literal(true).optional(),
 }).strict().superRefine((value, ctx) => {
   if (value.action === 'CONFIGURE_EXECUTION' && (!value.executionMode || !value.modelAccess || typeof value.allowDelayedPush !== 'boolean')) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Execution mode, model access and delayed push policy are required' })
@@ -93,6 +106,18 @@ export const zLineOaAccountAction = z.object({
   }
   if (value.action === 'CONFIGURE_KNOWLEDGE_GROUNDING' && !value.knowledgeGrounding) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['knowledgeGrounding'], message: 'knowledgeGrounding is required for CONFIGURE_KNOWLEDGE_GROUNDING' })
+  }
+  if (value.action === 'CONFIGURE_BUSINESS_HOURS') {
+    const declaring = value.businessHoursOpen !== undefined || value.businessHoursClose !== undefined || value.outOfHoursReplyText !== undefined
+    if (value.clearBusinessHours && declaring) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'clearBusinessHours cannot be combined with a declared value' })
+    } else if (!value.clearBusinessHours) {
+      if (value.businessHoursOpen === undefined || value.businessHoursClose === undefined || value.outOfHoursReplyText === undefined) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'businessHoursOpen, businessHoursClose and outOfHoursReplyText are all required together, or pass clearBusinessHours' })
+      } else if (value.businessHoursOpen >= value.businessHoursClose) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['businessHoursClose'], message: 'businessHoursClose must be later than businessHoursOpen (same-day windows only)' })
+      }
+    }
   }
 })
 
@@ -146,6 +171,33 @@ export function deriveEffectiveStatus(storedStatus, bindingStatus, { serverEnabl
 /** ADR-061: LINE transport defaults to the server regardless of paired workers. */
 export function defaultTransportMode() {
   return 'CLOUD'
+}
+
+const MINUTE_MS = 60_000
+// Thailand has no DST, so this is a plain, permanent offset — the same technique
+// conversation-session-service.js's sessionCode uses for the same reason.
+const BANGKOK_OFFSET_MS = 7 * 60 * MINUTE_MS
+
+/** "HH:MM" for `at` (a Date, default now) in Asia/Bangkok. */
+export function timeOfDayInBangkok(at = new Date()) {
+  const bangkok = new Date(at.getTime() + BANGKOK_OFFSET_MS)
+  return bangkok.toISOString().slice(11, 16)
+}
+
+/**
+ * Pure: is `at` inside `account`'s declared business hours?
+ *
+ * `null` means "no declared hours" (`businessHoursOpen`/`Close` unset), which is
+ * always answered `true` — an account that never opted in stays resident at all
+ * times, the behaviour every account already had before FR-244 (ADR-094 D6 D-default).
+ * A declared window is same-day only, inclusive at both ends.
+ */
+export function isAccountWithinBusinessHours(account, at = new Date()) {
+  const open = account?.businessHoursOpen
+  const close = account?.businessHoursClose
+  if (!open || !close) return true
+  const now = timeOfDayInBangkok(at)
+  return now >= open && now <= close
 }
 
 /**

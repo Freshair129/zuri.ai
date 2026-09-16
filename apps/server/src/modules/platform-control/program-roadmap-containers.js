@@ -5405,21 +5405,21 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-109",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-04",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P1",
     "pic": "Claude",
     "executor": "Claude",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/edge/src/answer/providers/model-warmer.ts",
+      "code": "apps/edge/src/answer/providers/model-residency-schedule.ts",
       "doc": "docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md",
-      "test": "apps/edge/tests/model-residency.test.ts"
+      "test": "apps/edge/tests/unit/model-residency-schedule.test.ts"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "missing"
+      "test": "present"
     },
     "delivers": [
       "FR-244"
@@ -5428,34 +5428,34 @@ export const PROGRAMME_CONTAINERS = {
       {
         "id": "P0",
         "title": "Business hours and out-of-hours reply on LineOaAccount with its migration",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P1",
         "title": "Edge residency schedule using keep_alive -1 and 0",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P2",
         "title": "Out-of-hours reply without a model call, recorded as a reply",
-        "status": "planned"
+        "status": "done"
       }
     ],
     "dod": {
       "acceptance": {
         "text": "Given an account open 09:00 to 18:00 Asia/Bangkok, when the clock passes 18:00 with no other account open, then the edge worker unloads the model and ollama ps is empty",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a message at 20:00 for that account, when it is answered, then the reply is the account's out-of-hours text, no model is called and the reply is recorded",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given an account with no declared hours, when the schedule runs, then the model stays loaded as today, and the first reply after 09:00 is measured and recorded",
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured. Built and reviewed 2026-09-16 on `feat/fr244-model-residency`. Resolved a real design tension before writing code: FR-244's own wording (\"the edge worker keeps the model loaded while any account it serves is inside its hours\") assumes the edge knows per-account identity, but ADR-061 keeps every LINE identity off the job-claim wire (confirmed: the claim payload carries only an opaque conversationKey). Owner chose (asked directly): the server aggregates every server-enabled account's business hours into one identity-free `shouldBeWarm` boolean (`POST /api/edge/model-residency`, migration `20260916130000` for `LineOaAccount.businessHoursOpen`/`businessHoursClose`/`outOfHoursReplyText`, not applied), and an out-of-hours message is answered by creating its `LineConversationJob` straight at `READY` with the fixed reply as `answerText` — it is sent and recorded by the existing tick worker's send phase (`reconcileAccepted`'s `appendOutbound`, source `STACK`) and never reaches execution, so \"no model call\" holds structurally, not by convention. The edge (`model-residency-schedule.ts`) polls every 60s and calls the existing `warmModel`/`releaseModel` only on a change, sharing `triggerWarm`'s in-flight guard. Evidence: server `npm test` 701 files / 5834 tests passed (44 new: business-hours domain rules and CONFIGURE_BUSINESS_HOURS validation, the residency directive's aggregation rule, the route's auth/gating, and the admission short-circuit proven end to end — READY status, answerText, no claimant/execution/lease, the ANSWER_READY trace with `executionEvidence: OUT_OF_HOURS_RULE`); `npm run build` clean; `npm run govern` 0 CRITICAL (one real one found and fixed: the new device route needed naming in preflight's route-viewer edge-endpoint exemption, the same named-path pattern the conversation-jobs claim/complete/fail routes already use). Edge `npm test` 184 suites / 983 tests passed (10 new: the residency client's auth/contract handling, and the schedule's change-only firing, in-flight skip and clean stop); `npm run typecheck` and `npm run build` (tsc) both clean. The exit criterion's \"first reply after 09:00 is measured\" is a production measurement this cannot self-certify before a real deploy and stays unchecked on purpose.",
     "created": "2026-09-16T00:00:00Z,Claude,pending",
     "predictedTokens": 40000,
     "totalTokens": 0,

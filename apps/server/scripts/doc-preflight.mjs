@@ -906,7 +906,11 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
     // ADR-061/FR-150: same active Business-scoped device identity, never a browser viewer.
     p.includes('/api/edge/conversation-jobs/claim/') ||
     p.includes('/api/edge/conversation-jobs/[id]/complete/') ||
-    p.includes('/api/edge/conversation-jobs/[id]/fail/')
+    p.includes('/api/edge/conversation-jobs/[id]/fail/') ||
+    // ADR-061/FR-244: the residency poll authenticates the same device credential;
+    // it deliberately resolves no viewer because it must answer identically for
+    // every device regardless of which Business/Tenant it happens to be serving.
+    p.includes('/api/edge/model-residency/')
   const offenders = []
   for (const file of walk(workspacePath(ROOT, 'src', 'app', 'api'), '.js')) {
     if (path.basename(file) !== 'route.js') continue

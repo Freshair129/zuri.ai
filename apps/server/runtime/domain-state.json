@@ -39,8 +39,8 @@
     "featureCount": 150,
     "readyFeatureCount": 114,
     "requirementCount": 246,
-    "verifiedRequirementCount": 226,
-    "progressPercent": 93.7,
+    "verifiedRequirementCount": 227,
+    "progressPercent": 94.1,
     "gapCount": 41,
     "gaps": [
       {
@@ -1009,7 +1009,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 282,
+            "openApiPaths": 283,
             "missingFromOpenApi": 0
           }
         },
@@ -1338,7 +1338,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 282,
+            "openApiPaths": 283,
             "missingFromOpenApi": 0
           }
         },
@@ -1535,7 +1535,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 282,
+            "openApiPaths": 283,
             "missingFromOpenApi": 0
           }
         },
@@ -2022,7 +2022,7 @@
       ],
       "featureCount": 10,
       "readyFeatureCount": 4,
-      "progressPercent": 71
+      "progressPercent": 76
     },
     "identity": {
       "status": "partial",
@@ -2451,7 +2451,7 @@
           "details": {
             "routes": 27,
             "inventoried": 27,
-            "openApiPaths": 282,
+            "openApiPaths": 283,
             "missingFromOpenApi": 0
           }
         },
@@ -2971,7 +2971,7 @@
           "details": {
             "routes": 10,
             "inventoried": 10,
-            "openApiPaths": 282,
+            "openApiPaths": 283,
             "missingFromOpenApi": 0
           }
         },
@@ -3377,7 +3377,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 282,
+            "openApiPaths": 283,
             "missingFromOpenApi": 0
           }
         },
@@ -4323,6 +4323,14 @@
           "status": "verified",
           "codeCount": 5,
           "testCount": 32
+        },
+        {
+          "id": "FR-244",
+          "title": "Local model residency follows business hours",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 14
         }
       ],
       "checks": {
@@ -4348,7 +4356,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 282,
+            "openApiPaths": 283,
             "missingFromOpenApi": 0
           }
         },
@@ -4591,7 +4599,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 282,
+            "openApiPaths": 283,
             "missingFromOpenApi": 0
           }
         },
@@ -4758,7 +4766,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 282,
+            "openApiPaths": 283,
             "missingFromOpenApi": 0
           }
         },
@@ -5004,7 +5012,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 282,
+            "openApiPaths": 283,
             "missingFromOpenApi": 0
           }
         },
@@ -5185,7 +5193,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 282,
+            "openApiPaths": 283,
             "missingFromOpenApi": 0
           }
         },
@@ -6503,6 +6511,14 @@
           "testCount": 32
         },
         {
+          "id": "FR-244",
+          "title": "Local model residency follows business hours",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 14
+        },
+        {
           "id": "FR-246",
           "title": "Staff replies are recorded",
           "declared": "n/a",
@@ -6541,9 +6557,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 139,
-            "inventoried": 139,
-            "openApiPaths": 282,
+            "routes": 140,
+            "inventoried": 140,
+            "openApiPaths": 283,
             "missingFromOpenApi": 0
           }
         },
@@ -6609,7 +6625,7 @@
             }
           ],
           "details": {
-            "mutations": 109,
+            "mutations": 110,
             "guardedMutations": 106,
             "reads": 66,
             "unguardedReads": 2
@@ -6771,8 +6787,8 @@
         }
       ],
       "details": {
-        "routes": 184,
-        "apiRoutes": 139,
+        "routes": 185,
+        "apiRoutes": 140,
         "pageRoutes": 45,
         "ownedModels": 31,
         "featureNotes": 33
@@ -11120,12 +11136,11 @@
         "project-manager"
       ],
       "useCase": "เจ้าของธุรกิจเปิด inbox แล้วเห็นบทสนทนา LINE ของลูกค้าแบ่งเป็น session ตามช่วงที่คุยกัน โดย session ปิดเองเมื่อเงียบเกิน 30 นาที ตั้งค่าได้ 10–120 นาทีต่อบัญชี ย้อนดู job และ trace ของแต่ละ session ได้ ส่วน model บนเครื่อง edge โหลดไว้เฉพาะเวลาทำการของบัญชี และนอกเวลาทำการลูกค้าได้รับข้อความตอบกลับที่ตั้งไว้",
-      "progressPercent": 50,
+      "progressPercent": 100,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-040 registry status is declared",
-        "FR-244 is planned"
+        "FEAT-040 registry status is declared"
       ],
       "requirements": [
         {
@@ -11139,15 +11154,20 @@
         {
           "id": "FR-244",
           "title": "Local model residency follows business hours",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 8,
+          "testCount": 14
         }
       ],
       "evidence": [
+        "apps/edge/src/conversation/residency-client.ts",
+        "apps/edge/src/desktop-worker.ts",
+        "apps/edge/tests/unit/model-residency-schedule.test.ts",
+        "apps/edge/tests/unit/residency-client.test.ts",
         "apps/server/src/app/(pm)/customer/conversations/page.jsx",
         "apps/server/src/app/api/agent/line-webhook/route.js",
+        "apps/server/src/app/api/edge/model-residency/route.js",
         "apps/server/src/app/api/line-oa/accounts/[id]/jobs/route.js",
         "apps/server/src/lib/validation/entities.js",
         "apps/server/src/modules/crm/conversation-read-model.js",
@@ -11157,8 +11177,10 @@
         "apps/server/src/modules/crm/reply-record-service.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
+        "apps/server/src/modules/line-oa-studio/application/model-residency-service.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
         "apps/server/tests/e2e/fr243-conversation-sessions.spec.js",
@@ -11174,6 +11196,7 @@
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
         "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
         "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
+        "apps/server/tests/integration/fr244-line-oa-business-hours.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
         "apps/server/tests/integration/line-ingest.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
@@ -11182,6 +11205,7 @@
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/unit/conversation-read-model.test.js",
         "apps/server/tests/unit/conversation-session-service.test.js",
@@ -11191,6 +11215,8 @@
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
+        "apps/server/tests/unit/model-residency-route.test.js",
+        "apps/server/tests/unit/model-residency-service.test.js",
         "apps/server/tests/unit/reply-record-service.test.js"
       ]
     },

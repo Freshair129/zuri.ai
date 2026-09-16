@@ -9,14 +9,19 @@ import { appendTraceEvent, readExecutionTrace, playbackTrace, sha256 } from '@/m
 import { createLineExecutionTrace } from '@/modules/agent/line-execution-trace'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { prepareMemoryDeliveryPending, reconcileLineMemoryDeliveries } from './line-memory-delivery'
+import { isAccountWithinBusinessHours } from '../domain/line-oa-account'
 
 // @req FR-149, FR-150 — durable admission, optional compute, fenced send and receipt recovery.
 // @req FR-171 — context and execution journal, attempt identity and truthful send observations.
 // @req FR-229 — non-text message kinds and non-message events are admitted into the
 //   CRM record instead of being discarded; none of them creates an answer job.
+// @req FR-244 — outside the account's declared business hours, admission creates the
+//   job straight at READY with the out-of-hours text as its answer, so it is sent and
+//   recorded by the existing send phase and never reaches execution (ADR-094 D6 option A).
 // @spec ADR-061, SEC-001, FR-148 — queue and CRM share a transaction; devices cannot send.
-// @spec ADR-091 D5
-// @tested tests/integration/server-line-jobs.test.js, tests/integration/line-non-text-admission.test.js
+// @spec ADR-091 D5; ADR-094 D6
+// @tested tests/integration/server-line-jobs.test.js, tests/integration/line-non-text-admission.test.js,
+//   tests/integration/fr244-line-oa-business-hours.test.js
 
 export const LINE_JOB_LEASE_MS = 300_000
 const JOB_TTL_MS = 30 * 60_000
@@ -192,6 +197,15 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     if (!shouldReply) return { skipped: true, inboundMessageId: inbound.messageId }
     const prior = await tx.lineConversationJob.findUnique({ where: { inboundMessageId: inbound.messageId } })
     if (prior) return { jobId: prior.id, created: false, inboundMessageId: inbound.messageId }
+    // @req FR-244 — outside the account's declared business hours, the reply is the
+    // fixed out-of-hours text and no model runs (ADR-094 D6 option A). The job is
+    // created straight at READY with its answer already set, so it never reaches
+    // QUEUED/CLAIMED and no execution ever claims it — the tick worker's existing
+    // send phase (status: 'READY') delivers and records it exactly like any other
+    // completed job, through the same reply-token/push, retry and OUTBOUND_RECORDED
+    // path. `isAccountWithinBusinessHours` returns true for an account with no
+    // declared hours, so this branch is a no-op for every account that never opted in.
+    const outOfHours = !isAccountWithinBusinessHours(current, now) && Boolean(current.outOfHoursReplyText)
     const job = await tx.lineConversationJob.create({ data: {
       accountId: current.id, inboundMessageId: inbound.messageId, eventId,
       // @req FR-243 — the session the inbound message was just assigned (ADR-094 D4).
@@ -206,9 +220,10 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
       recipientId: threadId, sourceUserId: userId, sealedReplyToken: sealed,
       replyExpiresAt: sealed ? new Date(replyDeadlineAnchorMs + 45_000) : null,
       availableAt: now, expiresAt: new Date(now.getTime() + JOB_TTL_MS), correlationId,
+      ...(outOfHours ? { status: 'READY', answerText: current.outOfHoursReplyText } : {}),
     } })
     await recordAudit(tx, { entityType: 'LINE_CONVERSATION_JOB', entityId: job.id, action: 'QUEUED',
-      payload: { tenantId: job.tenantId, businessId: job.businessId, accountId: job.accountId, correlationId } })
+      payload: { tenantId: job.tenantId, businessId: job.businessId, accountId: job.accountId, correlationId, ...(outOfHours ? { outOfHours: true } : {}) } })
     await traceEvent(tx, job, 'TURN_RECEIVED', 'received', {
       inboundMessageId: inbound.messageId, conversationId: inbound.conversationId,
       inputSnapshot: { role: 'user', content: text }, inputHash: sha256({ role: 'user', content: text }),
@@ -223,6 +238,15 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     // Every later trace event for this job (EXECUTION_STARTED, SEND_STARTED, ...) runs in
     // its own later transaction and keeps the real guard.
     }, now, { bypassTurnGuard: true })
+    // @req FR-244 — mirrors settleExecution's own ANSWER_READY shape (the normal
+    // execution path emits the same kind with the same payload keys) so a trace
+    // reader sees one vocabulary for "the answer is ready to send" regardless of
+    // where the text came from; `executionEvidence` is the field that says which.
+    if (outOfHours) {
+      await traceEvent(tx, job, 'ANSWER_READY', 'answer-ready', {
+        text: current.outOfHoursReplyText, answerReadyAt: now.toISOString(), executionEvidence: 'OUT_OF_HOURS_RULE',
+      }, now)
+    }
     return { jobId: job.id, created: true, inboundMessageId: inbound.messageId }
   })
 }

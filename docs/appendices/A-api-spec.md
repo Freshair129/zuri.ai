@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.75.0b |
+| **Version** | 1.78.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-09-15 |
+| **Last Updated** | 2026-09-16 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -23,7 +23,15 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=282 -->
+<!-- api-spec-counts: route_handlers=283 -->
+
+### Local model residency by business hours (FR-244, 2026-09-16)
+
+ADR-094 D6 option A. The compute-owned edge worker polls this to decide whether to keep the local model pinned (`keep_alive: -1`) or release it (`keep_alive: 0`). ADR-061 keeps every LINE identity off this wire, so the answer is one aggregate boolean across every server-enabled `LineOaAccount` — never an account id, a schedule, or which account is currently open.
+
+| Method | Route | Contract | Failure |
+|---|---|---|---|
+| POST | `/api/edge/model-residency` | implemented (FR-244): device-authenticated like every other `/api/edge/*` route (`resolveEdgeDeviceContext`), empty strict body, `200 { shouldBeWarm: boolean }` — `true` when any server-enabled account either declared no hours (today's default) or is currently inside its declared hours; `false` only when every server-enabled account has declared hours and all are currently closed, including the vacuous case of no accounts at all | `401 EDGE_CREDENTIAL_REQUIRED`; `400 MODEL_RESIDENCY_REQUEST_REJECTED` (malformed/non-empty body); `503 LINE_SERVER_DISABLED` \| `MODEL_RESIDENCY_REQUEST_REJECTED` |
 
 ### Programme usage reports (FR-218, 2026-09-13)
 
@@ -829,6 +837,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.78.0b | 2026-09-16 | candidate | FR-244 (ADR-094 D6 option A, TASK-ZAI-109): one handler file, `POST /api/edge/model-residency` — the compute-owned edge worker's identity-free residency poll, returning one aggregate `shouldBeWarm` boolean derived from every server-enabled account's declared business hours, never an account id or a per-account schedule (ADR-061). Route handler count 282 -> 283 | working-tree | Claude Sonnet 5 |
 | 1.77.0b | 2026-09-16 | candidate | FR-246 (ADR-093 evidence gap, TASK-ZAI-110): one handler file, `POST /api/crm/conversations/[id]/reply` — the staff reply writer, a Business owner replying from the Inbox composer, pushed through the LINE transport and recorded only on acceptance. Route handler count 281 -> 282 | working-tree | Claude Sonnet 5 |
 | 1.76.0b | 2026-09-15 | candidate | FR-230 (ADR-091 D1, D2): one handler file, `POST /api/crm/retention-sweep` — the missing scheduled entry point for the nightly retention sweep, deployment-authenticated, same-UTC-day idempotency guard against a scheduler retry. Route handler count 280 -> 281 | working-tree | Claude Sonnet 5 |
 | 1.75.0b | 2026-09-15 | candidate | FR-236 (ADR-090 D6, TASK-ZAI-099): one handler file, `PATCH /api/businesses/[id]/knowledge-candidates-toggle` — the only writer of `Business.knowledgeCandidatesEnabled`, gating LINE FAQ knowledge candidate drafting per Business (off by default). Same shape as the `capabilities` route (FR-169). Route handler count 279 -> 280 | working-tree | Claude Sonnet 5 |

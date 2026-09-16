@@ -9,9 +9,11 @@ import {
   defaultTransportMode,
   deriveEffectiveStatus,
   initialStoredStatus,
+  isAccountWithinBusinessHours,
   nextStoredStatus,
   parseBotProfile,
   suggestLineOaAccountCode,
+  timeOfDayInBangkok,
   zConnectLineOaAccount,
   zLineOaAccountAction,
   zLineOaAccountCode,
@@ -91,6 +93,66 @@ describe('FR-146 LineOaAccount domain rules', () => {
     expect(parseBotProfile('not json')).toEqual({})
     expect(parseBotProfile('{"apiKey":"leak"}')).toEqual({})
     expect(parseBotProfile(null)).toEqual({})
+  })
+})
+
+// @req FR-244 — business hours and the out-of-hours reply (ADR-094 D6 option A).
+describe('FR-244 business hours', () => {
+  it('accepts CONFIGURE_BUSINESS_HOURS only with all three fields, or clearBusinessHours alone', () => {
+    const declared = zLineOaAccountAction.parse({
+      action: 'CONFIGURE_BUSINESS_HOURS', version: 1,
+      businessHoursOpen: '09:00', businessHoursClose: '18:00', outOfHoursReplyText: 'ปิดทำการแล้วค่ะ',
+    })
+    expect(declared.businessHoursOpen).toBe('09:00')
+    const cleared = zLineOaAccountAction.parse({ action: 'CONFIGURE_BUSINESS_HOURS', version: 1, clearBusinessHours: true })
+    expect(cleared.clearBusinessHours).toBe(true)
+    // Partial declarations are refused, never defaulted or clamped.
+    expect(() => zLineOaAccountAction.parse({ action: 'CONFIGURE_BUSINESS_HOURS', version: 1, businessHoursOpen: '09:00' })).toThrow()
+    expect(() => zLineOaAccountAction.parse({ action: 'CONFIGURE_BUSINESS_HOURS', version: 1 })).toThrow()
+    // Clearing and declaring at once is refused, not merged.
+    expect(() => zLineOaAccountAction.parse({
+      action: 'CONFIGURE_BUSINESS_HOURS', version: 1, clearBusinessHours: true,
+      businessHoursOpen: '09:00', businessHoursClose: '18:00', outOfHoursReplyText: 'x',
+    })).toThrow()
+    // An inverted or zero-length window is refused, not swapped.
+    expect(() => zLineOaAccountAction.parse({
+      action: 'CONFIGURE_BUSINESS_HOURS', version: 1,
+      businessHoursOpen: '18:00', businessHoursClose: '09:00', outOfHoursReplyText: 'x',
+    })).toThrow()
+    expect(() => zLineOaAccountAction.parse({
+      action: 'CONFIGURE_BUSINESS_HOURS', version: 1,
+      businessHoursOpen: '09:00', businessHoursClose: '09:00', outOfHoursReplyText: 'x',
+    })).toThrow()
+    // Not "HH:MM" is refused.
+    for (const bad of ['9:00', '25:00', '09:60', 'nine am', '']) {
+      expect(() => zLineOaAccountAction.parse({
+        action: 'CONFIGURE_BUSINESS_HOURS', version: 1,
+        businessHoursOpen: bad, businessHoursClose: '18:00', outOfHoursReplyText: 'x',
+      })).toThrow()
+    }
+  })
+
+  it('timeOfDayInBangkok reads UTC+7 with no DST', () => {
+    // 2026-09-16T02:30:00Z is 09:30 in Bangkok.
+    expect(timeOfDayInBangkok(new Date('2026-09-16T02:30:00Z'))).toBe('09:30')
+    // Crossing midnight UTC still lands on the correct Bangkok clock face.
+    expect(timeOfDayInBangkok(new Date('2026-09-16T17:00:00Z'))).toBe('00:00')
+  })
+
+  it('isAccountWithinBusinessHours is always true with no declared hours (today\'s behaviour)', () => {
+    expect(isAccountWithinBusinessHours({}, new Date('2026-09-16T20:00:00Z'))).toBe(true)
+    expect(isAccountWithinBusinessHours({ businessHoursOpen: '09:00' }, new Date('2026-09-16T20:00:00Z'))).toBe(true)
+  })
+
+  it('isAccountWithinBusinessHours is inclusive at both ends of a same-day window', () => {
+    const account = { businessHoursOpen: '09:00', businessHoursClose: '18:00' }
+    // 09:00 Bangkok = 02:00Z; 18:00 Bangkok = 11:00Z.
+    expect(isAccountWithinBusinessHours(account, new Date('2026-09-16T02:00:00Z'))).toBe(true)
+    expect(isAccountWithinBusinessHours(account, new Date('2026-09-16T11:00:00Z'))).toBe(true)
+    expect(isAccountWithinBusinessHours(account, new Date('2026-09-16T06:00:00Z'))).toBe(true)
+    // 01:59Z = 08:59 Bangkok, one minute before opening; 11:01Z = 18:01, one after closing.
+    expect(isAccountWithinBusinessHours(account, new Date('2026-09-16T01:59:00Z'))).toBe(false)
+    expect(isAccountWithinBusinessHours(account, new Date('2026-09-16T11:01:00Z'))).toBe(false)
   })
 })
 

@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
   Register the Windows Task Scheduler entry for the FR-230 nightly CRM
   retention sweep (ADR-091 D1, D2) — run ONCE by a human operator on the
@@ -83,12 +83,24 @@ if (-not (Test-Path -LiteralPath $envPath) -or (Get-Content -LiteralPath $envPat
   Write-Warning "[zuri] ZURI_RETENTION_SWEEP_TOKEN is not set in $envPath yet — the scheduled task will register, but every run will answer 401 until it is set and the stack is restarted."
 }
 
+# The absolute path, not a bare `docker`: Task Scheduler's execution environment does
+# not reliably inherit the interactive session's PATH (observed directly on the
+# production host — a bare `docker` action failed every run with LastTaskResult
+# 0x80070002 ERROR_FILE_NOT_FOUND even though `docker` resolves fine in an
+# interactive shell as the same user), so the action must name an executable Task
+# Scheduler can actually find.
+$dockerCmd = Get-Command docker -ErrorAction SilentlyContinue
+if (-not $dockerCmd) {
+  throw "[zuri] 'docker' was not found on PATH in this session — cannot resolve its absolute path for the scheduled task action. Run this script from a shell where 'docker' works."
+}
+$dockerExe = $dockerCmd.Source
+
 # `-T`: no pseudo-tty, matching every other non-interactive `docker compose exec`
 # use in this repo's own scripts. `web` is the compose SERVICE name (docker-compose.yml
 # `name: zuri-ai` pins the project regardless of which checkout runs the command —
 # see CLAUDE.md "A worktree isolates git, not Docker" — so this always reaches the
 # one live stack, never a worktree's own containers).
-$action = New-ScheduledTaskAction -Execute 'docker' `
+$action = New-ScheduledTaskAction -Execute $dockerExe `
   -Argument 'compose exec -T web node scripts/server-retention-sweep-worker.mjs' `
   -WorkingDirectory $RepoServerPath
 
