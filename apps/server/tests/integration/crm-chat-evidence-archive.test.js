@@ -7,13 +7,14 @@ import { gunzipSync } from 'node:zlib'
 import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { runRetentionSweep, RETENTION_SWEEP_TOMBSTONE } from '@/modules/crm/retention-sweep-service'
 import {
   archiveAndTombstoneTenantMessages,
+  computeManifestHash,
   verifyManifestChain,
 } from '@/modules/crm/chat-evidence-archive-service'
 import { openArchiveSegment, openCustomerArchiveKey } from '@/modules/crm/chat-evidence-archive-crypto'
@@ -22,6 +23,7 @@ import { RETENTION_DEFAULT_WINDOW_DAYS } from '@/lib/validation/enums'
 const DAY_MS = 24 * 60 * 60 * 1000
 let sequence = 0
 let baseDir
+const createdTenantIds = new Set()
 
 beforeEach(async () => {
   baseDir = await fs.mkdtemp(path.join(os.tmpdir(), 'zuri-cea-'))
@@ -45,8 +47,37 @@ async function freshScope(label) {
   const pf = await createPortfolio({ name: `CEA ${label} ${suffix}`, code: `PF-CEA-${suffix}` })
   const tenant = await createTenant({ portfolioId: pf.id, name: `CEA ${label} Tenant`, code: `TNT-CEA-${suffix}` })
   const business = await createBusiness({ tenantId: tenant.id, name: 'ร้านหลักฐาน', code: `BUS-CEA-${suffix}` })
+  createdTenantIds.add(tenant.id)
   return { tenant, business }
 }
+
+// This file writes real ArchiveManifest/CustomerArchiveKey rows so it can
+// exercise the complete persistence path. Vitest deliberately shares one
+// disposable database across files; leave only filesystem evidence ephemeral
+// and remove this file's rows after its last assertion, without touching rows
+// another integration fixture owns. The manifest table has a self-FK, so
+// children must be removed before their predecessors.
+afterAll(async () => {
+  const tenantIds = [...createdTenantIds]
+  if (tenantIds.length === 0) return
+  const pending = new Map((await prisma.archiveManifest.findMany({
+    where: { tenantId: { in: tenantIds } },
+    select: { id: true, previousManifestId: true },
+  })).map((row) => [row.id, row]))
+  while (pending.size) {
+    let deleted = false
+    for (const row of pending.values()) {
+      const hasPendingChild = [...pending.values()].some((candidate) => candidate.previousManifestId === row.id)
+      if (hasPendingChild) continue
+      await prisma.archiveManifest.delete({ where: { id: row.id } })
+      pending.delete(row.id)
+      deleted = true
+      break
+    }
+    if (!deleted) throw new Error('Could not clear the Chat Evidence Archive manifest chain')
+  }
+  await prisma.customerArchiveKey.deleteMany({ where: { tenantId: { in: tenantIds } } })
+})
 
 async function backdatedMessage({ tenant, business, ageDays, threadId, externalMessageId, text }) {
   const id = ++sequence
@@ -140,6 +171,25 @@ describe('Chat evidence archive writer (FR-245, ADR-093)', () => {
 
     const chain = await verifyManifestChain(prisma, tenant.id, { baseDir, checkFiles: true })
     expect(chain).toEqual({ valid: true })
+  })
+
+  it('follows previousManifestId when query order is reversed and timestamps tie', async () => {
+    const tenantId = randomUUID()
+    const createdAt = new Date('2026-09-16T00:00:00.000Z')
+    const parent = {
+      id: 'manifest-parent', tenantId, runId: 'same-time-parent', filePath: 'archive/parent.zca',
+      fileSha256: 'a'.repeat(64), messageCount: 1, messageIdListHash: 'b'.repeat(64),
+      previousManifestId: null, previousManifestHash: null, createdAt,
+    }
+    parent.manifestHash = computeManifestHash(parent)
+    const child = {
+      id: 'manifest-child', tenantId, runId: 'same-time-child', filePath: 'archive/child.zca',
+      fileSha256: 'c'.repeat(64), messageCount: 1, messageIdListHash: 'd'.repeat(64),
+      previousManifestId: parent.id, previousManifestHash: parent.manifestHash, createdAt,
+    }
+    child.manifestHash = computeManifestHash(child)
+    const db = { archiveManifest: { findMany: async () => [child, parent] } }
+    expect(await verifyManifestChain(db, tenantId)).toEqual({ valid: true })
   })
 
   it('exit criterion: tampering an archived file after the fact breaks the chain', async () => {
