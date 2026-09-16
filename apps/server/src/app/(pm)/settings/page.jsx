@@ -121,6 +121,7 @@ function AddBusinessCard({ scope }) {
 // capability the route itself enforces (src/lib/platform-control-guard.js),
 // never re-derived from `isPlatform` or a role (D1-journey-states-tests-docs-12).
 // @req FR-247 — the same card links to the error event list (ADR-095 D1).
+// @req FR-248, FR-249 — and to the feature usage breakdown (ADR-095 D2).
 // @spec ADR-048 D2, SEC-020
 // @tested tests/unit/platform-control-guard.test.js
 function PlatformControlCard() {
@@ -138,6 +139,9 @@ function PlatformControlCard() {
         </Link>
         <Link href="/control/errors" className="btn inline-flex">
           Error events (FR-247)
+        </Link>
+        <Link href="/control/usage" className="btn inline-flex">
+          Feature usage (FR-248, FR-249)
         </Link>
       </div>
     </Card>

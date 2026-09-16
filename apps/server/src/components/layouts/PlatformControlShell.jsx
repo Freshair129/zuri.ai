@@ -11,6 +11,10 @@
 // the operator to wait out session expiry.
 // @spec ADR-017, SEC-008
 // @tested tests/unit/sign-out.test.js
+// @req FR-248 — mounts the one page-view tracking hook every route under this
+// shell shares, rather than instrumenting each page (ADR-095 D2).
+// @req FR-249 — sign-out is the first instrumented action (ADR-095 D2).
+// @spec ADR-095 D2
 //
 // Theme (owner request 2026-09-13): the shell root carries `data-theme`
 // ("light" | "dark"). The choice is stored per browser under
@@ -24,6 +28,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { LogOut, Moon, Sun } from 'lucide-react'
 import { performSignOut } from '@/modules/identity/sign-out'
+import UsagePageViewTracker, { recordAction } from '@/modules/platform-control/components/UsagePageViewTracker'
 import styles from './platform-control-shell.module.css'
 
 const THEME_KEY = 'zai-control-theme'
@@ -75,6 +80,7 @@ export default function PlatformControlShell({ children, title = 'Platform Contr
   // see src/app/(pm)/platform/integrations/page.jsx).
   const handleSignOut = async () => {
     setSigningOut(true)
+    recordAction('platform_control.sign_out')
     try {
       const { path, warning } = await performSignOut()
       if (warning) window.alert(warning)
@@ -86,6 +92,7 @@ export default function PlatformControlShell({ children, title = 'Platform Contr
 
   return (
     <div className={`${styles.root} flex min-h-screen flex-col`} data-theme={theme ?? undefined}>
+      <UsagePageViewTracker />
       <header className="nav-glass flex min-h-14 items-center border-b border-white/10 px-6 text-white max-md:px-4">
         <div className="flex min-w-0 items-center gap-3">
           <span className="grid h-8 w-8 place-items-center rounded-lg bg-[var(--action-primary)] text-sm font-black text-[#1A1710]" aria-hidden>

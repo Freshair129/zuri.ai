@@ -1829,12 +1829,11 @@ model Customer {
   salesOrders           SalesOrder[]
   // @req FR-245 — this Customer's chat evidence archive data key (ADR-093 D4,
   //   D6) lives in `CustomerArchiveKey`, keyed by `customerId` alone — no
-  //   Prisma relation here on purpose, the same choice `IntegrationCredential`
-  //   made for `IntegrationSecretEnvelope` (SEC-030's precedent): credential
-  //   material excluded from every backup snapshot must never be a foreign-key
-  //   dependency of a model the snapshot's restore deletes and re-inserts, or
-  //   restoring `Customer` rows would fail on a row this Customer's own
-  //   archive key does not travel with.
+  //   Prisma relation here, the same choice `IntegrationCredential` made for
+  //   `IntegrationSecretEnvelope` (SEC-030's precedent). Both models ARE
+  //   included in the backup snapshot (SNAPSHOT_MODELS, backup-service.js) —
+  //   see `CustomerArchiveKey`'s own comment for why exclusion was tried
+  //   first and reverted.
 
   @@unique([tenantId, personId])
   @@index([businessId])
@@ -2167,11 +2166,20 @@ model CustomerArchiveKey {
 
   // No `@relation` to Tenant/Customer, deliberately — the same choice
   // `IntegrationSecretEnvelope` already made (SEC-030's precedent): a plain
-  // scope column, not a Prisma-level foreign key. This table is excluded from
-  // every backup snapshot (SNAPSHOT_EXCLUDED_MODELS), while Tenant and
-  // Customer are not — a real FK here would make the snapshot restore's
-  // delete-then-reinsert of Tenant/Customer fail on a row this table's own
-  // restore never runs to clear first.
+  // scope column, not a Prisma-level foreign key.
+  //
+  // This table IS included in the backup snapshot (SNAPSHOT_MODELS,
+  // backup-service.js) — an earlier version of this comment excluded it,
+  // reasoning that a real FK here would make the snapshot restore's
+  // delete-then-reinsert of Tenant/Customer fail on a row nothing re-clears
+  // first. That reasoning does not actually apply: there is no `@relation`
+  // here, so there is no FK for the restore to violate either way, and
+  // `wrappedDek` is exportable ciphertext for the same reason
+  // `integrationCredentialVersion`/`mfaFactor` are — the key-encryption key
+  // that could open it (`ZURI_ARCHIVE_KEK`) is never part of any snapshot.
+  // Unlike a credential, a randomly generated archive key has no re-entry
+  // path, so excluding it would let a routine restore silently and
+  // permanently destroy access to retained dispute evidence.
 
   @@index([tenantId])
 }
@@ -2204,12 +2212,15 @@ model ArchiveManifest {
   manifestHash         String
   createdAt            DateTime @default(now())
 
-  // No `@relation` to Tenant — same reasoning as `CustomerArchiveKey` above:
-  // this table is excluded from the backup snapshot, Tenant is not, and a real
-  // FK would make Tenant's restore fail on a manifest row nothing re-clears
-  // first. The self-referential chain link stays a real FK: both ends are
-  // always this same excluded table, so it participates in no cross-table
-  // restore ordering at all.
+  // No `@relation` to Tenant — same reasoning as `CustomerArchiveKey` above.
+  // This table is ALSO included in the backup snapshot (SNAPSHOT_MODELS),
+  // for a sharper reason than "it is recoverable": `chat-evidence-retrieval-
+  // service.js` finds archive files strictly by walking this table's rows
+  // per Tenant, so losing them makes every archived message undiscoverable
+  // even when the files themselves are intact on disk (or brought back by
+  // the ADR-093 D8 offline copy). The self-referential chain link stays a
+  // real FK: both ends are always this same table, so it participates in no
+  // cross-table restore ordering at all.
   previousManifest ArchiveManifest?  @relation("ArchiveManifestChain", fields: [previousManifestId], references: [id])
   nextManifests    ArchiveManifest[] @relation("ArchiveManifestChain")
 
@@ -5289,4 +5300,28 @@ model UsageEvent {
   @@index([personId, occurredAt])
   @@index([kind, route, occurredAt])
   @@index([kind, actionName, occurredAt])
+}
+
+// @req FR-249, NFR-023 — the aggregate a UsageEvent row over 90 days old becomes:
+// one day, one route or actionName, a count, no personId. A separate shape from
+// UsageEvent on purpose (ADR-095 D3) — the per-person question stays answerable
+// for exactly 90 days, never longer, by construction rather than by convention.
+// `date` is UTC-midnight-truncated so a rollup and a later one for the same day
+// merge into the same row instead of a second one. `target` is the route
+// (PAGE_VIEW) or actionName (ACTION), never null: `@@unique` with a nullable
+// column would let Postgres treat two NULLs as distinct and defeat the very
+// upsert this table exists for, so `kind` plus one non-null `target` replaces
+// UsageEvent's two-nullable-column shape rather than copying it.
+// @spec ADR-095 D3
+// @tested tests/unit/usage-events.test.js
+model UsageEventRollup {
+  id        String   @id @default(uuid())
+  date      DateTime
+  kind      String
+  target    String
+  count     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date, kind, target])
 }

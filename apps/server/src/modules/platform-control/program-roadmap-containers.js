@@ -5581,7 +5581,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured. Built and MERGED 2026-09-16 (PR #431, main `b6e002ef`): `chat-evidence-archive-crypto.js` (AES-256-GCM KEK/DEK mirroring envelope-secret-store.js's shape, `ZURI_ARCHIVE_KEK` never `ZURI_SECRET_KEK`, per-segment AAD binds tenantId/customerId/runId so cross-Customer decrypt fails at the cipher) and `chat-evidence-archive-service.js` (one `.zca` newline-delimited-JSON file per Tenant per run at `<ZURI_ARCHIVE_DIR>/<tenantId>/<yyyy>/<runId>.zca`, write-under-temp-name→fsync→rename→read-back→verify-SHA-256, then `ArchiveManifest` insert and tombstone in one transaction). New models `ArchiveManifest` and `CustomerArchiveKey`, migration `20260916150000` (written, not applied). A parallel implementation of this same task (`ArchiveCustomerKey`, a different migration timestamp, a single-file design) was independently built and opened as PR #429 by a separate session in this same window; PR #431 merged first, so it is the canonical implementation — the duplicate PR #429 branch was reset onto this one and repointed at TASK-ZAI-112 only (see that container's changelog). One design difference worth a later look: this implementation excludes both new models from `SNAPSHOT_MODELS` (citing no Prisma relation to Tenant/Customer, mirroring `IntegrationSecretEnvelope`), where the reset PR #429 branch had included them (citing the `mfaFactor` precedent: a randomly generated key has no re-entry path, so exclusion risks a routine restore permanently losing access to retained dispute evidence) — tracked as a separate follow-up rather than re-litigated here. Evidence (as merged): its own test suite passed at merge time; not independently re-verified by this session beyond confirming `npm run govern` and the full suite stay green with TASK-ZAI-112 built on top of it.",
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured. Built and MERGED 2026-09-16 (PR #431, main `b6e002ef`): `chat-evidence-archive-crypto.js` (AES-256-GCM KEK/DEK mirroring envelope-secret-store.js's shape, `ZURI_ARCHIVE_KEK` never `ZURI_SECRET_KEK`, per-segment AAD binds tenantId/customerId/runId so cross-Customer decrypt fails at the cipher) and `chat-evidence-archive-service.js` (one `.zca` newline-delimited-JSON file per Tenant per run at `<ZURI_ARCHIVE_DIR>/<tenantId>/<yyyy>/<runId>.zca`, write-under-temp-name→fsync→rename→read-back→verify-SHA-256, then `ArchiveManifest` insert and tombstone in one transaction). New models `ArchiveManifest` and `CustomerArchiveKey`, migration `20260916150000` (written, not applied). A parallel implementation of this same task (`ArchiveCustomerKey`, a different migration timestamp, a single-file design) was independently built and opened as PR #429 by a separate session in this same window; PR #431 merged first, so it is the canonical implementation — the duplicate PR #429 branch was reset onto this one and repointed at TASK-ZAI-112 only (see that container's changelog). One design difference worth a later look: this implementation excludes both new models from `SNAPSHOT_MODELS` (citing no Prisma relation to Tenant/Customer, mirroring `IntegrationSecretEnvelope`), where the reset PR #429 branch had included them (citing the `mfaFactor` precedent: a randomly generated key has no re-entry path, so exclusion risks a routine restore permanently losing access to retained dispute evidence) — tracked as a separate follow-up rather than re-litigated here. Evidence (as merged): its own test suite passed at merge time; not independently re-verified by this session beyond confirming `npm run govern` and the full suite stay green with TASK-ZAI-112 built on top of it. **Follow-up resolved 2026-09-16** (branch `fix/archive-key-snapshot-inclusion`): both models moved to included. Neither of the exclusion's stated reasons held up — the confidentiality argument was moot (`ZURI_ARCHIVE_KEK` is never part of any snapshot either way) and the FK-ordering argument was moot (neither model has a real Prisma `@relation`, so no FK exists for a restore to violate) — while the real cost was exactly what the `mfaFactor` precedent warns about: a randomly generated key with no re-entry path, permanently lost on a routine restore, plus `ArchiveManifest`'s rows being the only index `chat-evidence-retrieval-service.js` has onto the archive files at all. New round-trip test in `backup.test.js`.",
     "created": "2026-09-16T00:00:00Z,Claude,pending",
     "predictedTokens": 60000,
     "totalTokens": 0,
@@ -5916,7 +5916,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-118",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P2",
     "pic": "Claude",
     "executor": "Claude",
@@ -5930,7 +5930,7 @@ export const PROGRAMME_CONTAINERS = {
     "linkState": {
       "code": "missing",
       "doc": "present",
-      "test": "missing"
+      "test": "present"
     },
     "delivers": [
       "FR-248",
@@ -5941,34 +5941,34 @@ export const PROGRAMME_CONTAINERS = {
       {
         "id": "P0",
         "title": "UsageEvent model, migration and recordUsageEvent() service",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P1",
         "title": "Page-view capture hook and recordAction() helper",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P2",
         "title": "90-day retention rollup and the operator-only usage view",
-        "status": "planned"
+        "status": "done"
       }
     ],
     "dod": {
       "acceptance": {
         "text": "Given a signed-in person navigating between pages, when each navigation completes, then one UsageEvent row (kind PAGE_VIEW) is recorded with route, personId and sessionId, captured by a shell-mounted hook rather than a per-page change",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a handler that calls recordAction(name), when it runs, then one UsageEvent row (kind ACTION) is recorded with a static actionName never built from request data, and an operator reads route/action counts broken down by person under /control",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given a UsageEvent row older than 90 days, when the retention job runs, then it is replaced by a daily (date, route|actionName, count) rollup with no personId, and npm test covers capture, the per-person breakdown, and the 90-day rollup boundary",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-16 (v0.4.10) after the owner asked what the system logs. A full survey of every log surface found two gaps: no error tracking, no feature/page usage measurement. CR-020 proposed both; the owner (CR-020 §7) chose to extend the existing logger for error tracking (not a third-party service) and to capture feature usage at both route and action level, per person — the more expensive, more privacy-sensitive of the two options offered. ADR-095 records the shape and the trade-off.",
+    "changelog": "Opened 2026-09-16 (v0.4.10) after the owner asked what the system logs. A full survey of every log surface found two gaps: no error tracking, no feature/page usage measurement. CR-020 proposed both; the owner (CR-020 §7) chose to extend the existing logger for error tracking (not a third-party service) and to capture feature usage at both route and action level, per person — the more expensive, more privacy-sensitive of the two options offered. ADR-095 records the shape and the trade-off. Implemented locally 2026-09-16 (FR-248, FR-249, NFR-023): POST/GET /api/platform/usage-events, recordUsageEvent/rollupUsageEvents/listUsageBreakdown in application/usage-events.js, UsagePageViewTracker mounted once in PlatformControlShell, recordAction() instrumented on sign-out, the operator breakdown at /control/usage, and the deployment-authenticated rollup route (ZURI_USAGE_ROLLUP_TOKEN). UsageEventRollup model + migration 20260916190000_usage_event_rollup written in both trees and NOT applied. tests/unit/usage-events.test.js, usage-events-tracker.test.js, usage-events-view.test.js. Review, not done: not merged, migration not applied, rollup not yet scheduled.",
     "created": "2026-09-16T00:00:00Z,Claude,pending",
     "predictedTokens": 60000,
     "totalTokens": 0,

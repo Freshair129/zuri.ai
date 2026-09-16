@@ -292,6 +292,23 @@ describe('snapshot backup round trip', () => {
         purpose: 'QUOTE', quantity: 3, expiresAt: new Date('2027-01-01T00:00:00Z'),
       },
     })
+
+    // @req FR-245 — CustomerArchiveKey and ArchiveManifest joined SNAPSHOT_MODELS
+    // after shipping excluded (see backup-service.js's SNAPSHOT_MODELS comment
+    // for why): a randomly generated archive key has no re-entry path, so
+    // excluding it would let a routine restore silently and permanently destroy
+    // access to retained dispute evidence. Fixture values are opaque strings —
+    // this proves the round trip, not the crypto (that is
+    // crm-chat-evidence-archive-crypto.test.js's job).
+    await prisma.customerArchiveKey.create({
+      data: { tenantId: tenant.id, customerId: customer.id, kekId: 'v0', wrappedDek: 'bak.wrapped.dek' },
+    })
+    await prisma.archiveManifest.create({
+      data: {
+        tenantId: tenant.id, runId: 'RUN-BAK-001', filePath: `${tenant.id}/2026/RUN-BAK-001.zca`,
+        fileSha256: 'd'.repeat(64), messageCount: 1, messageIdListHash: 'e'.repeat(64), manifestHash: 'f'.repeat(64),
+      },
+    })
   })
 
   it('export includes schema version, timestamp and table counts', async () => {
@@ -443,5 +460,32 @@ describe('snapshot backup round trip', () => {
     expect(restoredReviewCase.itemCount).toBe(1)
     expect(restoredReviewDecision.reviewCaseId).toBe(restoredReviewCase.id)
     expect(restoredReviewDecision.provenanceId).toBe(restoredProvenance.id)
+  })
+
+  it('round trip carries the chat evidence archive key and manifest — a restore must not strand retained dispute evidence', async () => {
+    const snapshot = await exportSnapshot()
+    const keyRow = snapshot.tables.customerArchiveKey.find((row) => row.wrappedDek === 'bak.wrapped.dek')
+    const manifestRow = snapshot.tables.archiveManifest.find((row) => row.runId === 'RUN-BAK-001')
+    expect(keyRow).toBeTruthy()
+    expect(manifestRow).toBeTruthy()
+
+    // Delete both before restoring — the exact loss a routine restore would
+    // otherwise cause silently, since neither row can be re-minted: the data
+    // key is random with no re-entry path, and the manifest is the only index
+    // chat-evidence-retrieval-service.js has onto the archive files on disk.
+    await prisma.customerArchiveKey.delete({ where: { id: keyRow.id } })
+    await prisma.archiveManifest.delete({ where: { id: manifestRow.id } })
+    expect(await prisma.customerArchiveKey.findUnique({ where: { id: keyRow.id } })).toBeNull()
+    expect(await prisma.archiveManifest.findUnique({ where: { id: manifestRow.id } })).toBeNull()
+
+    const result = await importSnapshot(snapshot, { confirm: true, viewer: makeOperatorViewer() })
+    expect(result.restored).toBe(true)
+
+    const restoredKey = await prisma.customerArchiveKey.findUnique({ where: { id: keyRow.id } })
+    const restoredManifest = await prisma.archiveManifest.findUnique({ where: { id: manifestRow.id } })
+    expect(restoredKey.wrappedDek).toBe('bak.wrapped.dek')
+    expect(restoredKey.customerId).toBe(keyRow.customerId)
+    expect(restoredManifest.fileSha256).toBe(manifestRow.fileSha256)
+    expect(restoredManifest.manifestHash).toBe(manifestRow.manifestHash)
   })
 })

@@ -73,6 +73,9 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/line-oa/rich-menus/{id}/jobs', ['GET', 'POST', 'PATCH']], ['/api/line-oa/rich-menu-worker', ['POST']], ['/api/platform/programme-usage-reports', ['POST']], ['/api/platform/programme-usage-reports/whoami', ['GET']], ['/api/platform/harness-pairing/start', ['POST']], ['/api/platform/harness-pairing/approve', ['POST']], ['/api/platform/harness-pairing/poll', ['POST']], ['/api/platform/harness-devices', ['GET']], ['/api/platform/harness-devices/{id}', ['PATCH']],
   // @req FR-247 — the deduplicated error list (GET) and resolving one (PATCH).
   ['/api/platform/error-events', ['GET']], ['/api/platform/error-events/{id}', ['PATCH']],
+  // @req FR-248, FR-249 — record one's own usage (POST), read the breakdown
+  // (GET), and the deployment-authenticated 90-day rollup.
+  ['/api/platform/usage-events', ['GET', 'POST']], ['/api/platform/usage-events/rollup', ['POST']],
   ['/api/line-oa/liff-apps', ['GET', 'POST']], ['/api/line-oa/liff-apps/{id}', ['GET', 'PATCH']],
   // @req FR-154, FR-155 — the Inventory domain: six catalogue collections
   // (list + create), the product item (read + versioned action; archive is an

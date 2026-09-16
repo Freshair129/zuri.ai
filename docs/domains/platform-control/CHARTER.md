@@ -6,11 +6,13 @@ owns_models:
   - ProgrammeUsageReport
   - ErrorEvent
   - UsageEvent
+  - UsageEventRollup
 owns_routes:
   - src/app/(control)/control/**
   - src/app/api/health/**
   - src/app/api/platform/programme-usage-reports/**
   - src/app/api/platform/error-events/**
+  - src/app/api/platform/usage-events/**
 owns_code:
   - src/modules/platform-control/**
   - src/components/layouts/PlatformControlShell.jsx
@@ -82,10 +84,21 @@ system, never anything from a Business they touch.
   No request/response content, only `name`/`message`/parsed stack frames.
 - FR-248, FR-249 (ADR-095 D2): `UsageEvent` records page views and named
   actions, per person — the owner's instruction, over the aggregate-only
-  default this decision's own CR proposed. Raw, person-attributed rows are a
-  90-day window (ADR-095 D3); past that only a `personId`-less daily rollup
-  survives. No consent gate (ADR-095 D4) — the same discipline `AuditEvent` and
-  access history already apply to every signed-in account.
+  default this decision's own CR proposed. `POST /api/platform/usage-events`
+  is signed-in-person-authenticated, not operator-gated — usage is a fact
+  about whoever is using the product; `GET` on the same path is operator-only.
+  `UsagePageViewTracker` mounts once in `PlatformControlShell` (every route
+  under it, plus `/roadmap`'s member view, gets page-view coverage from one
+  hook); `recordAction(name)` is the primitive any handler can call for the
+  action level, instrumented first on sign-out — an adoptable primitive, not a
+  claim that every control is covered. `/control/usage` lists both, per target,
+  with the last-90-days per-person split. Raw, person-attributed rows are a
+  90-day window (ADR-095 D3): `POST /api/platform/usage-events/rollup`
+  (`ZURI_USAGE_ROLLUP_TOKEN`, same deployment-bearer shape as
+  `/api/crm/retention-sweep`) moves anything older into `UsageEventRollup`,
+  one row per `(day, kind, target)` with no `personId`. No consent gate
+  (ADR-095 D4) — the same discipline `AuditEvent` and access history already
+  apply to every signed-in account.
 - `src/config/domains.js` is the Business-only navigation registry. This domain
   may not add itself to `DOMAINS`.
 - Project-local roadmap work remains Project Manager authority under ADR-028.
@@ -101,6 +114,9 @@ Removing the programme consists of deleting this route group, its shell, this
 module, the usage report route and the two programme scripts, and dropping the
 `ProgrammeUsageReport` table. Error tracking and feature usage (FR-247..249) are
 a separable capability within the same lane: removing them independently means
-deleting `/control/errors`, `error-events.js`, `usage-events.js` and dropping
-`ErrorEvent`/`UsageEvent` without touching the programme plan. No Business data
-migration, model ownership transfer or navigation change is required for either.
+deleting `/control/errors`, `/control/usage`, `error-events.js`,
+`usage-events.js`, `UsagePageViewTracker.jsx` (and its one mount point in
+`PlatformControlShell`), and dropping `ErrorEvent`/`UsageEvent`/
+`UsageEventRollup` — without touching the programme plan. No Business data
+migration, model ownership transfer or navigation change is required for any
+of the three.
