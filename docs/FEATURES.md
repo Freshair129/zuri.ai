@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.57.0b"
+version: "1.58.0b"
 status: active
-last_update: "2026-09-17T00:32:00+07:00,RWANG"
+last_update: "2026-09-17T02:46:11+07:00,RWANG"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -12,13 +12,15 @@ relations:
 
 # Features (FEAT registry)
 
+Version diff 1.57.0b → 1.58.0b: register owner-approved FR-252 Project Feature authority as a project-manager feature-of-one under ADR-097. Cross-domain P1–P4 slices share that requirement; no new FEAT bundle or runtime completion.
+
 Version diff 1.56.0b → 1.57.0b: register owner-approved FR-251 as a project-manager feature-of-one for the read-only Project Execution Domains view, now implemented and verified locally. No new FEAT bundle, Phase B authority or production deployment is declared.
 
 Version diff 1.55.0b → 1.56.0b: register FR-250 as a project-manager feature-of-one for hierarchical Projects & Work navigation. No new FEAT bundle or runtime completion is asserted.
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.57.0b |
+| **Version** | 1.58.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -902,6 +904,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FR-250",
     "primaryDomain": "project-manager",
     "useCase": "ผู้ใช้เปิด Projects & Work แล้วเลือกหมวด Project Management, Work Management หรือ Resource Coordination จาก sidebar และเลือกแท็บภายในหมวดนั้น โดยยังอยู่ในโปรเจกต์เดิม เปิด Inventory, Team และ Work views เดิมได้ครบ ใช้ Import plan จากปุ่มเดียว และเห็น Requirements, Risks, Resources กับ Agent Delivery ว่าส่วนใดยัง Planned โดยเมนูไม่เพิ่มสิทธิ์"
+  },
+  {
+    "id": "FR-252",
+    "primaryDomain": "project-manager",
+    "useCase": "ผู้ใช้เปิด Features ภายใน Project เพื่อดูผลลัพธ์ที่ต้องส่งมอบ แยกเจ้าของ Domain กับผู้สนับสนุน เชื่อมงานและหลักฐาน requirement โดยเจ้าของ Business จัดการข้อมูลได้ตามสิทธิ์ มีการตรวจเวอร์ชันและบันทึก audit งานที่ใช้ร่วมกันไม่นับซ้ำและไม่เปลี่ยนสูตร progress เดิม"
   },
   {
     "id": "FR-251",

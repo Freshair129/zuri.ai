@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PROJECT-DOMAIN-FEATURE-BASELINE
 title: Project, Domain and Feature implementation baseline
-version: "0.5.0b"
+version: "0.6.0b"
 status: candidate
 created_at: "2026-09-16T21:17:02+07:00,Luna Max,base 138db6630e650e3c695b81158eff3cecdad6d0a5"
-last_update: "2026-09-17T01:25:33+07:00,RWANG"
+last_update: "2026-09-17T02:46:11+07:00,RWANG"
 superseded_by: null
 attributes:
   doc_type: implementation-baseline
@@ -399,6 +399,8 @@ are outside MA-I02 and are not migration or acceptance blockers.
 
 ## 7. Exact gates and allowlist
 
+[FR-252 approval record](../../domains/project-manager/features/FR-252-project-feature-authority.md) pins the exact approved Phase B packet and supersedes its historical pending-B1 labels. Independent frozen-packet review and B2 governance remain entry gates; no runtime or production readiness is inferred.
+
 **Gates before implementation:**
 
 * **A1 (APPROVED 2026-09-16):** owner approval of Phase A's explicit mapping, composed DTO,
@@ -408,13 +410,15 @@ are outside MA-I02 and are not migration or acceptance blockers.
   requirement, pins this baseline, reconciles the exact candidate/API and
   navigation contracts and runs governance. Immutable existing FR/FEAT subjects
   are not expanded silently.
-* **B1:** separately close and approve the four-record Feature authority plus
+* **B1 (APPROVED 2026-09-17, packet e5ccfd7a):** owner approved the four-record Feature authority plus
   snapshot and mutation-receipt authorities, scope constraints, repository ports, exact CRUD/DTO and
   AuditEvent behavior, Identity-owned CSRF issuance/verification, migration and
-  restore plan. The selected-field table is a design input, not a dispatchable
-  schema or an approved CRUD implementation.
-* **B2:** register the approved Feature requirements/contracts and pin their
-  baseline before that implementation starts.
+  restore plan. The selected-field table is approved design input; schema and
+  CRUD implementation still require independent review and B2 governance.
+* **B2 (REGISTERED; GOVERNANCE PASS):** FR-252 / ADR-097 register the approved
+  Feature requirements/contracts and pin their baseline. Governance passed with
+  zero critical findings and two existing warnings. Independent frozen-packet
+  review still precedes implementation dispatch.
 
 Phase A requires A1–A2 only; Phase B's write/CSRF/schema gates do not block the
 read-only Phase A. FR-251 is the sole new global requirement for Phase A.
@@ -518,3 +522,4 @@ table is created by this document revision.
 | 0.3.0b | 2026-09-16 | candidate | Compose the Phase A Domain-view OpenAPI DTO and redacted 401/404 contract; retain pending A1 approval, pending A2 registration/governance and deferred Feature authority | 138db6630e650e3c695b81158eff3cecdad6d0a5 | RWANG |
 | 0.4.0b | 2026-09-17 | candidate | Record owner approval, FR-251 registration, implementation and local verification; retain unapproved Phase B and separate release gates | reviewed baseline 7465080f; PR443 | RWANG |
 | 0.5.0b | 2026-09-17 | candidate | Link concrete Phase B proposal and clarify allocation across Features for one WorkItem; B1/B2 remain open | composed ecc30b94; merged c07cfaba | RWANG |
+| 0.6.0b | 2026-09-17 | candidate | Record Phase B B1 approval and FR-252/ADR-097 registration; implementation and production gates remain explicit | approved e5ccfd7a | RWANG |

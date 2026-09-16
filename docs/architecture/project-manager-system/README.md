@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-SYSTEM-DESIGN
 title: Project Manager complete system design
-version: "0.12.0b"
+version: "0.13.0b"
 status: candidate
 created_at: "2026-09-15T23:49:58+07:00,RWANG,base 087f30258a6831865afd751e28804e36505aff30"
-last_update: "2026-09-17T01:25:33+07:00,RWANG"
+last_update: "2026-09-17T02:46:11+07:00,RWANG"
 superseded_by: null
 attributes:
   doc_type: architecture-specification
@@ -261,6 +261,7 @@ Domain และ Feature เป็นคนละแกน:
 | 0.10.0b | 2026-09-16 | candidate | Link the MA-I02 Phase A baseline and record the composed Domain-view DTO/refusal contract while retaining pending A1/A2 and deferred Feature status | source 138db663; uncommitted | RWANG |
 | 0.11.0b | 2026-09-17 | candidate | Record approved FR-251 Phase A implementation and local verification | reviewed 7465080f; PR443 | RWANG |
 | 0.12.0b | 2026-09-17 | candidate | Record Phase A deployment and add the selected Phase B plan, data/API contracts and parallel verification gates | deployed c07cfaba; planning base ecc30b94 | RWANG |
+| 0.13.0b | 2026-09-17 | candidate | Record Phase B owner approval and FR-252/ADR-097 registration; keep implementation and production gates distinct | approved e5ccfd7a | RWANG |
 
 ## Version diff — 0.8.0b → 0.9.0b
 
@@ -291,3 +292,10 @@ Version diff 0.10.0b → 0.11.0b: record owner approval, canonical FR-251 regist
 - Record parallel worker ownership, independent Luna Max verification and root final gate.
 - Preserve B1 owner review and B2 registration before application/schema code.
 - Keep deployment evidence attached to the exact release revision; this planning packet does not activate Feature writes.
+
+
+## Phase B approval — 2026-09-17
+
+Owner approval of packet e5ccfd7a closes B1. [FR-252](../../domains/project-manager/features/FR-252-project-feature-authority.md) and [ADR-097](../../decisions/ADR-097-PROJECT-FEATURE-AUTHORITY-AND-WRITE-CONTRACT.md) register the selected authority and supersede the frozen proposal's historical pending-approval labels. B2 governance and independent verification still precede implementation. The remaining full-system design is not promoted by this approval.
+
+Version diff 0.12.0b → 0.13.0b: record B1 approval and canonical registration only; no Phase B code/schema/migration or production activation.

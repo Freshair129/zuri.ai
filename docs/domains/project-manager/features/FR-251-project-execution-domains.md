@@ -4,10 +4,10 @@ title: Project Execution Domains view
 feature: FR-251
 domain: project-manager
 source: v2-native
-version: "0.1.1b"
+version: "0.1.2b"
 status: beta
 created_at: "2026-09-16T23:01:00+07:00,RWANG,reviewed baseline 7465080f"
-last_update: "2026-09-17T01:55:00+07:00,RWANG"
+last_update: "2026-09-17T02:46:11+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:FR-251
@@ -26,8 +26,7 @@ relations:
 The owner approved MA-I02 Phase A on document commit `7465080f` on 2026-09-16.
 This is C-2 / MEDIUM, a read-only extension of Project Manager. It projects actual
 FR-070 Workstream bindings; it is not a DDD bounded-context registry, Feature
-authority or operational-domain grant. Phase B persistence and writes remain
-unapproved. No schema, migration, progress algorithm or existing writer changes.
+authority or operational-domain grant. Phase B is separately approved under [FR-252](FR-252-project-feature-authority.md); its implementation and production gates remain open. No schema, migration, progress algorithm or existing writer changes.
 
 Delivery Design gains **Execution Domains** only in authorized Project context,
 at `/projects/{projectId}/domain-view`. Business Delivery Design and Features,
@@ -138,3 +137,4 @@ MA-I02 or approve Phase B.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-17 | beta | Register and implement owner-approved read-only Phase A; record local server, build, browser, contract and independent review proof | reviewed baseline 7465080f; implementation tracked in PR443 | RWANG |
 | 0.1.1b | 2026-09-17 | beta | Record merged/deployed revision, exact-tree and live evidence, rollback and the carried-forward runtime-role limitation | c07cfaba | RWANG |
+| 0.1.2b | 2026-09-17 | beta | Link separately approved FR-252 Phase B; Phase A behavior unchanged | approved e5ccfd7a | RWANG |
