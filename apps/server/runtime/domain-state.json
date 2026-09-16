@@ -39,9 +39,9 @@
     "featureCount": 150,
     "readyFeatureCount": 114,
     "requirementCount": 246,
-    "verifiedRequirementCount": 227,
-    "progressPercent": 94.1,
-    "gapCount": 41,
+    "verifiedRequirementCount": 231,
+    "progressPercent": 94.4,
+    "gapCount": 28,
     "gaps": [
       {
         "domain": "agent",
@@ -78,72 +78,6 @@
         "evidence": []
       },
       {
-        "domain": "agent",
-        "id": "REQ-FR-234",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-234 is partial",
-        "evidence": [
-          "apps/server/src/modules/agent/context-composer.js",
-          "apps/server/src/modules/agent/execution-trace.js",
-          "apps/server/src/modules/agent/line-execution-trace.js",
-          "apps/server/src/modules/agent/msp-thread-memory-port.js",
-          "apps/server/src/modules/agent/server-line-answer.js",
-          "apps/server/tests/integration/agent-msp-thread-memory.test.js",
-          "apps/server/tests/integration/execution-trace.test.js",
-          "apps/server/tests/integration/line-gks-grounding.test.js",
-          "apps/server/tests/integration/line-worker-memory.test.js",
-          "apps/server/tests/integration/server-line-trace.test.js",
-          "apps/server/tests/integration/xlsx-intake.test.js",
-          "apps/server/tests/unit/context-composer.test.js",
-          "apps/server/tests/unit/conversation-analysis-contract.test.js",
-          "apps/server/tests/unit/corpus-knowledge-reader.test.js",
-          "apps/server/tests/unit/line-execution-trace.test.js",
-          "apps/server/tests/unit/plan-schema.test.js",
-          "apps/server/tests/unit/server-line-answer.test.js"
-        ]
-      },
-      {
-        "domain": "agent",
-        "id": "REQ-FR-235",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-235 is partial",
-        "evidence": [
-          "apps/server/src/modules/agent/grounded-business-answer.js",
-          "apps/server/src/modules/agent/line-execution-trace.js",
-          "apps/server/src/modules/agent/line-knowledge-grounding.js",
-          "apps/server/src/modules/agent/server-line-answer.js",
-          "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-          "apps/server/tests/integration/fr146-line-oa-account.test.js",
-          "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-          "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-          "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
-          "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
-          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-          "apps/server/tests/integration/knowledge-project.test.js",
-          "apps/server/tests/integration/knowledge-query.test.js",
-          "apps/server/tests/integration/line-gks-grounding.test.js",
-          "apps/server/tests/integration/line-worker-memory.test.js",
-          "apps/server/tests/integration/server-line-trace.test.js",
-          "apps/server/tests/integration/xlsx-intake.test.js",
-          "apps/server/tests/unit/activation-readiness-integration.test.js",
-          "apps/server/tests/unit/context-composer.test.js",
-          "apps/server/tests/unit/conversation-analysis-contract.test.js",
-          "apps/server/tests/unit/conversation-session-ui.test.js",
-          "apps/server/tests/unit/corpus-knowledge-reader.test.js",
-          "apps/server/tests/unit/grounded-business-answer.test.js",
-          "apps/server/tests/unit/line-execution-trace.test.js",
-          "apps/server/tests/unit/line-knowledge-grounding.test.js",
-          "apps/server/tests/unit/line-oa-account-domain.test.js",
-          "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
-          "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
-          "apps/server/tests/unit/plan-schema.test.js",
-          "apps/server/tests/unit/runtime-isolation-probe.test.js",
-          "apps/server/tests/unit/server-line-answer.test.js"
-        ]
-      },
-      {
         "domain": "asset-management",
         "id": "AUTH-001",
         "severity": "high",
@@ -156,64 +90,6 @@
         "severity": "medium",
         "check": "authorization",
         "summary": "At least one read route lacks a recognizable request viewer seam"
-      },
-      {
-        "domain": "crm",
-        "id": "CONTRACT-001",
-        "severity": "medium",
-        "check": "runtimeContract",
-        "summary": "At least one requirement in this domain is not fully code-and-test verified"
-      },
-      {
-        "domain": "crm",
-        "id": "TEST-001",
-        "severity": "medium",
-        "check": "tests",
-        "summary": "At least one requirement lacks complete code-and-test evidence"
-      },
-      {
-        "domain": "crm",
-        "id": "REQ-FR-236",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-236 is partial",
-        "evidence": [
-          "apps/server/src/modules/crm/conversation-consent-reader.js",
-          "apps/server/tests/e2e/fr041-business-first.spec.js",
-          "apps/server/tests/integration/backup.test.js",
-          "apps/server/tests/integration/crm-conversation-analysis.test.js",
-          "apps/server/tests/integration/fr075-restore-authorization.test.js",
-          "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
-          "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
-          "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
-          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-          "apps/server/tests/integration/genesisrag17-parser-2.test.js",
-          "apps/server/tests/integration/genesisrag17-tier1.test.js",
-          "apps/server/tests/integration/line-non-text-admission.test.js",
-          "apps/server/tests/integration/line-server-backup.test.js",
-          "apps/server/tests/integration/marketing-backup.test.js",
-          "apps/server/tests/integration/marketing-content-backup.test.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
-          "apps/server/tests/integration/smartgift-catalog-admission.test.js",
-          "apps/server/tests/unit/asset-management-navigation.test.js",
-          "apps/server/tests/unit/business-capability-navigation.test.js",
-          "apps/server/tests/unit/business-knowledge-candidates.test.js",
-          "apps/server/tests/unit/conversation-consent-reader.test.js",
-          "apps/server/tests/unit/crm-group-navigation.test.js",
-          "apps/server/tests/unit/domain-navigation.test.js",
-          "apps/server/tests/unit/fr045-api-ui-contract.test.js",
-          "apps/server/tests/unit/fr045-backup-contract.test.js",
-          "apps/server/tests/unit/inventory-routes.test.js",
-          "apps/server/tests/unit/knowledge-admission-service.test.js",
-          "apps/server/tests/unit/knowledge-candidate-migration.test.js",
-          "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
-          "apps/server/tests/unit/knowledge-candidates-ui.test.js",
-          "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
-          "apps/server/tests/unit/marketing-navigation.test.js",
-          "apps/server/tests/unit/procurement-routes.test.js",
-          "apps/server/tests/unit/scm-group-navigation.test.js",
-          "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
-        ]
       },
       {
         "domain": "identity",
@@ -265,50 +141,6 @@
         "check": "requirements",
         "summary": "FR-125 is planned",
         "evidence": []
-      },
-      {
-        "domain": "integration",
-        "id": "REQ-FR-236",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-236 is partial",
-        "evidence": [
-          "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
-          "apps/server/tests/e2e/fr041-business-first.spec.js",
-          "apps/server/tests/integration/backup.test.js",
-          "apps/server/tests/integration/crm-conversation-analysis.test.js",
-          "apps/server/tests/integration/fr075-restore-authorization.test.js",
-          "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
-          "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
-          "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
-          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-          "apps/server/tests/integration/genesisrag17-parser-2.test.js",
-          "apps/server/tests/integration/genesisrag17-tier1.test.js",
-          "apps/server/tests/integration/line-non-text-admission.test.js",
-          "apps/server/tests/integration/line-server-backup.test.js",
-          "apps/server/tests/integration/marketing-backup.test.js",
-          "apps/server/tests/integration/marketing-content-backup.test.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
-          "apps/server/tests/integration/smartgift-catalog-admission.test.js",
-          "apps/server/tests/unit/asset-management-navigation.test.js",
-          "apps/server/tests/unit/business-capability-navigation.test.js",
-          "apps/server/tests/unit/business-knowledge-candidates.test.js",
-          "apps/server/tests/unit/conversation-consent-reader.test.js",
-          "apps/server/tests/unit/crm-group-navigation.test.js",
-          "apps/server/tests/unit/domain-navigation.test.js",
-          "apps/server/tests/unit/fr045-api-ui-contract.test.js",
-          "apps/server/tests/unit/fr045-backup-contract.test.js",
-          "apps/server/tests/unit/inventory-routes.test.js",
-          "apps/server/tests/unit/knowledge-admission-service.test.js",
-          "apps/server/tests/unit/knowledge-candidate-migration.test.js",
-          "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
-          "apps/server/tests/unit/knowledge-candidates-ui.test.js",
-          "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
-          "apps/server/tests/unit/marketing-navigation.test.js",
-          "apps/server/tests/unit/procurement-routes.test.js",
-          "apps/server/tests/unit/scm-group-navigation.test.js",
-          "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
-        ]
       },
       {
         "domain": "inventory",
@@ -364,171 +196,11 @@
         ]
       },
       {
-        "domain": "knowledge",
-        "id": "REQ-FR-235",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-235 is partial",
-        "evidence": [
-          "apps/server/src/modules/knowledge/corpus-knowledge-reader.js",
-          "apps/server/src/modules/knowledge/index.js",
-          "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-          "apps/server/tests/integration/fr146-line-oa-account.test.js",
-          "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-          "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-          "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
-          "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
-          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-          "apps/server/tests/integration/knowledge-project.test.js",
-          "apps/server/tests/integration/knowledge-query.test.js",
-          "apps/server/tests/integration/line-gks-grounding.test.js",
-          "apps/server/tests/integration/line-worker-memory.test.js",
-          "apps/server/tests/integration/server-line-trace.test.js",
-          "apps/server/tests/integration/xlsx-intake.test.js",
-          "apps/server/tests/unit/activation-readiness-integration.test.js",
-          "apps/server/tests/unit/context-composer.test.js",
-          "apps/server/tests/unit/conversation-analysis-contract.test.js",
-          "apps/server/tests/unit/conversation-session-ui.test.js",
-          "apps/server/tests/unit/corpus-knowledge-reader.test.js",
-          "apps/server/tests/unit/grounded-business-answer.test.js",
-          "apps/server/tests/unit/line-execution-trace.test.js",
-          "apps/server/tests/unit/line-knowledge-grounding.test.js",
-          "apps/server/tests/unit/line-oa-account-domain.test.js",
-          "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
-          "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
-          "apps/server/tests/unit/plan-schema.test.js",
-          "apps/server/tests/unit/runtime-isolation-probe.test.js",
-          "apps/server/tests/unit/server-line-answer.test.js"
-        ]
-      },
-      {
-        "domain": "knowledge",
-        "id": "REQ-FR-236",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-236 is partial",
-        "evidence": [
-          "apps/server/src/app/(pm)/knowledge/candidates/page.jsx",
-          "apps/server/src/modules/knowledge/application/knowledge-candidate-service.js",
-          "apps/server/src/modules/knowledge/knowledge-admission-service.js",
-          "apps/server/src/modules/knowledge/knowledge-candidate-zero-pii.js",
-          "apps/server/src/modules/knowledge/ui/KnowledgeCandidateReview.jsx",
-          "apps/server/tests/e2e/fr041-business-first.spec.js",
-          "apps/server/tests/integration/backup.test.js",
-          "apps/server/tests/integration/crm-conversation-analysis.test.js",
-          "apps/server/tests/integration/fr075-restore-authorization.test.js",
-          "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
-          "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
-          "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
-          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-          "apps/server/tests/integration/genesisrag17-parser-2.test.js",
-          "apps/server/tests/integration/genesisrag17-tier1.test.js",
-          "apps/server/tests/integration/line-non-text-admission.test.js",
-          "apps/server/tests/integration/line-server-backup.test.js",
-          "apps/server/tests/integration/marketing-backup.test.js",
-          "apps/server/tests/integration/marketing-content-backup.test.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
-          "apps/server/tests/integration/smartgift-catalog-admission.test.js",
-          "apps/server/tests/unit/asset-management-navigation.test.js",
-          "apps/server/tests/unit/business-capability-navigation.test.js",
-          "apps/server/tests/unit/business-knowledge-candidates.test.js",
-          "apps/server/tests/unit/conversation-consent-reader.test.js",
-          "apps/server/tests/unit/crm-group-navigation.test.js",
-          "apps/server/tests/unit/domain-navigation.test.js",
-          "apps/server/tests/unit/fr045-api-ui-contract.test.js",
-          "apps/server/tests/unit/fr045-backup-contract.test.js",
-          "apps/server/tests/unit/inventory-routes.test.js",
-          "apps/server/tests/unit/knowledge-admission-service.test.js",
-          "apps/server/tests/unit/knowledge-candidate-migration.test.js",
-          "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
-          "apps/server/tests/unit/knowledge-candidates-ui.test.js",
-          "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
-          "apps/server/tests/unit/marketing-navigation.test.js",
-          "apps/server/tests/unit/procurement-routes.test.js",
-          "apps/server/tests/unit/scm-group-navigation.test.js",
-          "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
-        ]
-      },
-      {
-        "domain": "line-oa-studio",
-        "id": "CONTRACT-001",
-        "severity": "medium",
-        "check": "runtimeContract",
-        "summary": "At least one requirement in this domain is not fully code-and-test verified"
-      },
-      {
         "domain": "line-oa-studio",
         "id": "AUTH-001",
         "severity": "high",
         "check": "authorization",
         "summary": "At least one mutating route lacks a recognizable request viewer seam"
-      },
-      {
-        "domain": "line-oa-studio",
-        "id": "TEST-001",
-        "severity": "medium",
-        "check": "tests",
-        "summary": "At least one requirement lacks complete code-and-test evidence"
-      },
-      {
-        "domain": "line-oa-studio",
-        "id": "REQ-FR-228",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-228 is partial",
-        "evidence": [
-          "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
-          "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
-          "apps/server/src/modules/line-oa-studio/domain/line-oa-webhook-copy.js",
-          "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-          "apps/server/tests/integration/fr146-line-oa-account.test.js",
-          "apps/server/tests/integration/fr149-line-server-configuration.test.js",
-          "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-          "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-          "apps/server/tests/integration/fr228-line-oa-legacy-quiescence.test.js",
-          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-          "apps/server/tests/unit/line-oa-account-domain.test.js",
-          "apps/server/tests/unit/line-oa-webhook-copy.test.js"
-        ]
-      },
-      {
-        "domain": "line-oa-studio",
-        "id": "REQ-FR-235",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-235 is partial",
-        "evidence": [
-          "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
-          "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
-          "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
-          "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-          "apps/server/tests/integration/fr146-line-oa-account.test.js",
-          "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-          "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-          "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
-          "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
-          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-          "apps/server/tests/integration/knowledge-project.test.js",
-          "apps/server/tests/integration/knowledge-query.test.js",
-          "apps/server/tests/integration/line-gks-grounding.test.js",
-          "apps/server/tests/integration/line-worker-memory.test.js",
-          "apps/server/tests/integration/server-line-trace.test.js",
-          "apps/server/tests/integration/xlsx-intake.test.js",
-          "apps/server/tests/unit/activation-readiness-integration.test.js",
-          "apps/server/tests/unit/context-composer.test.js",
-          "apps/server/tests/unit/conversation-analysis-contract.test.js",
-          "apps/server/tests/unit/conversation-session-ui.test.js",
-          "apps/server/tests/unit/corpus-knowledge-reader.test.js",
-          "apps/server/tests/unit/grounded-business-answer.test.js",
-          "apps/server/tests/unit/line-execution-trace.test.js",
-          "apps/server/tests/unit/line-knowledge-grounding.test.js",
-          "apps/server/tests/unit/line-oa-account-domain.test.js",
-          "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
-          "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
-          "apps/server/tests/unit/plan-schema.test.js",
-          "apps/server/tests/unit/runtime-isolation-probe.test.js",
-          "apps/server/tests/unit/server-line-answer.test.js"
-        ]
       },
       {
         "domain": "platform-control",
@@ -589,57 +261,6 @@
         "check": "requirements",
         "summary": "FR-082 is planned",
         "evidence": []
-      },
-      {
-        "domain": "project-manager",
-        "id": "REQ-FR-236",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-236 is partial",
-        "evidence": [
-          "apps/server/src/app/api/businesses/[id]/knowledge-candidates-toggle/route.js",
-          "apps/server/src/app/api/knowledge/candidates/[id]/decision/route.js",
-          "apps/server/src/app/api/knowledge/candidates/[id]/route.js",
-          "apps/server/src/app/api/knowledge/candidates/route.js",
-          "apps/server/src/config/domains.js",
-          "apps/server/src/modules/business/application/business-knowledge-candidates-service.js",
-          "apps/server/src/modules/project-manager/api-docs/openapi.js",
-          "apps/server/src/modules/project-manager/application/backup-service.js",
-          "apps/server/tests/e2e/fr041-business-first.spec.js",
-          "apps/server/tests/integration/backup.test.js",
-          "apps/server/tests/integration/crm-conversation-analysis.test.js",
-          "apps/server/tests/integration/fr075-restore-authorization.test.js",
-          "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
-          "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
-          "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
-          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-          "apps/server/tests/integration/genesisrag17-parser-2.test.js",
-          "apps/server/tests/integration/genesisrag17-tier1.test.js",
-          "apps/server/tests/integration/line-non-text-admission.test.js",
-          "apps/server/tests/integration/line-server-backup.test.js",
-          "apps/server/tests/integration/marketing-backup.test.js",
-          "apps/server/tests/integration/marketing-content-backup.test.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
-          "apps/server/tests/integration/smartgift-catalog-admission.test.js",
-          "apps/server/tests/unit/asset-management-navigation.test.js",
-          "apps/server/tests/unit/business-capability-navigation.test.js",
-          "apps/server/tests/unit/business-knowledge-candidates.test.js",
-          "apps/server/tests/unit/conversation-consent-reader.test.js",
-          "apps/server/tests/unit/crm-group-navigation.test.js",
-          "apps/server/tests/unit/domain-navigation.test.js",
-          "apps/server/tests/unit/fr045-api-ui-contract.test.js",
-          "apps/server/tests/unit/fr045-backup-contract.test.js",
-          "apps/server/tests/unit/inventory-routes.test.js",
-          "apps/server/tests/unit/knowledge-admission-service.test.js",
-          "apps/server/tests/unit/knowledge-candidate-migration.test.js",
-          "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
-          "apps/server/tests/unit/knowledge-candidates-ui.test.js",
-          "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
-          "apps/server/tests/unit/marketing-navigation.test.js",
-          "apps/server/tests/unit/procurement-routes.test.js",
-          "apps/server/tests/unit/scm-group-navigation.test.js",
-          "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
-        ]
       }
     ]
   },
@@ -919,70 +540,18 @@
         {
           "id": "FR-234",
           "title": "Context Composer",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 5,
-          "testCount": 12,
-          "evidence": [
-            "apps/server/src/modules/agent/context-composer.js",
-            "apps/server/src/modules/agent/execution-trace.js",
-            "apps/server/src/modules/agent/line-execution-trace.js",
-            "apps/server/src/modules/agent/msp-thread-memory-port.js",
-            "apps/server/src/modules/agent/server-line-answer.js",
-            "apps/server/tests/integration/agent-msp-thread-memory.test.js",
-            "apps/server/tests/integration/execution-trace.test.js",
-            "apps/server/tests/integration/line-gks-grounding.test.js",
-            "apps/server/tests/integration/line-worker-memory.test.js",
-            "apps/server/tests/integration/server-line-trace.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/corpus-knowledge-reader.test.js",
-            "apps/server/tests/unit/line-execution-trace.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/server-line-answer.test.js"
-          ]
+          "testCount": 12
         },
         {
           "id": "FR-235",
           "title": "LINE answer grounding from the published knowledge corpus",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 4,
-          "testCount": 27,
-          "evidence": [
-            "apps/server/src/modules/agent/grounded-business-answer.js",
-            "apps/server/src/modules/agent/line-execution-trace.js",
-            "apps/server/src/modules/agent/line-knowledge-grounding.js",
-            "apps/server/src/modules/agent/server-line-answer.js",
-            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-            "apps/server/tests/integration/fr146-line-oa-account.test.js",
-            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-            "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
-            "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/knowledge-project.test.js",
-            "apps/server/tests/integration/knowledge-query.test.js",
-            "apps/server/tests/integration/line-gks-grounding.test.js",
-            "apps/server/tests/integration/line-worker-memory.test.js",
-            "apps/server/tests/integration/server-line-trace.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/activation-readiness-integration.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/conversation-session-ui.test.js",
-            "apps/server/tests/unit/corpus-knowledge-reader.test.js",
-            "apps/server/tests/unit/grounded-business-answer.test.js",
-            "apps/server/tests/unit/line-execution-trace.test.js",
-            "apps/server/tests/unit/line-knowledge-grounding.test.js",
-            "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
-            "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/runtime-isolation-probe.test.js",
-            "apps/server/tests/unit/server-line-answer.test.js"
-          ]
+          "testCount": 27
         },
         {
           "id": "FR-243",
@@ -1143,70 +712,6 @@
           "check": "requirements",
           "summary": "FR-132 is planned",
           "evidence": []
-        },
-        {
-          "id": "REQ-FR-234",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-234 is partial",
-          "evidence": [
-            "apps/server/src/modules/agent/context-composer.js",
-            "apps/server/src/modules/agent/execution-trace.js",
-            "apps/server/src/modules/agent/line-execution-trace.js",
-            "apps/server/src/modules/agent/msp-thread-memory-port.js",
-            "apps/server/src/modules/agent/server-line-answer.js",
-            "apps/server/tests/integration/agent-msp-thread-memory.test.js",
-            "apps/server/tests/integration/execution-trace.test.js",
-            "apps/server/tests/integration/line-gks-grounding.test.js",
-            "apps/server/tests/integration/line-worker-memory.test.js",
-            "apps/server/tests/integration/server-line-trace.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/corpus-knowledge-reader.test.js",
-            "apps/server/tests/unit/line-execution-trace.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/server-line-answer.test.js"
-          ]
-        },
-        {
-          "id": "REQ-FR-235",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-235 is partial",
-          "evidence": [
-            "apps/server/src/modules/agent/grounded-business-answer.js",
-            "apps/server/src/modules/agent/line-execution-trace.js",
-            "apps/server/src/modules/agent/line-knowledge-grounding.js",
-            "apps/server/src/modules/agent/server-line-answer.js",
-            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-            "apps/server/tests/integration/fr146-line-oa-account.test.js",
-            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-            "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
-            "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/knowledge-project.test.js",
-            "apps/server/tests/integration/knowledge-query.test.js",
-            "apps/server/tests/integration/line-gks-grounding.test.js",
-            "apps/server/tests/integration/line-worker-memory.test.js",
-            "apps/server/tests/integration/server-line-trace.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/activation-readiness-integration.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/conversation-session-ui.test.js",
-            "apps/server/tests/unit/corpus-knowledge-reader.test.js",
-            "apps/server/tests/unit/grounded-business-answer.test.js",
-            "apps/server/tests/unit/line-execution-trace.test.js",
-            "apps/server/tests/unit/line-knowledge-grounding.test.js",
-            "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
-            "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/runtime-isolation-probe.test.js",
-            "apps/server/tests/unit/server-line-answer.test.js"
-          ]
         }
       ],
       "details": {
@@ -1631,7 +1136,7 @@
       "progressPercent": 100
     },
     "crm": {
-      "status": "partial",
+      "status": "verified",
       "requirements": [
         {
           "id": "FR-022",
@@ -1788,47 +1293,10 @@
         {
           "id": "FR-236",
           "title": "LINE FAQ knowledge candidates",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 1,
-          "testCount": 34,
-          "evidence": [
-            "apps/server/src/modules/crm/conversation-consent-reader.js",
-            "apps/server/tests/e2e/fr041-business-first.spec.js",
-            "apps/server/tests/integration/backup.test.js",
-            "apps/server/tests/integration/crm-conversation-analysis.test.js",
-            "apps/server/tests/integration/fr075-restore-authorization.test.js",
-            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
-            "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
-            "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/genesisrag17-parser-2.test.js",
-            "apps/server/tests/integration/genesisrag17-tier1.test.js",
-            "apps/server/tests/integration/line-non-text-admission.test.js",
-            "apps/server/tests/integration/line-server-backup.test.js",
-            "apps/server/tests/integration/marketing-backup.test.js",
-            "apps/server/tests/integration/marketing-content-backup.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
-            "apps/server/tests/unit/asset-management-navigation.test.js",
-            "apps/server/tests/unit/business-capability-navigation.test.js",
-            "apps/server/tests/unit/business-knowledge-candidates.test.js",
-            "apps/server/tests/unit/conversation-consent-reader.test.js",
-            "apps/server/tests/unit/crm-group-navigation.test.js",
-            "apps/server/tests/unit/domain-navigation.test.js",
-            "apps/server/tests/unit/fr045-api-ui-contract.test.js",
-            "apps/server/tests/unit/fr045-backup-contract.test.js",
-            "apps/server/tests/unit/inventory-routes.test.js",
-            "apps/server/tests/unit/knowledge-admission-service.test.js",
-            "apps/server/tests/unit/knowledge-candidate-migration.test.js",
-            "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
-            "apps/server/tests/unit/knowledge-candidates-ui.test.js",
-            "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
-            "apps/server/tests/unit/marketing-navigation.test.js",
-            "apps/server/tests/unit/procurement-routes.test.js",
-            "apps/server/tests/unit/scm-group-navigation.test.js",
-            "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
-          ]
+          "testCount": 34
         },
         {
           "id": "FR-243",
@@ -1871,18 +1339,12 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": [
-            {
-              "id": "CONTRACT-001",
-              "severity": "medium",
-              "summary": "At least one requirement in this domain is not fully code-and-test verified"
-            }
-          ]
+          "gaps": []
         },
         "jsonSchema": {
           "status": "verified",
@@ -1908,17 +1370,11 @@
           "gaps": []
         },
         "tests": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": [
-            {
-              "id": "TEST-001",
-              "severity": "medium",
-              "summary": "At least one requirement lacks complete code-and-test evidence"
-            }
-          ]
+          "gaps": []
         }
       },
       "evidence": [
@@ -1944,63 +1400,7 @@
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [
-        {
-          "id": "CONTRACT-001",
-          "severity": "medium",
-          "check": "runtimeContract",
-          "summary": "At least one requirement in this domain is not fully code-and-test verified"
-        },
-        {
-          "id": "TEST-001",
-          "severity": "medium",
-          "check": "tests",
-          "summary": "At least one requirement lacks complete code-and-test evidence"
-        },
-        {
-          "id": "REQ-FR-236",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-236 is partial",
-          "evidence": [
-            "apps/server/src/modules/crm/conversation-consent-reader.js",
-            "apps/server/tests/e2e/fr041-business-first.spec.js",
-            "apps/server/tests/integration/backup.test.js",
-            "apps/server/tests/integration/crm-conversation-analysis.test.js",
-            "apps/server/tests/integration/fr075-restore-authorization.test.js",
-            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
-            "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
-            "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/genesisrag17-parser-2.test.js",
-            "apps/server/tests/integration/genesisrag17-tier1.test.js",
-            "apps/server/tests/integration/line-non-text-admission.test.js",
-            "apps/server/tests/integration/line-server-backup.test.js",
-            "apps/server/tests/integration/marketing-backup.test.js",
-            "apps/server/tests/integration/marketing-content-backup.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
-            "apps/server/tests/unit/asset-management-navigation.test.js",
-            "apps/server/tests/unit/business-capability-navigation.test.js",
-            "apps/server/tests/unit/business-knowledge-candidates.test.js",
-            "apps/server/tests/unit/conversation-consent-reader.test.js",
-            "apps/server/tests/unit/crm-group-navigation.test.js",
-            "apps/server/tests/unit/domain-navigation.test.js",
-            "apps/server/tests/unit/fr045-api-ui-contract.test.js",
-            "apps/server/tests/unit/fr045-backup-contract.test.js",
-            "apps/server/tests/unit/inventory-routes.test.js",
-            "apps/server/tests/unit/knowledge-admission-service.test.js",
-            "apps/server/tests/unit/knowledge-candidate-migration.test.js",
-            "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
-            "apps/server/tests/unit/knowledge-candidates-ui.test.js",
-            "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
-            "apps/server/tests/unit/marketing-navigation.test.js",
-            "apps/server/tests/unit/procurement-routes.test.js",
-            "apps/server/tests/unit/scm-group-navigation.test.js",
-            "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
-          ]
-        }
-      ],
+      "gaps": [],
       "details": {
         "routes": 0,
         "apiRoutes": 0,
@@ -2022,7 +1422,7 @@
       ],
       "featureCount": 10,
       "readyFeatureCount": 4,
-      "progressPercent": 76
+      "progressPercent": 77
     },
     "identity": {
       "status": "partial",
@@ -2873,7 +2273,7 @@
         {
           "id": "FR-225",
           "title": "Self-serve LINE OA connection",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 4,
           "testCount": 17
@@ -2889,7 +2289,7 @@
         {
           "id": "FR-227",
           "title": "Automatic LINE webhook registration",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 1,
           "testCount": 13
@@ -2897,47 +2297,10 @@
         {
           "id": "FR-236",
           "title": "LINE FAQ knowledge candidates",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 1,
-          "testCount": 34,
-          "evidence": [
-            "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
-            "apps/server/tests/e2e/fr041-business-first.spec.js",
-            "apps/server/tests/integration/backup.test.js",
-            "apps/server/tests/integration/crm-conversation-analysis.test.js",
-            "apps/server/tests/integration/fr075-restore-authorization.test.js",
-            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
-            "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
-            "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/genesisrag17-parser-2.test.js",
-            "apps/server/tests/integration/genesisrag17-tier1.test.js",
-            "apps/server/tests/integration/line-non-text-admission.test.js",
-            "apps/server/tests/integration/line-server-backup.test.js",
-            "apps/server/tests/integration/marketing-backup.test.js",
-            "apps/server/tests/integration/marketing-content-backup.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
-            "apps/server/tests/unit/asset-management-navigation.test.js",
-            "apps/server/tests/unit/business-capability-navigation.test.js",
-            "apps/server/tests/unit/business-knowledge-candidates.test.js",
-            "apps/server/tests/unit/conversation-consent-reader.test.js",
-            "apps/server/tests/unit/crm-group-navigation.test.js",
-            "apps/server/tests/unit/domain-navigation.test.js",
-            "apps/server/tests/unit/fr045-api-ui-contract.test.js",
-            "apps/server/tests/unit/fr045-backup-contract.test.js",
-            "apps/server/tests/unit/inventory-routes.test.js",
-            "apps/server/tests/unit/knowledge-admission-service.test.js",
-            "apps/server/tests/unit/knowledge-candidate-migration.test.js",
-            "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
-            "apps/server/tests/unit/knowledge-candidates-ui.test.js",
-            "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
-            "apps/server/tests/unit/marketing-navigation.test.js",
-            "apps/server/tests/unit/procurement-routes.test.js",
-            "apps/server/tests/unit/scm-group-navigation.test.js",
-            "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
-          ]
+          "testCount": 34
         },
         {
           "id": "FR-242",
@@ -3089,49 +2452,6 @@
           "check": "requirements",
           "summary": "FR-125 is planned",
           "evidence": []
-        },
-        {
-          "id": "REQ-FR-236",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-236 is partial",
-          "evidence": [
-            "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
-            "apps/server/tests/e2e/fr041-business-first.spec.js",
-            "apps/server/tests/integration/backup.test.js",
-            "apps/server/tests/integration/crm-conversation-analysis.test.js",
-            "apps/server/tests/integration/fr075-restore-authorization.test.js",
-            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
-            "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
-            "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/genesisrag17-parser-2.test.js",
-            "apps/server/tests/integration/genesisrag17-tier1.test.js",
-            "apps/server/tests/integration/line-non-text-admission.test.js",
-            "apps/server/tests/integration/line-server-backup.test.js",
-            "apps/server/tests/integration/marketing-backup.test.js",
-            "apps/server/tests/integration/marketing-content-backup.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
-            "apps/server/tests/unit/asset-management-navigation.test.js",
-            "apps/server/tests/unit/business-capability-navigation.test.js",
-            "apps/server/tests/unit/business-knowledge-candidates.test.js",
-            "apps/server/tests/unit/conversation-consent-reader.test.js",
-            "apps/server/tests/unit/crm-group-navigation.test.js",
-            "apps/server/tests/unit/domain-navigation.test.js",
-            "apps/server/tests/unit/fr045-api-ui-contract.test.js",
-            "apps/server/tests/unit/fr045-backup-contract.test.js",
-            "apps/server/tests/unit/inventory-routes.test.js",
-            "apps/server/tests/unit/knowledge-admission-service.test.js",
-            "apps/server/tests/unit/knowledge-candidate-migration.test.js",
-            "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
-            "apps/server/tests/unit/knowledge-candidates-ui.test.js",
-            "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
-            "apps/server/tests/unit/marketing-navigation.test.js",
-            "apps/server/tests/unit/procurement-routes.test.js",
-            "apps/server/tests/unit/scm-group-navigation.test.js",
-            "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
-          ]
         }
       ],
       "details": {
@@ -3155,7 +2475,7 @@
       ],
       "featureCount": 10,
       "readyFeatureCount": 7,
-      "progressPercent": 92.9
+      "progressPercent": 94.1
     },
     "inventory": {
       "status": "partial",
@@ -3701,90 +3021,18 @@
         {
           "id": "FR-235",
           "title": "LINE answer grounding from the published knowledge corpus",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 2,
-          "testCount": 27,
-          "evidence": [
-            "apps/server/src/modules/knowledge/corpus-knowledge-reader.js",
-            "apps/server/src/modules/knowledge/index.js",
-            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-            "apps/server/tests/integration/fr146-line-oa-account.test.js",
-            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-            "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
-            "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/knowledge-project.test.js",
-            "apps/server/tests/integration/knowledge-query.test.js",
-            "apps/server/tests/integration/line-gks-grounding.test.js",
-            "apps/server/tests/integration/line-worker-memory.test.js",
-            "apps/server/tests/integration/server-line-trace.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/activation-readiness-integration.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/conversation-session-ui.test.js",
-            "apps/server/tests/unit/corpus-knowledge-reader.test.js",
-            "apps/server/tests/unit/grounded-business-answer.test.js",
-            "apps/server/tests/unit/line-execution-trace.test.js",
-            "apps/server/tests/unit/line-knowledge-grounding.test.js",
-            "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
-            "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/runtime-isolation-probe.test.js",
-            "apps/server/tests/unit/server-line-answer.test.js"
-          ]
+          "testCount": 27
         },
         {
           "id": "FR-236",
           "title": "LINE FAQ knowledge candidates",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 5,
-          "testCount": 34,
-          "evidence": [
-            "apps/server/src/app/(pm)/knowledge/candidates/page.jsx",
-            "apps/server/src/modules/knowledge/application/knowledge-candidate-service.js",
-            "apps/server/src/modules/knowledge/knowledge-admission-service.js",
-            "apps/server/src/modules/knowledge/knowledge-candidate-zero-pii.js",
-            "apps/server/src/modules/knowledge/ui/KnowledgeCandidateReview.jsx",
-            "apps/server/tests/e2e/fr041-business-first.spec.js",
-            "apps/server/tests/integration/backup.test.js",
-            "apps/server/tests/integration/crm-conversation-analysis.test.js",
-            "apps/server/tests/integration/fr075-restore-authorization.test.js",
-            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
-            "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
-            "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/genesisrag17-parser-2.test.js",
-            "apps/server/tests/integration/genesisrag17-tier1.test.js",
-            "apps/server/tests/integration/line-non-text-admission.test.js",
-            "apps/server/tests/integration/line-server-backup.test.js",
-            "apps/server/tests/integration/marketing-backup.test.js",
-            "apps/server/tests/integration/marketing-content-backup.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
-            "apps/server/tests/unit/asset-management-navigation.test.js",
-            "apps/server/tests/unit/business-capability-navigation.test.js",
-            "apps/server/tests/unit/business-knowledge-candidates.test.js",
-            "apps/server/tests/unit/conversation-consent-reader.test.js",
-            "apps/server/tests/unit/crm-group-navigation.test.js",
-            "apps/server/tests/unit/domain-navigation.test.js",
-            "apps/server/tests/unit/fr045-api-ui-contract.test.js",
-            "apps/server/tests/unit/fr045-backup-contract.test.js",
-            "apps/server/tests/unit/inventory-routes.test.js",
-            "apps/server/tests/unit/knowledge-admission-service.test.js",
-            "apps/server/tests/unit/knowledge-candidate-migration.test.js",
-            "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
-            "apps/server/tests/unit/knowledge-candidates-ui.test.js",
-            "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
-            "apps/server/tests/unit/marketing-navigation.test.js",
-            "apps/server/tests/unit/procurement-routes.test.js",
-            "apps/server/tests/unit/scm-group-navigation.test.js",
-            "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
-          ]
+          "testCount": 34
         },
         {
           "id": "FR-237",
@@ -3960,90 +3208,6 @@
           "evidence": [
             "apps/edge/tests/unit/genesisrag17-edge.test.ts"
           ]
-        },
-        {
-          "id": "REQ-FR-235",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-235 is partial",
-          "evidence": [
-            "apps/server/src/modules/knowledge/corpus-knowledge-reader.js",
-            "apps/server/src/modules/knowledge/index.js",
-            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-            "apps/server/tests/integration/fr146-line-oa-account.test.js",
-            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-            "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
-            "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/knowledge-project.test.js",
-            "apps/server/tests/integration/knowledge-query.test.js",
-            "apps/server/tests/integration/line-gks-grounding.test.js",
-            "apps/server/tests/integration/line-worker-memory.test.js",
-            "apps/server/tests/integration/server-line-trace.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/activation-readiness-integration.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/conversation-session-ui.test.js",
-            "apps/server/tests/unit/corpus-knowledge-reader.test.js",
-            "apps/server/tests/unit/grounded-business-answer.test.js",
-            "apps/server/tests/unit/line-execution-trace.test.js",
-            "apps/server/tests/unit/line-knowledge-grounding.test.js",
-            "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
-            "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/runtime-isolation-probe.test.js",
-            "apps/server/tests/unit/server-line-answer.test.js"
-          ]
-        },
-        {
-          "id": "REQ-FR-236",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-236 is partial",
-          "evidence": [
-            "apps/server/src/app/(pm)/knowledge/candidates/page.jsx",
-            "apps/server/src/modules/knowledge/application/knowledge-candidate-service.js",
-            "apps/server/src/modules/knowledge/knowledge-admission-service.js",
-            "apps/server/src/modules/knowledge/knowledge-candidate-zero-pii.js",
-            "apps/server/src/modules/knowledge/ui/KnowledgeCandidateReview.jsx",
-            "apps/server/tests/e2e/fr041-business-first.spec.js",
-            "apps/server/tests/integration/backup.test.js",
-            "apps/server/tests/integration/crm-conversation-analysis.test.js",
-            "apps/server/tests/integration/fr075-restore-authorization.test.js",
-            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
-            "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
-            "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/genesisrag17-parser-2.test.js",
-            "apps/server/tests/integration/genesisrag17-tier1.test.js",
-            "apps/server/tests/integration/line-non-text-admission.test.js",
-            "apps/server/tests/integration/line-server-backup.test.js",
-            "apps/server/tests/integration/marketing-backup.test.js",
-            "apps/server/tests/integration/marketing-content-backup.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
-            "apps/server/tests/unit/asset-management-navigation.test.js",
-            "apps/server/tests/unit/business-capability-navigation.test.js",
-            "apps/server/tests/unit/business-knowledge-candidates.test.js",
-            "apps/server/tests/unit/conversation-consent-reader.test.js",
-            "apps/server/tests/unit/crm-group-navigation.test.js",
-            "apps/server/tests/unit/domain-navigation.test.js",
-            "apps/server/tests/unit/fr045-api-ui-contract.test.js",
-            "apps/server/tests/unit/fr045-backup-contract.test.js",
-            "apps/server/tests/unit/inventory-routes.test.js",
-            "apps/server/tests/unit/knowledge-admission-service.test.js",
-            "apps/server/tests/unit/knowledge-candidate-migration.test.js",
-            "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
-            "apps/server/tests/unit/knowledge-candidates-ui.test.js",
-            "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
-            "apps/server/tests/unit/marketing-navigation.test.js",
-            "apps/server/tests/unit/procurement-routes.test.js",
-            "apps/server/tests/unit/scm-group-navigation.test.js",
-            "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
-          ]
         }
       ],
       "details": {
@@ -4073,7 +3237,7 @@
       ],
       "featureCount": 16,
       "readyFeatureCount": 11,
-      "progressPercent": 90.4
+      "progressPercent": 91.9
     },
     "line-oa-studio": {
       "status": "partial",
@@ -4217,7 +3381,7 @@
         {
           "id": "FR-225",
           "title": "Self-serve LINE OA connection",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 7,
           "testCount": 17
@@ -4233,7 +3397,7 @@
         {
           "id": "FR-227",
           "title": "Automatic LINE webhook registration",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 3,
           "testCount": 13
@@ -4241,24 +3405,10 @@
         {
           "id": "FR-228",
           "title": "Derived legacy-transport quiescence",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 3,
-          "testCount": 9,
-          "evidence": [
-            "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
-            "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
-            "apps/server/src/modules/line-oa-studio/domain/line-oa-webhook-copy.js",
-            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-            "apps/server/tests/integration/fr146-line-oa-account.test.js",
-            "apps/server/tests/integration/fr149-line-server-configuration.test.js",
-            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-            "apps/server/tests/integration/fr228-line-oa-legacy-quiescence.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-webhook-copy.test.js"
-          ]
+          "testCount": 9
         },
         {
           "id": "FR-229",
@@ -4271,42 +3421,10 @@
         {
           "id": "FR-235",
           "title": "LINE answer grounding from the published knowledge corpus",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 3,
-          "testCount": 27,
-          "evidence": [
-            "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
-            "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
-            "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
-            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-            "apps/server/tests/integration/fr146-line-oa-account.test.js",
-            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-            "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
-            "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/knowledge-project.test.js",
-            "apps/server/tests/integration/knowledge-query.test.js",
-            "apps/server/tests/integration/line-gks-grounding.test.js",
-            "apps/server/tests/integration/line-worker-memory.test.js",
-            "apps/server/tests/integration/server-line-trace.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/activation-readiness-integration.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/conversation-session-ui.test.js",
-            "apps/server/tests/unit/corpus-knowledge-reader.test.js",
-            "apps/server/tests/unit/grounded-business-answer.test.js",
-            "apps/server/tests/unit/line-execution-trace.test.js",
-            "apps/server/tests/unit/line-knowledge-grounding.test.js",
-            "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
-            "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/runtime-isolation-probe.test.js",
-            "apps/server/tests/unit/server-line-answer.test.js"
-          ]
+          "testCount": 27
         },
         {
           "id": "FR-238",
@@ -4373,18 +3491,12 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": [
-            {
-              "id": "CONTRACT-001",
-              "severity": "medium",
-              "summary": "At least one requirement in this domain is not fully code-and-test verified"
-            }
-          ]
+          "gaps": []
         },
         "jsonSchema": {
           "status": "not_applicable",
@@ -4422,17 +3534,11 @@
           }
         },
         "tests": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": [
-            {
-              "id": "TEST-001",
-              "severity": "medium",
-              "summary": "At least one requirement lacks complete code-and-test evidence"
-            }
-          ]
+          "gaps": []
         }
       },
       "evidence": [
@@ -4464,80 +3570,10 @@
       ],
       "gaps": [
         {
-          "id": "CONTRACT-001",
-          "severity": "medium",
-          "check": "runtimeContract",
-          "summary": "At least one requirement in this domain is not fully code-and-test verified"
-        },
-        {
           "id": "AUTH-001",
           "severity": "high",
           "check": "authorization",
           "summary": "At least one mutating route lacks a recognizable request viewer seam"
-        },
-        {
-          "id": "TEST-001",
-          "severity": "medium",
-          "check": "tests",
-          "summary": "At least one requirement lacks complete code-and-test evidence"
-        },
-        {
-          "id": "REQ-FR-228",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-228 is partial",
-          "evidence": [
-            "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
-            "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
-            "apps/server/src/modules/line-oa-studio/domain/line-oa-webhook-copy.js",
-            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-            "apps/server/tests/integration/fr146-line-oa-account.test.js",
-            "apps/server/tests/integration/fr149-line-server-configuration.test.js",
-            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-            "apps/server/tests/integration/fr228-line-oa-legacy-quiescence.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-webhook-copy.test.js"
-          ]
-        },
-        {
-          "id": "REQ-FR-235",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-235 is partial",
-          "evidence": [
-            "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
-            "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
-            "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
-            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-            "apps/server/tests/integration/fr146-line-oa-account.test.js",
-            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-            "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
-            "apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js",
-            "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/knowledge-project.test.js",
-            "apps/server/tests/integration/knowledge-query.test.js",
-            "apps/server/tests/integration/line-gks-grounding.test.js",
-            "apps/server/tests/integration/line-worker-memory.test.js",
-            "apps/server/tests/integration/server-line-trace.test.js",
-            "apps/server/tests/integration/xlsx-intake.test.js",
-            "apps/server/tests/unit/activation-readiness-integration.test.js",
-            "apps/server/tests/unit/context-composer.test.js",
-            "apps/server/tests/unit/conversation-analysis-contract.test.js",
-            "apps/server/tests/unit/conversation-session-ui.test.js",
-            "apps/server/tests/unit/corpus-knowledge-reader.test.js",
-            "apps/server/tests/unit/grounded-business-answer.test.js",
-            "apps/server/tests/unit/line-execution-trace.test.js",
-            "apps/server/tests/unit/line-knowledge-grounding.test.js",
-            "apps/server/tests/unit/line-oa-account-domain.test.js",
-            "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
-            "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
-            "apps/server/tests/unit/plan-schema.test.js",
-            "apps/server/tests/unit/runtime-isolation-probe.test.js",
-            "apps/server/tests/unit/server-line-answer.test.js"
-          ]
         }
       ],
       "details": {
@@ -6437,54 +5473,10 @@
         {
           "id": "FR-236",
           "title": "LINE FAQ knowledge candidates",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "done",
+          "status": "verified",
           "codeCount": 8,
-          "testCount": 34,
-          "evidence": [
-            "apps/server/src/app/api/businesses/[id]/knowledge-candidates-toggle/route.js",
-            "apps/server/src/app/api/knowledge/candidates/[id]/decision/route.js",
-            "apps/server/src/app/api/knowledge/candidates/[id]/route.js",
-            "apps/server/src/app/api/knowledge/candidates/route.js",
-            "apps/server/src/config/domains.js",
-            "apps/server/src/modules/business/application/business-knowledge-candidates-service.js",
-            "apps/server/src/modules/project-manager/api-docs/openapi.js",
-            "apps/server/src/modules/project-manager/application/backup-service.js",
-            "apps/server/tests/e2e/fr041-business-first.spec.js",
-            "apps/server/tests/integration/backup.test.js",
-            "apps/server/tests/integration/crm-conversation-analysis.test.js",
-            "apps/server/tests/integration/fr075-restore-authorization.test.js",
-            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
-            "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
-            "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/genesisrag17-parser-2.test.js",
-            "apps/server/tests/integration/genesisrag17-tier1.test.js",
-            "apps/server/tests/integration/line-non-text-admission.test.js",
-            "apps/server/tests/integration/line-server-backup.test.js",
-            "apps/server/tests/integration/marketing-backup.test.js",
-            "apps/server/tests/integration/marketing-content-backup.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
-            "apps/server/tests/unit/asset-management-navigation.test.js",
-            "apps/server/tests/unit/business-capability-navigation.test.js",
-            "apps/server/tests/unit/business-knowledge-candidates.test.js",
-            "apps/server/tests/unit/conversation-consent-reader.test.js",
-            "apps/server/tests/unit/crm-group-navigation.test.js",
-            "apps/server/tests/unit/domain-navigation.test.js",
-            "apps/server/tests/unit/fr045-api-ui-contract.test.js",
-            "apps/server/tests/unit/fr045-backup-contract.test.js",
-            "apps/server/tests/unit/inventory-routes.test.js",
-            "apps/server/tests/unit/knowledge-admission-service.test.js",
-            "apps/server/tests/unit/knowledge-candidate-migration.test.js",
-            "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
-            "apps/server/tests/unit/knowledge-candidates-ui.test.js",
-            "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
-            "apps/server/tests/unit/marketing-navigation.test.js",
-            "apps/server/tests/unit/procurement-routes.test.js",
-            "apps/server/tests/unit/scm-group-navigation.test.js",
-            "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
-          ]
+          "testCount": 34
         },
         {
           "id": "FR-237",
@@ -6734,56 +5726,6 @@
           "check": "requirements",
           "summary": "FR-082 is planned",
           "evidence": []
-        },
-        {
-          "id": "REQ-FR-236",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-236 is partial",
-          "evidence": [
-            "apps/server/src/app/api/businesses/[id]/knowledge-candidates-toggle/route.js",
-            "apps/server/src/app/api/knowledge/candidates/[id]/decision/route.js",
-            "apps/server/src/app/api/knowledge/candidates/[id]/route.js",
-            "apps/server/src/app/api/knowledge/candidates/route.js",
-            "apps/server/src/config/domains.js",
-            "apps/server/src/modules/business/application/business-knowledge-candidates-service.js",
-            "apps/server/src/modules/project-manager/api-docs/openapi.js",
-            "apps/server/src/modules/project-manager/application/backup-service.js",
-            "apps/server/tests/e2e/fr041-business-first.spec.js",
-            "apps/server/tests/integration/backup.test.js",
-            "apps/server/tests/integration/crm-conversation-analysis.test.js",
-            "apps/server/tests/integration/fr075-restore-authorization.test.js",
-            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
-            "apps/server/tests/integration/fr236-knowledge-candidates-business-toggle.test.js",
-            "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/genesisrag17-parser-2.test.js",
-            "apps/server/tests/integration/genesisrag17-tier1.test.js",
-            "apps/server/tests/integration/line-non-text-admission.test.js",
-            "apps/server/tests/integration/line-server-backup.test.js",
-            "apps/server/tests/integration/marketing-backup.test.js",
-            "apps/server/tests/integration/marketing-content-backup.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
-            "apps/server/tests/unit/asset-management-navigation.test.js",
-            "apps/server/tests/unit/business-capability-navigation.test.js",
-            "apps/server/tests/unit/business-knowledge-candidates.test.js",
-            "apps/server/tests/unit/conversation-consent-reader.test.js",
-            "apps/server/tests/unit/crm-group-navigation.test.js",
-            "apps/server/tests/unit/domain-navigation.test.js",
-            "apps/server/tests/unit/fr045-api-ui-contract.test.js",
-            "apps/server/tests/unit/fr045-backup-contract.test.js",
-            "apps/server/tests/unit/inventory-routes.test.js",
-            "apps/server/tests/unit/knowledge-admission-service.test.js",
-            "apps/server/tests/unit/knowledge-candidate-migration.test.js",
-            "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
-            "apps/server/tests/unit/knowledge-candidates-ui.test.js",
-            "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
-            "apps/server/tests/unit/marketing-navigation.test.js",
-            "apps/server/tests/unit/procurement-routes.test.js",
-            "apps/server/tests/unit/scm-group-navigation.test.js",
-            "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
-          ]
         }
       ],
       "details": {
@@ -10610,12 +9552,11 @@
         "project-manager"
       ],
       "useCase": "เจ้าของธุรกิจเปิดหน้าเชื่อมต่อ LINE OA ยืนยันตัวตนด้วยรหัส TOTP แล้วกรอก Channel ID กับ Channel secret จาก LINE Developers Console ครั้งเดียว ระบบตรวจกับ LINE ดึงชื่อบอทมาให้ ตั้งและทดสอบ Webhook ให้เอง แล้วกดเปิดใช้งานได้ทันทีโดยไม่ต้องให้ผู้ดูแลระบบใส่ไฟล์บนเครื่องเซิร์ฟเวอร์ และหลังบันทึกไม่มีหน้าไหนแสดง secret ซ้ำอีก",
-      "progressPercent": 96.7,
+      "progressPercent": 100,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-036 registry status is building",
-        "FR-228 is partial"
+        "FEAT-036 registry status is building"
       ],
       "requirements": [
         {
@@ -10661,8 +9602,8 @@
         {
           "id": "FR-228",
           "title": "Derived legacy-transport quiescence",
-          "status": "partial",
-          "progressPercent": 80,
+          "status": "verified",
+          "progressPercent": 100,
           "codeCount": 3,
           "testCount": 9
         }
@@ -10775,14 +9716,13 @@
         "project-manager"
       ],
       "useCase": "พนักงานเปิด Inbox แล้วเห็นบทสนทนา LINE ครบทั้งข้อความ สติกเกอร์ รูปที่ลูกค้าส่ง และเหตุการณ์อย่างการเพิ่มเพื่อนหรือบล็อก ค้นหาข้อความเก่าได้ ส่วนเจ้าของธุรกิจกำหนดได้ว่าบัญชีไหนให้ agent จำบริบทได้ รู้ว่าข้อมูลแต่ละชั้นเก็บนานเท่าไร และเมื่อลูกค้าขอลบข้อมูลก็เห็นว่าลบครบทุกชั้นแล้วหรือยังรออยู่ที่ไหน",
-      "progressPercent": 63.3,
+      "progressPercent": 66.7,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-037 registry status is declared",
         "FR-231 is planned",
-        "FR-232 is planned",
-        "FR-234 is partial"
+        "FR-232 is planned"
       ],
       "requirements": [
         {
@@ -10828,8 +9768,8 @@
         {
           "id": "FR-234",
           "title": "Context Composer",
-          "status": "partial",
-          "progressPercent": 80,
+          "status": "verified",
+          "progressPercent": 100,
           "codeCount": 6,
           "testCount": 12
         }
@@ -10917,28 +9857,26 @@
         "project-manager"
       ],
       "useCase": "เจ้าของธุรกิจสลับบัญชี LINE OA ให้ตอบลูกค้าจากคลังความรู้ที่ publish แล้วใน GKS ดู trace ได้ว่าคำตอบอ้างเอกสารไหน อนุมัติคำถาม-คำตอบที่ได้จากแชทลูกค้าเข้าเป็นความรู้ของธุรกิจโดยไม่มีข้อมูลส่วนตัวของลูกค้าติดไป และเห็นรายงานว่าลูกค้าถามเรื่องสินค้าตัวไหนที่ระบบยังตอบไม่ได้",
-      "progressPercent": 90,
+      "progressPercent": 100,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-038 registry status is declared",
-        "FR-235 is partial",
-        "FR-236 is partial"
+        "FEAT-038 registry status is declared"
       ],
       "requirements": [
         {
           "id": "FR-235",
           "title": "LINE answer grounding from the published knowledge corpus",
-          "status": "partial",
-          "progressPercent": 80,
+          "status": "verified",
+          "progressPercent": 100,
           "codeCount": 10,
           "testCount": 27
         },
         {
           "id": "FR-236",
           "title": "LINE FAQ knowledge candidates",
-          "status": "partial",
-          "progressPercent": 80,
+          "status": "verified",
+          "progressPercent": 100,
           "codeCount": 16,
           "testCount": 34
         },
