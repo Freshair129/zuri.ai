@@ -21,7 +21,7 @@ import {
   GENESIS_RAG17_PARSER_VERSION_2,
   GENESIS_RAG17_STRUCTURED_RECOGNIZER_VERSION,
 } from '@/modules/knowledge/genesisrag17-structured-record'
-import { isolatedEnvironment, mspTransport, startWorkerProcess, temporaryPipeline } from './harness'
+import { isolatedEnvironment, ki17NodeExecutable, mspTransport, startWorkerProcess, temporaryPipeline } from './harness'
 
 // @req FR-188 — the SmartGift catalog admitted through FR-187 is parsed by
 // genesisrag17-parser-2 and genesisrag17-structured-recognizer-1, travels the
@@ -170,7 +170,8 @@ describe('SmartGift structured-record four-process acceptance (no skips)', () =>
     // transport from this environment; nothing ambient is read.
     env.ZURI_KNOWLEDGE_ENABLED = '1'
     env.ZURI_KNOWLEDGE_BINDINGS = JSON.stringify([{ scope, policy: { allowEmbedding: true, allowPublication: true } }])
-    env.ZURI_MSP_COMMAND = process.execPath
+    // The admission runtime spawns MSP itself; MSP is a ki17 child, not Tier 1.
+    env.ZURI_MSP_COMMAND = ki17NodeExecutable(env)
     env.ZURI_MSP_ARGS = JSON.stringify([path.join(env.KI17_MSP_ROOT, 'apps/msp-server/bin/msp-server.mjs')])
     env.ZURI_MSP_CWD = env.KI17_MSP_ROOT
     env.ZURI_MSP_TIMEOUT_MS = '120000'

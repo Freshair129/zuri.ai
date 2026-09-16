@@ -26,6 +26,10 @@
 #                  /opt/ki17/{node,msp,gks} and the P-5 operator smoke script
 #   genesis-worker → the Tier 4 sidecar: the above plus the GenesisBlock worker,
 #                  its linux-x64-gnu addon and the Python venv
+#   ki17-acceptance→ TEST ONLY (gate G-3). genesis-worker's /opt/ki17 plus this
+#                  app's source and devDependencies, so `npm run test:genesisrag17`
+#                  runs against the Linux binaries this design ships. Never
+#                  referenced by docker-compose.yml, by CI, or by any shipped image
 #
 # Nothing secret is baked in: no .env is copied (.dockerignore), every credential
 # arrives through the environment at run time (docker-compose.yml → env_file).
@@ -117,8 +121,8 @@ CMD ["node", "server.js"]
 # live `web` service builds; BuildKit prunes any stage the requested --target does
 # not depend on, so `docker compose build web` neither needs nor loads the msp,
 # gks or genesisblock build contexts. `runner` is no longer the LAST stage in this
-# file, so a bare `docker build .` with no --target would now build
-# `genesis-worker`: always pass --target. Nothing in this repository does a bare
+# file, so a bare `docker build .` with no --target would now build the last stage,
+# `ki17-acceptance`: always pass --target. Nothing in this repository does a bare
 # build (docker-compose.yml and .github/workflows/docker-image.yml both name
 # `target: runner`).
 #
@@ -132,6 +136,11 @@ CMD ["node", "server.js"]
 #     --build-context genesisblock=<GenesisBlock checkout at the pin> \
 #     apps/server
 #
+#   docker buildx build --target ki17-acceptance -t ki17-acceptance:<tag> \
+#     --build-context msp=... --build-context gks=... \
+#     --build-context genesisblock=... --build-context ki17-tests=apps/server/tests \
+#     apps/server
+#
 # See deploy/ki17/README.md for the full operator recipe.
 # =============================================================================
 
@@ -142,6 +151,12 @@ CMD ["node", "server.js"]
 FROM scratch AS msp
 FROM scratch AS gks
 FROM scratch AS genesisblock
+# G-3 only. `.dockerignore` excludes `tests/` from the main context, and it must keep
+# doing so — every shipped image is smaller for it, and widening the main context
+# would change what `runner` builds from. The acceptance suite therefore arrives as a
+# fourth named context (`--build-context ki17-tests=apps/server/tests`), which carries
+# its own ignore rules and touches no production build path.
+FROM scratch AS ki17-tests
 
 # ---------------------------------------------------------------- ki17-node
 # C9/C10: Node 24.18.x for the MSP, GKS and worker children only. The tarball's
@@ -352,3 +367,66 @@ RUN set -eu; \
 # the port lives inside web's namespace and must not look publishable.
 # The Compose healthcheck is a bare TCP connect (§10 health checks): no token, no query.
 CMD ["/opt/ki17/node/bin/node", "/opt/ki17/genesisblock/genesisrag17-worker/src/cli.mjs"]
+
+# ---------------------------------------------------------------- ki17-acceptance
+# GATE G-3 ONLY — a test image, never a shipped one. docker-compose.yml, CI and the
+# `runner` / `runner-ki17` / `genesis-worker` targets do not reference it, and nothing
+# it adds can reach them: it is a leaf of the stage graph.
+#
+# G-3 requires the Phase 2 acceptance to pass "inside the images this design ships",
+# so this stage IS the shipped sidecar (`genesis-worker`: /opt/ki17/{node,msp,gks,
+# genesisblock,venv,fixtures} at the pinned commits, the linux-x64-gnu addon and the
+# Python 3.12 venv) with exactly one thing added — the Tier 1 test runner. That is this
+# app's own Node 22, the version `runner` ships and `deps` installed against, plus its
+# devDependencies, source and `tests/` tree, none of which the standalone build carries.
+#
+# Two Node runtimes therefore live here on purpose, matching the deployed topology:
+# Node 22 runs vitest and the zuri-ai Tier 1 code, /opt/ki17/node/bin/node (24.18.x)
+# runs MSP, GKS and the GenesisBlock worker. PATH is reset so a bare `node` is Node 22;
+# the children are addressed by the absolute KI17_NODE path (tests/acceptance/harness.js).
+FROM genesis-worker AS ki17-acceptance
+USER root
+# genesis-worker puts /opt/ki17/node/bin first so its CMD resolves Node 24. The test
+# runner must not: reset PATH to the image default and name the ki17 runtime explicitly.
+ENV PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# Not `production`: src/lib/db.js refuses a SQLite URL there, `npm` would drop
+# devDependencies, and this is a test run.
+ENV NODE_ENV=test
+ENV NEXT_TELEMETRY_DISABLED=1
+# The Node 22 runtime, from the same node:22-bookworm-slim `base` the web image uses.
+# Debian bookworm underneath both, so /usr/local/lib/node_modules (npm) and
+# /usr/local/lib/python3.12 (the venv's interpreter) coexist without colliding.
+COPY --from=base /usr/local/bin/node /usr/local/bin/node
+COPY --from=base /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN set -eu; \
+    ln -sf ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm; \
+    ln -sf ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends openssl ca-certificates; \
+    rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+# node_modules and BOTH generated Prisma clients come from `deps` — the same layer the
+# shipped image builds from, so the acceptance runs against the dependency tree
+# production resolved, and the file still contains exactly one `npm ci` per app.
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+# `.dockerignore` excludes tests/ from the main context and keeps doing so; the suite
+# arrives as its own named context instead. See the `FROM scratch AS ki17-tests` note.
+COPY --from=ki17-tests . ./tests
+# KI17_MODEL_DIR is a mount point: the ~490MB embedding model is bind-mounted read-only
+# at run time, never baked into a layer. The worker re-verifies its five SHA-256 values
+# at every start, so a wrong revision fails the run rather than quietly degrading it.
+RUN mkdir -p /model
+ENV KI17_NODE=/opt/ki17/node/bin/node \
+    KI17_MSP_ROOT=/opt/ki17/msp \
+    KI17_GKS_ROOT=/opt/ki17/gks \
+    KI17_GENESIS_ROOT=/opt/ki17/genesisblock \
+    KI17_MODEL_DIR=/model
+RUN set -eu; \
+    case "$(node -v)" in v22.*) ;; *) echo "KI17_ACCEPTANCE_RUNNER_NODE_UNEXPECTED: $(node -v)" >&2; exit 1;; esac; \
+    case "$("$KI17_NODE" -v)" in v24.18.*) ;; *) echo "KI17_ACCEPTANCE_CHILD_NODE_UNEXPECTED: $("$KI17_NODE" -v)" >&2; exit 1;; esac; \
+    test -f /app/tests/acceptance/genesisrag17-e2e.test.js || { echo "KI17_ACCEPTANCE_SUITE_MISSING: pass --build-context ki17-tests=apps/server/tests" >&2; exit 1; }; \
+    test -f /app/tests/acceptance/genesisrag17-smartgift.test.js || { echo "KI17_ACCEPTANCE_SUITE_MISSING: genesisrag17-smartgift.test.js" >&2; exit 1; }; \
+    test -f /app/vitest.ki17.config.js || { echo "KI17_ACCEPTANCE_CONFIG_MISSING" >&2; exit 1; }; \
+    test -d /app/node_modules/vitest || { echo "KI17_ACCEPTANCE_DEVDEPS_MISSING: vitest" >&2; exit 1; }
+CMD ["npm", "run", "test:genesisrag17"]

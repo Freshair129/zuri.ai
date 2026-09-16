@@ -1,10 +1,10 @@
 ---
 id: ZAI:GENESISRAG17-EDGE-DEPLOYMENT
 title: GenesisRAG17 edge-device deployment design (SmartGift structured-record profile)
-version: "0.1.0"
+version: "0.2.0"
 status: proposed
 created_at: "2026-09-11T19:15:00+07:00,Claude Opus 5"
-last_update: "2026-09-11T19:15:00+07:00,Claude Opus 5"
+last_update: "2026-09-16T20:30:00+07:00,Claude Sonnet 5"
 attributes:
   domain: knowledge
   doc_type: deployment-design
@@ -18,9 +18,12 @@ relations:
 
 # GenesisRAG17 on the edge device: Phase 3 deployment design
 
-> **Status: this is a design awaiting the operator step. None of it has been executed.**
-> No image has been built, no container started and no `docker compose` command run. No
-> credential has been generated and no migration applied. The owner approved
+> **Status: this is a design awaiting the operator step. None of it has been deployed.**
+> No `docker compose` command has been run, no credential generated and no migration
+> applied. The one thing that has been executed is gate **G-3** (§9.1): throwaway test
+> images were built from the pinned commits and the Phase 2 acceptance ran inside them,
+> on Linux. Nothing from that run was tagged for deployment, pushed or left behind. The
+> owner approved
 > [ADR-075](../decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md)
 > Phase 3 on 2026-09-11. [ADR-073](../decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md)'s
 > 2026-09-11 Amendment lifts "no production deployment" for this profile only. The
@@ -50,7 +53,7 @@ relations:
 | C8 | MSP and GKS persist in SQLite through `better-sqlite3`, at `MSP_DB_PATH` and `GKS_DB_PATH`. Two MSP instances run at once: the source side, spawned by zuri-ai, and the worker side, spawned by the worker. Every GKS child spawned from either side opens the same GKS file. So all of them must share **one filesystem with working file locks** | MSP `packages/msp-storage`, GKS `packages/gks-persistence`; the MSP runbook sets both paths for both sides |
 | C9 | The worker needs several things at run time: Node `24.18.x` (`engines: >=24.18`); Python 3.12 with the `numpy`, `onnxruntime` and `tokenizers` versions pinned in `requirements.txt` (`GENESISRAG17_PYTHON`); and `intfloat/multilingual-e5-small` at the pinned revision (about 490 MB, SHA-256-verified at start, `GENESIS_WORKER_MODEL_DIR`). It also needs a benchmark fixture (`GENESIS_WORKER_BENCHMARK_FIXTURE`), a scope, a credential and a query token | `cli.mjs`, worker `README.md`, `requirements.txt` |
 | C10 | The acceptance runs used Node `24.18.x` for MSP and GKS (see the MSP runbook), although both packages advertise `>=20`. The web image runs Node 22 (`ARG NODE_VERSION=22`, held there for Prisma 5.22) | MSP `docs/RUNBOOK-GENESISRAG17-LOCAL.md`, `apps/server/Dockerfile` |
-| C11 | Every acceptance so far ran on **Windows x64**: the committed native addon is `index.win32-x64-msvc.node`. GenesisBlock lists `x86_64-unknown-linux-gnu` as a build target, but no Linux run of the worker at the pin is on record | GenesisBlock `package.json` (`napi.targets`) |
+| C11 | Every acceptance up to 2026-09-16 ran on **Windows x64**: the only committed native addon was `index.win32-x64-msvc.node`. **Discharged** — P-2 added `index.linux-x64-gnu.node` at the pin, and the acceptance now has a Linux pass on it (§9.1) | GenesisBlock `package.json` (`napi.targets`), §9.1 |
 | C12 | Tier 1 runs in the `web` container of the Compose project `zuri-ai`. The project name is pinned, so `docker compose` targets the **live** stack whichever directory it runs from. The container runs as the non-root `node` user on bookworm-slim, serves Next.js standalone output on port 3000 bound to host loopback, and sits on `zuri-network`. The runner image copies named files only | `apps/server/docker-compose.yml`, `apps/server/Dockerfile` |
 | C13 | Credential model: `MSP_PIPELINE_PRINCIPALS` holds the source grant and the worker grant, each on the exact six-field scope. `MSP_GKS_PIPELINE_CREDENTIAL` must equal `GKS_PIPELINE_RELAY_CREDENTIAL`, and `MSP_PIPELINE_WORKER_TOKEN` must equal `GENESIS_WORKER_QUERY_TOKEN` | [`GENESISRAG17-CONTRACT.md`](GENESISRAG17-CONTRACT.md) |
 
@@ -221,12 +224,47 @@ every request, so this design leaves it unset; G-3 confirms that holds.
 |---|---|
 | G-1 | Phase 2 acceptance notes merged in zuri-ai, MSP, GKS and GenesisBlock (ADR-075 D8) |
 | G-2 | The Phase 2 **four-process acceptance** passes: raw entrypoint, no skips, SmartGift fixture, and the ADR-073 thresholds unchanged (Recall@5 ≥ .80, MRR ≥ .65, citation correctness 1.00, cross-tenant leakage 0). The four commits are recorded |
-| G-3 | **The same acceptance also passes inside the images this design ships:** Linux, Node `24.18.x` for MSP, GKS and the worker, the Linux native addon, and the venv. It includes the contract's crash and replay cases (the physical-recovery section of contract 1.3.0b). Every earlier run was on Windows (C11), so a Windows pass alone does not satisfy G-3 |
+| G-3 | **The same acceptance also passes inside the images this design ships:** Linux, Node `24.18.x` for MSP, GKS and the worker, the Linux native addon, and the venv. It includes the contract's crash and replay cases (the physical-recovery section of contract 1.3.0b). Every earlier run was on Windows (C11), so a Windows pass alone does not satisfy G-3. **MET 2026-09-16** — see §9.1 |
 | G-4 | P-1 to P-6 merged, and the pin manifest matches the commits recorded in G-2 |
 | G-5 | The zuri-ai tables that GenesisRAG17 and knowledge admission use exist on production and their migrations are recorded. That is an ADR-057 operator step, separate from this deployment. The 2026-09-11 gap map found knowledge tables on production with migrations unrecorded |
 | G-6 | A production database backup taken per existing practice before the first enable. Before any later redeploy, stop the worker and copy `ki17-state` and `ki17-genesis-store` |
 | G-7 | The files in `ki17-model` match the five SHA-256 values the worker verifies (it re-checks them at start) |
 | G-8 | Coordination. The primary checkout and the live stack are shared, so announce the deploy to the other sessions and **wait for an acknowledgement** (CLAUDE.md). Then the owner triggers the step |
+
+### 9.1 G-3 result — the Linux run, 2026-09-16
+
+The `ki17-acceptance` build target (`apps/server/Dockerfile`, test-only, a leaf of the
+stage graph) is the shipped `genesis-worker` sidecar plus this app's own Node 22 test
+runner, devDependencies, source and `tests/` tree. `npm run test:genesisrag17` ran
+inside it against the pinned Linux binaries, with the embedding model bind-mounted
+read-only from the host's Hugging Face cache at the pinned revision. Nothing was
+pushed, no Compose command was run and every throwaway image, container and volume was
+removed afterwards.
+
+| | |
+|---|---|
+| Image | `--target ki17-acceptance`, contexts `msp`/`gks`/`genesisblock` at the `pins.json` commits (`49fe7de7`, `ecf1e4de`, `7c9261c4`), attested via `.ki17-pin` (`git archive` exports carry no `.git`) |
+| Platform | `Linux 6.18.33.2-microsoft-standard-WSL2 x86_64`, Debian bookworm |
+| Runtimes | test runner / Tier 1 `v22.23.2`; MSP, GKS and the worker `v24.18.0` at `/opt/ki17/node/bin/node`; venv `Python 3.12.14` with `numpy 2.5.2`, `onnxruntime 1.29.0`, `tokenizers 0.23.1` |
+| Native addon | `index.linux-x64-gnu.node`, 9 987 776 bytes, stripped ELF x86-64 — the P-2 build, loaded for the first time by a real acceptance run |
+| Result | **35 passed, 0 failed, 0 skipped** across both suites — `genesisrag17-e2e.test.js` 25, `genesisrag17-smartgift.test.js` 10. Duration 125.83 s |
+| Crash / replay | All five `recovers an actual process crash at …` cases, both `resends the identical … receipt after an actual accepted reply is lost` cases, the FR-071 replay, both `resumes the actual source process after Stage N` cases and the duplicate-evidence / wrong-scope cases passed |
+| Prose corpus benchmark | Recall@5 1.00, MRR 1.00, citation correctness 1.00, cross-tenant leaks 0 (5 queries) |
+| SmartGift benchmark | `PM-TMB` 1.00 / 1.00 / 1.00 / 0 · `PM-BOTTLE-LED` 1.00 / 1.00 / 1.00 / 0 · `PM-TMB@qty100` 1.00 / 0.75 / 1.00 / 0 · `PKG-NY-2027-REACH-OPS` 1.00 / 1.00 / 1.00 / 0 (Recall@5 / MRR / citation correctness / cross-tenant leaks; thresholds .80 / .65 / 1 / 0). Every record `ontology_v2`, Stage 17 PASS |
+
+**One harness change was needed, and it is the finding.** `tests/acceptance/harness.js`
+spawned MSP, GKS and the worker with `process.execPath`, which is correct only while
+the runner and its children share one runtime. In these images they deliberately do
+not (C9/C10): Tier 1 is Node 22, the children are the pinned 24.18.x. The harness now
+resolves them through `KI17_NODE` — unset it is `process.execPath` and a native run is
+unchanged; set to a path that does not exist it throws rather than falling back,
+because a silent fallback would report a G-3 pass for a runtime the deployment does
+not ship. A negative-control run with a bad `KI17_NODE` fails both suites at
+`beforeAll` with that message, which is what proves the pass above used 24.18.0.
+
+C11 is therefore discharged for the worker: a Linux run of the pinned commit is now on
+record. G-7 is not — this run verified the model against the worker's own five SHA-256
+values from a host cache, not from the `ki17-model` volume the deploy will populate.
 
 ## 10. Start order (operator procedure, not executed)
 
@@ -322,3 +360,4 @@ cutover.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0 | 2026-09-11 | proposed | Phase 3 design after the owner approved ADR-075 Phases 3–5. Constraints read from code; options (a), (b), (c1)–(c3); recommends a Linux sidecar in web's network namespace with shared named volumes; env names, processes, ports, paths, start order, health checks, rollback and the pre-deploy gate. Not executed | — | Claude Opus 5 |
+| 0.2.0 | 2026-09-16 | proposed | Records the G-3 result (new §9.1): the Phase 2 acceptance ran inside the images this design ships and passed 35/35 on Linux, with MSP/GKS/worker on Node 24.18.0, the P-2 Linux addon and the pinned venv, crash and replay cases included. Adds the test-only `ki17-acceptance` build target and the `KI17_NODE` seam the run needed. Still not deployed | — | Claude Sonnet 5 |
