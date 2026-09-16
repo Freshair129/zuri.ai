@@ -34,7 +34,7 @@ import {
 export const modules = {
   projectManager: {
     key: 'projectManager',
-    label: 'Development',
+    label: 'Projects & Work',
     icon: BriefcaseBusiness,
     // @req FR-060 — Development bases at its own resource list. `/overview`
     // became the Business Home Dashboard, a cross-domain surface, so it is
