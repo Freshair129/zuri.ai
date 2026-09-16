@@ -1357,7 +1357,7 @@ const PHASES = [
             "Given an operator, when they open the error list, then it groups by fingerprint with occurrence count and first/last seen, and marking one resolved sets resolvedAt/resolvedByPersonId and stops it counting as active",
             "Given npm test and the migration, when they run, then fingerprinting, dedupe, the resolve action and the stack-frame parser (rejecting a frame that is not a file:line shape) are asserted; applying the migration on production stays a separate step (ADR-057)",
             "(v0.4.10) implement ADR-095 D1 — logger เดิมไม่เปลี่ยน เพิ่มฟังก์ชันใหม่ logger.exception() ที่รวม error ซ้ำด้วย fingerprint แล้วเก็บลง ErrorEvent"],
-          ["TASK-ZAI-118","TSK-ZAI118","Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup","FR","C-3","H3","planned","Claude","TASK-ZAI-116","apps/server/src/modules/platform-control/usage-events.js","docs/decisions/ADR-095-OBSERVABILITY-ERROR-TRACKING-AND-PER-PERSON-FEATURE-USAGE.md","apps/server/tests/unit/usage-events.test.js",60000,
+          ["TASK-ZAI-118","TSK-ZAI118","Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup","FR","C-3","H3","review","Claude","TASK-ZAI-116","apps/server/src/modules/platform-control/usage-events.js","docs/decisions/ADR-095-OBSERVABILITY-ERROR-TRACKING-AND-PER-PERSON-FEATURE-USAGE.md","apps/server/tests/unit/usage-events.test.js",60000,
             "Given a signed-in person navigating between pages, when each navigation completes, then one UsageEvent row (kind PAGE_VIEW) is recorded with route, personId and sessionId, captured by a shell-mounted hook rather than a per-page change",
             "Given a handler that calls recordAction(name), when it runs, then one UsageEvent row (kind ACTION) is recorded with a static actionName never built from request data, and an operator reads route/action counts broken down by person under /control",
             "Given a UsageEvent row older than 90 days, when the retention job runs, then it is replaced by a daily (date, route|actionName, count) rollup with no personId, and npm test covers capture, the per-person breakdown, and the 90-day rollup boundary",
@@ -1606,7 +1606,7 @@ const DOD_CHECKS = {
   "TASK-ZAI-115": [0,0,0],
   "TASK-ZAI-116": [1,1,1],
   "TASK-ZAI-117": [1,1,1],
-  "TASK-ZAI-118": [0,0,0]
+  "TASK-ZAI-118": [1,1,1]
 };
 
 /* ---------------------- theme ---------------------- */
