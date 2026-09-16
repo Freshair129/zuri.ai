@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Zuri Project Manager Phase B Feature API",
-    "version": "0.3.0b",
+    "version": "0.3.1b",
     "description": "Candidate machine contract for the Project Manager Phase B Feature authority. Phase B routes and schemas remain documentation input until B1 owner approval and B2 registration; no route, schema migration, code generation or runtime operation is claimed."
   },
   "servers": [
@@ -262,7 +262,7 @@
           "Feature mutations"
         ],
         "summary": "Update base Project Feature fields with CAS",
-        "description": "Partial base update. DRAFT to ACTIVE to RETIRED is monotonic. Soft-delete restore is a separate command and preserves prior lifecycle.",
+        "description": "Partial base update. Lifecycle transitions are DRAFT to ACTIVE to RETIRED; unchanged lifecycle is allowed during edits. RETIRED allows authorized metadata/relationship edits, soft delete and restore under the same CAS rules but cannot return to ACTIVE or DRAFT. Soft-delete restore preserves the prior lifecycle.",
         "x-phase-b-status": "CANDIDATE_UNIMPLEMENTED_B1_PENDING",
         "parameters": [
           {

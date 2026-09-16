@@ -1,6 +1,6 @@
 {
-  "schemaVersion": "0.2.0b",
-  "version": "0.2.0b",
+  "schemaVersion": "0.2.1b",
+  "version": "0.2.1b",
   "id": "ZAI:PM-PHASE-B-DATA-MODEL-CANDIDATE",
   "title": "Project Manager Phase B selected data model",
   "status": "CANDIDATE",
@@ -571,7 +571,7 @@
         },
         {
           "name": "lifecycle",
-          "rule": "Allowed values are DRAFT, ACTIVE and RETIRED; forward mutation is DRAFT to ACTIVE to RETIRED and restore retains the prior lifecycle."
+          "rule": "Allowed values are DRAFT, ACTIVE and RETIRED. Lifecycle transitions are DRAFT to ACTIVE to RETIRED; unchanged lifecycle is permitted for edits. RETIRED allows authorized metadata/relationship edits, soft delete and restore under the same CAS rules, but cannot return to ACTIVE or DRAFT. Restore retains the prior lifecycle."
         },
         {
           "name": "scope",
@@ -583,7 +583,7 @@
         },
         {
           "name": "deletedCodeReuse",
-          "rule": "The unconditional (projectId, code) unique key remains across tombstones. A new Feature using a deleted Feature code returns 409 DUPLICATE_FEATURE_CODE and the caller must restore the original row."
+          "rule": "The unconditional (projectId, code) unique key remains across tombstones. A new Feature using a deleted Feature code returns 409 DELETED_FEATURE_CODE_REQUIRES_RESTORE and the caller must restore the original row."
         },
         {
           "name": "allocationDeleteRestore",
@@ -1339,8 +1339,7 @@
           "nullable": false,
           "values": [
             "FEATURE",
-            "PROJECT",
-            "SNAPSHOT"
+            "PROJECT"
           ],
           "readOnly": true
         },
@@ -1536,7 +1535,7 @@
         },
         {
           "name": "atomicReceipt",
-          "rule": "Receipt, resource changes and one aggregate AuditEvent commit in the same transaction when the operation has an AuditEvent; snapshot capture uses its snapshot receipt contract."
+          "rule": "Receipt, resource changes and exactly one AuditEvent commit in the same transaction, including verified snapshot capture. Replay appends no second AuditEvent."
         },
         {
           "name": "transportRequestId",
@@ -1544,7 +1543,7 @@
         },
         {
           "name": "typedTarget",
-          "rule": "targetType is FEATURE for Feature mutations, PROJECT for graph allocation, and SNAPSHOT for governance capture. targetId is the URL/route target resolved after full scope validation."
+          "rule": "targetType is PROJECT for Feature create, graph allocation and governance capture; it is FEATURE for updates, child-set replacement, delete and restore. targetId is the URL/route target resolved after full scope validation."
         },
         {
           "name": "polymorphicResource",
@@ -1552,7 +1551,7 @@
         },
         {
           "name": "versionAndEtag",
-          "rule": "version is non-null only for FEATURE; graph and snapshot receipts use null. etag is always persisted and returned."
+          "rule": "version is an integer >=1 exactly when resourceType is PROJECT_FEATURE, including create; graph and snapshot receipts use null. etag is always persisted and returned."
         },
         {
           "name": "snapshotReplay",
@@ -1902,7 +1901,7 @@
       "featureView": "FeatureView.features max 200 active/non-deleted rows; create and restore enforce 422 FEATURE_LIMIT_REACHED under the Project lock; no silent truncation.",
       "aggregateSnapshot": "FeatureView.snapshotId is always null and snapshotState is UNAVAILABLE in Phase B; no aggregate publisher.",
       "mutationReplay": "MutationReceipt.status remains COMMITTED on replay; first create/capture is 201, same scoped hash replay is 200 with fresh requestId.",
-      "resourceDiscriminator": "resourceType is exactly PROJECT_FEATURE, PROJECT_FEATURE_GRAPH or GOVERNANCE_SNAPSHOT; targetType is exactly FEATURE, PROJECT or SNAPSHOT; no aliases."
+      "resourceDiscriminator": "resourceType is exactly PROJECT_FEATURE, PROJECT_FEATURE_GRAPH or GOVERNANCE_SNAPSHOT; targetType is exactly FEATURE or PROJECT; no aliases."
     }
   },
   "routeBindings": {
@@ -1989,8 +1988,7 @@
       ],
       "targetTypes": [
         "FEATURE",
-        "PROJECT",
-        "SNAPSHOT"
+        "PROJECT"
       ],
       "targetIdRequired": true,
       "httpMethodRequired": true,
@@ -2127,8 +2125,8 @@
         "source": "Explicit configured PUBLIC_BASE_URL only",
         "proxyFallback": false,
         "mutation": "Missing, null or cross-origin Origin returns 403 CSRF_INVALID; origin/secret configuration failure returns 503 SESSION_UNAVAILABLE.",
-        "issuerGet": "GET /api/auth/csrf is no-store, sends no CORS token, and keeps the token in server memory.",
-        "absentOrigin": "Allow absent Origin only when Sec-Fetch-Site or Referer proves same origin; otherwise require the exact configured origin."
+        "issuerGet": "GET /api/auth/csrf is no-store, sends no CORS token, and the browser keeps the returned token in memory only.",
+        "absentOrigin": "For the issuer GET only, allow absent Origin when Sec-Fetch-Site: same-origin or a same-origin Referer proves the request; otherwise require the exact configured origin. Mutations always require explicit Origin."
       }
     }
   },
@@ -2287,6 +2285,14 @@
       "summary": "Bound graph affected-WorkItem union, selected Identity API-write CSRF protocol, 200-feature cap and OpenAPI-backed wire DTO references. and persisted verifier proof fields",
       "sourceSHA": "f061a113584aa15db68934dc8451f14b9a1011e1",
       "agent": "Luna Max"
+    },
+    {
+      "version": "0.2.1b",
+      "date": "2026-09-17",
+      "status": "CANDIDATE",
+      "summary": "Root reconciliation of receipt targets and audit/version rules, deleted-code refusal, terminal lifecycle edits and issuer-GET CSRF delivery. Independent re-review remains incomplete; no implementation authority.",
+      "sourceSHA": "a965f1946fc354d26c90cec3b22b65561cd42af4",
+      "agent": "RWANG"
     }
   ],
   "snapshotCapture": {

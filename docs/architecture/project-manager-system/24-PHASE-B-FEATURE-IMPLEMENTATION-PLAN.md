@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-FEATURE-IMPLEMENTATION-PLAN
 title: Project Manager Phase B Feature implementation plan
-version: "0.3.1b"
+version: "0.3.2b"
 status: candidate
 created_at: "2026-09-17T01:17:02+07:00,Luna Max,f061a113584aa15db68934dc8451f14b9a1011e1"
-last_update: "2026-09-17T02:22:55+07:00,RWANG final integrator"
+last_update: "2026-09-17T02:35:21+07:00,RWANG final integrator"
 superseded_by: null
 attributes:
   doc_type: implementation-plan
@@ -99,14 +99,15 @@ minimum and points forward to this document for the Phase B route, DTO and
 record extension.
 
 The machine-readable overlay is a standalone OpenAPI 3.0.3 candidate for the
-Phase B routes and schemas. It is documentation input only: code generation,
-Swagger validation, route parity and migration execution are NOT_RUN. The
+Phase B routes and schemas. It is documentation input only. OpenAPI validation,
+local reference resolution and DTO schema fixtures have passed; application
+route parity, code generation and migration execution are NOT_RUN. The
 data-model overlay remains backend-owned and is not duplicated in this plan.
 
 The following reconciliation is incorporated into this plan:
 
-1. The API and storage name is sourceNamespace. The ERD's shorter namespace
-   spelling is not carried as a second alias.
+1. The API, storage and parent ERD use sourceNamespace. The former namespace
+   spelling is not retained as a second alias.
 2. FeatureView.snapshotId is nullable and pairs with snapshotState. An absent
    provenance source is UNAVAILABLE, never a fabricated UUID or zero.
 3. FeatureWorkLink allocation is validated by WorkItem across all active
@@ -130,17 +131,18 @@ The following reconciliation is incorporated into this plan:
    visibility discovers DRAFT, ACTIVE and RETIRED rows, while DELETED is an
    owner-only minimal tombstone view with a signed cursor bound to scope and
    filters.
-9. The parent candidate OpenAPI remains the composition target; this overlay is
-   the Phase B source for the additional routes and schemas until root composes
-   and validates one global contract. No worker may implement the old flat
-   Feature transport in parallel.
+9. The parent candidate OpenAPI references this overlay for the selected Phase B
+   routes and schemas. Both documents have passed structural validation. No
+   worker may implement the superseded flat Feature transport in parallel.
 
-The backend packet is a frozen candidate input at SHA-256
+The original backend packet was captured at SHA-256
 8C343604F75EDCD4AD0A53B34C5FBA9EC457D28BCC3B76DDDDFDA6266CFF2FB8
-(source packet last written 2026-09-17T01:22:11+07:00). It remains
-unimplemented and awaits independent verification, B1 owner approval, B2
-registration and root composition. Root must retain this provenance when
-composing the approved packet.
+(source packet last written 2026-09-17T01:22:11+07:00). That digest is historical
+provenance; the superseded QA packet digest in the input list includes its later
+supersession notice. This composed plan and selected API/data overlays are the
+current candidate. Independent frozen-packet re-review remains incomplete after
+the verifier reached its usage limit. B1 approval and B2 registration remain
+pending; no implementation is authorized by these document checks.
 
 ## 3. Navigation, scope and route contract
 
@@ -657,7 +659,7 @@ The exact operation is:
    `403 CSRF_INVALID`, while missing/invalid origin or secret configuration is
    `503 SESSION_UNAVAILABLE`. The authenticated CSRF GET is `no-store`, sends
    no CORS token, and the client keeps the response token in memory only. An
-   absent Origin is allowed only when `Sec-Fetch-Site: same-origin` or a
+    absent Origin on this issuer GET is allowed only when `Sec-Fetch-Site: same-origin` or a
    same-origin Referer proves the request; otherwise the explicit Origin is
    required.
 3. Resolve the URL Project and the complete Project -> Workspace -> Business ->
@@ -742,10 +744,12 @@ mutation. A successful create returns a receipt, then the UI re-reads.
 Edit sends the expected version and the approved partial base fields. A
 duplicate code, invalid lifecycle, missing snapshot, stale version or binding
 error leaves nonsecret local values visible and gives reload/current-version
-choice. There is no silent last-write-wins. Lifecycle is monotonic
-DRAFT → ACTIVE → RETIRED. Restore preserves the prior lifecycle; whether
-RETIRED can be restored or edited is an owner approval item, not a UI
-inference.
+choice. There is no silent last-write-wins. The candidate lifecycle is monotonic
+DRAFT → ACTIVE → RETIRED; unchanged lifecycle is allowed during an edit.
+RETIRED remains readable and allows authorized metadata/relationship edits,
+soft delete and restore under the same CAS rules. It cannot transition back to
+ACTIVE or DRAFT. Restore preserves the prior lifecycle, including RETIRED.
+This complete policy is included in the B1 approval scope.
 
 ### 7.3 Relationship editors
 
@@ -986,8 +990,12 @@ baseline. The composed implementation then requires:
 8. root-owned governance, focused/full tests, build, e2e and any separately
    authorized release gate.
 
-None of these gates is claimed to have run in this planning packet. Merge and
-deployment of other releases are outside this document.
+Only documentation/schema/diagram validation has run in this planning packet.
+Independent frozen-packet re-review is incomplete because the Luna Max verifier
+reached its usage limit; the root review does not substitute for its PASS.
+Implementation, migration, runtime authorization, concurrency and product-browser
+proof remain NOT_RUN. Merge and deployment of other releases are outside this
+document.
 
 ## 12. Explicit reconciliation list for root
 
@@ -1031,3 +1039,4 @@ deployment of other releases are outside this document.
 | 0.2.0b | 2026-09-17 | candidate | Composed candidate Phase B Feature authority, typed machine contract input, source provenance bounds, approval-gate/wave separation, UX/state model, restore/privacy and acceptance gates; no implementation or IDs. | f061a113 | Luna Max |
 | 0.3.0b | 2026-09-17 | candidate | Closed verifier contract findings: six-record authority, Project Feature capacity, WorkItem-derived allocation and graph lock/ETag rules, VALID-only snapshot proof, typed receipts, Identity CSRF/Origin, redacted fields and worker allowlists; no implementation or IDs. | f061a113 | Luna Max |
 | 0.3.1b | 2026-09-17 | candidate | Correct the ERD to optional typed receipt references and the canonical snapshot pin; preserve the selected storage/API contract | composed ecc30b94 | RWANG |
+| 0.3.2b | 2026-09-17 | candidate | Reconcile candidate lifecycle and validation status; distinguish historical worker provenance from composed authority and disclose incomplete independent re-review | a965f194 | RWANG |
