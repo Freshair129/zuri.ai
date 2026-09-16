@@ -187,3 +187,9 @@ export class GenesisLocalRag {
     }
   }
 }
+
+/**
+ * What the answer path needs from its RAG door. `GenesisLocalRag` is one; FR-189's published-generation
+ * reader (`rag/genesisrag17/published-rag.ts`) is the other, and only when its mode is not `off`.
+ */
+export type AnswerRag = Pick<GenesisLocalRag, 'searchProducts' | 'searchWithConstraints' | 'priceForCode' | 'health'>;

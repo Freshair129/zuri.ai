@@ -1,0 +1,1240 @@
+{
+  "exampleOnly": true,
+  "evidenceStatus": "SYNTHETIC_CONFORMANCE_SHAPES_ONLY",
+  "packetId": "PM-20260916-D01-01",
+  "workPackageId": "MA-D01",
+  "canonicalIdsAllocated": false,
+  "identifiers": {
+    "tenantId": "10000000-0000-4000-8000-000000000001",
+    "businessId": "20000000-0000-4000-8000-000000000001",
+    "projectId": "30000000-0000-4000-8000-000000000001",
+    "workItemId": "40000000-0000-4000-8000-000000000001",
+    "personId": "50000000-0000-4000-8000-000000000001",
+    "assignmentId": "60000000-0000-4000-8000-000000000001",
+    "estimateId": "70000000-0000-4000-8000-000000000001",
+    "previewId": "80000000-0000-4000-8000-000000000001",
+    "receiptId": "90000000-0000-4000-8000-000000000001",
+    "requestId": "a0000000-0000-4000-8000-000000000001"
+  },
+  "headers": {
+    "Idempotency-Key": "ma-d01-example-0001",
+    "X-CSRF-Token": "zuri_pcsrf.synthetic",
+    "If-Match": "\"workforce-plan/80000000-0000-4000-8000-000000000001/v3\"",
+    "X-Request-ID": "a0000000-0000-4000-8000-000000000001"
+  },
+  "canonicalMainAllocationInput": {
+    "compatibilityProfile": "HUMAN_PERSON_V1",
+    "resourceType": "PERSON",
+    "personId": "50000000-0000-4000-8000-000000000001",
+    "workItemId": "40000000-0000-4000-8000-000000000001",
+    "assignmentId": "60000000-0000-4000-8000-000000000001",
+    "estimateId": "70000000-0000-4000-8000-000000000001",
+    "startAt": "2026-09-21T01:00:00Z",
+    "endAt": "2026-09-21T08:00:00Z",
+    "remainingMinutes": 420,
+    "placement": "FIXED_SLOT"
+  },
+  "legacyMainAllocationInput": {
+    "compatibilityProfile": "HUMAN_PERSON_V1",
+    "resourceId": "50000000-0000-4000-8000-000000000001",
+    "workItemId": "40000000-0000-4000-8000-000000000001",
+    "startAt": "2026-09-21T01:00:00Z",
+    "endAt": "2026-09-21T08:00:00Z",
+    "effortHours": 7,
+    "placement": "FIXED_SLOT"
+  },
+  "legacyConversion": {
+    "inputEffortHours": 7,
+    "normalizedRemainingMinutes": 420,
+    "rule": "exact positive integer after decimal-hours times 60"
+  },
+  "canonicalPreviewInput": {
+    "compatibilityProfile": "HUMAN_PERSON_V1",
+    "from": "2026-09-21",
+    "to": "2026-09-27",
+    "timezone": "Asia/Bangkok",
+    "reason": "Synthetic planning example",
+    "sourceVersions": [
+      {
+        "kind": "WORK_ITEM",
+        "id": "40000000-0000-4000-8000-000000000001",
+        "version": 4
+      },
+      {
+        "kind": "ESTIMATE",
+        "id": "70000000-0000-4000-8000-000000000001",
+        "version": 2
+      },
+      {
+        "kind": "ASSIGNMENT",
+        "id": "60000000-0000-4000-8000-000000000001",
+        "version": 3
+      },
+      {
+        "kind": "CALENDAR",
+        "id": "b0000000-0000-4000-8000-000000000001",
+        "version": 1
+      }
+    ],
+    "changes": [
+      {
+        "kind": "ALLOCATION",
+        "id": null,
+        "version": null,
+        "compatibilityProfile": "HUMAN_PERSON_V1",
+        "resourceType": "PERSON",
+        "workItemId": "40000000-0000-4000-8000-000000000001",
+        "assignmentId": "60000000-0000-4000-8000-000000000001",
+        "estimateId": "70000000-0000-4000-8000-000000000001",
+        "personId": "50000000-0000-4000-8000-000000000001",
+        "creditedTeamId": null,
+        "startAt": "2026-09-21T01:00:00Z",
+        "endAt": "2026-09-21T08:00:00Z",
+        "remainingMinutes": 420,
+        "placement": "FIXED_SLOT",
+        "state": "DRAFT",
+        "intent": "UPSERT"
+      }
+    ]
+  },
+  "previewResponse": {
+    "previewId": "80000000-0000-4000-8000-000000000001",
+    "inputHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "version": 3,
+    "expiresAt": "2026-09-16T06:30:00Z",
+    "conflicts": [],
+    "sourceVersions": [
+      {
+        "kind": "WORK_ITEM",
+        "id": "40000000-0000-4000-8000-000000000001",
+        "version": 4
+      },
+      {
+        "kind": "ESTIMATE",
+        "id": "70000000-0000-4000-8000-000000000001",
+        "version": 2
+      },
+      {
+        "kind": "ASSIGNMENT",
+        "id": "60000000-0000-4000-8000-000000000001",
+        "version": 3
+      },
+      {
+        "kind": "CALENDAR",
+        "id": "b0000000-0000-4000-8000-000000000001",
+        "version": 1
+      }
+    ],
+    "before": [],
+    "after": []
+  },
+  "commitInput": {
+    "compatibilityProfile": "HUMAN_PERSON_V1",
+    "previewId": "80000000-0000-4000-8000-000000000001",
+    "inputHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "version": 3,
+    "reason": "Synthetic commit",
+    "overrideReason": null
+  },
+  "receiptResponse": {
+    "receiptId": "90000000-0000-4000-8000-000000000001",
+    "resourceId": "80000000-0000-4000-8000-000000000001",
+    "resourceType": "WORKFORCE_PLAN",
+    "status": "COMMITTED",
+    "version": 4,
+    "recordedAt": "2026-09-16T06:00:00Z",
+    "auditRef": "audit:synthetic:ma-d01:0001",
+    "requestId": "a0000000-0000-4000-8000-000000000001"
+  },
+  "errorExamples": [
+    {
+      "http": 401,
+      "code": "AUTH_REQUIRED",
+      "retryable": false,
+      "requestId": "a0000000-0000-4000-8000-000000000002",
+      "message": "Authentication is required."
+    },
+    {
+      "http": 403,
+      "code": "CSRF_INVALID",
+      "retryable": false,
+      "requestId": "a0000000-0000-4000-8000-000000000003",
+      "message": "The CSRF token or same-origin check was refused."
+    },
+    {
+      "http": 404,
+      "code": "RESOURCE_NOT_FOUND",
+      "retryable": false,
+      "requestId": "a0000000-0000-4000-8000-000000000004",
+      "message": "The requested resource was not found."
+    },
+    {
+      "http": 409,
+      "code": "IDEMPOTENCY_KEY_REUSED",
+      "retryable": false,
+      "requestId": "a0000000-0000-4000-8000-000000000005",
+      "message": "The idempotency key is already bound to a different command."
+    },
+    {
+      "http": 409,
+      "code": "CAPACITY_CONFLICT",
+      "retryable": true,
+      "requestId": "a0000000-0000-4000-8000-000000000006",
+      "message": "The allocation conflicts with a concurrent capacity change."
+    },
+    {
+      "http": 412,
+      "code": "VERSION_MISMATCH",
+      "retryable": true,
+      "currentVersion": 5,
+      "currentEtag": "\"workforce-plan/80000000-0000-4000-8000-000000000001/v5\"",
+      "requestId": "a0000000-0000-4000-8000-000000000007",
+      "message": "The supplied version is stale."
+    },
+    {
+      "http": 422,
+      "code": "ALLOCATION_UNIT_CONVERSION_REQUIRED",
+      "retryable": false,
+      "requestId": "a0000000-0000-4000-8000-000000000008",
+      "message": "effortHours does not convert exactly to integer minutes.",
+      "fields": [
+        {
+          "path": "effortHours",
+          "code": "ALLOCATION_UNIT_CONVERSION_REQUIRED",
+          "message": "Use exact decimal hours or remainingMinutes."
+        }
+      ]
+    },
+    {
+      "http": 400,
+      "code": "INVALID_REQUEST",
+      "message": "The request is invalid.",
+      "requestId": "a0000000-0000-4000-8000-000000000001",
+      "retryable": false
+    },
+    {
+      "http": 410,
+      "code": "RESOURCE_GONE",
+      "message": "The authorized resource is no longer available.",
+      "requestId": "a0000000-0000-4000-8000-000000000001",
+      "retryable": false
+    },
+    {
+      "http": 413,
+      "code": "PAYLOAD_TOO_LARGE",
+      "message": "The request exceeds the documented limit.",
+      "requestId": "a0000000-0000-4000-8000-000000000001",
+      "retryable": false
+    },
+    {
+      "http": 422,
+      "code": "SOURCE_VERSION_SET_INCOMPLETE",
+      "message": "The required source version set is incomplete.",
+      "requestId": "a0000000-0000-4000-8000-000000000001",
+      "retryable": false
+    },
+    {
+      "http": 428,
+      "code": "PRECONDITION_REQUIRED",
+      "message": "A version precondition is required.",
+      "requestId": "a0000000-0000-4000-8000-000000000002",
+      "retryable": false
+    },
+    {
+      "http": 429,
+      "code": "RATE_LIMITED",
+      "message": "Retry after the documented delay.",
+      "requestId": "a0000000-0000-4000-8000-000000000002",
+      "retryable": true
+    },
+    {
+      "http": 503,
+      "code": "SESSION_UNAVAILABLE",
+      "message": "Session resolution is temporarily unavailable.",
+      "requestId": "a0000000-0000-4000-8000-000000000002",
+      "retryable": true
+    }
+  ],
+  "negativeAndRaceCases": [
+    {
+      "case": "same-idempotency-retry",
+      "setup": "Commit succeeds, client retries with the same method, scope, key and normalized hash.",
+      "expected": "Same durable receiptId, effect fields, recordedAt and ETag; fresh requestId/X-Request-ID for the second HTTP attempt; no second allocation or AuditEvent."
+    },
+    {
+      "case": "changed-idempotency-payload",
+      "setup": "Reuse a committed key with a changed person, interval, unit or scope.",
+      "expected": "409 IDEMPOTENCY_KEY_REUSED; no write."
+    },
+    {
+      "case": "concurrent-capacity",
+      "setup": "Two valid previews commit overlapping remainingMinutes for one person at the same time.",
+      "expected": "At most one consumes the contested capacity; loser receives 409 CAPACITY_CONFLICT or 412 VERSION_MISMATCH; no partial state."
+    },
+    {
+      "case": "foreign-scope",
+      "setup": "Use a real Person, WorkItem or Project from another Business.",
+      "expected": "Same redacted 404 RESOURCE_NOT_FOUND as an unknown id."
+    },
+    {
+      "case": "team-membership-is-not-auth",
+      "setup": "Caller belongs to TeamMembership but has no Identity workforce.plan permission.",
+      "expected": "403 CAPABILITY_DENIED; TeamMembership is not consulted as authority."
+    },
+    {
+      "case": "legacy-nonintegral-hours",
+      "setup": "Submit effortHours=1.333.",
+      "expected": "422 ALLOCATION_UNIT_CONVERSION_REQUIRED; no rounded minute is stored."
+    },
+    {
+      "case": "legacy-nonperson-resource",
+      "setup": "Submit resourceId for an asset or agent under HUMAN_PERSON_V1.",
+      "expected": "422 RESOURCE_TYPE_UNSUPPORTED or ALLOCATION_COMPATIBILITY_INCOMPLETE; no Person, membership or capacity row is created."
+    }
+  ],
+  "notEvidence": [
+    "No endpoint was called.",
+    "No Prisma migration, RLS/grant check, service test or production data check was run.",
+    "The examples are schema/conformance fixtures only and do not close the twelve performance metrics or other SPEC-G02–G09 gaps.",
+    "Generic API/Workforce CSRF issuer, verifier, same-origin check and client delivery are not present in the pinned source; this sub-gap remains NEEDS_OWNER_BINDING."
+  ],
+  "receiptReplayResponse": {
+    "receiptId": "90000000-0000-4000-8000-000000000001",
+    "resourceId": "80000000-0000-4000-8000-000000000001",
+    "resourceType": "WORKFORCE_PLAN",
+    "status": "COMMITTED",
+    "version": 4,
+    "recordedAt": "2026-09-16T06:00:00Z",
+    "auditRef": "audit:synthetic:ma-d01:0001",
+    "requestId": "a0000000-0000-4000-8000-000000000009"
+  },
+  "csrfSourceBinding": {
+    "sessionCookieName": "zuri_session",
+    "tokenHeaderName": "X-CSRF-Token",
+    "genericApiCsrfStatus": "NEEDS_OWNER_BINDING",
+    "intendedOwnerDomain": "identity",
+    "intendedPort": "IdentityApiCsrfPort (proposal-local name; owner must confirm)",
+    "intendedOperations": [
+      "issueForSession",
+      "verifyForSession"
+    ],
+    "intendedAudience": "zuri-api",
+    "clientDelivery": "NEEDS_OWNER_BINDING: approved same-origin bootstrap/session delivery path",
+    "sourceBindingFunction": "pluginConsentSessionBindingFromRequest(request) (plugin-consent evidence only)",
+    "sourceAssertFunction": "assertPluginConsentCsrfToken (plugin-consent evidence only; do not reuse for Workforce/API)",
+    "sourceFormField": "csrf_token",
+    "sourceTokenPrefix": "zuri_pcsrf.",
+    "runtimeHeaderAdapter": "Future IdentityApiCsrfPort.verifyForSession receives the X-CSRF-Token header after its own live-session and same-origin checks.",
+    "genericOriginVerifierInPinnedSource": false,
+    "reusePluginConsentAudience": false,
+    "designObligation": "Identity owner must name the generic issuer/verifier and delivery surface before implementation; no duplicate cookie reader or token-audience reuse is allowed."
+  },
+  "coveredOperations": [
+    {
+      "operation": "createResourceAllocation",
+      "method": "POST",
+      "path": "/api/projects/{projectId}/resource-allocations",
+      "success": {
+        "status": 201,
+        "schemaRef": "#/components/schemas/PMMutationReceipt",
+        "headers": [
+          "ETag",
+          "X-Request-ID"
+        ]
+      },
+      "errors": {
+        "sharedErrorRef": "#/components/responses/PMStandardError",
+        "statuses": [
+          400,
+          401,
+          403,
+          404,
+          409,
+          410,
+          412,
+          413,
+          422,
+          429,
+          503
+        ]
+      },
+      "requiredHeaders": [
+        "Idempotency-Key",
+        "X-CSRF-Token"
+      ]
+    },
+    {
+      "operation": "previewWorkforcePlan",
+      "method": "POST",
+      "path": "/api/businesses/{businessId}/workforce/plans/preview",
+      "success": {
+        "status": 200,
+        "schemaRef": "#/components/schemas/PreviewResponse",
+        "headers": [
+          "ETag",
+          "X-Request-ID"
+        ]
+      },
+      "errors": {
+        "sharedErrorRef": "#/components/responses/WFStandardError",
+        "statuses": [
+          400,
+          401,
+          403,
+          404,
+          409,
+          412,
+          422,
+          429,
+          503
+        ]
+      },
+      "requiredHeaders": [
+        "Idempotency-Key",
+        "X-CSRF-Token"
+      ]
+    },
+    {
+      "operation": "commitWorkforcePlan",
+      "method": "POST",
+      "path": "/api/businesses/{businessId}/workforce/plans/commit",
+      "success": {
+        "status": 200,
+        "schemaRef": "#/components/schemas/WFPlanReceipt",
+        "headers": [
+          "ETag",
+          "X-Request-ID"
+        ]
+      },
+      "errors": {
+        "sharedErrorRef": "#/components/responses/WFStandardError",
+        "statuses": [
+          400,
+          401,
+          403,
+          404,
+          409,
+          412,
+          422,
+          428,
+          429,
+          503
+        ]
+      },
+      "requiredHeaders": [
+        "Idempotency-Key",
+        "If-Match",
+        "X-CSRF-Token"
+      ],
+      "preconditionRequiredResponseRef": "#/components/responses/WFPreconditionRequired"
+    }
+  ],
+  "schemaValidationCases": [
+    {
+      "name": "canonical-main-valid",
+      "schemaRef": "#/components/schemas/AllocationInput",
+      "valid": true,
+      "value": {
+        "compatibilityProfile": "HUMAN_PERSON_V1",
+        "resourceType": "PERSON",
+        "personId": "50000000-0000-4000-8000-000000000001",
+        "workItemId": "40000000-0000-4000-8000-000000000001",
+        "assignmentId": "60000000-0000-4000-8000-000000000001",
+        "estimateId": "70000000-0000-4000-8000-000000000001",
+        "startAt": "2026-09-21T01:00:00Z",
+        "endAt": "2026-09-21T08:00:00Z",
+        "remainingMinutes": 420,
+        "placement": "FIXED_SLOT"
+      }
+    },
+    {
+      "name": "legacy-main-valid",
+      "schemaRef": "#/components/schemas/AllocationInput",
+      "valid": true,
+      "value": {
+        "compatibilityProfile": "HUMAN_PERSON_V1",
+        "resourceId": "50000000-0000-4000-8000-000000000001",
+        "workItemId": "40000000-0000-4000-8000-000000000001",
+        "startAt": "2026-09-21T01:00:00Z",
+        "endAt": "2026-09-21T08:00:00Z",
+        "effortHours": 7,
+        "placement": "FIXED_SLOT"
+      }
+    },
+    {
+      "name": "canonical-main-extra-legacy-field-rejected",
+      "schemaRef": "#/components/schemas/AllocationInput",
+      "valid": false,
+      "value": {
+        "compatibilityProfile": "HUMAN_PERSON_V1",
+        "resourceType": "PERSON",
+        "personId": "50000000-0000-4000-8000-000000000001",
+        "workItemId": "40000000-0000-4000-8000-000000000001",
+        "assignmentId": "60000000-0000-4000-8000-000000000001",
+        "estimateId": "70000000-0000-4000-8000-000000000001",
+        "startAt": "2026-09-21T01:00:00Z",
+        "endAt": "2026-09-21T08:00:00Z",
+        "remainingMinutes": 420,
+        "placement": "FIXED_SLOT",
+        "resourceId": "50000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "legacy-main-extra-canonical-field-rejected",
+      "schemaRef": "#/components/schemas/AllocationInput",
+      "valid": false,
+      "value": {
+        "compatibilityProfile": "HUMAN_PERSON_V1",
+        "resourceId": "50000000-0000-4000-8000-000000000001",
+        "workItemId": "40000000-0000-4000-8000-000000000001",
+        "startAt": "2026-09-21T01:00:00Z",
+        "endAt": "2026-09-21T08:00:00Z",
+        "effortHours": 7,
+        "placement": "FIXED_SLOT",
+        "personId": "50000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "both-effort-authorities-rejected",
+      "schemaRef": "#/components/schemas/AllocationInput",
+      "valid": false,
+      "value": {
+        "compatibilityProfile": "HUMAN_PERSON_V1",
+        "resourceType": "PERSON",
+        "personId": "50000000-0000-4000-8000-000000000001",
+        "workItemId": "40000000-0000-4000-8000-000000000001",
+        "assignmentId": "60000000-0000-4000-8000-000000000001",
+        "estimateId": "70000000-0000-4000-8000-000000000001",
+        "startAt": "2026-09-21T01:00:00Z",
+        "endAt": "2026-09-21T08:00:00Z",
+        "remainingMinutes": 420,
+        "placement": "FIXED_SLOT",
+        "effortHours": 7
+      }
+    },
+    {
+      "name": "workforce-change-valid",
+      "schemaRef": "#/components/schemas/AllocationChange",
+      "valid": true,
+      "value": {
+        "kind": "ALLOCATION",
+        "id": null,
+        "version": null,
+        "compatibilityProfile": "HUMAN_PERSON_V1",
+        "resourceType": "PERSON",
+        "workItemId": "40000000-0000-4000-8000-000000000001",
+        "assignmentId": "60000000-0000-4000-8000-000000000001",
+        "estimateId": "70000000-0000-4000-8000-000000000001",
+        "personId": "50000000-0000-4000-8000-000000000001",
+        "creditedTeamId": null,
+        "startAt": "2026-09-21T01:00:00Z",
+        "endAt": "2026-09-21T08:00:00Z",
+        "remainingMinutes": 420,
+        "placement": "FIXED_SLOT",
+        "state": "DRAFT"
+      }
+    },
+    {
+      "name": "workforce-change-legacy-resource-rejected",
+      "schemaRef": "#/components/schemas/AllocationChange",
+      "valid": false,
+      "value": {
+        "kind": "ALLOCATION",
+        "id": null,
+        "version": null,
+        "compatibilityProfile": "HUMAN_PERSON_V1",
+        "resourceType": "PERSON",
+        "workItemId": "40000000-0000-4000-8000-000000000001",
+        "assignmentId": "60000000-0000-4000-8000-000000000001",
+        "estimateId": "70000000-0000-4000-8000-000000000001",
+        "personId": "50000000-0000-4000-8000-000000000001",
+        "creditedTeamId": null,
+        "startAt": "2026-09-21T01:00:00Z",
+        "endAt": "2026-09-21T08:00:00Z",
+        "remainingMinutes": 420,
+        "placement": "FIXED_SLOT",
+        "state": "DRAFT",
+        "resourceId": "50000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "preview-valid",
+      "schemaRef": "#/components/schemas/PreviewInput",
+      "valid": true,
+      "value": {
+        "compatibilityProfile": "HUMAN_PERSON_V1",
+        "from": "2026-09-21",
+        "to": "2026-09-27",
+        "timezone": "Asia/Bangkok",
+        "reason": "Synthetic planning example",
+        "sourceVersions": [
+          {
+            "kind": "WORK_ITEM",
+            "id": "40000000-0000-4000-8000-000000000001",
+            "version": 4
+          },
+          {
+            "kind": "ESTIMATE",
+            "id": "70000000-0000-4000-8000-000000000001",
+            "version": 2
+          },
+          {
+            "kind": "ASSIGNMENT",
+            "id": "60000000-0000-4000-8000-000000000001",
+            "version": 3
+          },
+          {
+            "kind": "CALENDAR",
+            "id": "b0000000-0000-4000-8000-000000000001",
+            "version": 1
+          }
+        ],
+        "changes": [
+          {
+            "kind": "ALLOCATION",
+            "id": null,
+            "version": null,
+            "compatibilityProfile": "HUMAN_PERSON_V1",
+            "resourceType": "PERSON",
+            "workItemId": "40000000-0000-4000-8000-000000000001",
+            "assignmentId": "60000000-0000-4000-8000-000000000001",
+            "estimateId": "70000000-0000-4000-8000-000000000001",
+            "personId": "50000000-0000-4000-8000-000000000001",
+            "creditedTeamId": null,
+            "startAt": "2026-09-21T01:00:00Z",
+            "endAt": "2026-09-21T08:00:00Z",
+            "remainingMinutes": 420,
+            "placement": "FIXED_SLOT",
+            "state": "DRAFT",
+            "intent": "UPSERT"
+          }
+        ]
+      }
+    },
+    {
+      "name": "commit-valid",
+      "schemaRef": "#/components/schemas/CommitInput",
+      "valid": true,
+      "value": {
+        "compatibilityProfile": "HUMAN_PERSON_V1",
+        "previewId": "80000000-0000-4000-8000-000000000001",
+        "inputHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "version": 3,
+        "reason": "Synthetic commit",
+        "overrideReason": null
+      }
+    },
+    {
+      "name": "workforce-error-valid",
+      "schemaRef": "#/components/schemas/WFError",
+      "valid": true,
+      "value": {
+        "code": "AUTH_REQUIRED",
+        "retryable": false,
+        "requestId": "a0000000-0000-4000-8000-000000000002",
+        "message": "Authentication is required."
+      }
+    },
+    {
+      "name": "workforce-plan-receipt-valid",
+      "schemaRef": "#/components/schemas/WFPlanReceipt",
+      "valid": true,
+      "value": {
+        "receiptId": "90000000-0000-4000-8000-000000000001",
+        "resourceId": "80000000-0000-4000-8000-000000000001",
+        "resourceType": "WORKFORCE_PLAN",
+        "status": "COMMITTED",
+        "version": 4,
+        "recordedAt": "2026-09-16T06:00:00Z",
+        "auditRef": "audit:synthetic:ma-d01:0001",
+        "requestId": "a0000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "pm-receipt-valid",
+      "schemaRef": "#/components/schemas/PMMutationReceipt",
+      "valid": true,
+      "value": {
+        "receiptId": "90000000-0000-4000-8000-000000000001",
+        "resourceId": "80000000-0000-4000-8000-000000000001",
+        "resourceType": "WORKFORCE_PLAN",
+        "status": "COMMITTED",
+        "version": 4,
+        "recordedAt": "2026-09-16T06:00:00Z",
+        "auditRef": "audit:synthetic:ma-d01:0001",
+        "requestId": "a0000000-0000-4000-8000-000000000001"
+      }
+    },
+    {
+      "name": "preview-empty-version-pins-rejected",
+      "schemaRef": "#/components/schemas/PreviewInput",
+      "value": {
+        "compatibilityProfile": "HUMAN_PERSON_V1",
+        "from": "2026-09-21",
+        "to": "2026-09-27",
+        "timezone": "Asia/Bangkok",
+        "reason": "Synthetic planning example",
+        "sourceVersions": [],
+        "changes": [
+          {
+            "kind": "ALLOCATION",
+            "id": null,
+            "version": null,
+            "compatibilityProfile": "HUMAN_PERSON_V1",
+            "resourceType": "PERSON",
+            "workItemId": "40000000-0000-4000-8000-000000000001",
+            "assignmentId": "60000000-0000-4000-8000-000000000001",
+            "estimateId": "70000000-0000-4000-8000-000000000001",
+            "personId": "50000000-0000-4000-8000-000000000001",
+            "creditedTeamId": null,
+            "startAt": "2026-09-21T01:00:00Z",
+            "endAt": "2026-09-21T08:00:00Z",
+            "remainingMinutes": 420,
+            "placement": "FIXED_SLOT",
+            "state": "DRAFT",
+            "intent": "UPSERT"
+          }
+        ]
+      },
+      "valid": false
+    },
+    {
+      "name": "preview-confirmed-state-rejected",
+      "schemaRef": "#/components/schemas/PreviewInput",
+      "value": {
+        "compatibilityProfile": "HUMAN_PERSON_V1",
+        "from": "2026-09-21",
+        "to": "2026-09-27",
+        "timezone": "Asia/Bangkok",
+        "reason": "Synthetic planning example",
+        "sourceVersions": [
+          {
+            "kind": "WORK_ITEM",
+            "id": "40000000-0000-4000-8000-000000000001",
+            "version": 4
+          },
+          {
+            "kind": "ESTIMATE",
+            "id": "70000000-0000-4000-8000-000000000001",
+            "version": 2
+          },
+          {
+            "kind": "ASSIGNMENT",
+            "id": "60000000-0000-4000-8000-000000000001",
+            "version": 3
+          },
+          {
+            "kind": "CALENDAR",
+            "id": "b0000000-0000-4000-8000-000000000001",
+            "version": 1
+          }
+        ],
+        "changes": [
+          {
+            "kind": "ALLOCATION",
+            "id": null,
+            "version": null,
+            "compatibilityProfile": "HUMAN_PERSON_V1",
+            "resourceType": "PERSON",
+            "workItemId": "40000000-0000-4000-8000-000000000001",
+            "assignmentId": "60000000-0000-4000-8000-000000000001",
+            "estimateId": "70000000-0000-4000-8000-000000000001",
+            "personId": "50000000-0000-4000-8000-000000000001",
+            "creditedTeamId": null,
+            "startAt": "2026-09-21T01:00:00Z",
+            "endAt": "2026-09-21T08:00:00Z",
+            "remainingMinutes": 420,
+            "placement": "FIXED_SLOT",
+            "state": "CONFIRMED",
+            "intent": "UPSERT"
+          }
+        ]
+      },
+      "valid": false
+    },
+    {
+      "name": "preview-cancelled-state-rejected",
+      "schemaRef": "#/components/schemas/PreviewInput",
+      "value": {
+        "compatibilityProfile": "HUMAN_PERSON_V1",
+        "from": "2026-09-21",
+        "to": "2026-09-27",
+        "timezone": "Asia/Bangkok",
+        "reason": "Synthetic planning example",
+        "sourceVersions": [
+          {
+            "kind": "WORK_ITEM",
+            "id": "40000000-0000-4000-8000-000000000001",
+            "version": 4
+          },
+          {
+            "kind": "ESTIMATE",
+            "id": "70000000-0000-4000-8000-000000000001",
+            "version": 2
+          },
+          {
+            "kind": "ASSIGNMENT",
+            "id": "60000000-0000-4000-8000-000000000001",
+            "version": 3
+          },
+          {
+            "kind": "CALENDAR",
+            "id": "b0000000-0000-4000-8000-000000000001",
+            "version": 1
+          }
+        ],
+        "changes": [
+          {
+            "kind": "ALLOCATION",
+            "id": null,
+            "version": null,
+            "compatibilityProfile": "HUMAN_PERSON_V1",
+            "resourceType": "PERSON",
+            "workItemId": "40000000-0000-4000-8000-000000000001",
+            "assignmentId": "60000000-0000-4000-8000-000000000001",
+            "estimateId": "70000000-0000-4000-8000-000000000001",
+            "personId": "50000000-0000-4000-8000-000000000001",
+            "creditedTeamId": null,
+            "startAt": "2026-09-21T01:00:00Z",
+            "endAt": "2026-09-21T08:00:00Z",
+            "remainingMinutes": 420,
+            "placement": "FIXED_SLOT",
+            "state": "CANCELLED",
+            "intent": "UPSERT"
+          }
+        ]
+      },
+      "valid": false
+    },
+    {
+      "name": "preview-cancel-draft-valid",
+      "schemaRef": "#/components/schemas/PreviewInput",
+      "value": {
+        "compatibilityProfile": "HUMAN_PERSON_V1",
+        "from": "2026-09-21",
+        "to": "2026-09-27",
+        "timezone": "Asia/Bangkok",
+        "reason": "Synthetic planning example",
+        "sourceVersions": [
+          {
+            "kind": "WORK_ITEM",
+            "id": "40000000-0000-4000-8000-000000000001",
+            "version": 4
+          },
+          {
+            "kind": "ESTIMATE",
+            "id": "70000000-0000-4000-8000-000000000001",
+            "version": 2
+          },
+          {
+            "kind": "ASSIGNMENT",
+            "id": "60000000-0000-4000-8000-000000000001",
+            "version": 3
+          },
+          {
+            "kind": "CALENDAR",
+            "id": "b0000000-0000-4000-8000-000000000001",
+            "version": 1
+          },
+          {
+            "kind": "WORK_ALLOCATION",
+            "id": "80000000-0000-4000-8000-000000000002",
+            "version": 2
+          }
+        ],
+        "changes": [
+          {
+            "kind": "ALLOCATION",
+            "id": "80000000-0000-4000-8000-000000000002",
+            "version": 2,
+            "compatibilityProfile": "HUMAN_PERSON_V1",
+            "resourceType": "PERSON",
+            "workItemId": "40000000-0000-4000-8000-000000000001",
+            "assignmentId": "60000000-0000-4000-8000-000000000001",
+            "estimateId": "70000000-0000-4000-8000-000000000001",
+            "personId": "50000000-0000-4000-8000-000000000001",
+            "creditedTeamId": null,
+            "startAt": "2026-09-21T01:00:00Z",
+            "endAt": "2026-09-21T08:00:00Z",
+            "remainingMinutes": 0,
+            "placement": "FIXED_SLOT",
+            "state": "DRAFT",
+            "intent": "CANCEL"
+          }
+        ]
+      },
+      "valid": true
+    },
+    {
+      "name": "preview-cancel-without-existing-id-rejected",
+      "schemaRef": "#/components/schemas/PreviewInput",
+      "value": {
+        "compatibilityProfile": "HUMAN_PERSON_V1",
+        "from": "2026-09-21",
+        "to": "2026-09-27",
+        "timezone": "Asia/Bangkok",
+        "reason": "Synthetic planning example",
+        "sourceVersions": [
+          {
+            "kind": "WORK_ITEM",
+            "id": "40000000-0000-4000-8000-000000000001",
+            "version": 4
+          },
+          {
+            "kind": "ESTIMATE",
+            "id": "70000000-0000-4000-8000-000000000001",
+            "version": 2
+          },
+          {
+            "kind": "ASSIGNMENT",
+            "id": "60000000-0000-4000-8000-000000000001",
+            "version": 3
+          },
+          {
+            "kind": "CALENDAR",
+            "id": "b0000000-0000-4000-8000-000000000001",
+            "version": 1
+          },
+          {
+            "kind": "WORK_ALLOCATION",
+            "id": "80000000-0000-4000-8000-000000000002",
+            "version": 2
+          }
+        ],
+        "changes": [
+          {
+            "kind": "ALLOCATION",
+            "id": null,
+            "version": 2,
+            "compatibilityProfile": "HUMAN_PERSON_V1",
+            "resourceType": "PERSON",
+            "workItemId": "40000000-0000-4000-8000-000000000001",
+            "assignmentId": "60000000-0000-4000-8000-000000000001",
+            "estimateId": "70000000-0000-4000-8000-000000000001",
+            "personId": "50000000-0000-4000-8000-000000000001",
+            "creditedTeamId": null,
+            "startAt": "2026-09-21T01:00:00Z",
+            "endAt": "2026-09-21T08:00:00Z",
+            "remainingMinutes": 0,
+            "placement": "FIXED_SLOT",
+            "state": "DRAFT",
+            "intent": "CANCEL"
+          }
+        ]
+      },
+      "valid": false
+    },
+    {
+      "name": "preview-upsert-half-identity-rejected",
+      "schemaRef": "#/components/schemas/PreviewInput",
+      "value": {
+        "compatibilityProfile": "HUMAN_PERSON_V1",
+        "from": "2026-09-21",
+        "to": "2026-09-27",
+        "timezone": "Asia/Bangkok",
+        "reason": "Synthetic planning example",
+        "sourceVersions": [
+          {
+            "kind": "WORK_ITEM",
+            "id": "40000000-0000-4000-8000-000000000001",
+            "version": 4
+          },
+          {
+            "kind": "ESTIMATE",
+            "id": "70000000-0000-4000-8000-000000000001",
+            "version": 2
+          },
+          {
+            "kind": "ASSIGNMENT",
+            "id": "60000000-0000-4000-8000-000000000001",
+            "version": 3
+          },
+          {
+            "kind": "CALENDAR",
+            "id": "b0000000-0000-4000-8000-000000000001",
+            "version": 1
+          }
+        ],
+        "changes": [
+          {
+            "kind": "ALLOCATION",
+            "id": null,
+            "version": 1,
+            "compatibilityProfile": "HUMAN_PERSON_V1",
+            "resourceType": "PERSON",
+            "workItemId": "40000000-0000-4000-8000-000000000001",
+            "assignmentId": "60000000-0000-4000-8000-000000000001",
+            "estimateId": "70000000-0000-4000-8000-000000000001",
+            "personId": "50000000-0000-4000-8000-000000000001",
+            "creditedTeamId": null,
+            "startAt": "2026-09-21T01:00:00Z",
+            "endAt": "2026-09-21T08:00:00Z",
+            "remainingMinutes": 420,
+            "placement": "FIXED_SLOT",
+            "state": "DRAFT",
+            "intent": "UPSERT"
+          }
+        ]
+      },
+      "valid": false
+    },
+    {
+      "name": "override-reason-representable-main-receipt",
+      "schemaRef": "#/components/schemas/PMMutationReceipt",
+      "value": {
+        "receiptId": "90000000-0000-4000-8000-000000000001",
+        "resourceId": "80000000-0000-4000-8000-000000000001",
+        "resourceType": "WORKFORCE_PLAN",
+        "status": "COMMITTED",
+        "version": 4,
+        "recordedAt": "2026-09-16T06:00:00Z",
+        "auditRef": "audit:synthetic:ma-d01:0001",
+        "requestId": "a0000000-0000-4000-8000-000000000001",
+        "capacityOverrideReason": "Approved synthetic capacity exception"
+      },
+      "valid": true
+    },
+    {
+      "name": "override-reason-representable-workforce-receipt",
+      "schemaRef": "#/components/schemas/WFPlanReceipt",
+      "value": {
+        "receiptId": "90000000-0000-4000-8000-000000000001",
+        "resourceId": "80000000-0000-4000-8000-000000000001",
+        "resourceType": "WORKFORCE_PLAN",
+        "status": "COMMITTED",
+        "version": 4,
+        "recordedAt": "2026-09-16T06:00:00Z",
+        "auditRef": "audit:synthetic:ma-d01:0001",
+        "requestId": "a0000000-0000-4000-8000-000000000001",
+        "capacityOverrideReason": "Approved synthetic capacity exception"
+      },
+      "valid": true
+    },
+    {
+      "name": "error-body-401-AUTH_REQUIRED",
+      "schemaRef": "#/components/schemas/WFError",
+      "value": {
+        "code": "AUTH_REQUIRED",
+        "retryable": false,
+        "requestId": "a0000000-0000-4000-8000-000000000002",
+        "message": "Authentication is required."
+      },
+      "valid": true
+    },
+    {
+      "name": "error-body-403-CSRF_INVALID",
+      "schemaRef": "#/components/schemas/WFError",
+      "value": {
+        "code": "CSRF_INVALID",
+        "retryable": false,
+        "requestId": "a0000000-0000-4000-8000-000000000003",
+        "message": "The CSRF token or same-origin check was refused."
+      },
+      "valid": true
+    },
+    {
+      "name": "error-body-404-RESOURCE_NOT_FOUND",
+      "schemaRef": "#/components/schemas/WFError",
+      "value": {
+        "code": "RESOURCE_NOT_FOUND",
+        "retryable": false,
+        "requestId": "a0000000-0000-4000-8000-000000000004",
+        "message": "The requested resource was not found."
+      },
+      "valid": true
+    },
+    {
+      "name": "error-body-409-IDEMPOTENCY_KEY_REUSED",
+      "schemaRef": "#/components/schemas/WFError",
+      "value": {
+        "code": "IDEMPOTENCY_KEY_REUSED",
+        "retryable": false,
+        "requestId": "a0000000-0000-4000-8000-000000000005",
+        "message": "The idempotency key is already bound to a different command."
+      },
+      "valid": true
+    },
+    {
+      "name": "error-body-409-CAPACITY_CONFLICT",
+      "schemaRef": "#/components/schemas/WFError",
+      "value": {
+        "code": "CAPACITY_CONFLICT",
+        "retryable": true,
+        "requestId": "a0000000-0000-4000-8000-000000000006",
+        "message": "The allocation conflicts with a concurrent capacity change."
+      },
+      "valid": true
+    },
+    {
+      "name": "error-body-412-VERSION_MISMATCH",
+      "schemaRef": "#/components/schemas/WFError",
+      "value": {
+        "code": "VERSION_MISMATCH",
+        "retryable": true,
+        "currentVersion": 5,
+        "currentEtag": "\"workforce-plan/80000000-0000-4000-8000-000000000001/v5\"",
+        "requestId": "a0000000-0000-4000-8000-000000000007",
+        "message": "The supplied version is stale."
+      },
+      "valid": true
+    },
+    {
+      "name": "error-body-422-ALLOCATION_UNIT_CONVERSION_REQUIRED",
+      "schemaRef": "#/components/schemas/WFError",
+      "value": {
+        "code": "ALLOCATION_UNIT_CONVERSION_REQUIRED",
+        "retryable": false,
+        "requestId": "a0000000-0000-4000-8000-000000000008",
+        "message": "effortHours does not convert exactly to integer minutes.",
+        "fields": [
+          {
+            "path": "effortHours",
+            "code": "ALLOCATION_UNIT_CONVERSION_REQUIRED",
+            "message": "Use exact decimal hours or remainingMinutes."
+          }
+        ]
+      },
+      "valid": true
+    },
+    {
+      "name": "error-body-400-INVALID_REQUEST",
+      "schemaRef": "#/components/schemas/WFError",
+      "value": {
+        "code": "INVALID_REQUEST",
+        "message": "The request is invalid.",
+        "requestId": "a0000000-0000-4000-8000-000000000001",
+        "retryable": false
+      },
+      "valid": true
+    },
+    {
+      "name": "error-body-410-RESOURCE_GONE",
+      "schemaRef": "#/components/schemas/WFError",
+      "value": {
+        "code": "RESOURCE_GONE",
+        "message": "The authorized resource is no longer available.",
+        "requestId": "a0000000-0000-4000-8000-000000000001",
+        "retryable": false
+      },
+      "valid": true
+    },
+    {
+      "name": "error-body-413-PAYLOAD_TOO_LARGE",
+      "schemaRef": "#/components/schemas/WFError",
+      "value": {
+        "code": "PAYLOAD_TOO_LARGE",
+        "message": "The request exceeds the documented limit.",
+        "requestId": "a0000000-0000-4000-8000-000000000001",
+        "retryable": false
+      },
+      "valid": true
+    },
+    {
+      "name": "error-body-422-SOURCE_VERSION_SET_INCOMPLETE",
+      "schemaRef": "#/components/schemas/WFError",
+      "value": {
+        "code": "SOURCE_VERSION_SET_INCOMPLETE",
+        "message": "The required source version set is incomplete.",
+        "requestId": "a0000000-0000-4000-8000-000000000001",
+        "retryable": false
+      },
+      "valid": true
+    },
+    {
+      "name": "error-body-428-PRECONDITION_REQUIRED",
+      "schemaRef": "#/components/schemas/WFError",
+      "value": {
+        "code": "PRECONDITION_REQUIRED",
+        "message": "A version precondition is required.",
+        "requestId": "a0000000-0000-4000-8000-000000000002",
+        "retryable": false
+      },
+      "valid": true
+    },
+    {
+      "name": "error-body-429-RATE_LIMITED",
+      "schemaRef": "#/components/schemas/WFError",
+      "value": {
+        "code": "RATE_LIMITED",
+        "message": "Retry after the documented delay.",
+        "requestId": "a0000000-0000-4000-8000-000000000002",
+        "retryable": true
+      },
+      "valid": true
+    },
+    {
+      "name": "error-body-503-SESSION_UNAVAILABLE",
+      "schemaRef": "#/components/schemas/WFError",
+      "value": {
+        "code": "SESSION_UNAVAILABLE",
+        "message": "Session resolution is temporarily unavailable.",
+        "requestId": "a0000000-0000-4000-8000-000000000002",
+        "retryable": true
+      },
+      "valid": true
+    }
+  ],
+  "scopeRefusalCases": [
+    {
+      "name": "unknown-resource",
+      "lookup": "resourceId",
+      "targetState": "unknown",
+      "expected": {
+        "http": 404,
+        "code": "RESOURCE_NOT_FOUND",
+        "redacted": true
+      }
+    },
+    {
+      "name": "foreign-resource",
+      "lookup": "resourceId",
+      "targetState": "exists-outside-trusted-business",
+      "expected": {
+        "http": 404,
+        "code": "RESOURCE_NOT_FOUND",
+        "redacted": true
+      }
+    },
+    {
+      "name": "in-scope-non-person-resource",
+      "lookup": "resourceId",
+      "targetState": "exists-in-scope-with-type-asset-or-agent",
+      "expected": {
+        "http": 422,
+        "code": "RESOURCE_TYPE_UNSUPPORTED",
+        "redacted": false
+      }
+    },
+    {
+      "name": "in-scope-person-without-effective-mapping",
+      "lookup": "resourceId",
+      "targetState": "person-in-scope-but-assignment-or-estimate-unresolved",
+      "expected": {
+        "http": 422,
+        "code": "ALLOCATION_COMPATIBILITY_INCOMPLETE",
+        "redacted": false
+      }
+    }
+  ],
+  "receiptResponseHeaders": {
+    "ETag": "\"workforce-plan/80000000-0000-4000-8000-000000000001/v4\"",
+    "X-Request-ID": "a0000000-0000-4000-8000-000000000001"
+  },
+  "receiptReplayResponseHeaders": {
+    "ETag": "\"workforce-plan/80000000-0000-4000-8000-000000000001/v4\"",
+    "X-Request-ID": "a0000000-0000-4000-8000-000000000009"
+  },
+  "attempt": 3,
+  "fixtureEnvelope": "errorExamples.http is fixture routing metadata, not a JSON response-body property. Validate the remaining object as the error body.",
+  "overrideReceiptResponse": {
+    "receiptId": "90000000-0000-4000-8000-000000000001",
+    "resourceId": "80000000-0000-4000-8000-000000000001",
+    "resourceType": "WORKFORCE_PLAN",
+    "status": "COMMITTED",
+    "version": 4,
+    "recordedAt": "2026-09-16T06:00:00Z",
+    "auditRef": "audit:synthetic:ma-d01:0001",
+    "requestId": "a0000000-0000-4000-8000-000000000001",
+    "capacityOverrideReason": "Approved synthetic capacity exception"
+  }
+}

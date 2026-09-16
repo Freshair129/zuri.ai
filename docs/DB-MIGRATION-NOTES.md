@@ -2,11 +2,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.8 |
+| **Version** | 1.0.9 |
 | **Status** | Approved |
 | **Author** | Claude (build agent) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-09-06 |
+| **Last Updated** | 2026-09-16 |
 
 The MVP schema was designed to move to Postgres without semantic changes.
 
@@ -141,6 +141,57 @@ it can be removed. A baseline entry is repaid by a migration file, never by
 checking that production happens to have the column — the guard reads files,
 not databases, and that is what makes it runnable in CI.
 
+**`ALTER DEFAULT PRIVILEGES` only reaches the grantor that runs it, and this
+schema has two.** The sentence above — "Supabase default privileges re-grant on
+every new table" — has a mechanism, and knowing it changes what a hardening
+migration can honestly claim. `pg_default_acl` is keyed on
+*(grantor role, schema, object type)*, and the entry consulted when an object is
+created is the one belonging to **whichever role creates it**. In `public` there
+are two grantors, measured on production 2026-09-07:
+
+| grantor | table | sequence | function |
+|---|---|---|---|
+| `postgres` | `postgres`, `zuri_app_runtime` | `postgres`, `zuri_app_runtime` | `postgres` |
+| `supabase_admin` | + `anon`, `authenticated`, `service_role` | + `anon`, `authenticated`, `service_role` | + `anon`, `authenticated`, `service_role` |
+
+Migrations here run as `postgres` (`DIRECT_URL`; `select current_user` confirms
+it), so `20260906235000_revoke_service_role_on_public.sql` and
+`20260907130000_revoke_execute_on_public_functions.sql` cleaned the `postgres`
+row and could not touch the `supabase_admin` row — `ALTER DEFAULT PRIVILEGES`
+silently addresses only the executing role's own entry, and `FOR ROLE
+supabase_admin` needs membership of that role, which `postgres` does not have on
+hosted Supabase. Both migrations did exactly what they say for the grantor they
+own. Neither made `public` unconditionally safe for a future object, and
+`20260907130000`'s header — which records `pg_default_acl type 'f' (postgres)` —
+is accurate about what it measured while reading, to a hurried eye, like total
+closure.
+
+What follows, and what does not. Objects created by app migrations are created
+by `postgres`, so the ordinary path lands clean and **no live exposure exists**:
+on 2026-09-07 `role_table_grants` returned zero rows for all three API roles and
+`public` held no functions. The `supabase_admin` row bites only for an object
+created *by* `supabase_admin` — some platform and extension operations — and it
+is stock Supabase state present in every project, so treat it as the platform's
+default rather than a defect this repo introduced or can repair. `service_role`
+is the one to watch if it ever does bite: `rolbypassrls = true`, so RLS is not a
+second line of defence behind it (`anon` and `authenticated` are `false`).
+
+So a migration may claim it closed the default grant **it grants**, never that
+`public` is closed. When one lands, read both rows:
+
+```sql
+select pg_get_userbyid(defaclrole) as grantor,
+       case defaclobjtype when 'r' then 'table' when 'S' then 'sequence'
+            when 'f' then 'function' when 'T' then 'type' end as objtype,
+       defaclacl::text as acl
+from pg_default_acl d join pg_namespace n on n.oid = d.defaclnamespace
+where n.nspname = 'public' order by grantor, objtype;
+```
+
+The `postgres` row is the project's to keep clean and the thing a migration is
+answerable for. The `supabase_admin` row is the platform's; record it, do not
+report it as closed, and do not write a migration that pretends to close it.
+
 ## Supabase cutover — concrete steps (FR-030, ADR-007 P4)
 
 The lab stays SQLite (`prisma/schema.prisma`); production is generated, not hand-edited:
@@ -238,6 +289,45 @@ MSP persists in **its own store** (the `D:\msp` repo, reached over stdio), confi
 *instance* but must use a separate database/schema/role, because MSP and Zuri have
 different lifecycles: an MSP migration failure must never drag CRM/audit/invoice down.
 DuckDB remains a local cache/analytics/eval tier — not the transactional store.
+
+## Applied — conversation sessions, LINE job session, and the backfill (TASK-ZAI-108, 2026-09-16)
+
+Two migrations from FR-243/ADR-094 — `20260916090000_crm_conversation_sessions.sql`
+(the `ConversationSession` table, `Message.sessionId`, `ConversationEvent.sessionId`,
+`LineOaAccount.sessionIdleTimeoutMinutes`) and `20260916120000_line_job_session.sql`
+(`LineConversationJob.sessionId`) — were applied to production on 2026-09-16 under
+ADR-057, operator session Claude Sonnet 5. Read-only inventory first (ledger tail,
+target versions absent, the four new columns absent, both roles present), then both
+files run together inside one transaction and rolled back with the same
+verification queries run mid-transaction (columns, the five FKs, RLS forced, grants
+scoped to `zuri_app_runtime`/`zuri_web_login`), then re-run and committed with the
+two ledger rows. A fresh connection confirmed both ledger rows, the table present
+with 0 rows, and 236 `Message` rows still unsessioned (expected — the backfill runs
+next).
+
+The backfill (`apps/server/src/modules/crm/conversation-session-backfill.js`) has no
+route to the production image — the runtime container carries no `vite-node`,
+`vitest`, `tests/` directory or `vitest.config.js`, so the documented
+`backfill-conversation-sessions.mjs` invocation cannot run there. Its pure grouping
+logic (`planSittings`, `sittingIndexAt`, and the idle-timeout/session-code helpers
+from `conversation-session-service.js`) was ported verbatim into a raw-SQL `pg`
+script and run the same way as the migration: dry run first (report only, rolled
+back), then applied inside one transaction. Result on the real production data — 6
+conversations, 236 messages: 38 sessions created, all 236 messages assigned, all 49
+reply-linked `LineConversationJob` rows assigned, 2 of 3 unsessioned
+`ConversationEvent` rows assigned and the third left alone because it is a `FOLLOW`
+event that occurred 40 seconds before that conversation's first message — outside
+every session's window under the same rule the live application would apply.
+`Message` rows with no session after apply: 0.
+
+`main` (`0f5a47fc`, including PR #422) was then built as
+`zuri-ai-web:release-0f5a47fc` and deployed via `docker compose up -d
+--remove-orphans` from `apps/server` — migration before deploy, on purpose, because
+the new image's Prisma client reads the new columns. The redeploy kept the ADR-061
+overlay: `com.docker.compose.project.config_files` names both `docker-compose.yml`
+and `docker-compose.line-server.yml`, `ZURI_LINE_SERVER_ENABLED=true`, `/api/health`
+and `/login` both 200, and `zuri-ai-line-worker-1` logs a clean
+`{"event":"line.worker.tick","status":200,"outcome":"IDLE"}`.
 
 ## Cautions
 

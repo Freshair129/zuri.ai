@@ -2,30 +2,39 @@
 // @spec SDD-060, SDD-061 — Sub-studio Workspace Container
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import LineStudioFlowDesigner from "./LineStudioFlowDesigner";
 import LineStudioFlexEditor from "./LineStudioFlexEditor";
-import LineStudioRichMenu from "./LineStudioRichMenu";
+import { RichMenusWorkspace } from "@/app/(pm)/line-oa/rich-menus/page";
 import LineStudioLiffApp from "./LineStudioLiffApp";
-import {
-  ArrowLeft,
-  Zap,
-  LayoutTemplate,
-  Smartphone,
-  Globe,
-  Save,
-  Check,
-  Sparkles
-} from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
-export default function LineStudioDesignHub({ project, onBackToProjects }) {
-  const [activeSubTab, setActiveSubTab] = useState("flow"); // 'flow' | 'flex' | 'richmenu' | 'liff'
+export default function LineStudioDesignHub({ project, onAccountChange, onBackToProjects }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const toolParam = searchParams.get("tool");
+  const requestedTool = toolParam === "rich-menu" ? "richmenu" : ["flow", "flex", "liff"].includes(toolParam) ? toolParam : "flow";
+  const [activeSubTab, setActiveSubTab] = useState(requestedTool); // 'flow' | 'flex' | 'richmenu' | 'liff'
+
+  useEffect(() => {
+    setActiveSubTab(requestedTool);
+  }, [requestedTool]);
+
+  const selectSubTab = (tabId) => {
+    setActiveSubTab(tabId);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("tool", tabId === "richmenu" ? "rich-menu" : tabId);
+    const query = params.toString();
+    router.replace(`${pathname}${query ? `?${query}` : ""}`);
+  };
 
   const subTabs = [
-    { id: "flow", label: "⚡ Flow Designer", icon: Zap, color: "text-amber-500" },
-    { id: "flex", label: "🎴 Flex Message", icon: LayoutTemplate, color: "text-blue-500" },
-    { id: "richmenu", label: "📱 Rich Menu", icon: Smartphone, color: "text-orange-500" },
-    { id: "liff", label: "🌐 LIFF App", icon: Globe, color: "text-cyan-500" }
+    { id: "flow", label: "⚡ Flow Designer" },
+    { id: "flex", label: "🎴 Flex Message" },
+    { id: "richmenu", label: "📱 Rich Menu" },
+    { id: "liff", label: "🌐 LIFF App" }
   ];
 
   return (
@@ -39,7 +48,7 @@ export default function LineStudioDesignHub({ project, onBackToProjects }) {
             className="p-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 hover:bg-slate-100 hover:text-brand-dark transition-colors flex items-center gap-1.5 font-semibold"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>← {project?.name || "รวมบัญชี & กลุ่ม"}</span>
+            <span>← {project?.displayName || project?.name || project?.code || "รวมบัญชี & กลุ่ม"}</span>
           </button>
           <span className="text-slate-400">/</span>
           <span className="font-bold text-slate-900 dark:text-white">Design Studio</span>
@@ -50,7 +59,7 @@ export default function LineStudioDesignHub({ project, onBackToProjects }) {
           {subTabs.map(tab => (
             <button
               key={tab.id}
-              onClick={() => setActiveSubTab(tab.id)}
+              onClick={() => selectSubTab(tab.id)}
               className={`px-3.5 py-1.5 rounded-xl font-semibold transition-all whitespace-nowrap ${
                 activeSubTab === tab.id
                   ? "bg-emerald-600 text-white shadow-sm"
@@ -67,7 +76,7 @@ export default function LineStudioDesignHub({ project, onBackToProjects }) {
       <div>
         {activeSubTab === "flow" && <LineStudioFlowDesigner project={project} />}
         {activeSubTab === "flex" && <LineStudioFlexEditor project={project} />}
-        {activeSubTab === "richmenu" && <LineStudioRichMenu project={project} />}
+        {activeSubTab === "richmenu" && <RichMenusWorkspace initialAccountId={project?.id} onAccountChange={onAccountChange} />}
         {activeSubTab === "liff" && <LineStudioLiffApp project={project} />}
       </div>
     </div>

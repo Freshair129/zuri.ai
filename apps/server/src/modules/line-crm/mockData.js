@@ -259,51 +259,6 @@ export const CAMPAIGNS = [
   { id: 'c-5', name: 'แบบสอบถามความพึงพอใจ', format: 'ข้อความ + ปุ่ม', status: 'draft', statusText: 'ร่าง', target: 'ซื้อใน 30 วัน', sent: '-', opened: '-', clicked: '-', scheduled: 'ยังไม่กำหนด' },
 ]
 
-export const CONNECTED_LINE_OAS = [
-  {
-    id: 'oa-1',
-    name: 'LineCRM-MCP Official',
-    handle: '@linecrm_mcp',
-    status: 'normal',
-    statusText: 'ปกติ',
-    followers: '12,458',
-    webhookStatus: 'Verified',
-    webhookFailRate: null,
-    channelId: '200xxxxxx1',
-    tokenStatus: 'ใช้งานได้',
-    lastUpdated: '11 ส.ค. 2569',
-    color: 'bg-emerald-500'
-  },
-  {
-    id: 'oa-2',
-    name: 'Shop by LineCRM',
-    handle: '@linecrm_shop',
-    status: 'normal',
-    statusText: 'ปกติ',
-    followers: '4,821',
-    webhookStatus: 'Verified',
-    webhookFailRate: null,
-    channelId: '200xxxxxx2',
-    tokenStatus: 'ใช้งานได้',
-    lastUpdated: '10 ส.ค. 2569',
-    color: 'bg-purple-600'
-  },
-  {
-    id: 'oa-3',
-    name: 'Academy by LineCRM',
-    handle: '@linecrm_academy',
-    status: 'expiring',
-    statusText: 'ต้องต่ออายุ',
-    followers: '1,663',
-    webhookStatus: '3.8% Fail',
-    webhookFailRate: '3.8% Fail',
-    channelId: '200xxxxxx3',
-    tokenStatus: 'หมดอายุใน 3 วัน',
-    lastUpdated: '2 ส.ค. 2569',
-    color: 'bg-amber-500'
-  }
-]
-
 export const AUTOMATION_FLOWS = [
   {
     id: 'flow-1',

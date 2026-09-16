@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
-import { Card, DataTable, Kpi, PageHeader, SectionTitle } from '@/components/ui'
+import { Card, DataTable, Kpi, ModuleTabs, PageHeader, SectionTitle } from '@/components/ui'
+import { COMMERCE_TABS } from '@/lib/module-tabs'
 import { useScope } from '@/context/ScopeContext'
 import { PAYMENT_KINDS, PAYMENT_METHODS, SALES_ORDER_ACTIONS, SALES_ORDER_ORIGINS } from '@/lib/validation/enums'
 
@@ -141,6 +142,7 @@ export default function CommerceOrdersPage() {
   const open = data?.orders.find((o) => o.id === openId)
 
   return <div>
+    <ModuleTabs tabs={COMMERCE_TABS} />
     <PageHeader
       eyebrow="Commerce · FEAT-023"
       title="ออเดอร์ (Orders)"

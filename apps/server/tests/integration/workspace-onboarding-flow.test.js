@@ -106,11 +106,11 @@ describe('FR-066/FR-067 workspace onboarding flow', () => {
     expect(minted.inviteToken).toMatch(/^[a-f0-9]{64}$/)
 
     // Hash-bound storage: the raw token exists nowhere in the database (SEC-014).
-    const stored = await prisma.workspaceInvite.findUnique({
+    const stored = await prisma.accessInvite.findUnique({
       where: { tokenHash: hashWorkspaceInviteToken(minted.inviteToken) },
     })
     expect(stored).toBeTruthy()
-    expect(await prisma.workspaceInvite.findFirst({ where: { tokenHash: minted.inviteToken } })).toBeNull()
+    expect(await prisma.accessInvite.findFirst({ where: { tokenHash: minted.inviteToken } })).toBeNull()
 
     // AC-066.3 — the invite shows up in the member's own waiting room…
     const waiting = await getOnboardingState({ personId: member.id })

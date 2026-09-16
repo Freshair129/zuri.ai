@@ -13,13 +13,21 @@ import {
   requestPipelineReplay as defaultRequestPipelineReplay,
 } from '@/platform/integrations/core/pipeline-tracking-service'
 import { stageDocumentIntakeForPipeline as defaultStageDocumentIntakeForPipeline } from '@/platform/integrations/core/cloud-sot-agent'
+import {
+  admitKnowledge as defaultAdmitKnowledge,
+  listKnowledgeIngestions as defaultListKnowledgeIngestions,
+  readKnowledgeIngestion as defaultReadKnowledgeIngestion,
+} from '@/modules/knowledge/knowledge-admission-service'
 
 // @req FR-069 — Agent intake uses the same PlanEnvelope dry-run/commit boundary
 // as the Human UI and HTTP API.
 // @req FR-071 — Codex uses a separate data_pipeline MCP namespace over the
 // existing server-owned staging/tracking services.
-// @spec ADR-029, ADR-040, SEC-001, SEC-008
-// @tested tests/unit/project-manager-mcp.test.js, tests/unit/pipeline-mcp-transport.test.js
+// @req FR-187 — `knowledge.ingestion_create` passes a FILE source's `format`
+// through unchanged, so an agent admits a SmartGift structured projection over
+// the same tool as Text/Markdown rather than a second MCP surface.
+// @spec ADR-029, ADR-040, ADR-075, SEC-001, SEC-008
+// @tested tests/unit/project-manager-mcp.test.js, tests/unit/pipeline-mcp-transport.test.js, tests/unit/knowledge-admission-mcp.test.js
 
 export const MCP_PROTOCOL_VERSION = '2024-11-05'
 
@@ -42,6 +50,12 @@ const PIPELINE_EVENT_ARGUMENT_KEYS = new Set([
 ])
 const MONITOR_ARGUMENT_KEYS = new Set(['executionRunId'])
 const REPLAY_ARGUMENT_KEYS = new Set(['executionRunId', 'replay'])
+const KNOWLEDGE_INGESTION_CREATE_ARGUMENT_KEYS = new Set(['businessId', 'projectId', 'idempotencyKey', 'source'])
+const KNOWLEDGE_INGESTION_LIST_ARGUMENT_KEYS = new Set(['businessId', 'projectId', 'limit'])
+const KNOWLEDGE_INGESTION_STATUS_ARGUMENT_KEYS = new Set(['runId'])
+const KNOWLEDGE_QUERY_ARGUMENT_KEYS = new Set(['businessId', 'projectId', 'query', 'topK'])
+const KNOWLEDGE_CITATION_ARGUMENT_KEYS = new Set(['citationId'])
+const KNOWLEDGE_WITHDRAW_ARGUMENT_KEYS = new Set(['sourceId', 'expectedVersion'])
 
 const TOOL_DEFINITIONS = [
   {
@@ -141,6 +155,74 @@ const TOOL_DEFINITIONS = [
     required: ['executionRunId', 'replay'],
     properties: { executionRunId: { type: 'string' }, replay: { type: 'object' } },
   },
+  {
+    name: 'knowledge.ingestion_create',
+    description: 'Admit one immutable Text/Markdown source version, or one structured-record projection (FILE source with format=SMARTGIFT_CATALOG_V1, which is split into one immutable source per record), to the authorized Business or Project corpus.',
+    handler: 'knowledge.ingestionCreate',
+    readOnly: false,
+    argumentKeys: KNOWLEDGE_INGESTION_CREATE_ARGUMENT_KEYS,
+    required: ['businessId', 'idempotencyKey', 'source'],
+    properties: {
+      businessId: { type: 'string' },
+      projectId: { type: ['string', 'null'] },
+      idempotencyKey: { type: 'string' },
+      source: { type: 'object', description: 'TEXT or FILE source descriptor; content is accepted only for TEXT. A FILE source may name format=SMARTGIFT_CATALOG_V1, in which case sourceKey and version are derived from the frozen file bytes and must be omitted.' },
+    },
+  },
+  {
+    name: 'knowledge.ingestion_list',
+    description: 'List authorized knowledge admission jobs without returning raw source content.',
+    handler: 'knowledge.ingestionList',
+    readOnly: true,
+    argumentKeys: KNOWLEDGE_INGESTION_LIST_ARGUMENT_KEYS,
+    required: ['businessId'],
+    properties: {
+      businessId: { type: 'string' },
+      projectId: { type: ['string', 'null'] },
+      limit: { type: 'integer' },
+    },
+  },
+  {
+    name: 'knowledge.ingestion_status',
+    description: 'Read one authorized admission job and its separate native executionRunId.',
+    handler: 'knowledge.ingestionStatus',
+    readOnly: true,
+    argumentKeys: KNOWLEDGE_INGESTION_STATUS_ARGUMENT_KEYS,
+    required: ['runId'],
+    properties: { runId: { type: 'string' } },
+  },
+  {
+    name: 'knowledge.query',
+    description: 'Query the authorized pinned knowledge corpus and return verified citations.',
+    handler: 'knowledge.query',
+    readOnly: true,
+    argumentKeys: KNOWLEDGE_QUERY_ARGUMENT_KEYS,
+    required: ['businessId', 'query'],
+    properties: {
+      businessId: { type: 'string' },
+      projectId: { type: ['string', 'null'] },
+      query: { type: 'string' },
+      topK: { type: 'integer' },
+    },
+  },
+  {
+    name: 'knowledge.citation',
+    description: 'Resolve one authorized version-bound knowledge citation.',
+    handler: 'knowledge.citation',
+    readOnly: true,
+    argumentKeys: KNOWLEDGE_CITATION_ARGUMENT_KEYS,
+    required: ['citationId'],
+    properties: { citationId: { type: 'string' } },
+  },
+  {
+    name: 'knowledge.source_withdraw',
+    description: 'Withdraw one knowledge source with optimistic concurrency.',
+    handler: 'knowledge.sourceWithdraw',
+    readOnly: false,
+    argumentKeys: KNOWLEDGE_WITHDRAW_ARGUMENT_KEYS,
+    required: ['sourceId', 'expectedVersion'],
+    properties: { sourceId: { type: 'string' }, expectedVersion: { type: 'integer' } },
+  },
 ]
 
 const TOOL_BY_NAME = new Map(TOOL_DEFINITIONS.map((tool) => [tool.name, tool]))
@@ -184,7 +266,7 @@ function validateRequest(message) {
   }
   if (Object.prototype.hasOwnProperty.call(message, 'id')) {
     const id = message.id
-    if (!['string', 'number'].includes(typeof id) || !Number.isFinite(id)) {
+    if (!['string', 'number'].includes(typeof id) || (typeof id === 'number' && !Number.isFinite(id))) {
       return 'Request id must be a string or finite number'
     }
   }
@@ -263,6 +345,51 @@ function validateToolArguments(name, rawArguments) {
       throw new Error('data_pipeline.replay_request requires executionRunId and replay')
     }
   }
+  if (name === 'knowledge.ingestion_create') {
+    if (typeof args.businessId !== 'string' || !args.businessId.trim()) {
+      throw new Error('knowledge.ingestion_create requires businessId')
+    }
+    if (typeof args.idempotencyKey !== 'string' || !args.idempotencyKey.trim()) {
+      throw new Error('knowledge.ingestion_create requires idempotencyKey')
+    }
+    if (!isRecord(args.source)) throw new Error('knowledge.ingestion_create requires a source object')
+    if (args.projectId !== undefined && args.projectId !== null && typeof args.projectId !== 'string') {
+      throw new Error('knowledge.ingestion_create projectId must be a string when provided')
+    }
+  }
+  if (name === 'knowledge.ingestion_list') {
+    if (typeof args.businessId !== 'string' || !args.businessId.trim()) {
+      throw new Error('knowledge.ingestion_list requires businessId')
+    }
+    if (args.projectId !== undefined && args.projectId !== null && typeof args.projectId !== 'string') {
+      throw new Error('knowledge.ingestion_list projectId must be a string when provided')
+    }
+    if (args.limit !== undefined && (!Number.isInteger(args.limit) || args.limit < 1 || args.limit > 100)) {
+      throw new Error('knowledge.ingestion_list limit must be an integer between 1 and 100')
+    }
+  }
+  if (name === 'knowledge.ingestion_status' && (typeof args.runId !== 'string' || !args.runId.trim())) {
+    throw new Error('knowledge.ingestion_status requires runId')
+  }
+  if (name === 'knowledge.query') {
+    if (typeof args.businessId !== 'string' || !args.businessId.trim() || typeof args.query !== 'string' || !args.query.trim()) {
+      throw new Error('knowledge.query requires businessId and query')
+    }
+    if (args.projectId !== undefined && args.projectId !== null && typeof args.projectId !== 'string') {
+      throw new Error('knowledge.query projectId must be a string when provided')
+    }
+    if (args.topK !== undefined && (!Number.isInteger(args.topK) || args.topK < 1 || args.topK > 100)) {
+      throw new Error('knowledge.query topK must be an integer between 1 and 100')
+    }
+  }
+  if (name === 'knowledge.citation' && (typeof args.citationId !== 'string' || !args.citationId.trim())) {
+    throw new Error('knowledge.citation requires citationId')
+  }
+  if (name === 'knowledge.source_withdraw') {
+    if (typeof args.sourceId !== 'string' || !args.sourceId.trim() || !Number.isInteger(args.expectedVersion) || args.expectedVersion < 1) {
+      throw new Error('knowledge.source_withdraw requires sourceId and a positive expectedVersion')
+    }
+  }
   rejectExecutablePayload(args)
   return args
 }
@@ -283,7 +410,7 @@ function toolList() {
     annotations: {
       readOnlyHint: tool.readOnly,
       destructiveHint: !tool.readOnly,
-      idempotentHint: tool.readOnly || tool.name === 'data_pipeline.run_create' || tool.name === 'data_pipeline.event_record',
+      idempotentHint: tool.readOnly || tool.name === 'data_pipeline.run_create' || tool.name === 'data_pipeline.event_record' || tool.name === 'knowledge.ingestion_create',
       openWorldHint: false,
     },
     inputSchema: {
@@ -299,6 +426,12 @@ function protocolFailure(id, status, code, message) {
   return { status, body: jsonRpcError(id, code, message) }
 }
 
+async function defaultKnowledgeCorpusCall(name, args) {
+  const module = await import('@/modules/knowledge/knowledge-corpus-service')
+  if (typeof module[name] !== 'function') throw new Error(`Knowledge corpus operation is unavailable: ${name}`)
+  return module[name](...args)
+}
+
 /**
  * Stateful JSON-RPC transport for a process-local MCP session registry.
  * Authentication is request-scoped: a session id is only a protocol
@@ -309,6 +442,7 @@ export function createProjectManagerMcpTransport({
   commitPlan = defaultCommitPlan,
   work = {},
   pipeline = {},
+  knowledge = {},
   sessionIdFactory = () => randomUUID(),
 } = {}) {
   const workServices = {
@@ -325,10 +459,19 @@ export function createProjectManagerMcpTransport({
     requestPipelineReplay: defaultRequestPipelineReplay,
     ...pipeline,
   }
+  const knowledgeServices = {
+    admitKnowledge: defaultAdmitKnowledge,
+    listKnowledgeIngestions: defaultListKnowledgeIngestions,
+    readKnowledgeIngestion: defaultReadKnowledgeIngestion,
+    queryKnowledgeCorpus: (input, options) => defaultKnowledgeCorpusCall('queryKnowledgeCorpus', [input, options]),
+    resolveKnowledgeCitation: (id, options) => defaultKnowledgeCorpusCall('resolveKnowledgeCitation', [id, options]),
+    withdrawKnowledgeSource: (id, input, options) => defaultKnowledgeCorpusCall('withdrawKnowledgeSource', [id, input, options]),
+    ...knowledge,
+  }
   const sessions = new Map()
 
   return {
-    async handle(message, { viewer, sessionId } = {}) {
+    async handle(message, { viewer, sessionId, resolveCurrentViewer } = {}) {
       const id = requestId(isRecord(message) ? message : {})
       const invalid = validateRequest(message)
       if (invalid) return protocolFailure(id, 400, -32600, invalid)
@@ -394,6 +537,18 @@ export function createProjectManagerMcpTransport({
           result = await pipelineServices.getPipelineMonitor(args.executionRunId, { viewer })
         } else if (tool.handler === 'pipeline.replayRequest') {
           result = await pipelineServices.requestPipelineReplay(args.executionRunId, args.replay, { viewer })
+        } else if (tool.handler === 'knowledge.ingestionCreate') {
+          result = await knowledgeServices.admitKnowledge(args, { viewer })
+        } else if (tool.handler === 'knowledge.ingestionList') {
+          result = await knowledgeServices.listKnowledgeIngestions(args, { viewer })
+        } else if (tool.handler === 'knowledge.ingestionStatus') {
+          result = await knowledgeServices.readKnowledgeIngestion(args.runId, { viewer })
+        } else if (tool.handler === 'knowledge.query') {
+          result = await knowledgeServices.queryKnowledgeCorpus(args, { viewer, resolveCurrentViewer })
+        } else if (tool.handler === 'knowledge.citation') {
+          result = await knowledgeServices.resolveKnowledgeCitation(args.citationId, { viewer, resolveCurrentViewer })
+        } else if (tool.handler === 'knowledge.sourceWithdraw') {
+          result = await knowledgeServices.withdrawKnowledgeSource(args.sourceId, { expectedVersion: args.expectedVersion }, { viewer })
         }
         return { status: 200, body: resultEnvelope(id, result) }
       } catch (error) {

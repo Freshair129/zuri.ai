@@ -4,7 +4,7 @@
 // @spec SDD-050, SDD-053, BR-001, BR-011, SEC-005
 // @tested tests/e2e/fr091-conversation-inbox.spec.js
 const { test, expect } = require('@playwright/test')
-const { loginAsOwner } = require('./e2e-auth')
+const { loginAsOwner, readScope } = require('./e2e-auth')
 
 async function chooseBusiness(page, name = 'Business 01') {
   await loginAsOwner(page)
@@ -29,7 +29,7 @@ async function chooseBusiness(page, name = 'Business 01') {
  * the assertion the test measures.
  */
 async function ingest(page, { thread, userId, displayName, messages }) {
-  const scope = await (await page.request.get('/api/scope')).json()
+  const scope = await readScope(page.request)
   const business = scope.businesses.find((item) => item.code === 'BUS-001')
   const stamp = Date.now()
 
@@ -114,7 +114,7 @@ test.describe('FR-091 CRM Conversation Inbox', () => {
 
     // Opening the row shows the thread oldest-first — the order a conversation reads in.
     await row.getByRole('button').click()
-    const thread = page.locator('.card').filter({ hasText: 'BR-011' })
+    const thread = page.locator('.card').filter({ hasText: 'FR-246' })
     await expect(thread).toContainText('สวัสดีครับ ขอราคาหน่อย')
     await expect(thread).toContainText('เอา 10 ชุดครับ')
   })
@@ -131,7 +131,7 @@ test.describe('FR-091 CRM Conversation Inbox', () => {
     await page.goto('/customer/conversations')
     await openConversationRow(page, sent.displayName)
 
-    const thread = page.locator('.card').filter({ hasText: 'BR-011' })
+    const thread = page.locator('.card').filter({ hasText: 'FR-246' })
     // A brand new Customer starts PENDING, so the attestation buttons are visible.
     await expect(thread.getByText('PENDING', { exact: true })).toBeVisible()
     await thread.getByRole('button', { name: 'ลูกค้ายินยอมแล้ว' }).click()
@@ -145,27 +145,27 @@ test.describe('FR-091 CRM Conversation Inbox', () => {
     // shows GRANTED.
     await page.reload()
     await openConversationRow(page, sent.displayName)
-    await expect(page.locator('.card').filter({ hasText: 'BR-011' }).getByText('GRANTED', { exact: true })).toBeVisible()
+    await expect(page.locator('.card').filter({ hasText: 'FR-246' }).getByText('GRANTED', { exact: true })).toBeVisible()
   })
 
-  test('offers no way to reply — the reply owner is the runtime that received the message', async ({ page }) => {
+  test('offers the FR-246 reply composer to the owner, and states LINE Official Account Manager replies are not recorded', async ({ page }) => {
     await chooseBusiness(page)
-    await ingest(page, {
-      thread: 'e2e-noreply',
-      userId: 'Ue2e-noreply',
-      // Deliberately NOT a name containing the phrase asserted below: the first
-      // version of this test named the customer 'ลูกค้าอ่านอย่างเดียว', which made
-      // the locator match the row and the footer and fail on strict mode.
-      displayName: 'คุณทดสอบไม่ตอบ',
+    const sent = await ingest(page, {
+      thread: 'e2e-composer',
+      userId: 'Ue2e-composer',
+      displayName: 'คุณทดสอบตอบได้',
       messages: ['ทดสอบครับ'],
     })
 
     await page.goto('/customer/conversations')
-    // BR-011: a console that could reply would be a second reply owner racing a token
-    // that expires in about thirty seconds.
-    await expect(page.locator('textarea')).toHaveCount(0)
-    await expect(page.getByRole('textbox')).toHaveCount(0)
-    await expect(page.getByText(/อ่านอย่างเดียว/)).toBeVisible()
+    await openConversationRow(page, sent.displayName)
+    const thread = page.locator('.card').filter({ hasText: 'FR-246' })
+    // BR-011 stays true unchanged: this composer sends through Push and never
+    // touches the automatic reply's token, so it is not a second owner of it —
+    // see tests/e2e/fr246-staff-reply.spec.js for the send path itself.
+    await expect(thread.getByRole('textbox')).toBeVisible()
+    await expect(thread.getByRole('button', { name: 'ส่ง' })).toBeVisible()
+    await expect(thread.getByText(/LINE Official Account Manager/)).toBeVisible()
   })
 
   test('the CRM Dashboard reconciles with the list one click away', async ({ page }) => {
@@ -181,7 +181,7 @@ test.describe('FR-091 CRM Conversation Inbox', () => {
     await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible()
 
     const inbox = await (await page.request.get(
-      `/api/crm/conversations?businessId=${(await (await page.request.get('/api/scope')).json()).businesses.find((b) => b.code === 'BUS-001').id}`,
+      `/api/crm/conversations?businessId=${(await readScope(page.request)).businesses.find((b) => b.code === 'BUS-001').id}`,
     )).json()
 
     // The band is not a second count of its own: every figure comes from this response.

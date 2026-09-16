@@ -21,7 +21,9 @@ export function memoryKey(tenantId, principalType, principalId) {
 
 /**
  * @typedef {Object} MemoryEntry  an opaque remembered fact; shape owned by the caller.
- * @typedef {{ key: string, entries: MemoryEntry[] }} MemoryRecall
+ * @typedef {{ key: string, entries: MemoryEntry[], evidence?: object|null, writeReceipt?: object }} MemoryRecall
+ * MSP adapters preserve API-009 source provenance in evidence; local/in-memory
+ * ports omit it rather than inventing an MSP entity or source version.
  *
  * @typedef {Object} MemoryPort
  * @property {(key: string) => Promise<MemoryRecall>} recall  read entries for a key;

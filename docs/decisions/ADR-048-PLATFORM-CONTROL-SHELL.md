@@ -1,5 +1,5 @@
 ---
-version: "1.0.0"
+version: "1.1.0"
 created_at: "2026-08-20T12:00:00+07:00,ATHER"
 last_update: "2026-08-20T12:00:00+07:00,ATHER"
 status: "accepted"
@@ -13,6 +13,8 @@ attributes:
 # ADR-048 — Platform Control is outside the Business Shell
 
 **Status:** Accepted and authorized for the FR-105 read-only implementation slice.
+
+**Amended by:** [ADR-092](ADR-092-TIME-BOXED-MEMBER-VIEW-OF-THE-PROGRAMME-ROADMAP.md) — a 30-day read-only view of the plan for signed-in people at `/roadmap`, outside `/control`; D1–D4 unchanged for `/control/**`.
 
 **Relates to:** FR-075, FR-105, NFR-008, ADR-015, ADR-024, ADR-028, `docs/ROUTES-SITEMAP.md`.
 
@@ -103,3 +105,4 @@ installation-wide authority.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 1.0.0 | 2026-08-20 | accepted | Separated the installation-operator programme board from the Business Shell and fixed its authorization/data boundaries | working-tree | ATHER |
+| 1.1.0 | 2026-09-14 | accepted | Amended by ADR-092: a time-boxed member view of the plan outside `/control`; this decision's D1–D4 still govern `/control/**` | working-tree | Claude Opus 5 |

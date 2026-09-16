@@ -2,6 +2,8 @@
 
 Status: investigation incomplete; underlying HTTP failure cause unconfirmed.
 
+Update 2026-09-11: the status diagnostic recorded HTTP 400 on the next occurrence; the cause is confirmed and fixed in `2026-09-11-fr077-inventory-expired-transaction.md`.
+
 ## Symptom
 
 PR #259 head 5c31f3cc cannot merge under the repository's verification rules. Run 34033829080 reports 98 E2E passed, four skipped and one flaky. Inventory limit=1 failed first attempt and passed retry. Docker build, Compose validation and governance verify passed.

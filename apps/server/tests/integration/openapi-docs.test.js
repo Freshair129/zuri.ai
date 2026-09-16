@@ -132,8 +132,88 @@ describe('OpenAPI document', () => {
       // job read (GET) and the stage, gate and finish verbs (POST each) —
       // four paths, four operations. FR-110 (ADR-068) adds the pull tick
       // (POST /api/pipelines/knowledge/evidence/pull): one path, one operation.
-      pathCount: 199,
-      operationCount: 276,
+      // FR-171 adds the owner-only read-only execution trace GET.
+      // FR-169 adds the Business capability toggle (PATCH
+      // /api/businesses/{id}/capabilities): one path, one operation.
+      // FR-173 adds five knowledge admission/corpus paths and six operations.
+      // FR-144 browser/Desktop pairing adds three POST paths.
+      // FR-149 adds the Business-scoped terminal-failure read model
+      // (GET /api/line-oa/jobs/failures): one path, one operation. It is a read
+      // model behind the Studio's red failure count, never a retry verb — which
+      // is why it adds a GET and nothing else.
+      // FR-165 adds two receipt GETs.
+      // FR-182 adds the SCM operations console: thirteen paths and
+      // twenty-one operations — locations (GET, POST) and the location item
+      // (GET, PATCH), the located-stock read (GET), the transfer (POST), both
+      // work-order collections (GET, POST each) and items (GET, PATCH each),
+      // reservations (GET, POST) and the reservation action (PATCH only — a
+      // hold is never deleted and never read one row at a time), ATP (GET),
+      // the shelf-life audit and its maintenance write (GET, POST) and
+      // de-kitting (POST).
+      // FR-184 adds three stocktake paths and three operations. FR-185 adds
+      // four Marketing planning/projection paths and six operations. FR-186/183
+      // add six paths and seven operations.
+      // FR-190 adds the LINE transport reachability read: one path, one
+      // operation (GET /api/line-oa/accounts/{id}/transport-health).
+      // FR-097 adds identity link tokens and channel identity queries: three paths,
+      // three operations (POST /api/identity/link-tokens, POST /api/identity/link-tokens/redeem, GET /api/identity/channel-identities).
+      // FR-094/FR-095/FR-096 adds MFA and step-up authentication: four paths, five operations.
+      // FR-191 adds the grant-withdrawal surface that had no route at all: two
+      // paths, two operations (POST /api/platform/users/memberships/{id}/lifecycle,
+      // which carries suspend, reinstate and revoke as one action parameter
+      // because the three share every guard, and POST /api/platform/users/offboard).
+      // FR-199 adds the access-review reads that had no route at all: two paths,
+      // two operations (GET /api/platform/access-history, scoped by exactly one
+      // of businessId/tenantId/personId, and GET
+      // /api/platform/businesses/{businessId}/grants, the current-state roster).
+      // 242 + 4 (MFA) + 2 (FR-191) + 2 (FR-199) + 2 (FR-193 write path) = 252;
+      // 331 + 5 + 2 + 2 + 2 = 342. The FR-193 pair is POST
+      // /api/people/employment and PATCH /api/people/employment/{employmentId}
+      // — one operation each, because the three lifecycle transitions travel as
+      // a named `action` on the PATCH rather than as three separate verbs.
+      // FR-203/FR-204/FR-206/FR-207 (ADR-083 SKU governance) add five paths and
+      // nine operations: GET /api/inventory/products/resolve, the identifier and
+      // unit-conversion collections of a SKU (GET, POST, PATCH each — RETIRE is a
+      // versioned action, never a DELETE), GET /api/inventory/catalog-hygiene and
+      // GET /api/inventory/replenishment. 252 + 5 = 257; 342 + 9 = 351.
+      // FR-208/FR-209 (ADR-084 catalogue intake) add six paths and seven
+      // operations: the list (GET), preview and commit (POST each), one intake
+      // (GET, PATCH — cancel is an action, never a DELETE), the workbook
+      // template (GET) and the workbook upload (POST). 257 + 6 = 263; 351 + 7 = 358.
+      // FR-218 (ADR-086 D5) adds one path and one operation: the bearer-authenticated
+      // programme usage report (POST). 263 + 1 = 264; 358 + 1 = 359.
+      // FR-220/FR-221 (ADR-087) add six paths and six operations: harness pairing
+      // start, approve and poll (POST each), the operator device list (GET) and item
+      // (PATCH), and the harness credential's whoami read (GET). 264 + 6 = 270; 359 + 6 = 365.
+      // FR-223/FR-224 (ADR-089) add three paths and three operations: credential
+      // rotate, revoke and validate under /api/line-oa/connections/{id} (POST each).
+      // 270 + 3 = 273; 365 + 3 = 368.
+      // FR-236 (ADR-090 D6) adds three paths and five operations: the candidate
+      // list/draft collection (GET, POST), one candidate (GET, PATCH) and the
+      // audited APPROVE/REJECT decision (POST). 273 + 3 = 276; 368 + 5 = 373.
+      // FR-233 (ADR-091 D5) adds two paths and two operations: conversation
+      // search (GET) and per-account follow/unfollow event counts (GET).
+      // 276 + 2 = 278; 373 + 2 = 375.
+      // FR-237 (ADR-090 D7) adds one path and one operation: the gap report
+      // (GET). 278 + 1 = 279; 375 + 1 = 376.
+      // FR-236's per-Business toggle (ADR-090 D6, TASK-ZAI-099) adds one path
+      // and one operation: the knowledge-candidates-toggle route (PATCH
+      // only). 279 + 1 = 280; 376 + 1 = 377.
+      // FR-230 (ADR-091 D1, D2) adds one more path and one more operation: the
+      // retention sweep's scheduled entry point (POST). 280 + 1 = 281; 377 + 1 = 378.
+      // FR-245 (ADR-093 D7, TASK-ZAI-112) adds one more path and one more
+      // operation: the chat evidence archive's one retrieval path (POST).
+      // 283 + 1 = 284; 380 + 1 = 381.
+      // FR-247 (ADR-095 D1) adds two paths and two operations: the error
+      // event list (GET) and the resolve action (PATCH). 284 + 2 = 286;
+      // 381 + 2 = 383.
+      // FR-248, FR-249 (ADR-095 D2, D3) add two paths and three operations:
+      // the usage breakdown (GET) and recording one's own usage (POST) share
+      // a path, plus the deployment-authenticated rollup (POST) on its own
+      // path. 286 + 2 = 288; 383 + 3 = 386.
+      // FR-251 adds one read-only Project Domain-view path and GET operation.
+      pathCount: 289,
+      operationCount: 387,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

@@ -33,7 +33,7 @@ const failure = (status, message) => Object.assign(new Error(message), { status 
 const actor = (viewer) => viewer?.principal?.id ?? null
 
 const LINE_SELECT = { id: true, componentProductId: true, qty: true, unit: true, fixed: true, note: true }
-const RECIPE_SELECT = { id: true, code: true, tenantId: true, businessId: true, productId: true, name: true, batchSize: true, yieldQty: true, unit: true, notes: true, status: true, archivedAt: true, createdAt: true, updatedAt: true, version: true, lines: { select: LINE_SELECT, orderBy: { id: 'asc' } } }
+const RECIPE_SELECT = { id: true, code: true, tenantId: true, businessId: true, productId: true, name: true, batchSize: true, yieldQty: true, unit: true, notes: true, scrapAllowanceFactor: true, status: true, archivedAt: true, createdAt: true, updatedAt: true, version: true, lines: { select: LINE_SELECT, orderBy: { id: 'asc' } } }
 const PRODUCT_SELECT = { id: true, code: true, businessId: true, status: true, stockPolicy: true, trackingMode: true, unit: true }
 
 async function requireProduct(tx, id, businessId) {
@@ -72,6 +72,7 @@ export async function createRecipe(input, { viewer, db = prisma } = {}) {
       data: {
         code: data.code, tenantId: business.tenantId, businessId: business.id, productId: output.id, name: data.name,
         batchSize: data.batchSize, yieldQty: data.yieldQty ?? data.batchSize, unit: data.unit ?? output.unit ?? 'EA', notes: data.notes ?? null,
+        scrapAllowanceFactor: data.scrapAllowanceFactor ?? 0,
         lines: { create: data.lines.map(lineColumns) },
       },
       select: RECIPE_SELECT,
@@ -122,7 +123,7 @@ export async function applyRecipeAction(id, input, { viewer, db = prisma } = {})
     const payload = { businessId: row.businessId, code: row.code }
     if (data.action === 'UPDATE') {
       const f = data.fields
-      for (const key of ['name', 'yieldQty', 'unit', 'notes']) if (f[key] !== undefined) change[key] = f[key]
+      for (const key of ['name', 'yieldQty', 'unit', 'notes', 'scrapAllowanceFactor']) if (f[key] !== undefined) change[key] = f[key]
       if (f.lines) {
         await requireLines(tx, f.lines, row.businessId, row.productId)
         change.lines = { deleteMany: {}, create: f.lines.map(lineColumns) }

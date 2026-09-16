@@ -209,6 +209,73 @@ describe('server transport and acceptance recovery', () => {
     expect(await prisma.message.count({ where: { externalMessageId: `reply:${admitted.inboundMessageId}` } })).toBe(0)
   })
 
+  it('fails a malformed reply token before send so the next account is not starved', async () => {
+    const broken = await account()
+    const healthy = await account()
+    const brokenAdmitted = await admit(broken, event('reply-token-corrupt'))
+    const healthyAdmitted = await admit(healthy, event('reply-token-next'))
+    await prisma.lineConversationJob.update({ where: { id: brokenAdmitted.jobId }, data: { sealedReplyToken: 'corrupt-sealed-token' } })
+
+    const options = worker()
+    expect(await runLineConversationWorker(options)).toMatchObject({ id: healthyAdmitted.jobId, status: 'RECORDED', executed: 2, sent: 2 })
+    expect(options.replyTransport.send).toHaveBeenCalledTimes(1)
+    expect((await row(brokenAdmitted.jobId)).errorCode).toBe('LINE_REPLY_TOKEN_UNAVAILABLE')
+    expect((await row(healthyAdmitted.jobId)).status).toBe('RECORDED')
+  })
+
+  it('falls back a definitively dead Reply token to delayed Push without recomputing the answer', async () => {
+    const oa = await account({ allowDelayedPush: true })
+    const admitted = await admit(oa, event('reply-dead-token-push'))
+    const options = worker({ replyTransport: { send: vi.fn(async () => ({ status: 'PERMANENT_FAILURE', code: 'LINE_HTTP_400', requestId: 'reply-400-request' })) } })
+    expect(await runLineConversationWorker(options)).toMatchObject({ id: admitted.jobId, status: 'READY' })
+    const first = await row(admitted.jobId)
+    expect(first).toMatchObject({ status: 'READY', sendMethod: 'PUSH', attempts: 1, errorCode: 'LINE_HTTP_400' })
+    expect(first.sealedReplyToken).toBeNull()
+    expect(await runLineConversationWorker({ ...options, now: () => later(60_000) })).toMatchObject({ id: admitted.jobId, status: 'RECORDED' })
+    expect(options.replyTransport.send).toHaveBeenCalledTimes(1)
+    expect(options.pushTransport.send).toHaveBeenCalledTimes(1)
+    expect(options.answer).toHaveBeenCalledTimes(1)
+    expect((await row(admitted.jobId)).sealedReplyToken).toBeNull()
+  })
+
+  it('keeps a dead Reply token terminal when the account does not allow delayed Push', async () => {
+    const oa = await account()
+    const admitted = await admit(oa, event('reply-dead-token-no-push'))
+    const options = worker({ replyTransport: { send: vi.fn(async () => ({ status: 'PERMANENT_FAILURE', code: 'LINE_HTTP_400', requestId: 'reply-400-request' })) } })
+    expect(await runLineConversationWorker(options)).toMatchObject({ id: admitted.jobId, status: 'FAILED' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'FAILED', errorCode: 'LINE_HTTP_400', sendMethod: 'REPLY' })
+    expect(options.pushTransport.send).not.toHaveBeenCalled()
+  })
+
+  it.each(['LINE_HTTP_401', 'LINE_HTTP_403', 'LINE_HTTP_404'])('never switches method for a credential/config error (%s)', async (code) => {
+    const oa = await account({ allowDelayedPush: true })
+    const admitted = await admit(oa, event(`reply-credential-${code}`))
+    const options = worker({ replyTransport: { send: vi.fn(async () => ({ status: 'PERMANENT_FAILURE', code, requestId: 'credential-request' })) } })
+    expect(await runLineConversationWorker(options)).toMatchObject({ id: admitted.jobId, status: 'FAILED' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'FAILED', errorCode: code, sendMethod: 'REPLY' })
+    expect(options.pushTransport.send).not.toHaveBeenCalled()
+  })
+
+  it('never switches method for an ambiguous 5xx Reply outcome', async () => {
+    const oa = await account({ allowDelayedPush: true })
+    const admitted = await admit(oa, event('reply-ambiguous-503'))
+    const options = worker({ replyTransport: { send: vi.fn(async () => ({ status: 'UNKNOWN', code: 'LINE_HTTP_503' })) } })
+    expect(await runLineConversationWorker(options)).toMatchObject({ id: admitted.jobId, status: 'UNKNOWN' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'UNKNOWN', errorCode: 'LINE_HTTP_503', sendMethod: 'REPLY' })
+    expect(options.pushTransport.send).not.toHaveBeenCalled()
+    expect(await runLineConversationWorker({ ...options, now: () => later(60_000) })).toMatchObject({ status: 'IDLE' })
+    expect(options.pushTransport.send).not.toHaveBeenCalled()
+  })
+
+  it('does not loop a Push that itself comes back with a dead-token-shaped failure', async () => {
+    const oa = await account({ allowDelayedPush: true })
+    const admitted = await admit(oa, event('push-dead-code-no-loop'))
+    const options = worker({ now: () => later(60_000), pushTransport: { send: vi.fn(async () => ({ status: 'PERMANENT_FAILURE', code: 'LINE_HTTP_400', requestId: 'push-400-request' })) } })
+    expect(await runLineConversationWorker(options)).toMatchObject({ id: admitted.jobId, status: 'FAILED' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'FAILED', errorCode: 'LINE_HTTP_400', sendMethod: 'PUSH' })
+    expect(options.replyTransport.send).not.toHaveBeenCalled()
+  })
+
   it('retries delayed Push with its original UUID and without re-running the model', async () => {
     const oa = await account({ allowDelayedPush: true })
     const admitted = await admit(oa, event('push-retry'))
@@ -267,11 +334,67 @@ describe('server transport and acceptance recovery', () => {
     await expect(admit(oa, event('new-after-epoch'))).rejects.toMatchObject({ status: 409 })
     await expect(completeEdgeConversation(admitted.jobId, { version: lease.job.version, text: 'old owner answer' }, { deviceContext: deviceA, now: start })).rejects.toMatchObject({ status: 409 })
   })
+
+  it('recovers cleanly without throwing out of the tick when model execution outlives its lease and fails', async () => {
+    const oa = await account()
+    const admitted = await admit(oa, event('model-outlives-lease'))
+    const options = worker({
+      answer: vi.fn(async (execution) => {
+        await prisma.lineConversationJob.update({
+          where: { id: execution.id },
+          data: { leaseExpiresAt: new Date(start.getTime() - 1000) },
+        })
+        const err = new Error('Model timeout')
+        err.code = 'MODEL_TIMEOUT'
+        throw err
+      }),
+    })
+    const outcome = await runLineConversationWorker(options)
+    expect(outcome).toMatchObject({ id: admitted.jobId, status: 'CONTENDED', executed: 1, sent: 0 })
+    const current = await row(admitted.jobId)
+    expect(current.status).toBe('CLAIMED')
+  })
+
+  it('classifies deterministic send-input errors as permanent failure rather than ambiguous unknown', async () => {
+    const oa = await account()
+    const admitted = await admit(oa, event('input-validation-400'))
+    const inputError = new Error('Invalid send input')
+    inputError.status = 400
+    inputError.code = 'LINE_SEND_INPUT_INVALID'
+    const options = worker({
+      replyTransport: {
+        send: vi.fn(async () => {
+          throw inputError
+        }),
+      },
+    })
+    const outcome = await runLineConversationWorker(options)
+    expect(outcome).toMatchObject({ id: admitted.jobId, status: 'FAILED' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'FAILED', errorCode: 'LINE_SEND_INPUT_INVALID' })
+  })
+
+  it('bumps job version when epoch-fence cancels waiting jobs on account reconfigure', async () => {
+    const oa = await account()
+    const admitted = await admit(oa, event('epoch-fence-version-bump'))
+    const before = await row(admitted.jobId)
+    expect(before.version).toBe(1)
+
+    const owner = makeViewer({ visibleBusinessIds: [businessA.id], ownedBusinessIds: [businessA.id], visibleDomains: ['platform', 'line-oa'] })
+    await applyLineOaAccountAction(oa.id, { action: 'PAUSE', version: oa.version }, { db: prisma, viewer: owner })
+
+    const after = await row(admitted.jobId)
+    expect(after.status).toBe('CANCELLED')
+    expect(after.version).toBe(before.version + 1)
+  })
 })
 
 
 describe('operational closure and restart recovery', () => {
-  it('isolates a pre-send credential failure so another business can send on the next tick', async () => {
+  it('isolates a pre-send credential failure so another business still sends in the same tick', async () => {
+    // The property under test — one revoked OA cannot starve the shared queue — is unchanged. What
+    // moved is how strongly it holds: this said "on the next tick" until 2026-09-10, because a tick
+    // sent exactly one job and the poisoned one consumed it. Now the batch steps over the failure
+    // and the healthy business is served without waiting for another round.
     const brokenAccount = await account()
     const healthyAccount = await account({ businessId: businessB.id })
     const broken = await admit(brokenAccount, event('poison-credential'))
@@ -280,10 +403,10 @@ describe('operational closure and restart recovery', () => {
       if (id === brokenAccount.id) throw new Error('sensitive revoked credential')
       return prisma.lineOaAccount.findUnique({ where: { id } })
     }) })
-    await runLineConversationWorker(options)
+    expect(await runLineConversationWorker(options)).toMatchObject({ id: healthy.jobId, status: 'RECORDED', sent: 2 })
     expect(await row(broken.jobId)).toMatchObject({ status: 'FAILED', errorCode: 'LINE_ACCOUNT_UNAVAILABLE', attempts: 0 })
-    expect(options.replyTransport.send).not.toHaveBeenCalled()
-    expect(await runLineConversationWorker(options)).toMatchObject({ id: healthy.jobId, status: 'RECORDED' })
+    expect(options.replyTransport.send).toHaveBeenCalledTimes(1)
+    expect(await runLineConversationWorker(options)).toEqual({ status: 'IDLE' })
     expect(options.replyTransport.send).toHaveBeenCalledTimes(1)
     expect(JSON.stringify(await row(broken.jobId))).not.toContain('sensitive revoked credential')
   })
@@ -399,4 +522,87 @@ describe('operational closure and restart recovery', () => {
     expect(options.pushTransport.send).not.toHaveBeenCalled()
   })
 
+})
+
+describe('one tick serves more than one customer', () => {
+
+  // Until 2026-09-10 a tick claimed exactly one job, ran the model call inside itself, and
+  // returned. Two people who wrote at the same moment were therefore answered strictly in series:
+  // the second waited out the first's entire answer, up to the ticker's 240 s request timeout. The
+  // durable side was never the limit — ADR-061 D6 has required compare-and-set versions and bounded
+  // leases from the start, and `claimExecution` already read twenty candidates.
+  it('answers concurrently — the second customer no longer waits out the first', async () => {
+    const oa = await account()
+    // Sequentially, not Promise.all: the concurrency under test is the worker's, and six
+    // simultaneous admission transactions against the suite's single SQLite file only buys a
+    // busy-timeout on a slow runner — which is exactly how this failed on CI once.
+    const admitted = []
+    for (const id of ['fan-a', 'fan-b', 'fan-c']) admitted.push(await admit(oa, event(id)))
+    let started = 0
+    let openGate
+    const gate = new Promise(resolve => { openGate = resolve })
+    // Each answer refuses to finish until all three have begun. Under the old serial tick the first
+    // answer could never be released, because nothing else was able to start while it was awaited —
+    // so this test fails (loudly, not by hanging) the moment execution stops overlapping.
+    const allStarted = Promise.race([gate, new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('EXECUTION_DID_NOT_OVERLAP')), 5_000).unref?.()
+    })])
+    const options = worker({ answer: vi.fn(async () => {
+      started += 1
+      if (started === 3) openGate()
+      await allStarted
+      return { text: 'answer from the server' }
+    }) })
+    const result = await runLineConversationWorker(options)
+    expect(started).toBe(3)
+    expect(options.answer).toHaveBeenCalledTimes(3)
+    expect(result).toMatchObject({ executed: 3, sent: 3 })
+    // All three were answered and delivered inside the one tick, not one per tick.
+    expect(options.replyTransport.send).toHaveBeenCalledTimes(3)
+    for (const job of admitted) expect(await row(job.jobId)).toMatchObject({ status: 'RECORDED', attempts: 1 })
+  })
+
+  it('honours the configured ceilings rather than draining whatever the backlog happens to be', async () => {
+    // Every answer is a metered model call, so a tick that walks into a backlog must cost a bounded
+    // amount. Six waiting, two allowed: exactly two answered, and — because only those two became
+    // READY — exactly two sent.
+    const oa = await account()
+    const ids = ['cap-a', 'cap-b', 'cap-c', 'cap-d', 'cap-e', 'cap-f']
+    for (const id of ids) await admit(oa, event(id))
+    const options = worker({ executionConcurrency: 2, sendBatch: 2 })
+    expect(await runLineConversationWorker(options)).toMatchObject({ executed: 2, sent: 2 })
+    expect(options.answer).toHaveBeenCalledTimes(2)
+    expect(await prisma.lineConversationJob.count({ where: { accountId: oa.id, status: 'QUEUED' } })).toBe(4)
+  })
+
+  it('rejects a nonsense override instead of letting a typo set the concurrency', async () => {
+    // These are deployment environment variables, i.e. operator input, and `Number('')` is 0.
+    const oa = await account()
+    await admit(oa, event('override-guard'))
+    const options = worker({ env: { ...env, ZURI_LINE_WORKER_EXECUTION_CONCURRENCY: '', ZURI_LINE_WORKER_SEND_BATCH: 'lots' } })
+    expect(await runLineConversationWorker(options)).toMatchObject({ executed: 1, sent: 1 })
+  })
+
+  it('still reports an empty queue as exactly IDLE, because that is what the ticker backs off on', async () => {
+    expect(await runLineConversationWorker(worker())).toEqual({ status: 'IDLE' })
+  })
+
+  it('does not abandon the rest of the batch when the first answer fails', async () => {
+    // The old tick returned the moment an answer threw, so a model outage while customer A was
+    // being served left customer B untouched until the next tick — and the tick after that, if A
+    // was still first in line. Now the failure is settled onto its own job and the batch continues.
+    const oa = await account()
+    const first = await admit(oa, event('mixed-a'))
+    const second = await admit(oa, event('mixed-b'))
+    const options = worker({ answer: vi.fn(async job => {
+      if (job.inbound.body.includes('mixed-a')) throw new Error('MODEL_UNAVAILABLE')
+      return { text: 'answer from the server' }
+    }) })
+    const result = await runLineConversationWorker(options)
+    expect(options.answer).toHaveBeenCalledTimes(2)
+    expect(result).toMatchObject({ executed: 2, sent: 1 })
+    expect(await row(first.jobId)).toMatchObject({ status: 'FAILED', errorCode: 'EXECUTION_FAILED' })
+    expect(await row(second.jobId)).toMatchObject({ status: 'RECORDED' })
+    expect(options.replyTransport.send).toHaveBeenCalledTimes(1)
+  })
 })

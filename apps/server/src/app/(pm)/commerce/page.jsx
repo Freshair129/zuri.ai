@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ClipboardCheck, RefreshCw } from 'lucide-react'
-import { Card, DataTable, Kpi, PageHeader, SectionTitle } from '@/components/ui'
+import { Card, DataTable, Kpi, ModuleTabs, PageHeader, SectionTitle } from '@/components/ui'
+import { COMMERCE_TABS } from '@/lib/module-tabs'
 import { useScope } from '@/context/ScopeContext'
 import { SALES_ORDER_ORIGINS } from '@/lib/validation/enums'
 
@@ -50,6 +51,7 @@ export default function CommerceDashboardPage() {
   useEffect(() => { refresh().catch((err) => setError(err.message)) }, [refresh])
 
   return <div>
+    <ModuleTabs tabs={COMMERCE_TABS} />
     <PageHeader
       eyebrow="Commerce · FEAT-023"
       title="ยอดขายและการชำระเงิน"

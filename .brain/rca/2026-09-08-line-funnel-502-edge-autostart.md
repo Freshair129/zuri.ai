@@ -1,9 +1,9 @@
 ---
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-09-08T18:34:25+07:00,RWANG,b17e7258"
-last_update: "2026-09-08T18:34:25+07:00,RWANG"
-status: "under review"
-superseded_by: null
+last_update: "2026-09-17T01:37:37+07:00,RWANG"
+status: "superseded"
+superseded_by: ".brain/rca/2026-09-08-line-webhook-funnel-502-edge-receiver-not-restarted.md"
 attributes:
   domain: "line-oa-studio"
   doc_type: "root-cause-analysis"
@@ -11,6 +11,44 @@ attributes:
 ---
 
 # RCA — LINE Funnel 502 and Edge autostart transport drift
+
+## Reconciliation and closure — 2026-09-17
+
+This document preserves the read-only investigation from 2026-09-08, before
+recovery. Its observations below are historical, not the current runtime state.
+The later [incident and recovery RCA](2026-09-08-line-webhook-funnel-502-edge-receiver-not-restarted.md)
+is the follow-up record; it was merged through
+[PR #297](https://github.com/Freshair129/zuri.ai/pull/297), with subsequent
+cutover findings and [PR #299](https://github.com/Freshair129/zuri.ai/pull/299).
+That record documents explicit legacy startup/task registration, subsequent
+ingress evidence, and later server cutover/admission fixes. Those are repository
+records inspected for this closure, not live verification performed on 2026-09-17.
+
+The two investigations agree on the missing 8787 backend and the installed task's
+omitted transport mode. This earlier investigation could not prove the exact
+dependency timeout branch; its hypothesis remains labelled below. The later
+record contains additional observations from a separate investigation. Neither
+record establishes current provider configuration or reboot recovery today.
+
+The owner requested completion and branch deletion on 2026-09-17. The original
+five dirty files were preserved together in commit `7fc2e4dd` before reconciliation:
+
+- this RCA at version 0.1.0b;
+- `apps/server/runtime/domain-state.json`;
+- `docs/.doc-graph.json`;
+- `docs/.domain-state.json`;
+- `docs/.monorepo-graph.json`.
+
+Their exact bytes also have a separate SHA-256-verified local archive. Reconciliation
+uses [ADR-081](../../docs/decisions/ADR-081-GENERATED-VIEWS-ARE-BUILT-NOT-COMMITTED.md):
+regenerate current documentation views, retain the committed runtime projection,
+and do not reintroduce the retired monorepo graph. The original snapshots remain
+recoverable from the preservation commit and archive.
+
+Disposition: close this duplicate investigation as historical supplemental
+evidence. Startup retry/logging improvements, a verified reboot, provider error
+statistics/redelivery inspection, and any further transport activation remain
+separate follow-up work; this document does not claim they were implemented.
 
 ## Scope and risk
 
@@ -169,12 +207,15 @@ back. Restarting legacy processing is not an unconditional rollback command.
 - Exact dependency timeout reason, first downtime, lost-event count and actual
   LINE provider configuration remain unverified.
 - Application tests/build are not rerun for this documentation-only investigation.
-  Documentation governance result is reported with the handoff.
+  Documentation governance result is reported with the handoff. The 2026-09-17
+  closure changes only this RCA relative to current main; it performs no runtime
+  repair, provider operation, replay, or deployment.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 | --- | --- | --- | --- | --- | --- |
+| 0.2.0b | 2026-09-17 | superseded | Reconciled with the merged incident/recovery RCA; preserved all five original dirty files in 7fc2e4dd and separated historical findings from current runtime claims | base c07cfaba; preservation 7fc2e4dd | RWANG |
 | 0.1.0b | 2026-09-08 | under review | New RCA: missing upstream, installed-task transport drift and startup recovery/diagnostic gaps | base b17e7258 | RWANG |
 
-Version diff: new RCA document, 0.1.0b; no implementation or deployment change.
+Version diff: 0.1.0b → 0.2.0b; under review → superseded by the later incident/recovery RCA; original evidence retained, closure and provenance added; no implementation or deployment change.

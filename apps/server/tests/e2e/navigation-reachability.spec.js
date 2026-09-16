@@ -50,23 +50,159 @@ async function projectId(page) {
   return resolved.id
 }
 
-// Scoped to the landmark on purpose: the Development sidebar is on screen at
-// the same time, and an unscoped link name would silently match the wrong one.
+// Scoped to the landmark on purpose: the Projects & Work module sidebar is on
+// screen at the same time as the module-local rows.
 const workViews = (page) => page.getByRole('navigation', { name: 'Project work views' })
-const projectTabs = (page) => page.getByRole('navigation', { name: 'Project sections' })
+const projectModules = (page) => page.getByRole('navigation', { name: 'Projects & Work modules' })
+const projectSections = (page, moduleLabel) => page.getByRole('navigation', { name: `${moduleLabel} project sections` })
+const importAction = (page) => page.locator('[data-action-id="pm.import"]')
 
 test.describe('navigation reachability', () => {
-  test('reaches Plan Import by clicking, not by typing the URL', async ({ page }) => {
+  test('reaches the shared Import plan action by clicking from each live Project module', async ({ page }) => {
+    await chooseBusiness(page)
+    const id = await projectId(page)
+    const liveModules = [
+      ['Project Management', `/projects/${id}`, 'Project Management'],
+      ['Work Management', `/projects/${id}/structure`, null],
+      ['Resource Coordination', `/projects/${id}/team`, 'Resource Coordination'],
+    ]
+
+    for (const [moduleLabel, expectedModulePath, localLabel] of liveModules) {
+      await page.goto(`/projects/${id}`)
+      await projectModules(page).getByRole('link', { name: moduleLabel, exact: true }).click()
+      await expect(page).toHaveURL(new RegExp(`${expectedModulePath.replaceAll('/', '\\/')}$`))
+      if (localLabel) await expect(projectSections(page, localLabel)).toBeVisible()
+      else await expect(workViews(page)).toBeVisible()
+
+      await importAction(page).click()
+      await expect(page).toHaveURL(new RegExp(`/projects/${id}/import$`))
+      await expect(page.getByRole('heading', { name: 'Import Plan Envelope' })).toBeVisible()
+      // Import is one shared Project action. It reads as current on its route
+      // and exposes an explicit return path to the Project overview.
+      await expect(importAction(page)).toHaveAttribute('aria-current', 'page')
+      await expect(page.getByRole('link', { name: 'Return to Project overview' })).toHaveAttribute('href', `/projects/${id}`)
+      await page.getByRole('link', { name: 'Return to Project overview' }).click()
+      await expect(page).toHaveURL(new RegExp(`/projects/${id}$`))
+    }
+  })
+
+  test('discloses named planned modules without hrefs and returns focus on Escape', async ({ page }) => {
+    await chooseBusiness(page)
+    await page.goto('/projects')
+    const modules = projectModules(page)
+    for (const label of ['Delivery Design', 'Delivery Governance', 'Agent Delivery']) {
+      const trigger = modules.getByRole('button', { name: new RegExp(label) })
+      await trigger.click()
+      const panel = page.getByRole('group', { name: `${label} planned capabilities` })
+      await expect(panel).toBeVisible()
+      await expect(panel).toContainText('Planned — not available yet')
+      await expect(panel.getByRole('link')).toHaveCount(0)
+      await page.keyboard.press('Escape')
+      await expect(panel).toBeHidden()
+      await expect(trigger).toBeFocused()
+    }
+  })
+
+  test('keeps the six-module sidebar usable at 390px when collapsed and expanded', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await chooseBusiness(page)
+    await page.goto('/projects')
+
+    const modules = projectModules(page)
+    const toggle = page.getByRole('button', { name: 'Toggle Projects & Work navigation' })
+    await expect(toggle).toBeVisible()
+    await expect(modules).toBeHidden()
+
+    await toggle.click()
+    await expect(modules).toBeVisible()
+    await expect(modules.getByRole('link')).toHaveCount(3)
+    await expect(modules.getByRole('button')).toHaveCount(3)
+
+    const plannedTrigger = modules.getByRole('button', { name: /Delivery Design/ })
+    await plannedTrigger.click()
+    const plannedPanel = page.getByRole('group', { name: 'Delivery Design planned capabilities' })
+    await expect(plannedPanel).toBeVisible()
+    await expect(plannedPanel).toContainText('Requirements')
+    await expect(plannedPanel.getByRole('link')).toHaveCount(0)
+    await page.keyboard.press('Escape')
+    await expect(plannedPanel).toBeHidden()
+    await expect(plannedTrigger).toBeFocused()
+
+    await toggle.click()
+    await expect(modules).toBeHidden()
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+    expect(overflow).toBeLessThanOrEqual(1)
+  })
+
+  test('clicks all eight Business destinations through their selected module', async ({ page }) => {
+    await chooseBusiness(page)
+    const destinations = [
+      ['Project Management', 'Project Management Business sections', 'Projects', /\/projects$/],
+      ['Work Management', 'Work Management Business sections', 'All Work', /\/work$/],
+      ['Work Management', 'Work Management Business sections', 'Execution', /\/execution$/],
+      ['Work Management', 'Work Management Business sections', 'Timeline', /\/timeline$/],
+      ['Work Management', 'Work Management Business sections', 'Dependencies', /\/dependencies$/],
+      ['Work Management', 'Work Management Business sections', 'Milestones & Gates', /\/milestones$/],
+      ['Resource Coordination', 'Resource Coordination Business sections', 'Files', /\/files$/],
+      ['Resource Coordination', 'Resource Coordination Business sections', 'Repositories', /\/repositories$/],
+    ]
+    for (const [moduleLabel, navLabel, destinationLabel, expectedUrl] of destinations) {
+      await page.goto('/projects')
+      await projectModules(page).getByRole('link', { name: moduleLabel, exact: true }).click()
+      await page.getByRole('navigation', { name: navLabel }).getByRole('link', { name: destinationLabel, exact: true }).click()
+      await expect(page).toHaveURL(expectedUrl)
+      await expect(page.getByRole('navigation', { name: navLabel })).toBeVisible()
+    }
+  })
+
+  test('clicks Project, read-only Inventory, Team, Files, and Repositories in their owning modules', async ({ page }) => {
     await chooseBusiness(page)
     const id = await projectId(page)
     await page.goto(`/projects/${id}`)
 
-    await projectTabs(page).getByRole('link', { name: 'Import' }).click()
+    const projectSections = page.getByRole('navigation', { name: 'Project Management project sections' })
+    await projectSections.getByRole('link', { name: 'Inventory', exact: false }).click()
+    await expect(page).toHaveURL(new RegExp(`/projects/${id}/inventory$`))
+    await expect(page.getByRole('navigation', { name: 'Project Management project sections' }).getByRole('link', { name: /Inventory/ })).toHaveAttribute('aria-current', 'page')
 
-    await expect(page).toHaveURL(new RegExp(`/projects/${id}/import$`))
-    await expect(page.getByRole('heading', { name: 'Import Plan Envelope' })).toBeVisible()
-    // The tab that brought the user here reads as current once they arrive.
-    await expect(projectTabs(page).getByRole('link', { name: 'Import' })).toHaveAttribute('aria-current', 'page')
+    await projectModules(page).getByRole('link', { name: 'Resource Coordination', exact: true }).click()
+    await expect(page).toHaveURL(new RegExp(`/projects/${id}/team$`))
+    const resourceSections = page.getByRole('navigation', { name: 'Resource Coordination project sections' })
+    await resourceSections.getByRole('link', { name: 'Files', exact: true }).click()
+    await expect(page).toHaveURL(new RegExp(`/projects/${id}/files$`))
+    await resourceSections.getByRole('link', { name: 'Repositories', exact: true }).click()
+    await expect(page).toHaveURL(new RegExp(`/projects/${id}/repositories$`))
+    await resourceSections.getByRole('link', { name: 'Team', exact: true }).click()
+    await expect(page).toHaveURL(new RegExp(`/projects/${id}/team$`))
+  })
+
+  test('keeps planned Resources discoverable in Resource Coordination without a fake link', async ({ page }) => {
+    await chooseBusiness(page)
+    const id = await projectId(page)
+    await page.goto(`/projects/${id}/team`)
+    const planned = page.getByRole('group', { name: 'Resource Coordination planned capabilities' })
+    await expect(planned).toBeVisible()
+    await expect(planned).toContainText('Resources')
+    await expect(planned.getByRole('link')).toHaveCount(0)
+  })
+
+  test('retains Project context across live module changes and clears it through All projects', async ({ page }) => {
+    await chooseBusiness(page)
+    const id = await projectId(page)
+    await page.goto(`/projects/${id}`)
+
+    await projectModules(page).getByRole('link', { name: 'Work Management', exact: true }).click()
+    await expect(page).toHaveURL(new RegExp(`/projects/${id}/structure$`))
+    await expect(page.locator(`[data-project-id="${id}"]`)).toBeVisible()
+
+    await page.goBack()
+    await expect(page).toHaveURL(new RegExp(`/projects/${id}$`))
+    await expect(page.locator(`[data-project-id="${id}"]`)).toBeVisible()
+
+    await page.getByRole('link', { name: 'All projects', exact: true }).click()
+    await expect(page).toHaveURL(/\/projects$/)
+    await expect(page.locator(`[data-project-id="${id}"]`)).toHaveCount(0)
+    await expect(page.getByRole('navigation', { name: 'Project Management Business sections' })).toBeVisible()
   })
 
   // A Work sub-view whose page does not itself render the tab bar is a one-way
@@ -102,19 +238,19 @@ test.describe('navigation reachability', () => {
     })
   }
 
-  test('reaches the Space list by browsing and by search', async ({ page }) => {
+  test('reaches the Workspace list by browsing and by search', async ({ page }) => {
     await chooseBusiness(page)
 
-    // Browse: from the resource list whose rows already carry a Space column.
+    // Browse: from the resource list whose rows already carry a Workspace column.
     await page.goto('/projects')
-    await page.getByRole('link', { name: 'Spaces' }).click()
+    await page.getByRole('link', { name: 'Workspaces' }).click()
     await expect(page).toHaveURL(/\/workspaces$/)
-    await expect(page.getByRole('heading', { name: 'Spaces' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Workspaces' })).toBeVisible()
 
     // Search: the palette indexes it as a resource, not as a sidebar capability.
     await page.goto('/overview')
     await page.getByRole('button', { name: /Open command palette/i }).click()
-    await page.getByLabel('Command palette search').fill('Spaces')
+    await page.getByLabel('Command palette search').fill('Workspaces')
     await page.keyboard.press('Enter')
     await expect(page).toHaveURL(/\/workspaces$/)
   })
@@ -169,7 +305,7 @@ test.describe('navigation reachability', () => {
 //
 //   'does not reuse a sidebar link name for a different project route'
 //     → fr040-project-work.spec.js 'names its Work sub-views apart from the
-//       Development sidebar', which asserts the same six-label uniqueness and
+//       Projects & Work module sidebar', which asserts the same uniqueness and
 //       additionally pins the sidebar's own `Milestones & Gates` href.
 //
 //   'reaches project Milestones from the Work sub-view tabs'

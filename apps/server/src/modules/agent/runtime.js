@@ -2,6 +2,7 @@ import { queryKnowledge, createGraphKnowledgeReader } from '@/modules/knowledge'
 import { createInMemoryMemory } from './memory-port'
 import { createMspMemoryPort } from './msp-memory-port'
 import { createMspVaultResolver } from './msp-vault-resolver'
+import { createMspThreadMemoryPort } from './msp-thread-memory-port'
 
 // @req FR-029 — bind the agent to the REAL backends: MSP memory + GenesisBlockDB
 //   knowledge, as the ports assembleAgentContext/handleAgentTurn consume.
@@ -22,7 +23,7 @@ import { createMspVaultResolver } from './msp-vault-resolver'
  * @param {Function} [backends.graphTraverse]  injected graph read ({tenantId,principalId})=>relations[]
  * @param {{resolve: Function}|Function} [backends.mspVaultResolver] canonical API-010 resolver
  * @param {boolean} [backends.mspCompatibilityMode] explicitly enable legacy scopeKey mode
- * @returns {{ memory: import('./memory-port').MemoryPort, knowledge: Function }}
+ * @returns {{ memory: import('./memory-port').MemoryPort, knowledge: Function, threadMemory: object|null }}
  */
 export function createAgentPorts({ mspTransport, mspVaultResolver, mspCompatibilityMode = false, mspActor = 'zuri-agent', graphTraverse } = {}) {
   const memory = mspTransport
@@ -34,5 +35,8 @@ export function createAgentPorts({ mspTransport, mspVaultResolver, mspCompatibil
         })
     : createInMemoryMemory()
   const knowledge = graphTraverse ? createGraphKnowledgeReader({ traverse: graphTraverse }) : queryKnowledge
-  return { memory, knowledge }
+  const threadMemory = mspTransport
+    ? createMspThreadMemoryPort({ transport: mspTransport, actor: mspActor })
+    : null
+  return { memory, knowledge, threadMemory }
 }

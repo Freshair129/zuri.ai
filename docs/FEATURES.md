@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.30.0b"
+version: "1.57.0b"
 status: active
-last_update: "2026-09-07T03:00:00+07:00,Claude"
+last_update: "2026-09-17T00:32:00+07:00,RWANG"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -12,9 +12,13 @@ relations:
 
 # Features (FEAT registry)
 
+Version diff 1.56.0b → 1.57.0b: register owner-approved FR-251 as a project-manager feature-of-one for the read-only Project Execution Domains view, now implemented and verified locally. No new FEAT bundle, Phase B authority or production deployment is declared.
+
+Version diff 1.55.0b → 1.56.0b: register FR-250 as a project-manager feature-of-one for hierarchical Projects & Work navigation. No new FEAT bundle or runtime completion is asserted.
+
 | Field | Value |
 |-------|-------|
-| **Version** | 1.30.0b |
+| **Version** | 1.57.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -44,7 +48,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-010 | Production Identity & Access Management — canonical Person/channel identity, persisted sessions, active Membership lifecycle, shared policy enforcement and agent/tool scope isolation | FR-094, FR-095, FR-096, FR-097, FR-098 | building |
 | FEAT-011 | SoT Pipeline Console — plan board, human approval inbox with pull-based decision export, and a node/edge status graph for the business-wide Source-of-Truth pipeline | FR-099, FR-100, FR-101 | building |
 | FEAT-012 | ExecutionPlanBundle — one portable, self-contained programme artifact (strategy + N Projects + cross-Project dependencies) imported through one combined dry-run and one confirmation, above the canonical PlanEnvelope | FR-108 | live |
-| FEAT-013 | Knowledge Ingestion Governance — the documentary governance layer over the seventeen-stage knowledge ingestion pipeline: the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run | FR-109, FR-110, FR-111 | building |
+| FEAT-013 | Knowledge Ingestion Governance — the governance and isolated execution layer over the seventeen-stage knowledge ingestion pipeline (ADR-073; extension points in docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md): the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run; ADR-072 adds authorized source admission and receipt-backed corpus serving | FR-109, FR-110, FR-111, FR-173 | building |
 | FEAT-014 | CRM Conversation Intelligence — the derived-intelligence layer over the FR-023 LINE ingress: an AI-inferred per-Customer profile, per-conversation analysis records, and a per-Business Daily Sales Brief pushed over LINE; table shapes borrowed from the legacy ERD as prior art and rebound to this product's scope chain (ADR-054) | FR-126, FR-127, FR-128 | building |
 | FEAT-015 | Asset Management Foundation — first-class physical asset domain, evidence-backed multi-surface intake, PR/PO/payment/lot validation, temporal responsibility/location/Project allocation and Finance-review depreciation candidates | FR-133, FR-134, FR-135, FR-136 | building |
 | FEAT-016 | Asset Evidence Intake Execution — private cloud evidence, candidate OCR/Vision with human review, canonical Excel/Google Sheets snapshot import-export and trusted LINE FileAsset handoff up to `READY_FOR_REGISTRATION` | FR-137, FR-138, FR-139, FR-140 | live (configuration-gated) |
@@ -52,10 +56,30 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-018 | LINE OA Studio — Accounts: the first capability of the multi-account LINE Official Account command center — connect, list, pause, archive and watch the health of every account a Business runs, with a per-account transport mode (EDGE device or CLOUD), publisher-only writes, the rich menu designer, its server-owned publish jobs and the LIFF app registry (ADR-060, ADR-061) | FR-146, FR-147, FR-151, FR-152, FR-153 | building |
 | FEAT-019 | Server LINE with optional Edge — centrally recorded conversations and server-owned messaging, with separately selected local compute | FR-148, FR-149, FR-150 | building |
 | FEAT-020 | Inventory (คลังสินค้า) — counted and uncounted products with eight identities (category, family, factory, product master, SKU, bundle, lot, serial unit) and an append-only stock ledger whose on-hand is always recomputed; the owner's node/edge ontology recorded with offers, tiers, segments and orders deferred to Commerce (`DOM-INVENTORY`) | FR-154, FR-155, FR-156 | building |
-| FEAT-021 | Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision, Operations coordination and PM handoff within the approved full Marketing domain | FR-159, FR-158, FR-160, FR-157, FR-162 | building |
+| FEAT-021 | Marketing planning and accountable execution — immutable Strategy evidence, independent review, human decision, Operations coordination, PM handoff and durable LINE broadcast planning within the approved full Marketing domain | FR-159, FR-158, FR-160, FR-157, FR-162, FR-185 | building |
 | FEAT-022 | Sales Tasks (งานขาย) — the follow-ups a Business's sales team owes customers: call, LINE message, email, meeting, demo, quote, with a due day, an assignee, a status machine and an outcome, linked to the CRM Customer and Conversation; a CRM activity record deliberately kept apart from Development's WorkItem (ADR-064) | FR-161 | building |
 | FEAT-023 | Commerce — Orders & Payments: what the Business sold (lines that may name an Inventory SKU, the conversation the sale came from, exact money) and how it settled (payments and refunds verified by a second hat, revenue counted from verified money only by origin and day); the legacy Orders & Payments shape corrected on the way in (ADR-065) | FR-166, FR-163 | building |
 | FEAT-024 | Procurement (จัดซื้อ) — the buy side: approved suppliers with terms and lead time, purchase orders with lines naming Inventory SKUs at the agreed cost and a status machine, and goods receipts posted line by line that put counted goods (lots, expiry, serials) into the Warehouse ledger with the order as reference; the legacy Phase 5 procurement shapes corrected on the way in (ADR-066) | FR-164, FR-165 | building |
+| FEAT-025 | SmartGift SCM — the located, costed, promisable ledger: where stock is across nine supply-chain buckets from a Chinese factory to a customer's lobby, what a unit cost landed in satang with the single-drop truck absorbed into it, the two work orders that turn blank hardware into branded components and branded components into a finished gift set (with a declared scrap allowance and an irreversible customer lock), the shelf-life guard that refuses a power-bank lot too long in storage, Available-to-Promise net of quote and order reservations, six agent tools over all of it on the existing Gate E / Gate F registries, and a strict physical stocktake that reconciles counts through the same append-only ledger (ADR-074) | FR-174, FR-175, FR-176, FR-177, FR-178, FR-179, FR-180, FR-181, FR-182, FR-184 | building |
+| FEAT-026 | SmartGift Catalog Convergence — converging the three independent writers of SmartGift product-catalog data into GenesisBlockDB (SmartGift's own 5-stage ETL direct write, `apps/edge` Genesis RAG v4's direct sibling-checkout read/serve, and the unactivated 17-stage pipeline) onto one entry path: a structured-record source adapter before Stage 1, SmartGift recast as a source producer keyed by its own SHA-256 registry, Zero-PII enforced at Stage 5 classify, a structured parser profile and `ontology_v2` contract for catalog facts, and edge reading the published generation through MSP with v4 as a time-boxed transitional fallback (ADR-075, approved 2026-09-11; Phase 1 authorized) | FR-187, FR-188, FR-189 | approved |
+| FEAT-027 | Access Grant Lifecycle — making a `Membership` a withdrawable grant rather than a membership fact: provenance and an end on the row, suspend/reinstate/revoke/offboard services with mandatory reasons and last-owner guards, an explicit scope grammar shared with `RoleBinding`, referential invariants moved from application convention into the database, erasure refusing while grants are live, one writer in identity, and an `unreachable-state` preflight check so a declared state that nothing writes fails the build (ADR-077, 2026-09-12) | FR-191, FR-192 | declared |
+| FEAT-028 | Org Employment & Legal Entity — separating "who works here" from "who may log in here": a new `Employment` HR assignment record (title, type, lifecycle status) that `resolveViewer` never reads, with system access shown as a column derived FROM `Membership` rather than the reverse; and moving `LegalEntity` from `Portfolio` to `Tenant` so a Business can only reference a legal entity within its own isolation boundary, splitting its VAT branch registrations into `TaxRegistrationBranch` so an operating site (a warehouse, say) is never asked to carry a tax identity it does not have (ADR-078, 2026-09-12) | FR-193, FR-194 | implemented |
+| FEAT-029 | Access Invite, Segregation of Duties and Operator Lifecycle — a Business/Tenant-level invitation that becomes a real `Membership` grant on acceptance, bound to the accepting session rather than the invited address (generalising FR-067's Workspace-only `WorkspaceInvite`); segregation of duties as a write-time role-conflict refusal (with a Tenant-owner override) and a transaction-time self-verification refusal an OWNER does not bypass; and an operator grant that expires, that a standing operator can issue as a fresh row on renewal, and whose use reading the audit stream or a backup is itself recorded (ADR-079, 2026-09-12) | FR-195, FR-196, FR-197, FR-200 | implemented |
+| FEAT-030 | Audit Access Evidence — closing the read-side gap ADR-077's lifecycle assumed was already open: `AuditEvent` gains seven nullable columns (`tenantId`, `businessId`, `reason`, `beforeJson`, `afterJson`, `requestId`, `sessionId`) so scope and the change made are queryable rather than living only inside `payloadJson` for whichever writer happened to include them, and identity gains `listAccessHistory` (a Business/Tenant owner, oneself, or the operator reads the event stream for their own scope, 404-shaped identically for unowned and nonexistent) and `listBusinessAccess` (the current grant roster with provenance) — the access review a reason on every FR-191 transition is only worth writing if someone can read it back (ADR-080, 2026-09-12) | FR-198, FR-199 | implemented |
+| FEAT-031 | SKU governance (anti-SKU-bloat) — the product nature declared once at the master and inherited by every SKU so a service is never a variant of a good, variant identity as the key that makes one physical variant one SKU, barcodes and partner codes as resolvable attributes an intake checks before it creates, pack sizes as unit conversions rather than SKUs, the SKU lifecycle (phase-out, reactivate, merge, the archive guard), replenishment parameters, and the read-only catalogue hygiene report with its merge desk on the Inventory console (ADR-083, `DOM-INVENTORY`) | FR-201, FR-202, FR-203, FR-204, FR-205, FR-206, FR-207 | implemented |
+| FEAT-032 | Catalogue intake that resolves before it creates — one envelope that JSON, a Business-specific Excel workbook and a LINE `#sku` command all convert into; a planner that looks up every item by its barcodes, partner codes and SKU code (following merges) before it plans a create, matches without overwriting, and applies ADR-083's guards across the catalogue and the batch; a persisted preview whose plan hash a commit must match; an all-or-nothing commit through the existing catalogue writers; the Import tab; and LINE previews that only a verified staff sender with Inventory write authority can confirm (ADR-084, `DOM-INVENTORY`) | FR-208, FR-209, FR-210 | implemented |
+| FEAT-033 | Data Pipeline Map — where data enters zuri-ai, where it is combined and who receives it, kept as a validated registry whose surface levels, build statuses and FEATs are derived from the tree and the readiness snapshot, drawn as a node-edge view with chain, domain and status filters in a Knowledge (GKS) navigation slot, with live per-edge health for the active Business declared next (ADR-085, `DOM-KNOWLEDGE`) | FR-212, FR-213, FR-214, FR-215 | building |
+| FEAT-034 | Programme delivery telemetry — phase cards on the operator programme board show counts, size, plan window and effort estimate beside the time and tokens really used, measured from local agent session logs and agent usage reports and never presented as progress, and task cards carry evidence badges and subtask progress (ADR-086, `DOM-PLATFORM-CONTROL`) | FR-216, FR-217, FR-218, FR-219 | live |
+| FEAT-035 | Zuri harness usage plugin — Claude Code and Codex agents on any machine pair once through a signed-in browser, hold a credential that can only report usage, and report each finished session attributed to the approving person, the device and the lane of its branch (ADR-087, `DOM-IDENTITY`, `DOM-PLATFORM-CONTROL`) | FR-220, FR-221, FR-222 | live |
+| FEAT-036 | Connect LINE OA yourself — a Business owner connects a LINE Official Account from the browser: after a TOTP step-up they enter the Channel ID and Channel secret once, the server proves them with LINE, claims the bot for this installation, stores the secret write-only in the Integration vault (Supabase Vault, or an encrypted store on self-host) and mints short-lived tokens itself, sets and tests the webhook through LINE's API and decides on its own when the old transport has gone quiet — with no operator and no host file (ADR-089, `DOM-INTEGRATION`, `DOM-IDENTITY`, `DOM-LINE-OA-STUDIO`) | FR-223, FR-224, FR-225, FR-226, FR-227, FR-228 | building |
+| FEAT-037 | Chat record, memory tiers and retention — every LINE conversation kept in the right place for its role: the complete business record in CRM (text, stickers, media references and events, searchable in the inbox), the agent's own 90-day conversation ledger and consolidated memory in MSP under a per-account policy and per-tier consent, declared retention windows a Tenant can only shorten, erasure that reaches every tier and shows what is still pending, and one Context Composer that decides what a model may see and leaves a receipt of it (ADR-091, `DOM-CRM`, `DOM-AGENT`, `DOM-LINE-OA-STUDIO`) | FR-229, FR-230, FR-231, FR-232, FR-233, FR-234 | declared |
+| FEAT-038 | LINE grounding and knowledge candidates — a LINE OA account can answer from the Business's published GKS corpus, with a traced fallback and never a model call without evidence, and what the business learns from LINE conversations enters that corpus only as a locator-only question-and-answer that an owner or publisher approved, with a report of the questions nobody could answer (ADR-090, `DOM-KNOWLEDGE`, `DOM-AGENT`, `DOM-LINE-OA-STUDIO`) | FR-235, FR-236, FR-237, FR-238 | declared |
+| FEAT-039 | Agent usage detail — for every measured lane, person and device, the programme board shows how the tokens split into input, output, thinking and cache, which tools the agents called and how often they failed or were denied, and how many prompts and compactions a session took, counted from agent logs by the meter and the harness plugin with names and numbers only (ADR-086 D7, `DOM-PLATFORM-CONTROL`) | FR-239, FR-240 | live |
+| FEAT-040 | Conversation sessions and model residency — a long LINE conversation reads as separate sittings: each message and event belongs to a session that closes after 30 quiet minutes (10 to 120 per account), carried on the LINE job and trace and shown as a divider in the inbox, and the local model stays loaded only during each account's business hours, with a fixed reply outside them (ADR-094, `DOM-CRM`, `DOM-LINE-OA-STUDIO`) | FR-243, FR-244 | declared |
+| FEAT-041 | Chat evidence — what a customer and the business said stays provable: staff replies sent from the inbox are part of the record, and message bodies past their retention window move to an encrypted, hash-chained archive on a local disk for 10 years, retrieved only by an owner at AAL2 with a case reference and kept past an erasure only under a recorded legal hold (ADR-093, `DOM-CRM`) | FR-245, FR-246 | declared |
+| FEAT-042 | Observability — error tracking and feature usage: operators read a deduplicated, resolvable error list and a per-person breakdown of which pages and actions are actually used, both extending the existing structured logger rather than a third-party service (ADR-095, `DOM-PLATFORM-CONTROL`) | FR-247, FR-248, FR-249 | building |
+
+Version diff 1.39.0b → 1.40.0b (2026-09-12): FEAT-030 declared and implemented in the same change — audit events carry queryable scope (FR-198) and identity gains the two read models an access review needs (FR-199), under ADR-080. Closes the gap ADR-077's grant lifecycle assumed was already open.
 
 Version diff 1.13.0b → 1.14.0b (2026-09-01): FEAT-015 is building with local domain, validation, schema, backup, pipeline and dashboard foundations. Provider-backed OCR/Vision, LINE binary handoff, live Google Sheet sync, Procurement/Finance adapters and Project Inventory projection are not claimed live.
 
@@ -90,6 +114,20 @@ Version diff 1.28.0b → 1.29.0b (2026-09-07): FEAT-023 is declared and building
 
 Version diff 1.29.0b → 1.30.0b (2026-09-07): FEAT-024 is declared and building — the Procurement lane under ADR-066, the "Procurement" module of the owner's SCM row (`docs/ERP-MODULE-MAP.md`), bundling FR-164 (suppliers, purchase orders with lines at the agreed cost, SEND / CLOSE / CANCEL, everything about quantities and money computed on read) and FR-165 (goods receipts posted line by line against a sent order, counted lines landing in the Inventory ledger with lot, expiry and serials, the order received by the receipt that completes it). The `procurement` slot is live. Not claimed: purchase requests and approvals, RFQs, returns and credit notes, supplier invoices, landed cost, production application of the migration.
 
+
+Version diff 1.32.0b → 1.33.0b (2026-09-10): FEAT-025 is declared and building — the SmartGift SCM slice under ADR-074, bundling FR-174 (warehouse locations and the located ledger), FR-175 (landed cost in satang with the flat single-drop truck absorbed into unit valuation), FR-176 (customization work orders and the irreversible customer-dedicated lock), FR-177 (kitting work orders with a declared scrap allowance and the FlowAccount finished-set SKU), FR-178 (de-kitting), FR-179 (the shelf-life storage guard), FR-180 (Available-to-Promise with two-tier reservations) and FR-181 (six agent tools on the existing Gate E / Gate F registries). Not claimed: FlowAccount catalogue and stock synchronisation, cycle counting and stocktake campaigns, HTTP routes and console pages for locations, work orders and reservations, and production application of migration `20260910120000_smartgift_scm_wip`.
+
+Version diff 1.33.0b → 1.34.0b (2026-09-10): FEAT-025 gains FR-182 — the console and API surface ADR-074 consequence 5 deferred. Thirteen `/api/inventory/**` route files and four pages (`/inventory`, `/inventory/locations`, `/inventory/work-orders`, `/inventory/reservations`) over the services FR-174..FR-181 already shipped: no new model, no migration, no new authority, and Inventory becomes the third module to render in-canvas tabs (FR-170). Still not claimed: FlowAccount synchronisation, cycle counting and stocktake campaigns.
+
+Version diff 1.34.0b → 1.35.0b (2026-09-11): FEAT-025 gains owner-approved FR-184 — the existing Inventory surface's durable NONE/LOT stocktake preview and atomic fenced commit, with strict stale/idempotency outcomes and feature-specific recovery. SERIAL observation, bins, campaigns, and production migration remain outside the slice.
+
+Version diff 1.35.0b → 1.36.0b (2026-09-11): FEAT-021 gains approved FR-185 — Business-scoped LINE broadcast planning identity and append-only revisions with strict owner references, deterministic read projections and unavailable dispatch. The slice does not add provider metrics, audience resolution, consent snapshots, sends or workers.
+
+Version diff 1.37.0b → 1.38.0b (2026-09-11): FEAT-026 readiness note updated — Phase 1 implemented (PR #324), owner answered ADR-075 questions 2–4 and opened the Phase 2 gate (Option A, contract revision 2). The FEAT-026 row itself is unchanged.
+
+Version diff 1.35.0b → 1.36.0b (2026-09-11): ADR-075 approved by the owner on PR #321; FEAT-026 moves to `approved`, Phase 1 (FR-187) authorized, no code yet.
+
+Version diff 1.34.0b → 1.35.0b (2026-09-11): FEAT-026 is declared `proposed` — the SmartGift Catalog Convergence slice under **ADR-075**, which is itself `status: proposed` and owner-unapproved. Bundles FR-187 (structured-record source adapter before Stage 1), FR-188 (structured parser profile and `ontology_v2` contract) and FR-189 (edge reads the published generation through MSP, with Genesis RAG v4 as a time-boxed transitional fallback). Docs only: no code, no schema, no migration, no production deployment. Declines CR-002's `Workspace.catalogVaultId`/`vaultNamespace` proposal per `PLAN-PENDING-KNOWLEDGE-20260831` D7.
 ## Readiness Dashboard presentation metadata
 
 This block is the hand-maintained presentation contract for FR-124. It carries
@@ -110,6 +148,11 @@ writing one sentence here, or the governance chain stops.
 <!-- readiness-metadata:start -->
 ```json
 [
+  {
+    "id": "FR-171",
+    "primaryDomain": "agent",
+    "useCase": "Inspect exact context, model usage and delivery evidence for a native SERVER LINE turn without repeating side effects."
+  },
   {
     "id": "FEAT-001",
     "primaryDomain": "project-manager",
@@ -716,13 +759,165 @@ writing one sentence here, or the governance chain stops.
     "useCase": "ฝ่ายจัดซื้อสร้างผู้ขายจากหน้า /procurement ออกใบสั่งซื้อจากหน้า /procurement/purchase-orders (รายการที่ผูก SKU ในคลัง ต้นทุนที่ตกลง) ส่งให้ผู้ขาย แล้วบันทึกรับของทีละรายการเมื่อของมาถึง (Lot วันหมดอายุ Serial) โดยของที่นับสต๊อกเข้า ledger ของคลังทันทีและใบสั่งซื้อรับครบเองเมื่อทุกรายการมาครบ ยอดค้างรับและมูลค่าคำนวณจากใบรับของทุกครั้ง"
   },
   {
+    "id": "FEAT-025",
+    "primaryDomain": "inventory",
+    "useCase": "ฝ่ายคลังเห็นว่าของอยู่จุดไหนของซัพพลายเชน (โรงงานจีน เรือ ท่าเรือ คลังวัตถุดิบ ห้องยิงเลเซอร์ ไลน์ประกอบ คลังสินค้าสำเร็จรูป ของเสีย) ย้ายของข้ามจุดแบบตัดต้นทาง-เพิ่มปลายทางในธุรกรรมเดียว เปิดใบสั่งสกรีน/ยิงเลเซอร์ที่ล็อกของให้ลูกค้ารายนั้นถาวร เปิดใบสั่งประกอบที่ระเบิด BOM พร้อมเผื่อของเสียตามที่สูตรประกาศไว้ และได้ต้นทุนต่อชุดเป็นสตางค์ที่รวมค่ารถส่งเหมาคันไว้แล้ว ส่วนฝ่ายขายถามผ่านผู้ช่วย AI ได้ว่ารับออเดอร์กี่ชุดได้ทันที ราคาต่อชุดเท่าไร แล้วจองสต๊อกให้ลูกค้า 7 วันโดยไม่ชนกับใบเสนอราคาอื่น"
+  },
+  {
     "id": "FR-167",
     "primaryDomain": "inventory",
     "useCase": "ผู้ใช้กดช่อง SCM ช่องเดียวในแถบโดเมน แล้วเห็น Inventory, Warehouse, Procurement และ Order Management เรียงเป็นสี่กลุ่มในเมนูด้านซ้าย จึงข้ามจากคลังไปจัดซื้อไปคำสั่งขายได้โดยไม่ต้องกลับขึ้นแถบบน ส่วน Warehouse ที่ยังไม่ได้สร้างจะแสดงเป็นช่องที่กดไม่ได้ แทนที่จะหายไปเฉย ๆ"
+  },
+  {
+    "id": "FR-168",
+    "primaryDomain": "inventory",
+    "useCase": "เจ้าของธุรกิจสร้าง SKU แล้วเลือกได้ว่าเป็นสินค้านับสต๊อก สินค้าไม่นับสต๊อก หรือบริการ พอเลือกบริการหรือไม่นับสต๊อก ฟอร์มจะตัดช่องการระบุหน่วยและ safety stock ออกทันทีเพราะใช้ไม่ได้ และระบบจะปฏิเสธการรับของเข้าคลังสำหรับบริการ เพราะบริการเป็นสิ่งที่ทำให้ ไม่ใช่ของที่ส่งมอบเข้าคลัง"
+  },
+  {
+    "id": "FR-169",
+    "primaryDomain": "inventory",
+    "useCase": "เจ้าของธุรกิจที่ขายเฉพาะบริการเข้าไปที่ตั้งค่า แล้วปิดสวิตช์ Physical Stock ทันทีที่ปิด โมดูล Warehouse หายไปจากแถบเมนูบนและเมนูซ้ายของ SCM ทั้งหมด ไม่ใช่แค่กดไม่ได้ ธุรกิจอื่นที่มีสต๊อกจริงยังเห็น Warehouse เหมือนเดิมเพราะค่าเริ่มต้นเปิดไว้"
+  },
+  {
+    "id": "FR-170",
+    "primaryDomain": "procurement",
+    "useCase": "ผู้ใช้เปิดหน้าจัดซื้อแล้วเห็นแท็บ Dashboard กับ Purchase Orders อยู่ในกรอบเดียวกันด้านบน กดสลับแท็บเพื่อดูใบสั่งซื้อโดยไม่ต้องกลับไปที่เมนูซ้าย เช่นเดียวกับหน้า Order Management ที่มีแท็บ Dashboard กับ Orders สลับกันได้ในกรอบเดียว"
+  },
+  {
+    "id": "FR-172",
+    "primaryDomain": "crm",
+    "useCase": "ผู้ใช้กดช่อง CRM ช่องเดียวในแถบโดเมน แล้วเห็น Customer กับ Market Intelligence เรียงกันในเมนูด้านซ้าย จึงข้ามจากลูกค้าไปข้อมูลตลาดได้โดยไม่ต้องกลับขึ้นแถบบน เหมือนกับที่ SCM ทำไว้กับคลัง จัดซื้อ และคำสั่งขาย"
+  },
+  {
+    "id": "FR-186",
+    "primaryDomain": "commerce",
+    "useCase": "Business owner configures authoritative issuer, tax and PromptPay settings, then an authorized user previews or durably issues an immutable invoice, receipt or Thai tax document with an exact money snapshot and no fabricated identity"
+  },
+  {
+    "id": "FR-183",
+    "primaryDomain": "commerce",
+    "useCase": "An authorized cashier submits a manually priced walk-in sale for a selected Branch and WarehouseLocation, and one transaction records the order, pending payment, exact change and Inventory ledger issue without claiming verification"
+  },
+  {
+    "id": "FEAT-026",
+    "primaryDomain": "knowledge",
+    "useCase": "Approved 2026-09-11 (ADR-075); Phase 1 (FR-187) implemented in PR #324; Phase 2 gate open with contract revision 2: SmartGift's catalog data would enter the governed 17-stage pipeline through one adapter instead of three separate writers, so an agent's product answer can finally name the published generation and citation it came from"
+  },
+  {
+    "id": "FR-190",
+    "primaryDomain": "line-oa-studio",
+    "useCase": "Tell a silent LINE channel from a misrouted one: how long a serverEnabled account has gone without an inbound delivery, and whether the webhook endpoint LINE has configured is still this deployment own account route."
+  },
+  {
+    "id": "FEAT-027",
+    "primaryDomain": "identity",
+    "useCase": "An owner removes someone's access from the product instead of asking for SQL: suspend, reinstate, revoke or offboard a person with a stated reason, the dependent role bindings following and the evidence that the grant existed surviving the withdrawal"
+  },
+  {
+    "id": "FEAT-028",
+    "primaryDomain": "project-manager",
+    "useCase": "The HR People Directory finally answers 'who works here' honestly — a suspended staff member stays listed as staff whose access is suspended, a shareholder with no employment relationship stops appearing as one, and a warehouse Branch with no VAT branch code registered against its legal entity can still sell, just never issue a tax invoice"
+  },
+  {
+    "id": "FEAT-029",
+    "primaryDomain": "identity",
+    "useCase": "An owner invites someone into a Tenant or Business who has no account yet, with an expiring token instead of typing an exact email; a buyer cannot also receive their own purchase order and a rep cannot verify their own payment, even the owner, unless they say so on the record; and a lost operator credential no longer means editing production by hand"
+  },
+  {
+    "id": "FEAT-030",
+    "primaryDomain": "identity",
+    "useCase": "An owner reads who has access to their own Business right now, who granted it and why, and what changed and when — the access review a reason on every access-grant transition was only ever worth writing for"
+  },
+  {
+    "id": "FEAT-031",
+    "primaryDomain": "inventory",
+    "useCase": "เจ้าของธุรกิจเปิดแท็บ SKU Hygiene แล้วเห็นทันทีว่า SKU ตัวไหนซ้ำกัน บริการตัวไหนถูกสร้างไว้ใต้สินค้า สินค้าหลักตัวไหนยังไม่ประกาศแกน variant และ SKU ตัวไหนนิ่งมานาน กดรวม SKU ที่ซ้ำเข้าด้วยกันโดยยอดคงเหลือและบาร์โค้ดย้ายตามไปและไม่มีอะไรถูกลบ ส่วนฝ่ายรับของสแกนบาร์โค้ดแล้วระบบบอกได้ว่าเป็น SKU ไหนก่อนจะเผลอสร้างซ้ำ"
+  },
+  {
+    "id": "FEAT-032",
+    "primaryDomain": "inventory",
+    "useCase": "เจ้าของธุรกิจดาวน์โหลดแม่แบบ Excel ของ Business ตัวเอง กรอกสินค้า 200 แถวแล้วอัปโหลด ระบบบอกทีละแถวว่าแถวไหนเป็น SKU ใหม่ แถวไหนตรงกับ SKU เดิมจากบาร์โค้ด (และจะเพิ่มแค่บาร์โค้ด/หน่วยแปลงที่ยังไม่มี) แถวไหนซ้ำหรือผิด แล้วกดยืนยันครั้งเดียวบันทึกทั้งไฟล์ หรือพิมพ์ #sku ใน LINE จากบัญชีที่ยืนยันตัวตนแล้วเพื่อทำแบบเดียวกันจากมือถือ"
+  },
+  {
+    "id": "FR-211",
+    "primaryDomain": "platform-control",
+    "useCase": "installation operator เปิดแท็บ Domain map & inventory ใน /control/roadmap แล้วเห็นทุกโดเมนเป็นแผนผังพร้อมสถานะ เลือกโดเมนหนึ่งเพื่อดู feature, FR และ NFR ของโดเมนนั้นว่าตัวไหนพร้อมใช้ ตัวไหนยังติดอะไร โดยไม่ต้องเปิด PRD หรือรันคำสั่งเอง"
+  },
+  {
+    "id": "FEAT-033",
+    "primaryDomain": "knowledge",
+    "useCase": "เจ้าของธุรกิจเปิดแท็บ Knowledge (GKS) แล้วเห็นแผนที่ว่าข้อมูลของธุรกิจเข้ามาจากไหน ถูกรวมที่ไหน และถูกส่งต่อให้ใคร เลือก chain เช่น LINE turn เพื่อไล่ดูทีละ hop ว่าแต่ละขั้นเป็นของโดเมนไหน FEAT ไหน มีหน้าจอหรือ endpoint แล้วหรือยัง และขึ้น production แล้วหรือยังพร้อมหลักฐาน"
+  },
+  {
+    "id": "FEAT-034",
+    "primaryDomain": "platform-control",
+    "useCase": "installation operator เปิด /control/roadmap แล้วเห็นว่าแต่ละ phase มีกี่ sprint กี่ task ขนาดเท่าไร ใช้เวลาประมาณเท่าไร และงานที่ done แล้วใช้เวลาจริงกับ token จริงไปเท่าไรจาก log ของ agent ที่วัดได้ ไม่ใช่ค่าประมาณ พร้อม badge บนการ์ด task ว่าเอกสาร โค้ด เทสต์ FR NFR FEAT ของงานนั้นเสร็จ รอรีวิว ต้องแก้ หรือยังว่าง และ progress bar ของ subtask"
+  },
+  {
+    "id": "FEAT-035",
+    "primaryDomain": "identity",
+    "useCase": "นักพัฒนาติดตั้ง plugin ของ Zuri ใน Claude Code หรือ Codex บนเครื่องตัวเอง กดจับคู่แล้วยืนยันใน browser ที่ login zuri-ai ค้างไว้ครั้งเดียว หลังจากนั้นทุก session ที่จบจะส่งยอด token จริงขึ้น zuri-ai เอง operator เห็นบน /control/roadmap ว่าใครใช้ไปเท่าไรจากเครื่องไหนใน lane ไหน และเพิกถอนเครื่องที่ไม่ใช้แล้วได้"
+  },
+  {
+    "id": "FEAT-036",
+    "primaryDomain": "integration",
+    "useCase": "เจ้าของธุรกิจเปิดหน้าเชื่อมต่อ LINE OA ยืนยันตัวตนด้วยรหัส TOTP แล้วกรอก Channel ID กับ Channel secret จาก LINE Developers Console ครั้งเดียว ระบบตรวจกับ LINE ดึงชื่อบอทมาให้ ตั้งและทดสอบ Webhook ให้เอง แล้วกดเปิดใช้งานได้ทันทีโดยไม่ต้องให้ผู้ดูแลระบบใส่ไฟล์บนเครื่องเซิร์ฟเวอร์ และหลังบันทึกไม่มีหน้าไหนแสดง secret ซ้ำอีก"
+  },
+  {
+    "id": "FEAT-037",
+    "primaryDomain": "crm",
+    "useCase": "พนักงานเปิด Inbox แล้วเห็นบทสนทนา LINE ครบทั้งข้อความ สติกเกอร์ รูปที่ลูกค้าส่ง และเหตุการณ์อย่างการเพิ่มเพื่อนหรือบล็อก ค้นหาข้อความเก่าได้ ส่วนเจ้าของธุรกิจกำหนดได้ว่าบัญชีไหนให้ agent จำบริบทได้ รู้ว่าข้อมูลแต่ละชั้นเก็บนานเท่าไร และเมื่อลูกค้าขอลบข้อมูลก็เห็นว่าลบครบทุกชั้นแล้วหรือยังรออยู่ที่ไหน"
+  },
+  {
+    "id": "FEAT-038",
+    "primaryDomain": "knowledge",
+    "useCase": "เจ้าของธุรกิจสลับบัญชี LINE OA ให้ตอบลูกค้าจากคลังความรู้ที่ publish แล้วใน GKS ดู trace ได้ว่าคำตอบอ้างเอกสารไหน อนุมัติคำถาม-คำตอบที่ได้จากแชทลูกค้าเข้าเป็นความรู้ของธุรกิจโดยไม่มีข้อมูลส่วนตัวของลูกค้าติดไป และเห็นรายงานว่าลูกค้าถามเรื่องสินค้าตัวไหนที่ระบบยังตอบไม่ได้"
+  },
+  {
+    "id": "FEAT-039",
+    "primaryDomain": "platform-control",
+    "useCase": "installation operator เปิดการ์ด phase บน /control/roadmap แล้วเห็นว่า token ที่ใช้แยกเป็น input, output, thinking และ cache อย่างละเท่าไร agent เรียก tool อะไรบ่อยที่สุด พลาดหรือถูกปฏิเสธกี่ครั้ง ใช้กี่ prompt และ compact กี่รอบ แยกตาม lane คน และเครื่อง โดยไม่มีข้อความของงานถูกเก็บ"
+  },
+  {
+    "id": "FEAT-040",
+    "primaryDomain": "crm",
+    "useCase": "เจ้าของธุรกิจเปิด inbox แล้วเห็นบทสนทนา LINE ของลูกค้าแบ่งเป็น session ตามช่วงที่คุยกัน โดย session ปิดเองเมื่อเงียบเกิน 30 นาที ตั้งค่าได้ 10–120 นาทีต่อบัญชี ย้อนดู job และ trace ของแต่ละ session ได้ ส่วน model บนเครื่อง edge โหลดไว้เฉพาะเวลาทำการของบัญชี และนอกเวลาทำการลูกค้าได้รับข้อความตอบกลับที่ตั้งไว้"
+  },
+  {
+    "id": "FEAT-041",
+    "primaryDomain": "crm",
+    "useCase": "เมื่อลูกค้าอ้างว่าเคยได้รับส่วนลดเมื่อสองปีก่อน เจ้าของธุรกิจยืนยันตัวตนสองชั้นแล้วดึงข้อความของลูกค้าคนนั้นตามช่วงวันที่จาก archive ที่เข้ารหัสบนดิสก์ในเครื่อง พร้อม hash ที่พิสูจน์ว่าไม่ถูกแก้ ข้อความที่พนักงานตอบจาก inbox อยู่ในหลักฐานด้วย และข้อมูลที่อยู่ภายใต้ legal hold ไม่ถูกลบจนกว่าข้อพิพาทจะจบ"
+  },
+  {
+    "id": "FR-241",
+    "primaryDomain": "platform-control",
+    "useCase": "ใครก็ตามที่ login zuri-ai แล้ว เปิด /roadmap ได้ในช่วง 30 วันจนถึง 15 ต.ค. 2026 เพื่ออ่านแผนงาน 24 สัปดาห์กับ Domain map แบบอ่านอย่างเดียว โดยไม่เห็นยอดการใช้งานแยกตามคนหรือเครื่อง ชื่อ tool/model หรือรายการเครื่องที่จับคู่ ส่วน /control/roadmap ยังเปิดได้เฉพาะ operator"
+  },
+  {
+    "id": "FR-242",
+    "primaryDomain": "integration",
+    "useCase": "ทีมพัฒนาต่อยอด vault เดิมที่เก็บ LINE channel secret ให้เก็บ OAuth client (เช่น FlowAccount ในอนาคต) และ model provider API key ได้ด้วย ผ่านขั้นตอนเขียน-ยืนยัน-หมุน-เพิกถอน-อ่านแบบเดียวกัน โดยเขียนทับ credential ผิดประเภทลง connection เดิมไม่ได้ (ระบบปฏิเสธก่อนข้อมูลลับจะถูกเก็บ) และอ่านข้าม kind กันไม่ให้เอา OAuth key ไปอ่านเป็น LINE channel secret"
+  },
+  {
+    "id": "FR-250",
+    "primaryDomain": "project-manager",
+    "useCase": "ผู้ใช้เปิด Projects & Work แล้วเลือกหมวด Project Management, Work Management หรือ Resource Coordination จาก sidebar และเลือกแท็บภายในหมวดนั้น โดยยังอยู่ในโปรเจกต์เดิม เปิด Inventory, Team และ Work views เดิมได้ครบ ใช้ Import plan จากปุ่มเดียว และเห็น Requirements, Risks, Resources กับ Agent Delivery ว่าส่วนใดยัง Planned โดยเมนูไม่เพิ่มสิทธิ์"
+  },
+  {
+    "id": "FR-251",
+    "primaryDomain": "project-manager",
+    "useCase": "ผู้ใช้ที่มีสิทธิ์อ่าน Project เปิด Delivery Design แล้วดู Execution Domains ตาม Workstream จริง แยกเจ้าของหลัก ส่วนสนับสนุน และ technical owner นับงานไม่ซ้ำ เห็นงานที่ยังไม่ผูก domain และ ID ที่ยังไม่รู้จัก พร้อมระบุข้อมูล feature และหลักฐานที่ยังไม่มีอย่างชัดเจน"
+  },
+  {
+    "id": "FEAT-042",
+    "primaryDomain": "platform-control",
+    "useCase": "operator เปิดหน้า error ใหม่บน /control/errors แล้วเห็น error ที่เกิดจริงจัดกลุ่มตาม fingerprint พร้อมจำนวนครั้งและเวลาที่เกิดล่าสุด กดปิดเมื่อแก้แล้ว และเปิดอีกหน้าเพื่อดูว่าหน้าไหน/ฟีเจอร์ไหนถูกใช้บ่อยแค่ไหน แยกตามคน"
   }
 ]
 ```
 <!-- readiness-metadata:end -->
+
+Version diff 1.41.0b → 1.42.0b (2026-09-13): FEAT-029 gains owner-approved FR-200, separate Superadmin lifecycle and scope resolution (ADR-082).
 
 ## FEAT-019 phase documentation — 2026-09-06
 
@@ -731,3 +926,37 @@ writing one sentence here, or the governance chain stops.
 Version diff 1.21.0b → 1.22.0b: Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes.
 
 Version diff 1.25.0b → 1.26.0b: FEAT-021 includes FR-157 Content and Creative from approved CR-018.
+
+Version diff 1.36.0b → 1.37.0b: reconcile PR #321 approved FEAT-026 with the retained FR-184/FR-185 extensions; preserve both parallel revision histories and all published subjects.
+
+Version diff 1.38.0b → 1.39.0b (2026-09-12): Added **FEAT-029** (FR-195, FR-196, FR-197) under **ADR-079** — AccessInvite generalises WorkspaceInvite to Tenant/Business scope; segregation of duties gets a role-conflict writer and a self-verification transaction refusal; operator access becomes time-boxed, issuable and its use recorded. Implemented locally; migration not yet applied to production.
+
+Version diff 1.40.0b → 1.41.0b (2026-09-12): **FEAT-029 moves from `implemented locally` to `implemented`** — its migration `20260912140000_access_invite_sod_operator.sql` is applied on production (PRD-SDD 1.192.0b records the whole five-migration apply). No feature text changed; the status column was simply describing a state that had ended.
+
+Version diff 1.42.0b → 1.43.0b (2026-09-13): Added **FEAT-031** (FR-201..FR-207) under **ADR-083** — SKU governance: nature at the master, variant identity as the anti-bloat key, identifiers with a resolve step, unit conversions, the SKU lifecycle with merge, the hygiene report and replenishment parameters. Implemented locally; migration written in both trees and not applied to production.
+
+Version diff 1.43.0b → 1.44.0b (2026-09-13): **FEAT-031 moves from `building` to `implemented`** — its migration `20260913120000_inventory_sku_governance` is applied on production and main 52c9881e (PR #372) is deployed. No feature text changed.
+
+Version diff 1.44.0b → 1.45.0b (2026-09-13): Added **FEAT-032** (FR-208, FR-209, FR-210) under **ADR-084** — catalogue intake that resolves before it creates: one envelope and planner, the Excel converter and Import tab, and the LINE `#sku` command. Implemented locally; migration written in both trees and not applied to production.
+
+Version diff 1.45.0b → 1.46.0b (2026-09-13): readiness metadata gains **FR-211** (primary domain `platform-control`) — the Domain map & inventory tab on `/control/roadmap`. An unbundled FR, so it is a feature of one; no FEAT row is added.
+
+Version diff 1.46.0b → 1.47.0b (2026-09-13): **FEAT-032 moves from `building` to `implemented`** — migration `20260913200000_inventory_catalog_intake` is applied on production and main ada5188b (PR #375) is deployed. No feature text changed.
+
+Version diff 1.47.0b → 1.48.0b (2026-09-13): Added **FEAT-033** (FR-212..FR-215) under **ADR-085** — the Data Pipeline Map in a Knowledge (GKS) navigation slot. FR-212..FR-214 implemented locally; FR-215 declared only.
+
+Version diff 1.48.0b → 1.49.0b (2026-09-13): Added **FEAT-034** (FR-216..FR-219) under **ADR-086** — programme delivery telemetry and task card evidence badges on `/control/roadmap`. Declared; building.
+
+Version diff 1.49.0b → 1.50.0b (2026-09-14): Added **FEAT-035** (FR-220..FR-222) under **ADR-087** — the Zuri harness usage plugin with browser-paired devices and a report-only credential. Declared; building.
+
+Version diff 1.50.0b → 1.51.0b (2026-09-14): Added **FEAT-036** (FR-223..FR-228) under **ADR-089** — connect LINE OA yourself; **FEAT-037** (FR-229..FR-234) under **ADR-091** — chat record, memory tiers and retention; and **FEAT-038** (FR-235..FR-238) under **ADR-090** — LINE grounding and knowledge candidates. Owner-approved design, declared only: no code, model, route or migration.
+
+Version diff 1.51.0b → 1.52.0b (2026-09-14): Added **FEAT-039** (FR-239, FR-240) under **ADR-086 D7** — agent usage detail from agent logs: token types, tool calls, prompts and compactions per lane, person and device. Declared; building.
+
+Version diff 1.52.0b → 1.53.0b (2026-09-14): **FEAT-034**, **FEAT-035** and **FEAT-039** move from building to live — every FR they bundle is merged and deployed (#383, #386, #393; running image `zuri-ai-web:release-daca80fb`) with its migrations applied on production. No feature text changed.
+
+Version diff 1.53.0b → 1.54.0b (2026-09-14): readiness metadata for **FR-241** (a feature of one, ADR-092) — the 30-day roadmap member view for signed-in people.
+
+Version diff 1.54.0b → 1.55.0b (2026-09-16): **FEAT-040** (FR-243, FR-244; ADR-094) and **FEAT-041** (FR-245, FR-246; ADR-093) declared with readiness metadata, on the owner's acceptance of both ADRs.
+
+Version diff 1.55.0b → 1.56.0b (2026-09-16): Added **FEAT-042** (FR-247..FR-249, NFR-023) under **ADR-095** — error tracking and per-person feature usage, both extending the existing logger; FR-247 implemented locally, FR-248/FR-249 declared only. Also reconciles the '**Version**' document-control cell, which had drifted behind this table (read 1.47.0b, table already at 1.55.0b).

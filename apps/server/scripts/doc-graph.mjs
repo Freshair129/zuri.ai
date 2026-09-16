@@ -16,6 +16,7 @@ import { domainMap, traceView } from './doc-views.mjs'
 import { collectDocumentLinks, documentLinksView, hasLinkMetadata } from './doc-links.mjs'
 import { qualifyDocumentIds, assertUniqueNodeIds } from './doc-identities.mjs'
 import { generateDomainState } from './domain-state.mjs'
+import { generateDataPipelineMap } from './data-pipeline-map.mjs'
 // The same splitter the id ledger reads rows with. Two readings of one row, from
 // two splitters that disagree about `\|`, is how SDD-071's label reached
 // Appendix D as half a sentence.
@@ -25,12 +26,21 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 // Post-flatten: the spec pack and the module docs are one tree under ROOT/docs.
 const SPEC_PACK = workspacePath(ROOT, 'docs')
 const GRAPH_PATH = workspacePath(ROOT, 'docs', '.doc-graph.json')
+// Diagnostic only — "what changed since the last regeneration". Never read by
+// --check, docs:preflight, monorepo-graph.mjs or anything else that demands
+// byte-for-byte reproducibility, because a diff-since-last-run is trivially
+// empty the moment it is compared against itself (see the note at the drift
+// computation below and .brain/rca/2026-09-07-monorepo-graph-stale-on-fresh-checkout.md).
+const DRIFT_REPORT_PATH = workspacePath(ROOT, 'docs', '.doc-graph-drift-report.json')
 const MATRIX_PATH = workspacePath(ROOT, 'docs', 'appendices', 'D-traceability.md')
 const FEATURE_MAP_PATH = workspacePath(ROOT, 'docs', 'FEATURE-MAP.md')
 const DOMAIN_MAP_PATH = workspacePath(ROOT, 'docs', 'DOMAIN-MAP.md')
 const TRACE_PATH = workspacePath(ROOT, 'docs', 'TRACE.md')
 const LINKS_PATH = workspacePath(ROOT, 'docs', 'DOCUMENT-LINKS.md')
 const DOMAIN_STATE_PATH = workspacePath(ROOT, 'docs', '.domain-state.json')
+// @req FR-212 — the data pipeline map projection, built from docs/DATA-PIPELINE-MAP.md
+// against the domain state computed in the same run (ADR-085 D4).
+const DATA_PIPELINE_MAP_PATH = workspacePath(ROOT, 'docs', '.data-pipeline-map.json')
 // Tombstone guard (ADR-024): the legacy-project mirror once lived here and may
 // still exist on old checkouts. Never index it.
 const V1_DIR = path.join(SPEC_PACK, 'v1-inherited')
@@ -304,6 +314,22 @@ function build() {
   const prd = workspacePath(ROOT, 'docs', 'PRD-SDD-v1.0.md')
   const reqs = requirementNodes(prd)
   nodes.push(...reqs)
+  // The two id namespaces, kept apart on purpose. `rootDeclaredIds` is what
+  // this registry declares; `edgeOwnIds` is what Edge brought with it from
+  // `Freshair129/zuri-edge-device` and still owns. ADR-039 forbids renumbering
+  // either side, so the overlap is permanent and has to be reasoned about
+  // rather than resolved. Read from Edge's own committed graph — the same
+  // source `monorepo-graph.mjs` treats as Edge's registry of record — so the
+  // two agree about what Edge owns instead of each parsing its PRD separately.
+  const rootDeclaredIds = new Set(reqs.map((r) => r.id.slice(4)))
+  const edgeGraphPath = workspacePath(ROOT, 'apps', 'edge', 'docs', '.doc-graph.json')
+  const edgeOwnIds = new Set(
+    existsSync(edgeGraphPath)
+      ? JSON.parse(read(edgeGraphPath)).nodes
+          .filter((n) => n.type === 'requirement')
+          .map((n) => n.id.slice(4))
+      : [],
+  )
   for (const r of reqs) addEdge(r.id, 'doc:PRD-SDD-v1.0', 'specifies', 'prd-registry')
   // A retired rule must be answerable as "replaced by what" from the graph, not
   // only from prose — the same obligation the lineage guard already puts on a
@@ -366,12 +392,30 @@ function build() {
   }
 
   // Tests first, so @tested names can be resolved to real test nodes.
-  const testFiles = walk(workspacePath(ROOT, 'tests'), ['.test.js', '.spec.js'])
+  //
+  // Edge's tests are walked alongside Server's for one concrete reason: its
+  // source files carry `@tested` pointing at `tests/unit/*.test.ts`, and with
+  // only Server's tree scanned every one of those resolved to a node that did
+  // not exist — 41 dangling edges the moment Edge source became visible. A
+  // dangling edge is not a cosmetic defect here; `doc-code-symlink` reports it
+  // and the traceability matrix shows the requirement as unverified.
+  const testFiles = [
+    ...walk(workspacePath(ROOT, 'tests'), ['.test.js', '.spec.js']),
+    ...walk(workspacePath(ROOT, 'apps', 'edge', 'tests'), ['.test.ts', '.test.js', '.spec.ts', '.spec.js']),
+  ]
+  const edgeTestRoot = workspacePath(ROOT, 'apps', 'edge', 'tests')
   for (const file of testFiles) {
     const body = read(file)
     nodes.push({ id: `test:${rel(file)}`, type: 'test', path: rel(file), hash: hash(body), status: 'current' })
-    // A requirement id named inside a test verifies it directly.
-    for (const r of new Set(body.match(ID_LIST) || [])) addEdge(`test:${rel(file)}`, `req:${r}`, 'verifies', 'test-reference')
+    // A requirement id named inside a test verifies it directly — but an id
+    // named inside an EDGE test is subject to the same collision rule as an
+    // Edge source annotation: Edge's own FR-004 must not be read as evidence
+    // for Server's.
+    const named = new Set(body.match(ID_LIST) || [])
+    const verifies = file.startsWith(edgeTestRoot)
+      ? [...named].filter((r) => rootDeclaredIds.has(r) && !edgeOwnIds.has(r))
+      : [...named]
+    for (const r of verifies) addEdge(`test:${rel(file)}`, `req:${r}`, 'verifies', 'test-reference')
   }
   const testNodes = nodes.filter((n) => n.type === 'test')
   const resolveTest = (name) => {
@@ -381,7 +425,29 @@ function build() {
   }
 
   // Code + annotations (seed lives outside src but carries FR-016).
-  const codeFiles = [...walk(workspacePath(ROOT, 'src'), ['.js', '.jsx']), ...walk(workspacePath(ROOT, 'prisma'), ['.js'])]
+  //
+  // `apps/edge` is walked too, and that is newer than the rest of this block.
+  // Edge arrived as a snapshot import (ADR-062) whose accounting lives in
+  // `monorepo-graph.mjs`, which only knows the 599 files named in
+  // `docs/migrations/monorepo/source-manifest.json`. Everything added to Edge
+  // since — 38 files at the time of writing, including the whole GenesisRAG17
+  // client — was invisible to every graph in the repository. The visible cost:
+  // FR-189 is declared in the root registry and annotated in ten `apps/edge`
+  // files, and `docs/FEATURE-MAP.md` reported it `🔜 planned · code — · tests —`.
+  // Governance said the work had not started while it was running in production.
+  const edgeCodeFiles = walk(workspacePath(ROOT, 'apps', 'edge', 'src'), ['.js', '.jsx', '.ts', '.tsx'])
+  // FR-222 (ADR-087 D7): the Zuri harness plugin ships from the repository root's
+  // plugins/ so it can be installed from the marketplace entry without the server
+  // tree. Unscanned, its FR would read as having no code, the same blindness the
+  // Edge note above describes.
+  const pluginCodeFiles = walk(workspacePath(ROOT, 'plugins'), ['.mjs', '.js'])
+  const codeFiles = [
+    ...walk(workspacePath(ROOT, 'src'), ['.js', '.jsx']),
+    ...walk(workspacePath(ROOT, 'prisma'), ['.js']),
+    ...edgeCodeFiles,
+    ...pluginCodeFiles,
+  ]
+  const isEdgeFile = new Set(edgeCodeFiles.map((f) => f))
   for (const file of codeFiles) {
     const body = read(file)
     const ann = annotationsOf(body)
@@ -400,7 +466,21 @@ function build() {
         ...(ann.tested.length ? { '@tested': ann.tested } : {}),
       },
     })
-    for (const r of ann.req) addEdge(id, `req:${r}`, 'implements', 'annotation')
+    // An id written inside `apps/edge` binds to a ROOT requirement only when it
+    // cannot mean anything else. Edge carries its own registry of 46 ids minted
+    // in the repository it came from, and the numbers overlap while the
+    // statements do not: Edge FR-004 is `send <template> --group <alias>`,
+    // Server FR-004 is Workstream CRUD. Binding blindly would file Edge's
+    // delivery-intent work as evidence for Workstream CRUD — a false trace,
+    // which is worse than the missing one this change exists to fix.
+    //
+    // So: root-declared AND absent from Edge's own registry. FR-189 qualifies
+    // (root-only). FR-004 does not, and stays unbound exactly as before — no
+    // regression, and `edgeScopedInRoot` below reports it rather than guessing.
+    const bindable = isEdgeFile.has(file)
+      ? ann.req.filter((r) => rootDeclaredIds.has(r) && !edgeOwnIds.has(r))
+      : ann.req
+    for (const r of bindable) addEdge(id, `req:${r}`, 'implements', 'annotation')
     for (const s of ann.spec) {
       // @spec points at a design decision or constraint, not a feature.
       if (s.endsWith('.md')) addEdge(id, `doc:${path.basename(s, '.md')}`, 'references', 'annotation')
@@ -626,15 +706,35 @@ if (workspaceRoot(ROOT) !== ROOT) {
   }
 }
 
-// Drift: a node whose hash changed since the last committed graph.
+// Drift: a node whose hash changed since the last committed graph. This is a
+// "what changed since the last regeneration" diagnostic for a human reviewing
+// the run — it must never be baked into the committed GRAPH_PATH itself.
+//
+// A field like that is self-invalidating the instant it is committed: it
+// describes a diff against whatever was on disk *before this run*, so a
+// second regeneration of the exact same commit (a fresh checkout has nothing
+// else to compare against) necessarily computes zero drift from itself,
+// producing a different file than the one just checked out. monorepo-graph.mjs
+// derives its own nodes from this file, so that self-inflicted difference
+// propagated into its independent staleness check even though its `canonical()`
+// already strips the unrelated per-node `status` field — the mismatch lived in
+// content the committed file had no business carrying at all.
+// See .brain/rca/2026-09-07-monorepo-graph-stale-on-fresh-checkout.md.
+//
+// The fix: the committed graph always states the trivial truth about itself
+// (no drift from itself, every node "current") — that's what makes it safe
+// for anything else to re-derive state from byte-for-byte. The real diff is
+// still computed and still reported, just never through a channel that
+// demands reproducibility: to the console here, and to DRIFT_REPORT_PATH,
+// which nothing in the governance chain reads back.
 const prevHash = new Map((previous?.nodes || []).map((n) => [n.id, n.hash]))
 const changed = nodes.filter((n) => n.hash && prevHash.has(n.id) && prevHash.get(n.id) !== n.hash)
 const added = nodes.filter((n) => !prevHash.has(n.id))
 const removed = (previous?.nodes || []).filter((n) => !nodes.some((x) => x.id === n.id))
-for (const n of changed) n.status = 'changed'
 
 const cov = coverage(nodes, edges)
 const domainState = generateDomainState({ root: ROOT, nodes, edges })
+const dataPipelineMap = generateDataPipelineMap({ root: ROOT, domainState })
 const graph = {
   version: '2.0.0',
   generated_by: 'scripts/doc-graph.mjs (rwang:doc-graph)',
@@ -646,11 +746,10 @@ const graph = {
     node_types: nodes.reduce((a, n) => ({ ...a, [n.type]: (a[n.type] || 0) + 1 }), {}),
     coverage: cov,
   },
-  drift: {
-    changed: changed.map((n) => n.id),
-    added: added.map((n) => n.id),
-    removed: removed.map((n) => n.id),
-  },
+  // Always empty by construction (see the comment above) — a freshly-written
+  // file's own "current" state trivially has no drift from itself. The real
+  // diff for this run lives in DRIFT_REPORT_PATH, never here.
+  drift: { changed: [], added: [], removed: [] },
   nodes: nodes.sort((a, b) => a.id.localeCompare(b.id)),
   edges: edges.sort((a, b) => (a.from + a.to).localeCompare(b.from + b.to)),
   dangling_edges: dangling,
@@ -658,28 +757,28 @@ const graph = {
 
 const serialized = JSON.stringify(graph, null, 2) + '\n'
 const domainStateSerialized = JSON.stringify(domainState, null, 2) + '\n'
+const dataPipelineMapSerialized = dataPipelineMap ? JSON.stringify(dataPipelineMap, null, 2) + '\n' : null
 const linksSerialized = documentLinksView(nodes, edges)
+const driftReport = {
+  generated_at: new Date().toISOString(),
+  note: 'Diagnostic only — what changed since the previous docs/.doc-graph.json regeneration. Never read by --check, docs:preflight or monorepo-graph.mjs; excluded from every staleness/consistency check by design.',
+  changed: changed.map((n) => n.id),
+  added: added.map((n) => n.id),
+  removed: removed.map((n) => n.id),
+}
+const driftReportSerialized = JSON.stringify(driftReport, null, 2) + '\n'
 
-// The question --check answers is "does the committed graph still describe the
-// filesystem?" — that lives in the nodes, edges and hashes. `drift` and a node's
-// `status` are bookkeeping the graph keeps *about its own previous revision*, so
-// they flip on the run after the content settles and never match in one pass.
-// Comparing them made the guard demand two consecutive `docs:graph` runs; a
-// genuine change still fails the guard through its node hash.
+// The question --check answers is "does the committed graph still describe
+// the filesystem?" — that lives in the nodes, edges and hashes. `generated_at`
+// is bookkeeping about the run itself, not the content, so it is still
+// stripped defensively; `drift` is always empty by construction now (see
+// above) and no node ever carries a drift-derived `status`, so neither needs
+// special handling to converge in one pass any more.
 const canonical = (text) => {
   let g
   try { g = JSON.parse(text) } catch { return text }
   delete g.generated_at
-  delete g.drift
-  for (const n of g.nodes || []) delete n.status
   return JSON.stringify(g, null, 2) + '\n'
-}
-
-const canonicalDomainState = (text) => {
-  let state
-  try { state = JSON.parse(text) } catch { return text }
-  delete state.generatedAt
-  return JSON.stringify(state, null, 2) + '\n'
 }
 
 if (process.argv.includes('--check')) {
@@ -689,14 +788,22 @@ if (process.argv.includes('--check')) {
     process.exit(1)
   }
   const currentDomainState = existsSync(DOMAIN_STATE_PATH) ? read(DOMAIN_STATE_PATH) : ''
-  if (canonicalDomainState(currentDomainState) !== canonicalDomainState(domainStateSerialized)) {
+  if (currentDomainState !== domainStateSerialized) {
     console.error('domain state is stale — run: npm run docs:graph')
+    process.exit(1)
+  }
+  const currentDataPipelineMap = existsSync(DATA_PIPELINE_MAP_PATH) ? read(DATA_PIPELINE_MAP_PATH) : ''
+  if (dataPipelineMapSerialized !== null && currentDataPipelineMap !== dataPipelineMapSerialized) {
+    console.error('data pipeline map is stale — run: npm run docs:graph')
     process.exit(1)
   }
   console.log('doc-graph is up to date')
   if (!existsSync(LINKS_PATH) || read(LINKS_PATH) !== linksSerialized) {
     console.error('document links are stale — run: npm run docs:graph')
     process.exit(1)
+  }
+  if (changed.length || added.length || removed.length) {
+    console.log(`drift since last regeneration (diagnostic only, not written to ${rel(GRAPH_PATH)}): ${changed.length} changed · ${added.length} added · ${removed.length} removed`)
   }
   process.exit(0)
 }
@@ -708,15 +815,22 @@ writeFileSync(DOMAIN_MAP_PATH, domainMap(nodes, edges))
 writeFileSync(TRACE_PATH, traceView(nodes, edges))
 writeFileSync(LINKS_PATH, linksSerialized)
 writeFileSync(DOMAIN_STATE_PATH, domainStateSerialized)
+if (dataPipelineMapSerialized !== null) writeFileSync(DATA_PIPELINE_MAP_PATH, dataPipelineMapSerialized)
+writeFileSync(DRIFT_REPORT_PATH, driftReportSerialized)
 if (workspaceRoot(ROOT) !== ROOT) {
   mkdirSync(path.join(ROOT, 'runtime'), { recursive: true })
   writeFileSync(path.join(ROOT, 'runtime', 'domain-state.json'), domainStateSerialized)
+  if (dataPipelineMapSerialized !== null) writeFileSync(path.join(ROOT, 'runtime', 'data-pipeline-map.json'), dataPipelineMapSerialized)
 }
 
 console.log(`nodes ${nodes.length} · edges ${edges.length} · dangling ${dangling.length}`)
 console.log(`FR with code ${cov.fr_with_code} · FR with tests ${cov.fr_with_tests} · rules anchored ${cov.rules_anchored_in_code}`)
+if (dataPipelineMap) console.log(`data pipeline map ${dataPipelineMap.summary.nodes} nodes · ${dataPipelineMap.summary.edges} edges · ${dataPipelineMap.summary.chains} chains`)
 console.log(`domain state ${Object.keys(domainState.domains).length} domains · overall ${domainState.overall.status} · gaps ${domainState.overall.gapCount}`)
 if (cov.fr_without_code.length) console.log(`FR without code: ${cov.fr_without_code.join(', ')}`)
+if (changed.length || added.length || removed.length) {
+  console.log(`drift since last regeneration: ${changed.length} changed · ${added.length} added · ${removed.length} removed — see ${rel(DRIFT_REPORT_PATH)}`)
+}
 if (cov.fr_without_tests.length) console.log(`FR without tests: ${cov.fr_without_tests.join(', ')}`)
 if (cov.rules_without_anchor.length) console.log(`rules with no code anchor: ${cov.rules_without_anchor.join(', ')}`)
 if (dangling.length) console.log(`dangling edges:\n  ${dangling.map((d) => `${d.from} → ${d.to} (${d.reason})`).join('\n  ')}`)

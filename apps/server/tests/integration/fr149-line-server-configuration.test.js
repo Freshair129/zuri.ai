@@ -31,7 +31,16 @@ describe('FR-149 account configuration', () => {
     expect(account).toMatchObject({ serverEnabled: false, transportMode: 'CLOUD', executionMode: 'SERVER', modelAccess: 'LOCAL_ONLY', transportEpoch: 1 })
   })
   it('requires an explicit legacy handoff and refuses failed credential validation without changing ownership', async () => {
-    expect(() => zLineOaAccountAction.parse({ action: 'ENABLE_SERVER', version: account.version })).toThrow()
+    // @req FR-228 — a mount-backed credential (this account's, via
+    // provisionLineServerConnection's `deployment-secret:` reference) keeps the
+    // exact typed-confirmation requirement it always had; the schema itself no
+    // longer enforces this unconditionally (only a vault-backed account can
+    // derive it, and the schema cannot see which store an account's credential
+    // uses), so the service is what refuses the omission now.
+    expect(() => zLineOaAccountAction.parse({ action: 'ENABLE_SERVER', version: account.version })).not.toThrow()
+    await expect(applyLineOaAccountAction(account.id, { action: 'ENABLE_SERVER', version: account.version }, { viewer: owner, ports }))
+      .rejects.toMatchObject({ status: 409, message: 'LINE_OA_LEGACY_CONFIRMATION_REQUIRED' })
+    expect((await prisma.lineOaAccount.findUnique({ where: { id: account.id } })).serverEnabled).toBe(false)
     await expect(applyLineOaAccountAction(account.id, { action: 'ENABLE_SERVER', version: account.version, legacyQuiesced: true }, {
       viewer: owner, ports: { validateServerCredentials: async () => { throw new Error('CREDENTIALS_UNAVAILABLE') } },
     })).rejects.toThrow('CREDENTIALS_UNAVAILABLE')
@@ -65,4 +74,47 @@ describe('FR-149 account configuration', () => {
     expect(account.transportEpoch).toBe(5)
   })
 
+})
+
+describe('provisioning runs under a transaction budget that survives a contended moment', () => {
+  it('does not accept Prisma\'s 5 s interactive default', async () => {
+    // Measured, not theoretical. On CI this transaction — business, provider, connection,
+    // credential metadata, audit: five sequential writes — finished at 5045 ms and 5050 ms in two
+    // separate runs, 45 ms and 50 ms past the default. Prisma raises P2028 and `handle()` maps it
+    // to a 400, so an owner is told their input was invalid at the exact moment the database was
+    // merely busy, and the account is silently not created. Two e2e specs failed that way.
+    //
+    // 15 s matches `atomic()` in line-conversation-jobs.js, which was given the same headroom on
+    // 2026-09-08 for the same reason. A limit that differs per call site is a limit nobody can
+    // reason about.
+    // Self-contained: the db is a double and the viewer is built by the factory, so this asserts
+    // the transaction budget without depending on the suite's shared fixture.
+    const businessId = 'budget-probe-business'
+    const viewer = makeViewer({ visibleBusinessIds: [businessId], ownedBusinessIds: [businessId], visibleDomains: ['line-oa'] })
+    let options
+    let stored = null
+    const db = {
+      $transaction: async (work, passed) => {
+        options = passed
+        return work({
+          business: { findUnique: async () => ({ id: businessId, tenantId: 'budget-probe-tenant' }) },
+          integrationProvider: { findUnique: async () => ({ id: 'provider-1' }) },
+          integrationConnection: {
+            findUnique: async () => stored,
+            findFirst: async () => stored,
+            create: async ({ data }) => { stored = { id: 'connection-1', ...data }; return stored },
+          },
+          integrationCredential: { findUnique: async () => null, findFirst: async () => null, create: async () => ({}), update: async () => ({}), upsert: async () => ({}) },
+          auditEvent: { create: async () => ({}) },
+        })
+      },
+    }
+    await provisionLineServerConnection({
+      businessId, name: 'budget probe',
+      destination: `U${'a'.repeat(32)}`, secretRef: 'deployment-secret:budget-probe',
+    }, { viewer, db })
+
+    expect(options?.timeout).toBeGreaterThanOrEqual(15000)
+    expect(options?.maxWait).toBeGreaterThanOrEqual(5000)
+  })
 })

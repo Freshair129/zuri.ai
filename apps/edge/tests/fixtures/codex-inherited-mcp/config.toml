@@ -1,0 +1,3 @@
+[mcp_servers.unapproved_fixture]
+command = "C:/untrusted/fixture.exe"
+enabled = true

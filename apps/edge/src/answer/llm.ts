@@ -53,24 +53,45 @@ export interface ConversationResult {
   toolCalls: string[];
 }
 
-export const SYSTEM_PROMPT = `คุณคือ "ซูริ" (Zuri) ผู้ช่วยฝ่ายขายของ SmartGift ผู้นำเข้าของพรีเมียมองค์กร
+/** Who the assistant is when no persona folder is selected — the `.agents/` persona replaces exactly this part. */
+export const DEFAULT_PERSONA = `คุณคือ "ซูริ" (Zuri) ผู้ช่วยฝ่ายขายของ SmartGift ผู้นำเข้าของพรีเมียมองค์กร
 คุยกับทีมงานผ่านแชท LINE
 
 วิธีคุย
 - ตอบภาษาไทย ประโยคสั้น ตรงประเด็น เป็นกันเองแบบเพื่อนร่วมงานที่ทำงานเป็น ไม่ต้องเป็นทางการจัด
 - ไม่ใช้อิโมจิ ไม่ประจบ ไม่ขยายความสำเร็จเกินจริง
 - ตอบสิ่งที่เขาถามก่อน แล้วค่อยเสริมถ้าจำเป็น อย่าร่ายยาว
-- ถ้ายังขาดข้อมูลที่จำเป็น เช่น จำนวนที่จะสั่ง ให้ถามกลับสั้น ๆ หนึ่งคำถาม
+- ถ้ายังขาดข้อมูลที่จำเป็น เช่น จำนวนที่จะสั่ง ให้ถามกลับสั้น ๆ หนึ่งคำถาม`;
 
-กติกาเรื่องตัวเลข (สำคัญที่สุด)
+/**
+ * The evidence and scope rules the API/Ollama path always sends, whichever persona is active.
+ * A persona file describes voice and product rules; it must not be able to switch off the
+ * "numbers come from tools only" contract, so that stays here rather than in `.agents/`.
+ */
+export const ANSWER_RULES = `กติกาเรื่องตัวเลข (สำคัญที่สุด)
 - ตัวเลขทุกตัวที่พูดถึงราคา ต้นทุน จำนวนวัน หรือจำนวนรายการ ต้องมาจากผลลัพธ์ของเครื่องมือเท่านั้น
 - ห้ามคำนวณเอง ห้ามประมาณ ห้ามเดา ห้ามจำจากบทสนทนาก่อนหน้าโดยไม่เรียกเครื่องมือใหม่
 - ถ้าเครื่องมือไม่มีข้อมูล ให้บอกตรง ๆ ว่ายังไม่มีข้อมูล อย่าเติมให้ดูสมบูรณ์
 - ราคาที่ตอบไปคือคำมั่นต่อลูกค้า ตัวเลขผิดหนึ่งตัวคือปัญหาจริง
+- จำนวนขั้นต่ำ ขั้นบันไดจำนวน และเบรกราคา ก็เป็นตัวเลขตามกติกานี้ ห้ามยกมาเองจากความจำหรือจากตัวอย่างในบทบาท
+- ถ้าลูกค้าบอกงบแต่ไม่บอกจำนวน ให้ถามกลับสั้น ๆ ว่าต้องการกี่ชุด โดยห้ามยกตัวอย่างจำนวนเป็นตัวเลขในคำถาม (ห้ามเขียนแบบ "เช่น 100 หรือ 200 ชุด") เพราะตัวเลขทุกตัวในคำตอบถูกตรวจว่ามาจากเครื่องมือ
 
 ขอบเขต
 - เรื่องราคา สินค้า งบประมาณ ระยะเวลาผลิตและขนส่ง เงื่อนไขการสั่งซื้อ ให้ใช้เครื่องมือ
 - เรื่องที่อยู่นอกขอบเขตนี้ ให้บอกว่ายังช่วยไม่ได้ และแนะนำให้ถามผู้ดูแล`;
+
+/**
+ * Rules first, persona second. Measured on qwen3.5:9b with the 5.7k-char `.agents/zuri-01`
+ * persona: persona-then-rules answered a budget question with invented tier quantities
+ * (100/200/1000) and no tool call on every run, so the number guard discarded the reply and
+ * the job failed; the short built-in persona did not. Leading with the rules is the cheapest
+ * lever and keeps the persona file free to carry example copy.
+ */
+export function composeSystemPrompt(personaPrompt: string): string {
+  return ANSWER_RULES + '\n\n' + personaPrompt;
+}
+
+export const SYSTEM_PROMPT = composeSystemPrompt(DEFAULT_PERSONA);
 
 export const OWNER_NOTE = `
 ผู้ใช้คนนี้เป็นเจ้าของกิจการ จึงเห็นต้นทุน ตัวคูณ และ margin ได้
@@ -290,7 +311,9 @@ export async function answerWithModel(
   role: Role,
   evidenceOptions: EvidenceOptions,
   llm: LlmOptions,
-  fallback: string
+  fallback: string,
+  /** The `.agents/` persona text. Defaults to the built-in one, which makes `system` equal `SYSTEM_PROMPT`. */
+  personaPrompt: string = DEFAULT_PERSONA
 ): Promise<ConversationResult> {
   const evidence: EvidenceRecord[] = [];
   const abort = AbortSignal.timeout(llm.timeoutMs);
@@ -304,7 +327,7 @@ export async function answerWithModel(
 
   try {
     const reply = await llm.port.generate({
-      system: SYSTEM_PROMPT + (role === 'owner' ? OWNER_NOTE : SALES_NOTE),
+      system: composeSystemPrompt(personaPrompt) + (role === 'owner' ? OWNER_NOTE : SALES_NOTE),
       messages: [
         ...history.map((turn) => ({
           role: turn.role as 'user' | 'assistant',

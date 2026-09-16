@@ -42,6 +42,10 @@ export default function DomainBar() {
   // exactly as before FR-061.
   const scope = useScope()
   const granted = viewer.data ? domainsForBusiness(viewer.data, scope.selection?.businessId) : undefined
+  // @req FR-169 — Warehouse's slot is capability-gated on top of being grant-gated;
+  // `domainBarSlots` reads `scope.shell.activeBusiness` itself to decide whether
+  // the Business has turned `physicalStock` on, independently of who may open it.
+  const business = scope.shell.activeBusiness
 
   return (
     <nav
@@ -55,7 +59,7 @@ export default function DomainBar() {
           `domainForPath` answers with the LEAF, which is also the key the route
           guard checks; and it links to the first child a viewer may actually
           open, so the slot never lands on a domain they will be refused. */}
-      {domainBarSlots().map((slot) => {
+      {domainBarSlots(business).map((slot) => {
         if (slot.kind === 'group') {
           const { group, children } = slot
           const visibleChildren = children.filter((child) => isDomainVisible(child.key, granted))

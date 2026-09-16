@@ -1,0 +1,41 @@
+
+> zuri-ai@0.1.0 test:genesisrag17
+> node scripts/run-genesisrag17-acceptance.mjs
+
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+
+ RUN  v2.1.9 C:/Users/pc/workspace/zuri-ai-ki17/apps/server
+
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": SQLite database "run-42468-mtrlhjit-692609.db" at "file:./.test-dbs/run-42468-mtrlhjit-692609.db"
+
+SQLite database run-42468-mtrlhjit-692609.db created at file:./.test-dbs/run-42468-mtrlhjit-692609.db
+
+Your database is now in sync with your Prisma schema. Done in 3.86s
+
+ ✓ tests/acceptance/genesisrag17-e2e.test.js (17 tests) 109147ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > starts from raw, preserves lost-reply identity, publishes all17 and resolves actual citations 7572ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > restarts the actual native process and keeps old snapshot citations after correction 9493ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > blocks malformed attempt evidence without advancing the cursor, then resumes actual evidence 6375ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > records embedding policy denial as a failed actual stage and retains the published snapshot 2422ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > recovers an actual process crash at after-native-commit-before-receipt without losing historical citations 8940ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > recovers an actual process crash at before-pointer-replacement without losing historical citations 8574ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > recovers an actual process crash at after-pointer-replacement-before-publication-outbox without losing historical citations 8695ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > executes a real FR-071 replay with new attempts and refuses late evidence from the old run 4762ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > resends the identical msp_pipeline_graph_receipt after an actual accepted reply is lost 6787ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > resends the identical msp_pipeline_write_receipt after an actual accepted reply is lost 7077ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > runs source and native worker loops through automatic receipt-backed finish and stops both 6041ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > refuses publication when the actual candidate reports index failure 6982ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > refuses publication when the actual candidate reports provenance failure 8376ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > refuses publication when the actual candidate reports security failure 8304ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > honors publication policy after real embedding and gate evaluation 6455ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > restores the isolated Tier 1 backup with immutable lineage and publication proof intact 1290ms
+
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+   Start at  01:49:34
+   Duration  117.24s (transform 278ms, setup 14ms, collect 820ms, tests 109.15s, environment 0ms, prepare 49ms)
+
+JSON report written to C:/Users/pc/workspace/zuri-ai-ki17/apps/server/node_modules/.cache/zuri-test-proof/vitest.json
+
+assert-tests-ran: vitest executed 17 test(s).

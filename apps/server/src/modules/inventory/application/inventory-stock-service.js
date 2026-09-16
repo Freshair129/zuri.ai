@@ -12,7 +12,10 @@ import {
   zCreateLot,
   zRecordMovement,
 } from '../domain/inventory'
+import { dedicationRule, shelfLifeIssueRule } from '../domain/inventory-wip'
+import { toBaseQuantity } from '../domain/inventory-governance'
 import { loadBusiness } from './inventory-authority'
+import { INT32_MAX } from '../domain/inventory-stocktake'
 
 // @req FR-155 — the only writer of the stock ledger. A movement is appended,
 //   never edited: RECEIPT adds, ISSUE removes, ADJUSTMENT corrects with its
@@ -30,16 +33,61 @@ import { loadBusiness } from './inventory-authority'
 //   row; manager authority throughout. `appendMovement` is the transaction-
 //   scoped core so a recipe build (FR-156) can issue several components and
 //   receive the output atomically.
-// @spec BR-002 (lot numbers and serials are attributes, never keys); SEC-001; FR-072
-// @tested tests/integration/fr155-inventory-stock.test.js
+//
+// @req FR-174, FR-175 — since ADR-074 a movement may also carry where it came
+//   from, where it went and what one unit cost landed, in satang. All of those
+//   are optional and none changes an existing rule: a row that names no
+//   location is exactly what every row written before ADR-074 is.
+// @req FR-176 — an ISSUE of a customer-dedicated SKU for the wrong customer or
+//   the wrong sales order is refused here, before a row is written (BR-028).
+// @req FR-179 — an ISSUE never takes stock out of a lot past its product's
+//   storage limit; FEFO skips such lots entirely, and an issue that could only
+//   be satisfied from them is refused as `INVENTORY_LOT_STORAGE_EXPIRED`
+//   rather than as a shortage, because the two need different fixes (BR-030).
+// @req FR-204 — a movement that names a `unit` other than the product's base
+//   unit is converted through the product's ACTIVE unit conversions before a
+//   row is written, so the ledger only ever counts base units (BR-037); an
+//   unknown unit is refused, and a serial-tracked product accepts none.
+// @req FR-201, FR-205 — the summary counts services apart from uncounted goods
+//   and reports the phased-out SKUs; a phased-out SKU refuses a receipt
+//   through `movementRule`.
+// @spec BR-002 (lot numbers and serials are attributes, never keys); SEC-001; FR-072;
+//   ADR-074 D1, D2, D3, D4, D7; BR-026, BR-027, BR-028, BR-030
+// @tested tests/integration/fr155-inventory-stock.test.js,
+//   tests/integration/fr174-warehouse-locations.test.js,
+//   tests/integration/fr179-shelf-life-guard.test.js
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
 const actor = (viewer) => viewer?.principal?.id ?? null
 
-const PRODUCT_SELECT = { id: true, code: true, tenantId: true, businessId: true, name: true, unit: true, stockPolicy: true, trackingMode: true, safetyStock: true, status: true }
-const LOT_SELECT = { id: true, code: true, tenantId: true, businessId: true, productId: true, factoryId: true, manufacturedAt: true, expiresAt: true, receivedQty: true, status: true, createdAt: true, updatedAt: true, version: true }
+const PRODUCT_SELECT = { id: true, code: true, tenantId: true, businessId: true, name: true, unit: true, stockPolicy: true, trackingMode: true, safetyStock: true, status: true, itemKind: true, dedicatedCustomerId: true, dedicatedSalesOrderId: true, maintenanceIntervalDays: true, maxStorageDays: true, reorderPoint: true, reorderQty: true, leadTimeDays: true }
+const LOT_SELECT = { id: true, code: true, tenantId: true, businessId: true, productId: true, factoryId: true, manufacturedAt: true, expiresAt: true, lastMaintainedAt: true, receivedQty: true, status: true, createdAt: true, updatedAt: true, version: true }
 const SERIAL_SELECT = { id: true, serialNo: true, tenantId: true, businessId: true, productId: true, lotId: true, status: true, createdAt: true, updatedAt: true, version: true }
-const MOVEMENT_SELECT = { id: true, tenantId: true, businessId: true, productId: true, lotId: true, serialUnitId: true, kind: true, quantity: true, reason: true, reference: true, actorId: true, occurredAt: true, createdAt: true }
+const MOVEMENT_SELECT = { id: true, tenantId: true, businessId: true, productId: true, lotId: true, serialUnitId: true, kind: true, quantity: true, reason: true, reference: true, actorId: true, occurredAt: true, createdAt: true, sourceLocationId: true, targetLocationId: true, costSatang: true, customerId: true, salesOrderId: true, workOrderId: true }
+
+// @req FR-184 — every writer that reads the ledger obtains this lock-only
+// per-Business fence before its first write-side ledger read. The revision is
+// advanced after a successful append, so stocktake snapshots can detect a
+// movement that happened after they were observed.
+// @spec ADR-074 D1, D2; BR-008, BR-012, BR-026
+// @tested tests/integration/fr184-inventory-stocktake.test.js
+export async function acquireLedgerFence(tx, { tenantId, businessId } = {}) {
+  return tx.inventoryLedgerFence.upsert({
+    where: { tenantId_businessId: { tenantId, businessId } },
+    create: { tenantId, businessId, mutationRevision: 0 },
+    // An UPDATE is intentional even when the revision is unchanged: this is
+    // the portable row lock for PostgreSQL and SQLite's writer reservation.
+    update: { mutationRevision: { increment: 0 }, updatedAt: new Date() },
+  })
+}
+
+export async function advanceLedgerFence(tx, { tenantId, businessId } = {}) {
+  const result = await tx.inventoryLedgerFence.updateMany({
+    where: { tenantId, businessId, mutationRevision: { lt: INT32_MAX } },
+    data: { mutationRevision: { increment: 1 } },
+  })
+  if (result.count !== 1) throw failure(409, 'INVENTORY_LEDGER_FENCE_EXHAUSTED')
+}
 
 async function loadProductForWrite(tx, viewer, businessId, productId) {
   const business = await loadBusiness(tx, viewer, businessId, { write: true })
@@ -126,10 +174,31 @@ async function resolveLot(tx, business, product, data) {
  * serial product or a FEFO issue) inside the caller's transaction. `data` is
  * an already-parsed `zRecordMovement` value.
  */
-export async function appendMovement(tx, data, { viewer } = {}) {
-  const { business, product } = await loadProductForWrite(tx, viewer, data.businessId, data.productId)
+export async function appendMovement(tx, input, { viewer } = {}) {
+  // Authorization is a read and must precede the fence. After it succeeds,
+  // acquiring the fence is the first write-side statement in this writer;
+  // reading Product or on-hand before it would let a stocktake observe a
+  // moving ledger. Provider-specific concurrency is proven by the real DB
+  // tests rather than by this ordering comment.
+  const business = await loadBusiness(tx, viewer, input.businessId, { write: true })
+  await acquireLedgerFence(tx, { tenantId: business.tenantId, businessId: business.id })
+  const product = await tx.product.findUnique({ where: { id: input.productId }, select: PRODUCT_SELECT })
+  if (!product || product.businessId !== business.id) throw failure(422, 'INVENTORY_PRODUCT_NOT_FOUND')
+  // @req FR-204 — the caller's unit becomes base units here, before any rule
+  //   reads the quantity; the row and every calculation below see base units.
+  let data = input
+  let unitConversion = null
+  if (input.unit && input.unit !== product.unit) {
+    const conversions = await tx.productUnitConversion.findMany({ where: { productId: product.id, status: 'ACTIVE' }, select: { unit: true, factor: true, status: true } })
+    const converted = toBaseQuantity(product, input.quantity, input.unit, conversions)
+    if (!converted.ok) throw Object.assign(failure(422, converted.code), { details: { unit: input.unit, baseUnit: product.unit } })
+    data = { ...input, quantity: converted.quantity, unit: undefined }
+    unitConversion = { unit: converted.unit, factor: converted.factor, quantityInUnit: Math.trunc(input.quantity) }
+  } else if (input.unit) {
+    data = { ...input, unit: undefined }
+  }
   const rule = movementRule(product, data)
-  if (!rule.ok) throw failure(rule.code === 'INVENTORY_PRODUCT_ARCHIVED' ? 409 : 422, rule.code)
+  if (!rule.ok) throw failure(rule.code === 'INVENTORY_PRODUCT_ARCHIVED' || rule.code === 'INVENTORY_PRODUCT_PHASED_OUT' ? 409 : 422, rule.code)
 
   const delta = movementDelta(data.kind, data.quantity)
   const before = await onHandOf(tx, product.id)
@@ -137,7 +206,37 @@ export async function appendMovement(tx, data, { viewer } = {}) {
 
   const lot = await resolveLot(tx, business, product, data)
   const occurredAt = data.occurredAt ?? new Date()
-  const base = { tenantId: business.tenantId, businessId: business.id, productId: product.id, lotId: lot?.id ?? null, kind: data.kind, reason: data.reason ?? null, reference: data.reference ?? null, actorId: actor(viewer), occurredAt }
+
+  // @req FR-176 — a customer-dedicated SKU (BR-028) leaves stock only for the
+  //   customer and the order it was branded for. An issue that names neither
+  //   is a write-off or a correction and is allowed; one that names the wrong
+  //   party is refused here, before a single row is written.
+  if (data.kind === 'ISSUE') {
+    const dedication = dedicationRule(product, { customerId: data.customerId ?? null, salesOrderId: data.salesOrderId ?? null })
+    if (!dedication.ok) throw failure(409, dedication.code)
+  }
+  // @req FR-179 — an issue never takes stock out of a lot that has been in
+  //   storage past its product's limit (BR-030). FEFO below additionally skips
+  //   such lots when no lot is named, so a pick refuses rather than dispatches
+  //   a dead battery.
+  if (data.kind === 'ISSUE' && lot) {
+    const shelfLife = shelfLifeIssueRule(product, lot, occurredAt)
+    if (!shelfLife.ok) throw Object.assign(failure(409, shelfLife.code), { details: { lotId: lot.id, lotCode: lot.code, ageDays: shelfLife.ageDays, maxStorageDays: product.maxStorageDays } })
+  }
+
+  const base = {
+    tenantId: business.tenantId, businessId: business.id, productId: product.id, lotId: lot?.id ?? null, kind: data.kind,
+    reason: data.reason ?? null, reference: data.reference ?? null, actorId: actor(viewer), occurredAt,
+    // @req FR-174, FR-175 — a movement carries where it moved and what a unit
+    //   cost. An ISSUE leaves its source; a RECEIPT arrives at its target; a
+    //   transfer is the pair (BR-026).
+    sourceLocationId: data.sourceLocationId ?? null,
+    targetLocationId: data.targetLocationId ?? null,
+    costSatang: data.costSatang ?? null,
+    customerId: data.customerId ?? null,
+    salesOrderId: data.salesOrderId ?? null,
+    workOrderId: data.workOrderId ?? null,
+  }
   const rows = []
   const allocations = []
 
@@ -168,9 +267,24 @@ export async function appendMovement(tx, data, { viewer } = {}) {
       allocations.push({ lotId: lot.id, qty: Math.abs(delta) })
     } else {
       // FEFO across open lots; whatever no lot holds (an adjustment without a lot) goes last.
-      const lots = await tx.productLot.findMany({ where: { productId: product.id, status: 'OPEN' }, select: { id: true, expiresAt: true, createdAt: true, status: true } })
-      const { allocations: picked, remainder } = allocateFefo(lots.map((l) => ({ ...l, onHand: byLot.get(l.id) ?? 0 })), Math.abs(delta))
-      if (remainder > (byLot.get(null) ?? 0)) throw failure(409, 'INVENTORY_INSUFFICIENT_STOCK')
+      const lots = await tx.productLot.findMany({ where: { productId: product.id, status: 'OPEN' }, select: { id: true, code: true, expiresAt: true, manufacturedAt: true, lastMaintainedAt: true, createdAt: true, status: true } })
+      // @req FR-179 — a lot past its storage limit is not a candidate. FEFO
+      //   still orders by expiry among the rest; this only removes the ones no
+      //   pick may take (BR-030).
+      const issuable = lots.filter((l) => shelfLifeIssueRule(product, l, occurredAt).ok)
+      const { allocations: picked, remainder } = allocateFefo(issuable.map((l) => ({ ...l, onHand: byLot.get(l.id) ?? 0 })), Math.abs(delta))
+      if (remainder > (byLot.get(null) ?? 0)) {
+        // Distinguish "there is not enough" from "there is enough, but the only
+        // lots holding it may not leave the shelf" — the second is a
+        // maintenance job, not a purchase order.
+        const blocked = lots.filter((l) => !shelfLifeIssueRule(product, l, occurredAt).ok && (byLot.get(l.id) ?? 0) > 0)
+        if (blocked.length) {
+          throw Object.assign(failure(409, 'INVENTORY_LOT_STORAGE_EXPIRED'), {
+            details: { blockedLots: blocked.map((l) => ({ lotId: l.id, lotCode: l.code, onHand: byLot.get(l.id) ?? 0 })), maxStorageDays: product.maxStorageDays },
+          })
+        }
+        throw failure(409, 'INVENTORY_INSUFFICIENT_STOCK')
+      }
       for (const pick of picked) {
         rows.push(await tx.stockMovement.create({ data: { ...base, lotId: pick.lotId, quantity: -pick.qty }, select: MOVEMENT_SELECT }))
         allocations.push(pick)
@@ -190,9 +304,17 @@ export async function appendMovement(tx, data, { viewer } = {}) {
   const after = before + delta
   await recordAudit(tx, {
     entityType: STOCK_MOVEMENT_ENTITY, entityId: rows[0].id, action: `STOCK_${data.kind}_RECORDED`, actorId: actor(viewer),
-    payload: { businessId: business.id, productId: product.id, code: product.code, kind: data.kind, quantity: delta, lotId: lot?.id ?? null, allocations: allocations.length ? allocations : undefined, serials: data.serialNos?.length ?? 0, onHandBefore: before, onHandAfter: after, reference: data.reference ?? null },
+    payload: {
+      businessId: business.id, productId: product.id, code: product.code, kind: data.kind, quantity: delta, lotId: lot?.id ?? null,
+      allocations: allocations.length ? allocations : undefined, serials: data.serialNos?.length ?? 0,
+      onHandBefore: before, onHandAfter: after, reference: data.reference ?? null,
+      sourceLocationId: base.sourceLocationId, targetLocationId: base.targetLocationId, costSatang: base.costSatang,
+      customerId: base.customerId, salesOrderId: base.salesOrderId, workOrderId: base.workOrderId,
+      ...(unitConversion ? { unitConversion } : {}),
+    },
   })
-  return { productId: product.id, kind: data.kind, quantity: delta, onHandBefore: before, onHandAfter: after, lotId: lot?.id ?? null, allocations, movements: rows }
+  await advanceLedgerFence(tx, { tenantId: business.tenantId, businessId: business.id })
+  return { productId: product.id, kind: data.kind, quantity: delta, onHandBefore: before, onHandAfter: after, lotId: lot?.id ?? null, allocations, movements: rows, costSatang: base.costSatang, unitConversion }
 }
 
 /** Append one movement in its own transaction. */
@@ -222,8 +344,15 @@ export async function stockSummary({ businessId, includeArchived = false, viewer
     counts: {
       products: rows.length,
       tracked: rows.filter((r) => r.stockPolicy === 'TRACKED').length,
-      untracked: rows.filter((r) => r.stockPolicy !== 'TRACKED').length,
+      // @req FR-201 — an uncounted good and a service are different classes
+      //   (ADR-083 D1); a reader that wants "everything without a ledger" adds
+      //   the two, and a reader that wants "goods we do not count" no longer
+      //   gets the services folded in.
+      untracked: rows.filter((r) => r.stockPolicy === 'UNTRACKED').length,
+      services: rows.filter((r) => r.stockPolicy === 'SERVICE').length,
+      phaseOut: rows.filter((r) => r.status === 'PHASE_OUT').length,
       belowSafetyStock: rows.filter((r) => r.belowSafetyStock).length,
+      belowReorderPoint: rows.filter((r) => r.belowReorderPoint).length,
     },
   }
 }

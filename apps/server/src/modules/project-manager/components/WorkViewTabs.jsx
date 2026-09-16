@@ -14,7 +14,7 @@
 // @tested tests/unit/project-work-route.test.js, tests/unit/project-roadmap-ui.test.js
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Layers, Columns3, GanttChartSquare, Share2, Map, Flag, ListChecks } from 'lucide-react'
+import { PM_WORK_VIEWS } from '@/modules/project-manager/navigation'
 
 // Sub-views of the project "Work" tab (Execution Roadmap · Structure Plan ·
 // Board · Work Items · Schedule · Milestones · Dependency Map).
@@ -30,23 +30,10 @@ import { Layers, Columns3, GanttChartSquare, Share2, Map, Flag, ListChecks } fro
 // use Network — that icon is the sidebar's Dependencies entry.
 export default function WorkViewTabs({ projectId }) {
   const pathname = usePathname()
-  const views = [
-    { key: 'roadmap', label: 'Execution Roadmap', icon: Map, href: `/projects/${projectId}/roadmap` },
-    { key: 'structure', label: 'Structure Plan', icon: Layers, href: `/projects/${projectId}/structure` },
-    { key: 'board', label: 'Board', icon: Columns3, href: `/projects/${projectId}/board` },
-    { key: 'all-work', label: 'Work Items', icon: ListChecks, href: `/projects/${projectId}/all-work` },
-    { key: 'timeline', label: 'Schedule', icon: GanttChartSquare, href: `/projects/${projectId}/timeline` },
-    // "Milestones", not "Milestones & Gates": the Development sidebar is on
-    // screen at the same time and already owns that exact label for the
-    // Business-wide `/milestones` route. One name for two different routes is
-    // ambiguous to a reader and to a screen reader alike — Playwright strict
-    // mode is what surfaced the collision. Every other project-scoped label
-    // here is already a different word from its Business-wide half for the same
-    // reason: Schedule vs Timeline, Dependency Map vs Dependencies. The page
-    // heading stays "Milestones & Gates"; only the tab is shortened.
-    { key: 'milestones', label: 'Milestones', icon: Flag, href: `/projects/${projectId}/milestones` },
-    { key: 'dependencies', label: 'Dependency Map', icon: Share2, href: `/projects/${projectId}/dependencies` },
-  ]
+  const views = PM_WORK_VIEWS.map((view) => ({
+    ...view,
+    href: `/projects/${projectId}${view.suffix}`,
+  }))
   return (
     // A named landmark, like `ProjectTabs`' "Project sections": this is
     // navigation, and naming it is what lets a reader — or a test — tell its

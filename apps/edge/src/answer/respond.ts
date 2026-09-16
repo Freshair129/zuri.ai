@@ -18,8 +18,8 @@ import {
 } from './llm.js';
 import { ConversationOptions, appendTurns, loadConversation } from './memory.js';
 import { Intent, parseMessage } from './parse.js';
-import { loadPersonaPrompt } from './persona.js';
-import type { GenesisLocalRag } from '../rag/genesis-rag.js';
+import { activePersonaId, loadPersonaPrompt } from './persona.js';
+import type { AnswerRag } from '../rag/genesis-rag.js';
 import { buildCodexEvidence } from './codex-evidence.js';
 import type { SearchEvidenceV4 } from './format-cards.js';
 
@@ -33,6 +33,14 @@ export interface AnswerOptions {
   /** Month of shipment, for the seasonal truck/sea rule. */
   shipMonth?: number;
 }
+
+/**
+ * What to say when there is no data to answer from at all — as opposed to a lookup that ran
+ * against real data and came up empty. An empty catalogue means the reader has nothing to check a
+ * denial against, so it must not claim a product does not exist (item 2 of the FR-150 defect fix:
+ * see docs/CONVERSATIONAL-ANSWER-SPEC.md).
+ */
+export const CANNOT_ANSWER_NOW_TEXT = 'ซูริตอบคำถามนี้ไม่ได้ตอนนี้ค่ะ ลองพิมพ์รหัสสินค้าพร้อมจำนวน เช่น TJS23-2 300 ชุด';
 
 const HELP_TEXT = [
   'ซูริช่วยเรื่องราคาได้ 3 แบบค่ะ',
@@ -171,6 +179,17 @@ function searchAnswer(query: string, options: AnswerOptions): string {
 export function answerMessage(text: string, options: AnswerOptions): string {
   const intent: Intent = parseMessage(text);
 
+  /*
+   * An empty catalogue is not a lookup that ran and found nothing — it is no data at all. `price`,
+   * `search` and `budget` all read `options.catalog`, so answering any of them from zero products
+   * would be a confident denial of something that may well exist (item 2). `help` still answers,
+   * and `unknown` already says a truthful "did not understand" rather than claiming anything about
+   * the catalogue, so both keep their normal replies.
+   */
+  if (options.catalog.products.length === 0 && ['price', 'search', 'budget'].includes(intent.kind)) {
+    return CANNOT_ANSWER_NOW_TEXT;
+  }
+
   switch (intent.kind) {
     case 'help':
       return HELP_TEXT;
@@ -196,7 +215,7 @@ export function answerMessage(text: string, options: AnswerOptions): string {
 
 export interface ConversationOptionsFull extends AnswerOptions {
   /** The LINE agent's only door into the catalog graph — used by the model tool-call path. */
-  rag: GenesisLocalRag;
+  rag: AnswerRag;
   /** Stable per-person key. Already hashed — a raw LINE id never reaches here. */
   conversationKey: string;
   memory: ConversationOptions;
@@ -273,8 +292,8 @@ async function answerViaHeadless(
   headless: HeadlessOptions,
   fallback: string
 ): Promise<ConversationResult> {
-  const personaPrompt = loadPersonaPrompt(process.env.ZURI_ACTIVE_PERSONA || 'zuri-01');
-  
+  const personaPrompt = loadPersonaPrompt(activePersonaId());
+
   // Load conversation turns for short-term memory continuity
   const historyTurns = options.retainHistory === false ? [] : loadConversation(options.conversationKey, options.memory);
   let conversationHistoryContext = '';
@@ -322,7 +341,7 @@ async function answerViaHeadless(
 function fallbackFor(text: string, options: AnswerOptions): string {
   const intent = parseMessage(text);
   if (intent.kind === 'search' || intent.kind === 'unknown') {
-    return 'ซูริตอบคำถามนี้ไม่ได้ตอนนี้ค่ะ ลองพิมพ์รหัสสินค้าพร้อมจำนวน เช่น TJS23-2 300 ชุด';
+    return CANNOT_ANSWER_NOW_TEXT;
   }
   return answerMessage(text, options);
 }
@@ -368,7 +387,11 @@ export async function answerConversation(
       ...(options.shipMonth !== undefined ? { shipMonth: options.shipMonth } : {}),
     },
     options.llm,
-    fallback
+    fallback,
+    // The same `.agents/` persona the headless path uses — its compact `local` variant, because a
+    // ~9B model on a 12 s budget loses the tools under the full file (see persona.ts). Until now
+    // only the headless path read the persona at all.
+    loadPersonaPrompt(activePersonaId(), 'local')
   );
 
   recordTurns(text, result.text, options);

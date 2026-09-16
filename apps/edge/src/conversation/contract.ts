@@ -23,6 +23,22 @@ export const conversationEnvelope = z.object({
 export type ConversationJob = z.infer<typeof conversationEnvelope>['job'];
 export type FailureCode = 'EXECUTION_FAILED' | 'LOCAL_POLICY_UNAVAILABLE';
 
+/**
+ * What the executor hands back to the worker for one job.
+ *
+ * `source`/`reason` are provenance for the worker to reason about (item 3, FR-150 defect fix) —
+ * a `rules` answer produced with no catalogue loaded is a holding message, not a verified one, and
+ * the worker refuses to complete it (see executor.ts). They travel only as far as the worker's own
+ * emitted event; ADR-061 keeps them off both the `/complete` wire body and the `claim` event, which
+ * `apps/edge/src-tauri/src/supervisor.rs` whitelists to a fixed outcome-string shape.
+ */
+export interface ConversationAnswer {
+  text: string;
+  source: 'model' | 'rules';
+  /** Why the rules answer was used, when it was. */
+  reason?: string;
+}
+
 export class ConversationError extends Error {
   constructor(public readonly code: string, public readonly status = 0) {
     super(code);

@@ -13,6 +13,7 @@ import EntryShell from '@/components/layouts/EntryShell'
 // @tested tests/unit/fr046-api-ui-contract.test.js, tests/unit/fr046-auth-route.test.js, tests/e2e/fr046-entry-contract.spec.js
 import { LOGIN_ERROR_NETWORK, loginErrorMessage } from '@/modules/identity/login-error-copy'
 import PasswordField from '@/components/forms/PasswordField'
+import { loginDestination } from '@/modules/identity/login-destination'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -41,7 +42,7 @@ export default function LoginPage() {
         setError(loginErrorMessage(response.status, result))
         return
       }
-      router.replace(result.redirect || '/businesses')
+      router.replace(loginDestination(window.location.search, result.redirect || '/businesses'))
       router.refresh()
     } catch {
       setError(LOGIN_ERROR_NETWORK)

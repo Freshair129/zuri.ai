@@ -12,6 +12,7 @@ import {
   zRichMenuActionInput,
 } from '../domain/line-oa-rich-menu'
 import { assertMayPublish, assertMayView, notFound } from './line-oa-account-authority'
+import { lineStudioDescriptionSourceKey, withdrawLineStudioDescription } from './line-oa-studio-description-admission'
 
 // @req FR-151 — the only writer of LineOaRichMenu and LineOaRichMenuVersion:
 //   create a menu with its first draft, list and read menus with their
@@ -23,7 +24,9 @@ import { assertMayPublish, assertMayView, notFound } from './line-oa-account-aut
 //   LINE and records the external richMenuId — is the transport lane's slice,
 //   not this one; this service never talks to LINE.
 // @spec ADR-060 D3, D6, D11; SEC-001; BR-002; BR-012; FR-072; FR-045
-// @tested tests/integration/fr151-line-oa-rich-menu.test.js
+// @req FR-238 — ARCHIVE withdraws whatever LINE_STUDIO_DESCRIPTION source a
+//   PUBLISH job admitted for this menu (ADR-090 D7), best-effort.
+// @tested tests/integration/fr151-line-oa-rich-menu.test.js, tests/integration/fr238-line-studio-description-admission.test.js
 
 function failure(status, message, details) {
   const error = new Error(message)
@@ -297,6 +300,17 @@ export async function applyRichMenuAction(id, input, { viewer, db = prisma } = {
     })
     return tx.lineOaRichMenu.findUnique({ where: { id: row.id }, select: { ...MENU_SELECT, versions: { select: VERSION_SELECT } } })
   })
+
+  // @req FR-238 — ARCHIVE is this rich menu's unpublish (ADR-090 D7): withdraw
+  // whatever description a PUBLISH job admitted for it. Best-effort, after
+  // commit; a no-op when nothing was ever admitted (knowledge disabled, or
+  // this menu was never published).
+  if (data.action === 'ARCHIVE') {
+    await withdrawLineStudioDescription({
+      businessId: updated.businessId,
+      sourceKey: lineStudioDescriptionSourceKey.richMenu(updated.id),
+    }, { db })
+  }
 
   return menuDto(updated, updated.versions)
 }

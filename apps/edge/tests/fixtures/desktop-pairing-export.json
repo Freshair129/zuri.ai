@@ -1,0 +1,10 @@
+{
+  "deviceId": "DEV-TEST",
+  "key": "edgk_synthetic_test_credential",
+  "businessId": "synthetic-business",
+  "businessCode": "TEST",
+  "businessName": "Test Business",
+  "apiBaseUrl": "https://zuri.example",
+  "generatedAt": "2026-09-08T00:00:00.000Z",
+  "instructions": "บันทึกกุญแจนี้ลงใน Zuri Edge Device (ZURI_EDGE_DEVICE_KEY) — ระบบจะไม่แสดงอีก"
+}

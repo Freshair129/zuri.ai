@@ -9,7 +9,12 @@ on:
     branches: [main]
 
 jobs:
-  verify:
+  # Named `edge-verify`, not `verify`. GitHub matches a required status check by
+  # its context name alone and cannot tell two same-named jobs apart, so while
+  # this job and governance.yml's `verify` shared a name, `main`'s branch
+  # protection had one required check standing for two different runs — and
+  # whichever reported last decided the outcome. Keep these names distinct.
+  edge-verify:
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -46,3 +51,76 @@ jobs:
       # a build that breaks silently would only surface over there. Checked here.
       - name: Build
         run: npm run build
+
+  # Detect if apps/edge or edge-ci was modified.
+  # Desktop builds Rust/Tauri on windows-latest (~15-20 min) and is only needed
+  # when Edge code changed, saving significant CI time and Windows runner quota.
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      edge: ${{ steps.filter.outputs.edge }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - id: filter
+        shell: bash
+        run: |
+          set -uo pipefail
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base='${{ github.event.pull_request.base.sha }}'
+            head='${{ github.event.pull_request.head.sha }}'
+          else
+            base='${{ github.event.before }}'
+            head='${{ github.sha }}'
+          fi
+          case "$base" in
+            ''|0000000000000000000000000000000000000000)
+              echo "edge=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
+          esac
+          if ! changed=$(git diff --name-only "$base" "$head" 2>&1); then
+            echo "edge=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          echo "Changed files in diff:"; echo "$changed"
+          if echo "$changed" | grep -qE "^(apps/edge/|\.github/workflows/edge-ci\.yml)"; then
+            echo "edge=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "edge=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  desktop:
+    needs: [changes, edge-verify]
+    if: github.event_name == 'push' || needs.changes.outputs.edge == 'true'
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24.19.0'
+          cache: npm
+          cache-dependency-path: apps/edge/package-lock.json
+      - name: Build the managed worker
+        working-directory: apps/edge
+        run: |
+          npm ci
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm run build
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: swatinem/rust-cache@v2
+        with:
+          workspaces: 'apps/edge/src-tauri -> target'
+      - name: Native pairing and credential tests
+        run: cargo test --locked --manifest-path apps/edge/src-tauri/Cargo.toml --lib
+      - name: Build Desktop with embedded frontend
+        run: cargo build --locked --manifest-path apps/edge/src-tauri/Cargo.toml --release
+      - name: Verify portable worker lifecycle against synthetic server
+        shell: pwsh
+        run: |
+          $env:ZURI_DESKTOP_TEST_PACKAGE = Join-Path $env:RUNNER_TEMP 'edge-ci-portable'
+          node apps/edge/scripts/package-desktop.mjs $env:ZURI_DESKTOP_TEST_PACKAGE
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo test --locked --manifest-path apps/edge/src-tauri/Cargo.toml --lib packaged_runtime_tests -- --ignored
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

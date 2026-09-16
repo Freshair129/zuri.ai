@@ -19,12 +19,13 @@ model Portfolio {
   version   Int      @default(1)
 
   tenants              Tenant[]
-  legalEntities        LegalEntity[]
   workspaces           Workspace[]
   // @req FR-067 — the top-level collaboration Workspace the user sees IS this
   // Portfolio (ADR-027 §D2); membership and invites key off portfolioId.
   workspaceMemberships WorkspaceMembership[]
-  workspaceInvites     WorkspaceInvite[]
+  // @req FR-195 — renamed from workspaceInvites: AccessInvite generalises
+  // WorkspaceInvite to also cover TENANT/BUSINESS scope (ADR-079).
+  accessInvites        AccessInvite[]
 }
 
 model Tenant {
@@ -37,75 +38,115 @@ model Tenant {
   updatedAt   DateTime @updatedAt
   version     Int      @default(1)
 
-  portfolio                 Portfolio                  @relation(fields: [portfolioId], references: [id])
-  businesses                Business[]
-  workspaces                Workspace[]
-  memberships               Membership[]
-  externalIdentities        ExternalIdentity[]
-  channelIdentities         ChannelIdentity[]
-  identityLinkTokens        IdentityLinkToken[]
-  customers                 Customer[]
-  roleBindings              RoleBinding[]
-  customerImportBatches     CustomerImportBatch[]
-  customerImportReviewCases CustomerImportReviewCase[]
-  localWorkspaceMounts      LocalWorkspaceMount[]
-  fileAssets                FileAsset[]
-  integrationConnections    IntegrationConnection[]
-  ingestionRuns             IngestionRun[]
-  rawExternalRecords        RawExternalRecord[]
-  syncCursors               SyncCursor[]
-  externalEntityRefs        ExternalEntityRef[]
-  deadLetterRecords         DeadLetterRecord[]
-  pipelineRuns              PipelineRun[]
-  sotDecisions              SotDecision[]
-  sotDataPlaneKeys          SotDataPlaneKey[]
-  apiAccessKeys             ApiAccessKey[]
-  registeredAssets          RegisteredAsset[]
-  assetIntakes              AssetIntake[]
-  assetLots                 AssetLot[]
-  edgeDeviceCredentials     EdgeDeviceCredential[]
-  assetExtractionJobs       AssetExtractionJob[]
-  lineOaAccounts            LineOaAccount[]
-  lineOaRichMenus           LineOaRichMenu[]
-  lineOaLiffApps            LineOaLiffApp[]
-  inventoryCategories       InventoryCategory[]
-  productFamilies           ProductFamily[]
-  factories                 Factory[]
-  productMasters            ProductMaster[]
-  products                  Product[]
-  productLots               ProductLot[]
-  serialUnits               SerialUnit[]
-  productBundles            ProductBundle[]
-  stockMovements            StockMovement[]
-  productRecipes            ProductRecipe[]
+  portfolio                  Portfolio                   @relation(fields: [portfolioId], references: [id])
+  businesses                 Business[]
+  // @req FR-194 — moved from Portfolio (ADR-078 D1): a LegalEntity now sits
+  // inside the isolation boundary it always should have.
+  legalEntities              LegalEntity[]
+  workspaces                 Workspace[]
+  memberships                Membership[]
+  employments                Employment[]
+  externalIdentities         ExternalIdentity[]
+  channelIdentities          ChannelIdentity[]
+  identityLinkTokens         IdentityLinkToken[]
+  customers                  Customer[]
+  // @req FR-230 — this Tenant's per-data-class retention shortenings (ADR-091 D2).
+  tenantRetentionOverrides   TenantRetentionOverride[]
+  roleBindings               RoleBinding[]
+  customerImportBatches      CustomerImportBatch[]
+  customerImportReviewCases  CustomerImportReviewCase[]
+  localWorkspaceMounts       LocalWorkspaceMount[]
+  fileAssets                 FileAsset[]
+  integrationConnections     IntegrationConnection[]
+  ingestionRuns              IngestionRun[]
+  rawExternalRecords         RawExternalRecord[]
+  syncCursors                SyncCursor[]
+  externalEntityRefs         ExternalEntityRef[]
+  deadLetterRecords          DeadLetterRecord[]
+  pipelineRuns               PipelineRun[]
+  sotDecisions               SotDecision[]
+  sotDataPlaneKeys           SotDataPlaneKey[]
+  apiAccessKeys              ApiAccessKey[]
+  registeredAssets           RegisteredAsset[]
+  assetIntakes               AssetIntake[]
+  assetLots                  AssetLot[]
+  edgeDeviceCredentials      EdgeDeviceCredential[]
+  assetExtractionJobs        AssetExtractionJob[]
+  lineOaAccounts             LineOaAccount[]
+  lineOaRichMenus            LineOaRichMenu[]
+  lineOaLiffApps             LineOaLiffApp[]
+  inventoryCategories        InventoryCategory[]
+  productFamilies            ProductFamily[]
+  factories                  Factory[]
+  productMasters             ProductMaster[]
+  products                   Product[]
+  productLots                ProductLot[]
+  serialUnits                SerialUnit[]
+  productBundles             ProductBundle[]
+  stockMovements             StockMovement[]
+  productRecipes             ProductRecipe[]
   marketingOperationsIntakes MarketingOperationsIntake[]
-  salesTasks                SalesTask[]
-  salesOrders               SalesOrder[]
-  payments                  Payment[]
-  suppliers                 Supplier[]
-  purchaseOrders            PurchaseOrder[]
-  goodsReceipts             GoodsReceipt[]
+  salesTasks                 SalesTask[]
+  salesOrders                SalesOrder[]
+  payments                   Payment[]
+  suppliers                  Supplier[]
+  purchaseOrders             PurchaseOrder[]
+  goodsReceipts              GoodsReceipt[]
+  warehouseLocations         WarehouseLocation[]
+  customizationWorkOrders    CustomizationWorkOrder[]
+  kittingWorkOrders          KittingWorkOrder[]
+  stockReservations          StockReservation[]
+  billingProfiles            BusinessBillingProfile[]
+  commerceDocuments          CommerceDocument[]
+  commerceDocumentSequences  CommerceDocumentSequence[]
+  inventoryLedgerFences      InventoryLedgerFence[]
+  inventoryStocktakes        InventoryStocktake[]
+  productIdentifiers         ProductIdentifier[]
+  productUnitConversions     ProductUnitConversion[]
+  inventoryCatalogIntakes    InventoryCatalogIntake[]
+
+  marketingPlans            MarketingPlan[]
+  marketingInitiatives      MarketingInitiative[]
+  marketingContentBriefs    MarketingContentBrief[]
+  marketingBroadcastIntents MarketingBroadcastIntent[]
+  // @req FR-195 — a TENANT-scoped AccessInvite hangs off the Tenant directly.
+  accessInvites             AccessInvite[]
+  // @req FR-236 — LINE FAQ knowledge candidates (ADR-090 D6).
+  knowledgeCandidates       KnowledgeCandidate[]
 
   @@index([portfolioId])
-
-  marketingPlans MarketingPlan[]
-  marketingInitiatives MarketingInitiative[]
-  marketingContentBriefs MarketingContentBrief[]
 }
 
+// @req FR-194 — LegalEntity moves under Tenant (ADR-078 D1). Before this it
+// carried `portfolioId` with no `tenantId` at all, which put it ABOVE the BR-001
+// isolation boundary: two Businesses in different Tenants could share one legal
+// entity, and a tenant-scoped RLS policy has no column here to filter on.
+// `billing-invoice-service.js` compensated in application code with a
+// portfolio comparison; the composite FK below (`@@unique([id, tenantId])` plus
+// Business's matching composite relation) makes the ancestry a database
+// invariant instead, and the portfolio comparison is retired.
+// @spec ADR-078 D1, ADR-018 D4, BR-001
 model LegalEntity {
-  id          String   @id @default(uuid())
-  code        String   @unique
-  portfolioId String
-  legalName   String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(uuid())
+  code         String   @unique
+  tenantId     String
+  legalName    String
+  legalAddress String?
+  status       String   @default("ACTIVE")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  portfolio   Portfolio               @relation(fields: [portfolioId], references: [id])
-  identifiers LegalEntityIdentifier[]
-  businesses  Business[]
+  tenant                  Tenant                   @relation(fields: [tenantId], references: [id])
+  identifiers             LegalEntityIdentifier[]
+  businesses              Business[]
+  taxRegistrationBranches TaxRegistrationBranch[]
 
-  @@index([portfolioId])
+  // The `UNIQUE (id, tenantId)` that a composite FK from Business needs exists
+  // only in the Supabase migration, not here — the same choice ADR-077 D4 made
+  // for `Business(id, tenantId)`: Prisma's relation to LegalEntity below stays
+  // the plain single-column shape schema.prisma uses everywhere else, and the
+  // ancestry invariant is a Postgres-only guard layered under it.
+  @@index([tenantId])
 }
 
 model LegalEntityIdentifier {
@@ -123,115 +164,210 @@ model LegalEntityIdentifier {
   @@index([legalEntityId])
 }
 
-model Business {
-  id            String   @id @default(uuid())
-  code          String   @unique
-  tenantId      String
-  legalEntityId String?
+// @req FR-194 — the legal entity's VAT branch registration (ประมวลรัษฎากร ม.86,
+// ภ.พ.20): `00000` is head office, any other 5-digit code an additional
+// registered branch. This is split out of `Branch` because the branch code is
+// a fact about the LEGAL ENTITY's tax registration, not about an operating
+// site — a warehouse has no branch code, and one branch code can cover several
+// operating sites. Two Businesses sharing a LegalEntity could previously each
+// stamp an uncontrolled `00000` on their own Branch row with nothing to stop
+// two tax invoices claiming to be the same legal branch (ADR-078 D2).
+// @spec ADR-078 D2, BR-034
+model TaxRegistrationBranch {
+  id            String    @id @default(uuid())
+  legalEntityId String
+  branchCode    String
   name          String
-  status        String   @default("ACTIVE")
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  version       Int      @default(1)
+  address       String
+  status        String    @default("ACTIVE")
+  verifiedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
-  tenant                    Tenant                     @relation(fields: [tenantId], references: [id])
-  legalEntity               LegalEntity?               @relation(fields: [legalEntityId], references: [id])
-  branches                  Branch[]
-  workspaces                Workspace[]
-  memberships               Membership[]
+  legalEntity LegalEntity @relation(fields: [legalEntityId], references: [id], onDelete: Restrict)
+  branches    Branch[]
+
+  @@unique([legalEntityId, branchCode])
+  @@index([legalEntityId])
+}
+
+model Business {
+  id               String   @id @default(uuid())
+  code             String   @unique
+  tenantId         String
+  legalEntityId    String?
+  name             String
+  status           String   @default("ACTIVE")
+  // @req FR-169 — feature capabilities this Business has turned on, keyed by
+  // name (`{"physicalStock": true}`). A capability differs from a domain grant
+  // (Membership.domainKeysJson): a grant says WHO may open a module, a
+  // capability says whether the module APPLIES to this Business at all. Absent
+  // keys default per-capability in code, never here, so adding a new
+  // capability is never a migration.
+  capabilitiesJson String   @default("{}")
+  // @req FR-236 — whether this Business's viewers may draft LINE FAQ
+  // knowledge candidates at all (ADR-090 D6). Deliberately its own column, not
+  // a new `capabilitiesJson` key: capabilitiesJson says whether a module
+  // APPLIES to this Business (default ON — every existing Business keeps what
+  // it already had), while this says whether reviewed chat content may be
+  // ADMITTED into the knowledge corpus — a content-safety gate, not a module
+  // gate, so it defaults OFF for every Business, including ones that already
+  // use `knowledge`. Written only by
+  // `business-knowledge-candidates-service.js` (OWNER-only, versioned CAS,
+  // audited); read by `draftKnowledgeCandidate` before any authority check.
+  knowledgeCandidatesEnabled Boolean @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  version          Int      @default(1)
+
+  tenant                     Tenant                      @relation(fields: [tenantId], references: [id])
+  // @req FR-194 — Prisma keeps the plain single-column shape (as it does for
+  // Membership.business); the ancestry invariant — a Business may only
+  // reference a LegalEntity in its OWN Tenant — is a composite FK on
+  // (legalEntityId, tenantId) added by the Supabase migration only. Before
+  // ADR-078 this pointed at a Portfolio-scoped LegalEntity with no Tenant
+  // column at all, which is what let two Businesses in different Tenants share
+  // one legal entity (ADR-018 D4).
+  legalEntity                LegalEntity?                @relation(fields: [legalEntityId], references: [id])
+  branches                   Branch[]
+  workspaces                 Workspace[]
+  memberships                Membership[]
+  employments                Employment[]
   // @req FR-089 — Teams are Business-scoped (ADR-037 D2).
-  teams                     Team[]
-  customers                 Customer[]
-  roleBindings              RoleBinding[]
-  customerImportBatches     CustomerImportBatch[]
-  customerImportReviewCases CustomerImportReviewCase[]
-  roadmaps                  BusinessRoadmap[]
-  goals                     BusinessGoal[]
-  projects                  Project[]
-  localWorkspaceMounts      LocalWorkspaceMount[]
-  fileAssets                FileAsset[]
-  integrationConnections    IntegrationConnection[]
-  ingestionRuns             IngestionRun[]
-  rawExternalRecords        RawExternalRecord[]
-  syncCursors               SyncCursor[]
-  externalEntityRefs        ExternalEntityRef[]
-  deadLetterRecords         DeadLetterRecord[]
-  repositories              Repository[]
-  pipelineRuns              PipelineRun[]
-  sotDecisions              SotDecision[]
-  registeredAssets          RegisteredAsset[]
-  assetIntakes              AssetIntake[]
-  assetLots                 AssetLot[]
-  edgeDeviceCredentials     EdgeDeviceCredential[]
-  assetExtractionJobs       AssetExtractionJob[]
-  lineOaAccounts            LineOaAccount[]
-  lineOaRichMenus           LineOaRichMenu[]
-  lineOaLiffApps            LineOaLiffApp[]
-  inventoryCategories       InventoryCategory[]
-  productFamilies           ProductFamily[]
-  factories                 Factory[]
-  productMasters            ProductMaster[]
-  products                  Product[]
-  productLots               ProductLot[]
-  serialUnits               SerialUnit[]
-  productBundles            ProductBundle[]
-  stockMovements            StockMovement[]
-  productRecipes            ProductRecipe[]
+  teams                      Team[]
+  customers                  Customer[]
+  roleBindings               RoleBinding[]
+  customerImportBatches      CustomerImportBatch[]
+  customerImportReviewCases  CustomerImportReviewCase[]
+  roadmaps                   BusinessRoadmap[]
+  goals                      BusinessGoal[]
+  projects                   Project[]
+  localWorkspaceMounts       LocalWorkspaceMount[]
+  fileAssets                 FileAsset[]
+  integrationConnections     IntegrationConnection[]
+  ingestionRuns              IngestionRun[]
+  rawExternalRecords         RawExternalRecord[]
+  syncCursors                SyncCursor[]
+  externalEntityRefs         ExternalEntityRef[]
+  deadLetterRecords          DeadLetterRecord[]
+  repositories               Repository[]
+  pipelineRuns               PipelineRun[]
+  sotDecisions               SotDecision[]
+  registeredAssets           RegisteredAsset[]
+  assetIntakes               AssetIntake[]
+  assetLots                  AssetLot[]
+  edgeDeviceCredentials      EdgeDeviceCredential[]
+  assetExtractionJobs        AssetExtractionJob[]
+  lineOaAccounts             LineOaAccount[]
+  lineOaRichMenus            LineOaRichMenu[]
+  lineOaLiffApps             LineOaLiffApp[]
+  inventoryCategories        InventoryCategory[]
+  productFamilies            ProductFamily[]
+  factories                  Factory[]
+  productMasters             ProductMaster[]
+  products                   Product[]
+  productLots                ProductLot[]
+  serialUnits                SerialUnit[]
+  productBundles             ProductBundle[]
+  stockMovements             StockMovement[]
+  productRecipes             ProductRecipe[]
   marketingOperationsIntakes MarketingOperationsIntake[]
-  salesTasks                SalesTask[]
-  salesOrders               SalesOrder[]
-  payments                  Payment[]
-  suppliers                 Supplier[]
-  purchaseOrders            PurchaseOrder[]
-  goodsReceipts             GoodsReceipt[]
+  salesTasks                 SalesTask[]
+  salesOrders                SalesOrder[]
+  payments                   Payment[]
+  suppliers                  Supplier[]
+  purchaseOrders             PurchaseOrder[]
+  goodsReceipts              GoodsReceipt[]
+  warehouseLocations         WarehouseLocation[]
+  customizationWorkOrders    CustomizationWorkOrder[]
+  kittingWorkOrders          KittingWorkOrder[]
+  stockReservations          StockReservation[]
+  billingProfile             BusinessBillingProfile?
+  commerceDocuments          CommerceDocument[]
+  commerceDocumentSequences  CommerceDocumentSequence[]
+  inventoryLedgerFences      InventoryLedgerFence[]
+  inventoryStocktakes        InventoryStocktake[]
+  productIdentifiers         ProductIdentifier[]
+  productUnitConversions     ProductUnitConversion[]
+  inventoryCatalogIntakes    InventoryCatalogIntake[]
+
+  marketingPlans            MarketingPlan[]
+  marketingInitiatives      MarketingInitiative[]
+  marketingContentBriefs    MarketingContentBrief[]
+  marketingBroadcastIntents MarketingBroadcastIntent[]
+  // @req FR-195 — a BUSINESS-scoped AccessInvite hangs off the Business directly.
+  accessInvites             AccessInvite[]
+  // @req FR-236 — LINE FAQ knowledge candidates (ADR-090 D6).
+  knowledgeCandidates       KnowledgeCandidate[]
 
   @@index([tenantId])
-
-  marketingPlans MarketingPlan[]
-  marketingInitiatives MarketingInitiative[]
-  marketingContentBriefs MarketingContentBrief[]
 }
 
 model Branch {
-  id         String   @id @default(uuid())
-  code       String   @unique
+  id         String @id @default(uuid())
+  code       String @unique
   tenantId   String
   businessId String
   name       String
-  status     String   @default("ACTIVE")
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  address    String?
+  // @req FR-194 — what this Branch IS: an operating site. `SITE` is the
+  // default, matching every Branch row that existed before this column.
+  kind       String @default("SITE")
+  // @req FR-194 — replaces `taxBranchCode` (a free-text column any Business
+  // could stamp `00000` into with nothing to stop two Businesses sharing a
+  // legal entity from each claiming to be its head office). A Branch now
+  // POINTS AT the legal entity's own VAT registration record instead of
+  // carrying a copy of its code; a warehouse or kitchen legitimately has none.
+  taxRegistrationBranchId String?
+  status                  String   @default("ACTIVE")
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
 
-  business       Business               @relation(fields: [businessId], references: [id])
-  memberships    Membership[]
-  assetLocations AssetLocationHistory[]
+  business              Business               @relation(fields: [businessId], references: [id])
+  // @req FR-194 — Restrict: a tax registration branch cannot be removed out
+  // from under a Branch that bills against it; unlink the Branch first.
+  taxRegistrationBranch TaxRegistrationBranch? @relation(fields: [taxRegistrationBranchId], references: [id], onDelete: Restrict)
+  employments           Employment[]
+  assetLocations        AssetLocationHistory[]
+  commerceDocuments     CommerceDocument[]
 
   @@index([tenantId])
   @@index([businessId])
+  @@index([taxRegistrationBranchId])
 }
 
 model Person {
-  id                 String    @id @default(uuid())
-  code               String    @unique
-  displayName        String
-  email              String?
+  id                   String    @id @default(uuid())
+  code                 String    @unique
+  displayName          String
+  email                String?
   // @req FR-122 — What the Profile step collects about the person themselves.
   // Nullable here and required at the profile boundary instead, because Person
   // rows exist that can never supply them: the seed, FR-107's operator
   // bootstrap, and every Person FR-023's LINE ingest creates from a lineUserId
   // on first contact, which has a channel subject and nothing else. A NOT NULL
   // on these columns would make that intake path unwritable.
-  firstName          String?
-  lastName           String?
-  phone              String?
+  firstName            String?
+  lastName             String?
+  phone                String?
   // @req FR-066 — Profile completion marker: an identity step over Person
   // (ADR-027 D1), never an authorization grant (BR-016). Null = the person has
   // not finished the profile-first onboarding step yet.
-  profileCompletedAt DateTime?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  profileCompletedAt   DateTime?
+  // @req FR-191 — a redacted person whose password still works is not
+  // erased (SEC-026). Set by erasure and by an operator disabling an
+  // account; `authenticateUser` refuses while it is non-null.
+  accessDisabledAt     DateTime?
+  accessDisabledReason String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
   memberships                   Membership[]
+  membershipsGranted            Membership[]                   @relation("MembershipGrantedBy")
+  membershipsRevoked            Membership[]                   @relation("MembershipRevokedBy")
+  // @req FR-193 — the HR assignment record, distinct from the Membership
+  // access grant above (ADR-078 D1).
+  employments                   Employment[]
   credential                    PersonCredential?
   passwordResetTokens           PasswordResetToken[]
   teamMemberships               TeamMembership[]
@@ -240,6 +376,10 @@ model Person {
   externalIdentities            ExternalIdentity[]
   channelIdentities             ChannelIdentity[]
   sessions                      Session[]
+  // @req FR-220 — agent harness installations this person approved (ADR-087).
+  harnessCredentials            HarnessCredential[]            @relation("HarnessCredentialPerson")
+  // @req FR-248, FR-249 — this person's route/action usage events (ADR-095 D2).
+  usageEvents                   UsageEvent[]                   @relation("UsageEventPerson")
   identityLinkTokens            IdentityLinkToken[]
   pluginAuthorizationCodes      PluginAuthorizationCode[]
   pluginSessions                PluginSession[]
@@ -255,9 +395,10 @@ model Person {
   platformGrantsIssued          PlatformGrant[]                @relation("PlatformGrantIssuer")
   // @req FR-067 — Workspace collaboration grants and the invites this person issued.
   workspaceMemberships          WorkspaceMembership[]
-  workspaceInvitesIssued        WorkspaceInvite[]              @relation("WorkspaceInviteInviter")
+  accessInvitesIssued           AccessInvite[]                 @relation("AccessInviteInviter")
   assetResponsibilities         AssetResponsibility[]
   salesTasksAssigned            SalesTask[]                    @relation("SalesTaskAssignee")
+  mfaFactors                    MfaFactor[]
 }
 
 // @req FR-107 — the server-held store behind FR-075's `isOperator` capability.
@@ -265,13 +406,29 @@ model Person {
 // operator: the session port resolves it per request (revocation takes effect
 // on the next request, NFR-019 discipline), and nothing else — not role, not
 // ownership, not `isPlatform` — is ever read as operator authority.
-// @spec FR-075, SEC-008
+// @req FR-197 — operator access is time-boxed. `expiresAt` is mandatory on
+// every grant `issueOperatorGrant` mints (capped at 90 days; `hasOperatorGrant`
+// honours it) and `standing` marks the one grant this rule does not apply to —
+// the bootstrap grant, minted before any operator exists to issue one. A
+// renewal is a fresh row, not an update to this one (the same "grant, not a
+// fact" reasoning as ADR-077 D1): `@@unique([personId, capability])` would
+// have blocked that, so the old unconditional unique constraint is replaced by
+// a partial one scoped to `status = 'ACTIVE'` in the Supabase migration
+// (Prisma cannot express the partial predicate), matching the pattern
+// ADR-077 D4 already uses on Membership.
+// @spec FR-075, SEC-008, ADR-017 D6, ADR-079
 model PlatformGrant {
   id                String    @id @default(uuid())
   personId          String
   capability        String    @default("OPERATOR")
   status            String    @default("ACTIVE")
   grantedByPersonId String?
+  grantReason       String?
+  expiresAt         DateTime?
+  // True only for the grant `bootstrapOperator` mints when no operator exists
+  // yet. Every grant `issueOperatorGrant` issues afterward is standing:false —
+  // it was issued BY a standing operator, not born one.
+  standing          Boolean   @default(false)
   createdAt         DateTime  @default(now())
   revokedAt         DateTime?
   revokeReason      String?
@@ -279,8 +436,8 @@ model PlatformGrant {
   person    Person  @relation("PlatformGrantPerson", fields: [personId], references: [id], onDelete: Cascade)
   grantedBy Person? @relation("PlatformGrantIssuer", fields: [grantedByPersonId], references: [id], onDelete: SetNull)
 
-  @@unique([personId, capability])
   @@index([capability, status])
+  @@index([personId, capability, status])
 }
 
 // @req FR-067 — Workspace collaboration membership, keyed by `portfolioId`:
@@ -311,34 +468,60 @@ model WorkspaceMembership {
   @@index([portfolioId, status])
 }
 
-// @req FR-067 — scoped, expiring, single-use Workspace invite. `tokenHash` is a
-// SHA-256 digest (SEC-014, the FR-104 discipline): the raw token appears exactly
-// once in the authenticated mint response and is never persisted or logged.
-// EXPIRED is deliberately not a persisted status — expiry is a fail-closed
-// comparison against `expiresAt` at acceptance time, so a clock cannot be
-// outrun by a status column that nobody updated.
-// @spec SEC-014, BR-016, SDD-038
-// @tested tests/unit/workspace-invite-service.test.js
-model WorkspaceInvite {
-  id                 String    @id @default(uuid())
-  portfolioId        String
-  invitedByPersonId  String
-  targetPersonId     String?
-  invitedEmail       String?
-  role               String    @default("MEMBER")
-  status             String    @default("PENDING")
-  tokenHash          String    @unique
-  expiresAt          DateTime
-  acceptedByPersonId String?
-  acceptedAt         DateTime?
-  revokedAt          DateTime?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+// @req FR-195 — AccessInvite generalises WorkspaceInvite (FR-067) into a
+// scoped invitation for all three authority layers this installation has:
+// PORTFOLIO (Workspace collaboration, BR-016 — unchanged from FR-067),
+// TENANT and BUSINESS (a real Membership grant, on acceptance, via
+// `grantBusinessMembership` — the one creation path, ADR-077 D8). Both
+// WorkspaceInvite and WorkspaceMembership carried zero rows in production on
+// 2026-09-12, which is what makes this a pure DDL generalisation rather than a
+// migration of live data (ADR-079).
+// `tokenHash` is a SHA-256 digest (SEC-014, the FR-104 discipline): the raw
+// token appears exactly once in the authenticated mint response and is never
+// persisted or logged. EXPIRED is deliberately not a persisted status —
+// expiry is a fail-closed comparison against `expiresAt` at acceptance time.
+// The scope-shape and addressee CHECK constraints live in the Supabase
+// migration, which is the only place Prisma cannot express them (mirroring
+// ADR-077 D3's Membership.scopeType discipline).
+// @spec SEC-014, BR-016, SDD-094, ADR-079
+// @tested tests/unit/access-invite-service.test.js, tests/unit/workspace-invite-service.test.js
+model AccessInvite {
+  id                   String    @id @default(uuid())
+  scopeType            String    @default("PORTFOLIO")
+  portfolioId          String?
+  tenantId             String?
+  businessId           String?
+  invitedByPersonId    String
+  targetPersonId       String?
+  invitedEmail         String?
+  // @req FR-195 — LINE-first intake: invite the Person who messaged the OA,
+  // named by their channel identity rather than an email they may not have.
+  invitedLineUserId    String?
+  role                 String    @default("MEMBER")
+  domainKeysJson       String    @default("[]")
+  reason               String?
+  status               String    @default("PENDING")
+  tokenHash            String    @unique
+  expiresAt            DateTime
+  acceptedByPersonId   String?
+  acceptedAt           DateTime?
+  // No relation: the Membership this invite became. A plain reference, not a
+  // foreign key — the accepting write lives in identity's one Membership
+  // writer (ADR-077 D8) and this column only records which row it produced.
+  acceptedMembershipId String?
+  revokedAt            DateTime?
+  revokedByPersonId    String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
-  portfolio Portfolio @relation(fields: [portfolioId], references: [id])
-  invitedBy Person    @relation("WorkspaceInviteInviter", fields: [invitedByPersonId], references: [id])
+  portfolio Portfolio? @relation(fields: [portfolioId], references: [id])
+  tenant    Tenant?    @relation(fields: [tenantId], references: [id])
+  business  Business?  @relation(fields: [businessId], references: [id])
+  invitedBy Person     @relation("AccessInviteInviter", fields: [invitedByPersonId], references: [id])
 
   @@index([portfolioId, status])
+  @@index([tenantId, status])
+  @@index([businessId, status])
   @@index([targetPersonId, status])
   @@index([invitedEmail, status])
 }
@@ -451,29 +634,126 @@ model PluginSession {
   @@index([authorizationCodeId])
 }
 
+// @req FR-191, FR-192 — a grant, not a membership fact: who has access, who
+// gave it and why, until when, and when and why it ended. Before ADR-077 the
+// row answered only the first of those, which is why access could be created
+// and never withdrawn
+// (.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md).
+// @spec ADR-077 D1-D5, ADR-045 D3, BR-033, SDD-092
+// @tested tests/unit/membership-lifecycle-service.test.js,
+//   tests/integration/fr191-access-grant-lifecycle.test.js
 model Membership {
-  id             String   @id @default(uuid())
+  id             String  @id @default(uuid())
   personId       String
   tenantId       String
+  // @req FR-192 — scope is a declared value. `businessId IS NULL` used to MEAN
+  // "every Business in this Tenant" to `buildDomainsByBusiness` while meaning
+  // "refuse" to `assertMembershipBusinessOwned`: one layer honoured a wildcard
+  // the other could not see. The CHECK that binds these two columns lives in
+  // the Supabase migration, which is the only place Prisma cannot express it.
+  scopeType      String  @default("BUSINESS")
   businessId     String?
-  branchId       String?
-  employeeRef    String?
-  role           String   @default("OWNER")
-  status         String   @default("ACTIVE")
-  domainKeysJson String   @default("[]")
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  version        Int      @default(1)
+  // Default MEMBER, not OWNER (ADR-077 D5). Every current writer passes a role
+  // explicitly, so this changes nothing for them; what it removes is an INSERT
+  // that omits the column — a migration, a seed, a psql session — minting an
+  // owner. Default deny is the only defensible default for an authority column.
+  role           String  @default("MEMBER")
+  status         String  @default("ACTIVE")
+  domainKeysJson String  @default("[]")
+
+  // @req FR-191 — provenance on the row, not only in the audit stream. An
+  // access review asks "who gave this" of current state, and the stream cannot
+  // answer it for rows that already exist: production holds twelve grants and
+  // six MEMBERSHIP_ADDED events, the rest written by services that audit under
+  // PROJECT and BUSINESS (ADR-077 D1).
+  grantedByPersonId String?
+  grantReason       String?
+  grantSource       String    @default("ADMIN")
+  // Read by `resolveViewer`, written by nothing yet. It exists so access
+  // recertification can be added later without a second migration against live
+  // authority data (ADR-077 Consequences), and is recorded as accepted debt in
+  // docs/.unreachable-state-baseline.json under this ADR's own D7 rule.
+  expiresAt         DateTime?
+  suspendedAt       DateTime?
+  revokedAt         DateTime?
+  revokedByPersonId String?
+  revokeReason      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  version   Int      @default(1)
 
   person   Person    @relation(fields: [personId], references: [id], onDelete: Cascade)
   tenant   Tenant    @relation(fields: [tenantId], references: [id])
-  business Business? @relation(fields: [businessId], references: [id])
-  branch   Branch?   @relation(fields: [branchId], references: [id])
+  // @req FR-192 — Restrict, not the optional-relation default of SetNull. The
+  // null that cascade wrote was not an absence: it was the tenant-wide
+  // wildcard, so deleting one Business promoted its members to the whole group
+  // and its owners to `ownsTenant` — which FR-074(b) makes the authority to
+  // create more Businesses.
+  business Business? @relation(fields: [businessId], references: [id], onDelete: Restrict)
+
+  grantedBy Person? @relation("MembershipGrantedBy", fields: [grantedByPersonId], references: [id], onDelete: SetNull)
+  revokedBy Person? @relation("MembershipRevokedBy", fields: [revokedByPersonId], references: [id], onDelete: SetNull)
 
   @@index([personId])
   @@index([personId, status])
   @@index([tenantId])
   @@index([tenantId, status])
+  @@index([businessId, status])
+  @@index([expiresAt, status])
+}
+
+// @req FR-193 — Employment is an HR assignment record, deliberately separate
+// from `Membership`'s access grant (ADR-078 D1; RCA-adjacent, though the defect
+// here predates ADR-077: `people-service.js` built the HR roster by reading
+// `Membership` directly, so "who works here" and "who can log in here" were the
+// same question by construction). Consequences that were real before this
+// model existed: a shareholder holding an OWNER Membership appeared as an
+// employee; a suspended staff member vanished from the roster entirely instead
+// of showing suspended; a consultant with access but no employment could not be
+// distinguished from staff; and a Person with no Membership — every
+// LINE-originated Person FR-023 creates on first contact — could never appear
+// in the roster at all.
+//
+// Same discipline ADR-037 D1 imposes on `TeamMembership`: `resolveViewer` does
+// not read this model, and a test in tests/unit asserts the resolver's source
+// files never name it, because "nobody consults it" is only true while nobody
+// consults it.
+// @spec ADR-078 D1, BR-034
+// @tested tests/unit/fr193-employment-not-authorization.test.js,
+//   tests/unit/people-service.test.js
+model Employment {
+  id         String  @id @default(uuid())
+  personId   String
+  tenantId   String
+  businessId String
+  branchId   String?
+  // The employer's own number for this person — was `Membership.employeeRef`.
+  // Never a key (BR-002): joins are always by `personId`.
+  employeeNo String?
+  title      String?
+  // EMPLOYEE | CONTRACTOR | INTERN | OWNER_OPERATOR (enums.js EMPLOYMENT_TYPES)
+  employmentType String @default("EMPLOYEE")
+  // ACTIVE | ON_LEAVE | ENDED (enums.js EMPLOYMENT_STATUSES)
+  status     String    @default("ACTIVE")
+  startAt    DateTime?
+  endAt      DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  version    Int       @default(1)
+
+  // onDelete: Restrict — PDPA erasure redacts the Person, it never deletes the
+  // row (FR-022); an Employment is HR history, not a live-access grant that
+  // disappears with its subject.
+  person   Person   @relation(fields: [personId], references: [id], onDelete: Restrict)
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  branch   Branch?  @relation(fields: [branchId], references: [id], onDelete: Restrict)
+
+  @@index([personId])
+  @@index([tenantId])
+  @@index([businessId, status])
+  @@index([branchId])
 }
 
 // @req FR-095 — the signed cookie is transport only; the live session row is
@@ -484,20 +764,56 @@ model Session {
   id           String    @id @default(uuid())
   personId     String
   tokenHash    String    @unique
-  status       String    @default("ACTIVE")
-  assurance    String    @default("PASSWORD")
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  lastSeenAt   DateTime  @default(now())
-  expiresAt    DateTime
-  revokedAt    DateTime?
-  revokeReason String?
-  version      Int       @default(1)
+  status         String    @default("ACTIVE")
+  assurance      String    @default("PASSWORD")
+  assuranceLevel String    @default("AAL1")
+  elevatedUntil  DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  lastSeenAt     DateTime  @default(now())
+  expiresAt      DateTime
+  revokedAt      DateTime?
+  revokeReason   String?
+  version        Int       @default(1)
 
   person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 
   @@index([personId, status])
   @@index([expiresAt, status])
+}
+
+// @req FR-094, FR-095 — multi-factor authentication factors (TOTP, SMS) for canonical principals.
+// @spec ADR-045 D2, D5, SDD-052, SEC-018
+model MfaFactor {
+  id         String    @id @default(uuid())
+  personId   String
+  type       String    // TOTP, SMS
+  secret     String    // Sealed envelope mfa.v<keyVersion>.<nonce>.<tag>.<ciphertext>, never base32 (SEC-029, ADR-088)
+  label      String?
+  status     String    @default("PENDING") // PENDING, ACTIVE, REVOKED
+  verifiedAt DateTime?
+  revokedAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  version    Int       @default(1)
+
+  person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId, status])
+}
+
+// @req FR-224 — fixed-window request counters: the credential-write rate limit per
+//   Person and Business, and installation-wide LINE validation calls. A table
+//   because ADR-058 has no Redis. Holds counts and a key built from ids, nothing
+//   else; ephemeral, so excluded from backup export.
+// @spec ADR-089 D4
+// @tested tests/integration/credential-rate-limit.test.js
+model RateLimitBucket {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  windowStart DateTime
+  count       Int      @default(0)
+  updatedAt   DateTime @updatedAt
 }
 
 // @req FR-094 — external channel subjects are namespaced attributes, never
@@ -527,25 +843,45 @@ model ChannelIdentity {
   @@index([tenantId, status])
 }
 
+// @req FR-196 — `sodOverrideReason` records a tenant owner's deliberate bypass
+// of a segregation-of-duties conflict (ROLE_CONFLICTS in rbac.js):
+// `assignRoleBinding` refuses 409 ROLE_CONFLICT unless the caller is a tenant
+// owner passing `sodOverride: { reason }`, and the reason lands here as well
+// as in the audit payload, so a review sees it on the row itself and not only
+// in the append-only stream (the same "provenance on the row" reasoning as
+// ADR-077 D1's Membership.grantReason).
+// @req FR-192/ADR-077 D3 — `businessId` is nullable so a TENANT-scoped binding
+// can exist at all: with it nullable, Postgres treats NULLs as distinct, so
+// the old `@@unique([personId, businessId, roleKey])` stopped preventing
+// duplicate tenant-wide rows. Two partial unique indexes replace it in the
+// Supabase migration (the pattern ADR-077 D4 already uses on Membership),
+// which is also where the scope-shape CHECK lives (Prisma cannot express it).
 model RoleBinding {
-  id         String    @id @default(uuid())
-  personId   String
-  tenantId   String
-  businessId String
-  roleKey    String
-  scopeType  String    @default("BUSINESS")
-  status     String    @default("ACTIVE")
-  assignedBy String?
-  version    Int       @default(1)
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  revokedAt  DateTime?
+  id                    String    @id @default(uuid())
+  personId              String
+  tenantId              String
+  businessId            String?
+  roleKey               String
+  scopeType             String    @default("BUSINESS")
+  // @req FR-191 — why this binding is not active. Set when a Membership
+  // suspension or revocation cascaded to it, so reinstating that Membership
+  // restores exactly the bindings it took down and leaves alone one that was
+  // suspended in its own right. Without the tag, reinstating a person would
+  // silently re-grant a capability somebody had deliberately removed.
+  // @spec ADR-077 D2
+  cascadeOfMembershipId String?
+  sodOverrideReason     String?
+  status                String    @default("ACTIVE")
+  assignedBy            String?
+  version               Int       @default(1)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  revokedAt             DateTime?
 
-  person   Person   @relation(fields: [personId], references: [id], onDelete: Cascade)
-  tenant   Tenant   @relation(fields: [tenantId], references: [id])
-  business Business @relation(fields: [businessId], references: [id])
+  person   Person    @relation(fields: [personId], references: [id], onDelete: Cascade)
+  tenant   Tenant    @relation(fields: [tenantId], references: [id])
+  business Business? @relation(fields: [businessId], references: [id])
 
-  @@unique([personId, businessId, roleKey])
   @@index([tenantId, businessId, status])
   @@index([personId, status])
   @@index([roleKey, status])
@@ -566,14 +902,16 @@ model Workspace {
 
   portfolio Portfolio? @relation(fields: [portfolioId], references: [id])
   tenant    Tenant?    @relation(fields: [tenantId], references: [id])
-  business  Business?  @relation(fields: [businessId], references: [id])
+  // @req FR-192 — Restrict: a Space that silently loses its Business goes
+  // read-only (ADR-027 D8.2), which is a data loss wearing a UI bug's clothes.
+  business  Business?  @relation(fields: [businessId], references: [id], onDelete: Restrict)
   projects  Project[]
+
+  marketingHandoffs MarketingHandoff[]
 
   @@index([portfolioId])
   @@index([tenantId])
   @@index([businessId])
-
-  marketingHandoffs MarketingHandoff[]
 }
 
 // @req FR-043 - direct Business owner plus Development Space context.
@@ -606,7 +944,9 @@ model Project {
   updatedAt   DateTime  @updatedAt
   version     Int       @default(1)
 
-  business           Business?                @relation(fields: [businessId], references: [id])
+  // @req FR-192 — Restrict, for the reason ADR-014 D2 gives: businessId is
+  // the Project's real owner, and losing it is not a nullable condition.
+  business           Business?                @relation(fields: [businessId], references: [id], onDelete: Restrict)
   workspace          Workspace                @relation(fields: [workspaceId], references: [id])
   pic                Person?                  @relation("ProjectPic", fields: [picPersonId], references: [id])
   workstreams        Workstream[]
@@ -620,13 +960,13 @@ model Project {
   teams              ProjectTeam[]
   assetAllocations   AssetProjectAllocation[]
 
+  marketingHandoffs MarketingHandoff[]
+
   @@index([businessId])
   @@index([workspaceId])
   @@index([status])
   @@index([priority])
   @@index([picPersonId])
-
-  marketingHandoffs MarketingHandoff[]
 }
 
 // @req FR-089 — a Team records who works together. It is an organisational
@@ -1066,14 +1406,14 @@ model FileAsset {
   updatedAt    DateTime  @updatedAt
   deletedAt    DateTime?
 
-  tenant        Tenant          @relation(fields: [tenantId], references: [id])
-  business      Business        @relation(fields: [businessId], references: [id])
-  project       Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  workItem      WorkItem?       @relation(fields: [workItemId], references: [id], onDelete: SetNull)
-  links         FileLink[]
-  assetEvidence AssetEvidence[]
+  tenant                 Tenant                  @relation(fields: [tenantId], references: [id])
+  business               Business                @relation(fields: [businessId], references: [id])
+  project                Project?                @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  workItem               WorkItem?               @relation(fields: [workItemId], references: [id], onDelete: SetNull)
+  links                  FileLink[]
+  assetEvidence          AssetEvidence[]
   lineOaRichMenuVersions LineOaRichMenuVersion[]
-  paymentSlips  Payment[]
+  paymentSlips           Payment[]
 
   @@index([tenantId])
   @@index([businessId])
@@ -1480,6 +1820,13 @@ model Customer {
   importReviewDecisions CustomerImportReviewDecision[] @relation("CustomerImportReviewDecisionTargetCustomer")
   salesTasks            SalesTask[]
   salesOrders           SalesOrder[]
+  // @req FR-245 — this Customer's chat evidence archive data key (ADR-093 D4,
+  //   D6) lives in `CustomerArchiveKey`, keyed by `customerId` alone — no
+  //   Prisma relation here, the same choice `IntegrationCredential` made for
+  //   `IntegrationSecretEnvelope` (SEC-030's precedent). Both models ARE
+  //   included in the backup snapshot (SNAPSHOT_MODELS, backup-service.js) —
+  //   see `CustomerArchiveKey`'s own comment for why exclusion was tried
+  //   first and reverted.
 
   @@unique([tenantId, personId])
   @@index([businessId])
@@ -1601,14 +1948,36 @@ model Conversation {
   channelAccountId String   @default("LEGACY:LINE")
   externalThreadId String
   status           String   @default("OPEN")
-  createdAt        DateTime @default(now())
+  // @req FR-233 — inbox read-model columns (ADR-091 D5, design §6.9). Denormalised
+  // from Message on write (conversation-preview-service.js) so the inbox needs no
+  // per-row N+1 to show them; unreadCount stays computed on read instead (it needs
+  // no storage: it is a function of the messages already on the row).
+  // lastMessagePreview is redacted by the same writer as Message.body — PDPA
+  // erasure (conversation-redaction-service.js) and the retention sweep
+  // (retention-sweep-service.js) both refresh it, never leaving a preview that
+  // outlives the message it was taken from.
+  lastMessageAt      DateTime?
+  lastMessagePreview String?
+  // @req FR-230 — which retention data class governs this conversation's Message
+  // rows (ADR-091 D2). Fixed today (every Conversation's messages fall under
+  // MESSAGE_BODY_AND_ATTACHMENTS); stored rather than inferred so a future
+  // per-conversation class never becomes a silent migration.
+  retentionClass String @default("MESSAGE_BODY_AND_ATTACHMENTS")
+  createdAt      DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  customer Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  messages Message[]
-  analyses ConversationAnalysis[]
-  salesTasks SalesTask[]
-  salesOrders SalesOrder[]
+  customer            Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  messages            Message[]
+  events              ConversationEvent[]
+  analyses            ConversationAnalysis[]
+  salesTasks          SalesTask[]
+  salesOrders         SalesOrder[]
+  // @req FR-236 — the candidate names its source conversation only through
+  //   this relation and `sourceRefJson`; a deleted conversation clears the
+  //   reference rather than deleting the candidate (erasure fan-out is FR-232).
+  knowledgeCandidates KnowledgeCandidate[]
+  // @req FR-243 — a long-lived conversation reads as separate sittings (ADR-094 D1).
+  sessions            ConversationSession[]
 
   // @spec BR-002, SEC-001 — a provider thread id is envelope data, not a key. Scoping
   // it by tenant, channel and account isolates the external namespace:
@@ -1625,10 +1994,20 @@ model Message {
   direction         String // INBOUND | OUTBOUND
   body              String
   externalMessageId String?
+  // @req FR-229 — TEXT | STICKER | LOCATION | MEDIA_REF (ADR-091 D5). Media types
+  // collapse into MEDIA_REF; the specific kind lives on MessageAttachment.kind, so a
+  // new media type never touches this vocabulary. Defaulted so every row that
+  // predates this column reads as TEXT, which is what it always was.
+  contentKind       String   @default("TEXT")
+  // @req FR-243 — the sitting this message belongs to (ADR-094 D2, SDD-102). Null only
+  //   for a row written before sessions existed and not yet backfilled.
+  sessionId         String?
   createdAt         DateTime @default(now())
 
-  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  lineJob LineConversationJob?
+  conversation Conversation         @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  session      ConversationSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  lineJob      LineConversationJob?
+  attachments  MessageAttachment[]
 
   // @spec BR-002, SEC-001 — scoped to the conversation that owns the message rather
   // than to a tenant column: a Message has no tenant of its own, and denormalising one
@@ -1637,6 +2016,209 @@ model Message {
   // NULL stays non-conflicting in both engines, so unkeyed outbound messages are free.
   @@unique([conversationId, externalMessageId])
   @@index([conversationId])
+  @@index([sessionId])
+}
+
+// @req FR-229 — a media message (image, video, audio, file) is recorded without
+// bytes (ADR-091 D5): LINE's own content id is kept so a later phase can fetch it
+// into FileAsset before LINE's retention window closes. mimeType/sizeBytes are
+// unknown at admission — LINE's webhook payload for these types carries neither —
+// and fileAssetId stays null until that fetch happens; none of the three is
+// written by this change.
+// @spec BR-002 — providerContentId is LINE's id, never a primary key here.
+// @tested tests/integration/line-non-text-admission.test.js
+model MessageAttachment {
+  id                String   @id @default(uuid())
+  messageId         String
+  kind              String // IMAGE | VIDEO | AUDIO | FILE
+  providerContentId String? // LINE's message id, used to fetch content later; cleared on unsend
+  fileAssetId       String? // plain reference, not a relation (file management owns FileAsset); null until fetched
+  fetchState        String   @default("PENDING") // PENDING | STORED | EXPIRED_AT_PROVIDER | ERASED
+  mimeType          String?
+  sizeBytes         Int?
+  createdAt         DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+  @@index([fileAssetId])
+}
+
+// @req FR-229 — non-message LINE webhook events (follow, unfollow, join, leave,
+// memberJoined, memberLeft, postback, unsend) become CRM rows instead of being
+// discarded (ADR-091 D5). The payload stays bounded and id-only — no display name,
+// no free text (e.g. postback's own `data` string is deliberately not stored) —
+// and `unsend` additionally tombstones the Message and MessageAttachment it names.
+// @spec BR-002 — externalEventId is LINE's id, never a primary key here.
+// @tested tests/integration/line-non-text-admission.test.js
+model ConversationEvent {
+  id              String   @id @default(uuid())
+  conversationId  String
+  kind            String // FOLLOW | UNFOLLOW | JOIN | LEAVE | MEMBER_JOINED | MEMBER_LEFT | POSTBACK | UNSEND
+  externalEventId String
+  payloadJson     String   @default("{}")
+  occurredAt      DateTime @default(now())
+  // @req FR-243 — the session open when the event occurred, or null (ADR-094 D2).
+  sessionId       String?
+  createdAt       DateTime @default(now())
+
+  conversation Conversation         @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  session      ConversationSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  // Same idempotency shape as Message's (conversationId, externalMessageId): a
+  // redelivered webhook event must never produce a second row.
+  @@unique([conversationId, externalEventId])
+  @@index([conversationId])
+  @@index([sessionId])
+}
+
+// @req FR-243 — one sitting of a conversation: messages that follow each other within
+//   the account's idle timeout (ADR-094 D1–D4, SDD-102). Owned by crm; the id of the
+//   business record's session. MSP's own chat session id is stored beside it when MSP
+//   thread memory is on, never in its place.
+// @spec ADR-094, SDD-102, BR-002
+model ConversationSession {
+  id                 String    @id @default(uuid())
+  code               String
+  tenantId           String
+  businessId         String?
+  conversationId     String
+  customerId         String
+  channelAccountId   String
+  openedAt           DateTime
+  lastMessageAt      DateTime
+  closedAt           DateTime?
+  idleTimeoutMinutes Int
+  inboundCount       Int       @default(0)
+  outboundCount      Int       @default(0)
+  mspSessionId       String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  conversation Conversation           @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  messages     Message[]
+  events       ConversationEvent[]
+  lineJobs     LineConversationJob[]
+
+  @@unique([tenantId, code])
+  @@index([conversationId, openedAt])
+  @@index([tenantId, businessId, openedAt])
+}
+
+// @req FR-230 — a Tenant may shorten (never lengthen) an installation-default
+// retention window (ADR-091 D2). One row per (tenant, data class); the
+// installation default in RETENTION_DEFAULT_WINDOW_DAYS is the ceiling — the
+// writer (retention-override-service.js) refuses a windowDays above it, and the
+// sweep (retention-sweep-service.js) applies a defensive min() against it too,
+// so a row that ever got past the writer some other way still cannot lengthen
+// anything. dataClass names one of RETENTION_DATA_CLASSES
+// (src/lib/validation/enums.js) — a class this codebase does not yet sweep
+// (RAW_LINE_PAYLOAD: integration's RawExternalRecord; AGENT_TRACE_EVENT: agent's
+// AgentTraceEvent; MSP_SESSION_CONTENT: a separate repository) may still declare
+// an override row here; only its sweeper, once one exists, would read it.
+// @spec BR-002, SEC-031
+// @tested tests/integration/crm-retention-override-service.test.js, tests/integration/crm-retention-sweep.test.js
+model TenantRetentionOverride {
+  id         String   @id @default(uuid())
+  tenantId   String
+  dataClass  String
+  windowDays Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  version    Int      @default(1)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, dataClass])
+  @@index([tenantId])
+}
+
+// @req FR-245 — one row per Customer whose messages have ever been archived: the
+// per-Customer data key the chat evidence archive seals their JSON-lines segment
+// under, wrapped (never stored in the clear) under this deployment's
+// `ZURI_ARCHIVE_KEK` (SEC-034, ADR-093 D4). Same shape as
+// `IntegrationSecretEnvelope`'s wrapped-DEK column, deliberately under a
+// separate KEK: `ZURI_ARCHIVE_KEK` is never `ZURI_SECRET_KEK`, so compromising
+// one secret store never opens the other. Lazily created the first time a
+// sweep archives that Customer's content — most Customers never get a row.
+//
+// A dedicated row per Customer (ADR-093 D6) rather than a key folded into every
+// archive file: a future PDPA-erasure writer destroys exactly one row (or, once
+// TASK-ZAI-113 lands, records a legal hold instead) to make every line that
+// Customer ever had archived — in this file and any other — permanently
+// unreadable, without touching a single archive file on disk.
+// @spec SEC-034, ADR-093 D4, D6
+// @tested tests/unit/crm-chat-evidence-archive-crypto.test.js, tests/integration/crm-chat-evidence-archive.test.js
+model CustomerArchiveKey {
+  id         String   @id @default(uuid())
+  tenantId   String
+  customerId String   @unique
+  kekId      String
+  wrappedDek String
+  createdAt  DateTime @default(now())
+
+  // No `@relation` to Tenant/Customer, deliberately — the same choice
+  // `IntegrationSecretEnvelope` already made (SEC-030's precedent): a plain
+  // scope column, not a Prisma-level foreign key.
+  //
+  // This table IS included in the backup snapshot (SNAPSHOT_MODELS,
+  // backup-service.js) — an earlier version of this comment excluded it,
+  // reasoning that a real FK here would make the snapshot restore's
+  // delete-then-reinsert of Tenant/Customer fail on a row nothing re-clears
+  // first. That reasoning does not actually apply: there is no `@relation`
+  // here, so there is no FK for the restore to violate either way, and
+  // `wrappedDek` is exportable ciphertext for the same reason
+  // `integrationCredentialVersion`/`mfaFactor` are — the key-encryption key
+  // that could open it (`ZURI_ARCHIVE_KEK`) is never part of any snapshot.
+  // Unlike a credential, a randomly generated archive key has no re-entry
+  // path, so excluding it would let a routine restore silently and
+  // permanently destroy access to retained dispute evidence.
+
+  @@index([tenantId])
+}
+
+// @req FR-245 — one row per archive file this sweep ever wrote, chained per
+// Tenant (ADR-093 D2, D4; SDD-103; SEC-034). A row is inserted only once its
+// file has been written, flushed, read back and its SHA-256 verified, in the
+// same transaction that tombstones exactly the messages it archived — so a row
+// here always names a real, intact file, never a failed or partial write.
+//
+// The chain: `previousManifestHash` copies the Tenant's prior manifest's own
+// `manifestHash`, and `manifestHash` is computed over this row's own fields
+// (including that copied value) once, at insert, and never recomputed. Verifying
+// the chain means recomputing every row's `manifestHash` from its stored fields
+// and comparing — a single tampered field, in this row or an earlier one,
+// breaks every hash after it. `previousManifestId` is kept alongside the hash
+// purely so the chain can be walked without scanning the whole table.
+// @spec SDD-103, SEC-034, ADR-093 D2, D4
+// @tested tests/unit/crm-chat-evidence-archive-crypto.test.js, tests/integration/crm-chat-evidence-archive.test.js
+model ArchiveManifest {
+  id                   String   @id @default(uuid())
+  tenantId             String
+  runId                String
+  filePath             String
+  fileSha256           String
+  messageCount         Int
+  messageIdListHash    String
+  previousManifestId   String?
+  previousManifestHash String?
+  manifestHash         String
+  createdAt            DateTime @default(now())
+
+  // No `@relation` to Tenant — same reasoning as `CustomerArchiveKey` above.
+  // This table is ALSO included in the backup snapshot (SNAPSHOT_MODELS),
+  // for a sharper reason than "it is recoverable": `chat-evidence-retrieval-
+  // service.js` finds archive files strictly by walking this table's rows
+  // per Tenant, so losing them makes every archived message undiscoverable
+  // even when the files themselves are intact on disk (or brought back by
+  // the ADR-093 D8 offline copy). The self-referential chain link stays a
+  // real FK: both ends are always this same table, so it participates in no
+  // cross-table restore ordering at all.
+  previousManifest ArchiveManifest?  @relation("ArchiveManifestChain", fields: [previousManifestId], references: [id])
+  nextManifests    ArchiveManifest[] @relation("ArchiveManifestChain")
+
+  @@unique([tenantId, runId])
+  @@index([tenantId, createdAt])
 }
 
 // @req FR-127 — each recomputable, advisory analysis run belongs to an internal
@@ -1667,6 +2249,22 @@ model ConversationAnalysis {
   @@index([state])
 }
 
+// @req FR-198 — an audit event carries its own scope and the change it made,
+// instead of that information living only inside `payloadJson` for the writers
+// that happened to put it there. Measured on production 2026-09-12: 12
+// `Membership` rows against 6 `MEMBERSHIP_ADDED` events, and `ROLE_BINDING_ASSIGNED`
+// 2 / `ROLE_BINDING_REVOKED` 1 against exactly 1 surviving `RoleBinding` row — one
+// binding disappeared with no event explaining it, because "what happened in
+// this Business" could not be queried, only scanned and JSON-parsed, and only
+// for the writers that happened to include scope.
+// @spec ADR-080 D1/D2, BR-036, SEC-003 — every new column is nullable and every
+// `recordAudit` parameter optional, so SEC-003's append-only stream and every
+// existing caller keep working unchanged; a rewrite of history would violate
+// SEC-003, and adding a column that is merely unpopulated on old rows does not.
+// No FK on tenantId/businessId — the same choice `AgentTraceEvent` already made
+// for the same reason: a hot, append-only journal should not carry a
+// referential-action decision.
+// @tested tests/unit/access-history-service.test.js, tests/integration/fr198-fr199-audit-access-evidence.test.js
 model AuditEvent {
   id          String   @id @default(uuid())
   entityType  String
@@ -1677,8 +2275,56 @@ model AuditEvent {
   actorId     String?
   occurredAt  DateTime @default(now())
 
+  // @req FR-198 — scope as queryable columns. Nullable: only the writers this
+  // change touches (identity's grant and lifecycle services) fill them; every
+  // other caller of `recordAudit` keeps writing rows with these null, which is
+  // what makes the migration additive rather than a retrofit.
+  tenantId   String?
+  businessId String?
+  // The reason a mutation happened, lifted out of `payloadJson` onto a column an
+  // access review can filter and group on directly.
+  reason     String?
+  // The state before and after the change, one JSON string each. Not a diff —
+  // a diff format is one more thing to keep in sync with whatever a writer
+  // decides "changed" means; the full before/after snapshot needs no such
+  // agreement and is trivially diffable by a reader that wants one.
+  beforeJson String?
+  afterJson  String?
+  // Correlation with the request and the session that made it, for a trace
+  // that starts at an audit row and needs to walk sideways to what else that
+  // request or that session did. Nothing writes these yet outside this
+  // change's own writers; declared now so a later caller has a column rather
+  // than a second migration.
+  requestId  String?
+  sessionId  String?
+
   @@index([entityType, entityId])
   @@index([occurredAt])
+  @@index([tenantId, occurredAt])
+  @@index([businessId, occurredAt])
+  @@index([actorId, occurredAt])
+}
+
+// @req FR-149, FR-171 — one scope-bound, append-only execution journal for Agent turns.
+// @spec ADR-061, ADR-070, SEC-001 — tenant/business are stored explicitly so trace reads
+// never infer isolation through an external conversation or provider identifier.
+// @tested tests/integration/execution-trace.test.js
+model AgentTraceEvent {
+  id             String   @id @default(uuid())
+  tenantId       String
+  businessId     String
+  turnId         String
+  executionId    String?
+  kind           String
+  idempotencyKey String
+  payloadJson    String
+  occurredAt     DateTime
+  createdAt      DateTime @default(now())
+  version        Int      @default(1)
+
+  @@unique([tenantId, businessId, idempotencyKey], map: "AgentTraceEvent_scope_idempotency_key")
+  @@index([tenantId, businessId, turnId, occurredAt])
+  @@index([tenantId, businessId, turnId, createdAt])
 }
 
 // @req FR-071 — server-owned full data-pipeline execution ledger.
@@ -1905,6 +2551,438 @@ model KnowledgeEvidenceCursor {
   @@index([tenantId])
 }
 
+// @req FR-109 — the approved GenesisRAG17 TEST entrypoint owns an immutable
+// raw -> parsed -> chunk lineage in Tier 1. These rows contain source text and
+// exact offsets only; GKS facts and GenesisBlockDB substrate payloads remain
+// outside zuri-ai (ADR-050 D3-D4).
+// @spec ADR-050, ADR-063, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/integration/genesisrag17-tier1.test.js
+model KnowledgeRawArtifact {
+  id                  String   @id
+  rawExternalRecordId String   @unique
+  sourceId            String
+  documentId          String
+  version             String
+  contentHash         String
+  content             String
+  sourceType          String
+  sourceUri           String?
+  contentType         String
+  pipelineVersion     String
+  schemaVersion       String
+  portfolioId         String
+  tenantId            String
+  businessId          String
+  workspaceId         String
+  agentId             String
+  visibility          String
+  receivedAt          DateTime
+  createdAt           DateTime @default(now())
+
+  rawExternalRecord RawExternalRecord         @relation(fields: [rawExternalRecordId], references: [id])
+  parsedArtifacts   KnowledgeParsedArtifact[]
+
+  @@unique([portfolioId, tenantId, businessId, workspaceId, agentId, visibility, sourceId, version, contentHash, pipelineVersion])
+  @@index([tenantId, documentId, version])
+  @@index([tenantId, contentHash])
+}
+
+// @req FR-109 — parsed artifacts retain their immutable link to the raw
+// artifact and the exact source content used to derive chunks.
+// @spec SDD-059, SDD-063, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/integration/genesisrag17-tier1.test.js
+model KnowledgeParsedArtifact {
+  id             String   @id
+  rawArtifactId  String
+  documentId     String
+  parserVersion  String
+  contentHash    String
+  content        String
+  structureJson  String   @default("[]")
+  textBlocksJson String   @default("[]")
+  tablesJson     String   @default("[]")
+  metadataJson   String   @default("{}")
+  portfolioId    String
+  tenantId       String
+  businessId     String
+  workspaceId    String
+  agentId        String
+  visibility     String
+  createdAt      DateTime @default(now())
+
+  rawArtifact KnowledgeRawArtifact @relation(fields: [rawArtifactId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  chunks      KnowledgeChunk[]
+
+  @@unique([rawArtifactId, parserVersion])
+  @@index([tenantId, documentId])
+  @@index([rawArtifactId])
+}
+
+// @req FR-109 — every persisted chunk is an exact substring of its parsed
+// source and is addressable by parsed artifact plus ordinal.
+// @spec SDD-059, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/integration/genesisrag17-tier1.test.js
+model KnowledgeChunk {
+  id               String   @id
+  parsedArtifactId String
+  documentId       String
+  ordinal          Int
+  text             String
+  contentHash      String
+  startOffset      Int
+  endOffset        Int
+  headingPathJson  String   @default("[]")
+  tokenCount       Int      @default(0)
+  portfolioId      String
+  tenantId         String
+  businessId       String
+  workspaceId      String
+  agentId          String
+  visibility       String
+  createdAt        DateTime @default(now())
+
+  parsedArtifact KnowledgeParsedArtifact @relation(fields: [parsedArtifactId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([parsedArtifactId, ordinal])
+  @@index([tenantId, documentId, ordinal])
+  @@index([parsedArtifactId])
+}
+
+// @req FR-109 — a source intent captures the exact scoped input and
+// derivation configuration before local Stage 1 starts, so a process-owned
+// worker can resume an interrupted Stage 1–8 pass without caller resubmission.
+// @spec ADR-073, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/unit/genesisrag17-lineage-repository.test.js
+model GenesisRag17IngestionIntent {
+  id              String   @id
+  intentKey       String   @unique
+  runId           String
+  executionRunId  String   @unique
+  scopeJson       String
+  requestJson     String
+  derivationJson  String
+  rawArtifactId   String
+  sourceId        String
+  documentId      String
+  version         String
+  contentHash     String
+  portfolioId     String
+  tenantId        String
+  businessId      String
+  workspaceId     String
+  agentId         String
+  visibility      String
+  status          String   @default("PENDING")
+  nextStageNumber Int      @default(1)
+  lastErrorJson   String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([tenantId, status])
+  @@index([executionRunId, status])
+}
+
+// @req FR-109 — every Stage 8 occurrence is durable, typed and bound to its
+// exact source attempt and derivation provenance before local success evidence.
+// @spec ADR-073, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/unit/genesisrag17-lineage-repository.test.js
+model GenesisRag17SourceMention {
+  id                   String   @id
+  sourceMentionId      String
+  runId                String
+  executionRunId       String
+  attemptId            String
+  sourceId             String
+  documentId           String
+  version              String
+  rawArtifactId        String
+  parsedArtifactId     String
+  chunkId              String
+  resolutionKey        String
+  semanticType         String
+  name                 String
+  startOffset          Int
+  endOffset            Int
+  recognizerVersion    String
+  recognizerProvenance String
+  derivationHash       String
+  contentHash          String
+  portfolioId          String
+  tenantId             String
+  businessId           String
+  workspaceId          String
+  agentId              String
+  visibility           String
+  createdAt            DateTime @default(now())
+
+  @@unique([executionRunId, attemptId, sourceMentionId])
+  @@index([tenantId, parsedArtifactId])
+  @@index([executionRunId, attemptId])
+}
+
+// @req FR-109 — one immutable outbound batch is bound to one materialized
+// Stage 9 attempt and can be safely retried after a lost MSP reply.
+// @spec ADR-050 D3-D4, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/integration/genesisrag17-tier1.test.js
+model GenesisRag17Batch {
+  id              String   @id
+  batchId         String   @unique
+  idempotencyKey  String   @unique
+  runId           String
+  executionRunId  String
+  stage9StepId    String
+  stage9AttemptId String
+  scopeJson       String
+  requestJson     String
+  status          String   @default("PENDING")
+  decisionId      String?
+  responseJson    String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([executionRunId, stage9AttemptId])
+  @@index([runId, status])
+}
+
+// @req FR-109 — all six frozen per-stage metrics and terminal evidence are
+// durable before the evidence cursor advances.
+// @spec NFR-020, ADR-068, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/integration/genesisrag17-tier1.test.js
+model GenesisRag17StageEvidence {
+  id                 String   @id
+  cursor             Int?
+  runId              String
+  executionRunId     String
+  pipelineStageId    String
+  executionStepId    String
+  attemptId          String
+  stageNumber        Int
+  outcome            String
+  startedAt          DateTime
+  finishedAt         DateTime
+  recordsIn          Int
+  recordsOut         Int
+  recordsQuarantined Int
+  errorCount         Int
+  retryCount         Int
+  durationMs         Float
+  detailsJson        String   @default("{}")
+  rowHash            String
+  createdAt          DateTime @default(now())
+
+  @@unique([executionRunId, pipelineStageId, executionStepId, attemptId])
+  @@index([runId, stageNumber])
+  @@index([executionRunId, cursor])
+}
+
+// @req FR-110 — the close path can prove the exact publication receipt that
+// belongs to a Stage 17 decision before marking a run complete.
+// @spec FR-110, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/integration/genesisrag17-tier1.test.js
+model GenesisRag17PublicationReceipt {
+  id                  String   @id
+  runId               String
+  executionRunId      String
+  scopeJson           String
+  decisionId          String
+  decisionHash        String
+  snapshotId          String
+  generation          String
+  receiptHash         String
+  publishedAt         DateTime
+  pointerHash         String
+  modelRevision       String
+  transactionFrontier String
+  readbackJson        String
+  receiptJson         String
+  createdAt           DateTime @default(now())
+
+  @@unique([executionRunId, decisionId, decisionHash, snapshotId, generation, receiptHash])
+  @@index([runId, snapshotId, generation])
+}
+
+// @req FR-110 — cursor ownership is scoped by all six frozen GenesisRAG17
+// scope fields and only advances after durable local evidence writes.
+// @spec ADR-068, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/integration/genesisrag17-tier1.test.js
+model GenesisRag17EvidenceCursor {
+  id           String    @id
+  runId        String
+  portfolioId  String
+  tenantId     String
+  businessId   String
+  workspaceId  String
+  agentId      String
+  visibility   String
+  cursor       Int       @default(0)
+  lastPulledAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([runId, portfolioId, tenantId, businessId, workspaceId, agentId, visibility])
+  @@index([tenantId])
+}
+
+// @req FR-173 — authorized source admission and immutable corpus snapshot read sets.
+// @spec ADR-072, SEC-001, SEC-008
+// @tested tests/integration/knowledge-admission.integration.test.js, tests/integration/knowledge-corpus.test.js
+model KnowledgeCorpus {
+  id          String    @id @default(uuid())
+  corpusKey   String    @unique
+  portfolioId String
+  tenantId    String
+  businessId  String
+  projectId   String?
+  workspaceId String    @default("")
+  scopeJson   String
+  policyJson  String
+  status      String    @default("ACTIVE")
+  generation  Int       @default(0)
+  version     Int       @default(1)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  sources     KnowledgeSource[]
+  ingestions  KnowledgeIngestion[]
+  generations KnowledgeCorpusGeneration[]
+
+  @@index([tenantId, businessId, projectId])
+}
+
+model KnowledgeSource {
+  id                String    @id @default(uuid())
+  corpusId          String
+  sourceKey         String
+  kind              String
+  title             String
+  fileAssetId       String?
+  desiredRevision   Int       @default(0)
+  activeIngestionId String?
+  version           Int       @default(1)
+  revokedAt         DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  deletedAt         DateTime?
+
+  corpus     KnowledgeCorpus      @relation(fields: [corpusId], references: [id], onDelete: Restrict)
+  ingestions KnowledgeIngestion[]
+
+  @@unique([corpusId, sourceKey])
+  @@index([fileAssetId])
+}
+
+model KnowledgeIngestion {
+  id                 String    @id @default(uuid())
+  corpusId           String
+  sourceId           String
+  revision           Int
+  sourceVersion      String
+  contentHash        String
+  content            String
+  sourceMetaJson     String    @default("{}")
+  idempotencyKey     String    @unique
+  requestHash        String
+  submittedById      String?
+  status             String    @default("QUEUED")
+  executionRunId     String?   @unique
+  rawArtifactId      String?
+  parsedArtifactId   String?
+  snapshotId         String?
+  snapshotGeneration String?
+  receiptHash        String?
+  claimToken         String?
+  leaseExpiresAt     DateTime?
+  attempts           Int       @default(0)
+  failureCode        String?
+  version            Int       @default(1)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  corpus KnowledgeCorpus @relation(fields: [corpusId], references: [id], onDelete: Restrict)
+  source KnowledgeSource @relation(fields: [sourceId], references: [id], onDelete: Restrict)
+
+  @@unique([sourceId, sourceVersion])
+  @@index([status, leaseExpiresAt, createdAt])
+  @@index([corpusId, createdAt])
+}
+
+model KnowledgeCorpusGeneration {
+  id           String   @id @default(uuid())
+  corpusId     String
+  number       Int
+  manifestJson String
+  manifestHash String
+  createdAt    DateTime @default(now())
+
+  corpus KnowledgeCorpus @relation(fields: [corpusId], references: [id], onDelete: Restrict)
+
+  @@unique([corpusId, number])
+}
+
+// @req FR-236 — a LINE FAQ knowledge candidate: a canonical question/answer
+//   drawn from one consent-GRANTED Conversation, reviewed and decided by a
+//   Business OWNER or LINE_OA_PUBLISHER, admitted through the ADR-072
+//   admission service (knowledge-admission-service.js) as one immutable
+//   LINE_FAQ_CANDIDATE TEXT source on APPROVED — never a second write path
+//   into the corpus.
+// @spec ADR-090 D6, D8; SEC-032; FR-187 (Zero-PII deny policy, reused)
+// @tested tests/unit/knowledge-candidate-service.test.js, tests/integration/fr236-knowledge-candidate.test.js
+model KnowledgeCandidate {
+  id     String @id @default(uuid())
+  // @spec BR-002 — the Business is the write scope; tenantId is carried for
+  //   the same reason every other CRM-adjacent model carries it (query
+  //   locality), never as a second source of truth for scope.
+  tenantId   String
+  businessId String
+  // @req FR-236/ADR-090 D8 — the ONLY fields that name a source conversation.
+  //   `conversationId` is the internal Conversation.id (never the LINE
+  //   externalThreadId / user id); `sourceRefJson` repeats it alongside
+  //   internal `Message.id`s only. FR-232's erasure fan-out tombstones a
+  //   candidate by walking exactly these two fields — nothing else on this
+  //   row may ever come to name a conversation.
+  conversationId String?
+  sourceRefJson  String
+  // PENDING_REVIEW | APPROVED | REJECTED | TOMBSTONED (docs/domains/knowledge/CHARTER.md)
+  status String @default("PENDING_REVIEW")
+  // Canonical, locator-only prose: product locators, policy names, amounts —
+  // no names, no LINE ids, no quoted customer wording (Zero-PII, enforced at
+  // create/edit/decide by knowledge-candidate-zero-pii.js).
+  question    String
+  answer      String
+  contentHash String
+  // Consent snapshot at draft time (must have been GRANTED) — evidence for
+  // ADR-090 proof 7, not re-derived from the live Customer row after the fact.
+  consentStatusAtDraft String
+  // Namespaced per Business, mirroring knowledge-admission-service's own
+  // idempotency contract: the same key with the same content is a no-op
+  // replay; a changed key is a new draft.
+  idempotencyKey    String
+  requestHash       String
+  createdByPersonId String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  decidedByPersonId String?
+  decidedAt         DateTime?
+  decisionReason    String?
+  // Set only on APPROVED, once admission succeeds — the KnowledgeSource/
+  // KnowledgeIngestion this candidate became, through the existing service.
+  admittedSourceId    String?
+  admittedIngestionId String?
+  // FR-232 erasure marks this without deleting the row (GKS cannot delete —
+  // ADR-072 D11); a tombstoned candidate is refused for decision or admission.
+  tombstonedAt DateTime?
+  version      Int       @default(1)
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business     Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  conversation Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+
+  @@unique([businessId, idempotencyKey])
+  @@index([businessId, status])
+  @@index([conversationId])
+}
+
 // @req FR-079 — provider-neutral Business-scoped runtime connection metadata.
 // @spec ADR-031 §D2/D3, SDD-043, SEC-015 — opaque secret references only;
 // the production partial active-primary invariant is an additive Postgres DDL gate.
@@ -1956,20 +3034,117 @@ model IntegrationConnection {
   @@index([tenantId, businessId, purpose, status, role])
 }
 
+// @req FR-223 — lifecycle metadata of one connection's credential. `secretRef` is the
+//   version the runtime resolves; a rotation's pending version lives only in
+//   IntegrationCredentialVersion until it validates. Never material (SEC-030).
+// @spec ADR-089 D1, D2, D5; SDD-097
+// @tested tests/unit/integration/credential-vault-schema-contract.test.js
 model IntegrationCredential {
   id                    String    @id @default(uuid())
   connectionId          String    @unique
   secretRef             String
+  // DEPLOYMENT_MOUNT | SUPABASE_VAULT | ENVELOPE — the store `secretRef` names (SDD-097)
+  secretStore           String    @default("DEPLOYMENT_MOUNT")
+  // LINE_CHANNEL | OAUTH_CLIENT | API_KEY | MODEL_PROVIDER_KEY — selects the bundle schema
+  secretKind            String    @default("LINE_CHANNEL")
+  // PENDING_VALIDATION | ACTIVE | ROTATING | EXPIRED | REVOKED | REENTRY_REQUIRED
   status                String    @default("ACTIVE")
+  // last four characters of the non-secret identifier (Channel ID); never of a secret
+  displayHint           String?
   expiresAt             DateTime?
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
+  lastValidatedAt       DateTime?
+  lastValidationCode    String?
   rotatedAt             DateTime?
+  revokedAt             DateTime?
+  revokeReason          String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   version               Int       @default(1)
 
-  connection IntegrationConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  connection IntegrationConnection          @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  versions   IntegrationCredentialVersion[]
+}
+
+// @req FR-223 — append-only version history: every write is a new version, so a
+//   rotation, rejection, revocation and purge is auditable per version. `secretRef`
+//   stays after purge as a pointer to material that no longer exists.
+// @spec ADR-089 D5; SEC-030
+// @tested tests/unit/integration/credential-vault-schema-contract.test.js
+model IntegrationCredentialVersion {
+  id            String    @id @default(uuid())
+  credentialId  String
+  tenantId      String
+  businessId    String?
+  versionNumber Int
+  secretRef     String
+  secretStore   String
+  // PENDING_VALIDATION | ACTIVE | SUPERSEDED | REJECTED | REVOKED | PURGED
+  status        String
+  displayHint   String?
+  createdById   String?
+  // BROWSER_MFA | OPERATOR_CLI | BACKFILL
+  createdVia    String
+  createdAt     DateTime  @default(now())
+  activatedAt   DateTime?
+  supersededAt  DateTime?
+  revokedAt     DateTime?
+  purgedAt      DateTime?
+  reason        String?
+
+  credential IntegrationCredential @relation(fields: [credentialId], references: [id], onDelete: Cascade)
+
+  @@unique([credentialId, versionNumber])
+  @@index([tenantId, businessId, status])
+  @@index([secretRef])
+}
+
+// @req FR-223 — the envelope store's ciphertext (ZURI_SECRET_STORE=envelope): a
+//   bundle sealed with AES-256-GCM under a per-secret data key, the data key wrapped
+//   by the deployment's key-encryption key, bound by AAD to Tenant, Business,
+//   connection and version. Purge deletes the row. Excluded from backup export.
+// @spec ADR-089 D1; SDD-097; SEC-030
+// @tested tests/unit/integration/envelope-secret-store.test.js
+model IntegrationSecretEnvelope {
+  id           String    @id @default(uuid())
+  tenantId     String
+  businessId   String?
+  connectionId String
+  kekId        String
+  wrappedDek   String
+  iv           String
+  tag          String
+  ciphertext   String
+  aadVersion   Int
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([tenantId, businessId, connectionId])
+}
+
+// @req FR-226 — one external bot bound to at most one live connection across the
+//   whole installation, keyed by the SHA-256 of its destination (never the raw id,
+//   BR-002), taken before any secret is stored.
+// @spec ADR-089 D6
+// @tested tests/integration/channel-account-claim.test.js
+//
+// Postgres holds the pair unique only among live claims (a partial unique index on
+// releasedAt IS NULL, migration 20260914140100); SQLite dev/test keeps the plain
+// unique below, so a claim is released by deleting its row — the one release
+// Phase 1 performs is compensation for a connection that never came to exist.
+model ChannelAccountClaim {
+  id                  String    @id @default(uuid())
+  provider            String
+  externalAccountHash String
+  tenantId            String
+  businessId          String
+  connectionId        String    @unique
+  claimedAt           DateTime  @default(now())
+  releasedAt          DateTime?
+
+  @@unique([provider, externalAccountHash])
+  @@index([tenantId, businessId])
 }
 
 model IngestionRun {
@@ -2036,11 +3211,12 @@ model RawExternalRecord {
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
 
-  tenant       Tenant                @relation(fields: [tenantId], references: [id])
-  business     Business?             @relation(fields: [businessId], references: [id])
-  connection   IntegrationConnection @relation(fields: [connectionId], references: [id])
-  ingestionRun IngestionRun?         @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
-  deadLetters  DeadLetterRecord[]
+  tenant               Tenant                @relation(fields: [tenantId], references: [id])
+  business             Business?             @relation(fields: [businessId], references: [id])
+  connection           IntegrationConnection @relation(fields: [connectionId], references: [id])
+  ingestionRun         IngestionRun?         @relation(fields: [ingestionRunId], references: [id], onDelete: SetNull)
+  deadLetters          DeadLetterRecord[]
+  knowledgeRawArtifact KnowledgeRawArtifact?
 
   @@index([tenantId, entityType])
   @@index([businessId])
@@ -2329,31 +3505,50 @@ model AssetExtractionJob {
 // carries tenantId and businessId.
 // @tested tests/unit/line-oa-account-schema-contract.test.js, tests/integration/fr146-line-oa-account.test.js
 model LineOaAccount {
-  id                      String    @id @default(uuid())
+  id                      String                @id @default(uuid())
   code                    String
   tenantId                String
   businessId              String
-  integrationConnectionId String    @unique
+  integrationConnectionId String                @unique
   bindingCode             String?
   displayName             String
   basicId                 String?
-  status                  String    @default("DRAFT")
-  transportMode           String    @default("CLOUD")
+  status                  String                @default("DRAFT")
+  transportMode           String                @default("CLOUD")
   // @req FR-149, FR-150 — transport ownership and compute placement are independent.
-  serverEnabled           Boolean   @default(false)
-  executionMode           String    @default("SERVER")
-  modelAccess             String    @default("LOCAL_ONLY")
-  allowDelayedPush         Boolean   @default(false)
-  transportEpoch          Int       @default(1)
+  serverEnabled           Boolean               @default(false)
+  executionMode           String                @default("SERVER")
+  modelAccess             String                @default("LOCAL_ONLY")
+  // @req FR-235 — publisher-set grounding mode (ADR-090 D1): BUSINESS_KNOWLEDGE
+  // (default, every existing account, unchanged behaviour) | GKS_CORPUS |
+  // GKS_THEN_BUSINESS_KNOWLEDGE. Additive, opt-in; nothing reads a corpus until
+  // a publisher switches it.
+  knowledgeGrounding      String                @default("BUSINESS_KNOWLEDGE")
+  allowDelayedPush        Boolean               @default(false)
+  transportEpoch          Int                   @default(1)
+  // @req FR-227 — computed webhook health only LINE can report: {endpoint, active,
+  // lastTestAt, lastTestReason, lastTestStatusCode}. Written only by the
+  // REGISTER_WEBHOOK action; null until a publisher runs it at least once.
+  webhookStateJson        String?
   conversationJobs        LineConversationJob[]
   richMenuJobs            LineOaRichMenuJob[]
   liffApps                LineOaLiffApp[]
-  isDefaultForBusiness    Boolean   @default(false)
-  botProfileJson          String    @default("{}")
+  isDefaultForBusiness    Boolean               @default(false)
+  botProfileJson          String                @default("{}")
+  // @req FR-243 — minutes of silence after which the next message opens a new
+  //   conversation session; 10 to 120, 30 by default (ADR-094 D3).
+  sessionIdleTimeoutMinutes Int                 @default(30)
+  // @req FR-244 — declared business hours in Asia/Bangkok, "HH:MM" 24h, and the
+  //   fixed reply sent outside them (ADR-094 D6 option A). All three null together
+  //   is "no declared hours" — today's behaviour, the model never sheds for this
+  //   account. Declaring hours sets all three together; clearing unsets all three.
+  businessHoursOpen       String?
+  businessHoursClose      String?
+  outOfHoursReplyText     String?
   archivedAt              DateTime?
-  createdAt               DateTime  @default(now())
-  updatedAt               DateTime  @updatedAt
-  version                 Int       @default(1)
+  createdAt               DateTime              @default(now())
+  updatedAt               DateTime              @updatedAt
+  version                 Int                   @default(1)
 
   tenant     Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business   Business              @relation(fields: [businessId], references: [id], onDelete: Cascade)
@@ -2420,8 +3615,8 @@ model LineOaRichMenuVersion {
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
-  richMenu LineOaRichMenu @relation(fields: [richMenuId], references: [id], onDelete: Cascade)
-  image    FileAsset?     @relation(fields: [imageFileAssetId], references: [id], onDelete: SetNull)
+  richMenu LineOaRichMenu      @relation(fields: [richMenuId], references: [id], onDelete: Cascade)
+  image    FileAsset?          @relation(fields: [imageFileAssetId], references: [id], onDelete: SetNull)
   jobs     LineOaRichMenuJob[]
 
   @@unique([richMenuId, versionNumber])
@@ -2491,8 +3686,8 @@ model LineOaRichMenuJob {
   updatedAt          DateTime  @updatedAt
   version            Int       @default(1)
 
-  account  LineOaAccount         @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  richMenu LineOaRichMenu        @relation(fields: [richMenuId], references: [id], onDelete: Cascade)
+  account     LineOaAccount         @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  richMenu    LineOaRichMenu        @relation(fields: [richMenuId], references: [id], onDelete: Cascade)
   menuVersion LineOaRichMenuVersion @relation(fields: [richMenuVersionId], references: [id], onDelete: Cascade)
 
   @@index([status, availableAt])
@@ -2504,45 +3699,59 @@ model LineOaRichMenuJob {
 // @spec ADR-061, SEC-001 — internal identities, scoped account, cascaded with CRM erasure.
 // @tested tests/integration/server-line-jobs.test.js
 model LineConversationJob {
-  id                 String   @id @default(uuid())
-  accountId          String
-  inboundMessageId   String   @unique
-  eventId            String
-  tenantId           String
-  businessId         String
-  channelAccountId   String
-  transportEpoch     Int
-  executionMode      String
-  modelAccess        String
-  allowDelayedPush   Boolean  @default(false)
-  recipientId        String
-  sourceUserId       String
-  sealedReplyToken   String?
-  replyExpiresAt     DateTime?
-  status             String   @default("QUEUED")
-  answerText         String?
-  sendMethod         String?
-  retryKey           String   @unique @default(uuid())
-  attempts           Int      @default(0)
-  availableAt        DateTime @default(now())
-  expiresAt          DateTime
-  firstSendAt        DateTime?
-  claimantId         String?
-  leaseExpiresAt     DateTime?
-  providerRequestId  String?
-  providerMessageId  String?
-  acceptedAt         DateTime?
-  errorCode          String?
-  correlationId      String
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  version            Int      @default(1)
+  id                          String    @id @default(uuid())
+  accountId                   String
+  inboundMessageId            String    @unique
+  eventId                     String
+  tenantId                    String
+  businessId                  String
+  executionId                 String?
+  channelAccountId            String
+  transportEpoch              Int
+  executionMode               String
+  modelAccess                 String
+  audienceKind                String    @default("DIRECT")
+  allowDelayedPush            Boolean   @default(false)
+  recipientId                 String
+  sourceUserId                String
+  sealedReplyToken            String?
+  replyExpiresAt              DateTime?
+  status                      String    @default("QUEUED")
+  answerText                  String?
+  sendMethod                  String?
+  retryKey                    String    @unique @default(uuid())
+  attempts                    Int       @default(0)
+  availableAt                 DateTime  @default(now())
+  expiresAt                   DateTime
+  firstSendAt                 DateTime?
+  claimantId                  String?
+  leaseExpiresAt              DateTime?
+  providerRequestId           String?
+  providerMessageId           String?
+  acceptedAt                  DateTime?
+  errorCode                   String?
+  memorySyncOptIn             Boolean   @default(false)
+  memoryDeliveryState         String    @default("NONE")
+  memoryDeliveryAttempts      Int       @default(0)
+  memoryDeliveryNextAttemptAt DateTime?
+  memoryDeliveryLeaseUntil    DateTime?
+  // @req FR-243 — the conversation session of the inbound message this job answers,
+  //   copied at admission so the job list and trace can be filtered by session (ADR-094 D4).
+  sessionId                   String?
+  correlationId               String
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @updatedAt
+  version                     Int       @default(1)
 
-  account LineOaAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  inbound Message @relation(fields: [inboundMessageId], references: [id], onDelete: Cascade)
+  account LineOaAccount        @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  inbound Message              @relation(fields: [inboundMessageId], references: [id], onDelete: Cascade)
+  session ConversationSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
   @@unique([accountId, eventId])
   @@index([status, executionMode, availableAt])
   @@index([tenantId, businessId, status])
+  @@index([memoryDeliveryState, memoryDeliveryNextAttemptAt, createdAt])
+  @@index([sessionId])
 }
 
 // @req FR-159 — Business-scoped strategy identity and immutable evidence.
@@ -2562,12 +3771,12 @@ model MarketingPlan {
   updatedAt       DateTime  @updatedAt
   deletedAt       DateTime?
 
-  tenant    Tenant                 @relation(fields: [tenantId], references: [id])
-  business  Business               @relation(fields: [businessId], references: [id])
-  revisions MarketingPlanVersion[]
-  reviews   MarketingReview[]
-  decisions MarketingDecision[]
-  handoffs  MarketingHandoff[]
+  tenant     Tenant                 @relation(fields: [tenantId], references: [id])
+  business   Business               @relation(fields: [businessId], references: [id])
+  revisions  MarketingPlanVersion[]
+  reviews    MarketingReview[]
+  decisions  MarketingDecision[]
+  handoffs   MarketingHandoff[]
   initiative MarketingInitiative?
 
   @@unique([businessId, code])
@@ -2687,78 +3896,82 @@ model MarketingInitiative {
 // @spec SDD-088, SEC-001
 // @tested tests/integration/marketing-content.test.js
 model MarketingContentBrief {
-  id String @id @default(uuid())
-  tenantId String
-  businessId String
-  code String
-  title String
-  status String @default("OPEN")
-  currentRevision Int @default(1)
-  version Int @default(1)
-  createdBy String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  deletedAt DateTime?
-  tenant Tenant @relation(fields: [tenantId], references: [id])
-  business Business @relation(fields: [businessId], references: [id])
-  revisions MarketingContentVersion[]
-  reviews MarketingContentReview[]
-  decisions MarketingContentDecision[]
+  id              String                     @id @default(uuid())
+  tenantId        String
+  businessId      String
+  code            String
+  title           String
+  status          String                     @default("OPEN")
+  currentRevision Int                        @default(1)
+  version         Int                        @default(1)
+  createdBy       String
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+  deletedAt       DateTime?
+  tenant          Tenant                     @relation(fields: [tenantId], references: [id])
+  business        Business                   @relation(fields: [businessId], references: [id])
+  revisions       MarketingContentVersion[]
+  reviews         MarketingContentReview[]
+  decisions       MarketingContentDecision[]
+
   @@unique([businessId, code])
   @@index([tenantId, businessId, status])
 }
 
 // @req FR-157 — creative intent and exact owner references are immutable.
 model MarketingContentVersion {
-  id String @id @default(uuid())
-  briefId String
-  revision Int
+  id          String                     @id @default(uuid())
+  briefId     String
+  revision    Int
   payloadJson String
   payloadHash String
-  createdBy String
-  createdAt DateTime @default(now())
-  brief MarketingContentBrief @relation(fields: [briefId], references: [id])
-  reviews MarketingContentReview[]
-  decisions MarketingContentDecision[]
+  createdBy   String
+  createdAt   DateTime                   @default(now())
+  brief       MarketingContentBrief      @relation(fields: [briefId], references: [id])
+  reviews     MarketingContentReview[]
+  decisions   MarketingContentDecision[]
+
   @@unique([briefId, revision])
 }
 
 // @req FR-157 — independent review binds exact content and rights findings.
 model MarketingContentReview {
-  id String @id @default(uuid())
-  briefId String
+  id               String                     @id @default(uuid())
+  briefId          String
   contentVersionId String
-  payloadHash String
-  sequence Int
-  verdict String
-  rationale String
-  rightsConfirmed Boolean @default(false)
-  brandConfirmed Boolean @default(false)
-  reviewerId String
-  createdAt DateTime @default(now())
-  brief MarketingContentBrief @relation(fields: [briefId], references: [id])
-  contentVersion MarketingContentVersion @relation(fields: [contentVersionId], references: [id])
-  decisions MarketingContentDecision[]
+  payloadHash      String
+  sequence         Int
+  verdict          String
+  rationale        String
+  rightsConfirmed  Boolean                    @default(false)
+  brandConfirmed   Boolean                    @default(false)
+  reviewerId       String
+  createdAt        DateTime                   @default(now())
+  brief            MarketingContentBrief      @relation(fields: [briefId], references: [id])
+  contentVersion   MarketingContentVersion    @relation(fields: [contentVersionId], references: [id])
+  decisions        MarketingContentDecision[]
+
   @@unique([briefId, sequence])
   @@index([briefId, createdAt])
 }
 
 // @req FR-157 — decisions and revocations preserve exact acceptance history.
 model MarketingContentDecision {
-  id String @id @default(uuid())
-  briefId String
+  id               String                  @id @default(uuid())
+  briefId          String
   contentVersionId String
-  payloadHash String
-  sequence Int
-  reviewId String?
-  verdict String
-  rationale String
-  actorId String
-  expiresAt DateTime?
-  createdAt DateTime @default(now())
-  brief MarketingContentBrief @relation(fields: [briefId], references: [id])
-  contentVersion MarketingContentVersion @relation(fields: [contentVersionId], references: [id])
-  review MarketingContentReview? @relation(fields: [reviewId], references: [id])
+  payloadHash      String
+  sequence         Int
+  reviewId         String?
+  verdict          String
+  rationale        String
+  actorId          String
+  expiresAt        DateTime?
+  createdAt        DateTime                @default(now())
+  brief            MarketingContentBrief   @relation(fields: [briefId], references: [id])
+  contentVersion   MarketingContentVersion @relation(fields: [contentVersionId], references: [id])
+  review           MarketingContentReview? @relation(fields: [reviewId], references: [id])
+
   @@unique([briefId, sequence])
   @@index([briefId, createdAt])
 }
@@ -2768,21 +3981,21 @@ model MarketingContentDecision {
 // @spec SDD-089, SEC-001, SEC-003
 // @tested tests/integration/marketing-operations.test.js
 model MarketingOperationsIntake {
-  id                  String   @id @default(uuid())
-  tenantId            String
-  businessId          String
-  title               String
-  capability          String
-  objective           String
-  requiredAt          DateTime?
-  evidenceReference   String?
-  responsibleOwnerId  String?
-  status              String   @default("NEW")
-  version             Int      @default(1)
-  createdBy           String
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-  deletedAt           DateTime?
+  id                 String    @id @default(uuid())
+  tenantId           String
+  businessId         String
+  title              String
+  capability         String
+  objective          String
+  requiredAt         DateTime?
+  evidenceReference  String?
+  responsibleOwnerId String?
+  status             String    @default("NEW")
+  version            Int       @default(1)
+  createdBy          String
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+  deletedAt          DateTime?
 
   tenant   Tenant   @relation(fields: [tenantId], references: [id])
   business Business @relation(fields: [businessId], references: [id])
@@ -2790,6 +4003,51 @@ model MarketingOperationsIntake {
   @@index([tenantId, businessId, status])
   @@index([businessId, requiredAt])
 }
+
+// @req FR-185 — Business-scoped LINE broadcast planning identity and its
+// append-only revisions; no provider send or audience payload is stored here.
+// @spec FR-157, FR-159, FR-160, FR-103, SEC-001, SEC-003
+// @tested tests/integration/marketing-broadcast-intent.test.js
+model MarketingBroadcastIntent {
+  id              String    @id @default(uuid())
+  tenantId        String
+  businessId      String
+  code            String
+  status          String    @default("PLANNING")
+  currentRevision Int       @default(1)
+  version         Int       @default(1)
+  idempotencyKey  String
+  createdBy       String
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  tenant    Tenant                            @relation(fields: [tenantId], references: [id])
+  business  Business                          @relation(fields: [businessId], references: [id])
+  revisions MarketingBroadcastIntentVersion[]
+
+  @@unique([businessId, idempotencyKey])
+  @@unique([businessId, code])
+  @@index([tenantId, businessId, status])
+}
+
+// @req FR-185 — broadcast planning payloads are immutable and hash-bound.
+// @spec SEC-001, SEC-003
+// @tested tests/integration/marketing-broadcast-intent.test.js
+model MarketingBroadcastIntentVersion {
+  id          String   @id @default(uuid())
+  intentId    String
+  revision    Int
+  payloadJson String
+  payloadHash String
+  createdBy   String
+  createdAt   DateTime @default(now())
+
+  intent MarketingBroadcastIntent @relation(fields: [intentId], references: [id], onDelete: Cascade)
+
+  @@unique([intentId, revision])
+}
+
 // ── Inventory (คลังสินค้า) — FR-154 catalogue identity, FR-155 stock ledger ──
 // @req FR-154 — catalogue identity: category → family → master → product (SKU),
 //   the factory that makes it and the bundle that packs several SKUs. Every row
@@ -2886,6 +4144,19 @@ model ProductMaster {
   updatedAt  DateTime @updatedAt
   version    Int      @default(1)
 
+  // @req FR-201 — the nature is declared here, once, and every SKU inherits
+  //   it: GOOD (its SKUs are TRACKED or UNTRACKED, defaulting to
+  //   `defaultStockPolicy`) or SERVICE (its SKUs are SERVICE). Fixed at
+  //   creation. A service is never a variant of a good (BR-038).
+  // @req FR-202 — `variantAxesJson` is the ordered list of axes that
+  //   distinguish this master's SKUs (`["color","size"]`); a SKU's values on
+  //   them form its `variantKey`, unique per master. Empty means "no variant
+  //   identity declared" — every master created before ADR-083.
+  // @spec ADR-083 D1, D2
+  nature             String @default("GOOD")
+  defaultStockPolicy String @default("TRACKED")
+  variantAxesJson    String @default("[]")
+
   tenant   Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
   category InventoryCategory @relation(fields: [categoryId], references: [id])
@@ -2918,37 +4189,203 @@ model Product {
   updatedAt       DateTime  @updatedAt
   version         Int       @default(1)
 
-  tenant        Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  business      Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  productMaster ProductMaster       @relation(fields: [productMasterId], references: [id])
-  lots          ProductLot[]
-  serialUnits   SerialUnit[]
-  bundleItems   ProductBundleItem[]
-  movements     StockMovement[]
-  recipes       ProductRecipe[]
-  recipeLines   ProductRecipeLine[]
-  salesOrderLines SalesOrderLine[]
-  purchaseOrderLines PurchaseOrderLine[]
+  // @req FR-176 — the role a SKU plays in a kit, distinct from its nature
+  //   (`stockPolicy`, FR-168) and from how its units are identified
+  //   (`trackingMode`): RAW_COMPONENT, PACKAGING_MATERIAL, CUSTOM_COMPONENT or
+  //   FINISHED_SET. `CUSTOM_COMPONENT` is what makes a branded unit refusable
+  //   — the two `dedicated*` columns name the only customer and the only sales
+  //   order it may ever be issued for, and nothing but an explicit ADJUSTMENT
+  //   write-off releases it (BR-028). Both are null for every other kind.
+  // @spec ADR-074 D4
+  itemKind              String  @default("RAW_COMPONENT")
+  dedicatedCustomerId   String?
+  dedicatedSalesOrderId String?
+
+  // @req FR-177 — the accounting system's item code for a tradeable finished
+  //   set: `[MODEL]-[COUNT]([PACKAGE])`, e.g. TMS06-4(P-16). It cannot be
+  //   `code`, whose FR-154 pattern has no parentheses, and it is deliberately
+  //   NOT an `ExternalRef` row either: that table is unique on (system, value)
+  //   across the whole installation, so two Tenants could not both sell a set
+  //   the same Chinese factory model names — which is a normal thing for two
+  //   Tenants to do. An attribute, unique per Tenant, never a key (BR-002).
+  // @spec ADR-074 D5, BR-032
+  flowAccountSku String?
+
+  // @req FR-179 — storage ageing: a lot is *due* for maintenance at
+  //   `maintenanceIntervalDays` and *refused* past `maxStorageDays`, both
+  //   measured from `ProductLot.lastMaintainedAt ?? manufacturedAt`. Null on
+  //   both (the default) means the product does not age in storage and nothing
+  //   about it changes.
+  // @spec ADR-074 D7, BR-030
+  maintenanceIntervalDays Int?
+  maxStorageDays          Int?
+
+  // @req FR-202 — the SKU's value on each axis its master declares
+  //   (`variantJson`, a map) and the normalized fingerprint the service derives
+  //   from them (`variantKey`, `color=black|size=m`). Unique per master, so
+  //   one physical variant is one SKU (BR-039). Null when the master declares
+  //   no axes, and the unique index tolerates null, so every existing row
+  //   stays valid.
+  // @req FR-205 — `mergedIntoProductId` names the survivor of a MERGE: the
+  //   duplicate ends ARCHIVED pointing here, its ledger rows stay, and
+  //   `resolve` follows the pointer. Never a foreign key on purpose: a
+  //   survivor may itself be merged later, and the chain is walked, not joined.
+  // @req FR-207 — replenishment parameters: below `reorderPoint` (or
+  //   `safetyStock` when none) a counted, ACTIVE SKU is suggested for
+  //   `reorderQty` (or the gap); `leadTimeDays` is echoed for the buyer.
+  // @spec ADR-083 D2, D5, D6
+  variantJson           String  @default("{}")
+  variantKey            String?
+  mergedIntoProductId   String?
+  reorderPoint          Int?
+  reorderQty            Int?
+  leadTimeDays          Int?
+
+  tenant                    Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business                  Business                 @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  productMaster             ProductMaster            @relation(fields: [productMasterId], references: [id])
+  lots                      ProductLot[]
+  serialUnits               SerialUnit[]
+  bundleItems               ProductBundleItem[]
+  movements                 StockMovement[]
+  recipes                   ProductRecipe[]
+  recipeLines               ProductRecipeLine[]
+  salesOrderLines           SalesOrderLine[]
+  purchaseOrderLines        PurchaseOrderLine[]
+  customizationRawOrders    CustomizationWorkOrder[] @relation("CustomizationRawProduct")
+  customizationOutputOrders CustomizationWorkOrder[] @relation("CustomizationOutputProduct")
+  kittingWorkOrders         KittingWorkOrder[]
+  reservations              StockReservation[]
+  identifiers               ProductIdentifier[]
+  unitConversions           ProductUnitConversion[]
 
   @@unique([tenantId, code])
+  @@unique([tenantId, flowAccountSku])
+  @@unique([productMasterId, variantKey])
   @@index([businessId, status])
   @@index([productMasterId])
+  @@index([mergedIntoProductId])
+}
+
+// @req FR-203 — a barcode, GTIN, supplier code, manufacturer part number or
+//   legacy code is an attribute of exactly one SKU: unique per Tenant per
+//   kind, the two scannable kinds sharing one value space in the service,
+//   never a key (BR-002), and never an `ExternalRef` (installation-unique, no
+//   tenantId — ADR-074 D5's reason). `unit` names the pack whose barcode this
+//   is; RETIRED keeps the row.
+// @spec ADR-083 D3
+model ProductIdentifier {
+  id         String   @id @default(uuid())
+  tenantId   String
+  businessId String
+  productId  String
+  kind       String
+  value      String
+  issuer     String?
+  unit       String?
+  status     String   @default("ACTIVE")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  version    Int      @default(1)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, kind, value])
+  @@index([productId, status])
+  @@index([businessId, value])
+}
+
+// @req FR-204 — a pack size is an integer factor on the SKU, never a second
+//   SKU (BR-037): one `unit` of this row is `factor` base units. The ledger
+//   counts base units only; a movement that names a unit is converted before
+//   it is appended. Unique per (product, unit); RETIRED keeps the row.
+// @spec ADR-083 D4
+model ProductUnitConversion {
+  id         String   @id @default(uuid())
+  tenantId   String
+  businessId String
+  productId  String
+  unit       String
+  name       String?
+  factor     Int
+  usage      String   @default("ANY")
+  status     String   @default("ACTIVE")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  version    Int      @default(1)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, unit])
+  @@index([businessId, status])
+}
+
+// @req FR-208 — one catalogue intake preview and, once confirmed, its result
+//   (ADR-084 D2). Every surface — JSON, Excel, LINE — converts into one
+//   envelope; this row keeps the normalized envelope, the plan the planner
+//   made after resolving every item against the catalogue, and the `planHash`
+//   a commit must match. Idempotent on (businessId, sourceChannel,
+//   sourceCorrelationId): the same payload re-previews, a different one under
+//   the same correlation is refused. The row never holds catalogue data of its
+//   own — the SKUs it creates are written by the catalogue writers, and it
+//   references them only inside `planJson` / `resultJson`.
+// @spec ADR-084 D1, D2; BR-009, BR-041; SDD-009
+model InventoryCatalogIntake {
+  id                     String    @id @default(uuid())
+  code                   String
+  tenantId               String
+  businessId             String
+  sourceChannel          String
+  sourceCorrelationId    String
+  payloadSha256          String
+  normalizedEnvelopeJson String
+  planJson               String
+  planHash               String
+  committable            Boolean   @default(false)
+  itemCount              Int       @default(0)
+  status                 String    @default("PREVIEWED")
+  requestedById          String?
+  resultJson             String?
+  expiresAt              DateTime
+  committedAt            DateTime?
+  cancelledAt            DateTime?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+  version                Int       @default(1)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, sourceChannel, sourceCorrelationId])
+  @@unique([tenantId, code])
+  @@index([businessId, status, createdAt])
 }
 
 model ProductLot {
-  id             String    @id @default(uuid())
-  code           String
-  tenantId       String
-  businessId     String
-  productId      String
-  factoryId      String?
-  manufacturedAt DateTime?
-  expiresAt      DateTime?
-  receivedQty    Int       @default(0)
-  status         String    @default("OPEN")
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  version        Int       @default(1)
+  id               String    @id @default(uuid())
+  code             String
+  tenantId         String
+  businessId       String
+  productId        String
+  factoryId        String?
+  manufacturedAt   DateTime?
+  expiresAt        DateTime?
+  receivedQty      Int       @default(0)
+  status           String    @default("OPEN")
+  // @req FR-179 — the last time this batch was restored by the operation its
+  //   product declares (a power bank recharged to storage voltage, an
+  //   instrument recalibrated). Null means never: the clock then runs from
+  //   `manufacturedAt`, and a lot with neither date has no measurable storage
+  //   age and is therefore never refused for age.
+  // @spec ADR-074 D7, BR-030
+  lastMaintainedAt DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  version          Int       @default(1)
 
   tenant      Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business    Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
@@ -3035,16 +4472,89 @@ model StockMovement {
   occurredAt   DateTime @default(now())
   createdAt    DateTime @default(now())
 
-  tenant     Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  business   Business    @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
-  lot        ProductLot? @relation(fields: [lotId], references: [id], onDelete: SetNull)
-  serialUnit SerialUnit? @relation(fields: [serialUnitId], references: [id], onDelete: SetNull)
+  // @req FR-174 — where this quantity came from and where it went. Both
+  //   nullable: every row written before ADR-074 has neither, and a movement
+  //   whose location is genuinely unknown says so rather than being assigned
+  //   one. A transfer is the pair — an ISSUE carrying `sourceLocationId` and a
+  //   RECEIPT carrying `targetLocationId`, written in one transaction — which
+  //   is why there is no fourth movement kind (BR-026).
+  // @req FR-175 — `costSatang` is the UNIT landed cost of this row in satang
+  //   (THB × 100). Never a float, never a total: a total would have to be kept
+  //   in step with `quantity` by hand.
+  // @req FR-176, FR-177, FR-180 — what this movement was for: the customer and
+  //   sales order stock is dedicated to, and the work order (CWO or KWO) that
+  //   produced it, so a WIP quantity can be traced back to its order without
+  //   parsing `reference`.
+  // @spec ADR-074 D1, D2, D3; BR-026; BR-027
+  sourceLocationId String?
+  targetLocationId String?
+  costSatang       Int?
+  customerId       String?
+  salesOrderId     String?
+  workOrderId      String?
+
+  tenant         Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business       Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product        Product            @relation(fields: [productId], references: [id], onDelete: Cascade)
+  lot            ProductLot?        @relation(fields: [lotId], references: [id], onDelete: SetNull)
+  serialUnit     SerialUnit?        @relation(fields: [serialUnitId], references: [id], onDelete: SetNull)
+  sourceLocation WarehouseLocation? @relation("StockMovementSourceLocation", fields: [sourceLocationId], references: [id], onDelete: SetNull)
+  targetLocation WarehouseLocation? @relation("StockMovementTargetLocation", fields: [targetLocationId], references: [id], onDelete: SetNull)
 
   @@index([productId, occurredAt])
   @@index([businessId, occurredAt])
   @@index([lotId])
   @@index([serialUnitId])
+  @@index([sourceLocationId])
+  @@index([targetLocationId])
+  @@index([workOrderId])
+  @@index([salesOrderId])
+}
+
+// ── Inventory — FR-184 physical stocktake ──────────────────────────────────
+// @req FR-184 — a per-Business mutation fence serializes the snapshot read
+//   with every append-only ledger write; a stocktake stores its normalized
+//   observation and commit result for durable, idempotent recovery.
+// @spec ADR-074 D1, D2; BR-002, BR-008, BR-012, BR-026; SEC-001
+// @tested tests/integration/fr184-inventory-stocktake.test.js,
+//   tests/integration/fr184-inventory-stocktake-backup.test.js
+
+model InventoryLedgerFence {
+  id               String   @id @default(uuid())
+  tenantId         String
+  businessId       String
+  mutationRevision Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, businessId])
+  @@index([businessId])
+}
+
+model InventoryStocktake {
+  id                  String    @id @default(uuid())
+  tenantId            String
+  businessId          String
+  idempotencyKey      String
+  payloadHash         String
+  normalizedLinesJson String
+  snapshotVersion     Int
+  snapshotHash        String
+  status              String    @default("PREVIEWED")
+  resultJson          String?
+  committedAt         DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  version             Int       @default(1)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, businessId, idempotencyKey])
+  @@index([businessId, status, createdAt])
 }
 
 // ── Inventory recipe / bill of materials — FR-156 ───────────────────────────
@@ -3058,26 +4568,34 @@ model StockMovement {
 // @tested tests/integration/fr156-inventory-recipe.test.js
 
 model ProductRecipe {
-  id         String    @id @default(uuid())
-  code       String
-  tenantId   String
-  businessId String
-  productId  String
-  name       String
-  batchSize  Int
-  yieldQty   Int
-  unit       String    @default("EA")
-  notes      String?
-  status     String    @default("ACTIVE")
-  archivedAt DateTime?
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  version    Int       @default(1)
+  id                   String    @id @default(uuid())
+  code                 String
+  tenantId             String
+  businessId           String
+  productId            String
+  name                 String
+  batchSize            Int
+  yieldQty             Int
+  unit                 String    @default("EA")
+  notes                String?
+  // @req FR-177 — the loss this bill of materials expects, as a fraction in
+  //   [0, 0.20]. The gross issue for a net requirement Q is
+  //   `ceil(Q × (1 + scrapAllowanceFactor))`, so the buffer leaves the shelf
+  //   with the rest rather than being fetched mid-line. Default 0: every
+  //   recipe written before ADR-074 explodes exactly as it always did.
+  // @spec ADR-074 D5, BR-029
+  scrapAllowanceFactor Float     @default(0)
+  status               String    @default("ACTIVE")
+  archivedAt           DateTime?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  version              Int       @default(1)
 
-  tenant   Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  business Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  product  Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
-  lines    ProductRecipeLine[]
+  tenant            Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business          Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product           Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  lines             ProductRecipeLine[]
+  kittingWorkOrders KittingWorkOrder[]
 
   @@unique([tenantId, code])
   @@unique([productId, batchSize])
@@ -3098,6 +4616,179 @@ model ProductRecipeLine {
 
   @@unique([recipeId, componentProductId])
   @@index([componentProductId])
+}
+
+// ── Warehouse locations, WIP work orders and reservations — FR-174..FR-180 ──
+// @req FR-174 — a location is a place stock can be, typed by what kind of place
+//   it is, because "how much is still at sea" and "how much failed QC" are the
+//   questions an importing manufacturer actually asks and a free-text label
+//   cannot be aggregated. `isVirtual` marks the places the Business does not
+//   hold — a partner factory, a container on a vessel.
+// @req FR-176, FR-177 — a work order holds INTENT AND PROGRESS; the FR-155
+//   ledger keeps holding FACT. Nothing here stores a quantity the ledger also
+//   stores: `issuedQty` / `completedQty` / `scrapQty` are what this order did,
+//   and on-hand anywhere is still the sum of movements.
+// @req FR-180 — a reservation is a promise, so it never writes the ledger and
+//   is never deleted; it ends as RELEASED, CONVERTED or EXPIRED.
+// @spec ADR-074 D1, D4, D5, D8; BR-026, BR-028, BR-029, BR-031
+// @tested tests/integration/fr174-warehouse-locations.test.js,
+//   tests/integration/fr176-customization-work-order.test.js,
+//   tests/integration/fr177-kitting-work-order.test.js,
+//   tests/integration/fr180-atp-reservations.test.js
+
+model WarehouseLocation {
+  id         String    @id @default(uuid())
+  code       String
+  tenantId   String
+  businessId String
+  name       String
+  type       String
+  isVirtual  Boolean   @default(false)
+  address    String?
+  status     String    @default("ACTIVE")
+  archivedAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  version    Int       @default(1)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  movementsFrom StockMovement[] @relation("StockMovementSourceLocation")
+  movementsTo   StockMovement[] @relation("StockMovementTargetLocation")
+
+  @@unique([tenantId, code])
+  @@index([businessId, type])
+  @@index([businessId, status])
+}
+
+model CustomizationWorkOrder {
+  id                   String    @id @default(uuid())
+  code                 String
+  tenantId             String
+  businessId           String
+  salesOrderId         String?
+  customerId           String?
+  rawProductId         String
+  outputProductId      String?
+  technique            String
+  logoArtworkUrl       String?
+  pantoneColorsJson    String?
+  plannedQty           Int
+  issuedQty            Int       @default(0)
+  completedQty         Int       @default(0)
+  scrapQty             Int       @default(0)
+  scrapAllowanceFactor Float     @default(0.02)
+  setupCostSatang      Int       @default(0)
+  runCostSatang        Int       @default(0)
+  status               String    @default("DRAFT")
+  wipLocationId        String?
+  scrapLocationId      String?
+  sourceLocationId     String?
+  scheduledDate        DateTime?
+  startedAt            DateTime?
+  completedAt          DateTime?
+  cancelledAt          DateTime?
+  notes                String?
+  createdByPersonId    String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  version              Int       @default(1)
+
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business      Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  rawProduct    Product  @relation("CustomizationRawProduct", fields: [rawProductId], references: [id])
+  outputProduct Product? @relation("CustomizationOutputProduct", fields: [outputProductId], references: [id])
+
+  @@unique([tenantId, code])
+  @@index([businessId, status])
+  @@index([salesOrderId])
+  @@index([customerId])
+}
+
+model KittingWorkOrder {
+  id                String    @id @default(uuid())
+  code              String
+  tenantId          String
+  businessId        String
+  salesOrderId      String?
+  customerId        String?
+  recipeId          String
+  finishedProductId String
+  plannedQty        Int
+  assembledQty      Int       @default(0)
+  scrapQty          Int       @default(0)
+  laborCostSatang   Int       @default(0)
+  unitCostSatang    Int?
+  // @req FR-177 — the bill of materials this run froze when it opened: the
+  //   component ids, the quantity per batch, and the net and gross quantities
+  //   the scrap allowance produced. Frozen rather than re-read, because a
+  //   recipe edited between release and completion would otherwise silently
+  //   change what this run is reconciled against.
+  plannedLinesJson  String?
+  status            String    @default("DRAFT")
+  // Three distinct places, not two: raw stock is STAGED at the assembly line
+  // (`wipLocationId`), and the finished sets are RECEIVED at finished goods
+  // (`targetLocationId`). Folding them into one column would have put a
+  // completed gift box on the workbench it was assembled on.
+  sourceLocationId  String?
+  wipLocationId     String?
+  targetLocationId  String?
+  scrapLocationId   String?
+  outputLotCode     String?
+  startedAt         DateTime?
+  completedAt       DateTime?
+  cancelledAt       DateTime?
+  notes             String?
+  createdByPersonId String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  version           Int       @default(1)
+
+  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business        Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  recipe          ProductRecipe @relation(fields: [recipeId], references: [id])
+  finishedProduct Product       @relation(fields: [finishedProductId], references: [id])
+
+  @@unique([tenantId, code])
+  @@index([businessId, status])
+  @@index([salesOrderId])
+  @@index([recipeId])
+}
+
+model StockReservation {
+  id                String    @id @default(uuid())
+  code              String
+  tenantId          String
+  businessId        String
+  productId         String
+  purpose           String
+  quantity          Int
+  status            String    @default("ACTIVE")
+  customerId        String?
+  salesOrderId      String?
+  quoteReference    String?
+  customerCompany   String?
+  contactHandle     String?
+  notes             String?
+  reservedAt        DateTime  @default(now())
+  expiresAt         DateTime?
+  releasedAt        DateTime?
+  convertedAt       DateTime?
+  createdByPersonId String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  version           Int       @default(1)
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, code])
+  @@index([businessId, status])
+  @@index([productId, status])
+  @@index([expiresAt])
+  @@index([salesOrderId])
 }
 
 // ── CRM sales task — FR-161 ─────────────────────────────────────────────────
@@ -3152,6 +4843,94 @@ model SalesTask {
   @@index([conversationId])
 }
 
+// ── Commerce billing/POS — FR-186/FR-183 ─────────────────────────────────────
+// @req FR-186 — Business-owned issuer, VAT and PromptPay configuration plus
+//   immutable fiscal document snapshots. Configuration is intentionally
+//   nullable until an owner supplies verified values; absence is an explicit
+//   unavailable state, never a fabricated identity or recipient.
+// @req FR-183 — POS composes the existing order/payment/Inventory contracts;
+//   no terminal hardware registry is stored here.
+// @spec ADR-065; BR-001; BR-002; SEC-001
+// @tested tests/integration/fr186-billing.test.js, tests/integration/fr183-pos.test.js
+
+model BusinessBillingProfile {
+  id                   String    @id @default(uuid())
+  tenantId             String
+  businessId           String    @unique
+  vatRegistered        Boolean   @default(false)
+  vatRateBps           Int?
+  vatTreatment         String?
+  taxPolicyVersion     String?
+  taxEffectiveAt       DateTime?
+  taxVerifiedAt        DateTime?
+  nonVatDocumentPolicy String?
+  walkInDocumentPolicy String?
+  promptPayProvider    String?
+  promptPayTargetType  String?
+  promptPayTarget      String?
+  promptPayActive      Boolean   @default(false)
+  promptPayVerifiedAt  DateTime?
+  active               Boolean   @default(true)
+  version              Int       @default(1)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+}
+
+model CommerceDocumentSequence {
+  id           String   @id @default(uuid())
+  tenantId     String
+  businessId   String
+  documentType String
+  calendarYear Int
+  lastSequence Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, documentType, calendarYear])
+  @@index([tenantId, businessId])
+}
+
+model CommerceDocument {
+  id               String   @id @default(uuid())
+  tenantId         String
+  businessId       String
+  orderId          String
+  branchId         String
+  documentType     String
+  documentNumber   String
+  calendarYear     Int
+  sequenceNumber   Int
+  status           String   @default("ISSUED")
+  idempotencyKey   String
+  requestHash      String
+  issuedAt         DateTime @default(now())
+  issuedByPersonId String?
+  snapshotJson     String   @default("{}")
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Issued evidence survives ordinary source deletion attempts; parent removal
+  // is refused while a document still anchors the record.
+  tenant   Tenant     @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business Business   @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  // Issued evidence keeps its order anchor; deleting the source order is refused.
+  order    SalesOrder @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  branch   Branch     @relation(fields: [branchId], references: [id], onDelete: Restrict)
+
+  @@unique([businessId, idempotencyKey])
+  @@unique([businessId, documentNumber])
+  @@unique([businessId, documentType, calendarYear, sequenceNumber])
+  @@index([businessId, orderId, issuedAt])
+}
+
 // ── Commerce — FR-166 sales orders, FR-163 payments ─────────────────────────
 // @req FR-166 — a sales order (order_id) is what a Business sold: lines that
 //   may name an inventory SKU, an optional Customer and the Conversation the
@@ -3189,12 +4968,13 @@ model SalesOrder {
   updatedAt         DateTime  @updatedAt
   version           Int       @default(1)
 
-  tenant       Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  business     Business         @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  customer     Customer?        @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  conversation Conversation?    @relation(fields: [conversationId], references: [id], onDelete: SetNull)
-  lines        SalesOrderLine[]
-  payments     Payment[]
+  tenant            Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business          Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  customer          Customer?          @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  conversation      Conversation?      @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  lines             SalesOrderLine[]
+  payments          Payment[]
+  commerceDocuments CommerceDocument[]
 
   @@unique([tenantId, code])
   @@index([businessId, status, orderedAt])
@@ -3377,4 +5157,164 @@ model GoodsReceiptLine {
 
   @@index([receiptId])
   @@index([purchaseOrderLineId])
+}
+
+// @req FR-218 — one agent session's usage for one programme task, reported by an
+// agent without local session logs (ADR-086 D5). Installation-level operations
+// data: no Tenant, Business or Person scope, so no foreign key. Keyed by
+// (source, sessionId) so a replay is idempotent; payloadSha256 tells a replay
+// from a conflicting second report. Tokens are the meter's four normalised counts.
+model ProgrammeUsageReport {
+  id               String    @id @default(uuid())
+  source           String
+  sessionId        String
+  // @req FR-221 — the branch the session worked on; one session reports once per
+  // branch. The lane is resolved from it at read time against the declared lanes,
+  // so a lane declared after the work still claims it (ADR-087 D4). '' = none given.
+  branch           String    @default("")
+  // Optional: an explicit known task wins over the branch.
+  taskCode         String?
+  repository       String?
+  // @req FR-221 — from the harness credential, never from the body. Null for a
+  // report sent under the deployment bearer (ADR-087 D6).
+  personId         String?
+  installationId   String?
+  // Declared label of the AI account that paid; cost split only, never authority.
+  aiAccountLabel   String?
+  model            String?
+  inputTokens      Int
+  cacheWriteTokens Int
+  cacheReadTokens  Int
+  outputTokens     Int
+  requestCount     Int
+  activeMinutes    Int
+  startedAt        DateTime
+  endedAt          DateTime
+  payloadSha256    String
+  reportedAt       DateTime  @default(now())
+  // @req FR-221 — set when a resumed session's report was extended (ADR-087 D5).
+  extendedAt       DateTime?
+  // @req FR-239 — usage detail headline counts, and the whole detail as canonical
+  // JSON (tool names with calls and errors, models, cache lifetimes, web search and
+  // fetch, denials, compactions, API errors). Names and numbers only (ADR-086 D7).
+  reasoningTokens  Int       @default(0)
+  toolCallCount    Int       @default(0)
+  toolErrorCount   Int       @default(0)
+  promptCount      Int       @default(0)
+  detailJson       String?
+
+  @@unique([source, sessionId, branch])
+  @@index([taskCode])
+  @@index([installationId])
+}
+
+// @req FR-220 — a paired agent harness installation (Claude Code or Codex): a
+// credential that can only report programme usage, bound to the person who
+// approved the pairing in a signed-in browser and to a server-issued
+// installation id. Stored as a SHA-256 hash with a display prefix; the raw key
+// is shown once at redemption (ADR-087 D1-D3). deviceLabel and osUser are
+// labels the device chose, never identity.
+model HarnessCredential {
+  id                  String    @id @default(uuid())
+  installationId      String    @unique @default(uuid())
+  personId            String
+  harness             String
+  deviceLabel         String
+  osUser              String?
+  keyHash             String    @unique
+  keyPrefix           String
+  scope               String    @default("PROGRAMME_USAGE_REPORT")
+  status              String    @default("PENDING_ACTIVATION")
+  activatedAt         DateTime?
+  activatedByPersonId String?
+  lastUsedAt          DateTime?
+  revokedAt           DateTime?
+  revokedByPersonId   String?
+  revokeReason        String?
+  createdAt           DateTime  @default(now())
+  version             Int       @default(1)
+
+  person Person @relation("HarnessCredentialPerson", fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId, status])
+  @@index([status, createdAt])
+}
+
+// @req FR-247 — deduplicated, operator-readable error tracking. `fingerprint` is
+// `sha256(name + ':' + message + ':' + firstStackFrame)`, computed by
+// `logger.exception()`; a repeat with the same fingerprint increments
+// `occurrenceCount` and `lastSeenAt` rather than inserting a second row.
+// `stackFramesJson` holds only parsed `{file, line, function}` frames — never a
+// raw stack string, so a frame that is not a file:line shape is dropped rather
+// than stored as free text (ADR-095 D1). No personId: an error is a fact about
+// the system, not about a person.
+// @spec ADR-095 D1, SEC-009, SDD-048
+// @tested tests/unit/observability-logger.test.js, tests/unit/error-events.test.js
+model ErrorEvent {
+  id                  String    @id @default(uuid())
+  fingerprint         String    @unique
+  name                String
+  message             String
+  stackFramesJson     String    @default("[]")
+  occurrenceCount     Int       @default(1)
+  firstSeenAt         DateTime  @default(now())
+  lastSeenAt          DateTime  @default(now())
+  correlationId       String?
+  route               String?
+  resolvedAt          DateTime?
+  resolvedByPersonId  String?
+  createdAt           DateTime  @default(now())
+  version             Int       @default(1)
+
+  @@index([resolvedAt, lastSeenAt])
+  @@index([lastSeenAt])
+}
+
+// @req FR-248, FR-249 — route- and action-level usage, per person (ADR-095 D2,
+// owner's instruction over the aggregate-only default CR-020 §3.3 proposed).
+// `kind` is `PAGE_VIEW` (route set, actionName null) or `ACTION` (actionName a
+// static label the calling code chooses, never built from request data; route
+// null). A row older than 90 days is replaced by a `personId`-less daily
+// rollup rather than deleted outright (ADR-095 D3) — that rollup is a separate
+// aggregate shape, not a row of this model with personId cleared.
+// @spec ADR-095 D2, D3, D4, NFR-023, SEC-009
+// @tested tests/unit/usage-events.test.js
+model UsageEvent {
+  id         String   @id @default(uuid())
+  kind       String
+  route      String?
+  actionName String?
+  personId   String
+  sessionId  String?
+  occurredAt DateTime @default(now())
+
+  person Person @relation("UsageEventPerson", fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId, occurredAt])
+  @@index([kind, route, occurredAt])
+  @@index([kind, actionName, occurredAt])
+}
+
+// @req FR-249, NFR-023 — the aggregate a UsageEvent row over 90 days old becomes:
+// one day, one route or actionName, a count, no personId. A separate shape from
+// UsageEvent on purpose (ADR-095 D3) — the per-person question stays answerable
+// for exactly 90 days, never longer, by construction rather than by convention.
+// `date` is UTC-midnight-truncated so a rollup and a later one for the same day
+// merge into the same row instead of a second one. `target` is the route
+// (PAGE_VIEW) or actionName (ACTION), never null: `@@unique` with a nullable
+// column would let Postgres treat two NULLs as distinct and defeat the very
+// upsert this table exists for, so `kind` plus one non-null `target` replaces
+// UsageEvent's two-nullable-column shape rather than copying it.
+// @spec ADR-095 D3
+// @tested tests/unit/usage-events.test.js
+model UsageEventRollup {
+  id        String   @id @default(uuid())
+  date      DateTime
+  kind      String
+  target    String
+  count     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date, kind, target])
 }

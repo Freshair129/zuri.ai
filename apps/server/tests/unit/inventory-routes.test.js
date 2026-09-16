@@ -1,6 +1,6 @@
-// @req FR-154, FR-155 — what the Inventory routes and persistence are, in
+// @req FR-154, FR-155, FR-184 — what the Inventory routes and persistence are, in
 //   source terms: every handler resolves a browser viewer, stays thin and is
-//   inventoried for OpenAPI; the ten models are in both schemas, snapshotted
+//   inventoried for OpenAPI; the Inventory models are in both schemas, snapshotted
 //   parents-first, and migrated in both trees in the same change; the domain
 //   is registered for navigation and Membership grants; the manager role
 //   declares its permission.
@@ -30,8 +30,27 @@ const ROUTES = {
   'src/app/api/inventory/recipes/route.js': ['GET', 'POST'],
   'src/app/api/inventory/recipes/[id]/route.js': ['GET', 'PATCH'],
   'src/app/api/inventory/recipes/[id]/build/route.js': ['POST'],
+  'src/app/api/inventory/stocktakes/preview/route.js': ['POST'],
+  'src/app/api/inventory/stocktakes/commit/route.js': ['POST'],
+  'src/app/api/inventory/stocktakes/[id]/route.js': ['GET'],
+  // @req FR-203, FR-204, FR-206, FR-207 — SKU governance (ADR-083).
+  'src/app/api/inventory/products/resolve/route.js': ['GET'],
+  'src/app/api/inventory/products/[id]/identifiers/route.js': ['GET', 'POST', 'PATCH'],
+  'src/app/api/inventory/products/[id]/unit-conversions/route.js': ['GET', 'POST', 'PATCH'],
+  'src/app/api/inventory/catalog-hygiene/route.js': ['GET'],
+  'src/app/api/inventory/replenishment/route.js': ['GET'],
+  // @req FR-208, FR-209 — catalogue intake (ADR-084).
+  'src/app/api/inventory/catalog-intakes/route.js': ['GET'],
+  'src/app/api/inventory/catalog-intakes/preview/route.js': ['POST'],
+  'src/app/api/inventory/catalog-intakes/commit/route.js': ['POST'],
+  'src/app/api/inventory/catalog-intakes/[id]/route.js': ['GET', 'PATCH'],
+  'src/app/api/inventory/catalog-intakes/template/route.js': ['GET'],
+  'src/app/api/inventory/catalog-intakes/xlsx/route.js': ['POST'],
 }
-const MODELS = ['InventoryCategory', 'ProductFamily', 'Factory', 'ProductMaster', 'Product', 'ProductBundle', 'ProductBundleItem', 'ProductRecipe', 'ProductRecipeLine', 'ProductLot', 'SerialUnit', 'StockMovement']
+const GOVERNANCE_MODELS = ['ProductIdentifier', 'ProductUnitConversion']
+const INTAKE_MODELS = ['InventoryCatalogIntake']
+const MODELS = ['InventoryCategory', 'ProductFamily', 'Factory', 'ProductMaster', 'Product', 'ProductBundle', 'ProductBundleItem', 'ProductRecipe', 'ProductRecipeLine', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'InventoryStocktake', ...GOVERNANCE_MODELS, ...INTAKE_MODELS]
+const LEGACY_MODELS = MODELS.filter((model) => !['InventoryLedgerFence', 'InventoryStocktake', ...GOVERNANCE_MODELS, ...INTAKE_MODELS].includes(model))
 
 describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
   it('every handler exposes exactly its inventoried methods, resolves a viewer, and never deletes', () => {
@@ -42,7 +61,7 @@ describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
         expect(declared, `${method} in ${file}`).toBe(methods.includes(method))
       }
       expect(source).toMatch(/resolveRequestViewer/)
-      expect(source).toMatch(/@req FR-15[456]/)
+      expect(source).toMatch(/@req FR-(?:15[456]|184|20[1-9]|210)/)
       expect(source).not.toMatch(/@\/lib\/db|prisma\./)
     }
   })
@@ -79,11 +98,19 @@ describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
     expect(at('productMaster')).toBeLessThan(at('product'))
     expect(at('product')).toBeLessThan(at('productBundleItem'))
     expect(at('productBundle')).toBeLessThan(at('productBundleItem'))
+    // @req FR-203, FR-204 — an identifier and a unit conversion hang off one product only.
+    expect(at('product')).toBeLessThan(at('productIdentifier'))
+    expect(at('product')).toBeLessThan(at('productUnitConversion'))
+    // @req FR-208 — a catalogue intake hangs off its scope only and restores with the catalogue.
+    expect(at('business')).toBeLessThan(at('inventoryCatalogIntake'))
+    expect(at('productUnitConversion')).toBeLessThan(at('inventoryCatalogIntake'))
     expect(at('product')).toBeLessThan(at('productLot'))
     expect(at('product')).toBeLessThan(at('productRecipe'))
     expect(at('productRecipe')).toBeLessThan(at('productRecipeLine'))
     expect(at('productLot')).toBeLessThan(at('serialUnit'))
     expect(at('serialUnit')).toBeLessThan(at('stockMovement'))
+    expect(at('stockMovement')).toBeLessThan(at('inventoryLedgerFence'))
+    expect(at('inventoryLedgerFence')).toBeLessThan(at('inventoryStocktake'))
     expect(at('business')).toBeLessThan(at('inventoryCategory'))
   })
 
@@ -95,7 +122,7 @@ describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
     const productions = fs.readdirSync(path.resolve(process.cwd(), 'supabase/migrations')).filter((name) => /inventory_(domain|recipe)/.test(name))
     expect(productions).toHaveLength(2)
     const sql = productions.map((name) => read(`supabase/migrations/${name}`)).join('\n')
-    for (const model of MODELS) {
+    for (const model of LEGACY_MODELS) {
       expect(twin).toContain(`CREATE TABLE "${model}"`)
       expect(sql).toContain(`CREATE TABLE IF NOT EXISTS "${model}"`)
     }
@@ -105,13 +132,69 @@ describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
     expect(twin).not.toMatch(/DROP\s+(TABLE|COLUMN)/i)
   })
 
+  it('ships additive SKU-governance migrations in both database trees (FR-201..FR-207)', () => {
+    const local = read('prisma/migrations/20260913120000_inventory_sku_governance/migration.sql')
+    const production = read('supabase/migrations/20260913120000_inventory_sku_governance.sql')
+    for (const model of GOVERNANCE_MODELS) {
+      expect(local).toContain(`CREATE TABLE "${model}"`)
+      expect(production).toContain(`CREATE TABLE IF NOT EXISTS "${model}"`)
+    }
+    for (const column of ['nature', 'defaultStockPolicy', 'variantAxesJson']) {
+      expect(local).toContain(`ALTER TABLE "ProductMaster" ADD COLUMN "${column}"`)
+      expect(production).toContain(`ALTER TABLE "ProductMaster" ADD COLUMN IF NOT EXISTS "${column}"`)
+    }
+    for (const column of ['variantJson', 'variantKey', 'mergedIntoProductId', 'reorderPoint', 'reorderQty', 'leadTimeDays']) {
+      expect(local).toContain(`ALTER TABLE "Product" ADD COLUMN "${column}"`)
+      expect(production).toContain(`ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "${column}"`)
+    }
+    // The nature backfill derives SERVICE masters from their own SKUs, in both trees.
+    expect(local).toMatch(/UPDATE "ProductMaster"[\s\S]*SET "nature" = 'SERVICE'/)
+    expect(production).toMatch(/UPDATE "ProductMaster" pm[\s\S]*SET "nature" = 'SERVICE'/)
+    expect(local).toContain('"Product_productMasterId_variantKey_key"')
+    expect(production).toContain('"Product_productMasterId_variantKey_key"')
+    expect(production).toMatch(/FORCE ROW LEVEL SECURITY/)
+    expect(production).toMatch(/NOT APPLIED/)
+    expect(production).toMatch(/GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE %I TO zuri_app_runtime, zuri_web_login/)
+    expect(local).not.toMatch(/DROP\s+(TABLE|COLUMN)/i)
+    expect(production).not.toMatch(/DROP\s+(TABLE|COLUMN)/i)
+  })
+
+  it('ships the additive catalogue intake migration in both database trees (FR-208)', () => {
+    const local = read('prisma/migrations/20260913200000_inventory_catalog_intake/migration.sql')
+    const production = read('supabase/migrations/20260913200000_inventory_catalog_intake.sql')
+    expect(local).toContain('CREATE TABLE "InventoryCatalogIntake"')
+    expect(production).toContain('CREATE TABLE IF NOT EXISTS "InventoryCatalogIntake"')
+    for (const index of ['InventoryCatalogIntake_businessId_sourceChannel_sourceCorrelationId_key', 'InventoryCatalogIntake_tenantId_code_key']) {
+      expect(local).toContain(index)
+      expect(production).toContain(index)
+    }
+    expect(production).toMatch(/FORCE ROW LEVEL SECURITY/)
+    expect(production).toMatch(/NOT APPLIED/)
+    expect(production).toMatch(/GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE "InventoryCatalogIntake" TO zuri_app_runtime, zuri_web_login/)
+    expect(local).not.toMatch(/DROPs+(TABLE|COLUMN)/i)
+    expect(production).not.toMatch(/DROPs+(TABLE|COLUMN)/i)
+  })
+
+  it('ships additive stocktake migrations in both database trees', () => {
+    const local = read('prisma/migrations/20260911020000_inventory_stocktake/migration.sql')
+    const production = read('supabase/migrations/20260911020000_inventory_stocktake.sql')
+    for (const model of ['InventoryLedgerFence', 'InventoryStocktake']) {
+      expect(local).toContain(`CREATE TABLE "${model}"`)
+      expect(production).toContain(`CREATE TABLE IF NOT EXISTS "${model}"`)
+    }
+    expect(production).toMatch(/FORCE ROW LEVEL SECURITY/)
+    expect(production).toMatch(/GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE %I TO zuri_app_runtime, zuri_web_login/)
+    expect(local).not.toMatch(/DROP\s+(TABLE|COLUMN)/i)
+    expect(production).not.toMatch(/DROP\s+(TABLE|COLUMN)/i)
+  })
+
   it('registers one live inventory domain with Dashboard first, reachable by Membership grant', () => {
     const domains = DOMAINS.filter((domain) => domain.key === 'inventory')
     expect(domains).toHaveLength(1)
     // Labelled Inventory again since ADR-069: SCM holds the bar slot, so this
     // list is only on screen while SCM is selected and the old collision with a
-    // Project's own Inventory section tab (FR-077) cannot happen. `Warehouse`
-    // is now the reserved sibling that owns locations, transfers and stocktake.
+    // Project's own Inventory section tab (FR-077) cannot happen. Inventory
+    // owns the existing locations, transfers and stocktake surface.
     expect(domains[0]).toMatchObject({ label: 'Inventory', basePath: '/inventory' })
     expect(domains[0].soon).not.toBe(true)
     expect(domains[0].sub[0]).toMatchObject({ label: 'Dashboard', path: '/inventory' })

@@ -261,15 +261,6 @@ export const MOCK_FLEX_TEMPLATES = [
   }
 ];
 
-export const MOCK_RICH_MENU_LAYOUTS = [
-  { id: "1x1", name: "1 ช่อง เต็ม", rows: 1, cols: 1, zones: ["A"] },
-  { id: "2x1", name: "2 ช่อง บน-ล่าง", rows: 2, cols: 1, zones: ["A", "B"] },
-  { id: "1x2", name: "2 ช่อง ซ้าย-ขวา", rows: 1, cols: 2, zones: ["A", "B"] },
-  { id: "2x2", name: "4 ช่อง จัตุรัส", rows: 2, cols: 2, zones: ["A", "B", "C", "D"] },
-  { id: "2x3", name: "6 ช่อง มาตรฐาน", rows: 2, cols: 3, zones: ["A", "B", "C", "D", "E", "F"] },
-  { id: "3x1", name: "3 ช่อง แถวเดี่ยว", rows: 1, cols: 3, zones: ["A", "B", "C"] }
-];
-
 export const MOCK_TEMPLATE_LIBRARY = [
   {
     id: "tpl-1",

@@ -7,8 +7,9 @@ import {
   Workflow, Gauge, TrendingUp,
   PackageCheck, MessageCircle, LayoutGrid, QrCode,
   Warehouse, Truck, ClipboardList,
-  Layers, Bot, Cpu, Bookmark,
+  Layers, Bot, Cpu, Bookmark, Contact, Waypoints,
 } from 'lucide-react'
+import { businessHasCapability } from '@/lib/business-capabilities'
 
 // @req FR-042 - HR / People is a peer domain with route key `people`.
 // @req FR-045 - Files is a Business-scoped Development subdomain.
@@ -59,7 +60,11 @@ export const DOMAINS = [
     // `Message` have been written by the FR-023 LINE ingest since the first turn;
     // FR-081 left them deliberately unreadable, so this domain was `soon` while its
     // data was already arriving. The Inbox is the reader surface that closes that.
-    key: 'customer', label: 'CRM', icon: Users, soon: false,
+    // @req FR-172 — labelled `Customer` since ADR-071: CRM became the bar slot
+    // over this domain and Market Intelligence, so the leaf and the group
+    // cannot both read "CRM" (the same collision ADR-069 D4 fixed for
+    // Inventory/Warehouse). The route key stays `customer` (AGENTS.md §18).
+    key: 'customer', label: 'Customer', icon: Users, soon: false,
     sub: [
       { label: 'Dashboard', path: '/customer', icon: LayoutDashboard },
       { label: 'Inbox', path: '/customer/conversations', icon: MessagesSquare },
@@ -111,7 +116,7 @@ export const DOMAINS = [
     // queue) and now belongs to Business Home; leaving Development rooted there
     // would have kept one page answering to two domains, which is how the two
     // surfaces would have drifted apart.
-    key: 'projects', label: 'Development', icon: BriefcaseBusiness, basePath: '/projects',
+    key: 'projects', label: 'Projects & Work', icon: BriefcaseBusiness, basePath: '/projects',
     // Five of these entries are the cross-project halves of views a Project also
     // carries under its Work tab (FR-005/006/007/009/064 global + project-scoped
     // split). `group` renders as a sidebar section header naming that scope —
@@ -171,10 +176,8 @@ export const DOMAINS = [
       { label: 'Dashboard', path: '/line-oa', icon: LayoutDashboard, exact: true },
       { label: 'บัญชี & กลุ่ม LINE OA', path: '/line-oa/projects', icon: Layers },
       { label: 'Design Studio', path: '/line-oa/design-studio', icon: Bot },
-      { label: 'Rich Menu', path: '/line-oa/rich-menus', icon: LayoutGrid },
       { label: 'Live CRM & แชทสด', path: '/line-oa/live-crm', icon: MessagesSquare },
       { label: 'Edge & การเชื่อมต่อ', path: '/line-oa/edge-connection', icon: Cpu },
-      { label: 'Integrations & AI', path: '/line-oa/integrations', icon: PlugZap },
       { label: 'Templates', path: '/line-oa/templates', icon: Bookmark },
       { label: 'ทีม', path: '/line-oa/team', icon: Users },
       { label: 'Settings', path: '/line-oa/settings', icon: Settings },
@@ -198,9 +201,21 @@ export const DOMAINS = [
     // stays `inventory`: keys are immutable (AGENTS.md §18).
     // @spec ADR-025, ADR-069, SEC-001
     // @tested tests/unit/inventory-routes.test.js, tests/unit/scm-group-navigation.test.js
+    // @req FR-182 — the SCM operations console: locations, the two work orders
+    // and reservations join the catalogue dashboard. Listed here for the
+    // sidebar and mirrored by `INVENTORY_TABS` for the in-canvas tabs (FR-170),
+    // from one source each, so the two cannot drift.
     key: 'inventory', label: 'Inventory', icon: Warehouse, basePath: '/inventory',
     sub: [
-      { label: 'Dashboard', path: '/inventory', icon: LayoutDashboard },
+      { label: 'Dashboard', path: '/inventory', icon: LayoutDashboard, exact: true },
+      { label: 'Locations', path: '/inventory/locations', icon: LayoutGrid },
+      { label: 'Work Orders', path: '/inventory/work-orders', icon: ClipboardList },
+      { label: 'Reservations', path: '/inventory/reservations', icon: Bookmark },
+      { label: 'Stocktake', path: '/inventory/stocktakes', icon: ClipboardList },
+      // @req FR-206 — the catalogue hygiene report and the merge desk (ADR-083 D6).
+      { label: 'SKU Hygiene', path: '/inventory/hygiene', icon: ClipboardCheck },
+      // @req FR-209 — catalogue intake: Excel / JSON preview and commit (ADR-084 D3).
+      { label: 'Import', path: '/inventory/catalog-intake', icon: PackageCheck },
     ],
   },
   {
@@ -213,9 +228,16 @@ export const DOMAINS = [
     // inferring it from an absence. Same shape as the `operations` slot: a
     // reserved key grants nothing while `soon`, and needs no module and no
     // charter until someone builds it.
+    // @req FR-169 — additionally gated by the `physicalStock` Business
+    // capability (`capability` below), hidden from every menu, not merely
+    // disabled, when the Business has turned it off: a service-only Business
+    // never runs a warehouse, and a visible-but-reserved slot for a module it
+    // will never use is noise, not information — unlike `operations` above,
+    // whose slot is reserved because Zuri has not built it yet, not because a
+    // Business opted out.
     // @spec ADR-069 D3
-    // @tested tests/unit/scm-group-navigation.test.js
-    key: 'warehouse', label: 'Warehouse', icon: LayoutGrid, soon: true,
+    // @tested tests/unit/scm-group-navigation.test.js, tests/unit/business-capability-navigation.test.js
+    key: 'warehouse', label: 'Warehouse', icon: LayoutGrid, soon: true, capability: 'physicalStock',
     sub: [{ label: 'Dashboard', path: '/warehouse', icon: LayoutDashboard }],
   },
   {
@@ -234,6 +256,23 @@ export const DOMAINS = [
     sub: [
       { label: 'Dashboard', path: '/procurement', icon: LayoutDashboard },
       { label: 'Purchase Orders', path: '/procurement/purchase-orders', icon: ClipboardList },
+    ],
+  },
+  {
+    // @req FR-214 — Knowledge (GKS): the knowledge lane's own slot (ADR-085 D1).
+    // The label names the authority the lane consumes, as its charter's first
+    // line does; GKS, MSP and GenesisBlockDB stay external systems, never
+    // zuri-ai domains (ADR-063 D4). A flat, grantable key like every other
+    // leaf, and in no DOMAIN_GROUPS container. It opens with the Data Pipeline
+    // Map (FR-212, FR-213); the knowledge base console is planned next.
+    // @spec ADR-085, ADR-063 D4, FR-060, FR-061
+    // @tested tests/unit/knowledge-data-pipeline-map-ui.test.js
+    key: 'knowledge', label: 'Knowledge (GKS)', icon: Waypoints, basePath: '/knowledge',
+    sub: [
+      { label: 'Dashboard', path: '/knowledge', icon: LayoutDashboard, exact: true },
+      { label: 'Data Pipeline Map', path: '/knowledge/data-pipeline', icon: Workflow },
+      // @req FR-236 — the review surface for LINE FAQ candidates (ADR-090 D6).
+      { label: 'LINE FAQ candidates', path: '/knowledge/candidates', icon: MessagesSquare },
     ],
   },
   {
@@ -272,6 +311,14 @@ export const DOMAINS = [
 // about that key.
 // @spec ADR-069 D1, D2, D6
 // @tested tests/unit/scm-group-navigation.test.js
+//
+// @req FR-172 — a second group, CRM, over Customer and Market Intelligence
+// (ADR-071): the same owner instruction ("top nav bar ตามหลัก erp") applied to
+// the rest of the bar, walked domain by domain in the ADR's Context table.
+// Every other remaining slot already stands as one complete ERP-recognised
+// module with no sibling to consolidate, so only this one pair gets a group.
+// @spec ADR-071 D1, D2, D6
+// @tested tests/unit/crm-group-navigation.test.js
 export const DOMAIN_GROUPS = [
   {
     key: 'scm',
@@ -279,6 +326,13 @@ export const DOMAIN_GROUPS = [
     caption: 'ซัพพลายเชน',
     icon: Layers,
     childKeys: ['inventory', 'warehouse', 'procurement', 'commerce'],
+  },
+  {
+    key: 'crm',
+    label: 'CRM',
+    caption: 'ลูกค้าและตลาด',
+    icon: Contact,
+    childKeys: ['customer', 'market'],
   },
 ]
 
@@ -291,9 +345,31 @@ export function groupForDomainKey(domainKey) {
   return GROUP_BY_CHILD_KEY.get(domainKey) || null
 }
 
-/** A group's children, in the order the group names them, skipping unknown keys. */
-export function groupChildren(group) {
-  return group.childKeys.map((key) => DOMAINS.find((d) => d.key === key)).filter(Boolean)
+/**
+ * Whether a domain applies to `business` at all — distinct from
+ * `isDomainVisible`, which asks whether THIS VIEWER may open a domain the
+ * Business already has. `business` is the raw row (or undefined while it has
+ * not loaded); `businessHasCapability` reads its default when it is either,
+ * so a domain with no `capability` field is always allowed and one with an
+ * unloaded Business is allowed exactly as often as the capability's own
+ * default says (FR-169).
+ */
+export function isDomainAllowedForBusiness(domain, business) {
+  return !domain.capability || businessHasCapability(business, domain.capability)
+}
+
+/**
+ * A group's children, in the order the group names them, skipping unknown
+ * keys and any child `business` has not turned on (FR-169). `business` is
+ * optional so every existing caller — and every test fixture that predates
+ * FR-169 — keeps seeing every child, exactly as `groupChildren(group)` always
+ * has.
+ */
+export function groupChildren(group, business) {
+  return group.childKeys
+    .map((key) => DOMAINS.find((d) => d.key === key))
+    .filter(Boolean)
+    .filter((d) => isDomainAllowedForBusiness(d, business))
 }
 
 /**
@@ -301,7 +377,7 @@ export function groupChildren(group) {
  * with each group standing in one place for all of its children — the position
  * of the first child, so the bar's left-to-right reading order is unchanged.
  */
-export function domainBarSlots() {
+export function domainBarSlots(business) {
   const slots = []
   const placed = new Set()
   for (const domain of DOMAINS) {
@@ -312,7 +388,7 @@ export function domainBarSlots() {
     }
     if (placed.has(group.key)) continue
     placed.add(group.key)
-    slots.push({ kind: 'group', group, children: groupChildren(group) })
+    slots.push({ kind: 'group', group, children: groupChildren(group, business) })
   }
   return slots
 }
@@ -324,9 +400,11 @@ export function domainBarSlots() {
  * other three. For everything else it is the domain itself, unchanged.
  *
  * The `group` field on each item is the same one the sidebar already renders
- * section headers from, so this needs no new rendering concept.
+ * section headers from, so this needs no new rendering concept. `business` is
+ * optional for the same reason it is on `groupChildren` (FR-169): every
+ * existing caller keeps its old, unfiltered behaviour.
  */
-export function sidebarDomainForPath(pathname) {
+export function sidebarDomainForPath(pathname, business) {
   const domain = domainForPath(pathname)
   const group = groupForDomainKey(domain.key)
   if (!group) return domain
@@ -340,7 +418,7 @@ export function sidebarDomainForPath(pathname) {
     // into one menu would put four links called Dashboard in it — ambiguous to
     // a screen reader and to Playwright strict mode, which is the same defect
     // that made this lane's bar label `Warehouse` in the first place.
-    sub: groupChildren(group).flatMap((child) =>
+    sub: groupChildren(group, business).flatMap((child) =>
       child.sub.map((item) => ({
         ...item,
         label: item.label === 'Dashboard' ? child.label : item.label,

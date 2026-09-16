@@ -141,6 +141,37 @@ describe('Answering, by role', () => {
     const text = answerMessage('ZZ99-9', { ...base, role: 'owner' });
     assert.match(text, /ไม่เจอรหัส ZZ99-9/);
   });
+
+  describe('an empty catalogue (no data loaded) is not a lookup that found nothing', () => {
+    const empty = { ...base, catalog: catalogOf([]) };
+
+    it('never denies a product exists when there is no catalogue to check against', () => {
+      const text = answerMessage('TJS23-2', empty);
+      assert.ok(!/ไม่เจอรหัส/.test(text), 'must not claim a code is unknown with zero products loaded');
+      assert.match(text, /ตอบคำถามนี้ไม่ได้ตอนนี้/);
+    });
+
+    it('gives the same cannot-answer copy for a search with no catalogue', () => {
+      const text = answerMessage('umbrella', empty);
+      assert.ok(!/ไม่เจอสินค้าที่ตรงกับ/.test(text));
+      assert.match(text, /ตอบคำถามนี้ไม่ได้ตอนนี้/);
+    });
+
+    it('gives the same cannot-answer copy for a budget search with no catalogue', () => {
+      const text = answerMessage('100 ชุด งบ 700', empty);
+      assert.ok(!/ยังไม่มีสินค้าที่เข้างบ/.test(text));
+      assert.match(text, /ตอบคำถามนี้ไม่ได้ตอนนี้/);
+    });
+
+    it('still answers help from an empty catalogue', () => {
+      assert.match(answerMessage('ช่วย', empty), /ซูริช่วยเรื่องราคาได้/);
+    });
+
+    it('a populated catalogue missing a code still says the code was not found (no regression)', () => {
+      const text = answerMessage('ZZ99-9', base);
+      assert.match(text, /ไม่เจอรหัส ZZ99-9/);
+    });
+  });
 });
 
 describe('codex evidence block (v4 prompt-carried evidence)', () => {

@@ -50,6 +50,7 @@ import {
   type TaxonomyServingQueryInput,
 } from '../rag/taxonomy-serving.js';
 import { GenesisLocalRag } from '../rag/genesis-rag.js';
+import { createGenesisRag17Runtime, wrapAnswerRag } from '../rag/genesisrag17/published-rag.js';
 
 // @req FR-001 — `config check` validates local configuration, device identity and contract version.
 // @req FR-002 — `health` reports registration, contract compatibility and last heartbeat.
@@ -738,7 +739,9 @@ async function handleWebhook(subcommand: string | undefined): Promise<void> {
   // native store in-process via the graph-viewer module, which the ADR guard now forbids
   // importing from anywhere the agent's own message path can reach. That route (and its native
   // import) is gone; the live graph visualisation is the MCP server's concern, a separate process.
-  const genesisRag = new GenesisLocalRag({ apiUrl: process.env.GENESIS_RAG_API_URL });
+  // FR-189 (ADR-075 D7): the same mode switch as the compute worker. `off` (the default) returns the
+  // v4 door itself; `shadow`/`primary` refuse to start the webhook without their prerequisites.
+  const genesisRag = wrapAnswerRag(new GenesisLocalRag({ apiUrl: process.env.GENESIS_RAG_API_URL }), createGenesisRag17Runtime());
   /*
    * The config surface needs an operator key before it can be reached from anywhere but this
    * console. Minted on first run rather than demanded up front, because a device that refuses to

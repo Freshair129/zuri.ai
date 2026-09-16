@@ -1,0 +1,222 @@
+{
+  "schemaVersion": "genesisrag17-remediation-verification.v1",
+  "repositories": {
+    "zuri-ai-ki17": {
+      "baseCommit": "436022a798c8bd46b9dd73904b9572790a9a8945",
+      "branch": "codex/ki17-integration",
+      "state": "uncommitted repairs",
+      "changedSourceSha256": {
+        "apps/server/prisma/migrations/20260908040000_genesisrag17_audit_remediation/migration.sql": "c8d2a5fbc0b2e72e36c52033b9f476561a59982df5f0ed23879ed91fa42c7b68",
+        "apps/server/prisma/schema.postgres.prisma": "d8ae61463b1091bd91f5876929368f7d21f745627d44c8b6302f8c04a4461c1b",
+        "apps/server/prisma/schema.prisma": "d2ad32941abf1685d3b5d6c5295e8e445c3aa38174c01ac824a3bf313203a598",
+        "apps/server/src/modules/knowledge/genesisrag17-lineage-repository.js": "d35d076b5504cabf37e472582eb086c7f5aa640f0ba75cce0482c728c2ed5c89",
+        "apps/server/src/modules/knowledge/genesisrag17-source.js": "8180750b524b92ef9b5a6bedf3bb3c1b18f3567ef0a80659ac292eac79ce203c",
+        "apps/server/src/modules/project-manager/application/backup-service.js": "161be7730df452e310305af1a9153b98875e73366c2bbc9873fb725b15fcd925",
+        "apps/server/src/platform/integrations/core/genesisrag17-executor.js": "025b38d3aa18d15d7fc03410ccb8c2e57932fe66be2008fab3776300ee23ab97",
+        "apps/server/src/platform/integrations/core/genesisrag17-worker.js": "d825cae2641691f8e0b8a1b3f7785b190fa38d106e7ab8e2fd30f97e4f2ef2b1",
+        "apps/server/src/platform/integrations/core/knowledge-ingestion-executor.js": "5f58bbddf38cb29b5a2e1bad5997fe6b8488af39f6762377b7ef77568392e0b1",
+        "apps/server/src/platform/integrations/core/pipeline-tracking-service.js": "fe5217ed755826fac7b23ee3049138b4bd0f8bde85cbb981eb390b5e1e3565e8",
+        "apps/server/supabase/migrations/20260908040000_genesisrag17_audit_remediation.sql": "73a205158084625325a530a44967532ff70a27c0364a439f083b038b89a94e95",
+        "apps/server/tests/acceptance/genesisrag17-e2e.test.js": "1ef41e8c34ce152a4f82f30ccf0ac72e511293b597436ad23361d1ce18edfc15",
+        "apps/server/tests/acceptance/harness.js": "61bdab835ebaee6527364cf8fc1b6d338a6033461744cdbd247fa1691be70bd2",
+        "apps/server/tests/acceptance/source-process.cjs": "792cf786517d21855f579aec3d689e4f6934825e5b9beee6ac46a78bb2e1904a",
+        "apps/server/tests/acceptance/worker-process.mjs": "882d071ef3a9d73573324be0092d5271c4cd17d0d5677519e0214eac6df86fb1",
+        "apps/server/tests/integration/fr110-knowledge-reporter-receiver.test.js": "e9bc3d2448d847fd330711e3e7852f5da4e452d1f3640a464b36ece2ed97484c",
+        "apps/server/tests/integration/genesisrag17-tier1.test.js": "180e35504865f069a965a8bddf1b0bd78aa29497c7294b7ab332d71ac35cc47b",
+        "apps/server/tests/unit/fr045-backup-contract.test.js": "efc53d98114308a30503580467d6f5a85ca37537a29f58f6ad04a82fc8c2895d",
+        "apps/server/tests/unit/genesisrag17-lineage-repository.test.js": "c28709bdf588812f5c4020e0a7a50135f8d469c217fe6cdf5770b4ee5eb2898f",
+        "apps/server/tests/unit/genesisrag17-source.test.js": "8b5a7e65fbf5bf5c5cc1964c376726348de180703a72e6f9d1df2e6ffb4e2cbe",
+        "apps/server/tests/unit/genesisrag17-supabase-migration.test.js": "15cf7c0f74e0dbfe992bd112f5ca03cd9fb23d61b289d60054e3759d13165781",
+        "apps/server/tests/unit/genesisrag17-worker.test.js": "72f2d66e6cd013bd7c41e705373e00d3551ee2b8862ac26d0372ac7c86a8ecba"
+      }
+    },
+    "msp-ki17": {
+      "baseCommit": "4707912583b800ecaa353162a1e5da7d2db7278a",
+      "branch": "codex/ki17-integration",
+      "state": "uncommitted repairs",
+      "changedSourceSha256": {
+        "packages/msp-contracts/src/contracts/pipeline.mjs": "40267257b5b1cb1e1db224d7036a14907349cf6d996f4990d8c2a9b6eabfd3e3",
+        "tests/contract/pipeline-relay.test.mjs": "e97240face5a7c48ff9a9e580d33bb80a8ce50dd1dee58f85a7c6fffdb29a7ea"
+      }
+    },
+    "gks-ki17": {
+      "baseCommit": "373fd8d6ca09221e171e98e855fe5f519236eff7",
+      "branch": "codex/ki17-integration",
+      "state": "uncommitted repairs",
+      "changedSourceSha256": {
+        "packages/gks-contracts/src/pipeline.mjs": "795a42d0236ea66d3169c709916ff43b89255f567e8d491ce7df8d128b09fe4c",
+        "packages/gks-core/src/index.mjs": "cc29d253077b82d85ace8e582e7127f7be0acd0d8ae3eba5f3611345ea9915e9",
+        "packages/gks-core/src/pipeline.mjs": "04eea27016c209b925d5cc3a7c61380d232b771fd70deef5811f4c47cf77c1a0",
+        "packages/gks-persistence/src/index.mjs": "40978c325239c5127cd70ecb974736ba78868e768c9d949ddfc8dcf5c8c53975",
+        "tests/contract/pipeline-genesisrag17.test.mjs": "00739444a0dc595e7118f9008cf336b77deae43bde1e31d6380bbc3cb85f9681"
+      }
+    },
+    "GenesisBlock-ki17": {
+      "baseCommit": "022ad3d3144d40f1f33f80b53ec555bb40584799",
+      "branch": "codex/ki17-integration",
+      "state": "uncommitted repairs",
+      "changedSourceSha256": {
+        "genesisrag17-worker/src/index.mjs": "dfb2afaf38e47b7e195d4430bc79ced4727bc1586e597b59ce5cf810657b01e7",
+        "genesisrag17-worker/src/worker.mjs": "e8f56af54ab0caf0f8ebfb013e0df2645e5ae410c136dd8433bc2a0442cb9163",
+        "genesisrag17-worker/test/worker.test.mjs": "dbfd6b0b7db6b2fde6f8d4fed42461808c4392e5d1563eb9759e23c165eb178a"
+      }
+    }
+  },
+  "zuri": {
+    "passed": 4217,
+    "failed": 0,
+    "excluded": 14
+  },
+  "nativeAcceptance": {
+    "passed": 25,
+    "failed": 0,
+    "skipped": 0,
+    "cases": [
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) starts from raw, preserves lost-reply identity, publishes all17 and resolves actual citations",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) restarts the actual native process and keeps old snapshot citations after correction",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) rejects wrong scope and forged reporters",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) blocks malformed attempt evidence without advancing the cursor, then resumes actual evidence",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) records embedding policy denial as a failed actual stage and retains the published snapshot",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) recovers an actual process crash at after-native-commit-before-receipt (graph) without losing historical citations",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) recovers an actual process crash at after-native-commit-before-receipt (final) without losing historical citations",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) recovers an actual process crash at after-graph-receipt-accepted-before-local-state without losing historical citations",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) recovers an actual process crash at before-pointer-replacement without losing historical citations",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) recovers an actual process crash at after-pointer-replacement-before-publication-outbox without losing historical citations",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) executes a real FR-071 replay with new attempts and refuses late evidence from the old run",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) resends the identical msp_pipeline_graph_receipt after an actual accepted reply is lost",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) resends the identical msp_pipeline_write_receipt after an actual accepted reply is lost",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) runs source and native worker loops through automatic receipt-backed finish and stops both",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) refuses publication when the actual candidate reports index failure",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) refuses publication when the actual candidate reports provenance failure",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) refuses publication when the actual candidate reports security failure",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) honors publication policy after real embedding and gate evaluation",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) rolls back run creation when the source process dies before its durable intent",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) resumes the actual source process after Stage3 without caller resubmission",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) resumes the actual source process after Stage8 without caller resubmission",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) finishes a failed local source attempt without a Stage9 batch or invented downstream evidence",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) routes ambiguous, negated and invalid temporal raw text through actual source and GKS stages",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) isolates retrieval with two populated tenants, shared GKS and scope-owned native stores",
+        "status": "passed"
+      },
+      {
+        "name": "GenesisRAG17 actual four-process acceptance (no skips) restores the isolated Tier 1 backup with immutable lineage and publication proof intact",
+        "status": "passed"
+      }
+    ]
+  },
+  "msp": {
+    "contractIntegrationPassed": 186,
+    "securityPassed": 45
+  },
+  "gks": {
+    "contractIntegrationPassed": 156,
+    "securityPassed": 10
+  },
+  "worker": {
+    "nativePassed": 13
+  },
+  "browser": {
+    "passed": 112,
+    "skipped": 4,
+    "flaky": 0
+  },
+  "rawChain": {
+    "file": "genesisrag17-repaired-native-chain.json",
+    "runId": "11249b04-264f-4db9-8a1d-01c9ce1c1870",
+    "snapshotId": "snap-b2e14307c261b48aa9d85e47709851bb",
+    "stages": 17,
+    "benchmark": {
+      "fixtureVersion": "ki17-corpus-v1",
+      "queryCount": 5,
+      "recallAt5": 1,
+      "mrr": 1,
+      "citationCorrectness": 1,
+      "crossTenantLeaks": 0
+    }
+  },
+  "productionDeployment": false,
+  "build": {
+    "zuri": "passed",
+    "database": "isolated test SQLite"
+  },
+  "governance": {
+    "passed": true,
+    "duplicateIds": 0,
+    "danglingEdges": 0,
+    "linkFindings": 0
+  },
+  "documentLinks": {
+    "checked": 547,
+    "missing": 0
+  }
+}

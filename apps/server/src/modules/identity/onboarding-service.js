@@ -129,8 +129,13 @@ export async function getOnboardingState({ personId, db = prisma, now = Date.now
   // verified profile email. Expired invites are filtered here (fail-closed at
   // acceptance too) rather than by a status nobody updates.
   const email = typeof person.email === 'string' && person.email.trim() ? person.email.trim().toLowerCase() : null
-  const invites = await db.workspaceInvite.findMany({
+  // @req FR-195 — the table generalised to AccessInvite; this onboarding step
+  // is about Workspace collaboration specifically, so it stays scoped to
+  // PORTFOLIO invites (a TENANT/BUSINESS invite becomes a real Membership
+  // grant on acceptance, which is a different surface).
+  const invites = await db.accessInvite.findMany({
     where: {
+      scopeType: 'PORTFOLIO',
       status: 'PENDING',
       expiresAt: { gt: new Date(now) },
       OR: [{ targetPersonId: personId }, ...(email ? [{ invitedEmail: email }] : [])],

@@ -37,6 +37,19 @@ const GOVERNED_FAMILIES = [
   { dir: resolve(SRC, 'app', 'api', 'people'), domainKey: 'people' },
 ]
 
+// Structurally exempt, not a widened ratchet: a per-Business domain-visibility check
+// asks whether THIS viewer may see THIS Business's customer data, and a deployment-bearer
+// worker route has neither — no browser viewer (checked instead by the same class of
+// exemption in doc-preflight.mjs's route-viewer check: ZURI_RETENTION_SWEEP_TOKEN,
+// constant-time, before any work happens) and no single Business scope, since the sweep's
+// whole point (FR-230, ADR-091 D1/D2) is running across every Tenant in one deployment-
+// scheduled tick, never one viewer's visible slice of it. Named path by path, not by
+// pattern, so a future route cannot claim the same exemption by sitting in this folder —
+// exactly the discipline the exemption lists in doc-preflight.mjs already follow.
+const STRUCTURALLY_EXEMPT_ROUTES = new Set([
+  resolve(SRC, 'app', 'api', 'crm', 'retention-sweep', 'route.js'),
+])
+
 function routeFilesUnder(dir, out = []) {
   if (!existsSync(dir)) return out
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
@@ -104,6 +117,7 @@ describe('every governed API route reaches the domain-visibility predicate', () 
     const unguarded = []
     for (const family of GOVERNED_FAMILIES) {
       for (const routeFile of routeFilesUnder(family.dir)) {
+        if (STRUCTURALLY_EXEMPT_ROUTES.has(routeFile)) continue
         if (!reachesPredicate(enforcementSources(routeFile))) {
           unguarded.push(
             `${relative(ROOT, routeFile)} — neither the handler nor any module it imports ` +

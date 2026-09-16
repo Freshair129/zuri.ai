@@ -1,8 +1,10 @@
 import { z } from 'zod'
 import { OpenAPIRegistry, OpenApiGeneratorV3, extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import { zPlanEnvelope, zExternalRef } from '../import/plan-schema'
+import { zDomainRow, zDomainViewError, zProjectDomainView } from '../application/project-domain-read-model'
 import { EXECUTION_MODES, PROGRESS_STRATEGIES } from '@/lib/validation/enums'
 import { zAssetIntakeEnvelope } from '@/modules/asset-management/domain/asset-intake'
+import { AUTH_SESSION_COOKIE } from '@/modules/identity/auth-service'
 
 // @req FR-019 — OpenAPI 3 generated FROM the Zod schemas that actually run at
 // request time, so the integration docs cannot drift from validation.
@@ -15,6 +17,15 @@ extendZodWithOpenApi(z)
 // integration test enumerates src/app/api/**/route.js and fails when this
 // inventory or the generated document falls behind a route change.
 export const CURRENT_API_ROUTE_INVENTORY = [
+  // @req FR-173 — shared source admission and scoped corpus retrieval.
+  ['/api/knowledge/ingestions', ['GET', 'POST']], ['/api/knowledge/ingestions/{runId}', ['GET']],
+  ['/api/knowledge/queries', ['POST']], ['/api/knowledge/citations/{citationId}', ['GET']],
+  ['/api/knowledge/sources/{sourceId}', ['DELETE']],
+  // @req FR-236 — LINE FAQ knowledge candidates (ADR-090 D6).
+  ['/api/knowledge/candidates', ['GET', 'POST']], ['/api/knowledge/candidates/{id}', ['GET', 'PATCH']],
+  ['/api/knowledge/candidates/{id}/decision', ['POST']],
+  // @req FR-237 — LINE knowledge gap report (ADR-090 D7).
+  ['/api/knowledge/gap-report', ['GET']],
   // @req FR-159, FR-158 — Business-scoped Strategy lifecycle and PM handoff.
   ['/api/growth/plans', ['GET', 'POST']], ['/api/growth/plans/{id}', ['GET', 'PATCH']],
   ['/api/growth/plans/{id}/handoff', ['POST']],
@@ -26,16 +37,33 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-157 — scoped Content lifecycle and owner reference choices.
   ['/api/growth/content', ['GET', 'POST']], ['/api/growth/content/briefs/{id}', ['GET', 'PATCH']],
   ['/api/growth/content/assets/{id}', ['GET']], ['/api/growth/content/references', ['GET']],
+  // @req FR-185 — Business-scoped broadcast planning identities and
+  // read-only Marketing projections. These handlers never send to a provider.
+  ['/api/growth/ask-marketing', ['POST']],
+  ['/api/growth/broadcast-intents', ['GET', 'POST']], ['/api/growth/broadcast-intents/{id}', ['GET', 'PATCH']],
+  ['/api/growth/paid-media', ['GET']],
   // @req FR-149, FR-150 — ADR-061 native ingress and optional executor.
   ['/api/line-oa/accounts/{id}/webhook', ['POST']], ['/api/line-oa/accounts/{id}/jobs', ['GET']],
+  ['/api/line-oa/accounts/{id}/transport-health', ['GET']],
   ['/api/line-oa/worker', ['POST']], ['/api/line-oa/connections', ['POST']],
+  // @req FR-223, FR-224 — write-only credential rotation, revocation and live
+  // validation (ADR-089); nothing they answer carries material.
+  ['/api/line-oa/connections/{id}/credential', ['POST']],
+  ['/api/line-oa/connections/{id}/credential/revoke', ['POST']],
+  ['/api/line-oa/connections/{id}/credential/validate', ['POST']],
   ['/api/line-oa/jobs/{id}/acknowledge-unknown', ['POST']],
+  ['/api/line-oa/jobs/{id}/trace', ['GET']],
+  ['/api/line-oa/jobs/failures', ['GET']],
   ['/api/edge/conversation-jobs/claim', ['POST']],
   ['/api/edge/conversation-jobs/{id}/complete', ['POST']], ['/api/edge/conversation-jobs/{id}/fail', ['POST']],
+  // @req FR-244 — the identity-free residency poll (ADR-061, ADR-094 D6 option A).
+  ['/api/edge/model-residency', ['POST']],
   // @req FR-143, FR-144 — the edge-executed extraction surface: three
   // owner-governed credential operations on the Platform side, four
   // device-authenticated job operations, and the review surface's job read.
   ['/api/platform/edge-devices/credentials', ['GET', 'POST']], ['/api/platform/edge-devices/credentials/{id}', ['DELETE']],
+  // @req FR-144 — expiring browser approval and one-use Desktop credential handover.
+  ['/api/edge/pairing/start', ['POST']], ['/api/edge/pairing/approve', ['POST']], ['/api/edge/pairing/poll', ['POST']],
   ['/api/edge/extraction-jobs/claim', ['POST']], ['/api/edge/extraction-jobs/{id}/evidence', ['GET']],
   ['/api/edge/extraction-jobs/{id}/complete', ['POST']], ['/api/edge/extraction-jobs/{id}/fail', ['POST']],
   ['/api/assets/evidence/{id}/extraction-job', ['GET']],
@@ -44,7 +72,12 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // transport mode) on the item. Archive is a PATCH action, never a DELETE.
   ['/api/line-oa/accounts', ['GET', 'POST']], ['/api/line-oa/accounts/{id}', ['GET', 'PATCH']],
   ['/api/line-oa/rich-menus', ['GET', 'POST']], ['/api/line-oa/rich-menus/{id}', ['GET', 'PATCH']],
-  ['/api/line-oa/rich-menus/{id}/jobs', ['GET', 'POST', 'PATCH']], ['/api/line-oa/rich-menu-worker', ['POST']],
+  ['/api/line-oa/rich-menus/{id}/jobs', ['GET', 'POST', 'PATCH']], ['/api/line-oa/rich-menu-worker', ['POST']], ['/api/platform/programme-usage-reports', ['POST']], ['/api/platform/programme-usage-reports/whoami', ['GET']], ['/api/platform/harness-pairing/start', ['POST']], ['/api/platform/harness-pairing/approve', ['POST']], ['/api/platform/harness-pairing/poll', ['POST']], ['/api/platform/harness-devices', ['GET']], ['/api/platform/harness-devices/{id}', ['PATCH']],
+  // @req FR-247 — the deduplicated error list (GET) and resolving one (PATCH).
+  ['/api/platform/error-events', ['GET']], ['/api/platform/error-events/{id}', ['PATCH']],
+  // @req FR-248, FR-249 — record one's own usage (POST), read the breakdown
+  // (GET), and the deployment-authenticated 90-day rollup.
+  ['/api/platform/usage-events', ['GET', 'POST']], ['/api/platform/usage-events/rollup', ['POST']],
   ['/api/line-oa/liff-apps', ['GET', 'POST']], ['/api/line-oa/liff-apps/{id}', ['GET', 'PATCH']],
   // @req FR-154, FR-155 — the Inventory domain: six catalogue collections
   // (list + create), the product item (read + versioned action; archive is an
@@ -58,13 +91,67 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // (list + create), item (read exploded to a quantity + versioned action)
   // and the atomic build (POST only).
   ['/api/inventory/recipes', ['GET', 'POST']], ['/api/inventory/recipes/{id}', ['GET', 'PATCH']], ['/api/inventory/recipes/{id}/build', ['POST']],
+  // @req FR-182 — the SCM operations surface (ADR-074): locations and the
+  // atomic transfer, both work orders with their versioned action, reservations
+  // and ATP, the shelf-life audit and de-kitting. Every one is a thin handler
+  // over the service FR-174..FR-181 already shipped.
+  ['/api/inventory/locations', ['GET', 'POST']], ['/api/inventory/locations/{id}', ['GET', 'PATCH']],
+  ['/api/inventory/location-stock', ['GET']], ['/api/inventory/transfers', ['POST']],
+  ['/api/inventory/customization-work-orders', ['GET', 'POST']], ['/api/inventory/customization-work-orders/{id}', ['GET', 'PATCH']],
+  ['/api/inventory/kitting-work-orders', ['GET', 'POST']], ['/api/inventory/kitting-work-orders/{id}', ['GET', 'PATCH']],
+  ['/api/inventory/reservations', ['GET', 'POST']], ['/api/inventory/reservations/{id}', ['PATCH']],
+  ['/api/inventory/atp', ['GET']], ['/api/inventory/shelf-life', ['GET', 'POST']],
+  ['/api/inventory/de-kitting', ['POST']],
+  // @req FR-184 — strict NONE/LOT physical stocktake preview, atomic commit
+  // and read-only durable detail; SERIAL and unconfigured locations remain
+  // explicit service refusals rather than hidden ledger writes.
+  ['/api/inventory/stocktakes/preview', ['POST']], ['/api/inventory/stocktakes/commit', ['POST']],
+  ['/api/inventory/stocktakes/{id}', ['GET']],
+  // @req FR-203, FR-204, FR-206, FR-207 — SKU governance (ADR-083): resolve an
+  // identifier to its SKU before creating one, the identifier and unit
+  // conversion collections of a SKU (list + add + versioned action), the
+  // read-only catalogue hygiene report and the replenishment suggestion.
+  ['/api/inventory/products/resolve', ['GET']],
+  ['/api/inventory/products/{id}/identifiers', ['GET', 'POST', 'PATCH']],
+  ['/api/inventory/products/{id}/unit-conversions', ['GET', 'POST', 'PATCH']],
+  ['/api/inventory/catalog-hygiene', ['GET']], ['/api/inventory/replenishment', ['GET']],
+  // @req FR-208, FR-209 — catalogue intake (ADR-084): the recent-intakes list, the
+  // JSON preview and commit, one intake (read + CANCEL action, never a DELETE),
+  // the Business-specific workbook template and the workbook upload preview.
+  ['/api/inventory/catalog-intakes', ['GET']], ['/api/inventory/catalog-intakes/preview', ['POST']],
+  ['/api/inventory/catalog-intakes/commit', ['POST']], ['/api/inventory/catalog-intakes/{id}', ['GET', 'PATCH']],
+  ['/api/inventory/catalog-intakes/template', ['GET']], ['/api/inventory/catalog-intakes/xlsx', ['POST']],
   ['/api/agent/heartbeat', ['GET', 'POST', 'DELETE']], ['/api/agent/line-asset-handoff', ['POST']], ['/api/agent/line-delivery', ['POST']], ['/api/agent/line-webhook', ['POST']], ['/api/assets/evidence', ['POST']], ['/api/assets/evidence/{id}/extract', ['POST']], ['/api/assets/evidence/{id}/review', ['POST']], ['/api/assets/import/sheets', ['POST']], ['/api/assets/import/template', ['GET']], ['/api/assets/import/xlsx', ['POST']], ['/api/assets/intakes', ['POST']], ['/api/assets/intakes/export', ['GET']], ['/api/assets/intakes/validate', ['POST']], ['/api/assets/lookup', ['GET']], ['/api/assets/register', ['GET', 'POST']], ['/api/assets/register/{id}', ['GET']], ['/api/assets/register/{id}/depreciation', ['GET']], ['/api/assets/register/{id}/dispose', ['GET', 'POST']], ['/api/assets/register/{id}/maintenance', ['GET', 'POST']], ['/api/assets/register/{id}/responsibility', ['POST']], ['/api/assets/register/{id}/relocate', ['POST']], ['/api/assets/register/{id}/allocate', ['POST']], ['/api/assets/register/{id}/return', ['POST']], ['/api/assets/register/{id}/verify', ['POST']], ['/api/audit', ['GET']], ['/api/backup/export', ['GET']], ['/api/backup/import', ['POST']],
   ['/api/business/files', ['GET']], ['/api/business/goals', ['POST']], ['/api/business/goals/{id}', ['PATCH']], ['/api/business/goals/{id}/projects', ['POST']], ['/api/business/goals/{id}/projects/{projectId}', ['DELETE']],
-  ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']], ['/api/containers', ['POST']], ['/api/containers/{id}', ['PATCH']],
-  ['/api/crm/conversations', ['GET']], ['/api/crm/conversations/{id}', ['GET']], ['/api/crm/customers/{customerId}/consent', ['POST']],
+  ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']],
+  // @req FR-169 — the only writer of Business.capabilitiesJson; PATCH only.
+  ['/api/businesses/{id}/capabilities', ['PATCH']],
+  // @req FR-236 — the only writer of Business.knowledgeCandidatesEnabled
+  // (ADR-090 D6, TASK-ZAI-099); PATCH only, OWNER-scoped, same shape as the
+  // capability toggle above.
+  ['/api/businesses/{id}/knowledge-candidates-toggle', ['PATCH']],
+  ['/api/containers', ['POST']], ['/api/containers/{id}', ['PATCH']],
+  ['/api/crm/conversations', ['GET']], ['/api/crm/conversations/{id}', ['GET']],
+  // @req FR-246 — the staff reply writer: a Business owner sends a reply from the
+  // Inbox composer, pushed through the LINE transport and recorded only on
+  // acceptance (ADR-093 evidence gap). POST only.
+  ['/api/crm/conversations/{id}/reply', ['POST']],
+  // @req FR-233 — the third, read-only reader: message search and per-account
+  // follow/unfollow counts. GET only, same as the inbox above.
+  ['/api/crm/conversations/search', ['GET']], ['/api/crm/conversations/event-counts', ['GET']],
+  ['/api/crm/customers/{customerId}/consent', ['POST']],
   // @req FR-022 — the PDPA erasure trigger. POST only: there is no preview of an
   // erasure, and the redacted Customer row survives, so DELETE would misdescribe it.
   ['/api/crm/customers/{customerId}/erasure', ['POST']],
+  // @req FR-245 — the chat evidence archive's one retrieval path (ADR-093 D7,
+  // TASK-ZAI-112). POST only, same reasoning as the erasure row above: no GET
+  // preview, and every call is independently audited regardless of how many
+  // times the same range is asked for.
+  ['/api/crm/customers/{customerId}/chat-evidence/retrieve', ['POST']],
+  // @req FR-230 — the nightly retention sweep's scheduled entry point (ADR-091 D1,
+  // D2). Deployment-authenticated (ZURI_RETENTION_SWEEP_TOKEN), same shape as
+  // /api/line-oa/worker and /api/platform/programme-usage-reports below.
+  ['/api/crm/retention-sweep', ['POST']],
   // @req FR-161 — sales tasks: the collection (list + create) and the item
   // (read + versioned action; cancel is an action, never a DELETE).
   ['/api/crm/sales-tasks', ['GET', 'POST']], ['/api/crm/sales-tasks/{id}', ['GET', 'PATCH']],
@@ -74,6 +161,16 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/commerce/orders', ['GET', 'POST']], ['/api/commerce/orders/{id}', ['GET', 'PATCH']],
   ['/api/commerce/orders/{id}/payments', ['GET', 'POST']], ['/api/commerce/payments/{id}', ['GET', 'PATCH']],
   ['/api/commerce/revenue', ['GET']],
+  // @req FR-186 — Business-scoped billing configuration, durable document
+  // preview/issuance, and read-only issued-document retrieval.
+  ['/api/commerce/billing/config', ['GET', 'PATCH']],
+  ['/api/commerce/billing/documents/preview', ['POST']],
+  ['/api/commerce/billing/documents', ['POST']],
+  ['/api/commerce/billing/documents/{id}', ['GET']],
+  // @req FR-183 — POS catalogue reads and atomic checkout composition over
+  // existing Commerce payments plus the Inventory append-only ledger.
+  ['/api/commerce/pos/catalogue', ['GET']],
+  ['/api/commerce/pos/checkout', ['POST']],
   // @req FR-164, FR-165 — procurement: suppliers (list + create; archive is
   // an action, never a DELETE), purchase orders (list + create, read +
   // versioned action) and the goods receipts of one order (list + post —
@@ -81,6 +178,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/procurement/suppliers', ['GET', 'POST']], ['/api/procurement/suppliers/{id}', ['GET', 'PATCH']],
   ['/api/procurement/purchase-orders', ['GET', 'POST']], ['/api/procurement/purchase-orders/{id}', ['GET', 'PATCH']],
   ['/api/procurement/purchase-orders/{id}/receipts', ['GET', 'POST']],
+  ['/api/procurement/receipts', ['GET']], ['/api/procurement/receipts/{id}', ['GET']],
   // @req FR-092 — Market Intelligence's surface-reachable endpoints. Reads are GET
   // only; the only writer of MarketObservation rows is the owner-triggered
   // production translation run below.
@@ -97,20 +195,36 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-110 — the pull half (ADR-068): one operator tick of the evidence
   // importer, zuri-ai → MSP → gks_stage_evidence_export. One path, one operation.
   ['/api/pipelines/knowledge/evidence/pull', ['POST']],
-  ['/api/milestones', ['GET', 'POST']], ['/api/milestones/{id}', ['PATCH']], ['/api/people', ['GET']], ['/api/pipelines/runs', ['GET', 'POST']], ['/api/pipelines/runs/{executionRunId}', ['GET']], ['/api/pipelines/runs/{executionRunId}/events', ['POST']], ['/api/pipelines/runs/{executionRunId}/replay', ['POST']], ['/api/platform/customer-import-reviews', ['GET']], ['/api/platform/customer-import-reviews/{caseId}/decisions', ['POST']], ['/api/platform/customer-import-reviews/targets', ['GET']], ['/api/platform/sot/plan', ['GET']], ['/api/platform/sot/decisions', ['GET', 'POST']], ['/api/platform/sot/decisions/{decisionId}/decide', ['POST']], ['/api/platform/sot/decisions/export', ['GET']],
+  ['/api/milestones', ['GET', 'POST']], ['/api/milestones/{id}', ['PATCH']], ['/api/people', ['GET']], ['/api/people/employment', ['POST']], ['/api/people/employment/{employmentId}', ['PATCH']], ['/api/pipelines/runs', ['GET', 'POST']], ['/api/pipelines/runs/{executionRunId}', ['GET']], ['/api/pipelines/runs/{executionRunId}/events', ['POST']], ['/api/pipelines/runs/{executionRunId}/replay', ['POST']], ['/api/platform/customer-import-reviews', ['GET']], ['/api/platform/customer-import-reviews/{caseId}/decisions', ['POST']], ['/api/platform/customer-import-reviews/targets', ['GET']], ['/api/platform/sot/plan', ['GET']], ['/api/platform/sot/decisions', ['GET', 'POST']], ['/api/platform/sot/decisions/{decisionId}/decide', ['POST']], ['/api/platform/sot/decisions/export', ['GET']],
   // @req FR-106 — GET lists key metadata for the Tenants the caller may govern
   // (never key material); POST mints; DELETE revokes.
   ['/api/platform/api-access-keys', ['GET', 'POST']], ['/api/platform/api-access-keys/{id}', ['DELETE']],
   ['/api/platform/integrations', ['GET', 'POST']], ['/api/platform/integrations/line-registry', ['GET', 'POST']], ['/api/platform/users', ['GET', 'PATCH']], ['/api/profile', ['GET']], ['/api/progress/portfolio', ['GET']], ['/api/progress/project/{id}', ['GET']], ['/api/progress/workstream/{id}', ['GET']],
-  ['/api/projects', ['GET', 'POST']], ['/api/projects/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/projects/{id}/dependencies', ['GET']], ['/api/projects/{id}/files', ['GET', 'POST']], ['/api/projects/{id}/files/{fileId}', ['DELETE']], ['/api/projects/{id}/inventory', ['GET']], ['/api/projects/{id}/roadmap', ['GET']], ['/api/projects/{id}/team', ['GET', 'POST', 'PATCH', 'DELETE']], ['/api/projects/{id}/teams', ['GET', 'POST', 'DELETE']], ['/api/projects/{id}/tree', ['GET']], ['/api/projects/overview', ['GET']],
+  ['/api/projects', ['GET', 'POST']], ['/api/projects/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/projects/{id}/dependencies', ['GET']], ['/api/projects/{id}/files', ['GET', 'POST']], ['/api/projects/{id}/files/{fileId}', ['DELETE']], ['/api/projects/{id}/inventory', ['GET']], ['/api/projects/{id}/roadmap', ['GET']], ['/api/projects/{id}/domain-view', ['GET']], ['/api/projects/{id}/team', ['GET', 'POST', 'PATCH', 'DELETE']], ['/api/projects/{id}/teams', ['GET', 'POST', 'DELETE']], ['/api/projects/{id}/tree', ['GET']], ['/api/projects/overview', ['GET']],
   ['/api/repositories', ['GET', 'POST']], ['/api/repositories/{id}', ['PATCH']], ['/api/repositories/link', ['POST']], ['/api/repositories/link/{id}', ['DELETE']], ['/api/resolve', ['GET']], ['/api/scope', ['GET', 'POST']], ['/api/auth/login', ['POST']], ['/api/auth/logout', ['POST']], ['/api/auth/reset-password', ['POST']], ['/api/auth/signup', ['POST']], ['/api/onboarding/profile', ['POST']], ['/api/onboarding/state', ['GET']], ['/api/onboarding/workspaces', ['POST']], ['/api/workspace-invites', ['POST']], ['/api/workspace-invites/accept', ['POST']], ['/api/workspace-invites/{id}', ['DELETE']], ['/api/workspace-memberships', ['GET', 'DELETE']], ['/api/platform/users/password-resets', ['POST']],
   // @req FR-038 — the owner attaches an existing Person to a Business they own.
-  ['/api/platform/users/memberships', ['POST']], ['/api/teams', ['GET', 'POST']], ['/api/teams/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/teams/{id}/members', ['POST', 'DELETE']], ['/api/viewer', ['GET']],
+  ['/api/platform/users/memberships', ['POST']],
+  // @req FR-191 — the withdrawal half of a grant's life (ADR-077 D2).
+  ['/api/platform/users/memberships/{id}/lifecycle', ['POST']],
+  ['/api/platform/users/offboard', ['POST']], ['/api/teams', ['GET', 'POST']], ['/api/teams/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/teams/{id}/members', ['POST', 'DELETE']], ['/api/viewer', ['GET']],
+  // @req FR-199 — access history a Business owner can read for their own
+  // scope (ADR-080), and the current-state grant roster for one Business.
+  ['/api/platform/access-history', ['GET']],
+  ['/api/platform/businesses/{businessId}/grants', ['GET']],
   // @req FR-123 — the plugin authorization boundary (ADR-052).
   // GET renders the consent screen (it redirects there and mints nothing);
   // POST is the consent form's own submission and the only path that mints.
   ['/api/plugin/auth/authorize', ['GET', 'POST']], ['/api/plugin/auth/capabilities', ['GET']], ['/api/plugin/auth/revoke', ['POST']], ['/api/plugin/auth/token', ['POST']],
   ['/api/work', ['GET', 'POST']], ['/api/work/{id}', ['PATCH', 'DELETE']], ['/api/workspaces/{id}', ['PATCH', 'DELETE']], ['/api/workstreams', ['GET', 'POST']], ['/api/workstreams/{id}', ['PATCH', 'DELETE']],
+  // @req FR-022, FR-097 — verified channel onboarding and identity link tokens (ADR-045).
+  ['/api/identity/link-tokens', ['POST']],
+  ['/api/identity/link-tokens/redeem', ['POST']],
+  ['/api/identity/channel-identities', ['GET']],
+  // @req FR-094, FR-095 — Multi-Factor Authentication (TOTP) and session step-up elevation (ADR-045).
+  ['/api/auth/mfa/totp/enroll', ['POST']],
+  ['/api/auth/mfa/totp/verify', ['POST']],
+  ['/api/auth/mfa/factors', ['GET', 'DELETE']],
+  ['/api/auth/step-up', ['POST']],
 ]
 
 const zRouteInventoryRequest = z.record(z.string(), z.unknown()).openapi({
@@ -168,7 +282,7 @@ function genericResponses(path) {
 }
 
 function registerInventoryOperations(registry) {
-  const detailedOperations = new Set(['post /api/assets/intakes/validate', 'post /api/import/dry-run', 'post /api/import/commit', 'get /api/resolve', 'get /api/import/template'])
+  const detailedOperations = new Set(['get /api/projects/{id}/domain-view', 'post /api/assets/intakes/validate', 'post /api/import/dry-run', 'post /api/import/commit', 'get /api/resolve', 'get /api/import/template'])
   for (const [path, methods] of CURRENT_API_ROUTE_INVENTORY) {
     for (const method of methods) {
       const methodName = method.toLowerCase()
@@ -280,6 +394,15 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
   registry.register('ResolveResponse', zResolveResponse)
   registry.register('AssetIntakeEnvelope', zAssetIntakeEnvelope)
   registry.register('AssetValidationResponse', zAssetValidationResponse)
+  registry.register('DomainRow', zDomainRow)
+  registry.register('DomainView', zProjectDomainView)
+  registry.register('DomainViewError', zDomainViewError)
+  registry.registerComponent('securitySchemes', 'SessionAuth', {
+    type: 'apiKey',
+    in: 'cookie',
+    name: AUTH_SESSION_COOKIE,
+    description: 'Current server-resolved session. Authorization is recomputed from live server state; no role is inferred from cookie labels.',
+  })
   registry.register('Error', zError)
 
   registry.registerPath({
@@ -298,6 +421,66 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
       401: json(zError, 'Authentication required'),
       403: json(zError, 'Asset Management is not enabled for this Business'),
       404: json(zError, 'Business not found or not visible'),
+    },
+  })
+
+  registry.registerPath({
+    method: 'get',
+    path: '/api/projects/{id}/domain-view',
+    operationId: 'getProjectDomainView',
+    summary: 'Read the authorized Project Execution Domains projection',
+    description:
+      'Read-only Phase A projection of FR-070 Workstream domain bindings. ' +
+      'Authorization is resolved against the Project Business/Workspace hierarchy before Workstream or WorkItem aggregation. ' +
+      'Unknown immutable domain ids remain visible as UNMAPPED; Feature, blocker, contract, gap and snapshot fields remain unavailable in Phase A.',
+    tags: ['Domain view'],
+    security: [{ SessionAuth: [] }],
+    request: { params: z.object({ id: z.string().uuid() }).strict() },
+    responses: {
+      200: {
+        description: 'Successful authorized result.',
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/DomainView' } } },
+      },
+      401: {
+        description: 'No valid live session. The redacted body contains no Project, Business or domain identifiers.',
+        headers: {
+          'X-Request-ID': {
+            description: 'Fresh server-generated request UUID; equal to the response body requestId.',
+            schema: { type: 'string', format: 'uuid' },
+          },
+        },
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/DomainViewError' } } },
+      },
+      404: {
+        description: 'The Project is unknown, deleted, foreign-scope or hierarchy-invalid. The same redacted response prevents target enumeration.',
+        headers: {
+          'X-Request-ID': {
+            description: 'Fresh server-generated request UUID; equal to the response body requestId.',
+            schema: { type: 'string', format: 'uuid' },
+          },
+        },
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/DomainViewError' } } },
+      },
+      503: {
+        description: 'The session or read service is temporarily unavailable; internal details are redacted.',
+        headers: {
+          'X-Request-ID': {
+            description: 'Fresh server-generated request UUID; equal to the response body requestId.',
+            schema: { type: 'string', format: 'uuid' },
+          },
+        },
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/DomainViewError' } } },
+      },
+      500: {
+        description: 'Unexpected failure; internal details are redacted.',
+        headers: {
+          'X-Request-ID': {
+            description: 'Fresh server-generated request UUID; equal to the response body requestId.',
+            schema: { type: 'string', format: 'uuid' },
+          },
+        },
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/DomainViewError' } } },
+      },
     },
   })
 
@@ -363,7 +546,7 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
   registerInventoryOperations(registry)
 
   const generator = new OpenApiGeneratorV3(registry.definitions)
-  return generator.generateDocument({
+  const document = generator.generateDocument({
     openapi: '3.0.3',
     info: {
       title: 'Zuri v2 Project Manager — Enterprise Intake API',
@@ -387,6 +570,7 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
     tags: [
       { name: 'Intake', description: 'Plan envelope in, work graph out' },
       { name: 'Asset Management', description: 'Evidence-backed physical Asset intake previews' },
+      { name: 'Domain view', description: 'Authorized Project Execution Domains projections' },
       { name: 'Identity', description: 'Map customer core ids onto internal records' },
       { name: 'Route inventory', description: 'Complete current route/method coverage with transparent generic boundaries' },
     ],
@@ -396,4 +580,13 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
       operationCount: CURRENT_API_ROUTE_INVENTORY.reduce((count, [, methods]) => count + methods.length, 0),
     },
   })
+  // OpenAPI 3.0 represents Zod's `z.null()` as `nullable: true`. Add the
+  // candidate's explicit null enum to the two Phase A fields so consumers can
+  // distinguish an unavailable value from a nullable future value, while the
+  // runtime Zod schemas remain the single validation authority.
+  for (const [schemaName, field] of [['DomainView', 'snapshotId'], ['DomainRow', 'blockerCount']]) {
+    const schema = document.components?.schemas?.[schemaName]
+    if (schema?.properties?.[field]) schema.properties[field].enum = [null]
+  }
+  return document
 }

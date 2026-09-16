@@ -13,6 +13,7 @@ not a version of, and shares nothing with, the legacy zuri project.
 
 - [CLAUDE.md](CLAUDE.md) — the working guide: layout, toolchain, hard rules
 - [AGENTS.md](AGENTS.md) — the full rules for anyone (human or agent) changing this repo
+- [llms.txt](llms.txt) — the index for LLM readers. The full corpus (`llms-full.txt`, every orientation doc and charter inlined) is built rather than committed: `npm run docs:llms`, or download the `llms-full` artefact from a `governance` run (ADR-081)
 - [docs/PRODUCT.md](docs/PRODUCT.md) — what the product is
 - [docs/PRD-SDD-v1.0.md](docs/PRD-SDD-v1.0.md) — the requirement registry (FR/NFR/BR/SEC/SDD)
 - [docs/decisions/](docs/decisions/) — ADRs; ADR-024 is the current direction
@@ -20,6 +21,16 @@ not a version of, and shares nothing with, the legacy zuri project.
 - [Document link metadata](docs/GOVERNANCE-LINK-METADATA.md) — stable IDs, relations and wikilinks
 - [ADR / FR / phase templates](docs/templates/) — copy a `.md.template`, replace placeholders, then run `npm run govern`
 - [Document crosslinks and backlinks](docs/DOCUMENT-LINKS.md) — generated navigation
+
+## GenesisRAG17 documentation
+
+The isolated 17-stage ingestion pipeline has its own [specification](docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md),
+[execution flow and extension map](docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md),
+[wire contract](docs/plans/GENESISRAG17-CONTRACT.md) and
+[acceptance evidence](.brain/reports/GENESISRAG17-ACCEPTANCE.md).
+Start with the extension map to choose the stage and owning repo for a new feature.
+It distinguishes the implemented synthetic test profile from the broader product target;
+production deployment remains a separate task.
 
 ## Planning import contracts
 
@@ -63,6 +74,7 @@ npm run test:e2e       # Playwright on :3100
 npm run docs:graph     # rebuild the doc graph — run after any doc/route/model change
 npm run docs:preflight # doc health checks
 npm run docs:check     # CI guard: fails if the committed graph is stale
+npm run docs:llms      # rebuild llms-full.txt — run after editing README/CLAUDE/AGENTS/PRODUCT or a charter
 ```
 
 A change is not done until tests pass, the build is clean, and
@@ -76,6 +88,10 @@ cp .env.example .env   # fill DATABASE_URL, ZURI_SESSION_SECRET, NGROK_AUTHTOKEN
 docker compose up -d --build
 docker compose ps      # web healthy, ngrok running
 ```
+
+Production also runs the ADR-061 LINE server overlay: `apps/server/.env` sets
+`COMPOSE_FILE` and `COMPOSE_PROFILES` so the commands above include it. Passing `-f`
+explicitly bypasses that — see the deployment guide.
 
 Public URL: `https://<NGROK_DOMAIN>`; LINE webhook seam:
 `https://<NGROK_DOMAIN>/api/agent/line-webhook`. Full guide, verification steps

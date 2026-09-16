@@ -1,5 +1,5 @@
 import { workspacePath } from '../../scripts/workspace-path.mjs'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
 import Ajv2020 from 'ajv/dist/2020.js'
 import addFormats from 'ajv-formats'
@@ -32,6 +32,20 @@ const edges = [
 ]
 
 describe('domain state projection', () => {
+  it('serializes identical source inputs identically across different generation times', () => {
+    vi.useFakeTimers()
+    try {
+      vi.setSystemTime(new Date('2026-09-12T12:42:27.274Z'))
+      const first = JSON.stringify(buildDomainState({ nodes, edges }))
+      vi.setSystemTime(new Date('2026-09-12T13:00:14.773Z'))
+      const second = JSON.stringify(buildDomainState({ nodes, edges }))
+      expect(second).toBe(first)
+      expect(JSON.parse(second)).not.toHaveProperty('generatedAt')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('committed output validates against the public state schema', () => {
     const schema = JSON.parse(readFileSync('contracts/domain-state.schema.json', 'utf8'))
     const state = JSON.parse(readFileSync(workspacePath(process.cwd(), 'docs/.domain-state.json'), 'utf8'))
@@ -70,7 +84,6 @@ describe('domain state projection', () => {
           },
         },
       },
-      generatedAt: '2026-08-18T00:00:00.000Z',
     })
 
     expect(STATUS_VALUES).toEqual([
@@ -109,7 +122,6 @@ describe('domain state projection', () => {
           },
         },
       },
-      generatedAt: '2026-08-18T00:00:00.000Z',
     })
 
     expect(state.domains['project-manager'].checks.jsonSchema).toEqual({
@@ -141,7 +153,6 @@ describe('domain state projection', () => {
       edges: sharedEdges,
       featureRequirements: new Map([['project-manager', ['FR-033']]]),
       observations: {},
-      generatedAt: '2026-08-18T00:00:00.000Z',
     })
 
     expect(state.domains['project-manager'].requirements).toEqual(expect.arrayContaining([
@@ -167,10 +178,9 @@ describe('domain state projection', () => {
       nodes: featureNodes,
       edges: featureEdges,
       featurePresentation,
-      generatedAt: '2026-08-30T00:00:00.000Z',
     })
 
-    expect(state.schemaVersion).toBe('1.1')
+    expect(state.schemaVersion).toBe('2.0')
     expect(state.progressMethodology).toEqual(PROGRESS_METHODOLOGY)
     expect(state.overall).toEqual(expect.objectContaining({
       featureCount: 2,
@@ -259,14 +269,7 @@ describe('domain state projection', () => {
 
 it('retains requirement membership when code paths move under apps/server', () => {
   const relocated = nodes.map(n => ({ ...n, path: /^(src|tests)\//.test(n.path) ? `apps/server/${n.path}` : n.path }))
-  // Both builds are stamped with the same instant on purpose. `buildDomainState`
-  // defaults `generatedAt` to `new Date()`, so two calls straddling a
-  // millisecond produced states that differed only in that field — and the
-  // comparison below is over the whole JSON, so the test failed for the clock
-  // rather than for the relocation it exists to check. It did exactly that on
-  // PR #268 (…38.567Z against …38.568Z) while passing on the same tree locally.
-  const generatedAt = '2026-09-07T00:00:00.000Z'
-  const before = buildDomainState({ nodes, edges, generatedAt })
-  const after = buildDomainState({ nodes: relocated, edges, generatedAt })
+  const before = buildDomainState({ nodes, edges })
+  const after = buildDomainState({ nodes: relocated, edges })
   expect(JSON.stringify(after).replaceAll('apps/server/', '')).toEqual(JSON.stringify(before))
 })

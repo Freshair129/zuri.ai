@@ -27,6 +27,7 @@ import {
   zRecipeAction,
   zRecordMovement,
 } from '@/modules/inventory/domain/inventory'
+import { INVENTORY_STOCK_POLICIES, INVENTORY_UNSTOCKED_POLICIES } from '@/lib/validation/enums'
 
 const base = { businessId: 'b-1', code: 'SKU-1', productMasterId: 'pm-1' }
 
@@ -42,6 +43,30 @@ describe('FR-154 inventory catalogue contracts', () => {
     expect(() => zCreateProduct.parse({ ...base, stockPolicy: 'UNTRACKED', trackingMode: 'LOT' })).toThrow(/tracking mode/)
     expect(zCreateProduct.parse({ ...base, stockPolicy: 'UNTRACKED' }).stockPolicy).toBe('UNTRACKED')
     expect(zCreateProduct.parse({ ...base, stockPolicy: 'TRACKED', trackingMode: 'SERIAL' }).trackingMode).toBe('SERIAL')
+  })
+
+  // @req FR-168 — a service is a third nature, not a kind of uncounted good.
+  it('a SERVICE is accepted and, like an UNTRACKED good, can carry no tracking mode', () => {
+    expect(zCreateProduct.parse({ ...base, stockPolicy: 'SERVICE' }).stockPolicy).toBe('SERVICE')
+    expect(() => zCreateProduct.parse({ ...base, stockPolicy: 'SERVICE', trackingMode: 'LOT' })).toThrow(/no tracking mode/)
+    expect(() => zCreateProduct.parse({ ...base, stockPolicy: 'SERVICE', trackingMode: 'SERIAL' })).toThrow(/no tracking mode/)
+    expect(zCreateProduct.parse({ ...base, stockPolicy: 'SERVICE', trackingMode: 'NONE' }).trackingMode).toBe('NONE')
+    // The three natures are the whole vocabulary; a fourth would have to be
+    // declared here before anything could store it.
+    expect(INVENTORY_STOCK_POLICIES).toEqual(['TRACKED', 'UNTRACKED', 'SERVICE'])
+    expect(INVENTORY_UNSTOCKED_POLICIES).toEqual(['UNTRACKED', 'SERVICE'])
+  })
+
+  // @req FR-168 — the ledger rules read "counted or not", so a service is
+  // refused by the same calculators that refuse an uncounted good, and it never
+  // reports an on-hand of zero, which would read as counted and empty.
+  it('a SERVICE has no ledger: no movement, no safety-stock comparison', () => {
+    const service = { id: 'p-svc', status: 'ACTIVE', stockPolicy: 'SERVICE', trackingMode: 'NONE', safetyStock: 5 }
+    // Its own code, not the uncounted one: an uncounted good could be counted
+    // if the Business changed its mind, a service never can.
+    expect(movementRule(service, { kind: 'RECEIPT', quantity: 1 })).toEqual({ ok: false, code: 'INVENTORY_PRODUCT_IS_A_SERVICE' })
+    expect(isBelowSafetyStock(service, 0)).toBe(false)
+    expect(stockSummaryRow(service, [])).toMatchObject({ onHand: null, belowSafetyStock: false })
   })
 
   it('a bundle needs at least one item and names a product once', () => {

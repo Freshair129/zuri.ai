@@ -11,6 +11,25 @@ on:
   pull_request:
   push:
     branches: [main]
+  # 02:00 Asia/Bangkok. A full e2e run on `main`, on a clock rather than on a
+  # commit.
+  #
+  # What this does NOT exist for: "specs the selector never picks would never
+  # run". They do — a push to `main` sets `forceAll` and runs every spec, so
+  # each merge already exercises the whole suite.
+  #
+  # It exists for the failures that arrive with no commit at all: a Playwright
+  # browser build refreshed under a restored cache, a `windows-latest` runner
+  # image rolled forward, a transitive dependency republished. Those land
+  # between merges and, on a quiet week, would first be seen by whoever opens
+  # the next pull request — who would reasonably read it as their own breakage.
+  # A dated nightly result says whether `main` was already red.
+  #
+  # Only `e2e` runs here; `verify` is skipped below, because nothing it checks
+  # (tests, build, the governance chain, the freshness gates) can change while
+  # the tree does not.
+  schedule:
+    - cron: '0 19 * * *'
 
 jobs:
   # Which parts of the tree changed. The e2e suite takes 7-8 minutes and cannot
@@ -44,6 +63,16 @@ jobs:
         shell: bash
         run: |
           set -uo pipefail
+          # A scheduled run has no diff to classify — there is no new commit,
+          # which is the whole point of it. It would reach the same answer by
+          # accident (`github.event.before` is empty on a schedule, and the
+          # no-usable-base case below fails open), but an accident is not a
+          # decision: say it here so the log states the reason.
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            echo "scheduled run — exercising the full suite against main"
+            echo "code=true" >> "$GITHUB_OUTPUT"; exit 0
+          fi
+
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             base='${{ github.event.pull_request.base.sha }}'
             head='${{ github.event.pull_request.head.sha }}'
@@ -80,14 +109,132 @@ jobs:
             echo "code=true" >> "$GITHUB_OUTPUT"
           fi
 
-  verify:
-    # windows-latest, not ubuntu: `src/modules/project-manager/local-files/`
-    # hardcodes `path.win32` in three files, deliberately — mounted-root
-    # containment has to reason about drive letters, UNC paths and
-    # junction/reparse points (SEC-007). On Linux those helpers turn `/tmp/x`
-    # into `\tmp\x` and FR-045's integration tests fail with ENOENT. The first
-    # CI run found this; the constraint was real and undocumented, not a
-    # regression. See .brain/rca/2026-08-17-ci-found-an-undocumented-platform-constraint.md
+  # ---------------------------------------------------------------------------
+  # `verify` used to be one job: install → govern → tests → build, ~14.5 min in
+  # sequence, of which the tests were ~11 and the governance chain 22 seconds.
+  # Two consequences the owner hit on 2026-09-13 (PR #364): a stale
+  # `domain-state.json` and an unreviewed id-ledger digest — both 20-second
+  # governance findings — were reported after 13 minutes, and each fix push
+  # re-ran the whole 14.5 minutes, because GitHub re-runs a JOB, never a step,
+  # and a new commit is a new run in any case.
+  #
+  # Split (owner instruction, 2026-09-13):
+  #   govern  — the governance chain, the committed-state guard, the LLM corpus
+  #             and the governance-facing unit tests. Reports in ~2-3 minutes,
+  #             so a documentation or annotation slip is red before the suite
+  #             is half done.
+  #   tests   — the full unit + integration suite. The long job; unchanged.
+  #   build   — the production build, no longer queued behind the tests.
+  #   verify  — an aggregate that fails if any of the three did. Branch
+  #             protection requires a check literally named `verify`
+  #             (`changes`, `verify`, `edge-verify`), and a required check that
+  #             only covered one of the three would let a red suite merge.
+  #
+  # The three run in PARALLEL rather than govern-first-then-the-rest: gating the
+  # 11-minute suite on a 3-minute job would add 3 minutes to every green run to
+  # save runner minutes on the red ones, and time-to-signal — not runner cost —
+  # is what this split is for. `gh run rerun --failed` now re-runs only the job
+  # that failed when the failure was environmental.
+  #
+  # windows-latest on all three, not ubuntu: `src/modules/project-manager/local-files/`
+  # hardcodes `path.win32` in three files, deliberately — mounted-root
+  # containment has to reason about drive letters, UNC paths and junction/reparse
+  # points (SEC-007). On Linux those helpers turn `/tmp/x` into `\tmp\x` and
+  # FR-045's integration tests fail with ENOENT. The first CI run found this; the
+  # constraint was real and undocumented, not a regression. See
+  # .brain/rca/2026-08-17-ci-found-an-undocumented-platform-constraint.md
+  # The nightly run skips all of them: on a schedule the commit is whatever
+  # `main` already merged and verified, so nothing here can change.
+  # ---------------------------------------------------------------------------
+  govern:
+    if: github.event_name != 'schedule'
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: apps/server
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/server/package-lock.json
+
+      # `postinstall` runs `prisma generate`, so the client is built here.
+      - run: npm ci
+
+      # docs:graph rebuilds from the filesystem, docs:check re-runs the
+      # generator and fails when a second pass disagrees with the first, and
+      # docs:preflight (--strict) fails on any CRITICAL. The order matters: two
+      # preflight checks read the graph, so it must be built before preflighting.
+      #
+      # The steps that used to sit around this one — "Committed graph is
+      # current", "Relocated graph is committed and current" and the
+      # generated-views diff — are gone with the committed artefacts they
+      # guarded (ADR-081 D3). What is left is the stronger question `docs:check`
+      # still asks: is the generator REPRODUCIBLE.
+      - name: Governance chain
+        run: npm run govern
+
+      # `runtime/domain-state.json` IS still committed — the app imports it and
+      # the Docker build context cannot regenerate it (ADR-081 D2) — so it keeps
+      # a byte-stability check of its own. #354 removed the run timestamp that
+      # made this impossible before.
+      - name: Bundled runtime state is committed and current
+        working-directory: .
+        shell: bash
+        run: |
+          # FR-212 / ADR-085 D4: the data pipeline map projection is committed for
+          # the same reason and guarded the same way.
+          for committed in apps/server/runtime/domain-state.json apps/server/runtime/data-pipeline-map.json; do
+            if ! git diff --quiet -- "$committed" || [ -n "$(git ls-files --others --exclude-standard -- "$committed")" ]; then
+              echo "::error::$committed is out of date. Run 'npm run govern' and commit the result."
+              git --no-pager diff --stat -- "$committed"
+              exit 1
+            fi
+          done
+
+      # The unit tests that read the governance inputs the chain above just
+      # rebuilt — the id ledger, the doc graph, the domain state, the schema
+      # migration set, the design tokens. They are the tests a documentation
+      # or annotation change can break, and they run in well under a minute,
+      # so a break is red here and not eleven minutes into `tests`. `tests`
+      # runs them again as part of the full suite; the duplication is the
+      # point, not a cost.
+      #
+      # Explicit files, not a glob: a glob that matched nothing would make
+      # assert-tests-ran fail, which is right, but a glob that matched the
+      # wrong thing would quietly move the slow tail here.
+      - name: Governance-facing unit tests
+        run: >-
+          npm test --
+          tests/unit/id-anchor-stability.test.js
+          tests/unit/domain-state.test.js
+          tests/unit/design-system.test.js
+          tests/unit/schema-migration-drift.test.js
+          tests/unit/doc-graph-canonical-text.test.js
+          tests/unit/doc-graph-delivery-attribution.test.js
+          tests/unit/doc-graph-retired-rules.test.js
+
+      # llms-full.txt is built, not compared (ADR-081 D1 as amended): with no
+      # committed copy there is nothing to be current against, so what is left
+      # is whether the generator RUNS. The corpus is uploaded so an LLM reader
+      # without a checkout gets a build of it rather than a stale file.
+      - name: Build the LLM corpus
+        working-directory: .
+        shell: bash
+        run: node scripts/build-llms-full.mjs
+
+      - name: Keep the LLM corpus
+        uses: actions/upload-artifact@v4
+        with:
+          name: llms-full
+          path: llms-full.txt
+          retention-days: 30
+
+  tests:
+    if: github.event_name != 'schedule'
     runs-on: windows-latest
     defaults:
       run:
@@ -111,50 +258,88 @@ jobs:
           cache: npm
           cache-dependency-path: apps/server/package-lock.json
 
-      # `postinstall` runs `prisma generate`, so the client is built here.
       - run: npm ci
+
+      # Several tests read `docs/.doc-graph.json`, which is generated and not
+      # committed (ADR-081); in the single-job layout the governance chain had
+      # built it a step earlier. The graph alone takes seconds; the checks that
+      # judge it belong to `govern`, not here.
+      - name: Build the doc graph the tests read
+        run: npm run docs:graph
 
       - name: Unit and integration tests
         run: npm test
 
+  build:
+    if: github.event_name != 'schedule'
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: apps/server
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/server/package-lock.json
+
+      - run: npm ci
+
       - name: Production build
         run: npm run build
 
-      # docs:graph rebuilds from the filesystem, docs:check fails when the
-      # committed graph disagrees with it, docs:preflight (--strict) fails on
-      # any CRITICAL. The order matters: two preflight checks read the graph,
-      # so a branch that declares a new id must regenerate before preflighting.
-      - name: Governance chain
-        run: npm run govern
-
-      - name: Relocated graph is committed and current
-        run: node scripts/monorepo-graph.mjs --check
-
-      # The generated human views are deterministic, so if `govern` rewrote one
-      # the branch is shipping a stale view and docs:check cannot see it —
-      # `--check` compares a canonical projection of the graph, not the views.
-      #
-      # `.doc-graph.json` is deliberately NOT listed. It carries `generated_at`,
-      # a `drift` block and per-node `status` — bookkeeping *about the previous
-      # run*, which changes on every regeneration by design. `docs:check` strips
-      # exactly those fields before comparing, and demanding byte-stability here
-      # instead reintroduced the two-pass convergence bug fixed in #15/#22. The
-      # first CI run caught that; keep the narrower list.
-      - name: Generated views are committed and current
-        working-directory: .
+  # The required check. `if: always()` so it reports on failure too — without
+  # it a failed dependency would leave `verify` skipped, and a skipped required
+  # check blocks the merge with no explanation of which job to look at.
+  verify:
+    if: always() && github.event_name != 'schedule'
+    needs: [govern, tests, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: All three verification jobs passed
         shell: bash
         run: |
-          if ! git diff --quiet -- docs/FEATURE-MAP.md docs/DOMAIN-MAP.md docs/TRACE.md docs/appendices/D-traceability.md; then
-            echo "::error::A generated view is out of date. Run 'npm run govern' and commit the result."
-            git --no-pager diff --stat -- docs/FEATURE-MAP.md docs/DOMAIN-MAP.md docs/TRACE.md docs/appendices/D-traceability.md
-            exit 1
-          fi
+          echo "govern: ${{ needs.govern.result }}"
+          echo "tests:  ${{ needs.tests.result }}"
+          echo "build:  ${{ needs.build.result }}"
+          for r in "${{ needs.govern.result }}" "${{ needs.tests.result }}" "${{ needs.build.result }}"; do
+            if [ "$r" != "success" ]; then
+              echo "::error::a verification job did not succeed (see the job results above)"
+              exit 1
+            fi
+          done
 
   e2e:
     # Skipped when the diff touches only `docs/` and `.brain/` — see the
     # `changes` job for why that decision is safe in the direction it fails.
     needs: changes
-    if: needs.changes.outputs.code == 'true'
+    # NOT on pull requests, by decision (2026-09-12).
+    #
+    # e2e has never been a required check — branch protection asks for
+    # `changes`, `verify` and `edge-verify` — so on a pull request it could
+    # only ever inform, never gate. What it actually did was take 24 and 41
+    # minutes on two concurrent PRs, long enough that both were cancelled by
+    # hand before finishing. A check nobody waits for is not a check.
+    #
+    # Making it *targeted* does not rescue it either, and the numbers say why:
+    # the warm-up alone measured 918s on windows-latest (recorded in
+    # tests/e2e/warmup.setup.js), so even a run of three specs cannot finish
+    # much under twenty minutes. The cost is the environment, not the specs.
+    #
+    # So the suite moves to where a slow honest answer is still useful: every
+    # push to `main`, which already forces the full run, plus the nightly
+    # schedule above. A break is therefore caught just after the merge that
+    # caused it rather than just before — accepted deliberately, because the
+    # alternative on offer was not "caught earlier" but "cancelled".
+    #
+    # Consequence worth stating: with PRs excluded, both remaining triggers
+    # force the full suite, so the selective mapping in
+    # `scripts/ci-select-e2e.mjs` no longer narrows anything in CI. It stays
+    # because `npm run test:e2e:changed` — the local loop this was really
+    # costing — is now its main consumer.
+    if: github.event_name != 'pull_request' && needs.changes.outputs.code == 'true'
     # windows-latest, not ubuntu: `src/modules/project-manager/local-files/`
     # hardcodes `path.win32` in three files, deliberately — mounted-root
     # containment has to reason about drive letters, UNC paths and
@@ -177,11 +362,83 @@ jobs:
 
       - run: npm ci
 
-      - run: npx playwright install --with-deps chromium
+      - name: Cache Playwright browser binaries
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~\AppData\Local\ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('apps/server/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
 
-      # Kept as its own job so an e2e failure is attributable, and because the
-      # full suite is the only thing that catches cross-spec interference — a
-      # subset passing proves nothing (.brain/rca/2026-08-16-e2e-subset-green-
-      # and-shared-state.md).
-      - name: Full end-to-end suite
-        run: npm run test:e2e
+      - name: Install Playwright browsers
+        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Select impacted e2e specs
+        id: select-e2e
+        shell: bash
+        working-directory: .
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            base="origin/${{ github.base_ref }}"
+            git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+            changed=$(git diff --name-only "$base" HEAD)
+          else
+            changed=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || true)
+          fi
+          # `--all` on a schedule, stated rather than inferred. The selector
+          # also forces everything when GITHUB_REF is refs/heads/main, which a
+          # scheduled run happens to satisfy — but that coupling is invisible
+          # here, and a future change to the default branch's ref handling
+          # should not quietly turn the nightly run into a targeted one.
+          select_args=''
+          if [ "${{ github.event_name }}" = "schedule" ]; then select_args='--all'; fi
+          echo "Determining impacted e2e targets from changed files..."
+          printf '%s\n' "$changed" | node scripts/ci-select-e2e.mjs $select_args >> "$GITHUB_OUTPUT"
+
+      - name: Run targeted end-to-end tests
+        if: steps.select-e2e.outputs.skip != 'true'
+        shell: bash
+        run: |
+          if [ "${{ steps.select-e2e.outputs.run_all }}" = "true" ] || [ -z "${{ steps.select-e2e.outputs.specs }}" ]; then
+            echo "Running full end-to-end suite"
+            npm run test:e2e
+          else
+            echo "Running targeted e2e suite (${{ steps.select-e2e.outputs.reason }}):"
+            echo "${{ steps.select-e2e.outputs.specs }}"
+            npm run test:e2e -- ${{ steps.select-e2e.outputs.specs }}
+          fi
+        env:
+          # Every expect/pw:api step's duration, so the `expect` budget in
+          # playwright.config.js can be set from a measurement rather than
+          # from the last failure. See tests/e2e/step-timings-reporter.js.
+          E2E_STEP_TIMINGS: node_modules/.cache/zuri-test-proof/e2e-step-timings.json
+
+      - name: e2e skipped (no impacted UI/domain targets)
+        if: steps.select-e2e.outputs.skip == 'true'
+        shell: bash
+        run: echo "Skipped e2e suite (${{ steps.select-e2e.outputs.reason }})"
+
+      - name: Keep the step timings, pass or fail
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-step-timings
+          path: apps/server/node_modules/.cache/zuri-test-proof/e2e-step-timings.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+      # Playwright already writes a screenshot — and a trace on retry — for every
+      # failure, and until now every one of them was deleted with the runner. A
+      # suite that fails only on CI is then unreadable from here: the timings say
+      # which step ran long, never what the page was showing. Uploaded on failure
+      # only, so a green run costs nothing.
+      - name: Keep the failure screenshots and traces
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-failure-evidence
+          path: apps/server/test-results/
+          if-no-files-found: ignore
+          retention-days: 14

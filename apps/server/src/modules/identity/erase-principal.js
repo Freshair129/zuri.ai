@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { LIVE_ACCESS_STATUSES as LIVE_GRANT_STATUSES } from '@/lib/validation/enums'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { zErasePrincipalInput } from '@/lib/validation/entities'
 import { redactConversationContentForCustomers } from '@/modules/crm/conversation-redaction-service'
@@ -41,6 +42,30 @@ export async function erasePrincipal(input) {
   const now = new Date()
 
   return prisma.$transaction(async (tx) => {
+    // @req FR-191 — erasure is downstream of offboarding, never a substitute
+    // for it (SEC-026, ADR-077 D6). Before this refusal, erasure *counted*
+    // grants to decide whether to redact the Person and ended none: a staff
+    // member could be erased under PDPA and keep owning four Businesses, still
+    // able to authenticate because `authenticateUser` also matches `code`.
+    //
+    // Having erasure revoke the grants itself was rejected. It turns a
+    // data-subject request into an administrative act with no named author and
+    // buries the moment authority ended inside an operation whose trail is
+    // deliberately redacted. Two acts, two authors, two records.
+    const [liveMemberships, liveBindings, liveGrants] = await Promise.all([
+      tx.membership.count({ where: { personId, tenantId, status: { in: LIVE_GRANT_STATUSES } } }),
+      tx.roleBinding.count({ where: { personId, tenantId, status: { in: LIVE_GRANT_STATUSES } } }),
+      tx.platformGrant.count({ where: { personId, status: 'ACTIVE' } }),
+    ])
+    if (liveMemberships + liveBindings + liveGrants > 0) {
+      const error = new Error('PRINCIPAL_HAS_LIVE_GRANTS')
+      error.status = 409
+      // Counts, not ids: the caller needs to know what to offboard, and an id
+      // list here would answer a question the caller may not be scoped to ask.
+      error.details = { memberships: liveMemberships, roleBindings: liveBindings, platformGrants: liveGrants }
+      throw error
+    }
+
     const revoked = await tx.externalIdentity.updateMany({
       where: { tenantId, personId, revokedAt: null },
       data: { revokedAt: now },
@@ -123,14 +148,33 @@ export async function erasePrincipal(input) {
     })
 
     // Redact the global Person only when erasing it here leaves nothing behind:
-    // no membership anywhere and no other live customer in another tenant.
+    // no LIVE membership anywhere and no other live customer in another tenant.
+    //
+    // `status` matters here since ADR-077 D2 made withdrawal a state change
+    // rather than a delete. Counting every row would mean anyone who had ever
+    // held a grant could never be redacted — the revoked row that exists to
+    // prove the grant ended would block the erasure that ending it enabled.
+    // The tenant being erased is already known to hold no live grant: the
+    // refusal at the top of this transaction saw to that.
     const [otherMemberships, otherCustomers] = await Promise.all([
-      tx.membership.count({ where: { personId } }),
+      tx.membership.count({ where: { personId, status: { in: LIVE_GRANT_STATUSES } } }),
       tx.customer.count({ where: { personId, deletedAt: null, tenantId: { not: tenantId } } }),
     ])
     let personRedacted = false
     if (otherMemberships === 0 && otherCustomers === 0) {
-      await tx.person.update({ where: { id: personId }, data: { displayName: REDACTED, email: null } })
+      await tx.person.update({
+        where: { id: personId },
+        data: {
+          displayName: REDACTED,
+          email: null,
+          // @req FR-191 — a redacted person whose password still works is not
+          // erased (SEC-026). `authenticateUser` matches on `code` as well as
+          // email, so nulling the email alone left a working login behind.
+          accessDisabledAt: now,
+          accessDisabledReason: 'ERASED',
+        },
+      })
+      await tx.personCredential.deleteMany({ where: { personId } })
       personRedacted = true
     }
 

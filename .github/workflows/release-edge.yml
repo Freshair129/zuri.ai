@@ -3,14 +3,13 @@ name: release-edge-desktop
 on:
   push:
     tags:
-      - 'v*'
       - 'edge-v*'
   workflow_dispatch:
     inputs:
       version:
-        description: 'Release version tag (e.g. v0.2.0)'
+        description: 'Desktop tag matching its version (e.g. edge-v0.3.0)'
         required: true
-        default: 'v0.2.0'
+        default: 'edge-v0.3.0'
 
 permissions:
   contents: write
@@ -19,6 +18,9 @@ jobs:
   build-release:
     runs-on: windows-latest
     timeout-minutes: 30
+    env:
+      ZURI_DESKTOP_SERVER_URL: ${{ vars.ZURI_DESKTOP_SERVER_URL }}
+      DESKTOP_RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.version || github.ref_name }}
 
     steps:
       - name: Checkout repository
@@ -27,7 +29,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '24.19.0'
           cache: npm
           cache-dependency-path: apps/edge/package-lock.json
 
@@ -48,40 +50,63 @@ jobs:
       - name: Build Edge Desktop Release Binary
         working-directory: apps/edge
         run: |
-          cargo build --manifest-path src-tauri/Cargo.toml --release
+          $origin = $env:ZURI_DESKTOP_SERVER_URL
+          if (-not $origin) { throw 'Set ZURI_DESKTOP_SERVER_URL to the deployed Zuri HTTPS origin before releasing.' }
+          $uri = [Uri]$origin
+          if ($uri.Scheme -ne 'https' -or $uri.UserInfo -or $uri.AbsolutePath -ne '/' -or $uri.Query -or $uri.Fragment) { throw 'ZURI_DESKTOP_SERVER_URL must be an HTTPS origin.' }
+          $desktopVersion = (Get-Content -LiteralPath src-tauri/tauri.conf.json -Raw | ConvertFrom-Json).version
+          if ($env:DESKTOP_RELEASE_TAG -ne "edge-v$desktopVersion") { throw 'Release tag must match Desktop version.' }
+          npm run typecheck
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          npm test
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo test --locked --manifest-path src-tauri/Cargo.toml --lib
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo build --locked --manifest-path src-tauri/Cargo.toml --release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Package Windows Artifacts
         shell: pwsh
         run: |
-          $ver = "${{ github.ref_name }}"
-          if (-not $ver -or $ver -like "*/*") { $ver = "${{ github.event.inputs.version }}" }
-          if (-not $ver) { $ver = "v0.2.0" }
-          
-          New-Item -ItemType Directory -Force -Path "dist-release"
-          Copy-Item "apps/edge/src-tauri/target/release/zuri-edge-device.exe" "dist-release/zuri-edge-device-$ver-windows-x64.exe"
-          
-          # Generate checksum
-          Get-FileHash "dist-release/zuri-edge-device-$ver-windows-x64.exe" -Algorithm SHA256 | Out-File "dist-release/SHA256SUMS.txt"
+          $desktopTag = $env:DESKTOP_RELEASE_TAG
+          if ($desktopTag -notmatch '^edge-v\d+\.\d+\.\d+$') { throw 'Invalid Desktop release tag' }
+          $desktopPackage = Join-Path $env:RUNNER_TEMP "zuri-$desktopTag"
+          node apps/edge/scripts/package-desktop.mjs $desktopPackage
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $env:ZURI_DESKTOP_TEST_PACKAGE = $desktopPackage
+          cargo test --locked --manifest-path apps/edge/src-tauri/Cargo.toml --lib packaged_runtime_tests -- --ignored
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          New-Item -ItemType Directory -Force -Path "dist-release" | Out-Null
+          $desktopZip = Join-Path (Get-Location) "dist-release/zuri-edge-device-$desktopTag-windows-x64.zip"
+          Compress-Archive -LiteralPath $desktopPackage -DestinationPath $desktopZip
+          $desktopHash = (Get-FileHash -LiteralPath $desktopZip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$desktopHash  $([IO.Path]::GetFileName($desktopZip))" | Set-Content -LiteralPath "dist-release/SHA256SUMS.txt"
 
       - name: Create GitHub Release & Upload Assets
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
         with:
-          tag_name: ${{ github.ref_name || github.event.inputs.version }}
-          name: "Zuri Edge Device ${{ github.ref_name || github.event.inputs.version }}"
+          tag_name: ${{ env.DESKTOP_RELEASE_TAG }}
+          name: "Zuri Edge Device ${{ env.DESKTOP_RELEASE_TAG }}"
           body: |
             ## Zuri Edge Device Desktop Runtime & Zero-Trust Pair Manager
             
             ### 📦 Downloads & Installation:
-            - **Windows Standalone Executable (.exe)**: `zuri-edge-device-${{ github.ref_name || github.event.inputs.version }}-windows-x64.exe`
+            - **Windows portable ZIP**: extract the entire package and open `zuri-edge-device.exe`.
             
             ### 🚀 Features in this release:
             - **Native Rust + Tauri v2 Core Engine**
-            - **1-Click Drag & Drop Pairing** with `zuri-edge-pairing-*.json`
-            - **Headless Subscription Coordinator** (`codex` / `claude` CLI)
-            - **Local LLM via Ollama** (`:11434`)
-            - **40-second Zero-Trust Heartbeat Telemetry**
-            - **Auto-Update Support** from GitHub Releases
+            - **Browser or QR pairing** with an authenticated Business owner
+            - **One-use, five-minute approval requests**; no manual key copy
+            - **Windows DPAPI-protected device credential**
+            - Separate Ollama, Codex and Claude model settings and provider login controls
+            - Managed compute worker with explicit Start/Stop and observed heartbeat status
+            - Pinned Node runtime and checksum manifest for worker resources
+            - Advanced compatibility import for existing pairing JSON files
+            - Requires the matching browser-pairing routes on the configured Server.
+            - Requires separately installed Ollama/models or Codex/Claude CLI and local RAG service.
+            - Provider login and production device activation require user completion.
+            - Pairing does not start the worker; this package never starts the legacy LINE webhook.
           files: |
             dist-release/*
           draft: false

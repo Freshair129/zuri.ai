@@ -53,6 +53,17 @@ docker-compose.yml
 deploy
 Dockerfile
 .dockerignore
+
+# ADR-075 Phase 3 (P-3/P-6): the ki17 stages are the one exception to the two
+# exclusions above. They need the pin manifest and its checker from deploy/, and
+# the SmartGift benchmark fixture from tests/. Nothing here reaches `runner` — the
+# stages that copy them are opt-in targets BuildKit prunes from a normal web build.
+!deploy/ki17
+!deploy/ki17/**
+!tests/fixtures/genesisrag17
+!tests/fixtures/genesisrag17/**
+!tests/fixtures/genesisrag17-corpus-v1.json
+!tests/fixtures/genesisrag17-smartgift-corpus-v1.json
 .vercel
 run.bat
 run-local-edge.bat

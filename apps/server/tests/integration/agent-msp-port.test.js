@@ -137,7 +137,9 @@ describe('createMspMemoryPort (FR-025, ADR-007 §P6)', () => {
       const list = transport.calls.find((c) => c.name === 'msp_memory_list')
       expect(list).toBeTruthy()
       expect(list.input.vault_id).toBe(PRINCIPAL_KEY)
-      expect(recall).toEqual({ key: PRINCIPAL_KEY, entries: [a, b] })
+      expect({ key: recall.key, entries: recall.entries }).toEqual({ key: PRINCIPAL_KEY, entries: [a, b] })
+      expect(recall.evidence.references.map(ref => [ref.memoryId, ref.version, ref.status]))
+        .toEqual([['e1', null, 'INCOMPLETE'], ['e2', null, 'INCOMPLETE']])
     })
 
     it('returns an empty entry list for an unknown key (read-only-safe)', async () => {
@@ -145,7 +147,8 @@ describe('createMspMemoryPort (FR-025, ADR-007 §P6)', () => {
       const port = createMspMemoryPort({ transport, compatibilityMode: true })
 
       const recall = await port.recall(PRINCIPAL_KEY)
-      expect(recall).toEqual({ key: PRINCIPAL_KEY, entries: [] })
+      expect({ key: recall.key, entries: recall.entries }).toEqual({ key: PRINCIPAL_KEY, entries: [] })
+      expect(recall.evidence).toMatchObject({ references: [], hasMore: null })
     })
 
     it('honours a custom vaultResolver but still guards the resolved vault', async () => {

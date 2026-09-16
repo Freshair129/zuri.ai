@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.27.0b |
+| **Version** | 1.52.0b |
 | **Status** | Draft |
-| **Last Updated** | 2026-09-07 |
+| **Last Updated** | 2026-09-16 |
 
 Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
 Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)
@@ -33,26 +33,34 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 
 | Model | Key fields | หมายเหตุ |
 |---|---|---|
+| KnowledgeCorpus | corpusKey, scopeJson, policyJson, businessId, projectId?, generation, version | FR-173 / ADR-072: Tier 1 atomic snapshot read-set pointer; no canonical fact store |
+| KnowledgeSource | corpusId, sourceKey, kind, fileAssetId?, desiredRevision, activeIngestionId?, revokedAt | Stable source identity; correction/revocation use CAS |
+| KnowledgeIngestion | sourceId, sourceVersion, revision, contentHash, content, idempotencyKey, executionRunId?, status, claimToken?, leaseExpiresAt? | Immutable accepted Text/Markdown bytes and durable process lease; source/version is unique |
+| KnowledgeCorpusGeneration | corpusId, number, manifestJson, manifestHash, createdAt | Immutable source snapshot membership; unique corpus generation |
+| AgentTraceEvent | tenantId, businessId, turnId, executionId?, kind, idempotencyKey, payloadJson, occurredAt, createdAt, version | FR-171 / ADR-070 scoped append-only execution evidence; exact context and output snapshots, retention tombstones; no provider credentials. Restored after LineConversationJob. |
 | Portfolio | code, name | รากของเครือ (BR-001) |
 | Tenant | portfolioId, status | ขอบเขต isolation + การแชร์ข้อมูล |
-| LegalEntity / LegalEntityIdentifier | portfolioId; (country,type,value) unique | external identifier ไม่ใช่ PK (BR-002) |
+| LegalEntity / LegalEntityIdentifier | tenantId (was portfolioId); (country,type,value) unique | FR-194/ADR-078 — moved under Tenant so a Business can only reference one in its own Tenant (composite FK); external identifier ไม่ใช่ PK (BR-002) |
+| TaxRegistrationBranch | legalEntityId, (legalEntityId,branchCode) unique | FR-194/ADR-078 — the legal entity's own VAT branch registration (ภ.พ.20); split out of `Branch.taxBranchCode` |
 | Business | tenantId, legalEntityId? | ธุรกิจปฏิบัติการ |
-| Branch | tenantId, businessId | tenantId ต้องตรงกับ business (tested) |
-| Person / Membership | tenant, business?, branch?, role, status, domainKeysJson, version | local canonical identity; only ACTIVE Membership contributes authority; MEMBER domain allow-list, OWNER/DEV role grant (FR-038, FR-094) |
+| Branch | tenantId, businessId, kind, taxRegistrationBranchId? | tenantId ต้องตรงกับ business (tested); FR-194 — `kind` (SITE/WAREHOUSE/KITCHEN/OFFICE), optional link to its LegalEntity's TaxRegistrationBranch (replaces `taxBranchCode`) |
+| Employment | personId, tenantId, businessId, branchId?, employeeNo?, title?, employmentType, status | FR-193/ADR-078 — HR assignment record, separate from Membership's access grant; `resolveViewer` never reads it |
+| Person / Membership | tenant, business?, role, status, domainKeysJson, version | local canonical identity; only ACTIVE Membership contributes authority; MEMBER domain allow-list, OWNER/DEV role grant (FR-038, FR-094); FR-193 moved `branchId`/`employeeRef` off this row into `Employment` |
 | Session | personId, tokenHash, status, assurance, expiresAt, revokedAt?, lastSeenAt, version | persisted server-side session authority; cookie/signature is transport only (FR-095) |
 | ChannelIdentity | personId, tenantId, channel, channelAccountId, providerSubject, status, verifiedAt?, linkedAt?, revokedAt?, version | namespaced channel binding; PENDING/ACTIVE/REVOKED lifecycle, additive compatibility contract beside ExternalIdentity (FR-094, FR-097) |
-| RoleBinding | personId, tenantId, businessId, roleKey, scopeType, status, assignedBy, revokedAt | generic Business-scoped RBAC binding; `PRODUCT_OWNER` is the current Product role (FR-076) |
+| RoleBinding | personId, tenantId, businessId? (nullable — TENANT scope has none, FR-192/ADR-079), roleKey, scopeType, sodOverrideReason? (FR-196), status, assignedBy, revokedAt | generic Business- or Tenant-scoped RBAC binding; `PRODUCT_OWNER` is the current Product role (FR-076); TENANT scope is now resolved by `resolveViewer` (ADR-079 D4) |
 | Workspace | scopeType (PORTFOLIO/TENANT/BUSINESS) + denormalized ancestor ids | ต้องมี scope ชัดเจน |
 | Project | businessId?, workspaceId, type, status, priority?, picPersonId?, startAt/targetAt | direct Business owner; schema Workspace is Development Space; null owner only for explicit shared work; soft delete. `priority` (FR-087) and `picPersonId` (FR-088) are both nullable at rest — every row predates them, and unset is a state the Dashboard renders honestly rather than defaulting |
 | PlanImportReceipt | idempotencyKey, payloadHash, executionRunId, executionStepId?, attemptId?, correlationId, projectId | server-owned PlanEnvelope commit receipt; stable trace/idempotency boundary; never accepts client-generated execution IDs |
 | PersonCredential | personId unique, passwordHash | FR-090 — production auth credential. Declared here because the table is live on Supabase with a real row; the service that uses it is still on `codex/postgres-primary-runtime`. Undeclared, `migrate diff` proposes DROP |
 | PasswordResetToken | personId, token unique, expiresAt, usedAt? | FR-090 — same origin as PersonCredential; currently empty |
+| MfaFactor | personId, type, secret, label?, status, verifiedAt?, revokedAt?, version | FR-094, FR-095 (ADR-045 D2, D5) — multi-factor authentication factors (TOTP, SMS); PENDING/ACTIVE/REVOKED lifecycle, enables session elevation to AAL2. `secret` is an AES-256-GCM envelope bound to Person and factor, never the base32 secret (SEC-029, SDD-096, ADR-088) |
 | PluginInstallation | installationId unique, clientId, status | FR-123 / ADR-052 — durable public-client installation binding for a first-party plugin; holds no device secret and no raw token. Deleting a row cascades to its codes and sessions, which is what a snapshot restore relies on |
 | PluginAuthorizationCode | codeHash unique, clientId, redirectUri, codeChallenge(+Method), pluginInstallationId, personId, expiresAt, consumedAt?, revokedAt? | FR-123 / ADR-052 — one-time PKCE S256 authorization code with a 60-second life. The raw code is never persisted; consumption is an atomic conditional update on `consumedAt IS NULL`, which is what makes single-use hold under concurrent redemption rather than merely under sequential reads |
 | PluginSession | tokenHash unique, clientId, pluginInstallationId, personId, authorizationCodeId?, expiresAt, revokedAt?, lastUsedAt? | FR-123 / ADR-052 — 15-minute opaque plugin bearer session; the raw token is never persisted. `authorizationCodeId` exists solely so that replaying a consumed code can revoke the session that code already minted (RFC 9700 §4.1.1); the reference is nullable, but maintenance retains the code while a linked session is both unrevoked and unexpired, preserving replay revocation |
-| PlatformGrant | personId+capability unique, status, grantedByPersonId?, revokedAt? | FR-107 — server-held store behind FR-075 `isOperator`; resolved per request by the session port, revocation effective next request |
+| PlatformGrant | personId+capability unique while status='ACTIVE' (FR-197/ADR-079 — was unconditional), status, grantedByPersonId?, grantReason?, expiresAt?, standing, revokedAt? | FR-107/FR-197 — server-held store behind FR-075 `isOperator`; resolved per request by the session port honouring `expiresAt`, revocation effective next request; `standing` flags the bootstrap grant; a renewal is a fresh row, the prior one superseded |
 | WorkspaceMembership | portfolioId, personId (unique pair), role, status, invitedByPersonId?, version | FR-067 — Workspace collaboration grant keyed by `portfolioId` (the top-level Workspace IS schema Portfolio, ADR-027 §D2; never schema Workspace = Space). A distinct authority layer (BR-016): `resolveViewer` never reads it |
-| WorkspaceInvite | portfolioId, invitedByPersonId, targetPersonId?, invitedEmail?, role, status, tokenHash unique, expiresAt, acceptedByPersonId?, acceptedAt?, revokedAt? | FR-067 — single-use, expiring Workspace invite; `tokenHash` is the SHA-256 digest only (SEC-014), the raw token is returned exactly once at mint. EXPIRED is derived from `expiresAt`, never persisted |
+| AccessInvite | scopeType (PORTFOLIO/TENANT/BUSINESS), portfolioId?, tenantId?, businessId?, invitedByPersonId, targetPersonId?, invitedEmail?, invitedLineUserId?, role, domainKeysJson, reason?, status, tokenHash unique, expiresAt, acceptedByPersonId?, acceptedAt?, acceptedMembershipId?, revokedAt?, revokedByPersonId? | FR-195/ADR-079 — renamed from WorkspaceInvite (FR-067), generalised to all three authority layers: PORTFOLIO scope is unchanged FR-067 behaviour (creates a WorkspaceMembership); TENANT/BUSINESS scope creates a real Membership via `grantBusinessMembership` on acceptance, bound to the accepting session. `tokenHash` is the SHA-256 digest only (SEC-014), the raw token is returned exactly once at mint. EXPIRED is derived from `expiresAt`, never persisted |
 | Workstream | projectId, executionMode, laneId?, progressStrategy, progressWeight, progressCache, viewConfigJson | หัวใจของ 7 โหมด · `laneId` (FR-090) is live on every row on Supabase |
 | WorkContainer | workstreamId, parentId (hierarchy), subtype, metadataJson | SPRINT/MIGRATION_STAGE/… |
 | WorkItem | workstreamId, containerId?, subtype, weight, numericValue, probability, metricDataJson, metadataJson | atomic ทุกโหมด |
@@ -63,7 +71,11 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | Team | code unique, businessId, deletedAt? | FR-089 — organisational grouping, Business-scoped (ADR-037 D2). Grants nothing: the identity module never reads it (BR-018) |
 | TeamMembership | (teamId,personId) unique | Person ↔ Team, deliberately separate from `Membership` — that one is the authority record, and merging the two is what let an unauthenticated POST mint owner authority on 2026-08-17. No `role` column, on purpose |
 | ProjectTeam | (projectId,teamId) unique | m2m: a Project is worked by several Teams and a Team works several Projects (ADR-037 D3) |
-| IntegrationProvider / IntegrationConnection / IntegrationCredential | code unique; (tenantId,providerId,externalAccountId) unique; connectionId unique | provider + Business-scoped connection registry, opaque secret ref (FR-079/FR-080) |
+| IntegrationProvider / IntegrationConnection / IntegrationCredential | code unique; (tenantId,providerId,externalAccountId) unique; connectionId unique | provider + Business-scoped connection registry, opaque secret ref (FR-079/FR-080); FR-223 adds secretStore (DEPLOYMENT_MOUNT / SUPABASE_VAULT / ENVELOPE), secretKind, displayHint? (Channel ID last four), lastValidatedAt?, lastValidationCode?, revokedAt?, revokeReason? — never material |
+| IntegrationCredentialVersion | (credentialId,versionNumber) unique; (tenantId,businessId,status); secretRef | FR-223 — append-only version history: PENDING_VALIDATION → ACTIVE → SUPERSEDED / REJECTED / REVOKED → PURGED; createdVia BROWSER_MFA / OPERATOR_CLI / BACKFILL. Exported with the snapshot (references only) |
+| RateLimitBucket | key unique | FR-224 — fixed-window counter (key from internal ids, windowStart, count) for the credential-write rate limit per Person and Business and installation-wide LINE validations. Excluded from backup as ephemeral |
+| ChannelAccountClaim | connectionId unique; (provider,externalAccountHash) unique — on Postgres only among rows with releasedAt IS NULL | FR-226 — one live claim per external bot across the installation, keyed by sha256(destination), never the raw id; taken before any secret is stored. Exported (no material) |
+| IntegrationSecretEnvelope | id = the uuid of `envelope:<uuid>`; (tenantId,businessId,connectionId) | FR-223 — envelope-store ciphertext (AES-256-GCM, DEK wrapped by the deployment KEK, AAD bound to scope and version). Purge deletes the row. Excluded from backup as credential material |
 | IngestionRun | connectionId, lane, resourceType, status, counts | one acquisition pass; inherits the connection's scope (FR-081) |
 | RawExternalRecord | idempotencyKey unique; (connectionId,entityType,externalId) | verbatim source payload as replayable evidence (FR-081) |
 | SyncCursor | (connectionId,resourceType) unique | incremental watermark per resource (FR-081) |
@@ -103,32 +115,55 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | MarketingContentVersion | briefId → MarketingContentBrief, revision (unique per brief), payloadJson, payloadHash, createdBy, createdAt | FR-157 — immutable creative intent and owner references |
 | MarketingContentReview | briefId, contentVersionId, payloadHash, sequence (unique per brief), verdict, rationale, rightsConfirmed, brandConfirmed, reviewerId, createdAt | FR-157 — exact-version rights and brand review evidence |
 | MarketingContentDecision | briefId, contentVersionId, payloadHash, sequence (unique per brief), reviewId?, verdict, rationale, actorId, expiresAt?, createdAt | FR-157 — append-only content approval, rejection, or revocation evidence |
+| MarketingBroadcastIntent | tenantId, businessId, code (unique per Business), status, currentRevision, version, idempotencyKey (unique per Business), createdBy, timestamps, deletedAt? | FR-185 — durable Business-scoped LINE planning identity; no private audience payload, provider credential or dispatch state |
+| MarketingBroadcastIntentVersion | intentId → MarketingBroadcastIntent, revision (unique per intent), payloadJson, payloadHash, createdBy, createdAt | FR-185 — append-only hash-bound planning references; content/account/consent evidence is revalidated on read and restore |
+| InventoryLedgerFence | id, tenantId, businessId, mutationRevision, timestamps; unique Tenant/Business | FR-184 — shared lock and mutation revision for stock writers; preview locking does not advance it |
+| InventoryStocktake | id, tenantId, businessId, idempotencyKey, payloadHash, normalizedLinesJson, snapshotVersion, snapshotHash, status, resultJson?, committedAt?, timestamps, version; unique Tenant/Business/key | FR-184 — durable preview and exact atomic commit result; preserved with its fence in recovery |
 | InventoryCategory | code (unique per tenant), tenantId, businessId, nameTh, nameEn, slug? (unique per business), vibe?, targetRecipient?, guardrail?, status, version | FR-154 — inventory category (`category_id`); the ontology's slug values are rows of one Business, not a system enum |
 | ProductFamily | code (unique per tenant), tenantId, businessId, name, description?, status, version | FR-154 — product family (`product_family`) |
 | Factory | code (unique per tenant), tenantId, businessId, name, country?, contact?, status, version | FR-154 — factory (`factory_id`), the maker of a product master or of one lot |
-| ProductMaster | code (unique per tenant), tenantId, businessId, categoryId → InventoryCategory, familyId? → ProductFamily (SetNull), factoryId? → Factory (SetNull), nameTh, nameEn, baseCost, specsJson, status, version | FR-154 — product master (`product_master`) |
-| Product | code (unique per tenant), tenantId, businessId, productMasterId → ProductMaster, name?, color?, material?, unit, stockPolicy (TRACKED / UNTRACKED), trackingMode (NONE / LOT / SERIAL), safetyStock, status, archivedAt?, version | FR-154 — the SKU (`product_id`); policy and mode fixed at creation; **no on-hand column** — on-hand is the sum of StockMovement rows (FR-155) |
+| ProductMaster | code (unique per tenant), tenantId, businessId, categoryId → InventoryCategory, familyId? → ProductFamily (SetNull), factoryId? → Factory (SetNull), nameTh, nameEn, baseCost, specsJson, status, version; **+ ADR-083:** nature (GOOD / SERVICE), defaultStockPolicy, variantAxesJson | FR-154 — product master (`product_master`). FR-201 — the nature is declared here once and every SKU inherits it (backfilled from existing SKUs by the migration); FR-202 — `variantAxesJson` is the ordered list of axes that give its SKUs a variant identity |
+| Product | code (unique per tenant), tenantId, businessId, productMasterId → ProductMaster, name?, color?, material?, unit, stockPolicy (TRACKED / UNTRACKED / SERVICE), trackingMode (NONE / LOT / SERIAL), safetyStock, status, archivedAt?, version; **+ ADR-074:** itemKind (RAW_COMPONENT / PACKAGING_MATERIAL / CUSTOM_COMPONENT / FINISHED_SET), dedicatedCustomerId?, dedicatedSalesOrderId?, maintenanceIntervalDays?, maxStorageDays?; **+ ADR-083:** variantJson, variantKey? (unique per (productMasterId, variantKey), NULL-tolerant), mergedIntoProductId?, reorderPoint?, reorderQty?, leadTimeDays?; status also PHASE_OUT | FR-154 — the SKU (`product_id`); policy and mode fixed at creation; **no on-hand column** — on-hand is the sum of StockMovement rows (FR-155). FR-176 — `itemKind` is the role in a kit, distinct from the nature; only a CUSTOM_COMPONENT carries a customer lock. FR-179 — the two day counts make a lot ageable; both null (the default) means it never ages. `flowAccountSku?` is the accounting system's code for a tradeable set, unique per `(tenantId, flowAccountSku)` — an attribute, never a key (BR-002 / BR-032). FR-202 — `variantKey` makes one physical variant one SKU (BR-039). FR-205 — `mergedIntoProductId` names the survivor of a merge, walked not joined; `status` PHASE_OUT refuses receipts. FR-207 — the three replenishment parameters |
+| ProductIdentifier | id, tenantId, businessId, productId → Product (Cascade), kind (GTIN / BARCODE / SUPPLIER_CODE / MANUFACTURER_PART / LEGACY_CODE), value, issuer?, unit?, status (ACTIVE / RETIRED), timestamps, version; unique (tenantId, kind, value) | FR-203 — a barcode or a partner's code as an attribute of exactly one SKU, never a key (BR-002); the two scannable kinds share one value space in the service; `unit` names the pack the barcode is on; a retired value still blocks |
+| ProductUnitConversion | id, tenantId, businessId, productId → Product (Cascade), unit, name?, factor (integer base units per unit), usage (PURCHASE / SALES / ANY), status (ACTIVE / RETIRED), timestamps, version; unique (productId, unit) | FR-204 — a pack size as a conversion on the SKU, never a second SKU (BR-037); the ledger counts base units only |
+| InventoryCatalogIntake | id, code (CIT-…, unique per tenant), tenantId, businessId, sourceChannel (REST_API / EXCEL / LINE_OA / WEB), sourceCorrelationId, payloadSha256, normalizedEnvelopeJson, planJson, planHash, committable, itemCount, status (PREVIEWED / COMMITTED / CANCELLED), requestedById?, resultJson?, expiresAt, committedAt?, cancelledAt?, timestamps, version; unique (businessId, sourceChannel, sourceCorrelationId) | FR-208 — one catalogue intake preview and its result; the plan is what the planner decided after resolving every item against the catalogue, and a commit must match its hash. No catalogue data of its own: created SKUs are written by the catalogue writers and named only in `resultJson` |
+| ProgrammeUsageReport | id, source (lowercase tool name), sessionId, branch ('' when none), taskCode? (TASK-ZAI-…), repository?, personId?, installationId? (FR-221, from the harness credential), aiAccountLabel?, model?, inputTokens (not cached), cacheWriteTokens, cacheReadTokens, outputTokens, requestCount, activeMinutes, startedAt, endedAt, payloadSha256, reportedAt, extendedAt?, reasoningTokens, toolCallCount, toolErrorCount, promptCount (FR-239, default 0), detailJson? (canonical usage detail: headline counts, tools {name: {calls, errors}}, models {name: requests}); unique (source, sessionId, branch) | FR-218 — one agent session's usage for one programme task, reported under the deployment bearer by an agent without local session logs (ADR-086 D5). Installation-level: no Tenant, Business or Person key. Measured cost beside the plan, never programme progress |
+| HarnessCredential | id, installationId (unique, server-issued), personId → Person (Cascade), harness (CLAUDE_CODE / CODEX), deviceLabel, osUser?, keyHash (unique SHA-256), keyPrefix (hrnk_…), scope (PROGRAMME_USAGE_REPORT), status (PENDING_ACTIVATION / ACTIVE / REVOKED), activatedAt?, activatedByPersonId?, lastUsedAt?, revokedAt?, revokedByPersonId?, revokeReason?, createdAt, version | FR-220 — one paired agent harness installation; a credential that can only report programme usage, bound to the approving person (ADR-087 D3). Excluded from backup as credential material |
 | ProductBundle | code (unique per tenant), tenantId, businessId, name, description?, targetRecipients?, totalPrice?, status, version | FR-154 — bundle (`bundle_id`) |
 | ProductBundleItem | bundleId → ProductBundle (Cascade) + productId → Product (unique pair), qty | FR-154 — one SKU line of a bundle |
-| ProductRecipe | code (unique per tenant), tenantId, businessId, productId → Product (Cascade), name, batchSize, yieldQty, unit, notes?, status, archivedAt?, version; (productId, batchSize) unique | FR-156 — recipe / bill of materials (`recipe_id`) of one output SKU at one batch size; "for 10 seats" and "for 20 seats" are two rows |
+| ProductRecipe | code (unique per tenant), tenantId, businessId, productId → Product (Cascade), name, batchSize, yieldQty, unit, notes?, scrapAllowanceFactor, status, archivedAt?, version; (productId, batchSize) unique | FR-156 — recipe / bill of materials (`recipe_id`) of one output SKU at one batch size; "for 10 seats" and "for 20 seats" are two rows. FR-177 — `scrapAllowanceFactor` in [0, 0.20] (default 0, so every recipe predating ADR-074 explodes unchanged) makes the gross issue ceil(net x (1 + factor)) |
 | ProductRecipeLine | recipeId → ProductRecipe (Cascade) + componentProductId → Product (unique pair), qty (per batch, float), unit?, fixed, note? | FR-156 — one component line; `fixed` does not scale with the quantity built |
 | SalesTask | code (`TSK-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, customerId? → Customer (SetNull), conversationId? → Conversation (SetNull), assigneePersonId? → Person (SetNull), createdByPersonId?, title, description?, type, priority, status (OPEN / IN_PROGRESS / DONE / CANCELLED), scheduleKind (SINGLE / RANGE), dueDate, startDate?, timeStart?, timeEnd?, outcome?, completedAt?, completedByPersonId?, cancelledAt?, cancelReason?, version | FR-161 / ADR-064 — a sales follow-up owed to a customer (crm); not a project-manager WorkItem; overdue / due-today computed on read, never stored |
+| KnowledgeCandidate | tenantId → Tenant (Cascade), businessId → Business (Cascade), conversationId? → Conversation (SetNull), sourceRefJson (`{conversationId, messageIds}` only — never a LINE user id or externalThreadId), status (PENDING_REVIEW / APPROVED / REJECTED / TOMBSTONED), question, answer, contentHash, consentStatusAtDraft, idempotencyKey (unique per Business), requestHash, createdByPersonId?, decidedByPersonId?, decidedAt?, decisionReason?, admittedSourceId? → KnowledgeSource.id, admittedIngestionId? → KnowledgeIngestion.id, tombstonedAt?, version | FR-236 / ADR-090 D6 — a LINE FAQ knowledge candidate (knowledge); drafted from one consent-GRANTED Conversation, decided (audited) by Business OWNER or `LINE_OA_PUBLISHER`; APPROVED admits one immutable `LINE_FAQ_CANDIDATE` TEXT source through the existing ADR-072 admission service, never a second write path; TOMBSTONED is FR-232's erasure outcome (not built by this change) |
 | SalesOrder | code (`ORD-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, customerId? → Customer (SetNull), conversationId? → Conversation (SetNull), origin (CHAT / WALK_IN / ONLINE), status (DRAFT / CONFIRMED / COMPLETED / CANCELLED), currency, discountSatang, notes?, orderedAt, confirmedAt?, completedAt?, cancelledAt?, cancelReason?, stockIssuedAt?, closedByPersonId?, createdByPersonId?, version | FR-166 / ADR-065 — a sale (commerce); **no total, paid or balance column** — computed on read from lines and VERIFIED payments |
 | SalesOrderLine | orderId → SalesOrder (Cascade), productId? → Product (SetNull), description, qty, unitPriceSatang, discountSatang, sortOrder | FR-166 — one line; may name an Inventory SKU; price given at sale time |
 | Payment | code (`PAY-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, orderId → SalesOrder (Cascade), kind (PAYMENT / REFUND), method, amountSatang, status (PENDING / VERIFIED / REJECTED), bankReference? (unique per tenant — an attribute), slipFileAssetId? → FileAsset (SetNull), note?, paidAt, verifiedAt?, verifiedByPersonId?, rejectReason?, createdByPersonId?, version | FR-163 / ADR-065 — a payment or refund; only VERIFIED money counts; the slip's bytes are the FileAsset's |
+| BusinessBillingProfile | businessId (unique), tenantId, VAT/tax policy fields, non-VAT and walk-in policy, PromptPay provider/target/verification, active, version, timestamps | FR-186 / ADR-065 — Business-owned editable billing configuration; nullable policy/recipient values remain explicitly unavailable until an OWNER supplies verified settings. Legal name/tax identifier/address authority remains the linked LegalEntity; profile and Business/Tenant parents cascade on replacement restore |
+| CommerceDocumentSequence | tenantId, businessId, documentType, calendarYear, lastSequence, timestamps; unique `(businessId, documentType, calendarYear)` | FR-186 — atomic per-Business/type/year sequence allocator; restored before documents and never reset below the highest issued sequence |
+| CommerceDocument | tenantId, businessId, orderId, branchId, documentType, documentNumber, calendarYear, sequenceNumber, status, idempotencyKey, requestHash, issuedAt, issuedByPersonId?, immutable `snapshotJson`, timestamps; unique Business/idempotency, Business/document number and Business/type/year/sequence | FR-186 — immutable issued invoice/receipt/tax snapshot; all parent links restrict deletion so the order, Branch, Business and Tenant cannot remove issued evidence |
 | Supplier | code (unique per tenant), tenantId, businessId, name, taxId?, contactName?, phone?, email?, address?, paymentTerms?, leadTimeDays?, notes?, status (ACTIVE / ARCHIVED), archivedAt?, version | FR-164 / ADR-066 — an approved supplier (procurement); archived, never deleted |
 | PurchaseOrder | code (`PO-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, supplierId → Supplier (Restrict), status (DRAFT / SENT / RECEIVED / SHORT_CLOSED / CANCELLED), currency, expectedAt?, notes?, orderedAt, sentAt?, receivedAt?, closedAt?, closeReason?, cancelledAt?, cancelReason?, createdByPersonId?, version | FR-164 / ADR-066 — a purchase order; **no total, received or outstanding column** — computed on read from lines and receipt lines; RECEIVED is set by the completing receipt |
 | PurchaseOrderLine | purchaseOrderId → PurchaseOrder (Cascade), productId? → Product (SetNull), description, qty, unitCostSatang, sortOrder | FR-164 — one line; may name an Inventory SKU; the cost agreed for this purchase |
 | GoodsReceipt | code (`GRN-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, purchaseOrderId → PurchaseOrder (Cascade), supplierReference?, notes?, receivedAt, postedByPersonId? | FR-165 / ADR-066 — a goods receipt; no status, no version — never edited; its stock effect is the Inventory ledger rows with reference `PO:<code>/GRN:<code>` |
 | GoodsReceiptLine | receiptId → GoodsReceipt (Cascade), purchaseOrderLineId → PurchaseOrderLine (Cascade), qty, lotCode?, expiresAt?, serialNosJson? | FR-165 — one received quantity against one order line, with the lot, expiry and serials it carried into the ledger |
-| ProductLot | productId + code (unique), tenantId, businessId, factoryId? → Factory (SetNull), manufacturedAt?, expiresAt?, receivedQty, status (OPEN / QUARANTINE / CLOSED), version | FR-155 — lot (`lot_id`); `receivedQty` follows receipts into it |
+| ProductLot | productId + code (unique), tenantId, businessId, factoryId? → Factory (SetNull), manufacturedAt?, expiresAt?, lastMaintainedAt?, receivedQty, status (OPEN / QUARANTINE / CLOSED), version | FR-155 — lot (`lot_id`); `receivedQty` follows receipts into it |
 | SerialUnit | productId + serialNo (unique), tenantId, businessId, lotId? → ProductLot (SetNull), status (IN_STOCK / RESERVED / ISSUED / RETURNED / SCRAPPED), version | FR-155 — serial unit (`serial_id`); created and moved only by the ledger |
-| StockMovement | tenantId, businessId, productId → Product (Cascade), lotId? → ProductLot (SetNull), serialUnitId? → SerialUnit (SetNull), kind (RECEIPT / ISSUE / ADJUSTMENT), quantity (signed), reason?, reference?, actorId?, occurredAt | FR-155 — the append-only ledger; no update or delete path; one row per serial for a SERIAL product |
+| StockMovement | tenantId, businessId, productId → Product (Cascade), lotId? → ProductLot (SetNull), serialUnitId? → SerialUnit (SetNull), kind (RECEIPT / ISSUE / ADJUSTMENT), quantity (signed), reason?, reference?, actorId?, occurredAt; **+ ADR-074:** sourceLocationId? / targetLocationId? → WarehouseLocation (SetNull), costSatang?, customerId?, salesOrderId?, workOrderId? | FR-155 — the append-only ledger; no update or delete path; one row per serial for a SERIAL product. FR-174 / FR-175 — every added column is nullable, so every row written before ADR-074 stays valid: an ISSUE leaves its source, a RECEIPT arrives at its target, a transfer is the pair, and `costSatang` is the UNIT landed cost in satang (never a total, never a float) |
+| WarehouseLocation | code (unique per tenant), tenantId, businessId, name, type (CN_FACTORY / INTL_SEA_TRANSIT / TH_PORT_CUSTOMS / TH_CENTRAL_RAW / TH_WIP_CUSTOMIZATION / TH_WIP_ASSEMBLY / TH_FINISHED_GOODS / TH_QUARANTINE_SCRAP / CUSTOMER_SITE), isVirtual, address?, status, archivedAt?, version | FR-174 — where stock is. `isVirtual` marks a place the Business does not hold (a partner factory, a container at sea). Archived, never deleted: ledger rows point at it |
+| CustomizationWorkOrder | code (`CWO-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, salesOrderId?, customerId?, rawProductId → Product (Restrict), outputProductId? → Product (Restrict), technique, logoArtworkUrl?, pantoneColorsJson?, plannedQty, issuedQty, completedQty, scrapQty, scrapAllowanceFactor, setupCostSatang, runCostSatang, status (DRAFT / RELEASED / IN_PROGRESS / COMPLETED / BLOCKED_SHORTAGE / CANCELLED), sourceLocationId?, wipLocationId?, scrapLocationId?, scheduledDate?, startedAt?, completedAt?, cancelledAt?, notes?, version | FR-176 — branded work in progress. Completion receives the OUTPUT product (`itemKind` CUSTOM_COMPONENT, dedicated to one customer and one order), never the raw SKU back (BR-028). Holds intent and progress only; on-hand is still the sum of movements |
+| KittingWorkOrder | code (`KWO-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, salesOrderId?, customerId?, recipeId → ProductRecipe (Restrict), finishedProductId → Product (Restrict), plannedQty, assembledQty, scrapQty, laborCostSatang, unitCostSatang?, plannedLinesJson?, status, sourceLocationId?, wipLocationId?, targetLocationId?, scrapLocationId?, outputLotCode?, startedAt?, completedAt?, cancelledAt?, notes?, version | FR-177 — assembly from one BOM. `plannedLinesJson` FREEZES the explosion at open, so a recipe edited mid-run cannot change what the run is reconciled against. Three distinct locations: staged at `wipLocationId`, received at `targetLocationId` |
+| StockReservation | code (`RSV-YYYYMMDD-NNN`, unique per tenant), tenantId, businessId, productId → Product (Cascade), purpose (QUOTE / ORDER), quantity, status (ACTIVE / RELEASED / CONVERTED / EXPIRED), customerId?, salesOrderId?, quoteReference?, customerCompany?, contactHandle?, notes?, reservedAt, expiresAt?, releasedAt?, convertedAt?, version | FR-180 — what is already promised. Never writes the stock ledger and is never deleted; expiry is evaluated on read against the clock (BR-031) |
 | CustomerImportBatch | contractId, missionId, versionId, tenantId, businessId, snapshotSha256, counts, status, approvedByPersonId | private batch receipt and rollback boundary for FR-078; no raw PII |
 | CustomerImportProvenance | batchId, sourceSystem/table/key, sourceRow, sourceSha256, snapshotSha256, idempotencyKey, resolutionStatus, disposition, optional target ids, optional reviewCaseId/evidence flags | private source identity/idempotency ledger for FR-078; no raw PII |
 | CustomerImportReviewCase | batchId, tenantId, businessId, reasonCode, groupFingerprint, status, itemCount, redacted evidence, version | deterministic duplicate-group queue identity for FR-078; no raw PII |
 | CustomerImportReviewDecision | reviewCaseId, provenanceId, decisionVersion, action, targetCustomerId?, decidedByPersonId, decidedAt | append-only human decision ledger; no update/delete path |
 | ConversationAnalysis | id UUID, conversationId, analyzedDate, analyzedAt, contactType, state, cta?, tags, summary, rawOutputJson? | FR-127 / ADR-054 — one derived row per analysis run; same-day reruns have separate ids. Scope and consent come from Conversation/Customer. Raw output is private; source deletion cascades, principal erasure removes analyses including those of already soft-deleted customers, and snapshots include this table after Conversation. Production DDL is an unapplied artifact. |
+| MessageAttachment | id UUID, messageId → Message (Cascade), kind (IMAGE / VIDEO / AUDIO / FILE), providerContentId?, fileAssetId? (plain reference, not a relation), fetchState (PENDING / STORED / EXPIRED_AT_PROVIDER / ERASED), mimeType?, sizeBytes?, createdAt | FR-229 / ADR-091 D5 — a media message's attachment recorded without bytes; `providerContentId` is LINE's content id for a later fetch phase and is cleared on unsend or erasure. Restored after Message; production DDL is an unapplied artifact (migration `20260914150000`). |
+| ConversationEvent | id UUID, conversationId → Conversation (Cascade), kind (FOLLOW / UNFOLLOW / JOIN / LEAVE / MEMBER_JOINED / MEMBER_LEFT / POSTBACK / UNSEND), externalEventId, payloadJson (id-only, bounded), occurredAt, createdAt | FR-229 / ADR-091 D5 — non-message LINE webhook events, one row per delivery; `@@unique([conversationId, externalEventId])` makes a redelivery a no-op. Restored after Conversation; production DDL is an unapplied artifact (migration `20260914150000`). |
+| TenantRetentionOverride | id UUID, tenantId → Tenant (Cascade), dataClass (RAW_LINE_PAYLOAD / MESSAGE_BODY_AND_ATTACHMENTS / AGENT_TRACE_EVENT / MSP_SESSION_CONTENT), windowDays, createdAt, updatedAt, version; `@@unique([tenantId, dataClass])` | FR-230 / ADR-091 D2 — a Tenant's per-data-class retention window, shortened only, never lengthened past the installation default (`retention-override-service.js` refuses a write above it). Only `MESSAGE_BODY_AND_ATTACHMENTS` has a sweeper today (`retention-sweep-service.js`); the other three classes may still record an override row for their own sweeper to read once it exists. Production DDL is an unapplied artifact (migration `20260914150400`). |
+| CustomerArchiveKey | id UUID, tenantId (plain column, no relation), customerId (unique, plain column, no relation), kekId, wrappedDek, createdAt | FR-245 / SEC-034 / ADR-093 D4, D6 — one per-Customer AES-256-GCM data key for the chat evidence archive, wrapped under `ZURI_ARCHIVE_KEK` (never `ZURI_SECRET_KEK`; same wrapped-DEK shape as `IntegrationSecretEnvelope`). Lazily created on first archive. No Prisma relation to Tenant/Customer — same reason as `IntegrationSecretEnvelope`. **Included** in the backup snapshot (`SNAPSHOT_MODELS`, not excluded): `wrappedDek` is exportable ciphertext the same way `mfaFactor`/`integrationCredentialVersion` are (the KEK that could open it is never part of any snapshot either way), but unlike a credential a randomly generated archive key has no re-entry path — exclusion would let a routine restore silently and permanently destroy access to retained dispute evidence. Destroying this row (a future PDPA erasure, or a recorded legal hold, TASK-ZAI-113) makes every archived line of that Customer permanently unreadable everywhere. Production DDL is an unapplied artifact (migration `20260916150000`). |
+| ArchiveManifest | id UUID, tenantId (plain column), runId, filePath, fileSha256, messageCount, messageIdListHash, previousManifestId → ArchiveManifest (self, Restrict)?, previousManifestHash?, manifestHash, createdAt; `@@unique([tenantId, runId])` | FR-245 / SDD-103 / SEC-034 / ADR-093 D2, D4 — one row per archive file the retention sweep has written and verified, chained per Tenant (`manifestHash` covers the previous manifest's own hash). Inserted only in the same transaction that tombstones exactly the messages the file archived — a row here always names a real, intact, already-verified file. **Included** in the backup snapshot: `chat-evidence-retrieval-service.js` finds archive files strictly by walking this table's rows per Tenant, so excluding it would make every archived message undiscoverable after a restore even when the files themselves (or their ADR-093 D8 offline copy) survive intact. The self-referential chain FK is the only real foreign key. Production DDL is an unapplied artifact (migration `20260916150000`). |
+| ConversationSession | id UUID, code (`S-YYYYMMDD-XXXXXX`, unique per tenant), tenantId, businessId?, conversationId → Conversation (Cascade), customerId, channelAccountId, openedAt, lastMessageAt, closedAt?, idleTimeoutMinutes, inboundCount, outboundCount, mspSessionId?, createdAt, updatedAt | FR-243 / ADR-094 D1–D4, SDD-102 — one sitting of a conversation: messages within the account's idle timeout of each other. `Message.sessionId`, `ConversationEvent.sessionId` and `LineConversationJob.sessionId` (migration `20260916120000`, TASK-ZAI-107) point at it (SetNull); `LineOaAccount.sessionIdleTimeoutMinutes` (10–120, default 30) sets the timeout. Assigned inside the admission transaction by `conversation-session-service.js`; existing rows by `scripts/backfill-conversation-sessions.mjs`. Ids, counts and times only. Restored after Conversation and before Message. Production DDL is an unapplied artifact (migration `20260916090000`). |
 | RegisteredAsset | tenantId, businessId, assetCode, intakeId?, lotId?, categoryCode, serialNumber?, status, version | FR-133 / ADR-055 — Business-scoped physical identity and lifecycle root; `assetCode` is unique only inside the Business and evidence content remains in `FileAsset` |
 | AssetIntake | tenantId, businessId, intakeCode, schemaVersion, sourceChannel+sourceCorrelationId, origin, status, submit/approve actors, version | FR-134 — converged envelope lifecycle and correlation; source input never establishes authority |
 | AssetEvidence | intakeId, registeredAssetId?, fileAssetId, role, sha256?, paymentReference?, extraction/review JSON, status, version | FR-134 — Asset-owned evidence role and review state referencing existing `FileAsset`; OCR/Vision stays candidate evidence |
@@ -200,15 +235,26 @@ per exact knowledge scope over GKS's `gks_stage_evidence_export`, advanced only 
 with one additive migration in each tree (`20260907120000_knowledge_evidence_cursor`) in the same change; the Supabase
 SQL is written and **not applied**.
 
+Version diff 1.31.0b → 1.32.0b (2026-09-11): added `BusinessBillingProfile`,
+`CommerceDocumentSequence` and `CommerceDocument` (FR-186 / ADR-065) with the
+additive SQLite and Supabase migration `20260911010000_commerce_billing_pos`.
+The profile keeps Business tax/PromptPay policy while LegalEntity/Branch remain
+the issuer identity authority; issued documents retain request hashes and
+restrict parent deletion. Backup export/restore validates the billing manifest
+and continues numbering. The Supabase SQL is written and **not applied**.
+
 ## Product Owner RBAC role (FR-076 / ADR-033)
 
-`RoleBinding { personId→Person, tenantId→Tenant, businessId→Business, roleKey,
-scopeType, status, assignedBy?, version, createdAt, updatedAt, revokedAt? }`
-is the generic responsibility relation. The current supported scope is
-`BUSINESS`; `roleKey=PRODUCT_OWNER` expands through the identity role registry
-to Product permissions. `status` is `ACTIVE`, `SUSPENDED` or `REVOKED`.
-`tenantId` and `businessId` are both persisted for scoped queries, while the
-service rejects a mismatch against `Business.tenantId`. The relation is
+`RoleBinding { personId→Person, tenantId→Tenant, businessId?→Business, roleKey,
+scopeType, sodOverrideReason?, status, assignedBy?, version, createdAt, updatedAt, revokedAt? }`
+is the generic responsibility relation. `assignRoleBinding` (the write path)
+still only issues `BUSINESS` scope; `roleKey=PRODUCT_OWNER` expands through the
+identity role registry to Product permissions. `resolveViewer` additionally
+resolves a `TENANT`-scoped row (FR-192/ADR-079 D4), expanding it to every
+ACTIVE Business the named Tenant holds today — `businessId` is `NULL` for such
+a row, which is why it became nullable. `status` is `ACTIVE`, `SUSPENDED` or
+`REVOKED`. `tenantId` and `businessId` are both persisted for scoped queries,
+while the service rejects a mismatch against `Business.tenantId`. The relation is
 many-to-many and does not change `Membership.role`, platform authority or
 import authority. Changes append an `AuditEvent` without secrets or customer
 content.
@@ -247,8 +293,10 @@ unique(tenantId, personId) — a CRM record per principal per tenant (shared acr
 tenant's businesses).
 `Conversation { tenantId, businessId?, customerId→Customer, channel, externalThreadId, status }`
   — `@@unique([tenantId, channel, externalThreadId])`
-`Message { conversationId→Conversation, direction, body, externalMessageId?, createdAt }`
+`Message { conversationId→Conversation, direction, body, externalMessageId?, contentKind, createdAt }`
   — `@@unique([conversationId, externalMessageId])`
+  — `contentKind` (FR-229): TEXT | STICKER | LOCATION | MEDIA_REF, default TEXT; a media
+    message's specific kind lives on its `MessageAttachment.kind` instead.
 
 Both external ids were globally unique until 2026-08-19, which made a provider id an
 effective primary key across every tenant (BR-002) and let one tenant's thread or
@@ -397,3 +445,119 @@ children. MarketingContentReview and MarketingContentDecision append exact-versi
 rights/review/decision history. Files and PM references live in canonical versioned
 payloads and revalidate through their owners; no binary or PM task is copied.
 [Contract](../domains/marketing/features/FR-157-content-creative.md).
+
+## GenesisRAG17 isolated durability (FR-109, FR-110)
+
+Version diff 1.27.0b → 1.28.0b: append-only document versions and exact attempt evidence, governed by [ADR-073](../decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md). These models participate in backup/restore after their parents. No production migration is executed by this test implementation.
+
+| Model | Identity / retained evidence | Restore order |
+|---|---|---|
+| KnowledgeRawArtifact | Source/version/hash, exact content, existing RawExternalRecord reference and scope | After RawExternalRecord |
+| KnowledgeParsedArtifact | Immutable parser version and parsed structure referencing raw | After KnowledgeRawArtifact |
+| KnowledgeChunk | Exact substring, offsets, hash and ordinal referencing parsed version | After KnowledgeParsedArtifact |
+| GenesisRag17IngestionIntent | Immutable scoped request/derivation identity with mutable local-stage progress; durable before Stage1 | After PipelineRun and source parents |
+| GenesisRag17SourceMention | Exact Stage8 occurrence keyed by executionRunId/attemptId/sourceMentionId, type, offsets and derivation hash | After PipelineRun and KnowledgeChunk |
+| GenesisRag17Batch | One immutable dispatch batch per Stage 9 attempt; durable retry acknowledgement | After PipelineRun |
+| GenesisRag17StageEvidence | One terminal per run/stage/step/attempt, six metrics and bounded external evidence | After PipelineRun |
+| GenesisRag17PublicationReceipt | Scope, decision, snapshot/generation, model and physical publication proof | After PipelineRun |
+| GenesisRag17EvidenceCursor | Exact scoped run cursor advanced with the imported evidence transaction | After pipeline evidence |
+
+Version diff 1.28.0b → 1.29.0b: add the two source-recovery models under
+migration `20260908040000_genesisrag17_audit_remediation` in SQLite and the
+corresponding Supabase SQL migration. Source content/derivation and occurrences
+are immutable; only intent status, stage cursor and last error may change.
+Migration application to production is outside this isolated repair.
+
+## Marketing broadcast planning — FR-185
+
+Version diff 1.32.0b → 1.33.0b: add `MarketingBroadcastIntent` and
+`MarketingBroadcastIntentVersion` under SQLite and the Supabase migration
+`20260911030000_marketing_broadcast_intents.sql`. The root identity is
+Business-scoped with idempotency and CAS versioning; child revisions are
+append-only and contain only hash-bound references. Snapshot export/import uses
+the `marketing-broadcast-recovery.v1` manifest and validates parent-before-child
+restore, current/contiguous revisions, content ownership and LINE account
+version evidence. This local schema milestone does not activate dispatch,
+provider metrics or CRM audience resolution.
+
+Backup schema `1.0` remains compatible. New exports carry
+`genesisRag17Recovery.schemaVersion: genesisrag17-recovery.v1` and require both
+new tables. Missing required arrays reject preview before restore deletes any
+data. Snapshots without that manifest return an explicit recovery-unavailable
+warning; the importer never synthesizes missing intent or occurrence history.
+
+## Knowledge admission storage — ADR-072
+
+Version diff 1.29.0b → 1.30.0b: four additive models, SQLite and Supabase migration `20260908100000_knowledge_admission`. Runtime-only RLS/grants apply in Postgres. Restore order is corpus → source → ingestion → generation. The `knowledgeAdmissionRecovery` manifest requires all four arrays; absent historical manifests produce an explicit recovery-unavailable warning. Native store files/model artifacts require their own retained snapshots and are not synthesized by Tier 1 restore. No production migration is implied.
+
+## Located ledger, WIP work orders and reservations — ADR-074
+
+Version diff 1.30.0b → 1.31.0b (2026-09-10): four additive models
+(`WarehouseLocation`, `CustomizationWorkOrder`, `KittingWorkOrder`,
+`StockReservation`) and sixteen additive columns across `StockMovement`,
+`Product`, `ProductLot` and `ProductRecipe`, under SQLite and the Supabase
+migration `20260910120000_smartgift_scm_wip` (written, **not applied** to
+production — ADR-057). Every added column is nullable or defaulted, so no
+existing row needs a backfill and no existing reader changes.
+
+Restore order in `SNAPSHOT_MODELS`: `warehouseLocation` before the ledger (a
+located movement names it), then `customizationWorkOrder`, `kittingWorkOrder`
+and `stockReservation` after the products and recipes they reference. Deletion
+is the reverse.
+
+`ProductLot.lastMaintainedAt` is when a batch was last restored — a power bank
+recharged to storage voltage, an instrument recalibrated — and the storage clock
+runs from it, or from `manufacturedAt` when it is null (FR-179).
+
+`Product.flowAccountSku` carries the accounting system's item code for a
+tradeable finished set, with a second unique index `(tenantId, flowAccountSku)`
+beside the existing `(tenantId, code)`. It is not `Product.code` — that pattern
+has no room for the parentheses a set code carries — and it is not an
+`ExternalRef` row, because that table is unique on `(system, value)` across the
+whole installation and holds no `tenantId`: two Tenants importing from the same
+factory may both name their four-item set `TMS06-4(P-16)`, and only a per-Tenant
+constraint lets them.
+
+Version diff 1.33.0b → 1.34.0b: add InventoryLedgerFence and InventoryStocktake; 146 models are now declared. No production migration was applied.
+
+Version diff 1.34.0b → 1.35.0b (2026-09-12, FR-193/FR-194, ADR-078): add `Employment`
+(HR assignment record, separate from `Membership`'s access grant — `resolveViewer`
+never reads it) and `TaxRegistrationBranch` (a LegalEntity's own VAT branch
+registration, split out of `Branch.taxBranchCode`); `LegalEntity.portfolioId`
+becomes `tenantId` with a composite FK from `Business.legalEntityId`; `Branch`
+gains `kind` and `taxRegistrationBranchId`, loses `taxBranchCode`; `Membership`
+loses `branchId`/`employeeRef` (backfilled into `Employment` first). 148 models
+are now declared. Migration `20260912130000_org_employment_legal_entity.sql`
+written and NOT applied.
+
+Version diff 1.35.0b → 1.36.0b (2026-09-13): ADR-083 SKU governance — three columns on `ProductMaster` (nature, defaultStockPolicy, variantAxesJson), six on `Product` (variantJson, variantKey with its NULL-tolerant unique index per master, mergedIntoProductId, reorderPoint, reorderQty, leadTimeDays) and two new models, `ProductIdentifier` and `ProductUnitConversion`, both in `SNAPSHOT_MODELS` right after `product`. 150 models are now declared. Migration `20260913120000_inventory_sku_governance.sql` written in both trees and APPLIED on production on 2026-09-13 (ledger row written, effect verified).
+
+Version diff 1.36.0b → 1.37.0b (2026-09-13): ADR-084 catalogue intake — new model `InventoryCatalogIntake` (in `SNAPSHOT_MODELS` after `productUnitConversion`). 151 models are now declared. Migration `20260913200000_inventory_catalog_intake.sql` written in both trees and APPLIED on production on 2026-09-13 (ledger row written, effect verified).
+
+Version diff 1.37.0b → 1.38.0b (2026-09-13): ADR-086 programme delivery telemetry — new model `ProgrammeUsageReport` (first in `SNAPSHOT_MODELS`; no foreign key), owned by the platform-control charter. 152 models are now declared. Migration `20260913230000_programme_usage_report` written in both trees and NOT applied to production.
+
+Version diff 1.38.0b → 1.39.0b (2026-09-14): migration `20260913230000_programme_usage_report` APPLIED on production 2026-09-14 (owner-instructed, ADR-057): read-only inventory, a rolled-back dry run through the transaction pooler, then apply with ledger row `20260913230000 programme_usage_report`; effect verified (15 columns, forced RLS, one `zuri_app_runtime_all` policy, grants to the two runtime roles only, unique (source, sessionId) and taskCode indexes, 0 rows).
+
+Version diff 1.39.0b → 1.40.0b (2026-09-14): ADR-087 — new model `HarnessCredential` (identity; excluded from the backup snapshot as credential material) and `ProgrammeUsageReport` attribution columns (branch in the unique key, personId, installationId, repository, aiAccountLabel, extendedAt; taskCode optional). 153 models are now declared. Migration `20260914100000_harness_usage_attribution` written in both trees and NOT applied to production.
+
+Version diff 1.40.0b → 1.41.0b (2026-09-14): migration `20260914100000_harness_usage_attribution` APPLIED on production 2026-09-14 (owner-instructed, ADR-057): read-only inventory (ProgrammeUsageReport 0 rows), a rolled-back dry run through the transaction pooler, then apply with ledger row `20260914100000 harness_usage_attribution`; effect verified (ProgrammeUsageReport 21 columns with branch/repository/personId/installationId/aiAccountLabel/extendedAt, taskCode nullable, unique (source, sessionId, branch); HarnessCredential 18 columns, forced RLS, one `zuri_app_runtime_all` policy, grants to the two runtime roles only, Person FK ON DELETE CASCADE).
+
+Version diff 1.41.0b → 1.42.0b (2026-09-14): FR-239 (ADR-086 D7) — `ProgrammeUsageReport` gains reasoningTokens, toolCallCount, toolErrorCount, promptCount and detailJson (names and numbers only). Migration `20260914120000_usage_detail` written in both trees and NOT applied to production.
+
+Version diff 1.42.0b → 1.43.0b (2026-09-14): migration `20260914120000_usage_detail` APPLIED on production 2026-09-14 (owner-instructed, ADR-057): read-only inventory (ProgrammeUsageReport 21 columns, 0 rows), a rolled-back dry run through the transaction pooler, then apply with ledger row `20260914120000 usage_detail`; effect verified (26 columns: reasoningTokens, toolCallCount, toolErrorCount, promptCount integer NOT NULL default 0, detailJson text nullable).
+
+Version diff 1.43.0b → 1.44.0b (2026-09-14): FR-223 (ADR-089 D1, D5; branch `feat/integration-secret-store-vault`, not merged) — `IntegrationCredential` gains secretStore, secretKind, displayHint, lastValidatedAt, lastValidationCode, revokedAt, revokeReason; new models `IntegrationCredentialVersion` (integration; exported) and `IntegrationSecretEnvelope` (integration; excluded from the backup snapshot). 156 models are now declared. Migrations `20260914140000_integration_credential_lifecycle` (with store/kind and version backfill), `20260914140200_channel_secret_vault_functions` (Supabase Vault definer functions and NOLOGIN roles) and `20260914140300_integration_secret_envelope` written and NOT applied to production.
+
+Version diff 1.44.0b → 1.45.0b (2026-09-14): FR-226 (ADR-089 D6; same branch, not merged) — new model `ChannelAccountClaim` (integration; exported). 157 models are now declared. Migration `20260914140100_channel_account_claim` (partial unique on live claims, backfill by sha256 of each LINE_OA destination, ACTIVE then oldest wins) written and NOT applied to production.
+
+Version diff 1.45.0b → 1.46.0b (2026-09-14): FR-224 (ADR-089 D4; same branch, not merged) — new model `RateLimitBucket` (identity; excluded from the backup snapshot as ephemeral). 158 models are now declared. Migration `20260914140400_rate_limit_bucket` written and NOT applied to production.
+
+Version diff 1.46.0b → 1.47.0b (2026-09-14): migrations `20260914140000_integration_credential_lifecycle`, `20260914140100_channel_account_claim`, `20260914140200_channel_secret_vault_functions`, `20260914140300_integration_secret_envelope`, `20260914140400_rate_limit_bucket` APPLIED on production 2026-09-14 (owner-instructed, ADR-057, ADR-089 proof 10 waived by the owner): read-only inventory, one rolled-back dry run of all five through the transaction pooler, then one transaction with five ledger rows; effect verified (IntegrationCredential 18 columns, IntegrationCredentialVersion 1 BACKFILL row, ChannelAccountClaim 2 rows, IntegrationSecretEnvelope and RateLimitBucket empty; all four new tables rls=t forced=t policies=1 and no anon/authenticated/service_role grant).
+
+Version diff 1.48.0b → 1.49.0b (2026-09-16): added **ConversationSession** (FR-243, ADR-094) with `Message.sessionId`, `ConversationEvent.sessionId` and `LineOaAccount.sessionIdleTimeoutMinutes`; migration `20260916090000_crm_conversation_sessions` written, not applied.
+
+Version diff 1.49.0b → 1.50.0b (2026-09-16): `LineConversationJob.sessionId` (FR-243, TASK-ZAI-107); migration `20260916120000_line_job_session` written, not applied.
+
+Version diff 1.50.0b → 1.51.0b (2026-09-16): TASK-ZAI-111 (FR-245, ADR-093 D2-D4, D6) — new models `CustomerArchiveKey` and `ArchiveManifest` (crm; both excluded from the backup snapshot), the chat evidence archive's writer: swept `MESSAGE_BODY_AND_ATTACHMENTS` content is now archived (per-Customer AES-256-GCM segment, verified on disk) before it is tombstoned, inside one transaction with the chained manifest insert. 165 models are now declared. Migration `20260916150000_crm_chat_evidence_archive` written, not applied.
+
+Version diff 1.51.0b → 1.52.0b (2026-09-16): no model or migration changes — `CustomerArchiveKey` and `ArchiveManifest` **moved from excluded to included** in the backup snapshot (`SNAPSHOT_MODELS`, `backup-service.js`). The exclusion's own stated reasons did not hold up: its confidentiality argument was moot (the KEK that could open the wrapped key is never part of any snapshot either way, excluded or not) and its FK-ordering argument was moot (neither model has a real Prisma `@relation`, so there is no FK for a restore to violate). What exclusion actually cost: a randomly generated archive key has no re-entry path (unlike a credential), so a routine restore would silently and permanently destroy access to retained dispute evidence — and without `ArchiveManifest` rows, `chat-evidence-retrieval-service.js` (TASK-ZAI-112) has no index onto the archive files at all, making them undiscoverable even when intact on disk. New test: `backup.test.js`'s round trip proves both rows survive a delete-then-restore.

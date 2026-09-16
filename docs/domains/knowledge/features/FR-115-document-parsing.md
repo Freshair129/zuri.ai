@@ -3,11 +3,17 @@ domain: knowledge
 feature: FR-115
 module: knowledge
 source: v2-native
-version: "0.1.1b"
+version: "0.1.2b"
 status: "implemented"
 ---
 
 # FR-115 — Document parsing into a structured artifact that keeps its link to the raw source
+
+## GenesisRAG17 profile and extension boundary (2026-09-08)
+
+Stage 2: GenesisRAG17 persists a versioned exact text/Markdown parsed artifact. The parser below has its own broader contract; adding binary/OCR inputs requires raw-to-parsed mapping through Stages 3/7/8/9.
+
+See the [current stage specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and [flow / extension map](../../../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) for input/output, ownership, implementation paths and acceptance. This clarification changes documentation only; existing FR subjects and pure-module behavior are unchanged.
 
 ## Intent
 
@@ -285,3 +291,6 @@ Known gaps in this list, stated rather than left to be discovered:
 - [PRD-SDD v1.0 — FR-115, SDD-063, FR-112, FR-081](../../../PRD-SDD-v1.0.md)
 - [ADR-050 — Knowledge ingestion tier boundary and stage ownership](../../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) — its stage table puts Stage 2 in Tier 1
 - [Zuri 17-Stage Knowledge Ingestion & GraphRAG Preparation Pipeline Specification](../../../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) — §7 (Stage 2) is the source requirement
+
+
+Documentation revision 2026-09-08: add the isolated adapter boundary and stage-extension navigation; no runtime or requirement change (RWANG, base b64b46df).

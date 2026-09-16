@@ -6,13 +6,9 @@ import React, { useState, useEffect } from "react";
 import {
   Globe,
   Plus,
-  QrCode,
   ExternalLink,
-  ShieldCheck,
-  Check,
   X,
   Smartphone,
-  Copy,
   RefreshCw,
   AlertTriangle
 } from "lucide-react";
@@ -24,7 +20,6 @@ export default function LineStudioLiffApp({ project }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [selectedQrApp, setSelectedQrApp] = useState(null);
 
   // Form state
   const [newName, setNewName] = useState("");
@@ -32,7 +27,6 @@ export default function LineStudioLiffApp({ project }) {
   const [newUrl, setNewUrl] = useState("");
   const [newViewType, setNewViewType] = useState("FULL");
   const [creating, setCreating] = useState(false);
-  const [copiedId, setCopiedId] = useState(null);
 
   const fetchLiffApps = async () => {
     if (!accountId) return;
@@ -41,9 +35,8 @@ export default function LineStudioLiffApp({ project }) {
     try {
       const res = await fetch(`/api/line-oa/liff-apps?accountId=${encodeURIComponent(accountId)}`);
       const data = await res.json();
-      if (res.ok && data.liffApps) {
-        setLiffApps(data.liffApps);
-      }
+      if (!res.ok) throw new Error(data.issues?.join(" · ") || data.error || "Failed to load LIFF apps");
+      setLiffApps(data.liffApps || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -57,18 +50,18 @@ export default function LineStudioLiffApp({ project }) {
 
   const handleCreateLiff = async (e) => {
     e.preventDefault();
-    if (!newName.trim() || !newUrl.trim() || !accountId) return;
+    if (!newName.trim() || !newCode.trim() || !newUrl.trim() || !accountId) return;
 
     setCreating(true);
     setError("");
     try {
       const payload = {
-        lineOaAccountId: accountId,
-        code: newCode || `liff-${Date.now()}`,
+        accountId,
+        code: newCode.trim(),
         name: newName,
         endpointUrl: newUrl,
         viewSize: newViewType,
-        scopesJson: JSON.stringify(["profile", "openid"])
+        scopes: ["profile", "openid"]
       };
       const res = await fetch("/api/line-oa/liff-apps", {
         method: "POST",
@@ -90,12 +83,6 @@ export default function LineStudioLiffApp({ project }) {
     }
   };
 
-  const handleCopy = (text, id) => {
-    navigator.clipboard?.writeText(text);
-    setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
-  };
-
   return (
     <div className="space-y-6 pb-12 font-thai">
       {/* Top Header */}
@@ -106,7 +93,7 @@ export default function LineStudioLiffApp({ project }) {
             <span>LIFF Applications ({liffApps.length})</span>
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            จัดการเว็บแอปพลิเคชันที่เปิดใช้งานภายใน LINE Chat สำหรับบัญชี {project?.name || "LINE Studio"}
+            จัดการเว็บแอปพลิเคชันที่เปิดใช้งานภายใน LINE Chat สำหรับบัญชี {project?.displayName || project?.name || project?.code || "LINE Studio"}
           </p>
         </div>
 
@@ -246,13 +233,14 @@ export default function LineStudioLiffApp({ project }) {
               </div>
 
               <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">รหัสอ้างอิง (Code)</label>
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">รหัสอ้างอิง (Code) *</label>
                 <input
                   type="text"
                   value={newCode}
                   onChange={(e) => setNewCode(e.target.value)}
                   placeholder="เช่น member-points-portal"
                   className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 p-2.5 text-xs focus:ring-2 focus:ring-brand-amber/30 focus:outline-none font-mono"
+                  required
                 />
               </div>
 

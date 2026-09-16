@@ -1,0 +1,281 @@
+{
+  "kind": "actual source parser/mention functions and GKS decision builder; no databases or stage-success injection",
+  "results": [
+    {
+      "key": "no-date",
+      "input": "Alice purchased Atlas.",
+      "mentions": [
+        {
+          "name": "Alice",
+          "type": "Person"
+        },
+        {
+          "name": "Atlas",
+          "type": "Product"
+        }
+      ],
+      "entities": [
+        {
+          "name": "Alice",
+          "type": "Person",
+          "mentions": [
+            "parsed:chunk:0:mention:0"
+          ]
+        },
+        {
+          "name": "Atlas",
+          "type": "Product",
+          "mentions": [
+            "parsed:chunk:0:mention:1"
+          ]
+        }
+      ],
+      "facts": [
+        {
+          "subject": "Alice",
+          "predicate": "PURCHASED",
+          "object": "Atlas",
+          "confidence": 0.9,
+          "temporal": {
+            "txFrom": "2026-09-07T20:18:11.881Z",
+            "txTo": null,
+            "validFrom": "not_applicable",
+            "validTo": "not_applicable"
+          }
+        }
+      ],
+      "held": []
+    },
+    {
+      "key": "human-date",
+      "input": "Alice purchased Atlas on 7 September 2026.",
+      "mentions": [
+        {
+          "name": "Alice",
+          "type": "Person"
+        },
+        {
+          "name": "Atlas",
+          "type": "Product"
+        }
+      ],
+      "entities": [
+        {
+          "name": "Alice",
+          "type": "Person",
+          "mentions": [
+            "parsed:chunk:0:mention:0"
+          ]
+        },
+        {
+          "name": "Atlas",
+          "type": "Product",
+          "mentions": [
+            "parsed:chunk:0:mention:1"
+          ]
+        }
+      ],
+      "facts": [
+        {
+          "subject": "Alice",
+          "predicate": "PURCHASED",
+          "object": "Atlas",
+          "confidence": 0.9,
+          "temporal": {
+            "txFrom": "2026-09-07T20:18:11.884Z",
+            "txTo": null,
+            "validFrom": "not_applicable",
+            "validTo": "not_applicable"
+          }
+        }
+      ],
+      "held": []
+    },
+    {
+      "key": "reversed-interval",
+      "input": "Alice purchased Atlas from 2026-09-08 to 2026-09-01.",
+      "error": {
+        "name": "ReferenceError",
+        "message": "predicate is not defined"
+      }
+    },
+    {
+      "key": "same-name-different-types",
+      "input": "Atlas purchased Atlas.",
+      "mentions": [
+        {
+          "name": "Atlas",
+          "type": "Person"
+        },
+        {
+          "name": "Atlas",
+          "type": "Product"
+        }
+      ],
+      "entities": [
+        {
+          "name": "Atlas",
+          "type": "Person",
+          "mentions": [
+            "parsed:chunk:0:mention:0",
+            "parsed:chunk:0:mention:1"
+          ]
+        }
+      ],
+      "facts": [],
+      "held": [
+        {
+          "confidence": 0.9,
+          "id": "gks:fact/f34e1f6f56cd84824766cfcd7d75a4e6",
+          "predicate": "purchased",
+          "reason": "invalid_endpoint",
+          "sourceReferences": {
+            "chunkId": "parsed:chunk:0",
+            "parsedArtifactId": "parsed",
+            "rawArtifactId": "raw",
+            "sourceId": "synthetic://audit",
+            "sourceMentionIds": [
+              "parsed:chunk:0:mention:0",
+              "parsed:chunk:0:mention:1"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "key": "negated-employment",
+      "input": "Alice works for neither Acme Limited nor Beacon Limited.",
+      "mentions": [
+        {
+          "name": "Alice",
+          "type": "Person"
+        },
+        {
+          "name": "Acme Limited",
+          "type": "Organization"
+        },
+        {
+          "name": "Beacon Limited",
+          "type": "Organization"
+        }
+      ],
+      "entities": [
+        {
+          "name": "Alice",
+          "type": "Person",
+          "mentions": [
+            "parsed:chunk:0:mention:0"
+          ]
+        },
+        {
+          "name": "Acme Limited",
+          "type": "Organization",
+          "mentions": [
+            "parsed:chunk:0:mention:1"
+          ]
+        },
+        {
+          "name": "Beacon Limited",
+          "type": "Organization",
+          "mentions": [
+            "parsed:chunk:0:mention:2"
+          ]
+        }
+      ],
+      "facts": [
+        {
+          "subject": "Alice",
+          "predicate": "WORKS_FOR",
+          "object": "Acme Limited",
+          "confidence": 0.9,
+          "temporal": {
+            "txFrom": "2026-09-07T20:18:11.886Z",
+            "txTo": null,
+            "validFrom": "not_applicable",
+            "validTo": "not_applicable"
+          }
+        }
+      ],
+      "held": []
+    },
+    {
+      "key": "compound-subject",
+      "input": "Alice works for Acme Limited and purchased Atlas.",
+      "mentions": [
+        {
+          "name": "Alice",
+          "type": "Person"
+        },
+        {
+          "name": "Acme Limited",
+          "type": "Organization"
+        },
+        {
+          "name": "Acme Limited and",
+          "type": "Person"
+        },
+        {
+          "name": "Atlas",
+          "type": "Product"
+        }
+      ],
+      "entities": [
+        {
+          "name": "Alice",
+          "type": "Person",
+          "mentions": [
+            "parsed:chunk:0:mention:0"
+          ]
+        },
+        {
+          "name": "Acme Limited",
+          "type": "Organization",
+          "mentions": [
+            "parsed:chunk:0:mention:1"
+          ]
+        },
+        {
+          "name": "Acme Limited and",
+          "type": "Person",
+          "mentions": [
+            "parsed:chunk:0:mention:2"
+          ]
+        },
+        {
+          "name": "Atlas",
+          "type": "Product",
+          "mentions": [
+            "parsed:chunk:0:mention:3"
+          ]
+        }
+      ],
+      "facts": [
+        {
+          "subject": "Alice",
+          "predicate": "WORKS_FOR",
+          "object": "Acme Limited",
+          "confidence": 0.9,
+          "temporal": {
+            "txFrom": "2026-09-07T20:18:11.887Z",
+            "txTo": null,
+            "validFrom": "not_applicable",
+            "validTo": "not_applicable"
+          }
+        },
+        {
+          "subject": "Acme Limited and",
+          "predicate": "PURCHASED",
+          "object": "Atlas",
+          "confidence": 0.9,
+          "temporal": {
+            "txFrom": "2026-09-07T20:18:11.887Z",
+            "txTo": null,
+            "validFrom": "not_applicable",
+            "validTo": "not_applicable"
+          }
+        }
+      ],
+      "held": []
+    }
+  ]
+}

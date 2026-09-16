@@ -1,7 +1,7 @@
 ---
-version: "0.3.1"
+version: "0.3.2"
 created_at: "2026-09-05T00:00:00+07:00,Claude Code"
-last_update: "2026-09-05T15:00:00+07:00,Claude Code"
+last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
 status: "proposed"
 superseded_by: null
 attributes:
@@ -225,6 +225,10 @@ transport owner, by mode (D5)     EDGE  — the tenant's Zuri Edge Device holds 
 - "Connect account" in the Studio calls the integration lane's owner-only create
   contract for a `LINE_OA` connection; it does not write `IntegrationConnection`
   or `IntegrationCredential` itself and never accepts secret material.
+  **Amended by [ADR-089](ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md)
+  (2026-09-14):** the Studio still holds no material; its connect wizard posts the
+  Channel ID and secret write-only, under AAL2, to the integration lane's route,
+  which stores them in the Integration vault and never returns them.
 - The Studio **never activates routing**. Binding activation, rollback and
   canary remain the operator-only path of ADR-020 / FR-055. The Studio shows the
   binding state it reads and links to the runbook.
@@ -620,6 +624,7 @@ npm run verify
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.2 | 2026-09-14 | proposed | Pointer only: D3's "never accepts secret material" is amended by ADR-089 (browser write-only entry into the Integration vault; the Studio still holds no material) | working-tree | Claude Opus 5 |
 | 0.3.1 | 2026-09-05 | proposed | Clarified D5 after the edge runtime's maintainer asked: FR-093 delivery receipts and the transport-job lane coexist, split by who initiated the send — reply-turn sends report through `/api/agent/line-delivery`, Studio-initiated sends report as the job result; one send, one receipt path | working-tree | Claude Code |
 | 0.3.0 | 2026-09-05 | proposed | Owner's answers to the last three questions: Business-scope templates for the first release (`TENANT` reserved), a Studio-owned scheduler (`LineOaSchedule`, scheduled dispatch in Phase 2, timed WAIT in Phase 3), `LINE_OA_PUBLISHER` confirmed; no question remains open | working-tree | Claude Code |
 | 0.2.1 | 2026-09-05 | proposed | Cross-reference ADR-031 revision 0.3.0b: the cloud runtime's Ollama ban no longer reads as forbidding an EDGE account's device from answering on local Ollama or Codex CLI | working-tree | Claude Code |

@@ -1,0 +1,30 @@
+
+> zuri-ai@0.1.0 test
+> node scripts/assert-tests-ran.mjs vitest run --run tests/unit/line-oa-settings-consolidation.test.js tests/unit/line-oa-rich-menu-console.test.js tests/unit/sidebar-visible-subdomains.test.js tests/unit/domain-navigation.test.js tests/unit/integrations-page-claims.test.js tests/unit/fr080-ui-contract.test.js
+
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+
+ RUN  v2.1.9 C:/Users/pc/workspace/zuri-ai-line-oa-audit/apps/server
+
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": SQLite database "run-36768-mtumw7wb-38219d.db" at "file:./.test-dbs/run-36768-mtumw7wb-38219d.db"
+
+SQLite database run-36768-mtumw7wb-38219d.db created at file:./.test-dbs/run-36768-mtumw7wb-38219d.db
+
+Your database is now in sync with your Prisma schema. Done in 5.99s
+
+ ✓ tests/unit/line-oa-rich-menu-console.test.js (16 tests) 20ms
+ ✓ tests/unit/fr080-ui-contract.test.js (10 tests) 4ms
+ ✓ tests/unit/domain-navigation.test.js (6 tests) 3ms
+ ✓ tests/unit/integrations-page-claims.test.js (12 tests) 2ms
+ ✓ tests/unit/line-oa-settings-consolidation.test.js (10 tests) 2ms
+ ✓ tests/unit/sidebar-visible-subdomains.test.js (3 tests) 2ms
+
+ Test Files  6 passed (6)
+      Tests  57 passed (57)
+   Start at  04:52:17
+   Duration  10.22s (transform 59ms, setup 30ms, collect 2.04s, tests 34ms, environment 1ms, prepare 343ms)
+
+JSON report written to C:/Users/pc/workspace/zuri-ai-line-oa-audit/apps/server/node_modules/.cache/zuri-test-proof/vitest.json
+
+assert-tests-ran: vitest executed 57 test(s).

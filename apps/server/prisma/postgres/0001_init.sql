@@ -28,8 +28,10 @@ CREATE TABLE "Tenant" (
 CREATE TABLE "LegalEntity" (
     "id" TEXT NOT NULL,
     "code" TEXT NOT NULL,
-    "portfolioId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
     "legalName" TEXT NOT NULL,
+    "legalAddress" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -50,6 +52,21 @@ CREATE TABLE "LegalEntityIdentifier" (
 );
 
 -- CreateTable
+CREATE TABLE "TaxRegistrationBranch" (
+    "id" TEXT NOT NULL,
+    "legalEntityId" TEXT NOT NULL,
+    "branchCode" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "address" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "verifiedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "TaxRegistrationBranch_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Business" (
     "id" TEXT NOT NULL,
     "code" TEXT NOT NULL,
@@ -57,6 +74,7 @@ CREATE TABLE "Business" (
     "legalEntityId" TEXT,
     "name" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "capabilitiesJson" TEXT NOT NULL DEFAULT '{}',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "version" INTEGER NOT NULL DEFAULT 1,
@@ -71,6 +89,9 @@ CREATE TABLE "Branch" (
     "tenantId" TEXT NOT NULL,
     "businessId" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "address" TEXT,
+    "kind" TEXT NOT NULL DEFAULT 'SITE',
+    "taxRegistrationBranchId" TEXT,
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -88,6 +109,8 @@ CREATE TABLE "Person" (
     "lastName" TEXT,
     "phone" TEXT,
     "profileCompletedAt" TIMESTAMP(3),
+    "accessDisabledAt" TIMESTAMP(3),
+    "accessDisabledReason" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -218,17 +241,44 @@ CREATE TABLE "Membership" (
     "id" TEXT NOT NULL,
     "personId" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
+    "scopeType" TEXT NOT NULL DEFAULT 'BUSINESS',
     "businessId" TEXT,
-    "branchId" TEXT,
-    "employeeRef" TEXT,
-    "role" TEXT NOT NULL DEFAULT 'OWNER',
+    "role" TEXT NOT NULL DEFAULT 'MEMBER',
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
     "domainKeysJson" TEXT NOT NULL DEFAULT '[]',
+    "grantedByPersonId" TEXT,
+    "grantReason" TEXT,
+    "grantSource" TEXT NOT NULL DEFAULT 'ADMIN',
+    "expiresAt" TIMESTAMP(3),
+    "suspendedAt" TIMESTAMP(3),
+    "revokedAt" TIMESTAMP(3),
+    "revokedByPersonId" TEXT,
+    "revokeReason" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "Membership_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Employment" (
+    "id" TEXT NOT NULL,
+    "personId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "branchId" TEXT,
+    "employeeNo" TEXT,
+    "title" TEXT,
+    "employmentType" TEXT NOT NULL DEFAULT 'EMPLOYEE',
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "startAt" TIMESTAMP(3),
+    "endAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "Employment_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -276,6 +326,7 @@ CREATE TABLE "RoleBinding" (
     "businessId" TEXT NOT NULL,
     "roleKey" TEXT NOT NULL,
     "scopeType" TEXT NOT NULL DEFAULT 'BUSINESS',
+    "cascadeOfMembershipId" TEXT,
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
     "assignedBy" TEXT,
     "version" INTEGER NOT NULL DEFAULT 1,
@@ -1077,6 +1128,23 @@ CREATE TABLE "AuditEvent" (
 );
 
 -- CreateTable
+CREATE TABLE "AgentTraceEvent" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "turnId" TEXT NOT NULL,
+    "executionId" TEXT,
+    "kind" TEXT NOT NULL,
+    "idempotencyKey" TEXT NOT NULL,
+    "payloadJson" TEXT NOT NULL,
+    "occurredAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "AgentTraceEvent_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "PipelineRun" (
     "id" TEXT NOT NULL,
     "executionRunId" TEXT NOT NULL,
@@ -1243,6 +1311,326 @@ CREATE TABLE "PipelineGateDecision" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "PipelineGateDecision_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "KnowledgeEvidenceCursor" (
+    "id" TEXT NOT NULL,
+    "portfolioId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "workspaceId" TEXT NOT NULL,
+    "projectId" TEXT NOT NULL,
+    "sharing" TEXT NOT NULL,
+    "cursor" INTEGER NOT NULL DEFAULT 0,
+    "lastPulledAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "KnowledgeEvidenceCursor_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "KnowledgeRawArtifact" (
+    "id" TEXT NOT NULL,
+    "rawExternalRecordId" TEXT NOT NULL,
+    "sourceId" TEXT NOT NULL,
+    "documentId" TEXT NOT NULL,
+    "version" TEXT NOT NULL,
+    "contentHash" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "sourceType" TEXT NOT NULL,
+    "sourceUri" TEXT,
+    "contentType" TEXT NOT NULL,
+    "pipelineVersion" TEXT NOT NULL,
+    "schemaVersion" TEXT NOT NULL,
+    "portfolioId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "workspaceId" TEXT NOT NULL,
+    "agentId" TEXT NOT NULL,
+    "visibility" TEXT NOT NULL,
+    "receivedAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "KnowledgeRawArtifact_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "KnowledgeParsedArtifact" (
+    "id" TEXT NOT NULL,
+    "rawArtifactId" TEXT NOT NULL,
+    "documentId" TEXT NOT NULL,
+    "parserVersion" TEXT NOT NULL,
+    "contentHash" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "structureJson" TEXT NOT NULL DEFAULT '[]',
+    "textBlocksJson" TEXT NOT NULL DEFAULT '[]',
+    "tablesJson" TEXT NOT NULL DEFAULT '[]',
+    "metadataJson" TEXT NOT NULL DEFAULT '{}',
+    "portfolioId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "workspaceId" TEXT NOT NULL,
+    "agentId" TEXT NOT NULL,
+    "visibility" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "KnowledgeParsedArtifact_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "KnowledgeChunk" (
+    "id" TEXT NOT NULL,
+    "parsedArtifactId" TEXT NOT NULL,
+    "documentId" TEXT NOT NULL,
+    "ordinal" INTEGER NOT NULL,
+    "text" TEXT NOT NULL,
+    "contentHash" TEXT NOT NULL,
+    "startOffset" INTEGER NOT NULL,
+    "endOffset" INTEGER NOT NULL,
+    "headingPathJson" TEXT NOT NULL DEFAULT '[]',
+    "tokenCount" INTEGER NOT NULL DEFAULT 0,
+    "portfolioId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "workspaceId" TEXT NOT NULL,
+    "agentId" TEXT NOT NULL,
+    "visibility" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "KnowledgeChunk_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "GenesisRag17IngestionIntent" (
+    "id" TEXT NOT NULL,
+    "intentKey" TEXT NOT NULL,
+    "runId" TEXT NOT NULL,
+    "executionRunId" TEXT NOT NULL,
+    "scopeJson" TEXT NOT NULL,
+    "requestJson" TEXT NOT NULL,
+    "derivationJson" TEXT NOT NULL,
+    "rawArtifactId" TEXT NOT NULL,
+    "sourceId" TEXT NOT NULL,
+    "documentId" TEXT NOT NULL,
+    "version" TEXT NOT NULL,
+    "contentHash" TEXT NOT NULL,
+    "portfolioId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "workspaceId" TEXT NOT NULL,
+    "agentId" TEXT NOT NULL,
+    "visibility" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "nextStageNumber" INTEGER NOT NULL DEFAULT 1,
+    "lastErrorJson" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "GenesisRag17IngestionIntent_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "GenesisRag17SourceMention" (
+    "id" TEXT NOT NULL,
+    "sourceMentionId" TEXT NOT NULL,
+    "runId" TEXT NOT NULL,
+    "executionRunId" TEXT NOT NULL,
+    "attemptId" TEXT NOT NULL,
+    "sourceId" TEXT NOT NULL,
+    "documentId" TEXT NOT NULL,
+    "version" TEXT NOT NULL,
+    "rawArtifactId" TEXT NOT NULL,
+    "parsedArtifactId" TEXT NOT NULL,
+    "chunkId" TEXT NOT NULL,
+    "resolutionKey" TEXT NOT NULL,
+    "semanticType" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "startOffset" INTEGER NOT NULL,
+    "endOffset" INTEGER NOT NULL,
+    "recognizerVersion" TEXT NOT NULL,
+    "recognizerProvenance" TEXT NOT NULL,
+    "derivationHash" TEXT NOT NULL,
+    "contentHash" TEXT NOT NULL,
+    "portfolioId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "workspaceId" TEXT NOT NULL,
+    "agentId" TEXT NOT NULL,
+    "visibility" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "GenesisRag17SourceMention_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "GenesisRag17Batch" (
+    "id" TEXT NOT NULL,
+    "batchId" TEXT NOT NULL,
+    "idempotencyKey" TEXT NOT NULL,
+    "runId" TEXT NOT NULL,
+    "executionRunId" TEXT NOT NULL,
+    "stage9StepId" TEXT NOT NULL,
+    "stage9AttemptId" TEXT NOT NULL,
+    "scopeJson" TEXT NOT NULL,
+    "requestJson" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "decisionId" TEXT,
+    "responseJson" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "GenesisRag17Batch_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "GenesisRag17StageEvidence" (
+    "id" TEXT NOT NULL,
+    "cursor" INTEGER,
+    "runId" TEXT NOT NULL,
+    "executionRunId" TEXT NOT NULL,
+    "pipelineStageId" TEXT NOT NULL,
+    "executionStepId" TEXT NOT NULL,
+    "attemptId" TEXT NOT NULL,
+    "stageNumber" INTEGER NOT NULL,
+    "outcome" TEXT NOT NULL,
+    "startedAt" TIMESTAMP(3) NOT NULL,
+    "finishedAt" TIMESTAMP(3) NOT NULL,
+    "recordsIn" INTEGER NOT NULL,
+    "recordsOut" INTEGER NOT NULL,
+    "recordsQuarantined" INTEGER NOT NULL,
+    "errorCount" INTEGER NOT NULL,
+    "retryCount" INTEGER NOT NULL,
+    "durationMs" DOUBLE PRECISION NOT NULL,
+    "detailsJson" TEXT NOT NULL DEFAULT '{}',
+    "rowHash" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "GenesisRag17StageEvidence_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "GenesisRag17PublicationReceipt" (
+    "id" TEXT NOT NULL,
+    "runId" TEXT NOT NULL,
+    "executionRunId" TEXT NOT NULL,
+    "scopeJson" TEXT NOT NULL,
+    "decisionId" TEXT NOT NULL,
+    "decisionHash" TEXT NOT NULL,
+    "snapshotId" TEXT NOT NULL,
+    "generation" TEXT NOT NULL,
+    "receiptHash" TEXT NOT NULL,
+    "publishedAt" TIMESTAMP(3) NOT NULL,
+    "pointerHash" TEXT NOT NULL,
+    "modelRevision" TEXT NOT NULL,
+    "transactionFrontier" TEXT NOT NULL,
+    "readbackJson" TEXT NOT NULL,
+    "receiptJson" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "GenesisRag17PublicationReceipt_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "GenesisRag17EvidenceCursor" (
+    "id" TEXT NOT NULL,
+    "runId" TEXT NOT NULL,
+    "portfolioId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "workspaceId" TEXT NOT NULL,
+    "agentId" TEXT NOT NULL,
+    "visibility" TEXT NOT NULL,
+    "cursor" INTEGER NOT NULL DEFAULT 0,
+    "lastPulledAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "GenesisRag17EvidenceCursor_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "KnowledgeCorpus" (
+    "id" TEXT NOT NULL,
+    "corpusKey" TEXT NOT NULL,
+    "portfolioId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "projectId" TEXT,
+    "workspaceId" TEXT NOT NULL DEFAULT '',
+    "scopeJson" TEXT NOT NULL,
+    "policyJson" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "generation" INTEGER NOT NULL DEFAULT 0,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+
+    CONSTRAINT "KnowledgeCorpus_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "KnowledgeSource" (
+    "id" TEXT NOT NULL,
+    "corpusId" TEXT NOT NULL,
+    "sourceKey" TEXT NOT NULL,
+    "kind" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "fileAssetId" TEXT,
+    "desiredRevision" INTEGER NOT NULL DEFAULT 0,
+    "activeIngestionId" TEXT,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "revokedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+
+    CONSTRAINT "KnowledgeSource_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "KnowledgeIngestion" (
+    "id" TEXT NOT NULL,
+    "corpusId" TEXT NOT NULL,
+    "sourceId" TEXT NOT NULL,
+    "revision" INTEGER NOT NULL,
+    "sourceVersion" TEXT NOT NULL,
+    "contentHash" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "sourceMetaJson" TEXT NOT NULL DEFAULT '{}',
+    "idempotencyKey" TEXT NOT NULL,
+    "requestHash" TEXT NOT NULL,
+    "submittedById" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'QUEUED',
+    "executionRunId" TEXT,
+    "rawArtifactId" TEXT,
+    "parsedArtifactId" TEXT,
+    "snapshotId" TEXT,
+    "snapshotGeneration" TEXT,
+    "receiptHash" TEXT,
+    "claimToken" TEXT,
+    "leaseExpiresAt" TIMESTAMP(3),
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "failureCode" TEXT,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "KnowledgeIngestion_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "KnowledgeCorpusGeneration" (
+    "id" TEXT NOT NULL,
+    "corpusId" TEXT NOT NULL,
+    "number" INTEGER NOT NULL,
+    "manifestJson" TEXT NOT NULL,
+    "manifestHash" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "KnowledgeCorpusGeneration_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -1569,6 +1957,101 @@ CREATE TABLE "LineOaAccount" (
 );
 
 -- CreateTable
+CREATE TABLE "LineOaRichMenu" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "lineOaAccountId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "alias" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "isDefault" BOOLEAN NOT NULL DEFAULT false,
+    "archivedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "LineOaRichMenu_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "LineOaRichMenuVersion" (
+    "id" TEXT NOT NULL,
+    "richMenuId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "lineOaAccountId" TEXT NOT NULL,
+    "versionNumber" INTEGER NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "layout" TEXT NOT NULL,
+    "chatBarText" TEXT NOT NULL,
+    "selected" BOOLEAN NOT NULL DEFAULT false,
+    "imageFileAssetId" TEXT,
+    "imageWidth" INTEGER NOT NULL,
+    "imageHeight" INTEGER NOT NULL,
+    "areasJson" TEXT NOT NULL DEFAULT '[]',
+    "externalRichMenuId" TEXT,
+    "frozenAt" TIMESTAMP(3),
+    "publishedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "LineOaRichMenuVersion_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "LineOaLiffApp" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "lineOaAccountId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "viewSize" TEXT NOT NULL DEFAULT 'FULL',
+    "endpointUrl" TEXT NOT NULL,
+    "scopesJson" TEXT NOT NULL DEFAULT '[]',
+    "botPrompt" TEXT NOT NULL DEFAULT 'NORMAL',
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "externalLiffId" TEXT,
+    "archivedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "LineOaLiffApp_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "LineOaRichMenuJob" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "accountId" TEXT NOT NULL,
+    "richMenuId" TEXT NOT NULL,
+    "richMenuVersionId" TEXT NOT NULL,
+    "kind" TEXT NOT NULL,
+    "stage" TEXT NOT NULL DEFAULT 'CREATE',
+    "status" TEXT NOT NULL DEFAULT 'QUEUED',
+    "transportEpoch" INTEGER NOT NULL,
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "availableAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "claimantId" TEXT,
+    "leaseExpiresAt" TIMESTAMP(3),
+    "externalRichMenuId" TEXT,
+    "providerRequestId" TEXT,
+    "errorCode" TEXT,
+    "correlationId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "LineOaRichMenuJob_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "LineConversationJob" (
     "id" TEXT NOT NULL,
     "accountId" TEXT NOT NULL,
@@ -1576,10 +2059,12 @@ CREATE TABLE "LineConversationJob" (
     "eventId" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
     "businessId" TEXT NOT NULL,
+    "executionId" TEXT,
     "channelAccountId" TEXT NOT NULL,
     "transportEpoch" INTEGER NOT NULL,
     "executionMode" TEXT NOT NULL,
     "modelAccess" TEXT NOT NULL,
+    "audienceKind" TEXT NOT NULL DEFAULT 'DIRECT',
     "allowDelayedPush" BOOLEAN NOT NULL DEFAULT false,
     "recipientId" TEXT NOT NULL,
     "sourceUserId" TEXT NOT NULL,
@@ -1599,12 +2084,862 @@ CREATE TABLE "LineConversationJob" (
     "providerMessageId" TEXT,
     "acceptedAt" TIMESTAMP(3),
     "errorCode" TEXT,
+    "memorySyncOptIn" BOOLEAN NOT NULL DEFAULT false,
+    "memoryDeliveryState" TEXT NOT NULL DEFAULT 'NONE',
+    "memoryDeliveryAttempts" INTEGER NOT NULL DEFAULT 0,
+    "memoryDeliveryNextAttemptAt" TIMESTAMP(3),
+    "memoryDeliveryLeaseUntil" TIMESTAMP(3),
     "correlationId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "LineConversationJob_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MarketingPlan" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "currentRevision" INTEGER NOT NULL DEFAULT 1,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdBy" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+
+    CONSTRAINT "MarketingPlan_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MarketingPlanVersion" (
+    "id" TEXT NOT NULL,
+    "planId" TEXT NOT NULL,
+    "revision" INTEGER NOT NULL,
+    "payloadJson" TEXT NOT NULL,
+    "payloadHash" TEXT NOT NULL,
+    "createdBy" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "MarketingPlanVersion_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MarketingReview" (
+    "id" TEXT NOT NULL,
+    "planId" TEXT NOT NULL,
+    "planVersionId" TEXT NOT NULL,
+    "payloadHash" TEXT NOT NULL,
+    "verdict" TEXT NOT NULL,
+    "rationale" TEXT NOT NULL,
+    "reviewerId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "MarketingReview_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MarketingDecision" (
+    "id" TEXT NOT NULL,
+    "planId" TEXT NOT NULL,
+    "planVersionId" TEXT NOT NULL,
+    "payloadHash" TEXT NOT NULL,
+    "reviewId" TEXT,
+    "verdict" TEXT NOT NULL,
+    "rationale" TEXT NOT NULL,
+    "actorId" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "MarketingDecision_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MarketingHandoff" (
+    "id" TEXT NOT NULL,
+    "planId" TEXT NOT NULL,
+    "planVersionId" TEXT NOT NULL,
+    "workspaceId" TEXT NOT NULL,
+    "projectId" TEXT NOT NULL,
+    "payloadHash" TEXT NOT NULL,
+    "envelopeHash" TEXT NOT NULL,
+    "receiptJson" TEXT NOT NULL,
+    "createdBy" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "MarketingHandoff_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MarketingInitiative" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "planId" TEXT NOT NULL,
+    "handoffId" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'OPEN',
+    "closureReason" TEXT,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdBy" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+
+    CONSTRAINT "MarketingInitiative_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MarketingContentBrief" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'OPEN',
+    "currentRevision" INTEGER NOT NULL DEFAULT 1,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdBy" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+
+    CONSTRAINT "MarketingContentBrief_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MarketingContentVersion" (
+    "id" TEXT NOT NULL,
+    "briefId" TEXT NOT NULL,
+    "revision" INTEGER NOT NULL,
+    "payloadJson" TEXT NOT NULL,
+    "payloadHash" TEXT NOT NULL,
+    "createdBy" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "MarketingContentVersion_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MarketingContentReview" (
+    "id" TEXT NOT NULL,
+    "briefId" TEXT NOT NULL,
+    "contentVersionId" TEXT NOT NULL,
+    "payloadHash" TEXT NOT NULL,
+    "sequence" INTEGER NOT NULL,
+    "verdict" TEXT NOT NULL,
+    "rationale" TEXT NOT NULL,
+    "rightsConfirmed" BOOLEAN NOT NULL DEFAULT false,
+    "brandConfirmed" BOOLEAN NOT NULL DEFAULT false,
+    "reviewerId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "MarketingContentReview_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MarketingContentDecision" (
+    "id" TEXT NOT NULL,
+    "briefId" TEXT NOT NULL,
+    "contentVersionId" TEXT NOT NULL,
+    "payloadHash" TEXT NOT NULL,
+    "sequence" INTEGER NOT NULL,
+    "reviewId" TEXT,
+    "verdict" TEXT NOT NULL,
+    "rationale" TEXT NOT NULL,
+    "actorId" TEXT NOT NULL,
+    "expiresAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "MarketingContentDecision_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MarketingOperationsIntake" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "title" TEXT NOT NULL,
+    "capability" TEXT NOT NULL,
+    "objective" TEXT NOT NULL,
+    "requiredAt" TIMESTAMP(3),
+    "evidenceReference" TEXT,
+    "responsibleOwnerId" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'NEW',
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdBy" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+
+    CONSTRAINT "MarketingOperationsIntake_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MarketingBroadcastIntent" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'PLANNING',
+    "currentRevision" INTEGER NOT NULL DEFAULT 1,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "idempotencyKey" TEXT NOT NULL,
+    "createdBy" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "deletedAt" TIMESTAMP(3),
+
+    CONSTRAINT "MarketingBroadcastIntent_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "MarketingBroadcastIntentVersion" (
+    "id" TEXT NOT NULL,
+    "intentId" TEXT NOT NULL,
+    "revision" INTEGER NOT NULL,
+    "payloadJson" TEXT NOT NULL,
+    "payloadHash" TEXT NOT NULL,
+    "createdBy" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "MarketingBroadcastIntentVersion_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "InventoryCategory" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "nameTh" TEXT NOT NULL,
+    "nameEn" TEXT NOT NULL,
+    "slug" TEXT,
+    "vibe" TEXT,
+    "targetRecipient" TEXT,
+    "guardrail" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "InventoryCategory_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProductFamily" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "ProductFamily_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Factory" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "country" TEXT,
+    "contact" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "Factory_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProductMaster" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "categoryId" TEXT NOT NULL,
+    "familyId" TEXT,
+    "factoryId" TEXT,
+    "nameTh" TEXT NOT NULL,
+    "nameEn" TEXT NOT NULL,
+    "baseCost" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "specsJson" TEXT NOT NULL DEFAULT '{}',
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "ProductMaster_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Product" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "productMasterId" TEXT NOT NULL,
+    "name" TEXT,
+    "color" TEXT,
+    "material" TEXT,
+    "unit" TEXT NOT NULL DEFAULT 'EA',
+    "stockPolicy" TEXT NOT NULL DEFAULT 'TRACKED',
+    "trackingMode" TEXT NOT NULL DEFAULT 'NONE',
+    "safetyStock" INTEGER NOT NULL DEFAULT 10,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "archivedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "itemKind" TEXT NOT NULL DEFAULT 'RAW_COMPONENT',
+    "dedicatedCustomerId" TEXT,
+    "dedicatedSalesOrderId" TEXT,
+    "flowAccountSku" TEXT,
+    "maintenanceIntervalDays" INTEGER,
+    "maxStorageDays" INTEGER,
+
+    CONSTRAINT "Product_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProductLot" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "factoryId" TEXT,
+    "manufacturedAt" TIMESTAMP(3),
+    "expiresAt" TIMESTAMP(3),
+    "receivedQty" INTEGER NOT NULL DEFAULT 0,
+    "status" TEXT NOT NULL DEFAULT 'OPEN',
+    "lastMaintainedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "ProductLot_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SerialUnit" (
+    "id" TEXT NOT NULL,
+    "serialNo" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "lotId" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'IN_STOCK',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "SerialUnit_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProductBundle" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+    "targetRecipients" INTEGER,
+    "totalPrice" DOUBLE PRECISION,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "ProductBundle_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProductBundleItem" (
+    "id" TEXT NOT NULL,
+    "bundleId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "qty" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "ProductBundleItem_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "StockMovement" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "lotId" TEXT,
+    "serialUnitId" TEXT,
+    "kind" TEXT NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "reason" TEXT,
+    "reference" TEXT,
+    "actorId" TEXT,
+    "occurredAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "sourceLocationId" TEXT,
+    "targetLocationId" TEXT,
+    "costSatang" INTEGER,
+    "customerId" TEXT,
+    "salesOrderId" TEXT,
+    "workOrderId" TEXT,
+
+    CONSTRAINT "StockMovement_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "InventoryLedgerFence" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "mutationRevision" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "InventoryLedgerFence_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "InventoryStocktake" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "idempotencyKey" TEXT NOT NULL,
+    "payloadHash" TEXT NOT NULL,
+    "normalizedLinesJson" TEXT NOT NULL,
+    "snapshotVersion" INTEGER NOT NULL,
+    "snapshotHash" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'PREVIEWED',
+    "resultJson" TEXT,
+    "committedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "InventoryStocktake_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProductRecipe" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "batchSize" INTEGER NOT NULL,
+    "yieldQty" INTEGER NOT NULL,
+    "unit" TEXT NOT NULL DEFAULT 'EA',
+    "notes" TEXT,
+    "scrapAllowanceFactor" DOUBLE PRECISION NOT NULL DEFAULT 0,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "archivedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "ProductRecipe_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ProductRecipeLine" (
+    "id" TEXT NOT NULL,
+    "recipeId" TEXT NOT NULL,
+    "componentProductId" TEXT NOT NULL,
+    "qty" DOUBLE PRECISION NOT NULL,
+    "unit" TEXT,
+    "fixed" BOOLEAN NOT NULL DEFAULT false,
+    "note" TEXT,
+
+    CONSTRAINT "ProductRecipeLine_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "WarehouseLocation" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "type" TEXT NOT NULL,
+    "isVirtual" BOOLEAN NOT NULL DEFAULT false,
+    "address" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "archivedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "WarehouseLocation_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "CustomizationWorkOrder" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "salesOrderId" TEXT,
+    "customerId" TEXT,
+    "rawProductId" TEXT NOT NULL,
+    "outputProductId" TEXT,
+    "technique" TEXT NOT NULL,
+    "logoArtworkUrl" TEXT,
+    "pantoneColorsJson" TEXT,
+    "plannedQty" INTEGER NOT NULL,
+    "issuedQty" INTEGER NOT NULL DEFAULT 0,
+    "completedQty" INTEGER NOT NULL DEFAULT 0,
+    "scrapQty" INTEGER NOT NULL DEFAULT 0,
+    "scrapAllowanceFactor" DOUBLE PRECISION NOT NULL DEFAULT 0.02,
+    "setupCostSatang" INTEGER NOT NULL DEFAULT 0,
+    "runCostSatang" INTEGER NOT NULL DEFAULT 0,
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "wipLocationId" TEXT,
+    "scrapLocationId" TEXT,
+    "sourceLocationId" TEXT,
+    "scheduledDate" TIMESTAMP(3),
+    "startedAt" TIMESTAMP(3),
+    "completedAt" TIMESTAMP(3),
+    "cancelledAt" TIMESTAMP(3),
+    "notes" TEXT,
+    "createdByPersonId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "CustomizationWorkOrder_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "KittingWorkOrder" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "salesOrderId" TEXT,
+    "customerId" TEXT,
+    "recipeId" TEXT NOT NULL,
+    "finishedProductId" TEXT NOT NULL,
+    "plannedQty" INTEGER NOT NULL,
+    "assembledQty" INTEGER NOT NULL DEFAULT 0,
+    "scrapQty" INTEGER NOT NULL DEFAULT 0,
+    "laborCostSatang" INTEGER NOT NULL DEFAULT 0,
+    "unitCostSatang" INTEGER,
+    "plannedLinesJson" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "sourceLocationId" TEXT,
+    "wipLocationId" TEXT,
+    "targetLocationId" TEXT,
+    "scrapLocationId" TEXT,
+    "outputLotCode" TEXT,
+    "startedAt" TIMESTAMP(3),
+    "completedAt" TIMESTAMP(3),
+    "cancelledAt" TIMESTAMP(3),
+    "notes" TEXT,
+    "createdByPersonId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "KittingWorkOrder_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "StockReservation" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "purpose" TEXT NOT NULL,
+    "quantity" INTEGER NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "customerId" TEXT,
+    "salesOrderId" TEXT,
+    "quoteReference" TEXT,
+    "customerCompany" TEXT,
+    "contactHandle" TEXT,
+    "notes" TEXT,
+    "reservedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "expiresAt" TIMESTAMP(3),
+    "releasedAt" TIMESTAMP(3),
+    "convertedAt" TIMESTAMP(3),
+    "createdByPersonId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "StockReservation_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SalesTask" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "customerId" TEXT,
+    "conversationId" TEXT,
+    "assigneePersonId" TEXT,
+    "createdByPersonId" TEXT,
+    "title" TEXT NOT NULL,
+    "description" TEXT,
+    "type" TEXT NOT NULL DEFAULT 'FOLLOW_UP',
+    "priority" TEXT NOT NULL DEFAULT 'NORMAL',
+    "status" TEXT NOT NULL DEFAULT 'OPEN',
+    "scheduleKind" TEXT NOT NULL DEFAULT 'SINGLE',
+    "dueDate" TIMESTAMP(3) NOT NULL,
+    "startDate" TIMESTAMP(3),
+    "timeStart" TEXT,
+    "timeEnd" TEXT,
+    "outcome" TEXT,
+    "completedAt" TIMESTAMP(3),
+    "completedByPersonId" TEXT,
+    "cancelledAt" TIMESTAMP(3),
+    "cancelReason" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "SalesTask_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "BusinessBillingProfile" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "vatRegistered" BOOLEAN NOT NULL DEFAULT false,
+    "vatRateBps" INTEGER,
+    "vatTreatment" TEXT,
+    "taxPolicyVersion" TEXT,
+    "taxEffectiveAt" TIMESTAMP(3),
+    "taxVerifiedAt" TIMESTAMP(3),
+    "nonVatDocumentPolicy" TEXT,
+    "walkInDocumentPolicy" TEXT,
+    "promptPayProvider" TEXT,
+    "promptPayTargetType" TEXT,
+    "promptPayTarget" TEXT,
+    "promptPayActive" BOOLEAN NOT NULL DEFAULT false,
+    "promptPayVerifiedAt" TIMESTAMP(3),
+    "active" BOOLEAN NOT NULL DEFAULT true,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "BusinessBillingProfile_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "CommerceDocumentSequence" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "documentType" TEXT NOT NULL,
+    "calendarYear" INTEGER NOT NULL,
+    "lastSequence" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "CommerceDocumentSequence_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "CommerceDocument" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "orderId" TEXT NOT NULL,
+    "branchId" TEXT NOT NULL,
+    "documentType" TEXT NOT NULL,
+    "documentNumber" TEXT NOT NULL,
+    "calendarYear" INTEGER NOT NULL,
+    "sequenceNumber" INTEGER NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'ISSUED',
+    "idempotencyKey" TEXT NOT NULL,
+    "requestHash" TEXT NOT NULL,
+    "issuedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "issuedByPersonId" TEXT,
+    "snapshotJson" TEXT NOT NULL DEFAULT '{}',
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "CommerceDocument_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SalesOrder" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "customerId" TEXT,
+    "conversationId" TEXT,
+    "origin" TEXT NOT NULL DEFAULT 'WALK_IN',
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "currency" TEXT NOT NULL DEFAULT 'THB',
+    "discountSatang" INTEGER NOT NULL DEFAULT 0,
+    "notes" TEXT,
+    "orderedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "confirmedAt" TIMESTAMP(3),
+    "completedAt" TIMESTAMP(3),
+    "cancelledAt" TIMESTAMP(3),
+    "cancelReason" TEXT,
+    "stockIssuedAt" TIMESTAMP(3),
+    "closedByPersonId" TEXT,
+    "createdByPersonId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "SalesOrder_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "SalesOrderLine" (
+    "id" TEXT NOT NULL,
+    "orderId" TEXT NOT NULL,
+    "productId" TEXT,
+    "description" TEXT NOT NULL,
+    "qty" INTEGER NOT NULL,
+    "unitPriceSatang" INTEGER NOT NULL,
+    "discountSatang" INTEGER NOT NULL DEFAULT 0,
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+
+    CONSTRAINT "SalesOrderLine_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Payment" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "orderId" TEXT NOT NULL,
+    "kind" TEXT NOT NULL DEFAULT 'PAYMENT',
+    "method" TEXT NOT NULL,
+    "amountSatang" INTEGER NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "bankReference" TEXT,
+    "slipFileAssetId" TEXT,
+    "note" TEXT,
+    "paidAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "verifiedAt" TIMESTAMP(3),
+    "verifiedByPersonId" TEXT,
+    "rejectReason" TEXT,
+    "createdByPersonId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "Payment_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Supplier" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "name" TEXT NOT NULL,
+    "taxId" TEXT,
+    "contactName" TEXT,
+    "phone" TEXT,
+    "email" TEXT,
+    "address" TEXT,
+    "paymentTerms" TEXT,
+    "leadTimeDays" INTEGER,
+    "notes" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "archivedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "Supplier_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PurchaseOrder" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "supplierId" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'DRAFT',
+    "currency" TEXT NOT NULL DEFAULT 'THB',
+    "expectedAt" TIMESTAMP(3),
+    "notes" TEXT,
+    "orderedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "sentAt" TIMESTAMP(3),
+    "receivedAt" TIMESTAMP(3),
+    "closedAt" TIMESTAMP(3),
+    "closeReason" TEXT,
+    "cancelledAt" TIMESTAMP(3),
+    "cancelReason" TEXT,
+    "createdByPersonId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "PurchaseOrder_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "PurchaseOrderLine" (
+    "id" TEXT NOT NULL,
+    "purchaseOrderId" TEXT NOT NULL,
+    "productId" TEXT,
+    "description" TEXT NOT NULL,
+    "qty" INTEGER NOT NULL,
+    "unitCostSatang" INTEGER NOT NULL,
+    "sortOrder" INTEGER NOT NULL DEFAULT 0,
+
+    CONSTRAINT "PurchaseOrderLine_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "GoodsReceipt" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "purchaseOrderId" TEXT NOT NULL,
+    "supplierReference" TEXT,
+    "notes" TEXT,
+    "receivedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "postedByPersonId" TEXT,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "GoodsReceipt_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "GoodsReceiptLine" (
+    "id" TEXT NOT NULL,
+    "receiptId" TEXT NOT NULL,
+    "purchaseOrderLineId" TEXT NOT NULL,
+    "qty" INTEGER NOT NULL,
+    "lotCode" TEXT,
+    "expiresAt" TIMESTAMP(3),
+    "serialNosJson" TEXT,
+
+    CONSTRAINT "GoodsReceiptLine_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -1620,13 +2955,19 @@ CREATE INDEX "Tenant_portfolioId_idx" ON "Tenant"("portfolioId");
 CREATE UNIQUE INDEX "LegalEntity_code_key" ON "LegalEntity"("code");
 
 -- CreateIndex
-CREATE INDEX "LegalEntity_portfolioId_idx" ON "LegalEntity"("portfolioId");
+CREATE INDEX "LegalEntity_tenantId_idx" ON "LegalEntity"("tenantId");
 
 -- CreateIndex
 CREATE INDEX "LegalEntityIdentifier_legalEntityId_idx" ON "LegalEntityIdentifier"("legalEntityId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "LegalEntityIdentifier_country_type_value_key" ON "LegalEntityIdentifier"("country", "type", "value");
+
+-- CreateIndex
+CREATE INDEX "TaxRegistrationBranch_legalEntityId_idx" ON "TaxRegistrationBranch"("legalEntityId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "TaxRegistrationBranch_legalEntityId_branchCode_key" ON "TaxRegistrationBranch"("legalEntityId", "branchCode");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Business_code_key" ON "Business"("code");
@@ -1642,6 +2983,9 @@ CREATE INDEX "Branch_tenantId_idx" ON "Branch"("tenantId");
 
 -- CreateIndex
 CREATE INDEX "Branch_businessId_idx" ON "Branch"("businessId");
+
+-- CreateIndex
+CREATE INDEX "Branch_taxRegistrationBranchId_idx" ON "Branch"("taxRegistrationBranchId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Person_code_key" ON "Person"("code");
@@ -1723,6 +3067,24 @@ CREATE INDEX "Membership_tenantId_idx" ON "Membership"("tenantId");
 
 -- CreateIndex
 CREATE INDEX "Membership_tenantId_status_idx" ON "Membership"("tenantId", "status");
+
+-- CreateIndex
+CREATE INDEX "Membership_businessId_status_idx" ON "Membership"("businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "Membership_expiresAt_status_idx" ON "Membership"("expiresAt", "status");
+
+-- CreateIndex
+CREATE INDEX "Employment_personId_idx" ON "Employment"("personId");
+
+-- CreateIndex
+CREATE INDEX "Employment_tenantId_idx" ON "Employment"("tenantId");
+
+-- CreateIndex
+CREATE INDEX "Employment_businessId_status_idx" ON "Employment"("businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "Employment_branchId_idx" ON "Employment"("branchId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Session_tokenHash_key" ON "Session"("tokenHash");
@@ -2172,6 +3534,15 @@ CREATE INDEX "AuditEvent_entityType_entityId_idx" ON "AuditEvent"("entityType", 
 CREATE INDEX "AuditEvent_occurredAt_idx" ON "AuditEvent"("occurredAt");
 
 -- CreateIndex
+CREATE INDEX "AgentTraceEvent_tenantId_businessId_turnId_occurredAt_idx" ON "AgentTraceEvent"("tenantId", "businessId", "turnId", "occurredAt");
+
+-- CreateIndex
+CREATE INDEX "AgentTraceEvent_tenantId_businessId_turnId_createdAt_idx" ON "AgentTraceEvent"("tenantId", "businessId", "turnId", "createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AgentTraceEvent_scope_idempotency_key" ON "AgentTraceEvent"("tenantId", "businessId", "idempotencyKey");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "PipelineRun_executionRunId_key" ON "PipelineRun"("executionRunId");
 
 -- CreateIndex
@@ -2236,6 +3607,126 @@ CREATE INDEX "PipelineGateDecision_runId_status_idx" ON "PipelineGateDecision"("
 
 -- CreateIndex
 CREATE INDEX "PipelineGateDecision_gateId_idx" ON "PipelineGateDecision"("gateId");
+
+-- CreateIndex
+CREATE INDEX "KnowledgeEvidenceCursor_tenantId_idx" ON "KnowledgeEvidenceCursor"("tenantId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "KnowledgeEvidenceCursor_portfolioId_tenantId_businessId_wor_key" ON "KnowledgeEvidenceCursor"("portfolioId", "tenantId", "businessId", "workspaceId", "projectId", "sharing");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "KnowledgeRawArtifact_rawExternalRecordId_key" ON "KnowledgeRawArtifact"("rawExternalRecordId");
+
+-- CreateIndex
+CREATE INDEX "KnowledgeRawArtifact_tenantId_documentId_version_idx" ON "KnowledgeRawArtifact"("tenantId", "documentId", "version");
+
+-- CreateIndex
+CREATE INDEX "KnowledgeRawArtifact_tenantId_contentHash_idx" ON "KnowledgeRawArtifact"("tenantId", "contentHash");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "KnowledgeRawArtifact_portfolioId_tenantId_businessId_worksp_key" ON "KnowledgeRawArtifact"("portfolioId", "tenantId", "businessId", "workspaceId", "agentId", "visibility", "sourceId", "version", "contentHash", "pipelineVersion");
+
+-- CreateIndex
+CREATE INDEX "KnowledgeParsedArtifact_tenantId_documentId_idx" ON "KnowledgeParsedArtifact"("tenantId", "documentId");
+
+-- CreateIndex
+CREATE INDEX "KnowledgeParsedArtifact_rawArtifactId_idx" ON "KnowledgeParsedArtifact"("rawArtifactId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "KnowledgeParsedArtifact_rawArtifactId_parserVersion_key" ON "KnowledgeParsedArtifact"("rawArtifactId", "parserVersion");
+
+-- CreateIndex
+CREATE INDEX "KnowledgeChunk_tenantId_documentId_ordinal_idx" ON "KnowledgeChunk"("tenantId", "documentId", "ordinal");
+
+-- CreateIndex
+CREATE INDEX "KnowledgeChunk_parsedArtifactId_idx" ON "KnowledgeChunk"("parsedArtifactId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "KnowledgeChunk_parsedArtifactId_ordinal_key" ON "KnowledgeChunk"("parsedArtifactId", "ordinal");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GenesisRag17IngestionIntent_intentKey_key" ON "GenesisRag17IngestionIntent"("intentKey");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GenesisRag17IngestionIntent_executionRunId_key" ON "GenesisRag17IngestionIntent"("executionRunId");
+
+-- CreateIndex
+CREATE INDEX "GenesisRag17IngestionIntent_tenantId_status_idx" ON "GenesisRag17IngestionIntent"("tenantId", "status");
+
+-- CreateIndex
+CREATE INDEX "GenesisRag17IngestionIntent_executionRunId_status_idx" ON "GenesisRag17IngestionIntent"("executionRunId", "status");
+
+-- CreateIndex
+CREATE INDEX "GenesisRag17SourceMention_tenantId_parsedArtifactId_idx" ON "GenesisRag17SourceMention"("tenantId", "parsedArtifactId");
+
+-- CreateIndex
+CREATE INDEX "GenesisRag17SourceMention_executionRunId_attemptId_idx" ON "GenesisRag17SourceMention"("executionRunId", "attemptId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GenesisRag17SourceMention_executionRunId_attemptId_sourceMe_key" ON "GenesisRag17SourceMention"("executionRunId", "attemptId", "sourceMentionId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GenesisRag17Batch_batchId_key" ON "GenesisRag17Batch"("batchId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GenesisRag17Batch_idempotencyKey_key" ON "GenesisRag17Batch"("idempotencyKey");
+
+-- CreateIndex
+CREATE INDEX "GenesisRag17Batch_runId_status_idx" ON "GenesisRag17Batch"("runId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GenesisRag17Batch_executionRunId_stage9AttemptId_key" ON "GenesisRag17Batch"("executionRunId", "stage9AttemptId");
+
+-- CreateIndex
+CREATE INDEX "GenesisRag17StageEvidence_runId_stageNumber_idx" ON "GenesisRag17StageEvidence"("runId", "stageNumber");
+
+-- CreateIndex
+CREATE INDEX "GenesisRag17StageEvidence_executionRunId_cursor_idx" ON "GenesisRag17StageEvidence"("executionRunId", "cursor");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GenesisRag17StageEvidence_executionRunId_pipelineStageId_ex_key" ON "GenesisRag17StageEvidence"("executionRunId", "pipelineStageId", "executionStepId", "attemptId");
+
+-- CreateIndex
+CREATE INDEX "GenesisRag17PublicationReceipt_runId_snapshotId_generation_idx" ON "GenesisRag17PublicationReceipt"("runId", "snapshotId", "generation");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GenesisRag17PublicationReceipt_executionRunId_decisionId_de_key" ON "GenesisRag17PublicationReceipt"("executionRunId", "decisionId", "decisionHash", "snapshotId", "generation", "receiptHash");
+
+-- CreateIndex
+CREATE INDEX "GenesisRag17EvidenceCursor_tenantId_idx" ON "GenesisRag17EvidenceCursor"("tenantId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GenesisRag17EvidenceCursor_runId_portfolioId_tenantId_busin_key" ON "GenesisRag17EvidenceCursor"("runId", "portfolioId", "tenantId", "businessId", "workspaceId", "agentId", "visibility");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "KnowledgeCorpus_corpusKey_key" ON "KnowledgeCorpus"("corpusKey");
+
+-- CreateIndex
+CREATE INDEX "KnowledgeCorpus_tenantId_businessId_projectId_idx" ON "KnowledgeCorpus"("tenantId", "businessId", "projectId");
+
+-- CreateIndex
+CREATE INDEX "KnowledgeSource_fileAssetId_idx" ON "KnowledgeSource"("fileAssetId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "KnowledgeSource_corpusId_sourceKey_key" ON "KnowledgeSource"("corpusId", "sourceKey");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "KnowledgeIngestion_idempotencyKey_key" ON "KnowledgeIngestion"("idempotencyKey");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "KnowledgeIngestion_executionRunId_key" ON "KnowledgeIngestion"("executionRunId");
+
+-- CreateIndex
+CREATE INDEX "KnowledgeIngestion_status_leaseExpiresAt_createdAt_idx" ON "KnowledgeIngestion"("status", "leaseExpiresAt", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "KnowledgeIngestion_corpusId_createdAt_idx" ON "KnowledgeIngestion"("corpusId", "createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "KnowledgeIngestion_sourceId_sourceVersion_key" ON "KnowledgeIngestion"("sourceId", "sourceVersion");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "KnowledgeCorpusGeneration_corpusId_number_key" ON "KnowledgeCorpusGeneration"("corpusId", "number");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "IntegrationProvider_code_key" ON "IntegrationProvider"("code");
@@ -2388,6 +3879,39 @@ CREATE UNIQUE INDEX "LineOaAccount_tenantId_code_key" ON "LineOaAccount"("tenant
 CREATE UNIQUE INDEX "LineOaAccount_tenantId_bindingCode_key" ON "LineOaAccount"("tenantId", "bindingCode");
 
 -- CreateIndex
+CREATE INDEX "LineOaRichMenu_lineOaAccountId_status_idx" ON "LineOaRichMenu"("lineOaAccountId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "LineOaRichMenu_tenantId_code_key" ON "LineOaRichMenu"("tenantId", "code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "LineOaRichMenu_lineOaAccountId_alias_key" ON "LineOaRichMenu"("lineOaAccountId", "alias");
+
+-- CreateIndex
+CREATE INDEX "LineOaRichMenuVersion_lineOaAccountId_status_idx" ON "LineOaRichMenuVersion"("lineOaAccountId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "LineOaRichMenuVersion_richMenuId_versionNumber_key" ON "LineOaRichMenuVersion"("richMenuId", "versionNumber");
+
+-- CreateIndex
+CREATE INDEX "LineOaLiffApp_lineOaAccountId_status_idx" ON "LineOaLiffApp"("lineOaAccountId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "LineOaLiffApp_tenantId_code_key" ON "LineOaLiffApp"("tenantId", "code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "LineOaLiffApp_lineOaAccountId_externalLiffId_key" ON "LineOaLiffApp"("lineOaAccountId", "externalLiffId");
+
+-- CreateIndex
+CREATE INDEX "LineOaRichMenuJob_status_availableAt_idx" ON "LineOaRichMenuJob"("status", "availableAt");
+
+-- CreateIndex
+CREATE INDEX "LineOaRichMenuJob_accountId_status_idx" ON "LineOaRichMenuJob"("accountId", "status");
+
+-- CreateIndex
+CREATE INDEX "LineOaRichMenuJob_richMenuId_status_idx" ON "LineOaRichMenuJob"("richMenuId", "status");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "LineConversationJob_inboundMessageId_key" ON "LineConversationJob"("inboundMessageId");
 
 -- CreateIndex
@@ -2400,16 +3924,370 @@ CREATE INDEX "LineConversationJob_status_executionMode_availableAt_idx" ON "Line
 CREATE INDEX "LineConversationJob_tenantId_businessId_status_idx" ON "LineConversationJob"("tenantId", "businessId", "status");
 
 -- CreateIndex
+CREATE INDEX "LineConversationJob_memoryDeliveryState_memoryDeliveryNextA_idx" ON "LineConversationJob"("memoryDeliveryState", "memoryDeliveryNextAttemptAt", "createdAt");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "LineConversationJob_accountId_eventId_key" ON "LineConversationJob"("accountId", "eventId");
+
+-- CreateIndex
+CREATE INDEX "MarketingPlan_tenantId_businessId_status_idx" ON "MarketingPlan"("tenantId", "businessId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MarketingPlan_businessId_code_key" ON "MarketingPlan"("businessId", "code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MarketingPlanVersion_planId_revision_key" ON "MarketingPlanVersion"("planId", "revision");
+
+-- CreateIndex
+CREATE INDEX "MarketingReview_planId_createdAt_idx" ON "MarketingReview"("planId", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "MarketingDecision_planId_createdAt_idx" ON "MarketingDecision"("planId", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "MarketingHandoff_planId_idx" ON "MarketingHandoff"("planId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MarketingHandoff_planVersionId_workspaceId_key" ON "MarketingHandoff"("planVersionId", "workspaceId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MarketingInitiative_planId_key" ON "MarketingInitiative"("planId");
+
+-- CreateIndex
+CREATE INDEX "MarketingInitiative_tenantId_businessId_status_idx" ON "MarketingInitiative"("tenantId", "businessId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MarketingInitiative_businessId_code_key" ON "MarketingInitiative"("businessId", "code");
+
+-- CreateIndex
+CREATE INDEX "MarketingContentBrief_tenantId_businessId_status_idx" ON "MarketingContentBrief"("tenantId", "businessId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MarketingContentBrief_businessId_code_key" ON "MarketingContentBrief"("businessId", "code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MarketingContentVersion_briefId_revision_key" ON "MarketingContentVersion"("briefId", "revision");
+
+-- CreateIndex
+CREATE INDEX "MarketingContentReview_briefId_createdAt_idx" ON "MarketingContentReview"("briefId", "createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MarketingContentReview_briefId_sequence_key" ON "MarketingContentReview"("briefId", "sequence");
+
+-- CreateIndex
+CREATE INDEX "MarketingContentDecision_briefId_createdAt_idx" ON "MarketingContentDecision"("briefId", "createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MarketingContentDecision_briefId_sequence_key" ON "MarketingContentDecision"("briefId", "sequence");
+
+-- CreateIndex
+CREATE INDEX "MarketingOperationsIntake_tenantId_businessId_status_idx" ON "MarketingOperationsIntake"("tenantId", "businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "MarketingOperationsIntake_businessId_requiredAt_idx" ON "MarketingOperationsIntake"("businessId", "requiredAt");
+
+-- CreateIndex
+CREATE INDEX "MarketingBroadcastIntent_tenantId_businessId_status_idx" ON "MarketingBroadcastIntent"("tenantId", "businessId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MarketingBroadcastIntent_businessId_idempotencyKey_key" ON "MarketingBroadcastIntent"("businessId", "idempotencyKey");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MarketingBroadcastIntent_businessId_code_key" ON "MarketingBroadcastIntent"("businessId", "code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "MarketingBroadcastIntentVersion_intentId_revision_key" ON "MarketingBroadcastIntentVersion"("intentId", "revision");
+
+-- CreateIndex
+CREATE INDEX "InventoryCategory_businessId_status_idx" ON "InventoryCategory"("businessId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "InventoryCategory_tenantId_code_key" ON "InventoryCategory"("tenantId", "code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "InventoryCategory_businessId_slug_key" ON "InventoryCategory"("businessId", "slug");
+
+-- CreateIndex
+CREATE INDEX "ProductFamily_businessId_status_idx" ON "ProductFamily"("businessId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProductFamily_tenantId_code_key" ON "ProductFamily"("tenantId", "code");
+
+-- CreateIndex
+CREATE INDEX "Factory_businessId_status_idx" ON "Factory"("businessId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Factory_tenantId_code_key" ON "Factory"("tenantId", "code");
+
+-- CreateIndex
+CREATE INDEX "ProductMaster_businessId_status_idx" ON "ProductMaster"("businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "ProductMaster_categoryId_idx" ON "ProductMaster"("categoryId");
+
+-- CreateIndex
+CREATE INDEX "ProductMaster_familyId_idx" ON "ProductMaster"("familyId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProductMaster_tenantId_code_key" ON "ProductMaster"("tenantId", "code");
+
+-- CreateIndex
+CREATE INDEX "Product_businessId_status_idx" ON "Product"("businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "Product_productMasterId_idx" ON "Product"("productMasterId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Product_tenantId_code_key" ON "Product"("tenantId", "code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Product_tenantId_flowAccountSku_key" ON "Product"("tenantId", "flowAccountSku");
+
+-- CreateIndex
+CREATE INDEX "ProductLot_businessId_status_idx" ON "ProductLot"("businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "ProductLot_factoryId_idx" ON "ProductLot"("factoryId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProductLot_productId_code_key" ON "ProductLot"("productId", "code");
+
+-- CreateIndex
+CREATE INDEX "SerialUnit_businessId_status_idx" ON "SerialUnit"("businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "SerialUnit_lotId_idx" ON "SerialUnit"("lotId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SerialUnit_productId_serialNo_key" ON "SerialUnit"("productId", "serialNo");
+
+-- CreateIndex
+CREATE INDEX "ProductBundle_businessId_status_idx" ON "ProductBundle"("businessId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProductBundle_tenantId_code_key" ON "ProductBundle"("tenantId", "code");
+
+-- CreateIndex
+CREATE INDEX "ProductBundleItem_productId_idx" ON "ProductBundleItem"("productId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProductBundleItem_bundleId_productId_key" ON "ProductBundleItem"("bundleId", "productId");
+
+-- CreateIndex
+CREATE INDEX "StockMovement_productId_occurredAt_idx" ON "StockMovement"("productId", "occurredAt");
+
+-- CreateIndex
+CREATE INDEX "StockMovement_businessId_occurredAt_idx" ON "StockMovement"("businessId", "occurredAt");
+
+-- CreateIndex
+CREATE INDEX "StockMovement_lotId_idx" ON "StockMovement"("lotId");
+
+-- CreateIndex
+CREATE INDEX "StockMovement_serialUnitId_idx" ON "StockMovement"("serialUnitId");
+
+-- CreateIndex
+CREATE INDEX "StockMovement_sourceLocationId_idx" ON "StockMovement"("sourceLocationId");
+
+-- CreateIndex
+CREATE INDEX "StockMovement_targetLocationId_idx" ON "StockMovement"("targetLocationId");
+
+-- CreateIndex
+CREATE INDEX "StockMovement_workOrderId_idx" ON "StockMovement"("workOrderId");
+
+-- CreateIndex
+CREATE INDEX "StockMovement_salesOrderId_idx" ON "StockMovement"("salesOrderId");
+
+-- CreateIndex
+CREATE INDEX "InventoryLedgerFence_businessId_idx" ON "InventoryLedgerFence"("businessId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "InventoryLedgerFence_tenantId_businessId_key" ON "InventoryLedgerFence"("tenantId", "businessId");
+
+-- CreateIndex
+CREATE INDEX "InventoryStocktake_businessId_status_createdAt_idx" ON "InventoryStocktake"("businessId", "status", "createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "InventoryStocktake_tenantId_businessId_idempotencyKey_key" ON "InventoryStocktake"("tenantId", "businessId", "idempotencyKey");
+
+-- CreateIndex
+CREATE INDEX "ProductRecipe_businessId_status_idx" ON "ProductRecipe"("businessId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProductRecipe_tenantId_code_key" ON "ProductRecipe"("tenantId", "code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProductRecipe_productId_batchSize_key" ON "ProductRecipe"("productId", "batchSize");
+
+-- CreateIndex
+CREATE INDEX "ProductRecipeLine_componentProductId_idx" ON "ProductRecipeLine"("componentProductId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ProductRecipeLine_recipeId_componentProductId_key" ON "ProductRecipeLine"("recipeId", "componentProductId");
+
+-- CreateIndex
+CREATE INDEX "WarehouseLocation_businessId_type_idx" ON "WarehouseLocation"("businessId", "type");
+
+-- CreateIndex
+CREATE INDEX "WarehouseLocation_businessId_status_idx" ON "WarehouseLocation"("businessId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "WarehouseLocation_tenantId_code_key" ON "WarehouseLocation"("tenantId", "code");
+
+-- CreateIndex
+CREATE INDEX "CustomizationWorkOrder_businessId_status_idx" ON "CustomizationWorkOrder"("businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "CustomizationWorkOrder_salesOrderId_idx" ON "CustomizationWorkOrder"("salesOrderId");
+
+-- CreateIndex
+CREATE INDEX "CustomizationWorkOrder_customerId_idx" ON "CustomizationWorkOrder"("customerId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CustomizationWorkOrder_tenantId_code_key" ON "CustomizationWorkOrder"("tenantId", "code");
+
+-- CreateIndex
+CREATE INDEX "KittingWorkOrder_businessId_status_idx" ON "KittingWorkOrder"("businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "KittingWorkOrder_salesOrderId_idx" ON "KittingWorkOrder"("salesOrderId");
+
+-- CreateIndex
+CREATE INDEX "KittingWorkOrder_recipeId_idx" ON "KittingWorkOrder"("recipeId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "KittingWorkOrder_tenantId_code_key" ON "KittingWorkOrder"("tenantId", "code");
+
+-- CreateIndex
+CREATE INDEX "StockReservation_businessId_status_idx" ON "StockReservation"("businessId", "status");
+
+-- CreateIndex
+CREATE INDEX "StockReservation_productId_status_idx" ON "StockReservation"("productId", "status");
+
+-- CreateIndex
+CREATE INDEX "StockReservation_expiresAt_idx" ON "StockReservation"("expiresAt");
+
+-- CreateIndex
+CREATE INDEX "StockReservation_salesOrderId_idx" ON "StockReservation"("salesOrderId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "StockReservation_tenantId_code_key" ON "StockReservation"("tenantId", "code");
+
+-- CreateIndex
+CREATE INDEX "SalesTask_businessId_status_dueDate_idx" ON "SalesTask"("businessId", "status", "dueDate");
+
+-- CreateIndex
+CREATE INDEX "SalesTask_assigneePersonId_status_idx" ON "SalesTask"("assigneePersonId", "status");
+
+-- CreateIndex
+CREATE INDEX "SalesTask_customerId_idx" ON "SalesTask"("customerId");
+
+-- CreateIndex
+CREATE INDEX "SalesTask_conversationId_idx" ON "SalesTask"("conversationId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SalesTask_tenantId_code_key" ON "SalesTask"("tenantId", "code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "BusinessBillingProfile_businessId_key" ON "BusinessBillingProfile"("businessId");
+
+-- CreateIndex
+CREATE INDEX "BusinessBillingProfile_tenantId_idx" ON "BusinessBillingProfile"("tenantId");
+
+-- CreateIndex
+CREATE INDEX "CommerceDocumentSequence_tenantId_businessId_idx" ON "CommerceDocumentSequence"("tenantId", "businessId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CommerceDocumentSequence_businessId_documentType_calendarYe_key" ON "CommerceDocumentSequence"("businessId", "documentType", "calendarYear");
+
+-- CreateIndex
+CREATE INDEX "CommerceDocument_businessId_orderId_issuedAt_idx" ON "CommerceDocument"("businessId", "orderId", "issuedAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CommerceDocument_businessId_idempotencyKey_key" ON "CommerceDocument"("businessId", "idempotencyKey");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CommerceDocument_businessId_documentNumber_key" ON "CommerceDocument"("businessId", "documentNumber");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CommerceDocument_businessId_documentType_calendarYear_seque_key" ON "CommerceDocument"("businessId", "documentType", "calendarYear", "sequenceNumber");
+
+-- CreateIndex
+CREATE INDEX "SalesOrder_businessId_status_orderedAt_idx" ON "SalesOrder"("businessId", "status", "orderedAt");
+
+-- CreateIndex
+CREATE INDEX "SalesOrder_customerId_idx" ON "SalesOrder"("customerId");
+
+-- CreateIndex
+CREATE INDEX "SalesOrder_conversationId_idx" ON "SalesOrder"("conversationId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SalesOrder_tenantId_code_key" ON "SalesOrder"("tenantId", "code");
+
+-- CreateIndex
+CREATE INDEX "SalesOrderLine_orderId_idx" ON "SalesOrderLine"("orderId");
+
+-- CreateIndex
+CREATE INDEX "SalesOrderLine_productId_idx" ON "SalesOrderLine"("productId");
+
+-- CreateIndex
+CREATE INDEX "Payment_orderId_status_idx" ON "Payment"("orderId", "status");
+
+-- CreateIndex
+CREATE INDEX "Payment_businessId_status_paidAt_idx" ON "Payment"("businessId", "status", "paidAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Payment_tenantId_code_key" ON "Payment"("tenantId", "code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Payment_tenantId_bankReference_key" ON "Payment"("tenantId", "bankReference");
+
+-- CreateIndex
+CREATE INDEX "Supplier_businessId_status_idx" ON "Supplier"("businessId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Supplier_tenantId_code_key" ON "Supplier"("tenantId", "code");
+
+-- CreateIndex
+CREATE INDEX "PurchaseOrder_businessId_status_orderedAt_idx" ON "PurchaseOrder"("businessId", "status", "orderedAt");
+
+-- CreateIndex
+CREATE INDEX "PurchaseOrder_supplierId_idx" ON "PurchaseOrder"("supplierId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "PurchaseOrder_tenantId_code_key" ON "PurchaseOrder"("tenantId", "code");
+
+-- CreateIndex
+CREATE INDEX "PurchaseOrderLine_purchaseOrderId_idx" ON "PurchaseOrderLine"("purchaseOrderId");
+
+-- CreateIndex
+CREATE INDEX "PurchaseOrderLine_productId_idx" ON "PurchaseOrderLine"("productId");
+
+-- CreateIndex
+CREATE INDEX "GoodsReceipt_purchaseOrderId_idx" ON "GoodsReceipt"("purchaseOrderId");
+
+-- CreateIndex
+CREATE INDEX "GoodsReceipt_businessId_receivedAt_idx" ON "GoodsReceipt"("businessId", "receivedAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "GoodsReceipt_tenantId_code_key" ON "GoodsReceipt"("tenantId", "code");
+
+-- CreateIndex
+CREATE INDEX "GoodsReceiptLine_receiptId_idx" ON "GoodsReceiptLine"("receiptId");
+
+-- CreateIndex
+CREATE INDEX "GoodsReceiptLine_purchaseOrderLineId_idx" ON "GoodsReceiptLine"("purchaseOrderLineId");
 
 -- AddForeignKey
 ALTER TABLE "Tenant" ADD CONSTRAINT "Tenant_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "LegalEntity" ADD CONSTRAINT "LegalEntity_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "LegalEntity" ADD CONSTRAINT "LegalEntity_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "LegalEntityIdentifier" ADD CONSTRAINT "LegalEntityIdentifier_legalEntityId_fkey" FOREIGN KEY ("legalEntityId") REFERENCES "LegalEntity"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "TaxRegistrationBranch" ADD CONSTRAINT "TaxRegistrationBranch_legalEntityId_fkey" FOREIGN KEY ("legalEntityId") REFERENCES "LegalEntity"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Business" ADD CONSTRAINT "Business_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -2419,6 +4297,9 @@ ALTER TABLE "Business" ADD CONSTRAINT "Business_legalEntityId_fkey" FOREIGN KEY 
 
 -- AddForeignKey
 ALTER TABLE "Branch" ADD CONSTRAINT "Branch_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Branch" ADD CONSTRAINT "Branch_taxRegistrationBranchId_fkey" FOREIGN KEY ("taxRegistrationBranchId") REFERENCES "TaxRegistrationBranch"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PlatformGrant" ADD CONSTRAINT "PlatformGrant_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -2463,10 +4344,25 @@ ALTER TABLE "Membership" ADD CONSTRAINT "Membership_personId_fkey" FOREIGN KEY (
 ALTER TABLE "Membership" ADD CONSTRAINT "Membership_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Membership" ADD CONSTRAINT "Membership_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Membership" ADD CONSTRAINT "Membership_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Membership" ADD CONSTRAINT "Membership_branchId_fkey" FOREIGN KEY ("branchId") REFERENCES "Branch"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Membership" ADD CONSTRAINT "Membership_grantedByPersonId_fkey" FOREIGN KEY ("grantedByPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Membership" ADD CONSTRAINT "Membership_revokedByPersonId_fkey" FOREIGN KEY ("revokedByPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Employment" ADD CONSTRAINT "Employment_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Employment" ADD CONSTRAINT "Employment_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Employment" ADD CONSTRAINT "Employment_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Employment" ADD CONSTRAINT "Employment_branchId_fkey" FOREIGN KEY ("branchId") REFERENCES "Branch"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Session" ADD CONSTRAINT "Session_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -2493,10 +4389,10 @@ ALTER TABLE "Workspace" ADD CONSTRAINT "Workspace_portfolioId_fkey" FOREIGN KEY 
 ALTER TABLE "Workspace" ADD CONSTRAINT "Workspace_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Workspace" ADD CONSTRAINT "Workspace_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Workspace" ADD CONSTRAINT "Workspace_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Project" ADD CONSTRAINT "Project_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Project" ADD CONSTRAINT "Project_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Project" ADD CONSTRAINT "Project_workspaceId_fkey" FOREIGN KEY ("workspaceId") REFERENCES "Workspace"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -2775,6 +4671,27 @@ ALTER TABLE "PipelineReconciliation" ADD CONSTRAINT "PipelineReconciliation_step
 ALTER TABLE "PipelineGateDecision" ADD CONSTRAINT "PipelineGateDecision_runId_fkey" FOREIGN KEY ("runId") REFERENCES "PipelineRun"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "KnowledgeRawArtifact" ADD CONSTRAINT "KnowledgeRawArtifact_rawExternalRecordId_fkey" FOREIGN KEY ("rawExternalRecordId") REFERENCES "RawExternalRecord"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "KnowledgeParsedArtifact" ADD CONSTRAINT "KnowledgeParsedArtifact_rawArtifactId_fkey" FOREIGN KEY ("rawArtifactId") REFERENCES "KnowledgeRawArtifact"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "KnowledgeChunk" ADD CONSTRAINT "KnowledgeChunk_parsedArtifactId_fkey" FOREIGN KEY ("parsedArtifactId") REFERENCES "KnowledgeParsedArtifact"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "KnowledgeSource" ADD CONSTRAINT "KnowledgeSource_corpusId_fkey" FOREIGN KEY ("corpusId") REFERENCES "KnowledgeCorpus"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "KnowledgeIngestion" ADD CONSTRAINT "KnowledgeIngestion_corpusId_fkey" FOREIGN KEY ("corpusId") REFERENCES "KnowledgeCorpus"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "KnowledgeIngestion" ADD CONSTRAINT "KnowledgeIngestion_sourceId_fkey" FOREIGN KEY ("sourceId") REFERENCES "KnowledgeSource"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "KnowledgeCorpusGeneration" ADD CONSTRAINT "KnowledgeCorpusGeneration_corpusId_fkey" FOREIGN KEY ("corpusId") REFERENCES "KnowledgeCorpus"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "IntegrationConnection" ADD CONSTRAINT "IntegrationConnection_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -2877,8 +4794,398 @@ ALTER TABLE "LineOaAccount" ADD CONSTRAINT "LineOaAccount_businessId_fkey" FOREI
 ALTER TABLE "LineOaAccount" ADD CONSTRAINT "LineOaAccount_integrationConnectionId_fkey" FOREIGN KEY ("integrationConnectionId") REFERENCES "IntegrationConnection"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "LineOaRichMenu" ADD CONSTRAINT "LineOaRichMenu_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LineOaRichMenu" ADD CONSTRAINT "LineOaRichMenu_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LineOaRichMenu" ADD CONSTRAINT "LineOaRichMenu_lineOaAccountId_fkey" FOREIGN KEY ("lineOaAccountId") REFERENCES "LineOaAccount"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LineOaRichMenuVersion" ADD CONSTRAINT "LineOaRichMenuVersion_richMenuId_fkey" FOREIGN KEY ("richMenuId") REFERENCES "LineOaRichMenu"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LineOaRichMenuVersion" ADD CONSTRAINT "LineOaRichMenuVersion_imageFileAssetId_fkey" FOREIGN KEY ("imageFileAssetId") REFERENCES "FileAsset"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LineOaLiffApp" ADD CONSTRAINT "LineOaLiffApp_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LineOaLiffApp" ADD CONSTRAINT "LineOaLiffApp_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LineOaLiffApp" ADD CONSTRAINT "LineOaLiffApp_lineOaAccountId_fkey" FOREIGN KEY ("lineOaAccountId") REFERENCES "LineOaAccount"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LineOaRichMenuJob" ADD CONSTRAINT "LineOaRichMenuJob_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "LineOaAccount"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LineOaRichMenuJob" ADD CONSTRAINT "LineOaRichMenuJob_richMenuId_fkey" FOREIGN KEY ("richMenuId") REFERENCES "LineOaRichMenu"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LineOaRichMenuJob" ADD CONSTRAINT "LineOaRichMenuJob_richMenuVersionId_fkey" FOREIGN KEY ("richMenuVersionId") REFERENCES "LineOaRichMenuVersion"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "LineConversationJob" ADD CONSTRAINT "LineConversationJob_accountId_fkey" FOREIGN KEY ("accountId") REFERENCES "LineOaAccount"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "LineConversationJob" ADD CONSTRAINT "LineConversationJob_inboundMessageId_fkey" FOREIGN KEY ("inboundMessageId") REFERENCES "Message"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingPlan" ADD CONSTRAINT "MarketingPlan_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingPlan" ADD CONSTRAINT "MarketingPlan_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingPlanVersion" ADD CONSTRAINT "MarketingPlanVersion_planId_fkey" FOREIGN KEY ("planId") REFERENCES "MarketingPlan"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingReview" ADD CONSTRAINT "MarketingReview_planId_fkey" FOREIGN KEY ("planId") REFERENCES "MarketingPlan"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingReview" ADD CONSTRAINT "MarketingReview_planVersionId_fkey" FOREIGN KEY ("planVersionId") REFERENCES "MarketingPlanVersion"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingDecision" ADD CONSTRAINT "MarketingDecision_planId_fkey" FOREIGN KEY ("planId") REFERENCES "MarketingPlan"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingDecision" ADD CONSTRAINT "MarketingDecision_planVersionId_fkey" FOREIGN KEY ("planVersionId") REFERENCES "MarketingPlanVersion"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingDecision" ADD CONSTRAINT "MarketingDecision_reviewId_fkey" FOREIGN KEY ("reviewId") REFERENCES "MarketingReview"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingHandoff" ADD CONSTRAINT "MarketingHandoff_planId_fkey" FOREIGN KEY ("planId") REFERENCES "MarketingPlan"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingHandoff" ADD CONSTRAINT "MarketingHandoff_planVersionId_fkey" FOREIGN KEY ("planVersionId") REFERENCES "MarketingPlanVersion"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingHandoff" ADD CONSTRAINT "MarketingHandoff_workspaceId_fkey" FOREIGN KEY ("workspaceId") REFERENCES "Workspace"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingHandoff" ADD CONSTRAINT "MarketingHandoff_projectId_fkey" FOREIGN KEY ("projectId") REFERENCES "Project"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingInitiative" ADD CONSTRAINT "MarketingInitiative_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingInitiative" ADD CONSTRAINT "MarketingInitiative_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingInitiative" ADD CONSTRAINT "MarketingInitiative_planId_fkey" FOREIGN KEY ("planId") REFERENCES "MarketingPlan"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingInitiative" ADD CONSTRAINT "MarketingInitiative_handoffId_fkey" FOREIGN KEY ("handoffId") REFERENCES "MarketingHandoff"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingContentBrief" ADD CONSTRAINT "MarketingContentBrief_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingContentBrief" ADD CONSTRAINT "MarketingContentBrief_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingContentVersion" ADD CONSTRAINT "MarketingContentVersion_briefId_fkey" FOREIGN KEY ("briefId") REFERENCES "MarketingContentBrief"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingContentReview" ADD CONSTRAINT "MarketingContentReview_briefId_fkey" FOREIGN KEY ("briefId") REFERENCES "MarketingContentBrief"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingContentReview" ADD CONSTRAINT "MarketingContentReview_contentVersionId_fkey" FOREIGN KEY ("contentVersionId") REFERENCES "MarketingContentVersion"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingContentDecision" ADD CONSTRAINT "MarketingContentDecision_briefId_fkey" FOREIGN KEY ("briefId") REFERENCES "MarketingContentBrief"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingContentDecision" ADD CONSTRAINT "MarketingContentDecision_contentVersionId_fkey" FOREIGN KEY ("contentVersionId") REFERENCES "MarketingContentVersion"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingContentDecision" ADD CONSTRAINT "MarketingContentDecision_reviewId_fkey" FOREIGN KEY ("reviewId") REFERENCES "MarketingContentReview"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingOperationsIntake" ADD CONSTRAINT "MarketingOperationsIntake_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingOperationsIntake" ADD CONSTRAINT "MarketingOperationsIntake_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingBroadcastIntent" ADD CONSTRAINT "MarketingBroadcastIntent_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingBroadcastIntent" ADD CONSTRAINT "MarketingBroadcastIntent_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "MarketingBroadcastIntentVersion" ADD CONSTRAINT "MarketingBroadcastIntentVersion_intentId_fkey" FOREIGN KEY ("intentId") REFERENCES "MarketingBroadcastIntent"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "InventoryCategory" ADD CONSTRAINT "InventoryCategory_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "InventoryCategory" ADD CONSTRAINT "InventoryCategory_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductFamily" ADD CONSTRAINT "ProductFamily_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductFamily" ADD CONSTRAINT "ProductFamily_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Factory" ADD CONSTRAINT "Factory_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Factory" ADD CONSTRAINT "Factory_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductMaster" ADD CONSTRAINT "ProductMaster_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductMaster" ADD CONSTRAINT "ProductMaster_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductMaster" ADD CONSTRAINT "ProductMaster_categoryId_fkey" FOREIGN KEY ("categoryId") REFERENCES "InventoryCategory"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductMaster" ADD CONSTRAINT "ProductMaster_familyId_fkey" FOREIGN KEY ("familyId") REFERENCES "ProductFamily"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductMaster" ADD CONSTRAINT "ProductMaster_factoryId_fkey" FOREIGN KEY ("factoryId") REFERENCES "Factory"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Product" ADD CONSTRAINT "Product_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Product" ADD CONSTRAINT "Product_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Product" ADD CONSTRAINT "Product_productMasterId_fkey" FOREIGN KEY ("productMasterId") REFERENCES "ProductMaster"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductLot" ADD CONSTRAINT "ProductLot_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductLot" ADD CONSTRAINT "ProductLot_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductLot" ADD CONSTRAINT "ProductLot_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductLot" ADD CONSTRAINT "ProductLot_factoryId_fkey" FOREIGN KEY ("factoryId") REFERENCES "Factory"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SerialUnit" ADD CONSTRAINT "SerialUnit_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SerialUnit" ADD CONSTRAINT "SerialUnit_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SerialUnit" ADD CONSTRAINT "SerialUnit_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SerialUnit" ADD CONSTRAINT "SerialUnit_lotId_fkey" FOREIGN KEY ("lotId") REFERENCES "ProductLot"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductBundle" ADD CONSTRAINT "ProductBundle_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductBundle" ADD CONSTRAINT "ProductBundle_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductBundleItem" ADD CONSTRAINT "ProductBundleItem_bundleId_fkey" FOREIGN KEY ("bundleId") REFERENCES "ProductBundle"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductBundleItem" ADD CONSTRAINT "ProductBundleItem_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_lotId_fkey" FOREIGN KEY ("lotId") REFERENCES "ProductLot"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_serialUnitId_fkey" FOREIGN KEY ("serialUnitId") REFERENCES "SerialUnit"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_sourceLocationId_fkey" FOREIGN KEY ("sourceLocationId") REFERENCES "WarehouseLocation"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "StockMovement" ADD CONSTRAINT "StockMovement_targetLocationId_fkey" FOREIGN KEY ("targetLocationId") REFERENCES "WarehouseLocation"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "InventoryLedgerFence" ADD CONSTRAINT "InventoryLedgerFence_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "InventoryLedgerFence" ADD CONSTRAINT "InventoryLedgerFence_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "InventoryStocktake" ADD CONSTRAINT "InventoryStocktake_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "InventoryStocktake" ADD CONSTRAINT "InventoryStocktake_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductRecipe" ADD CONSTRAINT "ProductRecipe_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductRecipe" ADD CONSTRAINT "ProductRecipe_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductRecipe" ADD CONSTRAINT "ProductRecipe_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductRecipeLine" ADD CONSTRAINT "ProductRecipeLine_recipeId_fkey" FOREIGN KEY ("recipeId") REFERENCES "ProductRecipe"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "ProductRecipeLine" ADD CONSTRAINT "ProductRecipeLine_componentProductId_fkey" FOREIGN KEY ("componentProductId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WarehouseLocation" ADD CONSTRAINT "WarehouseLocation_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "WarehouseLocation" ADD CONSTRAINT "WarehouseLocation_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomizationWorkOrder" ADD CONSTRAINT "CustomizationWorkOrder_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomizationWorkOrder" ADD CONSTRAINT "CustomizationWorkOrder_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomizationWorkOrder" ADD CONSTRAINT "CustomizationWorkOrder_rawProductId_fkey" FOREIGN KEY ("rawProductId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CustomizationWorkOrder" ADD CONSTRAINT "CustomizationWorkOrder_outputProductId_fkey" FOREIGN KEY ("outputProductId") REFERENCES "Product"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "KittingWorkOrder" ADD CONSTRAINT "KittingWorkOrder_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "KittingWorkOrder" ADD CONSTRAINT "KittingWorkOrder_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "KittingWorkOrder" ADD CONSTRAINT "KittingWorkOrder_recipeId_fkey" FOREIGN KEY ("recipeId") REFERENCES "ProductRecipe"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "KittingWorkOrder" ADD CONSTRAINT "KittingWorkOrder_finishedProductId_fkey" FOREIGN KEY ("finishedProductId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "StockReservation" ADD CONSTRAINT "StockReservation_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "StockReservation" ADD CONSTRAINT "StockReservation_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "StockReservation" ADD CONSTRAINT "StockReservation_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SalesTask" ADD CONSTRAINT "SalesTask_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SalesTask" ADD CONSTRAINT "SalesTask_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SalesTask" ADD CONSTRAINT "SalesTask_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SalesTask" ADD CONSTRAINT "SalesTask_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SalesTask" ADD CONSTRAINT "SalesTask_assigneePersonId_fkey" FOREIGN KEY ("assigneePersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessBillingProfile" ADD CONSTRAINT "BusinessBillingProfile_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessBillingProfile" ADD CONSTRAINT "BusinessBillingProfile_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CommerceDocumentSequence" ADD CONSTRAINT "CommerceDocumentSequence_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CommerceDocumentSequence" ADD CONSTRAINT "CommerceDocumentSequence_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CommerceDocument" ADD CONSTRAINT "CommerceDocument_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CommerceDocument" ADD CONSTRAINT "CommerceDocument_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CommerceDocument" ADD CONSTRAINT "CommerceDocument_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "SalesOrder"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "CommerceDocument" ADD CONSTRAINT "CommerceDocument_branchId_fkey" FOREIGN KEY ("branchId") REFERENCES "Branch"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SalesOrder" ADD CONSTRAINT "SalesOrder_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SalesOrder" ADD CONSTRAINT "SalesOrder_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SalesOrder" ADD CONSTRAINT "SalesOrder_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SalesOrder" ADD CONSTRAINT "SalesOrder_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SalesOrderLine" ADD CONSTRAINT "SalesOrderLine_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "SalesOrder"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "SalesOrderLine" ADD CONSTRAINT "SalesOrderLine_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Payment" ADD CONSTRAINT "Payment_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Payment" ADD CONSTRAINT "Payment_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Payment" ADD CONSTRAINT "Payment_orderId_fkey" FOREIGN KEY ("orderId") REFERENCES "SalesOrder"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Payment" ADD CONSTRAINT "Payment_slipFileAssetId_fkey" FOREIGN KEY ("slipFileAssetId") REFERENCES "FileAsset"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Supplier" ADD CONSTRAINT "Supplier_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Supplier" ADD CONSTRAINT "Supplier_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PurchaseOrder" ADD CONSTRAINT "PurchaseOrder_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PurchaseOrder" ADD CONSTRAINT "PurchaseOrder_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PurchaseOrder" ADD CONSTRAINT "PurchaseOrder_supplierId_fkey" FOREIGN KEY ("supplierId") REFERENCES "Supplier"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PurchaseOrderLine" ADD CONSTRAINT "PurchaseOrderLine_purchaseOrderId_fkey" FOREIGN KEY ("purchaseOrderId") REFERENCES "PurchaseOrder"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PurchaseOrderLine" ADD CONSTRAINT "PurchaseOrderLine_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GoodsReceipt" ADD CONSTRAINT "GoodsReceipt_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GoodsReceipt" ADD CONSTRAINT "GoodsReceipt_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GoodsReceipt" ADD CONSTRAINT "GoodsReceipt_purchaseOrderId_fkey" FOREIGN KEY ("purchaseOrderId") REFERENCES "PurchaseOrder"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GoodsReceiptLine" ADD CONSTRAINT "GoodsReceiptLine_receiptId_fkey" FOREIGN KEY ("receiptId") REFERENCES "GoodsReceipt"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GoodsReceiptLine" ADD CONSTRAINT "GoodsReceiptLine_purchaseOrderLineId_fkey" FOREIGN KEY ("purchaseOrderLineId") REFERENCES "PurchaseOrderLine"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 

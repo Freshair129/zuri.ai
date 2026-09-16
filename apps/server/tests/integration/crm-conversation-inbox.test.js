@@ -4,6 +4,7 @@ import { createPortfolio, createTenant, createBusiness } from '../factories/scop
 import { makeViewer } from '../factories/viewer'
 import { VIEWER_DOMAINS } from '@/modules/identity/viewer-domains'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
+import { appendOutbound } from '@/modules/crm/reply-record-service'
 import {
   getConversationInbox,
   getConversationThread,
@@ -12,6 +13,7 @@ import {
 // @req FR-091 — the reader surface over the LINE ingress, proved against rows the real
 // ingest seam wrote rather than against hand-inserted fixtures: if `ingestLineMessage`
 // changes shape, this suite fails, which is the point of reading through it.
+// @req FR-233 — lastMessageAt/lastMessagePreview/retentionClass and unreadCount.
 // @spec SDD-050, BR-001, SEC-001
 
 // One tenant with two businesses (the BR-001 sharing case) and a second tenant that
@@ -68,14 +70,14 @@ describe('CRM conversation inbox (FR-091)', () => {
     foreignConversationId = foreign.conversationId
   })
 
-  it('lists the tenant of the open Business, not that Business alone (BR-001)', async () => {
+  it('lists tenant-shared conversations alongside the open Business, but hides other businesses (BR-001)', async () => {
     const result = await getConversationInbox({ viewer: ownerOf(busA1.id, busA2.id), businessId: busA1.id })
     const ids = result.conversations.map((row) => row.id)
 
-    // The tenant-shared conversation belongs to no Business at all. A Business-scoped
-    // query would have dropped it — and it is the common case, not the exception.
+    // The tenant-shared conversation belongs to no Business at all and is visible.
+    // Conversations owned by another Business (busA2) do not leak into busA1.
     expect(ids).toContain(sharedConversationId)
-    expect(ids).toContain(ownedConversationId)
+    expect(ids).not.toContain(ownedConversationId)
     expect(ids).not.toContain(foreignConversationId)
     expect(result.scope.tenantId).toBe(tenantA.id)
   })
@@ -103,7 +105,7 @@ describe('CRM conversation inbox (FR-091)', () => {
   })
 
   it('labels a conversation no Business owns rather than leaving it blank', async () => {
-    const result = await getConversationInbox({ viewer: ownerOf(busA1.id, busA2.id), businessId: busA1.id })
+    const result = await getConversationInbox({ viewer: ownerOf(busA1.id, busA2.id), businessId: busA2.id })
     const shared = result.conversations.find((row) => row.id === sharedConversationId)
     const owned = result.conversations.find((row) => row.id === ownedConversationId)
     expect(shared.businessId).toBeNull()
@@ -152,6 +154,14 @@ describe('CRM conversation inbox (FR-091)', () => {
     ).rejects.toMatchObject({ status: 404 })
   })
 
+  it('carries lastMessageAt/lastMessagePreview/retentionClass on every row', async () => {
+    const result = await getConversationInbox({ viewer: ownerOf(busA1.id, busA2.id), businessId: busA1.id })
+    const shared = result.conversations.find((row) => row.id === sharedConversationId)
+    expect(shared.lastMessagePreview).toBe('ขอบคุณครับ')
+    expect(shared.lastMessageAt).toBe(shared.lastMessage.createdAt)
+    expect(shared.retentionClass).toBe('MESSAGE_BODY_AND_ATTACHMENTS')
+  })
+
   it('reads without writing: no audit event and no row count changes', async () => {
     const before = {
       messages: await prisma.message.count(),
@@ -167,5 +177,34 @@ describe('CRM conversation inbox (FR-091)', () => {
       conversations: await prisma.conversation.count(),
       audit: await prisma.auditEvent.count(),
     }).toEqual(before)
+  })
+
+  // @req FR-233 — unreadCount is "INBOUND since the last OUTBOUND reply", computed
+  // on read from the same messages already fetched for lastMessage (no extra query).
+  it('computes a per-Business unread count from messages since the last outbound reply', async () => {
+    const first = await ingestLineMessage({
+      tenantId: tenantA.id, businessId: busA1.id, lineUserId: 'U-inbox-unread', displayName: 'ทดสอบ',
+      threadId: 'TH-INBOX-UNREAD', text: 'ข้อความแรก', externalMessageId: 'MI-UNREAD-1',
+    })
+    const unreadConversationId = first.conversationId
+    const rowFor = async () => {
+      const result = await getConversationInbox({ viewer: ownerOf(busA1.id), businessId: busA1.id })
+      return result.conversations.find((row) => row.id === unreadConversationId)
+    }
+
+    // No outbound reply yet: the one inbound message is unread.
+    expect((await rowFor()).unreadCount).toBe(1)
+
+    await appendOutbound({
+      tenantId: tenantA.id, businessId: busA1.id, channelAccountId: 'LEGACY:LINE',
+      receipt: { inboundMessageId: first.messageId, text: 'ตอบกลับแล้วครับ' },
+    })
+    expect((await rowFor()).unreadCount).toBe(0)
+
+    await ingestLineMessage({
+      tenantId: tenantA.id, businessId: busA1.id, lineUserId: 'U-inbox-unread',
+      threadId: 'TH-INBOX-UNREAD', text: 'ข้อความที่สอง', externalMessageId: 'MI-UNREAD-2',
+    })
+    expect((await rowFor()).unreadCount).toBe(1)
   })
 })

@@ -2,6 +2,8 @@
 
 // @req FR-159 — `/growth` summarizes persisted Marketing plans in the active
 // Business scope and gives a direct path into the Strategy workspace.
+// @req FR-185 — the active Marketing dashboard links to the approved
+// planning/read surfaces without introducing a dispatch action.
 // @spec SDD-086 — unsupported provider metrics are explicit unavailable states.
 // @tested tests/unit/marketing-strategy-ui.test.js, tests/e2e/marketing-strategy.spec.js
 
@@ -11,7 +13,8 @@ import { Card, Kpi, PageHeader, SectionTitle, StatusPill, EmptyState, ProgressBa
 import { useScope } from '@/context/ScopeContext'
 import { useFetch } from '@/modules/project-manager/components/useApi'
 import { growthPlansPath, strategyTabHref } from './marketing-contract'
-import { MarketingDataState, ScopeNotice, SourceNote, UnavailableState } from './MarketingState'
+import { MarketingDataState, ScopeNotice, SourceNote } from './MarketingState'
+import MarketingPerformance from './MarketingPerformance'
 
 function planStatus(plan) {
   return String(plan?.status || 'DRAFT').toUpperCase()
@@ -46,10 +49,12 @@ export default function MarketingDashboard({ businessId }) {
           <Kpi label="Approved" value={counts.APPROVED || 0} meta="Current plan state" tone={counts.APPROVED ? 'good' : undefined} />
           <Kpi label="Archived" value={counts.ARCHIVED || 0} meta="Retained history" />
         </div>
-        <Card className="mb-5">
-          <SectionTitle caption="No ad, analytics, or SEO provider reader is connected to this first slice">Measured provider performance</SectionTitle>
-          <UnavailableState title="Provider metrics are unavailable" hint="Connect an approved provider reader before showing spend, reach, conversions, or return. Plan intent is not a performance observation." />
-        </Card>
+        <nav className="mb-5 flex flex-wrap gap-2" aria-label="Marketing planning tools">
+          <Link href="/growth/paid-media" className="btn text-[11px]">Paid Media</Link>
+          <Link href="/growth/broadcast" className="btn text-[11px]">Broadcast Planning</Link>
+          <Link href="/growth/ask-marketing" className="btn text-[11px]">Ask Marketing</Link>
+        </nav>
+        <MarketingPerformance />
         {plans.length === 0 ? (
           <EmptyState
             title="No Marketing plans yet"

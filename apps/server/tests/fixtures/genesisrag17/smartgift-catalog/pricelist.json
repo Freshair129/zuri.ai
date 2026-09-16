@@ -1,0 +1,182 @@
+[
+  {
+    "entityType": "PriceListEntry",
+    "externalId": "PM-BOTTLE-LED@qty1",
+    "productExternalId": "PM-BOTTLE-LED",
+    "provenance": {
+      "upstreamFile": "data-pipeline/02_prepared/pricelist_master.json",
+      "upstreamRecordId": "SRP-PM-BOTTLE-LED-1"
+    },
+    "qty": 1,
+    "srpSource": "master_declared",
+    "srpUnitPriceThb": 290.0
+  },
+  {
+    "entityType": "PriceListEntry",
+    "externalId": "PM-BOTTLE-LED@qty100",
+    "productExternalId": "PM-BOTTLE-LED",
+    "provenance": {
+      "upstreamFile": "data-pipeline/02_prepared/pricelist_master.json",
+      "upstreamRecordId": "SRP-PM-BOTTLE-LED-100"
+    },
+    "qty": 100,
+    "srpSource": "master_declared",
+    "srpUnitPriceThb": 200.0
+  },
+  {
+    "entityType": "PriceListEntry",
+    "externalId": "PM-BOTTLE-LED@qty500",
+    "productExternalId": "PM-BOTTLE-LED",
+    "provenance": {
+      "upstreamFile": "data-pipeline/02_prepared/pricelist_master.json",
+      "upstreamRecordId": "SRP-PM-BOTTLE-LED-500"
+    },
+    "qty": 500,
+    "srpSource": "master_declared",
+    "srpUnitPriceThb": 170.0
+  },
+  {
+    "entityType": "PriceListEntry",
+    "externalId": "PM-NB@qty1",
+    "productExternalId": "PM-NB",
+    "provenance": {
+      "upstreamFile": "data-pipeline/02_prepared/pricelist_master.json",
+      "upstreamRecordId": "SRP-PM-NB-1"
+    },
+    "qty": 1,
+    "srpSource": "master_declared",
+    "srpUnitPriceThb": 750.0
+  },
+  {
+    "entityType": "PriceListEntry",
+    "externalId": "PM-NB@qty100",
+    "productExternalId": "PM-NB",
+    "provenance": {
+      "upstreamFile": "data-pipeline/02_prepared/pricelist_master.json",
+      "upstreamRecordId": "SRP-PM-NB-100"
+    },
+    "qty": 100,
+    "srpSource": "master_declared",
+    "srpUnitPriceThb": 540.0
+  },
+  {
+    "entityType": "PriceListEntry",
+    "externalId": "PM-NB@qty500",
+    "productExternalId": "PM-NB",
+    "provenance": {
+      "upstreamFile": "data-pipeline/02_prepared/pricelist_master.json",
+      "upstreamRecordId": "SRP-PM-NB-500"
+    },
+    "qty": 500,
+    "srpSource": "master_declared",
+    "srpUnitPriceThb": 450.0
+  },
+  {
+    "entityType": "PriceListEntry",
+    "externalId": "PM-PB10K@qty1",
+    "productExternalId": "PM-PB10K",
+    "provenance": {
+      "upstreamFile": "data-pipeline/02_prepared/pricelist_master.json",
+      "upstreamRecordId": "SRP-PM-PB10K-1"
+    },
+    "qty": 1,
+    "srpSource": "master_declared",
+    "srpUnitPriceThb": 690.0
+  },
+  {
+    "entityType": "PriceListEntry",
+    "externalId": "PM-PB10K@qty100",
+    "productExternalId": "PM-PB10K",
+    "provenance": {
+      "upstreamFile": "data-pipeline/02_prepared/pricelist_master.json",
+      "upstreamRecordId": "SRP-PM-PB10K-100"
+    },
+    "qty": 100,
+    "srpSource": "master_declared",
+    "srpUnitPriceThb": 490.0
+  },
+  {
+    "entityType": "PriceListEntry",
+    "externalId": "PM-PB10K@qty500",
+    "productExternalId": "PM-PB10K",
+    "provenance": {
+      "upstreamFile": "data-pipeline/02_prepared/pricelist_master.json",
+      "upstreamRecordId": "SRP-PM-PB10K-500"
+    },
+    "qty": 500,
+    "srpSource": "master_declared",
+    "srpUnitPriceThb": 420.0
+  },
+  {
+    "entityType": "PriceListEntry",
+    "externalId": "PM-PEN@qty1",
+    "productExternalId": "PM-PEN",
+    "provenance": {
+      "upstreamFile": "data-pipeline/02_prepared/pricelist_master.json",
+      "upstreamRecordId": "SRP-PM-PEN-1"
+    },
+    "qty": 1,
+    "srpSource": "master_declared",
+    "srpUnitPriceThb": 190.0
+  },
+  {
+    "entityType": "PriceListEntry",
+    "externalId": "PM-PEN@qty100",
+    "productExternalId": "PM-PEN",
+    "provenance": {
+      "upstreamFile": "data-pipeline/02_prepared/pricelist_master.json",
+      "upstreamRecordId": "SRP-PM-PEN-100"
+    },
+    "qty": 100,
+    "srpSource": "master_declared",
+    "srpUnitPriceThb": 120.0
+  },
+  {
+    "entityType": "PriceListEntry",
+    "externalId": "PM-PEN@qty500",
+    "productExternalId": "PM-PEN",
+    "provenance": {
+      "upstreamFile": "data-pipeline/02_prepared/pricelist_master.json",
+      "upstreamRecordId": "SRP-PM-PEN-500"
+    },
+    "qty": 500,
+    "srpSource": "master_declared",
+    "srpUnitPriceThb": 100.0
+  },
+  {
+    "entityType": "PriceListEntry",
+    "externalId": "PM-TMB@qty1",
+    "productExternalId": "PM-TMB",
+    "provenance": {
+      "upstreamFile": "data-pipeline/02_prepared/pricelist_master.json",
+      "upstreamRecordId": "SRP-PM-TMB-1"
+    },
+    "qty": 1,
+    "srpSource": "master_declared",
+    "srpUnitPriceThb": 320.0
+  },
+  {
+    "entityType": "PriceListEntry",
+    "externalId": "PM-TMB@qty100",
+    "productExternalId": "PM-TMB",
+    "provenance": {
+      "upstreamFile": "data-pipeline/02_prepared/pricelist_master.json",
+      "upstreamRecordId": "SRP-PM-TMB-100"
+    },
+    "qty": 100,
+    "srpSource": "master_declared",
+    "srpUnitPriceThb": 230.0
+  },
+  {
+    "entityType": "PriceListEntry",
+    "externalId": "PM-TMB@qty500",
+    "productExternalId": "PM-TMB",
+    "provenance": {
+      "upstreamFile": "data-pipeline/02_prepared/pricelist_master.json",
+      "upstreamRecordId": "SRP-PM-TMB-500"
+    },
+    "qty": 500,
+    "srpSource": "master_declared",
+    "srpUnitPriceThb": 200.0
+  }
+]

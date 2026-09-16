@@ -20,9 +20,7 @@ import {
   ChevronDown,
   Moon,
   Sun,
-  Layers,
-  ChevronRight,
-  ExternalLink
+  Layers
 } from 'lucide-react'
 
 import LineCrmHub from './LineCrmHub'
@@ -46,8 +44,8 @@ export default function LineCrmShell({ initialTab = 'hub' }) {
   const [activeTab, setActiveTab] = useState(initialTab)
   const [aiMcpActive, setAiMcpActive] = useState(true)
   const [isDarkMode, setIsDarkMode] = useState(false)
-  const [selectedOa, setSelectedOa] = useState('LineCRM-MCP Official')
-  const [selectedWorkspace, setSelectedWorkspace] = useState('Demo Workspace')
+  const selectedOa = 'LINE OA Studio status'
+  const selectedWorkspace = 'CRM preview'
 
   const toggleDarkMode = () => setIsDarkMode((prev) => !prev)
 

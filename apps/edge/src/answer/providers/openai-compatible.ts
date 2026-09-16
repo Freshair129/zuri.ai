@@ -35,7 +35,18 @@ interface ChatMessage {
   tool_call_id?: string;
 }
 
-const MAX_TOKENS = 2000;
+/**
+ * A LINE reply is a few hundred tokens; the executor rejects anything over 5000 characters
+ * anyway. 2000 let a runaway generation run for 30 s on a 9B model at ~65 t/s (seen live on
+ * 2026-09-13: 1,753 tokens generated, the job's whole model budget gone, EXECUTION_FAILED).
+ * 700 tokens is ~11 s worst case, so a rambling model still hands back a reply in time.
+ */
+const MAX_TOKENS = 700;
+/** Ollama's default is 1.0, which is where the rambling and the invented examples come from. */
+const TEMPERATURE = 0.3;
+/** Sent as the last user turn when the tools are withheld; not a system rule, so a persona cannot drop it. */
+export const FINAL_PASS_NUDGE =
+  'ตอบลูกค้าตอนนี้เลย จากผลลัพธ์ของเครื่องมือด้านบนเท่านั้น เป็นข้อความสั้น ๆ ถ้าข้อมูลยังไม่พอให้บอกตรง ๆ ว่ายังไม่มีข้อมูล ห้ามเรียกเครื่องมือเพิ่ม';
 
 export function createOpenAiCompatiblePort(
   config: ModelPortConfig,
@@ -85,6 +96,7 @@ export function createOpenAiCompatiblePort(
         ];
       }
 
+      let nudged = false;
       for (let iteration = 0; iteration < request.maxIterations; iteration += 1) {
         // On the last pass the tools are withheld. A model that is still calling them here has
         // already gathered its evidence and simply has no turn left to speak in — offering the
@@ -92,6 +104,13 @@ export function createOpenAiCompatiblePort(
         // falls back to the pattern reader. Without them it has to answer from what it holds, and
         // that answer is checked against the evidence like any other.
         const finalPass = iteration === request.maxIterations - 1;
+        if (finalPass && tools.length && iteration > 0 && !nudged) {
+          // A 9B model that has just been refused its tools tends to answer with nothing at all
+          // (seen on qwen3.5:9b after three tool rounds: content "", so the job failed). Told
+          // plainly that this is the reply turn, it summarises what the tools returned.
+          messages.push({ role: 'user', content: FINAL_PASS_NUDGE });
+          nudged = true;
+        }
         const response = await fetchFn(`${baseUrl}/chat/completions`, {
           method: 'POST',
           headers: {
@@ -102,6 +121,7 @@ export function createOpenAiCompatiblePort(
           body: JSON.stringify({
             model: config.model,
             max_tokens: MAX_TOKENS,
+            temperature: TEMPERATURE,
             messages,
             ...(tools.length && !finalPass ? { tools } : {}),
             // Not an OpenAI field, and harmless where it is not understood. Over half
@@ -131,7 +151,14 @@ export function createOpenAiCompatiblePort(
 
         const calls = message.tool_calls ?? [];
         if (calls.length === 0) {
-          return { text: String(message.content ?? '').trim() };
+          const text = String(message.content ?? '').trim();
+          // An empty, tool-less reply in the middle of a tool loop is the same silence as on the
+          // final pass (qwen3.5:9b did it on the third round, 1 run in 3): one nudge, one more
+          // round, instead of handing back nothing and failing the job.
+          if (text || finalPass || !tools.length || nudged) return { text };
+          messages.push({ role: 'user', content: FINAL_PASS_NUDGE });
+          nudged = true;
+          continue;
         }
 
         // Keep the assistant's tool-call turn before appending results, or the server

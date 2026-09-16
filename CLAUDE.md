@@ -20,6 +20,15 @@ held files and release limits. Original device configuration/data are untouched.
 
 Read this first, then `AGENTS.md` for the full rules.
 This file is the short version: where things are, what to run, what never to touch.
+An LLM reader without the repository checked out starts at [llms.txt](llms.txt),
+which is written by hand and committed. The fuller corpus — the orientation docs
+and every domain charter inlined into one file — is **built, not committed**
+(ADR-081): run `npm run docs:llms` for a local copy, or take the `llms-full`
+artefact from any `governance` workflow run. It stopped being committed because
+it inlines README, CLAUDE.md, AGENTS.md, PRODUCT.md and every charter, so an
+edit to any one of them rewrote the whole file — it conflicted on four of the
+five pull requests merged on 2026-09-12, more often than anything else in the
+repository.
 
 ## What this repo is (as of 2026-08-16)
 
@@ -132,6 +141,18 @@ cd apps/server                                    # ← new, and not optional
 docker compose up -d --build web
 ```
 
+**That command includes the ADR-061 LINE server overlay only because `apps/server/.env`
+says so.** `.env` sets `COMPOSE_FILE=docker-compose.yml;docker-compose.line-server.yml`
+and `COMPOSE_PROFILES=line-server`; without them `web` comes up with no
+`ZURI_LINE_SERVER_ENABLED`, no worker token and no credential mount, and answers every
+LINE delivery and every edge job claim with 503. That happened on 2026-09-10/11 and
+lasted about eleven hours ([RCA](.brain/rca/2026-09-11-line-server-overlay-dropped-on-redeploy.md)).
+An explicit `-f` on the command line **replaces** `COMPOSE_FILE`, so a deploy that
+passes `-f` (the deploy-override pattern) must list both files and
+`--profile line-server` itself. After any deploy, check that the web container's
+`com.docker.compose.project.config_files` label names both files and that
+`docker exec zuri-ai-web-1 sh -c 'printf %s "$ZURI_LINE_SERVER_ENABLED"'` prints `true`.
+
 **`.env` has to be at `apps/server/.env`.** It is the one file `env_file` marks
 `required: true`, and compose looks for it beside the compose file, not at the
 repo root. A root `.env` left over from the old layout is invisible to it — and
@@ -230,7 +251,7 @@ contracts/                JSON Schema + sample envelopes
 
 ```bash
 npm run dev            # dev server (use the preview tool, not a raw shell, when available)
-npm run verify         # the definition of done in one command: test → build → govern → e2e
+npm run verify         # the definition of done in one command: govern → test → build → e2e
 npm run build          # production build — must stay clean
 npm test               # Vitest: unit + integration (own SQLite db per run, prisma/.test-dbs/)
 npm run test:e2e       # Playwright against its own dev server + its own seeded db.
@@ -247,6 +268,10 @@ npm run docs:ids       # the id ledger's ONLY writer — run by a human, never b
                        # `-- --write` pins newly declared ids (the routine "+" block);
                        # --reword / --supersede / --abandon / --distinct / --declare each
                        # record one named change with a sentence. See ADR-039.
+npm run docs:llms      # rebuild llms-full.txt — the one-file corpus for LLM readers,
+                       # inlined from README/CLAUDE/AGENTS/PRODUCT + every charter.
+                       # CI fails on a stale copy, so run it when you edit one of
+                       # those; docs:llms:check is the same gate, locally.
 ```
 
 **Declaring a new id costs one command.** Preflight Check 12 fails on an id that

@@ -13,8 +13,6 @@ import { resolveLiffAction } from './line-oa-liff-app'
 // @tested tests/unit/line-oa-rich-menu-publish.test.js
 
 export const LINE_OA_RICH_MENU_JOB_ENTITY = 'LINE_OA_RICH_MENU_JOB'
-/** The job ledger's stored statuses; ACCEPTED is the provider's acceptance, never delivery. */
-export const LINE_OA_RICH_MENU_JOB_STATUSES = Object.freeze(['QUEUED', 'CLAIMED', 'ACCEPTED', 'FAILED', 'UNKNOWN', 'CANCELLED'])
 export const RICH_MENU_JOB_TTL_MS = 24 * 60 * 60_000
 export const RICH_MENU_JOB_LEASE_MS = 120_000
 

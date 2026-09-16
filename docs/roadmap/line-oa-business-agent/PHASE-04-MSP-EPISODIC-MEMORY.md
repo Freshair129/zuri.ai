@@ -14,6 +14,15 @@ attributes:
 
 # Phase 4: MSP Episodic Memory
 
+> **Reconciled by [ADR-091](../../decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md)
+> (2026-09-14).** This plan's text is kept as written. Its sentence "Raw transcript stays in MSP
+> storage" now reads with ADR-061: the **agent's** conversation ledger (MSP Tier 1 session events,
+> content tombstoned at 90 days, consolidated into episodic and passport memory) stays in MSP storage,
+> while the **business record** of the conversation is CRM `Conversation`/`Message`, written first.
+> MSP projection stays off until MSP main ships thread and erase tools; the session tier needs the
+> account's memory policy, and episodic, passport and cross-thread memory need consent GRANTED and a
+> DIRECT audience (FR-230, FR-231, FR-232).
+
 ## Objective
 
 Give the agent scoped conversational continuity through MSP-owned thread, session, event,
@@ -86,3 +95,4 @@ candidate generation, and retain auditable tombstones according to policy.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-08-14 | candidate | MSP episodic-memory ownership and gates | working-tree | ATHER |
 | 0.2.0b | 2026-08-15 | beta | Issue #11 amendment: explicit authorized vault set and group participant isolation | working-tree | ATHER |
+| 0.2.1b | 2026-09-14 | beta | Pointer only: reconciled by ADR-091 (CRM business record versus MSP agent ledger); no plan text rewritten | working-tree | Claude Opus 5 |

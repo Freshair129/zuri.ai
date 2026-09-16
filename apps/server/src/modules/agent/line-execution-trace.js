@@ -1,0 +1,108 @@
+import { randomUUID } from 'node:crypto'
+import { appendTraceEvent, sha256 } from './execution-trace'
+
+// @req FR-171 — preserve the evidence and exact model inputs used by a SERVER job.
+// @req FR-235 — `recordEvidence` accepts an optional per-hop `meta` (source,
+// reason, retrievalRefs, budgetMs) so a mode-gated grounding read can trace
+// every hop it attempts; a caller that omits `meta` gets today's single
+// `BUSINESS_QUERY` shape, unchanged.
+// @spec ADR-070, ADR-061, SEC-001 — public-only remains the default; an opted-in
+// worker records the bounded MSP context packet used by the model.
+// @spec ADR-090 D2, D3 — one EVIDENCE_SELECTED per hop, never customer content.
+// @tested tests/integration/server-line-trace.test.js, tests/unit/line-execution-trace.test.js,
+//   tests/unit/line-knowledge-grounding.test.js
+
+const digest = sha256
+
+/** Composed only by the authenticated worker after it has acquired a job lease. */
+export function createLineExecutionTrace({ db, job }) {
+  const scope = { tenantId: job.tenantId, businessId: job.businessId }
+  let failure = null
+  let retrieval = null
+  let memoryContext = null
+  const contextStartedAt = new Date().toISOString()
+  async function record(kind, key, payload) {
+    try {
+      return await appendTraceEvent(db, { scope, turnId: job.id, executionId: job.executionId,
+        kind, idempotencyKey: `${job.executionId}:${key}`, payload, occurredAt: new Date() })
+    } catch (error) {
+      const code = ['EXECUTION_TRACE_PAYLOAD_TOO_LARGE', 'EXECUTION_TRACE_SECRET_FIELD'].includes(error?.code)
+        ? error.code : 'EXECUTION_TRACE_UNAVAILABLE'
+      failure = Object.assign(new Error(code), { code })
+      throw failure
+    }
+  }
+  return {
+    assertHealthy() { if (failure) throw failure },
+    // @req FR-235 — a grounding-mode-aware caller may report the account's
+    // grounding mode (`meta.mode`), which source this hop actually read
+    // (`meta.source`), why (`meta.reason`), its retrieval references
+    // (`meta.retrievalRefs` — citation/source/snapshot/generation, never
+    // content) and its measured budget (`meta.budgetMs`), so the console trace
+    // shows which mode answered without inferring it from `source` alone.
+    // Omitting `meta` entirely — every caller before FR-235 — keeps the
+    // original single `source: 'BUSINESS_QUERY'` shape byte-for-byte
+    // (ADR-090 "Required proof" 1).
+    async recordEvidence(query, evidence, meta = {}) {
+      retrieval = {
+        retrievalRunId: randomUUID(),
+        source: meta.source ?? 'BUSINESS_QUERY',
+        query,
+        evidence,
+        snapshotHash: digest(evidence),
+        observedAt: new Date().toISOString(),
+        ...(meta.mode !== undefined ? { mode: meta.mode } : {}),
+        ...(meta.reason !== undefined ? { reason: meta.reason } : {}),
+        ...(meta.retrievalRefs !== undefined ? { retrievalRefs: meta.retrievalRefs } : {}),
+        ...(meta.budgetMs !== undefined ? { budgetMs: meta.budgetMs } : {}),
+      }
+      await record('EVIDENCE_SELECTED', `retrieval:${retrieval.retrievalRunId}`, retrieval)
+    },
+    recordThreadMemory(details) {
+      // The packet is persisted with CONTEXT_COMMITTED by beforeModelCall. Keeping
+      // this setter synchronous ensures a failed provider never races a second
+      // trace write, while the existing trace observer remains the write boundary.
+      memoryContext = details && typeof details === 'object' ? details : null
+    },
+    // @req FR-234 — exactly one ContextReceipt per model invocation: references,
+    // a hash and the budget, never content (ADR-091 D7, SDD-100).
+    async recordContextReceipt(receipt) {
+      if (failure) throw failure
+      if (!receipt?.receiptId) throw new Error('CONTEXT_RECEIPT_REQUIRED')
+      await record('CONTEXT_RECEIPT', `context-receipt:${receipt.receiptId}`, receipt)
+      return receipt
+    },
+    async beforeModelCall({ provider, model, requestBody, promptVersion, systemPrompt }) {
+      if (failure) throw failure
+      const ctxId = randomUUID()
+      const modelCallId = randomUUID()
+      const handle = { ctxId, modelCallId }
+      const packet = memoryContext?.contextPacket
+      const privateContextDisposition = packet?.policyDecision === 'ALLOW' ? 'MSP_CONTEXT' : 'EXCLUDED_BY_POLICY'
+      await record('CONTEXT_COMMITTED', `ctx:${ctxId}`, {
+        ...handle, schemaVersion: '0.3', assemblerVersion: 'server-line-v1', provider, model,
+        sessionId: packet?.thread?.sessionId ?? null, soul: null,
+        memory: packet?.memory ?? [], history: packet?.memory?.recentExchanges ?? [], documents: [], tools: [],
+        privateContextDisposition,
+        threadMemory: packet ? {
+          thread: packet.thread ?? null,
+          manifest: packet.manifest ?? null,
+          exchangeId: memoryContext?.exchangeId ?? null,
+          inboundMessageId: memoryContext?.inboundMessageId ?? null,
+        } : null,
+        authorizationReceipt: { ...scope, accountId: job.accountId, transportEpoch: job.transportEpoch,
+          modelAccess: job.modelAccess, executionMode: job.executionMode },
+        systemPrompt: systemPrompt ?? { version: promptVersion, availability: 'NOT_REPORTED' },
+        retrievalRunId: retrieval?.retrievalRunId ?? null,
+        requestBody, requestHash: digest(requestBody), contextStartedAt, contextReadyAt: new Date().toISOString(),
+      })
+      return handle
+    },
+    async afterModelCall(result) {
+      const { handle, ...details } = result
+      if (!handle?.ctxId || !handle?.modelCallId) throw new Error('EXECUTION_TRACE_HANDLE_REQUIRED')
+      await record(result.errorCode ? 'MODEL_FAILED' : 'MODEL_COMPLETED',
+        `model:${handle.modelCallId}:result`, { ...handle, ...details })
+    },
+  }
+}

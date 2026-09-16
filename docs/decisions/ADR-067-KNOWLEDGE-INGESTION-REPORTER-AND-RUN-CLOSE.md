@@ -1,9 +1,9 @@
 ---
 id: ZAI:ADR-067
-version: "1.0.0"
+version: "1.0.1"
 status: accepted
 created_at: "2026-09-07T00:00:00+07:00,Claude Fable 5.1"
-last_update: "2026-09-07T00:00:00+07:00,Claude Fable 5.1"
+last_update: "2026-09-08T00:51:36+07:00,RWANG"
 attributes:
   domain: knowledge
   doc_type: architecture-decision
@@ -22,6 +22,8 @@ relations:
 ---
 
 # ADR-067 — The knowledge ingestion reporter: the SoT data-plane key authenticates Stages 9–17 onto the FR-071 ledger, and a run closes only from what was reported
+
+> **Current execution overlay (2026-09-08):** [ADR-073](ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) implements the isolated pipeline beyond this historical slice. Use the [17-stage spec](../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) and [actual flow / extension map](../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md). GKS is passive; the worker pulls through MSP, sends graph receipt before GKS Stage 14, then final write and publication receipts. New evidence carries all six metrics and exact attempt identity. Successful finish requires publication receipt. Older statements here about unbuilt stages, no new models, or direct Tier 4 reporting describe the scope at the original decision date, not the current GenesisRAG17 path.
 
 **Status:** Accepted by owner decision, 2026-09-07 (D1 chosen from three options put to the owner: reuse `SotDataPlaneKey`, a new key type, or defer the route).
 **Date:** 2026-09-07
@@ -42,6 +44,12 @@ ADR-050 D2 assigns Stages 9–17 of the knowledge ingestion pipeline to GKS (Tie
 Meanwhile the external side had moved (verified 2026-09-07 against the three repositories named in ADR-063 D3): GKS shipped Stage 9 with a completion report addressed to this ledger, accepted its own `ADR-GKS-LEDGER-REPORTING` "before any code exists", and then went quiet; MSP recorded that it owns no stage; GenesisBlockDB is packaging SDKs. Two sides were waiting on each other. This decision removes the half of the wait that belongs here, and it resolves the one item `docs/roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md` marked as needing security approval — its D2, "external reporter auth".
 
 ## Decision
+
+[ADR-073](ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) strengthens
+this historical slice: the isolated pipeline persists all six metrics, records
+actual Stage1 receipt evidence, and requires a matching physical publication
+receipt before successful finish. A gate-only success is no longer sufficient
+for that versioned pipeline. Legacy evidence remains readable.
 
 ### D1 — The reporter authenticates with the FR-102 `SotDataPlaneKey`, Tenant-bound, on a knowledge run of its own Tenant only
 
@@ -100,3 +108,6 @@ Three consequences the rule fixes rather than leaves to interpretation. **Stage 
 | Version | Date | Status | Summary | Agent |
 |---|---|---|---|---|
 | 1.0.0 | 2026-09-07 | accepted | Reporter credential (owner-chosen: reuse `SotDataPlaneKey`), report identity/time/outcome, derived run close, clockless job-state projection, four-of-six metrics named | Claude Fable 5.1 |
+
+
+Documentation revision 2026-09-08: identify the ADR-073 execution overlay and extension map while preserving the original decision history (RWANG, base b64b46df).

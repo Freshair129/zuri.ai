@@ -43,10 +43,10 @@ describe('SCM groups the supply-chain domains without becoming one', () => {
 
   it('stands in the bar once, where its first child used to be', () => {
     const slots = domainBarSlots()
-    const groups = slots.filter((slot) => slot.kind === 'group')
-    expect(groups).toHaveLength(1)
-    expect(groups[0].group.key).toBe('scm')
-    expect(groups[0].children.map((child) => child.key)).toEqual(scm().childKeys)
+    // @req FR-172 — a second group (CRM, ADR-071) now shares the bar with SCM,
+    // so this finds SCM's own slot rather than asserting there is only one.
+    const scmSlot = slots.find((slot) => slot.kind === 'group' && slot.group.key === 'scm')
+    expect(scmSlot.children.map((child) => child.key)).toEqual(scm().childKeys)
 
     // No child may also stand on its own, or the bar shows the same domain twice.
     const barKeys = slots.filter((slot) => slot.kind === 'domain').map((slot) => slot.domain.key)
@@ -65,8 +65,17 @@ describe('SCM groups the supply-chain domains without becoming one', () => {
     for (const path of ['/inventory', '/procurement/purchase-orders', '/commerce']) {
       const sidebar = sidebarDomainForPath(path)
       expect(sidebar.key).toBe('scm')
+      // @req FR-182/FR-184 — Inventory's console pages join the list. The row
+      // count is not the point being pinned here; the ORDER is: each child's
+      // own pages sit under that child, and no child's pages leak above it.
       expect(sidebar.sub.map((item) => item.path)).toEqual([
         '/inventory',
+        '/inventory/locations',
+        '/inventory/work-orders',
+        '/inventory/reservations',
+        '/inventory/stocktakes',
+        '/inventory/hygiene',
+        '/inventory/catalog-intake',
         '/warehouse',
         '/procurement',
         '/procurement/purchase-orders',
@@ -85,7 +94,7 @@ describe('SCM groups the supply-chain domains without becoming one', () => {
       const labels = sidebar.sub.map((item) => item.label)
       expect(new Set(labels).size, `duplicate sidebar labels: ${labels.join(', ')}`).toBe(labels.length)
       expect(labels).not.toContain('Dashboard')
-      expect(labels).toEqual(['Inventory', 'Warehouse', 'Procurement', 'Purchase Orders', 'Order Management', 'Orders'])
+      expect(labels).toEqual(['Inventory', 'Locations', 'Work Orders', 'Reservations', 'Stocktake', 'SKU Hygiene', 'Import', 'Warehouse', 'Procurement', 'Purchase Orders', 'Order Management', 'Orders'])
     }
   })
 

@@ -1,5 +1,7 @@
 import { z } from 'zod'
+import { FINISHED_SET_SKU_PATTERN } from './inventory-costing'
 import {
+  INVENTORY_ITEM_KINDS,
   INVENTORY_LOT_STATUSES,
   INVENTORY_MOVEMENT_KINDS,
   INVENTORY_PRODUCT_ACTIONS,
@@ -7,8 +9,17 @@ import {
   INVENTORY_SERIAL_STATUSES,
   INVENTORY_STOCK_POLICIES,
   INVENTORY_TRACKING_MODES,
+  INVENTORY_UNSTOCKED_POLICIES,
 } from '@/lib/validation/enums'
+import { zDefaultStockPolicy, zProductNature, zReplenishmentFields, zVariant, zVariantAxes } from './inventory-governance'
 
+// @req FR-201, FR-202, FR-205, FR-207 — since ADR-083 the master contract
+//   declares its nature and variant axes, the SKU contract carries its
+//   variant values and replenishment parameters, the product action
+//   vocabulary grows to five (PHASE_OUT, REACTIVATE, MERGE), a movement may
+//   name a unit (FR-204), and a phased-out SKU refuses a receipt. The rules
+//   themselves live in `inventory-governance.js`; this file holds the
+//   contracts that carry them.
 // @req FR-154 — the pure vocabulary of the Inventory catalogue (คลังสินค้า):
 //   the input contracts for category, family, factory, product master, product
 //   (SKU) and bundle, the human `code` shape, and the one rule a SKU carries
@@ -85,7 +96,19 @@ export const zCreateProductMaster = z.object({
   nameEn: zText(200),
   baseCost: zMoney.optional(),
   specs: z.record(z.string(), z.unknown()).optional(),
-}).strict()
+  // @req FR-201, FR-202 — the nature every SKU inherits, the policy a GOOD's
+  //   SKU defaults to, and the axes that give its SKUs a variant identity.
+  nature: zProductNature.optional(),
+  defaultStockPolicy: zDefaultStockPolicy.optional(),
+  variantAxes: zVariantAxes.optional(),
+}).strict().superRefine((value, ctx) => {
+  if (value.nature === 'SERVICE' && value.defaultStockPolicy) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['defaultStockPolicy'], message: 'a SERVICE master has no stock policy to default; its SKUs are services' })
+  }
+  if (value.nature === 'SERVICE' && value.variantAxes?.length) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['variantAxes'], message: 'a SERVICE master has no physical variants' })
+  }
+})
 
 export const zProductFields = z.object({
   name: zOptionalText(200),
@@ -93,7 +116,10 @@ export const zProductFields = z.object({
   material: zOptionalText(100),
   unit: zText(20).optional(),
   safetyStock: z.number().int().nonnegative().optional(),
-}).strict()
+  // @req FR-202, FR-207 — a variant value may be corrected (the key is
+  //   recomputed and re-checked) and the replenishment parameters edited.
+  variant: zVariant.optional(),
+}).merge(zReplenishmentFields).strict()
 
 export const zCreateProduct = zProductFields.extend({
   businessId: zBusinessId,
@@ -101,9 +127,55 @@ export const zCreateProduct = zProductFields.extend({
   productMasterId: zId,
   stockPolicy: z.enum(INVENTORY_STOCK_POLICIES).optional(),
   trackingMode: z.enum(INVENTORY_TRACKING_MODES).optional(),
+  // @req FR-176 — the role this SKU plays in a kit, and (for a branded one)
+  //   the customer and order it belongs to. `dedicated*` are set by the
+  //   customization service when it creates the branded SKU, and are accepted
+  //   here so a Business can also record a branded item it already holds.
+  itemKind: z.enum(INVENTORY_ITEM_KINDS).optional(),
+  // @req FR-177 — the accounting system's code for a tradeable set, unique per
+  //   Tenant. `setFlowAccountSku` is the other writer; both validate the
+  //   pattern, so the column can never hold a code FlowAccount would reject.
+  flowAccountSku: z.string().trim().regex(FINISHED_SET_SKU_PATTERN, 'a finished set SKU is [MODEL]-[COUNT]([PACKAGE]), e.g. TMS06-4(P-16)').nullable().optional(),
+  dedicatedCustomerId: zId.nullable().optional(),
+  dedicatedSalesOrderId: zId.nullable().optional(),
+  // @req FR-179 — how long a unit of this SKU may sit in storage before it is
+  //   due for maintenance, and before it may not be issued at all. Absent on
+  //   almost every product, and absent means "does not age".
+  maintenanceIntervalDays: z.number().int().positive().max(3650).nullable().optional(),
+  maxStorageDays: z.number().int().positive().max(3650).nullable().optional(),
+  // @req FR-202 — a caller that has seen the lookalike refusal and still
+  //   means a second SKU says so; the flag is recorded in the audit row.
+  allowLookalike: z.boolean().optional(),
 }).strict().superRefine((value, ctx) => {
-  if (value.stockPolicy === 'UNTRACKED' && value.trackingMode && value.trackingMode !== 'NONE') {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['trackingMode'], message: 'an UNTRACKED product has no tracking mode' })
+  // @req FR-176 — only a CUSTOM_COMPONENT carries a customer lock. Allowing a
+  // raw component to name a dedicated customer would create stock that looks
+  // free in the catalogue and is refused by the ledger (BR-028).
+  if ((value.dedicatedCustomerId || value.dedicatedSalesOrderId) && value.itemKind !== 'CUSTOM_COMPONENT') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['itemKind'],
+      message: 'only a CUSTOM_COMPONENT is dedicated to a customer or a sales order',
+    })
+  }
+  // @req FR-179 — a maintenance interval later than the hard limit could never
+  // fire before the lot was already refused, which reads as a guard and is not one.
+  if (value.maintenanceIntervalDays && value.maxStorageDays && value.maintenanceIntervalDays > value.maxStorageDays) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['maintenanceIntervalDays'],
+      message: 'maintenance falls due before the storage limit, not after it',
+    })
+  }
+  // @req FR-168 — the rule is "no ledger, no tracking mode", so it holds for a
+  // SERVICE exactly as it does for an UNTRACKED good. Naming only UNTRACKED
+  // would have let a service be created asking for lot or serial identity it
+  // can never have.
+  if (value.stockPolicy && INVENTORY_UNSTOCKED_POLICIES.includes(value.stockPolicy) && value.trackingMode && value.trackingMode !== 'NONE') {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['trackingMode'],
+      message: `a ${value.stockPolicy} product has no stock ledger, so it has no tracking mode`,
+    })
   }
 })
 
@@ -111,9 +183,22 @@ export const zProductAction = z.object({
   action: z.enum(INVENTORY_PRODUCT_ACTIONS),
   version: z.number().int().positive(),
   fields: zProductFields.partial().strict().optional(),
+  // @req FR-205 — MERGE names its survivor; every lifecycle action may carry
+  //   the reason a person gives, which lands in the audit row.
+  into: zId.optional(),
+  reason: zOptionalText(500),
 }).strict().superRefine((value, ctx) => {
   if (value.action === 'UPDATE' && (!value.fields || Object.keys(value.fields).length === 0)) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['fields'], message: 'fields is required for UPDATE' })
+  }
+  if (value.action === 'MERGE' && !value.into) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['into'], message: 'MERGE names the surviving product in `into`' })
+  }
+  if (value.action !== 'MERGE' && value.into) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['into'], message: 'only MERGE takes `into`' })
+  }
+  if (value.action !== 'UPDATE' && value.fields) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['fields'], message: 'only UPDATE takes fields' })
   }
 })
 
@@ -158,6 +243,20 @@ export const zRecordMovement = z.object({
   reason: zOptionalText(500),
   reference: zOptionalText(200),
   occurredAt: zDate.optional(),
+  // @req FR-174, FR-175, FR-176 — where this quantity moved, what it cost per
+  //   unit in satang, and what it was for. All optional: a movement that names
+  //   no location is exactly what every movement written before ADR-074 is,
+  //   and the ledger must keep accepting one.
+  sourceLocationId: zId.nullable().optional(),
+  targetLocationId: zId.nullable().optional(),
+  costSatang: z.number().int().nonnegative().nullable().optional(),
+  customerId: zId.nullable().optional(),
+  salesOrderId: zId.nullable().optional(),
+  workOrderId: zId.nullable().optional(),
+  // @req FR-204 — the unit `quantity` is expressed in. Absent or the base unit
+  //   means base units; anything else must be a conversion the product
+  //   declares, and the ledger row is written in base units (BR-037).
+  unit: z.string().trim().min(1).max(20).nullable().optional(),
 }).strict().superRefine((value, ctx) => {
   if (value.kind !== 'ADJUSTMENT' && value.quantity <= 0) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['quantity'], message: 'RECEIPT and ISSUE take a positive quantity' })
@@ -202,16 +301,24 @@ export function isBelowSafetyStock(product, onHand) {
 export function stockSummaryRow(product, movements = []) {
   const tracked = product.stockPolicy === 'TRACKED'
   const onHand = tracked ? stockOnHand(movements) : null
+  // @req FR-207 — the reorder threshold is the declared point or, absent one,
+  //   the safety stock; a phased-out SKU is never below it because it is never
+  //   reordered.
+  const reorderPoint = product.reorderPoint ?? null
+  const threshold = reorderPoint ?? product.safetyStock ?? 0
   return {
     productId: product.id,
     code: product.code,
     name: product.name ?? null,
     stockPolicy: product.stockPolicy,
     trackingMode: product.trackingMode,
+    status: product.status ?? 'ACTIVE',
     unit: product.unit,
     safetyStock: product.safetyStock,
+    reorderPoint,
     onHand,
     belowSafetyStock: tracked ? isBelowSafetyStock(product, onHand) : false,
+    belowReorderPoint: tracked && (product.status ?? 'ACTIVE') === 'ACTIVE' ? onHand < threshold : false,
   }
 }
 
@@ -238,7 +345,15 @@ export function bundleAvailability(items = [], onHandByProductId = {}) {
 export function movementRule(product, movement) {
   if (!product) return { ok: false, code: 'INVENTORY_PRODUCT_NOT_FOUND' }
   if (product.status === 'ARCHIVED') return { ok: false, code: 'INVENTORY_PRODUCT_ARCHIVED' }
+  // @req FR-168 — both refusals mean "this has no ledger", but they are not the
+  // same refusal to read: an uncounted good could be counted if the Business
+  // decided to, while a service can never be, because nothing physical exists
+  // to count. A caller that reports the reason should be able to say which.
+  if (product.stockPolicy === 'SERVICE') return { ok: false, code: 'INVENTORY_PRODUCT_IS_A_SERVICE' }
   if (product.stockPolicy !== 'TRACKED') return { ok: false, code: 'INVENTORY_PRODUCT_UNTRACKED' }
+  // @req FR-205 — a phased-out SKU is sold down, not restocked: issues and
+  //   corrections still land, a receipt does not (ADR-083 D5).
+  if (product.status === 'PHASE_OUT' && movement.kind === 'RECEIPT') return { ok: false, code: 'INVENTORY_PRODUCT_PHASED_OUT' }
   const serials = movement.serialNos ?? []
   if (product.trackingMode === 'SERIAL') {
     if (movement.kind === 'ADJUSTMENT') return { ok: false, code: 'INVENTORY_SERIAL_ADJUSTMENT_NOT_ALLOWED' }
@@ -288,6 +403,11 @@ export const zRecipeLine = z.object({
 export const zRecipeLines = z.array(zRecipeLine).min(1).max(200)
   .refine((lines) => new Set(lines.map((l) => l.componentProductId)).size === lines.length, 'a component appears once per recipe')
 
+// @req FR-177 — the loss this bill of materials expects, a fraction in
+//   [0, 0.20]. Optional and defaulting to 0, so a recipe written before
+//   ADR-074 explodes exactly as it always did (BR-029).
+export const zScrapAllowance = z.number().finite().min(0).max(0.2)
+
 export const zCreateRecipe = z.object({
   businessId: zBusinessId,
   code: zInventoryCode,
@@ -297,6 +417,7 @@ export const zCreateRecipe = z.object({
   yieldQty: z.number().int().positive().optional(),
   unit: zText(20).optional(),
   notes: zOptionalText(2000),
+  scrapAllowanceFactor: zScrapAllowance.optional(),
   lines: zRecipeLines,
 }).strict()
 
@@ -305,6 +426,7 @@ export const zRecipeFields = z.object({
   yieldQty: z.number().int().positive(),
   unit: zText(20),
   notes: zOptionalText(2000),
+  scrapAllowanceFactor: zScrapAllowance,
   lines: zRecipeLines,
 }).strict()
 

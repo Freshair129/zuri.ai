@@ -24,7 +24,7 @@ export default function BusinessFilesPage() {
   // row simply never appeared, which is indistinguishable from "no mounts yet".
   const [saveError, setSaveError] = useState(null)
   return <div>
-    <PageHeader eyebrow="Development" title="Files" subtitle="Business-wide managed metadata with Project grouping, explicit device mounts and rebuildable cache." />
+    <PageHeader eyebrow="Projects & Work" title="Files" subtitle="Business-wide managed metadata with Project grouping, explicit device mounts and rebuildable cache." />
     <Card className="mb-4"><SectionTitle caption="Absolute paths stay device-local and are excluded from portable snapshots">Local workspace mount</SectionTitle>
       <form className="grid gap-3 md:grid-cols-[180px_1fr_auto]" onSubmit={async (event) => {
         event.preventDefault()

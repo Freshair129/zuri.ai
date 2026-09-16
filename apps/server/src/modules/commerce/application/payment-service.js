@@ -24,8 +24,18 @@ import { ORDER_SELECT, orderDto } from './sales-order-service'
 //   on read. A refund may not be verified beyond what was verifiably paid. A
 //   payment cannot be recorded on a CANCELLED order; a refund can. Every write
 //   is one transaction with one audit row; nothing is deleted.
-// @spec ADR-065; ADR-054 D4; BR-002; SEC-001; FR-072
-// @tested tests/integration/fr163-payment.test.js
+// @req FR-196 — a transaction rule, not a role rule: `applyPaymentAction`
+//   refuses 409 PAYMENT_SELF_VERIFY_FORBIDDEN when the person verifying a
+//   payment is the person who recorded it — INCLUDING the Business OWNER, who
+//   bypasses every other capability check in this file. This is the one place
+//   an OWNER does not bypass, deliberately: it is a rule about needing two
+//   people, not about holding a permission (ADR-065 D4's revenue-integrity
+//   reasoning, applied at the write instead of only at role assignment).
+//   `selfVerifyAttested: true` is the auditable exemption for a genuinely
+//   one-person Business — never a silent one, it lands in the audit payload as
+//   `selfVerified: true`.
+// @spec ADR-065; ADR-054 D4; BR-002; BR-035; SEC-001; SEC-027; FR-072; ADR-079
+// @tested tests/integration/fr163-payment.test.js, tests/integration/fr196-segregation-of-duties.test.js
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
 const actor = (viewer) => viewer?.principal?.id ?? null
@@ -113,19 +123,27 @@ export async function applyPaymentAction(id, input, { viewer, db = prisma, now =
     const status = nextPaymentStatus(row.status, data.action)
     if (!status) throw failure(409, 'PAYMENT_STATUS_INVALID')
     const change = { status }
+    let selfVerified
     if (data.action === 'VERIFY') {
+      const verifierId = actor(viewer)
+      selfVerified = Boolean(row.createdByPersonId) && row.createdByPersonId === verifierId
+      // @req FR-196 — needing two people, not a permission. No `ownsBusiness`
+      // bypass here on purpose: `loadBusiness` above already let an OWNER
+      // through the capability gate, and this is the one refusal that gate
+      // does not answer for.
+      if (selfVerified && !data.selfVerifyAttested) throw failure(409, 'PAYMENT_SELF_VERIFY_FORBIDDEN')
       if (row.kind === 'REFUND') {
         const others = await tx.payment.findMany({ where: { orderId: row.orderId, status: 'VERIFIED' }, select: { kind: true, amountSatang: true, status: true } })
         if (paymentSummary(others).net < row.amountSatang) throw failure(409, 'PAYMENT_REFUND_EXCEEDS_PAID')
       }
       change.verifiedAt = now
-      change.verifiedByPersonId = actor(viewer)
+      change.verifiedByPersonId = verifierId
     } else {
       change.rejectReason = data.reason ?? null
     }
     const updated = await tx.payment.updateMany({ where: { id: row.id, version: row.version }, data: { ...change, version: { increment: 1 } } })
     if (updated.count !== 1) throw failure(409, 'PAYMENT_VERSION_CONFLICT')
-    await recordAudit(tx, { entityType: PAYMENT_ENTITY, entityId: row.id, action: ACTIONS[data.action], actorId: actor(viewer), payload: { businessId: business.id, code: row.code, kind: row.kind, amount: fromSatang(row.amountSatang), from: { status: row.status }, to: { status }, reason: change.rejectReason ?? undefined, version: row.version + 1 } })
+    await recordAudit(tx, { entityType: PAYMENT_ENTITY, entityId: row.id, action: ACTIONS[data.action], actorId: actor(viewer), payload: { businessId: business.id, code: row.code, kind: row.kind, amount: fromSatang(row.amountSatang), from: { status: row.status }, to: { status }, reason: change.rejectReason ?? undefined, version: row.version + 1, ...(data.action === 'VERIFY' ? { selfVerified } : {}) } })
     const payment = await tx.payment.findUnique({ where: { id: row.id }, select: SELECT })
     const order = await tx.salesOrder.findUnique({ where: { id: row.orderId }, select: ORDER_SELECT })
     return { payment, order }

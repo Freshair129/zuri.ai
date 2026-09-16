@@ -8,7 +8,7 @@ import {
   modeForDeadline,
   screenPositionsForItemCode,
 } from '../pricing/index.js';
-import { GenesisLocalRag } from '../rag/genesis-rag.js';
+import type { AnswerRag } from '../rag/genesis-rag.js';
 import type { SearchEvidenceV4 } from './format-cards.js';
 
 /**
@@ -30,7 +30,7 @@ export interface EvidenceOptions {
   exchangeRate: number;
   shipMonth?: number;
   /** The LINE agent's only door into the catalog graph — HTTP only, never opened directly. */
-  rag: GenesisLocalRag;
+  rag: AnswerRag;
 }
 
 export interface EvidenceRecord {
@@ -362,6 +362,11 @@ export function compactSearchForModel(ev: SearchEvidenceV4): unknown {
     budgetUnmet: ev.parsed?.budgetUnmet ?? false,
     matches: (ev.matches ?? []).map(one),
     nearest: (ev.nearest ?? []).map(one),
+    // FR-189 primary mode: cited passages from one published generation. Absent in off and shadow.
+    ...(ev.passages ? {
+      published: ev.published ? { snapshotId: ev.published.snapshotId, generation: ev.published.generation } : null,
+      passages: ev.passages.map((p) => ({ text: p.text, score: p.score, chunkId: p.citation.chunkId })),
+    } : {}),
   };
 }
 

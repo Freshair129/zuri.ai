@@ -1,0 +1,282 @@
+[
+  {
+    "category": "eco-friendly",
+    "code": "PM-BOTTLE-LED",
+    "dimensionsCm": {
+      "height": 23.0,
+      "length": 7.0,
+      "width": 7.0
+    },
+    "entityType": "ProductMaster",
+    "externalId": "PM-BOTTLE-LED",
+    "flowaccountModelCode": "TDK01-1",
+    "nameEn": "Smart LED Temperature Thermos Bottle",
+    "nameTh": "กระบอกน้ำสแตนเลสบอกอุณหภูมิหน้าจอ Smart LED",
+    "priceTiersThb": [
+      {
+        "minQty": 1,
+        "unitPriceThb": 290.0
+      },
+      {
+        "minQty": 10,
+        "unitPriceThb": 260.0
+      },
+      {
+        "minQty": 20,
+        "unitPriceThb": 240.0
+      },
+      {
+        "minQty": 50,
+        "unitPriceThb": 220.0
+      },
+      {
+        "minQty": 100,
+        "unitPriceThb": 200.0
+      },
+      {
+        "minQty": 300,
+        "unitPriceThb": 185.0
+      },
+      {
+        "minQty": 500,
+        "unitPriceThb": 170.0
+      },
+      {
+        "minQty": 1000,
+        "unitPriceThb": 155.0
+      }
+    ],
+    "productFamily": "PF-DRINKWARE",
+    "provenance": {
+      "supplementUpstreamFile": "data-pipeline/02_prepared/smartgift_catalog_master.json",
+      "upstreamFile": "data-pipeline/02_prepared/ProductMaster.json",
+      "upstreamRecordId": "pm:PM-BOTTLE-LED"
+    },
+    "srpPriceThbQty1": 290.0,
+    "unitWeightKg": 0.32
+  },
+  {
+    "category": "executive-smart-tech",
+    "code": "PM-NB",
+    "dimensionsCm": {
+      "height": 3.0,
+      "length": 24.0,
+      "width": 18.0
+    },
+    "entityType": "ProductMaster",
+    "externalId": "PM-NB",
+    "flowaccountModelCode": "TNA0014",
+    "nameEn": "Smart Leather Powerbank Notebook",
+    "nameTh": "สมุดโน้ตหนัง PU อัจฉริยะฝังพาวเวอร์แบงก์ชาร์จไร้สาย",
+    "priceTiersThb": [
+      {
+        "minQty": 1,
+        "unitPriceThb": 750.0
+      },
+      {
+        "minQty": 10,
+        "unitPriceThb": 680.0
+      },
+      {
+        "minQty": 20,
+        "unitPriceThb": 630.0
+      },
+      {
+        "minQty": 50,
+        "unitPriceThb": 590.0
+      },
+      {
+        "minQty": 100,
+        "unitPriceThb": 540.0
+      },
+      {
+        "minQty": 300,
+        "unitPriceThb": 490.0
+      },
+      {
+        "minQty": 500,
+        "unitPriceThb": 450.0
+      },
+      {
+        "minQty": 1000,
+        "unitPriceThb": 420.0
+      }
+    ],
+    "productFamily": "PF-SMART-OFFICE",
+    "provenance": {
+      "supplementUpstreamFile": "data-pipeline/02_prepared/smartgift_catalog_master.json",
+      "upstreamFile": "data-pipeline/02_prepared/ProductMaster.json",
+      "upstreamRecordId": "pm:PM-NB"
+    },
+    "srpPriceThbQty1": 750.0,
+    "unitWeightKg": 0.72
+  },
+  {
+    "category": "executive-smart-tech",
+    "code": "PM-PB10K",
+    "dimensionsCm": {
+      "height": 1.6,
+      "length": 10.5,
+      "width": 6.8
+    },
+    "entityType": "ProductMaster",
+    "externalId": "PM-PB10K",
+    "flowaccountModelCode": "TZJ00-1",
+    "nameEn": "MagSafe Wireless Powerbank 10000mAh",
+    "nameTh": "พาวเวอร์แบงก์แม่เหล็กไร้สาย 10,000mAh (MagSafe & Stand)",
+    "priceTiersThb": [
+      {
+        "minQty": 1,
+        "unitPriceThb": 690.0
+      },
+      {
+        "minQty": 10,
+        "unitPriceThb": 620.0
+      },
+      {
+        "minQty": 20,
+        "unitPriceThb": 580.0
+      },
+      {
+        "minQty": 50,
+        "unitPriceThb": 540.0
+      },
+      {
+        "minQty": 100,
+        "unitPriceThb": 490.0
+      },
+      {
+        "minQty": 300,
+        "unitPriceThb": 450.0
+      },
+      {
+        "minQty": 500,
+        "unitPriceThb": 420.0
+      },
+      {
+        "minQty": 1000,
+        "unitPriceThb": 390.0
+      }
+    ],
+    "productFamily": "PF-POWER-CHARGING",
+    "provenance": {
+      "supplementUpstreamFile": "data-pipeline/02_prepared/smartgift_catalog_master.json",
+      "upstreamFile": "data-pipeline/02_prepared/ProductMaster.json",
+      "upstreamRecordId": "pm:PM-PB10K"
+    },
+    "srpPriceThbQty1": 690.0,
+    "unitWeightKg": 0.22
+  },
+  {
+    "category": "classic-oriental",
+    "code": "PM-PEN",
+    "dimensionsCm": {
+      "height": 1.4,
+      "length": 14.5,
+      "width": 1.4
+    },
+    "entityType": "ProductMaster",
+    "externalId": "PM-PEN",
+    "flowaccountModelCode": null,
+    "nameEn": "Solid Walnut Brass Gel Pen",
+    "nameTh": "ปากกาเจลบอดี้ไม้แท้หัวทองเหลือง (Brass Wood Signature)",
+    "priceTiersThb": [
+      {
+        "minQty": 1,
+        "unitPriceThb": 190.0
+      },
+      {
+        "minQty": 10,
+        "unitPriceThb": 160.0
+      },
+      {
+        "minQty": 20,
+        "unitPriceThb": 145.0
+      },
+      {
+        "minQty": 50,
+        "unitPriceThb": 130.0
+      },
+      {
+        "minQty": 100,
+        "unitPriceThb": 120.0
+      },
+      {
+        "minQty": 300,
+        "unitPriceThb": 110.0
+      },
+      {
+        "minQty": 500,
+        "unitPriceThb": 100.0
+      },
+      {
+        "minQty": 1000,
+        "unitPriceThb": 90.0
+      }
+    ],
+    "productFamily": "PF-CRAFT-STATIONERY",
+    "provenance": {
+      "supplementUpstreamFile": "data-pipeline/02_prepared/smartgift_catalog_master.json",
+      "upstreamFile": "data-pipeline/02_prepared/ProductMaster.json",
+      "upstreamRecordId": "pm:PM-PEN"
+    },
+    "srpPriceThbQty1": 190.0,
+    "unitWeightKg": 0.045
+  },
+  {
+    "category": "eco-friendly",
+    "code": "PM-TMB",
+    "dimensionsCm": {
+      "height": 21.0,
+      "length": 8.0,
+      "width": 8.0
+    },
+    "entityType": "ProductMaster",
+    "externalId": "PM-TMB",
+    "flowaccountModelCode": "BW00-0",
+    "nameEn": "Thermal Tumbler SUS316",
+    "nameTh": "แก้วทัมเบลอร์เก็บอุณหภูมิ (Tumbler SUS316)",
+    "priceTiersThb": [
+      {
+        "minQty": 1,
+        "unitPriceThb": 320.0
+      },
+      {
+        "minQty": 10,
+        "unitPriceThb": 290.0
+      },
+      {
+        "minQty": 20,
+        "unitPriceThb": 270.0
+      },
+      {
+        "minQty": 50,
+        "unitPriceThb": 250.0
+      },
+      {
+        "minQty": 100,
+        "unitPriceThb": 230.0
+      },
+      {
+        "minQty": 300,
+        "unitPriceThb": 215.0
+      },
+      {
+        "minQty": 500,
+        "unitPriceThb": 200.0
+      },
+      {
+        "minQty": 1000,
+        "unitPriceThb": 185.0
+      }
+    ],
+    "productFamily": "PF-DRINKWARE",
+    "provenance": {
+      "supplementUpstreamFile": "data-pipeline/02_prepared/smartgift_catalog_master.json",
+      "upstreamFile": "data-pipeline/02_prepared/ProductMaster.json",
+      "upstreamRecordId": "pm:PM-TMB"
+    },
+    "srpPriceThbQty1": 320.0,
+    "unitWeightKg": 0.35
+  }
+]

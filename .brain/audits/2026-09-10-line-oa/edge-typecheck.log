@@ -1,0 +1,4 @@
+
+> zuri-command-agent@0.2.0b typecheck
+> node node_modules/typescript/bin/tsc --noEmit
+

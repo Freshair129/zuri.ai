@@ -11,6 +11,7 @@ import {
   previewImport,
   importSnapshot,
 } from '@/modules/project-manager/application/backup-service'
+import { computeManifestHash } from '@/modules/crm/chat-evidence-archive-service'
 import {
   createPortfolio,
   createTenant,
@@ -57,8 +58,9 @@ describe('snapshot backup round trip', () => {
     await prisma.workspaceMembership.create({
       data: { portfolioId: portfolio.id, personId: person.id, role: 'OWNER', status: 'ACTIVE' },
     })
-    await prisma.workspaceInvite.create({
+    await prisma.accessInvite.create({
       data: {
+        scopeType: 'PORTFOLIO',
         portfolioId: portfolio.id,
         invitedByPersonId: person.id,
         role: 'MEMBER',
@@ -237,6 +239,76 @@ describe('snapshot backup round trip', () => {
         decidedByPersonId: person.id,
       },
     })
+
+    // @req FR-174, FR-176, FR-177, FR-180 — the ADR-074 rows, written here for
+    // the same reason the eight integration models were: a model listed in
+    // SNAPSHOT_MODELS and never created by any fixture proves nothing about the
+    // restore path, and restore ORDER (location before the ledger, work orders
+    // after the products and recipes they name) is the half preflight cannot check.
+    const inventoryCategory = await prisma.inventoryCategory.create({
+      data: { code: 'CAT-BAK', tenantId: tenant.id, businessId: business.id, nameTh: 'สำรองข้อมูล', nameEn: 'Backup' },
+    })
+    const productMaster = await prisma.productMaster.create({
+      data: { code: 'PM-BAK', tenantId: tenant.id, businessId: business.id, categoryId: inventoryCategory.id, nameTh: 'สินค้า', nameEn: 'Product' },
+    })
+    const backupProduct = await prisma.product.create({
+      data: { code: 'SKU-BAK', tenantId: tenant.id, businessId: business.id, productMasterId: productMaster.id, name: 'Backup SKU' },
+    })
+    const backupSet = await prisma.product.create({
+      data: { code: 'SET-BAK-1-P01', tenantId: tenant.id, businessId: business.id, productMasterId: productMaster.id, name: 'Backup set', itemKind: 'FINISHED_SET' },
+    })
+    const backupRecipe = await prisma.productRecipe.create({
+      data: {
+        code: 'RCP-BAK', tenantId: tenant.id, businessId: business.id, productId: backupSet.id,
+        name: 'Backup recipe', batchSize: 1, yieldQty: 1, scrapAllowanceFactor: 0.02,
+        lines: { create: [{ componentProductId: backupProduct.id, qty: 1 }] },
+      },
+    })
+    const backupLocation = await prisma.warehouseLocation.create({
+      data: { code: 'LOC-BAK', tenantId: tenant.id, businessId: business.id, name: 'คลังสำรอง', type: 'TH_CENTRAL_RAW' },
+    })
+    await prisma.stockMovement.create({
+      data: {
+        tenantId: tenant.id, businessId: business.id, productId: backupProduct.id,
+        kind: 'RECEIPT', quantity: 10, targetLocationId: backupLocation.id, costSatang: 11346,
+      },
+    })
+    await prisma.customizationWorkOrder.create({
+      data: {
+        code: 'CWO-BAK-001', tenantId: tenant.id, businessId: business.id,
+        rawProductId: backupProduct.id, technique: 'LASER_ENGRAVING', plannedQty: 10,
+        sourceLocationId: backupLocation.id,
+      },
+    })
+    await prisma.kittingWorkOrder.create({
+      data: {
+        code: 'KWO-BAK-001', tenantId: tenant.id, businessId: business.id,
+        recipeId: backupRecipe.id, finishedProductId: backupSet.id, plannedQty: 5,
+        sourceLocationId: backupLocation.id, plannedLinesJson: JSON.stringify([{ componentProductId: backupProduct.id, qtyPerBatch: 1, batchSize: 1, fixed: false, netQty: 5, grossQty: 6 }]),
+      },
+    })
+    await prisma.stockReservation.create({
+      data: {
+        code: 'RSV-BAK-001', tenantId: tenant.id, businessId: business.id, productId: backupProduct.id,
+        purpose: 'QUOTE', quantity: 3, expiresAt: new Date('2027-01-01T00:00:00Z'),
+      },
+    })
+
+    // @req FR-245 — CustomerArchiveKey and ArchiveManifest joined SNAPSHOT_MODELS
+    // after shipping excluded (see backup-service.js's SNAPSHOT_MODELS comment
+    // for why): a randomly generated archive key has no re-entry path, so
+    // excluding it would let a routine restore silently and permanently destroy
+    // access to retained dispute evidence. Fixture values are opaque strings —
+    // this proves the round trip, not the crypto (that is
+    // crm-chat-evidence-archive-crypto.test.js's job).
+    await prisma.customerArchiveKey.create({
+      data: { tenantId: tenant.id, customerId: customer.id, kekId: 'v0', wrappedDek: 'bak.wrapped.dek' },
+    })
+    const backupManifest = {
+      tenantId: tenant.id, runId: 'RUN-BAK-001', filePath: `${tenant.id}/2026/RUN-BAK-001.zca`,
+      fileSha256: 'd'.repeat(64), messageCount: 1, messageIdListHash: 'e'.repeat(64), previousManifestHash: null,
+    }
+    await prisma.archiveManifest.create({ data: { ...backupManifest, manifestHash: computeManifestHash(backupManifest) } })
   })
 
   it('export includes schema version, timestamp and table counts', async () => {
@@ -266,9 +338,14 @@ describe('snapshot backup round trip', () => {
     expect(snapshot.tables.customerImportProvenance.length).toBeGreaterThan(0)
     expect(snapshot.tables.customerImportReviewCase.length).toBeGreaterThan(0)
     expect(snapshot.tables.customerImportReviewDecision.length).toBeGreaterThan(0)
+    // @req FR-174, FR-176, FR-177, FR-180 — populated, not merely present.
+    expect(snapshot.tables.warehouseLocation.length).toBeGreaterThan(0)
+    expect(snapshot.tables.customizationWorkOrder.length).toBeGreaterThan(0)
+    expect(snapshot.tables.kittingWorkOrder.length).toBeGreaterThan(0)
+    expect(snapshot.tables.stockReservation.length).toBeGreaterThan(0)
     // @req FR-067 — populated, not merely present (the RCA discipline above).
     expect(snapshot.tables.workspaceMembership.length).toBeGreaterThan(0)
-    expect(snapshot.tables.workspaceInvite.length).toBeGreaterThan(0)
+    expect(snapshot.tables.accessInvite.length).toBeGreaterThan(0)
   })
 
   it('rejects invalid snapshot on preview', async () => {
@@ -295,6 +372,12 @@ describe('snapshot backup round trip', () => {
     await createProject({ workspaceId: ws.id, name: 'Post-snapshot project', code: 'PRJ-BAK-EXTRA' }, { viewer: owner })
     expect(await prisma.project.count()).toBe(projectCountAtExport + 1)
 
+    // Counted before, because this database is shared with every other test in
+    // the file and more than one of them restores.
+    const operatorUseBefore = await prisma.auditEvent.count({
+      where: { entityType: 'OPERATOR_ACTION', action: 'BACKUP_RESTORE' },
+    })
+
     // Restore with confirmation.
     const result = await importSnapshot(snapshot, { confirm: true, viewer: makeOperatorViewer() })
     expect(result.restored).toBe(true)
@@ -305,6 +388,14 @@ describe('snapshot backup round trip', () => {
     // Audit trail survives restore (snapshot contains audit events + RESTORED is recorded post-restore).
     const restoredAudit = await prisma.auditEvent.findFirst({ where: { action: 'RESTORED' } })
     expect(restoredAudit).toBeTruthy()
+
+    // @req FR-197 — and so does the record that operator power was used. Written
+    // before the transaction, it was deleted by the wipe it was recording: the
+    // most powerful operation in the product erased its own evidence (SEC-027).
+    const operatorUseAfter = await prisma.auditEvent.count({
+      where: { entityType: 'OPERATOR_ACTION', action: 'BACKUP_RESTORE' },
+    })
+    expect(operatorUseAfter).toBe(operatorUseBefore + 1)
   })
 
   it('round trip carries the roadmap, goal and role-binding graph, in restorable order', async () => {
@@ -369,5 +460,131 @@ describe('snapshot backup round trip', () => {
     expect(restoredReviewCase.itemCount).toBe(1)
     expect(restoredReviewDecision.reviewCaseId).toBe(restoredReviewCase.id)
     expect(restoredReviewDecision.provenanceId).toBe(restoredProvenance.id)
+  })
+
+  it('round trip carries the chat evidence archive key and manifest — a restore must not strand retained dispute evidence', async () => {
+    const snapshot = await exportSnapshot()
+    const keyRow = snapshot.tables.customerArchiveKey.find((row) => row.wrappedDek === 'bak.wrapped.dek')
+    const manifestRow = snapshot.tables.archiveManifest.find((row) => row.runId === 'RUN-BAK-001')
+    expect(keyRow).toBeTruthy()
+    expect(manifestRow).toBeTruthy()
+
+    // Delete both before restoring — the exact loss a routine restore would
+    // otherwise cause silently, since neither row can be re-minted: the data
+    // key is random with no re-entry path, and the manifest is the only index
+    // chat-evidence-retrieval-service.js has onto the archive files on disk.
+    await prisma.customerArchiveKey.delete({ where: { id: keyRow.id } })
+    await prisma.archiveManifest.delete({ where: { id: manifestRow.id } })
+    expect(await prisma.customerArchiveKey.findUnique({ where: { id: keyRow.id } })).toBeNull()
+    expect(await prisma.archiveManifest.findUnique({ where: { id: manifestRow.id } })).toBeNull()
+
+    const result = await importSnapshot(snapshot, { confirm: true, viewer: makeOperatorViewer() })
+    expect(result.restored).toBe(true)
+
+    const restoredKey = await prisma.customerArchiveKey.findUnique({ where: { id: keyRow.id } })
+    const restoredManifest = await prisma.archiveManifest.findUnique({ where: { id: manifestRow.id } })
+    expect(restoredKey.wrappedDek).toBe('bak.wrapped.dek')
+    expect(restoredKey.customerId).toBe(keyRow.customerId)
+    expect(restoredManifest.fileSha256).toBe(manifestRow.fileSha256)
+    expect(restoredManifest.manifestHash).toBe(manifestRow.manifestHash)
+  })
+
+  it('refuses missing, partial and malformed protected arrays before any restore write', async () => {
+    const snapshot = await exportSnapshot()
+    const missingArchive = structuredClone(snapshot)
+    delete missingArchive.tables.customerArchiveKey
+    delete missingArchive.tables.archiveManifest
+    const missingPreview = await previewImport(missingArchive, { viewer: makeOperatorViewer() })
+    expect(missingPreview.valid).toBe(false)
+    expect(missingPreview.errors.join(' ')).toMatch(/archive recovery is unavailable/i)
+
+    const partialArchive = structuredClone(snapshot)
+    delete partialArchive.tables.customerArchiveKey
+    const partialPreview = await previewImport(partialArchive, { viewer: makeOperatorViewer() })
+    expect(partialPreview.valid).toBe(false)
+    expect(partialPreview.errors.join(' ')).toMatch(/partial archive family/i)
+
+    const malformedRollup = structuredClone(snapshot)
+    malformedRollup.tables.usageEventRollup = { count: 1 }
+    const malformedPreview = await previewImport(malformedRollup, { viewer: makeOperatorViewer() })
+    expect(malformedPreview.valid).toBe(false)
+    expect(malformedPreview.errors.join(' ')).toMatch(/usageEventRollup must be an array/i)
+
+    const rollup = await prisma.usageEventRollup.create({
+      data: { date: new Date('2026-01-01T00:00:00.000Z'), kind: 'PAGE_VIEW', target: '/backup-safety', count: 4 },
+    })
+    try {
+      const missingRollup = structuredClone(snapshot)
+      delete missingRollup.tables.usageEventRollup
+      const liveRollupPreview = await previewImport(missingRollup, { viewer: makeOperatorViewer() })
+      expect(liveRollupPreview.valid).toBe(false)
+      expect(liveRollupPreview.errors.join(' ')).toMatch(/rollup recovery is unavailable/i)
+      expect(await prisma.usageEventRollup.findUnique({ where: { id: rollup.id } })).toBeTruthy()
+    } finally {
+      await prisma.usageEventRollup.delete({ where: { id: rollup.id } })
+    }
+  })
+
+  it('rejects an invalid archive predecessor before the destructive transaction and restores a child after its parent', async () => {
+    const snapshot = await exportSnapshot()
+    const parent = snapshot.tables.archiveManifest.find((row) => row.runId === 'RUN-BAK-001')
+    expect(parent).toBeTruthy()
+    const invalid = structuredClone(snapshot)
+    invalid.tables.archiveManifest[0] = { ...invalid.tables.archiveManifest[0], previousManifestId: 'missing-predecessor' }
+    const beforeProjects = await prisma.project.count()
+    const invalidResult = await importSnapshot(invalid, { confirm: true, viewer: makeOperatorViewer() })
+    expect(invalidResult.restored).toBe(false)
+    expect(invalidResult.errors.join(' ')).toMatch(/missing predecessor/i)
+    expect(await prisma.project.count()).toBe(beforeProjects)
+
+    const child = {
+      id: `${parent.id}-child`, tenantId: parent.tenantId, runId: 'RUN-BAK-002',
+      filePath: parent.filePath.replace('RUN-BAK-001', 'RUN-BAK-002'), fileSha256: 'c'.repeat(64),
+      messageCount: 2, messageIdListHash: 'b'.repeat(64), previousManifestId: parent.id,
+      previousManifestHash: parent.manifestHash, createdAt: new Date(new Date(parent.createdAt).getTime() + 1000),
+    }
+    child.manifestHash = computeManifestHash(child)
+    const reordered = structuredClone(snapshot)
+    reordered.tables.archiveManifest = [child, parent]
+    const restored = await importSnapshot(reordered, { confirm: true, viewer: makeOperatorViewer() })
+    expect(restored.restored).toBe(true)
+    const rows = await prisma.archiveManifest.findMany({ where: { tenantId: parent.tenantId }, orderBy: { createdAt: 'asc' } })
+    expect(rows.map((row) => row.id)).toEqual([parent.id, child.id])
+  })
+
+  it('rechecks an unavailable archive family inside the restore transaction when a row appears after preview', async () => {
+    const snapshot = await exportSnapshot()
+    const customer = snapshot.tables.customer[0]
+    expect(customer).toBeTruthy()
+    delete snapshot.tables.customerArchiveKey
+    delete snapshot.tables.archiveManifest
+    await prisma.customerArchiveKey.deleteMany()
+    await prisma.archiveManifest.deleteMany()
+    expect(await prisma.customerArchiveKey.count()).toBe(0)
+
+    const restoredAuditBefore = await prisma.auditEvent.count({ where: { action: 'RESTORED' } })
+    const operatorAuditBefore = await prisma.auditEvent.count({ where: { entityType: 'OPERATOR_ACTION', action: 'BACKUP_RESTORE' } })
+    const originalTransaction = prisma.$transaction.bind(prisma)
+    let injected = false
+    const guardedDb = new Proxy(prisma, {
+      get(target, property, receiver) {
+        if (property !== '$transaction') return Reflect.get(target, property, receiver)
+        return async (callback, options) => {
+          if (!injected) {
+            await prisma.customerArchiveKey.create({ data: { tenantId: customer.tenantId, customerId: `${customer.id}-toctou`, kekId: 'toctou', wrappedDek: 'toctou' } })
+            injected = true
+          }
+          return originalTransaction(callback, options)
+        }
+      },
+    })
+
+    const result = await importSnapshot(snapshot, { confirm: true, viewer: makeOperatorViewer(), db: guardedDb })
+    expect(result.restored).toBe(false)
+    expect(result.errors.join(' ')).toMatch(/archive recovery became unavailable/i)
+    expect(await prisma.customerArchiveKey.findUnique({ where: { customerId: `${customer.id}-toctou` } })).toBeTruthy()
+    expect(await prisma.auditEvent.count({ where: { action: 'RESTORED' } })).toBe(restoredAuditBefore)
+    expect(await prisma.auditEvent.count({ where: { entityType: 'OPERATOR_ACTION', action: 'BACKUP_RESTORE' } })).toBe(operatorAuditBefore)
+    await prisma.customerArchiveKey.deleteMany()
   })
 })

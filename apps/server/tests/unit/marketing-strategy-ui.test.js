@@ -10,8 +10,11 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
   STRATEGY_TABS,
+  PROVIDER_METRICS,
+  PROVIDER_PANELS,
   approvalState,
   canReviewPlan,
+  providerReaderConnected,
   diffPlanPayload,
   emptyPlanPayload,
   normalizePlanPayload,
@@ -25,6 +28,7 @@ const strategyRoute = read('src/app/(pm)/growth/strategy/page.jsx')
 const handoff = read('src/modules/marketing/components/PlanHandoff.jsx')
 const reviewDecision = read('src/modules/marketing/components/PlanReviewDecision.jsx')
 const dashboard = read('src/modules/marketing/components/MarketingDashboard.jsx')
+const performance = read('src/modules/marketing/components/MarketingPerformance.jsx')
 const tabs = read('src/modules/marketing/components/MarketingTabs.jsx')
 
 const validPayload = {
@@ -120,12 +124,51 @@ describe('FR-159/FR-158 Marketing UI integration seams', () => {
     expect(reviewDecision).toContain("plan.status !== 'ARCHIVED'")
   })
 
-  it('keeps dashboard numbers grounded in plan records and calls provider metrics unavailable', () => {
+  it('keeps dashboard numbers grounded in plan records', () => {
     expect(dashboard).toContain('Array.isArray(data?.plans)')
-    expect(dashboard).toContain('Provider metrics are unavailable')
     expect(dashboard).toContain('TruncationNotice')
-    expect(dashboard).not.toContain('impressions')
+    // Every number the Dashboard prints itself is counted from plan records.
     expect(dashboard).not.toContain('conversionRate')
+  })
+
+  // The Dashboard now reserves the approved provider performance layout, so the
+  // guard can no longer be "the file must not mention a metric name". It is
+  // replaced by the rule that was actually meant: a metric with no connected
+  // reader must render an unavailable state and never a number.
+  it('reserves provider metric slots that cannot express a measurement', () => {
+    expect(PROVIDER_METRICS.length).toBeGreaterThan(0)
+    for (const metric of PROVIDER_METRICS) {
+      expect(Object.keys(metric).sort()).toEqual(['help', 'key', 'label'])
+      expect(metric).not.toHaveProperty('value')
+      expect(metric).not.toHaveProperty('default')
+    }
+    for (const panel of PROVIDER_PANELS) {
+      expect(Object.keys(panel).sort()).toEqual(['help', 'key', 'label'])
+    }
+  })
+
+  it('treats any incomplete provider source as not connected', () => {
+    expect(providerReaderConnected(null)).toBe(false)
+    expect(providerReaderConnected(undefined)).toBe(false)
+    expect(providerReaderConnected({})).toBe(false)
+    expect(providerReaderConnected({ connected: true })).toBe(false)
+    expect(providerReaderConnected({ providerName: 'Meta Ads' })).toBe(false)
+    expect(providerReaderConnected({ connected: 'yes', providerName: 'Meta Ads' })).toBe(false)
+    expect(providerReaderConnected({ connected: true, providerName: 'Meta Ads' })).toBe(true)
+  })
+
+  it('renders unavailable provider metrics without zeros or fabricated charts', () => {
+    expect(performance).toContain('Provider metrics are unavailable')
+    expect(performance).toContain('Not connected')
+    expect(performance).toContain('providerReaderConnected(source)')
+    expect(performance).toContain('source = null')
+    // No number formatting exists in the waiting state, so no metric can be
+    // rendered as 0, 0.00x or 0.00% while its reader is missing.
+    expect(performance).not.toContain('toFixed')
+    expect(performance).not.toContain('toLocaleString')
+    expect(performance).not.toContain('Intl.NumberFormat')
+    // No charting dependency may be introduced for data that does not exist.
+    expect(performance).not.toMatch(/from '(recharts|chart\.js|d3|victory|@nivo)/)
   })
 
   it('keeps raw scope ids and hashes out of primary Marketing copy', () => {

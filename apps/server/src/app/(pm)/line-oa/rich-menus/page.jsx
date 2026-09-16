@@ -1,7 +1,8 @@
 'use client'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { RefreshCw, LayoutGrid } from 'lucide-react'
+import { useSearchParams } from 'next/navigation'
 import { Card, PageHeader, SectionTitle, StatusPill } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
 import {
@@ -43,6 +44,19 @@ async function api(url, method = 'GET', body) {
 
 const fieldClass = 'w-full rounded-lg border border-[var(--border)] bg-white p-2 text-sm'
 const sizeKey = (size) => `${size.width}x${size.height}`
+
+// A response may finish after the shell has moved to another Business or
+// account. The caller supplies the request's snapshot and the current one;
+// only an exact match may commit data or keep a mutation actionable.
+export function shouldCommitScopedResponse(request, current) {
+  return request.version === current.version
+    && request.businessId === current.businessId
+    && (request.accountId === undefined || request.accountId === current.accountId)
+}
+
+function preferredAccountId(accounts, preferred) {
+  return accounts.some(account => account.id === preferred) ? preferred : (accounts[0]?.id ?? '')
+}
 
 // The hint sits OUTSIDE the <label> on purpose. Nested inside, it joins the
 // input's accessible name — "ข้อความบนแถบแชท สูงสุด 14 ตัวอักษร" — which is
@@ -256,74 +270,207 @@ function CreateMenu({ accountId, onCreate, busy }) {
   </Card>
 }
 
-export default function LineOaRichMenusPage() {
+export function RichMenusWorkspace({ initialAccountId = '', onAccountChange } = {}) {
   const scope = useScope()
   const business = scope.shell.activeBusiness
+  const businessId = business?.id ?? ''
   const [accounts, setAccounts] = useState([])
-  const [accountId, setAccountId] = useState('')
+  const [accountId, setAccountId] = useState(initialAccountId)
   const [menus, setMenus] = useState([])
   const [jobsByMenu, setJobsByMenu] = useState({})
+  const [loadedBusinessId, setLoadedBusinessId] = useState('')
+  const [loadedAccountId, setLoadedAccountId] = useState('')
   const [includeArchived, setIncludeArchived] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
+  const accountRequestVersion = useRef(0)
+  const menuRequestVersion = useRef(0)
+  const businessIdRef = useRef(businessId)
+  const accountIdRef = useRef(accountId)
+  const initialAccountIdRef = useRef(initialAccountId)
+  const initialAccountChangePending = useRef(false)
+
+  // Invalidate in-flight requests during render, before their promises can
+  // commit between the Business switch and the effect that starts the reload.
+  if (businessIdRef.current !== businessId) {
+    businessIdRef.current = businessId
+    accountRequestVersion.current += 1
+    menuRequestVersion.current += 1
+  }
+  if (initialAccountIdRef.current !== initialAccountId) {
+    initialAccountIdRef.current = initialAccountId
+    initialAccountChangePending.current = true
+    menuRequestVersion.current += 1
+  }
+  accountIdRef.current = accountId
+
+  const currentAccountSelection = useCallback((expectedBusinessId, expectedAccountId) => (
+    expectedBusinessId === businessIdRef.current
+      && expectedAccountId === accountIdRef.current
+      && expectedBusinessId === loadedBusinessId
+      && accounts.some(account => account.id === expectedAccountId)
+  ), [accounts, loadedBusinessId])
 
   const loadAccounts = useCallback(async () => {
-    if (!business?.id) { setAccounts([]); setAccountId(''); return }
-    const result = await api(`/api/line-oa/accounts?businessId=${encodeURIComponent(business.id)}`)
-    setAccounts(result.accounts ?? [])
-    setAccountId(previous => (result.accounts ?? []).some(a => a.id === previous) ? previous : (result.accounts?.[0]?.id ?? ''))
-  }, [business?.id])
+    const requestBusinessId = businessId
+    const requestVersion = ++accountRequestVersion.current
+    menuRequestVersion.current += 1
+    setAccounts([])
+    setAccountId('')
+    setMenus([])
+    setJobsByMenu({})
+    setLoadedBusinessId('')
+    setLoadedAccountId('')
+    if (!requestBusinessId) return
+    try {
+      const result = await api(`/api/line-oa/accounts?businessId=${encodeURIComponent(requestBusinessId)}`)
+      const scopedAccounts = result.accounts ?? []
+      if (!shouldCommitScopedResponse(
+        { version: requestVersion, businessId: requestBusinessId },
+        { version: accountRequestVersion.current, businessId: businessIdRef.current },
+      ) || (result.businessId && result.businessId !== requestBusinessId)) return
+      setAccounts(scopedAccounts)
+      const preferred = initialAccountId || accountIdRef.current
+      setAccountId(preferredAccountId(scopedAccounts, preferred))
+      setLoadedBusinessId(requestBusinessId)
+    } catch (caught) {
+      if (!shouldCommitScopedResponse(
+        { version: requestVersion, businessId: requestBusinessId },
+        { version: accountRequestVersion.current, businessId: businessIdRef.current },
+      )) return
+      setError(caught.message)
+    }
+  }, [businessId, initialAccountId])
 
   const loadMenus = useCallback(async () => {
-    if (!accountId) { setMenus([]); return }
-    const result = await api(`/api/line-oa/rich-menus?accountId=${encodeURIComponent(accountId)}${includeArchived ? '&includeArchived=true' : ''}`)
-    const richMenus = result.richMenus ?? []
-    setMenus(richMenus)
-    // The ledger is a second read per menu. Fetched together so the queue
-    // buttons can see an open job before offering to add another.
-    const ledgers = await Promise.all(richMenus.map(async menu => [menu.id, (await api(`/api/line-oa/rich-menus/${menu.id}/jobs`)).jobs ?? []]))
-    setJobsByMenu(Object.fromEntries(ledgers))
-  }, [accountId, includeArchived])
+    const requestBusinessId = businessId
+    const requestAccountId = accountId
+    const requestVersion = ++menuRequestVersion.current
+    const request = { version: requestVersion, businessId: requestBusinessId, accountId: requestAccountId }
+    const current = () => shouldCommitScopedResponse(request, {
+      version: menuRequestVersion.current,
+      businessId: businessIdRef.current,
+      accountId: accountIdRef.current,
+    }) && loadedBusinessId === requestBusinessId && accounts.some(account => account.id === requestAccountId)
+    setMenus([])
+    setJobsByMenu({})
+    setLoadedAccountId('')
+    if (!requestAccountId || !requestBusinessId || !current()) return
+    try {
+      const result = await api(`/api/line-oa/rich-menus?accountId=${encodeURIComponent(requestAccountId)}${includeArchived ? '&includeArchived=true' : ''}`)
+      if (!current() || (result.accountId && result.accountId !== requestAccountId)) return
+      const richMenus = result.richMenus ?? []
+      // The ledger is a second read per menu. Fetched together so the queue
+      // buttons can see an open job before offering to add another.
+      const ledgers = await Promise.all(richMenus.map(async menu => [menu.id, (await api(`/api/line-oa/rich-menus/${menu.id}/jobs`)).jobs ?? []]))
+      if (!current()) return
+      setMenus(richMenus)
+      setJobsByMenu(Object.fromEntries(ledgers))
+      setLoadedAccountId(requestAccountId)
+    } catch (caught) {
+      if (!current()) return
+      setError(caught.message)
+    }
+  }, [accountId, accounts, businessId, includeArchived, loadedBusinessId])
 
-  useEffect(() => { setError(''); setMessage(''); loadAccounts().catch(err => setError(err.message)) }, [loadAccounts])
-  useEffect(() => { setError(''); loadMenus().catch(err => setError(err.message)) }, [loadMenus])
+  useEffect(() => {
+    setError('')
+    setMessage('')
+    loadAccounts()
+  }, [loadAccounts])
+  useEffect(() => {
+    setError('')
+    loadMenus()
+  }, [loadMenus])
+
+  // Design Studio changes this prop when the operator picks another account;
+  // the local selection must follow immediately instead of waiting for the
+  // next Business request to happen to validate it.
+  useEffect(() => {
+    if (!initialAccountChangePending.current) return
+    initialAccountChangePending.current = false
+    menuRequestVersion.current += 1
+    setAccountId(initialAccountId)
+    setMenus([])
+    setJobsByMenu({})
+    setLoadedAccountId('')
+  }, [accountId, initialAccountId])
 
   async function run(task, note) {
+    const requestBusinessId = businessIdRef.current
+    const requestAccountId = accountIdRef.current
     setBusy(true); setError(''); setMessage('')
-    try { await task(); await loadMenus(); if (note) setMessage(note) }
-    catch (err) { setError(err.message) }
+    try {
+      await task()
+      if (currentAccountSelection(requestBusinessId, requestAccountId)) await loadMenus()
+      if (note && currentAccountSelection(requestBusinessId, requestAccountId)) setMessage(note)
+    }
+    catch (err) {
+      if (currentAccountSelection(requestBusinessId, requestAccountId)) setError(err.message)
+    }
     finally { setBusy(false) }
   }
-  const action = (menu, data) => run(() => api(`/api/line-oa/rich-menus/${menu.id}`, 'PATCH', { ...data, version: menu.version }))
+  const action = (menu, data) => currentAccountSelection(menu.businessId, menu.accountId)
+    ? run(() => api(`/api/line-oa/rich-menus/${menu.id}`, 'PATCH', { ...data, version: menu.version }))
+    : Promise.resolve()
   // The menu row's version is the compare-and-swap for queueing; the job row's
   // own version is the one for closing an UNKNOWN. They are different numbers
   // and sending the wrong one is a 409, not a silent overwrite.
-  const queue = (menu, kind) => run(() => api(`/api/line-oa/rich-menus/${menu.id}/jobs`, 'POST', { kind, version: menu.version }), 'เข้าคิวแล้ว — worker จะทำงานและสถานะจะอัปเดตในตาราง')
-  const acknowledge = (menu, job) => run(() => api(`/api/line-oa/rich-menus/${menu.id}/jobs`, 'PATCH', { jobId: job.id, version: job.version, acknowledgePossibleOutcome: true }))
-  const create = (body) => run(() => api('/api/line-oa/rich-menus', 'POST', body), 'สร้างเมนูแล้ว')
+  const queue = (menu, kind) => currentAccountSelection(menu.businessId, menu.accountId)
+    ? run(() => api(`/api/line-oa/rich-menus/${menu.id}/jobs`, 'POST', { kind, version: menu.version }), 'เข้าคิวแล้ว — worker จะทำงานและสถานะจะอัปเดตในตาราง')
+    : Promise.resolve()
+  const acknowledge = (menu, job) => currentAccountSelection(menu.businessId, menu.accountId)
+    ? run(() => api(`/api/line-oa/rich-menus/${menu.id}/jobs`, 'PATCH', { jobId: job.id, version: job.version, acknowledgePossibleOutcome: true }))
+    : Promise.resolve()
+  const create = (body) => currentAccountSelection(businessId, accountId)
+    ? run(() => api('/api/line-oa/rich-menus', 'POST', body), 'สร้างเมนูแล้ว')
+    : Promise.resolve()
+
+  const readyForBusiness = loadedBusinessId === businessId && !initialAccountChangePending.current
+  const visibleAccounts = readyForBusiness ? accounts : []
+  const visibleAccountId = visibleAccounts.some(account => account.id === accountId) ? accountId : ''
+  const visibleMenus = readyForBusiness && loadedAccountId === visibleAccountId ? menus : []
 
   return <div>
     <PageHeader
       eyebrow="LINE OA Studio"
       title="Rich Menu"
       subtitle={business ? business.name : 'เลือก Business ก่อนจัดการเมนู'}
-      actions={<button className="btn" disabled={busy || !accountId} onClick={() => run(loadMenus)}><RefreshCw size={15} />รีเฟรช</button>}
+      actions={<button className="btn" disabled={busy || !visibleAccountId} onClick={() => run(loadMenus)}><RefreshCw size={15} />รีเฟรช</button>}
     />
     {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
     {message && <p role="status" className="mb-4 rounded-lg bg-[var(--brand-surface)] p-3 text-sm">{message}</p>}
-    {business && accounts.length === 0 && <Card className="mb-4"><LayoutGrid size={20} /><p className="mt-2 text-sm">ยังไม่มีบัญชี LINE OA สำหรับ Business นี้ — เชื่อมบัญชีที่หน้า Dashboard ก่อน</p></Card>}
-    {business && accounts.length > 0 && <>
+    {business && readyForBusiness && visibleAccounts.length === 0 && <Card className="mb-4"><LayoutGrid size={20} /><p className="mt-2 text-sm">ยังไม่มีบัญชี LINE OA สำหรับ Business นี้ — เชื่อมบัญชีที่หน้า Dashboard ก่อน</p></Card>}
+    {business && readyForBusiness && visibleAccounts.length > 0 && <>
       <Card className="mb-4">
         <div className="grid gap-3 md:grid-cols-2">
-          <Select label="บัญชี LINE OA" value={accountId} onChange={e => setAccountId(e.target.value)} options={accounts.map(a => ({ value: a.id, label: `${a.displayName} (${a.code})` }))} />
+          <Select label="บัญชี LINE OA" value={visibleAccountId} onChange={e => {
+            menuRequestVersion.current += 1
+            setAccountId(e.target.value)
+            setMenus([])
+            setJobsByMenu({})
+            setLoadedAccountId('')
+            onAccountChange?.(e.target.value)
+          }} options={visibleAccounts.map(a => ({ value: a.id, label: `${a.displayName} (${a.code})` }))} />
           <label className="flex items-end gap-2 pb-2 text-sm"><input type="checkbox" checked={includeArchived} onChange={e => setIncludeArchived(e.target.checked)} />แสดงเมนูที่เก็บเข้าคลังแล้ว</label>
         </div>
         <p className="mt-3 text-xs text-muted">Freeze คือการปิดฉบับร่างไม่ให้แก้ไขต่อ ไม่ใช่การส่งขึ้น LINE — การส่งขึ้น LINE เป็นคิวงานแยก (FR-152) ที่สั่งได้จากการ์ดของแต่ละเมนูด้านล่าง</p>
       </Card>
-      <div className="mb-4 grid gap-4 xl:grid-cols-2">{menus.map(menu => <Menu key={menu.id} menu={menu} account={accounts.find(a => a.id === accountId) ?? null} jobs={jobsByMenu[menu.id]} onAction={action} onQueue={queue} onAcknowledge={acknowledge} busy={busy} />)}</div>
-      {menus.length === 0 && !error && <Card className="mb-4"><p className="text-sm">ยังไม่มีเมนูสำหรับบัญชีนี้</p></Card>}
-      <CreateMenu accountId={accountId} onCreate={create} busy={busy} />
+      <div className="mb-4 grid gap-4 xl:grid-cols-2">{visibleMenus.map(menu => <Menu key={menu.id} menu={menu} account={visibleAccounts.find(a => a.id === visibleAccountId) ?? null} jobs={jobsByMenu[menu.id]} onAction={action} onQueue={queue} onAcknowledge={acknowledge} busy={busy} />)}</div>
+      {visibleMenus.length === 0 && !error && <Card className="mb-4"><p className="text-sm">ยังไม่มีเมนูสำหรับบัญชีนี้</p></Card>}
+      <CreateMenu accountId={visibleAccountId} onCreate={create} busy={busy} />
     </>}
   </div>
+}
+
+// The legacy URL remains a stable entry point, but it renders the same workspace
+// as LINE OA Studio so a menu can never be edited by two incompatible consoles.
+function LegacyRichMenusPage() {
+  const searchParams = useSearchParams()
+  return <RichMenusWorkspace initialAccountId={searchParams.get('accountId') || ''} />
+}
+
+export default function LineOaRichMenusPage() {
+  return <Suspense fallback={<div className="p-8 text-center text-xs text-slate-400">กำลังโหลด Rich Menu...</div>}><LegacyRichMenusPage /></Suspense>
 }

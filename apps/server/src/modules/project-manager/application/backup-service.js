@@ -9,6 +9,10 @@
 // @req FR-078 - customer import batches, review cases, decisions and provenance
 // must survive snapshot restore.
 // @req FR-045 - portable FileAsset metadata, optional content and explicit remount gaps.
+// @req FR-229 - MessageAttachment and ConversationEvent restore alongside the
+// Message/Conversation they hang off; media reference and bounded event metadata,
+// no secret and no bytes.
+// @tested tests/integration/line-non-text-admission.test.js
 // @req FR-075 - restore is an installation-wide operation and requires operator
 // authority. This is what took /api/backup/import off the route-viewer baseline.
 // The route was unrepayable for as long as the only holdable authority was
@@ -23,10 +27,26 @@
 import path from 'node:path'
 import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
+import { BROADCAST_INTENT_STATUSES, hashMarketingBroadcastPayload, parseMarketingBroadcastPayload } from '@/modules/marketing/domain/marketing-broadcast-contract'
 import { recordAudit } from './audit'
+import { computeManifestHash } from '@/modules/crm/chat-evidence-archive-service'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
 import { requireViewer } from './project-authorization'
-import { isInstallationOperator } from '@/modules/identity/viewer-authority'
+import { assertOperator, assertOperatorAndRecordUse } from '@/modules/identity/operator-use'
+import {
+  BILLING_DOCUMENT_TYPES,
+  BILLING_NON_VAT_POLICIES,
+  BILLING_PROMPTPAY_PROVIDER,
+  BILLING_TARGET_TYPES,
+  BILLING_VAT_TREATMENTS,
+  BILLING_WALK_IN_POLICIES,
+} from '@/modules/commerce/domain/billing'
+import {
+  hashStocktake,
+  INT32_MAX,
+  INVENTORY_STOCKTAKE_MAX_LINES,
+  INVENTORY_STOCKTAKE_STATUSES,
+} from '@/modules/inventory/domain/inventory-stocktake'
 
 /**
  * Guard for both entry points below.
@@ -36,30 +56,142 @@ import { isInstallationOperator } from '@/modules/identity/viewer-authority'
  * restore guard would otherwise hand out for free. FR-065 made the identical
  * call for the import dry run — "a read-only preview of another scope's contents
  * is the leak the commit guard would otherwise still allow."
+ *
+ * @req FR-197 — every call also records that operator power was used
+ * (ADR-017 D6 read as covering operator reads — ADR-079): `action` names
+ * BACKUP_PREVIEW or BACKUP_RESTORE so a review can tell the two apart.
  */
-function assertRestoreOperator(viewer) {
-  requireViewer(viewer, 'backup restore')
-  if (!isInstallationOperator(viewer)) {
-    const error = new Error(
-      'Restoring a snapshot replaces every tenant in this installation. It requires ' +
-      'operator authority (a platform grant, or the local installation session) — ' +
-      'owning Businesses does not confer it, however many.'
-    )
-    error.status = 403
-    throw error
+const RESTORE_DENIED =
+  'Restoring a snapshot replaces every tenant in this installation. It requires ' +
+  'operator authority (a platform grant, or the local installation session) — ' +
+  'owning Businesses does not confer it, however many.'
+
+export class BackupRestoreSafetyError extends Error {
+  constructor(code, message) {
+    super(message)
+    this.name = 'BackupRestoreSafetyError'
+    this.code = code
   }
 }
 
+async function assertRestoreOperator(viewer, action) {
+  requireViewer(viewer, 'backup restore')
+  await assertOperatorAndRecordUse(viewer, {
+    action,
+    deniedMessage:
+      'Restoring a snapshot replaces every tenant in this installation. It requires ' +
+      'operator authority (a platform grant, or the local installation session) — ' +
+      'owning Businesses does not confer it, however many.',
+  })
+}
+
 export const SNAPSHOT_SCHEMA_VERSION = '1.0'
+export const MARKETING_BROADCAST_RECOVERY_MANIFEST_VERSION = 'marketing-broadcast-recovery.v1'
+const MARKETING_BROADCAST_RECOVERY_TABLES = Object.freeze(['marketingBroadcastIntent', 'marketingBroadcastIntentVersion'])
+export const GENESIS_RAG17_RECOVERY_MANIFEST_VERSION = 'genesisrag17-recovery.v1'
+export const COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION = 'commerce-billing-recovery.v1'
+export const INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION = 'inventory-stocktake-recovery.v1'
+export const LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION = 'line-worker-memory-recovery.v1'
+const COMMERCE_BILLING_RECOVERY_TABLES = Object.freeze([
+  'businessBillingProfile',
+  'commerceDocumentSequence',
+  'commerceDocument',
+])
+const COMMERCE_BILLING_DOCUMENT_STATUSES = Object.freeze(['ISSUED'])
+const INVENTORY_STOCKTAKE_RECOVERY_TABLES = Object.freeze([
+  'inventoryLedgerFence',
+  'inventoryStocktake',
+])
+const GENESIS_RAG17_RECOVERY_TABLES = Object.freeze([
+  'genesisRag17IngestionIntent',
+  'genesisRag17SourceMention',
+])
+const LINE_WORKER_MEMORY_RECOVERY_TABLES = Object.freeze(['lineConversationJob', 'agentTraceEvent'])
+const LINE_WORKER_MEMORY_STATES = Object.freeze(['NONE', 'PENDING', 'ACKNOWLEDGED', 'CLOSED'])
+const LINE_WORKER_MEMORY_AUDIENCES = Object.freeze(['DIRECT', 'GROUP', 'ROOM'])
+const LINE_WORKER_MEMORY_TRACE_KINDS = Object.freeze([
+  'MEMORY_DELIVERY_PENDING', 'MEMORY_DELIVERY_ATTEMPT',
+  'MEMORY_DELIVERY_ACKNOWLEDGED', 'MEMORY_DELIVERY_CLOSED',
+])
+
+function validSnapshotDate(value) {
+  return value instanceof Date
+    ? !Number.isNaN(value.getTime())
+    : typeof value === 'string' && value.trim() && !Number.isNaN(new Date(value).getTime())
+}
+
+function snapshotTracePayload(row) {
+  if (row?.payloadJson && typeof row.payloadJson === 'object' && !Array.isArray(row.payloadJson)) return row.payloadJson
+  if (typeof row?.payloadJson !== 'string') return null
+  try {
+    const payload = JSON.parse(row.payloadJson)
+    return payload && typeof payload === 'object' && !Array.isArray(payload) ? payload : null
+  } catch {
+    return null
+  }
+}
+
+function hasMemoryPendingCheckpoint(snapshot, job) {
+  const traces = Array.isArray(snapshot?.tables?.agentTraceEvent) ? snapshot.tables.agentTraceEvent : []
+  const messages = Array.isArray(snapshot?.tables?.message) ? snapshot.tables.message : []
+  const conversations = Array.isArray(snapshot?.tables?.conversation) ? snapshot.tables.conversation : []
+  return traces.some((trace) => {
+    if (!trace || trace.kind !== 'MEMORY_DELIVERY_PENDING' || trace.turnId !== job.id
+      || trace.tenantId !== job.tenantId || trace.businessId !== job.businessId
+      || trace.idempotencyKey !== `memory-delivery:pending:${job.id}`
+      || !validSnapshotDate(trace.occurredAt)) return false
+    const payload = snapshotTracePayload(trace)
+    if (!payload || payload.jobId !== job.id || payload.inboundMessageId !== job.inboundMessageId
+      || payload.channelAccountId !== job.channelAccountId || payload.audienceKind !== job.audienceKind
+      || payload.providerAcceptance !== 'ACCEPTED_BY_LINE'
+      || typeof payload.outboundMessageId !== 'string' || !payload.outboundMessageId.trim()
+      || payload.receiptId !== payload.outboundMessageId
+      || typeof payload.externalThreadRef !== 'string' || !payload.externalThreadRef.trim()) return false
+    const inbound = messages.find(message => message?.id === job.inboundMessageId)
+    const outbound = messages.find(message => message?.id === payload.outboundMessageId)
+    if (!inbound || inbound.direction !== 'INBOUND' || !outbound || outbound.direction !== 'OUTBOUND'
+      || inbound.conversationId !== outbound.conversationId) return false
+    const conversation = conversations.find(item => item?.id === inbound.conversationId)
+    return conversation?.tenantId === job.tenantId && conversation.businessId === job.businessId
+      && conversation.channel === 'LINE' && conversation.channelAccountId === job.channelAccountId
+      && conversation.externalThreadId === payload.externalThreadRef
+  })
+}
 
 // Parents precede children for restore; reverse order is used for deletion.
 const SNAPSHOT_MODELS = [
-  'portfolio', 'integrationProvider', 'tenant', 'legalEntity', 'legalEntityIdentifier', 'business', 'branch',
+  // @req FR-218 — agent usage reports reference nothing (installation-level, no
+  // Tenant/Business/Person foreign key) and cannot be re-derived: the agent that
+  // sent one ran on another machine. Measurements, no secret: exported whole.
+  'programmeUsageReport',
+  // @req FR-247 — deduplicated error events reference nothing (no Tenant,
+  // Business or Person foreign key) and are diagnostic history, not live
+  // state that would go stale. No secret: exported whole (ADR-095 D1).
+  'errorEvent',
+  'portfolio', 'integrationProvider', 'tenant', 'legalEntity', 'legalEntityIdentifier',
+  // @req FR-194 — a legal entity's own VAT branch registrations restore after
+  // it and before any Business/Branch that could reference one.
+  'taxRegistrationBranch',
+  'business', 'branch',
+  // @req FR-186 — issuer/tax/PromptPay settings are Business-owned operating
+  // configuration, while the LegalEntity and Branch identity above remain the
+  // authoritative seller records.  The profile and numbering sequence must
+  // restore before a CommerceDocument can be recreated.
+  'businessBillingProfile', 'commerceDocumentSequence',
   // @req FR-081 — the ingestion tables hang off a connection, so they restore after
   // it and delete before the Tenant/Business they reference. The three integration
   // metadata models were absent from this list entirely; a restore silently dropped
   // them, which the new foreign keys turn from invisible data loss into a hard error.
-  'integrationConnection', 'integrationCredential', 'ingestionRun', 'rawExternalRecord',
+  'integrationConnection', 'integrationCredential',
+  // @req FR-223 — a credential's version history hangs off the credential; it holds
+  // references and lifecycle metadata, never material (SEC-030), so it is exported
+  // whole. The material itself (IntegrationSecretEnvelope) is excluded below.
+  'integrationCredentialVersion',
+  // @req FR-226 — a claim names its connection by id only (no foreign key) and holds
+  // a destination hash, never material, so it is exported whole and restores after
+  // the connection it names.
+  'channelAccountClaim',
+  'ingestionRun', 'rawExternalRecord',
   'syncCursor', 'externalEntityRef', 'deadLetterRecord',
   // @req FR-092 — translated market state is restored after its Integration
   // evidence and before downstream projections exist.
@@ -77,21 +209,33 @@ const SNAPSHOT_MODELS = [
   // plus projectGoal and roleBinding below, were absent from this list until the
   // coverage check below started deriving it from the schema.
   'businessRoadmap', 'businessRoadmapHorizon', 'businessGoal',
-  'person', 'customerImportBatch', 'customerImportReviewCase', 'membership', 'roleBinding',
+  'person',
+  // @req FR-248, FR-249 — route/action usage, per person; restores after Person,
+  // which it references (ADR-095 D2). No secret, no Business/Tenant scope.
+  'usageEvent',
+  // @req FR-249, NFR-023 — the person-free rollup UsageEvent ages into. No
+  // foreign key at all, so its position here is for readability, not order.
+  'usageEventRollup',
+  // @req FR-193 — the HR assignment record; restores after Person, Tenant,
+  // Business and Branch (all above), all of which it references.
+  'employment',
+  'customerImportBatch', 'customerImportReviewCase', 'membership', 'roleBinding',
   // @req FR-090 — both hang off Person, so they restore after it and delete
   // before it. A snapshot that omitted them would silently drop the credential
   // a person logs in with, which is the class of loss this list exists to stop.
   // @req FR-095 — a persisted session is a child of Person and must survive a
   // portable restore; raw token material is never exported by the model.
-  'session', 'personCredential', 'passwordResetToken',
+  // @req FR-094 — MFA factors hang off Person and must survive restore to prevent lockout.
+  'session', 'personCredential', 'passwordResetToken', 'mfaFactor',
   // @req FR-107 — an operator grant hangs off Person; a snapshot that omitted
   // it would restore an installation with no operator (or silently drop one).
   'platformGrant',
-  // @req FR-067 — both hang off Portfolio (top of this list) and Person (just
-  // above), so they restore here and delete in the reverse. Like
-  // passwordResetToken, an invite's raw token is never exported — the model
-  // stores only the SHA-256 digest (SEC-014).
-  'workspaceMembership', 'workspaceInvite',
+  // @req FR-067/FR-195 — both hang off Portfolio (top of this list) and Person
+  // (just above); AccessInvite (renamed from WorkspaceInvite) can also
+  // reference Tenant/Business/Membership, all of which already precede this
+  // position. Like passwordResetToken, an invite's raw token is never
+  // exported — the model stores only the SHA-256 digest (SEC-014).
+  'workspaceMembership', 'accessInvite',
   // @req FR-089 — a Team hangs off a Business (restored at the top of this list)
   // and a TeamMembership off both that Team and the Person above, so they
   // restore in this order and delete in the reverse. `projectTeam` needs
@@ -112,6 +256,8 @@ const SNAPSHOT_MODELS = [
   // @tested tests/integration/marketing-backup.test.js
   'marketingPlan', 'marketingPlanVersion', 'marketingReview', 'marketingDecision', 'marketingHandoff', 'marketingInitiative',
   'marketingContentBrief', 'marketingContentVersion', 'marketingContentReview', 'marketingContentDecision',
+  // @req FR-185 — restore planning identities before their immutable revisions.
+  'marketingBroadcastIntent', 'marketingBroadcastIntentVersion',
   // @req FR-161 — Business-scoped Marketing intake is recoverable request
   // evidence; owner-domain PM/CRM/Commerce rows remain in their own tables.
   'marketingOperationsIntake',
@@ -123,11 +269,32 @@ const SNAPSHOT_MODELS = [
   // unit. Deletion is the reverse. Design and operating data, no secret:
   // exported whole.
   'inventoryCategory', 'productFamily', 'factory', 'productMaster', 'product',
+  // @req FR-203, FR-204 — an identifier and a unit conversion hang off one
+  // product and nothing hangs off them, so both restore right after `product`
+  // and delete right before it. Catalogue attributes, no secret: exported whole.
+  'productIdentifier', 'productUnitConversion',
+  // @req FR-208 — a catalogue intake references only its Tenant and Business
+  // (the SKUs it created are named inside its JSON, never by foreign key), so
+  // it restores with the catalogue and deletes before its scope parents. A
+  // preview and its result are evidence, no secret: exported whole.
+  'inventoryCatalogIntake',
   'productBundle', 'productBundleItem',
   // @req FR-156 — a recipe hangs off its output product and its lines off the
   // recipe and the component products, so both restore after `product`.
   'productRecipe', 'productRecipeLine',
+  // @req FR-174 — a location hangs off its Business only, and every located
+  // movement names it, so it restores BEFORE the ledger and deletes after it.
+  'warehouseLocation',
   'productLot', 'serialUnit', 'stockMovement',
+  // @req FR-184 — the lock-only revision follows the append-only ledger, and
+  // the durable preview/result follows the fence. Reverse deletion removes
+  // stocktake evidence before its fence and ledger parents.
+  'inventoryLedgerFence', 'inventoryStocktake',
+  // @req FR-176, FR-177, FR-180 — work orders and reservations reference
+  // products, recipes and locations, all above, and nothing references them, so
+  // they restore last of the Inventory block. They hold intent and progress,
+  // never a quantity the ledger also holds; no secret, exported whole.
+  'customizationWorkOrder', 'kittingWorkOrder', 'stockReservation',
   'externalRef', 'externalIdentity', 'channelIdentity', 'identityLinkToken',
   'pipelineRun', 'pipelineStep', 'pipelineEventReceipt', 'pipelineRecordEvent', 'pipelineReconciliation', 'pipelineGateDecision',
   // @req FR-110 — the evidence importer's per-scope cursor into GKS's export
@@ -136,6 +303,16 @@ const SNAPSHOT_MODELS = [
   // ledger it feeds; a lost cursor only replays a page the receiver's
   // idempotency already makes harmless. Bookkeeping, no secret: exported whole.
   'knowledgeEvidenceCursor',
+  // @req FR-109, FR-110 — restore versioned lineage after RawExternalRecord,
+  // then the pre-Stage 1 intent, durable occurrences, attempt outbox, terminal
+  // evidence and publication proof. Intent and occurrence rows deliberately
+  // carry no foreign keys to pipeline data, so this order is a restore/delete
+  // convention rather than a database constraint.
+  // @req FR-173 — restore corpus parents before sources, jobs and immutable generations.
+  'knowledgeCorpus', 'knowledgeSource', 'knowledgeIngestion', 'knowledgeCorpusGeneration',
+  'knowledgeRawArtifact', 'knowledgeParsedArtifact', 'knowledgeChunk',
+  'genesisRag17IngestionIntent', 'genesisRag17SourceMention',
+  'genesisRag17Batch', 'genesisRag17StageEvidence', 'genesisRag17PublicationReceipt', 'genesisRag17EvidenceCursor',
   // @req FR-100 — a SoT decision hangs off Tenant (and optionally Business),
   // so it restores after them and deletes before them, alongside the pipeline
   // evidence it gates.
@@ -148,16 +325,57 @@ const SNAPSHOT_MODELS = [
   // sotDataPlaneKey above: only its hash restores, never the raw secret,
   // which the model never persists in the first place.
   'apiAccessKey',
-  'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation', 'message',
+  // @req FR-230 — a Tenant's retention override hangs off Tenant only, no
+  // secret and no PII (a data class name and a day count).
+  'tenantRetentionOverride',
+  'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation',
+  // @req FR-243 — a session hangs off Conversation and Message/ConversationEvent
+  // point at it, so it restores between them. Ids, counts and times, no content.
+  'conversationSession', 'message',
+  // @req FR-229 — an attachment hangs off Message, an event off Conversation;
+  // both restore after their parent above and delete before it in reverse.
+  // Media reference and bounded event metadata, no secret and no bytes.
+  'messageAttachment', 'conversationEvent',
+  // @req FR-245 — INCLUDED, not excluded like credential material (ADR-093
+  // D4, SEC-034). `CustomerArchiveKey.wrappedDek` is ciphertext, exportable
+  // for the same reason `integrationCredentialVersion` and `mfaFactor` above
+  // are: the key-encryption key that could open it (ZURI_ARCHIVE_KEK) is
+  // never part of any snapshot, so the row alone grants no decrypt capability
+  // either way. Unlike a credential, though, a randomly generated archive key
+  // has NO re-entry path — excluding it would let a routine restore silently
+  // and permanently destroy access to retained dispute evidence, the same
+  // failure mode `mfaFactor`'s own comment above exists to prevent ("must
+  // survive restore to prevent lockout"). `ArchiveManifest` restores
+  // alongside it for a sharper reason than "it is recoverable": without its
+  // rows, `chat-evidence-retrieval-service.js` has no manifest to enumerate
+  // at all — it finds archive files strictly by walking `archiveManifest`
+  // rows per Tenant, so losing this table makes every archived message
+  // undiscoverable even when the files themselves are intact on disk (or
+  // brought back by the ADR-093 D8 offline copy). Neither model has a Prisma
+  // `@relation` to Tenant/Customer, so restore order here is a convention,
+  // not a constraint the database enforces — this position (after `customer`,
+  // `conversation` and `message`, above) keeps it truthful anyway.
+  'customerArchiveKey', 'archiveManifest',
   // @req FR-161 — a sales task hangs off Business, Person (assignee) and
   // optionally Customer and Conversation, so it restores after all of them.
   // Operating data, no secret: exported whole.
   'salesTask',
+  // @req FR-236 — a knowledge candidate hangs off Tenant, Business and
+  // optionally Conversation, so it restores after all of them. `sourceRefJson`
+  // names only internal ids (Conversation.id, Message.id) — no LINE identity,
+  // no secret. `admittedSourceId`/`admittedIngestionId` are references into
+  // the knowledge admission rows above, restored before this line.
+  'knowledgeCandidate',
   // @req FR-166, FR-163 — an order hangs off Business, Customer and
   // Conversation, its lines off the order and Product, a payment off the order
   // and the slip FileAsset — all restored above this line, so these restore
   // here and delete in the reverse. Money and slip references, no secret.
   'salesOrder', 'salesOrderLine', 'payment',
+  // @req FR-186 — issued documents are immutable evidence.  Their order and
+  // branch parents are above, so restore them after payments and before the
+  // audit stream; requestHash and sequenceNumber preserve idempotency and the
+  // next number after recovery.
+  'commerceDocument',
   // @req FR-164, FR-165 — a supplier hangs off Tenant and Business, a purchase
   // order off the supplier, its lines off the order and Product, a goods
   // receipt off the order and its lines off the receipt and the order lines —
@@ -166,6 +384,7 @@ const SNAPSHOT_MODELS = [
   'supplier', 'purchaseOrder', 'purchaseOrderLine', 'goodsReceipt', 'goodsReceiptLine',
   // Its account and inbound Message must both exist before restoring the ledger.
   'lineConversationJob',
+  'agentTraceEvent',
   // @req FR-127 — analyses are derived children of Conversation and must travel
   // with it so an export/import round trip does not silently lose CRM context.
   'conversationAnalysis', 'auditEvent',
@@ -205,6 +424,17 @@ export const SNAPSHOT_EXCLUDED_MODELS = {
     'expired the moment the installation stopped, and the candidate a completed one produced already lives ' +
     'on AssetEvidence.extractionJson, which IS exported. Restoring the queue would hand a device work whose ' +
     'result the restore already carries.',
+  harnessCredential:
+    'FR-220 agent harness credentials are credential material — a SHA-256 lookup hash bound to one Person and ' +
+    'installation. They are never exported or restored, so a recovery cannot resurrect a revoked device, and ' +
+    'each harness pairs again under the authority that holds it then (ADR-087 D3).',
+  rateLimitBucket:
+    'FR-224 rate-limit counters are ephemeral request accounting, not business data. A restore starts every ' +
+    'window empty; carrying counts across installations would refuse or admit requests on another deployment’s traffic.',
+  integrationSecretEnvelope:
+    'FR-223 envelope-store ciphertext is credential material (SEC-030, ADR-089 D1). It is never exported: a ' +
+    'snapshot carries credential references and version history only, a restored credential must be entered ' +
+    'again (REENTRY_REQUIRED), and the key-encryption key that could open it is never part of any export.',
   localWorkspaceMount:
     'Device-local mount paths. Deleted explicitly before the sweep and never restored: a mount names a ' +
     'filesystem on one machine, so carrying it into another installation would point at a path that does ' +
@@ -219,12 +449,906 @@ function contentManifest(snapshot) {
   return Array.isArray(snapshot?.fileContentManifest) ? snapshot.fileContentManifest : []
 }
 
+const KNOWLEDGE_ADMISSION_TABLES = ['knowledgeCorpus', 'knowledgeSource', 'knowledgeIngestion', 'knowledgeCorpusGeneration']
+
+// These tables contain evidence that cannot be re-derived after a restore.
+// They are deliberately a small compatibility boundary rather than a second
+// copy of the whole snapshot list: a same-version legacy snapshot may predate
+// these arrays, but treating their absence as an intentional empty table can
+// permanently strand archive files or erase retained usage totals.
+const ARCHIVE_RECOVERY_TABLES = Object.freeze(['customerArchiveKey', 'archiveManifest'])
+const USAGE_ROLLUP_RECOVERY_TABLE = 'usageEventRollup'
+
+function snapshotTableState(tables, model) {
+  if (!tables || !Object.prototype.hasOwnProperty.call(tables, model)) return 'MISSING'
+  return Array.isArray(tables[model]) ? 'PRESENT' : 'MALFORMED'
+}
+
+function isSnapshotObject(value) {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+}
+
+function snapshotDateMillis(value) {
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value.getTime()
+  if (typeof value !== 'string' || !value.trim()) return null
+  const parsed = new Date(value)
+  return Number.isNaN(parsed.getTime()) ? null : parsed.getTime()
+}
+
+/**
+ * Validate and order the ArchiveManifest self-FK before the restore can delete
+ * anything. Prisma's `previousManifestId` is a real FK even though the rows
+ * intentionally have no Tenant relation. A plain `findMany()` order is not a
+ * restore contract, so the input is topologically sorted here.
+ */
+function archiveManifestRestoreRows(rows, result) {
+  const byId = new Map()
+  for (const row of rows) {
+    const label = row?.id || '<unknown>'
+    if (!isSnapshotObject(row)) {
+      result.errors.push(`Archive manifest ${label} is not an object`)
+      continue
+    }
+    if (typeof row.id !== 'string' || !row.id.trim()) {
+      result.errors.push(`Archive manifest ${label} has no valid id`)
+      continue
+    }
+    if (byId.has(row.id)) result.errors.push(`Archive manifest reuses id ${row.id}`)
+    if (typeof row.tenantId !== 'string' || !row.tenantId.trim()) result.errors.push(`Archive manifest ${row.id} has no valid tenantId`)
+    for (const field of ['runId', 'filePath', 'fileSha256', 'messageIdListHash', 'manifestHash']) {
+      if (typeof row[field] !== 'string' || !row[field].trim()) result.errors.push(`Archive manifest ${row.id} has no valid ${field}`)
+    }
+    if (!Number.isInteger(row.messageCount) || row.messageCount < 0) result.errors.push(`Archive manifest ${row.id} has an invalid messageCount`)
+    if (!Object.prototype.hasOwnProperty.call(row, 'previousManifestId')) result.errors.push(`Archive manifest ${row.id} is missing previousManifestId`)
+    if (!Object.prototype.hasOwnProperty.call(row, 'previousManifestHash')) result.errors.push(`Archive manifest ${row.id} is missing previousManifestHash`)
+    if (row.previousManifestHash !== null && row.previousManifestHash !== undefined
+      && (typeof row.previousManifestHash !== 'string' || !row.previousManifestHash.trim())) {
+      result.errors.push(`Archive manifest ${row.id} has an invalid previousManifestHash`)
+    }
+    if (snapshotDateMillis(row.createdAt) === null) result.errors.push(`Archive manifest ${row.id} has an invalid createdAt`)
+    if (typeof row.manifestHash === 'string' && computeManifestHash(row) !== row.manifestHash) {
+      result.errors.push(`Archive manifest ${row.id} is not self-consistent`)
+    }
+    byId.set(row.id, row)
+  }
+
+  const children = new Map()
+  const rowsByTenant = new Map()
+  for (const row of byId.values()) {
+    const rowsForTenant = rowsByTenant.get(row.tenantId) || []
+    rowsForTenant.push(row)
+    rowsByTenant.set(row.tenantId, rowsForTenant)
+  }
+  for (const row of byId.values()) {
+    const previousId = row.previousManifestId
+    if (previousId === null || previousId === undefined) {
+      if (row.previousManifestHash !== null && row.previousManifestHash !== undefined) {
+        result.errors.push(`Archive manifest root ${row.id} has a predecessor hash`)
+      }
+      continue
+    }
+    if (typeof previousId !== 'string' || !previousId.trim()) {
+      result.errors.push(`Archive manifest ${row.id} has an invalid previousManifestId`)
+      continue
+    }
+    if (previousId === row.id) {
+      result.errors.push(`Archive manifest ${row.id} points to itself`)
+      continue
+    }
+    const previous = byId.get(previousId)
+    if (!previous) {
+      result.errors.push(`Archive manifest ${row.id} references missing predecessor ${previousId}`)
+      continue
+    }
+    if (previous.tenantId !== row.tenantId) {
+      result.errors.push(`Archive manifest ${row.id} references a predecessor from another Tenant`)
+      continue
+    }
+    if (row.previousManifestHash !== previous.manifestHash) {
+      result.errors.push(`Archive manifest ${row.id} predecessor hash does not match ${previous.id}`)
+      continue
+    }
+    if (!children.has(previousId)) children.set(previousId, [])
+    children.get(previousId).push(row)
+  }
+  for (const [tenantId, rowsForTenant] of rowsByTenant) {
+    const rootsForTenant = rowsForTenant.filter((row) => row.previousManifestId === null || row.previousManifestId === undefined)
+    if (rootsForTenant.length !== 1) {
+      result.errors.push(`Archive manifest Tenant ${tenantId} must have exactly one root (found ${rootsForTenant.length})`)
+    }
+    for (const row of rowsForTenant) {
+      const successors = children.get(row.id) || []
+      if (successors.length > 1) result.errors.push(`Archive manifest ${row.id} has multiple successors`)
+    }
+  }
+  if (result.errors.length) return []
+
+  const compareRows = (left, right) => {
+    const leftTime = snapshotDateMillis(left.createdAt) ?? 0
+    const rightTime = snapshotDateMillis(right.createdAt) ?? 0
+    if (leftTime !== rightTime) return leftTime - rightTime
+    return left.id < right.id ? -1 : left.id > right.id ? 1 : 0
+  }
+  const roots = [...byId.values()].filter((row) => row.previousManifestId === null || row.previousManifestId === undefined).sort(compareRows)
+  const ordered = []
+  const queue = [...roots]
+  while (queue.length) {
+    queue.sort(compareRows)
+    const row = queue.shift()
+    ordered.push(row)
+    for (const child of (children.get(row.id) || []).sort(compareRows)) queue.push(child)
+  }
+  if (ordered.length !== byId.size) {
+    result.errors.push('Archive manifest chain contains a cycle')
+    return []
+  }
+
+  // The writer's chain is chronological. Keep that invariant so an imported
+  // chain remains compatible with older readers that enumerate by createdAt;
+  // equal timestamps are valid and are followed by previousManifestId rather
+  // than rejected by an arbitrary UUID tie-breaker.
+  for (const rowsForTenant of rowsByTenant.values()) {
+    const chain = []
+    let current = rowsForTenant.find((row) => row.previousManifestId === null || row.previousManifestId === undefined)
+    while (current) {
+      chain.push(current)
+      current = (children.get(current.id) || [])[0]
+    }
+    for (let index = 1; index < chain.length; index += 1) {
+      if (snapshotDateMillis(chain[index - 1].createdAt) > snapshotDateMillis(chain[index].createdAt)) {
+        result.errors.push('Archive manifest chain order is incompatible with chronological verification')
+        break
+      }
+    }
+  }
+  if (result.errors.length) return []
+  return ordered
+}
+
+function archiveRecovery(snapshot) {
+  const tables = snapshot?.tables || {}
+  const result = { status: 'AVAILABLE', manifestVersion: null, errors: [], warnings: [], manifestRows: [] }
+  const keyState = snapshotTableState(tables, ARCHIVE_RECOVERY_TABLES[0])
+  const manifestState = snapshotTableState(tables, ARCHIVE_RECOVERY_TABLES[1])
+  if (keyState === 'MALFORMED' || manifestState === 'MALFORMED') {
+    result.status = 'INVALID'
+    if (keyState === 'MALFORMED') result.errors.push('Archive recovery snapshot customerArchiveKey must be an array')
+    if (manifestState === 'MALFORMED') result.errors.push('Archive recovery snapshot archiveManifest must be an array')
+    return result
+  }
+  const keyPresent = keyState === 'PRESENT'
+  const manifestPresent = manifestState === 'PRESENT'
+  if (keyPresent !== manifestPresent) {
+    result.status = 'INVALID'
+    result.errors.push('Archive recovery snapshot has a partial archive family; customerArchiveKey and archiveManifest must be present together')
+    return result
+  }
+  if (!keyPresent) {
+    result.status = 'UNAVAILABLE'
+    result.warnings.push('CHAT_EVIDENCE_ARCHIVE_RECOVERY_UNAVAILABLE: snapshot has no customerArchiveKey/archiveManifest arrays')
+    return result
+  }
+  const archiveKeyCustomers = new Set()
+  for (const row of tables.customerArchiveKey) {
+    const label = row?.id || '<unknown>'
+    if (!isSnapshotObject(row)) {
+      result.errors.push(`Archive key ${label} is not an object`)
+      continue
+    }
+    for (const field of ['id', 'tenantId', 'customerId', 'kekId', 'wrappedDek']) {
+      if (typeof row[field] !== 'string' || !row[field].trim()) result.errors.push(`Archive key ${label} has no valid ${field}`)
+    }
+    if (archiveKeyCustomers.has(row.customerId)) result.errors.push(`Archive keys reuse customerId ${row.customerId}`)
+    archiveKeyCustomers.add(row.customerId)
+  }
+  result.manifestRows = archiveManifestRestoreRows(tables.archiveManifest, result)
+  if (result.errors.length) result.status = 'INVALID'
+  return result
+}
+
+function usageRollupRecovery(snapshot) {
+  const tables = snapshot?.tables || {}
+  const result = { status: 'AVAILABLE', errors: [], warnings: [] }
+  const state = snapshotTableState(tables, USAGE_ROLLUP_RECOVERY_TABLE)
+  if (state === 'MISSING') {
+    result.status = 'UNAVAILABLE'
+    result.warnings.push('USAGE_EVENT_ROLLUP_RECOVERY_UNAVAILABLE: snapshot has no usageEventRollup array')
+    return result
+  }
+  if (state === 'MALFORMED') {
+    result.status = 'INVALID'
+    result.errors.push('Usage event rollup recovery snapshot usageEventRollup must be an array')
+    return result
+  }
+  const rollupKeys = new Set()
+  for (const row of tables[USAGE_ROLLUP_RECOVERY_TABLE]) {
+    const label = row?.id || '<unknown>'
+    if (!isSnapshotObject(row)) {
+      result.errors.push(`Usage event rollup ${label} is not an object`)
+      continue
+    }
+    const dateMillis = snapshotDateMillis(row.date)
+    if (dateMillis === null) result.errors.push(`Usage event rollup ${label} has an invalid date`)
+    if (!['PAGE_VIEW', 'ACTION'].includes(row.kind)) result.errors.push(`Usage event rollup ${label} has an invalid kind`)
+    if (typeof row.target !== 'string' || !row.target.trim()) result.errors.push(`Usage event rollup ${label} has an invalid target`)
+    if (!Number.isInteger(row.count) || row.count < 0) result.errors.push(`Usage event rollup ${label} has an invalid count`)
+    const rollupKey = dateMillis + '|' + row.kind + '|' + row.target
+    if (rollupKeys.has(rollupKey)) result.errors.push(`Usage event rollup repeats composite key ${rollupKey}`)
+    rollupKeys.add(rollupKey)
+  }
+  if (result.errors.length) result.status = 'INVALID'
+  return result
+}
+
+function admissionRecoveryManifest(snapshot) {
+  const manifest = snapshot?.knowledgeAdmissionRecovery
+  if (manifest === undefined) return { errors: [], warnings: ['KNOWLEDGE_ADMISSION_RECOVERY_UNAVAILABLE: snapshot has no admission recovery manifest'] }
+  const errors = []
+  if (manifest?.schemaVersion !== 'knowledge-admission-recovery.v1' || JSON.stringify(manifest?.requiredTables) !== JSON.stringify(KNOWLEDGE_ADMISSION_TABLES)) errors.push('Invalid knowledge admission recovery manifest')
+  for (const table of KNOWLEDGE_ADMISSION_TABLES) if (!Array.isArray(snapshot?.tables?.[table])) errors.push(`Knowledge admission recovery snapshot is missing required table: ${table}`)
+  return { errors, warnings: [] }
+}
+
+function recoveryManifest(snapshot) {
+  const manifest = snapshot?.genesisRag17Recovery
+  if (manifest === undefined) {
+    return {
+      errors: [],
+      warnings: ['GENESISRAG17_RECOVERY_UNAVAILABLE: snapshot has no source recovery manifest; no missing intents or mentions will be invented'],
+      recovery: { status: 'UNAVAILABLE', manifestVersion: null },
+    }
+  }
+  const errors = []
+  if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
+    errors.push('GenesisRAG17 recovery manifest is not an object')
+  } else {
+    if (manifest.schemaVersion !== GENESIS_RAG17_RECOVERY_MANIFEST_VERSION) {
+      errors.push(`Unsupported GenesisRAG17 recovery manifest version: ${manifest.schemaVersion} (expected ${GENESIS_RAG17_RECOVERY_MANIFEST_VERSION})`)
+    }
+    if (!Array.isArray(manifest.requiredTables) || manifest.requiredTables.length !== GENESIS_RAG17_RECOVERY_TABLES.length
+      || manifest.requiredTables.some((model, index) => model !== GENESIS_RAG17_RECOVERY_TABLES[index])) {
+      errors.push(`GenesisRAG17 recovery manifest must name ${GENESIS_RAG17_RECOVERY_TABLES.join(' and ')}`)
+    }
+    for (const model of GENESIS_RAG17_RECOVERY_TABLES) {
+      if (!Array.isArray(snapshot?.tables?.[model])) errors.push(`GenesisRAG17 recovery snapshot is missing required table: ${model}`)
+    }
+  }
+  return {
+    errors,
+    warnings: [],
+    recovery: { status: errors.length ? 'INVALID' : 'AVAILABLE', manifestVersion: manifest?.schemaVersion || null },
+  }
+}
+
+/**
+ * Billing is a feature-specific recovery boundary. Older snapshots can still
+ * be inspected by previewSnapshot, but previewImport must never replace live
+ * billing evidence with empty arrays when those older snapshots omit the new
+ * tables. A complete export also gets referential and sequence checks here so
+ * a bad document cannot be restored as detached evidence.
+ */
+function commerceBillingRecovery(snapshot) {
+  const tables = snapshot?.tables || {}
+  const missing = COMMERCE_BILLING_RECOVERY_TABLES.filter((model) => !Array.isArray(tables[model]))
+  const manifest = snapshot?.commerceBillingRecovery
+  const result = {
+    status: 'AVAILABLE',
+    manifestVersion: manifest?.schemaVersion || null,
+    errors: [],
+    warnings: [],
+  }
+
+  // A manifest is an explicit claim that the artifact carries a complete
+  // Commerce recovery set.  Treating a declared-but-incomplete manifest as an
+  // old snapshot would make a malformed new export look safely importable on an
+  // empty installation.  Only an artifact with no manifest at all gets the
+  // backwards-compatible UNAVAILABLE state.
+  if (manifest !== undefined && (
+    !manifest || typeof manifest !== 'object' || Array.isArray(manifest)
+    || manifest.schemaVersion !== COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION
+    || JSON.stringify(manifest.requiredTables) !== JSON.stringify(COMMERCE_BILLING_RECOVERY_TABLES)
+  )) {
+    result.errors.push(`Invalid Commerce billing recovery manifest (expected ${COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION})`)
+  }
+  if (manifest !== undefined && missing.length) {
+    for (const model of missing) result.errors.push(`Commerce billing recovery snapshot is missing required table: ${model}`)
+  }
+  if (result.errors.length) {
+    result.status = 'INVALID'
+    return result
+  }
+  if (missing.length) {
+    result.status = 'UNAVAILABLE'
+    result.warnings.push(`COMMERCE_BILLING_RECOVERY_UNAVAILABLE: snapshot is missing ${missing.join(', ')}`)
+    return result
+  }
+
+  const tenants = new Map((tables.tenant || []).map((row) => [row.id, row]))
+  const businesses = new Map((tables.business || []).map((row) => [row.id, row]))
+  const branches = new Map((tables.branch || []).map((row) => [row.id, row]))
+  const orders = new Map((tables.salesOrder || []).map((row) => [row.id, row]))
+  const sequences = new Map()
+  for (const row of tables.businessBillingProfile) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Commerce billing profile ${label} is not an object`)
+      continue
+    }
+    const business = businesses.get(row.businessId)
+    const tenant = tenants.get(row.tenantId)
+    if (!business || business.tenantId !== row.tenantId || !tenant) result.errors.push(`Commerce billing profile ${row.id} has inconsistent Business/Tenant references`)
+    if (!Number.isInteger(row.version) || row.version <= 0 || row.version > 2_147_483_647) result.errors.push(`Commerce billing profile ${row.id} has an invalid version`)
+    if (row.vatRateBps !== null && row.vatRateBps !== undefined && (!Number.isInteger(row.vatRateBps) || row.vatRateBps < 0 || row.vatRateBps > 10000)) result.errors.push(`Commerce billing profile ${row.id} has an invalid VAT rate`)
+    if (row.vatTreatment !== null && row.vatTreatment !== undefined && !BILLING_VAT_TREATMENTS.includes(row.vatTreatment)) result.errors.push(`Commerce billing profile ${row.id} has an invalid VAT treatment`)
+    if (row.nonVatDocumentPolicy !== null && row.nonVatDocumentPolicy !== undefined && !BILLING_NON_VAT_POLICIES.includes(row.nonVatDocumentPolicy)) result.errors.push(`Commerce billing profile ${row.id} has an invalid non-VAT policy`)
+    if (row.walkInDocumentPolicy !== null && row.walkInDocumentPolicy !== undefined && !BILLING_WALK_IN_POLICIES.includes(row.walkInDocumentPolicy)) result.errors.push(`Commerce billing profile ${row.id} has an invalid walk-in policy`)
+    if (row.promptPayProvider !== null && row.promptPayProvider !== undefined && row.promptPayProvider !== BILLING_PROMPTPAY_PROVIDER) result.errors.push(`Commerce billing profile ${row.id} has an invalid PromptPay provider`)
+    if (row.promptPayTargetType !== null && row.promptPayTargetType !== undefined && !BILLING_TARGET_TYPES.includes(row.promptPayTargetType)) result.errors.push(`Commerce billing profile ${row.id} has an invalid PromptPay target type`)
+  }
+  for (const row of tables.commerceDocumentSequence) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Commerce billing sequence ${label} is not an object`)
+      continue
+    }
+    const business = businesses.get(row.businessId)
+    const tenant = tenants.get(row.tenantId)
+    if (!business || business.tenantId !== row.tenantId || !tenant) result.errors.push(`Commerce billing sequence ${row.id} has inconsistent Business/Tenant references`)
+    if (!BILLING_DOCUMENT_TYPES.includes(row.documentType)) result.errors.push(`Commerce billing sequence ${row.id} has an invalid documentType`)
+    if (!Number.isInteger(row.calendarYear) || row.calendarYear <= 0 || row.calendarYear > 2_147_483_647) result.errors.push(`Commerce billing sequence ${row.id} has an invalid calendarYear`)
+    if (!Number.isInteger(row.lastSequence) || row.lastSequence < 0 || row.lastSequence > 2_147_483_647) result.errors.push(`Commerce billing sequence ${row.id} has an invalid lastSequence`)
+    sequences.set(`${row.businessId}|${row.documentType}|${row.calendarYear}`, row)
+  }
+  const documentKeys = new Set()
+  for (const row of tables.commerceDocument) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Commerce document ${label} is not an object`)
+      continue
+    }
+    const business = businesses.get(row.businessId)
+    const tenant = tenants.get(row.tenantId)
+    const order = orders.get(row.orderId)
+    const branch = branches.get(row.branchId)
+    if (!business || business.tenantId !== row.tenantId || !tenant) result.errors.push(`Commerce document ${row.id} has inconsistent Business/Tenant references`)
+    if (!order || order.businessId !== row.businessId || order.tenantId !== row.tenantId) result.errors.push(`Commerce document ${row.id} has an inconsistent SalesOrder reference`)
+    if (!branch || branch.businessId !== row.businessId || branch.tenantId !== row.tenantId) result.errors.push(`Commerce document ${row.id} has an inconsistent Branch reference`)
+    if (!BILLING_DOCUMENT_TYPES.includes(row.documentType)) result.errors.push(`Commerce document ${row.id} has an invalid documentType`)
+    if (!COMMERCE_BILLING_DOCUMENT_STATUSES.includes(row.status)) result.errors.push(`Commerce document ${row.id} has an invalid status`)
+    if (!Number.isInteger(row.calendarYear) || row.calendarYear <= 0 || row.calendarYear > 2_147_483_647) result.errors.push(`Commerce document ${row.id} has an invalid calendarYear`)
+    if (!row.requestHash || typeof row.requestHash !== 'string') result.errors.push(`Commerce document ${row.id} is missing requestHash`)
+    if (!Number.isInteger(row.sequenceNumber) || row.sequenceNumber <= 0 || row.sequenceNumber > 2_147_483_647) result.errors.push(`Commerce document ${row.id} has an invalid sequenceNumber`)
+    if (!row.idempotencyKey || typeof row.idempotencyKey !== 'string') result.errors.push(`Commerce document ${row.id} is missing idempotencyKey`)
+    if (!row.documentNumber || typeof row.documentNumber !== 'string') result.errors.push(`Commerce document ${row.id} is missing documentNumber`)
+    if (typeof row.snapshotJson !== 'string') {
+      result.errors.push(`Commerce document ${row.id} has an invalid snapshotJson`)
+    } else {
+      try {
+        const parsed = JSON.parse(row.snapshotJson)
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) result.errors.push(`Commerce document ${row.id} has an invalid snapshotJson`)
+      } catch {
+        result.errors.push(`Commerce document ${row.id} has an invalid snapshotJson`)
+      }
+    }
+    const sequenceKey = `${row.businessId}|${row.documentType}|${row.calendarYear}`
+    const sequence = sequences.get(sequenceKey)
+    if (!sequence) result.errors.push(`Commerce document ${row.id} has no matching sequence row`)
+    else if (row.sequenceNumber > sequence.lastSequence) result.errors.push(`Commerce document ${row.id} exceeds its restored sequence counter`)
+    const duplicateKey = `${row.businessId}|${row.documentType}|${row.calendarYear}|${row.sequenceNumber}`
+    if (documentKeys.has(duplicateKey)) result.errors.push(`Commerce documents reuse sequence ${duplicateKey}`)
+    documentKeys.add(duplicateKey)
+  }
+  return result
+}
+
+/**
+ * Stocktake is a feature-specific recovery boundary for the same reason as
+ * Commerce billing: a legacy snapshot may predate these tables, but a newly
+ * declared manifest must be complete and structurally safe before the global
+ * replacement transaction is allowed to delete anything.
+ */
+function inventoryStocktakeRecovery(snapshot) {
+  const tables = snapshot?.tables || {}
+  const missing = INVENTORY_STOCKTAKE_RECOVERY_TABLES.filter((model) => !Array.isArray(tables[model]))
+  const manifest = snapshot?.inventoryStocktakeRecovery
+  const result = {
+    status: 'AVAILABLE',
+    manifestVersion: manifest?.schemaVersion || null,
+    errors: [],
+    warnings: [],
+  }
+
+  // Presence of the two arrays alone is not provenance. A legacy artifact may
+  // contain ad-hoc keys, but only the declared manifest makes their completeness
+  // part of the recovery contract.
+  if (manifest === undefined) {
+    result.status = 'UNAVAILABLE'
+    result.warnings.push('INVENTORY_STOCKTAKE_RECOVERY_UNAVAILABLE: snapshot has no stocktake recovery manifest')
+    return result
+  }
+
+  if (
+    !manifest || typeof manifest !== 'object' || Array.isArray(manifest)
+    || manifest.schemaVersion !== INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION
+    || JSON.stringify(manifest.requiredTables) !== JSON.stringify(INVENTORY_STOCKTAKE_RECOVERY_TABLES)
+  ) {
+    result.errors.push(`Invalid Inventory stocktake recovery manifest (expected ${INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION})`)
+  }
+  if (missing.length) {
+    for (const model of missing) result.errors.push(`Inventory stocktake recovery snapshot is missing required table: ${model}`)
+  }
+  if (result.errors.length) {
+    result.status = 'INVALID'
+    return result
+  }
+  if (missing.length) {
+    result.status = 'UNAVAILABLE'
+    result.warnings.push(`INVENTORY_STOCKTAKE_RECOVERY_UNAVAILABLE: snapshot is missing ${missing.join(', ')}`)
+    return result
+  }
+
+  const tenants = new Map((tables.tenant || []).map((row) => [row?.id, row]))
+  const businesses = new Map((tables.business || []).map((row) => [row?.id, row]))
+  const fences = new Map()
+  const uuid = (value) => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)
+  const nonEmpty = (value, max = 200) => typeof value === 'string' && value.length > 0 && value.length <= max
+  const int32 = (value, minimum = 0) => Number.isInteger(value) && value >= minimum && value <= INT32_MAX
+  const signedInt32 = (value) => int32(value, -INT32_MAX - 1)
+  const aggregateInt = (value) => Number.isSafeInteger(value)
+    && value >= (-INT32_MAX - 1) * INVENTORY_STOCKTAKE_MAX_LINES
+    && value <= INT32_MAX * INVENTORY_STOCKTAKE_MAX_LINES
+  const isObject = (value) => Boolean(value) && typeof value === 'object' && !Array.isArray(value)
+  const stocktakeLineKey = (line) => JSON.stringify([line?.productId, line?.locationId ?? null, line?.lotId ?? null])
+  const addIdentityError = (row, label, fields) => {
+    for (const field of fields) if (!uuid(row?.[field])) result.errors.push(`Inventory stocktake ${label} ${field} is not a UUID`)
+  }
+  const movementById = new Map()
+  if (Array.isArray(tables.stockMovement)) {
+    for (const movement of tables.stockMovement) {
+      if (!isObject(movement) || !uuid(movement.id)) continue
+      if (movementById.has(movement.id)) result.errors.push(`Inventory stocktake recovery reuses StockMovement id ${movement.id}`)
+      movementById.set(movement.id, movement)
+    }
+  }
+
+  for (const row of tables.inventoryLedgerFence) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Inventory ledger fence ${label} is not an object`)
+      continue
+    }
+    addIdentityError(row, 'ledger fence', ['id', 'tenantId', 'businessId'])
+    if (!int32(row.mutationRevision)) result.errors.push(`Inventory ledger fence ${row.id} has an invalid mutationRevision`)
+    const business = businesses.get(row.businessId)
+    const tenant = tenants.get(row.tenantId)
+    if (business && business.tenantId !== row.tenantId) result.errors.push(`Inventory ledger fence ${row.id} has an inconsistent Business/Tenant reference`)
+    if (tenants.size && !tenant) result.errors.push(`Inventory ledger fence ${row.id} references a missing Tenant`)
+    if (businesses.size && !business) result.errors.push(`Inventory ledger fence ${row.id} references a missing Business`)
+    const key = `${row.tenantId}|${row.businessId}`
+    if (fences.has(key)) result.errors.push(`Inventory ledger fences reuse scope ${key}`)
+    fences.set(key, row)
+  }
+
+  const stocktakeKeys = new Set()
+  for (const row of tables.inventoryStocktake) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Inventory stocktake ${label} is not an object`)
+      continue
+    }
+    addIdentityError(row, 'stocktake', ['id', 'tenantId', 'businessId'])
+    if (!nonEmpty(row.idempotencyKey)) result.errors.push(`Inventory stocktake ${row.id} is missing idempotencyKey`)
+    if (!nonEmpty(row.payloadHash, 128)) result.errors.push(`Inventory stocktake ${row.id} is missing payloadHash`)
+    if (!nonEmpty(row.snapshotHash, 128)) result.errors.push(`Inventory stocktake ${row.id} is missing snapshotHash`)
+    if (!int32(row.snapshotVersion)) result.errors.push(`Inventory stocktake ${row.id} has an invalid snapshotVersion`)
+    if (!int32(row.version, 1)) result.errors.push(`Inventory stocktake ${row.id} has an invalid version`)
+    if (!INVENTORY_STOCKTAKE_STATUSES.includes(row.status)) result.errors.push(`Inventory stocktake ${row.id} has an invalid status`)
+    const business = businesses.get(row.businessId)
+    const tenant = tenants.get(row.tenantId)
+    if (business && business.tenantId !== row.tenantId) result.errors.push(`Inventory stocktake ${row.id} has an inconsistent Business/Tenant reference`)
+    if (tenants.size && !tenant) result.errors.push(`Inventory stocktake ${row.id} references a missing Tenant`)
+    if (businesses.size && !business) result.errors.push(`Inventory stocktake ${row.id} references a missing Business`)
+    const scopeKey = `${row.tenantId}|${row.businessId}|${row.idempotencyKey}`
+    if (stocktakeKeys.has(scopeKey)) result.errors.push(`Inventory stocktakes reuse idempotency key ${scopeKey}`)
+    stocktakeKeys.add(scopeKey)
+
+    let parsed = null
+    if (typeof row.normalizedLinesJson !== 'string') {
+      result.errors.push(`Inventory stocktake ${row.id} has an invalid normalizedLinesJson`)
+    } else {
+      try {
+        parsed = JSON.parse(row.normalizedLinesJson)
+        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) throw new Error('not an object')
+      } catch {
+        result.errors.push(`Inventory stocktake ${row.id} has an invalid normalizedLinesJson`)
+      }
+    }
+    if (parsed) {
+      if (!Array.isArray(parsed.requestLines) || !parsed.requestLines.length || !Array.isArray(parsed.lines) || !parsed.lines.length || !Array.isArray(parsed.missingBuckets) || typeof parsed.complete !== 'boolean') {
+        result.errors.push(`Inventory stocktake ${row.id} has an invalid normalized snapshot shape`)
+      }
+      if (Array.isArray(parsed.requestLines) && Array.isArray(parsed.lines) && parsed.requestLines.length !== parsed.lines.length) {
+        result.errors.push(`Inventory stocktake ${row.id} has mismatched request and snapshot line counts`)
+      }
+      if (parsed.snapshotVersion !== row.snapshotVersion || parsed.snapshotHash !== row.snapshotHash) result.errors.push(`Inventory stocktake ${row.id} has an inconsistent snapshot token`)
+      const { snapshotHash, ...hashable } = parsed
+      if (snapshotHash && uuid(row.businessId) && hashStocktake({ businessId: row.businessId, snapshotVersion: row.snapshotVersion, ...hashable }) !== row.snapshotHash) result.errors.push(`Inventory stocktake ${row.id} has an invalid snapshot hash`)
+      for (const line of (Array.isArray(parsed.requestLines) ? parsed.requestLines : [])) {
+        if (!isObject(line)) {
+          result.errors.push(`Inventory stocktake ${row.id} has a malformed request line`)
+          continue
+        }
+        addIdentityError(line, 'request line', ['productId'])
+        if (line.locationId !== null && !uuid(line.locationId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid request locationId`)
+        if (line.lotId !== null && !uuid(line.lotId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid request lotId`)
+        if (!int32(line.countedQuantity)) result.errors.push(`Inventory stocktake ${row.id} has an invalid countedQuantity`)
+      }
+      for (const line of (Array.isArray(parsed.lines) ? parsed.lines : [])) {
+        if (!isObject(line)) {
+          result.errors.push(`Inventory stocktake ${row.id} has a malformed snapshot line`)
+          continue
+        }
+        addIdentityError(line, 'snapshot line', ['productId'])
+        if (line.locationId !== null && !uuid(line.locationId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid snapshot locationId`)
+        if (line.lotId !== null && !uuid(line.lotId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid snapshot lotId`)
+        if (!int32(line.countedQuantity) || !signedInt32(line.expectedQuantity) || !signedInt32(line.variance)) result.errors.push(`Inventory stocktake ${row.id} has invalid snapshot quantities`)
+      }
+    }
+
+    let resultJson = null
+    if (row.resultJson !== null && row.resultJson !== undefined) {
+      if (typeof row.resultJson !== 'string') result.errors.push(`Inventory stocktake ${row.id} has an invalid resultJson`)
+      else {
+        try {
+          resultJson = JSON.parse(row.resultJson)
+          if (!resultJson || typeof resultJson !== 'object' || Array.isArray(resultJson)) throw new Error('not an object')
+        } catch {
+          result.errors.push(`Inventory stocktake ${row.id} has an invalid resultJson`)
+        }
+      }
+    }
+    if (row.status === 'COMMITTED' && !resultJson) result.errors.push(`Inventory stocktake ${row.id} is COMMITTED without resultJson`)
+    if (row.status === 'PREVIEWED' && resultJson) result.errors.push(`Inventory stocktake ${row.id} is PREVIEWED with a commit result`)
+    if (row.status === 'COMMITTED' && !row.committedAt) result.errors.push(`Inventory stocktake ${row.id} is COMMITTED without committedAt`)
+    if (row.status === 'PREVIEWED' && row.committedAt) result.errors.push(`Inventory stocktake ${row.id} is PREVIEWED with committedAt`)
+    if (resultJson) {
+      const movementIdsValid = Array.isArray(resultJson.movementIds)
+      const movementCountValid = int32(resultJson.movementCount)
+      const varianceTotalValid = aggregateInt(resultJson.varianceTotal)
+      const lineBalancesValid = Array.isArray(resultJson.lineBalances)
+      const fenceRevisionValid = int32(resultJson.fenceRevision)
+      if (!movementIdsValid || !movementCountValid || !varianceTotalValid || !lineBalancesValid || !fenceRevisionValid) {
+        result.errors.push(`Inventory stocktake ${row.id} has an invalid commit result`)
+      }
+      const movementIds = movementIdsValid ? resultJson.movementIds : []
+      const seenMovementIds = new Set()
+      for (const movementId of movementIds) {
+        if (!uuid(movementId)) {
+          result.errors.push(`Inventory stocktake ${row.id} has an invalid StockMovement id`)
+          continue
+        }
+        if (seenMovementIds.has(movementId)) result.errors.push(`Inventory stocktake ${row.id} has duplicate StockMovement id ${movementId}`)
+        seenMovementIds.add(movementId)
+      }
+      if (movementCountValid && resultJson.movementCount !== movementIds.length) {
+        result.errors.push(`Inventory stocktake ${row.id} has movementCount inconsistent with movementIds`)
+      }
+
+      const snapshotLines = Array.isArray(parsed?.lines) ? parsed.lines : []
+      const validSnapshotLines = snapshotLines.length > 0 && snapshotLines.every((line) => (
+        isObject(line)
+        && uuid(line.productId)
+        && (line.locationId === null || uuid(line.locationId))
+        && (line.lotId === null || uuid(line.lotId))
+        && int32(line.countedQuantity)
+        && signedInt32(line.expectedQuantity)
+        && signedInt32(line.variance)
+      ))
+      const snapshotLineByKey = new Map(validSnapshotLines ? snapshotLines.map((line) => [stocktakeLineKey(line), line]) : [])
+      const resultLineByKey = new Map()
+      let varianceSum = 0
+      if (lineBalancesValid) {
+        if (validSnapshotLines && resultJson.lineBalances.length !== snapshotLines.length) {
+          result.errors.push(`Inventory stocktake ${row.id} has a result line count inconsistent with its snapshot`)
+        }
+        for (const line of resultJson.lineBalances) {
+          if (!isObject(line)) {
+            result.errors.push(`Inventory stocktake ${row.id} has a malformed result line`)
+            continue
+          }
+          addIdentityError(line, 'result line', ['productId'])
+          if (line.locationId !== null && !uuid(line.locationId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid result locationId`)
+          if (line.lotId !== null && !uuid(line.lotId)) result.errors.push(`Inventory stocktake ${row.id} has an invalid result lotId`)
+          const quantitiesValid = int32(line.countedQuantity)
+            && signedInt32(line.expectedQuantity)
+            && signedInt32(line.variance)
+            && int32(line.postCommitQuantity)
+          if (!quantitiesValid) result.errors.push(`Inventory stocktake ${row.id} has invalid result quantities`)
+          if (quantitiesValid && line.postCommitQuantity !== line.countedQuantity) result.errors.push(`Inventory stocktake ${row.id} has an invalid post-commit quantity`)
+          const key = stocktakeLineKey(line)
+          if (resultLineByKey.has(key)) result.errors.push(`Inventory stocktake ${row.id} reuses a result line identity`)
+          resultLineByKey.set(key, line)
+          if (quantitiesValid) {
+            varianceSum += line.variance
+          }
+          const snapshotLine = snapshotLineByKey.get(key)
+          if (!snapshotLine) result.errors.push(`Inventory stocktake ${row.id} has a result line absent from its snapshot`)
+          else if (
+            line.expectedQuantity !== snapshotLine.expectedQuantity
+            || line.countedQuantity !== snapshotLine.countedQuantity
+            || line.variance !== snapshotLine.variance
+          ) result.errors.push(`Inventory stocktake ${row.id} has a result line inconsistent with its snapshot`)
+        }
+        if (validSnapshotLines) {
+          for (const line of snapshotLines) {
+            if (!resultLineByKey.has(stocktakeLineKey(line))) result.errors.push(`Inventory stocktake ${row.id} is missing a result line`)
+          }
+        }
+        if (varianceTotalValid && (!aggregateInt(varianceSum) || resultJson.varianceTotal !== varianceSum)) {
+          result.errors.push(`Inventory stocktake ${row.id} has a varianceTotal inconsistent with its result lines`)
+        }
+      }
+
+      if (row.status === 'COMMITTED') {
+        if (!Array.isArray(tables.stockMovement)) {
+          result.errors.push(`Inventory stocktake ${row.id} is COMMITTED without a StockMovement snapshot`)
+        }
+        const referencedMovements = []
+        for (const movementId of movementIds) {
+          const movement = movementById.get(movementId)
+          if (!movement) {
+            result.errors.push(`Inventory stocktake ${row.id} references missing StockMovement ${movementId}`)
+            continue
+          }
+          if (movement.tenantId !== row.tenantId || movement.businessId !== row.businessId) {
+            result.errors.push(`Inventory stocktake ${row.id} references a StockMovement outside its Tenant/Business scope`)
+          }
+          if (movement.kind !== 'ADJUSTMENT') result.errors.push(`Inventory stocktake ${row.id} references a non-ADJUSTMENT StockMovement`)
+          if (movement.reference !== `STOCKTAKE:${row.id}`) result.errors.push(`Inventory stocktake ${row.id} references a StockMovement with an inconsistent reference`)
+          if (!uuid(movement.productId) || (movement.lotId !== null && !uuid(movement.lotId))) result.errors.push(`Inventory stocktake ${row.id} references a StockMovement with an invalid product or lot identity`)
+          if ((movement.sourceLocationId !== null && !uuid(movement.sourceLocationId)) || (movement.targetLocationId !== null && !uuid(movement.targetLocationId))) {
+            result.errors.push(`Inventory stocktake ${row.id} references a StockMovement with an invalid location identity`)
+          }
+          if (!signedInt32(movement.quantity) || movement.quantity === 0) {
+            result.errors.push(`Inventory stocktake ${row.id} references a StockMovement with an invalid quantity`)
+          } else referencedMovements.push(movement)
+        }
+        if (referencedMovements.length === movementIds.length && varianceTotalValid) {
+          const movementVarianceTotal = referencedMovements.reduce((sum, movement) => sum + movement.quantity, 0)
+          if (!aggregateInt(movementVarianceTotal) || movementVarianceTotal !== resultJson.varianceTotal) {
+            result.errors.push(`Inventory stocktake ${row.id} has StockMovement quantities inconsistent with varianceTotal`)
+          }
+        }
+        if (validSnapshotLines && lineBalancesValid) {
+          const movementsByLine = new Map()
+          for (const movement of referencedMovements) {
+            const positive = movement.quantity > 0
+            const locationId = positive ? movement.targetLocationId : movement.sourceLocationId
+            const oppositeLocation = positive ? movement.sourceLocationId : movement.targetLocationId
+            if (oppositeLocation !== null) result.errors.push(`Inventory stocktake ${row.id} has a StockMovement with two locations`)
+            const key = stocktakeLineKey({ productId: movement.productId, locationId: locationId ?? null, lotId: movement.lotId ?? null })
+            const line = resultLineByKey.get(key)
+            if (!line) {
+              result.errors.push(`Inventory stocktake ${row.id} has a StockMovement absent from its result lines`)
+              continue
+            }
+            movementsByLine.set(key, (movementsByLine.get(key) || 0) + 1)
+            if (movement.quantity !== line.variance) result.errors.push(`Inventory stocktake ${row.id} has a StockMovement quantity inconsistent with its result line`)
+          }
+          for (const line of snapshotLines) {
+            const movementCount = movementsByLine.get(stocktakeLineKey(line)) || 0
+            if (line.variance === 0 && movementCount !== 0) result.errors.push(`Inventory stocktake ${row.id} has a movement for a zero-variance line`)
+            if (line.variance !== 0 && movementCount !== 1) result.errors.push(`Inventory stocktake ${row.id} has an incorrect movement count for a nonzero line`)
+          }
+        }
+      }
+    }
+    const fence = fences.get(`${row.tenantId}|${row.businessId}`)
+    if (fence && row.snapshotVersion > fence.mutationRevision) result.errors.push(`Inventory stocktake ${row.id} exceeds its restored fence revision`)
+    if (fence && resultJson && (resultJson.fenceRevision < row.snapshotVersion || resultJson.fenceRevision > fence.mutationRevision)) result.errors.push(`Inventory stocktake ${row.id} has an inconsistent fence revision`)
+  }
+  if (result.errors.length) result.status = 'INVALID'
+  return result
+}
+
+function lineWorkerMemoryRecovery(snapshot) {
+  const tables = snapshot?.tables || {}
+  const manifest = snapshot?.lineWorkerMemoryRecovery
+  const rows = Array.isArray(tables.lineConversationJob) ? tables.lineConversationJob : []
+  const result = { status: 'UNAVAILABLE', manifestVersion: manifest?.schemaVersion || null, errors: [], warnings: [] }
+  if (manifest === undefined) {
+    result.warnings.push('LINE_WORKER_MEMORY_RECOVERY_UNAVAILABLE: snapshot has no memory recovery manifest; pending memory receipts are not claimed as preserved')
+    if (rows.some((row) => row?.memorySyncOptIn === true
+      || (typeof row?.memoryDeliveryState === 'string' && row.memoryDeliveryState !== 'NONE'))) {
+      result.warnings.push('LINE_WORKER_MEMORY_RECOVERY_UNAVAILABLE: memory fields in a legacy snapshot are untrusted and will be restored as opt-out defaults')
+    }
+    return result
+  }
+  if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)
+    || manifest.schemaVersion !== LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION
+    || JSON.stringify(manifest.requiredTables) !== JSON.stringify(LINE_WORKER_MEMORY_RECOVERY_TABLES)) {
+    result.errors.push(`Invalid LINE worker memory recovery manifest (expected ${LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION})`)
+  }
+  for (const model of LINE_WORKER_MEMORY_RECOVERY_TABLES) {
+    if (!Array.isArray(tables[model])) result.errors.push(`LINE worker memory recovery snapshot is missing required table: ${model}`)
+  }
+  for (const row of rows) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`LINE worker memory recovery job ${label} is not an object`)
+      continue
+    }
+    if (typeof row.memorySyncOptIn !== 'boolean') result.errors.push(`LINE worker memory recovery job ${label} has an invalid memorySyncOptIn`)
+    if (!LINE_WORKER_MEMORY_STATES.includes(row.memoryDeliveryState)) result.errors.push(`LINE worker memory recovery job ${label} has an invalid memoryDeliveryState`)
+    if (!Number.isInteger(row.memoryDeliveryAttempts) || row.memoryDeliveryAttempts < 0) result.errors.push(`LINE worker memory recovery job ${label} has an invalid memoryDeliveryAttempts`)
+    if (!LINE_WORKER_MEMORY_AUDIENCES.includes(row.audienceKind)) result.errors.push(`LINE worker memory recovery job ${label} has an invalid audienceKind`)
+    for (const field of ['memoryDeliveryNextAttemptAt', 'memoryDeliveryLeaseUntil']) {
+      const value = row[field]
+      const validDate = value === null || validSnapshotDate(value)
+      if (!validDate) result.errors.push(`LINE worker memory recovery job ${label} has an invalid ${field}`)
+    }
+    if (row.memorySyncOptIn === false && row.memoryDeliveryState !== 'NONE') {
+      result.errors.push(`LINE worker memory recovery job ${label} has opt-out memory with non-NONE state`)
+    }
+    if (row.memoryDeliveryState === 'NONE'
+      && (row.memoryDeliveryAttempts !== 0 || row.memoryDeliveryNextAttemptAt !== null || row.memoryDeliveryLeaseUntil !== null)) {
+      result.errors.push(`LINE worker memory recovery job ${label} has operational memory fields with NONE state`)
+    }
+    if (row.memoryDeliveryState !== 'PENDING'
+      && (row.memoryDeliveryNextAttemptAt !== null || row.memoryDeliveryLeaseUntil !== null)) {
+      result.errors.push(`LINE worker memory recovery job ${label} has a retry cursor on a terminal state`)
+    }
+    if (row.memoryDeliveryState === 'PENDING') {
+      if (row.status !== 'RECORDED') result.errors.push(`LINE worker memory recovery job ${label} has pending memory without RECORDED status`)
+      if (!validSnapshotDate(row.acceptedAt)) result.errors.push(`LINE worker memory recovery job ${label} has pending memory without provider acceptance time`)
+      if (!hasMemoryPendingCheckpoint(snapshot, row)) {
+        result.errors.push(`LINE worker memory recovery job ${label} has no matching scoped MEMORY_DELIVERY_PENDING checkpoint`)
+      }
+    }
+  }
+  if (result.errors.length) result.status = 'INVALID'
+  else result.status = 'AVAILABLE'
+  return result
+}
+
+function marketingBroadcastRecovery(snapshot) {
+  const tables = snapshot?.tables || {}
+  const missing = MARKETING_BROADCAST_RECOVERY_TABLES.filter((model) => !Array.isArray(tables[model]))
+  const manifest = snapshot?.marketingBroadcastRecovery
+  const result = {
+    status: 'AVAILABLE',
+    manifestVersion: manifest?.schemaVersion || null,
+    errors: [],
+    warnings: [],
+  }
+  if (manifest === undefined) {
+    result.status = 'UNAVAILABLE'
+    result.warnings.push('MARKETING_BROADCAST_RECOVERY_UNAVAILABLE: snapshot has no broadcast recovery manifest')
+    return result
+  }
+  if (manifest !== undefined && (
+    !manifest || typeof manifest !== 'object' || Array.isArray(manifest)
+    || manifest.schemaVersion !== MARKETING_BROADCAST_RECOVERY_MANIFEST_VERSION
+    || JSON.stringify(manifest.requiredTables) !== JSON.stringify(MARKETING_BROADCAST_RECOVERY_TABLES)
+  )) result.errors.push(`Invalid Marketing broadcast recovery manifest (expected ${MARKETING_BROADCAST_RECOVERY_MANIFEST_VERSION})`)
+  if (manifest !== undefined && missing.length) for (const model of missing) result.errors.push(`Marketing broadcast recovery snapshot is missing required table: ${model}`)
+  if (result.errors.length) {
+    result.status = 'INVALID'
+    return result
+  }
+  if (missing.length) {
+    result.status = 'UNAVAILABLE'
+    result.warnings.push(`MARKETING_BROADCAST_RECOVERY_UNAVAILABLE: snapshot is missing ${missing.join(', ')}`)
+    return result
+  }
+
+  const tenants = new Map((tables.tenant || []).map((row) => [row.id, row]))
+  const businesses = new Map((tables.business || []).map((row) => [row.id, row]))
+  const accounts = new Map((tables.lineOaAccount || []).map((row) => [row.id, row]))
+  const content = new Map((tables.marketingContentVersion || []).map((row) => [row.id, row]))
+  const briefs = new Map((tables.marketingContentBrief || []).map((row) => [row.id, row]))
+  const intents = new Map()
+  const idempotency = new Set()
+  const codes = new Set()
+  for (const row of tables.marketingBroadcastIntent) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Marketing broadcast intent ${label} is not an object`)
+      continue
+    }
+    if (intents.has(row.id)) result.errors.push(`Marketing broadcast intents reuse id ${row.id}`)
+    intents.set(row.id, row)
+    const business = businesses.get(row.businessId)
+    const tenant = tenants.get(row.tenantId)
+    if (!business || business.tenantId !== row.tenantId || !tenant) result.errors.push(`Marketing broadcast intent ${row.id} has inconsistent Business/Tenant references`)
+    if (!row.code || !row.idempotencyKey || !row.createdBy) result.errors.push(`Marketing broadcast intent ${row.id} is missing identity fields`)
+    if (!BROADCAST_INTENT_STATUSES.includes(row.status)) result.errors.push(`Marketing broadcast intent ${row.id} has invalid status`)
+    if (!Number.isInteger(row.currentRevision) || row.currentRevision < 1) result.errors.push(`Marketing broadcast intent ${row.id} has invalid currentRevision`)
+    if (!Number.isInteger(row.version) || row.version < 1) result.errors.push(`Marketing broadcast intent ${row.id} has invalid version`)
+    const idempotencyKey = `${row.businessId}|${row.idempotencyKey}`
+    const codeKey = `${row.businessId}|${row.code}`
+    if (idempotency.has(idempotencyKey)) result.errors.push(`Marketing broadcast intents reuse idempotency key ${idempotencyKey}`)
+    if (codes.has(codeKey)) result.errors.push(`Marketing broadcast intents reuse code ${codeKey}`)
+    idempotency.add(idempotencyKey)
+    codes.add(codeKey)
+  }
+  const revisions = new Map()
+  for (const row of tables.marketingBroadcastIntentVersion) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Marketing broadcast version ${label} is not an object`)
+      continue
+    }
+    const intent = intents.get(row.intentId)
+    if (!intent) {
+      result.errors.push(`Marketing broadcast version ${row.id} references a missing intent`)
+      continue
+    }
+    const key = `${row.intentId}|${row.revision}`
+    if (revisions.has(key)) result.errors.push(`Marketing broadcast versions reuse revision ${key}`)
+    revisions.set(key, row)
+    if (!Number.isInteger(row.revision) || row.revision < 1) result.errors.push(`Marketing broadcast version ${row.id} has invalid revision`)
+    try {
+      const value = parseMarketingBroadcastPayload(row.payloadJson, row.payloadHash)
+      if (hashMarketingBroadcastPayload(value) !== row.payloadHash) result.errors.push(`Marketing broadcast version ${row.id} has a non-canonical payload hash`)
+      const brief = briefs.get(value.content.briefId)
+      const contentVersion = content.get(value.content.contentVersionId)
+      if (!brief || brief.businessId !== intent.businessId) result.errors.push(`Marketing broadcast version ${row.id} references content outside its Business`)
+      if (!contentVersion || contentVersion.briefId !== value.content.briefId || contentVersion.payloadHash !== value.content.payloadHash) result.errors.push(`Marketing broadcast version ${row.id} references stale content evidence`)
+      if (value.account) {
+        const account = accounts.get(value.account.lineOaAccountId)
+        // The snapshot is historical evidence. An account version or status
+        // can legitimately advance after the planning revision was recorded;
+        // current freshness is resolved by the read DTO as UNAVAILABLE. The
+        // recovery gate validates only that the referenced identity remains in
+        // the same Business and that the immutable payload/hash is coherent.
+        if (!account || account.businessId !== intent.businessId) result.errors.push(`Marketing broadcast version ${row.id} references LINE account outside its Business`)
+      }
+    } catch {
+      result.errors.push(`Marketing broadcast version ${row.id} has an invalid payload or hash`)
+    }
+  }
+  for (const intent of intents.values()) {
+    const rows = tables.marketingBroadcastIntentVersion.filter((row) => row.intentId === intent.id).sort((a, b) => a.revision - b.revision)
+    if (!rows.some((row) => row.revision === 1)) result.errors.push(`Marketing broadcast intent ${intent.id} is missing revision 1`)
+    if (!rows.some((row) => row.revision === intent.currentRevision)) result.errors.push(`Marketing broadcast intent ${intent.id} is missing current revision ${intent.currentRevision}`)
+    for (let index = 0; index < rows.length; index += 1) if (rows[index].revision !== index + 1) result.errors.push(`Marketing broadcast intent ${intent.id} has a non-contiguous revision history`)
+  }
+  if (result.errors.length) result.status = 'INVALID'
+  return result
+}
+
 export async function exportSnapshot({
   db = prisma,
   includeBinaryContent = false,
   filesystemPort = createLocalFilesystemPort(),
 } = {}) {
-  const snapshot = { schemaVersion: SNAPSHOT_SCHEMA_VERSION, exportedAt: new Date().toISOString(), tables: {} }
+  const snapshot = {
+    schemaVersion: SNAPSHOT_SCHEMA_VERSION,
+    exportedAt: new Date().toISOString(),
+    genesisRag17Recovery: {
+      schemaVersion: GENESIS_RAG17_RECOVERY_MANIFEST_VERSION,
+      requiredTables: [...GENESIS_RAG17_RECOVERY_TABLES],
+    },
+    knowledgeAdmissionRecovery: { schemaVersion: 'knowledge-admission-recovery.v1', requiredTables: [...KNOWLEDGE_ADMISSION_TABLES] },
+    marketingBroadcastRecovery: {
+      schemaVersion: MARKETING_BROADCAST_RECOVERY_MANIFEST_VERSION,
+      requiredTables: [...MARKETING_BROADCAST_RECOVERY_TABLES],
+    },
+    commerceBillingRecovery: {
+      schemaVersion: COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION,
+      requiredTables: [...COMMERCE_BILLING_RECOVERY_TABLES],
+    },
+    inventoryStocktakeRecovery: {
+      schemaVersion: INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION,
+      requiredTables: [...INVENTORY_STOCKTAKE_RECOVERY_TABLES],
+    },
+    lineWorkerMemoryRecovery: {
+      schemaVersion: LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION,
+      requiredTables: [...LINE_WORKER_MEMORY_RECOVERY_TABLES],
+    },
+    tables: {},
+  }
   for (const model of SNAPSHOT_MODELS) {
     const rows = await db[model].findMany()
     // Ciphertext is still a credential capability on the installation that has
@@ -268,41 +1392,154 @@ export async function exportSnapshot({
 
 export function previewSnapshot(snapshot, { remounts = [] } = {}) {
   const errors = []
+  const warnings = []
+  let recovery = { status: 'UNKNOWN', manifestVersion: null }
   if (!snapshot || typeof snapshot !== 'object') errors.push('Snapshot is not an object')
   else {
     if (snapshot.schemaVersion !== SNAPSHOT_SCHEMA_VERSION) errors.push(`Unsupported snapshot schemaVersion: ${snapshot.schemaVersion} (expected ${SNAPSHOT_SCHEMA_VERSION})`)
     if (!snapshot.tables || typeof snapshot.tables !== 'object') errors.push('Snapshot has no tables')
+    const manifest = recoveryManifest(snapshot)
+    const admission = admissionRecoveryManifest(snapshot)
+    errors.push(...admission.errors)
+    warnings.push(...admission.warnings)
+    errors.push(...manifest.errors)
+    warnings.push(...manifest.warnings)
+    recovery = manifest.recovery
   }
-  if (errors.length) return { valid: false, errors, counts: null }
+  if (errors.length) return { valid: false, errors, warnings, recovery, counts: null }
   const counts = Object.fromEntries(SNAPSHOT_MODELS.map((model) => [model, Array.isArray(snapshot.tables[model]) ? snapshot.tables[model].length : 0]))
   const remounted = new Set(remounts.map((mount) => mount.businessId))
   const businessIds = [...new Set(localAssets(snapshot).map((asset) => asset.businessId))]
   const included = new Set(contentManifest(snapshot).filter((entry) => entry.contentIncluded).map((entry) => entry.fileId))
   return {
-    valid: true, errors: [], counts, exportedAt: snapshot.exportedAt || null,
+    valid: true, errors: [], warnings, recovery, counts, exportedAt: snapshot.exportedAt || null,
     mountRequiredBusinessIds: businessIds.filter((businessId) => !remounted.has(businessId)).sort(),
     missingContentFileIds: localAssets(snapshot).filter((asset) => !included.has(asset.id)).map((asset) => asset.id).sort(),
   }
 }
 
-export async function previewImport(snapshot, { remounts = [], db = prisma, viewer } = {}) {
-  assertRestoreOperator(viewer)
+export async function previewImport(snapshot, { remounts = [], db = prisma, viewer, nested = false } = {}) {
+  // `nested` is importSnapshot's own dry run — the caller already proved
+  // authority and will record one BACKUP_RESTORE use, so a second
+  // BACKUP_PREVIEW row here would double-count one act.
+  if (nested) assertOperator(viewer, RESTORE_DENIED)
+  else await assertRestoreOperator(viewer, 'BACKUP_PREVIEW')
   const base = previewSnapshot(snapshot, { remounts })
   if (!base.valid) return base
+  const billing = commerceBillingRecovery(snapshot)
+  const marketingBroadcast = marketingBroadcastRecovery(snapshot)
+  const inventory = inventoryStocktakeRecovery(snapshot)
+  const lineWorkerMemory = lineWorkerMemoryRecovery(snapshot)
+  const archive = archiveRecovery(snapshot)
+  const usageRollup = usageRollupRecovery(snapshot)
   const current = {}
   for (const model of SNAPSHOT_MODELS) current[model] = await db[model].count()
-  return { ...base, current, wouldReplace: Object.values(current).some((count) => count > 0) }
+  const currentMemoryJobs = await db.lineConversationJob.count({ where: {
+    OR: [{ memorySyncOptIn: true }, { memoryDeliveryState: { not: 'NONE' } }],
+  } })
+  const currentMemoryEvidence = await db.agentTraceEvent.count({ where: { kind: { in: [...LINE_WORKER_MEMORY_TRACE_KINDS] } } })
+  // An older snapshot may be useful for read-only inspection, but importing it
+  // while any billing row exists would silently turn omitted arrays into deletes.
+  // An installation with no billing rows can still restore the older snapshot;
+  // the explicit UNAVAILABLE status tells the operator that this feature had no
+  // recoverable source in that artifact.
+  if (billing.status === 'UNAVAILABLE' && COMMERCE_BILLING_RECOVERY_TABLES.some((model) => current[model] > 0)) {
+    billing.errors.push('Commerce billing recovery is unavailable while the installation contains billing rows; refusing a restore that would erase evidence')
+  }
+  // A legacy snapshot can still be previewed on an empty installation, but it
+  // cannot replace an installation that already contains stocktake evidence.
+  // That would erase pending observations and the fence revision that protects
+  // later ledger reads without giving the operator an explicit refusal.
+  if (inventory.status === 'UNAVAILABLE' && INVENTORY_STOCKTAKE_RECOVERY_TABLES.some((model) => current[model] > 0)) {
+    inventory.errors.push('Inventory stocktake recovery is unavailable while the installation contains stocktake rows; refusing a restore that would erase evidence')
+  }
+  if (marketingBroadcast.status === 'UNAVAILABLE' && MARKETING_BROADCAST_RECOVERY_TABLES.some(model => current[model] > 0)) {
+    marketingBroadcast.errors.push('Marketing broadcast recovery is unavailable while the installation contains broadcast rows; refusing a restore that would erase planning evidence')
+  }
+  if (lineWorkerMemory.status === 'UNAVAILABLE' && (currentMemoryJobs > 0 || currentMemoryEvidence > 0)) {
+    lineWorkerMemory.errors.push('LINE worker memory recovery is unavailable while the installation contains enrolled jobs or memory evidence; refusing a restore that would erase evidence')
+  }
+  if (archive.status === 'UNAVAILABLE' && ARCHIVE_RECOVERY_TABLES.some((model) => current[model] > 0)) {
+    archive.errors.push('Chat evidence archive recovery is unavailable while the installation contains archive keys or manifests; refusing a restore that would erase evidence')
+    archive.status = 'INVALID'
+  }
+  if (usageRollup.status === 'UNAVAILABLE' && current[USAGE_ROLLUP_RECOVERY_TABLE] > 0) {
+    usageRollup.errors.push('Usage event rollup recovery is unavailable while the installation contains rollup rows; refusing a restore that would erase aggregate evidence')
+    usageRollup.status = 'INVALID'
+  }
+  return {
+    ...base,
+    valid: base.valid && billing.errors.length === 0 && inventory.errors.length === 0 && lineWorkerMemory.errors.length === 0 && marketingBroadcast.errors.length === 0 && archive.errors.length === 0 && usageRollup.errors.length === 0,
+    errors: [...base.errors, ...billing.errors, ...inventory.errors, ...lineWorkerMemory.errors, ...marketingBroadcast.errors, ...archive.errors, ...usageRollup.errors],
+    warnings: [...base.warnings, ...billing.warnings, ...inventory.warnings, ...lineWorkerMemory.warnings, ...marketingBroadcast.warnings, ...archive.warnings, ...usageRollup.warnings],
+    billingRecovery: billing,
+    inventoryStocktakeRecovery: inventory,
+    lineWorkerMemoryRecovery: lineWorkerMemory,
+    marketingBroadcastRecovery: marketingBroadcast,
+    archiveRecovery: archive,
+    usageEventRollupRecovery: usageRollup,
+    current,
+    wouldReplace: Object.values(current).some((count) => count > 0),
+  }
+}
+
+/**
+ * A preview is necessarily outside the replacement transaction. Recheck the
+ * only legacy omissions that can strand evidence immediately before the first
+ * delete, using the transaction client so a row appearing after preview cannot
+ * turn into a silent wipe.
+ */
+async function assertProtectedRecoveryStillSafe(tx, snapshot, preview) {
+  if (preview.archiveRecovery?.status === 'UNAVAILABLE') {
+    for (const model of ARCHIVE_RECOVERY_TABLES) {
+      const count = await tx[model].count()
+      if (count > 0) {
+        throw new BackupRestoreSafetyError(
+          'BACKUP_ARCHIVE_RECOVERY_LIVE_DATA_APPEARED',
+          `Chat evidence archive recovery became unavailable while ${model} gained live rows; refusing to erase evidence`,
+        )
+      }
+    }
+  }
+  if (preview.usageEventRollupRecovery?.status === 'UNAVAILABLE') {
+    const count = await tx[USAGE_ROLLUP_RECOVERY_TABLE].count()
+    if (count > 0) {
+      throw new BackupRestoreSafetyError(
+        'BACKUP_USAGE_ROLLUP_RECOVERY_LIVE_DATA_APPEARED',
+        'Usage event rollup recovery became unavailable while live rollup rows appeared; refusing to erase aggregate evidence',
+      )
+    }
+  }
+  // Re-run the pure chain check inside the transaction as well. It is cheap,
+  // makes the destructive boundary self-contained and prevents a future caller
+  // from bypassing preview's normalized order.
+  const archive = archiveRecovery(snapshot)
+  if (archive.errors.length) {
+    throw new BackupRestoreSafetyError('BACKUP_ARCHIVE_MANIFEST_INVALID', archive.errors.join('; '))
+  }
 }
 
 /** Restore is recovery of evidence, never authorization to repeat an external send. */
-function restoredRow(model, row) {
+function restoredRow(model, row, { lineWorkerMemoryRecovery } = {}) {
   if (model === 'lineOaAccount') return {
     ...row, serverEnabled: false, transportEpoch: (row.transportEpoch ?? 1) + 1,
     version: (row.version ?? 1) + 1,
   }
   if (model !== 'lineConversationJob') return row
   const { sealedReplyToken, ...rest } = row
-  const restored = { ...rest, sealedReplyToken: null, claimantId: null, leaseExpiresAt: null, version: (row.version ?? 1) + 1 }
+  const preserveMemoryRecovery = lineWorkerMemoryRecovery?.status === 'AVAILABLE'
+  const memory = preserveMemoryRecovery
+    ? { memorySyncOptIn: row.memorySyncOptIn, memoryDeliveryState: row.memoryDeliveryState,
+      memoryDeliveryAttempts: row.memoryDeliveryAttempts, memoryDeliveryNextAttemptAt: row.memoryDeliveryNextAttemptAt,
+      memoryDeliveryLeaseUntil: null }
+    : { audienceKind: 'DIRECT', memorySyncOptIn: false, memoryDeliveryState: 'NONE', memoryDeliveryAttempts: 0,
+      memoryDeliveryNextAttemptAt: null, memoryDeliveryLeaseUntil: null }
+  const restored = { ...rest, sealedReplyToken: null, claimantId: null, leaseExpiresAt: null,
+    // A restored account is disabled above. Preserve the durable pending receipt
+    // and its retry cursor for inspection/recovery, but never restore an active
+    // scanner lease that could cause an external MSP effect automatically.
+    ...memory,
+    version: (row.version ?? 1) + 1 }
   // A send in progress at export may have reached LINE. Keep that uncertainty
   // visible and blocking cutover rather than inventing a safe failure.
   if (row.status === 'SENDING' || (row.status === 'READY' && row.firstSendAt)) return { ...restored, status: 'UNKNOWN', errorCode: 'RESTORED_SEND_OUTCOME_UNKNOWN' }
@@ -321,49 +1558,93 @@ export async function importSnapshot(snapshot, {
   viewer,
   filesystemPort = createLocalFilesystemPort(),
 } = {}) {
-  assertRestoreOperator(viewer)
-  const preview = await previewImport(snapshot, { remounts, db, viewer })
+  // @req FR-197 — authority now, the use record later. Recording it here would
+  // write an OPERATOR_ACTION row that the transaction below deletes: restore
+  // clears every snapshot model, AuditEvent among them, before re-inserting the
+  // snapshot's own rows. The evidence of the most powerful operation in the
+  // product was being erased by that operation (SEC-027).
+  requireViewer(viewer, 'backup restore')
+  assertOperator(viewer, RESTORE_DENIED)
+  const preview = await previewImport(snapshot, { remounts, db, viewer, nested: true })
   if (!preview.valid) return { restored: false, ...preview }
   if (!confirm) return { restored: false, needsConfirmation: true, ...preview }
   for (const mount of remounts) {
     if (!mount.businessId || !mount.deviceKey || !path.win32.isAbsolute(mount.rootPath || '')) throw new Error('Each remount requires businessId, deviceKey and an absolute Windows rootPath')
   }
 
-  await db.$transaction(async (tx) => {
-    // @req FR-123 — excluded plugin auth records are revoked at the recovery
-    // boundary rather than left active beside a restored business snapshot.
-    // Deleting the installation cascades to its codes and sessions, so one
-    // statement clears all three; leaving them would mean a token minted before
-    // the restore still authenticates against the data that replaced it.
-    await tx.pluginInstallation.deleteMany()
-    await tx.localWorkspaceMount.deleteMany()
-    for (const model of [...SNAPSHOT_MODELS].reverse()) await tx[model].deleteMany()
-    for (const model of SNAPSHOT_MODELS) {
-      for (const row of snapshot.tables[model] || []) await tx[model].create({ data: restoredRow(model, row) })
+  try {
+    await db.$transaction(async (tx) => {
+      // This is the commit-side half of the legacy protected-table guard. It
+      // must run before plugin/mount/model deletion so a row that appeared
+      // after preview can never be erased by an omitted snapshot array.
+      await assertProtectedRecoveryStillSafe(tx, snapshot, preview)
+      // @req FR-123 — excluded plugin auth records are revoked at the recovery
+      // boundary rather than left active beside a restored business snapshot.
+      // Deleting the installation cascades to its codes and sessions, so one
+      // statement clears all three; leaving them would mean a token minted before
+      // the restore still authenticates against the data that replaced it.
+      await tx.pluginInstallation.deleteMany()
+      await tx.localWorkspaceMount.deleteMany()
+      for (const model of [...SNAPSHOT_MODELS].reverse()) await tx[model].deleteMany()
+      for (const model of SNAPSHOT_MODELS) {
+        const rows = model === 'archiveManifest'
+          ? preview.archiveRecovery.manifestRows
+          : snapshot.tables[model] || []
+        for (const row of rows) await tx[model].create({ data: restoredRow(model, row, { lineWorkerMemoryRecovery: preview.lineWorkerMemoryRecovery }) })
+      }
+      for (const mount of remounts) {
+        const business = await tx.business.findUnique({ where: { id: mount.businessId }, select: { tenantId: true } })
+        if (!business) throw new Error(`Remount Business not found: ${mount.businessId}`)
+        await tx.localWorkspaceMount.create({ data: { tenantId: business.tenantId, businessId: mount.businessId, deviceKey: mount.deviceKey, rootPath: path.win32.normalize(mount.rootPath) } })
+      }
+      await recordAudit(tx, { entityType: 'SNAPSHOT', entityId: 'local', action: 'RESTORED', payload: { exportedAt: snapshot.exportedAt || null, counts: preview.counts } })
+      // @req FR-197 — inside the transaction and after the re-insert, so the
+      // record of who used operator power survives the wipe that use performed
+      // (SEC-027). Same placement, same reason, as the RESTORED event above.
+      await recordAudit(tx, {
+        entityType: 'OPERATOR_ACTION', entityId: 'local', action: 'BACKUP_RESTORE',
+        actorId: viewer?.principal?.id ?? null,
+        payload: { counts: preview.counts, exportedAt: snapshot.exportedAt || null },
+      })
+    }, {
+      isolationLevel: 'Serializable',
+      // Prisma's default interactive-transaction budget is 5s, and the loop above
+      // is one `create` per row across every model in SNAPSHOT_MODELS — so its
+      // cost grows with the schema itself, not with anything a caller passes. It
+      // crossed the default once FR-089's three models and the plan-import
+      // receipt joined the list, and the error it produced said "Transaction not
+      // found", which reads like a dropped connection rather than a clock running
+      // out. That misleading message is most of why this deserves a comment.
+      //
+      // The budget is raised rather than the transaction split: a restore that
+      // committed halfway would leave the installation holding a mixture of two
+      // snapshots, and there is no meaningful state between "every table
+      // replaced" and "none of them". Whole-or-nothing is the property worth
+      // paying for, and it is the one BR-008 relies on.
+      maxWait: 10_000,
+      timeout: 120_000,
+    })
+  } catch (error) {
+    if (error instanceof BackupRestoreSafetyError) {
+      return {
+        restored: false,
+        valid: false,
+        errors: [error.message],
+        warnings: preview.warnings,
+        counts: preview.counts,
+        wouldReplace: preview.wouldReplace,
+        recovery: preview.recovery,
+        billingRecovery: preview.billingRecovery,
+        inventoryStocktakeRecovery: preview.inventoryStocktakeRecovery,
+        lineWorkerMemoryRecovery: preview.lineWorkerMemoryRecovery,
+        marketingBroadcastRecovery: preview.marketingBroadcastRecovery,
+        archiveRecovery: preview.archiveRecovery,
+        usageEventRollupRecovery: preview.usageEventRollupRecovery,
+        errorCode: error.code,
+      }
     }
-    for (const mount of remounts) {
-      const business = await tx.business.findUnique({ where: { id: mount.businessId }, select: { tenantId: true } })
-      if (!business) throw new Error(`Remount Business not found: ${mount.businessId}`)
-      await tx.localWorkspaceMount.create({ data: { tenantId: business.tenantId, businessId: mount.businessId, deviceKey: mount.deviceKey, rootPath: path.win32.normalize(mount.rootPath) } })
-    }
-    await recordAudit(tx, { entityType: 'SNAPSHOT', entityId: 'local', action: 'RESTORED', payload: { exportedAt: snapshot.exportedAt || null, counts: preview.counts } })
-  }, {
-    // Prisma's default interactive-transaction budget is 5s, and the loop above
-    // is one `create` per row across every model in SNAPSHOT_MODELS — so its
-    // cost grows with the schema itself, not with anything a caller passes. It
-    // crossed the default once FR-089's three models and the plan-import
-    // receipt joined the list, and the error it produced said "Transaction not
-    // found", which reads like a dropped connection rather than a clock running
-    // out. That misleading message is most of why this deserves a comment.
-    //
-    // The budget is raised rather than the transaction split: a restore that
-    // committed halfway would leave the installation holding a mixture of two
-    // snapshots, and there is no meaningful state between "every table
-    // replaced" and "none of them". Whole-or-nothing is the property worth
-    // paying for, and it is the one BR-008 relies on.
-    maxWait: 10_000,
-    timeout: 120_000,
-  })
+    throw error
+  }
 
   const remountByBusiness = new Map(remounts.map((mount) => [mount.businessId, mount]))
   const manifestByFile = new Map(contentManifest(snapshot).map((entry) => [entry.fileId, entry]))
@@ -387,5 +1668,17 @@ export async function importSnapshot(snapshot, {
     if (!active) unresolvedContentFileIds.push(asset.id)
     await db.fileAsset.update({ where: { id: asset.id }, data: { status: active ? 'ACTIVE' : 'MISSING' } })
   }
-  return { restored: true, counts: preview.counts, unresolvedContentFileIds }
+  return {
+    restored: true,
+    counts: preview.counts,
+    warnings: preview.warnings,
+    recovery: preview.recovery,
+    billingRecovery: preview.billingRecovery,
+    inventoryStocktakeRecovery: preview.inventoryStocktakeRecovery,
+    lineWorkerMemoryRecovery: preview.lineWorkerMemoryRecovery,
+    marketingBroadcastRecovery: preview.marketingBroadcastRecovery,
+    archiveRecovery: preview.archiveRecovery,
+    usageEventRollupRecovery: preview.usageEventRollupRecovery,
+    unresolvedContentFileIds,
+  }
 }

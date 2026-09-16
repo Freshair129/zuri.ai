@@ -5,7 +5,7 @@
 // port rejects at submit, or hide one the port accepts.
 // @spec SDD-025, SEC-009 — presentation only; no credential ever passes through here.
 // @tested tests/unit/fr048-provider-catalog.test.js
-import { PUBLIC_LINE_PROVIDERS } from '@/modules/agent/model-provider'
+import { PUBLIC_LINE_PROVIDERS } from '@/modules/agent/model-provider-catalog'
 
 const PRESENTATION = {
   openrouter: { name: 'OpenRouter', modelHint: 'openai/gpt-4o-mini' },

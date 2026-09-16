@@ -1,4 +1,6 @@
+import { hasKnowledgeRunAuthority } from '@/modules/knowledge/knowledge-execution-authority'
 import prisma from '@/lib/db'
+import { assertGenesisRag17Publication } from './genesisrag17-publication'
 import { isInstallationOperator, isSotDataPlaneFor } from '@/modules/identity/viewer-authority'
 import {
   knowledgeIngestionRunInput,
@@ -22,6 +24,7 @@ import {
 } from './pipeline-tracking-contract'
 import { createPipelineRun, getPipelineMonitor, recordPipelineEvent } from './pipeline-tracking-service'
 
+// @req FR-173 — only the exact admitted knowledge run accepts private runtime authority.
 // @req FR-109 — the ledger-writing wiring: something calls FR-118's stage
 // composition and writes its result onto the FR-071 ledger, bound through docId;
 // and the monitor half — one `pipeline_job_id` resolves the run, its seventeen
@@ -440,7 +443,7 @@ async function loadKnowledgeRun(db, executionRunId) {
 // writer (`recordPipelineEvent`); it is repeated here so the refusal names
 // this surface and happens before any step lookup leaks a step's existence.
 function requireReporter(viewer, run) {
-  if (isInstallationOperator(viewer) || isSotDataPlaneFor(viewer, run.tenantId)) return
+  if (isInstallationOperator(viewer) || hasKnowledgeRunAuthority(viewer, run) || isSotDataPlaneFor(viewer, run.tenantId)) return
   throw serviceError(403, 'Knowledge stage reporting requires an installation operator or the data-plane key of this run’s Tenant (ADR-067 D1)')
 }
 
@@ -672,11 +675,29 @@ export async function finishKnowledgeIngestionRun(input, { db = prisma, viewer, 
   }
 
   const monitor = await getPipelineMonitor(run.executionRunId, { db, viewer })
-  const outcome = knowledgeRunOutcome({ stages: monitor.stageTimeline, gates: monitor.gates })
+  let outcome = knowledgeRunOutcome({ stages: monitor.stageTimeline, gates: monitor.gates })
+  // Legacy ingestion began after receipt and deliberately excludes Stage 1.
+  // The raw-entry profile executes it: only evidence for the monitor's current
+  // step/attempt may close that failure, never a late row from an older attempt.
+  const receiptStep = monitor.stageTimeline.find((step) => step.pipelineStageId === 'DPS-KI-INGEST')
+  if (receiptStep?.status === 'FAILED') {
+    const evidence = await db.genesisRag17StageEvidence.findFirst({ where: {
+      executionRunId: run.executionRunId, pipelineStageId: receiptStep.pipelineStageId,
+      executionStepId: receiptStep.executionStepId, attemptId: receiptStep.attemptId,
+      stageNumber: 1, outcome: 'FAILED',
+    } })
+    if (evidence) outcome = { status: 'FAILED', failureCode: 'KI_STAGE_FAILED:DPS-KI-INGEST', failedStage: 'DPS-KI-INGEST', gate: null, blocking: [] }
+  }
   if (!outcome.status) {
     const error = serviceError(409, `Knowledge ingestion run cannot be closed yet: ${outcome.blocking.join(', ')}`)
     error.details = outcome.blocking
     throw error
+  }
+
+  if (outcome.status === 'SUCCEEDED') {
+    const batch = await db.genesisRag17Batch.findFirst({ where: { executionRunId: run.executionRunId } })
+    if (!batch) throw serviceError(409, 'Successful finish requires an attempt-bound publication receipt; legacy evidence remains readable')
+    await assertGenesisRag17Publication({ schemaVersion: 'genesisrag17.v1', executionRunId: run.executionRunId, scope: JSON.parse(batch.scopeJson) }, { db, viewer })
   }
 
   const result = await recordPipelineEvent({

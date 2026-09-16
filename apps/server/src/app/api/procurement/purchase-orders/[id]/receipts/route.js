@@ -4,7 +4,8 @@ import { listGoodsReceipts, postGoodsReceipt } from '@/modules/procurement/appli
 
 // @req FR-165 — the goods receipts of one purchase order. GET lists them with
 //   their lines; POST posts one against a SENT order under Business OWNER or
-//   PROCUREMENT_BUYER authority — every line names an order line and may not
+//   GOODS_RECEIVER authority (FR-196/ADR-079 split PROCUREMENT_BUYER's receipt
+//   half into its own, conflicting role) — every line names an order line and may not
 //   exceed what is outstanding, a line naming a counted SKU writes RECEIPT
 //   rows into the Inventory ledger in the same transaction (which needs
 //   Inventory's write authority on top), and a receipt that completes every

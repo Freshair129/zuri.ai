@@ -1,0 +1,235 @@
+
+> zuri-ai@0.1.0 test
+> node scripts/assert-tests-ran.mjs vitest run line-oa server-line line-webhook fr146 fr151 fr152 fr153 fr148 fr150 edge-conversation
+
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+
+ RUN  v2.1.9 C:/Users/pc/workspace/zuri-ai-line-oa-audit/apps/server
+
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": SQLite database "run-29396-mtuhaonk-a9470d.db" at "file:./.test-dbs/run-29396-mtuhaonk-a9470d.db"
+
+SQLite database run-29396-mtuhaonk-a9470d.db created at file:./.test-dbs/run-29396-mtuhaonk-a9470d.db
+
+Your database is now in sync with your Prisma schema. Done in 3.90s
+
+Running generate... (Use --skip-generate to skip the generators)
+[2K[1A[2K[GRunning generate... - Prisma Client
+[2K[1A[2K[G✔ Generated Prisma Client (v5.22.0) to .\node_modules\@prisma\client in 912ms
+
+ ✓ tests/integration/server-line-jobs.test.js (20 tests) 1757ms
+ ✓ tests/integration/fr152-line-oa-rich-menu-jobs.test.js (7 tests) 1076ms
+ ✓ tests/integration/fr146-line-oa-account.test.js (8 tests) 364ms
+ ✓ tests/unit/platform/server-line-transport.test.js (49 tests) 18ms
+ ✓ tests/integration/fr151-line-oa-rich-menu.test.js (7 tests) 295ms
+ ✓ tests/integration/line-oa-provider-migration.test.js (6 tests) 148ms
+stdout | tests/integration/line-oa-evidence-convergence.test.js > LINE OA ingress converges on the canonical ingestion envelope (FR-081) > writes canonical raw evidence AND business truth from one ingress
+{"ts":"2026-09-09T19:16:02.648Z","level":"info","event":"line.webhook.received","correlationId":"bf0c5efb-4ae4-4ada-85c6-8af7c0dd7691","correlationSource":"GENERATED","tenantId":"a670ee20-2e1e-45ed-a89f-5e9930e369d5","businessId":"595206c3-6012-45c4-b174-69f71dd097bd","received":1}
+
+stdout | tests/integration/line-oa-evidence-convergence.test.js > LINE OA ingress converges on the canonical ingestion envelope (FR-081) > writes canonical raw evidence AND business truth from one ingress
+{"ts":"2026-09-09T19:16:02.690Z","level":"info","event":"line.webhook.event","correlationId":"bf0c5efb-4ae4-4ada-85c6-8af7c0dd7691","eventId":"WEH-CONV-1","tenantId":"a670ee20-2e1e-45ed-a89f-5e9930e369d5","businessId":"595206c3-6012-45c4-b174-69f71dd097bd","eventType":"message","messageType":"text","connectionId":"cf078887-7c29-4cb2-8d32-9013b0c75e0c","stage":"TURN","outcome":"OK","principalType":"CUSTOMER","responseKind":"ANSWER","grounded":true,"skipReply":false,"conversationId":"7b795072-f940-4689-8d54-eab5775084d7","messageId":"575495cd-2792-49fa-b72b-5e813250a396","personId":"66b16720-2bb9-4097-9548-a3ec696d2e90","evidenceStatus":"CREATED","durationMs":40}
+{"ts":"2026-09-09T19:16:02.690Z","level":"info","event":"line.webhook.completed","correlationId":"bf0c5efb-4ae4-4ada-85c6-8af7c0dd7691","correlationSource":"GENERATED","tenantId":"a670ee20-2e1e-45ed-a89f-5e9930e369d5","businessId":"595206c3-6012-45c4-b174-69f71dd097bd","connectionId":"cf078887-7c29-4cb2-8d32-9013b0c75e0c","received":1,"handled":1,"failed":0,"skippedCount":0,"evidenceRecorded":1,"durationMs":44}
+
+stdout | tests/integration/line-oa-evidence-convergence.test.js > LINE OA ingress converges on the canonical ingestion envelope (FR-081) > records evidence for the events the turn skips, which were previously discarded
+{"ts":"2026-09-09T19:16:02.694Z","level":"info","event":"line.webhook.received","correlationId":"2c4b40e4-b177-4242-ab13-84318e96bea1","correlationSource":"GENERATED","tenantId":"a670ee20-2e1e-45ed-a89f-5e9930e369d5","businessId":"595206c3-6012-45c4-b174-69f71dd097bd","received":3}
+
+stdout | tests/integration/line-oa-evidence-convergence.test.js > LINE OA ingress converges on the canonical ingestion envelope (FR-081) > records evidence for the events the turn skips, which were previously discarded
+{"ts":"2026-09-09T19:16:02.703Z","level":"info","event":"line.webhook.event","correlationId":"2c4b40e4-b177-4242-ab13-84318e96bea1","eventId":"WEH-CONV-FOLLOW","tenantId":"a670ee20-2e1e-45ed-a89f-5e9930e369d5","businessId":"595206c3-6012-45c4-b174-69f71dd097bd","eventType":"follow","connectionId":"cf078887-7c29-4cb2-8d32-9013b0c75e0c","stage":"DISPATCH","outcome":"SKIPPED","skipped":true,"evidenceStatus":"CREATED","durationMs":8}
+
+stdout | tests/integration/line-oa-evidence-convergence.test.js > LINE OA ingress converges on the canonical ingestion envelope (FR-081) > records evidence for the events the turn skips, which were previously discarded
+{"ts":"2026-09-09T19:16:02.712Z","level":"info","event":"line.webhook.event","correlationId":"2c4b40e4-b177-4242-ab13-84318e96bea1","eventId":"WEH-CONV-POSTBACK","tenantId":"a670ee20-2e1e-45ed-a89f-5e9930e369d5","businessId":"595206c3-6012-45c4-b174-69f71dd097bd","eventType":"postback","connectionId":"cf078887-7c29-4cb2-8d32-9013b0c75e0c","stage":"DISPATCH","outcome":"SKIPPED","skipped":true,"evidenceStatus":"CREATED","durationMs":9}
+
+stdout | tests/integration/line-oa-evidence-convergence.test.js > LINE OA ingress converges on the canonical ingestion envelope (FR-081) > records evidence for the events the turn skips, which were previously discarded
+{"ts":"2026-09-09T19:16:02.721Z","level":"info","event":"line.webhook.event","correlationId":"2c4b40e4-b177-4242-ab13-84318e96bea1","eventId":"WEH-CONV-STICKER","tenantId":"a670ee20-2e1e-45ed-a89f-5e9930e369d5","businessId":"595206c3-6012-45c4-b174-69f71dd097bd","eventType":"message","messageType":"sticker","connectionId":"cf078887-7c29-4cb2-8d32-9013b0c75e0c","stage":"DISPATCH","outcome":"SKIPPED","skipped":true,"evidenceStatus":"CREATED","durationMs":9}
+{"ts":"2026-09-09T19:16:02.721Z","level":"info","event":"line.webhook.completed","correlationId":"2c4b40e4-b177-4242-ab13-84318e96bea1","correlationSource":"GENERATED","tenantId":"a670ee20-2e1e-45ed-a89f-5e9930e369d5","businessId":"595206c3-6012-45c4-b174-69f71dd097bd","connectionId":"cf078887-7c29-4cb2-8d32-9013b0c75e0c","received":3,"handled":0,"failed":0,"skippedCount":3,"evidenceRecorded":3,"durationMs":28}
+
+stdout | tests/integration/line-oa-evidence-convergence.test.js > LINE OA ingress converges on the canonical ingestion envelope (FR-081) > is idempotent on redelivery: one raw record, reported UNCHANGED
+{"ts":"2026-09-09T19:16:02.724Z","level":"info","event":"line.webhook.received","correlationId":"e88eda53-a04a-4203-a1ed-8ca4cacfedf0","correlationSource":"GENERATED","tenantId":"a670ee20-2e1e-45ed-a89f-5e9930e369d5","businessId":"595206c3-6012-45c4-b174-69f71dd097bd","received":1}
+
+stdout | tests/integration/line-oa-evidence-convergence.test.js > LINE OA ingress converges on the canonical ingestion envelope (FR-081) > is idempotent on redelivery: one raw record, reported UNCHANGED
+{"ts":"2026-09-09T19:16:02.751Z","level":"info","event":"line.webhook.event","correlationId":"e88eda53-a04a-4203-a1ed-8ca4cacfedf0","eventId":"WEH-CONV-3","tenantId":"a670ee20-2e1e-45ed-a89f-5e9930e369d5","businessId":"595206c3-6012-45c4-b174-69f71dd097bd","eventType":"message","messageType":"text","connectionId":"cf078887-7c29-4cb2-8d32-9013b0c75e0c","stage":"TURN","outcome":"OK","principalType":"CUSTOMER","responseKind":"ANSWER","grounded":true,"skipReply":false,"conversationId":"3a4c193d-546e-49ce-885a-a42e190d6af6","messageId":"3c4e7209-fda1-4a31-acf0-f30ba604e9a2","personId":"e73b9149-7a79-49d2-bd9d-8bfe3052b511","evidenceStatus":"CREATED","durationMs":26}
+{"ts":"2026-09-09T19:16:02.751Z","level":"info","event":"line.webhook.completed","correlationId":"e88eda53-a04a-4203-a1ed-8ca4cacfedf0","correlationSource":"GENERATED","tenantId":"a670ee20-2e1e-45ed-a89f-5e9930e369d5","businessId":"595206c3-6012-45c4-b174-69f71dd097bd","connectionId":"cf078887-7c29-4cb2-8d32-9013b0c75e0c","received":1,"handled":1,"failed":0,"skippedCount":0,"evidenceRecorded":1,"durationMs":27}
+
+stdout | tests/integration/line-oa-evidence-convergence.test.js > LINE OA ingress converges on the canonical ingestion envelope (FR-081) > is idempotent on redelivery: one raw record, reported UNCHANGED
+{"ts":"2026-09-09T19:16:02.752Z","level":"info","event":"line.webhook.received","correlationId":"98633b40-b1ff-4b40-bf9f-f87c00c0d2f9","correlationSource":"GENERATED","tenantId":"a670ee20-2e1e-45ed-a89f-5e9930e369d5","businessId":"595206c3-6012-45c4-b174-69f71dd097bd","received":1}
+
+stdout | tests/integration/line-oa-evidence-convergence.test.js > LINE OA ingress converges on the canonical ingestion envelope (FR-081) > is idempotent on redelivery: one raw record, reported UNCHANGED
+{"ts":"2026-09-09T19:16:02.759Z","level":"info","event":"line.webhook.event","correlationId":"98633b40-b1ff-4b40-bf9f-f87c00c0d2f9","eventId":"WEH-CONV-3","tenantId":"a670ee20-2e1e-45ed-a89f-5e9930e369d5","businessId":"595206c3-6012-45c4-b174-69f71dd097bd","eventType":"message","messageType":"text","connectionId":"cf078887-7c29-4cb2-8d32-9013b0c75e0c","stage":"TURN","outcome":"OK","principalType":"CUSTOMER","responseKind":"DUPLICATE","skipReply":true,"conversationId":"3a4c193d-546e-49ce-885a-a42e190d6af6","messageId":"3c4e7209-fda1-4a31-acf0-f30ba604e9a2","personId":"e73b9149-7a79-49d2-bd9d-8bfe3052b511","evidenceStatus":"UNCHANGED","durationMs":7}
+{"ts":"2026-09-09T19:16:02.759Z","level":"info","event":"line.webhook.completed","correlationId":"98633b40-b1ff-4b40-bf9f-f87c00c0d2f9","correlationSource":"GENERATED","tenantId":"a670ee20-2e1e-45ed-a89f-5e9930e369d5","businessId":"595206c3-6012-45c4-b174-69f71dd097bd","connectionId":"cf078887-7c29-4cb2-8d32-9013b0c75e0c","received":1,"handled":1,"failed":0,"skippedCount":0,"evidenceRecorded":1,"durationMs":8}
+
+stdout | tests/integration/line-oa-evidence-convergence.test.js > LINE OA ingress converges on the canonical ingestion envelope (FR-081) > keeps the evidence when the turn fails afterwards
+{"ts":"2026-09-09T19:16:02.761Z","level":"info","event":"line.webhook.received","correlationId":"961927b4-a6ff-472c-8474-6d9840a952e5","correlationSource":"GENERATED","tenantId":"a670ee20-2e1e-45ed-a89f-5e9930e369d5","businessId":"595206c3-6012-45c4-b174-69f71dd097bd","received":1}
+
+stdout | tests/integration/line-oa-evidence-convergence.test.js > LINE OA ingress converges on the canonical ingestion envelope (FR-081) > keeps the evidence when the turn fails afterwards
+{"ts":"2026-09-09T19:16:02.790Z","level":"error","event":"line.webhook.event","correlationId":"961927b4-a6ff-472c-8474-6d9840a952e5","eventId":"WEH-CONV-4","tenantId":"a670ee20-2e1e-45ed-a89f-5e9930e369d5","businessId":"595206c3-6012-45c4-b174-69f71dd097bd","eventType":"message","messageType":"text","connectionId":"cf078887-7c29-4cb2-8d32-9013b0c75e0c","stage":"TURN","outcome":"FAILED","errorCode":"KNOWLEDGE_UNAVAILABLE","evidenceStatus":"CREATED","durationMs":28}
+{"ts":"2026-09-09T19:16:02.790Z","level":"info","event":"line.webhook.completed","correlationId":"961927b4-a6ff-472c-8474-6d9840a952e5","correlationSource":"GENERATED","tenantId":"a670ee20-2e1e-45ed-a89f-5e9930e369d5","businessId":"595206c3-6012-45c4-b174-69f71dd097bd","connectionId":"cf078887-7c29-4cb2-8d32-9013b0c75e0c","received":1,"handled":0,"failed":1,"skippedCount":0,"evidenceRecorded":1,"durationMs":29}
+
+stdout | tests/integration/line-oa-evidence-convergence.test.js > LINE OA ingress converges on the canonical ingestion envelope (FR-081) > leaves a channel with no IntegrationConnection working exactly as before
+{"ts":"2026-09-09T19:16:02.820Z","level":"info","event":"line.webhook.received","correlationId":"9856db22-d503-40e0-8f4d-aa93c719be48","correlationSource":"GENERATED","tenantId":"b6deff00-046a-466f-9b23-469220540a55","businessId":"8328b03e-16e7-41bf-ab1b-006a276a07e4","received":1}
+
+stdout | tests/integration/line-oa-evidence-convergence.test.js > LINE OA ingress converges on the canonical ingestion envelope (FR-081) > leaves a channel with no IntegrationConnection working exactly as before
+{"ts":"2026-09-09T19:16:02.839Z","level":"info","event":"line.webhook.event","correlationId":"9856db22-d503-40e0-8f4d-aa93c719be48","eventId":"WEH-CONV-5","tenantId":"b6deff00-046a-466f-9b23-469220540a55","businessId":"8328b03e-16e7-41bf-ab1b-006a276a07e4","eventType":"message","messageType":"text","stage":"TURN","outcome":"OK","principalType":"CUSTOMER","responseKind":"ANSWER","grounded":true,"skipReply":false,"conversationId":"cf9d85d9-c581-4900-8bc7-a5608d75cebf","messageId":"2260281d-df56-4841-8f9c-a61a0c728b7a","personId":"64c202d9-9e1a-44c6-9e58-0c9568a8670a","durationMs":18}
+{"ts":"2026-09-09T19:16:02.839Z","level":"info","event":"line.webhook.completed","correlationId":"9856db22-d503-40e0-8f4d-aa93c719be48","correlationSource":"GENERATED","tenantId":"b6deff00-046a-466f-9b23-469220540a55","businessId":"8328b03e-16e7-41bf-ab1b-006a276a07e4","received":1,"handled":1,"failed":0,"skippedCount":0,"evidenceRecorded":0,"durationMs":20}
+
+stdout | tests/integration/line-oa-evidence-convergence.test.js > LINE OA ingress converges on the canonical ingestion envelope (FR-081) > treats a not-yet-ACTIVE connection as "not ingesting", not as a broken channel
+{"ts":"2026-09-09T19:16:02.879Z","level":"info","event":"line.webhook.received","correlationId":"845c5246-3b37-4aa3-baac-62e1475b0f20","correlationSource":"GENERATED","tenantId":"effbff83-dda1-496d-8e73-4fe7fc649f57","businessId":"884ba1d6-5099-4cb9-99e4-b4380d16c2e0","received":1}
+
+stdout | tests/integration/line-oa-evidence-convergence.test.js > LINE OA ingress converges on the canonical ingestion envelope (FR-081) > treats a not-yet-ACTIVE connection as "not ingesting", not as a broken channel
+{"ts":"2026-09-09T19:16:02.898Z","level":"info","event":"line.webhook.event","correlationId":"845c5246-3b37-4aa3-baac-62e1475b0f20","eventId":"WEH-CONV-DRAFT","tenantId":"effbff83-dda1-496d-8e73-4fe7fc649f57","businessId":"884ba1d6-5099-4cb9-99e4-b4380d16c2e0","eventType":"message","messageType":"text","stage":"TURN","outcome":"OK","principalType":"CUSTOMER","responseKind":"ANSWER","grounded":true,"skipReply":false,"conversationId":"bf53523c-0745-472e-85b3-857a6c25d78f","messageId":"a5b44a89-acaa-4a3e-935b-b62b59a323c5","personId":"9be9a34d-bfff-432e-8ecf-261ea2f61e56","durationMs":19}
+{"ts":"2026-09-09T19:16:02.898Z","level":"info","event":"line.webhook.completed","correlationId":"845c5246-3b37-4aa3-baac-62e1475b0f20","correlationSource":"GENERATED","tenantId":"effbff83-dda1-496d-8e73-4fe7fc649f57","businessId":"884ba1d6-5099-4cb9-99e4-b4380d16c2e0","received":1,"handled":1,"failed":0,"skippedCount":0,"evidenceRecorded":0,"durationMs":20}
+
+stdout | tests/integration/line-oa-evidence-convergence.test.js > LINE OA ingress converges on the canonical ingestion envelope (FR-081) > refuses a connection that belongs to another Business rather than writing to it
+{"ts":"2026-09-09T19:16:02.914Z","level":"info","event":"line.webhook.received","correlationId":"cf68f917-6f9e-471b-9b5f-536b94845736","correlationSource":"GENERATED","tenantId":"a670ee20-2e1e-45ed-a89f-5e9930e369d5","businessId":"dd2f4294-975e-48f1-9468-7418535ffb98","received":1}
+
+ ✓ tests/integration/line-oa-evidence-convergence.test.js (7 tests) 339ms
+stderr | tests/integration/server-line-webhook.test.js > native LINE webhook trust boundary > authenticates raw bytes before JSON parsing: malformed unsigned data gets 401, signed data gets 400
+{"scope":"line-webhook-request","correlationId":"corr-native-webhook","status":401,"code":"LINE_WEBHOOK_SIGNATURE_INVALID","name":"Error","message":"LINE_WEBHOOK_SIGNATURE_INVALID","stack":"Error: LINE_WEBHOOK_SIGNATURE_INVALID |     at failure (C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\src\\platform\\integrations\\providers\\line\\server-line-transport.js:43:17) |     at Module.verifyServerLineWebhook (C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\src\\platform\\integrations\\providers\\line\\server-line-transport.js:185:11)"}
+{"scope":"line-webhook-request","correlationId":"corr-native-webhook","status":400,"code":"LINE_WEBHOOK_PAYLOAD_INVALID","name":"Error","message":"LINE_WEBHOOK_PAYLOAD_INVALID","stack":"Error: LINE_WEBHOOK_PAYLOAD_INVALID |     at failure (C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\src\\platform\\integrations\\providers\\line\\server-line-transport.js:43:17) |     at Module.verifyServerLineWebhook (C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\src\\platform\\integrations\\providers\\line\\server-line-transport.js:191:11)"}
+
+stderr | tests/integration/server-line-webhook.test.js > native LINE webhook trust boundary > rejects invalid signatures and signed destination mismatches before any persistence
+{"scope":"line-webhook-request","correlationId":"corr-native-webhook","status":401,"code":"LINE_WEBHOOK_SIGNATURE_INVALID","name":"Error","message":"LINE_WEBHOOK_SIGNATURE_INVALID","stack":"Error: LINE_WEBHOOK_SIGNATURE_INVALID |     at failure (C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\src\\platform\\integrations\\providers\\line\\server-line-transport.js:43:17) |     at Module.verifyServerLineWebhook (C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\src\\platform\\integrations\\providers\\line\\server-line-transport.js:185:11)"}
+{"scope":"line-webhook-request","correlationId":"corr-native-webhook","status":403,"code":"LINE_WEBHOOK_DESTINATION_MISMATCH","name":"Error","message":"LINE_WEBHOOK_DESTINATION_MISMATCH","stack":"Error: LINE_WEBHOOK_DESTINATION_MISMATCH |     at failure (C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\src\\platform\\integrations\\providers\\line\\server-line-transport.js:43:17) |     at Module.verifyServerLineWebhook (C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\src\\platform\\integrations\\providers\\line\\server-line-transport.js:193:55)"}
+
+stderr | tests/integration/server-line-webhook.test.js > native LINE webhook trust boundary > uses exact signed bytes, then records evidence before admitting each event
+{"scope":"line-webhook-request","correlationId":"corr-native-webhook","status":401,"code":"LINE_WEBHOOK_SIGNATURE_INVALID","name":"Error","message":"LINE_WEBHOOK_SIGNATURE_INVALID","stack":"Error: LINE_WEBHOOK_SIGNATURE_INVALID |     at failure (C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\src\\platform\\integrations\\providers\\line\\server-line-transport.js:43:17) |     at Module.verifyServerLineWebhook (C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\src\\platform\\integrations\\providers\\line\\server-line-transport.js:185:11)"}
+
+stderr | tests/integration/server-line-webhook.test.js > native LINE webhook trust boundary > fails closed when the evidence connection is absent or belongs to another account
+{"scope":"line-webhook-request","correlationId":"corr-native-webhook","status":null,"code":null,"name":"Error","message":"LINE_EVIDENCE_UNAVAILABLE","stack":"Error: LINE_EVIDENCE_UNAVAILABLE |     at C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\src\\app\\api\\line-oa\\accounts\\[id]\\webhook\\route.js:44:78 |     at processTicksAndRejections (node:internal/process/task_queues:104:5)"}
+{"scope":"line-webhook-request","correlationId":"corr-native-webhook","status":null,"code":null,"name":"Error","message":"LINE_EVIDENCE_UNAVAILABLE","stack":"Error: LINE_EVIDENCE_UNAVAILABLE |     at C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\src\\app\\api\\line-oa\\accounts\\[id]\\webhook\\route.js:44:78 |     at processTicksAndRejections (node:internal/process/task_queues:104:5)"}
+
+stderr | tests/integration/server-line-webhook.test.js > native LINE webhook trust boundary > returns non-200 for evidence persistence failure and never admits that event
+{"scope":"line-webhook-event-admission","correlationId":"corr-native-webhook","status":null,"code":null,"name":"Error","message":"PRIVATE_DB_SECRET","stack":"Error: PRIVATE_DB_SECRET |     at Object.record (C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\tests\\integration\\server-line-webhook.test.js:89:126) |     at C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\src\\app\\api\\line-oa\\accounts\\[id]\\webhook\\route.js:58:26"}
+
+stderr | tests/integration/server-line-webhook.test.js > native LINE webhook trust boundary > returns non-200 on admission failure so LINE can retry, without leaking the internal cause
+{"scope":"line-webhook-event-admission","correlationId":"corr-native-webhook","status":null,"code":null,"name":"Error","message":"PRIVATE_QUEUE_ERROR","stack":"Error: PRIVATE_QUEUE_ERROR |     at C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\tests\\integration\\server-line-webhook.test.js:97:49 |     at file:///C:/Users/pc/workspace/zuri-ai-line-oa-audit/apps/server/node_modules/@vitest/runner/dist/index.js:146:14"}
+
+stderr | tests/integration/server-line-webhook.test.js > native LINE webhook trust boundary > rejects an oversized body before parsing or persistence
+{"scope":"line-webhook-request","correlationId":"corr-native-webhook","status":413,"code":null,"name":"Error","message":"LINE_BODY_TOO_LARGE","stack":"Error: LINE_BODY_TOO_LARGE |     at boundedBody (C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\src\\app\\api\\line-oa\\accounts\\[id]\\webhook\\route.js:23:29) |     at processTicksAndRejections (node:internal/process/task_queues:104:5)"}
+
+stderr | tests/integration/server-line-webhook.test.js > native LINE webhook trust boundary > skips one event that fails deterministically and still admits the rest
+{"scope":"line-webhook-event-admission","correlationId":"corr-native-webhook","status":409,"code":null,"name":"Error","message":"CHANNEL_IDENTITY_COMPATIBILITY_CONFLICT","stack":"Error: CHANNEL_IDENTITY_COMPATIBILITY_CONFLICT |     at C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\tests\\integration\\server-line-webhook.test.js:124:74 |     at mockCall (file:///C:/Users/pc/workspace/zuri-ai-line-oa-audit/apps/server/node_modules/@vitest/spy/dist/index.js:61:17)"}
+
+stderr | tests/integration/server-line-webhook.test.js > native LINE webhook trust boundary > still asks LINE to redeliver when an event fails ambiguously, after attempting the whole batch
+{"scope":"line-webhook-event-admission","correlationId":"corr-native-webhook","status":null,"code":null,"name":"Error","message":"PRIVATE_QUEUE_ERROR","stack":"Error: PRIVATE_QUEUE_ERROR |     at C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\tests\\integration\\server-line-webhook.test.js:143:60 |     at mockCall (file:///C:/Users/pc/workspace/zuri-ai-line-oa-audit/apps/server/node_modules/@vitest/spy/dist/index.js:61:17)"}
+
+stderr | tests/integration/server-line-webhook.test.js > native webhook retry with durable SQLite admission > replays a partially admitted batch into exactly one job/message per event
+{"scope":"line-webhook-event-admission","correlationId":"corr-native-webhook","status":null,"code":null,"name":"Error","message":"TRANSIENT_QUEUE_FAILURE","stack":"Error: TRANSIENT_QUEUE_FAILURE |     at C:\\Users\\pc\\workspace\\zuri-ai-line-oa-audit\\apps\\server\\tests\\integration\\server-line-webhook.test.js:174:15 |     at mockCall (file:///C:/Users/pc/workspace/zuri-ai-line-oa-audit/apps/server/node_modules/@vitest/spy/dist/index.js:61:17)"}
+
+ ✓ tests/integration/server-line-webhook.test.js (11 tests) 151ms
+ ↓ tests/integration/line-oa-cross-repo-round-trip.test.js (5 tests | 5 skipped)
+ ✓ tests/integration/line-webhook-transport-contract.test.js (10 tests) 255ms
+ ✓ tests/integration/fr153-line-oa-liff-app.test.js (5 tests) 286ms
+ ✓ tests/integration/server-line-trace.test.js (6 tests) 717ms
+stdout | tests/integration/line-oa-golden-path.test.js > LINE OA golden path — one authentic event through every ZURI-owned hop > carries one LINE event from binding-verified ingress to a verified grounded reply
+{"ts":"2026-09-09T19:16:07.207Z","level":"info","event":"line.webhook.received","correlationId":"b72d48ff-dd79-44a3-9678-4b2e4fa26a7d","correlationSource":"GENERATED","tenantId":"1e7f5a28-ead4-4a1b-aa61-cc9c6369ad44","businessId":"1fbf5390-9ef7-49dc-9219-70d27da1eb37","received":1}
+
+stdout | tests/integration/line-oa-golden-path.test.js > LINE OA golden path — one authentic event through every ZURI-owned hop > carries one LINE event from binding-verified ingress to a verified grounded reply
+{"ts":"2026-09-09T19:16:07.245Z","level":"info","event":"line.webhook.event","correlationId":"b72d48ff-dd79-44a3-9678-4b2e4fa26a7d","eventId":"WEH-GOLD-1","tenantId":"1e7f5a28-ead4-4a1b-aa61-cc9c6369ad44","businessId":"1fbf5390-9ef7-49dc-9219-70d27da1eb37","eventType":"message","messageType":"text","stage":"TURN","outcome":"OK","principalType":"CUSTOMER","responseKind":"ANSWER","grounded":true,"skipReply":false,"conversationId":"4ae14a0a-8a25-4724-805e-487d74f73b11","messageId":"4c8967e3-1c1f-41cd-a2e8-8bee1ee6d09b","personId":"84f9bbfd-3c3f-4c4f-8ed3-ddcdf594a11b","durationMs":37}
+{"ts":"2026-09-09T19:16:07.245Z","level":"info","event":"line.webhook.completed","correlationId":"b72d48ff-dd79-44a3-9678-4b2e4fa26a7d","correlationSource":"GENERATED","tenantId":"1e7f5a28-ead4-4a1b-aa61-cc9c6369ad44","businessId":"1fbf5390-9ef7-49dc-9219-70d27da1eb37","received":1,"handled":1,"failed":0,"skippedCount":0,"evidenceRecorded":0,"durationMs":40}
+
+stdout | tests/integration/line-oa-golden-path.test.js > LINE OA golden path — one authentic event through every ZURI-owned hop > is idempotent: a redelivered event answers once and asks the provider once
+{"ts":"2026-09-09T19:16:07.254Z","level":"info","event":"line.webhook.received","correlationId":"d08399c1-1635-4b04-907f-e6bf30a3560a","correlationSource":"GENERATED","tenantId":"1e7f5a28-ead4-4a1b-aa61-cc9c6369ad44","businessId":"1fbf5390-9ef7-49dc-9219-70d27da1eb37","received":1}
+
+stdout | tests/integration/line-oa-golden-path.test.js > LINE OA golden path — one authentic event through every ZURI-owned hop > is idempotent: a redelivered event answers once and asks the provider once
+{"ts":"2026-09-09T19:16:07.275Z","level":"info","event":"line.webhook.event","correlationId":"d08399c1-1635-4b04-907f-e6bf30a3560a","eventId":"WEH-GOLD-2","tenantId":"1e7f5a28-ead4-4a1b-aa61-cc9c6369ad44","businessId":"1fbf5390-9ef7-49dc-9219-70d27da1eb37","eventType":"message","messageType":"text","stage":"TURN","outcome":"OK","principalType":"CUSTOMER","responseKind":"ANSWER","grounded":true,"skipReply":false,"conversationId":"3dea7214-1404-4a21-b3df-bb1b1bfcb089","messageId":"342610a1-ab01-44ea-a21f-8f4c05acb9e6","personId":"12e54468-48d3-4823-8fce-8a5e95cea84c","durationMs":21}
+{"ts":"2026-09-09T19:16:07.275Z","level":"info","event":"line.webhook.completed","correlationId":"d08399c1-1635-4b04-907f-e6bf30a3560a","correlationSource":"GENERATED","tenantId":"1e7f5a28-ead4-4a1b-aa61-cc9c6369ad44","businessId":"1fbf5390-9ef7-49dc-9219-70d27da1eb37","received":1,"handled":1,"failed":0,"skippedCount":0,"evidenceRecorded":0,"durationMs":22}
+{"ts":"2026-09-09T19:16:07.276Z","level":"info","event":"line.webhook.received","correlationId":"58c9f989-f897-467d-9299-e617308647e0","correlationSource":"GENERATED","tenantId":"1e7f5a28-ead4-4a1b-aa61-cc9c6369ad44","businessId":"1fbf5390-9ef7-49dc-9219-70d27da1eb37","received":1}
+
+stdout | tests/integration/line-oa-golden-path.test.js > LINE OA golden path — one authentic event through every ZURI-owned hop > is idempotent: a redelivered event answers once and asks the provider once
+{"ts":"2026-09-09T19:16:07.284Z","level":"info","event":"line.webhook.event","correlationId":"58c9f989-f897-467d-9299-e617308647e0","eventId":"WEH-GOLD-2","tenantId":"1e7f5a28-ead4-4a1b-aa61-cc9c6369ad44","businessId":"1fbf5390-9ef7-49dc-9219-70d27da1eb37","eventType":"message","messageType":"text","stage":"TURN","outcome":"OK","principalType":"CUSTOMER","responseKind":"DUPLICATE","skipReply":true,"conversationId":"3dea7214-1404-4a21-b3df-bb1b1bfcb089","messageId":"342610a1-ab01-44ea-a21f-8f4c05acb9e6","personId":"12e54468-48d3-4823-8fce-8a5e95cea84c","durationMs":7}
+{"ts":"2026-09-09T19:16:07.284Z","level":"info","event":"line.webhook.completed","correlationId":"58c9f989-f897-467d-9299-e617308647e0","correlationSource":"GENERATED","tenantId":"1e7f5a28-ead4-4a1b-aa61-cc9c6369ad44","businessId":"1fbf5390-9ef7-49dc-9219-70d27da1eb37","received":1,"handled":1,"failed":0,"skippedCount":0,"evidenceRecorded":0,"durationMs":9}
+
+ ✓ tests/integration/line-oa-golden-path.test.js (2 tests) 137ms
+ ✓ tests/integration/line-oa-correlation-trace.test.js (6 tests) 181ms
+stdout | tests/integration/line-oa-failure-paths.test.js > LINE OA failure paths > rejects an unknown binding with 401 and writes nothing
+{"ts":"2026-09-09T19:16:08.110Z","level":"warn","event":"line.webhook.rejected","correlationId":"eb15ced6-09a4-4dc2-8de9-d962840182f5","correlationSource":"GENERATED","stage":"SCOPE","errorCode":"PHASE1_BINDING_UNAUTHORIZED","received":1,"durationMs":1}
+
+stdout | tests/integration/line-oa-failure-paths.test.js > LINE OA failure paths > rejects a destination that does not match the binding
+{"ts":"2026-09-09T19:16:08.113Z","level":"warn","event":"line.webhook.rejected","correlationId":"1892b7a2-31d9-46b6-93de-ac057a655083","correlationSource":"GENERATED","stage":"SCOPE","errorCode":"PHASE1_BINDING_UNAUTHORIZED","received":1,"durationMs":0}
+
+stdout | tests/integration/line-oa-failure-paths.test.js > LINE OA failure paths > falls back to a deterministic grounded answer when the provider fails
+{"ts":"2026-09-09T19:16:08.116Z","level":"info","event":"line.webhook.received","correlationId":"e3504b83-1eb7-4b86-96e7-cdb4f6cee319","correlationSource":"GENERATED","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","received":1}
+
+stdout | tests/integration/line-oa-failure-paths.test.js > LINE OA failure paths > falls back to a deterministic grounded answer when the provider fails
+{"ts":"2026-09-09T19:16:08.152Z","level":"info","event":"line.webhook.event","correlationId":"e3504b83-1eb7-4b86-96e7-cdb4f6cee319","eventId":"MFAIL-PROVIDER","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","eventType":"message","messageType":"text","stage":"TURN","outcome":"OK","principalType":"CUSTOMER","responseKind":"ANSWER","grounded":true,"skipReply":false,"conversationId":"9230a387-bdfe-48e6-ab3d-a1cb4d023b3f","messageId":"57f10209-6a08-497e-8c29-418e9148c0d1","personId":"f150c8f9-6e2f-4d6d-88b1-4ea75d085169","durationMs":35}
+{"ts":"2026-09-09T19:16:08.152Z","level":"info","event":"line.webhook.completed","correlationId":"e3504b83-1eb7-4b86-96e7-cdb4f6cee319","correlationSource":"GENERATED","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","received":1,"handled":1,"failed":0,"skippedCount":0,"evidenceRecorded":0,"durationMs":36}
+
+stdout | tests/integration/line-oa-failure-paths.test.js > LINE OA failure paths > isolates a knowledge-layer failure to its own event and keeps the inbound evidence
+{"ts":"2026-09-09T19:16:08.154Z","level":"info","event":"line.webhook.received","correlationId":"55ce5510-2360-420b-a713-8bd3690a9eb4","correlationSource":"GENERATED","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","received":2}
+
+stdout | tests/integration/line-oa-failure-paths.test.js > LINE OA failure paths > isolates a knowledge-layer failure to its own event and keeps the inbound evidence
+{"ts":"2026-09-09T19:16:08.173Z","level":"error","event":"line.webhook.event","correlationId":"55ce5510-2360-420b-a713-8bd3690a9eb4","eventId":"MFAIL-KNOW","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","eventType":"message","messageType":"text","stage":"TURN","outcome":"FAILED","errorCode":"KNOWLEDGE_UNAVAILABLE","durationMs":19}
+
+stdout | tests/integration/line-oa-failure-paths.test.js > LINE OA failure paths > isolates a knowledge-layer failure to its own event and keeps the inbound evidence
+{"ts":"2026-09-09T19:16:08.194Z","level":"info","event":"line.webhook.event","correlationId":"55ce5510-2360-420b-a713-8bd3690a9eb4","eventId":"MFAIL-OK","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","eventType":"message","messageType":"text","stage":"TURN","outcome":"OK","principalType":"CUSTOMER","responseKind":"ANSWER","grounded":true,"skipReply":false,"conversationId":"da6225fa-9e0e-47b7-b408-f6ee06891ea8","messageId":"85f978dc-d9b6-48bb-97fe-737caabf62b3","personId":"5ae3bc05-6940-4b8e-85bb-c9cf407311e4","durationMs":20}
+{"ts":"2026-09-09T19:16:08.194Z","level":"info","event":"line.webhook.completed","correlationId":"55ce5510-2360-420b-a713-8bd3690a9eb4","correlationSource":"GENERATED","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","received":2,"handled":1,"failed":1,"skippedCount":0,"evidenceRecorded":0,"durationMs":41}
+
+stdout | tests/integration/line-oa-failure-paths.test.js > LINE OA failure paths > refuses a revoked LINE identity without writing a message
+{"ts":"2026-09-09T19:16:08.195Z","level":"info","event":"line.webhook.received","correlationId":"ab970289-6692-4382-92bb-a7746fae77aa","correlationSource":"GENERATED","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","received":1}
+
+stdout | tests/integration/line-oa-failure-paths.test.js > LINE OA failure paths > refuses a revoked LINE identity without writing a message
+{"ts":"2026-09-09T19:16:08.215Z","level":"info","event":"line.webhook.event","correlationId":"ab970289-6692-4382-92bb-a7746fae77aa","eventId":"MFAIL-REV-1","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","eventType":"message","messageType":"text","stage":"TURN","outcome":"OK","principalType":"CUSTOMER","responseKind":"ANSWER","grounded":true,"skipReply":false,"conversationId":"32875045-7e86-4e00-97d6-6fc2084a897a","messageId":"481ad199-770e-4075-abc7-b7787b7dd527","personId":"ab1bc792-cdc6-45e4-a63b-e4882d8f8ecf","durationMs":19}
+{"ts":"2026-09-09T19:16:08.215Z","level":"info","event":"line.webhook.completed","correlationId":"ab970289-6692-4382-92bb-a7746fae77aa","correlationSource":"GENERATED","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","received":1,"handled":1,"failed":0,"skippedCount":0,"evidenceRecorded":0,"durationMs":20}
+
+stdout | tests/integration/line-oa-failure-paths.test.js > LINE OA failure paths > refuses a revoked LINE identity without writing a message
+{"ts":"2026-09-09T19:16:08.231Z","level":"info","event":"line.webhook.received","correlationId":"b4d69d51-9290-4e2c-a980-ea40b9e8f012","correlationSource":"GENERATED","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","received":1}
+
+stdout | tests/integration/line-oa-failure-paths.test.js > LINE OA failure paths > refuses a revoked LINE identity without writing a message
+{"ts":"2026-09-09T19:16:08.234Z","level":"error","event":"line.webhook.event","correlationId":"b4d69d51-9290-4e2c-a980-ea40b9e8f012","eventId":"MFAIL-REV-2","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","eventType":"message","messageType":"text","stage":"TURN","outcome":"FAILED","errorCode":"This LINE identity was revoked; re-linking is required before it can resolve again","durationMs":2}
+{"ts":"2026-09-09T19:16:08.234Z","level":"info","event":"line.webhook.completed","correlationId":"b4d69d51-9290-4e2c-a980-ea40b9e8f012","correlationSource":"GENERATED","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","received":1,"handled":0,"failed":1,"skippedCount":0,"evidenceRecorded":0,"durationMs":3}
+
+stdout | tests/integration/line-oa-failure-paths.test.js > LINE OA failure paths > skips unsupported message types and non-message events without a reply
+{"ts":"2026-09-09T19:16:08.235Z","level":"info","event":"line.webhook.received","correlationId":"23fd031e-ef63-41ec-9b3d-7177020d35d5","correlationSource":"GENERATED","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","received":5}
+{"ts":"2026-09-09T19:16:08.235Z","level":"info","event":"line.webhook.event","correlationId":"23fd031e-ef63-41ec-9b3d-7177020d35d5","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","eventType":"follow","stage":"DISPATCH","outcome":"SKIPPED","skipped":true,"durationMs":0}
+{"ts":"2026-09-09T19:16:08.235Z","level":"info","event":"line.webhook.event","correlationId":"23fd031e-ef63-41ec-9b3d-7177020d35d5","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","eventType":"unfollow","stage":"DISPATCH","outcome":"SKIPPED","skipped":true,"durationMs":0}
+{"ts":"2026-09-09T19:16:08.235Z","level":"info","event":"line.webhook.event","correlationId":"23fd031e-ef63-41ec-9b3d-7177020d35d5","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","eventType":"postback","stage":"DISPATCH","outcome":"SKIPPED","skipped":true,"durationMs":0}
+{"ts":"2026-09-09T19:16:08.235Z","level":"info","event":"line.webhook.event","correlationId":"23fd031e-ef63-41ec-9b3d-7177020d35d5","eventId":"MFAIL-STICKER","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","eventType":"message","messageType":"sticker","stage":"DISPATCH","outcome":"SKIPPED","skipped":true,"durationMs":0}
+{"ts":"2026-09-09T19:16:08.235Z","level":"info","event":"line.webhook.event","correlationId":"23fd031e-ef63-41ec-9b3d-7177020d35d5","eventId":"MFAIL-IMAGE","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","eventType":"message","messageType":"image","stage":"DISPATCH","outcome":"SKIPPED","skipped":true,"durationMs":0}
+{"ts":"2026-09-09T19:16:08.235Z","level":"info","event":"line.webhook.completed","correlationId":"23fd031e-ef63-41ec-9b3d-7177020d35d5","correlationSource":"GENERATED","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","received":5,"handled":0,"failed":0,"skippedCount":5,"evidenceRecorded":0,"durationMs":1}
+
+stdout | tests/integration/line-oa-failure-paths.test.js > LINE OA failure paths > skips an event with no resolvable source without failing the batch
+{"ts":"2026-09-09T19:16:08.237Z","level":"info","event":"line.webhook.received","correlationId":"2af4e541-a016-4f45-84e1-646d0ad31e4c","correlationSource":"GENERATED","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","received":1}
+{"ts":"2026-09-09T19:16:08.237Z","level":"warn","event":"line.webhook.event","correlationId":"2af4e541-a016-4f45-84e1-646d0ad31e4c","eventId":"MFAIL-NOSRC","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","eventType":"message","messageType":"text","stage":"DISPATCH","outcome":"SKIPPED","skipped":true,"errorCode":"NO_SOURCE_USER_ID","durationMs":0}
+{"ts":"2026-09-09T19:16:08.237Z","level":"info","event":"line.webhook.completed","correlationId":"2af4e541-a016-4f45-84e1-646d0ad31e4c","correlationSource":"GENERATED","tenantId":"bc0a97f8-72d6-4052-8569-6ffd9bb11143","businessId":"8ed4c4d3-2731-4682-82f3-18e8ba9e3a9c","received":1,"handled":0,"failed":0,"skippedCount":1,"evidenceRecorded":0,"durationMs":1}
+
+ ✓ tests/integration/line-oa-failure-paths.test.js (8 tests) 183ms
+ ✓ tests/unit/line-oa-rich-menu-console.test.js (16 tests) 6ms
+ ✓ tests/integration/line-oa-connection-health.test.js (8 tests) 154ms
+ ✓ tests/unit/server-line-worker-routes.test.js (8 tests) 11ms
+ ✓ tests/unit/server-line-answer.test.js (11 tests) 16ms
+ ✓ tests/unit/line-oa-rich-menu-domain.test.js (8 tests) 8ms
+ ✓ tests/unit/platform/line-oa-webhook.test.js (7 tests) 12ms
+ ✓ tests/unit/line-oa-liff-app-domain.test.js (7 tests) 5ms
+ ✓ tests/unit/line-oa-account-domain.test.js (7 tests) 6ms
+ ✓ tests/unit/platform/server-line-rich-menu-transport.test.js (6 tests) 5ms
+ ✓ tests/unit/line-oa-rich-menu-schema-contract.test.js (5 tests) 5ms
+ ✓ tests/unit/line-oa-rich-menu-publish.test.js (5 tests) 2ms
+ ✓ tests/unit/line-oa-account-schema-contract.test.js (5 tests) 5ms
+ ✓ tests/unit/line-oa-rich-menu-jobs-routes.test.js (4 tests) 5ms
+ ✓ tests/unit/line-oa-liff-app-routes.test.js (4 tests) 5ms
+ ✓ tests/unit/line-oa-account-routes.test.js (5 tests) 4ms
+ ✓ tests/unit/line-webhook-scope-fail-closed.test.js (7 tests) 3ms
+stdout | tests/integration/line-webhook-unbound-production.test.js > POST /api/agent/line-webhook — unbound production caller (SEC-010) > returns 401 and writes nothing when a caller selects its own tenant in production
+{"ts":"2026-09-09T19:16:12.314Z","level":"warn","event":"line.webhook.rejected","correlationId":"f8f88dd9-e81e-4e07-8ae1-552c0fa9dc45","correlationSource":"GENERATED","stage":"SCOPE","errorCode":"PHASE1_BINDING_REQUIRED","received":1,"durationMs":1}
+
+stdout | tests/integration/line-webhook-unbound-production.test.js > POST /api/agent/line-webhook — unbound production caller (SEC-010) > does not disclose which field would unlock the endpoint
+{"ts":"2026-09-09T19:16:12.319Z","level":"warn","event":"line.webhook.rejected","correlationId":"8230292e-fd8e-40c2-be06-5366550a33f4","correlationSource":"GENERATED","stage":"SCOPE","errorCode":"PHASE1_BINDING_REQUIRED","received":1,"durationMs":0}
+
+stdout | tests/integration/line-webhook-unbound-production.test.js > POST /api/agent/line-webhook — unbound production caller (SEC-010) > still serves the lab client-scope seam outside production
+{"ts":"2026-09-09T19:16:12.321Z","level":"info","event":"line.webhook.received","correlationId":"300bcdca-887c-47b6-b8f5-930826e8a8dc","correlationSource":"GENERATED","tenantId":"51a9cde0-dc09-46f4-932e-101d49965ae8","businessId":"5d7a1de1-08e3-4515-aadf-b23095359baf","received":1}
+
+stdout | tests/integration/line-webhook-unbound-production.test.js > POST /api/agent/line-webhook — unbound production caller (SEC-010) > still serves the lab client-scope seam outside production
+{"ts":"2026-09-09T19:16:12.351Z","level":"info","event":"line.webhook.event","correlationId":"300bcdca-887c-47b6-b8f5-930826e8a8dc","eventId":"MUNB-3","tenantId":"51a9cde0-dc09-46f4-932e-101d49965ae8","businessId":"5d7a1de1-08e3-4515-aadf-b23095359baf","eventType":"message","messageType":"text","stage":"TURN","outcome":"OK","principalType":"CUSTOMER","responseKind":"ANSWER","grounded":true,"skipReply":false,"conversationId":"9b51a83a-0140-4c95-9eba-4a62bea18208","messageId":"ed806e00-1e8a-4f25-8a0e-d6318bdf8248","personId":"79cea627-f789-498c-b657-afd0532ba0d1","durationMs":30}
+{"ts":"2026-09-09T19:16:12.351Z","level":"info","event":"line.webhook.completed","correlationId":"300bcdca-887c-47b6-b8f5-930826e8a8dc","correlationSource":"GENERATED","tenantId":"51a9cde0-dc09-46f4-932e-101d49965ae8","businessId":"5d7a1de1-08e3-4515-aadf-b23095359baf","received":1,"handled":1,"failed":0,"skippedCount":0,"evidenceRecorded":0,"durationMs":31}
+
+ ✓ tests/integration/line-webhook-unbound-production.test.js (3 tests) 97ms
+ ✓ tests/unit/line-oa-rich-menu-routes.test.js (3 tests) 2ms
+
+ Test Files  32 passed | 1 skipped (33)
+      Tests  271 passed | 5 skipped (276)
+   Start at  02:15:30
+   Duration  42.14s (transform 5.06s, setup 123ms, collect 20.05s, tests 6.26s, environment 3ms, prepare 1.64s)
+
+JSON report written to C:/Users/pc/workspace/zuri-ai-line-oa-audit/apps/server/node_modules/.cache/zuri-test-proof/vitest.json
+
+assert-tests-ran: vitest executed 271 test(s).

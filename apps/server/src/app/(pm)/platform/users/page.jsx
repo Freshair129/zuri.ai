@@ -13,7 +13,7 @@
 // @spec SEC-006
 // @tested tests/unit/platform-users-view.test.js
 import { useState } from 'react'
-import { ShieldCheck, KeyRound, Copy, UserPlus } from 'lucide-react'
+import { ShieldCheck, KeyRound, Copy, UserPlus, History } from 'lucide-react'
 import { Card, ErrorState, Field, PageHeader, SectionTitle } from '@/components/ui'
 import { api, LoadingCard, useFetch } from '@/modules/project-manager/components/useApi'
 import { DOMAINS } from '@/config/domains'
@@ -277,6 +277,99 @@ function ApiKeyPanel() {
   )
 }
 
+/**
+ * @req FR-199 — a Business owner can read the access history of their own
+ * scope. Read-only on purpose: this is evidence for a review, not one more
+ * place to make a change — every mutation still goes through the FR-191
+ * lifecycle surface above.
+ * @spec ADR-080 D3/D4, SEC-001
+ * @tested tests/unit/platform-users-view.test.js
+ */
+/**
+ * Split out from `AccessHistoryPanel` so its two `useFetch` calls exist only
+ * while a Business is actually selected — mounted, not merely branched on. A
+ * hook called with a null path every render (even one that resolves to "do
+ * nothing") is still a hook call the default render makes, which is exactly
+ * the invariant `platform-users-page-render.test.js` checks: the page's
+ * default render asks for the roster and the key listing, and nothing else.
+ */
+function SelectedBusinessAccessHistory({ businessId }) {
+  const roster = useFetch(`/api/platform/businesses/${businessId}/grants`, [businessId])
+  const history = useFetch(`/api/platform/access-history?businessId=${businessId}`, [businessId])
+
+  return (
+    <>
+      <p className="text-[11px] font-bold">ผู้มีสิทธิ์เข้าถึงในปัจจุบัน</p>
+      {roster.loading && <p className="text-[10px] text-muted">กำลังโหลด…</p>}
+      {roster.error && <p className="text-[10px] text-[var(--danger)]" role="alert">{roster.error}</p>}
+      {roster.data && (
+        <div className="mt-1 space-y-1.5">
+          {roster.data.grants.length === 0 && <p className="text-[10px] text-muted">ยังไม่มีผู้ได้รับสิทธิ์</p>}
+          {roster.data.grants.map((grant) => (
+            <div key={grant.id} className="flex flex-wrap items-center gap-2 border-b border-[var(--border)] pb-1.5 text-[11px]">
+              <span className="min-w-[140px] flex-1 font-bold">{grant.person?.displayName} <span className="font-normal text-muted">({grant.person?.code})</span></span>
+              <span className="text-muted">{grant.role}</span>
+              <span className={grant.status === 'ACTIVE' ? 'text-[var(--ok,#16a34a)]' : 'text-muted'}>{grant.status}</span>
+              {grant.grantedBy && <span className="text-[10px] text-muted">มอบสิทธิ์โดย {grant.grantedBy.displayName}{grant.grantReason ? ` — ${grant.grantReason}` : ''}</span>}
+              {grant.status === 'REVOKED' && grant.revokedBy && (
+                <span className="text-[10px] text-muted">เพิกถอนโดย {grant.revokedBy.displayName}{grant.revokeReason ? ` — ${grant.revokeReason}` : ''}</span>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      <p className="mt-3 text-[11px] font-bold">ประวัติการเปลี่ยนแปลง</p>
+      {history.loading && <p className="text-[10px] text-muted">กำลังโหลด…</p>}
+      {history.error && <p className="text-[10px] text-[var(--danger)]" role="alert">{history.error}</p>}
+      {history.data && (
+        <div className="mt-1 space-y-1.5">
+          {history.data.events.length === 0 && <p className="text-[10px] text-muted">ยังไม่มีประวัติ</p>}
+          {history.data.events.map((event) => (
+            <div key={event.id} className="flex flex-wrap items-center gap-2 border-b border-[var(--border)] pb-1.5 text-[11px]">
+              <span className="min-w-[150px] text-[10px] text-muted">{new Date(event.occurredAt).toLocaleString('th-TH')}</span>
+              <span className="font-bold">{event.action}</span>
+              {event.actor && <span className="text-muted">โดย {event.actor.displayName}</span>}
+              {event.reason && <span className="text-[10px] text-muted">— {event.reason}</span>}
+            </div>
+          ))}
+          {history.data.truncated && <p className="text-[10px] text-muted">แสดงเฉพาะ {history.data.limit} รายการล่าสุด</p>}
+        </div>
+      )}
+    </>
+  )
+}
+
+function AccessHistoryPanel() {
+  const scope = useScope()
+  const { options } = inviteBusinessOptions({
+    businesses: scope.businesses,
+    activeBusinessId: scope.shell?.activeBusinessId ?? null,
+  })
+  const [businessId, setBusinessId] = useState('')
+  const selected = businessId || ''
+
+  if (!options.length) {
+    return <Card><p className="text-[11px] text-muted">ต้องเป็นเจ้าของธุรกิจอย่างน้อยหนึ่งแห่ง จึงจะดูประวัติการเข้าถึงได้</p></Card>
+  }
+
+  return (
+    <Card>
+      <div className="mb-3 min-w-[220px] max-w-[360px]">
+        <Field label="ธุรกิจ">
+          <select className="input" value={selected} onChange={(event) => setBusinessId(event.target.value)} aria-label="ธุรกิจที่จะดูประวัติการเข้าถึง">
+            <option value="">— เลือกธุรกิจ —</option>
+            {options.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
+          </select>
+        </Field>
+      </div>
+
+      {!selected && <p className="text-[11px] text-muted">เลือกธุรกิจเพื่อดูรายชื่อผู้มีสิทธิ์เข้าถึงในปัจจุบัน และประวัติการเปลี่ยนแปลง</p>}
+      {selected && <SelectedBusinessAccessHistory businessId={selected} />}
+    </Card>
+  )
+}
+
 export default function UsersPermissionsPage() {
   const users = useFetch('/api/platform/users')
   if (users.loading) return <LoadingCard />
@@ -290,6 +383,8 @@ export default function UsersPermissionsPage() {
       <div className="space-y-3">{users.data.map((membership) => <PermissionRow key={membership.id} membership={membership} onSaved={users.reload} />)}</div>
       <SectionTitle caption="คีย์สำหรับ Enterprise API — ผูกกับ Tenant เดียว แสดงค่าเต็มครั้งเดียวตอนสร้าง และเพิกถอนได้ทันที">Enterprise API keys</SectionTitle>
       <ApiKeyPanel />
+      <SectionTitle caption="อ่านอย่างเดียว — ใครมีสิทธิ์เข้าถึงธุรกิจนี้อยู่ตอนนี้ และมีการเปลี่ยนแปลงอะไรเกิดขึ้นบ้าง การแก้ไขทำที่รายการด้านบนเท่านั้น"><History size={14} aria-hidden className="mr-1 inline" />Access history</SectionTitle>
+      <AccessHistoryPanel />
       <p className="mt-3 flex items-center gap-1.5 text-[10px] text-muted"><ShieldCheck size={13} aria-hidden /> DEV is a separate platform grant and never appears as a Membership role.</p>
     </div>
   )

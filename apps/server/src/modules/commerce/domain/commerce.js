@@ -113,6 +113,11 @@ export const zPaymentActionInput = z.object({
   action: z.enum(PAYMENT_ACTIONS),
   version: z.number().int().positive(),
   reason: zOptionalText(500),
+  // @req FR-196 — an explicit, auditable exemption from the self-verify
+  // refusal below, for the genuinely one-person Business. Never a silent
+  // bypass: when it changes the outcome it lands in the audit payload as
+  // `selfVerified: true`.
+  selfVerifyAttested: z.boolean().optional(),
 }).strict()
 
 export const zOrderListQuery = z.object({

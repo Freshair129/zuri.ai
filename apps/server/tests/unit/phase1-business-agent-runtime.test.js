@@ -47,6 +47,27 @@ describe('Phase 1 business-agent runtime', () => {
     expect(JSON.stringify(ports)).not.toContain('provider-secret')
   })
 
+  it('keeps the thread-memory adapter disabled unless explicitly configured and signed', () => {
+    const common = {
+      ZURI_LINE_BUSINESS_AGENT_ENABLED: 'true',
+      ZURI_LINE_DB_URL: 'postgresql://zuri_line_smartgift_login.qcnmhyglarzcpudjorzc:password@aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres',
+      ZURI_LINE_BINDING_HASH_PEPPER: 'p'.repeat(32),
+      ZURI_MODEL_PROVIDER: 'groq',
+      ZURI_MODEL_NAME: 'llama-test',
+      ZURI_MODEL_CREDENTIAL: 'provider-secret',
+    }
+    const mspTransport = vi.fn()
+    expect(createPhase1BusinessAgentPortsFromEnv(common, { queryFn: vi.fn(), mspTransport }).threadMemory).toBeNull()
+    expect(() => createPhase1BusinessAgentPortsFromEnv({ ...common,
+      ZURI_MSP_THREAD_MEMORY_ENABLED: 'true',
+    }, { queryFn: vi.fn(), mspTransport })).toThrow('MSP_THREAD_SERVICE_KEY_REQUIRED')
+    const ports = createPhase1BusinessAgentPortsFromEnv({ ...common,
+      ZURI_MSP_THREAD_MEMORY_ENABLED: 'true',
+      ZURI_MSP_THREAD_SERVICE_KEY: 'k'.repeat(32),
+    }, { queryFn: vi.fn(), mspTransport })
+    expect(ports.threadMemory).toBeTruthy()
+  })
+
   it('accepts only the approved project-qualified Supavisor login form', () => {
     const common = {
       ZURI_LINE_BUSINESS_AGENT_ENABLED: 'true',

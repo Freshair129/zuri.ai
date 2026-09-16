@@ -3,9 +3,10 @@
   Build and start the zuri-ai Docker Compose stack (web + ngrok, optional local Postgres).
 
 .DESCRIPTION
-  Idempotent: safe to run again after a code change or a reboot. Reads .env (and the
-  optional .env.docker) from the repository root — nothing is passed on the command
-  line, so no secret ends up in shell history. See docs/deployment/docker-ngrok.md.
+  Idempotent: safe to run again after a code change or a reboot. The script resolves
+  its Server app directory and reads apps/server/.env (and the optional
+  apps/server/.env.docker) — nothing is passed on the command line, so no secret
+  ends up in shell history. See docs/deployment/docker-ngrok.md.
 
 .PARAMETER NoBuild
   Skip `docker compose build` (start whatever image is already present or pulled).

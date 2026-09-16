@@ -12,7 +12,7 @@ import { WORK_STATUSES } from '@/lib/validation/enums'
 // @req FR-068, FR-070 — one authorized, read-only Human Execution Roadmap over the
 // existing Project/Workstream/WorkContainer/WorkItem graph, including Business Goals.
 // @spec SDD-039, ADR-028, ADR-029, FR-070
-// @tested tests/unit/project-roadmap-read-model.test.js, tests/integration/project-roadmap.test.js
+// @tested tests/unit/project-roadmap-read-model.test.js, tests/integration/project-roadmap.test.js, tests/integration/project-roadmap-stall.test.js
 
 export const EXECUTION_ROADMAP_VERSION = '1.0'
 
@@ -636,5 +636,12 @@ export async function getProjectRoadmap(projectId, { db = prisma, viewer, now = 
       now,
     })
   }
-  return typeof db.$transaction === 'function' ? db.$transaction(read) : read(db)
+  // Read directly, never inside an interactive transaction. Prisma expires an interactive
+  // transaction 5 s after it starts in wall time, so any event-loop stall while it was open
+  // (a Next dev compile in e2e, GC or CPU pressure in production) failed the next query with
+  // "Transaction already closed ... cannot be executed on an expired transaction", which the
+  // API error mapper reports as HTTP 400. SDD-039 asks for a read-only DTO authorized before
+  // composition, not a single snapshot; the progress route already authorizes and then reads
+  // without a transaction. See .brain/rca/2026-09-11-fr077-inventory-expired-transaction.md.
+  return read(db)
 }

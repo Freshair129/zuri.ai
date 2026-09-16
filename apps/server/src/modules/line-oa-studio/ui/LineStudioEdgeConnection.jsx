@@ -1,8 +1,30 @@
 // @req FR-146, FR-149, FR-151, FR-152, FR-153 — LINE Studio Edge & Transport Console
-// @spec ADR-041, ADR-043, ADR-061, SEC-001, SDD-060
+// @req FR-225 — the connect form below is the Thai self-serve wizard
+//   (`LineOaConnectWizard`); it no longer asks for a `deployment-secret:`
+//   reference (that field is FR-149's operator-only path, still reachable from
+//   the API but not from this page). `AccountCard`'s "ย้ายข้อมูลรับรองเข้า
+//   Vault" affordance is the mount-to-vault migration for an account connected
+//   before this wizard existed. `refresh` is guarded against an out-of-order
+//   response (found chasing an e2e flake on this exact save-then-reload path:
+//   an older in-flight GET landing after a newer one could silently repaint
+//   the account list with stale data) the same way `LineStudioShell.jsx`
+//   already guards its own account fetch.
+// @req FR-235 — the publisher's knowledgeGrounding control (ADR-090 D1):
+//   BUSINESS_KNOWLEDGE (default) | GKS_CORPUS | GKS_THEN_BUSINESS_KNOWLEDGE,
+//   applied through the existing versioned CONFIGURE_KNOWLEDGE_GROUNDING
+//   account action, audited the same way as every other account write.
+// @req FR-243 — the account's conversation session idle timeout (10 to 120 minutes)
+//   through the versioned CONFIGURE_SESSION_TIMEOUT action, and the delivery job list
+//   filtered by session code with each job's trace events (ADR-094 D3, D4).
+// @spec ADR-041, ADR-043, ADR-061, ADR-089 D2, D7, §4.9; SEC-001, SDD-060, ADR-090 D1, ADR-094
+// @tested tests/unit/conversation-session-ui.test.js,
+//   tests/unit/line-oa-connect-wizard-render.test.js,
+//   tests/e2e/fr149-line-server-console.spec.js,
+//   tests/e2e/fr225-line-oa-self-serve-wizard.spec.js,
+//   tests/unit/line-studio-edge-connection-render.test.js
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Server,
   Cpu,
@@ -22,11 +44,14 @@ import {
   HelpCircle,
   Copy,
   Check,
-  Sparkles,
   ArrowRight
 } from "lucide-react";
 import { Card, SectionTitle, StatusPill } from "@/components/ui";
 import { useScope } from "@/context/ScopeContext";
+import { edgePairingDownload } from "@/modules/identity/edge-pairing-download";
+import { resolveBrowserOrigin, resolvePublicBaseUrl } from "@/lib/public-base-url";
+import LineOaConnectWizard from "./LineOaConnectWizard";
+import LineOaCredentialMigrationCard from "./LineOaCredentialMigrationCard";
 
 async function api(url, method = "GET", body) {
   const response = await fetch(url, {
@@ -48,46 +73,145 @@ export default function LineStudioEdgeConnection() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
-  const [connectionId, setConnectionId] = useState("");
   const [copiedKey, setCopiedKey] = useState(false);
 
-  // Mock Edge Device Telemetry (ADR-041 / ADR-043)
-  const edgeDeviceTelemetry = {
-    id: "edg-node-01",
-    name: "Zuri Edge Device (Workstation Node)",
-    host: "localhost:8787",
-    status: "ONLINE",
-    latency: "4 ms",
-    pairingToken: "edgk_live_8921a7f0e812d4",
-    uptime: "99.98%",
-    tiers: [
-      { tier: "Tier 1", name: "Edge Runtime Daemon", desc: "Local Background Worker & Webhook Forwarder", status: "ACTIVE" },
-      { tier: "Tier 2", name: "MSP Memory Policy", desc: "Token Budget & Ephemeral Scratchpad Gate", status: "ACTIVE" },
-      { tier: "Tier 3", name: "GKS Knowledge Authority", desc: "Canonical Entity Identity & RAG (Radius R0-R3)", status: "ACTIVE" },
-      { tier: "Tier 4", name: "GenesisBlockDB", desc: "6-Lane Substrate (Vector + Graph + Lexical)", status: "HEALTHY" }
-    ]
-  };
+  // Static architecture reference (ADR-043) — not live telemetry, no per-device
+  // endpoint reports these tiers individually today. The pairing section below
+  // this is real: FR-144's mint/list API, no mock data.
+  const cognitiveTiers = [
+    { tier: "Tier 1", name: "Edge Runtime Daemon", desc: "Local Background Worker & Webhook Forwarder" },
+    { tier: "Tier 2", name: "MSP Memory Policy", desc: "Token Budget & Ephemeral Scratchpad Gate" },
+    { tier: "Tier 3", name: "GKS Knowledge Authority", desc: "Canonical Entity Identity & RAG (Radius R0-R3)" },
+    { tier: "Tier 4", name: "GenesisBlockDB", desc: "6-Lane Substrate (Vector + Graph + Lexical)" }
+  ];
 
-  const refresh = useCallback(async () => {
+  // FR-144: real Edge Device credentials for this Business. `keyPrefix`/`status`/
+  // `lastUsedAt` are metadata only — the raw key exists exactly once, in a mint
+  // response, never again (mintEdgeDeviceCredential's own contract).
+  const [credentials, setCredentials] = useState([]);
+  const [credentialsLoading, setCredentialsLoading] = useState(false);
+  const [mintDeviceId, setMintDeviceId] = useState("");
+  const [mintLabel, setMintLabel] = useState("");
+  const [minting, setMinting] = useState(false);
+  const [mintError, setMintError] = useState("");
+  const [minted, setMinted] = useState(null); // edgePairingDownload() shape — shown once
+  const [revokingId, setRevokingId] = useState("");
+  const [publicOrigin, setPublicOrigin] = useState(() => resolvePublicBaseUrl());
+  useEffect(() => {
+    setPublicOrigin(resolveBrowserOrigin({ location: window.location }));
+  }, []);
+
+  const loadCredentials = useCallback(async () => {
     if (!business?.id) {
-      setAccounts([]);
+      setCredentials([]);
+      return;
+    }
+    setCredentialsLoading(true);
+    try {
+      const result = await api(`/api/platform/edge-devices/credentials?businessId=${encodeURIComponent(business.id)}`);
+      setCredentials(result.credentials || []);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setCredentialsLoading(false);
+    }
+  }, [business?.id]);
+
+  /**
+   * Withdraw one device's key (FR-144 DELETE).
+   *
+   * A retired device whose credential is left ACTIVE is the failure this exists to prevent: the
+   * process is gone, so nothing looks wrong, while the key still claims jobs for anyone holding a
+   * copy of it. Revocation takes effect on the next request — there is no grace window, which is
+   * why the confirmation names the device rather than asking "are you sure?".
+   */
+  async function revokeCredential(credential) {
+    if (!credential?.id || revokingId) return;
+    if (!window.confirm(`เพิกถอนกุญแจของ ${credential.deviceId}?\n\nอุปกรณ์นี้จะรับงานไม่ได้ทันที และกุญแจเดิมกู้คืนไม่ได้ — ต้องจับคู่ใหม่เท่านั้น`)) return;
+    setRevokingId(credential.id);
+    setError("");
+    try {
+      await api(`/api/platform/edge-devices/credentials/${encodeURIComponent(credential.id)}`, "DELETE");
+      await loadCredentials();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setRevokingId("");
+    }
+  }
+
+  async function mintPairing(event) {
+    event.preventDefault();
+    if (!business?.id) return;
+    const deviceId = mintDeviceId.trim();
+    const label = mintLabel.trim();
+    if (!deviceId || !label) return;
+    setMinting(true);
+    setMintError("");
+    try {
+      const result = await api("/api/platform/edge-devices/credentials", "POST", { businessId: business.id, deviceId, label });
+      setMinted(edgePairingDownload({
+        credential: result.credential,
+        key: result.key,
+        businessId: business.id,
+        businessCode: business?.code,
+        businessName: business?.name,
+        origin: publicOrigin
+      }));
+      setMintDeviceId("");
+      setMintLabel("");
+      await loadCredentials();
+    } catch (err) {
+      setMintError(err.message);
+    } finally {
+      setMinting(false);
+    }
+  }
+
+  function downloadPairingFile() {
+    if (!minted) return;
+    const blob = new Blob([JSON.stringify(minted, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `zuri-edge-pairing-${minted.deviceId}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  // `refresh` runs both on mount and after every account action; the mount
+  // call and an action's call can be in flight together (e.g. React 18's dev
+  // double-invoke, or a slow first call overlapping a fast one right after a
+  // save), and whichever response lands last used to win regardless of which
+  // request was actually newest — an older read could silently overwrite a
+  // just-saved value on screen. `refreshRequestId` is the same stale-response
+  // guard `LineStudioShell.jsx` already uses for its own account list.
+  const refreshRequestId = useRef(0);
+  const refresh = useCallback(async () => {
+    const requestId = ++refreshRequestId.current;
+    if (!business?.id) {
+      if (requestId === refreshRequestId.current) setAccounts([]);
       return;
     }
     try {
       const result = await api(`/api/line-oa/accounts?businessId=${encodeURIComponent(business.id)}`);
+      if (requestId !== refreshRequestId.current) return;
       setAccounts(result.accounts || []);
     } catch (err) {
-      setError(err.message);
+      if (requestId === refreshRequestId.current) setError(err.message);
     }
   }, [business?.id]);
 
   useEffect(() => {
     setAccounts([]);
-    setConnectionId("");
     setMessage("");
     setError("");
+    setMinted(null);
     refresh().catch((err) => setError(err.message));
-  }, [refresh]);
+    loadCredentials().catch((err) => setError(err.message));
+  }, [refresh, loadCredentials]);
 
   async function run(task) {
     setBusy(true);
@@ -107,67 +231,14 @@ export default function LineStudioEdgeConnection() {
     await run(() => api(`/api/line-oa/accounts/${account.id}`, "PATCH", { ...data, version: account.version }));
   }
 
-  const [showAdvanced, setShowAdvanced] = useState(false);
-
-  async function handleConnectAccount(event) {
-    event.preventDefault();
-    if (!business?.id) return;
-    const form = new FormData(event.currentTarget);
-    const displayName = form.get("displayName")?.trim() || "LINE Official Account";
-    const basicId = form.get("basicId")?.trim() || "";
-    const channelId = form.get("channelId")?.trim() || "";
-    const channelSecret = form.get("channelSecret")?.trim() || "";
-    const channelAccessToken = form.get("channelAccessToken")?.trim() || "";
-
-    // Auto-generate clean account code from basicId or displayName
-    const cleanSlug = (basicId ? basicId.replace(/^@/, "") : displayName)
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-|-$/g, "") || "line-oa";
-    const code = form.get("code")?.trim() || `${cleanSlug}-${Date.now().toString(36).slice(-4)}`;
-
-    // Auto-generate valid destination (U + 32 hex chars) if not explicitly provided
-    let destination = form.get("destination")?.trim();
-    if (!destination || !/^U[0-9a-fA-F]{32}$/.test(destination)) {
-      const seed = `${channelId || ""}-${channelSecret || ""}-${basicId || ""}-${cleanSlug}-${Date.now()}`;
-      let hex = "";
-      for (let i = 0; i < 32; i++) {
-        const c = seed.charCodeAt(i % seed.length) + i * 17 + 7;
-        hex += (c % 16).toString(16);
-      }
-      destination = `U${hex}`;
-    }
-
-    // Auto-generate secret reference
-    const secretRef = form.get("secretRef")?.trim() || `deployment-secret:line-${cleanSlug}`;
-
-    await run(async () => {
-      // Step 1: Provision connection
-      const conn = await api("/api/line-oa/connections", "POST", {
-        businessId: business.id,
-        name: displayName,
-        destination,
-        secretRef
-      });
-
-      // Step 2: Connect account
-      await api("/api/line-oa/accounts", "POST", {
-        businessId: business.id,
-        integrationConnectionId: conn.id,
-        code,
-        displayName,
-        ...(basicId ? { basicId } : {})
-      });
-
-      // Creating an account deliberately does NOT enable server transport.
-      // FR-149 resolves a webhook only against an *explicitly* enabled account,
-      // and `legacyQuiesced` is the operator's word that the legacy consumer has
-      // stopped — asserting it on their behalf would risk both transports
-      // reading the same webhook. The account card's "เปิด Server Transport"
-      // button is where a person says it, and this form must not pre-empt it.
-      setMessage(`เชื่อมต่อบัญชี ${displayName} แล้ว — กด "เปิด Server Transport (Live)" ที่การ์ดบัญชีเมื่อหยุด transport เดิมเรียบร้อย`);
-      event.target.reset();
-    });
+  // FR-225: the wizard below (`LineOaConnectWizard`) creates the connection and
+  // the DRAFT account itself; this page only needs to know when to refresh the
+  // list and show its own confirmation. Creating an account deliberately does
+  // NOT enable server transport — the account card's "เปิด Server Transport"
+  // button is where a person says the legacy consumer has stopped.
+  async function handleWizardConnected(account) {
+    setMessage(`เชื่อมต่อบัญชี ${account?.displayName ?? ""} แล้ว — กด "เปิด Server Transport (Live)" ที่การ์ดบัญชีเมื่อหยุด transport เดิมเรียบร้อย`);
+    await refresh();
   }
 
   const copyToken = (text) => {
@@ -200,7 +271,7 @@ export default function LineStudioEdgeConnection() {
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => run(refresh)}
+              onClick={() => run(async () => { await refresh(); await loadCredentials(); })}
               disabled={busy || !business}
               className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold flex items-center gap-1.5 transition-all border border-white/10"
             >
@@ -240,32 +311,99 @@ export default function LineStudioEdgeConnection() {
                   <p className="text-[10px] text-slate-500">On-Premise Hardware Node</p>
                 </div>
               </div>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-[10px] font-bold">
-                {edgeDeviceTelemetry.status}
+              <span className="px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 text-[10px] font-bold">
+                {credentials.filter((c) => c.status === "ACTIVE").length} paired
               </span>
             </div>
 
-            {/* Telemetry info */}
-            <div className="space-y-2.5 text-xs">
-              <div className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/60">
-                <span className="text-slate-500">Host Endpoint</span>
-                <span className="font-mono font-bold text-slate-800 dark:text-slate-200">{edgeDeviceTelemetry.host}</span>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/60">
-                <span className="text-slate-500">Heartbeat Latency</span>
-                <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{edgeDeviceTelemetry.latency}</span>
-              </div>
-              <div className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800/60">
-                <span className="text-slate-500">Pairing Key Ref</span>
+            {/* Real Edge Device credentials — FR-144, no mock data. keyPrefix/lastUsedAt
+                are the only things this page can ever show once minting is done: the
+                raw key is never stored, so it cannot be redisplayed later. */}
+            <div className="space-y-2 text-xs">
+              {credentialsLoading ? (
+                <p className="text-slate-400 text-[11px]">กำลังโหลด...</p>
+              ) : credentials.length === 0 ? (
+                <p className="text-slate-400 text-[11px]">ยังไม่มี Edge Device ที่จับคู่กับ Business นี้</p>
+              ) : (
+                credentials.map((c) => (
+                  <div key={c.id} className="flex justify-between items-center py-1.5 px-2 rounded-lg bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800">
+                    <div className="min-w-0">
+                      <p className="font-mono font-bold text-slate-800 dark:text-slate-200 text-[11px] truncate">{c.deviceId}</p>
+                      <p className="text-[10px] text-slate-500 truncate">{c.label} · {c.keyPrefix}…</p>
+                    </div>
+                    <div className="shrink-0 flex items-center gap-2">
+                      <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${c.status === "ACTIVE" ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"}`}>
+                        {c.status}
+                      </span>
+                      {c.status === "ACTIVE" && (
+                        <button
+                          type="button"
+                          onClick={() => revokeCredential(c)}
+                          disabled={revokingId === c.id}
+                          className="text-[10px] font-bold text-rose-600 hover:underline disabled:opacity-40"
+                        >
+                          {revokingId === c.id ? "กำลังเพิกถอน..." : "เพิกถอน"}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {/* Mint a new pairing file — FR-144 POST, raw key returned exactly once */}
+            <form onSubmit={mintPairing} className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
+              <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400">จับคู่ Edge Device ใหม่</p>
+              <input
+                value={mintDeviceId}
+                onChange={(e) => setMintDeviceId(e.target.value)}
+                placeholder="Device ID เช่น workstation-01"
+                className={fieldClass}
+                disabled={minting || !business}
+                required
+              />
+              <input
+                value={mintLabel}
+                onChange={(e) => setMintLabel(e.target.value)}
+                placeholder="ชื่ออ้างอิง เช่น เครื่องหน้าร้าน"
+                className={fieldClass}
+                disabled={minting || !business}
+                required
+              />
+              <button
+                type="submit"
+                disabled={minting || !business}
+                className="w-full py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold disabled:opacity-50"
+              >
+                {minting ? "กำลังสร้าง..." : "สร้างไฟล์จับคู่ใหม่"}
+              </button>
+              {mintError && <p className="text-[11px] text-rose-600">{mintError}</p>}
+            </form>
+
+            {minted && (
+              <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 space-y-2">
+                <p className="text-[11px] font-bold text-amber-800 dark:text-amber-300">
+                  บันทึกไฟล์นี้ตอนนี้ — คีย์จะไม่แสดงอีกครั้ง
+                </p>
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => copyToken(minted.key)}
+                    className="flex-1 font-mono text-[10px] bg-white dark:bg-slate-900 px-2 py-1 rounded text-slate-700 dark:text-slate-300 flex items-center justify-between gap-1 hover:bg-slate-100 border border-amber-200 dark:border-amber-800 truncate"
+                  >
+                    <span className="truncate">{minted.key}</span>
+                    {copiedKey ? <Check className="w-3 h-3 text-emerald-500 shrink-0" /> : <Copy className="w-3 h-3 text-slate-400 shrink-0" />}
+                  </button>
+                </div>
                 <button
-                  onClick={() => copyToken(edgeDeviceTelemetry.pairingToken)}
-                  className="font-mono text-[10px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded text-slate-700 dark:text-slate-300 flex items-center gap-1 hover:bg-slate-200"
+                  type="button"
+                  onClick={downloadPairingFile}
+                  className="w-full py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold"
                 >
-                  <span>{edgeDeviceTelemetry.pairingToken.slice(0, 10)}...</span>
-                  {copiedKey ? <Check className="w-3 h-3 text-emerald-500" /> : <Copy className="w-3 h-3 text-slate-400" />}
+                  ดาวน์โหลดไฟล์จับคู่ (.json) — ลากเข้าแอป Zuri Edge Device
                 </button>
               </div>
-            </div>
+            )}
 
             {/* Deep Links to Local Edge Web GUI */}
             <div className="pt-2 flex flex-col gap-2">
@@ -303,12 +441,9 @@ export default function LineStudioEdgeConnection() {
                 <span>4-Tier Cognitive Architecture (ADR-043)</span>
               </h4>
               <div className="space-y-2">
-                {edgeDeviceTelemetry.tiers.map((t, idx) => (
+                {cognitiveTiers.map((t, idx) => (
                   <div key={idx} className="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-850 border border-slate-100 dark:border-slate-800 text-[11px]">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-slate-800 dark:text-slate-200">{t.tier}: {t.name}</span>
-                      <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-600">{t.status}</span>
-                    </div>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">{t.tier}: {t.name}</span>
                     <p className="text-[10px] text-slate-500 mt-0.5">{t.desc}</p>
                   </div>
                 ))}
@@ -346,6 +481,7 @@ export default function LineStudioEdgeConnection() {
                     key={account.id}
                     account={account}
                     onAction={action}
+                    onRefresh={refresh}
                     busy={busy}
                   />
                 ))}
@@ -353,155 +489,26 @@ export default function LineStudioEdgeConnection() {
             )}
           </div>
 
-          {/* Unified Real LINE OA Connection Form */}
-          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#06C755] to-emerald-600 text-white flex items-center justify-center font-bold shadow-xs">
-                  <span>💬</span>
-                </div>
-                <div>
-                  <h4 className="font-bold text-sm text-slate-900 dark:text-white">
-                    เชื่อมต่อ LINE Official Account (Messaging API)
-                  </h4>
-                  <p className="text-xs text-slate-500">
-                    กรอกข้อมูลจริงจาก <strong>LINE Official Account Manager</strong> หรือ <strong>LINE Developers Console</strong>
-                  </p>
-                </div>
-              </div>
-              <span className="px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold border border-emerald-500/20 self-start md:self-auto">
-                1-Click Connection
-              </span>
-            </div>
-
-            <form onSubmit={handleConnectAccount} className="space-y-4">
-              <fieldset disabled={busy || !business} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                  {/* Field 1: Display Name */}
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
-                    <span className="flex items-center justify-between">
-                      <span>ชื่อบัญชี LINE OA (Display Name) <span className="text-rose-500">*</span></span>
-                      <span className="text-[10px] text-slate-400 font-normal">ชื่อร้าน/แบรนด์</span>
-                    </span>
-                    <input
-                      name="displayName"
-                      className={fieldClass}
-                      placeholder="เช่น Smart Gift Thailand"
-                      required
-                      maxLength={200}
-                    />
-                  </label>
-
-                  {/* Field 2: Basic ID */}
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
-                    <span className="flex items-center justify-between">
-                      <span>LINE Basic ID / Premium ID</span>
-                      <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-normal">มี @ นำหน้า</span>
-                    </span>
-                    <input
-                      name="basicId"
-                      className={fieldClass}
-                      placeholder="เช่น @smartgift"
-                      maxLength={50}
-                    />
-                  </label>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                  {/* Field 3: Channel ID */}
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
-                    <span className="flex items-center justify-between">
-                      <span>Channel ID</span>
-                      <span className="text-[10px] text-slate-400 font-normal">LINE Devs ➔ Basic settings</span>
-                    </span>
-                    <input
-                      name="channelId"
-                      className={fieldClass}
-                      placeholder="เช่น 2006789123 (ตัวเลข 10 หลัก)"
-                    />
-                  </label>
-
-                  {/* Field 4: Channel Secret */}
-                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
-                    <span className="flex items-center justify-between">
-                      <span>Channel Secret</span>
-                      <span className="text-[10px] text-slate-400 font-normal">LINE Devs ➔ Basic settings</span>
-                    </span>
-                    <input
-                      name="channelSecret"
-                      type="password"
-                      className={fieldClass}
-                      placeholder="เช่น 32 ตัวอักษร/ตัวเลข"
-                    />
-                  </label>
-                </div>
-
-                {/* Field 5: Channel Access Token */}
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
-                  <span className="flex items-center justify-between">
-                    <span>Channel Access Token (Long-Lived)</span>
-                    <span className="text-[10px] text-slate-400 font-normal">LINE Devs ➔ Messaging API ➔ Issue</span>
-                  </span>
-                  <textarea
-                    name="channelAccessToken"
-                    rows={2}
-                    className={`${fieldClass} font-mono text-[11px] resize-none`}
-                    placeholder="วาง Channel access token ยาวๆ ที่กด Issue มาจาก LINE Developers"
-                  />
-                </label>
-
-                {/* Advanced Options Accordion */}
-                <div className="pt-1">
-                  <button
-                    type="button"
-                    onClick={() => setShowAdvanced(!showAdvanced)}
-                    className="text-xs text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 flex items-center gap-1.5 font-medium transition-colors"
-                  >
-                    <span>{showAdvanced ? "▼ ซ่อนตัวเลือกขั้นสูง" : "▶ ตัวเลือกขั้นสูง (Advanced / Custom Ref)"}</span>
-                  </button>
-
-                  {showAdvanced && (
-                    <div className="mt-2.5 p-3.5 rounded-xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-3 text-xs">
-                      <label className="block space-y-1">
-                        <span className="text-slate-600 dark:text-slate-400">รหัสบัญชีในระบบ (Account Code - ปล่อยว่างเพื่อสร้างอัตโนมัติ)</span>
-                        <input name="code" className={fieldClass} placeholder="เช่น oa-smart-gift" pattern="[a-z0-9]+(-[a-z0-9]+)*" />
-                      </label>
-                      <label className="block space-y-1">
-                        <span className="text-slate-600 dark:text-slate-400">Bot user ID / destination (ปล่อยว่างเพื่อสร้างอัตโนมัติ)</span>
-                        <input name="destination" className={fieldClass} placeholder="U… (32 hex chars)" pattern="U[0-9a-fA-F]{32}" />
-                      </label>
-                      <label className="block space-y-1">
-                        <span className="text-slate-600 dark:text-slate-400">ชื่ออ้างอิง Secret (Secret Reference)</span>
-                        <input name="secretRef" className={fieldClass} placeholder="deployment-secret:line-main" pattern="deployment-secret:[A-Za-z0-9_-]{1,100}" />
-                      </label>
-                    </div>
-                  )}
-                </div>
-
-                {/* Submit Action */}
-                <button
-                  type="submit"
-                  disabled={busy || !business}
-                  className="w-full py-3 rounded-xl bg-brand-amber hover:bg-brand-hover active:scale-[0.99] text-white text-xs font-bold transition-all shadow-md shadow-brand-amber/20 flex items-center justify-center gap-2"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  <span>{busy ? "กำลังเชื่อมต่อ LINE OA..." : "เชื่อมต่อ LINE Official Account ทันที"}</span>
-                </button>
-              </fieldset>
-            </form>
-          </div>
+          {/* FR-225: the Thai self-serve connect wizard replaces the old
+              deployment-secret-only form. */}
+          <LineOaConnectWizard businessId={business?.id} onConnected={handleWizardConnected} />
         </div>
       </div>
     </div>
   );
 }
 
-function AccountCard({ account, onAction, busy }) {
+function AccountCard({ account, onAction, onRefresh, busy }) {
   const [mode, setMode] = useState(account.executionMode);
   const [access, setAccess] = useState(account.modelAccess);
   const [push, setPush] = useState(account.allowDelayedPush);
+  const [grounding, setGrounding] = useState(account.knowledgeGrounding);
+  const [sessionTimeout, setSessionTimeout] = useState(String(account.sessionIdleTimeoutMinutes ?? 30));
   const [quiesced, setQuiesced] = useState(false);
   const [jobs, setJobs] = useState(null);
+  const [sessionFilter, setSessionFilter] = useState("");
+  const [filteredSession, setFilteredSession] = useState(null);
+  const [traces, setTraces] = useState({});
   const [acknowledged, setAcknowledged] = useState({});
   const [resolving, setResolving] = useState(false);
   const [error, setError] = useState("");
@@ -510,13 +517,35 @@ function AccountCard({ account, onAction, busy }) {
     setMode(account.executionMode);
     setAccess(account.modelAccess);
     setPush(account.allowDelayedPush);
+    setGrounding(account.knowledgeGrounding);
+    setSessionTimeout(String(account.sessionIdleTimeoutMinutes ?? 30));
   }, [account]);
 
-  async function loadJobs() {
+  const timeoutMinutes = Number(sessionTimeout);
+  const timeoutValid = Number.isInteger(timeoutMinutes) && timeoutMinutes >= 10 && timeoutMinutes <= 120;
+
+  async function loadJobs(code = "") {
     try {
       setError("");
-      const result = await api(`/api/line-oa/accounts/${account.id}/jobs`);
+      setTraces({});
+      const query = code ? `?session=${encodeURIComponent(code.trim().toUpperCase())}` : "";
+      const result = await api(`/api/line-oa/accounts/${account.id}/jobs${query}`);
       setJobs(result.jobs ?? result);
+      setFilteredSession(code ? result.session ?? { code: code.trim().toUpperCase(), missing: true } : null);
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
+  async function toggleTrace(job) {
+    if (traces[job.id]) {
+      setTraces((current) => { const next = { ...current }; delete next[job.id]; return next; });
+      return;
+    }
+    try {
+      setError("");
+      const result = await api(`/api/line-oa/jobs/${job.id}/trace`);
+      setTraces((current) => ({ ...current, [job.id]: result.events ?? [] }));
     } catch (err) {
       setError(err.message);
     }
@@ -548,7 +577,7 @@ function AccountCard({ account, onAction, busy }) {
             <span className="text-xs text-slate-500 font-mono">({account.basicId || account.code})</span>
           </h2>
           <p className="text-[11px] text-slate-500 mt-0.5">
-            LINE Transport: <strong className="text-slate-800 dark:text-slate-200">{account.serverEnabled ? "Zuri Server" : account.transportMode === "EDGE" ? "Legacy Edge" : "Server ยังไม่เปิด"}</strong> · Connection: <span className="text-emerald-600">{account.health?.connection?.status || "พร้อม"}</span>
+            LINE Transport: <strong className="text-slate-800 dark:text-slate-200">{account.serverEnabled ? "Zuri Server" : account.transportMode === "EDGE" ? "Edge worker" : "Server ยังไม่เปิด"}</strong> · Connection: <span className="text-emerald-600">{account.health?.connection?.status || "UNKNOWN"}</span>
           </p>
         </div>
         <StatusPill status={account.effectiveStatus} />
@@ -562,6 +591,11 @@ function AccountCard({ account, onAction, busy }) {
           <p>Tenant ID: {account.tenantId}</p>
         </div>
       </details>
+
+      {/* FR-225: credential status is metadata only (no material) — and the
+          mount-to-vault migration card only for a DEPLOYMENT_MOUNT-backed
+          connection (design §4.9 step 4). */}
+      <LineOaCredentialMigrationCard account={account} onMigrated={onRefresh} />
 
       <fieldset disabled={busy || account.status === "ARCHIVED"} className="grid gap-3 pt-1">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
@@ -606,6 +640,48 @@ function AccountCard({ account, onAction, busy }) {
           <span>อนุญาต Push คำตอบภายหลัง หาก reply token หมดอายุ</span>
         </label>
 
+        <div>
+          <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+            แหล่งความรู้สำหรับตอบคำถาม
+          </label>
+          <select
+            aria-label="แหล่งความรู้สำหรับตอบคำถาม"
+            className={fieldClass}
+            value={grounding}
+            onChange={(e) => setGrounding(e.target.value)}
+          >
+            <option value="BUSINESS_KNOWLEDGE">ฐานความรู้ธุรกิจ (ค่าเริ่มต้น)</option>
+            <option value="GKS_CORPUS">คลังความรู้ GKS ที่เผยแพร่แล้วเท่านั้น</option>
+            <option value="GKS_THEN_BUSINESS_KNOWLEDGE">คลังความรู้ GKS ก่อน แล้วสำรองด้วยฐานความรู้ธุรกิจ</option>
+          </select>
+          <p className="text-[10px] text-slate-500 mt-1">
+            เปลี่ยนแหล่งข้อมูลที่ Zuri ใช้ตอบคำถามลูกค้าทาง LINE — ไม่กระทบบัญชีอื่น
+          </p>
+        </div>
+
+        <div>
+          <label htmlFor={`session-timeout-${account.id}`} className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+            เวลาเงียบก่อนเริ่ม session ใหม่ (นาที)
+          </label>
+          <input
+            id={`session-timeout-${account.id}`}
+            type="number"
+            min={10}
+            max={120}
+            step={1}
+            inputMode="numeric"
+            className={fieldClass}
+            value={sessionTimeout}
+            onChange={(e) => setSessionTimeout(e.target.value)}
+            aria-invalid={!timeoutValid}
+          />
+          <p className={`text-[10px] mt-1 ${timeoutValid ? "text-slate-500" : "text-rose-600"}`}>
+            {timeoutValid
+              ? "ถ้าลูกค้าเงียบนานกว่านี้ ข้อความถัดไปจะเริ่ม session ใหม่ ค่าเริ่มต้น 30 นาที"
+              : "ใส่ตัวเลขเต็มระหว่าง 10 ถึง 120 นาที"}
+          </p>
+        </div>
+
         <div className="flex flex-wrap gap-2 pt-1">
           <button
             type="button"
@@ -613,6 +689,24 @@ function AccountCard({ account, onAction, busy }) {
             onClick={() => onAction(account, { action: "CONFIGURE_EXECUTION", executionMode: mode, modelAccess: access, allowDelayedPush: push })}
           >
             บันทึกการประมวลผล
+          </button>
+
+          <button
+            type="button"
+            disabled={grounding === account.knowledgeGrounding}
+            className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => onAction(account, { action: "CONFIGURE_KNOWLEDGE_GROUNDING", knowledgeGrounding: grounding })}
+          >
+            บันทึกแหล่งความรู้
+          </button>
+
+          <button
+            type="button"
+            disabled={!timeoutValid || timeoutMinutes === (account.sessionIdleTimeoutMinutes ?? 30)}
+            className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => onAction(account, { action: "CONFIGURE_SESSION_TIMEOUT", sessionIdleTimeoutMinutes: timeoutMinutes })}
+          >
+            บันทึกเวลา session
           </button>
 
           {account.serverEnabled ? (
@@ -624,13 +718,20 @@ function AccountCard({ account, onAction, busy }) {
               ปิด Server transport
             </button>
           ) : account.transportMode === "CLOUD" ? (
-            <button
-              type="button"
-              className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 text-white text-xs font-bold shadow-sm shadow-emerald-600/20 flex items-center gap-1.5"
-              onClick={() => onAction(account, { action: "ENABLE_SERVER", legacyQuiesced: true })}
-            >
-              <span>⚡ เปิด Server Transport (Live)</span>
-            </button>
+            <div className="grid gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
+              <label className="flex items-start gap-2">
+                <input type="checkbox" checked={quiesced} onChange={(event) => setQuiesced(event.target.checked)} className="mt-0.5" />
+                <span>ยืนยันว่า transport เดิมหยุดรับ webhook แล้ว และยอมรับให้ Zuri Server เป็นเจ้าของการส่ง</span>
+              </label>
+              <button
+                type="button"
+                disabled={!quiesced}
+                className="w-fit rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm shadow-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={() => onAction(account, { action: "ENABLE_SERVER", legacyQuiesced: true })}
+              >
+                ⚡ เปิด Server Transport (Live)
+              </button>
+            </div>
           ) : (
             <button
               type="button"
@@ -644,7 +745,7 @@ function AccountCard({ account, onAction, busy }) {
           <button
             type="button"
             className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-white"
-            onClick={loadJobs}
+            onClick={() => loadJobs()}
           >
             ดูสถานะข้อความ
           </button>
@@ -656,28 +757,76 @@ function AccountCard({ account, onAction, busy }) {
       {jobs && (
         <div className="mt-3 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3">
           <h5 className="font-bold text-xs text-slate-800 dark:text-slate-200 mb-2">คิวข้อความล่าสุด (Delivery Jobs)</h5>
+          <form
+            className="mb-2 flex flex-wrap items-center gap-2"
+            onSubmit={(event) => { event.preventDefault(); loadJobs(sessionFilter); }}
+          >
+            <label htmlFor={`session-filter-${account.id}`} className="text-[11px] text-slate-600 dark:text-slate-400">กรองตาม session</label>
+            <input
+              id={`session-filter-${account.id}`}
+              className="w-48 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1.5 font-mono text-[11px]"
+              placeholder="S-20260916-XXXXXX"
+              value={sessionFilter}
+              onChange={(e) => setSessionFilter(e.target.value)}
+            />
+            <button type="submit" className="rounded-xl bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white">กรอง</button>
+            {filteredSession && (
+              <button type="button" className="text-[11px] text-slate-500 underline" onClick={() => { setSessionFilter(""); loadJobs(); }}>ล้างตัวกรอง</button>
+            )}
+          </form>
+          {filteredSession && (
+            <p className="mb-2 text-[11px] text-slate-600 dark:text-slate-400" data-session-filter={filteredSession.code}>
+              {filteredSession.missing
+                ? `ไม่พบ session ${filteredSession.code} ในบัญชีนี้`
+                : `session ${filteredSession.code} · ข้อความเข้า ${filteredSession.inboundCount} · ตอบกลับ ${filteredSession.outboundCount}`}
+            </p>
+          )}
           <table className="w-full text-left text-xs">
             <thead>
               <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-500">
                 <th className="p-1.5">เวลา</th>
                 <th className="p-1.5">งาน</th>
+                <th className="p-1.5">Session</th>
                 <th className="p-1.5">สถานะ</th>
                 <th className="p-1.5">รายละเอียด</th>
+                <th className="p-1.5">Trace</th>
               </tr>
             </thead>
             <tbody>
               {Array.isArray(jobs) && jobs.map((job) => (
-                <tr key={job.id} className="border-b border-slate-100 dark:border-slate-800 font-mono text-[11px]">
-                  <td className="p-1.5">{new Date(job.createdAt).toLocaleTimeString()}</td>
-                  <td className="p-1.5">{job.id.slice(0, 8)}</td>
-                  <td className="p-1.5 font-bold">{job.status}</td>
-                  <td className="p-1.5">{job.errorCode || job.executionMode}</td>
-                </tr>
+                <React.Fragment key={job.id}>
+                  <tr className="border-b border-slate-100 dark:border-slate-800 font-mono text-[11px]">
+                    <td className="p-1.5">{new Date(job.createdAt).toLocaleTimeString()}</td>
+                    <td className="p-1.5">{job.id.slice(0, 8)}</td>
+                    <td className="p-1.5">{job.sessionCode || "—"}</td>
+                    <td className="p-1.5 font-bold">{job.status}</td>
+                    <td className="p-1.5">{job.errorCode || job.executionMode}</td>
+                    <td className="p-1.5">
+                      <button type="button" className="text-[11px] text-slate-700 underline dark:text-slate-300" onClick={() => toggleTrace(job)}>
+                        {traces[job.id] ? "ซ่อน" : "ดู trace"}
+                      </button>
+                    </td>
+                  </tr>
+                  {traces[job.id] && (
+                    <tr className="border-b border-slate-100 dark:border-slate-800">
+                      <td colSpan={6} className="p-1.5">
+                        <ol className="grid gap-0.5 font-mono text-[10px] text-slate-600 dark:text-slate-400" aria-label={`trace ของงาน ${job.id.slice(0, 8)}`}>
+                          {traces[job.id].length === 0 && <li>ยังไม่มี trace event</li>}
+                          {traces[job.id].map((event, index) => (
+                            <li key={event.id ?? `${job.id}-${index}`}>
+                              {new Date(event.occurredAt).toLocaleTimeString()} · {event.kind}
+                            </li>
+                          ))}
+                        </ol>
+                      </td>
+                    </tr>
+                  )}
+                </React.Fragment>
               ))}
             </tbody>
           </table>
           {Array.isArray(jobs) && jobs.length === 0 && (
-            <p className="p-2 text-center text-slate-400 text-xs">ยังไม่มีข้อความในคิว</p>
+            <p className="p-2 text-center text-slate-400 text-xs">{filteredSession ? "ไม่มีงานใน session นี้" : "ยังไม่มีข้อความในคิว"}</p>
           )}
         </div>
       )}

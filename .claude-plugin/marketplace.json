@@ -1,0 +1,13 @@
+{
+  "name": "zuri-ai",
+  "owner": {
+    "name": "Zuri AI"
+  },
+  "plugins": [
+    {
+      "name": "zuri-harness",
+      "source": "./plugins/zuri-harness",
+      "description": "Pairs this Claude Code or Codex device with zuri-ai and reports finished-session token usage, attributed to a signed-in person, device and lane branch (ADR-087, FR-220..222)."
+    }
+  ]
+}

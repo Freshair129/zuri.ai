@@ -8,6 +8,8 @@ import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 // @req FR-091 — the CRM Conversation Inbox read model: one authorized, read-only
 //   composition over Customer/Conversation/Message, which the FR-023 ingest seam has
 //   been writing since the first LINE turn with no surface able to read them.
+// @req FR-233 — lastMessageAt/lastMessagePreview/retentionClass columns and a
+//   per-Business unreadCount computed on read (ADR-091 D5).
 // @spec SDD-050, BR-001, BR-011, SEC-001, SEC-009
 // @tested tests/unit/conversation-read-model.test.js, tests/integration/crm-conversation-inbox.test.js,
 //   tests/integration/domain-visibility-server.test.js
@@ -81,7 +83,10 @@ function denied(status, message) {
  *   rather than in the two handlers above them — a per-handler copy is how the second
  *   handler ends up without one (D2-domain-identity-23).
  */
-async function resolveScope({ viewer, businessId }) {
+// @req FR-233 — exported so conversation-search-service.js (the FR-233 third
+//   reader) reuses this exact authorization/scope predicate instead of
+//   re-deriving it: security-critical scoping logic lives in one place.
+export async function resolveScope({ viewer, businessId }) {
   if (!seesBusiness(viewer, businessId)) throw denied(403, 'Business access denied')
   assertDomainVisible(viewer, businessId, 'customer')
 
@@ -106,7 +111,7 @@ async function resolveScope({ viewer, businessId }) {
     businessNameById: new Map(visible.map((row) => [row.id, row.name])),
     where: {
       tenantId: business.tenantId,
-      OR: [{ businessId: null }, { businessId: { in: visible.map((row) => row.id) } }],
+      OR: [{ businessId: null }, { businessId: business.id }],
     },
   }
 }
@@ -151,6 +156,12 @@ export async function getConversationInbox({ viewer, businessId, limit = INBOX_R
       externalThreadId: true,
       createdAt: true,
       updatedAt: true,
+      // @req FR-233 — the stored read-model columns: last-message time/preview
+      //   (kept current by conversation-preview-service.js on every message
+      //   write) and retention class (currently fixed, see the schema comment).
+      lastMessageAt: true,
+      lastMessagePreview: true,
+      retentionClass: true,
       customer: {
         select: {
           id: true,
@@ -198,6 +209,31 @@ export async function getConversationInbox({ viewer, businessId, limit = INBOX_R
     if (!latestByConversation.has(message.conversationId)) latestByConversation.set(message.conversationId, message)
   }
 
+  // @req FR-233 — "a per-Business unread count computed on read": the newest
+  //   OUTBOUND message per conversation is treated as "caught up to", and every
+  //   INBOUND message newer than that is unread (every INBOUND message counts
+  //   when the conversation has no OUTBOUND message at all yet). Both maps are
+  //   built from `recentMessages`, already fetched for `lastMessage` above — no
+  //   extra query, so the page still costs a constant number of them (SDD-050).
+  //   Two passes over the same array because it is sorted newest-first across
+  //   ALL conversations interleaved, not grouped per conversation: the first
+  //   pass must finish discovering every conversation's outbound cutoff before
+  //   the second pass can safely test an inbound message against it.
+  const latestOutboundAtByConversation = new Map()
+  for (const message of recentMessages) {
+    if (message.direction === 'OUTBOUND' && !latestOutboundAtByConversation.has(message.conversationId)) {
+      latestOutboundAtByConversation.set(message.conversationId, message.createdAt)
+    }
+  }
+  const unreadCountByConversation = new Map()
+  for (const message of recentMessages) {
+    if (message.direction !== 'INBOUND') continue
+    const cutoff = latestOutboundAtByConversation.get(message.conversationId)
+    if (!cutoff || message.createdAt > cutoff) {
+      unreadCountByConversation.set(message.conversationId, (unreadCountByConversation.get(message.conversationId) || 0) + 1)
+    }
+  }
+
   const rows = conversations.map((conversation) => {
     const latest = latestByConversation.get(conversation.id) || null
     return {
@@ -220,6 +256,11 @@ export async function getConversationInbox({ viewer, businessId, limit = INBOX_R
           createdAt: latest.createdAt.toISOString(),
         }
         : null,
+      // @req FR-233
+      lastMessageAt: conversation.lastMessageAt ? conversation.lastMessageAt.toISOString() : null,
+      lastMessagePreview: conversation.lastMessagePreview,
+      retentionClass: conversation.retentionClass,
+      unreadCount: unreadCountByConversation.get(conversation.id) || 0,
       createdAt: conversation.createdAt.toISOString(),
       updatedAt: conversation.updatedAt.toISOString(),
     }
@@ -278,7 +319,11 @@ export async function getConversationThread({ viewer, businessId, conversationId
       },
       messages: {
         orderBy: { createdAt: 'asc' },
-        select: { id: true, direction: true, body: true, externalMessageId: true, createdAt: true },
+        select: {
+          id: true, direction: true, body: true, externalMessageId: true, createdAt: true,
+          // @req FR-243 — the inbox draws a divider where the session changes (ADR-094 D4).
+          sessionId: true, session: { select: { code: true, openedAt: true } },
+        },
       },
     },
   })
@@ -306,6 +351,9 @@ export async function getConversationThread({ viewer, businessId, conversationId
       body: message.body,
       externalMessageId: message.externalMessageId,
       createdAt: message.createdAt.toISOString(),
+      sessionId: message.sessionId ?? null,
+      sessionCode: message.session?.code ?? null,
+      sessionOpenedAt: message.session?.openedAt ? message.session.openedAt.toISOString() : null,
     })),
   }
 }

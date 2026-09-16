@@ -9,11 +9,11 @@ import { createMspStdioTransport } from '@/modules/agent/msp-stdio-transport'
 import { ingestKnowledgeDocument, readKnowledgeIngestionJob } from '@/platform/integrations/core/knowledge-ingestion-executor'
 import { pullKnowledgeStageEvidence } from '@/platform/integrations/core/knowledge-evidence-importer'
 
-// @req FR-110 — the whole lawful chain, live: zuri-ai's Tier 1 run → a Stage 9
-//   execution in the real GKS (reached through the real MSP, naming the run)
-//   → GKS's stage_evidence row → pulled back through MSP by the importer →
-//   the run's DPS-KI-ENTITY-RESOLVE step on this ledger. Three repositories,
-//   one pipeline_job_id.
+// @req FR-110 — the whole lawful legacy chain, live: zuri-ai's Tier 1 run → a
+//   Stage 9 execution in the real GKS (reached through the real MSP, naming the
+//   run) → GKS's stage_evidence row → pulled back through MSP by the importer.
+//   The legacy row remains readable and held because it has no attempt identity;
+//   the GenesisRAG17 importer owns attempt-bound evidence for the new contract.
 // @req FR-109 — AC-109.12 with real evidence from a real Tier 3.
 // @spec ADR-068 D1-D3, ADR-067 D2, ADR-050 D3, ADR-043 D2
 // @tested tests/integration/fr110-knowledge-evidence-chain.test.js
@@ -62,7 +62,7 @@ describe.skipIf(!mspRoot || !gksRoot)('FR-110 — evidence pull, live across zur
     if (dir) rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 })
   })
 
-  it('a Stage 9 execution in GKS reaches this ledger as DPS-KI-ENTITY-RESOLVE on the run that asked for it', async () => {
+  it('a Stage 9 execution in GKS reaches this ledger as held legacy evidence on the run that asked for it', async () => {
     const { run } = await ingestKnowledgeDocument({
       documentId: 'doc-ki-chain-1',
       text: '# Scope\n\nบริษัท เอบีซี จำกัด delivers the console.',
@@ -94,12 +94,13 @@ describe.skipIf(!mspRoot || !gksRoot)('FR-110 — evidence pull, live across zur
 
     const pulled = await pullKnowledgeStageEvidence({ scope }, { viewer: operator, transport })
     expect(pulled.blocked).toBeNull()
-    expect(pulled.applied).toEqual([expect.objectContaining({ runId: run.executionRunId, pipelineStageId: 'DPS-KI-ENTITY-RESOLVE', status: 'CREATED' })])
+    expect(pulled.applied).toEqual([])
+    expect(pulled.held).toEqual([expect.objectContaining({ runId: run.executionRunId, pipelineStageId: 'DPS-KI-ENTITY-RESOLVE', reason: 'LEGACY_EVIDENCE_HAS_NO_ATTEMPT_IDENTITY' })])
     expect(pulled.cursor).toBeGreaterThan(0)
 
     const runRow = await prisma.pipelineRun.findUnique({ where: { executionRunId: run.executionRunId } })
     const step = await prisma.pipelineStep.findFirst({ where: { runId: runRow.id, pipelineStageId: 'DPS-KI-ENTITY-RESOLVE' } })
-    expect(step).toMatchObject({ status: 'SUCCEEDED', actualCount: 1, insertedCount: 1, failedCount: 0 })
+    expect(step).toMatchObject({ status: 'NOT_STARTED' })
     const job = await readKnowledgeIngestionJob(run.executionRunId, { viewer: operator })
     expect(job.job.state).toBe('PROCESSING')
 

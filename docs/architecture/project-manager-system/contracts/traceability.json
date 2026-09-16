@@ -1,0 +1,658 @@
+{
+  "schemaVersion": "1.0",
+  "status": "CANDIDATE",
+  "canonicalIdsRegistered": false,
+  "baselineCommit": "087f30258a6831865afd751e28804e36505aff30",
+  "requirements": [
+    {
+      "requirementId": "PMR-001",
+      "capabilityId": "PMF-01",
+      "ownerDomain": "project-manager",
+      "phase": "P1",
+      "acceptanceTestId": "PMT-001",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "previewDesignBundleImport",
+        "commitDesignBundleImport"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-002",
+      "capabilityId": "PMF-01",
+      "ownerDomain": "project-manager",
+      "phase": "P1",
+      "acceptanceTestId": "PMT-002",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "getProjectDomainView"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-003",
+      "capabilityId": "PMF-01",
+      "ownerDomain": "project-manager",
+      "phase": "P1",
+      "acceptanceTestId": "PMT-003",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "getProjectFeatureView",
+        "listProjectFeatures",
+        "createProjectFeature",
+        "getProjectFeature",
+        "updateProjectFeature"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-004",
+      "capabilityId": "PMF-02",
+      "ownerDomain": "project-manager",
+      "phase": "P2",
+      "acceptanceTestId": "PMT-004",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "validateDesignSnapshot",
+        "getProjectArchitecture"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-005",
+      "capabilityId": "PMF-03",
+      "ownerDomain": "project-manager",
+      "phase": "P2",
+      "acceptanceTestId": "PMT-005",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "getProjectApiCatalog"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-006",
+      "capabilityId": "PMF-04",
+      "ownerDomain": "project-manager",
+      "phase": "P4",
+      "acceptanceTestId": "PMT-006",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "listProjectAgents",
+        "createProjectAgent",
+        "getProjectAgent",
+        "createAgentVersion"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-007",
+      "capabilityId": "PMF-05",
+      "ownerDomain": "project-manager",
+      "phase": "P5",
+      "acceptanceTestId": "PMT-007",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "listProjectFleets",
+        "createProjectFleet",
+        "getProjectFleet",
+        "createFleetVersion",
+        "listProjectWorkflows",
+        "createProjectWorkflow",
+        "createWorkflowVersion",
+        "previewProjectRun"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-008",
+      "capabilityId": "PMF-06",
+      "ownerDomain": "integration",
+      "phase": "P4",
+      "acceptanceTestId": "PMT-008",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "previewProjectRun",
+        "dispatchProjectRun",
+        "listProjectRuns",
+        "getProjectRun",
+        "commandProjectRun",
+        "streamProjectRunEvents",
+        "claimExecutorStep"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-009",
+      "capabilityId": "PMF-07",
+      "ownerDomain": "integration",
+      "phase": "P3",
+      "acceptanceTestId": "PMT-009",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "listModelConnections",
+        "createModelConnection",
+        "provisionModelCredential",
+        "listModelDeployments",
+        "createModelDeployment",
+        "probeModelDeployment"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-010",
+      "capabilityId": "PMF-07",
+      "ownerDomain": "integration",
+      "phase": "P3",
+      "acceptanceTestId": "PMT-010",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "listMcpBindings",
+        "createMcpBinding",
+        "probeMcpBinding"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-011",
+      "capabilityId": "PMF-07",
+      "ownerDomain": "integration",
+      "phase": "P3",
+      "acceptanceTestId": "PMT-011",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "provisionModelCredential",
+        "revokeModelCredential",
+        "createModelDeployment",
+        "listInferenceKeys",
+        "createInferenceKey",
+        "revokeInferenceKey",
+        "listAllowedInferenceModels",
+        "createInferenceChatCompletion",
+        "createInferenceEmbeddings"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-012",
+      "capabilityId": "PMF-08",
+      "ownerDomain": "identity",
+      "phase": "P1",
+      "acceptanceTestId": "PMT-012",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "getProjectDomainView",
+        "revokeModelCredential",
+        "listInferenceKeys",
+        "createInferenceKey",
+        "revokeInferenceKey"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-013",
+      "capabilityId": "PMF-06",
+      "ownerDomain": "project-manager",
+      "phase": "P5",
+      "acceptanceTestId": "PMT-013",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "createAgentVersion",
+        "createFleetVersion",
+        "createWorkflowVersion",
+        "reviewProjectResource",
+        "previewProjectRun",
+        "dispatchProjectRun"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-014",
+      "capabilityId": "PMF-02",
+      "ownerDomain": "project-manager",
+      "phase": "P2",
+      "acceptanceTestId": "PMT-014",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "listDesignSnapshots",
+        "createDesignSnapshot",
+        "validateDesignSnapshot",
+        "getProjectArchitecture"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-015",
+      "capabilityId": "PMF-08",
+      "ownerDomain": "project-manager",
+      "phase": "P2",
+      "acceptanceTestId": "PMT-015",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "getProjectArchitecture"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-016",
+      "capabilityId": "PMF-01",
+      "ownerDomain": "project-manager",
+      "phase": "P1",
+      "acceptanceTestId": "PMT-016",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "getProjectDomainView",
+        "getProjectFeatureView"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-017",
+      "capabilityId": "PMF-01",
+      "ownerDomain": "project-manager",
+      "phase": "P6",
+      "acceptanceTestId": "PMT-017",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "listResourceAllocations",
+        "createResourceAllocation",
+        "listRisks",
+        "createRisk",
+        "listIssues",
+        "createIssue",
+        "listChangeRequests",
+        "createChangeRequest"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-018",
+      "capabilityId": "PMF-10",
+      "ownerDomain": "project-manager",
+      "phase": "P6",
+      "acceptanceTestId": "PMT-018",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "listReleaseEvidences",
+        "createReleaseEvidence"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-019",
+      "capabilityId": "PMF-08",
+      "ownerDomain": "identity",
+      "phase": "P4",
+      "acceptanceTestId": "PMT-019",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "reviewProjectResource",
+        "streamProjectRunEvents",
+        "provisionModelCredential",
+        "reportExecutorEvent"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-020",
+      "capabilityId": "PMF-10",
+      "ownerDomain": "integration",
+      "phase": "P5",
+      "acceptanceTestId": "PMT-020",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "listProjectRuns",
+        "streamProjectRunEvents",
+        "createInferenceChatCompletion",
+        "createInferenceEmbeddings"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-021",
+      "capabilityId": "PMF-06",
+      "ownerDomain": "integration",
+      "phase": "P4",
+      "acceptanceTestId": "PMT-021",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "dispatchProjectRun",
+        "getProjectRun",
+        "commandProjectRun",
+        "claimExecutorStep",
+        "renewExecutorLease",
+        "reportExecutorEvent"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-022",
+      "capabilityId": "PMF-09",
+      "ownerDomain": "knowledge",
+      "phase": "P6",
+      "acceptanceTestId": "PMT-022",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "searchProjectEvidence"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-023",
+      "capabilityId": "PMF-09",
+      "ownerDomain": "project-manager",
+      "phase": "P6",
+      "acceptanceTestId": "PMT-023",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "updateProjectFeature",
+        "listComments",
+        "createComment"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-024",
+      "capabilityId": "PMF-09",
+      "ownerDomain": "integration",
+      "phase": "P6",
+      "acceptanceTestId": "PMT-024",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "listNotificationSubscriptions",
+        "createNotificationSubscription"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-025",
+      "capabilityId": "PMF-09",
+      "ownerDomain": "project-manager",
+      "phase": "P2",
+      "acceptanceTestId": "PMT-025",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "previewDesignBundleImport",
+        "commitDesignBundleImport",
+        "exportDesignBundle"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-026",
+      "capabilityId": "PMF-09",
+      "ownerDomain": "identity",
+      "phase": "P6",
+      "acceptanceTestId": "PMT-026",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "createArtifactShare",
+        "exportDesignBundle"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-027",
+      "capabilityId": "PMF-08",
+      "ownerDomain": "project-manager",
+      "phase": "P2",
+      "acceptanceTestId": "PMT-027",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "getProjectFeatureView"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-028",
+      "capabilityId": "PMF-10",
+      "ownerDomain": "project-manager",
+      "phase": "P6",
+      "acceptanceTestId": "PMT-028",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "probeModelDeployment",
+        "listEvaluations",
+        "createEvaluation"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-029",
+      "capabilityId": "PMF-10",
+      "ownerDomain": "integration",
+      "phase": "P7",
+      "acceptanceTestId": "PMT-029",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "../07-DELIVERY-AND-VERIFICATION.md"
+      ],
+      "operationIds": [],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-030",
+      "capabilityId": "PMF-06",
+      "ownerDomain": "integration",
+      "phase": "P5",
+      "acceptanceTestId": "PMT-030",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "listWorkflowTriggers",
+        "createWorkflowTrigger",
+        "setWorkflowTriggerEnabled"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-031",
+      "capabilityId": "PMF-10",
+      "ownerDomain": "integration",
+      "phase": "P6",
+      "acceptanceTestId": "PMT-031",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "../07-DELIVERY-AND-VERIFICATION.md",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-032",
+      "capabilityId": "PMF-02",
+      "ownerDomain": "project-manager",
+      "phase": "P2",
+      "acceptanceTestId": "PMT-032",
+      "requirementSource": "../01-REQUIREMENTS-AND-UX.md",
+      "testSource": "../07-DELIVERY-AND-VERIFICATION.md",
+      "contractRefs": [
+        "openapi.candidate.yaml",
+        "../03-DATA-AND-EVENTS.md"
+      ],
+      "operationIds": [
+        "createDesignSnapshot",
+        "validateDesignSnapshot",
+        "getProjectApiCatalog"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    },
+    {
+      "requirementId": "PMR-033",
+      "capabilityId": "PMF-11",
+      "ownerDomain": "project-manager",
+      "contributors": [
+        "people",
+        "identity",
+        "crm"
+      ],
+      "phase": "PMR-033-P1..P5",
+      "acceptanceTestId": "PMT-033",
+      "requirementSource": "../15-WORKFORCE-CAPACITY-SCHEDULE-AND-PERFORMANCE.md",
+      "testSource": "../15-WORKFORCE-CAPACITY-SCHEDULE-AND-PERFORMANCE.md",
+      "contractRefs": [
+        "workforce.openapi.candidate.yaml",
+        "workforce.examples.json",
+        "../15-WORKFORCE-CAPACITY-SCHEDULE-AND-PERFORMANCE.md"
+      ],
+      "operationIds": [
+        "getWorkforceWorkload",
+        "getWorkforceSchedule",
+        "getWorkforcePerformance",
+        "getWorkforceMetricEvidence",
+        "previewWorkforcePlan",
+        "commitWorkforcePlan",
+        "submitWorkforceTimeLog",
+        "proposeWorkforceMetricPolicy"
+      ],
+      "evidenceStatus": "PLANNED_NOT_RUN"
+    }
+  ]
+}
