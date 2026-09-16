@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { runnerStage } from '../helpers/dockerfile-stage.js'
 
 // @req FR-230 — the single-shot worker script itself: it authenticates, calls the
 //   route once, logs exactly one JSON line and exits — no loop, no cadence, no
@@ -37,13 +38,21 @@ describe('everything the worker script imports is actually in the runtime image'
   // inside the container — build, tests and CI all stay green regardless.
   const root = process.cwd()
   const dockerfile = readFileSync(resolve(root, 'Dockerfile'), 'utf8')
-  // Only the final runtime stage matters — the builder stage copies the whole tree.
-  const runtimeStage = dockerfile.slice(dockerfile.lastIndexOf('\nFROM '))
+  // Only the shipped runtime stage matters — the builder stage copies the whole tree.
+  // By NAME, not by "the last FROM": ADR-075 Phase 3 appended opt-in ki17 targets
+  // after `runner`, and the positional version of this line silently started reading
+  // one of those instead (see tests/helpers/dockerfile-stage.js).
+  const runtimeStage = runnerStage(dockerfile)
 
   const localImports = [...script.matchAll(/^import[^'"]*['"](\.[^'"]+)['"]/gm)].map(m => m[1])
 
   it('finds at least the core module, so this test cannot pass by matching nothing', () => {
     expect(localImports).toContain('./retention-sweep-worker-run.mjs')
+  })
+
+  it('found the runner stage to check, so this test cannot pass by matching an empty slice', () => {
+    expect(runtimeStage).toContain('FROM base AS runner')
+    expect(runtimeStage).toContain('CMD ["node", "server.js"]')
   })
 
   it('the script itself is copied into the runtime stage', () => {

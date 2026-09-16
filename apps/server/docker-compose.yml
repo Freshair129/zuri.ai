@@ -40,6 +40,13 @@ services:
         required: true
       - path: .env.docker
         required: false
+      # ADR-075 Phase 3 §7 — the knowledge settings live in ONE file that both web
+      # and genesis-worker read, so the shared credentials cannot drift between two
+      # copies. Optional here and required there: web runs perfectly well without it
+      # (admission stays 503), the worker cannot run at all without it. Gitignored;
+      # .env.knowledge.example lists every name.
+      - path: .env.knowledge
+        required: false
     environment:
       NODE_ENV: production
       PORT: "3000"
@@ -70,6 +77,14 @@ services:
         required: false
     networks:
       - zuri-network
+    volumes:
+      # ADR-075 Phase 3 §6 — msp.sqlite and gks.sqlite. Both MSP sides and every GKS
+      # child must open the SAME files with working locks (C8), which a Windows bind
+      # mount through Docker Desktop's file-sharing layer cannot give them, so this is
+      # a NAMED volume on the one ext4 filesystem inside Docker's WSL2 VM. web mounts
+      # only this one; the native store and the model belong to the worker alone.
+      # Harmless while the knowledge profile is off: an empty directory nothing reads.
+      - ki17-state:/var/lib/zuri-ki17/state
     logging:
       driver: json-file
       options:
@@ -98,6 +113,78 @@ services:
       options:
         max-size: "5m"
         max-file: "3"
+
+  # ---------------------------------------------------------------------------
+  # ADR-075 Phase 3 (P-4) — the GenesisRAG17 Tier 4 worker, as a Linux sidecar in
+  # web's network namespace. docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md option (a).
+  #
+  # OFF BY DEFAULT and deliberately so: the `knowledge` profile means no `docker
+  # compose up` that does not name it can start this, and Phase 3 routes no customer
+  # traffic through it (§11). Starting it is step 3 of an owner-triggered operator
+  # procedure whose gate (§9) is not yet passed.
+  #
+  # The shape is forced by the contracts, not chosen:
+  #   C5/C6  the worker binds 127.0.0.1 only and MSP will POST only to an explicit
+  #          loopback origin — and a container's 127.0.0.1 is its OWN namespace. So
+  #          the worker must share the namespace of whatever spawns the source-side
+  #          MSP, which is web. Hence network_mode, and hence no `ports` and no
+  #          `networks` (Compose forbids both here, and publishing would be wrong
+  #          anyway: this port must be unreachable from the host, zuri-network and ngrok).
+  #   C8     the SQLite files are named volumes, never Windows bind mounts.
+  #   §7     .env.knowledge is this container's ONLY env file, so web's database,
+  #          LINE and model credentials never reach it.
+  genesis-worker:
+    profiles: ["knowledge"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: genesis-worker
+      # The three pinned source repositories. deploy/ki17/pins.json names the commits
+      # and the build refuses to continue when a context's HEAD is not one of them.
+      # Defaults are this device's sibling checkouts, relative to the project directory.
+      additional_contexts:
+        msp: ${KI17_MSP_CONTEXT:-../../../Memory-and-Soul-Passport}
+        gks: ${KI17_GKS_CONTEXT:-../../../Genesis-Knowledge-System}
+        genesisblock: ${KI17_GENESISBLOCK_CONTEXT:-../../../GenesisBlock-ki17}
+    image: ${ZURI_GENESIS_WORKER_IMAGE:-zuri-ai-genesis-worker:local}
+    restart: unless-stopped
+    # R-3: every web deploy recreates this container mid-work. The contract requires
+    # crash-safe transaction intents and a durable outbox, and 60s lets an in-flight
+    # native commit finish rather than be interrupted (same reasoning as web's).
+    stop_grace_period: 60s
+    network_mode: "service:web"
+    env_file:
+      - path: .env.knowledge
+        required: true
+    depends_on:
+      web:
+        condition: service_healthy
+    volumes:
+      - ki17-state:/var/lib/zuri-ki17/state
+      - ki17-genesis-store:/var/lib/zuri-ki17/genesis
+      # Read-only, and mounted here only: "one process holds the native store and the
+      # model". The worker re-verifies all five files' SHA-256 at start (G-7).
+      - ki17-model:/opt/ki17/model:ro
+    healthcheck:
+      # §10 step 3 — liveness ONLY: a TCP connect, no bearer token and no query. It
+      # answers "is the worker listening inside this namespace", which is exactly the
+      # R-2 failure (web recreated, worker left in a dead namespace). Whether the relay
+      # actually works is the P-5 smoke script's job, not a healthcheck's.
+      # The port is read from the container's own environment rather than interpolated:
+      # ${GENESIS_WORKER_PORT} here would resolve against .env, and this variable lives
+      # in .env.knowledge, which Compose does not interpolate from.
+      test: ["CMD", "/opt/ki17/node/bin/node", "-e", "const net=require('node:net');const s=net.connect({host:'127.0.0.1',port:Number(process.env.GENESIS_WORKER_PORT||0)});s.setTimeout(4000);s.on('connect',()=>{s.destroy();process.exit(0)});s.on('timeout',()=>{s.destroy();process.exit(1)});s.on('error',()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      # The model is ~490 MB and every file is SHA-256-verified before the worker
+      # listens, then durable state is resumed. 40s (web's value) would flap.
+      start_period: 180s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   ngrok:
     image: ngrok/ngrok:3
@@ -205,3 +292,23 @@ volumes:
   # Durable Postgres data for the local-db profile; survives `docker compose down`
   # (only `down -v` removes it).
   db-data:
+
+  # ADR-075 Phase 3 §6. Named, never Windows bind mounts: a process on the Windows
+  # host and a process in a Linux container cannot safely share a SQLite file, and
+  # SQLite's own guidance is not to rely on locking across a file-sharing layer.
+  # These live on Docker's WSL2 data disk.
+  #
+  # `down -v` DESTROYS THE PUBLISHED GENERATIONS AND MUST NEVER BE PART OF THIS
+  # PROCEDURE (§6, §11). A full reset of MSP and GKS state happens only on the
+  # owner's instruction, and by moving the volumes aside — never by deleting them.
+  # The 2026-09-06 RCA on deleting resources that were still in use applies here.
+
+  # msp.sqlite + gks.sqlite: the two MSP sides and every GKS child open the same files.
+  ki17-state:
+  # The GenesisBlock native store, candidate and published snapshots, the publication
+  # pointer and the durable outbox. Mounted in genesis-worker ONLY, which is what
+  # enforces "exactly one process holds the native store" (C7).
+  ki17-genesis-store:
+  # intfloat/multilingual-e5-small at the pinned revision, ~490 MB, operator-supplied
+  # and mounted read-only. The worker re-verifies its five SHA-256 values at start (G-7).
+  ki17-model:

@@ -148,6 +148,55 @@ describe('FR-245 chat evidence retrieval (TASK-ZAI-112)', () => {
     await fs.rm(wrongBaseDir, { recursive: true, force: true })
   })
 
+  it('refuses the whole retrieval — nothing decrypted, nothing partially recovered — when the Tenant chain is broken, even though the affected manifest is individually self-consistent', async () => {
+    const { tenant, business } = await freshScope('chain-broken')
+    const { viewer } = await ownerFor(business)
+    const live = { ...session, personId: viewer.principal.id }
+
+    // Two separate sweep runs, so the Tenant has two chained manifests. Both
+    // messages share one thread — and so one Customer — so this retrieval
+    // must recover both once the chain is intact, and neither once it isn't.
+    const threadId = 'TH-CEAR-CHAINBROKEN'
+    const first = await backdatedMessage({ tenant, business, ageDays: PAST, threadId, text: 'ข้อความแรกในเชน' })
+    await runRetentionSweep({ now: new Date(Date.now() - DAY_MS), baseDir })
+    const second = await backdatedMessage({ tenant, business, ageDays: PAST, threadId, text: 'ข้อความที่สองในเชน' })
+    await runRetentionSweep({ now: new Date(), baseDir })
+
+    const manifestsBefore = await prisma.archiveManifest.findMany({ where: { tenantId: tenant.id }, orderBy: { createdAt: 'asc' } })
+    expect(manifestsBefore).toHaveLength(2)
+
+    // Simulate the second manifest row being detached from the chain — the
+    // shape a deleted-and-reinserted row, or a direct DB edit, would take.
+    // The row's OWN fields+hash still reproduce each other (the per-row
+    // self-consistency check alone would accept this), but its claimed
+    // previousManifestHash no longer names the first manifest's real hash.
+    await prisma.archiveManifest.update({
+      where: { id: manifestsBefore[1].id },
+      data: { previousManifestHash: 'f'.repeat(64), previousManifestId: null },
+    })
+
+    const { startDate, endDate } = todayRange()
+    const result = await retrieveArchivedChatEvidence(
+      first.customerId,
+      { businessId: business.id, startDate, endDate, caseReference: 'DSP-CHAIN-BROKEN' },
+      { viewer, session: live, baseDir },
+    )
+
+    // Nothing recovered — including the FIRST message, whose own manifest is
+    // untouched: a broken chain anywhere in the Tenant refuses the whole
+    // retrieval, not only the manifest named in the break.
+    expect(result.sessions).toEqual([])
+    expect(result.manifests).toEqual([])
+    expect(result.missingMessageIds.sort()).toEqual([first.messageId, second.messageId].sort())
+    expect(result.chainIntegrity).toMatchObject({ valid: false, brokenAtManifestId: manifestsBefore[1].id })
+
+    const audit = await prisma.auditEvent.findUnique({ where: { id: result.auditEventId } })
+    expect(audit.action).toBe('ARCHIVE_RETRIEVED')
+    const payload = JSON.parse(audit.payloadJson)
+    expect(payload.messageCount).toBe(0)
+    expect(payload.chainIntegrity).toMatchObject({ valid: false, brokenAtManifestId: manifestsBefore[1].id })
+  })
+
   it('returns no sessions and still audits when nothing in range was ever archived', async () => {
     const { tenant, business } = await freshScope('never')
     const { viewer } = await ownerFor(business)
