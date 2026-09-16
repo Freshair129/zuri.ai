@@ -378,6 +378,7 @@
     "FR-248",
     "FR-249",
     "FR-250",
+    "FR-251",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -4676,6 +4677,19 @@
       "history": [
         {
           "anchor": "hierarchical projects and work navigation",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-251": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "bf7723ffdb3574fff29bcddf9ec9526f977b0daf975e57bf03b350e82099e31a",
+      "history": [
+        {
+          "anchor": "project execution domains view",
           "since": "2026-09-16",
           "reason": "declared"
         }

@@ -1,5 +1,6 @@
-// @req FR-250 — Projects & Work keeps one domain identity while presenting
-// six logical modules, scoped Project surfaces, and one shared Import action.
+// @req FR-250, FR-251 — Projects & Work keeps one domain identity while
+// presenting six logical modules, scoped Project surfaces, one shared Import
+// action and the Project-only Execution Domains tab.
 // @spec ADR-096, docs/architecture/project-manager-system/22-NAVIGATION-IMPLEMENTATION-BASELINE.md
 // @tested tests/unit/fr250-navigation.test.js
 import { describe, expect, it } from 'vitest'
@@ -29,7 +30,7 @@ const MODULE_LABELS = [
 const PROJECT_ID = 'project-01'
 
 describe('FR-250 Projects & Work navigation registry', () => {
-  it('declares exactly six logical modules with three live and three planned entries', () => {
+  it('declares exactly six logical modules with three live and three planned Business entries', () => {
     expect(PM_MODULES).toHaveLength(6)
     expect(PM_MODULES.map((module) => module.label)).toEqual(MODULE_LABELS)
     expect(PM_MODULES.map((module) => module.id)).toEqual([
@@ -44,8 +45,14 @@ describe('FR-250 Projects & Work navigation registry', () => {
     expect(PM_MODULES.filter((module) => module.status === 'PLANNED_MODULE')).toHaveLength(3)
     expect(PM_MODULES.filter((module) => module.status !== 'PLANNED_MODULE')).toHaveLength(3)
     expect(PM_MODULES.filter((module) => module.status === 'PLANNED_MODULE').every((module) => {
-      return module.businessPath === null && module.projectSuffix === null
+      return module.businessPath === null
     })).toBe(true)
+    expect(PM_MODULES.filter((module) => module.status === 'PLANNED_MODULE' && module.id !== 'module.delivery-design').every((module) => {
+      return module.projectSuffix === null
+    })).toBe(true)
+    expect(PM_MODULES.find((module) => module.id === 'module.delivery-design')).toMatchObject({
+      projectSuffix: '/domain-view',
+    })
   })
 
   it('accounts for the eight existing Business destinations without inventing planned hrefs', () => {
@@ -96,6 +103,7 @@ describe('FR-250 Projects & Work navigation registry', () => {
   it('keeps Project Management and Resource Coordination project surfaces distinct', () => {
     const projectManagement = PM_MODULES.find((module) => module.id === 'module.project-management')
     const resources = PM_MODULES.find((module) => module.id === 'module.resource-coordination')
+    const deliveryDesign = PM_MODULES.find((module) => module.id === 'module.delivery-design')
 
     expect(projectManagement.projectTabs).toEqual([
       { id: 'pm.project-overview', label: 'Project Overview', suffix: '' },
@@ -113,6 +121,17 @@ describe('FR-250 Projects & Work navigation registry', () => {
     ])
     expect(resources.plannedProjectTabs.map((tab) => tab.id)).toContain('rc.resources')
     expect(resources.plannedProjectTabs.every((tab) => !Object.prototype.hasOwnProperty.call(tab, 'suffix'))).toBe(true)
+    expect(deliveryDesign.projectTabs).toEqual([
+      { id: 'dd.domains', label: 'Execution Domains', suffix: '/domain-view', readOnly: true },
+    ])
+    expect(deliveryDesign.plannedProjectTabs.map((tab) => tab.label)).toEqual([
+      'Features',
+      'Requirements',
+      'Architecture',
+      'API',
+      'Docs & Decisions',
+    ])
+    expect(deliveryDesign.plannedProjectTabs.every((tab) => !Object.prototype.hasOwnProperty.call(tab, 'suffix'))).toBe(true)
   })
 
   it('defines one PM-owned Import action and no local Import tab', () => {
@@ -154,6 +173,7 @@ describe('FR-250 Projects & Work navigation registry', () => {
     expect(moduleForProjectPath(`/projects/${PROJECT_ID}/team`, PROJECT_ID)).toMatchObject({ id: 'module.resource-coordination' })
     expect(moduleForProjectPath(`/projects/${PROJECT_ID}/files`, PROJECT_ID)).toMatchObject({ id: 'module.resource-coordination' })
     expect(moduleForProjectPath(`/projects/${PROJECT_ID}/repositories`, PROJECT_ID)).toMatchObject({ id: 'module.resource-coordination' })
+    expect(moduleForProjectPath(`/projects/${PROJECT_ID}/domain-view`, PROJECT_ID)).toMatchObject({ id: 'module.delivery-design' })
     expect(moduleForProjectPath(`/projects/${PROJECT_ID}/import`, PROJECT_ID)).toMatchObject({ id: 'module.project-management' })
     expect(moduleForProjectPath(`/projects/${PROJECT_ID}/unknown`, PROJECT_ID)).toBeNull()
     expect(moduleForProjectPath(`/projects/${PROJECT_ID}/execution`, PROJECT_ID)).toBeNull()

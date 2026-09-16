@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-SYSTEM-DESIGN
 title: Project Manager complete system design
-version: "0.10.0b"
+version: "0.11.0b"
 status: candidate
 created_at: "2026-09-15T23:49:58+07:00,RWANG,base 087f30258a6831865afd751e28804e36505aff30"
-last_update: "2026-09-16T21:49:20+07:00,RWANG"
+last_update: "2026-09-17T00:32:00+07:00,RWANG"
 superseded_by: null
 attributes:
   doc_type: architecture-specification
@@ -25,9 +25,9 @@ relations:
 
 # Project Manager — Full System Design
 
-**Version:** 0.10.0b · **Status:** Candidate · **Risk:** HIGH · **Complexity:** C-3
+**Version:** 0.11.0b · **Status:** Candidate · **Risk:** HIGH · **Complexity:** C-3
 **Evidence baseline:** original design `087f30258a6831865afd751e28804e36505aff30`; MA-I02 source audit `138db6630e650e3c695b81158eff3cecdad6d0a5`.
-**Deliverable:** เอกสารออกแบบและสัญญาแบบเครื่องอ่านได้; navigation FR-250 ส่งมอบแล้ว ส่วน Domain/Feature Phase A/B ในเอกสาร 23 ยังเป็นข้อเสนอ ไม่มี implementation หรือ production activation จาก packet ใหม่นี้
+**Deliverable:** เอกสารออกแบบและสัญญาแบบเครื่องอ่านได้; navigation FR-250 ส่งมอบแล้ว ส่วน Domain View Phase A ในเอกสาร 23 ได้รับอนุมัติ ลงทะเบียน FR-251 และผ่าน local server/build/browser/governance แล้ว; ติดตาม hosted CI และ release แยกใน PR443 ส่วน Feature Phase B ยังเป็นข้อเสนอ ไม่มี production activation จาก packet ใหม่นี้
 
 **Spec completeness:** [16 Spec readiness & API reference](16-SPEC-READINESS-AND-API-REFERENCE.md) ตรวจไฟล์จริงแล้ว: มี contracts / API schemas / OpenAPI references และเพิ่ม Swagger UI ใน local review แต่ยังต้องปิด SPEC-G01–G09 ก่อน spec-to-code. 132 schema definitions เป็น API/JSON shapes ไม่ใช่ตารางฐานข้อมูล; ห้ามตีความ structural validation ว่า implementation-ready.
 
@@ -39,7 +39,7 @@ relations:
 
 **Navigation delivery state:** [22 Core navigation baseline](22-NAVIGATION-IMPLEMENTATION-BASELINE.md) defines six logical sidebar modules and module-local tabs. Import is one shared Project action. [ADR-096](../../decisions/ADR-096-PROJECTS-AND-WORK-HIERARCHICAL-NAVIGATION.md) and [FR-250](../../domains/project-manager/features/FR-250-hierarchical-project-navigation.md) were approved and delivered in PR435 (`e8fc84bd`). Deferred screen families retain explicitly historical, non-generatable bindings; this does not implement or approve all 37 screens.
 
-**Project / Domain / Feature Phase A packet:** [23 Project, Domain and Feature implementation baseline](23-PROJECT-DOMAIN-FEATURE-IMPLEMENTATION-BASELINE.md) is candidate `0.3.0b` with the Domain-view OpenAPI response and redacted 401/404 refusal contract composed. A1 owner approval is pending; A2 canonical registration and governance remain pending. Phase B Feature authority, persistence, CSRF and migration remain deferred and unapproved.
+**Project / Domain / Feature Phase A packet:** [23 Project, Domain and Feature implementation baseline](23-PROJECT-DOMAIN-FEATURE-IMPLEMENTATION-BASELINE.md) is `0.4.0b`: Phase A is owner-approved on baseline `7465080f` and registered as FR-251, with the Domain-view response and redacted 401/404 refusal contract implemented. A2 governance passed with 0 critical findings and 2 existing warnings before worker code. The [FR-251 delivery note](../../domains/project-manager/features/FR-251-project-execution-domains.md) records local verification and separate hosted/release gates. Phase B Feature authority, persistence, CSRF and migration remain deferred and unapproved.
 
 **ส่วนเพิ่มล่าสุด:** [UX strategy](10-UX-STRATEGY-AND-JOURNEYS.md) → [UI system](11-UI-SYSTEM-AND-INTERACTIONS.md) → [37 wireframes / screen specs](12-WIREFRAMES-AND-SCREEN-SPECS.md). เป็นส่วนต่อยอดจากผังเมนู v0.2.0b; application code ยังไม่เปลี่ยน
 
@@ -50,7 +50,7 @@ Resources มี 4 views ที่เสนอ: Overview / Workload / Schedule /
 
 **SRS / Tables / Blueprint:** [17 SRS](17-SRS.md) รวม 33 requirement families และ use cases; [18 Tables & ERD](18-DATABASE-TABLES-AND-ERD.md) แยก 31 existing models กับ 54 proposed logical records พร้อม field dictionary และ ERD 9 มุมมอง; [19 System Blueprint](19-SYSTEM-BLUEPRINT.md) มี 5 architecture/runtime diagrams และ machine-readable models. จำนวน record ไม่ใช่จำนวนตารางใหม่ที่อนุมัติให้สร้าง; implementation readiness ยังติด SPEC-G01–G09.
 
-**Multi-agent delivery:** [20 Delivery plan](20-MULTI-AGENT-DELIVERY-PLAN.md) กำหนด Luna Max workers 2 ตัว, independent Luna Max verifier 1 ตัว และ root เป็น final gate/integrator; แยก core NAV กับ Workforce bindings และ release ของ Workforce จาก Fleet. เริ่ม document-closure wave แล้ว: MA-D00 baseline, MA-D01 contract foundation, MA-D02 core navigation และ canonical NAV registration; implementation packages ยังไม่ dispatch.
+**Multi-agent delivery:** [20 Delivery plan](20-MULTI-AGENT-DELIVERY-PLAN.md) กำหนด Luna Max workers 2 ตัว, independent Luna Max verifier 1 ตัว และ root เป็น final gate/integrator; แยก core NAV กับ Workforce bindings และ release ของ Workforce จาก Fleet. Core NAV ส่งมอบใน FR-250 แล้ว และ MA-I02 Phase A ถูก dispatch ตาม approval เป็น FR-251; ผล gate ล่าสุดอยู่ใน feature note ของแต่ละ requirement. Phase B, Workforce และ Fleet ยังต้องผ่าน gate ของตนเอง.
 
 ## 1. เป้าหมาย
 
@@ -267,3 +267,5 @@ Application code, database migration and production activation remain unchanged.
 | Domain / Feature implementation baseline was not linked from the index; the candidate DomainView required non-null snapshot and blocker values | Link document 23 v0.3.0b and compose one existing Domain-view operation with nullable `snapshotId` / `blockerCount`, explicit `UNAVAILABLE` states, Phase A `featureIds: []`, and redacted 401/404 responses |
 | Phase A approval state was implicit | A1 owner approval remains pending; A2 canonical registration and governance remain pending; Phase B Feature authority and writes remain deferred |
 | 23 package Markdown / 15 contracts; 80 candidate operations / 132 schema definitions | 24 package Markdown / 15 contracts; the operation/schema counts stay 80/132. No new operation or Feature authority; one existing candidate operation and its response contract are revised |
+
+Version diff 0.10.0b → 0.11.0b: record owner approval, canonical FR-251 registration, implementation and local verification of read-only Phase A; Phase B remains unapproved and no production deployment is claimed.

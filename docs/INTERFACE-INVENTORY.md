@@ -1,7 +1,7 @@
 ---
-version: "1.30.0b"
+version: "1.31.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-16T20:10:00+07:00,RWANG"
+last_update: "2026-09-17T00:32:00+07:00,RWANG"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.28.0b |
+| **Version** | 1.31.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-09-16 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=110; operational_domain_keys=16; operational_subdomain_entries=56; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=111; operational_domain_keys=16; operational_subdomain_entries=56; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -249,6 +249,7 @@ not new global domains or new persistence aggregates.
 | `/projects/[projectId]/all-work` | Project All Work | ProjectResourceShell → Work Management | Project-filtered WorkItems and status actions | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/all-work/page.jsx`, FR-005 |
 | `/projects/[projectId]/board` | Project Board | ProjectResourceShell → Work Management | board view over Project work | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/board/page.jsx`, FR-063 |
 | `/projects/[projectId]/dependencies` | Project Dependency Map | ProjectResourceShell → Work Management | contained dependency graph; both endpoints must belong to Project | empty, loading, error, forbidden, graph error | implemented; `src/app/(pm)/projects/[projectId]/dependencies/page.jsx`, FR-040 |
+| `/projects/[projectId]/domain-view` | Execution Domains | ProjectResourceShell → Delivery Design | Read-only projection of active Workstream primary/supporting domains, separate technical owners, deduplicated work and unbound totals; other Delivery Design capabilities remain planned | authorized Project only; loading, request error, 401, redacted 404, empty/unassigned, unmapped, unavailable sources; keyboard and 390px layout | FR-251 owner-approved Phase A implemented and verified locally; not deployed; `src/app/(pm)/projects/[projectId]/domain-view/page.jsx` |
 | `/projects/[projectId]/roadmap` | Execution Roadmap | ProjectResourceShell → Work Management | read-only Project outcome, Business Goals, execution hierarchy, progress, dependencies, blocker evidence, identity references and closure gates | empty, loading, error, forbidden, unavailable fields | implemented; `src/app/(pm)/projects/[projectId]/roadmap/page.jsx`, `tests/unit/project-roadmap-ui.test.js`, FR-068 |
 | `/projects/[projectId]/execution/[mode]` | Project Execution Mode | ProjectResourceShell → Project Management | mode view scoped to opened Project | invalid mode, empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx`, FR-009 |
 | `/projects/[projectId]/files` | Project Files | ProjectResourceShell → Resource Coordination | Project file references and metadata actions | empty, loading, error, forbidden, capability-disabled | implemented; `src/app/(pm)/projects/[projectId]/files/page.jsx`, FR-045 |
@@ -465,3 +466,5 @@ Version diff 1.27.0b → 1.28.0b (2026-09-16): add `/control/errors`, the operat
 Version diff 1.28.0b → 1.29.0b (2026-09-16): add `/control/usage`, the operator feature-usage breakdown (FR-248, FR-249, ADR-095); 110 page routes.
 
 Version diff 1.29.0b → 1.30.0b (2026-09-16): compose the approved PM hierarchical navigation inventory with main's usage breakdown route; preserve both route sets.
+
+Version diff 1.30.0b → 1.31.0b (2026-09-17): register the owner-approved FR-251 Project-only Execution Domains route and its states; reconcile the stale 1.28.0b document-control cell. Enumerate 111 page routes. Local API, browser and build gates passed; hosted CI and release remain separate evidence in PR443.

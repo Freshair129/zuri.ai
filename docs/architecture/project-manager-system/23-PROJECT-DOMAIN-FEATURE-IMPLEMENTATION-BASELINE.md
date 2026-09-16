@@ -1,20 +1,20 @@
 ---
 id: ZAI:PM-PROJECT-DOMAIN-FEATURE-BASELINE
 title: Project, Domain and Feature implementation baseline
-version: "0.3.0b"
+version: "0.4.0b"
 status: candidate
 created_at: "2026-09-16T21:17:02+07:00,Luna Max,base 138db6630e650e3c695b81158eff3cecdad6d0a5"
-last_update: "2026-09-16T21:55:58+07:00,RWANG"
+last_update: "2026-09-17T00:32:00+07:00,RWANG"
 superseded_by: null
 attributes:
   doc_type: implementation-baseline
   domain: project-manager
   scope: "MA-I02 Project, Domain and Feature views with strategy progress"
-  evidence_level: "DESIGN_ONLY; PROPOSED_NOT_IMPLEMENTED"
+  evidence_level: "PHASE_A_IMPLEMENTED_LOCAL_VERIFIED; PHASE_B_CANDIDATE"
   packet: "PM-20260916-MA-I02"
   source_commit: "138db6630e650e3c695b81158eff3cecdad6d0a5"
-  canonical_id_status: "NO_FR_FEAT_ADR_IDS_ALLOCATED"
-  api_contract_status: "DOMAIN_VIEW_COMPOSED; A1_OWNER_APPROVAL_PENDING; A2_REGISTRATION_PENDING"
+  canonical_id_status: "PHASE_A_FR-251_REGISTERED; NO_PHASE_B_IDS_ALLOCATED"
+  api_contract_status: "DOMAIN_VIEW_COMPOSED; A1_APPROVED; A2_REGISTERED_GOVERNANCE_PASS"
 relations:
   - type: references
     target: ZAI:PM-SYSTEM-REQUIREMENTS
@@ -53,22 +53,27 @@ relations:
   - type: references
     target: ZAI:FR-250
   - type: references
+    target: ZAI:FR-251
+  - type: references
     target: ZAI:ADR-096
 ---
 
 # Project, Domain and Feature implementation baseline
 
-**Candidate handoff · C-3 eventual implementation · source audit at
-`138db6630e650e3c695b81158eff3cecdad6d0a5`.** This document freezes the
-smallest useful implementation shape for MA-I02. It records repository facts and
-the decision gates still needed; it does not approve a route, Prisma model,
-migration, or write API. No product or test code was changed by this audit.
+**Phase A approved · C-2 / MEDIUM · Phase B candidate C-3 / HIGH.**
+The owner approved Phase A on reviewed document commit `7465080f` on
+2026-09-16. FR-251 registers its read-only route and Project navigation.
+The source audit below is pinned to `138db6630e650e3c695b81158eff3cecdad6d0a5`;
+it describes that baseline, not later implementation. No Prisma model, migration
+or Feature write API is approved. Phase A is implemented and verified locally;
+hosted CI and release are tracked separately in PR443.
 
 **Candidate API status:** `contracts/openapi.candidate.yaml` now composes the
 Phase A `GET /api/projects/{projectId}/domain-view` DTO and its redacted 401/404
-refusal contract. It remains a candidate contract: A1 owner approval is pending,
-A2 canonical registration and governance remain pending, and Phase B Feature
-authority/persistence/CSRF remains deferred.
+refusal contract. A1 owner approval and A2 canonical registration/governance
+are closed for FR-251 Phase A. Runtime implementation passed local server,
+browser, build and governance gates; Phase B Feature authority/persistence/CSRF
+remains deferred.
 
 MA-I02 is complete only when both phases below are implemented and verified. A
 hidden or disabled Features tab is not completion. The existing approval for
@@ -78,7 +83,7 @@ models.
 
 ## 1. Audit result
 
-| Requirement / slice | Reusable evidence at the pinned source | Current truth | Baseline decision |
+| Requirement / slice | Reusable evidence at the pinned source | Truth at the pinned source | Baseline decision |
 |---|---|---|---|
 | PMR-001 Project intake | `GET /api/projects`, project detail, bundle and plan import dry-run/commit; FR-003, FR-069, FR-108 | Project, Workspace/Business scope, Workstream mode/strategy/weight and import receipt exist. A dedicated objective/outcome/scope/owner DTO and persistence do not. | **REUSE partial.** Preserve current Project and one import writer. Record the missing PMR-001 fields; do not claim full intake. |
 | PMR-002 Domain view | Workstream `primaryDomainId`, `supportingDomainIdsJson`, `technicalOwnerDomainId`; Project authorization and WorkItem reads | No PM Domain route, read model, or Prisma Domain model. `config/domains.js` is a route/label projection; `DOMAIN_GROUPS` is presentation only. | **EXTEND read-only.** Build a project-scoped projection from existing bindings after a runtime catalog binding gate. |
@@ -86,18 +91,23 @@ models.
 | PMR-016 progress | `progress/strategies.js`, `progress/rollup.js`, `progress-service.js`, Project page | Weighted Workstream strategy progress is implemented; Domain/Feature contribution semantics are not. | **REUSE Project progress.** Do not invent a tag/count progress formula for Domain or Feature. |
 | PMR-027 evidence | Existing progress/evidence fields and candidate evidence contract | No Domain/Feature evidence source or deployment receipt is owned by this slice. | **EXTEND states.** Show `UNKNOWN`/`UNAVAILABLE` where a source is absent. |
 
-The candidate requirements, data, UX and traceability files still label
-PMR-001..003 and PMT-001..003 `PLANNED / NOT_RUN` or
-`PROPOSED_NOT_IMPLEMENTED`. The current test suite has no PM Domain/Feature
-proof. That status is preserved here.
+At the pinned source audit, the candidate requirements, data, UX and traceability
+files labelled PMR-001..003 and PMT-001..003 `PLANNED / NOT_RUN` or
+`PROPOSED_NOT_IMPLEMENTED`, and no PM Domain/Feature tests existed. Those broad
+candidate families are not silently promoted by Phase A. Current Domain-only
+implementation and verification are recorded separately under FR-251; Feature
+authority and its tests remain deferred.
 
-The Domain-view portion of the candidate OpenAPI is now composed against the
-Phase A DTO and scoped refusal contract below; it remains candidate-only and is
-not a live route. Feature operations and their authority remain proposed.
+The candidate OpenAPI composes the approved Phase A DTO and scoped refusal
+contract below. The later FR-251 implementation adds its handler and runtime
+Swagger operation; the synthetic candidate server does not serve that handler.
+Feature operations and their authority remain proposed.
 
-## 2. Enumerated current surface and authority
+## 2. Enumerated surface and authority at the pinned source
 
-The following is an enumeration, rather than a search-based existence claim.
+The following enumeration describes `138db663`, before FR-251 implementation.
+It is preserved as source-audit evidence, not a claim that the later Domain
+route or tests are absent.
 
 **Live Project routes and pages:**
 
@@ -112,8 +122,10 @@ The pages and layout are under
 `apps/server/src/app/(pm)/projects/[projectId]/` and the project tabs are
 `apps/server/src/modules/project-manager/components/ProjectTabs.jsx`.
 Navigation is defined in
-`apps/server/src/modules/project-manager/navigation.js`. There is no enumerated
-PM page or API route for Domain or Feature.
+`apps/server/src/modules/project-manager/navigation.js`. At this pinned source,
+there was no PM page or API route for Domain or Feature. FR-251 subsequently
+adds `/projects/{projectId}/domain-view` and its GET handler; Feature remains
+outside Phase A.
 
 **Live PM application services:**
 
@@ -143,8 +155,9 @@ responses. It also proposes
 `GET /api/projects/{projectId}/feature-view`, and
 `GET/POST /api/projects/{projectId}/features` plus
 `GET/PATCH /api/projects/{projectId}/features/{featureId}`. The candidate
-operation and schema declarations are not live routes or services; no Feature
-authority is created by the Domain-view composition.
+declarations did not establish routes or services at the pinned source. The
+later Domain handler is tracked by FR-251; its existence does not implement the
+remaining candidate operations or establish Feature authority.
 
 ## 3. Canonical mapping decision
 
@@ -161,8 +174,8 @@ authority is created by the Domain-view composition.
 
 The canonical Product/Feature registry remains the global `docs/FEATURES.md`
 identity. A project-local Feature is a separate UUID/code and may carry a
-`canonicalFeatureKey` only with a pinned snapshot. No FR, FEAT, ADR, or domain
-identity is allocated by this baseline.
+`canonicalFeatureKey` only with a pinned snapshot. Phase A is registered as FR-251. No Feature-phase FR, FEAT, ADR or new domain
+identity is allocated.
 
 ## 4. Recommended full MA-I02 packet
 
@@ -177,7 +190,7 @@ This is the first implementation packet after the gates in section 7.
 2. Add a pure `project-domain-read-model.js`, a route
    `GET /api/projects/{projectId}/domain-view`, and a project-context UI route
    `/projects/{projectId}/domain-view`. The UI route is a navigation extension
-   that needs approval; it must not be silently added to the FR-250 baseline.
+   approved under FR-251; it does not expand the immutable FR-250 subject.
 3. Resolve the authorized Project before any aggregate query. Read active
    Workstreams, expand primary/supporting bindings, retain technical owner
    identity separately, and deduplicate WorkItem UUIDs across bindings. Sort
@@ -192,7 +205,7 @@ This is the first implementation packet after the gates in section 7.
    or `progressCache`.
 
 Minimum Phase A response (the candidate OpenAPI is now composed to this shape;
-A1 owner approval and A2 registration/governance remain pending before code):
+A1 and A2 are closed; FR-251 registration governance passed before code):
 
 ```json
 {
@@ -228,10 +241,10 @@ A1 owner approval and A2 registration/governance remain pending before code):
 stateful. The composed candidate contract represents the absent sources with
 `null` or `UNAVAILABLE`, and constrains Phase A `featureIds` to an empty array
 because no ProjectFeature authority exists in this phase. The composition is not
-implementation evidence: A1 owner approval is pending and A2 registration and
-governance remain pending.
+implementation evidence: A1 is approved, FR-251 is registered, and the
+integrator passed A2 governance before worker implementation (0 critical, 2 existing warnings).
 
-#### Phase A decisions proposed for approval
+#### Phase A decisions approved by the owner
 
 Phase A is a **C-2 / MEDIUM** read-only contract extension. The wider Phase B
 remains **C-3 / HIGH** because it introduces persistence and mutations.
@@ -372,10 +385,10 @@ are outside MA-I02 and are not migration or acceptance blockers.
 
 **Gates before implementation:**
 
-* **A1 (PENDING):** owner approval of Phase A's explicit mapping, composed DTO,
+* **A1 (APPROVED 2026-09-16):** owner approval of Phase A's explicit mapping, composed DTO,
   read-only route, refusal contract and Project-context navigation amendment
   above. FR-250's previous approval did not include this new route.
-* **A2 (PENDING):** after A1, the integrator registers the approved Domain-view
+* **A2 (CLOSED; GOVERNANCE PASS):** after A1, the integrator registers FR-251 as the approved Domain-view
   requirement, pins this baseline, reconciles the exact candidate/API and
   navigation contracts and runs governance. Immutable existing FR/FEAT subjects
   are not expanded silently.
@@ -388,7 +401,7 @@ are outside MA-I02 and are not migration or acceptance blockers.
   baseline before that implementation starts.
 
 Phase A requires A1–A2 only; Phase B's write/CSRF/schema gates do not block the
-read-only Phase A. This document allocates no global IDs.
+read-only Phase A. FR-251 is the sole new global requirement for Phase A.
 
 **Source allowlist for the next bounded implementation:**
 
@@ -434,8 +447,11 @@ navigation tests remain regression checks. Current PMT-001..003 evidence stays
 
 ## 8. Acceptance and exit criteria
 
-The implementation packet may pass only when all of the following are proven in
-the approved source/test allowlist:
+Apply the following criteria to their approved phase. Phase A requires the
+Project/domain authorization, identity/counting, side-effect-free progress,
+Project-only navigation and verification criteria. Feature rows and all write/
+concurrency criteria apply only to separately approved Phase B. Full MA-I02
+requires both phases. Proof must stay within the approved source/test allowlist:
 
 * authorized Project reads scope before every aggregate and return no data for
   unauthenticated, foreign-Business, foreign-tenant, deleted or hierarchy-
@@ -454,8 +470,24 @@ the approved source/test allowlist:
 * navigation keeps all FR-250 routes and existing Project semantics, adds the
   two new routes only under approved Delivery Design context, and does not
   convert a `DOMAIN_GROUPS` presentation grouping into a grant or model;
-* governance, unit/integration/E2E tests, build and release evidence are run by
-  the integrator in the later packet. This document itself reports no such run.
+* governance, unit/integration/E2E tests and build are run by the integrator.
+  Phase A local evidence is recorded below; hosted CI and release are separate.
+
+## 9. Phase A local verification — 2026-09-17
+
+The [FR-251 delivery note](../../domains/project-manager/features/FR-251-project-execution-domains.md)
+records the implemented scope and evidence: 5,956 server tests passed, 32 existing
+skips; 199 browser cases passed, four existing skips, no failures or flaky cases;
+production build passed; governance passed with zero critical findings and two
+existing warnings. Independent Luna Max source review and root visual review
+passed. Candidate OpenAPI and nine DTO checks passed without changing other
+candidate operations or schemas. Initial browser locator failures and their
+bounded corrections remain documented in the integration RCA.
+
+These results cover FR-251 Phase A, not the deferred Feature surface or full
+MA-I02. [PR443](https://github.com/Freshair129/zuri.ai/pull/443) associates hosted
+CI with the implementation commit. No merge, deployment or runtime activation
+is established by the local results.
 
 ## CHANGELOG
 
@@ -464,3 +496,4 @@ the approved source/test allowlist:
 | 0.1.0b | 2026-09-16 | candidate | Source-backed MA-I02 baseline: Project reuse, real Domain read phase, and gated Feature authority/surface | 138db6630e650e3c695b81158eff3cecdad6d0a5 | Luna Max |
 | 0.2.0b | 2026-09-16 | candidate | Root review: explicit Phase A domain catalog, DTO totals, scope/unknown semantics, navigation and exact new-file list; separate A and B gates and retain incomplete Feature write contract honestly | 138db6630e650e3c695b81158eff3cecdad6d0a5 | RWANG |
 | 0.3.0b | 2026-09-16 | candidate | Compose the Phase A Domain-view OpenAPI DTO and redacted 401/404 contract; retain pending A1 approval, pending A2 registration/governance and deferred Feature authority | 138db6630e650e3c695b81158eff3cecdad6d0a5 | RWANG |
+| 0.4.0b | 2026-09-17 | candidate | Record owner approval, FR-251 registration, implementation and local verification; retain unapproved Phase B and separate release gates | reviewed baseline 7465080f; PR443 | RWANG |

@@ -211,8 +211,9 @@ describe('OpenAPI document', () => {
       // the usage breakdown (GET) and recording one's own usage (POST) share
       // a path, plus the deployment-authenticated rollup (POST) on its own
       // path. 286 + 2 = 288; 383 + 3 = 386.
-      pathCount: 288,
-      operationCount: 386,
+      // FR-251 adds one read-only Project Domain-view path and GET operation.
+      pathCount: 289,
+      operationCount: 387,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

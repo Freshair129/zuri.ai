@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
   title: Zuri Project Manager full-system additions — CANDIDATE
-  version: 0.3.0b
-  description: Candidate Phase A Domain-view contract composed against document 23. NOT_IMPLEMENTED. Synthetic server and examples. Existing routes remain in runtime-generated /api/docs. Owner A1 approval and A2 canonical registration remain required before code.
+  version: 0.4.0b
+  description: Full-system candidate with owner-approved FR-251 Phase A Domain-view contract from document 23 v0.4.0b. Phase A implemented and verified locally; hosted CI and release tracked separately in PR443. Synthetic server and examples. Existing routes remain in runtime-generated /api/docs. A2 governance passed before code. Other operations including Feature writes remain unapproved candidates.
 servers:
   - url: https://pm-design.invalid
     description: Reserved non-routable documentation target; no live service.
@@ -42,7 +42,7 @@ paths:
       tags:
         - Domain view
       summary: getProjectDomainView
-      description: CANDIDATE Phase A addition; composed against document 23's read-only DTO and refusal contract. It is not a live route.
+      description: FR-251 Phase A implemented and verified locally from document 23's read-only DTO and refusal contract. Hosted CI and release are separate gates in PR443; no production deployment is claimed.
       security:
         - SessionAuth: []
       x-proposal-requirements:
@@ -51,9 +51,9 @@ paths:
         - PMR-016
       x-owner-domain: project-manager
       x-effect-class: READ_ONLY
-      x-approval: OWNER_A1_PENDING
-      x-registration-status: A2_PENDING
-      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
+      x-approval: OWNER_A1_APPROVED_2026_09_16
+      x-registration-status: FR_251_REGISTERED_GOVERNANCE_PASS
+      x-evidence-level: IMPLEMENTED_LOCAL_VERIFIED
       x-authorization-contract:
         unauthenticated: "401 AUTH_REQUIRED"
         target-refusal: "404 RESOURCE_NOT_FOUND for unknown, deleted, foreign-scope or invalid-hierarchy targets"
@@ -7814,6 +7814,6 @@ components:
         minLength: 1
         maxLength: 128
 x-design-status: CANDIDATE
-x-contract-status: "DOMAIN_VIEW_COMPOSED; A1_OWNER_APPROVAL_PENDING; A2_REGISTRATION_PENDING; FEATURE_AUTHORITY_DEFERRED"
-x-last-update: "2026-09-16T21:46:56+07:00,RWANG"
+x-contract-status: "DOMAIN_VIEW_FR_251_APPROVED; A2_GOVERNANCE_PASS; IMPLEMENTED_LOCAL_VERIFIED; FEATURE_AUTHORITY_DEFERRED"
+x-last-update: "2026-09-17T00:32:00+07:00,RWANG"
 x-baseline-commit: 087f30258a6831865afd751e28804e36505aff30
