@@ -1,7 +1,7 @@
 ---
-version: "0.1.0b"
+version: "0.1.1b"
 created_at: "2026-09-16T19:15:00+07:00,RWANG,c3b88da2"
-last_update: "2026-09-16T19:15:00+07:00,RWANG"
+last_update: "2026-09-16T20:00:00+07:00,RWANG"
 status: beta
 attributes:
   domain: platform-control
@@ -52,9 +52,17 @@ Risk: MEDIUM; complexity C-2. Strengthen the real browser test to control the sa
 - 27 affected unit/contract tests pass across four files.
 - The corrected browser run on isolated port 3161 passes all three cases with retries disabled and normal exit 0: delayed A save, delayed A read plus same-scope inventory refresh, and removal of B while its form contains unsaved values. Removal returns both settings and the selector to A, removes B's option and clears the stale form.
 - The original full release run remains failed. A fresh complete browser run and hosted CI are required on the committed correction before merge and deployment; exact final receipts belong to the release report.
+- Full composed browser evidence on `2010541f`: 195 passed, four existing skips, zero failures/flakes, normal exit 0; all previous 198 cases are retained with one removal-fallback case added.
+
+### Adjacent source-contract correction
+
+Hosted CI on `2010541f` passed 5,918 unit/integration tests and skipped 32, but failed one assertion in `line-oa-settings-consolidation.test.js`: it required the old inline `setTargetBusinessId(currentBusiness?.id || businesses[0]?.id || '')` spelling. The scoped behavior now derives that same fallback through `currentBusiness` and the scalar `scopeBusinessId`; the existing assertion had coupled its ownership claim to the pre-correction expression. The four focused suites omitted this adjacent LINE ownership contract, so hosted CI found it.
+
+Align that existing assertion with the scalar assignment and setter call, retaining its negative ownership assertion and all real browser scope assertions. This changes a test and its RCA only; application, E2E inputs, API and schema remain identical to the passing full browser revision. Validate the ownership suite locally and rerun required hosted CI. Future focused checks must include cross-domain ownership contracts when a shared surface's state expression changes.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.1.1b | 2026-09-16 | beta | Preserve the full browser pass and record the stale adjacent source-contract assertion found by CI | 2010541f | RWANG |
 | 0.1.0b | 2026-09-16 | beta | Record the release-gate failure, source-backed cause and bounded correction to existing scope behavior | c3b88da2 | RWANG |
