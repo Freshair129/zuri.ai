@@ -19,6 +19,33 @@
 // returning unverified content. A partial, honestly-labelled recovery is more
 // useful as dispute evidence than an all-or-nothing read would be.
 //
+// WHY THE WHOLE-TENANT CHAIN IS CHECKED FIRST, BEFORE ANY PARTIAL RECOVERY
+// ---------------------------------------------------------------------------
+// Self-consistency (above) only proves a row's own stored fields reproduce
+// its own stored hash — it says nothing about whether that row's claimed
+// `previousManifestHash` actually IS the prior manifest's real hash. A row
+// deleted from the middle of the chain, or a row whose fields and hash were
+// both rewritten together, is invisible to a per-row check by construction:
+// recomputing a hash from fields that were changed together with it always
+// succeeds. The chain's actual guarantee — ADR-093 D4's "an unbroken manifest
+// chain" as part of what a dispute needs — depends on each row's stored
+// `previousManifestHash` matching the row that came before it, checked across
+// the WHOLE sequence, which is exactly what `verifyManifestChain` (built with
+// the writer, `chat-evidence-archive-service.js`) does and this module did
+// not call before this fix. So before any per-manifest partial recovery
+// begins, this checks the Tenant's whole chain (with `checkFiles: true`, so
+// the files themselves back the chain, not only the rows) and refuses to
+// recover ANYTHING for this retrieval if it is broken — a customer dispute is
+// exactly the situation where a partial read someone could have silently
+// tampered with is worse than an honest, fully-refused recovery. This is a
+// point-in-time check: it says "this Tenant's chain looks intact right now,
+// including these files," not "no manifest was ever altered and re-chained
+// consistently" — a sufficiently resourced attacker with database and
+// filesystem access could in principle rebuild a self-consistent chain after
+// tampering. That is a stronger threat model than this task closes; this fix
+// closes the specific, realistic gap of "a row silently vanishes or is
+// changed and nothing downstream ever notices."
+//
 // WHY "GROUPED BY SESSION" NEEDS NO EXTRA LOOKUP
 // -------------------------------------------------
 // `chat-evidence-archive-service.js`'s `buildArchiveLine` already writes
@@ -37,7 +64,7 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 import { assertCredentialWriteAssurance } from '@/modules/identity/credential-write-gate'
-import { getOrCreateCustomerArchiveKeyDek, computeManifestHash, resolveArchiveBaseDir } from './chat-evidence-archive-service'
+import { getOrCreateCustomerArchiveKeyDek, computeManifestHash, resolveArchiveBaseDir, verifyManifestChain } from './chat-evidence-archive-service'
 import { openArchiveSegment, ChatEvidenceArchiveCryptoError } from './chat-evidence-archive-crypto'
 import { RETENTION_SWEEP_TOMBSTONE } from './retention-sweep-tombstone'
 
@@ -126,8 +153,21 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
   let manifestsUsed = []
   let missingMessageIds = []
   let messageCount = 0
+  // { valid: true } when nothing was ever archived for this Tenant (no chain
+  // to check) or the range needs no archive read at all — never reported as
+  // broken by default; only a real, checked failure sets `valid: false`.
+  let chainIntegrity = { valid: true }
 
   if (wanted.size > 0) {
+    // The whole-Tenant chain must check out, files included, before ANY
+    // per-manifest partial recovery is attempted — see the module docstring.
+    // A broken chain refuses the whole retrieval: every wanted id stays in
+    // `missingMessageIds`, no key is opened, no file this call would
+    // otherwise have read is read.
+    chainIntegrity = await verifyManifestChain(db, customer.tenantId, { baseDir, checkFiles: true })
+  }
+
+  if (wanted.size > 0 && chainIntegrity.valid) {
     const dek = await getOrCreateCustomerArchiveKeyDek(db, { tenantId: customer.tenantId, customerId: customer.id }, env)
     try {
       const found = new Map()
@@ -198,12 +238,19 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
     } finally {
       dek.fill(0)
     }
+  } else if (wanted.size > 0) {
+    // Chain broken: every wanted id stays unrecovered, honestly, rather than
+    // trusting any individual manifest the per-row self-check alone would
+    // have accepted.
+    missingMessageIds = [...wanted]
   }
 
   // ADR-093 D7 — "Every retrieval writes an ARCHIVE_RETRIEVED audit event
   // naming the Customer, the range and the case reference": unconditional,
-  // even when nothing was recoverable, because the attempt itself is what a
-  // dispute or a later access review needs to see, not only its result.
+  // even when nothing was recoverable (including a broken chain), because the
+  // attempt itself is what a dispute or a later access review needs to see,
+  // not only its result — and a broken chain is exactly the kind of fact an
+  // access review must not miss.
   const audit = await recordAudit(db, {
     entityType: 'ARCHIVE',
     entityId: customer.id,
@@ -216,6 +263,9 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
       customerId: customer.id, startDate: data.startDate, endDate: data.endDate,
       caseReference: data.caseReference, messageCount, missingMessageIds,
       manifests: manifestsUsed.map((m) => m.manifestHash),
+      chainIntegrity: chainIntegrity.valid
+        ? { valid: true }
+        : { valid: false, reason: chainIntegrity.reason, brokenAtManifestId: chainIntegrity.brokenAtManifestId },
     },
   })
 
@@ -227,6 +277,7 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
     sessions,
     manifests: manifestsUsed,
     missingMessageIds,
+    chainIntegrity,
     auditEventId: audit.id,
   }
 }

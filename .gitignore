@@ -39,6 +39,13 @@ _worktrees/
 .env*
 # The template stays tracked; every other .env* (.env, .env.docker, ...) is private.
 !.env.example
+# ADR-075 Phase 3 §7. `apps/server/.env.knowledge` holds the GenesisRAG17 pipeline
+# principals, the MSP-to-GKS relay credential and the worker query token, and is
+# covered by the `.env*` rule above — stated here so the intent is written down
+# rather than inferred, because it is the one file docker-compose.yml marks
+# `required: true` for genesis-worker, so its absence is a visible failure and its
+# presence must stay private. Its template, like .env.example, stays tracked.
+!.env.knowledge.example
 
 apps/server/src/generated/
 

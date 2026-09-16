@@ -4,6 +4,7 @@ import { resolve } from 'node:path'
 import {
   FAST_MS, IDLE_MAX_MS, IDLE_START_MS, RICH_MENU_MIN_INTERVAL_MS, didWork, nextCadence,
 } from '../../scripts/worker-cadence.mjs'
+import { runnerStage } from '../helpers/dockerfile-stage.js'
 
 // @req FR-149, FR-152 — the supervised worker polls on a cadence derived from whether it found work.
 // @spec ADR-061
@@ -81,10 +82,18 @@ describe('everything the supervisor imports is actually in the runtime image', (
   const root = process.cwd()
   const supervisor = readFileSync(resolve(root, 'scripts/server-line-worker.mjs'), 'utf8')
   const dockerfile = readFileSync(resolve(root, 'Dockerfile'), 'utf8')
-  // Only the final runtime stage matters — the builder stage copies the whole tree.
-  const runtimeStage = dockerfile.slice(dockerfile.lastIndexOf('\nFROM '))
+  // Only the shipped runtime stage matters — the builder stage copies the whole tree.
+  // By NAME, not by "the last FROM": ADR-075 Phase 3 appended opt-in ki17 targets
+  // after `runner`, and the positional version of this line silently started reading
+  // one of those instead (see tests/helpers/dockerfile-stage.js).
+  const runtimeStage = runnerStage(dockerfile)
 
   const localImports = [...supervisor.matchAll(/^import[^'"]*['"](\.[^'"]+)['"]/gm)].map(m => m[1])
+
+  it('found the runner stage to check, so this test cannot pass by matching an empty slice', () => {
+    expect(runtimeStage).toContain('FROM base AS runner')
+    expect(runtimeStage).toContain('CMD ["node", "server.js"]')
+  })
 
   it('finds at least the cadence module, so this test cannot pass by matching nothing', () => {
     expect(localImports).toContain('./worker-cadence.mjs')
