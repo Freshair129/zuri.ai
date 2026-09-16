@@ -212,8 +212,9 @@ describe('OpenAPI document', () => {
       // a path, plus the deployment-authenticated rollup (POST) on its own
       // path. 286 + 2 = 288; 383 + 3 = 386.
       // FR-251 adds one read-only Project Domain-view path and GET operation.
-      pathCount: 289,
-      operationCount: 387,
+      // Negotiated Edge v2 adds scoped memory validation and Project/Work tools.
+      pathCount: 291,
+      operationCount: 389,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

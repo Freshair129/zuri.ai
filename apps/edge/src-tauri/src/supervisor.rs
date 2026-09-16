@@ -125,6 +125,7 @@ struct ManagedProcess {
 const LOG_CAPACITY: usize = 200;
 
 struct Inner {
+    durable: crate::durable_log::DurableLog,
     process: Option<Arc<ManagedProcess>>,
     lock_path: Option<PathBuf>,
     lock_file: Option<File>,
@@ -141,6 +142,7 @@ struct Inner {
 impl Default for Inner {
     fn default() -> Self {
         Self {
+            durable: crate::durable_log::DurableLog::open(None),
             process: None,
             lock_path: None,
             lock_file: None,
@@ -181,6 +183,16 @@ impl Default for Supervisor {
 }
 
 impl Supervisor {
+    pub fn with_log_path(path: Option<PathBuf>) -> Self {
+        let mut inner = Inner::default();
+        inner.durable = crate::durable_log::DurableLog::open(path);
+        Self { inner: Arc::new(Mutex::new(inner)) }
+    }
+
+    pub fn log_page(&self, cursor: Option<&str>) -> Value {
+        self.inner.lock().unwrap().durable.page(cursor)
+    }
+
     pub fn snapshot(&self) -> Value {
         let inner = self.inner.lock().expect("supervisor state lock");
         snapshot_locked(&inner)
@@ -197,6 +209,7 @@ impl Supervisor {
     /// steps the child never reports itself — an automatic resume waiting for Ollama, for example.
     pub fn note(&self, level: &str, message: impl Into<String>) {
         if let Ok(mut inner) = self.inner.lock() {
+            inner.durable.record(&json!({"type":"notice","level":level}));
             push_log(&mut inner, level, message.into());
         }
     }
@@ -764,20 +777,26 @@ fn record_event(supervisor: &Supervisor, process: &Arc<ManagedProcess>, event: &
         }
         let event_type = event.get("type").and_then(Value::as_str).unwrap_or("");
         inner.last_event = Some(event.clone());
+        inner.durable.record(event);
         match event_type {
             "ready" => {
                 inner.ready = true;
                 push_log(&mut inner, "info", "ตัวประมวลผลพร้อมรับงาน".into());
             }
             "claim" => match event.get("outcome").and_then(Value::as_str) {
-                Some(outcome @ ("idle" | "claimed" | "completed" | "failed" | "lease_expired")) => {
+                Some(outcome @ ("idle" | "claimed" | "completed" | "failed" | "lease_expired" | "deadline_missed" | "unknown")) => {
                     let was_degraded = inner.state == "DEGRADED";
                     inner.claim_accepted = true;
                     inner.state = "RUNNING".into();
                     // "idle" is every poll with an empty queue — logging it would bury everything
                     // else at one line per five seconds. Recovery from DEGRADED is worth a line.
                     if outcome != "idle" {
-                        push_log(&mut inner, "info", format!("งาน: {outcome}"));
+                        let job = event.get("jobId").and_then(Value::as_str).unwrap_or("-");
+                        let execution = event.get("executionId").and_then(Value::as_str).unwrap_or("-");
+                        let mode = event.get("deliveryMode").and_then(Value::as_str).unwrap_or("LEGACY");
+                        let remaining = event.get("remainingBudgetMs").and_then(Value::as_u64)
+                            .map(|ms| format!("{ms}ms")).unwrap_or_else(|| "-".into());
+                        push_log(&mut inner, "info", format!("งาน: {outcome} · {job} · execution {execution} · {mode} · เหลือ {remaining}"));
                     } else if was_degraded {
                         push_log(&mut inner, "info", "กลับมารับงานได้ตามปกติ".into());
                     }
@@ -813,12 +832,33 @@ fn record_event(supervisor: &Supervisor, process: &Arc<ManagedProcess>, event: &
     }
 }
 
-fn safe_event(value: &Value) -> Option<Value> {
+pub(crate) fn safe_event(value: &Value) -> Option<Value> {
     let version = value.get("version").and_then(Value::as_u64)?;
     if version != PROTOCOL_VERSION {
         return None;
     }
     match value.get("type").and_then(Value::as_str)? {
+        "progress" => {
+            let phase = value.get("phase").and_then(Value::as_str)?;
+            let state = value.get("state").and_then(Value::as_str)?;
+            if !matches!(phase, "CONTEXT" | "MODEL" | "TOOL") || !matches!(state, "STARTED" | "COMPLETED" | "FAILED") { return None; }
+            let job = value.get("jobId").and_then(Value::as_str)?;
+            if job.len() != 36 || uuid::Uuid::parse_str(job).is_err() { return None; }
+            let mut safe = json!({"type":"progress","version":PROTOCOL_VERSION,"phase":phase,"state":state,"jobId":job});
+            for key in ["elapsedMs", "durationMs"] {
+                let ms = value.get(key).and_then(Value::as_u64).filter(|n| *n <= 240_000)?;
+                safe[key] = json!(ms);
+            }
+            if let Some(ms) = value.get("remainingBudgetMs").and_then(Value::as_u64).filter(|n| *n <= 240_000) { safe["remainingBudgetMs"] = json!(ms); }
+            if let Some(id) = value.get("executionId").and_then(Value::as_str).filter(|id| id.len() == 36 && uuid::Uuid::parse_str(id).is_ok()) { safe["executionId"] = json!(id); }
+            if let Some(model) = value.get("modelRef").and_then(Value::as_str).filter(|model| !model.is_empty() && model.len() <= 96 && !model.contains("://") && model.bytes().all(|b| b.is_ascii_alphanumeric() || b"_.:/-".contains(&b))) { safe["modelRef"] = json!(model); }
+            if phase == "TOOL" {
+                let tool = value.get("toolName").and_then(Value::as_str)?;
+                if !matches!(tool, "quote_price" | "find_within_budget" | "search_products" | "lead_time" | "explain_policy" | "search_project_work" | "propose_work_change") { return None; }
+                safe["toolName"] = json!(tool);
+            }
+            Some(safe)
+        }
         "ready" => {
             Some(json!({"type":"ready","version":PROTOCOL_VERSION,"transportOwner":"SERVER"}))
         }
@@ -831,12 +871,29 @@ fn safe_event(value: &Value) -> Option<Value> {
                     | "completed"
                     | "failed"
                     | "lease_expired"
+                    | "deadline_missed"
+                    | "unknown"
                     | "stale_lease"
                     | "retrying"
             ) {
                 return None;
             }
-            Some(json!({"type":"claim","version":PROTOCOL_VERSION,"outcome":outcome}))
+            let mut safe = json!({"type":"claim","version":PROTOCOL_VERSION,"outcome":outcome});
+            for key in ["jobId", "executionId"] {
+                if let Some(id) = value.get(key).and_then(Value::as_str)
+                    .filter(|id| id.len() == 36 && uuid::Uuid::parse_str(id).is_ok()) {
+                    safe[key] = json!(id);
+                }
+            }
+            if let Some(mode) = value.get("deliveryMode").and_then(Value::as_str)
+                .filter(|mode| matches!(*mode, "REPLY" | "DELAYED_PUSH")) {
+                safe["deliveryMode"] = json!(mode);
+            }
+            if let Some(ms) = value.get("remainingBudgetMs").and_then(Value::as_u64)
+                .filter(|ms| *ms <= 240_000) {
+                safe["remainingBudgetMs"] = json!(ms);
+            }
+            Some(safe)
         }
         "heartbeat" => {
             let ok = value.get("ok").and_then(Value::as_bool)?;
@@ -1066,6 +1123,20 @@ mod tests {
         assert_eq!(ready["type"], "ready");
         assert!(!ready.to_string().contains("edgk_secret"));
         assert!(safe_event(&json!({"type":"raw","version":1,"text":"question"})).is_none());
+        let claim = safe_event(&json!({"type":"claim","version":1,"outcome":"deadline_missed",
+            "jobId":"10c0eacf-1e65-413a-a6c1-3f6d125cf123",
+            "executionId":"20c0eacf-1e65-413a-a6c1-3f6d125cf123",
+            "deliveryMode":"REPLY","remainingBudgetMs":0,"question":"PRIVATE","replyToken":"SECRET"})).unwrap();
+        assert_eq!(claim["remainingBudgetMs"], 0);
+        assert_eq!(claim["deliveryMode"], "REPLY");
+        assert!(!claim.to_string().contains("PRIVATE"));
+        assert!(!claim.to_string().contains("SECRET"));
+        let invalid = safe_event(&json!({"type":"claim","version":1,"outcome":"completed",
+            "jobId":"PRIVATE","executionId":"SECRET","deliveryMode":"PRIVATE","remainingBudgetMs":240_001})).unwrap();
+        assert!(invalid.get("jobId").is_none());
+        assert!(invalid.get("executionId").is_none());
+        assert!(invalid.get("deliveryMode").is_none());
+        assert!(invalid.get("remainingBudgetMs").is_none());
     }
 
     #[test]

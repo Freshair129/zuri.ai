@@ -100,7 +100,18 @@ describe('device compute routes', () => {
     expect((await failPost(request(JSON.stringify(fail)), { params: { id: 'job' } })).status).toBe(200)
     expect(mocks.fail).toHaveBeenCalledWith('job', fail, { deviceContext: device })
     expect((await claimPost(request())).status).toBe(204)
-    expect(mocks.claim).toHaveBeenCalledWith({ deviceContext: device })
+    expect(mocks.claim).toHaveBeenCalledWith({ deviceContext: device, contractVersions: ['1'] })
+  })
+  it('negotiates v2 without letting capability headers select identity', async () => {
+    const req = request()
+    req.headers.set('x-zuri-conversation-versions', '2,1')
+    expect((await claimPost(req)).status).toBe(204)
+    expect(mocks.claim).toHaveBeenCalledWith({ deviceContext: device, contractVersions: ['2', '1'] })
+    mocks.claim.mockClear()
+    const unsupported = request()
+    unsupported.headers.set('x-zuri-conversation-versions', '999')
+    expect((await claimPost(unsupported)).status).toBe(409)
+    expect(mocks.claim).not.toHaveBeenCalled()
   })
   it('maps strict service contract rejection to 400 and redacts internal failures', async () => {
     const invalid = z.object({}).strict().safeParse({ tenantId: 'foreign' }).error

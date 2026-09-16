@@ -95,7 +95,7 @@ function failure(code) {
 //      on its own fit, no sequence (an oversized summary drops alone).
 // `packet.knowledge` (a separate, non-MSP field) is never turned into a slice
 // here — see injectedMspPacket's own note on why it is stripped instead.
-function mspPacketSlices(packet) {
+export function mspPacketSlices(packet) {
   const threadId = packet?.thread?.threadId ?? null
   const participants = Array.isArray(packet?.memory?.participants) ? packet.memory.participants : []
   const protectedRecords = Array.isArray(packet?.memory?.protectedMemory) ? packet.memory.protectedMemory : []
@@ -181,7 +181,7 @@ function injectedMspPacket(packet, includedMspSlices, droppedMspSlices = []) {
 
 const MEMORY_AUDIENCES = new Set(['DIRECT', 'GROUP', 'ROOM'])
 
-function memoryRoute(job) {
+export function memoryRoute(job) {
   const conversation = job?.inbound?.conversation
   const audienceKind = typeof job?.audienceKind === 'string' ? job.audienceKind.toUpperCase() : null
   if (!conversation || !MEMORY_AUDIENCES.has(audienceKind)
@@ -209,7 +209,7 @@ function memoryRoute(job) {
   }
 }
 
-function memoryServerScope(job, route) {
+export function memoryServerScope(job, route) {
   return {
     transportVerified: true,
     channelAccountId: route.channelAccountId,
@@ -230,7 +230,7 @@ function memoryAudience(value) {
 
 /** MSP may return an opaque thread, but its bound identity must still match the
  * route that came from the claimed LINE job before any append/model call. */
-function assertMemoryContextRoute(context, route, { requirePacket = false } = {}) {
+export function assertMemoryContextRoute(context, route, { requirePacket = false } = {}) {
   const thread = context?.thread
   const scope = context?.authContext?.scope
   if (!thread?.threadId || thread.businessId !== route.businessId
@@ -252,7 +252,7 @@ function assertMemoryContextRoute(context, route, { requirePacket = false } = {}
 
 const emptyMemoryKnowledge = async () => ({ found: false, relations: [] })
 
-async function assertMemoryJobLive(job, memoryStateReader) {
+export async function assertMemoryJobLive(job, memoryStateReader) {
   if (job?.errorCode === 'PDPA_ERASURE') throw failure('LINE_MEMORY_JOB_ERASED')
   if (typeof memoryStateReader !== 'function') return
   const current = await memoryStateReader(job.id)

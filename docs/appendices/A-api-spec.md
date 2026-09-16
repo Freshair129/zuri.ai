@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.82.0b |
+| **Version** | 1.83.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-17 |
 
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=289 -->
+<!-- api-spec-counts: route_handlers=291 -->
 
 ### Local model residency by business hours (FR-244, 2026-09-16)
 
@@ -863,6 +863,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.83.0b | 2026-09-17 | beta | Approved LINE local execution v2: negotiated deadline, scoped memory/corpus context, invocation receipts; add device-scoped context and Project/Work tool routes (289 → 291). Production activation remains separate. | working-tree | RWANG |
 | 1.82.0b | 2026-09-17 | candidate | Implement and locally verify owner-approved FR-251 read-only Domain-view contract and runtime Swagger; one GET handler added (288 → 289), typed scope refusals and operation-only SessionAuth verified | reviewed baseline 7465080f; PR443 | RWANG |
 | 1.81.0b | 2026-09-16 | candidate | FR-248, FR-249 (ADR-095 D2, D3): two handler files, `POST/GET /api/platform/usage-events` (record one's own usage; operator reads the breakdown) and `POST /api/platform/usage-events/rollup` (deployment-authenticated 90-day rollup, same shape as the retention sweep). Route handler count 286 -> 288 | working-tree | Claude Sonnet 5 |
 | 1.80.0b | 2026-09-16 | candidate | FR-247 (ADR-095 D1): two handler files, `GET /api/platform/error-events` and `PATCH /api/platform/error-events/[id]` — the deduplicated error list and its resolve action, both operator-only and audited, never request/response content. Route handler count 284 -> 286 | working-tree | Claude Sonnet 5 |
@@ -936,9 +937,11 @@ canary evidence; those remain owner-gated release criteria.
 |---|---|---|
 | POST | `/api/line-oa/accounts/[id]/webhook` | Native LINE HMAC over raw bytes plus exact destination; scoped evidence capture is what the 200 acknowledges (PR #306), and atomic CRM/job admission runs after it, in-process and reconcilable; non-2xx redelivery, unique event/inbound keys. 1 MiB, 1000 events maximum. |
 | POST | `/api/line-oa/worker` | Deployment bearer token, minimum 32 characters; bounded execution/send/reconciliation tick. Also sweeps at most 5 LINE evidence rows left `ADMITTING` for over 60 s and re-admits them from the stored payload, reporting `reconciled: { scanned, admitted, skipped, failed }` beside the tick result; a reconciler failure is reported, never raised. No browser or device authority. |
-| POST | `/api/edge/conversation-jobs/claim` | Active Business-scoped device bearer; strict empty object; 204 or v1 minimized job under 300-second lease. |
-| POST | `/api/edge/conversation-jobs/[id]/complete` | Same device/scope/live lease/version; `{version,text}` bounded 5000 characters. No provider send. |
-| POST | `/api/edge/conversation-jobs/[id]/fail` | Same lease authority; `{version,code}` from two contract failure codes. |
+| POST | `/api/edge/conversation-jobs/claim` | Active Business-scoped device bearer; strict empty object; 204 or v1/v2 negotiated via x-zuri-conversation-versions. V2 persists execution identity and server deadline separately from the 300-second lease, plus authorized ephemeral memory/published catalog context. No LINE token. |
+| POST | `/api/edge/conversation-jobs/[id]/complete` | Same device/scope/live lease/version; text bounded 5000 characters. V2 requires executionId, up to three content-free ContextReceipts, current memory/corpus authority and completion before deadline. Durable READY nudges the delivery worker; this route never sends to LINE. |
+| POST | `/api/edge/conversation-jobs/[id]/fail` | Same lease authority; version/code and required executionId for v2; up to three content-free ContextReceipts retain evidence of invocations that failed. Codes EXECUTION_FAILED, LOCAL_POLICY_UNAVAILABLE, REPLY_DEADLINE_MISSED, MSP_INJECTION_RECEIPT_UNKNOWN; the last settles UNKNOWN without retrying inference or sending. |
+| POST | `/api/edge/conversation-jobs/[id]/tools` | FR-026/072/150: active device plus scoped live executionId/version; strict body up to 8192 bytes, args up to 4096. search_project_work reads live permitted records; propose_work_change creates a preview only. Signed human confirmation is a new LINE event, never a model tool. Recheck current identity/authority/lease; result up to 16000 bytes. |
+| POST | `/api/edge/conversation-jobs/[id]/context` | FR-232/234: device plus exact live claim, strict body up to 8192 bytes. version/executionId/contextHash revalidate current authorized MSP context; optional bounded injection id/modelRef/state/mspRefs records the exact selected-slice receipt. 204 only after validation; no memory text returned. |
 | GET | `/api/line-oa/accounts/[id]/jobs` | Studio Business visibility; latest 100 status DTOs, no message text/recipient/token. |
 | GET | `/api/line-oa/accounts/[id]/transport-health` | Studio Business visibility; FR-190 reachability of a serverEnabled account: inbound silence state and whether the endpoint LINE has configured is still this deployment own route. States, timestamps and durations only — no channel credential, and never the other endpoint URL. Paused, draft and archived accounts answer `monitored:false` with the reason. |
 | GET | `/api/line-oa/jobs/failures?businessId=` | Studio Business visibility (same 404 for unknown, invisible or ungranted); read model only, never a retry or acknowledgement. `{ businessId, total, byErrorCode[], failures[] }` — the honest unwindowed count of `FAILED` conversation jobs for the Business, a per-`errorCode` breakdown (a null code is reported as `null`, never relabelled) and the 20 most recently updated rows in the same DTO shape as the per-account list. `400 LINE_OA_BUSINESS_REQUIRED`. |
