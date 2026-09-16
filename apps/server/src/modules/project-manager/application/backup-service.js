@@ -319,7 +319,14 @@ const SNAPSHOT_MODELS = [
   // @req FR-230 — a Tenant's retention override hangs off Tenant only, no
   // secret and no PII (a data class name and a day count).
   'tenantRetentionOverride',
-  'customer', 'customerImportProvenance', 'customerImportReviewDecision', 'conversation',
+  'customer', 'customerImportProvenance', 'customerImportReviewDecision',
+  // @req SEC-034 — a Customer's chat evidence archive legal holds hang off
+  // Customer (and the OWNER Person who recorded them, both above), so they
+  // restore right after Customer and delete right before it. Business data —
+  // a dispute reason and an end date, no key and no file reference — unlike
+  // CustomerArchiveKey/ArchiveManifest below, which stay excluded.
+  'customerLegalHold',
+  'conversation',
   // @req FR-243 — a session hangs off Conversation and Message/ConversationEvent
   // point at it, so it restores between them. Ids, counts and times, no content.
   'conversationSession', 'message',
