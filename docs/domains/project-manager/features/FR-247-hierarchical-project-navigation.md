@@ -3,11 +3,11 @@ id: ZAI:FR-247-NOTE
 title: Hierarchical Projects and Work navigation
 feature: FR-247
 domain: project-manager
-source: pending
-version: "0.1.1b"
+source: v2-native
+version: "0.2.0b"
 status: beta
 created_at: "2026-09-16T14:38:26+07:00,RWANG,base eddd3dd8"
-last_update: "2026-09-16T16:00:03+07:00,RWANG"
+last_update: "2026-09-16T17:35:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:FR-247
@@ -58,7 +58,24 @@ The project-manager lane owns this presentation. Domain/grant identity, API owne
 
 The owner explicitly approved ADR-095 / FR-247 on 2026-09-16 after reviewing document commit `3f36668fbe70bc447a0f0da4fd7dfcdfbae66617`. The composed document/prototype gate passed 35 navigation checks, 148 contract checks and root browser review. These are design evidence, not application implementation evidence.
 
-Application implementation is now in progress. The existing baseline has 62 passing unit tests and 20 passing product browser scenarios plus warmup. New FR-247 application checks remain pending until the implementation is integrated and tested. Root owns canonical documentation, generated governance and final acceptance; separate Luna max workers own application source, tests and independent verification.
+The implemented application source and acceptance tests are frozen at `d33254aa`, based on upstream integration `d23a9396`. Luna Max authored the source and test packets separately; an independent Luna Max verifier reviewed the source, rendered-link coverage and final corrections. Root composed the packets and ran the application gates. The initial 62-unit/20-browser baseline remains historical evidence only.
+
+| Gate | Local result | Evidence and limits |
+|---|---|---|
+| Source and test review | PASS | Luna source review of `a37ca6dd`, followed by a hash-pinned delta PASS covering desktop labels, mobile disclosure reset and bare execution-route rejection; no unresolved source findings |
+| Full unit/integration suite | 5,843 passed; 32 existing skipped | `npm --prefix apps/server test`; 702 passing files, 6 skipped files; exit 0 and nonzero-execution wrapper passed |
+| Final focused unit checks | 67 passed | Navigation registry, rendered hrefs, local module separation, sidebar and existing Business shell guard after final corrections |
+| Focused browser run | 72 passed; 4 existing skipped | Import clicks from all three live modules, all eight Business destinations, all seven Work views, Project context/history, planned disclosures, Inventory drilldown, seven execution modes, and 390px layout |
+| Build | PASS | `npm --prefix apps/server run build`; optimized build completed on the composed application source |
+| Governance | PASS with existing warning | Graph/check/strict preflight: 0 CRITICAL; 1 existing warning for synthetic unknown requirement IDs in the program-task-evidence test fixture |
+| Full browser regression | 192 passed; 4 skipped; 2 failed; 0 flaky | Frozen source at `d33254aa`; all 10 FR-247 cases pass. FR-213 keyboard selection and FR-243 retired thread locator fail in unchanged files; repository-wide browser gate is not green |
+| Pre-navigation comparison | Same two test cases fail on both attempts | Original specs on `d23a9396`, isolated port/database, normal warmup; baseline harness stalled after tests during final cleanup, so no normal exit or completed gate is claimed. See cross-domain RCA and final gate receipt |
+| Root visual review | PASS | Actual seeded application at 1440px and 390px; full-word labels, one Work view row, Import reachability and keyboard focus return inspected |
+| Hosted CI / production | NOT_RUN | These local results do not claim a production release |
+
+The complete run logs, screenshots and independent receipts are retained in the task artifact folder `pm-execution-qa/navigation-implementation/`. The source delta does not change API handlers, Prisma schema, ScopeContext or BusinessShellGuard. Existing null-owner shared Projects retain the same guard semantics. The first failed unit assertions and visual findings are preserved in [the integration RCA](../../../../.brain/rca/2026-09-16-fr247-navigation-integration.md).
+
+The two complete-suite failures have a separate [cross-domain gate RCA](../../../../.brain/rca/2026-09-16-fr247-baseline-regression-gates.md). Scope acceptance and repository release readiness are recorded separately; no production or complete-suite pass is claimed.
 
 No new API, database schema, resource calculation, risk register, agent executor or provider registry is included in this slice. Those remain explicit work packages in the PM delivery plan.
 
@@ -68,3 +85,4 @@ No new API, database schema, resource calculation, risk register, agent executor
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-16 | candidate | Register the owner-requested navigation behavior and preservation checks | eddd3dd8; uncommitted | RWANG |
 | 0.1.1b | 2026-09-16 | beta | Record owner approval and start bounded application implementation; preserve all acceptance criteria | approved baseline 3f36668f | RWANG |
+| 0.2.0b | 2026-09-16 | beta | Record implemented navigation, independent source review, runtime evidence and release limits | implementation d33254aa | RWANG |
