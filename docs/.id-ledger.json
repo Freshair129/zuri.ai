@@ -4702,25 +4702,15 @@
     "FR-252": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "burnt",
-      "statement_digest": "3dd63b243f6e8ed6a4e54c1b0806a5cd5983b13f33edcabcdc6a107f291b407b",
+      "status": "current",
+      "statement_digest": "dcdee3e23cef0d3066a9043c82a57fb16ff8f0ef34bc7676fd08f0bf9c0eee66",
       "history": [
         {
-          "anchor": "business scoped versioned pricing rules and formula console",
+          "anchor": "project feature authority",
           "since": "2026-09-16",
           "reason": "declared"
-        },
-        {
-          "anchor": "business scoped versioned pricing rules and formula console",
-          "since": "2026-09-16",
-          "reason": "Abandoned before merge; this branch renumbered itself to FR-253. Published main PR446 claimed FR252 for Project Feature authority first; the unmerged Commerce pricing implementation moves to FR253 without changing its approved scope.",
-          "declared_in": "docs/PRD-SDD-v1.0.md#1.237.0b"
         }
-      ],
-      "retired_to": "FR-253",
-      "retired_at": "2026-09-16",
-      "reason": "Published main PR446 claimed FR252 for Project Feature authority first; the unmerged Commerce pricing implementation moves to FR253 without changing its approved scope.",
-      "declared_in": "docs/PRD-SDD-v1.0.md#1.237.0b"
+      ]
     },
     "FR-253": {
       "family": "FR",
@@ -9844,26 +9834,16 @@
     },
     "ADR-097": {
       "family": "ADR",
-      "source": "docs/decisions/ADR-097-COMMERCE-PRICING-RULES-AND-KNOWLEDGE-PUBLICATION.md",
-      "status": "burnt",
-      "statement_digest": "d053a30c1457f030dc33bbab580a22838c7f33e2d8f456d466cac8032601b5de",
+      "source": "docs/decisions/ADR-097-PROJECT-FEATURE-AUTHORITY-AND-WRITE-CONTRACT.md",
+      "status": "current",
+      "statement_digest": "0e0c2bedc42034c722ec0e6b81b2d1ea8392d87b9416e1ded43a34706a76b3f8",
       "history": [
         {
-          "anchor": "commerce pricing rules and governed knowledge publication",
+          "anchor": "project feature authority and scoped write contract",
           "since": "2026-09-16",
           "reason": "declared"
-        },
-        {
-          "anchor": "commerce pricing rules and governed knowledge publication",
-          "since": "2026-09-16",
-          "reason": "Abandoned before merge; this branch renumbered itself to ADR-098. Published main PR446 claimed ADR097 for Project Feature authority first; the unmerged Commerce pricing decision moves to ADR098 with unchanged ownership and contracts.",
-          "declared_in": "docs/PRD-SDD-v1.0.md#1.237.0b"
         }
-      ],
-      "retired_to": "ADR-098",
-      "retired_at": "2026-09-16",
-      "reason": "Published main PR446 claimed ADR097 for Project Feature authority first; the unmerged Commerce pricing decision moves to ADR098 with unchanged ownership and contracts.",
-      "declared_in": "docs/PRD-SDD-v1.0.md#1.237.0b"
+      ]
     },
     "ADR-098": {
       "family": "ADR",
