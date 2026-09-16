@@ -234,19 +234,24 @@ describe('SEC-034 expireChatEvidenceArchive (TASK-ZAI-113 P2)', () => {
     const backdated = await backdatedMessage({ tenant, business, ageDays: PAST })
     await runRetentionSweep({ now: new Date(), baseDir })
     const manifest = await prisma.archiveManifest.findFirst({ where: { tenantId: tenant.id } })
-    await prisma.archiveManifest.update({ where: { id: manifest.id }, data: { fileSha256: 'f'.repeat(64) } })
+    const originalManifest = { fileSha256: manifest.fileSha256, manifestHash: manifest.manifestHash }
+    try {
+      await prisma.archiveManifest.update({ where: { id: manifest.id }, data: { fileSha256: 'f'.repeat(64) } })
 
-    const result = await expireChatEvidenceArchive(prisma, { tenantId: tenant.id, now: new Date(), baseDir, retentionYears: 0 })
+      const result = await expireChatEvidenceArchive(prisma, { tenantId: tenant.id, now: new Date(), baseDir, retentionYears: 0 })
 
-    expect(result.skipped).toBe(true)
-    expect(result.chainIntegrity.valid).toBe(false)
-    expect(result.destroyedKeys).toEqual([])
-    expect(result.deletedFiles).toEqual([])
-    expect(await prisma.customerArchiveKey.findUnique({ where: { customerId: backdated.customerId } })).toBeTruthy()
+      expect(result.skipped).toBe(true)
+      expect(result.chainIntegrity.valid).toBe(false)
+      expect(result.destroyedKeys).toEqual([])
+      expect(result.deletedFiles).toEqual([])
+      expect(await prisma.customerArchiveKey.findUnique({ where: { customerId: backdated.customerId } })).toBeTruthy()
 
-    const audit = await prisma.auditEvent.findFirst({ where: { action: 'ARCHIVE_EXPIRY_COMPLETED', tenantId: tenant.id } })
-    expect(audit).toBeTruthy()
-    expect(JSON.parse(audit.payloadJson).skipped).toBe(true)
+      const audit = await prisma.auditEvent.findFirst({ where: { action: 'ARCHIVE_EXPIRY_COMPLETED', tenantId: tenant.id } })
+      expect(audit).toBeTruthy()
+      expect(JSON.parse(audit.payloadJson).skipped).toBe(true)
+    } finally {
+      await prisma.archiveManifest.update({ where: { id: manifest.id }, data: originalManifest })
+    }
   })
 
   it('leaves a Customer with no archived lines alone (a key that has none to check)', async () => {
