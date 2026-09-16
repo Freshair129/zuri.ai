@@ -5852,7 +5852,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-117",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "priority": "P1",
     "pic": "Claude",
     "executor": "Claude",
@@ -5876,34 +5876,34 @@ export const PROGRAMME_CONTAINERS = {
       {
         "id": "P0",
         "title": "ErrorEvent model, migration and recordErrorEvent() service",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P1",
         "title": "logger.exception() and the stack-frame parser",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P2",
         "title": "Operator error list with resolve action",
-        "status": "planned"
+        "status": "done"
       }
     ],
     "dod": {
       "acceptance": {
         "text": "Given an error thrown twice with the same name, message and first stack frame, when recordErrorEvent(db, logger.exception(event, error, fields)) runs both times, then one ErrorEvent row exists with occurrenceCount 2, firstSeenAt from the first call and lastSeenAt from the second, and the stdout record logger.exception() emits carries only the existing allowlisted fields — unchanged from error()",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given an operator, when they open the error list, then it groups by fingerprint with occurrence count and first/last seen, and marking one resolved sets resolvedAt/resolvedByPersonId and stops it counting as active",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test and the migration, when they run, then fingerprinting, dedupe, the resolve action and the stack-frame parser (rejecting a frame that is not a file:line shape) are asserted; applying the migration on production stays a separate step (ADR-057)",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-16 (v0.4.10) after the owner asked what the system logs. A full survey of every log surface found two gaps: no error tracking, no feature/page usage measurement. CR-020 proposed both; the owner (CR-020 §7) chose to extend the existing logger for error tracking (not a third-party service) and to capture feature usage at both route and action level, per person — the more expensive, more privacy-sensitive of the two options offered. ADR-095 records the shape and the trade-off.",
+    "changelog": "Opened 2026-09-16 (v0.4.10) after the owner asked what the system logs. A full survey of every log surface found two gaps: no error tracking, no feature/page usage measurement. CR-020 proposed both; the owner (CR-020 §7) chose to extend the existing logger for error tracking (not a third-party service) and to capture feature usage at both route and action level, per person — the more expensive, more privacy-sensitive of the two options offered. ADR-095 records the shape and the trade-off. Closed 2026-09-16: merged in #433 (main 992f8f11) and deployed as zuri-ai-web:release-992f8f11; migration 20260916180000_observability_error_and_usage_events applied on production after a rolled-back dry run (ErrorEvent 14 columns, UsageEvent 7 columns, RLS enabled and forced on both, verified).",
     "created": "2026-09-16T00:00:00Z,Claude,pending",
     "predictedTokens": 45000,
     "totalTokens": 0,

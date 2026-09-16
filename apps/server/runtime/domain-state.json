@@ -4071,7 +4071,7 @@
         {
           "id": "FR-247",
           "title": "Error tracking",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 5,
           "testCount": 17
@@ -5582,7 +5582,7 @@
         {
           "id": "FR-247",
           "title": "Error tracking",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 3,
           "testCount": 17

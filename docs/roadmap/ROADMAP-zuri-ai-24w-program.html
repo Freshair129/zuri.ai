@@ -1352,7 +1352,7 @@ const PHASES = [
             "Given the identity and privacy questions CR-020 §4 left open, when the ADR states its defaults (retention, consent, domain), then each is marked as a proposed default rather than a line-by-line owner answer, so it is easy to challenge later",
             "Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and CR-020 §7 records the accepted decision",
             "(v0.4.10) owner instruction — สำรวจ log ทั้งระบบแล้วพบ 2 ช่องว่าง: ไม่มี error tracking, ไม่มีการวัด feature/page usage · CR-020 เสนอทางเลือก owner เลือกต่อยอดจาก logger เดิม (ไม่ใช้บริการภายนอก) และเก็บ usage ทั้งระดับ route/action แบบแยกตามคน"],
-          ["TASK-ZAI-117","TSK-ZAI117","Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action","FR","C-2","H2","planned","Claude","TASK-ZAI-116","apps/server/src/lib/observability/logger.js","docs/decisions/ADR-095-OBSERVABILITY-ERROR-TRACKING-AND-PER-PERSON-FEATURE-USAGE.md","apps/server/tests/unit/observability-logger.test.js",45000,
+          ["TASK-ZAI-117","TSK-ZAI117","Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action","FR","C-2","H2","done","Claude","TASK-ZAI-116","apps/server/src/lib/observability/logger.js","docs/decisions/ADR-095-OBSERVABILITY-ERROR-TRACKING-AND-PER-PERSON-FEATURE-USAGE.md","apps/server/tests/unit/observability-logger.test.js",45000,
             "Given an error thrown twice with the same name, message and first stack frame, when recordErrorEvent(db, logger.exception(event, error, fields)) runs both times, then one ErrorEvent row exists with occurrenceCount 2, firstSeenAt from the first call and lastSeenAt from the second, and the stdout record logger.exception() emits carries only the existing allowlisted fields — unchanged from error()",
             "Given an operator, when they open the error list, then it groups by fingerprint with occurrence count and first/last seen, and marking one resolved sets resolvedAt/resolvedByPersonId and stops it counting as active",
             "Given npm test and the migration, when they run, then fingerprinting, dedupe, the resolve action and the stack-frame parser (rejecting a frame that is not a file:line shape) are asserted; applying the migration on production stays a separate step (ADR-057)",
@@ -1605,7 +1605,7 @@ const DOD_CHECKS = {
   "TASK-ZAI-114": [0,0,0],
   "TASK-ZAI-115": [0,0,0],
   "TASK-ZAI-116": [1,1,1],
-  "TASK-ZAI-117": [0,0,0],
+  "TASK-ZAI-117": [1,1,1],
   "TASK-ZAI-118": [0,0,0]
 };
 
