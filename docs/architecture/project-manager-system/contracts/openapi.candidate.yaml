@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
   title: Zuri Project Manager full-system additions — CANDIDATE
-  version: 0.4.0b
-  description: Full-system candidate with owner-approved FR-251 Phase A Domain-view contract from document 23 v0.4.0b. Phase A implemented and verified locally; hosted CI and release tracked separately in PR443. Synthetic server and examples. Existing routes remain in runtime-generated /api/docs. A2 governance passed before code. Other operations including Feature writes remain unapproved candidates.
+  version: 0.5.0b
+  description: Full-system candidate. Phase A FR-251 is delivered in PR443 at c07cfaba. Phase B Feature paths and schemas reference the single document-24 candidate contract; B1 approval and B2 registration are pending. Other planned surfaces remain candidates. Synthetic server only; live routes are published by runtime /api/docs.
 servers:
   - url: https://pm-design.invalid
     description: Reserved non-routable documentation target; no live service.
@@ -70,265 +70,11 @@ paths:
         "404":
           $ref: "#/components/responses/DomainViewNotFound"
   /api/projects/{projectId}/feature-view:
-    parameters:
-      - name: projectId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-    get:
-      operationId: getProjectFeatureView
-      tags:
-        - Feature view
-      summary: getProjectFeatureView
-      description: CANDIDATE addition; validates current scope and the approved contract before any effect.
-      x-proposal-requirements:
-        - PMR-003
-        - PMR-016
-        - PMR-027
-      x-owner-domain: project-manager
-      x-effect-class: READ_ONLY
-      x-approval: CURRENT_SCOPED_CAPABILITY
-      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
-      responses:
-        "200":
-          description: Successful authorized result.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FeatureView"
-        "400":
-          $ref: "#/components/responses/StandardError"
-        "401":
-          $ref: "#/components/responses/StandardError"
-        "403":
-          $ref: "#/components/responses/StandardError"
-        "404":
-          $ref: "#/components/responses/StandardError"
-        "409":
-          $ref: "#/components/responses/StandardError"
-        "410":
-          $ref: "#/components/responses/StandardError"
-        "412":
-          $ref: "#/components/responses/StandardError"
-        "413":
-          $ref: "#/components/responses/StandardError"
-        "422":
-          $ref: "#/components/responses/StandardError"
-        "429":
-          $ref: "#/components/responses/StandardError"
-        "503":
-          $ref: "#/components/responses/StandardError"
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1projects~1{projectId}~1feature-view"
   /api/projects/{projectId}/features:
-    parameters:
-      - name: projectId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-    get:
-      operationId: listProjectFeatures
-      tags:
-        - Feature view
-      summary: listProjectFeatures
-      description: CANDIDATE addition; validates current scope and the approved contract before any effect.
-      x-proposal-requirements:
-        - PMR-003
-      x-owner-domain: project-manager
-      x-effect-class: READ_ONLY
-      x-approval: CURRENT_SCOPED_CAPABILITY
-      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
-      responses:
-        "200":
-          description: Successful authorized result.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FeatureRecordPage"
-        "400":
-          $ref: "#/components/responses/StandardError"
-        "401":
-          $ref: "#/components/responses/StandardError"
-        "403":
-          $ref: "#/components/responses/StandardError"
-        "404":
-          $ref: "#/components/responses/StandardError"
-        "409":
-          $ref: "#/components/responses/StandardError"
-        "410":
-          $ref: "#/components/responses/StandardError"
-        "412":
-          $ref: "#/components/responses/StandardError"
-        "413":
-          $ref: "#/components/responses/StandardError"
-        "422":
-          $ref: "#/components/responses/StandardError"
-        "429":
-          $ref: "#/components/responses/StandardError"
-        "503":
-          $ref: "#/components/responses/StandardError"
-      parameters:
-        - $ref: "#/components/parameters/Limit"
-        - $ref: "#/components/parameters/Cursor"
-    post:
-      operationId: createProjectFeature
-      tags:
-        - Feature view
-      summary: createProjectFeature
-      description: CANDIDATE addition; validates current scope and the approved contract before any effect.
-      x-proposal-requirements:
-        - PMR-003
-      x-owner-domain: project-manager
-      x-effect-class: WRITE
-      x-approval: CURRENT_SCOPED_CAPABILITY
-      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
-      responses:
-        "201":
-          description: Successful authorized result.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MutationReceipt"
-        "400":
-          $ref: "#/components/responses/StandardError"
-        "401":
-          $ref: "#/components/responses/StandardError"
-        "403":
-          $ref: "#/components/responses/StandardError"
-        "404":
-          $ref: "#/components/responses/StandardError"
-        "409":
-          $ref: "#/components/responses/StandardError"
-        "410":
-          $ref: "#/components/responses/StandardError"
-        "412":
-          $ref: "#/components/responses/StandardError"
-        "413":
-          $ref: "#/components/responses/StandardError"
-        "422":
-          $ref: "#/components/responses/StandardError"
-        "429":
-          $ref: "#/components/responses/StandardError"
-        "503":
-          $ref: "#/components/responses/StandardError"
-      parameters:
-        - $ref: "#/components/parameters/Idempotency"
-        - $ref: "#/components/parameters/Csrf"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FeatureInput"
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1projects~1{projectId}~1features"
   /api/projects/{projectId}/features/{featureId}:
-    parameters:
-      - name: projectId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-      - name: featureId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-    get:
-      operationId: getProjectFeature
-      tags:
-        - Feature view
-      summary: getProjectFeature
-      description: CANDIDATE addition; validates current scope and the approved contract before any effect.
-      x-proposal-requirements:
-        - PMR-003
-      x-owner-domain: project-manager
-      x-effect-class: READ_ONLY
-      x-approval: CURRENT_SCOPED_CAPABILITY
-      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
-      responses:
-        "200":
-          description: Successful authorized result.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FeatureRecord"
-        "400":
-          $ref: "#/components/responses/StandardError"
-        "401":
-          $ref: "#/components/responses/StandardError"
-        "403":
-          $ref: "#/components/responses/StandardError"
-        "404":
-          $ref: "#/components/responses/StandardError"
-        "409":
-          $ref: "#/components/responses/StandardError"
-        "410":
-          $ref: "#/components/responses/StandardError"
-        "412":
-          $ref: "#/components/responses/StandardError"
-        "413":
-          $ref: "#/components/responses/StandardError"
-        "422":
-          $ref: "#/components/responses/StandardError"
-        "429":
-          $ref: "#/components/responses/StandardError"
-        "503":
-          $ref: "#/components/responses/StandardError"
-    patch:
-      operationId: updateProjectFeature
-      tags:
-        - Feature view
-      summary: updateProjectFeature
-      description: Replace editable draft feature fields at expected version. Canonical FR/FEAT subjects are references only.
-      x-proposal-requirements:
-        - PMR-003
-        - PMR-023
-      x-owner-domain: project-manager
-      x-effect-class: WRITE
-      x-approval: CURRENT_SCOPED_CAPABILITY
-      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
-      responses:
-        "200":
-          description: Successful authorized result.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MutationReceipt"
-        "400":
-          $ref: "#/components/responses/StandardError"
-        "401":
-          $ref: "#/components/responses/StandardError"
-        "403":
-          $ref: "#/components/responses/StandardError"
-        "404":
-          $ref: "#/components/responses/StandardError"
-        "409":
-          $ref: "#/components/responses/StandardError"
-        "410":
-          $ref: "#/components/responses/StandardError"
-        "412":
-          $ref: "#/components/responses/StandardError"
-        "413":
-          $ref: "#/components/responses/StandardError"
-        "422":
-          $ref: "#/components/responses/StandardError"
-        "429":
-          $ref: "#/components/responses/StandardError"
-        "503":
-          $ref: "#/components/responses/StandardError"
-      parameters:
-        - $ref: "#/components/parameters/Idempotency"
-        - $ref: "#/components/parameters/Csrf"
-        - $ref: "#/components/parameters/IfMatch"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FeatureInput"
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1projects~1{projectId}~1features~1{featureId}"
   /api/projects/{projectId}/design-snapshots:
     parameters:
       - name: projectId
@@ -3929,6 +3675,20 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/SearchInput"
+  /api/auth/csrf:
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1auth~1csrf"
+  /api/projects/{projectId}/features/{featureId}/contributions:
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1projects~1{projectId}~1features~1{featureId}~1contributions"
+  /api/projects/{projectId}/features/{featureId}/work-links:
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1projects~1{projectId}~1features~1{featureId}~1work-links"
+  /api/projects/{projectId}/feature-work-links:
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1projects~1{projectId}~1feature-work-links"
+  /api/projects/{projectId}/features/{featureId}/requirement-bindings:
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1projects~1{projectId}~1features~1{featureId}~1requirement-bindings"
+  /api/projects/{projectId}/governance-snapshots:
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1projects~1{projectId}~1governance-snapshots"
+  /api/projects/{projectId}/features/{featureId}/restore:
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1projects~1{projectId}~1features~1{featureId}~1restore"
 components:
   securitySchemes:
     SessionAuth:
@@ -4103,119 +3863,9 @@ components:
         artifact:
           $ref: "#/components/schemas/ArtifactRef"
     FeatureInput:
-      type: object
-      additionalProperties: false
-      required:
-        - code
-        - title
-        - problem
-        - outcome
-        - primaryDomainId
-        - contributingDomainIds
-        - requirementRefs
-      properties:
-        code:
-          type: string
-          minLength: 1
-          maxLength: 64
-        title:
-          type: string
-          minLength: 1
-          maxLength: 160
-        problem:
-          type: string
-          minLength: 1
-          maxLength: 2000
-        outcome:
-          type: string
-          minLength: 1
-          maxLength: 2000
-        primaryDomainId:
-          type: string
-          minLength: 1
-          maxLength: 128
-        contributingDomainIds:
-          type: array
-          items:
-            type: string
-            minLength: 1
-            maxLength: 128
-          maxItems: 50
-        canonicalFeatureRef:
-          type: string
-          minLength: 1
-          maxLength: 512
-        requirementRefs:
-          type: array
-          items:
-            type: string
-            minLength: 1
-            maxLength: 512
-          maxItems: 500
+      $ref: "phase-b/openapi.candidate.json#/components/schemas/FeatureCreateInput"
     FeatureRecord:
-      type: object
-      additionalProperties: false
-      required:
-        - code
-        - title
-        - problem
-        - outcome
-        - primaryDomainId
-        - contributingDomainIds
-        - requirementRefs
-        - id
-        - version
-        - evidence
-      properties:
-        code:
-          type: string
-          minLength: 1
-          maxLength: 64
-        title:
-          type: string
-          minLength: 1
-          maxLength: 160
-        problem:
-          type: string
-          minLength: 1
-          maxLength: 2000
-        outcome:
-          type: string
-          minLength: 1
-          maxLength: 2000
-        primaryDomainId:
-          type: string
-          minLength: 1
-          maxLength: 128
-        contributingDomainIds:
-          type: array
-          items:
-            type: string
-            minLength: 1
-            maxLength: 128
-          maxItems: 50
-        canonicalFeatureRef:
-          type: string
-          minLength: 1
-          maxLength: 512
-        requirementRefs:
-          type: array
-          items:
-            type: string
-            minLength: 1
-            maxLength: 512
-          maxItems: 500
-        id:
-          type: string
-          format: uuid
-        version:
-          type: integer
-          minimum: 1
-        evidence:
-          type: array
-          items:
-            $ref: "#/components/schemas/Evidence"
-          maxItems: 100
+      $ref: "phase-b/openapi.candidate.json#/components/schemas/FeatureRecord"
     DomainRow:
       type: object
       additionalProperties: false
@@ -4369,32 +4019,7 @@ components:
           items:
             $ref: "#/components/schemas/DomainRow"
     FeatureView:
-      type: object
-      additionalProperties: false
-      required:
-        - projectId
-        - snapshotId
-        - observedAt
-        - uniqueWorkCount
-        - features
-      properties:
-        projectId:
-          type: string
-          format: uuid
-        snapshotId:
-          type: string
-          format: uuid
-        observedAt:
-          type: string
-          format: date-time
-        uniqueWorkCount:
-          type: integer
-          minimum: 0
-        features:
-          type: array
-          items:
-            $ref: "#/components/schemas/FeatureRecord"
-          maxItems: 200
+      $ref: "phase-b/openapi.candidate.json#/components/schemas/FeatureView"
     SnapshotInput:
       type: object
       additionalProperties: false
@@ -7104,24 +6729,7 @@ components:
           type: string
           format: date-time
     FeatureRecordPage:
-      type: object
-      additionalProperties: false
-      required:
-        - items
-        - nextCursor
-        - observedAt
-      properties:
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/FeatureRecord"
-          maxItems: 200
-        nextCursor:
-          type: string
-          nullable: true
-        observedAt:
-          type: string
-          format: date-time
+      $ref: "phase-b/openapi.candidate.json#/components/schemas/FeatureRecordPage"
     SnapshotRecordPage:
       type: object
       additionalProperties: false
@@ -7814,6 +7422,6 @@ components:
         minLength: 1
         maxLength: 128
 x-design-status: CANDIDATE
-x-contract-status: "DOMAIN_VIEW_FR_251_APPROVED; A2_GOVERNANCE_PASS; IMPLEMENTED_LOCAL_VERIFIED; FEATURE_AUTHORITY_DEFERRED"
-x-last-update: "2026-09-17T00:32:00+07:00,RWANG"
+x-contract-status: "DOMAIN_VIEW_FR_251_DEPLOYED_C07CFABA; FEATURE_PHASE_B_SELECTED_CANDIDATE; B1_APPROVAL_B2_REGISTRATION_PENDING"
+x-last-update: "2026-09-17T02:07:00+07:00,RWANG"
 x-baseline-commit: 087f30258a6831865afd751e28804e36505aff30

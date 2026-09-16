@@ -36,12 +36,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 153,
+    "featureCount": 154,
     "readyFeatureCount": 116,
-    "requirementCount": 251,
+    "requirementCount": 252,
     "verifiedRequirementCount": 237,
-    "progressPercent": 94.9,
-    "gapCount": 28,
+    "progressPercent": 94.5,
+    "gapCount": 29,
     "gaps": [
       {
         "domain": "agent",
@@ -261,6 +261,14 @@
         "severity": "medium",
         "check": "requirements",
         "summary": "FR-082 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-252",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-252 is planned",
         "evidence": []
       }
     ]
@@ -1970,6 +1978,7 @@
         "docs/domains/identity/features/FR-198-audit-scope-and-evidence.md",
         "docs/domains/identity/features/FR-199-access-history-read-models.md",
         "docs/domains/identity/features/FR-200-explicit-superadmin.md",
+        "docs/domains/identity/features/PHASE-FR-252-P2-api-write-csrf.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -2012,7 +2021,7 @@
         "apiRoutes": 27,
         "pageRoutes": 9,
         "ownedModels": 21,
-        "featureNotes": 26
+        "featureNotes": 27
       },
       "featureIds": [
         "FEAT-010",
@@ -5587,7 +5596,7 @@
         {
           "id": "FR-250",
           "title": "Hierarchical Projects and Work navigation",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 4,
           "testCount": 13
@@ -5595,10 +5604,18 @@
         {
           "id": "FR-251",
           "title": "Project Execution Domains view",
-          "declared": "n/a",
+          "declared": "done",
           "status": "verified",
           "codeCount": 7,
           "testCount": 7
+        },
+        {
+          "id": "FR-252",
+          "title": "Project Feature authority",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -5761,6 +5778,10 @@
         "docs/domains/project-manager/features/FR-194-legal-entity-and-tax-branch.md",
         "docs/domains/project-manager/features/FR-250-hierarchical-project-navigation.md",
         "docs/domains/project-manager/features/FR-251-project-execution-domains.md",
+        "docs/domains/project-manager/features/FR-252-project-feature-authority.md",
+        "docs/domains/project-manager/features/PHASE-FR-252-P1-feature-persistence.md",
+        "docs/domains/project-manager/features/PHASE-FR-252-P3-feature-api.md",
+        "docs/domains/project-manager/features/PHASE-FR-252-P4-feature-ui-and-final-gate.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -5812,6 +5833,13 @@
           "check": "requirements",
           "summary": "FR-082 is planned",
           "evidence": []
+        },
+        {
+          "id": "REQ-FR-252",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-252 is planned",
+          "evidence": []
         }
       ],
       "details": {
@@ -5819,7 +5847,7 @@
         "apiRoutes": 142,
         "pageRoutes": 46,
         "ownedModels": 31,
-        "featureNotes": 35
+        "featureNotes": 39
       },
       "featureIds": [
         "FEAT-001",
@@ -5870,11 +5898,12 @@
         "FR-074",
         "FR-124",
         "FR-250",
-        "FR-251"
+        "FR-251",
+        "FR-252"
       ],
-      "featureCount": 49,
+      "featureCount": 50,
       "readyFeatureCount": 45,
-      "progressPercent": 93.7
+      "progressPercent": 92.2
     }
   },
   "features": [
@@ -15742,6 +15771,37 @@
         "apps/server/tests/unit/project-domain-read-model.test.js",
         "apps/server/tests/unit/project-work-route.test.js"
       ]
+    },
+    {
+      "id": "FR-252",
+      "title": "Project Feature authority: an authorized Project reader can discover explicit Features and their primary/supporting Domains, WorkItem contributions and pinned requirement evidence; a Business owner can create, edit, bind, soft-delete and restore them through the selected six-record and 14-operation contract. Validate the complete scope hierarchy before reads, writes and replay; enforce Identity-owned session CSRF, configured Origin, scoped idempotency, aggregate CAS, Project-serialized allocation and atomic audit/receipt. Preserve immutable identities, deletion cohorts, protected restore families and weighted Workstream progress; verified snapshots alone prove requirement revisions, shared work counts once and unavailable evidence stays explicit.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-252"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้ใช้เปิด Features ภายใน Project เพื่อดูผลลัพธ์ที่ต้องส่งมอบ แยกเจ้าของ Domain กับผู้สนับสนุน เชื่อมงานและหลักฐาน requirement โดยเจ้าของ Business จัดการข้อมูลได้ตามสิทธิ์ มีการตรวจเวอร์ชันและบันทึก audit งานที่ใช้ร่วมกันไม่นับซ้ำและไม่เปลี่ยนสูตร progress เดิม",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-252 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-252",
+          "title": "Project Feature authority",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
     }
   ],
   "nonFunctionalRequirements": [
