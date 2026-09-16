@@ -13,11 +13,17 @@
 //   the ownership boundary; RETENTION_DATA_CLASSES / RETENTION_DEFAULT_WINDOW_DAYS
 //   (src/lib/validation/enums.js) already declare all four so nothing here needs
 //   to change shape once those sweepers exist.
+// @req FR-245 — before a candidate is tombstoned it is archived and verified
+//   (ADR-093 D2): `chat-evidence-archive-service.js` writes and verifies the
+//   Tenant's batch, and only that module's own transaction — never this one —
+//   performs the tombstone. When archiving fails for a Tenant, this run leaves
+//   that Tenant's candidates untouched and reports the failure in the audit
+//   payload; every other Tenant's sweep this run is unaffected.
 // @spec ADR-070 D3 — retention is reported truthfully: the audit payload's counts
 //   are exactly what this run tombstoned, never a placeholder for a class it did
 //   not touch.
-// @spec BR-002, SEC-031
-// @tested tests/integration/crm-retention-sweep.test.js
+// @spec BR-002, SEC-031, ADR-093 D2, D4; SEC-034
+// @tested tests/integration/crm-retention-sweep.test.js, tests/integration/crm-chat-evidence-archive.test.js
 //
 // IDEMPOTENCY
 // -----------
@@ -46,6 +52,8 @@ import { LINE_UNSEND_TOMBSTONE } from './line-ingest-service'
 import { refreshConversationPreview } from './conversation-preview-service'
 import { getEffectiveRetentionWindowDays } from './retention-override-service'
 import { CRM_OWNED_RETENTION_CLASSES } from '@/lib/validation/enums'
+import { archiveAndTombstoneTenantMessages } from './chat-evidence-archive-service'
+import { RETENTION_SWEEP_TOMBSTONE } from './retention-sweep-tombstone'
 
 const CLASS = 'MESSAGE_BODY_AND_ATTACHMENTS'
 
@@ -61,40 +69,73 @@ const CLASS = 'MESSAGE_BODY_AND_ATTACHMENTS'
 // not yet closed out.
 const LINE_CONVERSATION_JOB_NON_TERMINAL_STATUSES = ['QUEUED', 'CLAIMED', 'READY', 'SENDING', 'ACCEPTED', 'UNKNOWN']
 
-/** The one string a retention-swept message body carries — distinct from the PDPA
- * erasure and LINE-unsend tombstones, because "past its retention window" is a
- * different fact than either, and the FR-091/FR-233 inbox reader should read them
- * differently if it ever needs to (it does not today; the distinction is free). */
-export const RETENTION_SWEEP_TOMBSTONE = '[ข้อความถูกลบตามนโยบายเก็บรักษาข้อมูล]'
+// Re-exported unchanged so every existing import of this constant from this
+// module keeps working — see retention-sweep-tombstone.js for why it now lives
+// there (chat-evidence-archive-service.js needs it too, and importing it from
+// here would be a cycle: this module imports that one).
+export { RETENTION_SWEEP_TOMBSTONE }
 
 const KNOWN_TOMBSTONES = [CUSTOMER_ERASURE_TOMBSTONE, LINE_UNSEND_TOMBSTONE, RETENTION_SWEEP_TOMBSTONE]
 
-async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now) {
+function candidateWhere(tenantId, cutoff, jobFilter) {
+  return {
+    conversation: { tenantId },
+    createdAt: { lt: cutoff },
+    body: { notIn: KNOWN_TOMBSTONES },
+    lineJob: jobFilter,
+  }
+}
+
+async function countSkippedNonTerminalJob(db, tenantId, cutoff) {
+  return db.message.count({
+    where: candidateWhere(tenantId, cutoff, { is: { status: { in: LINE_CONVERSATION_JOB_NON_TERMINAL_STATUSES } } }),
+  })
+}
+
+async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env, baseDir } = {}) {
   const windowDays = await getEffectiveRetentionWindowDays({ tenantId, dataClass: CLASS, db })
   const cutoff = new Date(now.getTime() - windowDays * 24 * 60 * 60 * 1000)
 
   const candidates = await db.message.findMany({
-    where: {
-      conversation: { tenantId },
-      createdAt: { lt: cutoff },
-      body: { notIn: KNOWN_TOMBSTONES },
-      lineJob: { isNot: { status: { in: LINE_CONVERSATION_JOB_NON_TERMINAL_STATUSES } } },
+    where: candidateWhere(tenantId, cutoff, { isNot: { status: { in: LINE_CONVERSATION_JOB_NON_TERMINAL_STATUSES } } }),
+    select: {
+      id: true,
+      conversationId: true,
+      direction: true,
+      body: true,
+      contentKind: true,
+      sessionId: true,
+      createdAt: true,
+      externalMessageId: true,
+      conversation: { select: { id: true, customerId: true, businessId: true } },
+      attachments: {
+        select: { id: true, kind: true, providerContentId: true, fileAssetId: true, fetchState: true, mimeType: true, sizeBytes: true },
+      },
     },
-    select: { id: true, conversationId: true },
   })
-  if (candidates.length === 0) return { redactedMessages: 0, redactedAttachments: 0, skippedNonTerminalJob: 0 }
+  if (candidates.length === 0) return { redactedMessages: 0, redactedAttachments: 0, skippedNonTerminalJob: 0, archiveFailed: false, manifest: null }
 
-  const messageIds = candidates.map((row) => row.id)
+  // @req FR-245 — archive before tombstone, fail closed (ADR-093 D2). A failure
+  // anywhere in the archive write leaves every one of this Tenant's candidates
+  // untouched this run: `archiveAndTombstoneTenantMessages` throws before its
+  // own transaction ever runs, so nothing here has tombstoned or counted
+  // anything by the time this catch fires.
+  let archiveResult
+  try {
+    archiveResult = await archiveAndTombstoneTenantMessages(db, { tenantId, candidates, now, env, baseDir })
+  } catch (error) {
+    const skippedNonTerminalJob = await countSkippedNonTerminalJob(db, tenantId, cutoff)
+    return {
+      redactedMessages: 0,
+      redactedAttachments: 0,
+      skippedNonTerminalJob,
+      archiveFailed: true,
+      archiveFailureReason: error?.code || error?.message || 'ARCHIVE_FAILED',
+      manifest: null,
+    }
+  }
+
   const conversationIds = [...new Set(candidates.map((row) => row.conversationId))]
-
-  const redacted = await db.message.updateMany({
-    where: { id: { in: messageIds } },
-    data: { body: RETENTION_SWEEP_TOMBSTONE },
-  })
-  const redactedAttachments = await db.messageAttachment.updateMany({
-    where: { messageId: { in: messageIds }, fetchState: { not: 'ERASED' } },
-    data: { fetchState: 'ERASED', providerContentId: null },
-  })
   for (const conversationId of conversationIds) {
     await refreshConversationPreview(db, conversationId)
   }
@@ -102,28 +143,35 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now) {
   // Reported for visibility only — how many otherwise-eligible rows this run left
   // alone because a live job still needs them. Not an error: it is the sweep
   // doing exactly what ADR-091 proof 5 requires.
-  const skippedNonTerminalJob = await db.message.count({
-    where: {
-      conversation: { tenantId },
-      createdAt: { lt: cutoff },
-      body: { notIn: KNOWN_TOMBSTONES },
-      lineJob: { is: { status: { in: LINE_CONVERSATION_JOB_NON_TERMINAL_STATUSES } } },
-    },
-  })
+  const skippedNonTerminalJob = await countSkippedNonTerminalJob(db, tenantId, cutoff)
 
-  return { redactedMessages: redacted.count, redactedAttachments: redactedAttachments.count, skippedNonTerminalJob }
+  return {
+    redactedMessages: archiveResult.redactedMessages,
+    redactedAttachments: archiveResult.redactedAttachments,
+    skippedNonTerminalJob,
+    archiveFailed: false,
+    manifest: archiveResult.manifest
+      ? { manifestId: archiveResult.manifest.id, runId: archiveResult.manifest.runId, manifestHash: archiveResult.manifest.manifestHash }
+      : null,
+  }
 }
 
 /**
  * Run the crm-owned slice of the ADR-091 D2 nightly retention sweep across every
  * Tenant, honouring each Tenant's own override (never lengthened past the
  * installation default), and write exactly one audit event naming the totals.
+ * Each Tenant's candidates are archived (FR-245, ADR-093 D2) before they are
+ * tombstoned; a Tenant whose archive step fails is skipped for this run (its
+ * candidates stay in the database, untouched) rather than aborting the whole
+ * multi-Tenant sweep, and the failure is named in the audit payload.
  *
- * @param {{db?: object, now?: Date}} [options]
+ * @param {{db?: object, now?: Date, env?: object, baseDir?: string}} [options]
  * @returns {Promise<{auditEventId: string, countsByClass: Record<string, object>}>}
  */
-export async function runRetentionSweep({ db = prisma, now = new Date() } = {}) {
+export async function runRetentionSweep({ db = prisma, now = new Date(), env = process.env, baseDir } = {}) {
   const totals = { redactedMessages: 0, redactedAttachments: 0, skippedNonTerminalJob: 0 }
+  const manifests = []
+  const archiveFailures = []
 
   // CRM_OWNED_RETENTION_CLASSES has exactly one member today (MESSAGE_BODY_AND_ATTACHMENTS);
   // looping over it rather than hard-coding the call keeps this function's shape
@@ -132,14 +180,28 @@ export async function runRetentionSweep({ db = prisma, now = new Date() } = {}) 
     if (dataClass !== CLASS) continue // no second class exists yet to dispatch to
     const tenants = await db.tenant.findMany({ select: { id: true } })
     for (const tenant of tenants) {
-      const result = await sweepMessageBodyAndAttachmentsForTenant(db, tenant.id, now)
+      const result = await sweepMessageBodyAndAttachmentsForTenant(db, tenant.id, now, { env, baseDir })
       totals.redactedMessages += result.redactedMessages
       totals.redactedAttachments += result.redactedAttachments
       totals.skippedNonTerminalJob += result.skippedNonTerminalJob
+      if (result.archiveFailed) {
+        archiveFailures.push({ tenantId: tenant.id, reason: result.archiveFailureReason })
+      } else if (result.manifest) {
+        manifests.push({ tenantId: tenant.id, ...result.manifest })
+      }
     }
   }
 
-  const countsByClass = { [CLASS]: totals }
+  const countsByClass = {
+    [CLASS]: {
+      ...totals,
+      // @req FR-245 — carried only when non-empty, matching ADR-070 D3's
+      //   "truthful reporting": a run with nothing to archive or no failure
+      //   names neither, rather than an empty array claiming it checked.
+      ...(archiveFailures.length > 0 ? { archiveFailures } : {}),
+      ...(manifests.length > 0 ? { manifests } : {}),
+    },
+  }
   const event = await recordAudit(db, {
     entityType: 'RETENTION_SWEEP',
     entityId: `sweep:${now.toISOString()}`,

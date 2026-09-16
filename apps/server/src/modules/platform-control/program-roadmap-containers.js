@@ -5531,21 +5531,21 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-111",
     "phase": "PHASE-ZAI-03",
     "sprint": "SPR-ZAI-05",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P1",
     "pic": "Claude",
     "executor": "Claude",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/src/modules/crm/retention-sweep-service.js",
+      "code": "apps/server/src/modules/crm/chat-evidence-archive-service.js",
       "doc": "docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md",
       "test": "apps/server/tests/integration/crm-chat-evidence-archive.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "missing"
+      "test": "present"
     },
     "delivers": [
       "FR-245"
@@ -5554,34 +5554,34 @@ export const PROGRAMME_CONTAINERS = {
       {
         "id": "P0",
         "title": "Manifest model with the per-Tenant hash chain and its migration",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P1",
         "title": "Archive file writer with per-Customer data keys",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P2",
         "title": "Sweep integration that tombstones only verified rows",
-        "status": "planned"
+        "status": "done"
       }
     ],
     "dod": {
       "acceptance": {
         "text": "Given a message past its window, when the sweep runs, then an archive file is written, read back and verified, its manifest row chains to the previous one, and only then is the body tombstoned",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given an archive write that fails or a file whose hash does not match, when the sweep runs, then nothing is tombstoned for that Tenant and the audit event counts the failure",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test, when the archive suites run, then decrypting a segment with another Customer's key fails, a tampered file breaks the chain, and the migration is written and not applied",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured. Built and MERGED 2026-09-16 (PR #431, main `b6e002ef`): `chat-evidence-archive-crypto.js` (AES-256-GCM KEK/DEK mirroring envelope-secret-store.js's shape, `ZURI_ARCHIVE_KEK` never `ZURI_SECRET_KEK`, per-segment AAD binds tenantId/customerId/runId so cross-Customer decrypt fails at the cipher) and `chat-evidence-archive-service.js` (one `.zca` newline-delimited-JSON file per Tenant per run at `<ZURI_ARCHIVE_DIR>/<tenantId>/<yyyy>/<runId>.zca`, write-under-temp-name→fsync→rename→read-back→verify-SHA-256, then `ArchiveManifest` insert and tombstone in one transaction). New models `ArchiveManifest` and `CustomerArchiveKey`, migration `20260916150000` (written, not applied). A parallel implementation of this same task (`ArchiveCustomerKey`, a different migration timestamp, a single-file design) was independently built and opened as PR #429 by a separate session in this same window; PR #431 merged first, so it is the canonical implementation — the duplicate PR #429 branch was reset onto this one and repointed at TASK-ZAI-112 only (see that container's changelog). One design difference worth a later look: this implementation excludes both new models from `SNAPSHOT_MODELS` (citing no Prisma relation to Tenant/Customer, mirroring `IntegrationSecretEnvelope`), where the reset PR #429 branch had included them (citing the `mfaFactor` precedent: a randomly generated key has no re-entry path, so exclusion risks a routine restore permanently losing access to retained dispute evidence) — tracked as a separate follow-up rather than re-litigated here. Evidence (as merged): its own test suite passed at merge time; not independently re-verified by this session beyond confirming `npm run govern` and the full suite stay green with TASK-ZAI-112 built on top of it.",
     "created": "2026-09-16T00:00:00Z,Claude,pending",
     "predictedTokens": 60000,
     "totalTokens": 0,
@@ -5595,21 +5595,21 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-112",
     "phase": "PHASE-ZAI-03",
     "sprint": "SPR-ZAI-05",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P1",
     "pic": "Claude",
     "executor": "Claude",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/src/modules/crm/retention-sweep-service.js",
+      "code": "apps/server/src/modules/crm/chat-evidence-retrieval-service.js",
       "doc": "docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md",
       "test": "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "missing"
+      "test": "present"
     },
     "delivers": [
       "FR-245"
@@ -5618,34 +5618,34 @@ export const PROGRAMME_CONTAINERS = {
       {
         "id": "P0",
         "title": "Retrieval service verifying the chain before decrypting",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P1",
         "title": "AAL2-gated route with a required case reference",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P2",
         "title": "Hashed export and the ARCHIVE_RETRIEVED audit event",
-        "status": "planned"
+        "status": "done"
       }
     ],
     "dod": {
       "acceptance": {
         "text": "Given an OWNER at AAL2 with a case reference, when they retrieve a Customer's range, then the export lists the messages by session with the file and manifest hashes",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a viewer who is not an OWNER, is not at AAL2 or gives no case reference, when retrieval is attempted, then it is refused and nothing is decrypted",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given every retrieval, when it completes, then one ARCHIVE_RETRIEVED audit event names the Customer, the range and the case reference, and no page lists the archive",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured. First built 2026-09-16 on branch `feat/fr245-chat-evidence-archive` (PR #429) stacked on this session's own TASK-ZAI-111 implementation — then a separate session's competing TASK-ZAI-111 (PR #431: `ArchiveManifest`/`CustomerArchiveKey`, `chat-evidence-archive-crypto.js`/`chat-evidence-archive-service.js`, migration `20260916150000`) merged into main first (`b6e002ef`), making the two branches' models, migrations and file layout incompatible. Rather than re-merge a duplicate archive writer, PR #429 was reset onto main and TASK-ZAI-112 rebuilt from scratch against the now-canonical PR #431 API: `chat-evidence-retrieval-service.js` — the FR-224 step-up gate (`assertCredentialWriteAssurance`, the one credential rotation uses — ADR-093 D7 names it explicitly), then the consent/erasure services' own authority shape (per-Business owner in the Customer's tenant, domain-gate before ownership-gate, BR-001). Grouping \"by session\" needed no extra join this time: `chat-evidence-archive-service.js`'s `buildArchiveLine` already writes `sessionId` into every archived line, so retrieval reads it straight off the decrypted content. Every manifest is first self-checked (`computeManifestHash` recomputed from its own stored fields must equal `manifest.manifestHash`) and every file re-hashed against `manifest.fileSha256` before any line in it is trusted; a manifest or file that fails either check, or is simply missing, lands its message ids in `missingMessageIds` instead of failing the whole retrieval. Evidence: server `npm test` 704 files / 5868 tests passed, 0 failed (new: 7 in `crm-chat-evidence-retrieval.test.js` covering the AAL1/expired-elevation refusal, the not-owned-Business refusal, the missing-case-reference refusal, the full grouped-by-session round trip with manifest hashes, the partial-recovery-reports-missing case, the never-archived-yet-still-audits case, and the unknown/other-tenant-Customer 404s); `npm run build` clean; `npm run govern` 0 CRITICAL (two real findings fixed: the new route needed an Appendix A row and its handler count bumped, and `openapi-docs.test.js`'s generic route inventory needed the new route registered plus its pathCount/operationCount bumped — the same two traps hit building TASK-ZAI-111's own retrieval attempt the first time around). The `SNAPSHOT_MODELS` exclude-vs-include disagreement found against PR #431's merged code is tracked as a separate small follow-up, not bundled here.",
     "created": "2026-09-16T00:00:00Z,Claude,pending",
     "predictedTokens": 40000,
     "totalTokens": 0,

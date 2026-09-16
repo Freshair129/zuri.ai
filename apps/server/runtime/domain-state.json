@@ -39,8 +39,8 @@
     "featureCount": 151,
     "readyFeatureCount": 115,
     "requirementCount": 247,
-    "verifiedRequirementCount": 232,
-    "progressPercent": 94.4,
+    "verifiedRequirementCount": 233,
+    "progressPercent": 94.8,
     "gapCount": 28,
     "gaps": [
       {
@@ -559,7 +559,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 32
+          "testCount": 33
         }
       ],
       "checks": {
@@ -578,7 +578,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 283,
+            "openApiPaths": 284,
             "missingFromOpenApi": 0
           }
         },
@@ -843,7 +843,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 283,
+            "openApiPaths": 284,
             "missingFromOpenApi": 0
           }
         },
@@ -1040,7 +1040,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 283,
+            "openApiPaths": 284,
             "missingFromOpenApi": 0
           }
         },
@@ -1279,8 +1279,8 @@
           "title": "Chat record and agent memory split with declared retention",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 16
+          "codeCount": 3,
+          "testCount": 17
         },
         {
           "id": "FR-233",
@@ -1304,7 +1304,15 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 32
+          "testCount": 33
+        },
+        {
+          "id": "FR-245",
+          "title": "Chat evidence cold archive",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 5
         },
         {
           "id": "FR-246",
@@ -1360,8 +1368,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 14,
-            "present": 14
+            "models": 16,
+            "present": 16
           }
         },
         "authorization": {
@@ -1405,7 +1413,7 @@
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
-        "ownedModels": 14,
+        "ownedModels": 16,
         "featureNotes": 10
       },
       "featureIds": [
@@ -1422,7 +1430,7 @@
       ],
       "featureCount": 10,
       "readyFeatureCount": 4,
-      "progressPercent": 77
+      "progressPercent": 82
     },
     "identity": {
       "status": "partial",
@@ -1851,7 +1859,7 @@
           "details": {
             "routes": 27,
             "inventoried": 27,
-            "openApiPaths": 283,
+            "openApiPaths": 284,
             "missingFromOpenApi": 0
           }
         },
@@ -2334,7 +2342,7 @@
           "details": {
             "routes": 10,
             "inventoried": 10,
-            "openApiPaths": 283,
+            "openApiPaths": 284,
             "missingFromOpenApi": 0
           }
         },
@@ -2697,7 +2705,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 283,
+            "openApiPaths": 284,
             "missingFromOpenApi": 0
           }
         },
@@ -3440,7 +3448,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 32
+          "testCount": 33
         },
         {
           "id": "FR-244",
@@ -3474,7 +3482,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 283,
+            "openApiPaths": 284,
             "missingFromOpenApi": 0
           }
         },
@@ -3635,7 +3643,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 283,
+            "openApiPaths": 284,
             "missingFromOpenApi": 0
           }
         },
@@ -3802,7 +3810,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 283,
+            "openApiPaths": 284,
             "missingFromOpenApi": 0
           }
         },
@@ -4048,7 +4056,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 283,
+            "openApiPaths": 284,
             "missingFromOpenApi": 0
           }
         },
@@ -4229,7 +4237,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 283,
+            "openApiPaths": 284,
             "missingFromOpenApi": 0
           }
         },
@@ -5460,7 +5468,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-233",
@@ -5500,7 +5508,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 32
+          "testCount": 33
         },
         {
           "id": "FR-244",
@@ -5509,6 +5517,14 @@
           "status": "verified",
           "codeCount": 2,
           "testCount": 14
+        },
+        {
+          "id": "FR-245",
+          "title": "Chat evidence cold archive",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 5
         },
         {
           "id": "FR-246",
@@ -5557,9 +5573,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 140,
-            "inventoried": 140,
-            "openApiPaths": 283,
+            "routes": 141,
+            "inventoried": 141,
+            "openApiPaths": 284,
             "missingFromOpenApi": 0
           }
         },
@@ -5625,8 +5641,8 @@
             }
           ],
           "details": {
-            "mutations": 110,
-            "guardedMutations": 106,
+            "mutations": 111,
+            "guardedMutations": 107,
             "reads": 66,
             "unguardedReads": 2
           }
@@ -5738,8 +5754,8 @@
         }
       ],
       "details": {
-        "routes": 185,
-        "apiRoutes": 140,
+        "routes": 186,
+        "apiRoutes": 141,
         "pageRoutes": 45,
         "ownedModels": 31,
         "featureNotes": 34
@@ -9749,8 +9765,8 @@
           "title": "Chat record and agent memory split with declared retention",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 16
+          "codeCount": 6,
+          "testCount": 17
         },
         {
           "id": "FR-231",
@@ -9803,11 +9819,13 @@
         "apps/server/src/modules/crm/reply-record-service.js",
         "apps/server/src/modules/crm/retention-override-service.js",
         "apps/server/src/modules/crm/retention-sweep-service.js",
+        "apps/server/src/modules/crm/retention-sweep-tombstone.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
         "apps/server/tests/integration/crm-conversation-search.test.js",
@@ -10098,7 +10116,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
-          "testCount": 32
+          "testCount": 33
         },
         {
           "id": "FR-244",
@@ -10136,6 +10154,7 @@
         "apps/server/tests/integration/agent-webhook-route.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
+        "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
         "apps/server/tests/integration/crm-conversation-session-surfaces.test.js",
@@ -10184,21 +10203,20 @@
         "project-manager"
       ],
       "useCase": "เมื่อลูกค้าอ้างว่าเคยได้รับส่วนลดเมื่อสองปีก่อน เจ้าของธุรกิจยืนยันตัวตนสองชั้นแล้วดึงข้อความของลูกค้าคนนั้นตามช่วงวันที่จาก archive ที่เข้ารหัสบนดิสก์ในเครื่อง พร้อม hash ที่พิสูจน์ว่าไม่ถูกแก้ ข้อความที่พนักงานตอบจาก inbox อยู่ในหลักฐานด้วย และข้อมูลที่อยู่ภายใต้ legal hold ไม่ถูกลบจนกว่าข้อพิพาทจะจบ",
-      "progressPercent": 50,
+      "progressPercent": 100,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-041 registry status is declared",
-        "FR-245 is planned"
+        "FEAT-041 registry status is declared"
       ],
       "requirements": [
         {
           "id": "FR-245",
           "title": "Chat evidence cold archive",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 6,
+          "testCount": 5
         },
         {
           "id": "FR-246",
@@ -10212,14 +10230,23 @@
       "evidence": [
         "apps/server/src/app/(pm)/customer/conversations/page.jsx",
         "apps/server/src/app/api/crm/conversations/[id]/reply/route.js",
+        "apps/server/src/app/api/crm/customers/[customerId]/chat-evidence/retrieve/route.js",
+        "apps/server/src/modules/crm/chat-evidence-archive-crypto.js",
+        "apps/server/src/modules/crm/chat-evidence-archive-service.js",
+        "apps/server/src/modules/crm/chat-evidence-retrieval-service.js",
         "apps/server/src/modules/crm/reply-record-service.js",
+        "apps/server/src/modules/crm/retention-sweep-service.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
         "apps/server/tests/e2e/fr246-staff-reply.spec.js",
+        "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
+        "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",
+        "apps/server/tests/integration/crm-retention-sweep.test.js",
         "apps/server/tests/integration/crm-staff-reply.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
         "apps/server/tests/integration/line-reply-record.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
         "apps/server/tests/unit/reply-record-service.test.js"
       ]

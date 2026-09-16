@@ -400,6 +400,15 @@ export const SNAPSHOT_EXCLUDED_MODELS = {
     'Device-local mount paths. Deleted explicitly before the sweep and never restored: a mount names a ' +
     'filesystem on one machine, so carrying it into another installation would point at a path that does ' +
     'not exist there (SEC-007).',
+  customerArchiveKey:
+    'FR-245 chat evidence archive data keys are credential material (SEC-034, ADR-093 D4). They are never ' +
+    'exported: the wrapped key that could open a Customer\'s archived lines is not part of any snapshot, and ' +
+    'the key-encryption key that could open it (ZURI_ARCHIVE_KEK) is never part of any export either.',
+  archiveManifest:
+    'FR-245 archive manifest rows are a chain of custody over files on the archive host\'s own disk (ADR-093 ' +
+    'D2-D4, SDD-103), not business data a restore recovers. A restored installation has none of the archive ' +
+    'files these rows point at, so carrying the rows forward would name evidence the restore target does not ' +
+    'hold; a fresh installation\'s chain starts empty exactly as a fresh archive directory does.',
 }
 
 function localAssets(snapshot) {
