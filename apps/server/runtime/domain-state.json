@@ -1348,7 +1348,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 5
+          "testCount": 13
         },
         {
           "id": "FR-246",
@@ -5568,8 +5568,8 @@
           "title": "Chat evidence cold archive",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 5
+          "codeCount": 3,
+          "testCount": 13
         },
         {
           "id": "FR-246",
@@ -10329,8 +10329,8 @@
           "title": "Chat evidence cold archive",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 5
+          "codeCount": 7,
+          "testCount": 13
         },
         {
           "id": "FR-246",
@@ -10351,16 +10351,25 @@
         "apps/server/src/modules/crm/reply-record-service.js",
         "apps/server/src/modules/crm/retention-sweep-service.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
         "apps/server/tests/e2e/fr246-staff-reply.spec.js",
+        "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
         "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-retention-sweep.test.js",
         "apps/server/tests/integration/crm-staff-reply.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
+        "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-reply-record.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
         "apps/server/tests/unit/reply-record-service.test.js"
       ]
