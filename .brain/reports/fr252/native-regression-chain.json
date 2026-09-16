@@ -1,0 +1,772 @@
+{
+  "phase": "raw-to-published-after-audit",
+  "schemaVersion": "genesisrag17.v1",
+  "fixtureVersion": "ki17-corpus-v1",
+  "nodeVersion": "v24.19.0",
+  "runId": "16fb744a-9890-4d41-b50c-d82d2830cff2",
+  "snapshotId": "snap-ebe6204c024b8b0e7b6bc8119c11d0d1",
+  "generation": "g17-1be89ca8bd3d39cede1e68e25d703d2d",
+  "benchmark": {
+    "fixtureVersion": "ki17-corpus-v1",
+    "queryCount": 5,
+    "recallAt5": 1,
+    "mrr": 1,
+    "citationCorrectness": 1,
+    "crossTenantLeaks": 0
+  },
+  "evidence": [
+    {
+      "id": "gre_b484a0947abfcd1137fb65887f759a61fa57a1fb702f64ed",
+      "cursor": null,
+      "runId": "a5f89d6a-7e53-46dc-8401-97a0097b48f9",
+      "executionRunId": "16fb744a-9890-4d41-b50c-d82d2830cff2",
+      "pipelineStageId": "DPS-KI-INGEST",
+      "executionStepId": "32bb9c8c-3d82-4337-bb16-cf7a673b12b1",
+      "attemptId": "5d2048e4-7a81-4a4b-b8d8-cff75ac6b8e7",
+      "stageNumber": 1,
+      "outcome": "SUCCEEDED",
+      "startedAt": "2026-09-16T20:23:17.276Z",
+      "finishedAt": "2026-09-16T20:23:17.316Z",
+      "recordsIn": 1,
+      "recordsOut": 1,
+      "recordsQuarantined": 0,
+      "errorCount": 0,
+      "retryCount": 0,
+      "durationMs": 40,
+      "detailsJson": "{\"artifactId\":\"kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c\",\"rawExternalRecordId\":\"df53decd-5564-4ef3-a15d-d8ab0438d8ca\",\"contentHash\":\"36d7004f66ec8f52be669b8e2e89d482e3c14de0498f0d4e9694eb777c7f1d56\",\"receivedAt\":\"2026-09-16T20:23:17.309Z\"}",
+      "rowHash": "b484a0947abfcd1137fb65887f759a61fa57a1fb702f64ed8bbe6a9e0ada3384",
+      "createdAt": "2026-09-16T20:23:17.316Z"
+    },
+    {
+      "id": "gre_1c7f29840f0e617a35f2fd90c397e93055e5d1d92c65bc8b",
+      "cursor": null,
+      "runId": "a5f89d6a-7e53-46dc-8401-97a0097b48f9",
+      "executionRunId": "16fb744a-9890-4d41-b50c-d82d2830cff2",
+      "pipelineStageId": "DPS-KI-PARSE",
+      "executionStepId": "037b3c78-3b9c-4049-b0c7-3a92f59694e2",
+      "attemptId": "87613d93-9e6c-4bc7-9f2b-f832f8d94119",
+      "stageNumber": 2,
+      "outcome": "SUCCEEDED",
+      "startedAt": "2026-09-16T20:23:17.361Z",
+      "finishedAt": "2026-09-16T20:23:17.384Z",
+      "recordsIn": 1,
+      "recordsOut": 1,
+      "recordsQuarantined": 0,
+      "errorCount": 0,
+      "retryCount": 0,
+      "durationMs": 23,
+      "detailsJson": "{\"documentId\":\"ki17-corpus-document\",\"parsedArtifactId\":\"kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5\",\"structureCount\":8,\"textBlockCount\":8,\"parserVersion\":\"genesisrag17-parser-1\",\"chunkerVersion\":\"genesisrag17-chunker-1\",\"maxTokens\":80}",
+      "rowHash": "1c7f29840f0e617a35f2fd90c397e93055e5d1d92c65bc8ba4f0ccbb2c25a714",
+      "createdAt": "2026-09-16T20:23:17.384Z"
+    },
+    {
+      "id": "gre_1d86bc2749a90879135e4f49c424d6d4637f01f09637dcef",
+      "cursor": null,
+      "runId": "a5f89d6a-7e53-46dc-8401-97a0097b48f9",
+      "executionRunId": "16fb744a-9890-4d41-b50c-d82d2830cff2",
+      "pipelineStageId": "DPS-KI-PROVENANCE",
+      "executionStepId": "0a4307cc-748f-4780-a914-8cbe519191a4",
+      "attemptId": "da0331fe-747a-4566-81f9-2b8f4b7c051c",
+      "stageNumber": 3,
+      "outcome": "SUCCEEDED",
+      "startedAt": "2026-09-16T20:23:17.408Z",
+      "finishedAt": "2026-09-16T20:23:17.422Z",
+      "recordsIn": 1,
+      "recordsOut": 1,
+      "recordsQuarantined": 0,
+      "errorCount": 0,
+      "retryCount": 0,
+      "durationMs": 14,
+      "detailsJson": "{\"provenanceHash\":\"30e7810c3bc0ba3c95844549bfd069c24555a546a4493937ac1f97f0993c9a1f\",\"sourceId\":\"synthetic://genesisrag17/corpus\",\"rawArtifactId\":\"kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c\",\"parsedArtifactId\":\"kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5\"}",
+      "rowHash": "1d86bc2749a90879135e4f49c424d6d4637f01f09637dcefa067b1dc9bcfe350",
+      "createdAt": "2026-09-16T20:23:17.422Z"
+    },
+    {
+      "id": "gre_c9e98a52ddd29c1d5ca26a9ad8067b2b760e1f0789565df4",
+      "cursor": null,
+      "runId": "a5f89d6a-7e53-46dc-8401-97a0097b48f9",
+      "executionRunId": "16fb744a-9890-4d41-b50c-d82d2830cff2",
+      "pipelineStageId": "DPS-KI-NORMALIZE",
+      "executionStepId": "c7bdb62f-078a-4bca-88a8-6e117a982d1d",
+      "attemptId": "266b4c16-0c0b-4b9b-bcdf-6e48f31ae0a0",
+      "stageNumber": 4,
+      "outcome": "SUCCEEDED",
+      "startedAt": "2026-09-16T20:23:17.465Z",
+      "finishedAt": "2026-09-16T20:23:17.479Z",
+      "recordsIn": 1,
+      "recordsOut": 1,
+      "recordsQuarantined": 0,
+      "errorCount": 0,
+      "retryCount": 0,
+      "durationMs": 14,
+      "detailsJson": "{\"normalization\":\"rule_v1\",\"canonicalHash\":\"dcdd38499d849dd65f02d4dcc267a5cd64ed85df5bcd3fa922439047c5938cc4\",\"rawHash\":\"36d7004f66ec8f52be669b8e2e89d482e3c14de0498f0d4e9694eb777c7f1d56\"}",
+      "rowHash": "c9e98a52ddd29c1d5ca26a9ad8067b2b760e1f0789565df4dd6df947547f4a7f",
+      "createdAt": "2026-09-16T20:23:17.479Z"
+    },
+    {
+      "id": "gre_885bc405ec4dd487a65be67c4d190116b0a6807713746708",
+      "cursor": null,
+      "runId": "a5f89d6a-7e53-46dc-8401-97a0097b48f9",
+      "executionRunId": "16fb744a-9890-4d41-b50c-d82d2830cff2",
+      "pipelineStageId": "DPS-KI-CLASSIFY",
+      "executionStepId": "3d1534be-fc08-4ea9-a2da-a25189129869",
+      "attemptId": "d2e15929-8e2c-4abc-9bdb-2d3fcfc59834",
+      "stageNumber": 5,
+      "outcome": "SUCCEEDED",
+      "startedAt": "2026-09-16T20:23:17.499Z",
+      "finishedAt": "2026-09-16T20:23:17.532Z",
+      "recordsIn": 1,
+      "recordsOut": 1,
+      "recordsQuarantined": 0,
+      "errorCount": 0,
+      "retryCount": 0,
+      "durationMs": 33,
+      "detailsJson": "{\"scope\":{\"portfolioId\":\"cdc1f6d2-29b1-4f04-afe3-b57bd40f11da\",\"tenantId\":\"cea603db-e2e5-4399-9df3-8dbf5a8c60c0\",\"businessId\":\"eb046202-81d4-4b0d-b236-37c6a7b3f8c7\",\"workspaceId\":\"\",\"agentId\":\"\",\"visibility\":\"private\"},\"policy\":{\"allowEmbedding\":true,\"allowPublication\":true},\"indexable\":true,\"publishable\":true}",
+      "rowHash": "885bc405ec4dd487a65be67c4d190116b0a68077137467085e8aa7d3131d590f",
+      "createdAt": "2026-09-16T20:23:17.532Z"
+    },
+    {
+      "id": "gre_b17de0d699a4748cfd9e25eb1c5508644798ceef114872e1",
+      "cursor": null,
+      "runId": "a5f89d6a-7e53-46dc-8401-97a0097b48f9",
+      "executionRunId": "16fb744a-9890-4d41-b50c-d82d2830cff2",
+      "pipelineStageId": "DPS-KI-DEDUPE",
+      "executionStepId": "1ab13ef7-63dd-4b31-bfe8-ff9714d703a0",
+      "attemptId": "0d0a550b-6bc7-47ad-96c3-ac1e5f9a49fa",
+      "stageNumber": 6,
+      "outcome": "SUCCEEDED",
+      "startedAt": "2026-09-16T20:23:17.557Z",
+      "finishedAt": "2026-09-16T20:23:17.576Z",
+      "recordsIn": 1,
+      "recordsOut": 1,
+      "recordsQuarantined": 0,
+      "errorCount": 0,
+      "retryCount": 0,
+      "durationMs": 19,
+      "detailsJson": "{\"identity\":\"f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d59b3b05748ecc5b2d\",\"relationship\":\"INDEPENDENT\",\"comparedCount\":0,\"supersededCount\":0,\"warningCount\":0}",
+      "rowHash": "b17de0d699a4748cfd9e25eb1c5508644798ceef114872e188af9258a59a3a05",
+      "createdAt": "2026-09-16T20:23:17.576Z"
+    },
+    {
+      "id": "gre_90f8da96bedb83bae71182ecef148039686e1c33ff95ec32",
+      "cursor": null,
+      "runId": "a5f89d6a-7e53-46dc-8401-97a0097b48f9",
+      "executionRunId": "16fb744a-9890-4d41-b50c-d82d2830cff2",
+      "pipelineStageId": "DPS-KI-CHUNK",
+      "executionStepId": "56c0236d-68b8-4396-b2cd-cda03e3fac65",
+      "attemptId": "7c6b4ccf-3d7e-425d-93e5-c1fb42ad7c51",
+      "stageNumber": 7,
+      "outcome": "SUCCEEDED",
+      "startedAt": "2026-09-16T20:23:17.624Z",
+      "finishedAt": "2026-09-16T20:23:17.805Z",
+      "recordsIn": 1,
+      "recordsOut": 8,
+      "recordsQuarantined": 0,
+      "errorCount": 0,
+      "retryCount": 0,
+      "durationMs": 181,
+      "detailsJson": "{\"chunkCount\":8,\"chunkIds\":[\"kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:0\",\"kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:1\",\"kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:2\",\"kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:3\",\"kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:4\",\"kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:5\",\"kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:6\",\"kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:7\"],\"exactSourceOffsets\":true}",
+      "rowHash": "90f8da96bedb83bae71182ecef148039686e1c33ff95ec3208e676af0db6d6c9",
+      "createdAt": "2026-09-16T20:23:17.805Z"
+    },
+    {
+      "id": "gre_71a3d7d7195c2657854dda1cf7e8b504ec7bba04e283968c",
+      "cursor": null,
+      "runId": "a5f89d6a-7e53-46dc-8401-97a0097b48f9",
+      "executionRunId": "16fb744a-9890-4d41-b50c-d82d2830cff2",
+      "pipelineStageId": "DPS-KI-ENTITY-EXTRACT",
+      "executionStepId": "cae98e1b-2d44-4c22-a47a-b4fcd876f3fa",
+      "attemptId": "4f6b801d-b706-4884-8f7d-9ab420087030",
+      "stageNumber": 8,
+      "outcome": "SUCCEEDED",
+      "startedAt": "2026-09-16T20:23:17.847Z",
+      "finishedAt": "2026-09-16T20:23:18.019Z",
+      "recordsIn": 8,
+      "recordsOut": 16,
+      "recordsQuarantined": 0,
+      "errorCount": 0,
+      "retryCount": 0,
+      "durationMs": 172,
+      "detailsJson": "{\"mentionCount\":16,\"semanticTypes\":[\"Person\",\"Organization\",\"Product\"],\"recognizer\":\"rule_v1\",\"recognizerVersion\":\"rule_v1\",\"recognizerProvenance\":\"genesisrag17-source:default\",\"derivationHash\":\"e078ea4f357dc437c450b86e1ef363b487ab1a41efa97ff3e126551c4a266dca\"}",
+      "rowHash": "71a3d7d7195c2657854dda1cf7e8b504ec7bba04e283968cf8881e5bf60fbbf3",
+      "createdAt": "2026-09-16T20:23:18.019Z"
+    },
+    {
+      "id": "gre_8872622aaef22be9ecdb35dae5dd45cc048fb01ba1c2159b",
+      "cursor": 1,
+      "runId": "a5f89d6a-7e53-46dc-8401-97a0097b48f9",
+      "executionRunId": "16fb744a-9890-4d41-b50c-d82d2830cff2",
+      "pipelineStageId": "DPS-KI-ENTITY-RESOLVE",
+      "executionStepId": "219096eb-502e-4279-8dd0-75f20a3dbdb5",
+      "attemptId": "46e3a9a2-b346-4f47-99d9-7e4d53475cd7",
+      "stageNumber": 9,
+      "outcome": "SUCCEEDED",
+      "startedAt": "2026-09-16T20:23:19.211Z",
+      "finishedAt": "2026-09-16T20:23:19.213Z",
+      "recordsIn": 16,
+      "recordsOut": 12,
+      "recordsQuarantined": 0,
+      "errorCount": 0,
+      "retryCount": 0,
+      "durationMs": 2,
+      "detailsJson": "{\"batchId\":\"grb_0032d9b4f060b4f79c2f6a63cb4a0eea1384e427fac82072\",\"decisionHash\":\"c3a677c1233f0531e192ea5b7e80e1fe0bfeb0a21cd1e63ac02de2681b102fd9\",\"stageNumber\":9,\"records\":12}",
+      "rowHash": "8872622aaef22be9ecdb35dae5dd45cc048fb01ba1c2159be95134282addfb74",
+      "createdAt": "2026-09-16T20:23:19.213Z"
+    },
+    {
+      "id": "gre_da3c293ae209bbbded1c35555311c8e710615321e592990c",
+      "cursor": 2,
+      "runId": "a5f89d6a-7e53-46dc-8401-97a0097b48f9",
+      "executionRunId": "16fb744a-9890-4d41-b50c-d82d2830cff2",
+      "pipelineStageId": "DPS-KI-FACT-EXTRACT",
+      "executionStepId": "d1052376-80ba-453e-84e3-74cd50bceb60",
+      "attemptId": "240feeef-401c-49bd-a94f-e25d1866107c",
+      "stageNumber": 10,
+      "outcome": "SUCCEEDED",
+      "startedAt": "2026-09-16T20:23:19.213Z",
+      "finishedAt": "2026-09-16T20:23:19.213Z",
+      "recordsIn": 8,
+      "recordsOut": 8,
+      "recordsQuarantined": 0,
+      "errorCount": 0,
+      "retryCount": 0,
+      "durationMs": 0,
+      "detailsJson": "{\"batchId\":\"grb_0032d9b4f060b4f79c2f6a63cb4a0eea1384e427fac82072\",\"decisionHash\":\"c3a677c1233f0531e192ea5b7e80e1fe0bfeb0a21cd1e63ac02de2681b102fd9\",\"stageNumber\":10,\"records\":8}",
+      "rowHash": "da3c293ae209bbbded1c35555311c8e710615321e592990c5529259a3ae75dd3",
+      "createdAt": "2026-09-16T20:23:19.213Z"
+    },
+    {
+      "id": "gre_5cac367d3d4bbbdc50df2465c7f6dff242988eb2bf307e95",
+      "cursor": 3,
+      "runId": "a5f89d6a-7e53-46dc-8401-97a0097b48f9",
+      "executionRunId": "16fb744a-9890-4d41-b50c-d82d2830cff2",
+      "pipelineStageId": "DPS-KI-ONTOLOGY-MAP",
+      "executionStepId": "6b120c48-2c91-4bcd-bd92-fd7bcc2ecd7a",
+      "attemptId": "7bbfe10a-6d89-4819-9d8a-94502b98a290",
+      "stageNumber": 11,
+      "outcome": "SUCCEEDED",
+      "startedAt": "2026-09-16T20:23:19.213Z",
+      "finishedAt": "2026-09-16T20:23:19.214Z",
+      "recordsIn": 8,
+      "recordsOut": 8,
+      "recordsQuarantined": 0,
+      "errorCount": 0,
+      "retryCount": 0,
+      "durationMs": 1,
+      "detailsJson": "{\"batchId\":\"grb_0032d9b4f060b4f79c2f6a63cb4a0eea1384e427fac82072\",\"decisionHash\":\"c3a677c1233f0531e192ea5b7e80e1fe0bfeb0a21cd1e63ac02de2681b102fd9\",\"stageNumber\":11,\"records\":8}",
+      "rowHash": "5cac367d3d4bbbdc50df2465c7f6dff242988eb2bf307e95649f9a114f3b3bd9",
+      "createdAt": "2026-09-16T20:23:19.214Z"
+    },
+    {
+      "id": "gre_c8d3df9fa89b23f6eeb6ae8665ed81402cf3e4b513473eb6",
+      "cursor": 4,
+      "runId": "a5f89d6a-7e53-46dc-8401-97a0097b48f9",
+      "executionRunId": "16fb744a-9890-4d41-b50c-d82d2830cff2",
+      "pipelineStageId": "DPS-KI-TEMPORAL-MAP",
+      "executionStepId": "842f4c0a-40b9-464d-aa37-039704da646a",
+      "attemptId": "ef570e68-29b4-4923-9a05-2b8eb6844f77",
+      "stageNumber": 12,
+      "outcome": "SUCCEEDED",
+      "startedAt": "2026-09-16T20:23:19.214Z",
+      "finishedAt": "2026-09-16T20:23:19.215Z",
+      "recordsIn": 8,
+      "recordsOut": 8,
+      "recordsQuarantined": 0,
+      "errorCount": 0,
+      "retryCount": 0,
+      "durationMs": 1,
+      "detailsJson": "{\"batchId\":\"grb_0032d9b4f060b4f79c2f6a63cb4a0eea1384e427fac82072\",\"decisionHash\":\"c3a677c1233f0531e192ea5b7e80e1fe0bfeb0a21cd1e63ac02de2681b102fd9\",\"stageNumber\":12,\"records\":8}",
+      "rowHash": "c8d3df9fa89b23f6eeb6ae8665ed81402cf3e4b513473eb615234bec75fd00e9",
+      "createdAt": "2026-09-16T20:23:19.215Z"
+    },
+    {
+      "id": "gre_94b3737bc24824abaa5cbb21ca63a04539c6dd96b2dd4f5f",
+      "cursor": 5,
+      "runId": "a5f89d6a-7e53-46dc-8401-97a0097b48f9",
+      "executionRunId": "16fb744a-9890-4d41-b50c-d82d2830cff2",
+      "pipelineStageId": "DPS-KI-GRAPH-BUILD",
+      "executionStepId": "a8f4a9a0-da0c-41d4-956d-caf0410eed19",
+      "attemptId": "e8619c89-f612-4537-a61f-d0639e12e4e3",
+      "stageNumber": 13,
+      "outcome": "SUCCEEDED",
+      "startedAt": "2026-09-16T20:23:20.540Z",
+      "finishedAt": "2026-09-16T20:23:21.012Z",
+      "recordsIn": 8,
+      "recordsOut": 30,
+      "recordsQuarantined": 0,
+      "errorCount": 0,
+      "retryCount": 0,
+      "durationMs": 472,
+      "detailsJson": "{\"decisionId\":\"gks:decision/ab65687cc2f03f360f90bd919de68e2a\",\"graphReceiptHash\":\"692e2284e873553dde4d38b8653ed7300b84bbae0544e0d852dba179b28198c0\",\"nodeCount\":30,\"edgeCount\":41}",
+      "rowHash": "94b3737bc24824abaa5cbb21ca63a04539c6dd96b2dd4f5fe94a3b9a0ef6e023",
+      "createdAt": "2026-09-16T20:23:21.012Z"
+    },
+    {
+      "id": "gre_c610d1c39588b5708c01b3ea8b4e8093539379b4f25f5057",
+      "cursor": 6,
+      "runId": "a5f89d6a-7e53-46dc-8401-97a0097b48f9",
+      "executionRunId": "16fb744a-9890-4d41-b50c-d82d2830cff2",
+      "pipelineStageId": "DPS-KI-ENRICH",
+      "executionStepId": "85436bbb-ca7a-48ec-bfdd-caf4dce7dbbd",
+      "attemptId": "50c53a15-5457-484a-a0df-1cfa9f96c007",
+      "stageNumber": 14,
+      "outcome": "SUCCEEDED",
+      "startedAt": "2026-09-16T20:23:21.471Z",
+      "finishedAt": "2026-09-16T20:23:21.472Z",
+      "recordsIn": 12,
+      "recordsOut": 12,
+      "recordsQuarantined": 0,
+      "errorCount": 0,
+      "retryCount": 0,
+      "durationMs": 1,
+      "detailsJson": "{\"decisionId\":\"gks:decision/ab65687cc2f03f360f90bd919de68e2a\",\"derivedHash\":\"3bab24cf6424d12e3d9cb39bdb14c904f4e85cfd159660e9766d3439fd9c9354\",\"derivedCount\":12,\"documentCount\":12,\"chunkCount\":16,\"factCount\":16}",
+      "rowHash": "c610d1c39588b5708c01b3ea8b4e8093539379b4f25f50574567f9fc586543d5",
+      "createdAt": "2026-09-16T20:23:21.472Z"
+    },
+    {
+      "id": "gre_bf8e242971791f83fa324b3b3bc75b99b7c5c3b6a5f3951e",
+      "cursor": 7,
+      "runId": "a5f89d6a-7e53-46dc-8401-97a0097b48f9",
+      "executionRunId": "16fb744a-9890-4d41-b50c-d82d2830cff2",
+      "pipelineStageId": "DPS-KI-EMBED",
+      "executionStepId": "98c3104c-2409-4380-ac6c-a4748a56796f",
+      "attemptId": "ae377eb1-0f99-48b7-95f2-ab4a5fd63e28",
+      "stageNumber": 15,
+      "outcome": "SUCCEEDED",
+      "startedAt": "2026-09-16T20:23:21.683Z",
+      "finishedAt": "2026-09-16T20:23:24.378Z",
+      "recordsIn": 8,
+      "recordsOut": 8,
+      "recordsQuarantined": 0,
+      "errorCount": 0,
+      "retryCount": 0,
+      "durationMs": 2695,
+      "detailsJson": "{\"decisionId\":\"gks:decision/ab65687cc2f03f360f90bd919de68e2a\",\"receiptHash\":\"339593d38cf9be54854ffcf3a1f59b6236b13e7a5776973db78ff5decafb2b02\",\"stageNumber\":15,\"readback\":{\"ok\":true,\"nodeCount\":42,\"edgeCount\":69,\"vectorCount\":8,\"citationCount\":8},\"laneStatuses\":{\"vector\":\"ready\",\"lexical\":\"ready\",\"graph\":\"ready\",\"sqlite\":\"ready\",\"bitemporal\":\"not_applicable\",\"provenance\":\"ready\"}}",
+      "rowHash": "bf8e242971791f83fa324b3b3bc75b99b7c5c3b6a5f3951e6154b4bec60eb7c8",
+      "createdAt": "2026-09-16T20:23:24.378Z"
+    },
+    {
+      "id": "gre_a26b9fe643c27241cba55eae385bbe2c3a0e0b8c32b70862",
+      "cursor": 8,
+      "runId": "a5f89d6a-7e53-46dc-8401-97a0097b48f9",
+      "executionRunId": "16fb744a-9890-4d41-b50c-d82d2830cff2",
+      "pipelineStageId": "DPS-KI-INDEX",
+      "executionStepId": "f330968e-ad73-4ba7-92a9-d506d373c09d",
+      "attemptId": "a510959d-aac5-46b4-9c0a-dabc7bb6bbbb",
+      "stageNumber": 16,
+      "outcome": "SUCCEEDED",
+      "startedAt": "2026-09-16T20:23:24.378Z",
+      "finishedAt": "2026-09-16T20:23:25.133Z",
+      "recordsIn": 8,
+      "recordsOut": 8,
+      "recordsQuarantined": 0,
+      "errorCount": 0,
+      "retryCount": 0,
+      "durationMs": 755,
+      "detailsJson": "{\"decisionId\":\"gks:decision/ab65687cc2f03f360f90bd919de68e2a\",\"receiptHash\":\"339593d38cf9be54854ffcf3a1f59b6236b13e7a5776973db78ff5decafb2b02\",\"stageNumber\":16,\"readback\":{\"ok\":true,\"nodeCount\":42,\"edgeCount\":69,\"vectorCount\":8,\"citationCount\":8},\"laneStatuses\":{\"vector\":\"ready\",\"lexical\":\"ready\",\"graph\":\"ready\",\"sqlite\":\"ready\",\"bitemporal\":\"not_applicable\",\"provenance\":\"ready\"}}",
+      "rowHash": "a26b9fe643c27241cba55eae385bbe2c3a0e0b8c32b708626824da624015a208",
+      "createdAt": "2026-09-16T20:23:25.133Z"
+    },
+    {
+      "id": "gre_757891b6c56fb1041ce02b1a7684f2056fffeed0af60927a",
+      "cursor": 9,
+      "runId": "a5f89d6a-7e53-46dc-8401-97a0097b48f9",
+      "executionRunId": "16fb744a-9890-4d41-b50c-d82d2830cff2",
+      "pipelineStageId": "DPS-KI-QUALITY-GATE",
+      "executionStepId": "2acda62e-abc0-48ae-ac14-25308fe0a1cb",
+      "attemptId": "71485c31-43a0-41d0-ad23-4defc7b5079e",
+      "stageNumber": 17,
+      "outcome": "SUCCEEDED",
+      "startedAt": "2026-09-16T20:23:26.210Z",
+      "finishedAt": "2026-09-16T20:23:26.213Z",
+      "recordsIn": 40,
+      "recordsOut": 1,
+      "recordsQuarantined": 0,
+      "errorCount": 0,
+      "retryCount": 0,
+      "durationMs": 3,
+      "detailsJson": "{\"verdict\":{\"schemaVersion\":\"genesisrag17.v1\",\"scope\":{\"portfolioId\":\"cdc1f6d2-29b1-4f04-afe3-b57bd40f11da\",\"tenantId\":\"cea603db-e2e5-4399-9df3-8dbf5a8c60c0\",\"businessId\":\"eb046202-81d4-4b0d-b236-37c6a7b3f8c7\",\"workspaceId\":\"\",\"agentId\":\"\",\"visibility\":\"private\"},\"runId\":\"16fb744a-9890-4d41-b50c-d82d2830cff2\",\"decisionId\":\"gks:decision/ab65687cc2f03f360f90bd919de68e2a\",\"decisionHash\":\"c3a677c1233f0531e192ea5b7e80e1fe0bfeb0a21cd1e63ac02de2681b102fd9\",\"snapshotId\":\"snap-ebe6204c024b8b0e7b6bc8119c11d0d1\",\"generation\":\"g17-1be89ca8bd3d39cede1e68e25d703d2d\",\"receiptHash\":\"339593d38cf9be54854ffcf3a1f59b6236b13e7a5776973db78ff5decafb2b02\",\"verdict\":\"PASS\",\"allowPublication\":true,\"dimensions\":{\"data\":{\"result\":\"PASS\",\"critical\":false,\"reasons\":[]},\"graph\":{\"result\":\"PASS\",\"critical\":false,\"reasons\":[]},\"knowledge\":{\"result\":\"PASS\",\"critical\":false,\"reasons\":[]},\"security\":{\"result\":\"PASS\",\"critical\":false,\"reasons\":[]},\"retrieval\":{\"result\":\"PASS\",\"critical\":false,\"reasons\":[]}},\"statistics\":{\"documents\":1,\"chunks\":8,\"entities\":12,\"facts\":8,\"relations\":8},\"ontologyVersion\":\"ontology_v2\",\"pipelineVersion\":\"genesisrag17.v1\",\"metrics\":{\"records_in\":40,\"records_out\":1,\"records_quarantined\":0,\"error_count\":0,\"retry_count\":0,\"duration_ms\":3},\"gateStartedAt\":\"2026-09-16T20:23:26.210Z\",\"gateFinishedAt\":\"2026-09-16T20:23:26.213Z\"},\"publicationReceipt\":{\"schemaVersion\":\"genesisrag17.v1\",\"scope\":{\"portfolioId\":\"cdc1f6d2-29b1-4f04-afe3-b57bd40f11da\",\"tenantId\":\"cea603db-e2e5-4399-9df3-8dbf5a8c60c0\",\"businessId\":\"eb046202-81d4-4b0d-b236-37c6a7b3f8c7\",\"workspaceId\":\"\",\"agentId\":\"\",\"visibility\":\"private\"},\"runId\":\"16fb744a-9890-4d41-b50c-d82d2830cff2\",\"decisionId\":\"gks:decision/ab65687cc2f03f360f90bd919de68e2a\",\"decisionHash\":\"c3a677c1233f0531e192ea5b7e80e1fe0bfeb0a21cd1e63ac02de2681b102fd9\",\"snapshotId\":\"snap-ebe6204c024b8b0e7b6bc8119c11d0d1\",\"generation\":\"g17-1be89ca8bd3d39cede1e68e25d703d2d\",\"receiptHash\":\"339593d38cf9be54854ffcf3a1f59b6236b13e7a5776973db78ff5decafb2b02\",\"publishedAt\":\"2026-09-16T20:23:26.503Z\",\"pointerHash\":\"291b7c6840f9e37d9c058bfd826e280e7cf04f8de97f8d17b373c18cd370e1dd\",\"modelRevision\":\"614241f622f53c4eeff9890bdc4f31cfecc418b3\",\"transactionFrontier\":\"3\",\"readback\":{\"ok\":true}}}",
+      "rowHash": "757891b6c56fb1041ce02b1a7684f2056fffeed0af60927ae7faaf57eff831e1",
+      "createdAt": "2026-09-16T20:23:26.213Z"
+    }
+  ],
+  "chains": [
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:0",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:1",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:4",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:2",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:6",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:3",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:2",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:1",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:7",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:5",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:4",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:5",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:0",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:2",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:6",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:7",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:6",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:3",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:1",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:5",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:1",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:3",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:7",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:5",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    },
+    {
+      "factChunk": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:2",
+      "parsedArtifact": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+      "rawArtifact": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+      "rawExternalRecord": "df53decd-5564-4ef3-a15d-d8ab0438d8ca",
+      "source": "synthetic://genesisrag17/corpus"
+    }
+  ],
+  "facts": [
+    {
+      "basis": "explicit",
+      "confidence": 0.9,
+      "id": "gks:fact/de10c99d3da73bda7bcaf4cb7f94a48e",
+      "objectId": "gks:entity/acme-044cdcab3999a7bc0e5f586993bd94ef",
+      "pipelineVersion": "genesisrag17.v1",
+      "predicate": "WORKS_FOR",
+      "sourceReferences": {
+        "chunkId": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:0",
+        "parsedArtifactId": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+        "rawArtifactId": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+        "sourceId": "synthetic://genesisrag17/corpus",
+        "sourceMentionIds": [
+          "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:0:mention:0",
+          "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:0:mention:1"
+        ]
+      },
+      "subjectId": "gks:entity/alice-1efd94ee1a0e80abda60f6d195addd25",
+      "temporal": {
+        "txFrom": "2026-09-16T20:23:19.212Z",
+        "txTo": null,
+        "validFrom": "not_applicable",
+        "validTo": "not_applicable"
+      }
+    },
+    {
+      "basis": "explicit",
+      "confidence": 0.9,
+      "id": "gks:fact/e91b3ad7565e9fb6500a18181e7967fb",
+      "objectId": "gks:entity/atlas-c64e26db72652d66bd4faa4c3120fb40",
+      "pipelineVersion": "genesisrag17.v1",
+      "predicate": "PURCHASED",
+      "sourceReferences": {
+        "chunkId": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:1",
+        "parsedArtifactId": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+        "rawArtifactId": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+        "sourceId": "synthetic://genesisrag17/corpus",
+        "sourceMentionIds": [
+          "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:1:mention:0",
+          "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:1:mention:1"
+        ]
+      },
+      "subjectId": "gks:entity/alice-1efd94ee1a0e80abda60f6d195addd25",
+      "temporal": {
+        "txFrom": "2026-09-16T20:23:19.212Z",
+        "txTo": null,
+        "validFrom": "not_applicable",
+        "validTo": "not_applicable"
+      }
+    },
+    {
+      "basis": "explicit",
+      "confidence": 0.9,
+      "id": "gks:fact/035dcd23625e846de47849fec95220d2",
+      "objectId": "gks:entity/beacon-96641db17757e436da380d9516d6b58a",
+      "pipelineVersion": "genesisrag17.v1",
+      "predicate": "WORKS_FOR",
+      "sourceReferences": {
+        "chunkId": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:2",
+        "parsedArtifactId": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+        "rawArtifactId": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+        "sourceId": "synthetic://genesisrag17/corpus",
+        "sourceMentionIds": [
+          "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:2:mention:0",
+          "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:2:mention:1"
+        ]
+      },
+      "subjectId": "gks:entity/bob-9548b4e91ed076c8fd6215dd63954390",
+      "temporal": {
+        "txFrom": "2026-09-16T20:23:19.212Z",
+        "txTo": null,
+        "validFrom": "not_applicable",
+        "validTo": "not_applicable"
+      }
+    },
+    {
+      "basis": "explicit",
+      "confidence": 0.9,
+      "id": "gks:fact/02578361f70c72d75e99fd3c44b67419",
+      "objectId": "gks:entity/nimbus-c9aaa5c15cbb74330dadd673bbedb8cc",
+      "pipelineVersion": "genesisrag17.v1",
+      "predicate": "PURCHASED",
+      "sourceReferences": {
+        "chunkId": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:3",
+        "parsedArtifactId": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+        "rawArtifactId": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+        "sourceId": "synthetic://genesisrag17/corpus",
+        "sourceMentionIds": [
+          "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:3:mention:0",
+          "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:3:mention:1"
+        ]
+      },
+      "subjectId": "gks:entity/bob-9548b4e91ed076c8fd6215dd63954390",
+      "temporal": {
+        "txFrom": "2026-09-16T20:23:19.212Z",
+        "txTo": null,
+        "validFrom": "not_applicable",
+        "validTo": "not_applicable"
+      }
+    },
+    {
+      "basis": "explicit",
+      "confidence": 0.9,
+      "id": "gks:fact/9bcfe8c6ec60826f4b04f002d62c1c83",
+      "objectId": "gks:entity/cedar-a65e69a3fa926e21fbeaf5d3db40ab53",
+      "pipelineVersion": "genesisrag17.v1",
+      "predicate": "WORKS_FOR",
+      "sourceReferences": {
+        "chunkId": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:4",
+        "parsedArtifactId": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+        "rawArtifactId": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+        "sourceId": "synthetic://genesisrag17/corpus",
+        "sourceMentionIds": [
+          "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:4:mention:0",
+          "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:4:mention:1"
+        ]
+      },
+      "subjectId": "gks:entity/carol-97ad66389a8ed9a9f099d7717aa71111",
+      "temporal": {
+        "txFrom": "2026-09-16T20:23:19.212Z",
+        "txTo": null,
+        "validFrom": "not_applicable",
+        "validTo": "not_applicable"
+      }
+    },
+    {
+      "basis": "explicit",
+      "confidence": 0.9,
+      "id": "gks:fact/f90dfcb4ced2e933a8eeb0bf1c5af63b",
+      "objectId": "gks:entity/orion-7367f2253ea4b8cb3659153640fa040a",
+      "pipelineVersion": "genesisrag17.v1",
+      "predicate": "PURCHASED",
+      "sourceReferences": {
+        "chunkId": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:5",
+        "parsedArtifactId": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+        "rawArtifactId": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+        "sourceId": "synthetic://genesisrag17/corpus",
+        "sourceMentionIds": [
+          "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:5:mention:0",
+          "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:5:mention:1"
+        ]
+      },
+      "subjectId": "gks:entity/carol-97ad66389a8ed9a9f099d7717aa71111",
+      "temporal": {
+        "txFrom": "2026-09-16T20:23:19.212Z",
+        "txTo": null,
+        "validFrom": "not_applicable",
+        "validTo": "not_applicable"
+      }
+    },
+    {
+      "basis": "explicit",
+      "confidence": 0.9,
+      "id": "gks:fact/a48db385f95aed84dc7f3cc2fcb66502",
+      "objectId": "gks:entity/delta-4d53ad5a50eb4977381533543620de25",
+      "pipelineVersion": "genesisrag17.v1",
+      "predicate": "WORKS_FOR",
+      "sourceReferences": {
+        "chunkId": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:6",
+        "parsedArtifactId": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+        "rawArtifactId": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+        "sourceId": "synthetic://genesisrag17/corpus",
+        "sourceMentionIds": [
+          "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:6:mention:0",
+          "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:6:mention:1"
+        ]
+      },
+      "subjectId": "gks:entity/david-fbebdd706cf23568a7e2f07a0b7405ad",
+      "temporal": {
+        "txFrom": "2026-09-16T20:23:19.212Z",
+        "txTo": null,
+        "validFrom": "not_applicable",
+        "validTo": "not_applicable"
+      }
+    },
+    {
+      "basis": "explicit",
+      "confidence": 0.9,
+      "id": "gks:fact/8768a7af080e6bfe00b3d2db3d7659a2",
+      "objectId": "gks:entity/vega-a74ac517eede0985bda400734103e96b",
+      "pipelineVersion": "genesisrag17.v1",
+      "predicate": "PURCHASED",
+      "sourceReferences": {
+        "chunkId": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:7",
+        "parsedArtifactId": "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5",
+        "rawArtifactId": "kra_acb3ef79b29116ca82134a6535ae012986b87e9991eb858c",
+        "sourceId": "synthetic://genesisrag17/corpus",
+        "sourceMentionIds": [
+          "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:7:mention:0",
+          "kpa_f272328c7256b0e36cf3eb94e641996dd3bffac9e1e717d5:chunk:7:mention:1"
+        ]
+      },
+      "subjectId": "gks:entity/david-fbebdd706cf23568a7e2f07a0b7405ad",
+      "temporal": {
+        "txFrom": "2026-09-16T20:23:19.212Z",
+        "txTo": null,
+        "validFrom": "not_applicable",
+        "validTo": "not_applicable"
+      }
+    }
+  ]
+}

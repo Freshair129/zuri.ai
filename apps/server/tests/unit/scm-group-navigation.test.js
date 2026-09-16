@@ -81,6 +81,7 @@ describe('SCM groups the supply-chain domains without becoming one', () => {
         '/procurement/purchase-orders',
         '/commerce',
         '/commerce/orders',
+        '/commerce/pricing-rules',
       ])
       expect([...new Set(sidebar.sub.map((item) => item.group))]).toEqual([
         'Inventory',
@@ -94,7 +95,7 @@ describe('SCM groups the supply-chain domains without becoming one', () => {
       const labels = sidebar.sub.map((item) => item.label)
       expect(new Set(labels).size, `duplicate sidebar labels: ${labels.join(', ')}`).toBe(labels.length)
       expect(labels).not.toContain('Dashboard')
-      expect(labels).toEqual(['Inventory', 'Locations', 'Work Orders', 'Reservations', 'Stocktake', 'SKU Hygiene', 'Import', 'Warehouse', 'Procurement', 'Purchase Orders', 'Order Management', 'Orders'])
+      expect(labels).toEqual(['Inventory', 'Locations', 'Work Orders', 'Reservations', 'Stocktake', 'SKU Hygiene', 'Import', 'Warehouse', 'Procurement', 'Purchase Orders', 'Order Management', 'Orders', 'สูตรคำนวณราคา'])
     }
   })
 

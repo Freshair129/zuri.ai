@@ -1,5 +1,5 @@
 ---
-version: "1.31.0b"
+version: "1.32.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
 last_update: "2026-09-17T00:32:00+07:00,RWANG"
 status: "candidate"
@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.31.0b |
+| **Version** | 1.32.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-09-16 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=111; operational_domain_keys=16; operational_subdomain_entries=56; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=112; operational_domain_keys=16; operational_subdomain_entries=57; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -122,6 +122,7 @@ read — totals from lines, paid from verified payments — never from the page.
 | `/commerce/orders` | Orders console | BusinessShell → Commerce / Orders | order list with totals, paid, balance and payment state; confirm / complete (optionally issuing stock) / cancel; per-order lines and payments with record, verify and reject; create form with lines that may name an inventory SKU, a conversation, discounts and notes | Business and `commerce` domain visibility to read; orders and payments need OWNER or `SALES_REP`; verification needs OWNER or `PAYMENT_VERIFIER`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/commerce/orders/page.jsx`, FR-166, FR-163 / ADR-065 |
 | `/commerce/invoices` | Billing and tax documents | BusinessShell → Commerce / Billing | configure the Business's authoritative LegalEntity/Branch, tax and verified PromptPay settings; preview and issue immutable invoice, receipt or tax document snapshots from an existing order; read the issued document after reload | Business and `commerce` domain visibility; OWNER for configuration/issue; unavailable until required issuer, policy and recipient settings are configured; no provider call | implemented; `src/app/(pm)/commerce/invoices/page.jsx`, FR-186 / ADR-065 |
 | `/commerce/pos` | POS checkout | BusinessShell → Commerce / POS | choose configured Branch and WarehouseLocation, add active Inventory products with manual per-line prices, record a sale and cash/transfer/etc. payment as PENDING, and show the existing verification state | Business and `commerce` + `inventory` visibility; checkout requires the existing order/inventory write authorities; empty, loading, error, unavailable location, validation and pending states | implemented; `src/app/(pm)/commerce/pos/page.jsx`, FR-183 / ADR-065 |
+| `/commerce/pricing-rules` | สูตรคำนวณราคา | BusinessShell → Commerce / Pricing Rules | versioned formulas and variables, server simulation, immutable approval, version diff, ledger-backed sell-side admission | Business OWNER; loading, empty, invalid formula, conflict, revoked/expired, queue admission distinct from publication | implementation; FR-252 / ADR-097 |
 
 ### 3.2c Procurement domain
 
@@ -467,4 +468,4 @@ Version diff 1.28.0b → 1.29.0b (2026-09-16): add `/control/usage`, the operato
 
 Version diff 1.29.0b → 1.30.0b (2026-09-16): compose the approved PM hierarchical navigation inventory with main's usage breakdown route; preserve both route sets.
 
-Version diff 1.30.0b → 1.31.0b (2026-09-17): register the owner-approved FR-251 Project-only Execution Domains route and its states; reconcile the stale 1.28.0b document-control cell. Enumerate 111 page routes. Local API, browser and build gates passed; hosted CI and release remain separate evidence in PR443.
+Version diff 1.30.0b → 1.32.0b (2026-09-17): register the owner-approved FR-251 Project-only Execution Domains route and its states; reconcile the stale 1.28.0b document-control cell. Enumerate 111 page routes. Local API, browser and build gates passed; hosted CI and release remain separate evidence in PR443.

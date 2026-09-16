@@ -22,6 +22,11 @@ import {
   GENESIS_RAG17_STRUCTURED_RECOGNIZER_VERSION,
 } from '@/modules/knowledge/genesisrag17-structured-record'
 import { isolatedEnvironment, ki17NodeExecutable, mspTransport, startWorkerProcess, temporaryPipeline } from './harness'
+import { createCategory, createProduct, createProductMaster } from '@/modules/inventory/application/inventory-catalog-service'
+import { recordMovement } from '@/modules/inventory/application/inventory-stock-service'
+import { defaultPricingRules } from '@/modules/commerce/domain/pricing-engine'
+import { createPricingRuleSet, applyPricingRuleAction } from '@/modules/commerce/application/pricing-rules-service'
+import { admitPricingCatalog } from '@/modules/commerce/application/pricing-catalog-service'
 
 // @req FR-188 — the SmartGift catalog admitted through FR-187 is parsed by
 // genesisrag17-parser-2 and genesisrag17-structured-recognizer-1, travels the
@@ -30,6 +35,9 @@ import { isolatedEnvironment, ki17NodeExecutable, mspTransport, startWorkerProce
 // resolves back through the durable Tier 1 lineage.
 // @spec ADR-075, ADR-073, .brain/proposals/2026-09-11-genesisrag17-structured-record-profile.md
 // @tested tests/acceptance/genesisrag17-smartgift.test.js
+// @req FR-252 — actual ledger-backed computed product and price records also
+// reach the native worker, Stage 17 receipt and citation-preserving query.
+// @spec ADR-097
 
 const corpus = JSON.parse(readFileSync(path.resolve('tests/fixtures/genesisrag17-smartgift-corpus-v1.json'), 'utf8'))
 const nativeRequire = createRequire(path.resolve('package.json'))
@@ -377,5 +385,86 @@ describe('SmartGift structured-record four-process acceptance (no skips)', () =>
       parserVersion: 'genesisrag17-parser-1',
       policy: { allowEmbedding: true, allowPublication: true },
     }, { viewer: operator, transport, credential: 'ki17-test-source' })).rejects.toMatchObject({ code: 'GENESISRAG17_PARSER_CONFIG_UNSUPPORTED' })
+  })
+
+  it('publishes Commerce ledger-computed product and price through Stage 17 with real receipts and queries', async () => {
+    const pricingOwner = makeViewer({ visibleBusinessIds: [scope.businessId], ownedBusinessIds: [scope.businessId], visibleDomains: ['commerce', 'inventory', 'knowledge'] })
+    const draft = await createPricingRuleSet({ businessId: scope.businessId, name: 'Native computed-price acceptance', rules: defaultPricingRules() }, { viewer: pricingOwner })
+    const approved = await applyPricingRuleAction(draft.id, { businessId: scope.businessId, version: draft.version, action: 'APPROVE', reason: 'Isolated native acceptance fixture' }, { viewer: pricingOwner })
+    const category = await createCategory({ businessId: scope.businessId, code: 'native-price', nameTh: 'สินค้าทดสอบ', nameEn: 'Acceptance fixture' }, { viewer: pricingOwner })
+    const master = await createProductMaster({ businessId: scope.businessId, code: 'PM-NATIVE-PRICE', categoryId: category.id, nameTh: 'แก้วทดสอบคำนวณราคา', nameEn: 'Computed catalog tumbler' }, { viewer: pricingOwner })
+    const product = await createProduct({ businessId: scope.businessId, productMasterId: master.id, code: 'SKU-NATIVE-PRICE', name: 'Computed catalog tumbler' }, { viewer: pricingOwner })
+    await recordMovement({ businessId: scope.businessId, productId: product.id, kind: 'RECEIPT', quantity: 300, costSatang: 10000 }, { viewer: pricingOwner })
+    const blobs = new Map()
+    const storage = {
+      async put({ key, content }) { const ref = `memory://${key}`; blobs.set(ref, Buffer.from(content)); return { ref } },
+      async get({ ref }) { return blobs.get(ref) },
+      async remove({ ref }) { blobs.delete(ref) },
+    }
+    const request = { businessId: scope.businessId, productId: product.id, quantities: [100], expectedRuleSetId: approved.id, expectedRuleVersion: approved.version, reason: 'Approve isolated computed catalog fixture', idempotencyKey: 'native-computed-catalog' }
+    const preview = await admitPricingCatalog({ ...request, previewOnly: true }, { viewer: pricingOwner, env, objectStoragePort: storage })
+    expect(preview.publicationStatus).toBe('NOT_SUBMITTED')
+    const admitted = await admitPricingCatalog({ ...request, previewHash: preview.previewHash }, { viewer: pricingOwner, env, objectStoragePort: storage })
+    expect(admitted).toMatchObject({ status: 'ADMITTED', publicationStatus: 'NOT_VERIFIED', admission: { recordCount: 2, admittedCount: 2, deniedCount: 0 } })
+    const asset = await prisma.fileAsset.findUnique({ where: { id: admitted.fileAssetId } })
+    const sourceText = (await storage.get({ ref: asset.blobRef })).toString('utf8')
+    const records = JSON.parse(sourceText)
+    expect(sourceText).not.toMatch(/costSatang|unitLandedCost|grossProfit|rulesJson|rulesHash|receiptId|margin|floor/i)
+    const calculation = await prisma.pricingCalculation.findUnique({ where: { id: admitted.calculationIds[0] } })
+    expect(calculation.inputProvenance).toBe('INVENTORY_LEDGER')
+    expect(records[1].srpUnitPriceThb * 100).toBe(JSON.parse(calculation.resultJson).unitPriceSatang)
+    expect(records[1].srpUnitPriceThb * 100).toBe(preview.prices[0].unitPriceSatang)
+    const computedEvidence = []
+    for (const record of records) {
+      const tierCode = `${record.productExternalId}:qty${record.qty}:${Math.round(record.srpUnitPriceThb * 100)}`
+      const descriptive = record.entityType === 'ProductMaster'
+        ? `ProductMaster ${record.code}\nnameEn: ${record.nameEn}\nnameTh: ${record.nameTh}`
+        : `PriceListEntry ${tierCode}\nexternalId: ${record.externalId}\nitem: ${record.productExternalId}\nqty: ${record.qty}\nsrpUnitPriceThb: ${record.srpUnitPriceThb}\nsrpSource: COMMERCE_APPROVED_COMPUTED`
+      const chunks = [descriptive]
+      if (record.entityType === 'PriceListEntry') chunks.push(canonicalGenesisRag17Json({ subject: record.productExternalId, predicate: 'PRICED_AT', object: tierCode, catalogVersionDate: record.catalogVersionDate }))
+      const benchmark = {
+        fixtureVersion: `commerce-computed-v1:${record.externalId}`,
+        queries: chunks.map((text) => ({ query: text, relevantTexts: [text] })),
+      }
+      const source = await prisma.knowledgeSource.findFirst({ where: { fileAssetId: asset.id, sourceKey: { endsWith: `#${record.externalId}` } } })
+      expect(source).toBeTruthy()
+      allowedSourceId = source.id
+      await bootWorker(benchmark)
+      await runtime.runOnce()
+      const started = await prisma.knowledgeIngestion.findFirst({ where: { sourceId: source.id } })
+      expect(started.executionRunId, JSON.stringify({ failureCode: started.failureCode })).toBeTruthy()
+      const parsed = await prisma.knowledgeParsedArtifact.findUnique({ where: { id: started.parsedArtifactId } })
+      expect(parsed.content.split('\n\n')).toEqual(chunks)
+      const work = await worker.call('runOnce')
+      expect(work.status, JSON.stringify(work)).toBe('published')
+      expect(work.benchmark.recallAt5).toBeGreaterThanOrEqual(THRESHOLDS.recallAt5)
+      expect(work.benchmark.mrr).toBeGreaterThanOrEqual(THRESHOLDS.mrr)
+      expect(work.benchmark.citationCorrectness).toBe(1)
+      expect(work.benchmark.crossTenantLeaks).toBe(0)
+      await runtime.runOnce()
+      const closed = await prisma.knowledgeIngestion.findFirst({ where: { sourceId: source.id } })
+      expect(closed.status).toBe('PUBLISHED')
+      const evidence = await prisma.genesisRag17StageEvidence.findMany({ where: { executionRunId: started.executionRunId }, orderBy: { stageNumber: 'asc' } })
+      expect(evidence.map((row) => row.stageNumber)).toEqual(Array.from({ length: 17 }, (_, index) => index + 1))
+      expect(evidence.every((row) => row.outcome === 'SUCCEEDED' && row.errorCount === 0)).toBe(true)
+      expect(await prisma.genesisRag17PublicationReceipt.count({ where: { executionRunId: started.executionRunId } })).toBe(1)
+      const decision = readDecision(started.executionRunId)
+      expect(decision.ontologyVersion).toBe('ontology_v2')
+      expect(decision.held).toEqual([])
+      if (record.entityType === 'PriceListEntry') expect(decision.facts.map((fact) => fact.predicate)).toContain('PRICED_AT')
+      const chains = []
+      for (const gold of benchmark.queries) {
+        const response = await query(gold.query, work.snapshotId)
+        expect(response.snapshotId).toBe(work.snapshotId)
+        expect(response.results.some((row) => gold.relevantTexts.includes(row.text))).toBe(true)
+        for (const result of response.results) chains.push(await verifyCitation(result))
+      }
+      computedEvidence.push({ externalId: record.externalId, calculationId: calculation.id, ruleSetId: approved.id, ruleHash: calculation.rulesHash, inputHash: calculation.inputHash, sourceId: source.id, runId: started.executionRunId, snapshotId: work.snapshotId, generation: work.generation, benchmark: work.benchmark, stageCount: evidence.length, publicationReceiptCount: 1, chains })
+      const reportDir = path.resolve('../../.brain/reports')
+      mkdirSync(reportDir, { recursive: true })
+      writeFileSync(path.join(reportDir, 'fr252-computed-catalog-native.json'), `${JSON.stringify({ scope: 'isolated synthetic ledger-backed acceptance; not production', fileAssetId: asset.id, fileSha256: asset.sha256, evaluatorVersion: calculation.evaluatorVersion, computedEvidence }, null, 2)}\n`)
+    }
+    allowedSourceId = null
+    expect(computedEvidence).toHaveLength(2)
   })
 })

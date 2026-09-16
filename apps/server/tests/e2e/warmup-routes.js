@@ -49,7 +49,7 @@ const path = require('node:path')
 const ROUTES = [
   '/', '/login', '/businesses', '/overview', '/profile', '/workspaces',
   // @req FR-166 — Commerce has pages now: the dashboard and the orders console.
-  '/commerce', '/commerce/orders', '/customer', '/customer/conversations',
+  '/commerce', '/commerce/orders', '/commerce/pricing-rules', '/customer', '/customer/conversations',
   '/market',
   '/growth', '/growth/strategy', '/growth/campaigns', '/growth/campaigns/new', '/growth/campaigns/warmup',
   '/growth/content', '/growth/content/new', '/growth/content/briefs/warmup', '/growth/content/assets/warmup',

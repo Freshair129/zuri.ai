@@ -7,6 +7,8 @@
 // @tested tests/integration/fr181-smartgift-agent-tools.test.js
 import { beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
+import { defaultPricingRules } from '@/modules/commerce/domain/pricing-engine'
+import { createPricingRuleSet, applyPricingRuleAction } from '@/modules/commerce/application/pricing-rules-service'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { makeViewer } from '../factories/viewer'
 import { ROLE_INVENTORY_MANAGER } from '@/modules/identity/rbac'
@@ -14,15 +16,14 @@ import { createCategory, createProduct, createProductMaster, setFlowAccountSku }
 import { createLot, recordMovement } from '@/modules/inventory/application/inventory-stock-service'
 import { createRecipe } from '@/modules/inventory/application/inventory-recipe-service'
 import { createLocation } from '@/modules/inventory/application/warehouse-location-service'
-import { DEFAULT_SINGLE_DROP_FREIGHT_SATANG } from '@/modules/inventory'
+import { landedUnitCostSatang } from '@/modules/inventory'
 import {
   smartgiftReadTools,
   smartgiftToolDefinitions,
   smartgiftWriteTools,
-  tierForQuantity,
 } from '@/modules/agent/tools/smartgift-inventory-tools'
 
-const DOMAINS = ['projects', 'platform', 'inventory']
+const DOMAINS = ['projects', 'platform', 'inventory', 'commerce']
 const DAY = 86400000
 const NOW = new Date(Date.UTC(2026, 8, 10))
 
@@ -40,6 +41,9 @@ describe('FR-181 SmartGift agent tools', () => {
     manager = makeViewer({ visibleBusinessIds: [b()], ownedBusinessIds: [], visibleDomains: DOMAINS, rolesByBusinessId: { [b()]: [ROLE_INVENTORY_MANAGER] } })
     member = makeViewer({ visibleBusinessIds: [b()], ownedBusinessIds: [], visibleDomains: DOMAINS })
 
+    // FR-252: the business explicitly activates its versioned policy; no runtime defaults.
+    const policy = await createPricingRuleSet({ businessId: b(), name: 'Approved test policy', rules: defaultPricingRules() }, { viewer: owner, now: NOW })
+    await applyPricingRuleAction(policy.id, { businessId: b(), version: policy.version, action: 'APPROVE', reason: 'Pricing integration fixture' }, { viewer: owner, now: NOW })
     const category = await createCategory({ businessId: b(), code: 'giftset', nameTh: 'ชุดของขวัญ', nameEn: 'Gift set' }, { viewer: owner })
     master = await createProductMaster({ businessId: b(), code: 'PM-TMS06', categoryId: category.id, nameTh: 'ชุด', nameEn: 'Set' }, { viewer: owner })
     const sku = (code, over = {}) => createProduct({ businessId: b(), code, productMasterId: master.id, name: code, ...over }, { viewer: owner })
@@ -110,7 +114,7 @@ describe('FR-181 SmartGift agent tools', () => {
     await expect(read.get('check_inventory_atp').handler({ skuCode: 'NOPE-1(P-01)' })).rejects.toMatchObject({ status: 404, message: 'INVENTORY_SKU_NOT_FOUND' })
   })
 
-  it('AC-181.3 — calculate_smartgift_quote absorbs the truck into the unit price and never returns a freight line (BR-027)', async () => {
+  it('AC-181.3 — calculate_smartgift_quote preserves landed cost and never returns a freight line (BR-027)', async () => {
     const read = smartgiftReadTools(ctx(member))
     const quote = await read.get('calculate_smartgift_quote').handler({
       skuCode: 'TMS06-4(P-16)', quantity: 500,
@@ -119,26 +123,78 @@ describe('FR-181 SmartGift agent tools', () => {
     })
 
     expect(quote.tier).toBe('500')
-    expect(tierForQuantity(500).grossMargin).toBe(0.25)
-    // Components 410.46 ฿ + truck 5.00 ฿ (2,500 / 500) + laser (800/500 + 12.00).
-    expect(quote.breakdown).toMatchObject({ base: 41046, freightPerUnit: 500, customizationPerUnit: 1360 })
-    expect(quote.unitCostSatang).toBe(41046 + 500 + 1360)
-    expect(quote.unitPriceSatang).toBe(Math.ceil(quote.unitCostSatang / 0.75))
-    expect(quote.totalPriceSatang).toBe(quote.unitPriceSatang * 500)
-
+    // Ledger base 410.46 already includes inbound cost; engrave .02 USD * FX34.
+    expect(quote.breakdown).toMatchObject({ base: 41046, freightPerUnit: 0, customizationPerUnit: 68 })
+    expect(quote.unitCostSatang).toBe(41114)
+    // Approved corporate ladder 411.14*1.47*.75/.73 =620.934..., rounded up to 10 baht.
+    expect(quote.unitPriceSatang).toBe(63000)
+    expect(quote.totalPriceSatang).toBe(31500000)
+    expect(quote.ruleSetId).toEqual(expect.any(String))
+    expect(quote.ruleHash).toMatch(/^[a-f0-9]{64}$/)
     // The one thing a quote must always say, and the figure that makes it auditable.
     expect(quote.freightSatang).toBe(0)
-    expect(quote.freightAbsorbedSatang).toBe(DEFAULT_SINGLE_DROP_FREIGHT_SATANG)
+    expect(quote.freightAbsorbedSatang).toBe(0)
+    expect(quote.freightCostBasis).toBe('INCLUDED_IN_LEDGER')
+    expect(quote.embeddedFreightSatang).toBeNull()
     expect(quote.freightNote).toContain('ฟรีค่าจัดส่ง')
     expect(quote.remoteSurchargeRequired).toBe(false)
     // Every default it leaned on is declared rather than presented as fact.
-    expect(quote.assumptions.some((a) => a.startsWith('TIER_MARGIN_DEFAULT'))).toBe(true)
-    expect(quote.assumptions.some((a) => a.startsWith('CUSTOMIZATION_DEFAULT_RATE'))).toBe(true)
+    expect(quote.assumptions.some((a) => a.startsWith('TIER_MARGIN_DEFAULT'))).toBe(false)
+    expect(quote.priceDriver).toBe('formula')
 
     const island = await read.get('calculate_smartgift_quote').handler({ skuCode: 'TMS06-4(P-16)', quantity: 100, deliveryDestination: 'เกาะสมุย' })
     expect(island.remoteSurchargeRequired).toBe(true)
     expect(island.freightSatang).toBe(0)
     expect(island.tier).toBe('100')
+  })
+
+  it('FR-252 — a receipt produced by landedUnitCostSatang includes its truck exactly once', async () => {
+    const landed = landedUnitCostSatang({ factoryCostSatang: 10000, inboundTruckSatang: 250000, batchQty: 500 })
+    const product = await createProduct({ businessId: b(), code: 'LANDED-FREIGHT-ONCE', productMasterId: master.id, name: 'Landed fixture' }, { viewer: manager })
+    await recordMovement({ businessId: b(), productId: product.id, kind: 'RECEIPT', quantity: 500, targetLocationId: rawLoc.id, costSatang: landed.unitCostSatang, occurredAt: NOW }, { viewer: manager })
+    const tool = smartgiftReadTools(ctx(member)).get('calculate_smartgift_quote')
+    const quote = await tool.handler({ skuCode: product.code, quantity: 500 })
+    expect(landed.unitCostSatang).toBe(10500)
+    expect(quote).toMatchObject({ unitCostSatang: 10500, freightSatang: 0, freightAbsorbedSatang: 0, freightCostBasis: 'INCLUDED_IN_LEDGER', embeddedFreightSatang: null })
+    const additional = await tool.handler({ skuCode: product.code, quantity: 500, inboundTruckSatang: 10001 })
+    expect(additional).toMatchObject({ unitCostSatang: 10521, freightSatang: 0, freightAbsorbedSatang: 10001, freightCostBasis: 'ADDITIONAL_DELIVERY', embeddedFreightSatang: null })
+    expect(additional.assumptions).toContainEqual(expect.stringContaining('ADDITIONAL_DELIVERY_OVERRIDE'))
+    const explicitZero = await tool.handler({ skuCode: product.code, quantity: 500, inboundTruckSatang: 0 })
+    expect(explicitZero).toMatchObject({ unitCostSatang: 10500, freightSatang: 0, freightAbsorbedSatang: 0, freightCostBasis: 'ADDITIONAL_DELIVERY' })
+  })
+
+  it('FR-252 — active branding requires positive locations, including explicit workshop rates', async () => {
+    const tool = smartgiftReadTools(ctx(member)).get('calculate_smartgift_quote')
+    for (const rates of [{}, { setupCostSatang: 0, runCostSatang: 0 }]) {
+      await expect(tool.handler({ skuCode: tumbler.code, quantity: 100, customization: { technique: 'LASER_ENGRAVING', locationsCount: 0, ...rates } })).rejects.toMatchObject({ status: 422, message: 'PRICING_INPUT_INVALID' })
+    }
+    const zeroRates = await tool.handler({ skuCode: tumbler.code, quantity: 100, customization: { technique: 'LASER_ENGRAVING', locationsCount: 1, setupCostSatang: 0, runCostSatang: 0 } })
+    expect(zeroRates.customization.perUnitSatang).toBe(0)
+    expect(zeroRates.assumptions).toContain('WORKSHOP_RATE_OVERRIDE')
+  })
+
+  it.each([
+    [{ quantity: 1, costSatang: 100 }, { quantity: 1, costSatang: null }],
+    [{ quantity: 1, costSatang: -1 }],
+    [{ quantity: 0, costSatang: 100 }],
+    [{ quantity: -1, costSatang: 100 }],
+    [{ quantity: 0.5, costSatang: 100 }],
+    [{ quantity: Number.MAX_SAFE_INTEGER + 1, costSatang: 100 }],
+    [{ quantity: 1, costSatang: Number.MAX_SAFE_INTEGER + 1 }],
+  ])('FR-252 — rejects incomplete or invalid ledger receipts %#', async (...receipts) => {
+    const db = { product: prisma.product, stockMovement: { findMany: async () => receipts } }
+    const tool = smartgiftReadTools({ ...ctx(member), db }).get('calculate_smartgift_quote')
+    await expect(tool.handler({ skuCode: tumbler.code, quantity: 100 })).rejects.toMatchObject({ status: 422, message: 'INVENTORY_COST_UNKNOWN' })
+  })
+
+  it('FR-252 — weighted receipts use exact ceil division beyond the Number aggregate range', async () => {
+    const db = {
+      product: prisma.product, productRecipe: prisma.productRecipe, business: prisma.business, pricingRuleSet: prisma.pricingRuleSet,
+      stockMovement: { findMany: async () => [{ quantity: Number.MAX_SAFE_INTEGER, costSatang: 100000 }, { quantity: 1, costSatang: 100001 }] },
+    }
+    const quote = await smartgiftReadTools({ ...ctx(member), db }).get('calculate_smartgift_quote').handler({ skuCode: tumbler.code, quantity: 100 })
+    expect(quote.breakdown.base).toBe(100001)
+    expect(quote.unitCostSatang).toBe(100001)
   })
 
   it('AC-181.4 — audit_battery_lots reports the lots a warehouse must charge before dispatch', async () => {

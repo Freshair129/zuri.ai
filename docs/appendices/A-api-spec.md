@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.82.0b |
+| **Version** | 1.83.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-17 |
 
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=289 -->
+<!-- api-spec-counts: route_handlers=295 -->
 
 ### Local model residency by business hours (FR-244, 2026-09-16)
 
@@ -575,6 +575,12 @@ the VERIFIED payments.
 
 | Method | Path | Success | Failure |
 |---|---|---|---|
+| GET, POST | `/api/commerce/pricing-rules` | FR-252: OWNER-scoped list/template and create draft; businessId plus name/rules for POST | 404 scope; 422 rule schema |
+| PATCH | `/api/commerce/pricing-rules/[id]` | FR-252: version/name/rules/reason; draft-only optimistic update | 404 scope; 409 revision/immutable; 422 formula |
+| POST | `/api/commerce/pricing-rules/[id]/actions` | FR-252: APPROVE with effectiveFrom/expiresAt or REVOKE; version/reason required | 404 scope; 409 state/revision; 422 dates |
+| POST | `/api/commerce/pricing-rules/preview` | FR-252: server evaluator, rules/input and optional compareRuleSetId; simulation only | 404 scope; 422 formula/input |
+| POST | `/api/commerce/pricing-rules/calculate` | FR-252: active rule, input and idempotencyKey; immutable USER_ENTERED result, not publishable | 404 scope; 409 inactive/idempotency; 422 input |
+| POST | `/api/commerce/pricing-rules/catalog` | FR-252: OWNER scoped product/expected rule/quantities/reason/idempotencyKey; previewOnly returns exact ledger prices and previewHash without writes; confirmation requires previewHash and uses existing Knowledge admission, never publication success | 404 scope; 409 stale preview/policy; 422 missing cost; runtime/storage/admission errors |
 | GET | `/api/commerce/orders?businessId=&status=&origin=&customerId=&conversationId=&includeClosed=&limit=` | implemented (FR-166): `{ businessId, orders[], summary: { open, unpaid, pendingPayments } }` — each order with `code` (`ORD-YYYYMMDD-NNN`), `origin` (CHAT / WALK_IN / ONLINE), `attributed`, `status`, `lines[]` (`productId`, `description`, `qty`, `unitPrice`, `discount`, `lineTotal`), `subtotal`, `discount`, `total`, `paid`, `refunded`, `net`, `pending`, `balanceDue`, `paymentState` (UNPAID / PARTIAL / PAID / OVERPAID / REFUNDED), `payments[]`, `customer`, `version`. Open orders by default | `404 Business not found`; `400` validation |
 | POST | `/api/commerce/orders` | implemented (FR-166): `{ businessId, lines: [{ productId?, description?, qty, unitPrice, discount? }], customerId?, conversationId?, origin?, discount?, notes?, orderedAt?, currency? }` — a Conversation supplies its Customer and makes the origin CHAT; a product must be an ACTIVE SKU of the same Business. Audited `SALES_ORDER_CREATED` | `404` (also a viewer without OWNER / SALES_REP); `409 PRODUCT_ARCHIVED`; `422 CUSTOMER_NOT_FOUND \| CONVERSATION_NOT_FOUND \| CONVERSATION_CUSTOMER_MISMATCH \| PRODUCT_NOT_FOUND`; `400` validation (a line needs a product or a description; a discount within its line; two-decimal amounts) |
 | GET | `/api/commerce/orders/[id]` | implemented (FR-166): one order with its lines, payments and money | `404 Business not found` |
@@ -863,7 +869,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 1.82.0b | 2026-09-17 | candidate | Implement and locally verify owner-approved FR-251 read-only Domain-view contract and runtime Swagger; one GET handler added (288 → 289), typed scope refusals and operation-only SessionAuth verified | reviewed baseline 7465080f; PR443 | RWANG |
+| 1.83.0b | 2026-09-17 | candidate | Implement and locally verify owner-approved FR-251 read-only Domain-view contract and runtime Swagger; one GET handler added (288 → 289), typed scope refusals and operation-only SessionAuth verified | reviewed baseline 7465080f; PR443 | RWANG |
 | 1.81.0b | 2026-09-16 | candidate | FR-248, FR-249 (ADR-095 D2, D3): two handler files, `POST/GET /api/platform/usage-events` (record one's own usage; operator reads the breakdown) and `POST /api/platform/usage-events/rollup` (deployment-authenticated 90-day rollup, same shape as the retention sweep). Route handler count 286 -> 288 | working-tree | Claude Sonnet 5 |
 | 1.80.0b | 2026-09-16 | candidate | FR-247 (ADR-095 D1): two handler files, `GET /api/platform/error-events` and `PATCH /api/platform/error-events/[id]` — the deduplicated error list and its resolve action, both operator-only and audited, never request/response content. Route handler count 284 -> 286 | working-tree | Claude Sonnet 5 |
 | 1.79.0b | 2026-09-16 | candidate | FR-245 (ADR-093 D7, TASK-ZAI-112): one handler file, `POST /api/crm/customers/[customerId]/chat-evidence/retrieve` — the archive's one retrieval path, OWNER at AAL2 through the FR-224 gate, grouped by session, every attempt audited. Route handler count 283 -> 284 | working-tree | Claude Sonnet 5 |
