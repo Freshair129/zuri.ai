@@ -595,7 +595,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 295,
+            "openApiPaths": 296,
             "missingFromOpenApi": 0
           }
         },
@@ -860,7 +860,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 295,
+            "openApiPaths": 296,
             "missingFromOpenApi": 0
           }
         },
@@ -1073,7 +1073,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 295,
+            "openApiPaths": 296,
             "missingFromOpenApi": 0
           }
         },
@@ -1179,7 +1179,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-023",
@@ -1403,8 +1403,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 16,
-            "present": 16
+            "models": 17,
+            "present": 17
           }
         },
         "authorization": {
@@ -1448,7 +1448,7 @@
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
-        "ownedModels": 16,
+        "ownedModels": 17,
         "featureNotes": 10
       },
       "featureIds": [
@@ -1484,7 +1484,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-026",
@@ -1620,7 +1620,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-096",
@@ -1788,7 +1788,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 34
+          "testCount": 35
         },
         {
           "id": "FR-192",
@@ -1894,7 +1894,7 @@
           "details": {
             "routes": 27,
             "inventoried": 27,
-            "openApiPaths": 295,
+            "openApiPaths": 296,
             "missingFromOpenApi": 0
           }
         },
@@ -2088,7 +2088,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-028",
@@ -2378,7 +2378,7 @@
           "details": {
             "routes": 10,
             "inventoried": 10,
-            "openApiPaths": 295,
+            "openApiPaths": 296,
             "missingFromOpenApi": 0
           }
         },
@@ -2741,7 +2741,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 295,
+            "openApiPaths": 296,
             "missingFromOpenApi": 0
           }
         },
@@ -3308,7 +3308,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-061",
@@ -3526,7 +3526,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 295,
+            "openApiPaths": 296,
             "missingFromOpenApi": 0
           }
         },
@@ -3687,7 +3687,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 295,
+            "openApiPaths": 296,
             "missingFromOpenApi": 0
           }
         },
@@ -3854,7 +3854,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 295,
+            "openApiPaths": 296,
             "missingFromOpenApi": 0
           }
         },
@@ -3978,7 +3978,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-105",
@@ -4124,7 +4124,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 295,
+            "openApiPaths": 296,
             "missingFromOpenApi": 0
           }
         },
@@ -4306,7 +4306,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 295,
+            "openApiPaths": 296,
             "missingFromOpenApi": 0
           }
         },
@@ -4561,7 +4561,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-031",
@@ -4937,7 +4937,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-097",
@@ -5385,7 +5385,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 34
+          "testCount": 35
         },
         {
           "id": "FR-193",
@@ -5691,9 +5691,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 142,
-            "inventoried": 142,
-            "openApiPaths": 295,
+            "routes": 143,
+            "inventoried": 143,
+            "openApiPaths": 296,
             "missingFromOpenApi": 0
           }
         },
@@ -5759,8 +5759,8 @@
             }
           ],
           "details": {
-            "mutations": 111,
-            "guardedMutations": 107,
+            "mutations": 112,
+            "guardedMutations": 108,
             "reads": 67,
             "unguardedReads": 2
           }
@@ -5885,8 +5885,8 @@
         }
       ],
       "details": {
-        "routes": 188,
-        "apiRoutes": 142,
+        "routes": 189,
+        "apiRoutes": 143,
         "pageRoutes": 46,
         "ownedModels": 31,
         "featureNotes": 39
@@ -6786,7 +6786,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 19,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-096",
@@ -6862,6 +6862,7 @@
         "apps/server/tests/integration/agent-webhook-route.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/channel-identity.test.js",
+        "apps/server/tests/integration/crm-archive-legal-hold.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -7156,7 +7157,7 @@
         "apps/server/tests/integration/fr129-catalog-publication-gate.test.js",
         "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
         "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-        "apps/server/tests/integration/fr252-pricing-catalog.test.js",
+        "apps/server/tests/integration/fr253-pricing-catalog.test.js",
         "apps/server/tests/integration/genesisrag17-parser-2.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
         "apps/server/tests/integration/knowledge-admission-backup.test.js",
@@ -8723,7 +8724,7 @@
         "apps/server/tests/integration/fr182-scm-console-actions.test.js",
         "apps/server/tests/integration/fr184-inventory-stocktake-backup.test.js",
         "apps/server/tests/integration/fr184-inventory-stocktake.test.js",
-        "apps/server/tests/integration/fr252-pricing-catalog.test.js",
+        "apps/server/tests/integration/fr253-pricing-catalog.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
@@ -8870,7 +8871,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 34
+          "testCount": 35
         },
         {
           "id": "FR-192",
@@ -8901,6 +8902,7 @@
         "apps/server/src/modules/project-manager/application/project-team-service.js",
         "apps/server/src/modules/project-manager/application/scope-service.js",
         "apps/server/tests/e2e/fr193-access-members.spec.js",
+        "apps/server/tests/integration/crm-archive-legal-hold.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
         "apps/server/tests/integration/domain-visibility-server.test.js",
@@ -11483,7 +11485,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
-          "testCount": 14
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -11504,6 +11506,7 @@
         "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
         "apps/server/tests/integration/agent-action-gate.test.js",
         "apps/server/tests/integration/agent-turn.test.js",
+        "apps/server/tests/integration/crm-archive-legal-hold.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
         "apps/server/tests/integration/fr097-line-channel-onboarding.test.js",
@@ -15944,13 +15947,13 @@
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
-        "apps/server/tests/e2e/fr252-pricing-rules.spec.js",
+        "apps/server/tests/e2e/fr253-pricing-rules.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr181-smartgift-agent-tools.test.js",
-        "apps/server/tests/integration/fr252-pricing-catalog.test.js",
-        "apps/server/tests/integration/fr252-pricing-rules.test.js",
+        "apps/server/tests/integration/fr253-pricing-catalog.test.js",
+        "apps/server/tests/integration/fr253-pricing-rules.test.js",
         "apps/server/tests/integration/knowledge-corpus.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
@@ -15964,7 +15967,7 @@
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
-        "apps/server/tests/unit/fr252-pricing-routes.test.js",
+        "apps/server/tests/unit/fr253-pricing-routes.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",

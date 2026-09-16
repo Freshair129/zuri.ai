@@ -211,10 +211,13 @@ describe('OpenAPI document', () => {
       // the usage breakdown (GET) and recording one's own usage (POST) share
       // a path, plus the deployment-authenticated rollup (POST) on its own
       // path. 286 + 2 = 288; 383 + 3 = 386.
+      // SEC-034 (ADR-093 D6, TASK-ZAI-113) adds one more path and one more
+      // operation: the legal-hold recording path (POST). 288 + 1 = 289;
+      // 386 + 1 = 387.
       // FR-251 adds one read-only Project Domain-view path and GET operation.
-      // FR-253 adds six pricing paths and seven HTTP operations.
-      pathCount: 295,
-      operationCount: 394,
+      // Pricing adds six paths/seven operations; retain the live CRM legal-hold route.
+      pathCount: 296,
+      operationCount: 395,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
