@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operations) with the exact already-deployed CRM legal-hold path. Current inventory is 296 paths and 395 operations; no live CRM route is removed.
+
 | Field | Value |
 |-------|-------|
 | **Version** | 1.84.0b |

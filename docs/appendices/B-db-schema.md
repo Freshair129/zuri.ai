@@ -1,5 +1,7 @@
 # Appendix B — Database Schema Summary
 
+Version diff 1.53.0b → 1.54.0b: retain the already-deployed CustomerLegalHold model and add the two FR-253 Commerce pricing models. The composed schema has 171 models; pricing migration has passed a production transaction dry-run and rollback, but is not yet applied.
+
 | Field | Value |
 |-------|-------|
 | **Version** | 1.54.0b |
