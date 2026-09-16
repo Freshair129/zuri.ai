@@ -1,8 +1,8 @@
 ---
 id: ZAI:PRD-SDD
-version: "1.230.2b"
+version: "1.230.3b"
 status: draft
-last_update: "2026-09-16T17:32:00+07:00,RWANG"
+last_update: "2026-09-16T17:40:00+07:00,RWANG"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -19,17 +19,18 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.220.0b |
+| **Version** | 1.230.3b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-09-14 |
+| **Last Updated** | 2026-09-16 |
 | **Approved By** | Boss (documentation gate, 2026-08-17) |
 
 ## Version History
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.230.3b | 2026-09-16 | RWANG | Align the visible document version/date with frontmatter and history after the independent final documentation review found stale summary fields. Requirement statements and delivery evidence unchanged. |
 | 1.230.2b | 2026-09-16 | RWANG | Record FR-247 local application implementation at d33254aa: independent Luna source review, 67 final focused unit checks, all 10 navigation browser cases and the optimized build pass. Full unit/integration suite has 5,843 passes and 32 skips; full browser suite has 192 passes, 4 skips and 2 failures in unchanged FR-213/FR-243 files. Repository-wide browser gate remains not green; no hosted CI or production release is claimed. See the FR-247 delivery note and cross-domain gate RCA. |
 | 1.230.1b | 2026-09-16 | RWANG | Record explicit owner approval of ADR-095 / FR-247 and begin application navigation implementation. Requirement subject, grants, URLs and API ownership unchanged; implementation evidence remains pending. |
 | 1.230.0b | 2026-09-16 | RWANG | Declare FR-247 and candidate ADR-095 for the owner-requested Domain → logical module → local view hierarchy. Preserve projects/DOM-DEVELOPMENT identity, existing URLs, Inventory/Team meanings and seven Work views; Import moves to one Project action. No new API/schema or runtime completion in this revision. |
