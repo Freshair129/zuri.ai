@@ -1818,6 +1818,14 @@ model Customer {
   importReviewDecisions CustomerImportReviewDecision[] @relation("CustomerImportReviewDecisionTargetCustomer")
   salesTasks            SalesTask[]
   salesOrders           SalesOrder[]
+  // @req FR-245 — this Customer's chat evidence archive data key (ADR-093 D4,
+  //   D6) lives in `CustomerArchiveKey`, keyed by `customerId` alone — no
+  //   Prisma relation here on purpose, the same choice `IntegrationCredential`
+  //   made for `IntegrationSecretEnvelope` (SEC-030's precedent): credential
+  //   material excluded from every backup snapshot must never be a foreign-key
+  //   dependency of a model the snapshot's restore deletes and re-inserts, or
+  //   restoring `Customer` rows would fail on a row this Customer's own
+  //   archive key does not travel with.
 
   @@unique([tenantId, personId])
   @@index([businessId])
@@ -2122,6 +2130,82 @@ model TenantRetentionOverride {
 
   @@unique([tenantId, dataClass])
   @@index([tenantId])
+}
+
+// @req FR-245 — one row per Customer whose messages have ever been archived: the
+// per-Customer data key the chat evidence archive seals their JSON-lines segment
+// under, wrapped (never stored in the clear) under this deployment's
+// `ZURI_ARCHIVE_KEK` (SEC-034, ADR-093 D4). Same shape as
+// `IntegrationSecretEnvelope`'s wrapped-DEK column, deliberately under a
+// separate KEK: `ZURI_ARCHIVE_KEK` is never `ZURI_SECRET_KEK`, so compromising
+// one secret store never opens the other. Lazily created the first time a
+// sweep archives that Customer's content — most Customers never get a row.
+//
+// A dedicated row per Customer (ADR-093 D6) rather than a key folded into every
+// archive file: a future PDPA-erasure writer destroys exactly one row (or, once
+// TASK-ZAI-113 lands, records a legal hold instead) to make every line that
+// Customer ever had archived — in this file and any other — permanently
+// unreadable, without touching a single archive file on disk.
+// @spec SEC-034, ADR-093 D4, D6
+// @tested tests/unit/crm-chat-evidence-archive-crypto.test.js, tests/integration/crm-chat-evidence-archive.test.js
+model CustomerArchiveKey {
+  id         String   @id @default(uuid())
+  tenantId   String
+  customerId String   @unique
+  kekId      String
+  wrappedDek String
+  createdAt  DateTime @default(now())
+
+  // No `@relation` to Tenant/Customer, deliberately — the same choice
+  // `IntegrationSecretEnvelope` already made (SEC-030's precedent): a plain
+  // scope column, not a Prisma-level foreign key. This table is excluded from
+  // every backup snapshot (SNAPSHOT_EXCLUDED_MODELS), while Tenant and
+  // Customer are not — a real FK here would make the snapshot restore's
+  // delete-then-reinsert of Tenant/Customer fail on a row this table's own
+  // restore never runs to clear first.
+
+  @@index([tenantId])
+}
+
+// @req FR-245 — one row per archive file this sweep ever wrote, chained per
+// Tenant (ADR-093 D2, D4; SDD-103; SEC-034). A row is inserted only once its
+// file has been written, flushed, read back and its SHA-256 verified, in the
+// same transaction that tombstones exactly the messages it archived — so a row
+// here always names a real, intact file, never a failed or partial write.
+//
+// The chain: `previousManifestHash` copies the Tenant's prior manifest's own
+// `manifestHash`, and `manifestHash` is computed over this row's own fields
+// (including that copied value) once, at insert, and never recomputed. Verifying
+// the chain means recomputing every row's `manifestHash` from its stored fields
+// and comparing — a single tampered field, in this row or an earlier one,
+// breaks every hash after it. `previousManifestId` is kept alongside the hash
+// purely so the chain can be walked without scanning the whole table.
+// @spec SDD-103, SEC-034, ADR-093 D2, D4
+// @tested tests/unit/crm-chat-evidence-archive-crypto.test.js, tests/integration/crm-chat-evidence-archive.test.js
+model ArchiveManifest {
+  id                   String   @id @default(uuid())
+  tenantId             String
+  runId                String
+  filePath             String
+  fileSha256           String
+  messageCount         Int
+  messageIdListHash    String
+  previousManifestId   String?
+  previousManifestHash String?
+  manifestHash         String
+  createdAt            DateTime @default(now())
+
+  // No `@relation` to Tenant — same reasoning as `CustomerArchiveKey` above:
+  // this table is excluded from the backup snapshot, Tenant is not, and a real
+  // FK would make Tenant's restore fail on a manifest row nothing re-clears
+  // first. The self-referential chain link stays a real FK: both ends are
+  // always this same excluded table, so it participates in no cross-table
+  // restore ordering at all.
+  previousManifest ArchiveManifest?  @relation("ArchiveManifestChain", fields: [previousManifestId], references: [id])
+  nextManifests    ArchiveManifest[] @relation("ArchiveManifestChain")
+
+  @@unique([tenantId, runId])
+  @@index([tenantId, createdAt])
 }
 
 // @req FR-127 — each recomputable, advisory analysis run belongs to an internal

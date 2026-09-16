@@ -1,5 +1,5 @@
 ---
-version: "0.9.0b"
+version: "0.10.0b"
 status: active
 last_update: "2026-09-16T09:00:00+07:00,Claude Opus 5"
 id: ZAI:DOMAIN-CRM
@@ -31,6 +31,8 @@ owns_models:
   - SalesTask
   - TenantRetentionOverride
   - ConversationSession
+  - CustomerArchiveKey
+  - ArchiveManifest
 ---
 
 # Domain charter — crm
@@ -314,7 +316,38 @@ this one, never in place of it.
 SDD-103): the retention sweep writes and verifies an encrypted local archive file
 before it tombstones a message body, a manifest model chains the files per Tenant,
 and a legal-hold record on a Customer is the one thing that defers destroying their
-archive key on erasure. Not yet built; no new model exists.
+archive key on erasure.
+
+**FR-245 slice 1 built (2026-09-16, TASK-ZAI-111, not merged):** `owns_models` +=
+`CustomerArchiveKey`, `ArchiveManifest`. `chat-evidence-archive-crypto.js` mirrors
+`envelope-secret-store.js`'s AES-256-GCM AAD-bound construction under a dedicated
+key, `ZURI_ARCHIVE_KEK` — never `ZURI_SECRET_KEK` — with the archived segment's AAD
+binding the exact Tenant/Customer/run, so a segment opened under any other
+Customer's key fails GCM authentication before any plaintext exists, not merely
+"is not currently done that way". `chat-evidence-archive-service.js` groups a
+Tenant's swept candidates by Customer, seals one gzip(JSON Lines) segment per
+Customer (lazily minting `CustomerArchiveKey` on first use), writes the file under
+a temp name, fsyncs, renames into place, reads the final bytes back and compares
+SHA-256 — only then does one `db.$transaction` insert the chained `ArchiveManifest`
+row (`manifestHash` covers the previous manifest's own hash, so one tampered field
+anywhere breaks every hash after it) and tombstone exactly the archived messages.
+The tombstone `updateMany` calls exist nowhere else this transaction is not, which
+is what makes "no verified archive, no tombstone" structural rather than a
+convention. `retention-sweep-service.js` calls this per Tenant and catches: a
+Tenant whose archive step throws is skipped for the run (nothing tombstoned,
+nothing counted) rather than aborting every other Tenant's sweep, and the audit
+event's `countsByClass.MESSAGE_BODY_AND_ATTACHMENTS` gains `archiveFailures` and
+`manifests` entries, present only when non-empty. `ZURI_ARCHIVE_DIR` names the
+archive's base directory; unset, it defaults to a per-machine temp directory so
+tests and every developer checkout need no configuration — the real production
+mount (`F:\zuri-cold-archive`, ADR-093 D3) is wired through the same env var by
+TASK-ZAI-114, out of this slice's scope. `replySource` on an archived line is read
+from the `REPLY_DELIVERED`/`OUTBOUND_ACCEPTED`/`STAFF_REPLY_DELIVERED` audit event
+naming that message (the only place `STACK`/`TRANSPORT_FALLBACK`/`STAFF` are
+actually recorded — `Message` itself carries no such column), falling back to
+`UNKNOWN` for an outbound row with no matching event. Migration `20260916150000`,
+written, not applied. Retrieval (TASK-ZAI-112) and key destruction / the legal
+hold (TASK-ZAI-113) are not part of this slice.
 
 **FR-246 built (2026-09-16, TASK-ZAI-110, branch `feat/crm-staff-reply`, not
 merged):** `sendStaffReply`, above, needed no new model or migration — it writes
@@ -334,6 +367,7 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.10.0b | 2026-09-16 | FR-245 slice 1 built (TASK-ZAI-111, not merged): `owns_models` += `CustomerArchiveKey`, `ArchiveManifest`; `chat-evidence-archive-crypto.js` (AES-256-GCM under a dedicated `ZURI_ARCHIVE_KEK`, AAD binds Tenant/Customer/run) and `chat-evidence-archive-service.js` (per-Customer segment write, verify-then-rename, chained manifest, structurally-inseparable tombstone) called from `retention-sweep-service.js`, which now catches per Tenant and reports archive failures/manifests in the audit payload instead of tombstoning without a verified archive; migration `20260916150000` written, not applied; retrieval and key destruction are separate tasks (TASK-ZAI-112, TASK-ZAI-113) | Claude Sonnet 5 |
 | 0.9.0b | 2026-09-16 | FR-246 built (TASK-ZAI-110, not merged): second outbound writer `sendStaffReply` (FR-093's `recordLineReply` is now "the automatic" writer); pushes through line-oa-studio's `serverLinePorts` (a declared cross-domain reach, matching identity's `resolveLineIdentity` precedent), idempotent on `clientRequestId`, refuses before any push for the legacy channel/non-owner/non-server-enabled account; no new model | Claude Sonnet 5 |
 | 0.8.0b | 2026-09-16 | FR-243 surfaces (TASK-ZAI-107, not merged): the thread read model returns each message's session id, code and opening time; the Inbox draws a divider per session; the backfill also copies each LINE job's session from its inbound message | Claude Opus 5 |
 | 0.7.0b | 2026-09-16 | FR-243 built (TASK-ZAI-106, not merged): `owns_models` += `ConversationSession`; `conversation-session-service.js` assigns a message's session inside the writer's transaction, `line-ingest-service.js` and `reply-record-service.js` call it, events take the open session, `conversation-session-backfill.js` and its script assign existing rows; migration `20260916090000` written, not applied | Claude Opus 5 |
