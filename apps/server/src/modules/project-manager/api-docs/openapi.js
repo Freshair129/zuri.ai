@@ -54,6 +54,8 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/line-oa/jobs/failures', ['GET']],
   ['/api/edge/conversation-jobs/claim', ['POST']],
   ['/api/edge/conversation-jobs/{id}/complete', ['POST']], ['/api/edge/conversation-jobs/{id}/fail', ['POST']],
+  // @req FR-244 — the identity-free residency poll (ADR-061, ADR-094 D6 option A).
+  ['/api/edge/model-residency', ['POST']],
   // @req FR-143, FR-144 — the edge-executed extraction surface: three
   // owner-governed credential operations on the Platform side, four
   // device-authenticated job operations, and the review surface's job read.
