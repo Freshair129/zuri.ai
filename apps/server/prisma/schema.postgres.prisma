@@ -3448,6 +3448,13 @@ model LineOaAccount {
   // @req FR-243 — minutes of silence after which the next message opens a new
   //   conversation session; 10 to 120, 30 by default (ADR-094 D3).
   sessionIdleTimeoutMinutes Int                 @default(30)
+  // @req FR-244 — declared business hours in Asia/Bangkok, "HH:MM" 24h, and the
+  //   fixed reply sent outside them (ADR-094 D6 option A). All three null together
+  //   is "no declared hours" — today's behaviour, the model never sheds for this
+  //   account. Declaring hours sets all three together; clearing unsets all three.
+  businessHoursOpen       String?
+  businessHoursClose      String?
+  outOfHoursReplyText     String?
   archivedAt              DateTime?
   createdAt               DateTime              @default(now())
   updatedAt               DateTime              @updatedAt

@@ -87,6 +87,8 @@ const ACTIONS = Object.freeze({
   REGISTER_WEBHOOK: 'LINE_OA_ACCOUNT_WEBHOOK_REGISTERED',
   // @req FR-243 — the conversation session idle timeout (ADR-094 D3).
   CONFIGURE_SESSION_TIMEOUT: 'LINE_OA_ACCOUNT_SESSION_TIMEOUT_CONFIGURED',
+  // @req FR-244 — business hours and the out-of-hours reply (ADR-094 D6 option A).
+  CONFIGURE_BUSINESS_HOURS: 'LINE_OA_ACCOUNT_BUSINESS_HOURS_CONFIGURED',
 })
 
 function failure(status, message, extra = {}) {
@@ -277,6 +279,7 @@ const SELECT = {
   updatedAt: true, version: true, serverEnabled: true, executionMode: true,
   modelAccess: true, allowDelayedPush: true, transportEpoch: true, knowledgeGrounding: true,
   webhookStateJson: true, sessionIdleTimeoutMinutes: true,
+  businessHoursOpen: true, businessHoursClose: true, outOfHoursReplyText: true,
 }
 
 function toHealth(row, { connection, bindingStatus, transportJobs }) {
@@ -338,6 +341,10 @@ function toDto(row, health) {
     allowDelayedPush: row.allowDelayedPush,
     knowledgeGrounding: row.knowledgeGrounding,
     sessionIdleTimeoutMinutes: row.sessionIdleTimeoutMinutes,
+    // @req FR-244 — null on all three reads as "no declared hours".
+    businessHoursOpen: row.businessHoursOpen,
+    businessHoursClose: row.businessHoursClose,
+    outOfHoursReplyText: row.outOfHoursReplyText,
     transportEpoch: row.transportEpoch,
     isDefaultForBusiness: row.isDefaultForBusiness,
     botProfile: parseBotProfile(row.botProfileJson),
@@ -576,6 +583,24 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
         payload.to.sessionIdleTimeoutMinutes = data.sessionIdleTimeoutMinutes
         break
       }
+      // @req FR-244 — business hours and the out-of-hours reply (ADR-094 D6 option
+      // A). Health-only like the timeout and grounding switches above: it decides
+      // whether the *next* message gets a model answer or the canned one, and
+      // never touches work already queued.
+      case 'CONFIGURE_BUSINESS_HOURS': {
+        if (row.status === 'ARCHIVED') throw failure(409, 'LINE_OA_ACCOUNT_ARCHIVED')
+        const next = data.clearBusinessHours
+          ? { businessHoursOpen: null, businessHoursClose: null, outOfHoursReplyText: null }
+          : { businessHoursOpen: data.businessHoursOpen, businessHoursClose: data.businessHoursClose, outOfHoursReplyText: data.outOfHoursReplyText }
+        const unchanged = row.businessHoursOpen === next.businessHoursOpen
+          && row.businessHoursClose === next.businessHoursClose
+          && row.outOfHoursReplyText === next.outOfHoursReplyText
+        if (unchanged) throw failure(409, 'LINE_OA_BUSINESS_HOURS_UNCHANGED')
+        Object.assign(change, next)
+        payload.from.businessHours = { open: row.businessHoursOpen, close: row.businessHoursClose }
+        payload.to.businessHours = { open: next.businessHoursOpen, close: next.businessHoursClose }
+        break
+      }
       case 'ENABLE_SERVER': {
         if (row.serverEnabled) throw failure(409, 'LINE_OA_SERVER_ALREADY_ENABLED')
         if (!LINE_OA_ACCOUNT_STATUSES.filter(status => status !== 'ARCHIVED').includes(row.status) || row.transportMode !== 'CLOUD') throw failure(409, 'LINE_OA_SERVER_ACTIVATION_INVALID')
@@ -664,7 +689,7 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
     // health-only write: it changes no credential, transport owner or
     // execution policy, so fencing it would cancel replies customers are
     // already waiting for every time a publisher re-checks webhook health.
-    const fencesWork = LINE_OA_ACCOUNT_ACTIONS.filter(action => action !== 'RESUME' && action !== 'SET_DEFAULT' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING' && action !== 'REGISTER_WEBHOOK' && action !== 'CONFIGURE_SESSION_TIMEOUT').includes(data.action)
+    const fencesWork = LINE_OA_ACCOUNT_ACTIONS.filter(action => action !== 'RESUME' && action !== 'SET_DEFAULT' && action !== 'CONFIGURE_KNOWLEDGE_GROUNDING' && action !== 'REGISTER_WEBHOOK' && action !== 'CONFIGURE_SESSION_TIMEOUT' && action !== 'CONFIGURE_BUSINESS_HOURS').includes(data.action)
     if (fencesWork) {
       change.transportEpoch = { increment: 1 }
       if (data.action === 'ARCHIVE') change.serverEnabled = false
