@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.70.0b |
+| **Version** | 1.71.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-09-14 |
+| **Last Updated** | 2026-09-17 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=270 -->
+<!-- api-spec-counts: route_handlers=276 -->
 
 ### Programme usage reports (FR-218, 2026-09-13)
 
@@ -214,6 +214,13 @@ Business-scoped and never returns secret material:
 
 | Method | Path | Contract |
 |---|---|---|
+| GET | `/api/knowledge/sources` | FR-253: Business/optional Project, title/status, limit 1–100 and scope-bound cursor; current-authorized source metadata and runtime capabilities. No payload or hidden totals. |
+| GET | `/api/knowledge/sources/[sourceId]` | FR-253: current-authorized immutable admission versions with cursor pagination; no source content. Existing DELETE unchanged. |
+| GET | `/api/knowledge/console/runs` | FR-253: scoped FR-071 ledger runs, terminal statuses included; unlinked legacy runs remain Business-only. |
+| GET | `/api/knowledge/console/runs/[executionRunId]` | FR-253: every reported attempt, gate metadata and verified publication identity; missing/inconsistent publication evidence is explicitly unavailable. |
+| GET | `/api/knowledge/corpora` | FR-253: all authorized Business/Project corpora with current generation and cursor pagination. |
+| GET | `/api/knowledge/corpora/[corpusId]/generations` | FR-253: validated immutable manifests projected to current-authorized source entries, current/historical generation and cursor. |
+| GET | `/api/knowledge/citations/[citationId]/artifact` | FR-253: citation-bound kind=chunk/parsed/raw, exact retained lineage/hash verification and post-read authority recheck. Preview capped at 65,536 characters; download=true returns complete text/plain attachment with fixed filename, nosniff and private/no-store. No arbitrary artifact/path lookup. |
 | GET | `/api/platform/integrations` | implemented: trusted Business-scoped provider/connection metadata and redacted Vault status |
 | POST | `/api/platform/integrations` | implemented: create draft metadata with fixed `purpose=PHASE1_LINE_LLM`; accepts only `supabase-vault:<uuid>`; working tree implementation is local-only |
 | GET | `/api/platform/integrations/line-registry` | implemented: trusted Business-scoped LINE Groups and Users registry with automation jobs |
@@ -808,6 +815,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.71.0b | 2026-09-17 | candidate | FR-253 adds six console route handlers and GET source history; current authority, cursor pages and immutable citation artifacts | working-tree | RWANG |
 | 1.67.0b | 2026-09-13 | candidate | FR-208 / FR-209 (ADR-084 catalogue intake): six handler files under `/api/inventory/catalog-intakes` — the list, preview, commit, one intake (GET + CANCEL), the Business-specific workbook template and the workbook upload preview. Route handler count 257 -> 263 | working-tree | Claude Opus 5 |
 | 1.66.0b | 2026-09-13 | candidate | FR-201..FR-207 (ADR-083 SKU governance): five new handler files under `/api/inventory` — `products/resolve` (GET), `products/[id]/identifiers` and `products/[id]/unit-conversions` (GET/POST/PATCH), `catalog-hygiene` and `replenishment` (GET) — plus the nature / variant / lifecycle fields and refusals on the product collection and item and the `services` / `phaseOut` / `belowReorderPoint` counts on the stock summary. Route handler count 252 -> 257 | working-tree | Claude Fable 5.1 |
 | 1.65.0b | 2026-09-12 | candidate | FR-193 (ADR-078 D1): added the Employment WRITE path, which had been declared and built as a service and then left unreachable — `POST /api/people/employment` and `PATCH /api/people/employment/[employmentId]` (`on_leave` / `reinstate` / `end`, the last requiring a reason). `employment-service.js` shipped all four operations in 1.63.0b-era work and no route imported it, so the People Directory could only show rows the ADR-078 backfill created — and on production that was none, because no `Membership.employeeRef` values existed to carry over. The page told the owner to add a record and offered no control that wrote one. Route handler count 250 -> 252 | working-tree | Claude Opus 5 |

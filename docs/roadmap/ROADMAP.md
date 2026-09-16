@@ -10,14 +10,16 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.79.0b"
-updated: "2026-09-14"
+version: "2.80.0b"
+updated: "2026-09-17"
 owner: "Owen"
 source_of_truth: true
 live_document: true
 ---
 
 # ROADMAP: zuri-ai — Live Delivery State
+
+> Revision 2.80.0b (2026-09-17): TASK-ZAI-047 / FR-253 Knowledge Console implemented in an isolated worktree: source versions, complete run evidence, corpus generations and citation-bound artifacts. Local Server tests, Console browser fixtures, native admission-to-citation acceptance and build passed; [phase report](../../.brain/reports/2026-09-17-task-zai-047-knowledge-console.md) records the full regression status. Review; not deployed.
 
 > Revision 2.79.0b (2026-09-14): migration `20260914100000_harness_usage_attribution` **apply บน production แล้ว** ตามคำสั่ง owner (ADR-057) — inventory อ่านอย่างเดียว (ProgrammeUsageReport 0 แถว), dry run แบบ rollback ผ่าน transaction pooler, apply พร้อม ledger row แล้วตรวจผล (report 21 คอลัมน์, taskCode เป็น nullable, unique (source, sessionId, branch); HarnessCredential 18 คอลัมน์, forced RLS, policy runtime หนึ่งตัว, grant เฉพาะ role runtime, FK Person cascade). PR #384 #385 #386 merge (main 9a8d9968) และ deploy เป็น `zuri-ai-web:release-9a8d9968` พร้อม overlay ADR-061 — `/harness/pair` 200, pairing start ให้ลิงก์ https สาธารณะ, whoami / report ตอบ 401 เมื่อไม่มีหรือ key ไม่ถูก.
 
@@ -339,6 +341,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 
 | ID | Parent ID | Type | Title | Priority | Owner | Status | Dependencies | Source Section |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| TASK-ZAI-047 | PHASE-ZAI-KNOWLEDGE | task | Knowledge console (FR-253): source versions, complete processing runs, corpus generations and exact citation artifacts | P0 | RWANG | review (isolated implementation and native acceptance; not deployed) | FR-173; FR-071; FR-110 | ../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md |
 | TASK-ZAI-064 | PHASE-ZAI-DELIVERY-TELEMETRY | task | Delivery telemetry decision record — ADR-086 amending ADR-048 D3 for measured time and tokens beside the plan; sizing table; FEAT-034 declarations | P0 | Claude | done (ADR-086 accepted; FR-216..FR-219 and FEAT-034 declared and pinned 2026-09-13) | ADR-048; FR-105 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-065 | PHASE-ZAI-DELIVERY-TELEMETRY | task | Phase card delivery metrics (FR-216) — sprints, tasks, size, plan window and effort estimate; actual time and measured tokens once done; done green, review orange | P0 | Claude | review (FR-216 implemented locally 2026-09-13) | TASK-ZAI-064 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-066 | PHASE-ZAI-DELIVERY-TELEMETRY | task | Usage meter (FR-217) — measured tokens and active time per task from Claude Code and Codex session logs, attributed by declared branch, written back with provenance | P0 | Claude | review (FR-217 implemented locally 2026-09-13) | TASK-ZAI-064 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |

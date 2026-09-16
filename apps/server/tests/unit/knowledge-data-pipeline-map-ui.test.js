@@ -24,6 +24,7 @@ describe('FR-214 Knowledge (GKS) slot', () => {
     expect(knowledge).toMatchObject({ label: 'Knowledge (GKS)', basePath: '/knowledge' })
     expect(knowledge.sub.map((item) => [item.label, item.path])).toEqual([
       ['Dashboard', '/knowledge'],
+      ['Knowledge console', '/knowledge/console'],
       ['Data Pipeline Map', '/knowledge/data-pipeline'],
     ])
     expect(VIEWER_DOMAINS).toContain('knowledge')
@@ -100,9 +101,9 @@ describe('FR-213 view', () => {
     expect(html).not.toContain('pipeline-detail-CH-99')
   })
 
-  it('the slot Dashboard links to the map and names the planned console', () => {
+  it('the slot Dashboard links to the map and the knowledge console', () => {
     const html = renderToStaticMarkup(createElement(KnowledgeDashboard, { map }))
     expect(html).toContain('href="/knowledge/data-pipeline"')
-    expect(html).toContain('TASK-ZAI-047')
+    expect(html).toContain('href="/knowledge/console"')
   })
 })

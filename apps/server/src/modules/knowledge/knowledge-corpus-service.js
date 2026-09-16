@@ -828,4 +828,5 @@ async function withdrawInTransaction(repository, sourceId, expectedVersion, { no
   return { status: 'WITHDRAWN', source: sourceUpdated, corpus: corpusUpdated, generation: created, manifest, manifestHash }
 }
 
-export { CORPUS_SCHEMA_VERSION, RRF_K, citationReference, decodeCitationReference }
+// @req FR-253 — console generations reuse the same immutable manifest validator.
+export { CORPUS_SCHEMA_VERSION, RRF_K, citationReference, decodeCitationReference, validateStoredManifest, scopeFromCorpus, verifyPublicationEvidence }

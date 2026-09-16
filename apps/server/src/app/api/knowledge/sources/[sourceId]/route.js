@@ -1,4 +1,6 @@
 import { handle } from '../../../_helpers'
+import { consoleRequest, consoleParameters } from '@/modules/knowledge/knowledge-console-http'
+import { readConsoleSource } from '@/modules/knowledge/knowledge-console-service'
 import { resolveKnowledgeRequestViewer as resolveRequestViewer, resolveKnowledgeCorpusService, readRouteParams, strictKnowledgeBody } from '@/modules/knowledge/knowledge-http'
 
 // @req FR-173 — source withdrawal uses the corpus service's compare-and-set
@@ -7,6 +9,12 @@ import { resolveKnowledgeRequestViewer as resolveRequestViewer, resolveKnowledge
 // @tested tests/unit/knowledge-corpus-routes.test.js
 
 export const dynamic = 'force-dynamic'
+
+// @req FR-253 — authorized source history, without changing withdrawal.
+// @tested tests/unit/fr253-knowledge-console-routes.test.js
+export async function GET(request, context) {
+  return consoleRequest(request, async (options) => readConsoleSource((await readRouteParams(context)).sourceId, consoleParameters(request), options))
+}
 
 export async function DELETE(request, context) {
   return handle(async () => {

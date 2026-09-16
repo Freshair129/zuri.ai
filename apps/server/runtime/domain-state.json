@@ -38,9 +38,9 @@
     "domainCount": 14,
     "featureCount": 145,
     "readyFeatureCount": 109,
-    "requirementCount": 238,
-    "verifiedRequirementCount": 210,
-    "progressPercent": 88.7,
+    "requirementCount": 239,
+    "verifiedRequirementCount": 211,
+    "progressPercent": 88.8,
     "gapCount": 28,
     "gaps": [
       {
@@ -553,7 +553,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 270,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -727,7 +727,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-134",
@@ -818,7 +818,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 270,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -949,7 +949,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-166",
@@ -957,7 +957,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-183",
@@ -1015,7 +1015,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 270,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -1135,7 +1135,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 47
+          "testCount": 48
         },
         {
           "id": "FR-078",
@@ -1151,7 +1151,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-093",
@@ -1239,7 +1239,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 25
+          "testCount": 26
         }
       ],
       "checks": {
@@ -1429,7 +1429,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 47
+          "testCount": 48
         },
         {
           "id": "FR-062",
@@ -1629,7 +1629,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-161",
@@ -1637,7 +1637,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-163",
@@ -1645,7 +1645,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-164",
@@ -1653,7 +1653,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-166",
@@ -1661,7 +1661,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-191",
@@ -1767,7 +1767,7 @@
           "details": {
             "routes": 27,
             "inventoried": 27,
-            "openApiPaths": 270,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -1991,8 +1991,8 @@
           "title": "Supabase data pipeline monitor and replay",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 25
+          "codeCount": 5,
+          "testCount": 26
         },
         {
           "id": "FR-079",
@@ -2152,7 +2152,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 36
+          "testCount": 38
         },
         {
           "id": "FR-187",
@@ -2169,6 +2169,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 9
+        },
+        {
+          "id": "FR-253",
+          "title": "Knowledge base console",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 20
         }
       ],
       "checks": {
@@ -2194,7 +2202,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 270,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -2345,7 +2353,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-155",
@@ -2433,7 +2441,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-184",
@@ -2489,7 +2497,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-207",
@@ -2513,7 +2521,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-210",
@@ -2556,7 +2564,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 270,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -2720,7 +2728,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-109",
@@ -2824,7 +2832,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 36
+          "testCount": 38
         },
         {
           "id": "FR-187",
@@ -2875,7 +2883,15 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 12
+          "testCount": 13
+        },
+        {
+          "id": "FR-253",
+          "title": "Knowledge base console",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 7,
+          "testCount": 20
         }
       ],
       "checks": {
@@ -2895,8 +2911,8 @@
             }
           ],
           "details": {
-            "routes": 2,
-            "inventoried": 2,
+            "routes": 3,
+            "inventoried": 3,
             "missing": 0
           }
         },
@@ -2987,6 +3003,7 @@
         "docs/domains/knowledge/features/FR-187-smartgift-catalog-adapter.md",
         "docs/domains/knowledge/features/FR-188-genesisrag17-parser-2.md",
         "docs/domains/knowledge/features/FR-189-edge-published-generation.md",
+        "docs/domains/knowledge/features/FR-253-knowledge-base-console.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -3036,11 +3053,11 @@
         }
       ],
       "details": {
-        "routes": 2,
+        "routes": 3,
         "apiRoutes": 0,
-        "pageRoutes": 2,
+        "pageRoutes": 3,
         "ownedModels": 13,
-        "featureNotes": 17
+        "featureNotes": 18
       },
       "featureIds": [
         "FEAT-013",
@@ -3062,7 +3079,7 @@
       ],
       "featureCount": 16,
       "readyFeatureCount": 11,
-      "progressPercent": 77
+      "progressPercent": 77.9
     },
     "line-oa-studio": {
       "status": "partial",
@@ -3089,7 +3106,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 47
+          "testCount": 48
         },
         {
           "id": "FR-080",
@@ -3105,7 +3122,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-093",
@@ -3211,7 +3228,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 270,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -3338,7 +3355,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 47
+          "testCount": 48
         },
         {
           "id": "FR-092",
@@ -3372,7 +3389,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 270,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -3473,7 +3490,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-158",
@@ -3489,7 +3506,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 17,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-160",
@@ -3497,7 +3514,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-162",
@@ -3539,7 +3556,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 270,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -3761,7 +3778,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 270,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -3890,7 +3907,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-165",
@@ -3898,7 +3915,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-168",
@@ -3940,7 +3957,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 270,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -4267,7 +4284,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-040",
@@ -4291,7 +4308,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-043",
@@ -4315,7 +4332,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 27,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-046",
@@ -4339,7 +4356,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-059",
@@ -4355,7 +4372,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-061",
@@ -4363,7 +4380,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 47
+          "testCount": 48
         },
         {
           "id": "FR-062",
@@ -4435,7 +4452,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-072",
@@ -4507,7 +4524,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-087",
@@ -4547,7 +4564,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-092",
@@ -4675,7 +4692,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-127",
@@ -4691,7 +4708,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-134",
@@ -4811,7 +4828,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-155",
@@ -4835,7 +4852,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-158",
@@ -4851,7 +4868,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-160",
@@ -4859,7 +4876,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-161",
@@ -4867,7 +4884,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-163",
@@ -4875,7 +4892,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-164",
@@ -4883,7 +4900,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-165",
@@ -4891,7 +4908,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-166",
@@ -4899,7 +4916,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-167",
@@ -4907,7 +4924,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-169",
@@ -4915,7 +4932,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-172",
@@ -4923,7 +4940,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-173",
@@ -4931,7 +4948,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 36
+          "testCount": 38
         },
         {
           "id": "FR-174",
@@ -4971,7 +4988,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-183",
@@ -5091,7 +5108,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-207",
@@ -5115,7 +5132,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-214",
@@ -5123,7 +5140,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-218",
@@ -5132,6 +5149,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 13
+        },
+        {
+          "id": "FR-253",
+          "title": "Knowledge base console",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 10,
+          "testCount": 20
         }
       ],
       "checks": {
@@ -5164,9 +5189,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 130,
-            "inventoried": 130,
-            "openApiPaths": 270,
+            "routes": 136,
+            "inventoried": 136,
+            "openApiPaths": 276,
             "missingFromOpenApi": 0
           }
         },
@@ -5234,8 +5259,8 @@
           "details": {
             "mutations": 103,
             "guardedMutations": 101,
-            "reads": 61,
-            "unguardedReads": 2
+            "reads": 68,
+            "unguardedReads": 8
           }
         },
         "tests": {
@@ -5344,8 +5369,8 @@
         }
       ],
       "details": {
-        "routes": 175,
-        "apiRoutes": 130,
+        "routes": 181,
+        "apiRoutes": 136,
         "pageRoutes": 45,
         "ownedModels": 31,
         "featureNotes": 33
@@ -5439,7 +5464,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-058",
@@ -5447,7 +5472,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 5
+          "testCount": 6
         }
       ],
       "evidence": [
@@ -5485,6 +5510,7 @@
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr045-files.spec.js",
         "apps/server/tests/e2e/fr058-file-views.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr045-managed-files.test.js",
@@ -5560,7 +5586,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 33
+          "testCount": 34
         }
       ],
       "evidence": [
@@ -5582,6 +5608,7 @@
         "apps/server/tests/e2e/fr060-business-home.spec.js",
         "apps/server/tests/e2e/fr124-product-readiness.spec.js",
         "apps/server/tests/e2e/fr213-data-pipeline-map.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
         "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
@@ -6002,7 +6029,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-087",
@@ -6049,6 +6076,7 @@
         "apps/server/src/modules/project-manager/components/ProjectModal.jsx",
         "apps/server/src/modules/project-manager/components/project-status-options.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -6117,7 +6145,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-093",
@@ -6156,6 +6184,7 @@
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr060-business-home.spec.js",
         "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-turn.test.js",
         "apps/server/tests/integration/agent-webhook-route.test.js",
@@ -6484,7 +6513,8 @@
         "FR-109",
         "FR-110",
         "FR-111",
-        "FR-173"
+        "FR-173",
+        "FR-253"
       ],
       "primaryDomain": "knowledge",
       "contributorDomains": [
@@ -6530,15 +6560,30 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 22,
-          "testCount": 36
+          "testCount": 38
+        },
+        {
+          "id": "FR-253",
+          "title": "Knowledge base console",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 18,
+          "testCount": 20
         }
       ],
       "evidence": [
+        "apps/server/src/app/(pm)/knowledge/console/page.jsx",
+        "apps/server/src/app/api/knowledge/citations/[citationId]/artifact/route.js",
         "apps/server/src/app/api/knowledge/citations/[citationId]/route.js",
+        "apps/server/src/app/api/knowledge/console/runs/[executionRunId]/route.js",
+        "apps/server/src/app/api/knowledge/console/runs/route.js",
+        "apps/server/src/app/api/knowledge/corpora/[corpusId]/generations/route.js",
+        "apps/server/src/app/api/knowledge/corpora/route.js",
         "apps/server/src/app/api/knowledge/ingestions/[runId]/route.js",
         "apps/server/src/app/api/knowledge/ingestions/route.js",
         "apps/server/src/app/api/knowledge/queries/route.js",
         "apps/server/src/app/api/knowledge/sources/[sourceId]/route.js",
+        "apps/server/src/app/api/knowledge/sources/route.js",
         "apps/server/src/app/api/mcp/route.js",
         "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/finish/route.js",
         "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/gate/route.js",
@@ -6546,20 +6591,26 @@
         "apps/server/src/app/api/pipelines/knowledge/[executionRunId]/stages/route.js",
         "apps/server/src/app/api/pipelines/knowledge/evidence/pull/route.js",
         "apps/server/src/app/api/pipelines/runs/route.js",
+        "apps/server/src/config/domains.js",
         "apps/server/src/instrumentation.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/knowledge/classification.js",
+        "apps/server/src/modules/knowledge/console/KnowledgeConsole.jsx",
         "apps/server/src/modules/knowledge/genesisrag17-contract.js",
         "apps/server/src/modules/knowledge/genesisrag17-lineage-repository.js",
         "apps/server/src/modules/knowledge/genesisrag17-source.js",
         "apps/server/src/modules/knowledge/ingestion-job.js",
         "apps/server/src/modules/knowledge/knowledge-admission-service.js",
         "apps/server/src/modules/knowledge/knowledge-authorization.js",
+        "apps/server/src/modules/knowledge/knowledge-console-http.js",
+        "apps/server/src/modules/knowledge/knowledge-console-repository.js",
+        "apps/server/src/modules/knowledge/knowledge-console-service.js",
         "apps/server/src/modules/knowledge/knowledge-corpus-service.js",
         "apps/server/src/modules/knowledge/knowledge-execution-authority.js",
         "apps/server/src/modules/knowledge/knowledge-http.js",
         "apps/server/src/modules/knowledge/knowledge-repository.js",
         "apps/server/src/modules/knowledge/knowledge-runtime.js",
+        "apps/server/src/modules/knowledge/pipeline-map/KnowledgeDashboard.jsx",
         "apps/server/src/modules/knowledge/published-snapshot-contract.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
@@ -6570,12 +6621,15 @@
         "apps/server/src/platform/integrations/core/genesisrag17-worker.js",
         "apps/server/src/platform/integrations/core/knowledge-evidence-importer.js",
         "apps/server/src/platform/integrations/core/knowledge-ingestion-executor.js",
+        "apps/server/src/platform/integrations/core/pipeline-console-read.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-contract.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
         "apps/server/src/platform/integrations/core/raw-ingest-service.js",
         "apps/server/src/platform/integrations/core/raw-record-repository.js",
         "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
         "apps/server/tests/acceptance/knowledge-admission-native.test.js",
+        "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/integration/agent-request-envelope.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -6588,6 +6642,8 @@
         "apps/server/tests/integration/fr110-knowledge-reporter-routes.test.js",
         "apps/server/tests/integration/fr119-knowledge-ingestion-quarantine.test.js",
         "apps/server/tests/integration/fr129-catalog-publication-gate.test.js",
+        "apps/server/tests/integration/fr253-citation-artifact.test.js",
+        "apps/server/tests/integration/fr253-knowledge-console.test.js",
         "apps/server/tests/integration/genesisrag17-parser-2.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
         "apps/server/tests/integration/knowledge-admission-backup.test.js",
@@ -6602,17 +6658,23 @@
         "apps/server/tests/integration/smartgift-catalog-admission.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/agent-requestable-sensitivity.test.js",
+        "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/asset-management-pipeline-contract.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
+        "apps/server/tests/unit/crm-group-navigation.test.js",
+        "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr058-file-manager-views-ui.test.js",
+        "apps/server/tests/unit/fr253-knowledge-console-routes.test.js",
         "apps/server/tests/unit/genesisrag17-contract.test.js",
         "apps/server/tests/unit/genesisrag17-lineage-repository.test.js",
         "apps/server/tests/unit/genesisrag17-parser-2.test.js",
         "apps/server/tests/unit/genesisrag17-source.test.js",
         "apps/server/tests/unit/genesisrag17-supabase-migration.test.js",
         "apps/server/tests/unit/genesisrag17-worker.test.js",
+        "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-admission-mcp.test.js",
         "apps/server/tests/unit/knowledge-admission-routes.test.js",
         "apps/server/tests/unit/knowledge-admission-service.test.js",
@@ -6620,6 +6682,7 @@
         "apps/server/tests/unit/knowledge-chunking.test.js",
         "apps/server/tests/unit/knowledge-classification.test.js",
         "apps/server/tests/unit/knowledge-corpus-routes.test.js",
+        "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/knowledge-entity-extraction.test.js",
         "apps/server/tests/unit/knowledge-http.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job-state.test.js",
@@ -6629,6 +6692,7 @@
         "apps/server/tests/unit/knowledge-stage-runner-trace.test.js",
         "apps/server/tests/unit/knowledge-stage-runner.test.js",
         "apps/server/tests/unit/knowledge-zero-pii-policy.test.js",
+        "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/pipeline-mcp-transport.test.js",
         "apps/server/tests/unit/pipeline-tracking-route.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
@@ -6639,7 +6703,9 @@
         "apps/server/tests/unit/platform/pipeline-tracking-service.test.js",
         "apps/server/tests/unit/platform/raw-ingest-service.test.js",
         "apps/server/tests/unit/platform/raw-record-repository-read.test.js",
+        "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-manager-mcp.test.js",
+        "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
       ]
     },
@@ -6738,7 +6804,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 25,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-134",
@@ -6800,6 +6866,7 @@
         "apps/server/src/platform/integrations/core/pipeline-tracking-contract.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr060-business-home.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -7381,7 +7448,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-155",
@@ -7430,6 +7497,7 @@
         "apps/server/tests/e2e/fr154-inventory-dashboard.spec.js",
         "apps/server/tests/e2e/fr164-procurement.spec.js",
         "apps/server/tests/e2e/fr211-control-domain-map.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -7496,7 +7564,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 21,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-158",
@@ -7512,7 +7580,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 21,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-160",
@@ -7520,7 +7588,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 20,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-162",
@@ -7629,6 +7697,7 @@
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/e2e/marketing-campaigns.spec.js",
         "apps/server/tests/e2e/marketing-content.spec.js",
         "apps/server/tests/e2e/marketing-p5.spec.js",
@@ -7714,7 +7783,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 25
+          "testCount": 26
         }
       ],
       "evidence": [
@@ -7729,6 +7798,7 @@
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr161-sales-tasks.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -7783,7 +7853,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-166",
@@ -7791,7 +7861,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 29
+          "testCount": 30
         }
       ],
       "evidence": [
@@ -7814,6 +7884,7 @@
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr166-commerce-orders.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/e2e/navigation-reachability.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -7873,7 +7944,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-165",
@@ -7881,7 +7952,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
-          "testCount": 28
+          "testCount": 29
         }
       ],
       "evidence": [
@@ -7909,6 +7980,7 @@
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr164-procurement.spec.js",
         "apps/server/tests/e2e/fr165-receipt-workstation.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -8040,7 +8112,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 21,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-184",
@@ -8096,6 +8168,7 @@
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr184-stocktake.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -8660,7 +8733,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-207",
@@ -8699,6 +8772,7 @@
         "apps/server/tests/e2e/fr203-sku-identifiers-console.spec.js",
         "apps/server/tests/e2e/fr206-sku-hygiene.spec.js",
         "apps/server/tests/e2e/fr211-control-domain-map.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -8770,7 +8844,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-210",
@@ -8804,6 +8878,7 @@
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr209-catalog-intake.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -8887,7 +8962,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-215",
@@ -8910,6 +8985,7 @@
         "apps/server/src/modules/knowledge/pipeline-map/pipeline-map-read-model.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr213-data-pipeline-map.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
@@ -10929,7 +11005,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 20
+          "testCount": 21
         }
       ],
       "evidence": [
@@ -10942,6 +11018,7 @@
         "apps/server/src/context/ScopeContext.jsx",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr046-entry-contract.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/breadcrumb-switcher.test.js",
@@ -11043,7 +11120,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 23
+          "testCount": 24
         }
       ],
       "evidence": [
@@ -11057,6 +11134,7 @@
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr059-strategy-edit.spec.js",
         "apps/server/tests/e2e/fr193-access-members.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/integration/domain-visibility-server.test.js",
         "apps/server/tests/integration/fr193-remove-controls.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
@@ -11904,7 +11982,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 47
+          "testCount": 48
         }
       ],
       "evidence": [
@@ -11922,6 +12000,7 @@
         "apps/server/src/modules/people/application/people-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr213-data-pipeline-map.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
@@ -12267,8 +12346,8 @@
           "title": "Supabase data pipeline monitor and replay",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 13,
-          "testCount": 25
+          "codeCount": 14,
+          "testCount": 26
         }
       ],
       "evidence": [
@@ -12283,6 +12362,7 @@
         "apps/server/src/modules/project-manager/views/execution/mode-bodies.jsx",
         "apps/server/src/platform/integrations/core/cloud-sot-agent.js",
         "apps/server/src/platform/integrations/core/document-intake-contract.js",
+        "apps/server/src/platform/integrations/core/pipeline-console-read.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-contract.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
         "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
@@ -12290,6 +12370,7 @@
         "apps/server/tests/integration/fr110-knowledge-evidence-importer.test.js",
         "apps/server/tests/integration/fr110-knowledge-reporter-receiver.test.js",
         "apps/server/tests/integration/fr129-catalog-publication-gate.test.js",
+        "apps/server/tests/integration/fr253-knowledge-console.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-pipeline-contract.test.js",
@@ -13661,7 +13742,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 21
+          "testCount": 22
         }
       ],
       "evidence": [
@@ -13674,6 +13755,7 @@
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr124-product-readiness.spec.js",
         "apps/server/tests/e2e/fr213-data-pipeline-map.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
@@ -13990,7 +14072,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 14
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -13998,6 +14080,7 @@
         "apps/server/src/components/layouts/Sidebar.jsx",
         "apps/server/src/config/domains.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
@@ -14078,7 +14161,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 20
+          "testCount": 21
         }
       ],
       "evidence": [
@@ -14091,6 +14174,7 @@
         "apps/server/src/modules/business/application/business-capability-service.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
         "apps/server/tests/integration/fr169-business-capability.test.js",
@@ -14233,12 +14317,13 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "evidence": [
         "apps/server/src/config/domains.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/fr253-knowledge-console.spec.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",

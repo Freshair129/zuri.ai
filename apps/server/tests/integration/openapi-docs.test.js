@@ -185,8 +185,9 @@ describe('OpenAPI document', () => {
       // FR-220/FR-221 (ADR-087) add six paths and six operations: harness pairing
       // start, approve and poll (POST each), the operator device list (GET) and item
       // (PATCH), and the harness credential's whoami read (GET). 264 + 6 = 270; 359 + 6 = 365.
-      pathCount: 270,
-      operationCount: 365,
+      // FR-253 adds six Console paths and GET on the existing source path.
+      pathCount: 276,
+      operationCount: 372,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

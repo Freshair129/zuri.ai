@@ -4,6 +4,8 @@
 //   (the Data Pipeline Map, with its summary figures) and what is planned for it.
 // @spec ADR-085 D1
 // @tested tests/unit/knowledge-data-pipeline-map-ui.test.js
+// @req FR-253 — link to the authorized knowledge console from its domain dashboard.
+// @tested tests/e2e/fr253-knowledge-console.spec.js
 
 import Link from 'next/link'
 import { Card, Kpi, PageHeader, SectionTitle } from '@/components/ui'
@@ -29,8 +31,8 @@ export default function KnowledgeDashboard({ map }) {
           <Link href="/knowledge/data-pipeline" className="btn btn-primary inline-flex">เปิดแผนที่</Link>
         </Card>
         <Card warm>
-          <SectionTitle caption="TASK-ZAI-047 — source library, สถานะ ingestion run, corpus และ cited query">Knowledge base console (วางแผนไว้)</SectionTitle>
-          <p className="text-xs text-muted">วันนี้ admission อยู่ที่หน้า Files และ run ledger อยู่ที่ Execution → Data Migration</p>
+          <SectionTitle caption="ต้นทางและประวัติรุ่น งานประมวลผล รุ่นที่เผยแพร่ และการค้นพร้อมหลักฐาน">Knowledge base console</SectionTitle>
+          <Link href="/knowledge/console" className="btn btn-primary inline-flex">เปิดคลังความรู้</Link>
         </Card>
       </div>
     </div>
