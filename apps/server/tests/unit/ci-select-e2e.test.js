@@ -100,9 +100,14 @@ describe('Selective impact-driven e2e target selection', () => {
 
   it('CLI outputs valid key=value pairs consumable by GitHub Actions', () => {
     const scriptPath = path.join(workspaceRoot(process.cwd()), 'scripts/ci-select-e2e.mjs')
+    // GITHUB_REF must not leak in from this process's own environment: the CLI
+    // forces run_all=true whenever it reads 'refs/heads/main', which is exactly
+    // the value every push-triggered Actions run sets — so this test passed
+    // locally and on every pull request, then failed on every push to main.
     const run = spawnSync(process.execPath, [scriptPath], {
       input: 'apps/server/src/modules/scm/test.js\n',
       encoding: 'utf8',
+      env: { ...process.env, GITHUB_REF: '' },
     })
     expect(run.status).toBe(0)
     expect(run.stdout).toContain('run_all=false')
