@@ -24,11 +24,11 @@
 //
 // ARCHIVE DIRECTORY (ADR-093 D3)
 // -------------------------------
-// `ZURI_ARCHIVE_DIR` names the base directory. This task does not wire the
-// production mount (`F:\zuri-cold-archive`, TASK-ZAI-114's compose overlay) —
-// when the env var is unset, the default is a per-machine temp directory so
-// tests and every developer's checkout work with zero configuration. No
-// Windows-drive-letter path is hard-coded anywhere in this module.
+// Local/test calls may omit `ZURI_ARCHIVE_DIR` and use a per-machine temp
+// directory. Production is fail-closed: `ZURI_ARCHIVE_DIR=/archive` must be
+// selected, exist as a real directory and match the process mount-info boundary
+// before any key, file or tombstone operation. The app guard cannot prove the
+// host's separate physical disk; that remains a deployment gate.
 //
 // FILE FORMAT (SDD-103)
 // ----------------------
@@ -66,19 +66,83 @@ export class ChatEvidenceArchiveWriteError extends Error {
   }
 }
 
+export class ChatEvidenceArchiveStorageError extends Error {
+  constructor(code, cause) {
+    super(code)
+    this.name = 'ChatEvidenceArchiveStorageError'
+    this.code = code
+    if (cause) this.cause = cause
+  }
+}
+
+const PRODUCTION_ARCHIVE_ROOT = '/archive'
+
 const REPLY_AUDIT_ACTIONS = ['REPLY_DELIVERED', 'OUTBOUND_ACCEPTED', 'STAFF_REPLY_DELIVERED']
 
 /**
- * The archive's base directory. `ZURI_ARCHIVE_DIR` is the real switch —
- * TASK-ZAI-114 points it at the production mount. Unset, it defaults to a
- * per-machine temp directory: safe for tests and every developer checkout,
- * never a repository path (nothing here is meant to be committed) and never a
- * Windows drive letter baked into source.
+ * The archive's base directory. Local/test calls retain the per-machine temp
+ * fallback. Production is a different boundary: only the canonical container
+ * root named by ADR-093/SDD-103 is accepted here; existence and mount proof are
+ * checked asynchronously before any key, file or tombstone operation.
  */
 export function resolveArchiveBaseDir(env = process.env) {
-  const raw = env.ZURI_ARCHIVE_DIR
-  if (typeof raw === 'string' && raw.trim()) return raw.trim()
+  const raw = typeof env.ZURI_ARCHIVE_DIR === 'string' ? env.ZURI_ARCHIVE_DIR.trim() : ''
+  if (env.NODE_ENV === 'production') {
+    if (!raw) throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_REQUIRED')
+    if (!path.posix.isAbsolute(raw) || path.posix.normalize(raw) !== PRODUCTION_ARCHIVE_ROOT || raw !== path.posix.normalize(raw)) {
+      throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_ROOT_INVALID')
+    }
+    return PRODUCTION_ARCHIVE_ROOT
+  }
+  if (raw) return raw
   return path.join(os.tmpdir(), 'zuri-chat-evidence-archive')
+}
+
+function decodeMountInfoPath(value) {
+  return value.replace(/\\040/g, ' ').replace(/\\011/g, '\t').replace(/\\134/g, '\\')
+}
+
+function isPathInside(root, candidate) {
+  const relative = path.relative(root, candidate)
+  return relative === '' || (relative && relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative))
+}
+
+/**
+ * Prove the selected production root is usable before any archive key or file
+ * write. `/proc/self/mountinfo` is intentionally required in production: an
+ * env var naming `/archive` does not prove the compose overlay mounted there.
+ * The separate physical-disk property remains a deployment-level check.
+ */
+export async function assertArchiveStorageReady(baseDir, env = process.env) {
+  if (env.NODE_ENV !== 'production') return baseDir
+  const configured = resolveArchiveBaseDir(env)
+  const selected = path.posix.normalize(String(baseDir || ''))
+  if (selected !== configured || selected !== PRODUCTION_ARCHIVE_ROOT) {
+    throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_ROOT_INVALID')
+  }
+  let stat
+  let realPath
+  try {
+    stat = await fs.stat(selected)
+    realPath = await fs.realpath(selected)
+  } catch (error) {
+    throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_UNAVAILABLE', error)
+  }
+  if (!stat.isDirectory() || realPath !== selected) {
+    throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_NOT_CANONICAL')
+  }
+  let mountInfo
+  try {
+    mountInfo = await fs.readFile('/proc/self/mountinfo', 'utf8')
+  } catch (error) {
+    throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_MOUNT_UNVERIFIED', error)
+  }
+  const mounted = mountInfo.split(/\r?\n/).some((line) => {
+    const fields = line.split(' ')
+    return decodeMountInfoPath(fields[4] || '') === selected
+  })
+  if (!mounted) throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_MOUNT_UNVERIFIED')
+  return selected
 }
 
 function buildRunId(now) {
@@ -114,10 +178,62 @@ export function computeManifestHash({ tenantId, runId, filePath, fileSha256, mes
  * file it names has been altered after the fact, and that is exactly the case
  * this flag exists to catch.
  */
-export async function verifyManifestChain(db, tenantId, { baseDir, checkFiles = false } = {}) {
-  const manifests = await db.archiveManifest.findMany({ where: { tenantId }, orderBy: { createdAt: 'asc' } })
-  let expectedPreviousHash = null
+function orderPersistedManifestChain(manifests) {
+  if (manifests.length === 0) return { manifests, error: null }
+  if (!manifests.every((manifest) => manifest && Object.prototype.hasOwnProperty.call(manifest, 'previousManifestId'))) {
+    return { manifests: [], error: { reason: 'MANIFEST_CHAIN_LINK_MISSING', brokenAtManifestId: manifests.find((manifest) => !manifest || !Object.prototype.hasOwnProperty.call(manifest, 'previousManifestId'))?.id } }
+  }
+  const byId = new Map()
   for (const manifest of manifests) {
+    if (!manifest || typeof manifest.id !== 'string' || !manifest.id || byId.has(manifest.id)) return { manifests: [], error: { reason: 'MANIFEST_CHAIN_ID_INVALID', brokenAtManifestId: manifest?.id } }
+    byId.set(manifest.id, manifest)
+  }
+  const children = new Map()
+  const roots = []
+  for (const manifest of manifests) {
+    const previousId = manifest.previousManifestId ?? null
+    if (previousId === null) {
+      roots.push(manifest)
+      continue
+    }
+    const previous = byId.get(previousId)
+    if (!previous) return { manifests: [], error: { reason: 'PREVIOUS_MANIFEST_MISSING', brokenAtManifestId: manifest.id } }
+    if (manifest.previousManifestHash !== previous.manifestHash) {
+      return { manifests: [], error: { reason: 'PREVIOUS_HASH_MISMATCH', brokenAtManifestId: manifest.id } }
+    }
+    const successors = children.get(previousId) || []
+    successors.push(manifest)
+    children.set(previousId, successors)
+  }
+  if (roots.length !== 1) {
+    const detachedRoot = roots.find((manifest) => manifest.previousManifestHash !== null && manifest.previousManifestHash !== undefined)
+    return { manifests: [], error: { reason: 'MANIFEST_CHAIN_ROOT_INVALID', brokenAtManifestId: detachedRoot?.id || roots[0]?.id } }
+  }
+  for (const [previousId, successors] of children) {
+    if (successors.length > 1) return { manifests: [], error: { reason: 'MANIFEST_CHAIN_BRANCH', brokenAtManifestId: previousId } }
+  }
+  const ordered = []
+  const seen = new Set()
+  let current = roots[0]
+  while (current) {
+    if (seen.has(current.id)) return { manifests: [], error: { reason: 'MANIFEST_CHAIN_CYCLE', brokenAtManifestId: current.id } }
+    seen.add(current.id)
+    ordered.push(current)
+    current = (children.get(current.id) || [])[0] || null
+  }
+  if (ordered.length !== manifests.length) {
+    const disconnected = manifests.find((manifest) => !seen.has(manifest.id))
+    return { manifests: [], error: { reason: 'MANIFEST_CHAIN_CYCLE', brokenAtManifestId: disconnected?.id } }
+  }
+  return { manifests: ordered, error: null }
+}
+
+export async function verifyManifestChain(db, tenantId, { baseDir, checkFiles = false } = {}) {
+  const queried = await db.archiveManifest.findMany({ where: { tenantId }, orderBy: { createdAt: 'asc' } })
+  const ordered = orderPersistedManifestChain(queried)
+  if (ordered.error) return { valid: false, ...ordered.error }
+  let expectedPreviousHash = null
+  for (const manifest of ordered.manifests) {
     if ((manifest.previousManifestHash ?? null) !== expectedPreviousHash) {
       return { valid: false, brokenAtManifestId: manifest.id, reason: 'PREVIOUS_HASH_MISMATCH' }
     }
@@ -150,7 +266,9 @@ export async function verifyManifestChain(db, tenantId, { baseDir, checkFiles = 
  * seeing this would mean the row or the caller is wrong, not that the mismatch
  * should be papered over).
  */
-export async function getOrCreateCustomerArchiveKeyDek(db, { tenantId, customerId }, env = process.env) {
+export async function getOrCreateCustomerArchiveKeyDek(db, { tenantId, customerId }, env = process.env, { baseDir } = {}) {
+  const resolvedBaseDir = baseDir ?? resolveArchiveBaseDir(env)
+  await assertArchiveStorageReady(resolvedBaseDir, env)
   const existing = await db.customerArchiveKey.findUnique({ where: { customerId } })
   if (existing) {
     if (existing.tenantId !== tenantId) throw new ChatEvidenceArchiveCryptoError('ARCHIVE_KEY_SCOPE_MISMATCH')
@@ -236,7 +354,16 @@ function buildArchiveLine(message, { tenantId, replySource }) {
  */
 async function writeArchiveFile({ baseDir, tenantId, runId, now, header, segments }) {
   const dir = path.join(baseDir, tenantId, String(now.getUTCFullYear()))
+  if (!isPathInside(path.resolve(baseDir), path.resolve(dir))) throw new ChatEvidenceArchiveWriteError('ARCHIVE_PATH_ESCAPES_ROOT')
   await fs.mkdir(dir, { recursive: true })
+  try {
+    const rootRealPath = await fs.realpath(baseDir)
+    const directoryRealPath = await fs.realpath(dir)
+    if (!isPathInside(rootRealPath, directoryRealPath)) throw new ChatEvidenceArchiveWriteError('ARCHIVE_PATH_ESCAPES_ROOT')
+  } catch (error) {
+    if (error instanceof ChatEvidenceArchiveWriteError) throw error
+    throw new ChatEvidenceArchiveWriteError('ARCHIVE_PATH_UNAVAILABLE', error)
+  }
   const finalPath = path.join(dir, `${runId}.zca`)
   if (existsSync(finalPath)) throw new ChatEvidenceArchiveWriteError('ARCHIVE_FILE_ALREADY_EXISTS')
 
@@ -292,6 +419,7 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
     return { archived: false, manifest: null, redactedMessages: 0, redactedAttachments: 0 }
   }
   const resolvedBaseDir = baseDir ?? resolveArchiveBaseDir(env)
+  await assertArchiveStorageReady(resolvedBaseDir, env)
   const runId = runIdOverride ?? buildRunId(now)
   const conversationIds = [...new Set(candidates.map((message) => message.conversation.id))]
   const replySourceByMessageId = await resolveReplySources(db, conversationIds)
@@ -305,7 +433,7 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
 
   const segments = []
   for (const [customerId, messages] of byCustomer) {
-    const dek = await getOrCreateCustomerArchiveKeyDek(db, { tenantId, customerId }, env)
+    const dek = await getOrCreateCustomerArchiveKeyDek(db, { tenantId, customerId }, env, { baseDir: resolvedBaseDir })
     try {
       const lines = messages
         .map((message) => buildArchiveLine(message, { tenantId, replySource: replySourceByMessageId.get(message.id) }))

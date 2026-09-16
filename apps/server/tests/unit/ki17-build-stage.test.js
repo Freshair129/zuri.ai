@@ -172,6 +172,59 @@ describe('the runtime image copies every file the ki17 configuration names', () 
   })
 })
 
+describe('the G-3 acceptance stage', () => {
+  // G-3: the Phase 2 acceptance has to pass inside these images, on Linux, with the
+  // pinned Node 24.18.x children and the Linux addon. `ki17-acceptance` is the stage
+  // that makes that runnable — and it is a test stage, so the guards here are about
+  // it staying out of everything that ships.
+
+  it('is a leaf: nothing that ships, and nothing Compose names, depends on it', () => {
+    // A test stage that any shipped target copies from is no longer a test stage.
+    // The instruction forms are what matter — a stage slice also carries the comment
+    // block that introduces the next stage, and prose is not a dependency.
+    const dependsOnAcceptance = /^(?:FROM|COPY --from=)[^\n#]*ki17-acceptance/m
+    for (const name of ['runner', 'runner-ki17', 'genesis-worker', 'builder', 'tools', 'deps', 'base']) {
+      expect(dockerfileStage(dockerfile, name), `${name} must not depend on ki17-acceptance`)
+        .not.toMatch(dependsOnAcceptance)
+    }
+    expect(compose).not.toContain('ki17-acceptance')
+  })
+
+  it('builds on the shipped sidecar, so the acceptance runs against the deployed binaries', () => {
+    // The point of the gate: not "a Linux image", but THIS image. Rebuilding
+    // /opt/ki17 some other way here would certify something the deployment never runs.
+    expect(dockerfileStage(dockerfile, 'ki17-acceptance')).toMatch(/^FROM genesis-worker AS ki17-acceptance$/m)
+  })
+
+  it('pins both runtimes it contains, and asserts each at build time', () => {
+    // C9/C10 in one image: Node 22 runs vitest and Tier 1, /opt/ki17/node/bin/node
+    // (24.18.x) runs MSP, GKS and the worker. The assertions fail the build rather
+    // than letting a run report a G-3 pass from the wrong Node.
+    const stage = dockerfileStage(dockerfile, 'ki17-acceptance')
+    expect(stage).toContain('ENV KI17_NODE=/opt/ki17/node/bin/node')
+    expect(stage).toMatch(/case "\$\(node -v\)" in v22\./)
+    expect(stage).toMatch(/case "\$\("\$KI17_NODE" -v\)" in v24\.18\./)
+    expect(pins.runtime.node.startsWith('24.18.')).toBe(true)
+  })
+
+  it('mounts the embedding model rather than baking it into a layer', () => {
+    // ~490MB, and the worker re-verifies its five SHA-256 values at every start. A
+    // baked copy would be a second place for those bytes to drift.
+    const stage = dockerfileStage(dockerfile, 'ki17-acceptance')
+    expect(stage).toMatch(/KI17_MODEL_DIR=\/model/)
+    expect(stage).not.toMatch(/COPY[^\n]*model\.onnx/)
+    expect(stage).not.toMatch(/COPY[^\n]*safetensors/)
+  })
+
+  it('takes the test tree as its own build context, leaving .dockerignore alone', () => {
+    // Un-ignoring tests/ in the main context would widen what every shipped image
+    // builds from, including `runner`. A named context costs one flag instead.
+    expect(dockerfile).toContain('FROM scratch AS ki17-tests')
+    expect(dockerfileStage(dockerfile, 'ki17-acceptance')).toContain('COPY --from=ki17-tests . ./tests')
+    expect(read('.dockerignore')).toMatch(/^tests$/m)
+  })
+})
+
 describe('the compose service', () => {
   it('is behind the knowledge profile, so no ordinary `up` can start it', () => {
     expect(compose).toMatch(/genesis-worker:\n\s+profiles: \["knowledge"\]/)

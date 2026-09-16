@@ -4,7 +4,7 @@
 |-------|-------|
 | **Version** | 1.82.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-09-16 |
+| **Last Updated** | 2026-09-17 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=289 -->
+<!-- api-spec-counts: route_handlers=290 -->
 
 ### Local model residency by business hours (FR-244, 2026-09-16)
 
@@ -633,6 +633,25 @@ the receipt lines.
 | GET | `/api/procurement/purchase-orders/[id]/receipts` | implemented (FR-165): `{ purchaseOrderId, purchaseOrderCode, receipts[] }` — each with `code` (`GRN-YYYYMMDD-NNN`), `supplierReference`, `receivedAt`, `lines[]` (`purchaseOrderLineId`, `qty`, `lotCode`, `expiresAt`, `serialNos[]`) | `404` |
 | POST | `/api/procurement/purchase-orders/[id]/receipts` | implemented (FR-165): `{ lines: [{ purchaseOrderLineId, qty, lotCode?, expiresAt?, serialNos? }], supplierReference?, notes?, receivedAt? }` posts a receipt against a SENT order; counted lines land in the Inventory ledger (reference `PO:<code>/GRN:<code>`); the receipt that completes every line makes the order RECEIVED. Answers `{ receipt, order, posted[] }`. Audited `GOODS_RECEIPT_POSTED` (and `PURCHASE_ORDER_RECEIVED`). No PATCH, no DELETE | `404`; `403 PROCUREMENT_RECEIPT_REQUIRES_INVENTORY_AUTHORITY`; `409 PURCHASE_ORDER_NOT_RECEIVABLE \| PROCUREMENT_RECEIPT_EXCEEDS_ORDERED` (with `details: [{ purchaseOrderLineId, description, ordered, received, outstanding, requested }]`) `\| PRODUCT_ARCHIVED \| INVENTORY_*`; `422 PROCUREMENT_RECEIPT_LINE_NOT_FOUND \| PROCUREMENT_RECEIPT_LINE_NOT_COUNTED \| INVENTORY_LOT_REQUIRED \| INVENTORY_SERIAL_COUNT_MISMATCH`; `400` (an order line once per receipt) |
 
+## Project Execution Domains — FR-251 approved contract
+
+Handler and runtime Swagger implemented and verified locally on 2026-09-17;
+hosted CI and production release are separate gates recorded in PR443.
+`GET /api/projects/{projectId}/domain-view` is the read-only Phase A contract in
+[baseline 23](../architecture/project-manager-system/23-PROJECT-DOMAIN-FEATURE-IMPLEMENTATION-BASELINE.md)
+and the [FR-251 note](../domains/project-manager/features/FR-251-project-execution-domains.md).
+The Next.js handler uses the existing `[id]` folder. Resolve the request viewer and
+`assertProjectRoadmapReadable` before aggregates. Return 401 `AUTH_REQUIRED`
+or the same redacted 404 `RESOURCE_NOT_FOUND` for missing/deleted/foreign/invalid hierarchy.
+200 returns schemaVersion, projectId, observedAt, unique Project work total, unbound
+Workstream count and deduplicated primary/supporting domain rows; technical owners
+are separate. Snapshot, blocker, contract, gap and Feature authority remain explicitly
+unavailable/not bound. GET has no persistence, cache or AuditEvent side effect.
+Runtime Swagger carries the exact DTO under `/api/projects/{id}/domain-view`, using
+the existing route-inventory parameter name `id`; this is the same wire URL as
+`{projectId}` in the design contract. Other candidate operations
+remain deferred.
+
 ## Project core
 
 | Method | Path | ทำอะไร |
@@ -640,6 +659,7 @@ the receipt lines.
 | GET/POST | `/api/projects` | list (filter: workspaceId, businessId, tenantId, status, q, limit, view) → `{ items, limit, truncated }` / create; `view=overview\|timeline\|workspace` are explicit relation-rich compatibility reads for existing consumers; create derives `businessId` from the target Space and rejects owner/Space mismatch |
 | GET/PATCH/DELETE | `/api/projects/[id]` | detail (includes direct Business owner and Space context) / update with owner/Space invariant / archive |
 | GET | `/api/projects/[id]/inventory` | implemented: trusted-viewer, read-only `PROJECT_INVENTORY` DTO v1.0 with bounded work, milestones/gates, contained dependencies, file metadata, repository links, team, progress/evidence and redacted activity sections |
+| GET | `/api/projects/[id]/domain-view` | FR-251: authorized read-only Project Execution Domains DTO v1.0; deduplicated primary/supporting Workstream bindings and work counts, technical owners separate, unknown and unavailable sources explicit; correlated typed errors and no writes |
 | GET/POST/PATCH/DELETE | `/api/projects/[id]/team` | team in business scope / add member / change role / remove business-scoped member |
 | GET/POST | `/api/projects/[id]/files` | list/add ProjectFile metadata reference; optional WorkItem must belong to Project |
 | DELETE | `/api/projects/[id]/files/[fileId]` | delete ProjectFile reference within its owning Project |
@@ -829,7 +849,7 @@ that a Codex worker or Supabase apply executed.
 
 - every current API route handler is represented by a current path in this
   appendix;
-- the `route_handlers=239` marker matches the route-file enumeration;
+- the `api-spec-counts` route-handler marker matches the route-file enumeration;
 - the interface inventory separately covers every current page route and its
   published operational domain counts; and
 - generated graph/projection freshness is checked by `npm run docs:check`.
@@ -844,6 +864,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.82.0b | 2026-09-17 | candidate | Implement and locally verify owner-approved FR-251 read-only Domain-view contract and runtime Swagger; one GET handler added (288 → 289), typed scope refusals and operation-only SessionAuth verified | reviewed baseline 7465080f; PR443 | RWANG |
 | 1.82.0b | 2026-09-16 | candidate | SEC-034 (ADR-093 D6, TASK-ZAI-113): one handler file, `POST /api/crm/customers/[customerId]/legal-hold` — records an OWNER-recorded legal hold on a Customer's chat evidence archive; while active, a PDPA erasure defers destroying the archive key instead of destroying it. Route handler count 288 -> 289 | working-tree | Claude Sonnet 5 |
 | 1.81.0b | 2026-09-16 | candidate | FR-248, FR-249 (ADR-095 D2, D3): two handler files, `POST/GET /api/platform/usage-events` (record one's own usage; operator reads the breakdown) and `POST /api/platform/usage-events/rollup` (deployment-authenticated 90-day rollup, same shape as the retention sweep). Route handler count 286 -> 288 | working-tree | Claude Sonnet 5 |
 | 1.80.0b | 2026-09-16 | candidate | FR-247 (ADR-095 D1): two handler files, `GET /api/platform/error-events` and `PATCH /api/platform/error-events/[id]` — the deduplicated error list and its resolve action, both operator-only and audited, never request/response content. Route handler count 284 -> 286 | working-tree | Claude Sonnet 5 |

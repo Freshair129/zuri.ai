@@ -214,8 +214,10 @@ describe('OpenAPI document', () => {
       // SEC-034 (ADR-093 D6, TASK-ZAI-113) adds one more path and one more
       // operation: the legal-hold recording path (POST). 288 + 1 = 289;
       // 386 + 1 = 387.
-      pathCount: 289,
-      operationCount: 387,
+      // FR-251 adds one read-only Project Domain-view path and GET operation.
+      // 289 + 1 = 290; 387 + 1 = 388.
+      pathCount: 290,
+      operationCount: 388,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

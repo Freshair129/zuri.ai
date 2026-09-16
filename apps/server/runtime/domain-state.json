@@ -36,10 +36,10 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 152,
-    "readyFeatureCount": 115,
-    "requirementCount": 250,
-    "verifiedRequirementCount": 236,
+    "featureCount": 153,
+    "readyFeatureCount": 116,
+    "requirementCount": 251,
+    "verifiedRequirementCount": 237,
     "progressPercent": 94.9,
     "gapCount": 28,
     "gaps": [
@@ -223,7 +223,8 @@
         "check": "ui",
         "summary": "At least one owned UI surface is not marked implemented",
         "evidence": [
-          "/assets/receiving"
+          "/assets/receiving",
+          "/projects/[projectId]/domain-view"
         ]
       },
       {
@@ -578,7 +579,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 289,
+            "openApiPaths": 290,
             "missingFromOpenApi": 0
           }
         },
@@ -843,7 +844,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 289,
+            "openApiPaths": 290,
             "missingFromOpenApi": 0
           }
         },
@@ -1040,7 +1041,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 289,
+            "openApiPaths": 290,
             "missingFromOpenApi": 0
           }
         },
@@ -1312,7 +1313,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 13
+          "testCount": 15
         },
         {
           "id": "FR-246",
@@ -1553,7 +1554,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-076",
@@ -1793,7 +1794,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-198",
@@ -1859,7 +1860,7 @@
           "details": {
             "routes": 27,
             "inventoried": 27,
-            "openApiPaths": 289,
+            "openApiPaths": 290,
             "missingFromOpenApi": 0
           }
         },
@@ -2164,7 +2165,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-118",
@@ -2260,7 +2261,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-223",
@@ -2342,7 +2343,7 @@
           "details": {
             "routes": 10,
             "inventoried": 10,
-            "openApiPaths": 289,
+            "openApiPaths": 290,
             "missingFromOpenApi": 0
           }
         },
@@ -2705,7 +2706,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 289,
+            "openApiPaths": 290,
             "missingFromOpenApi": 0
           }
         },
@@ -2885,7 +2886,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-111",
@@ -2989,7 +2990,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-189",
@@ -3482,7 +3483,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 289,
+            "openApiPaths": 290,
             "missingFromOpenApi": 0
           }
         },
@@ -3643,7 +3644,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 289,
+            "openApiPaths": 290,
             "missingFromOpenApi": 0
           }
         },
@@ -3810,7 +3811,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 289,
+            "openApiPaths": 290,
             "missingFromOpenApi": 0
           }
         },
@@ -3926,7 +3927,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-095",
@@ -4046,7 +4047,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-249",
@@ -4054,7 +4055,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 19
+          "testCount": 20
         }
       ],
       "checks": {
@@ -4080,7 +4081,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 289,
+            "openApiPaths": 290,
             "missingFromOpenApi": 0
           }
         },
@@ -4262,7 +4263,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 289,
+            "openApiPaths": 290,
             "missingFromOpenApi": 0
           }
         },
@@ -4461,7 +4462,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-014",
@@ -4717,7 +4718,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-067",
@@ -4748,8 +4749,8 @@
           "title": "Stable execution, domain, goal, risk, tag, trace and supporting identities",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 10
+          "codeCount": 5,
+          "testCount": 12
         },
         {
           "id": "FR-071",
@@ -4789,7 +4790,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-077",
@@ -4797,7 +4798,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-078",
@@ -4981,7 +4982,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-123",
@@ -5373,7 +5374,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-198",
@@ -5549,7 +5550,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 13
+          "testCount": 15
         },
         {
           "id": "FR-246",
@@ -5573,7 +5574,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-249",
@@ -5581,7 +5582,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-250",
@@ -5589,7 +5590,15 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 12
+          "testCount": 13
+        },
+        {
+          "id": "FR-251",
+          "title": "Project Execution Domains view",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 7,
+          "testCount": 7
         }
       ],
       "checks": {
@@ -5604,13 +5613,14 @@
               "severity": "medium",
               "summary": "At least one owned UI surface is not marked implemented",
               "evidence": [
-                "/assets/receiving"
+                "/assets/receiving",
+                "/projects/[projectId]/domain-view"
               ]
             }
           ],
           "details": {
-            "routes": 45,
-            "inventoried": 45,
+            "routes": 46,
+            "inventoried": 46,
             "missing": 0
           }
         },
@@ -5622,9 +5632,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 142,
-            "inventoried": 142,
-            "openApiPaths": 289,
+            "routes": 143,
+            "inventoried": 143,
+            "openApiPaths": 290,
             "missingFromOpenApi": 0
           }
         },
@@ -5692,7 +5702,7 @@
           "details": {
             "mutations": 112,
             "guardedMutations": 108,
-            "reads": 66,
+            "reads": 67,
             "unguardedReads": 2
           }
         },
@@ -5750,6 +5760,7 @@
         "docs/domains/project-manager/features/FR-193-employment-record.md",
         "docs/domains/project-manager/features/FR-194-legal-entity-and-tax-branch.md",
         "docs/domains/project-manager/features/FR-250-hierarchical-project-navigation.md",
+        "docs/domains/project-manager/features/FR-251-project-execution-domains.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -5767,7 +5778,8 @@
           "check": "ui",
           "summary": "At least one owned UI surface is not marked implemented",
           "evidence": [
-            "/assets/receiving"
+            "/assets/receiving",
+            "/projects/[projectId]/domain-view"
           ]
         },
         {
@@ -5803,11 +5815,11 @@
         }
       ],
       "details": {
-        "routes": 187,
-        "apiRoutes": 142,
-        "pageRoutes": 45,
+        "routes": 189,
+        "apiRoutes": 143,
+        "pageRoutes": 46,
         "ownedModels": 31,
-        "featureNotes": 34
+        "featureNotes": 35
       },
       "featureIds": [
         "FEAT-001",
@@ -5857,11 +5869,12 @@
         "FR-073",
         "FR-074",
         "FR-124",
-        "FR-250"
+        "FR-250",
+        "FR-251"
       ],
-      "featureCount": 48,
-      "readyFeatureCount": 44,
-      "progressPercent": 93.5
+      "featureCount": 49,
+      "readyFeatureCount": 45,
+      "progressPercent": 93.7
     }
   },
   "features": [
@@ -6119,8 +6132,8 @@
           "title": "Stable execution, domain, goal, risk, tag, trace and supporting identities",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 10
+          "codeCount": 5,
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -6136,6 +6149,7 @@
         "apps/server/src/modules/project-manager/import/plan-import-service.js",
         "apps/server/src/modules/project-manager/import/plan-schema.js",
         "apps/server/src/modules/project-manager/mcp/transport.js",
+        "apps/server/src/modules/project-manager/project-domain-catalog.js",
         "apps/server/tests/e2e/fr040-project-work.spec.js",
         "apps/server/tests/e2e/marketing-campaigns.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
@@ -6143,6 +6157,7 @@
         "apps/server/tests/integration/import-target-authorization.test.js",
         "apps/server/tests/integration/plan-import.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
+        "apps/server/tests/integration/project-domain-view.test.js",
         "apps/server/tests/integration/project-roadmap-stall.test.js",
         "apps/server/tests/integration/project-roadmap.test.js",
         "apps/server/tests/integration/work-listing-scope.test.js",
@@ -6156,6 +6171,7 @@
         "apps/server/tests/unit/plan-import-commit-transaction.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/plan-status-vocabulary.test.js",
+        "apps/server/tests/unit/project-domain-read-model.test.js",
         "apps/server/tests/unit/project-manager-mcp.test.js",
         "apps/server/tests/unit/project-roadmap-read-model.test.js",
         "apps/server/tests/unit/project-roadmap-ui.test.js",
@@ -6290,7 +6306,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -6300,6 +6316,7 @@
         "apps/server/src/modules/project-manager/application/project-inventory-read-model.js",
         "apps/server/src/modules/project-manager/components/ProjectTabs.jsx",
         "apps/server/tests/e2e/fr077-project-inventory.spec.js",
+        "apps/server/tests/e2e/project-domain-view.spec.js",
         "apps/server/tests/integration/project-inventory-stall.test.js",
         "apps/server/tests/integration/project-inventory.test.js",
         "apps/server/tests/integration/project-roadmap-stall.test.js",
@@ -6988,7 +7005,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-111",
@@ -7091,6 +7108,7 @@
         "apps/server/tests/unit/genesisrag17-source.test.js",
         "apps/server/tests/unit/genesisrag17-supabase-migration.test.js",
         "apps/server/tests/unit/genesisrag17-worker.test.js",
+        "apps/server/tests/unit/ki17-acceptance-harness.test.js",
         "apps/server/tests/unit/knowledge-admission-mcp.test.js",
         "apps/server/tests/unit/knowledge-admission-routes.test.js",
         "apps/server/tests/unit/knowledge-admission-service.test.js",
@@ -8681,7 +8699,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-189",
@@ -8721,6 +8739,7 @@
         "apps/server/tests/integration/smartgift-catalog-admission.test.js",
         "apps/server/tests/unit/genesisrag17-parser-2.test.js",
         "apps/server/tests/unit/genesisrag17-source.test.js",
+        "apps/server/tests/unit/ki17-acceptance-harness.test.js",
         "apps/server/tests/unit/ki17-build-stage.test.js",
         "apps/server/tests/unit/knowledge-admission-mcp.test.js",
         "apps/server/tests/unit/knowledge-admission-routes.test.js",
@@ -8969,7 +8988,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-200",
@@ -9016,6 +9035,7 @@
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/release-safety-backup.test.js",
         "apps/server/tests/integration/superadmin-access.test.js",
         "apps/server/tests/integration/workspace-collaboration-roster.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
@@ -10268,7 +10288,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 13
+          "testCount": 15
         },
         {
           "id": "FR-246",
@@ -10306,6 +10326,8 @@
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/release-safety-backup.test.js",
+        "apps/server/tests/unit/archive-storage-readiness.test.js",
         "apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
@@ -10349,7 +10371,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-249",
@@ -10357,7 +10379,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 19
+          "testCount": 20
         }
       ],
       "evidence": [
@@ -10388,6 +10410,7 @@
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/release-safety-backup.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/error-events-view.test.js",
         "apps/server/tests/unit/error-events.test.js",
@@ -10973,7 +10996,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -10988,6 +11011,7 @@
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/release-safety-backup.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js"
       ]
@@ -13197,7 +13221,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 10
+          "testCount": 11
         }
       ],
       "evidence": [
@@ -13207,6 +13231,7 @@
         "apps/server/src/modules/project-manager/components/ProjectTabs.jsx",
         "apps/server/src/modules/project-manager/import/import-authorization.js",
         "apps/server/src/modules/project-manager/import/plan-import-service.js",
+        "apps/server/tests/e2e/project-domain-view.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/external-ref-import.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -13657,7 +13682,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 38
+          "testCount": 39
         }
       ],
       "evidence": [
@@ -13691,6 +13716,7 @@
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/platform-grant-revoke.test.js",
+        "apps/server/tests/integration/release-safety-backup.test.js",
         "apps/server/tests/integration/scope-and-isolation.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
@@ -15652,7 +15678,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 12
+          "testCount": 13
         }
       ],
       "evidence": [
@@ -15668,11 +15694,56 @@
         "apps/server/tests/e2e/fr058-file-views.spec.js",
         "apps/server/tests/e2e/fr250-navigation.spec.js",
         "apps/server/tests/e2e/navigation-reachability.spec.js",
+        "apps/server/tests/e2e/project-domain-view.spec.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr250-navigation.test.js",
         "apps/server/tests/unit/project-execution-backpath.test.js",
         "apps/server/tests/unit/project-work-route.test.js",
         "apps/server/tests/unit/sidebar-visible-subdomains.test.js"
+      ]
+    },
+    {
+      "id": "FR-251",
+      "title": "Project Execution Domains view: an authorized Project reader can open Delivery Design → Execution Domains and GET its scope-first domain-view projection of active Workstream primary/supporting bindings. Preserve immutable domain IDs and separate technical owners; retain unknown bindings, deduplicate active WorkItem UUIDs within each domain and in the Project total including unbound work, show unavailable sources explicitly, and preserve existing weighted progress. Only this Project-context tab becomes live; other planned capabilities and Business navigation retain their contracts. Reads add no grants, writes, audit events, cache updates or persistence; unauthenticated requests use 401 and missing, deleted, foreign or invalid-hierarchy targets share redacted 404.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-251"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้ใช้ที่มีสิทธิ์อ่าน Project เปิด Delivery Design แล้วดู Execution Domains ตาม Workstream จริง แยกเจ้าของหลัก ส่วนสนับสนุน และ technical owner นับงานไม่ซ้ำ เห็นงานที่ยังไม่ผูก domain และ ID ที่ยังไม่รู้จัก พร้อมระบุข้อมูล feature และหลักฐานที่ยังไม่มีอย่างชัดเจน",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-251",
+          "title": "Project Execution Domains view",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 7,
+          "testCount": 7
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/(pm)/projects/[projectId]/domain-view/page.jsx",
+        "apps/server/src/app/api/projects/[id]/domain-view/route.js",
+        "apps/server/src/modules/project-manager/application/project-domain-read-model.js",
+        "apps/server/src/modules/project-manager/components/ProjectDomainView.jsx",
+        "apps/server/src/modules/project-manager/components/ProjectTabs.jsx",
+        "apps/server/src/modules/project-manager/navigation.js",
+        "apps/server/src/modules/project-manager/project-domain-catalog.js",
+        "apps/server/tests/e2e/fr250-navigation.spec.js",
+        "apps/server/tests/e2e/project-domain-view.spec.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/project-domain-view.test.js",
+        "apps/server/tests/unit/fr250-navigation.test.js",
+        "apps/server/tests/unit/project-domain-read-model.test.js",
+        "apps/server/tests/unit/project-work-route.test.js"
       ]
     }
   ],

@@ -4,11 +4,16 @@ Operator notes for ADR-075 Phase 3 prerequisites P-3 to P-6. The design is
 [`docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md`](../../../../docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md);
 where this file and that one disagree, the design wins.
 
-> **Nothing here has been deployed.** No image has been built against the pinned
-> commits, no container started, no credential generated. The deployment is a
-> separate operator step the owner triggers, and only after every item in the
-> pre-deploy gate (§9) passes — including **G-3**, which re-runs the Phase 2
-> acceptance inside these images, on Linux, and has not run.
+> **Nothing here has been deployed.** No credential has been generated, no service
+> started and no `docker compose` command run. The deployment is a separate operator
+> step the owner triggers, and only after every item in the pre-deploy gate (§9)
+> passes.
+>
+> **G-3 has now run** (2026-09-16): the Phase 2 acceptance passed 35/35 inside a
+> throwaway `ki17-acceptance` image built from the pinned commits — Linux, MSP/GKS/
+> worker on Node 24.18.0, the P-2 Linux addon, the pinned venv, crash and replay cases
+> included. The result is recorded in §9.1 of the design. The images built for it were
+> test images: nothing was tagged for deployment and nothing was pushed.
 
 ## What is in this directory
 
@@ -17,6 +22,9 @@ where this file and that one disagree, the design wins.
 | `pins.json` | The four commits this cycle targets, the Node/Python/model versions and the worker port |
 | `verify-ki17-pins.mjs` | The pin gate. Runs inside the build; refuses a context whose HEAD is not the pinned commit |
 | `build-smartgift-benchmark.mjs` | P-6. Derives the one benchmark fixture a long-running worker can boot with, from the SmartGift acceptance corpus. Read its header before changing it |
+
+The `ki17-acceptance` build target (gate G-3) is described under
+[Running the acceptance inside the images](#running-the-acceptance-inside-the-images-gate-g-3).
 
 ## The build stages
 
@@ -69,7 +77,15 @@ docker buildx build --target runner-ki17 -t zuri-ai-web-ki17:<tag> \
 # The Tier 4 sidecar: + the GenesisBlock worker, its linux addon and the venv
 docker buildx build --target genesis-worker -t zuri-ai-genesis-worker:<tag> \
   --build-context msp=<...> --build-context gks=<...> \
-  --build-context genesisblock=<GenesisBlock at 907b0ff4> \
+  --build-context genesisblock=<GenesisBlock at 7c9261c4> \
+  apps/server
+
+# Gate G-3 ONLY — a test image, never deployed and never pushed. The sidecar above
+# plus this app's Node 22 test runner, devDependencies, source and tests/ tree.
+docker buildx build --target ki17-acceptance -t ki17-acceptance:<tag> \
+  --build-context msp=<...> --build-context gks=<...> \
+  --build-context genesisblock=<...> \
+  --build-context ki17-tests=apps/server/tests \
   apps/server
 ```
 
@@ -86,18 +102,47 @@ and overridable with `KI17_MSP_CONTEXT`, `KI17_GKS_CONTEXT` and
 `KI17_GENESISBLOCK_CONTEXT`. The `web` service's `build:` block is deliberately
 untouched, so no routine web build can be broken by a missing knowledge context.
 
-### It currently fails, on purpose
+### The P-2 addon
 
-`--target genesis-worker` stops at:
+`--target genesis-worker` used to stop at:
 
 ```
 KI17_GENESISBLOCK_LINUX_ADDON_MISSING: .../npm/linux-x64-gnu/index.linux-x64-gnu.node
 ```
 
-That file is prerequisite **P-2**, built by the sibling GenesisBlock pull request
-(branch `feat/genesisrag17-worker-linux-x64`) from the same pinned commit. Every
-acceptance so far ran on Windows (C11). `--target runner-ki17` and `--target ki17`
-do not need it and complete.
+That file is prerequisite **P-2**. It landed as GenesisBlock PR #177, and the
+`genesisblock` pin was advanced to the merge commit that carries it (`7c9261c4`,
+worker source unchanged from `907b0ff4`), so the assertion now passes.
+`--target runner-ki17` and `--target ki17` never needed it.
+
+### Running the acceptance inside the images (gate G-3)
+
+```bash
+docker run --rm \
+  -v <huggingface-snapshot-dir>:/model:ro \
+  ki17-acceptance:<tag>
+```
+
+The snapshot directory is the pinned `runtime.modelRevision` of
+`intfloat/multilingual-e5-small`; the worker re-verifies its five SHA-256 values at
+every start, so a wrong revision fails rather than degrades. That is the same check
+G-7 makes, but G-7 is about the `ki17-model` volume the deploy populates — a mounted
+host cache passing it does not discharge G-7. Everything else the
+suite needs is already baked and already an environment variable in the image:
+`KI17_MSP_ROOT`, `KI17_GKS_ROOT`, `KI17_GENESIS_ROOT`, `KI17_MODEL_DIR`,
+`GENESISRAG17_PYTHON` and `KI17_NODE`.
+
+`KI17_NODE` is the one that is new. The image holds two Node runtimes on purpose —
+Node 22 for vitest and the zuri-ai Tier 1 code, the pinned 24.18.x for MSP, GKS and
+the worker — and `tests/acceptance/harness.js` reads `KI17_NODE` to decide which one
+to spawn the children with. Unset (every native run) it is `process.execPath` and
+nothing changes; set to a path that does not exist it throws rather than falling
+back, because a run that quietly used the wrong Node would report a G-3 pass for a
+runtime the deployment does not ship.
+
+Never `docker compose` for this: the Compose project name is pinned to `zuri-ai`
+and would target the live stack. `docker run` with a throwaway tag is the whole
+interface.
 
 ### Which commit is this image?
 

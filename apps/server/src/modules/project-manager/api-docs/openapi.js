@@ -1,8 +1,10 @@
 import { z } from 'zod'
 import { OpenAPIRegistry, OpenApiGeneratorV3, extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import { zPlanEnvelope, zExternalRef } from '../import/plan-schema'
+import { zDomainRow, zDomainViewError, zProjectDomainView } from '../application/project-domain-read-model'
 import { EXECUTION_MODES, PROGRESS_STRATEGIES } from '@/lib/validation/enums'
 import { zAssetIntakeEnvelope } from '@/modules/asset-management/domain/asset-intake'
+import { AUTH_SESSION_COOKIE } from '@/modules/identity/auth-service'
 
 // @req FR-019 — OpenAPI 3 generated FROM the Zod schemas that actually run at
 // request time, so the integration docs cannot drift from validation.
@@ -203,7 +205,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // (never key material); POST mints; DELETE revokes.
   ['/api/platform/api-access-keys', ['GET', 'POST']], ['/api/platform/api-access-keys/{id}', ['DELETE']],
   ['/api/platform/integrations', ['GET', 'POST']], ['/api/platform/integrations/line-registry', ['GET', 'POST']], ['/api/platform/users', ['GET', 'PATCH']], ['/api/profile', ['GET']], ['/api/progress/portfolio', ['GET']], ['/api/progress/project/{id}', ['GET']], ['/api/progress/workstream/{id}', ['GET']],
-  ['/api/projects', ['GET', 'POST']], ['/api/projects/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/projects/{id}/dependencies', ['GET']], ['/api/projects/{id}/files', ['GET', 'POST']], ['/api/projects/{id}/files/{fileId}', ['DELETE']], ['/api/projects/{id}/inventory', ['GET']], ['/api/projects/{id}/roadmap', ['GET']], ['/api/projects/{id}/team', ['GET', 'POST', 'PATCH', 'DELETE']], ['/api/projects/{id}/teams', ['GET', 'POST', 'DELETE']], ['/api/projects/{id}/tree', ['GET']], ['/api/projects/overview', ['GET']],
+  ['/api/projects', ['GET', 'POST']], ['/api/projects/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/projects/{id}/dependencies', ['GET']], ['/api/projects/{id}/files', ['GET', 'POST']], ['/api/projects/{id}/files/{fileId}', ['DELETE']], ['/api/projects/{id}/inventory', ['GET']], ['/api/projects/{id}/roadmap', ['GET']], ['/api/projects/{id}/domain-view', ['GET']], ['/api/projects/{id}/team', ['GET', 'POST', 'PATCH', 'DELETE']], ['/api/projects/{id}/teams', ['GET', 'POST', 'DELETE']], ['/api/projects/{id}/tree', ['GET']], ['/api/projects/overview', ['GET']],
   ['/api/repositories', ['GET', 'POST']], ['/api/repositories/{id}', ['PATCH']], ['/api/repositories/link', ['POST']], ['/api/repositories/link/{id}', ['DELETE']], ['/api/resolve', ['GET']], ['/api/scope', ['GET', 'POST']], ['/api/auth/login', ['POST']], ['/api/auth/logout', ['POST']], ['/api/auth/reset-password', ['POST']], ['/api/auth/signup', ['POST']], ['/api/onboarding/profile', ['POST']], ['/api/onboarding/state', ['GET']], ['/api/onboarding/workspaces', ['POST']], ['/api/workspace-invites', ['POST']], ['/api/workspace-invites/accept', ['POST']], ['/api/workspace-invites/{id}', ['DELETE']], ['/api/workspace-memberships', ['GET', 'DELETE']], ['/api/platform/users/password-resets', ['POST']],
   // @req FR-038 — the owner attaches an existing Person to a Business they own.
   ['/api/platform/users/memberships', ['POST']],
@@ -285,7 +287,7 @@ function genericResponses(path) {
 }
 
 function registerInventoryOperations(registry) {
-  const detailedOperations = new Set(['post /api/assets/intakes/validate', 'post /api/import/dry-run', 'post /api/import/commit', 'get /api/resolve', 'get /api/import/template'])
+  const detailedOperations = new Set(['get /api/projects/{id}/domain-view', 'post /api/assets/intakes/validate', 'post /api/import/dry-run', 'post /api/import/commit', 'get /api/resolve', 'get /api/import/template'])
   for (const [path, methods] of CURRENT_API_ROUTE_INVENTORY) {
     for (const method of methods) {
       const methodName = method.toLowerCase()
@@ -397,6 +399,15 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
   registry.register('ResolveResponse', zResolveResponse)
   registry.register('AssetIntakeEnvelope', zAssetIntakeEnvelope)
   registry.register('AssetValidationResponse', zAssetValidationResponse)
+  registry.register('DomainRow', zDomainRow)
+  registry.register('DomainView', zProjectDomainView)
+  registry.register('DomainViewError', zDomainViewError)
+  registry.registerComponent('securitySchemes', 'SessionAuth', {
+    type: 'apiKey',
+    in: 'cookie',
+    name: AUTH_SESSION_COOKIE,
+    description: 'Current server-resolved session. Authorization is recomputed from live server state; no role is inferred from cookie labels.',
+  })
   registry.register('Error', zError)
 
   registry.registerPath({
@@ -415,6 +426,66 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
       401: json(zError, 'Authentication required'),
       403: json(zError, 'Asset Management is not enabled for this Business'),
       404: json(zError, 'Business not found or not visible'),
+    },
+  })
+
+  registry.registerPath({
+    method: 'get',
+    path: '/api/projects/{id}/domain-view',
+    operationId: 'getProjectDomainView',
+    summary: 'Read the authorized Project Execution Domains projection',
+    description:
+      'Read-only Phase A projection of FR-070 Workstream domain bindings. ' +
+      'Authorization is resolved against the Project Business/Workspace hierarchy before Workstream or WorkItem aggregation. ' +
+      'Unknown immutable domain ids remain visible as UNMAPPED; Feature, blocker, contract, gap and snapshot fields remain unavailable in Phase A.',
+    tags: ['Domain view'],
+    security: [{ SessionAuth: [] }],
+    request: { params: z.object({ id: z.string().uuid() }).strict() },
+    responses: {
+      200: {
+        description: 'Successful authorized result.',
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/DomainView' } } },
+      },
+      401: {
+        description: 'No valid live session. The redacted body contains no Project, Business or domain identifiers.',
+        headers: {
+          'X-Request-ID': {
+            description: 'Fresh server-generated request UUID; equal to the response body requestId.',
+            schema: { type: 'string', format: 'uuid' },
+          },
+        },
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/DomainViewError' } } },
+      },
+      404: {
+        description: 'The Project is unknown, deleted, foreign-scope or hierarchy-invalid. The same redacted response prevents target enumeration.',
+        headers: {
+          'X-Request-ID': {
+            description: 'Fresh server-generated request UUID; equal to the response body requestId.',
+            schema: { type: 'string', format: 'uuid' },
+          },
+        },
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/DomainViewError' } } },
+      },
+      503: {
+        description: 'The session or read service is temporarily unavailable; internal details are redacted.',
+        headers: {
+          'X-Request-ID': {
+            description: 'Fresh server-generated request UUID; equal to the response body requestId.',
+            schema: { type: 'string', format: 'uuid' },
+          },
+        },
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/DomainViewError' } } },
+      },
+      500: {
+        description: 'Unexpected failure; internal details are redacted.',
+        headers: {
+          'X-Request-ID': {
+            description: 'Fresh server-generated request UUID; equal to the response body requestId.',
+            schema: { type: 'string', format: 'uuid' },
+          },
+        },
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/DomainViewError' } } },
+      },
     },
   })
 
@@ -480,7 +551,7 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
   registerInventoryOperations(registry)
 
   const generator = new OpenApiGeneratorV3(registry.definitions)
-  return generator.generateDocument({
+  const document = generator.generateDocument({
     openapi: '3.0.3',
     info: {
       title: 'Zuri v2 Project Manager — Enterprise Intake API',
@@ -504,6 +575,7 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
     tags: [
       { name: 'Intake', description: 'Plan envelope in, work graph out' },
       { name: 'Asset Management', description: 'Evidence-backed physical Asset intake previews' },
+      { name: 'Domain view', description: 'Authorized Project Execution Domains projections' },
       { name: 'Identity', description: 'Map customer core ids onto internal records' },
       { name: 'Route inventory', description: 'Complete current route/method coverage with transparent generic boundaries' },
     ],
@@ -513,4 +585,13 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
       operationCount: CURRENT_API_ROUTE_INVENTORY.reduce((count, [, methods]) => count + methods.length, 0),
     },
   })
+  // OpenAPI 3.0 represents Zod's `z.null()` as `nullable: true`. Add the
+  // candidate's explicit null enum to the two Phase A fields so consumers can
+  // distinguish an unavailable value from a nullable future value, while the
+  // runtime Zod schemas remain the single validation authority.
+  for (const [schemaName, field] of [['DomainView', 'snapshotId'], ['DomainRow', 'blockerCount']]) {
+    const schema = document.components?.schemas?.[schemaName]
+    if (schema?.properties?.[field]) schema.properties[field].enum = [null]
+  }
+  return document
 }
