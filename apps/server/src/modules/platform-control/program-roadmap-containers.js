@@ -5916,7 +5916,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-118",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P2",
     "pic": "Claude",
     "executor": "Claude",
@@ -5930,7 +5930,7 @@ export const PROGRAMME_CONTAINERS = {
     "linkState": {
       "code": "missing",
       "doc": "present",
-      "test": "missing"
+      "test": "present"
     },
     "delivers": [
       "FR-248",
@@ -5941,34 +5941,34 @@ export const PROGRAMME_CONTAINERS = {
       {
         "id": "P0",
         "title": "UsageEvent model, migration and recordUsageEvent() service",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P1",
         "title": "Page-view capture hook and recordAction() helper",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P2",
         "title": "90-day retention rollup and the operator-only usage view",
-        "status": "planned"
+        "status": "done"
       }
     ],
     "dod": {
       "acceptance": {
         "text": "Given a signed-in person navigating between pages, when each navigation completes, then one UsageEvent row (kind PAGE_VIEW) is recorded with route, personId and sessionId, captured by a shell-mounted hook rather than a per-page change",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a handler that calls recordAction(name), when it runs, then one UsageEvent row (kind ACTION) is recorded with a static actionName never built from request data, and an operator reads route/action counts broken down by person under /control",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given a UsageEvent row older than 90 days, when the retention job runs, then it is replaced by a daily (date, route|actionName, count) rollup with no personId, and npm test covers capture, the per-person breakdown, and the 90-day rollup boundary",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-16 (v0.4.10) after the owner asked what the system logs. A full survey of every log surface found two gaps: no error tracking, no feature/page usage measurement. CR-020 proposed both; the owner (CR-020 §7) chose to extend the existing logger for error tracking (not a third-party service) and to capture feature usage at both route and action level, per person — the more expensive, more privacy-sensitive of the two options offered. ADR-095 records the shape and the trade-off.",
+    "changelog": "Opened 2026-09-16 (v0.4.10) after the owner asked what the system logs. A full survey of every log surface found two gaps: no error tracking, no feature/page usage measurement. CR-020 proposed both; the owner (CR-020 §7) chose to extend the existing logger for error tracking (not a third-party service) and to capture feature usage at both route and action level, per person — the more expensive, more privacy-sensitive of the two options offered. ADR-095 records the shape and the trade-off. Implemented locally 2026-09-16 (FR-248, FR-249, NFR-023): POST/GET /api/platform/usage-events, recordUsageEvent/rollupUsageEvents/listUsageBreakdown in application/usage-events.js, UsagePageViewTracker mounted once in PlatformControlShell, recordAction() instrumented on sign-out, the operator breakdown at /control/usage, and the deployment-authenticated rollup route (ZURI_USAGE_ROLLUP_TOKEN). UsageEventRollup model + migration 20260916190000_usage_event_rollup written in both trees and NOT applied. tests/unit/usage-events.test.js, usage-events-tracker.test.js, usage-events-view.test.js. Review, not done: not merged, migration not applied, rollup not yet scheduled.",
     "created": "2026-09-16T00:00:00Z,Claude,pending",
     "predictedTokens": 60000,
     "totalTokens": 0,
