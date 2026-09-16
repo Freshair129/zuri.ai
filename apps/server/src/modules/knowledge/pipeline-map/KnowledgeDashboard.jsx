@@ -31,10 +31,10 @@ export default function KnowledgeDashboard({ map }) {
         </Card>
         <Card warm>
           <div className="flex items-start justify-between">
-            <SectionTitle caption="TASK-ZAI-047 — อัพโหลดและนำเข้าเอกสาร Text, Markdown และ Catalog เข้าสู่ Knowledge base">Documents & Intake</SectionTitle>
-            <span className="rounded-full bg-[var(--brand-tint)] px-2 py-0.5 text-[10px] font-semibold text-[var(--brand-dark)]">พร้อมใช้งาน</span>
+            <SectionTitle caption="TASK-ZAI-047 — surface แบบจำกัดสำหรับส่ง Text/Markdown เข้า admission queue ของ Business">Documents & Intake</SectionTitle>
+            <span className="rounded-full bg-[var(--brand-tint)] px-2 py-0.5 text-[10px] font-semibold text-[var(--brand-dark)]">local / isolated</span>
           </div>
-          <p className="mt-1 text-xs text-muted">อัพโหลดไฟล์ .txt, .md หรือ catalog .json, ตรวจสอบสถานะการประมวลผล 17 stages และค้นหาคำตอบพร้อม citation</p>
+          <p className="mt-1 text-xs text-muted">อัพโหลดหรือวางเอกสาร .txt/.md/.markdown ตรวจสอบคิว 17 stages และค้นหา citation เมื่อมี Published Corpus; การ์ดนี้ไม่ใช่หลักฐาน production activation</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <Link href="/knowledge/documents" className="btn btn-primary inline-flex items-center gap-1.5 text-xs">
               <UploadCloud size={13} /> อัพโหลดเอกสาร

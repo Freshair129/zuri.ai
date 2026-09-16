@@ -135,10 +135,11 @@ describe('FR-213 view', () => {
 describe('FR-215 live health overlay', () => {
   const sampleHealth = {
     businessId: 'biz-1',
-    summary: { totalTracked: 12, totalFailures: 2, hasFailures: true, backedEdgeCount: 17 },
+    summary: { totalTracked: 12, totalFailures: 2, hasFailures: true, backedEdgeCount: 17, healthAvailable: true },
     edges: {
       'e.tier1-to-ledger': {
         table: 'PipelineRun',
+        available: true,
         total: 5,
         countsByStatus: { SUCCEEDED: 3, FAILED: 2 },
         failedCount: 2,
@@ -148,6 +149,7 @@ describe('FR-215 live health overlay', () => {
       },
       'e.webhook-to-jobs': {
         table: 'LineConversationJob',
+        available: true,
         total: 7,
         countsByStatus: { RECORDED: 7 },
         failedCount: 0,
@@ -204,5 +206,27 @@ describe('FR-215 live health overlay', () => {
       expect(html).toContain(`data-testid="pipeline-node-${node.id}"`)
     }
   })
-})
 
+  it('renders an unavailable marker without substituting zero for a failed read', () => {
+    const health = {
+      ...sampleHealth,
+      summary: { ...sampleHealth.summary, totalTracked: null, totalFailures: null, hasFailures: null, healthAvailable: false },
+      edges: {
+        ...sampleHealth.edges,
+        'e.tier1-to-ledger': {
+          ...sampleHealth.edges['e.tier1-to-ledger'],
+          available: false,
+          total: null,
+          failedCount: null,
+          lastRunAt: null,
+          hasFailures: null,
+        },
+      },
+    }
+    const html = renderToStaticMarkup(createElement(DataPipelineMapView, { map, initialHealth: health }))
+    expect(html).toContain('data-testid="edge-health-e.tier1-to-ledger"')
+    expect(html).toContain('N/A')
+    expect(html).toContain('Live Health (ยังไม่พร้อมใช้งาน)')
+    expect(html).not.toContain('PipelineRun: null')
+  })
+})

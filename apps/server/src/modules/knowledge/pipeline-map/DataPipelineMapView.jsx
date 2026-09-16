@@ -194,7 +194,26 @@ function EdgeDetail({ edge, nodeById, health }) {
       </dl>
 
       {/* FR-215 Live Pipeline Health & Monitor Surface */}
-      {health ? (
+      {health ? health.available === false ? (
+        <div className={styles.healthSection} data-testid="edge-health-unavailable">
+          <h4 className={styles.healthTitle}>
+            <Activity className="w-3.5 h-3.5 text-amber-500" />
+            สถานะสดยังไม่พร้อมใช้งาน ({health.table})
+          </h4>
+          <p className={styles.mutedText}>
+            อ่านข้อมูลจาก read port ของโดเมนเจ้าของไม่ได้ จึงไม่แสดงตัวเลขแทนข้อมูลที่ยังยืนยันไม่ได้
+          </p>
+          {health.monitorUrl && (
+            <Link
+              href={health.monitorUrl}
+              className={styles.monitorButton}
+              data-testid="edge-monitor-link"
+            >
+              เปิดหน้าจอตรวจสอบ <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          )}
+        </div>
+      ) : (
         <div className={styles.healthSection} data-testid="edge-health-detail">
           <h4 className={styles.healthTitle}>
             <Activity className="w-3.5 h-3.5 text-amber-500" />
@@ -336,8 +355,9 @@ export default function DataPipelineMapView({
   const scope = useSafeScope()
   const activeBusinessId = initialBusinessId || scope?.shell?.activeBusinessId || scope?.currentBusiness?.id || null
   const [showHealthOverlay, setShowHealthOverlay] = useState(true)
-  const { health: fetchedHealth, loading: healthLoading } = usePipelineHealth(showHealthOverlay ? activeBusinessId : null)
+  const { health: fetchedHealth, loading: healthLoading, error: healthError } = usePipelineHealth(showHealthOverlay ? activeBusinessId : null)
   const healthData = initialHealth || fetchedHealth
+  const healthUnavailable = Boolean(healthError) || healthData?.summary?.healthAvailable === false
 
   const layout = useMemo(() => layoutPipelineMap(map), [map])
   const nodeById = useMemo(() => new Map(map.nodes.map((n) => [n.id, n])), [map])
@@ -714,10 +734,12 @@ export default function DataPipelineMapView({
             title="แสดงสถานะและการทำงานสดบนท่อส่งข้อมูล (FR-215)"
             data-testid="pipeline-health-toggle"
           >
-            <Activity className={`w-3.5 h-3.5 ${healthData?.summary?.hasFailures ? 'text-rose-500 animate-pulse' : 'text-emerald-500'}`} />
+            <Activity className={`w-3.5 h-3.5 ${healthUnavailable ? 'text-amber-500' : healthData?.summary?.hasFailures ? 'text-rose-500 animate-pulse' : 'text-emerald-500'}`} />
             <span>
               {healthLoading
                 ? 'กำลังโหลด...'
+                : healthUnavailable
+                ? 'Live Health (ยังไม่พร้อมใช้งาน)'
                 : healthData
                 ? `Live Health (${healthData.summary.totalTracked}${healthData.summary.totalFailures > 0 ? ` · ⚠️ ${healthData.summary.totalFailures} fail` : ''})`
                 : 'Live Health'}
@@ -819,7 +841,7 @@ export default function DataPipelineMapView({
                         const isSelected = selected?.type === 'edge' && selected.id === edge.id
                         const isBackward = edge.d && edge.d.includes('C') && edge.labelY > layout.positions.get(edge.from)?.y
                         const edgeHealth = healthData?.edges?.[edge.id]
-                        const hasFailures = edgeHealth?.failedCount > 0
+                        const hasFailures = edgeHealth?.available !== false && edgeHealth?.failedCount > 0
 
                         return (
                           <g
@@ -834,7 +856,7 @@ export default function DataPipelineMapView({
                           >
                             {/* Hit Area */}
                             <path d={edge.d} className={styles.edgeHit}>
-                              <title>{`${nodeById.get(edge.from)?.label} → ${nodeById.get(edge.to)?.label}: ${edge.label} (${STATUS_LABEL[edge.status]})${edgeHealth ? ` · ${edgeHealth.table}: ${edgeHealth.total} runs (${edgeHealth.failedCount} fail)` : ''}`}</title>
+                              <title>{`${nodeById.get(edge.from)?.label} → ${nodeById.get(edge.to)?.label}: ${edge.label} (${STATUS_LABEL[edge.status]})${edgeHealth ? edgeHealth.available === false ? ` · ${edgeHealth.table}: unavailable` : ` · ${edgeHealth.table}: ${edgeHealth.total} runs (${edgeHealth.failedCount} fail)` : ''}`}</title>
                             </path>
 
                             {/* Base Trace Line */}
@@ -871,6 +893,7 @@ export default function DataPipelineMapView({
 
                             {/* Live Health Badge (FR-215 / ADR-085 D5) */}
                             {showHealthOverlay && edgeHealth && (() => {
+                              const unavailable = edgeHealth.available === false
                               const hasFail = edgeHealth.failedCount > 0
                               return (
                                 <g
@@ -882,8 +905,15 @@ export default function DataPipelineMapView({
                                   }}
                                   data-testid={`edge-health-${edge.id}`}
                                 >
-                                  <title>{`${edgeHealth.table}: ${edgeHealth.total} งาน (${edgeHealth.failedCount} fail)`}</title>
-                                  {hasFail ? (
+                                  <title>{unavailable ? `${edgeHealth.table}: unavailable` : `${edgeHealth.table}: ${edgeHealth.total} งาน (${edgeHealth.failedCount} fail)`}</title>
+                                  {unavailable ? (
+                                    <>
+                                      <rect x={-16} y={-8} width={32} height={16} rx={8} className={styles.badgeIdleBg} />
+                                      <text x={0} y={3.5} textAnchor="middle" className={styles.badgeIdleText}>
+                                        N/A
+                                      </text>
+                                    </>
+                                  ) : hasFail ? (
                                     <>
                                       <rect x={-18} y={-8} width={36} height={16} rx={8} className={styles.badgeFailBg} />
                                       <text x={0} y={3.5} textAnchor="middle" className={styles.badgeFailText}>

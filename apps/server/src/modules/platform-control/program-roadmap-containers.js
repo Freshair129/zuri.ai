@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.10, 2026-09-16) so the board can open a task the way the html board
+// (v0.4.11, 2026-09-16) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -2921,21 +2921,21 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-063",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "1.1.0",
     "priority": "P1",
-    "pic": "Claude",
-    "executor": "Claude",
+    "pic": "Antigravity",
+    "executor": "Antigravity",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
-      "doc": "docs/domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md",
-      "test": "unavailable"
+      "code": "apps/server/src/modules/knowledge/pipeline-map/pipeline-health-service.js",
+      "doc": "docs/decisions/ADR-085-KNOWLEDGE-GKS-SLOT-AND-THE-DATA-PIPELINE-MAP.md",
+      "test": "apps/server/tests/unit/pipeline-health-service.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "unavailable"
+      "test": "present"
     },
     "delivers": [
       "FR-215"
@@ -2955,8 +2955,8 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.3) as the only live part of the map; the registry and view stay static projections. Sequenced after the knowledge base console so both read the same ledger surfaces.",
-    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "changelog": "Opened 2026-09-13 (v0.4.3). Reconciled 2026-09-16 (v1.1.0) — implemented locally under ADR-085 D5 with four owning-domain read ports (one bounded read per table), Business/owner-domain authorization, truthful unavailable/null states, static-map resilience and monitor links. The Documents surface is bounded to Text/Markdown admission. Production/live external evidence remains outside scope.",
+    "created": "2026-09-13T00:00:00Z,Claude,review",
     "predictedTokens": 36000,
     "totalTokens": 0,
     "dependsOn": [

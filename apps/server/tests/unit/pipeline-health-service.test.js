@@ -61,14 +61,26 @@ describe('pipeline-health-service', () => {
       })
     })
 
-    it('throws 403 when viewer does not have knowledge domain grant', async () => {
+    it('throws 404 when viewer does not have knowledge domain grant', async () => {
       const viewer = makeViewer({
         visibleBusinessIds: ['biz-1'],
         visibleDomains: ['projects', 'people'],
       })
       await expect(getLivePipelineHealth({ businessId: 'biz-1', viewer })).rejects.toMatchObject({
-        status: 403,
-        message: 'KNOWLEDGE_DOMAIN_FORBIDDEN',
+        status: 404,
+        message: 'BUSINESS_NOT_FOUND',
+      })
+    })
+
+    it('uses the per-Business knowledge grant rather than the viewer domain union', async () => {
+      const viewer = makeViewer({
+        visibleBusinessIds: ['biz-1'],
+        visibleDomains: ['knowledge'],
+        domainsByBusinessId: { 'biz-1': [] },
+      })
+      await expect(getLivePipelineHealth({ businessId: 'biz-1', viewer })).rejects.toMatchObject({
+        status: 404,
+        message: 'BUSINESS_NOT_FOUND',
       })
     })
 
@@ -88,7 +100,7 @@ describe('pipeline-health-service', () => {
     it('queries bounded records for the active business and maps to backed edges', async () => {
       const viewer = makeViewer({
         visibleBusinessIds: ['biz-1'],
-        visibleDomains: ['knowledge'],
+        visibleDomains: ['knowledge', 'line-oa', 'assets'],
       })
 
       const mockDb = {
@@ -109,15 +121,9 @@ describe('pipeline-health-service', () => {
             ]
           },
         },
-        lineOaAccount: {
-          findMany: async ({ where }) => {
-            expect(where.businessId).toBe('biz-1')
-            return [{ id: 'acc-1' }]
-          },
-        },
         lineOaRichMenuJob: {
           findMany: async ({ where }) => {
-            expect(where.accountId).toEqual({ in: ['acc-1'] })
+            expect(where.businessId).toBe('biz-1')
             return [
               { status: 'APPLIED', updatedAt: new Date('2026-09-14T08:10:00Z') },
             ]
@@ -138,7 +144,6 @@ describe('pipeline-health-service', () => {
         viewer,
         db: mockDb,
       })
-
       expect(result.businessId).toBe('biz-1')
       expect(result.summary.totalTracked).toBe(5)
       expect(result.summary.totalFailures).toBe(1)
@@ -147,6 +152,7 @@ describe('pipeline-health-service', () => {
       // Check PipelineRun mapped edges (e.g. e.tier1-to-ledger)
       expect(result.edges['e.tier1-to-ledger']).toMatchObject({
         table: 'PipelineRun',
+        available: true,
         total: 2,
         failedCount: 1,
         hasFailures: true,
@@ -161,6 +167,7 @@ describe('pipeline-health-service', () => {
       // Check LineConversationJob mapped edges
       expect(result.edges['e.webhook-to-jobs']).toMatchObject({
         table: 'LineConversationJob',
+        available: true,
         total: 1,
         failedCount: 0,
         hasFailures: false,
@@ -188,10 +195,10 @@ describe('pipeline-health-service', () => {
       expect(result.edges['e.market-to-raw']).toBeUndefined()
     })
 
-    it('handles query failure gracefully without throwing', async () => {
+    it('reports query failure as unavailable rather than inventing zeroes', async () => {
       const viewer = makeViewer({
         visibleBusinessIds: ['biz-1'],
-        visibleDomains: ['knowledge'],
+        visibleDomains: ['knowledge', 'line-oa', 'assets'],
       })
 
       const mockFailingDb = {
@@ -205,7 +212,7 @@ describe('pipeline-health-service', () => {
             throw new Error('Timeout')
           },
         },
-        lineOaAccount: {
+        lineOaRichMenuJob: {
           findMany: async () => {
             throw new Error('Table lock')
           },
@@ -224,10 +231,17 @@ describe('pipeline-health-service', () => {
       })
 
       expect(result.businessId).toBe('biz-1')
-      expect(result.summary.totalTracked).toBe(0)
-      expect(result.summary.totalFailures).toBe(0)
-      expect(result.summary.hasFailures).toBe(false)
-      expect(result.edges['e.tier1-to-ledger'].total).toBe(0)
+      expect(result.summary.totalTracked).toBeNull()
+      expect(result.summary.totalFailures).toBeNull()
+      expect(result.summary.hasFailures).toBeNull()
+      expect(result.summary.healthAvailable).toBe(false)
+      expect(result.summary.unavailableTableCount).toBe(4)
+      expect(result.edges['e.tier1-to-ledger']).toMatchObject({
+        available: false,
+        total: null,
+        failedCount: null,
+        lastRunAt: null,
+      })
     })
   })
 })

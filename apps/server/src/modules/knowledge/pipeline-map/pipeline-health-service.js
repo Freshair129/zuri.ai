@@ -4,9 +4,12 @@
 // @spec ADR-085 D5, SEC-001, SEC-008
 // @tested tests/unit/pipeline-health-service.test.js, tests/unit/knowledge-data-pipeline-map-ui.test.js
 
-import prisma from '@/lib/db'
-import { isDomainVisible } from '@/config/domains'
 import { seesBusiness } from '@/modules/identity/viewer-authority'
+import { assertDomainVisible } from '@/modules/identity/viewer-domains'
+import { listPipelineRunsForHealth } from '@/platform/integrations/core/pipeline-tracking-service'
+import { listLineConversationJobsForBusiness } from '@/modules/line-oa-studio/application/line-conversation-jobs'
+import { listRichMenuJobsForBusiness } from '@/modules/line-oa-studio/application/line-oa-rich-menu-jobs'
+import { listAssetExtractionJobsForBusiness } from '@/modules/asset-management/application/asset-extraction-job-service'
 
 export const BACKED_EDGES_CONFIG = {
   pipelineRun: {
@@ -66,6 +69,7 @@ function refusal(status, message) {
  * Aggregates bounded job records into status counts, fail count, and last run time.
  */
 export function aggregateJobRecords(records = []) {
+  if (!Array.isArray(records)) throw new TypeError('Pipeline health records must be an array')
   const countsByStatus = {}
   let failedCount = 0
   let lastRunAt = null
@@ -76,7 +80,8 @@ export function aggregateJobRecords(records = []) {
     if (status === 'FAILED') {
       failedCount += 1
     }
-    const updatedAt = record.updatedAt ? new Date(record.updatedAt).toISOString() : null
+    const timestamp = record.updatedAt ? new Date(record.updatedAt) : null
+    const updatedAt = timestamp && !Number.isNaN(timestamp.getTime()) ? timestamp.toISOString() : null
     if (updatedAt && (!lastRunAt || updatedAt > lastRunAt)) {
       lastRunAt = updatedAt
     }
@@ -91,122 +96,74 @@ export function aggregateJobRecords(records = []) {
   }
 }
 
+function unavailableStats() {
+  return {
+    available: false,
+    total: null,
+    countsByStatus: {},
+    failedCount: null,
+    lastRunAt: null,
+    hasFailures: null,
+  }
+}
+
+const DEFAULT_READ_PORTS = Object.freeze({
+  pipelineRun: ({ businessId, ...options }) => listPipelineRunsForHealth(businessId, options),
+  lineConversationJob: ({ businessId, ...options }) => listLineConversationJobsForBusiness(businessId, options),
+  lineOaRichMenuJob: ({ businessId, ...options }) => listRichMenuJobsForBusiness(businessId, options),
+  assetExtractionJob: ({ businessId, ...options }) => listAssetExtractionJobsForBusiness(businessId, options),
+})
+
+async function readTableHealth(key, readPort, args) {
+  if (typeof readPort !== 'function') return unavailableStats()
+  try {
+    const records = await readPort(args)
+    if (!Array.isArray(records)) throw new TypeError(`${key} read port returned a non-array result`)
+    return { available: true, ...aggregateJobRecords(records) }
+  } catch {
+    // A failed or missing owning read is unavailable, never an invented zero.
+    return unavailableStats()
+  }
+}
+
 /**
  * Reads live health metrics for the active Business only.
  * Single bounded read per table (4 queries max per request).
  */
-export async function getLivePipelineHealth({ businessId, viewer, db = prisma } = {}) {
+export async function getLivePipelineHealth({ businessId, viewer, db, readPorts = DEFAULT_READ_PORTS } = {}) {
   const business = typeof businessId === 'string' ? businessId.trim() : ''
   if (!business) throw refusal(400, 'BUSINESS_REQUIRED')
 
   if (!viewer) throw refusal(401, 'UNAUTHENTICATED')
-  if (!isDomainVisible('knowledge', viewer.visibleDomains)) {
-    throw refusal(403, 'KNOWLEDGE_DOMAIN_FORBIDDEN')
-  }
   if (!seesBusiness(viewer, business)) {
+    throw refusal(404, 'BUSINESS_NOT_FOUND')
+  }
+  try {
+    assertDomainVisible(viewer, business, 'knowledge')
+  } catch {
     throw refusal(404, 'BUSINESS_NOT_FOUND')
   }
 
   const BOUNDED_TAKE = 100
 
-  // 1. PipelineRun (Domain: knowledge / integration)
-  const fetchPipelineRuns = async () => {
-    try {
-      if (!db?.pipelineRun?.findMany) return []
-      return await db.pipelineRun.findMany({
-        where: { businessId: business },
-        orderBy: { updatedAt: 'desc' },
-        take: BOUNDED_TAKE,
-        select: { status: true, updatedAt: true },
-      })
-    } catch (err) {
-      console.error('[getLivePipelineHealth] pipelineRun error:', err)
-      return []
-    }
-  }
-
-  // 2. LineConversationJob (Domain: line-oa-studio)
-  const fetchLineConversationJobs = async () => {
-    try {
-      if (!db?.lineConversationJob?.findMany) return []
-      return await db.lineConversationJob.findMany({
-        where: { businessId: business },
-        orderBy: { updatedAt: 'desc' },
-        take: BOUNDED_TAKE,
-        select: { status: true, updatedAt: true },
-      })
-    } catch (err) {
-      console.error('[getLivePipelineHealth] lineConversationJob error:', err)
-      return []
-    }
-  }
-
-  // 3. LineOaRichMenuJob (Domain: line-oa-studio, linked via LineOaAccount)
-  const fetchLineOaRichMenuJobs = async () => {
-    try {
-      if (!db?.lineOaAccount?.findMany || !db?.lineOaRichMenuJob?.findMany) return []
-      const accounts = await db.lineOaAccount.findMany({
-        where: { businessId: business },
-        select: { id: true },
-      })
-      const accountIds = accounts.map((a) => a.id)
-      if (accountIds.length === 0) return []
-
-      return await db.lineOaRichMenuJob.findMany({
-        where: { accountId: { in: accountIds } },
-        orderBy: { updatedAt: 'desc' },
-        take: BOUNDED_TAKE,
-        select: { status: true, updatedAt: true },
-      })
-    } catch (err) {
-      console.error('[getLivePipelineHealth] lineOaRichMenuJob error:', err)
-      return []
-    }
-  }
-
-  // 4. AssetExtractionJob (Domain: asset-management)
-  const fetchAssetExtractionJobs = async () => {
-    try {
-      if (!db?.assetExtractionJob?.findMany) return []
-      return await db.assetExtractionJob.findMany({
-        where: { businessId: business },
-        orderBy: { updatedAt: 'desc' },
-        take: BOUNDED_TAKE,
-        select: { status: true, updatedAt: true },
-      })
-    } catch (err) {
-      console.error('[getLivePipelineHealth] assetExtractionJob error:', err)
-      return []
-    }
-  }
-
-  const [pipelineRuns, conversationJobs, richMenuJobs, extractionJobs] = await Promise.all([
-    fetchPipelineRuns(),
-    fetchLineConversationJobs(),
-    fetchLineOaRichMenuJobs(),
-    fetchAssetExtractionJobs(),
-  ])
-
-  const tableStats = {
-    pipelineRun: aggregateJobRecords(pipelineRuns),
-    lineConversationJob: aggregateJobRecords(conversationJobs),
-    lineOaRichMenuJob: aggregateJobRecords(richMenuJobs),
-    assetExtractionJob: aggregateJobRecords(extractionJobs),
-  }
+  const tableEntries = await Promise.all(
+    Object.keys(BACKED_EDGES_CONFIG).map(async (key) => [
+      key,
+      await readTableHealth(key, readPorts?.[key], { businessId: business, viewer, db, limit: BOUNDED_TAKE }),
+    ])
+  )
+  const tableStats = Object.fromEntries(tableEntries)
 
   const edges = {}
-  let totalTracked = 0
-  let totalFailures = 0
 
   for (const [key, config] of Object.entries(BACKED_EDGES_CONFIG)) {
     const stats = tableStats[key]
-    totalTracked += stats.total
-    totalFailures += stats.failedCount
 
     for (const edgeId of config.edgeIds) {
       edges[edgeId] = {
         table: config.table,
         domain: config.domain,
+        available: stats.available,
         monitorUrl: config.monitorUrl,
         total: stats.total,
         countsByStatus: stats.countsByStatus,
@@ -217,14 +174,27 @@ export async function getLivePipelineHealth({ businessId, viewer, db = prisma } 
     }
   }
 
+  const stats = Object.values(tableStats)
+  const unavailableTableCount = stats.filter((item) => !item.available).length
+  const healthAvailable = unavailableTableCount === 0
+  const totalTracked = healthAvailable
+    ? stats.reduce((total, item) => total + item.total, 0)
+    : null
+  const totalFailures = healthAvailable
+    ? stats.reduce((total, item) => total + item.failedCount, 0)
+    : null
+
   return {
     businessId: business,
     asOf: new Date().toISOString(),
     summary: {
       totalTracked,
       totalFailures,
-      hasFailures: totalFailures > 0,
+      hasFailures: healthAvailable ? totalFailures > 0 : null,
       backedEdgeCount: Object.keys(edges).length,
+      availableTableCount: stats.length - unavailableTableCount,
+      unavailableTableCount,
+      healthAvailable,
     },
     edges,
   }

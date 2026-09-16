@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.56.0b"
+version: "1.57.0b"
 status: active
 last_update: "2026-09-16T14:38:26+07:00,RWANG"
 relations:
@@ -12,11 +12,11 @@ relations:
 
 # Features (FEAT registry)
 
-Version diff 1.55.0b → 1.56.0b: register FR-250 as a project-manager feature-of-one for hierarchical Projects & Work navigation. No new FEAT bundle or runtime completion is asserted.
+Version diff 1.56.0b → 1.57.0b: FEAT-033's FR-215 live overlay is implemented locally through four bounded owning-domain reads; failed reads remain unavailable/null and production activation is not asserted. The Knowledge Documents surface is bounded to Text/Markdown admission.
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.56.0b |
+| **Version** | 1.57.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -66,7 +66,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-030 | Audit Access Evidence — closing the read-side gap ADR-077's lifecycle assumed was already open: `AuditEvent` gains seven nullable columns (`tenantId`, `businessId`, `reason`, `beforeJson`, `afterJson`, `requestId`, `sessionId`) so scope and the change made are queryable rather than living only inside `payloadJson` for whichever writer happened to include them, and identity gains `listAccessHistory` (a Business/Tenant owner, oneself, or the operator reads the event stream for their own scope, 404-shaped identically for unowned and nonexistent) and `listBusinessAccess` (the current grant roster with provenance) — the access review a reason on every FR-191 transition is only worth writing if someone can read it back (ADR-080, 2026-09-12) | FR-198, FR-199 | implemented |
 | FEAT-031 | SKU governance (anti-SKU-bloat) — the product nature declared once at the master and inherited by every SKU so a service is never a variant of a good, variant identity as the key that makes one physical variant one SKU, barcodes and partner codes as resolvable attributes an intake checks before it creates, pack sizes as unit conversions rather than SKUs, the SKU lifecycle (phase-out, reactivate, merge, the archive guard), replenishment parameters, and the read-only catalogue hygiene report with its merge desk on the Inventory console (ADR-083, `DOM-INVENTORY`) | FR-201, FR-202, FR-203, FR-204, FR-205, FR-206, FR-207 | implemented |
 | FEAT-032 | Catalogue intake that resolves before it creates — one envelope that JSON, a Business-specific Excel workbook and a LINE `#sku` command all convert into; a planner that looks up every item by its barcodes, partner codes and SKU code (following merges) before it plans a create, matches without overwriting, and applies ADR-083's guards across the catalogue and the batch; a persisted preview whose plan hash a commit must match; an all-or-nothing commit through the existing catalogue writers; the Import tab; and LINE previews that only a verified staff sender with Inventory write authority can confirm (ADR-084, `DOM-INVENTORY`) | FR-208, FR-209, FR-210 | implemented |
-| FEAT-033 | Data Pipeline Map — where data enters zuri-ai, where it is combined and who receives it, kept as a validated registry whose surface levels, build statuses and FEATs are derived from the tree and the readiness snapshot, drawn as a node-edge view with chain, domain and status filters in a Knowledge (GKS) navigation slot, with live per-edge health for the active Business declared next (ADR-085, `DOM-KNOWLEDGE`) | FR-212, FR-213, FR-214, FR-215 | building |
+| FEAT-033 | Data Pipeline Map — where data enters zuri-ai, where it is combined and who receives it, kept as a validated registry whose surface levels, build statuses and FEATs are derived from the tree and the readiness snapshot, drawn as a node-edge view with chain, domain and status filters in a Knowledge (GKS) navigation slot, with live per-edge health for the active Business implemented locally through owning-domain read ports (ADR-085, `DOM-KNOWLEDGE`) | FR-212, FR-213, FR-214, FR-215 | building |
 | FEAT-034 | Programme delivery telemetry — phase cards on the operator programme board show counts, size, plan window and effort estimate beside the time and tokens really used, measured from local agent session logs and agent usage reports and never presented as progress, and task cards carry evidence badges and subtask progress (ADR-086, `DOM-PLATFORM-CONTROL`) | FR-216, FR-217, FR-218, FR-219 | live |
 | FEAT-035 | Zuri harness usage plugin — Claude Code and Codex agents on any machine pair once through a signed-in browser, hold a credential that can only report usage, and report each finished session attributed to the approving person, the device and the lane of its branch (ADR-087, `DOM-IDENTITY`, `DOM-PLATFORM-CONTROL`) | FR-220, FR-221, FR-222 | live |
 | FEAT-036 | Connect LINE OA yourself — a Business owner connects a LINE Official Account from the browser: after a TOTP step-up they enter the Channel ID and Channel secret once, the server proves them with LINE, claims the bot for this installation, stores the secret write-only in the Integration vault (Supabase Vault, or an encrypted store on self-host) and mints short-lived tokens itself, sets and tests the webhook through LINE's API and decides on its own when the old transport has gone quiet — with no operator and no host file (ADR-089, `DOM-INTEGRATION`, `DOM-IDENTITY`, `DOM-LINE-OA-STUDIO`) | FR-223, FR-224, FR-225, FR-226, FR-227, FR-228 | building |
@@ -953,3 +953,5 @@ Version diff 1.53.0b → 1.54.0b (2026-09-14): readiness metadata for **FR-241**
 Version diff 1.54.0b → 1.55.0b (2026-09-16): **FEAT-040** (FR-243, FR-244; ADR-094) and **FEAT-041** (FR-245, FR-246; ADR-093) declared with readiness metadata, on the owner's acceptance of both ADRs.
 
 Version diff 1.55.0b → 1.56.0b (2026-09-16): Added **FEAT-042** (FR-247..FR-249, NFR-023) under **ADR-095** — error tracking and per-person feature usage, both extending the existing logger; FR-247 implemented locally, FR-248/FR-249 declared only. Also reconciles the '**Version**' document-control cell, which had drifted behind this table (read 1.47.0b, table already at 1.55.0b).
+
+Version diff 1.56.0b → 1.57.0b (2026-09-16): FEAT-033's FR-215 live overlay is implemented locally with four bounded owning-domain reads and truthful unavailable/null states. The Knowledge Documents surface is narrowed to Text/Markdown admission; no production activation is claimed.

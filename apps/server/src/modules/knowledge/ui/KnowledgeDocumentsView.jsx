@@ -18,49 +18,50 @@ import { api, useFetch, LoadingCard } from '@/modules/project-manager/components
 
 const TEMPLATES = [
   {
-    name: 'FAQ — คำถาม-คำตอบ',
-    title: 'FAQ คำถามที่พบบ่อย',
-    sourceKey: 'faq-general',
-    content: `# คำถามที่พบบ่อย (FAQ)
+    name: 'โครง FAQ',
+    title: 'FAQ — ร่าง',
+    sourceKey: 'faq-draft',
+    content: `# คำถามที่พบบ่อย
 
-## 1. เวลาทำการและการติดต่อ
-- วันจันทร์ - ศุกร์: 08:30 - 17:30 น.
-- ช่องทางติดต่อ: LINE Official Account หรือเบอร์โทรศัพท์หลัก
+> เติมคำตอบจากข้อมูลที่ Business อนุมัติแล้วเท่านั้น
 
-## 2. นโยบายการจัดส่งสินค้า
-- จัดส่งภายใน 1-3 วันทำการหลังการยืนยันชำระเงิน
-- สามารถติดตามสถานะพัสดุได้ผ่านระบบติดตามคำสั่งซื้อ
-
-## 3. การเปลี่ยนหรือคืนสินค้า
-- แจ้งเปลี่ยนสินค้าได้ภายใน 7 วันหลังจากได้รับสินค้าในสภาพสมบูรณ์
+## คำถาม
+คำตอบ:
 `,
   },
   {
-    name: 'Business Policy — นโยบายองค์กร',
-    title: 'นโยบายการให้บริการและมาตรฐานการดำเนินงาน',
-    sourceKey: 'policy-service-standard',
-    content: `# นโยบายและมาตรฐานการให้บริการ
+    name: 'โครงนโยบาย',
+    title: 'นโยบาย — ร่าง',
+    sourceKey: 'policy-draft',
+    content: `# นโยบาย
 
-### ข้อกำหนดทั่วไป
-1. พนักงานทุกคนต้องปฏิบัติต่อลูกค้าด้วยความสุภาพ รวดเร็ว และเป็นธรรม
-2. ข้อมูลส่วนบุคคลของลูกค้าจะถูกเก็บรักษาภายใต้ข้อกำหนด PDPA และนโยบายความเป็นส่วนตัว
+> ระบุขอบเขต ผู้อนุมัติ และวันที่มีผลจากเอกสารจริง
 
-### ระเบียบการให้ข้อมูลราคาสินค้า
-- ราคาที่แจ้งลูกค้าต้องเป็นราคาที่ผ่านการอนุมัติและรวมภาษีมูลค่าเพิ่มแล้ว
+## ขอบเขต
+-
+
+## ข้อกำหนด
+1.
 `,
   },
   {
-    name: 'Product Specs — ข้อมูลผลิตภัณฑ์',
-    title: 'ข้อมูลจำเพาะผลิตภัณฑ์และคู่มือ',
-    sourceKey: 'product-specifications',
-    content: `# ข้อมูลจำเพาะและเงื่อนไขผลิตภัณฑ์
+    name: 'โครงเอกสาร',
+    title: 'เอกสารความรู้ — ร่าง',
+    sourceKey: 'knowledge-document-draft',
+    content: `# ชื่อเอกสาร
 
-- รหัสกลุ่มสินค้า: SMART-GIFT-V1
-- การรับประกัน: 1 ปีนับจากวันที่ออกใบกำกับภาษี
-- คำแนะนำการใช้งาน: จัดเก็บในที่แห้ง อุณหภูมิห้อง หลีกเลี่ยงแสงแดดจัด
+> เติมเฉพาะข้อเท็จจริงที่ตรวจสอบและอนุมัติแล้ว
+
+## ขอบเขต
+-
+
+## เนื้อหา
 `,
   },
 ]
+
+const MAX_TEXT_UPLOAD_BYTES = 1024 * 1024
+const SUPPORTED_TEXT_EXTENSIONS = new Set(['.txt', '.md', '.markdown'])
 
 export default function KnowledgeDocumentsView({ initialTab = 'intake' }) {
   const scope = useScope()
@@ -122,7 +123,7 @@ export default function KnowledgeDocumentsView({ initialTab = 'intake' }) {
         <PageHeader
           eyebrow="KNOWLEDGE (GKS)"
           title="Documents & Intake"
-          subtitle="อัพโหลดและนำเข้าเอกสาร Text, Markdown และ Catalog JSON เข้าสู่คลังความรู้ Genesis Knowledge System (GKS)"
+          subtitle="อัพโหลดและนำเข้าเอกสาร Text/Markdown ของ Business ผ่าน Knowledge admission queue ของ zuri-ai"
         />
         <EmptyState
           title="กรุณาเลือก Business"
@@ -137,7 +138,7 @@ export default function KnowledgeDocumentsView({ initialTab = 'intake' }) {
       <PageHeader
         eyebrow="KNOWLEDGE (GKS)"
         title="Documents & Intake"
-        subtitle={`อัพโหลด นำเข้า และจัดการเอกสารความรู้สำหรับ ${businessName} ผ่าน 17-stage ingestion pipeline`}
+        subtitle={`อัพโหลด นำเข้า และจัดการเอกสาร Text/Markdown สำหรับ ${businessName} ผ่าน Knowledge admission queue (17 stages; local/isolated surface)`}
         actions={
           <div className="flex items-center gap-2">
             <span className="rounded-full bg-[var(--brand-tint)] px-3 py-1 text-xs font-semibold text-[var(--brand-dark)]">
@@ -278,7 +279,6 @@ function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
   const [title, setTitle] = useState('')
   const [sourceKey, setSourceKey] = useState('')
   const [version, setVersion] = useState('1.0')
-  const [format, setFormat] = useState('')
   const [previewExpanded, setPreviewExpanded] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
@@ -290,6 +290,16 @@ function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
 
   const handleFile = async (file) => {
     if (!file) return
+    const name = String(file.name || '').toLowerCase()
+    const extension = name.slice(name.lastIndexOf('.'))
+    if (!SUPPORTED_TEXT_EXTENSIONS.has(extension)) {
+      onError('รองรับเฉพาะไฟล์ .txt, .md หรือ .markdown')
+      return
+    }
+    if (file.size > MAX_TEXT_UPLOAD_BYTES) {
+      onError('ไฟล์เอกสารต้องมีขนาดไม่เกิน 1 MiB')
+      return
+    }
     try {
       const text = await file.text()
       setSelectedFile(file)
@@ -299,11 +309,6 @@ function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
       setTitle(baseName)
       setSourceKey(cleanSlug)
       setVersion('1.0')
-      if (file.name.endsWith('.json')) {
-        setFormat('SMARTGIFT_CATALOG_V1')
-      } else {
-        setFormat('')
-      }
       setPreviewExpanded(text.length < 500)
     } catch (err) {
       onError(`ไม่สามารถอ่านไฟล์ได้: ${err.message}`)
@@ -319,8 +324,6 @@ function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
     setSubmitting(true)
     try {
       const idempotencyKey = `upload:${sourceKey.trim()}:${Date.now()}`
-      const isJson = selectedFile.name.endsWith('.json') || format === 'SMARTGIFT_CATALOG_V1'
-      
       const payload = {
         businessId,
         projectId: null,
@@ -432,7 +435,7 @@ function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
           onClick={() => setUploadMode('file')}
           data-testid="mode-file"
         >
-          <UploadCloud size={14} className="mr-1 inline" /> อัพโหลดไฟล์ (.md / .txt / .json)
+          <UploadCloud size={14} className="mr-1 inline" /> อัพโหลดไฟล์ (.md / .txt)
         </button>
         <button
           type="button"
@@ -455,7 +458,7 @@ function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
       {/* Mode 1: File Dropzone & Details */}
       {uploadMode === 'file' && (
         <Card className="space-y-4">
-          <SectionTitle caption="รองรับเอกสารข้อความ UTF-8 (.md, .markdown, .txt) และโครงสร้าง SmartGift Catalog (.json) ไม่เกิน 1 MiB">
+          <SectionTitle caption="รองรับเอกสารข้อความ UTF-8 (.md, .markdown, .txt) ขนาดไม่เกิน 1 MiB">
             อัพโหลดเอกสารเข้าสู่ระบบความรู้
           </SectionTitle>
 
@@ -478,13 +481,13 @@ function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
           >
             <UploadCloud size={32} className="text-[var(--brand-dark)] mb-2" />
             <p className="text-sm font-semibold">ลากและวางไฟล์เอกสารที่นี่ หรือคลิกเพื่อเลือกไฟล์</p>
-            <p className="text-xs text-muted mt-1">.txt, .md, .markdown หรือ .json (SmartGift catalog)</p>
+            <p className="text-xs text-muted mt-1">.txt, .md หรือ .markdown</p>
             <label className="btn btn-primary mt-3 cursor-pointer text-xs">
               เลือกไฟล์จากเครื่อง
               <input
                 type="file"
                 className="hidden"
-                accept=".txt,.md,.markdown,.json,text/plain,text/markdown,application/json"
+                accept=".txt,.md,.markdown,text/plain,text/markdown"
                 onChange={(e) => handleFile(e.target.files?.[0])}
                 data-testid="file-input"
               />
@@ -541,18 +544,6 @@ function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
                   />
                 </Field>
               </div>
-
-              {selectedFile.name.endsWith('.json') && (
-                <Field label="รูปแบบ Structured Format">
-                  <select
-                    className="input text-xs"
-                    value={format}
-                    onChange={(e) => setFormat(e.target.value)}
-                  >
-                    <option value="SMARTGIFT_CATALOG_V1">SMARTGIFT_CATALOG_V1 (แคตตาล็อกสินค้า SmartGift)</option>
-                  </select>
-                </Field>
-              )}
 
               {/* Content Preview Toggle */}
               <div>
@@ -919,7 +910,7 @@ function SearchTabPanel({ businessId, onError }) {
           className="input flex-1 text-xs"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="พิมพ์คำถามหรือคำค้น เช่น นโยบายการคืนสินค้า, สเปกสินค้า..."
+          placeholder="พิมพ์คำถามหรือคำค้นจากเอกสารที่ผ่านการอนุมัติ..."
           required
           data-testid="search-input"
         />

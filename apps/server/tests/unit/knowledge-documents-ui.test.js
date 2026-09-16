@@ -58,7 +58,7 @@ describe('KnowledgeDocumentsView UI rendering', () => {
     expect(html).toContain('data-testid="tab-queue"')
     expect(html).toContain('data-testid="tab-search"')
     expect(html).toContain('data-testid="file-dropzone"')
-    expect(html).toContain('.txt, .md, .markdown หรือ .json')
+    expect(html).toContain('.txt, .md หรือ .markdown')
   })
 
   it('renders queue tab correctly when initialTab is queue', () => {

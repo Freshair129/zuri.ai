@@ -39,8 +39,8 @@
     "featureCount": 152,
     "readyFeatureCount": 115,
     "requirementCount": 250,
-    "verifiedRequirementCount": 236,
-    "progressPercent": 94.9,
+    "verifiedRequirementCount": 237,
+    "progressPercent": 95.3,
     "gapCount": 28,
     "gaps": [
       {
@@ -196,22 +196,6 @@
         ]
       },
       {
-        "domain": "knowledge",
-        "id": "REQ-FR-215",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-215 is partial",
-        "evidence": [
-          "apps/server/src/modules/knowledge/pipeline-map/DataPipelineMapView.jsx",
-          "apps/server/src/modules/knowledge/pipeline-map/pipeline-health-service.js",
-          "apps/server/src/modules/knowledge/pipeline-map/use-pipeline-health.js",
-          "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
-          "apps/server/tests/unit/pipeline-health-route.test.js",
-          "apps/server/tests/unit/pipeline-health-service.test.js",
-          "apps/server/tests/unit/use-pipeline-health.test.js"
-        ]
-      },
-      {
         "domain": "line-oa-studio",
         "id": "AUTH-001",
         "severity": "high",
@@ -277,20 +261,6 @@
         "check": "requirements",
         "summary": "FR-082 is planned",
         "evidence": []
-      },
-      {
-        "domain": "project-manager",
-        "id": "REQ-FR-215",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-215 is partial",
-        "evidence": [
-          "apps/server/src/app/api/pipelines/health/route.js",
-          "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
-          "apps/server/tests/unit/pipeline-health-route.test.js",
-          "apps/server/tests/unit/pipeline-health-service.test.js",
-          "apps/server/tests/unit/use-pipeline-health.test.js"
-        ]
       }
     ]
   },
@@ -608,7 +578,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 288,
+            "openApiPaths": 289,
             "missingFromOpenApi": 0
           }
         },
@@ -873,7 +843,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 288,
+            "openApiPaths": 289,
             "missingFromOpenApi": 0
           }
         },
@@ -1070,7 +1040,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 288,
+            "openApiPaths": 289,
             "missingFromOpenApi": 0
           }
         },
@@ -1889,7 +1859,7 @@
           "details": {
             "routes": 27,
             "inventoried": 27,
-            "openApiPaths": 288,
+            "openApiPaths": 289,
             "missingFromOpenApi": 0
           }
         },
@@ -2274,7 +2244,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-187",
@@ -2372,7 +2342,7 @@
           "details": {
             "routes": 10,
             "inventoried": 10,
-            "openApiPaths": 288,
+            "openApiPaths": 289,
             "missingFromOpenApi": 0
           }
         },
@@ -2735,7 +2705,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 288,
+            "openApiPaths": 289,
             "missingFromOpenApi": 0
           }
         },
@@ -3002,8 +2972,8 @@
           "title": "Knowledge source admission and corpus publication",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 7,
-          "testCount": 39
+          "codeCount": 9,
+          "testCount": 40
         },
         {
           "id": "FR-187",
@@ -3057,6 +3027,14 @@
           "testCount": 12
         },
         {
+          "id": "FR-215",
+          "title": "Live pipeline health on the map",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 5
+        },
+        {
           "id": "FR-235",
           "title": "LINE answer grounding from the published knowledge corpus",
           "declared": "done",
@@ -3107,8 +3085,8 @@
             }
           ],
           "details": {
-            "routes": 4,
-            "inventoried": 4,
+            "routes": 5,
+            "inventoried": 5,
             "missing": 0
           }
         },
@@ -3246,27 +3224,12 @@
           "evidence": [
             "apps/edge/tests/unit/genesisrag17-edge.test.ts"
           ]
-        },
-        {
-          "id": "REQ-FR-215",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-215 is partial",
-          "evidence": [
-            "apps/server/src/modules/knowledge/pipeline-map/DataPipelineMapView.jsx",
-            "apps/server/src/modules/knowledge/pipeline-map/pipeline-health-service.js",
-            "apps/server/src/modules/knowledge/pipeline-map/use-pipeline-health.js",
-            "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
-            "apps/server/tests/unit/pipeline-health-route.test.js",
-            "apps/server/tests/unit/pipeline-health-service.test.js",
-            "apps/server/tests/unit/use-pipeline-health.test.js"
-          ]
         }
       ],
       "details": {
-        "routes": 4,
+        "routes": 5,
         "apiRoutes": 0,
-        "pageRoutes": 4,
+        "pageRoutes": 5,
         "ownedModels": 14,
         "featureNotes": 17
       },
@@ -3290,7 +3253,7 @@
       ],
       "featureCount": 16,
       "readyFeatureCount": 11,
-      "progressPercent": 91.9
+      "progressPercent": 95.6
     },
     "line-oa-studio": {
       "status": "partial",
@@ -3527,7 +3490,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 288,
+            "openApiPaths": 289,
             "missingFromOpenApi": 0
           }
         },
@@ -3688,7 +3651,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 288,
+            "openApiPaths": 289,
             "missingFromOpenApi": 0
           }
         },
@@ -3855,7 +3818,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 288,
+            "openApiPaths": 289,
             "missingFromOpenApi": 0
           }
         },
@@ -4125,7 +4088,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 288,
+            "openApiPaths": 289,
             "missingFromOpenApi": 0
           }
         },
@@ -4307,7 +4270,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 288,
+            "openApiPaths": 289,
             "missingFromOpenApi": 0
           }
         },
@@ -5298,7 +5261,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-174",
@@ -5495,17 +5458,10 @@
         {
           "id": "FR-215",
           "title": "Live pipeline health on the map",
-          "declared": "planned",
-          "status": "partial",
+          "declared": "n/a",
+          "status": "verified",
           "codeCount": 1,
-          "testCount": 4,
-          "evidence": [
-            "apps/server/src/app/api/pipelines/health/route.js",
-            "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
-            "apps/server/tests/unit/pipeline-health-route.test.js",
-            "apps/server/tests/unit/pipeline-health-service.test.js",
-            "apps/server/tests/unit/use-pipeline-health.test.js"
-          ]
+          "testCount": 5
         },
         {
           "id": "FR-218",
@@ -5682,9 +5638,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 141,
-            "inventoried": 141,
-            "openApiPaths": 288,
+            "routes": 142,
+            "inventoried": 142,
+            "openApiPaths": 289,
             "missingFromOpenApi": 0
           }
         },
@@ -5752,7 +5708,7 @@
           "details": {
             "mutations": 111,
             "guardedMutations": 107,
-            "reads": 66,
+            "reads": 67,
             "unguardedReads": 2
           }
         },
@@ -5860,24 +5816,11 @@
           "check": "requirements",
           "summary": "FR-082 is planned",
           "evidence": []
-        },
-        {
-          "id": "REQ-FR-215",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-215 is partial",
-          "evidence": [
-            "apps/server/src/app/api/pipelines/health/route.js",
-            "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
-            "apps/server/tests/unit/pipeline-health-route.test.js",
-            "apps/server/tests/unit/pipeline-health-service.test.js",
-            "apps/server/tests/unit/use-pipeline-health.test.js"
-          ]
         }
       ],
       "details": {
-        "routes": 186,
-        "apiRoutes": 141,
+        "routes": 187,
+        "apiRoutes": 142,
         "pageRoutes": 45,
         "ownedModels": 31,
         "featureNotes": 34
@@ -7075,8 +7018,8 @@
           "title": "Knowledge source admission and corpus publication",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 22,
-          "testCount": 39
+          "codeCount": 24,
+          "testCount": 40
         }
       ],
       "evidence": [
@@ -9438,7 +9381,7 @@
     },
     {
       "id": "FEAT-033",
-      "title": "Data Pipeline Map — where data enters zuri-ai, where it is combined and who receives it, kept as a validated registry whose surface levels, build statuses and FEATs are derived from the tree and the readiness snapshot, drawn as a node-edge view with chain, domain and status filters in a Knowledge (GKS) navigation slot, with live per-edge health for the active Business declared next (ADR-085, `DOM-KNOWLEDGE`)",
+      "title": "Data Pipeline Map — where data enters zuri-ai, where it is combined and who receives it, kept as a validated registry whose surface levels, build statuses and FEATs are derived from the tree and the readiness snapshot, drawn as a node-edge view with chain, domain and status filters in a Knowledge (GKS) navigation slot, with live per-edge health for the active Business implemented locally through owning-domain read ports (ADR-085, `DOM-KNOWLEDGE`)",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
@@ -9453,12 +9396,11 @@
         "project-manager"
       ],
       "useCase": "เจ้าของธุรกิจเปิดแท็บ Knowledge (GKS) แล้วเห็นแผนที่ว่าข้อมูลของธุรกิจเข้ามาจากไหน ถูกรวมที่ไหน และถูกส่งต่อให้ใคร เลือก chain เช่น LINE turn เพื่อไล่ดูทีละ hop ว่าแต่ละขั้นเป็นของโดเมนไหน FEAT ไหน มีหน้าจอหรือ endpoint แล้วหรือยัง และขึ้น production แล้วหรือยังพร้อมหลักฐาน",
-      "progressPercent": 95,
+      "progressPercent": 100,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-033 registry status is building",
-        "FR-215 is partial"
+        "FEAT-033 registry status is building"
       ],
       "requirements": [
         {
@@ -9488,10 +9430,10 @@
         {
           "id": "FR-215",
           "title": "Live pipeline health on the map",
-          "status": "partial",
-          "progressPercent": 80,
+          "status": "verified",
+          "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 4
+          "testCount": 5
         }
       ],
       "evidence": [
@@ -9509,6 +9451,7 @@
         "apps/server/src/modules/knowledge/pipeline-map/use-pipeline-health.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr213-data-pipeline-map.spec.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",

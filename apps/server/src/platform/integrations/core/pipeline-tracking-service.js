@@ -732,6 +732,23 @@ export async function listPipelineRuns({ businessId = null, status = null, limit
   }
 }
 
+/**
+ * The narrow read port used by the Knowledge pipeline health projection.
+ * Ordering and selecting here keeps the projection from reaching into the
+ * ledger or pulling unrelated run payloads.
+ */
+export async function listPipelineRunsForHealth(businessId, { limit = 100, db = prisma, viewer } = {}) {
+  if (!businessId) throw serviceError(400, 'businessId is required for a scoped pipeline health list')
+  requireVisible(viewer, businessId)
+  const take = Math.min(Math.max(Number(limit) || 100, 1), 100)
+  return db.pipelineRun.findMany({
+    where: { businessId },
+    orderBy: { updatedAt: 'desc' },
+    take,
+    select: { status: true, updatedAt: true },
+  })
+}
+
 export async function getPipelineMonitor(executionRunId, {
   db = prisma,
   viewer,
