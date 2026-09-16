@@ -204,6 +204,9 @@ const SNAPSHOT_MODELS = [
   // @req FR-248, FR-249 — route/action usage, per person; restores after Person,
   // which it references (ADR-095 D2). No secret, no Business/Tenant scope.
   'usageEvent',
+  // @req FR-249, NFR-023 — the person-free rollup UsageEvent ages into. No
+  // foreign key at all, so its position here is for readability, not order.
+  'usageEventRollup',
   // @req FR-193 — the HR assignment record; restores after Person, Tenant,
   // Business and Branch (all above), all of which it references.
   'employment',

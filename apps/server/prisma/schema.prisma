@@ -5294,3 +5294,27 @@ model UsageEvent {
   @@index([kind, route, occurredAt])
   @@index([kind, actionName, occurredAt])
 }
+
+// @req FR-249, NFR-023 — the aggregate a UsageEvent row over 90 days old becomes:
+// one day, one route or actionName, a count, no personId. A separate shape from
+// UsageEvent on purpose (ADR-095 D3) — the per-person question stays answerable
+// for exactly 90 days, never longer, by construction rather than by convention.
+// `date` is UTC-midnight-truncated so a rollup and a later one for the same day
+// merge into the same row instead of a second one. `target` is the route
+// (PAGE_VIEW) or actionName (ACTION), never null: `@@unique` with a nullable
+// column would let Postgres treat two NULLs as distinct and defeat the very
+// upsert this table exists for, so `kind` plus one non-null `target` replaces
+// UsageEvent's two-nullable-column shape rather than copying it.
+// @spec ADR-095 D3
+// @tested tests/unit/usage-events.test.js
+model UsageEventRollup {
+  id        String   @id @default(uuid())
+  date      DateTime
+  kind      String
+  target    String
+  count     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date, kind, target])
+}
