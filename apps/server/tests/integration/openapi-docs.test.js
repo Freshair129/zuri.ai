@@ -207,8 +207,11 @@ describe('OpenAPI document', () => {
       // FR-247 (ADR-095 D1) adds two paths and two operations: the error
       // event list (GET) and the resolve action (PATCH). 284 + 2 = 286;
       // 381 + 2 = 383.
-      pathCount: 286,
-      operationCount: 383,
+      // SEC-034 (ADR-093 D6, TASK-ZAI-113) adds one more path and one more
+      // operation: the archive legal hold route (POST). 286 + 1 = 287;
+      // 383 + 1 = 384.
+      pathCount: 287,
+      operationCount: 384,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

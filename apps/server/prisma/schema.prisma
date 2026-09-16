@@ -2217,8 +2217,47 @@ model ArchiveManifest {
   previousManifest ArchiveManifest?  @relation("ArchiveManifestChain", fields: [previousManifestId], references: [id])
   nextManifests    ArchiveManifest[] @relation("ArchiveManifestChain")
 
+  // @req SEC-034, ADR-093 D5 — set once the expiry sweep (TASK-ZAI-113)
+  // deletes this file because every line in every segment it held has passed
+  // the archive's retention term. The manifest row itself is kept, never
+  // deleted: it stays the chain-of-custody record that the file existed, was
+  // verified at write time, and was destroyed on schedule, not lost or
+  // corrupted. `chat-evidence-retrieval-service.js` already treats a missing
+  // file as unavailable (reported in `missingMessageIds`), so no other code
+  // needed to change for retrieval to keep working once this is set.
+  fileDeletedAt DateTime?
+
   @@unique([tenantId, runId])
   @@index([tenantId, createdAt])
+}
+
+// @req SEC-034 — ADR-093 D6: an OWNER-recorded legal hold defers a Customer's
+//   archive key destruction — on PDPA erasure (TASK-ZAI-113 P1) or the D5 term
+//   expiry (TASK-ZAI-113 P2) — for a stated dispute reason, until a stated end
+//   date. Rows accumulate per Customer rather than one mutable row a later
+//   hold overwrites (one dispute resolves, another opens later): "does this
+//   Customer currently have a hold" is answered by `endDate > now` over every
+//   row, and the history of who protected what evidence, and why, is itself
+//   part of the record a dispute or an access review may need.
+// @spec ADR-093 D6; SEC-034
+// @tested tests/integration/crm-archive-legal-hold.test.js
+model ArchiveLegalHold {
+  id                 String   @id @default(uuid())
+  tenantId           String
+  customerId         String
+  reason             String
+  endDate            DateTime
+  recordedByPersonId String
+  createdAt          DateTime @default(now())
+
+  // No `@relation` to Tenant/Customer/Person — same choice as
+  // CustomerArchiveKey and ArchiveManifest above (SEC-030's
+  // IntegrationSecretEnvelope precedent). Included in the backup snapshot
+  // (SNAPSHOT_MODELS): a hold that failed to survive a restore would leave a
+  // Customer's archive key looking eligible for destruction when an OWNER
+  // had specifically protected it.
+
+  @@index([tenantId, customerId, endDate])
 }
 
 // @req FR-127 — each recomputable, advisory analysis run belongs to an internal

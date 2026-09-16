@@ -5658,55 +5658,55 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-113",
     "phase": "PHASE-ZAI-03",
     "sprint": "SPR-ZAI-05",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P1",
     "pic": "Claude",
     "executor": "Claude",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/src/modules/identity/erase-principal.js",
+      "code": "apps/server/src/modules/crm/archive-legal-hold-service.js",
       "doc": "docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md",
       "test": "apps/server/tests/integration/crm-archive-legal-hold.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "missing"
+      "test": "present"
     },
     "delivers": [],
     "subtasks": [
       {
         "id": "P0",
         "title": "Legal hold record with reason and end date",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P1",
         "title": "Erasure destroys the archive key or shows the hold",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P2",
         "title": "Expiry destroys keys and deletes fully expired files",
-        "status": "planned"
+        "status": "done"
       }
     ],
     "dod": {
       "acceptance": {
         "text": "Given a Customer with no legal hold, when a PDPA erasure runs, then their archive data key is destroyed and their archived lines can no longer be decrypted",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a Customer with an active legal hold, when a PDPA erasure runs, then every other copy is erased, the archive key survives, and the erasure status shows the hold until it ends",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given a message older than 10 years, when the expiry runs, then its Customer's key is destroyed once no unexpired line remains and a file whose lines have all expired is deleted",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured. Built and reviewed 2026-09-16 on branch `fix/archive-key-snapshot-inclusion`'s own follow-up (not merged). `archive-legal-hold-service.js`: `recordArchiveLegalHold` (per-Business owner over the Customer's tenant, BR-001, same shape as consent/erasure/retrieval) creates an `ArchiveLegalHold` row — rows accumulate per Customer rather than one mutable row a later hold overwrites, so \"currently active\" is `endDate > now` over every row, not a single column a second dispute would silently replace. `destroyArchiveKeysUnlessLegalHold` is the crm domain's own contract export, called from `identity/erase-principal.js` inside its own transaction the same way `redactConversationContentForCustomers` already is there — every Customer under the erased Person, not only the still-active ones, since a Customer already soft-deleted by an earlier partial erasure still has archived evidence this erasure must finish erasing. The erasure response carries `archiveKeyStatus` (`destroyed` or `held`, naming the hold) — this is what \"the erasure status shows the hold\" means, since no separate status page exists or is needed (FR-245: \"no page lists or browses the archive\"). `chat-evidence-archive-expiry-service.js` is the ADR-093 D5 term-expiry sweep, `sweepArchiveExpiry`: reads and decrypts every readable segment once per run into an in-memory working set, then two passes over it — pass 1 destroys a Customer's key once no unexpired line remains anywhere for them; pass 2 deletes a file (setting the new `ArchiveManifest.fileDeletedAt`, never deleting the row — it stays the chain-of-custody record) once every segment still in it is confirmed expired or its Customer's key is already gone. Both passes are fail-closed on a segment they could not read this run (a missing file, a hash mismatch, a wrong-epoch key): silence is never treated as evidence of expiry, and an active legal hold skips a Customer in both passes regardless of content age. New migration `20260916190000` (new model `ArchiveLegalHold`, included in the backup snapshot from the start; new column `ArchiveManifest.fileDeletedAt`), written, not applied. One honest scope note: a hold's own expiry is re-evaluated the next time erasure or the sweep runs for that Customer, not the instant its end date passes — the requirement's literal \"destroyed when the hold ends\" reads slightly more proactive than this, but nothing in this task's own tested definition of done asks for a separate trigger, so it was not built. Evidence: server `npm test` 708 files / 5921 tests passed, 0 failed (new: 10 in `crm-archive-legal-hold.test.js` covering hold-recording authority, the acceptance/success erasure criteria, the exit expiry criterion, a not-yet-expired no-op, an active-hold-blocks-everything case, a mixed file keeping one Customer's segment while destroying the other's key, and the one-audit-event-per-run assertion); `npm run build` clean; `npm run govern` 0 CRITICAL (real findings fixed: Appendix A route row + handler count, `openapi-docs.test.js`'s route inventory registration, CRM charter `owns_models`, Appendix B model/column rows, and `crm-chat-evidence-archive-crypto.test.js`'s migration-column check — it read only the original `_crm_chat_evidence_archive.sql`, so `ArchiveManifest.fileDeletedAt` added via the new, separate `_crm_archive_legal_hold.sql` broke it; fixed to read both files — the same class of traps every route/model addition in this lane has hit today).",
     "created": "2026-09-16T00:00:00Z,Claude,pending",
     "predictedTokens": 50000,
     "totalTokens": 0,

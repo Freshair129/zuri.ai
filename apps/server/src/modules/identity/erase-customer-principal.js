@@ -54,8 +54,9 @@ const notFound = () => failure(404, 'CUSTOMER_NOT_FOUND')
  * @param {string} customerId
  * @param {{businessId?: string, confirmation: string}} input
  * @param {{viewer: object, db?: object}} ctx
- * @returns {Promise<{customerId: string, counts: object}>} counts only — never any
- *   personal data, since the caller has just asserted they may not hold it.
+ * @returns {Promise<{customerId: string, counts: object, archiveKeyStatus: object}>}
+ *   counts and archiveKeyStatus only — never any personal data, since the
+ *   caller has just asserted they may not hold it.
  */
 export async function eraseCustomerPrincipal(customerId, input, { viewer, db = prisma } = {}) {
   if (!customerId) throw failure(400, 'CUSTOMER_ID_REQUIRED')
@@ -105,5 +106,12 @@ export async function eraseCustomerPrincipal(customerId, input, { viewer, db = p
     reason: 'PDPA_ERASURE_REQUEST',
   })
 
-  return { customerId: customer.id, counts }
+  // @req SEC-034 — "the erasure status shows the hold": this Customer's own
+  // slice of erasePrincipal's (Person-wide) archive-key result, named plainly
+  // rather than left buried in the raw counts object.
+  const archiveKeyStatus = counts.archiveKeysHeldByLegalHold.includes(customer.id)
+    ? { customerId: customer.id, status: 'held', reason: 'ARCHIVE_LEGAL_HOLD_ACTIVE' }
+    : { customerId: customer.id, status: 'destroyed' }
+
+  return { customerId: customer.id, counts, archiveKeyStatus }
 }

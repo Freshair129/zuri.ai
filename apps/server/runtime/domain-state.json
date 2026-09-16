@@ -614,7 +614,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 286,
+            "openApiPaths": 287,
             "missingFromOpenApi": 0
           }
         },
@@ -879,7 +879,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 286,
+            "openApiPaths": 287,
             "missingFromOpenApi": 0
           }
         },
@@ -1076,7 +1076,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 286,
+            "openApiPaths": 287,
             "missingFromOpenApi": 0
           }
         },
@@ -1404,8 +1404,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 16,
-            "present": 16
+            "models": 17,
+            "present": 17
           }
         },
         "authorization": {
@@ -1449,7 +1449,7 @@
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
-        "ownedModels": 16,
+        "ownedModels": 17,
         "featureNotes": 10
       },
       "featureIds": [
@@ -1895,7 +1895,7 @@
           "details": {
             "routes": 27,
             "inventoried": 27,
-            "openApiPaths": 286,
+            "openApiPaths": 287,
             "missingFromOpenApi": 0
           }
         },
@@ -2378,7 +2378,7 @@
           "details": {
             "routes": 10,
             "inventoried": 10,
-            "openApiPaths": 286,
+            "openApiPaths": 287,
             "missingFromOpenApi": 0
           }
         },
@@ -2741,7 +2741,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 286,
+            "openApiPaths": 287,
             "missingFromOpenApi": 0
           }
         },
@@ -3518,7 +3518,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 286,
+            "openApiPaths": 287,
             "missingFromOpenApi": 0
           }
         },
@@ -3679,7 +3679,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 286,
+            "openApiPaths": 287,
             "missingFromOpenApi": 0
           }
         },
@@ -3846,7 +3846,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 286,
+            "openApiPaths": 287,
             "missingFromOpenApi": 0
           }
         },
@@ -4100,7 +4100,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 286,
+            "openApiPaths": 287,
             "missingFromOpenApi": 0
           }
         },
@@ -4282,7 +4282,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 286,
+            "openApiPaths": 287,
             "missingFromOpenApi": 0
           }
         },
@@ -5656,9 +5656,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 141,
-            "inventoried": 141,
-            "openApiPaths": 286,
+            "routes": 142,
+            "inventoried": 142,
+            "openApiPaths": 287,
             "missingFromOpenApi": 0
           }
         },
@@ -5724,8 +5724,8 @@
             }
           ],
           "details": {
-            "mutations": 111,
-            "guardedMutations": 107,
+            "mutations": 112,
+            "guardedMutations": 108,
             "reads": 66,
             "unguardedReads": 2
           }
@@ -5870,8 +5870,8 @@
         }
       ],
       "details": {
-        "routes": 186,
-        "apiRoutes": 141,
+        "routes": 187,
+        "apiRoutes": 142,
         "pageRoutes": 45,
         "ownedModels": 31,
         "featureNotes": 33

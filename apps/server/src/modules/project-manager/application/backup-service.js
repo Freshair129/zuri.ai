@@ -344,6 +344,13 @@ const SNAPSHOT_MODELS = [
   // not a constraint the database enforces — this position (after `customer`,
   // `conversation` and `message`, above) keeps it truthful anyway.
   'customerArchiveKey', 'archiveManifest',
+  // @req SEC-034 — ADR-093 D6, TASK-ZAI-113: a legal hold's absence is what
+  // makes a Customer's archive key eligible for destruction on erasure or
+  // term expiry, so losing this row on restore is not neutral — it can turn
+  // an OWNER's deliberate protection of retained dispute evidence into an
+  // erasure that proceeds as if no hold had ever been recorded. No secret:
+  // exported whole, same as the two rows above it.
+  'archiveLegalHold',
   // @req FR-161 — a sales task hangs off Business, Person (assignee) and
   // optionally Customer and Conversation, so it restores after all of them.
   // Operating data, no secret: exported whole.

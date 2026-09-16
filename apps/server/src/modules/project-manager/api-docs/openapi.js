@@ -143,6 +143,10 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // preview, and every call is independently audited regardless of how many
   // times the same range is asked for.
   ['/api/crm/customers/{customerId}/chat-evidence/retrieve', ['POST']],
+  // @req SEC-034 — an OWNER records a legal hold on a Customer's chat evidence
+  // archive (ADR-093 D6, TASK-ZAI-113). POST only, same reasoning as the
+  // retrieval route above.
+  ['/api/crm/customers/{customerId}/chat-evidence/legal-hold', ['POST']],
   // @req FR-230 — the nightly retention sweep's scheduled entry point (ADR-091 D1,
   // D2). Deployment-authenticated (ZURI_RETENTION_SWEEP_TOKEN), same shape as
   // /api/line-oa/worker and /api/platform/programme-usage-reports below.

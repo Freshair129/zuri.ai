@@ -5,6 +5,7 @@ import { zErasePrincipalInput } from '@/lib/validation/entities'
 import { redactConversationContentForCustomers } from '@/modules/crm/conversation-redaction-service'
 import { redactLineConversationJobs } from '@/modules/line-oa-studio/application/line-job-erasure'
 import { tombstoneRawRecordsForExternalIds } from '@/platform/integrations/core/raw-record-redaction'
+import { destroyArchiveKeysUnlessLegalHold } from '@/modules/crm/archive-legal-hold-service'
 
 // @req FR-022, FR-095 — PDPA erasure for a principal (the erase-revoke leg of the P3 gate).
 // @spec docs/replacement/IMPACT-SCAN-IDENTITY.md §hazard-5 — ExternalIdentity is a
@@ -35,7 +36,7 @@ const REDACTED = '[erased]'
  * an erasure that revoked the identity and then failed to redact would leave the
  * person un-reachable but fully readable, which is the worse half to get wrong.
  *
- * @returns {{ revokedIdentities, revokedChannelIdentities, erasedCustomers, erasedAnalyses, invalidatedTokens, revokedSessions, personRedacted, redactedMessages, tombstonedRawRecords }}
+ * @returns {{ revokedIdentities, revokedChannelIdentities, erasedCustomers, erasedAnalyses, invalidatedTokens, revokedSessions, personRedacted, redactedMessages, tombstonedRawRecords, destroyedArchiveKeys, archiveKeysHeldByLegalHold }}
  */
 export async function erasePrincipal(input) {
   const { tenantId, personId, reason } = zErasePrincipalInput.parse(input)
@@ -94,6 +95,16 @@ export async function erasePrincipal(input) {
     const customers = await tx.customer.findMany({ where: { tenantId, personId }, select: { id: true, deletedAt: true } })
     const customerIds = customers.map((customer) => customer.id)
     const activeCustomers = customers.filter((customer) => customer.deletedAt === null)
+
+    // @req SEC-034 — ADR-093 D6, TASK-ZAI-113: PDPA erasure destroys each
+    // Customer's chat evidence archive key unless an OWNER-recorded legal
+    // hold protects it — the crm domain's own contract export, called the
+    // same way redactConversationContentForCustomers and
+    // tombstoneRawRecordsForExternalIds are below, never by a direct prisma
+    // write from here. Every Customer under this Person, not only the active
+    // ones: a Customer already soft-deleted by an earlier partial erasure
+    // still has archived evidence this erasure must finish erasing.
+    const { destroyedArchiveKeys, heldByLegalHold } = await destroyArchiveKeysUnlessLegalHold(tx, { customerIds, now })
     const conversations = customerIds.length
       ? await tx.conversation.findMany({ where: { tenantId, customerId: { in: customerIds } }, select: { id: true } })
       : []
@@ -196,6 +207,8 @@ export async function erasePrincipal(input) {
         redactedLineJobs,
         tombstonedRawRecords,
         personRedacted,
+        destroyedArchiveKeys,
+        archiveKeysHeldByLegalHold: heldByLegalHold,
       },
     })
 
@@ -210,6 +223,8 @@ export async function erasePrincipal(input) {
       redactedLineJobs,
       tombstonedRawRecords,
       personRedacted,
+      destroyedArchiveKeys,
+      archiveKeysHeldByLegalHold: heldByLegalHold,
     }
   })
 }

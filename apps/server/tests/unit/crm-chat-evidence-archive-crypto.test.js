@@ -201,7 +201,15 @@ describe('manifest chain hashing', () => {
 describe('migration — CustomerArchiveKey, ArchiveManifest (exit criterion: written, not applied)', () => {
   const dir = path.join(process.cwd(), 'supabase', 'migrations')
   const [file] = fs.readdirSync(dir).filter((name) => name.endsWith('_crm_chat_evidence_archive.sql'))
-  const sql = file ? fs.readFileSync(path.join(dir, file), 'utf8') : ''
+  // @req SEC-034 — TASK-ZAI-113 adds ArchiveManifest.fileDeletedAt via a SEPARATE,
+  // later migration (never by editing this one — migrations are additive) rather
+  // than by amending this file. Every field-containment check below reads the
+  // concatenation of both files, so a column declared in either satisfies it; the
+  // more specific checks (FKs, indexes) still only need to be true of one or the
+  // other, which concatenation does not break.
+  const [legalHoldFile] = fs.readdirSync(dir).filter((name) => name.endsWith('_crm_archive_legal_hold.sql'))
+  const sql = (file ? fs.readFileSync(path.join(dir, file), 'utf8') : '')
+    + (legalHoldFile ? fs.readFileSync(path.join(dir, legalHoldFile), 'utf8') : '')
   const schema = fs.readFileSync(path.join(process.cwd(), 'prisma', 'schema.prisma'), 'utf8')
 
   function modelFields(modelName) {
