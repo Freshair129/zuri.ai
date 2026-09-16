@@ -204,8 +204,11 @@ describe('OpenAPI document', () => {
       // FR-245 (ADR-093 D7, TASK-ZAI-112) adds one more path and one more
       // operation: the chat evidence archive's one retrieval path (POST).
       // 283 + 1 = 284; 380 + 1 = 381.
-      pathCount: 284,
-      operationCount: 381,
+      // FR-247 (ADR-095 D1) adds two paths and two operations: the error
+      // event list (GET) and the resolve action (PATCH). 284 + 2 = 286;
+      // 381 + 2 = 383.
+      pathCount: 286,
+      operationCount: 383,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

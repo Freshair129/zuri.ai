@@ -155,6 +155,10 @@ const SNAPSHOT_MODELS = [
   // Tenant/Business/Person foreign key) and cannot be re-derived: the agent that
   // sent one ran on another machine. Measurements, no secret: exported whole.
   'programmeUsageReport',
+  // @req FR-247 — deduplicated error events reference nothing (no Tenant,
+  // Business or Person foreign key) and are diagnostic history, not live
+  // state that would go stale. No secret: exported whole (ADR-095 D1).
+  'errorEvent',
   'portfolio', 'integrationProvider', 'tenant', 'legalEntity', 'legalEntityIdentifier',
   // @req FR-194 — a legal entity's own VAT branch registrations restore after
   // it and before any Business/Branch that could reference one.
@@ -197,6 +201,9 @@ const SNAPSHOT_MODELS = [
   // coverage check below started deriving it from the schema.
   'businessRoadmap', 'businessRoadmapHorizon', 'businessGoal',
   'person',
+  // @req FR-248, FR-249 — route/action usage, per person; restores after Person,
+  // which it references (ADR-095 D2). No secret, no Business/Tenant scope.
+  'usageEvent',
   // @req FR-193 — the HR assignment record; restores after Person, Tenant,
   // Business and Branch (all above), all of which it references.
   'employment',

@@ -36,12 +36,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 151,
+    "featureCount": 152,
     "readyFeatureCount": 115,
-    "requirementCount": 247,
-    "verifiedRequirementCount": 233,
-    "progressPercent": 94.8,
-    "gapCount": 28,
+    "requirementCount": 250,
+    "verifiedRequirementCount": 234,
+    "progressPercent": 94.7,
+    "gapCount": 30,
     "gaps": [
       {
         "domain": "agent",
@@ -261,6 +261,42 @@
         "check": "requirements",
         "summary": "FR-082 is planned",
         "evidence": []
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-248",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-248 is partial",
+        "evidence": [
+          "apps/server/src/modules/project-manager/application/backup-service.js",
+          "apps/server/tests/integration/backup.test.js",
+          "apps/server/tests/integration/crm-conversation-analysis.test.js",
+          "apps/server/tests/integration/fr075-restore-authorization.test.js",
+          "apps/server/tests/integration/line-non-text-admission.test.js",
+          "apps/server/tests/integration/line-server-backup.test.js",
+          "apps/server/tests/integration/marketing-backup.test.js",
+          "apps/server/tests/integration/marketing-content-backup.test.js",
+          "apps/server/tests/unit/fr045-backup-contract.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-249",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-249 is partial",
+        "evidence": [
+          "apps/server/src/modules/project-manager/application/backup-service.js",
+          "apps/server/tests/integration/backup.test.js",
+          "apps/server/tests/integration/crm-conversation-analysis.test.js",
+          "apps/server/tests/integration/fr075-restore-authorization.test.js",
+          "apps/server/tests/integration/line-non-text-admission.test.js",
+          "apps/server/tests/integration/line-server-backup.test.js",
+          "apps/server/tests/integration/marketing-backup.test.js",
+          "apps/server/tests/integration/marketing-content-backup.test.js",
+          "apps/server/tests/unit/fr045-backup-contract.test.js"
+        ]
       }
     ]
   },
@@ -578,7 +614,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 284,
+            "openApiPaths": 286,
             "missingFromOpenApi": 0
           }
         },
@@ -843,7 +879,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 284,
+            "openApiPaths": 286,
             "missingFromOpenApi": 0
           }
         },
@@ -1040,7 +1076,7 @@
           "details": {
             "routes": 11,
             "inventoried": 11,
-            "openApiPaths": 284,
+            "openApiPaths": 286,
             "missingFromOpenApi": 0
           }
         },
@@ -1553,7 +1589,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-076",
@@ -1859,7 +1895,7 @@
           "details": {
             "routes": 27,
             "inventoried": 27,
-            "openApiPaths": 284,
+            "openApiPaths": 286,
             "missingFromOpenApi": 0
           }
         },
@@ -2342,7 +2378,7 @@
           "details": {
             "routes": 10,
             "inventoried": 10,
-            "openApiPaths": 284,
+            "openApiPaths": 286,
             "missingFromOpenApi": 0
           }
         },
@@ -2705,7 +2741,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 284,
+            "openApiPaths": 286,
             "missingFromOpenApi": 0
           }
         },
@@ -3482,7 +3518,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 284,
+            "openApiPaths": 286,
             "missingFromOpenApi": 0
           }
         },
@@ -3643,7 +3679,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 284,
+            "openApiPaths": 286,
             "missingFromOpenApi": 0
           }
         },
@@ -3810,7 +3846,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 284,
+            "openApiPaths": 286,
             "missingFromOpenApi": 0
           }
         },
@@ -3926,7 +3962,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-095",
@@ -4031,6 +4067,14 @@
           "status": "verified",
           "codeCount": 3,
           "testCount": 6
+        },
+        {
+          "id": "FR-247",
+          "title": "Error tracking",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 5,
+          "testCount": 17
         }
       ],
       "checks": {
@@ -4041,8 +4085,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 1,
-            "inventoried": 1,
+            "routes": 2,
+            "inventoried": 2,
             "missing": 0
           }
         },
@@ -4054,9 +4098,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 3,
-            "inventoried": 3,
-            "openApiPaths": 284,
+            "routes": 5,
+            "inventoried": 5,
+            "openApiPaths": 286,
             "missingFromOpenApi": 0
           }
         },
@@ -4092,8 +4136,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 1,
-            "present": 1
+            "models": 3,
+            "present": 3
           }
         },
         "authorization": {
@@ -4114,9 +4158,9 @@
             }
           ],
           "details": {
-            "mutations": 1,
-            "guardedMutations": 0,
-            "reads": 1,
+            "mutations": 2,
+            "guardedMutations": 1,
+            "reads": 2,
             "unguardedReads": 1
           }
         },
@@ -4159,24 +4203,25 @@
         }
       ],
       "details": {
-        "routes": 4,
-        "apiRoutes": 3,
-        "pageRoutes": 1,
-        "ownedModels": 1,
+        "routes": 7,
+        "apiRoutes": 5,
+        "pageRoutes": 2,
+        "ownedModels": 3,
         "featureNotes": 1
       },
       "featureIds": [
         "FEAT-034",
         "FEAT-039",
+        "FEAT-042",
         "FR-105",
         "FR-142",
         "FR-145",
         "FR-211",
         "FR-241"
       ],
-      "featureCount": 7,
+      "featureCount": 8,
       "readyFeatureCount": 7,
-      "progressPercent": 100
+      "progressPercent": 97.1
     },
     "procurement": {
       "status": "partial",
@@ -4237,7 +4282,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 284,
+            "openApiPaths": 286,
             "missingFromOpenApi": 0
           }
         },
@@ -4764,7 +4809,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-077",
@@ -5536,6 +5581,52 @@
         },
         {
           "id": "FR-247",
+          "title": "Error tracking",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 17
+        },
+        {
+          "id": "FR-248",
+          "title": "Page-view usage",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 8,
+          "evidence": [
+            "apps/server/src/modules/project-manager/application/backup-service.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js"
+          ]
+        },
+        {
+          "id": "FR-249",
+          "title": "Action-level usage",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 8,
+          "evidence": [
+            "apps/server/src/modules/project-manager/application/backup-service.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js"
+          ]
+        },
+        {
+          "id": "FR-250",
           "title": "Hierarchical Projects and Work navigation",
           "declared": "n/a",
           "status": "verified",
@@ -5575,7 +5666,7 @@
           "details": {
             "routes": 141,
             "inventoried": 141,
-            "openApiPaths": 284,
+            "openApiPaths": 286,
             "missingFromOpenApi": 0
           }
         },
@@ -5700,7 +5791,7 @@
         "docs/domains/project-manager/features/FR-124-product-readiness-dashboard.md",
         "docs/domains/project-manager/features/FR-193-employment-record.md",
         "docs/domains/project-manager/features/FR-194-legal-entity-and-tax-branch.md",
-        "docs/domains/project-manager/features/FR-247-hierarchical-project-navigation.md",
+        "docs/domains/project-manager/features/FR-250-hierarchical-project-navigation.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -5751,6 +5842,40 @@
           "check": "requirements",
           "summary": "FR-082 is planned",
           "evidence": []
+        },
+        {
+          "id": "REQ-FR-248",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-248 is partial",
+          "evidence": [
+            "apps/server/src/modules/project-manager/application/backup-service.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-249",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-249 is partial",
+          "evidence": [
+            "apps/server/src/modules/project-manager/application/backup-service.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js"
+          ]
         }
       ],
       "details": {
@@ -5808,7 +5933,7 @@
         "FR-073",
         "FR-074",
         "FR-124",
-        "FR-247"
+        "FR-250"
       ],
       "featureCount": 48,
       "readyFeatureCount": 44,
@@ -10252,6 +10377,85 @@
       ]
     },
     {
+      "id": "FEAT-042",
+      "title": "Observability — error tracking and feature usage: operators read a deduplicated, resolvable error list and a per-person breakdown of which pages and actions are actually used, both extending the existing structured logger rather than a third-party service (ADR-095, `DOM-PLATFORM-CONTROL`)",
+      "kind": "bundle",
+      "registryStatus": "building",
+      "requirementIds": [
+        "FR-247",
+        "FR-248",
+        "FR-249"
+      ],
+      "primaryDomain": "platform-control",
+      "contributorDomains": [
+        "platform-control",
+        "project-manager"
+      ],
+      "useCase": "operator เปิดหน้า error ใหม่บน /control/errors แล้วเห็น error ที่เกิดจริงจัดกลุ่มตาม fingerprint พร้อมจำนวนครั้งและเวลาที่เกิดล่าสุด กดปิดเมื่อแก้แล้ว และเปิดอีกหน้าเพื่อดูว่าหน้าไหน/ฟีเจอร์ไหนถูกใช้บ่อยแค่ไหน แยกตามคน",
+      "progressPercent": 86.7,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-042 registry status is building",
+        "FR-248 is partial",
+        "FR-249 is partial"
+      ],
+      "requirements": [
+        {
+          "id": "FR-247",
+          "title": "Error tracking",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 9,
+          "testCount": 17
+        },
+        {
+          "id": "FR-248",
+          "title": "Page-view usage",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 1,
+          "testCount": 8
+        },
+        {
+          "id": "FR-249",
+          "title": "Action-level usage",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 1,
+          "testCount": 8
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/(control)/control/errors/page.jsx",
+        "apps/server/src/app/(pm)/settings/page.jsx",
+        "apps/server/src/app/api/platform/error-events/[id]/route.js",
+        "apps/server/src/app/api/platform/error-events/route.js",
+        "apps/server/src/lib/observability/logger.js",
+        "apps/server/src/modules/platform-control/application/error-events.js",
+        "apps/server/src/modules/platform-control/components/ErrorEventsView.jsx",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/tests/e2e/smoke.spec.js",
+        "apps/server/tests/integration/adaptive-shell.test.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/fr169-business-capability.test.js",
+        "apps/server/tests/integration/line-non-text-admission.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/error-events-view.test.js",
+        "apps/server/tests/unit/error-events.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/observability-logger.test.js",
+        "apps/server/tests/unit/platform-control-guard.test.js"
+      ]
+    },
+    {
       "id": "FR-001",
       "title": "จัดการ scope hierarchy: Portfolio / Tenant / Business / Branch / LegalEntity / Workspace (CRUD + human codes)",
       "kind": "requirement",
@@ -13505,7 +13709,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 37
+          "testCount": 38
         }
       ],
       "evidence": [
@@ -13543,6 +13747,7 @@
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
+        "apps/server/tests/unit/error-events.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr045-file-asset-service.test.js",
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
@@ -15476,12 +15681,12 @@
       ]
     },
     {
-      "id": "FR-247",
+      "id": "FR-250",
       "title": "Hierarchical Projects and Work navigation: the existing projects domain displays Projects & Work and offers six logical sidebar modules, with only the selected module’s sections or views in content navigation; all eight Business destinations, fourteen Project route templates, nine Project section meanings and seven Work views remain reachable, Import is one persistent Project action, and planned capabilities stay named and route-free. Module changes preserve authorized Project context; the Business shell, route/grant keys and target API authorization remain authoritative.",
       "kind": "requirement",
       "registryStatus": "live",
       "requirementIds": [
-        "FR-247"
+        "FR-250"
       ],
       "primaryDomain": "project-manager",
       "contributorDomains": [
@@ -15494,7 +15699,7 @@
       "blockers": [],
       "requirements": [
         {
-          "id": "FR-247",
+          "id": "FR-250",
           "title": "Hierarchical Projects and Work navigation",
           "status": "verified",
           "progressPercent": 100,
@@ -15513,10 +15718,10 @@
         "apps/server/tests/e2e/fr044-entry-routing.spec.js",
         "apps/server/tests/e2e/fr045-files.spec.js",
         "apps/server/tests/e2e/fr058-file-views.spec.js",
-        "apps/server/tests/e2e/fr247-navigation.spec.js",
+        "apps/server/tests/e2e/fr250-navigation.spec.js",
         "apps/server/tests/e2e/navigation-reachability.spec.js",
         "apps/server/tests/unit/domain-navigation.test.js",
-        "apps/server/tests/unit/fr247-navigation.test.js",
+        "apps/server/tests/unit/fr250-navigation.test.js",
         "apps/server/tests/unit/project-execution-backpath.test.js",
         "apps/server/tests/unit/project-work-route.test.js",
         "apps/server/tests/unit/sidebar-visible-subdomains.test.js"
@@ -15586,8 +15791,8 @@
       "id": "NFR-008",
       "title": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity…",
       "status": "verified",
-      "codeCount": 12,
-      "testCount": 20,
+      "codeCount": 13,
+      "testCount": 21,
       "domains": [
         "knowledge",
         "platform-control",
@@ -15726,6 +15931,14 @@
         "asset-management",
         "project-manager"
       ]
+    },
+    {
+      "id": "NFR-023",
+      "title": "Person-attributed usage retention is bounded",
+      "status": "not_implemented",
+      "codeCount": 0,
+      "testCount": 0,
+      "domains": []
     }
   ]
 }

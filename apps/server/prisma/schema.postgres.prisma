@@ -385,6 +385,8 @@ model Person {
   sessions                      Session[]
   // @req FR-220 — agent harness installations this person approved (ADR-087).
   harnessCredentials            HarnessCredential[]            @relation("HarnessCredentialPerson")
+  // @req FR-248, FR-249 — this person's route/action usage events (ADR-095 D2).
+  usageEvents                   UsageEvent[]                   @relation("UsageEventPerson")
   identityLinkTokens            IdentityLinkToken[]
   pluginAuthorizationCodes      PluginAuthorizationCode[]
   pluginSessions                PluginSession[]
@@ -5232,4 +5234,59 @@ model HarnessCredential {
 
   @@index([personId, status])
   @@index([status, createdAt])
+}
+
+// @req FR-247 — deduplicated, operator-readable error tracking. `fingerprint` is
+// `sha256(name + ':' + message + ':' + firstStackFrame)`, computed by
+// `logger.exception()`; a repeat with the same fingerprint increments
+// `occurrenceCount` and `lastSeenAt` rather than inserting a second row.
+// `stackFramesJson` holds only parsed `{file, line, function}` frames — never a
+// raw stack string, so a frame that is not a file:line shape is dropped rather
+// than stored as free text (ADR-095 D1). No personId: an error is a fact about
+// the system, not about a person.
+// @spec ADR-095 D1, SEC-009, SDD-048
+// @tested tests/unit/observability-logger.test.js, tests/unit/error-events.test.js
+model ErrorEvent {
+  id                  String    @id @default(uuid())
+  fingerprint         String    @unique
+  name                String
+  message             String
+  stackFramesJson     String    @default("[]")
+  occurrenceCount     Int       @default(1)
+  firstSeenAt         DateTime  @default(now())
+  lastSeenAt          DateTime  @default(now())
+  correlationId       String?
+  route               String?
+  resolvedAt          DateTime?
+  resolvedByPersonId  String?
+  createdAt           DateTime  @default(now())
+  version             Int       @default(1)
+
+  @@index([resolvedAt, lastSeenAt])
+  @@index([lastSeenAt])
+}
+
+// @req FR-248, FR-249 — route- and action-level usage, per person (ADR-095 D2,
+// owner's instruction over the aggregate-only default CR-020 §3.3 proposed).
+// `kind` is `PAGE_VIEW` (route set, actionName null) or `ACTION` (actionName a
+// static label the calling code chooses, never built from request data; route
+// null). A row older than 90 days is replaced by a `personId`-less daily
+// rollup rather than deleted outright (ADR-095 D3) — that rollup is a separate
+// aggregate shape, not a row of this model with personId cleared.
+// @spec ADR-095 D2, D3, D4, NFR-023, SEC-009
+// @tested tests/unit/usage-events.test.js
+model UsageEvent {
+  id         String   @id @default(uuid())
+  kind       String
+  route      String?
+  actionName String?
+  personId   String
+  sessionId  String?
+  occurredAt DateTime @default(now())
+
+  person Person @relation("UsageEventPerson", fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId, occurredAt])
+  @@index([kind, route, occurredAt])
+  @@index([kind, actionName, occurredAt])
 }

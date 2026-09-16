@@ -1,6 +1,13 @@
+// @req FR-247 — exception(): fingerprints and parses an error for a caller to
+//   persist. `src/lib` stays free of a database dependency by existing
+//   convention (no sibling file here imports `@/lib/db`), so this returns a
+//   shape rather than writing one — `recordErrorEvent()` in
+//   `platform-control/application/error-events.js` is the caller that persists it.
 // @spec NFR-017, SDD-048 — one structured emitter with an allowlisted field set.
 // @spec SEC-009 — secrets, PII and raw provider payloads never reach a log line.
+// @spec ADR-095 D1
 // @tested tests/unit/observability-logger.test.js
+import { createHash } from 'node:crypto'
 //
 // WHY AN ALLOWLIST
 // ----------------
@@ -40,6 +47,38 @@ export const ALLOWED_FIELDS = Object.freeze([
 
 const ALLOWED = new Set(ALLOWED_FIELDS)
 const LEVELS = new Set(['debug', 'info', 'warn', 'error'])
+
+// @req FR-247 — a V8 stack frame is a call site, never a variable value: unlike
+// some other languages' traces, `Error.stack` here carries no local state, so
+// parsing it into `{file, line, function}` is a formatting step, not a redaction
+// one. A line that does not match this shape (a library that appends something
+// else) is dropped rather than stored as free text — the same allowlist
+// discipline as the rest of this file, applied to one more input.
+const STACK_FRAME = /^\s*at\s+(?:(.+?)\s+\()?([^()\s][^()]*?):(\d+):(\d+)\)?\s*$/
+const MAX_FRAMES = 10
+
+/** Parse `error.stack` into safe `{file, line, function}` frames. Never throws. */
+export function parseStackFrames(stack) {
+  if (typeof stack !== 'string') return []
+  const frames = []
+  for (const line of stack.split('\n')) {
+    const m = STACK_FRAME.exec(line)
+    if (!m) continue
+    frames.push({ function: m[1] || null, file: m[2], line: Number(m[3]) })
+    if (frames.length >= MAX_FRAMES) break
+  }
+  return frames
+}
+
+/**
+ * The identity of a recurring defect: same name, same message, same first call
+ * site. Two errors that differ only in, say, a request id are still one defect —
+ * fingerprinting on the message would treat every occurrence as new.
+ */
+export function computeErrorFingerprint({ name, message, frames }) {
+  const first = frames?.[0] ? `${frames[0].file}:${frames[0].line}` : ''
+  return createHash('sha256').update(`${name || ''}:${message || ''}:${first}`).digest('hex')
+}
 
 function partitionFields(fields) {
   const safe = {}
@@ -84,12 +123,26 @@ export function createLogger({ sink = defaultSink, clock = () => new Date() } = 
     return record
   }
 
+  // @req FR-247 — parse, fingerprint and emit; never persist. `record` here is the
+  // stdout line (unchanged shape from `error()`); `fingerprint`/`name`/`message`/
+  // `frames` is what a caller hands to `recordErrorEvent(db, ...)` to persist one
+  // ErrorEvent row. A caller that only wants the stdout line and not persistence
+  // is free to ignore everything but `record`.
+  function exception(event, error, fields) {
+    const name = error?.name || 'Error'
+    const message = error?.message || ''
+    const frames = parseStackFrames(error?.stack)
+    const record = emit('error', event, fields)
+    return { record, fingerprint: computeErrorFingerprint({ name, message, frames }), name, message, frames }
+  }
+
   return {
     emit,
     debug: (event, fields) => emit('debug', event, fields),
     info: (event, fields) => emit('info', event, fields),
     warn: (event, fields) => emit('warn', event, fields),
     error: (event, fields) => emit('error', event, fields),
+    exception,
   }
 }
 
