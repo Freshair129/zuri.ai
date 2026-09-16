@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.102.0b"
+version: "2.103.0b"
 updated: "2026-09-16"
 owner: "Owen"
 source_of_truth: true
@@ -18,6 +18,8 @@ live_document: true
 ---
 
 # ROADMAP: zuri-ai — Live Delivery State
+
+> Revision 2.103.0b (2026-09-16): Owner approved ADR-095 / FR-247 on reviewed document commit `3f36668f`. TASK-FR-247 implements the existing Projects & Work domain as six logical sidebar modules with module-local views and a shared Project Import action. Scope is navigation only; all old routes and authority boundaries remain. Source, tests and independent verification use separate Luna max workers; root integrates and runs governance. Application validation and production activation remain pending.
 
 > Revision 2.102.0b (2026-09-16): **แก้สถานะ 11 งานที่ merge และ deploy จริงมาหลายวันแล้ว แต่แถวในไฟล์นี้ยังโชว์ "planned"** — พบระหว่างตอบคำถาม "มีงานอะไรค้างอีก": TASK-ZAI-082, 083, 084 (FR-225, FR-227, FR-228), 088, 089, 090 (FR-229, FR-230, FR-233), 092, 093 (FR-234, FR-235), 096, 097, 098 (FR-236, FR-237, FR-238) โค้ดจริง merge เข้า main หมดแล้วตั้งแต่ 2026-09-14 (PR #398, #405–#410) และ deploy จริงมาตั้งแต่ `release-087f3025` เป็นต้นมา (migration ที่เกี่ยวข้องก็ apply บน production แล้วทั้งหมด) — ยืนยันแต่ละ commit ด้วย `git merge-base --is-ancestor` เทียบกับ `origin/main` จริง ไม่ใช้แค่ชื่อ PR เดา. แก้เป็น **done** ทั้งหมด ยกเว้นจุดที่ยังรอจริง (082/083/084 ยังไม่มีบัญชี production ใช้งาน เพราะ TASK-ZAI-081 ยัง blocked; 093/096 ยังรอสวิตช์เปิดใช้งานจริงที่ TASK-ZAI-095/099). แก้ status badge ที่ตรงกันใน `docs/PRD-SDD-v1.0.md` (FR-225, 227, 228, 234, 235, 236 จาก "declared only"/"port half merged" เป็น "merged") ด้วย ไม่มีถ้อยคำ requirement เปลี่ยนเลย แก้แค่ cell สถานะและหลักฐานอ้างอิง.
 
@@ -497,6 +499,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FEAT-003 | PHASE-ZAI-PRODUCT | task | Execution planning: human-visible roadmap (FR-068), plan blueprint + intake (FR-069), stable execution/domain/tag identities (FR-070) | P1 | Claude | done | FR-012 | ../domains/project-manager/features/FR-068-human-visible-execution-roadmap.md |
 | TASK-FR-076-078 | PHASE-ZAI-PRODUCT | task | Product Owner Business role binding (FR-076), Project Inventory MVP (FR-077), SmartGift customer backfill contract + review queue (FR-078) | P1 | Claude | done | FR-046 | ../domains/crm/features/FR-078-customer-data-backfill-contract.md |
 | TASK-FEAT-008 | PHASE-ZAI-PRODUCT | task | Projects Dashboard (FR-086 shipped) + project priority (FR-087), accountable PIC (FR-088), Team grouping models (FR-089) | P1 | Claude | done (FR-087..089 status ruling resolved 2026-08-26 — PRD 1.89.0b) | FR-005; ADR-036; ADR-037 | ../domains/project-manager/features/FR-086-projects-dashboard.md |
+| TASK-FR-247 | PHASE-ZAI-PRODUCT | task | Projects & Work: six sidebar modules, module-local Business/Project views, one Import action; preserve routes and scope authority | P1 | RWANG + Luna max | in-progress (owner approved; application validation pending) | FR-039; FR-040; FR-077; FR-086; ADR-095 | ../domains/project-manager/features/FR-247-hierarchical-project-navigation.md |
 | TASK-FR-090 | PHASE-ZAI-PRODUCT | task | Live production-auth table declaration (PersonCredential, PasswordResetToken, laneId) — resolved 2026-08-26: source branch deleted; successors TASK-FEAT-010 (login/session) and the password-reset row under PHASE-ZAI-IAM | P0 | Claude | done | - | PRD-SDD FR-090 |
 | TASK-FR-105 | PHASE-ZAI-PRODUCT | task | Platform Programme Roadmap `/control/roadmap`: isOperator-only read-only projection of the 24-week programme (ADR-048) | P2 | Claude | done | FR-075; ADR-048 | ../domains/platform-control/features/FR-105-platform-programme-roadmap.md |
 | TASK-FR-211 | PHASE-ZAI-PRODUCT | task | Domain map & inventory tab บน `/control/roadmap` (`?view=domains`, FR-211): ทุกโดเมนเป็น tile พร้อมสถานะ / progress / feature พร้อมใช้ / FR verified / NFR / gap และ inventory ของโดเมนที่เลือก (feature, FR, NFR, readiness checks, gaps) — projection ฝั่ง server จาก snapshot ของ FR-124 ไม่คำนวณสถานะเอง ไม่มี write path; `domain-state.mjs` เพิ่มชื่อย่อ FR และ `nonFunctionalRequirements` | P2 | Claude | done | FR-105; FR-124; ADR-048 | ../../apps/server/tests/unit/platform-control-domain-map.test.js |

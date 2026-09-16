@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-095
 title: Projects and Work uses domain, module and local view navigation
-version: "0.2.0b"
-status: candidate
+version: "0.2.1b"
+status: beta
 created_at: "2026-09-16T14:38:26+07:00,RWANG,base eddd3dd8"
-last_update: "2026-09-16T14:52:11+07:00,RWANG"
+last_update: "2026-09-16T16:00:03+07:00,RWANG"
 author: RWANG
 attributes:
   doc_type: architecture-decision
@@ -24,7 +24,7 @@ relations:
 
 # ADR-095 — Projects and Work uses domain, module and local view navigation
 
-**Status:** Candidate composition for the owner-authorized delivery plan. Local implementation entry requires an independent review of the composed navigation model, canonical registration and root acceptance. Production release is separate.
+**Status:** Approved for application implementation by the owner's explicit “approve” on 2026-09-16, following the review of commit `3f36668fbe70bc447a0f0da4fd7dfcdfbae66617`. Independent Luna verification and root document acceptance passed before this approval. Production release is separate.
 
 ## Context
 
@@ -89,3 +89,4 @@ The composed model must enumerate all existing routes and preserve their behavio
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-16 | candidate | Scope the owner-requested hierarchy and exact preservation/amendment boundaries | eddd3dd8; uncommitted | RWANG |
 | 0.2.0b | 2026-09-16 | candidate | Explicitly amend ADR-036 D1 only for the PM sidebar, retaining its existing Projects dashboard destination | eddd3dd8; uncommitted | RWANG |
+| 0.2.1b | 2026-09-16 | beta | Record explicit owner approval to implement the reviewed navigation slice; decision scope unchanged | approved baseline 3f36668f | RWANG |

@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-NAV-IMPLEMENTATION-BASELINE
 title: "Project Manager Six-Module Navigation Implementation Baseline"
-version: "0.3.0b"
-status: "candidate"
+version: "0.3.1b"
+status: "beta"
 created_at: "2026-09-16T15:22:16+07:00, Luna Max worker A, source eddd3dd8d884a0b19a65f9a3019758c05c815b48"
-last_update: "2026-09-16T15:34:10+07:00,RWANG final integrator"
+last_update: "2026-09-16T16:00:03+07:00,RWANG final integrator"
 superseded_by: null
 attributes:
   doc_type: "implementation-baseline"
@@ -19,6 +19,13 @@ attributes:
 # 22 — Navigation Implementation Baseline, Attempt 3
 
 ## 1. Decision boundary
+
+**Approval transition, 2026-09-16:** the owner approved ADR-095 / FR-247 after
+independent document verification and root review of commit `3f36668f`.
+The application navigation implementation may proceed within that exact scope.
+The attempt-specific evidence and limitations below describe the preserved design
+packet; current implementation evidence belongs to the
+[FR-247 delivery record](../../domains/project-manager/features/FR-247-hierarchical-project-navigation.md).
 
 This is a design candidate for the Projects & Work navigation slice. It does not claim a runtime implementation, route migration, data migration, generated canonical ID, governance pass, test pass, browser pass, or deployment. Attempt 2 remains immutable in ../attempt-2/.
 
@@ -132,3 +139,4 @@ Root must independently verify this attempt, reconcile shared files, allocate or
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.3.0b | 2026-09-16T15:22:16+07:00 | candidate | Attempt 3 closes D08-001..005 at design level with shared action, typed refs, legacy policy, /work identity correction, and full UX composition | eddd3dd8d884a0b19a65f9a3019758c05c815b48 | Luna Max worker A |
+| 0.3.1b | 2026-09-16 | beta | Record owner approval and bind subsequent application evidence to FR-247; preserve the immutable attempt record | approved baseline 3f36668f | RWANG |

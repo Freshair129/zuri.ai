@@ -143,7 +143,10 @@ function ProjectManagerSidebar({ pathname, scope, domain }) {
     return () => document.removeEventListener('keydown', handleKeyDown, true)
   }, [mobileOpen, openPlannedId])
 
-  const navigate = () => setMobileOpen(false)
+  const navigate = () => {
+    setMobileOpen(false)
+    setOpenPlannedId(null)
+  }
   const clearProjectContext = () => {
     scope.select?.({ projectId: null })
     navigate()
@@ -170,7 +173,10 @@ function ProjectManagerSidebar({ pathname, scope, domain }) {
           aria-expanded={mobileOpen}
           aria-controls={`${panelPrefix}-modules`}
           aria-label="Toggle Projects & Work navigation"
-          onClick={() => setMobileOpen((open) => !open)}
+          onClick={() => {
+            if (mobileOpen) navigate()
+            else setMobileOpen(true)
+          }}
         >
           <ChevronDown size={18} aria-hidden className={`transition ${mobileOpen ? 'rotate-180' : ''}`} />
         </button>
@@ -204,8 +210,10 @@ function ProjectManagerSidebar({ pathname, scope, domain }) {
                   onClick={() => setOpenPlannedId((current) => (current === module.id ? null : module.id))}
                 >
                   <Icon className="h-5 w-5 shrink-0" aria-hidden />
-                  <span className="min-w-0 flex-1 whitespace-normal break-words font-bold leading-4">{module.label}</span>
-                  <span className="rounded-full border border-white/25 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white/60">Planned</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block whitespace-normal font-bold leading-4">{module.label}</span>
+                    <span className="mt-1 inline-block rounded-full border border-white/25 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white/60">Planned</span>
+                  </span>
                   <ChevronDown size={15} aria-hidden className={`shrink-0 transition ${expanded ? 'rotate-180' : ''}`} />
                 </button>
                 {expanded && (

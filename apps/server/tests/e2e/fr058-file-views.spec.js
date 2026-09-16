@@ -48,10 +48,12 @@ test.describe('FR-058 File Manager view switcher', () => {
     const diagramUrl = `https://example.test/fr058/${diagramName}`
 
     await chooseBusiness(page)
-    // FR-060 — landing is Business Home; Files is a Development sub-domain.
-    await page.getByRole('link', { name: 'Development' }).first().click()
+    // FR-060 / FR-247 — landing is Business Home; Files is a Resource
+    // Coordination Business destination.
+    await page.getByRole('link', { name: 'Projects & Work' }).first().click()
     await expect(page).toHaveURL(/\/projects$/)
-    await page.getByRole('link', { name: 'Files', exact: true }).click()
+    await page.getByRole('navigation', { name: 'Projects & Work modules' })
+      .getByRole('link', { name: 'Resource Coordination', exact: true }).click()
     await expect(page).toHaveURL(/\/files$/)
 
     // No new route/persistence — the switcher only appears once there is something to switch over.

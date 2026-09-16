@@ -14,7 +14,7 @@ const DOMAINS = [
   { key: 'commerce', label: 'Commerce', soon: true },
   { key: 'customer', label: 'CRM', soon: true },
   { key: 'people', label: 'HR / People' },
-  { key: 'projects', label: 'Development' },
+  { key: 'projects', label: 'Projects & Work' },
   { key: 'platform', label: 'Platform' },
 ]
 

@@ -4,10 +4,10 @@ title: Hierarchical Projects and Work navigation
 feature: FR-247
 domain: project-manager
 source: pending
-version: "0.1.0b"
-status: candidate
+version: "0.1.1b"
+status: beta
 created_at: "2026-09-16T14:38:26+07:00,RWANG,base eddd3dd8"
-last_update: "2026-09-16T14:38:26+07:00,RWANG"
+last_update: "2026-09-16T16:00:03+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:FR-247
@@ -56,7 +56,9 @@ The project-manager lane owns this presentation. Domain/grant identity, API owne
 
 ## Validation and delivery state
 
-Baseline only: six existing unit files ran 62 passing tests; selected browser coverage ran 20 passing product scenarios plus its route warmup. No tests of FR-247 have run yet. The candidate navigation packet is still under independent review; this note is not a completion claim.
+The owner explicitly approved ADR-095 / FR-247 on 2026-09-16 after reviewing document commit `3f36668fbe70bc447a0f0da4fd7dfcdfbae66617`. The composed document/prototype gate passed 35 navigation checks, 148 contract checks and root browser review. These are design evidence, not application implementation evidence.
+
+Application implementation is now in progress. The existing baseline has 62 passing unit tests and 20 passing product browser scenarios plus warmup. New FR-247 application checks remain pending until the implementation is integrated and tested. Root owns canonical documentation, generated governance and final acceptance; separate Luna max workers own application source, tests and independent verification.
 
 No new API, database schema, resource calculation, risk register, agent executor or provider registry is included in this slice. Those remain explicit work packages in the PM delivery plan.
 
@@ -65,3 +67,4 @@ No new API, database schema, resource calculation, risk register, agent executor
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-16 | candidate | Register the owner-requested navigation behavior and preservation checks | eddd3dd8; uncommitted | RWANG |
+| 0.1.1b | 2026-09-16 | beta | Record owner approval and start bounded application implementation; preserve all acceptance criteria | approved baseline 3f36668f | RWANG |

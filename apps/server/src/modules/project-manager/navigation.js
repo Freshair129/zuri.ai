@@ -189,7 +189,6 @@ export function moduleForProjectPath(pathname, projectId) {
   if (
     relative === ''
     || relative === '/inventory'
-    || relative === '/execution'
     || relative === '/import'
     || (relative.startsWith('/execution/') && EXECUTION_MODES.has(relative.slice('/execution/'.length)))
   ) {

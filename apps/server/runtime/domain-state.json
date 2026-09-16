@@ -36,10 +36,10 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 150,
-    "readyFeatureCount": 114,
-    "requirementCount": 246,
-    "verifiedRequirementCount": 231,
+    "featureCount": 151,
+    "readyFeatureCount": 115,
+    "requirementCount": 247,
+    "verifiedRequirementCount": 232,
     "progressPercent": 94.4,
     "gapCount": 28,
     "gaps": [
@@ -4372,7 +4372,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 13
+          "testCount": 12
         },
         {
           "id": "FR-007",
@@ -4388,7 +4388,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 5
+          "testCount": 3
         },
         {
           "id": "FR-009",
@@ -4396,7 +4396,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 10
+          "testCount": 9
         },
         {
           "id": "FR-010",
@@ -4419,8 +4419,8 @@
           "title": "PlanEnvelope import",
           "declared": "done",
           "status": "verified",
-          "codeCount": 10,
-          "testCount": 22
+          "codeCount": 9,
+          "testCount": 21
         },
         {
           "id": "FR-013",
@@ -4459,8 +4459,8 @@
           "title": "Excel template intake",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 8
+          "codeCount": 5,
+          "testCount": 7
         },
         {
           "id": "FR-019",
@@ -4555,15 +4555,15 @@
           "title": "The Base Context Bar maps Portfolio > Tenant > Business to Workspace > Organization > Business and stops global shell scope at Business",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 20
+          "codeCount": 7,
+          "testCount": 22
         },
         {
           "id": "FR-040",
           "title": "Project Work views",
           "declared": "done",
           "status": "verified",
-          "codeCount": 12,
+          "codeCount": 11,
           "testCount": 14
         },
         {
@@ -4588,7 +4588,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 20
+          "testCount": 22
         },
         {
           "id": "FR-044",
@@ -4683,8 +4683,8 @@
           "title": "Import target authorization",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 9
+          "codeCount": 6,
+          "testCount": 10
         },
         {
           "id": "FR-067",
@@ -4763,8 +4763,8 @@
           "title": "Project Inventory MVP",
           "declared": "done",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 10
+          "codeCount": 4,
+          "testCount": 11
         },
         {
           "id": "FR-078",
@@ -4796,7 +4796,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 26
+          "testCount": 25
         },
         {
           "id": "FR-087",
@@ -5517,6 +5517,14 @@
           "status": "verified",
           "codeCount": 3,
           "testCount": 8
+        },
+        {
+          "id": "FR-247",
+          "title": "Hierarchical Projects and Work navigation",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 4,
+          "testCount": 12
         }
       ],
       "checks": {
@@ -5676,6 +5684,7 @@
         "docs/domains/project-manager/features/FR-124-product-readiness-dashboard.md",
         "docs/domains/project-manager/features/FR-193-employment-record.md",
         "docs/domains/project-manager/features/FR-194-legal-entity-and-tax-branch.md",
+        "docs/domains/project-manager/features/FR-247-hierarchical-project-navigation.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -5733,7 +5742,7 @@
         "apiRoutes": 140,
         "pageRoutes": 45,
         "ownedModels": 31,
-        "featureNotes": 33
+        "featureNotes": 34
       },
       "featureIds": [
         "FEAT-001",
@@ -5782,11 +5791,12 @@
         "FR-072",
         "FR-073",
         "FR-074",
-        "FR-124"
+        "FR-124",
+        "FR-247"
       ],
-      "featureCount": 47,
-      "readyFeatureCount": 43,
-      "progressPercent": 93.4
+      "featureCount": 48,
+      "readyFeatureCount": 44,
+      "progressPercent": 93.5
     }
   },
   "features": [
@@ -6214,8 +6224,8 @@
           "title": "Project Inventory MVP",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 10
+          "codeCount": 5,
+          "testCount": 11
         }
       ],
       "evidence": [
@@ -6223,6 +6233,7 @@
         "apps/server/src/app/api/_helpers.js",
         "apps/server/src/app/api/projects/[id]/inventory/route.js",
         "apps/server/src/modules/project-manager/application/project-inventory-read-model.js",
+        "apps/server/src/modules/project-manager/components/ProjectTabs.jsx",
         "apps/server/tests/e2e/fr077-project-inventory.spec.js",
         "apps/server/tests/integration/project-inventory-stall.test.js",
         "apps/server/tests/integration/project-inventory.test.js",
@@ -6232,7 +6243,8 @@
         "apps/server/tests/unit/e2e-reconnecting-request.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/project-inventory-read-model.test.js",
-        "apps/server/tests/unit/project-inventory-ui.test.js"
+        "apps/server/tests/unit/project-inventory-ui.test.js",
+        "apps/server/tests/unit/project-work-route.test.js"
       ]
     },
     {
@@ -6394,7 +6406,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 26
+          "testCount": 25
         },
         {
           "id": "FR-087",
@@ -6478,7 +6490,6 @@
         "apps/server/tests/unit/projects-dashboard-ui.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
-        "apps/server/tests/unit/sidebar-visible-subdomains.test.js",
         "apps/server/tests/unit/sign-out.test.js",
         "apps/server/tests/unit/topbar-no-dropdown.test.js"
       ]
@@ -10471,13 +10482,12 @@
           "title": "Milestones + Gates (weighted, required flag, evidence JSON), browsed and status-edited at Development → Milestones & Gates, both global and…",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 10,
-          "testCount": 13
+          "codeCount": 9,
+          "testCount": 12
         }
       ],
       "evidence": [
         "apps/server/src/app/(pm)/milestones/page.jsx",
-        "apps/server/src/app/(pm)/projects/[projectId]/layout.jsx",
         "apps/server/src/app/(pm)/projects/[projectId]/milestones/page.jsx",
         "apps/server/src/app/api/gates/[id]/route.js",
         "apps/server/src/app/api/gates/route.js",
@@ -10495,7 +10505,6 @@
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/global-view-drilldown.test.js",
         "apps/server/tests/unit/global-view-scope-contract.test.js",
-        "apps/server/tests/unit/project-execution-backpath.test.js",
         "apps/server/tests/unit/project-roadmap-ui.test.js",
         "apps/server/tests/unit/project-work-route.test.js",
         "apps/server/tests/unit/route-reachability.test.js"
@@ -10569,12 +10578,11 @@
           "title": "Repository records (local metadata) + ผูกโปรเจกต์แบบ many-to-many",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 8,
-          "testCount": 5
+          "codeCount": 7,
+          "testCount": 3
         }
       ],
       "evidence": [
-        "apps/server/src/app/(pm)/projects/[projectId]/layout.jsx",
         "apps/server/src/app/(pm)/projects/[projectId]/repositories/page.jsx",
         "apps/server/src/app/(pm)/repositories/page.jsx",
         "apps/server/src/app/api/repositories/[id]/route.js",
@@ -10584,9 +10592,7 @@
         "apps/server/src/modules/project-manager/application/repository-service.js",
         "apps/server/tests/integration/fr072-repository-link-authorization.test.js",
         "apps/server/tests/integration/fr073-repository-scope.test.js",
-        "apps/server/tests/integration/project-core.test.js",
-        "apps/server/tests/unit/project-execution-backpath.test.js",
-        "apps/server/tests/unit/project-work-route.test.js"
+        "apps/server/tests/integration/project-core.test.js"
       ]
     },
     {
@@ -10612,15 +10618,14 @@
           "title": "Execution views 7 โหมดบนโมเดลกลาง (global + project-scoped)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 8,
-          "testCount": 10
+          "codeCount": 7,
+          "testCount": 9
         }
       ],
       "evidence": [
         "apps/server/src/app/(pm)/execution/[mode]/page.jsx",
         "apps/server/src/app/(pm)/execution/page.jsx",
         "apps/server/src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx",
-        "apps/server/src/app/(pm)/projects/[projectId]/layout.jsx",
         "apps/server/src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
         "apps/server/src/modules/project-manager/import/plan-mode-envelope.js",
         "apps/server/src/modules/project-manager/views/execution/ExecutionModeView.jsx",
@@ -10633,7 +10638,6 @@
         "apps/server/tests/unit/pipeline-monitor-ui.test.js",
         "apps/server/tests/unit/plan-intake-flow.test.js",
         "apps/server/tests/unit/project-execution-backpath.test.js",
-        "apps/server/tests/unit/project-work-route.test.js",
         "apps/server/tests/unit/work-surface-scope-inventory.test.js"
       ]
     },
@@ -10730,19 +10734,17 @@
           "title": "PlanEnvelope import",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 12,
-          "testCount": 22
+          "codeCount": 10,
+          "testCount": 21
         }
       ],
       "evidence": [
         "apps/server/src/app/(pm)/projects/[projectId]/import/page.jsx",
-        "apps/server/src/app/(pm)/projects/[projectId]/layout.jsx",
         "apps/server/src/app/api/import/commit/route.js",
         "apps/server/src/app/api/import/dry-run/route.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/project-manager/components/PlanModeCustomizerModal.jsx",
         "apps/server/src/modules/project-manager/components/PlanPreview.jsx",
-        "apps/server/src/modules/project-manager/components/ProjectTabs.jsx",
         "apps/server/src/modules/project-manager/components/UploadPlanModal.jsx",
         "apps/server/src/modules/project-manager/components/usePlanIntake.js",
         "apps/server/src/modules/project-manager/import/plan-import-service.js",
@@ -10764,7 +10766,6 @@
         "apps/server/tests/unit/plan-intake-flow.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/plan-status-vocabulary.test.js",
-        "apps/server/tests/unit/project-execution-backpath.test.js",
         "apps/server/tests/unit/project-work-route.test.js",
         "apps/server/tests/unit/route-reachability.test.js",
         "apps/server/tests/unit/self-plan-generator.test.js",
@@ -10992,14 +10993,13 @@
           "title": "Excel template intake",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 8
+          "codeCount": 5,
+          "testCount": 7
         }
       ],
       "evidence": [
         "apps/server/src/app/api/import/template/route.js",
         "apps/server/src/app/api/import/xlsx/route.js",
-        "apps/server/src/modules/project-manager/components/ProjectTabs.jsx",
         "apps/server/src/modules/project-manager/components/UploadPlanModal.jsx",
         "apps/server/src/modules/project-manager/import/xlsx-convert.js",
         "apps/server/src/modules/project-manager/import/xlsx-template.js",
@@ -11007,7 +11007,6 @@
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/plan-intake-flow.test.js",
         "apps/server/tests/unit/plan-status-vocabulary.test.js",
-        "apps/server/tests/unit/project-work-route.test.js",
         "apps/server/tests/unit/public-read-route-auth.test.js",
         "apps/server/tests/unit/route-reachability.test.js",
         "apps/server/tests/unit/work-surface-scope-inventory.test.js"
@@ -11833,11 +11832,12 @@
           "title": "The Base Context Bar maps Portfolio > Tenant > Business to Workspace > Organization > Business and stops global shell scope at Business",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 20
+          "codeCount": 9,
+          "testCount": 22
         }
       ],
       "evidence": [
+        "apps/server/src/app/(pm)/projects/[projectId]/layout.jsx",
         "apps/server/src/components/layouts/Breadcrumb.jsx",
         "apps/server/src/components/layouts/Sidebar.jsx",
         "apps/server/src/components/layouts/Topbar.jsx",
@@ -11845,6 +11845,7 @@
         "apps/server/src/config/modules.js",
         "apps/server/src/config/scope-views.js",
         "apps/server/src/context/ScopeContext.jsx",
+        "apps/server/src/modules/project-manager/components/ProjectManagerBusinessNav.jsx",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr046-entry-contract.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
@@ -11860,6 +11861,8 @@
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/project-execution-backpath.test.js",
+        "apps/server/tests/unit/project-work-route.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sidebar-visible-subdomains.test.js",
@@ -11890,21 +11893,19 @@
           "title": "Project Work views",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 13,
+          "codeCount": 11,
           "testCount": 14
         }
       ],
       "evidence": [
         "apps/server/src/app/(pm)/projects/[projectId]/all-work/page.jsx",
         "apps/server/src/app/(pm)/projects/[projectId]/dependencies/page.jsx",
-        "apps/server/src/app/(pm)/projects/[projectId]/layout.jsx",
         "apps/server/src/app/(pm)/projects/[projectId]/milestones/page.jsx",
         "apps/server/src/app/(pm)/projects/[projectId]/structure/page.jsx",
         "apps/server/src/app/(pm)/projects/[projectId]/timeline/page.jsx",
         "apps/server/src/app/api/projects/[id]/dependencies/route.js",
         "apps/server/src/modules/project-manager/application/dependency-service.js",
         "apps/server/src/modules/project-manager/application/project-dependency-map.js",
-        "apps/server/src/modules/project-manager/components/ProjectTabs.jsx",
         "apps/server/src/modules/project-manager/components/WorkViewTabs.jsx",
         "apps/server/src/modules/project-manager/views/DependencyMap.jsx",
         "apps/server/src/modules/project-manager/views/WbsCanvas.jsx",
@@ -12007,12 +12008,13 @@
           "title": "Project stores a direct nullable businessId owner plus workspaceId as Development Space context",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 9,
-          "testCount": 20
+          "codeCount": 10,
+          "testCount": 22
         }
       ],
       "evidence": [
         "apps/server/prisma/seed.js",
+        "apps/server/src/app/(pm)/projects/[projectId]/layout.jsx",
         "apps/server/src/app/(pm)/projects/[projectId]/page.jsx",
         "apps/server/src/components/layouts/Breadcrumb.jsx",
         "apps/server/src/components/layouts/Topbar.jsx",
@@ -12037,7 +12039,9 @@
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
         "apps/server/tests/unit/platform-control-entry-link.test.js",
         "apps/server/tests/unit/project-business-context.test.js",
+        "apps/server/tests/unit/project-execution-backpath.test.js",
         "apps/server/tests/unit/project-list-contract.test.js",
+        "apps/server/tests/unit/project-work-route.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
         "apps/server/tests/unit/sign-out.test.js",
         "apps/server/tests/unit/topbar-no-dropdown.test.js"
@@ -13013,14 +13017,15 @@
           "title": "Import target authorization",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 9
+          "codeCount": 6,
+          "testCount": 10
         }
       ],
       "evidence": [
         "apps/server/src/app/api/import/commit/route.js",
         "apps/server/src/app/api/import/dry-run/route.js",
         "apps/server/src/app/api/import/xlsx/route.js",
+        "apps/server/src/modules/project-manager/components/ProjectTabs.jsx",
         "apps/server/src/modules/project-manager/import/import-authorization.js",
         "apps/server/src/modules/project-manager/import/plan-import-service.js",
         "apps/server/tests/e2e/smoke.spec.js",
@@ -13031,7 +13036,8 @@
         "apps/server/tests/integration/plan-import.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
-        "apps/server/tests/unit/import-authorization.test.js"
+        "apps/server/tests/unit/import-authorization.test.js",
+        "apps/server/tests/unit/project-work-route.test.js"
       ]
     },
     {
@@ -15441,6 +15447,53 @@
         "apps/server/tests/unit/integration/secret-store-port.test.js",
         "apps/server/tests/unit/integration/supabase-vault-secret-store.test.js"
       ]
+    },
+    {
+      "id": "FR-247",
+      "title": "Hierarchical Projects and Work navigation: the existing projects domain displays Projects & Work and offers six logical sidebar modules, with only the selected module’s sections or views in content navigation; all eight Business destinations, fourteen Project route templates, nine Project section meanings and seven Work views remain reachable, Import is one persistent Project action, and planned capabilities stay named and route-free. Module changes preserve authorized Project context; the Business shell, route/grant keys and target API authorization remain authoritative.",
+      "kind": "requirement",
+      "registryStatus": "live",
+      "requirementIds": [
+        "FR-247"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "ผู้ใช้เปิด Projects & Work แล้วเลือกหมวด Project Management, Work Management หรือ Resource Coordination จาก sidebar และเลือกแท็บภายในหมวดนั้น โดยยังอยู่ในโปรเจกต์เดิม เปิด Inventory, Team และ Work views เดิมได้ครบ ใช้ Import plan จากปุ่มเดียว และเห็น Requirements, Risks, Resources กับ Agent Delivery ว่าส่วนใดยัง Planned โดยเมนูไม่เพิ่มสิทธิ์",
+      "progressPercent": 100,
+      "ready": true,
+      "readiness": "ready",
+      "blockers": [],
+      "requirements": [
+        {
+          "id": "FR-247",
+          "title": "Hierarchical Projects and Work navigation",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 5,
+          "testCount": 12
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/(pm)/projects/[projectId]/layout.jsx",
+        "apps/server/src/components/layouts/AppShell.jsx",
+        "apps/server/src/modules/project-manager/components/ProjectManagerBusinessNav.jsx",
+        "apps/server/src/modules/project-manager/components/ProjectTabs.jsx",
+        "apps/server/src/modules/project-manager/navigation.js",
+        "apps/server/tests/e2e/fr040-project-work.spec.js",
+        "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/fr044-entry-routing.spec.js",
+        "apps/server/tests/e2e/fr045-files.spec.js",
+        "apps/server/tests/e2e/fr058-file-views.spec.js",
+        "apps/server/tests/e2e/fr247-navigation.spec.js",
+        "apps/server/tests/e2e/navigation-reachability.spec.js",
+        "apps/server/tests/unit/domain-navigation.test.js",
+        "apps/server/tests/unit/fr247-navigation.test.js",
+        "apps/server/tests/unit/project-execution-backpath.test.js",
+        "apps/server/tests/unit/project-work-route.test.js",
+        "apps/server/tests/unit/sidebar-visible-subdomains.test.js"
+      ]
     }
   ],
   "nonFunctionalRequirements": [
@@ -15506,8 +15559,8 @@
       "id": "NFR-008",
       "title": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity…",
       "status": "verified",
-      "codeCount": 13,
-      "testCount": 21,
+      "codeCount": 12,
+      "testCount": 20,
       "domains": [
         "knowledge",
         "platform-control",

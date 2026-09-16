@@ -1,7 +1,7 @@
 ---
-version: "1.27.0b"
+version: "1.28.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-14T21:00:00+07:00,Claude Sonnet 5"
+last_update: "2026-09-16T16:00:03+07:00,RWANG"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -14,9 +14,9 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.24.0b |
+| **Version** | 1.28.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
-| **Last Updated** | 2026-09-13 |
+| **Last Updated** | 2026-09-16 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
@@ -59,11 +59,11 @@ Landing → credential Login → signed viewer resolution → Business Routing
 | **EntryShell** | no authenticated viewer or pre-shell entry | `/`, `/login`, `/signup`, `/reset-password` | `src/components/layouts/EntryShell.jsx` | no domain bar, sidebar or Business context |
 | **BusinessRoutingShell** | viewer exists but Business is not selected | `/businesses`, `/onboarding/profile`, `/waiting-room`, `/workspace-home` | `src/components/layouts/BusinessRoutingShell.jsx` | displays only authorized Business choices; offers sign-out (FR-046/FR-095) |
 | **BusinessShell** | trusted viewer plus authorized `activeBusinessId` | `/overview` and Business domains | `src/app/(pm)/layout.jsx`, `BusinessShellGuard.jsx` | selection occurs before final chrome mounts; Topbar offers sign-out (FR-046/FR-095) |
-| **ProjectResourceShell** | BusinessShell plus opened `projectId` | `/projects/[projectId]/**` | `src/app/(pm)/projects/[projectId]/layout.jsx` | Project tabs remain inside the selected Business |
+| **ProjectResourceShell** | BusinessShell plus opened `projectId` | `/projects/[projectId]/**` | `src/app/(pm)/projects/[projectId]/layout.jsx` | Authorized Project module-local views and one shared Import plan action remain inside the selected Business (FR-247) |
 | **PlatformControlShell** | trusted installation operator; no Business selection | `/control/**` | `src/app/(control)/layout.jsx` | no DomainBar, Business sidebar, Business context or Business navigation entry; offers sign-out (FR-046/FR-095) |
 
 `/overview` is Business Home's Dashboard and the BusinessShell root. It is not a
-Development sub-domain. Development starts at `/projects`.
+Projects & Work sub-domain. Projects & Work starts at `/projects`.
 
 ## 3. Current interface registry
 
@@ -90,23 +90,25 @@ mean production identity, external providers or cutover gates are complete.
 | `/workspace-home` | Workspace Home | BusinessRoutingShell | joined top-level Workspaces (Portfolio); owner collaboration panel — ACTIVE members with remove, PENDING invites with revoke, and a mint form whose invite code is shown once with copy affordances (AC-067.1/2/7); owner continuation into the FR-020 one-step Business creator; Business Routing link only when Business access exists (AC-066.6); shell header offers sign-out (FR-046/FR-095) | auth required, incomplete profile redirect, loading, empty, error, session unavailable (503 kept apart from 401 — retry state, no redirect); panel-only states: roster loading, roster refused (same 404 as an absent Workspace), no members, no pending invites, expired-but-revocable invite, minted-code shown once, per-action confirm and server refusal | implemented; `src/app/(entry)/workspace-home/page.jsx`, `src/modules/identity/workspace-collaboration-view.js`, `src/lib/viewer-failure.js`, `/api/onboarding/state`, `/api/workspace-memberships` (GET roster, DELETE remove), `/api/workspace-invites` (POST mint), `/api/workspace-invites/[id]` (DELETE revoke), FR-046, FR-066, FR-067 |
 | `/overview` | Business Home Dashboard | BusinessShell; shell-level cross-domain projection | Business briefing, KPI/health, strategy and attention links; Topbar offers sign-out (FR-046/FR-095) | Business required, ready, forbidden, loading, empty, error, offline | implemented beta; `src/app/(pm)/overview/page.jsx`, FR-060 |
 
-### 3.2 Development domain — global surfaces
+### 3.2 Projects & Work domain — global surfaces
 
-The runtime registry has eight Development sub-domain entries, including Files;
-the Business Home slot is excluded from this count.
+The route registry retains eight Projects & Work destinations, including Files;
+the Business Home slot is excluded from this count. ADR-095 / FR-247 presents
+these through six logical sidebar modules. The count describes flat route entries,
+not the number of visible modules. Delivery evidence is in the FR-247 feature note.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
-| `/projects` | Projects | BusinessShell → Development / Projects | Business-scoped Project list, filters, open Project, create through objective intake | ready, empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/page.jsx`, FR-003 |
-| `/projects/new` | Objective intake | BusinessShell → Development / Projects | create a structured plan from an objective; preview and submit | validation, conflict, loading, error, success | implemented; `src/app/(pm)/projects/new/page.jsx`, FR-017 |
-| `/work` | All Work | BusinessShell → Development / All Work | global WorkItem browse/filter/status editing | empty, loading, error, forbidden, offline | implemented; `src/app/(pm)/work/page.jsx`, FR-005 |
-| `/execution` | Execution overview | BusinessShell → Development / Execution | choose or summarize the seven canonical execution modes | ready, empty, loading, error, forbidden | implemented; `src/app/(pm)/execution/page.jsx`, FR-009 |
-| `/execution/[mode]` | Execution mode view | BusinessShell → Development / Execution | mode-specific view over the neutral work model | invalid mode, empty, loading, error, forbidden | implemented; `src/app/(pm)/execution/[mode]/page.jsx`, FR-009 |
-| `/timeline` | Global Timeline | BusinessShell → Development / Timeline | cross-Project schedule and date-bound work | empty, loading, error, forbidden | implemented; `src/app/(pm)/timeline/page.jsx`, FR-064 |
-| `/dependencies` | Dependency register | BusinessShell → Development / Dependencies | cross-Project dependency list, create, inspect and delete | empty, loading, error, forbidden, cycle/domain validation | implemented; `src/app/(pm)/dependencies/page.jsx`, FR-007 |
-| `/milestones` | Milestones and Gates | BusinessShell → Development / Milestones & Gates | global milestones/gates, status and evidence updates | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/milestones/page.jsx`, FR-006 |
-| `/files` | Managed Files | BusinessShell → Development / Files | Business/Project file metadata, reconcile, mount and safe content actions | empty, loading, error, capability-disabled, forbidden | implemented beta; `src/app/(pm)/files/page.jsx`, FR-045 |
-| `/repositories` | Repositories | BusinessShell → Development / Repositories | local repository metadata and Project links | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/repositories/page.jsx`, FR-008 |
+| `/projects` | Projects | BusinessShell → Projects & Work → Project Management | Business-scoped Project list, filters, open Project, create through objective intake | ready, empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/page.jsx`, FR-003 |
+| `/projects/new` | Objective intake | BusinessShell → Projects & Work → Project Management | create a structured plan from an objective; preview and submit | validation, conflict, loading, error, success | implemented; `src/app/(pm)/projects/new/page.jsx`, FR-017 |
+| `/work` | All Work | BusinessShell → Projects & Work → Work Management | global WorkItem browse/filter/status editing | empty, loading, error, forbidden, offline | implemented; `src/app/(pm)/work/page.jsx`, FR-005 |
+| `/execution` | Execution overview | BusinessShell → Projects & Work → Work Management | choose or summarize the seven canonical execution modes | ready, empty, loading, error, forbidden | implemented; `src/app/(pm)/execution/page.jsx`, FR-009 |
+| `/execution/[mode]` | Execution mode view | BusinessShell → Projects & Work → Work Management | mode-specific view over the neutral work model | invalid mode, empty, loading, error, forbidden | implemented; `src/app/(pm)/execution/[mode]/page.jsx`, FR-009 |
+| `/timeline` | Global Timeline | BusinessShell → Projects & Work → Work Management | cross-Project schedule and date-bound work | empty, loading, error, forbidden | implemented; `src/app/(pm)/timeline/page.jsx`, FR-064 |
+| `/dependencies` | Dependency register | BusinessShell → Projects & Work → Work Management | cross-Project dependency list, create, inspect and delete | empty, loading, error, forbidden, cycle/domain validation | implemented; `src/app/(pm)/dependencies/page.jsx`, FR-007 |
+| `/milestones` | Milestones and Gates | BusinessShell → Projects & Work → Work Management | global milestones/gates, status and evidence updates | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/milestones/page.jsx`, FR-006 |
+| `/files` | Managed Files | BusinessShell → Projects & Work → Resource Coordination | Business/Project file metadata, reconcile, mount and safe content actions | empty, loading, error, capability-disabled, forbidden | implemented beta; `src/app/(pm)/files/page.jsx`, FR-045 |
+| `/repositories` | Repositories | BusinessShell → Projects & Work → Resource Coordination | local repository metadata and Project links | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/repositories/page.jsx`, FR-008 |
 
 ### 3.2b Commerce domain
 
@@ -233,8 +235,8 @@ separately documented.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
-| `/workspaces` | Workspace list | BusinessShell → Development/Space compatibility | list and open Spaces | empty, loading, error, forbidden | implemented; `src/app/(pm)/workspaces/page.jsx` |
-| `/workspaces/[workspaceId]` | Workspace detail | BusinessShell → Development/Space compatibility | Space metadata and related Projects | not found, loading, error, forbidden | implemented; `src/app/(pm)/workspaces/[workspaceId]/page.jsx` |
+| `/workspaces` | Workspace list | BusinessShell → Projects & Work/Space compatibility | list and open Spaces | empty, loading, error, forbidden | implemented; `src/app/(pm)/workspaces/page.jsx` |
+| `/workspaces/[workspaceId]` | Workspace detail | BusinessShell → Projects & Work/Space compatibility | Space metadata and related Projects | not found, loading, error, forbidden | implemented; `src/app/(pm)/workspaces/[workspaceId]/page.jsx` |
 
 ### 3.8 Project resource surfaces
 
@@ -243,20 +245,20 @@ not new global domains or new persistence aggregates.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
-| `/projects/[projectId]` | Project Overview | ProjectResourceShell | Project identity, health, summary and tab entry | not found, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/page.jsx`, FR-043 |
-| `/projects/[projectId]/all-work` | Project All Work | ProjectResourceShell → Work | Project-filtered WorkItems and status actions | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/all-work/page.jsx`, FR-005 |
-| `/projects/[projectId]/board` | Project Board | ProjectResourceShell → Work | board view over Project work | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/board/page.jsx`, FR-063 |
-| `/projects/[projectId]/dependencies` | Project Dependency Map | ProjectResourceShell → Work | contained dependency graph; both endpoints must belong to Project | empty, loading, error, forbidden, graph error | implemented; `src/app/(pm)/projects/[projectId]/dependencies/page.jsx`, FR-040 |
-| `/projects/[projectId]/roadmap` | Execution Roadmap | ProjectResourceShell → Work | read-only Project outcome, Business Goals, execution hierarchy, progress, dependencies, blocker evidence, identity references and closure gates | empty, loading, error, forbidden, unavailable fields | implemented; `src/app/(pm)/projects/[projectId]/roadmap/page.jsx`, `tests/unit/project-roadmap-ui.test.js`, FR-068 |
-| `/projects/[projectId]/execution/[mode]` | Project Execution Mode | ProjectResourceShell → Work | mode view scoped to opened Project | invalid mode, empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx`, FR-009 |
-| `/projects/[projectId]/files` | Project Files | ProjectResourceShell → Files | Project file references and metadata actions | empty, loading, error, forbidden, capability-disabled | implemented; `src/app/(pm)/projects/[projectId]/files/page.jsx`, FR-045 |
-| `/projects/[projectId]/import` | Project Plan Import | ProjectResourceShell → Import | validate, dry-run, conflict preview and commit plan | validation, conflict, loading, error, forbidden, success | implemented; `src/app/(pm)/projects/[projectId]/import/page.jsx`, FR-012 |
-| `/projects/[projectId]/inventory` | Project Inventory | ProjectResourceShell → Overview | bounded read-only snapshot of work, gates, files, repos, team, progress and activity | not found, loading, error, forbidden, empty/partial/truncated/unavailable | implemented beta; working tree/pending commit for FR-077; `src/app/(pm)/projects/[projectId]/inventory/page.jsx` |
-| `/projects/[projectId]/milestones` | Project Milestones and Gates | ProjectResourceShell → Milestones & Gates | Project-local milestone/gate browsing and evidence updates | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/projects/[projectId]/milestones/page.jsx`, FR-006 |
-| `/projects/[projectId]/repositories` | Project Repositories | ProjectResourceShell → Repositories | linked repository metadata and link/unlink actions | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/projects/[projectId]/repositories/page.jsx`, FR-008 |
-| `/projects/[projectId]/structure` | Structure Plan | ProjectResourceShell → Work | Project → Workstream → Container → WorkItem WBS | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/structure/page.jsx`, FR-040 |
-| `/projects/[projectId]/team` | Project Team | ProjectResourceShell → Team | Project team membership view and actions | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/projects/[projectId]/team/page.jsx`, FR-036 |
-| `/projects/[projectId]/timeline` | Project Schedule | ProjectResourceShell → Work | Project-local schedule and dates | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/timeline/page.jsx`, FR-064 |
+| `/projects/[projectId]` | Project Overview | ProjectResourceShell → Project Management | Project identity, health, summary and tab entry | not found, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/page.jsx`, FR-043 |
+| `/projects/[projectId]/all-work` | Project All Work | ProjectResourceShell → Work Management | Project-filtered WorkItems and status actions | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/all-work/page.jsx`, FR-005 |
+| `/projects/[projectId]/board` | Project Board | ProjectResourceShell → Work Management | board view over Project work | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/board/page.jsx`, FR-063 |
+| `/projects/[projectId]/dependencies` | Project Dependency Map | ProjectResourceShell → Work Management | contained dependency graph; both endpoints must belong to Project | empty, loading, error, forbidden, graph error | implemented; `src/app/(pm)/projects/[projectId]/dependencies/page.jsx`, FR-040 |
+| `/projects/[projectId]/roadmap` | Execution Roadmap | ProjectResourceShell → Work Management | read-only Project outcome, Business Goals, execution hierarchy, progress, dependencies, blocker evidence, identity references and closure gates | empty, loading, error, forbidden, unavailable fields | implemented; `src/app/(pm)/projects/[projectId]/roadmap/page.jsx`, `tests/unit/project-roadmap-ui.test.js`, FR-068 |
+| `/projects/[projectId]/execution/[mode]` | Project Execution Mode | ProjectResourceShell → Project Management | mode view scoped to opened Project | invalid mode, empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx`, FR-009 |
+| `/projects/[projectId]/files` | Project Files | ProjectResourceShell → Resource Coordination | Project file references and metadata actions | empty, loading, error, forbidden, capability-disabled | implemented; `src/app/(pm)/projects/[projectId]/files/page.jsx`, FR-045 |
+| `/projects/[projectId]/import` | Project Plan Import | ProjectResourceShell → shared Import plan action | validate, dry-run, conflict preview and commit plan | validation, conflict, loading, error, forbidden, success | implemented; `src/app/(pm)/projects/[projectId]/import/page.jsx`, FR-012 |
+| `/projects/[projectId]/inventory` | Project Inventory | ProjectResourceShell → Project Management | bounded read-only snapshot of work, gates, files, repos, team, progress and activity | not found, loading, error, forbidden, empty/partial/truncated/unavailable | implemented beta; working tree/pending commit for FR-077; `src/app/(pm)/projects/[projectId]/inventory/page.jsx` |
+| `/projects/[projectId]/milestones` | Project Milestones and Gates | ProjectResourceShell → Work Management | Project-local milestone/gate browsing and evidence updates | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/projects/[projectId]/milestones/page.jsx`, FR-006 |
+| `/projects/[projectId]/repositories` | Project Repositories | ProjectResourceShell → Resource Coordination | linked repository metadata and link/unlink actions | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/projects/[projectId]/repositories/page.jsx`, FR-008 |
+| `/projects/[projectId]/structure` | Structure Plan | ProjectResourceShell → Work Management | Project → Workstream → Container → WorkItem WBS | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/structure/page.jsx`, FR-040 |
+| `/projects/[projectId]/team` | Project Team | ProjectResourceShell → Resource Coordination | Business-scoped Membership roster and existing membership actions; no Project grant or workforce allocation | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/projects/[projectId]/team/page.jsx`, FR-036 |
+| `/projects/[projectId]/timeline` | Project Schedule | ProjectResourceShell → Work Management | Project-local schedule and dates | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/timeline/page.jsx`, FR-064 |
 
 ### 3.9 Platform Control surface
 
@@ -334,7 +336,7 @@ explicitly so “domain count” cannot silently mix the two concepts:
 | Business Home shell slots | 1 | `business-home`, `/overview`, always visible, not an operational domain |
 | Source sub-domain entries | 56 | includes Business Home Dashboard |
 | Operational sub-domain entries | 55 | excludes Business Home Dashboard |
-| Development sub-domain entries | 8 | includes Files and excludes Business Home |
+| Projects & Work sub-domain entries | 8 | includes Files and excludes Business Home |
 | Asset Management navigation entries | 4 | Dashboard, Receiving, Register and Scanner |
 | LINE OA Studio navigation entries | 8 | Dashboard, Projects & Accounts, Design Studio, Live CRM, Edge connection, Templates, Team and Settings; LINE registry editing lives in Projects (main 2a1b6a81) |
 | Marketing (`growth`) navigation entries | 5 | Dashboard, Strategy, Campaigns, Content & Creative and Operations (FR-157..162); the three FR-185 routes remain direct planning/read surfaces |
