@@ -1,8 +1,10 @@
 import { describe, it, expect } from 'vitest'
-import { createLogger, ALLOWED_FIELDS } from '@/lib/observability/logger'
+import { createLogger, ALLOWED_FIELDS, parseStackFrames, computeErrorFingerprint } from '@/lib/observability/logger'
 
 // @spec NFR-017, SDD-048 — one emitter, allowlisted fields, nothing silent.
 // @spec SEC-009 — secrets, PII and raw provider payloads never reach a log line.
+// @req FR-247 — exception(): fingerprint and parse for a caller to persist.
+// @spec ADR-095 D1
 
 function capture() {
   const records = []
@@ -105,5 +107,70 @@ describe('structured emitter (SDD-048)', () => {
       'bearer', 'bindingId', 'replyToken', 'payload', 'destination', 'lineUserId']) {
       expect(ALLOWED_FIELDS).not.toContain(banned)
     }
+  })
+})
+
+describe('FR-247 exception(): fingerprint and parse, never persist', () => {
+  function realError(name, message) {
+    // A real thrown error has V8's own stack shape — building one by hand
+    // (rather than typing a fixture string) is what proves the parser matches
+    // what Node actually produces, not what this test imagines it produces.
+    try {
+      const err = new Error(message)
+      err.name = name
+      throw err
+    } catch (err) {
+      return err
+    }
+  }
+
+  it('parses a real V8 stack into file:line:function frames, dropping anything else', () => {
+    const error = realError('Error', 'QUEUE_UNAVAILABLE')
+    const frames = parseStackFrames(error.stack)
+    expect(frames.length).toBeGreaterThan(0)
+    expect(frames[0]).toMatchObject({ file: expect.stringContaining('observability-logger.test.js'), line: expect.any(Number) })
+    // no frame carries anything other than function/file/line — no message text leaks through
+    for (const frame of frames) expect(Object.keys(frame).sort()).toEqual(['file', 'function', 'line'])
+  })
+
+  it('drops a line that is not a file:line call-site shape', () => {
+    const stack = 'Error: SOME_CODE\n    at realFrame (file.js:10:5)\n    <anonymous>\n    a plain text line, not a frame'
+    const frames = parseStackFrames(stack)
+    expect(frames).toEqual([{ function: 'realFrame', file: 'file.js', line: 10 }])
+  })
+
+  it('returns no frames for a non-string stack rather than throwing', () => {
+    expect(parseStackFrames(undefined)).toEqual([])
+    expect(parseStackFrames(null)).toEqual([])
+  })
+
+  it('fingerprints on name, message and the first frame only — not the whole stack', () => {
+    const a = computeErrorFingerprint({ name: 'Error', message: 'QUEUE_UNAVAILABLE', frames: [{ file: 'x.js', line: 10 }, { file: 'y.js', line: 99 }] })
+    const b = computeErrorFingerprint({ name: 'Error', message: 'QUEUE_UNAVAILABLE', frames: [{ file: 'x.js', line: 10 }, { file: 'DIFFERENT.js', line: 1 }] })
+    expect(a).toBe(b)
+    const c = computeErrorFingerprint({ name: 'Error', message: 'QUEUE_UNAVAILABLE', frames: [{ file: 'DIFFERENT.js', line: 10 }] })
+    expect(a).not.toBe(c)
+  })
+
+  it('emits exactly as error() does — same allowlist, same stdout shape', () => {
+    const { logger, records } = capture()
+    const { record } = logger.exception('line.webhook.failed', realError('Error', 'QUEUE_UNAVAILABLE'), { correlationId: 'abcd1234', errorCode: 'QUEUE_UNAVAILABLE' })
+    expect(records).toHaveLength(1)
+    expect(record).toEqual({ ts: '2026-08-19T00:00:00.000Z', level: 'error', event: 'line.webhook.failed', correlationId: 'abcd1234', errorCode: 'QUEUE_UNAVAILABLE' })
+    // `name`/`message`/`stack` are not in ALLOWED_FIELDS — only the caller-supplied
+    // `errorCode` (which happens to say the same thing) reaches stdout
+    expect(record.name).toBeUndefined()
+    expect(record.message).toBeUndefined()
+    expect('stack' in record).toBe(false)
+  })
+
+  it('returns a fingerprint and parsed shape a caller can persist, without writing anything itself', () => {
+    const { logger } = capture()
+    const first = logger.exception('e', realError('TypeError', 'BAD_INPUT'))
+    const second = logger.exception('e', realError('TypeError', 'BAD_INPUT'))
+    expect(first.fingerprint).toBe(second.fingerprint)
+    expect(first.name).toBe('TypeError')
+    expect(first.message).toBe('BAD_INPUT')
+    expect(Array.isArray(first.frames)).toBe(true)
   })
 })

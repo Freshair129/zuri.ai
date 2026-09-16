@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.9, 2026-09-16) so the board can open a task the way the html board
+// (v0.4.10, 2026-09-16) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -5804,5 +5804,177 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-114"
     ],
     "evidence": "ADR-093 D8; FR-245"
+  },
+  "TASK-ZAI-116": {
+    "container": "TC-TASK-ZAI-116",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "priority": "P1",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "unavailable",
+      "doc": "docs/decisions/ADR-095-OBSERVABILITY-ERROR-TRACKING-AND-PER-PERSON-FEATURE-USAGE.md",
+      "test": "unavailable"
+    },
+    "linkState": {
+      "code": "unavailable",
+      "doc": "present",
+      "test": "unavailable"
+    },
+    "delivers": [],
+    "subtasks": [],
+    "dod": {
+      "acceptance": {
+        "text": "Given CR-020 §7 (extend the logger, both usage levels, per person), when the ADR is written, then it records why error tracking stays in-house, what each of the two new models captures and why that is safe under the existing allowlist discipline, the 90-day retention and aggregate rollup, and why there is no consent gate",
+        "checked": true
+      },
+      "success": {
+        "text": "Given the identity and privacy questions CR-020 §4 left open, when the ADR states its defaults (retention, consent, domain), then each is marked as a proposed default rather than a line-by-line owner answer, so it is easy to challenge later",
+        "checked": true
+      },
+      "exit": {
+        "text": "Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and CR-020 §7 records the accepted decision",
+        "checked": true
+      }
+    },
+    "changelog": "Opened 2026-09-16 (v0.4.10) after the owner asked what the system logs. A full survey of every log surface found two gaps: no error tracking, no feature/page usage measurement. CR-020 proposed both; the owner (CR-020 §7) chose to extend the existing logger for error tracking (not a third-party service) and to capture feature usage at both route and action level, per person — the more expensive, more privacy-sensitive of the two options offered. ADR-095 records the shape and the trade-off.",
+    "created": "2026-09-16T00:00:00Z,Claude,pending",
+    "predictedTokens": 20000,
+    "totalTokens": 0,
+    "dependsOn": [],
+    "evidence": "CR-020; ADR-095"
+  },
+  "TASK-ZAI-117": {
+    "container": "TC-TASK-ZAI-117",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "priority": "P1",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/lib/observability/logger.js",
+      "doc": "docs/decisions/ADR-095-OBSERVABILITY-ERROR-TRACKING-AND-PER-PERSON-FEATURE-USAGE.md",
+      "test": "apps/server/tests/unit/observability-logger.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [
+      "FR-247",
+      "FEAT-042"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "ErrorEvent model, migration and recordErrorEvent() service",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "logger.exception() and the stack-frame parser",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "Operator error list with resolve action",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given an error thrown twice with the same name, message and first stack frame, when recordErrorEvent(db, logger.exception(event, error, fields)) runs both times, then one ErrorEvent row exists with occurrenceCount 2, firstSeenAt from the first call and lastSeenAt from the second, and the stdout record logger.exception() emits carries only the existing allowlisted fields — unchanged from error()",
+        "checked": false
+      },
+      "success": {
+        "text": "Given an operator, when they open the error list, then it groups by fingerprint with occurrence count and first/last seen, and marking one resolved sets resolvedAt/resolvedByPersonId and stops it counting as active",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given npm test and the migration, when they run, then fingerprinting, dedupe, the resolve action and the stack-frame parser (rejecting a frame that is not a file:line shape) are asserted; applying the migration on production stays a separate step (ADR-057)",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-16 (v0.4.10) after the owner asked what the system logs. A full survey of every log surface found two gaps: no error tracking, no feature/page usage measurement. CR-020 proposed both; the owner (CR-020 §7) chose to extend the existing logger for error tracking (not a third-party service) and to capture feature usage at both route and action level, per person — the more expensive, more privacy-sensitive of the two options offered. ADR-095 records the shape and the trade-off.",
+    "created": "2026-09-16T00:00:00Z,Claude,pending",
+    "predictedTokens": 45000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-116"
+    ],
+    "evidence": "ADR-095 D1; FR-247"
+  },
+  "TASK-ZAI-118": {
+    "container": "TC-TASK-ZAI-118",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0",
+    "priority": "P2",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/modules/platform-control/usage-events.js",
+      "doc": "docs/decisions/ADR-095-OBSERVABILITY-ERROR-TRACKING-AND-PER-PERSON-FEATURE-USAGE.md",
+      "test": "apps/server/tests/unit/usage-events.test.js"
+    },
+    "linkState": {
+      "code": "missing",
+      "doc": "present",
+      "test": "missing"
+    },
+    "delivers": [
+      "FR-248",
+      "FR-249",
+      "FEAT-042"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "UsageEvent model, migration and recordUsageEvent() service",
+        "status": "planned"
+      },
+      {
+        "id": "P1",
+        "title": "Page-view capture hook and recordAction() helper",
+        "status": "planned"
+      },
+      {
+        "id": "P2",
+        "title": "90-day retention rollup and the operator-only usage view",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given a signed-in person navigating between pages, when each navigation completes, then one UsageEvent row (kind PAGE_VIEW) is recorded with route, personId and sessionId, captured by a shell-mounted hook rather than a per-page change",
+        "checked": false
+      },
+      "success": {
+        "text": "Given a handler that calls recordAction(name), when it runs, then one UsageEvent row (kind ACTION) is recorded with a static actionName never built from request data, and an operator reads route/action counts broken down by person under /control",
+        "checked": false
+      },
+      "exit": {
+        "text": "Given a UsageEvent row older than 90 days, when the retention job runs, then it is replaced by a daily (date, route|actionName, count) rollup with no personId, and npm test covers capture, the per-person breakdown, and the 90-day rollup boundary",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-16 (v0.4.10) after the owner asked what the system logs. A full survey of every log surface found two gaps: no error tracking, no feature/page usage measurement. CR-020 proposed both; the owner (CR-020 §7) chose to extend the existing logger for error tracking (not a third-party service) and to capture feature usage at both route and action level, per person — the more expensive, more privacy-sensitive of the two options offered. ADR-095 records the shape and the trade-off.",
+    "created": "2026-09-16T00:00:00Z,Claude,pending",
+    "predictedTokens": 60000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-116"
+    ],
+    "evidence": "ADR-095 D2, D3; FR-248, FR-249"
   }
 }

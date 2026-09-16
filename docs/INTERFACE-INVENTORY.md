@@ -1,7 +1,7 @@
 ---
-version: "1.27.0b"
+version: "1.28.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-14T21:00:00+07:00,Claude Sonnet 5"
+last_update: "2026-09-16T19:30:00+07:00,Claude Sonnet 5"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=108; operational_domain_keys=16; operational_subdomain_entries=56; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=109; operational_domain_keys=16; operational_subdomain_entries=56; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -267,6 +267,7 @@ and does not require an active Business selection.
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
 | `/control/roadmap` | Platform Programme Roadmap | PlatformControlShell → programme plan snapshot | read-only six-phase / twelve-sprint / thirty-task plan, gates and deliverables; entered from `/settings` (operator-only link) and exits to `/businesses` through the shell header, which also offers sign-out (FR-046/FR-095) | auth required, loading, forbidden, ready; `isOperator` only; no Business scope | implemented locally; `src/app/(control)/control/roadmap/page.jsx`, FR-105 / ADR-048 |
+| `/control/errors` | Error events | PlatformControlShell → deduplicated error list | operator reads errors grouped by fingerprint with occurrence count and first/last seen, resolves one; no request/response content, only name/message/parsed stack frames | forbidden (404), auth required, ready; `isOperator` only; no Business scope | implemented locally; `src/app/(control)/control/errors/page.jsx`, FR-247 / ADR-095 |
 | `/roadmap` | Programme Roadmap — signed-in preview | PlatformControlShell (title "Programme Roadmap") → programme plan snapshot, `audience="member"` | read-only programme plan and Domain map tabs for any signed-in person until 2026-10-15 00:00 Asia/Bangkok; no Agent devices tab, no usage by person or device, no tool or model names (removed on the server); no navigation entry — the link is shared by the owner | closed (404 for everyone after the window), session unavailable, auth required, ready; any authenticated session; no Business scope | implemented locally; `src/app/roadmap/page.jsx`, FR-241 / ADR-092 |
 
 ### Marketing Strategy first slice
@@ -455,3 +456,5 @@ Version diff 1.8.0b → 1.9.0b: preserve Warehouse and Marketing in the Server m
 Version diff 1.18.0b → 1.19.0b: add the approved Stocktake desk and reconcile the enumerated 99 pages / 51 operational entries.
 
 Version diff 1.24.0b → 1.25.0b (2026-09-14): add `/roadmap`, the 30-day signed-in preview of the programme roadmap (FR-241, ADR-092); 106 page routes.
+
+Version diff 1.27.0b → 1.28.0b (2026-09-16): add `/control/errors`, the operator error list (FR-247, ADR-095); 109 page routes.

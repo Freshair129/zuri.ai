@@ -12,7 +12,7 @@
 export const PROGRAMME_SNAPSHOT = {
   documentId: 'ROADMAP-ZURI-AI-24W-PROGRAM',
   status: 'approved',
-  version: '0.4.9',
+  version: '0.4.10',
   updated: '2026-09-14',
   baselineCommit: '2b7ad27d',
   programmeStart: '2026-08-24',
@@ -240,4 +240,7 @@ export const PROGRAMME_TASKS = [
   ['TASK-ZAI-113', 'SPR-ZAI-05', 'Archive key destruction and the legal hold, SEC-034 — expiry and PDPA erasure destroy a Customer\'s archive data key unless an OWNER-recorded legal hold with a reason and end date is active, shown on the erasure status', 'FR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-114', 'SPR-ZAI-06', 'Chat evidence archive on production — the cold-archive compose overlay on F:, ZURI_ARCHIVE_KEK with its offline backup, the migrations applied under ADR-057, the sweep token and 03:00 scheduled task, and the first recorded manifest', 'NFR', 'C-2', 'H4', 'planned'],
   ['TASK-ZAI-115', 'SPR-ZAI-06', 'Monthly offline copy of the chat evidence archive — new archive files copied to an offline external drive and verified against the manifest hashes, with the first verified copy recorded', 'NFR', 'C-1', 'H4', 'planned'],
+  ['TASK-ZAI-116', 'SPR-ZAI-02', 'Observability decision record — ADR-095 for error tracking and per-person feature usage, and the FR/NFR declarations it governs', 'NFR', 'C-1', 'H2', 'done'],
+  ['TASK-ZAI-117', 'SPR-ZAI-02', 'Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action', 'FR', 'C-2', 'H2', 'planned'],
+  ['TASK-ZAI-118', 'SPR-ZAI-02', 'Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup', 'FR', 'C-3', 'H3', 'planned'],
 ]
