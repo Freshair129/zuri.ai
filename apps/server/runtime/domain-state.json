@@ -40,8 +40,8 @@
     "readyFeatureCount": 114,
     "requirementCount": 246,
     "verifiedRequirementCount": 231,
-    "progressPercent": 94.4,
-    "gapCount": 28,
+    "progressPercent": 94.7,
+    "gapCount": 31,
     "gaps": [
       {
         "domain": "agent",
@@ -90,6 +90,35 @@
         "severity": "medium",
         "check": "authorization",
         "summary": "At least one read route lacks a recognizable request viewer seam"
+      },
+      {
+        "domain": "crm",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "crm",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "crm",
+        "id": "REQ-FR-245",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-245 is partial",
+        "evidence": [
+          "apps/server/src/modules/crm/chat-evidence-archive-crypto.js",
+          "apps/server/src/modules/crm/chat-evidence-archive-service.js",
+          "apps/server/src/modules/crm/retention-sweep-service.js",
+          "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
+          "apps/server/tests/integration/crm-retention-sweep.test.js",
+          "apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js"
+        ]
       },
       {
         "domain": "identity",
@@ -1136,7 +1165,7 @@
       "progressPercent": 100
     },
     "crm": {
-      "status": "verified",
+      "status": "partial",
       "requirements": [
         {
           "id": "FR-022",
@@ -1279,8 +1308,8 @@
           "title": "Chat record and agent memory split with declared retention",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 16
+          "codeCount": 3,
+          "testCount": 17
         },
         {
           "id": "FR-233",
@@ -1305,6 +1334,22 @@
           "status": "verified",
           "codeCount": 5,
           "testCount": 32
+        },
+        {
+          "id": "FR-245",
+          "title": "Chat evidence cold archive",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 3,
+          "testCount": 3,
+          "evidence": [
+            "apps/server/src/modules/crm/chat-evidence-archive-crypto.js",
+            "apps/server/src/modules/crm/chat-evidence-archive-service.js",
+            "apps/server/src/modules/crm/retention-sweep-service.js",
+            "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
+            "apps/server/tests/integration/crm-retention-sweep.test.js",
+            "apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js"
+          ]
         },
         {
           "id": "FR-246",
@@ -1339,12 +1384,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "verified",
@@ -1360,8 +1411,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 14,
-            "present": 14
+            "models": 16,
+            "present": 16
           }
         },
         "authorization": {
@@ -1370,11 +1421,17 @@
           "gaps": []
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -1400,12 +1457,39 @@
         "tests/unit/pipeline-mcp-transport.test.js",
         "tests/unit/project-manager-mcp.test.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-245",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-245 is partial",
+          "evidence": [
+            "apps/server/src/modules/crm/chat-evidence-archive-crypto.js",
+            "apps/server/src/modules/crm/chat-evidence-archive-service.js",
+            "apps/server/src/modules/crm/retention-sweep-service.js",
+            "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
+            "apps/server/tests/integration/crm-retention-sweep.test.js",
+            "apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js"
+          ]
+        }
+      ],
       "details": {
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
-        "ownedModels": 14,
+        "ownedModels": 16,
         "featureNotes": 10
       },
       "featureIds": [
@@ -1422,7 +1506,7 @@
       ],
       "featureCount": 10,
       "readyFeatureCount": 4,
-      "progressPercent": 77
+      "progressPercent": 81
     },
     "identity": {
       "status": "partial",
@@ -5460,7 +5544,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-233",
@@ -9738,8 +9822,8 @@
           "title": "Chat record and agent memory split with declared retention",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 16
+          "codeCount": 6,
+          "testCount": 17
         },
         {
           "id": "FR-231",
@@ -9792,11 +9876,13 @@
         "apps/server/src/modules/crm/reply-record-service.js",
         "apps/server/src/modules/crm/retention-override-service.js",
         "apps/server/src/modules/crm/retention-sweep-service.js",
+        "apps/server/src/modules/crm/retention-sweep-tombstone.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
         "apps/server/tests/integration/crm-conversation-search.test.js",
@@ -10173,21 +10259,21 @@
         "project-manager"
       ],
       "useCase": "เมื่อลูกค้าอ้างว่าเคยได้รับส่วนลดเมื่อสองปีก่อน เจ้าของธุรกิจยืนยันตัวตนสองชั้นแล้วดึงข้อความของลูกค้าคนนั้นตามช่วงวันที่จาก archive ที่เข้ารหัสบนดิสก์ในเครื่อง พร้อม hash ที่พิสูจน์ว่าไม่ถูกแก้ ข้อความที่พนักงานตอบจาก inbox อยู่ในหลักฐานด้วย และข้อมูลที่อยู่ภายใต้ legal hold ไม่ถูกลบจนกว่าข้อพิพาทจะจบ",
-      "progressPercent": 50,
+      "progressPercent": 90,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-041 registry status is declared",
-        "FR-245 is planned"
+        "FR-245 is partial"
       ],
       "requirements": [
         {
           "id": "FR-245",
           "title": "Chat evidence cold archive",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 3,
+          "testCount": 3
         },
         {
           "id": "FR-246",
@@ -10201,14 +10287,20 @@
       "evidence": [
         "apps/server/src/app/(pm)/customer/conversations/page.jsx",
         "apps/server/src/app/api/crm/conversations/[id]/reply/route.js",
+        "apps/server/src/modules/crm/chat-evidence-archive-crypto.js",
+        "apps/server/src/modules/crm/chat-evidence-archive-service.js",
         "apps/server/src/modules/crm/reply-record-service.js",
+        "apps/server/src/modules/crm/retention-sweep-service.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/tests/e2e/fr091-conversation-inbox.spec.js",
         "apps/server/tests/e2e/fr246-staff-reply.spec.js",
+        "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
+        "apps/server/tests/integration/crm-retention-sweep.test.js",
         "apps/server/tests/integration/crm-staff-reply.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
         "apps/server/tests/integration/line-reply-record.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
         "apps/server/tests/unit/reply-record-service.test.js"
       ]

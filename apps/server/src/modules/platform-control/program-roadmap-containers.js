@@ -5545,7 +5545,7 @@ export const PROGRAMME_CONTAINERS = {
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "missing"
+      "test": "present"
     },
     "delivers": [
       "FR-245"
