@@ -1,8 +1,38 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { describe, expect, it } from 'vitest'
+import React, { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { describe, expect, it, vi } from 'vitest'
 import { buildRouteEntries } from '@/components/layouts/CommandPalette'
 import { DOMAINS } from '@/config/domains'
+import {
+  PM_MODULES,
+  PM_SHARED_ACTIONS,
+  PM_WORK_VIEWS,
+  projectPath,
+  pathMatches,
+} from '@/modules/project-manager/navigation'
+import ProjectManagerBusinessNav from '@/modules/project-manager/components/ProjectManagerBusinessNav'
+import ProjectTabs from '@/modules/project-manager/components/ProjectTabs'
+import WorkViewTabs from '@/modules/project-manager/components/WorkViewTabs'
+
+globalThis.React = React
+
+vi.mock('next/link', async () => {
+  const { createElement } = await import('react')
+  return {
+    default: ({ href, children, ...rest }) => createElement(
+      'a',
+      { href: typeof href === 'string' ? href : href?.pathname || '', ...rest },
+      children,
+    ),
+  }
+})
+
+let currentPath = '/projects'
+vi.mock('next/navigation', () => ({
+  usePathname: () => currentPath,
+}))
 
 // @req FR-001, FR-006, FR-012 — a page route that no navigation points at is
 // not a delivered surface: it is reachable only by typing the URL.
@@ -21,30 +51,54 @@ const ROOT = process.cwd()
 const src = (p) => readFileSync(resolve(ROOT, p), 'utf8')
 
 const PROJECT_ROUTES = resolve(ROOT, 'src/app/(pm)/projects/[projectId]')
-const projectTabs = src('src/modules/project-manager/components/ProjectTabs.jsx')
 const workViewTabs = src('src/modules/project-manager/components/WorkViewTabs.jsx')
 const inventoryPage = src('src/app/(pm)/projects/[projectId]/inventory/page.jsx')
 const projectsPage = src('src/app/(pm)/projects/page.jsx')
+const projectDetailPage = src('src/app/(pm)/projects/[projectId]/page.jsx')
 
-// Every navigation source that can carry a user into a Project sub-route. The
-// two tab bars, plus the two pages that link sideways: Inventory drills into
-// All Work / Repositories / Team / Files, and Project detail opens each
-// Workstream's execution-mode view.
-const PROJECT_NAV_SOURCES = [
-  projectTabs,
-  workViewTabs,
-  inventoryPage,
-  src('src/app/(pm)/projects/[projectId]/page.jsx'),
-]
+const PROJECT_ID = 'project-1'
+const AUTHORIZED_PROJECT = { id: PROJECT_ID, businessId: 'business-1' }
+
+function hrefsFrom(html) {
+  return [...html.matchAll(/href="([^"]+)"/g)].map((match) => match[1])
+}
+
+function renderProjectTabs(module, pathname = projectPath(PROJECT_ID, module.projectSuffix || '')) {
+  currentPath = pathname
+  return renderToStaticMarkup(createElement(ProjectTabs, {
+    projectId: PROJECT_ID,
+    activeModule: module,
+    authorizedProject: AUTHORIZED_PROJECT,
+  }))
+}
+
+function renderedProjectHrefs() {
+  const hrefs = PM_MODULES.flatMap((module) => hrefsFrom(renderProjectTabs(module)))
+  currentPath = projectPath(PROJECT_ID, PM_WORK_VIEWS[0].suffix)
+  hrefs.push(...hrefsFrom(renderToStaticMarkup(createElement(WorkViewTabs, { projectId: PROJECT_ID }))))
+  return new Set(hrefs)
+}
+
+function renderedBusinessHrefs() {
+  return new Set(PM_MODULES
+    .filter((module) => module.businessPath)
+    .flatMap((module) => {
+      currentPath = module.businessPath
+      return hrefsFrom(renderToStaticMarkup(createElement(ProjectManagerBusinessNav)))
+    }))
+}
 
 /**
- * A link into `/projects/{id}/<route>` — either a leaf (closing backtick) or a
- * prefix of a deeper path, as `/execution/${slug}` is.
+ * A rendered link into `/projects/{id}/<route>`. The execution page is the one
+ * source-level exception: its href is assembled from each Workstream's mode,
+ * so the concrete target only exists when the page has workstream data.
  */
 function linksTo(route) {
-  return PROJECT_NAV_SOURCES.some(
-    (source) => source.includes(`/${route}\``) || source.includes(`/${route}/`),
-  )
+  const target = projectPath(PROJECT_ID, `/${route}`)
+  const rendered = [...renderedProjectHrefs()].some((href) => href === target || pathMatches(target, href))
+  if (rendered) return true
+  return route === 'execution'
+    && projectDetailPage.includes('href={`/projects/${p.id}/execution/${SLUG_BY_MODE[ws.executionMode]}`}')
 }
 
 /** Directory names under `/projects/[projectId]`, i.e. its real sub-routes. */
@@ -64,21 +118,49 @@ describe('project sub-route reachability', () => {
   it.each(projectSubRoutes())('links to /projects/{id}/%s from a navigation component', (route) => {
     expect(linksTo(route), `no nav component links to /projects/{id}/${route}`).toBe(true)
   })
+
+  it('keeps Inventory linked directly to Project Repositories', () => {
+    expect(inventoryPage).toContain('href={`/projects/${project.id}/repositories`}')
+  })
 })
 
 describe('Work sub-view tabs are two-way', () => {
   // A tab whose destination does not itself render the tab bar is a one-way
   // door: arriving removes every route back to its siblings. `/timeline` was
   // one before `/milestones` joined it.
-  const workViewHrefs = [...workViewTabs.matchAll(/projects\/\$\{projectId\}\/(\w[\w-]*)`/g)].map((m) => m[1])
+  const workViewHrefs = PM_WORK_VIEWS.map((view) => view.suffix.slice(1))
 
   it('declares more than one sub-view', () => {
     expect(workViewHrefs.length).toBeGreaterThan(3)
+    expect(workViewTabs).toContain('PM_WORK_VIEWS')
+  })
+
+  it('renders every declared Work href', () => {
+    const hrefs = renderedProjectHrefs()
+    for (const view of PM_WORK_VIEWS) {
+      expect(hrefs).toContain(projectPath(PROJECT_ID, view.suffix))
+    }
   })
 
   it.each(workViewHrefs)('renders WorkViewTabs on the /%s destination', (route) => {
     const page = src(`src/app/(pm)/projects/[projectId]/${route}/page.jsx`)
     expect(page).toContain('<WorkViewTabs projectId={projectId} />')
+  })
+})
+
+describe('Business navigation renders the live route set', () => {
+  it('emits all eight live Business destinations as actual links', () => {
+    const hrefs = renderedBusinessHrefs()
+    expect(hrefs).toEqual(new Set([
+      '/projects',
+      '/work',
+      '/execution',
+      '/timeline',
+      '/dependencies',
+      '/milestones',
+      '/files',
+      '/repositories',
+    ]))
   })
 })
 

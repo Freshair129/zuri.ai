@@ -326,6 +326,11 @@ export default function DataPipelineMapView({ map, initialChainId = null }) {
     setSelected(id ? { type: 'chain', id } : null)
   }
   const selectNode = (id) => setSelected({ type: 'node', id })
+  const handleNodeKeyDown = (event, id) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return
+    event.preventDefault()
+    selectNode(id)
+  }
   const selectEdge = (id) => setSelected({ type: 'edge', id })
 
   // Pan handlers
@@ -760,6 +765,7 @@ export default function DataPipelineMapView({ map, initialChainId = null }) {
                             aria-label={`${KIND_LABEL[node.kind]}: ${node.label}`}
                             data-testid={`pipeline-node-${node.id}`}
                             onClick={() => selectNode(node.id)}
+                            onKeyDown={(event) => handleNodeKeyDown(event, node.id)}
                           >
                             <title>{node.label}</title>
                             {/* Card Background */}

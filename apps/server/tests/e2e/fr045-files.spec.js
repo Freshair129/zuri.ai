@@ -1,4 +1,5 @@
-// @req FR-045 - Business File Manager is a Development subdomain inside the selected BusinessShell.
+// @req FR-045, FR-250 - Business File Manager is a Resource Coordination
+// surface inside the selected BusinessShell.
 // @spec SDD-023, ADR-016, SEC-007
 // @tested tests/e2e/fr045-files.spec.js
 const { test, expect } = require('@playwright/test')
@@ -13,12 +14,14 @@ async function chooseBusiness(page) {
 }
 
 test.describe('FR-045 Business File Manager', () => {
-  test('opens Files inside Development with mount and managed-file controls', async ({ page }) => {
+  test('opens Files inside Resource Coordination with mount and managed-file controls', async ({ page }) => {
     await chooseBusiness(page)
-    // FR-060 — landing is Business Home; Files is a Development sub-domain.
-    await page.getByRole('link', { name: 'Development' }).first().click()
+    // FR-060 / FR-250 — landing is Business Home; Files is a Resource
+    // Coordination Business destination.
+    await page.getByRole('link', { name: 'Projects & Work' }).first().click()
     await expect(page).toHaveURL(/\/projects$/)
-    await page.getByRole('link', { name: 'Files', exact: true }).click()
+    await page.getByRole('navigation', { name: 'Projects & Work modules' })
+      .getByRole('link', { name: 'Resource Coordination', exact: true }).click()
     await expect(page).toHaveURL(/\/files$/)
     await expect(page.getByRole('heading', { name: 'Files', exact: true })).toBeVisible()
     await expect(page.getByLabel('Absolute Windows root')).toBeVisible()

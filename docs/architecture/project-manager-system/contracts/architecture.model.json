@@ -1,0 +1,457 @@
+{
+  "schemaVersion": "1.0",
+  "id": "PM-G01",
+  "status": "CANDIDATE",
+  "diagramRef": "../02-DECISIONS-AND-DIAGRAMS.md#3-g01--context-and-component-flow",
+  "description": "Semantic source for G01; synthetic target architecture, not live topology.",
+  "nodes": [
+    {
+      "id": "human",
+      "kind": "ACTOR",
+      "ownerDomain": "external",
+      "label": "Human / API client",
+      "status": "PROPOSED",
+      "specRef": "../02-DECISIONS-AND-DIAGRAMS.md"
+    },
+    {
+      "id": "ui",
+      "kind": "UI",
+      "ownerDomain": "project-manager",
+      "label": "PM Web / API explorer",
+      "status": "PROPOSED",
+      "specRef": "../02-DECISIONS-AND-DIAGRAMS.md"
+    },
+    {
+      "id": "pm",
+      "kind": "SERVICE",
+      "ownerDomain": "project-manager",
+      "label": "PM services",
+      "status": "PROPOSED",
+      "specRef": "../02-DECISIONS-AND-DIAGRAMS.md"
+    },
+    {
+      "id": "identity",
+      "kind": "POLICY",
+      "ownerDomain": "identity",
+      "label": "Identity policy",
+      "status": "PROPOSED",
+      "specRef": "../02-DECISIONS-AND-DIAGRAMS.md"
+    },
+    {
+      "id": "projection",
+      "kind": "PROJECTION",
+      "ownerDomain": "project-manager",
+      "label": "Domain / Feature / Evidence",
+      "status": "PROPOSED",
+      "specRef": "../02-DECISIONS-AND-DIAGRAMS.md"
+    },
+    {
+      "id": "pm-data",
+      "kind": "STORE",
+      "ownerDomain": "project-manager",
+      "label": "PM owned data",
+      "status": "PROPOSED",
+      "specRef": "../02-DECISIONS-AND-DIAGRAMS.md"
+    },
+    {
+      "id": "execution",
+      "kind": "SERVICE",
+      "ownerDomain": "integration",
+      "label": "Integration execution port",
+      "status": "PROPOSED",
+      "specRef": "../02-DECISIONS-AND-DIAGRAMS.md"
+    },
+    {
+      "id": "ledger",
+      "kind": "STORE",
+      "ownerDomain": "integration",
+      "label": "Pipeline ledger / queue / leases",
+      "status": "PROPOSED",
+      "specRef": "../02-DECISIONS-AND-DIAGRAMS.md"
+    },
+    {
+      "id": "executor",
+      "kind": "EXECUTOR",
+      "ownerDomain": "integration",
+      "label": "Paired executor",
+      "status": "PROPOSED",
+      "specRef": "../02-DECISIONS-AND-DIAGRAMS.md"
+    },
+    {
+      "id": "gateway",
+      "kind": "SERVICE",
+      "ownerDomain": "integration",
+      "label": "Model invocation gateway",
+      "status": "PROPOSED",
+      "specRef": "../02-DECISIONS-AND-DIAGRAMS.md"
+    },
+    {
+      "id": "vault",
+      "kind": "VAULT",
+      "ownerDomain": "integration",
+      "label": "SecretStorePort",
+      "status": "PROPOSED",
+      "specRef": "../02-DECISIONS-AND-DIAGRAMS.md"
+    },
+    {
+      "id": "model",
+      "kind": "MODEL",
+      "ownerDomain": "external",
+      "label": "Cloud / private model deployment",
+      "status": "PROPOSED",
+      "specRef": "../02-DECISIONS-AND-DIAGRAMS.md"
+    },
+    {
+      "id": "mcp",
+      "kind": "TOOL",
+      "ownerDomain": "integration",
+      "label": "MCP broker / domain tools",
+      "status": "PROPOSED",
+      "specRef": "../02-DECISIONS-AND-DIAGRAMS.md"
+    },
+    {
+      "id": "knowledge",
+      "kind": "SERVICE",
+      "ownerDomain": "knowledge",
+      "label": "Knowledge / memory ports",
+      "status": "PROPOSED",
+      "specRef": "../02-DECISIONS-AND-DIAGRAMS.md"
+    },
+    {
+      "id": "external-knowledge",
+      "kind": "EXTERNAL",
+      "ownerDomain": "external",
+      "label": "MSP / GKS / Genesis substrate",
+      "status": "PROPOSED",
+      "specRef": "../02-DECISIONS-AND-DIAGRAMS.md"
+    }
+  ],
+  "edgeTypes": [
+    "CALLS",
+    "AUTHORIZES",
+    "READS",
+    "WRITES",
+    "DISPATCHES",
+    "CLAIMS",
+    "ASSIGNS",
+    "INVOKES_MODEL",
+    "RESOLVES_SECRET",
+    "CALLS_TOOL",
+    "READS_CONTEXT",
+    "REPORTS",
+    "PUBLISHES_EVENT",
+    "OBSERVES"
+  ],
+  "contractCatalog": {
+    "pm-http": {
+      "ref": "openapi.candidate.yaml",
+      "section": "Project views"
+    },
+    "identity-policy": {
+      "ref": "../01-REQUIREMENTS-AND-UX.md",
+      "section": "Personas and authority"
+    },
+    "projection-read": {
+      "ref": "../03-DATA-AND-EVENTS.md",
+      "section": "Derived progress readiness and costs"
+    },
+    "owned-persistence": {
+      "ref": "../03-DATA-AND-EVENTS.md",
+      "section": "Transaction and concurrency contract"
+    },
+    "execution-command": {
+      "ref": "openapi.candidate.yaml",
+      "section": "dispatchProjectRun"
+    },
+    "executor-lease": {
+      "ref": "../04-AGENTS-AND-FLEETS.md",
+      "section": "Executor claim and lease protocol"
+    },
+    "model-invocation": {
+      "ref": "../05-PROVIDERS-AND-MCP.md",
+      "section": "Native port contracts"
+    },
+    "secret-resolution": {
+      "ref": "../05-PROVIDERS-AND-MCP.md",
+      "section": "Keys isolation and network controls"
+    },
+    "mcp-call": {
+      "ref": "../05-PROVIDERS-AND-MCP.md",
+      "section": "MCP contract"
+    },
+    "context-read": {
+      "ref": "../05-PROVIDERS-AND-MCP.md",
+      "section": "Native port contracts"
+    },
+    "execution-event": {
+      "ref": "../03-DATA-AND-EVENTS.md",
+      "section": "Event envelope"
+    },
+    "authorized-stream": {
+      "ref": "../06-API-AND-CONTRACTS.md",
+      "section": "Streaming"
+    }
+  },
+  "edges": [
+    {
+      "id": "e01",
+      "source": "human",
+      "target": "ui",
+      "type": "CALLS",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "pm-http",
+      "ownerDomain": "project-manager",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e02",
+      "source": "ui",
+      "target": "pm",
+      "type": "CALLS",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "pm-http",
+      "ownerDomain": "project-manager",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e03",
+      "source": "pm",
+      "target": "identity",
+      "type": "AUTHORIZES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "identity-policy",
+      "ownerDomain": "identity",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e04",
+      "source": "pm",
+      "target": "projection",
+      "type": "READS",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "projection-read",
+      "ownerDomain": "project-manager",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e05",
+      "source": "pm",
+      "target": "pm-data",
+      "type": "WRITES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "owned-persistence",
+      "ownerDomain": "project-manager",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e06",
+      "source": "pm",
+      "target": "execution",
+      "type": "DISPATCHES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "execution-command",
+      "ownerDomain": "integration",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e07",
+      "source": "execution",
+      "target": "identity",
+      "type": "AUTHORIZES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "identity-policy",
+      "ownerDomain": "identity",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e08",
+      "source": "execution",
+      "target": "ledger",
+      "type": "WRITES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "owned-persistence",
+      "ownerDomain": "integration",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e09",
+      "source": "executor",
+      "target": "execution",
+      "type": "CLAIMS",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "executor-lease",
+      "ownerDomain": "integration",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e10",
+      "source": "execution",
+      "target": "executor",
+      "type": "ASSIGNS",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "executor-lease",
+      "ownerDomain": "integration",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e11",
+      "source": "executor",
+      "target": "gateway",
+      "type": "INVOKES_MODEL",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "model-invocation",
+      "ownerDomain": "integration",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e12",
+      "source": "gateway",
+      "target": "vault",
+      "type": "RESOLVES_SECRET",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "secret-resolution",
+      "ownerDomain": "integration",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e13",
+      "source": "gateway",
+      "target": "model",
+      "type": "CALLS",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "model-invocation",
+      "ownerDomain": "integration",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e14",
+      "source": "executor",
+      "target": "mcp",
+      "type": "CALLS_TOOL",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "mcp-call",
+      "ownerDomain": "integration",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e15",
+      "source": "mcp",
+      "target": "identity",
+      "type": "AUTHORIZES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "identity-policy",
+      "ownerDomain": "identity",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e16",
+      "source": "executor",
+      "target": "knowledge",
+      "type": "READS_CONTEXT",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "context-read",
+      "ownerDomain": "knowledge",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e17",
+      "source": "knowledge",
+      "target": "external-knowledge",
+      "type": "READS",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "context-read",
+      "ownerDomain": "knowledge",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e18",
+      "source": "executor",
+      "target": "execution",
+      "type": "REPORTS",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "execution-event",
+      "ownerDomain": "integration",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "DURABLE_RETRY_WITH_DEDUP",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e19",
+      "source": "execution",
+      "target": "pm",
+      "type": "PUBLISHES_EVENT",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "execution-event",
+      "ownerDomain": "integration",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "DURABLE_RETRY_WITH_DEDUP",
+      "classification": "INTERNAL"
+    },
+    {
+      "id": "e20",
+      "source": "pm",
+      "target": "ui",
+      "type": "OBSERVES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "authorized-stream",
+      "ownerDomain": "project-manager",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 30000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL"
+    }
+  ]
+}

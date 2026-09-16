@@ -53,7 +53,8 @@ describe('LINE settings ownership', () => {
   })
 
   it('keeps Platform model metadata on the shell Business after a context switch', () => {
-    expect(platform).toContain("setTargetBusinessId(currentBusiness?.id || businesses[0]?.id || '')")
+    expect(platform).toContain("const scopeBusinessId = currentBusiness?.id || ''")
+    expect(platform).toContain('setTargetBusinessId(scopeBusinessId)')
     expect(platform).not.toContain('businesses.some((business) => business.id === previous)')
   })
 

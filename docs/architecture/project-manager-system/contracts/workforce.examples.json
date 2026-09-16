@@ -1,0 +1,155 @@
+{
+  "exampleOnly": true,
+  "evidenceStatus": "SYNTHETIC_NOT_PRODUCT",
+  "workload": {
+    "meta": {
+      "asOf": "2026-09-16T00:00:00Z",
+      "sourceVersion": "SYNTHETIC-1",
+      "from": "2026-09-14",
+      "to": "2026-09-21",
+      "timezone": "Asia/Bangkok",
+      "scopeBusinessId": "20000000-0000-4000-8000-000000000001",
+      "coverage": {
+        "state": "COMPLETE",
+        "knownRecords": 12,
+        "eligibleRecords": 12,
+        "missing": [],
+        "scopeLabel": "Selected Business only; synthetic"
+      },
+      "stale": false
+    },
+    "rows": [
+      {
+        "subjectType": "PERSON",
+        "personId": "10000000-0000-4000-8000-000000000001",
+        "teamId": null,
+        "label": "Employee A",
+        "counts": {
+          "open": 4,
+          "planned": 4,
+          "inProgress": 0,
+          "blocked": 0,
+          "accepted": 0,
+          "cancelled": 0,
+          "unknownStatus": 0,
+          "unestimated": 0,
+          "unscheduled": 0
+        },
+        "capacity": {
+          "plannedMinutes": 2100,
+          "availableMinutes": 1680,
+          "freeMinutes": 0,
+          "overbookedMinutes": 420,
+          "loadPercent": 125,
+          "state": "MEASURED"
+        },
+        "coverage": {
+          "state": "COMPLETE",
+          "knownRecords": 4,
+          "eligibleRecords": 4,
+          "missing": [],
+          "scopeLabel": "Selected Business only; synthetic"
+        },
+        "daily": []
+      },
+      {
+        "subjectType": "PERSON",
+        "personId": "10000000-0000-4000-8000-000000000002",
+        "teamId": null,
+        "label": "Employee B",
+        "counts": {
+          "open": 8,
+          "planned": 8,
+          "inProgress": 0,
+          "blocked": 0,
+          "accepted": 0,
+          "cancelled": 0,
+          "unknownStatus": 0,
+          "unestimated": 0,
+          "unscheduled": 0
+        },
+        "capacity": {
+          "plannedMinutes": 1080,
+          "availableMinutes": 1800,
+          "freeMinutes": 720,
+          "overbookedMinutes": 0,
+          "loadPercent": 60,
+          "state": "MEASURED"
+        },
+        "coverage": {
+          "state": "COMPLETE",
+          "knownRecords": 8,
+          "eligibleRecords": 8,
+          "missing": [],
+          "scopeLabel": "Selected Business only; synthetic"
+        },
+        "daily": []
+      }
+    ],
+    "totals": {
+      "distinctPeople": 2,
+      "distinctOpenWork": 12,
+      "capacity": {
+        "plannedMinutes": 3180,
+        "availableMinutes": 3480,
+        "freeMinutes": 300,
+        "overbookedMinutes": 0,
+        "loadPercent": 91.38,
+        "state": "MEASURED"
+      },
+      "overloadedPeople": 1
+    },
+    "nextCursor": null
+  },
+  "performance": {
+    "meta": {
+      "asOf": "2026-09-16T00:00:00Z",
+      "sourceVersion": "SYNTHETIC-1",
+      "from": "2026-09-07",
+      "to": "2026-09-14",
+      "timezone": "Asia/Bangkok",
+      "scopeBusinessId": "20000000-0000-4000-8000-000000000001",
+      "coverage": {
+        "state": "COMPLETE",
+        "knownRecords": 12,
+        "eligibleRecords": 12,
+        "missing": [],
+        "scopeLabel": "Selected Business only; synthetic"
+      },
+      "stale": false
+    },
+    "metrics": [
+      {
+        "metricKey": "WF-M05",
+        "subjectType": "BUSINESS",
+        "subjectId": "20000000-0000-4000-8000-000000000001",
+        "value": 75,
+        "unit": "PERCENT",
+        "numerator": 15,
+        "denominator": 20,
+        "sampleCount": 20,
+        "status": "MEASURED",
+        "formulaVersion": "on-time-v1",
+        "baselineVersion": "SYNTHETIC-BASELINE-1",
+        "coverage": {
+          "state": "COMPLETE",
+          "knownRecords": 20,
+          "eligibleRecords": 20,
+          "missing": [],
+          "scopeLabel": "Selected Business only; synthetic"
+        },
+        "evidenceRefs": [],
+        "target": 90
+      }
+    ],
+    "nextCursor": null
+  },
+  "expected": {
+    "personALoadPercent": 125,
+    "personBLoadPercent": 60,
+    "teamLoadPercent": 91.38,
+    "personAOverbookedMinutes": 420,
+    "teamDistinctOpenWork": 12,
+    "onTimePercent": 75
+  }
+}

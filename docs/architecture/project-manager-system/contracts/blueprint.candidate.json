@@ -1,0 +1,396 @@
+{
+  "schemaVersion": "0.1.0",
+  "id": "PM-BLUEPRINT-01",
+  "status": "CANDIDATE",
+  "codegenReady": false,
+  "baseGraphRef": "architecture.model.json",
+  "srsRef": "../17-SRS.md",
+  "tableRef": "data-model.candidate.json",
+  "nodes": [
+    {
+      "id": "web",
+      "label": "PM web and LINE intake",
+      "ownerDomain": "project-manager",
+      "kind": "SURFACE",
+      "status": "TARGET_CANDIDATE"
+    },
+    {
+      "id": "identity",
+      "label": "Identity authorization",
+      "ownerDomain": "identity",
+      "kind": "SERVICE",
+      "status": "TARGET_CANDIDATE"
+    },
+    {
+      "id": "pm-planning",
+      "label": "PM work and support services",
+      "ownerDomain": "project-manager",
+      "kind": "SERVICE",
+      "status": "TARGET_CANDIDATE"
+    },
+    {
+      "id": "pm-design",
+      "label": "Design API and evidence services",
+      "ownerDomain": "project-manager",
+      "kind": "SERVICE",
+      "status": "TARGET_CANDIDATE"
+    },
+    {
+      "id": "pm-definitions",
+      "label": "Agent Fleet Workflow definitions",
+      "ownerDomain": "project-manager",
+      "kind": "SERVICE",
+      "status": "TARGET_CANDIDATE"
+    },
+    {
+      "id": "workforce",
+      "label": "People and workforce planning",
+      "ownerDomain": "project-manager",
+      "kind": "SERVICE",
+      "status": "TARGET_CANDIDATE"
+    },
+    {
+      "id": "execution",
+      "label": "Durable execution and usage",
+      "ownerDomain": "integration",
+      "kind": "SERVICE",
+      "status": "TARGET_CANDIDATE"
+    },
+    {
+      "id": "provider",
+      "label": "Model MCP inference gateway",
+      "ownerDomain": "integration",
+      "kind": "SERVICE",
+      "status": "TARGET_CANDIDATE"
+    },
+    {
+      "id": "integration-adapters",
+      "label": "SCM notification calendar adapters",
+      "ownerDomain": "integration",
+      "kind": "ADAPTER",
+      "status": "TARGET_CANDIDATE"
+    },
+    {
+      "id": "executor",
+      "label": "Paired execution host",
+      "ownerDomain": "integration",
+      "kind": "EXECUTOR",
+      "status": "TARGET_CANDIDATE"
+    },
+    {
+      "id": "vault",
+      "label": "Integration secret store",
+      "ownerDomain": "integration",
+      "kind": "STORE",
+      "status": "TARGET_CANDIDATE"
+    },
+    {
+      "id": "pm-store",
+      "label": "PM logical data partition",
+      "ownerDomain": "project-manager",
+      "kind": "STORE",
+      "status": "TARGET_CANDIDATE"
+    },
+    {
+      "id": "integration-store",
+      "label": "Integration logical data partition",
+      "ownerDomain": "integration",
+      "kind": "STORE",
+      "status": "TARGET_CANDIDATE"
+    },
+    {
+      "id": "identity-store",
+      "label": "Identity logical data partition",
+      "ownerDomain": "identity",
+      "kind": "STORE",
+      "status": "TARGET_CANDIDATE"
+    },
+    {
+      "id": "crm",
+      "label": "CRM Person owner port",
+      "ownerDomain": "crm",
+      "kind": "SERVICE",
+      "status": "TARGET_CANDIDATE"
+    },
+    {
+      "id": "knowledge",
+      "label": "Knowledge MSP GKS ports",
+      "ownerDomain": "knowledge",
+      "kind": "SERVICE",
+      "status": "TARGET_CANDIDATE"
+    },
+    {
+      "id": "scm",
+      "label": "SCM and CI providers",
+      "ownerDomain": "external",
+      "kind": "EXTERNAL",
+      "status": "TARGET_CANDIDATE"
+    },
+    {
+      "id": "model-host",
+      "label": "Cloud or private model server",
+      "ownerDomain": "external",
+      "kind": "EXTERNAL",
+      "status": "TARGET_CANDIDATE"
+    }
+  ],
+  "edges": [
+    {
+      "id": "BPE-01",
+      "source": "web",
+      "target": "pm-planning",
+      "type": "REQUESTS",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "openapi.candidate.yaml",
+      "ownerDomain": "project-manager"
+    },
+    {
+      "id": "BPE-02",
+      "source": "web",
+      "target": "pm-design",
+      "type": "REQUESTS",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "openapi.candidate.yaml",
+      "ownerDomain": "project-manager"
+    },
+    {
+      "id": "BPE-03",
+      "source": "web",
+      "target": "workforce",
+      "type": "REQUESTS",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "workforce.openapi.candidate.yaml",
+      "ownerDomain": "project-manager"
+    },
+    {
+      "id": "BPE-04",
+      "source": "web",
+      "target": "pm-definitions",
+      "type": "REQUESTS",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "openapi.candidate.yaml",
+      "ownerDomain": "project-manager"
+    },
+    {
+      "id": "BPE-05",
+      "source": "pm-planning",
+      "target": "identity",
+      "type": "AUTHORIZES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "../17-SRS.md",
+      "ownerDomain": "project-manager"
+    },
+    {
+      "id": "BPE-06",
+      "source": "pm-design",
+      "target": "identity",
+      "type": "AUTHORIZES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "../17-SRS.md",
+      "ownerDomain": "project-manager"
+    },
+    {
+      "id": "BPE-07",
+      "source": "workforce",
+      "target": "identity",
+      "type": "AUTHORIZES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "../17-SRS.md",
+      "ownerDomain": "project-manager"
+    },
+    {
+      "id": "BPE-08",
+      "source": "pm-definitions",
+      "target": "identity",
+      "type": "AUTHORIZES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "../17-SRS.md",
+      "ownerDomain": "project-manager"
+    },
+    {
+      "id": "BPE-09",
+      "source": "execution",
+      "target": "identity",
+      "type": "AUTHORIZES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "../17-SRS.md",
+      "ownerDomain": "integration"
+    },
+    {
+      "id": "BPE-10",
+      "source": "provider",
+      "target": "identity",
+      "type": "AUTHORIZES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "../17-SRS.md",
+      "ownerDomain": "integration"
+    },
+    {
+      "id": "BPE-11",
+      "source": "workforce",
+      "target": "crm",
+      "type": "READS_OWNER",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "../15-WORKFORCE-CAPACITY-SCHEDULE-AND-PERFORMANCE.md",
+      "ownerDomain": "project-manager"
+    },
+    {
+      "id": "BPE-12",
+      "source": "pm-planning",
+      "target": "pm-store",
+      "type": "WRITES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "data-model.candidate.json",
+      "ownerDomain": "project-manager"
+    },
+    {
+      "id": "BPE-13",
+      "source": "pm-design",
+      "target": "pm-store",
+      "type": "WRITES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "data-model.candidate.json",
+      "ownerDomain": "project-manager"
+    },
+    {
+      "id": "BPE-14",
+      "source": "pm-definitions",
+      "target": "pm-store",
+      "type": "WRITES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "data-model.candidate.json",
+      "ownerDomain": "project-manager"
+    },
+    {
+      "id": "BPE-15",
+      "source": "workforce",
+      "target": "pm-store",
+      "type": "WRITES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "data-model.candidate.json",
+      "ownerDomain": "project-manager"
+    },
+    {
+      "id": "BPE-16",
+      "source": "identity",
+      "target": "identity-store",
+      "type": "WRITES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "../17-SRS.md",
+      "ownerDomain": "identity"
+    },
+    {
+      "id": "BPE-17",
+      "source": "execution",
+      "target": "integration-store",
+      "type": "WRITES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "data-model.candidate.json",
+      "ownerDomain": "integration"
+    },
+    {
+      "id": "BPE-18",
+      "source": "provider",
+      "target": "integration-store",
+      "type": "WRITES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "data-model.candidate.json",
+      "ownerDomain": "integration"
+    },
+    {
+      "id": "BPE-19",
+      "source": "provider",
+      "target": "vault",
+      "type": "RESOLVES_SECRET",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "../05-PROVIDERS-AND-MCP.md",
+      "ownerDomain": "integration"
+    },
+    {
+      "id": "BPE-20",
+      "source": "pm-definitions",
+      "target": "execution",
+      "type": "COMMANDS",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "workflow.schema.json",
+      "ownerDomain": "project-manager"
+    },
+    {
+      "id": "BPE-21",
+      "source": "executor",
+      "target": "execution",
+      "type": "CLAIMS",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "openapi.candidate.yaml",
+      "ownerDomain": "integration"
+    },
+    {
+      "id": "BPE-22",
+      "source": "executor",
+      "target": "execution",
+      "type": "REPORTS_EVENT",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "openapi.candidate.yaml",
+      "ownerDomain": "integration"
+    },
+    {
+      "id": "BPE-23",
+      "source": "executor",
+      "target": "provider",
+      "type": "INVOKES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "openapi.candidate.yaml",
+      "ownerDomain": "integration"
+    },
+    {
+      "id": "BPE-24",
+      "source": "provider",
+      "target": "model-host",
+      "type": "INVOKES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "../05-PROVIDERS-AND-MCP.md",
+      "ownerDomain": "integration"
+    },
+    {
+      "id": "BPE-25",
+      "source": "pm-design",
+      "target": "knowledge",
+      "type": "RETRIEVES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "../03-DATA-AND-EVENTS.md",
+      "ownerDomain": "project-manager"
+    },
+    {
+      "id": "BPE-26",
+      "source": "integration-adapters",
+      "target": "scm",
+      "type": "VERIFIES",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "../07-DELIVERY-AND-VERIFICATION.md",
+      "ownerDomain": "integration"
+    },
+    {
+      "id": "BPE-27",
+      "source": "integration-adapters",
+      "target": "pm-design",
+      "type": "REPORTS_EVIDENCE",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "../07-DELIVERY-AND-VERIFICATION.md",
+      "ownerDomain": "integration"
+    }
+  ],
+  "edgeTypes": [
+    "REQUESTS",
+    "AUTHORIZES",
+    "READS_OWNER",
+    "WRITES",
+    "RESOLVES_SECRET",
+    "COMMANDS",
+    "CLAIMS",
+    "REPORTS_EVENT",
+    "INVOKES",
+    "RETRIEVES",
+    "VERIFIES",
+    "REPORTS_EVIDENCE"
+  ]
+}

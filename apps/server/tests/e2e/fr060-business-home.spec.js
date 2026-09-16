@@ -76,14 +76,22 @@ test.describe('FR-060 Business Home', () => {
     await expect(crmRow).not.toContainText('Reserved — no module yet')
   })
 
-  test('Development is a separate slot that roots at its own resource list', async ({ page }) => {
+  test('Projects & Work is a separate slot with six logical modules', async ({ page }) => {
     await openBusinessHome(page)
 
-    const development = page.getByRole('navigation', { name: 'Domains' }).getByRole('link', { name: 'Development' })
-    await expect(development).toHaveAttribute('href', '/projects')
-    await development.click()
+    const projectsWork = page.getByRole('navigation', { name: 'Domains' }).getByRole('link', { name: 'Projects & Work' })
+    await expect(projectsWork).toHaveAttribute('href', '/projects')
+    await projectsWork.click()
     await expect(page).toHaveURL(/\/projects$/)
-    // Development's sidebar must not offer the cross-domain page as its own.
+    const modules = page.getByRole('navigation', { name: 'Projects & Work modules' })
+    await expect(modules.getByRole('link', { name: 'Project Management', exact: true })).toHaveAttribute('href', '/projects')
+    await expect(modules.getByRole('link', { name: 'Work Management', exact: true })).toHaveAttribute('href', '/work')
+    await expect(modules.getByRole('link', { name: 'Resource Coordination', exact: true })).toHaveAttribute('href', '/files')
+    await expect(modules.getByRole('button', { name: /Delivery Design/ })).toBeVisible()
+    await expect(modules.getByRole('button', { name: /Delivery Governance/ })).toBeVisible()
+    await expect(modules.getByRole('button', { name: /Agent Delivery/ })).toBeVisible()
+    // Projects & Work must not offer the Business Home page as one of its
+    // module-local destinations.
     await expect(page.locator('aside').getByRole('link', { name: 'Overview' })).toHaveCount(0)
   })
 })

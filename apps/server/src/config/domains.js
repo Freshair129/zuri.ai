@@ -116,7 +116,7 @@ export const DOMAINS = [
     // queue) and now belongs to Business Home; leaving Development rooted there
     // would have kept one page answering to two domains, which is how the two
     // surfaces would have drifted apart.
-    key: 'projects', label: 'Development', icon: BriefcaseBusiness, basePath: '/projects',
+    key: 'projects', label: 'Projects & Work', icon: BriefcaseBusiness, basePath: '/projects',
     // Five of these entries are the cross-project halves of views a Project also
     // carries under its Work tab (FR-005/006/007/009/064 global + project-scoped
     // split). `group` renders as a sidebar section header naming that scope —

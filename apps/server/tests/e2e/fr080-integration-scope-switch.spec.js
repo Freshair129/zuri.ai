@@ -121,6 +121,8 @@ test.describe('FR-080 Platform Integrations Business scope', () => {
 
   test('drops a delayed A read after the B read becomes current', async ({ page }) => {
     const membership = await grantBusinessTwoMembership()
+    let releaseA
+    let releaseScopeRefresh
     try {
       await loginAsOwner(page)
       await expect(page.getByRole('button', { name: /Open Business Business 01/ })).toBeVisible()
@@ -130,14 +132,24 @@ test.describe('FR-080 Platform Integrations Business scope', () => {
       await page.getByRole('button', { name: new RegExp(`Open Business ${businessA.name}`) }).click()
       await expect(page).toHaveURL(/overview/)
 
-    let releaseA
+      // Load the Platform shell first. The client-side link below keeps the
+      // existing ScopeContext mounted while its pathname effect requests a
+      // fresh copy of the same authorized inventory.
+      await page.goto('/settings')
+      await expect(page.getByRole('link', { name: 'Integrations', exact: true })).toBeVisible()
+
     let resolveASeen
     let resolveBSeen
     let resolveASettled
+    let resolveScopeRefreshSeen
+    let resolveScopeRefreshSettled
     const holdA = new Promise((resolve) => { releaseA = resolve })
     const aReadSeen = new Promise((resolve) => { resolveASeen = resolve })
     const bReadSeen = new Promise((resolve) => { resolveBSeen = resolve })
     const aReadSettled = new Promise((resolve) => { resolveASettled = resolve })
+    const holdScopeRefresh = new Promise((resolve) => { releaseScopeRefresh = resolve })
+    const scopeRefreshSeen = new Promise((resolve) => { resolveScopeRefreshSeen = resolve })
+    const scopeRefreshSettled = new Promise((resolve) => { resolveScopeRefreshSettled = resolve })
     const aReadResponse = page.waitForResponse((response) => {
       const url = new URL(response.url())
       return response.request().method() === 'GET' && url.pathname === '/api/platform/integrations' && url.searchParams.get('businessId') === businessA.id
@@ -179,7 +191,25 @@ test.describe('FR-080 Platform Integrations Business scope', () => {
       await route.continue()
     })
 
-    await page.goto('/platform/integrations')
+    await page.route('**/api/scope', async (route) => {
+      const request = route.request()
+      if (request.method() !== 'GET') {
+        await route.continue()
+        return
+      }
+      resolveScopeRefreshSeen()
+      await holdScopeRefresh
+      await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(scope) })
+      resolveScopeRefreshSettled()
+    })
+
+    const scopeRefreshResponse = page.waitForResponse((response) => {
+      const url = new URL(response.url())
+      return response.request().method() === 'GET' && url.pathname === '/api/scope'
+    })
+    await page.getByRole('link', { name: 'Integrations', exact: true }).click()
+    await expect(page).toHaveURL(/platform\/integrations/)
+    await scopeRefreshSeen
     const businessSelect = page.getByLabel('Business', { exact: true })
     await expect(businessSelect).toHaveValue(businessA.id)
     await aReadSeen
@@ -187,6 +217,12 @@ test.describe('FR-080 Platform Integrations Business scope', () => {
     await businessSelect.selectOption(businessB.id)
     await expect(businessSelect).toHaveValue(businessB.id)
     await bReadSeen
+    releaseScopeRefresh()
+    const refreshedScopeResponse = await scopeRefreshResponse
+    await refreshedScopeResponse.finished()
+    await scopeRefreshSettled
+    await flushBrowser(page)
+    await expect(businessSelect).toHaveValue(businessB.id)
     await page.getByRole('button', { name: 'Settings', exact: true }).first().click()
     await expect(page.getByRole('heading', { name: 'AI Model & Provider Settings' })).toBeVisible()
     await expect(page.getByText('ยังไม่มี connection ในขอบเขตนี้', { exact: true })).toBeVisible()
@@ -197,8 +233,95 @@ test.describe('FR-080 Platform Integrations Business scope', () => {
     await flushBrowser(page)
     await expect(page.getByText('A only', { exact: true })).toHaveCount(0)
     await expect(page.getByText('ยังไม่มี connection ในขอบเขตนี้', { exact: true })).toBeVisible()
-      await page.unroute('**/api/platform/integrations**')
     } finally {
+      releaseScopeRefresh?.()
+      releaseA?.()
+      await page.unroute('**/api/scope')
+      await page.unroute('**/api/platform/integrations**')
+      await membership.cleanup()
+    }
+  })
+
+  test('falls back when the selected Business leaves the refreshed authorized inventory', async ({ page }) => {
+    const membership = await grantBusinessTwoMembership()
+    let releaseScopeRefresh
+    try {
+      await loginAsOwner(page)
+      await expect(page.getByRole('button', { name: /Open Business Business 01/ })).toBeVisible()
+      const scope = await readScope(page.request)
+      const { businessA, businessB } = businessesFrom(scope, membership.second.id)
+
+      await page.getByRole('button', { name: new RegExp(`Open Business ${businessA.name}`) }).click()
+      await expect(page).toHaveURL(/overview/)
+      await page.goto('/settings')
+      await expect(page.getByRole('link', { name: 'Integrations', exact: true })).toBeVisible()
+
+      let resolveScopeRefreshSeen
+      let resolveScopeRefreshSettled
+      const holdScopeRefresh = new Promise((resolve) => { releaseScopeRefresh = resolve })
+      const scopeRefreshSeen = new Promise((resolve) => { resolveScopeRefreshSeen = resolve })
+      const scopeRefreshSettled = new Promise((resolve) => { resolveScopeRefreshSettled = resolve })
+      const scopeWithoutB = {
+        ...scope,
+        businesses: scope.businesses.filter((business) => business.id !== businessB.id),
+        projects: Array.isArray(scope.projects) ? scope.projects.filter((project) => project.businessId !== businessB.id) : scope.projects,
+      }
+
+      await page.route('**/api/platform/integrations**', async (route) => {
+        const request = route.request()
+        const url = new URL(request.url())
+        if (request.method() === 'GET' && url.pathname === '/api/platform/integrations') {
+          await route.fulfill({ status: 200, contentType: 'application/json', body: '[]' })
+          return
+        }
+        await route.continue()
+      })
+      await page.route('**/api/scope', async (route) => {
+        if (route.request().method() !== 'GET') {
+          await route.continue()
+          return
+        }
+        resolveScopeRefreshSeen()
+        await holdScopeRefresh
+        await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(scopeWithoutB) })
+        resolveScopeRefreshSettled()
+      })
+
+      const scopeRefreshResponse = page.waitForResponse((response) => {
+        const url = new URL(response.url())
+        return response.request().method() === 'GET' && url.pathname === '/api/scope'
+      })
+      await page.getByRole('link', { name: 'Integrations', exact: true }).click()
+      await expect(page).toHaveURL(/platform\/integrations/)
+      await scopeRefreshSeen
+
+      const businessSelect = page.getByLabel('Business', { exact: true })
+      await expect(businessSelect).toHaveValue(businessA.id)
+      await businessSelect.selectOption(businessB.id)
+      await expect(businessSelect).toHaveValue(businessB.id)
+      await page.getByRole('button', { name: 'Settings', exact: true }).first().click()
+      await expect(page.getByText(`Business ปัจจุบัน: ${businessB.name}`, { exact: true })).toBeVisible()
+      await page.getByLabel('ชื่อ connection', { exact: true }).fill('B unsaved connection')
+      await page.getByLabel('Model', { exact: true }).fill('b-unsaved-model')
+      await page.getByLabel('Supabase Vault reference', { exact: true }).fill('supabase-vault:123e4567-e89b-12d3-a456-426614174001')
+
+      releaseScopeRefresh()
+      const refreshedScopeResponse = await scopeRefreshResponse
+      await refreshedScopeResponse.finished()
+      await scopeRefreshSettled
+      await flushBrowser(page)
+      await expect(page.getByRole('heading', { name: 'AI Model & Provider Settings' })).toBeVisible()
+      await expect(page.getByText(`Business ปัจจุบัน: ${businessA.name}`, { exact: true })).toBeVisible()
+      await expect(page.getByLabel('ชื่อ connection', { exact: true })).toHaveValue('Phase 1 LLM')
+      await expect(page.getByLabel('Model', { exact: true })).toHaveValue('')
+      await expect(page.getByLabel('Supabase Vault reference', { exact: true })).toHaveValue('')
+      await page.getByRole('button', { name: 'Back to Connectors', exact: true }).click()
+      await expect(businessSelect).toHaveValue(businessA.id)
+      await expect(businessSelect.locator(`option[value="${businessB.id}"]`)).toHaveCount(0)
+    } finally {
+      releaseScopeRefresh?.()
+      await page.unroute('**/api/scope')
+      await page.unroute('**/api/platform/integrations**')
       await membership.cleanup()
     }
   })

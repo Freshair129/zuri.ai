@@ -2,7 +2,7 @@
 id: ZAI:FEATURES
 version: "1.56.0b"
 status: active
-last_update: "2026-09-16T09:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-16T14:38:26+07:00,RWANG"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -11,6 +11,8 @@ relations:
 ---
 
 # Features (FEAT registry)
+
+Version diff 1.55.0b → 1.56.0b: register FR-250 as a project-manager feature-of-one for hierarchical Projects & Work navigation. No new FEAT bundle or runtime completion is asserted.
 
 | Field | Value |
 |-------|-------|
@@ -893,6 +895,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FR-242",
     "primaryDomain": "integration",
     "useCase": "ทีมพัฒนาต่อยอด vault เดิมที่เก็บ LINE channel secret ให้เก็บ OAuth client (เช่น FlowAccount ในอนาคต) และ model provider API key ได้ด้วย ผ่านขั้นตอนเขียน-ยืนยัน-หมุน-เพิกถอน-อ่านแบบเดียวกัน โดยเขียนทับ credential ผิดประเภทลง connection เดิมไม่ได้ (ระบบปฏิเสธก่อนข้อมูลลับจะถูกเก็บ) และอ่านข้าม kind กันไม่ให้เอา OAuth key ไปอ่านเป็น LINE channel secret"
+  },
+  {
+    "id": "FR-250",
+    "primaryDomain": "project-manager",
+    "useCase": "ผู้ใช้เปิด Projects & Work แล้วเลือกหมวด Project Management, Work Management หรือ Resource Coordination จาก sidebar และเลือกแท็บภายในหมวดนั้น โดยยังอยู่ในโปรเจกต์เดิม เปิด Inventory, Team และ Work views เดิมได้ครบ ใช้ Import plan จากปุ่มเดียว และเห็น Requirements, Risks, Resources กับ Agent Delivery ว่าส่วนใดยัง Planned โดยเมนูไม่เพิ่มสิทธิ์"
   },
   {
     "id": "FEAT-042",

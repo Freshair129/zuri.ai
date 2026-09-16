@@ -377,6 +377,7 @@
     "FR-247",
     "FR-248",
     "FR-249",
+    "FR-250",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -762,6 +763,7 @@
     "ADR-093",
     "ADR-094",
     "ADR-095",
+    "ADR-096",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -4661,6 +4663,19 @@
       "history": [
         {
           "anchor": "action level usage",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-250": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "f426850d8a18c4231367529459cdb460b1e1b0929911941107e6f39446612a97",
+      "history": [
+        {
+          "anchor": "hierarchical projects and work navigation",
           "since": "2026-09-16",
           "reason": "declared"
         }
@@ -9755,6 +9770,19 @@
       "history": [
         {
           "anchor": "observability",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-096": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-096-PROJECTS-AND-WORK-HIERARCHICAL-NAVIGATION.md",
+      "status": "current",
+      "statement_digest": "13b01d03e7db9d6e087a39a10a73f69b3975a28d99baff9a316a45081251bd53",
+      "history": [
+        {
+          "anchor": "projects and work uses domain module and local view",
           "since": "2026-09-16",
           "reason": "declared"
         }
