@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.78.0b |
+| **Version** | 1.79.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-16 |
 
@@ -23,7 +23,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=283 -->
+<!-- api-spec-counts: route_handlers=284 -->
 
 ### Local model residency by business hours (FR-244, 2026-09-16)
 
@@ -266,6 +266,7 @@ conversations owned by no Business or by one already in the viewer's scope.
 | GET | `/api/crm/conversations/event-counts` | implemented: FR-233 per-account follow/unfollow counts from `ConversationEvent`, same scope as search and the inbox |
 | POST | `/api/crm/customers/[customerId]/consent` | implemented: FR-103 / SEC-005 PDPA consent attestation — a Business **owner** (not merely a Member) records `GRANTED`/`DECLINED` for a Customer reached through their own Business's tenant (BR-001). Writes only `Customer.consent*`; never touches Conversation or Message |
 | POST | `/api/crm/customers/[customerId]/erasure` | implemented: FR-022 PDPA erasure — the production trigger for `erasePrincipal`, which until now had no route, UI or script. Same authority as the consent row above (per-Business **owner** over a Business in the Customer's tenant, BR-001) or the installation operator. Body `{ businessId, confirmation: 'ERASE' }`; any other confirmation is **400** and is checked before any lookup. Every authority refusal is **404**, indistinguishable from a fabricated id (FR-072) — an irreversible action must not double as an existence oracle. Revokes identities/sessions/link tokens, soft-deletes and redacts the Customer, deletes ConversationAnalysis, tombstones `Message.body` and the matching `RawExternalRecord` payloads in one transaction. The response carries counts only, never personal data |
+| POST | `/api/crm/customers/[customerId]/chat-evidence/retrieve` | implemented: FR-245 chat evidence archive retrieval (ADR-093 D7, TASK-ZAI-112) — a per-Business **owner** over a Business in the Customer's tenant (BR-001), stepped up to **AAL2** through the same FR-224 gate credential rotation uses. Body `{ businessId, startDate, endDate, caseReference }` (both dates `YYYY-MM-DD`, `caseReference` required and free text). Recovers exactly the Customer's already-**archived** (retention-swept) messages in range, grouped by the `sessionId` `chat-evidence-archive-service.js` already writes into every archived line. Every manifest is re-checked against its own `manifestHash` and its file re-hashed against `fileSha256` before any line is trusted; a missing, unreadable or hash-mismatched manifest or file is reported in `missingMessageIds` rather than failing the whole retrieval. Every call — including an empty result — writes one `ARCHIVE_RETRIEVED` audit event naming the Customer, the range and the case reference. `403 ASSURANCE_LEVEL_INSUFFICIENT` below AAL2; `403` for a Business seen but not owned; `404` for an unknown Business or a Customer outside its tenant |
 | POST | `/api/agent/line-delivery` | implemented: transport delivery receipt endpoint recording outbound LINE reply messages into Conversation/Message history (FR-093 / SDD-051) |
 
 ### CRM retention sweep worker (FR-230, ADR-091 D1/D2, 2026-09-15)
@@ -837,6 +838,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.79.0b | 2026-09-16 | candidate | FR-245 (ADR-093 D7, TASK-ZAI-112): one handler file, `POST /api/crm/customers/[customerId]/chat-evidence/retrieve` — the archive's one retrieval path, OWNER at AAL2 through the FR-224 gate, grouped by session, every attempt audited. Route handler count 283 -> 284 | working-tree | Claude Sonnet 5 |
 | 1.78.0b | 2026-09-16 | candidate | FR-244 (ADR-094 D6 option A, TASK-ZAI-109): one handler file, `POST /api/edge/model-residency` — the compute-owned edge worker's identity-free residency poll, returning one aggregate `shouldBeWarm` boolean derived from every server-enabled account's declared business hours, never an account id or a per-account schedule (ADR-061). Route handler count 282 -> 283 | working-tree | Claude Sonnet 5 |
 | 1.77.0b | 2026-09-16 | candidate | FR-246 (ADR-093 evidence gap, TASK-ZAI-110): one handler file, `POST /api/crm/conversations/[id]/reply` — the staff reply writer, a Business owner replying from the Inbox composer, pushed through the LINE transport and recorded only on acceptance. Route handler count 281 -> 282 | working-tree | Claude Sonnet 5 |
 | 1.76.0b | 2026-09-15 | candidate | FR-230 (ADR-091 D1, D2): one handler file, `POST /api/crm/retention-sweep` — the missing scheduled entry point for the nightly retention sweep, deployment-authenticated, same-UTC-day idempotency guard against a scheduler retry. Route handler count 280 -> 281 | working-tree | Claude Sonnet 5 |

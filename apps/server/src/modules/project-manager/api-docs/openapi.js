@@ -136,6 +136,11 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-022 — the PDPA erasure trigger. POST only: there is no preview of an
   // erasure, and the redacted Customer row survives, so DELETE would misdescribe it.
   ['/api/crm/customers/{customerId}/erasure', ['POST']],
+  // @req FR-245 — the chat evidence archive's one retrieval path (ADR-093 D7,
+  // TASK-ZAI-112). POST only, same reasoning as the erasure row above: no GET
+  // preview, and every call is independently audited regardless of how many
+  // times the same range is asked for.
+  ['/api/crm/customers/{customerId}/chat-evidence/retrieve', ['POST']],
   // @req FR-230 — the nightly retention sweep's scheduled entry point (ADR-091 D1,
   // D2). Deployment-authenticated (ZURI_RETENTION_SWEEP_TOKEN), same shape as
   // /api/line-oa/worker and /api/platform/programme-usage-reports below.

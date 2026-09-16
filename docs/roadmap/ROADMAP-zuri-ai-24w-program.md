@@ -411,7 +411,7 @@ Week numbers map to the calendar in section 5.4. W1 begins Mon 2026-08-24.
 |---|---|---|---|---|---|---|---|
 | PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2); (v0.4.7) bind the LINE OA platform plan to lanes before its work starts | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, the cost and quote decision record is written, the data pipeline map renders every confirmed chain (v0.4.3), and the board shows measured time and tokens for done work (v0.4.4) | in-progress | 88 |
 | PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; give the seventeen-stage pipeline its knowledge base and file system on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one; (v0.4.7) a Business owner connects a LINE OA from the browser through a write-only credential vault, and the LINE chat record is complete with declared retention | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; a real document is admitted, parsed, published and cited on production; GATE-ZAI-09's migration ledger matches; one production LINE OA account runs on server transport from a vault credential its owner entered, with no operator file (v0.4.7) | in-progress | 25 |
-| PHASE-ZAI-03 | 9-12 | 2026-10-19 to 2026-11-15 | Second business, cross-business analytics, first workflows and connectors; deliverable 11 accepted for Business one; (v0.4.7) one Context Composer for every LINE prompt, LINE answers grounded by the published corpus, reviewed knowledge candidates, and memory policy with erasure beyond Tier 1 once MSP can hold and erase it | `docs/ARCHITECTURE.md` | GATE-ZAI-04 and GATE-ZAI-07 are met for connectors one and two and workflows one and two; GATE-ZAI-09 is met; a SmartGift LINE answer cites the published corpus in the isolated harness with zero cross-tenant leakage (v0.4.7) | in-progress | 2 |
+| PHASE-ZAI-03 | 9-12 | 2026-10-19 to 2026-11-15 | Second business, cross-business analytics, first workflows and connectors; deliverable 11 accepted for Business one; (v0.4.7) one Context Composer for every LINE prompt, LINE answers grounded by the published corpus, reviewed knowledge candidates, and memory policy with erasure beyond Tier 1 once MSP can hold and erase it | `docs/ARCHITECTURE.md` | GATE-ZAI-04 and GATE-ZAI-07 are met for connectors one and two and workflows one and two; GATE-ZAI-09 is met; a SmartGift LINE answer cites the published corpus in the isolated harness with zero cross-tenant leakage (v0.4.7) | in-progress | 10 |
 | PHASE-ZAI-04 | 13-16 | 2026-11-16 to 2026-12-13 | Visual Office 2.5D and the agent activity experience | `docs/UI-DESIGN-SYSTEM.md` | GATE-ZAI-01 is met | planned | 0 |
 | PHASE-ZAI-05 | 17-20 | 2026-12-14 to 2027-01-10 | Second Brain, Node View 3D and the remaining automation | `docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md` | GATE-ZAI-02, GATE-ZAI-03 and GATE-ZAI-05 are met | in-progress | 17 |
 | PHASE-ZAI-06 | 21-24 | 2027-01-11 to 2027-02-07 | Harden, prove, deploy and hand over | This roadmap | GATE-ZAI-06 and GATE-ZAI-08 are met | planned | 0 |
@@ -433,7 +433,7 @@ locates the week.
 | SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake; (v0.4.3) the data pipeline registry and its node-edge map land under a Knowledge (GKS) slot; (v0.4.4) delivery telemetry on the programme board: phase card metrics, task card evidence badges with subtask progress, a usage meter over local session logs and a usage report endpoint; (v0.4.5) the Zuri harness usage plugin with browser-approved device pairing; (v0.4.6) the plugin specification and agent usage detail — thinking tokens, tool calls, prompts and compactions; (v0.4.7) the LINE OA platform plan registered with its lanes before work starts; (v0.4.8) a 30-day member view of the roadmap for signed-in people; (v0.4.9) ADR-093 and ADR-094 accepted and their tasks bound to lanes | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, supplier cost sheets land with a locked FX rate, and the map shows every inbound source, outbound recipient and combine chain with its surface level, a done task shows tokens measured from a named source, every task card shows its evidence badges, a paired agent on another machine reports its sessions (v0.4.5), the board shows tool calls and token types per lane and person (v0.4.6), and a signed-in non-operator reads the plan at /roadmap until the window closes (v0.4.8); ADR-093 and ADR-094 read accepted with their requirements pinned (v0.4.9) | in-progress | 86 |
 | SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; stand up the knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending deliverable-11 migration on production; pricing rule set, the shared pricing engine and quotations; live pipeline health on the data pipeline map; (v0.4.7) the Integration credential vault with Supabase Vault and envelope stores, the LINE channel claim and channel-admin port, and the AAL2 credential-write gate; (v0.4.9) conversation sessions on the record with their production apply | Each role resolves distinct tools, policy and memory partition; a PDF uploaded in the console is published as a cited corpus on production; the migration ledger matches the tree; a quote and the FR-181 tool price the same SKU to the same satang; a failed run is visible on its map edge for its own Business only; ADR-089 proofs 1 to 6 pass on both stores and a real test channel is validated in a dev deployment with no production migration applied (v0.4.7); a gap past the idle timeout opens a second session on production (v0.4.9) | in-progress | 30 |
 | SPR-ZAI-04 | PHASE-ZAI-02 | 7-8 | 10-05 to 10-18 | Approval Gateway L1 to L4 with verification, notification and Mission Control binding; ladder quotation on LINE and knowledge structured records; (v0.4.7) the self-serve LINE OA wizard with automatic webhook registration and derived quiescence, the first production account moved off the mount, and the complete chat record with retention sweep and inbox search; (v0.4.9) local model residency by business hours and staff replies recorded from the inbox | An L4 action cannot execute without four recorded approvals; a LINE quotation request is answered from the shared engine with no margin in the payload; one production LINE OA account runs on server transport from a credential its owner entered, and non-text LINE events appear in the inbox (v0.4.7); the model is unloaded outside business hours and a staff reply is in the record (v0.4.9) | in-progress | 19 |
-| SPR-ZAI-05 | PHASE-ZAI-03 | 9-10 | 10-19 to 11-01 | Standard business template and Business number two onboarding; (v0.4.7) the Context Composer, and LINE grounding from the published corpus with its isolated acceptance; (v0.4.9) the chat evidence archive writer, OWNER retrieval and the legal hold | Business two is live and isolated from SmartGift under test; every LINE prompt carries one ContextReceipt and a grounded answer cites the corpus in the four-process harness (v0.4.7); a swept body is decrypted from a verified archive by an OWNER at AAL2 (v0.4.9) | planned | 0 |
+| SPR-ZAI-05 | PHASE-ZAI-03 | 9-10 | 10-19 to 11-01 | Standard business template and Business number two onboarding; (v0.4.7) the Context Composer, and LINE grounding from the published corpus with its isolated acceptance; (v0.4.9) the chat evidence archive writer, OWNER retrieval and the legal hold | Business two is live and isolated from SmartGift under test; every LINE prompt carries one ContextReceipt and a grounded answer cites the corpus in the four-process harness (v0.4.7); a swept body is decrypted from a verified archive by an OWNER at AAL2 (v0.4.9) | in-progress | 21 |
 | SPR-ZAI-06 | PHASE-ZAI-03 | 11-12 | 11-02 to 11-15 | Cross-business analytics, connector two, workflows one and two; GATE-ZAI-09 evidence run; (v0.4.7) the SmartGift grounding switch after ADR-075 Phase 3, LINE knowledge candidates, the gap report and Studio descriptions, and memory policy with erasure fan-out once MSP ships its thread and erase tools; (v0.4.9) the chat evidence archive on production and its offline copy | Analytics obey per-business visibility, two workflows run end to end, and the ERP acceptance record is signed; an approved locator-only candidate is admitted with Zero-PII checked twice (v0.4.7); the first manifest is recorded on production and copied offline (v0.4.9) | in-progress | 4 |
 | SPR-ZAI-07 | PHASE-ZAI-04 | 13-14 | 11-16 to 11-29 | Visual Office 2.5D scene model and shell | The scene renders live Business, Agent and Mission objects with no mock values | planned | 0 |
 | SPR-ZAI-08 | PHASE-ZAI-04 | 15-16 | 11-30 to 12-13 | Agent activity experience and in-scene approval | Live agent activity and the approval queue are visible in the office | planned | 0 |
@@ -556,8 +556,8 @@ locates the week.
 | TASK-ZAI-108 | SPR-ZAI-03 | task | Apply the conversation session migration on production and run the backfill, under ADR-057 with an inventory, a rolled-back dry run and a verified effect, recorded in the migration notes | P1 | ATHER | done | TASK-ZAI-107 | ADR-057; ADR-094 phase 1 |
 | TASK-ZAI-109 | SPR-ZAI-04 | task | Local model residency by business hours, FR-244 — per-account business hours and out-of-hours reply, the edge worker loading the model during any served account's hours and unloading it after the last closes, and no model call outside hours | P1 | Claude | review | TASK-ZAI-105 | Section 3.1 row 8; ADR-094 D6 option A |
 | TASK-ZAI-110 | SPR-ZAI-04 | task | Staff replies recorded, FR-246 — a member with CRM write access replies from the inbox, the server pushes it through the account's LINE transport and records an OUTBOUND message with reply source STAFF in the conversation's session | P0 | Claude | done | TASK-ZAI-106 | Section 3.1 row 8; ADR-093 evidence gap; FR-093 |
-| TASK-ZAI-111 | SPR-ZAI-05 | task | Chat evidence archive writer, FR-245 — archive manifest model and migration, per-Customer AES-256-GCM segments under ZURI_ARCHIVE_KEK, write-flush-verify before tombstone inside the retention sweep, failing closed | P1 | Claude | planned | TASK-ZAI-108; TASK-ZAI-110 | Section 3.1 row 8; ADR-093 D1 to D4; SDD-103; SEC-034 |
-| TASK-ZAI-112 | SPR-ZAI-05 | task | Chat evidence retrieval, FR-245 — an OWNER at AAL2 retrieves one Customer's archived messages for a date range by session with a case reference, as an export carrying file and manifest hashes, audited | P1 | Claude | planned | TASK-ZAI-111 | Section 3.1 row 8; ADR-093 D7; SEC-034; FR-224 |
+| TASK-ZAI-111 | SPR-ZAI-05 | task | Chat evidence archive writer, FR-245 — archive manifest model and migration, per-Customer AES-256-GCM segments under ZURI_ARCHIVE_KEK, write-flush-verify before tombstone inside the retention sweep, failing closed | P1 | Claude | done | TASK-ZAI-108; TASK-ZAI-110 | Section 3.1 row 8; ADR-093 D1 to D4; SDD-103; SEC-034 |
+| TASK-ZAI-112 | SPR-ZAI-05 | task | Chat evidence retrieval, FR-245 — an OWNER at AAL2 retrieves one Customer's archived messages for a date range by session with a case reference, as an export carrying file and manifest hashes, audited | P1 | Claude | review | TASK-ZAI-111 | Section 3.1 row 8; ADR-093 D7; SEC-034; FR-224 |
 | TASK-ZAI-113 | SPR-ZAI-05 | task | Archive key destruction and the legal hold, SEC-034 — expiry and PDPA erasure destroy a Customer's archive data key unless an OWNER-recorded legal hold with a reason and end date is active, shown on the erasure status | P1 | Claude | planned | TASK-ZAI-112 | Section 3.1 row 8; ADR-093 D5, D6; SEC-031; SEC-034 |
 | TASK-ZAI-114 | SPR-ZAI-06 | task | Chat evidence archive on production — the cold-archive compose overlay on F:, ZURI_ARCHIVE_KEK with its offline backup, the migrations applied under ADR-057, the sweep token and 03:00 scheduled task, and the first recorded manifest | P1 | ATHER | planned | TASK-ZAI-113 | ADR-057; ADR-093 phase 4; TASK-ZAI-091 |
 | TASK-ZAI-115 | SPR-ZAI-06 | task | Monthly offline copy of the chat evidence archive — new archive files copied to an offline external drive and verified against the manifest hashes, with the first verified copy recorded | P2 | Owen | planned | TASK-ZAI-114 | ADR-093 D8; FR-245 |
@@ -5761,38 +5761,38 @@ title: Chat evidence archive writer, FR-245 — archive manifest model and migra
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: done
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/modules/crm/retention-sweep-service.js
+  code: apps/server/src/modules/crm/chat-evidence-archive-service.js
   doc: docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md
   test: apps/server/tests/integration/crm-chat-evidence-archive.test.js
 delivers: [FR-245]
 subtasks:
   - id: P0
     title: Manifest model with the per-Tenant hash chain and its migration
-    status: planned
+    status: done
   - id: P1
     title: Archive file writer with per-Customer data keys
-    status: planned
+    status: done
   - id: P2
     title: Sweep integration that tombstones only verified rows
-    status: planned
+    status: done
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a message past its window, when the sweep runs, then an archive file is written, read back and verified, its manifest row chains to the previous one, and only then is the body tombstoned
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given an archive write that fails or a file whose hash does not match, when the sweep runs, then nothing is tombstoned for that Tenant and the audit event counts the failure
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the archive suites run, then decrypting a segment with another Customer's key fails, a tampered file breaks the chain, and the migration is written and not applied
-      checked: false
-changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured.
+      checked: true
+changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured. Built and MERGED 2026-09-16 (PR #431, main `b6e002ef`): `chat-evidence-archive-crypto.js` (AES-256-GCM KEK/DEK mirroring envelope-secret-store.js's shape, `ZURI_ARCHIVE_KEK` never `ZURI_SECRET_KEK`, per-segment AAD binds tenantId/customerId/runId so cross-Customer decrypt fails at the cipher) and `chat-evidence-archive-service.js` (one `.zca` newline-delimited-JSON file per Tenant per run at `<ZURI_ARCHIVE_DIR>/<tenantId>/<yyyy>/<runId>.zca`, write-under-temp-name→fsync→rename→read-back→verify-SHA-256, then `ArchiveManifest` insert and tombstone in one transaction). New models `ArchiveManifest` and `CustomerArchiveKey`, migration `20260916150000` (written, not applied). A parallel implementation of this same task (`ArchiveCustomerKey`, a different migration timestamp, a single-file design) was independently built and opened as PR #429 by a separate session in this same window; PR #431 merged first, so it is the canonical implementation — the duplicate PR #429 branch was reset onto this one and repointed at TASK-ZAI-112 only (see that container's changelog). One design difference worth a later look: this implementation excludes both new models from `SNAPSHOT_MODELS` (citing no Prisma relation to Tenant/Customer, mirroring `IntegrationSecretEnvelope`), where the reset PR #429 branch had included them (citing the `mfaFactor` precedent: a randomly generated key has no re-entry path, so exclusion risks a routine restore permanently losing access to retained dispute evidence) — tracked as a separate follow-up rather than re-litigated here. Evidence (as merged): its own test suite passed at merge time; not independently re-verified by this session beyond confirming `npm run govern` and the full suite stay green with TASK-ZAI-112 built on top of it.
 created_at: 2026-09-16T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -5816,38 +5816,38 @@ title: Chat evidence retrieval, FR-245 — an OWNER at AAL2 retrieves one Custom
 requirement_type: FR
 complexity: C-2
 access_scope: H3
-status: planned
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/modules/crm/retention-sweep-service.js
+  code: apps/server/src/modules/crm/chat-evidence-retrieval-service.js
   doc: docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md
   test: apps/server/tests/integration/crm-chat-evidence-retrieval.test.js
 delivers: [FR-245]
 subtasks:
   - id: P0
     title: Retrieval service verifying the chain before decrypting
-    status: planned
+    status: done
   - id: P1
     title: AAL2-gated route with a required case reference
-    status: planned
+    status: done
   - id: P2
     title: Hashed export and the ARCHIVE_RETRIEVED audit event
-    status: planned
+    status: done
 definition_of_done:
   acceptance_criteria:
     - criterion: Given an OWNER at AAL2 with a case reference, when they retrieve a Customer's range, then the export lists the messages by session with the file and manifest hashes
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a viewer who is not an OWNER, is not at AAL2 or gives no case reference, when retrieval is attempted, then it is refused and nothing is decrypted
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given every retrieval, when it completes, then one ARCHIVE_RETRIEVED audit event names the Customer, the range and the case reference, and no page lists the archive
-      checked: false
-changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured.
+      checked: true
+changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured. First built 2026-09-16 on branch `feat/fr245-chat-evidence-archive` (PR #429) stacked on this session's own TASK-ZAI-111 implementation — then a separate session's competing TASK-ZAI-111 (PR #431: `ArchiveManifest`/`CustomerArchiveKey`, `chat-evidence-archive-crypto.js`/`chat-evidence-archive-service.js`, migration `20260916150000`) merged into main first (`b6e002ef`), making the two branches' models, migrations and file layout incompatible. Rather than re-merge a duplicate archive writer, PR #429 was reset onto main and TASK-ZAI-112 rebuilt from scratch against the now-canonical PR #431 API: `chat-evidence-retrieval-service.js` — the FR-224 step-up gate (`assertCredentialWriteAssurance`, the one credential rotation uses — ADR-093 D7 names it explicitly), then the consent/erasure services' own authority shape (per-Business owner in the Customer's tenant, domain-gate before ownership-gate, BR-001). Grouping "by session" needed no extra join this time: `chat-evidence-archive-service.js`'s `buildArchiveLine` already writes `sessionId` into every archived line, so retrieval reads it straight off the decrypted content. Every manifest is first self-checked (`computeManifestHash` recomputed from its own stored fields must equal `manifest.manifestHash`) and every file re-hashed against `manifest.fileSha256` before any line in it is trusted; a manifest or file that fails either check, or is simply missing, lands its message ids in `missingMessageIds` instead of failing the whole retrieval. Evidence: server `npm test` 704 files / 5868 tests passed, 0 failed (new: 7 in `crm-chat-evidence-retrieval.test.js` covering the AAL1/expired-elevation refusal, the not-owned-Business refusal, the missing-case-reference refusal, the full grouped-by-session round trip with manifest hashes, the partial-recovery-reports-missing case, the never-archived-yet-still-audits case, and the unknown/other-tenant-Customer 404s); `npm run build` clean; `npm run govern` 0 CRITICAL (two real findings fixed: the new route needed an Appendix A row and its handler count bumped, and `openapi-docs.test.js`'s generic route inventory needed the new route registered plus its pathCount/operationCount bumped — the same two traps hit building TASK-ZAI-111's own retrieval attempt the first time around). The `SNAPSHOT_MODELS` exclude-vs-include disagreement found against PR #431's merged code is tracked as a separate small follow-up, not bundled here.
 created_at: 2026-09-16T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
