@@ -40,8 +40,8 @@
     "readyFeatureCount": 117,
     "requirementCount": 254,
     "verifiedRequirementCount": 239,
-    "progressPercent": 94.6,
-    "gapCount": 29,
+    "progressPercent": 94.9,
+    "gapCount": 33,
     "gaps": [
       {
         "domain": "agent",
@@ -76,6 +76,22 @@
         "check": "requirements",
         "summary": "FR-132 is planned",
         "evidence": []
+      },
+      {
+        "domain": "agent",
+        "id": "REQ-FR-232",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-232 is partial",
+        "evidence": [
+          "apps/server/src/modules/agent/edge-line-memory-context.js",
+          "apps/server/src/modules/agent/edge-memory-invocation.js",
+          "apps/server/src/modules/agent/msp-thread-memory-port.js",
+          "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+          "apps/server/tests/integration/line-worker-memory.test.js",
+          "apps/server/tests/unit/edge-line-memory-context.test.js",
+          "apps/server/tests/unit/edge-memory-invocation.test.js"
+        ]
       },
       {
         "domain": "asset-management",
@@ -190,10 +206,20 @@
         "id": "REQ-FR-189",
         "severity": "medium",
         "check": "requirements",
-        "summary": "FR-189 is planned",
+        "summary": "FR-189 is partial",
         "evidence": [
-          "apps/edge/tests/unit/genesisrag17-edge.test.ts"
+          "apps/edge/tests/unit/genesisrag17-edge.test.ts",
+          "apps/edge/tests/unit/genesisrag17-products.test.ts",
+          "apps/server/src/modules/knowledge/edge-published-corpus-context.js",
+          "apps/server/tests/unit/edge-published-corpus-context.test.js"
         ]
+      },
+      {
+        "domain": "line-oa-studio",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
       },
       {
         "domain": "line-oa-studio",
@@ -201,6 +227,27 @@
         "severity": "high",
         "check": "authorization",
         "summary": "At least one mutating route lacks a recognizable request viewer seam"
+      },
+      {
+        "domain": "line-oa-studio",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "line-oa-studio",
+        "id": "REQ-FR-232",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-232 is partial",
+        "evidence": [
+          "apps/server/src/app/api/edge/conversation-jobs/[id]/context/route.js",
+          "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+          "apps/server/tests/integration/line-worker-memory.test.js",
+          "apps/server/tests/unit/edge-line-memory-context.test.js",
+          "apps/server/tests/unit/edge-memory-invocation.test.js"
+        ]
       },
       {
         "domain": "platform-control",
@@ -290,8 +337,8 @@
           "title": "Agent write/action gate (ADR-007 P7, Gate F)",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 5
+          "codeCount": 6,
+          "testCount": 8
         },
         {
           "id": "FR-027",
@@ -401,6 +448,14 @@
           "status": "verified",
           "codeCount": 8,
           "testCount": 14
+        },
+        {
+          "id": "FR-072",
+          "title": "Project-Manager mutation authorization",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 71
         },
         {
           "id": "FR-079",
@@ -519,16 +574,16 @@
           "title": "Optional Edge conversation execution",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 12
+          "codeCount": 3,
+          "testCount": 20
         },
         {
           "id": "FR-171",
           "title": "Execution Trace & Replay v0.3",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 9,
-          "testCount": 20
+          "codeCount": 10,
+          "testCount": 25
         },
         {
           "id": "FR-181",
@@ -547,12 +602,29 @@
           "testCount": 7
         },
         {
+          "id": "FR-232",
+          "title": "Erasure propagation beyond Tier 1",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 3,
+          "testCount": 4,
+          "evidence": [
+            "apps/server/src/modules/agent/edge-line-memory-context.js",
+            "apps/server/src/modules/agent/edge-memory-invocation.js",
+            "apps/server/src/modules/agent/msp-thread-memory-port.js",
+            "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/unit/edge-line-memory-context.test.js",
+            "apps/server/tests/unit/edge-memory-invocation.test.js"
+          ]
+        },
+        {
           "id": "FR-234",
           "title": "Context Composer",
           "declared": "done",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 12
+          "codeCount": 9,
+          "testCount": 19
         },
         {
           "id": "FR-235",
@@ -560,7 +632,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-243",
@@ -595,7 +667,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 302,
+            "openApiPaths": 304,
             "missingFromOpenApi": 0
           }
         },
@@ -675,6 +747,7 @@
         "docs/TRACE.md",
         "docs/appendices/A-api-spec.md",
         "docs/domains/agent/CHARTER.md",
+        "docs/domains/agent/features/FR-026-line-project-work-confirmation.md",
         "docs/domains/agent/features/FR-051-production-supabase-tenant-isolation.md",
         "docs/domains/agent/features/FR-052-server-owned-line-scope-binding.md",
         "docs/domains/agent/features/FR-053-phase1-golden-question-evaluation.md",
@@ -729,6 +802,21 @@
           "check": "requirements",
           "summary": "FR-132 is planned",
           "evidence": []
+        },
+        {
+          "id": "REQ-FR-232",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-232 is partial",
+          "evidence": [
+            "apps/server/src/modules/agent/edge-line-memory-context.js",
+            "apps/server/src/modules/agent/edge-memory-invocation.js",
+            "apps/server/src/modules/agent/msp-thread-memory-port.js",
+            "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/unit/edge-line-memory-context.test.js",
+            "apps/server/tests/unit/edge-memory-invocation.test.js"
+          ]
         }
       ],
       "details": {
@@ -736,7 +824,7 @@
         "apiRoutes": 4,
         "pageRoutes": 0,
         "ownedModels": 1,
-        "featureNotes": 14
+        "featureNotes": 15
       },
       "featureIds": [
         "FR-025",
@@ -860,7 +948,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 302,
+            "openApiPaths": 304,
             "missingFromOpenApi": 0
           }
         },
@@ -1073,7 +1161,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 302,
+            "openApiPaths": 304,
             "missingFromOpenApi": 0
           }
         },
@@ -1465,7 +1553,7 @@
       ],
       "featureCount": 10,
       "readyFeatureCount": 4,
-      "progressPercent": 82
+      "progressPercent": 86
     },
     "identity": {
       "status": "partial",
@@ -1492,7 +1580,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 5
+          "testCount": 8
         },
         {
           "id": "FR-031",
@@ -1894,7 +1982,7 @@
           "details": {
             "routes": 27,
             "inventoried": 27,
-            "openApiPaths": 302,
+            "openApiPaths": 304,
             "missingFromOpenApi": 0
           }
         },
@@ -2320,7 +2408,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-226",
@@ -2336,7 +2424,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-236",
@@ -2386,7 +2474,7 @@
           "details": {
             "routes": 10,
             "inventoried": 10,
-            "openApiPaths": 302,
+            "openApiPaths": 304,
             "missingFromOpenApi": 0
           }
         },
@@ -2749,7 +2837,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 302,
+            "openApiPaths": 304,
             "missingFromOpenApi": 0
           }
         },
@@ -3039,11 +3127,14 @@
           "id": "FR-189",
           "title": "Edge answers SmartGift catalog queries from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as a transitional…",
           "declared": "planned",
-          "status": "planned",
-          "codeCount": 0,
-          "testCount": 1,
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 3,
           "evidence": [
-            "apps/edge/tests/unit/genesisrag17-edge.test.ts"
+            "apps/edge/tests/unit/genesisrag17-edge.test.ts",
+            "apps/edge/tests/unit/genesisrag17-products.test.ts",
+            "apps/server/src/modules/knowledge/edge-published-corpus-context.js",
+            "apps/server/tests/unit/edge-published-corpus-context.test.js"
           ]
         },
         {
@@ -3076,7 +3167,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-236",
@@ -3273,9 +3364,12 @@
           "id": "REQ-FR-189",
           "severity": "medium",
           "check": "requirements",
-          "summary": "FR-189 is planned",
+          "summary": "FR-189 is partial",
           "evidence": [
-            "apps/edge/tests/unit/genesisrag17-edge.test.ts"
+            "apps/edge/tests/unit/genesisrag17-edge.test.ts",
+            "apps/edge/tests/unit/genesisrag17-products.test.ts",
+            "apps/server/src/modules/knowledge/edge-published-corpus-context.js",
+            "apps/server/tests/unit/edge-published-corpus-context.test.js"
           ]
         }
       ],
@@ -3328,12 +3422,28 @@
           "testCount": 15
         },
         {
+          "id": "FR-026",
+          "title": "Agent write/action gate (ADR-007 P7, Gate F)",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 8
+        },
+        {
           "id": "FR-061",
           "title": "Per-Business domain visibility",
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
           "testCount": 48
+        },
+        {
+          "id": "FR-072",
+          "title": "Project-Manager mutation authorization",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 71
         },
         {
           "id": "FR-080",
@@ -3380,8 +3490,8 @@
           "title": "Optional Edge conversation execution",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 12
+          "codeCount": 10,
+          "testCount": 20
         },
         {
           "id": "FR-151",
@@ -3412,8 +3522,8 @@
           "title": "Execution Trace & Replay v0.3",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 20
+          "codeCount": 5,
+          "testCount": 25
         },
         {
           "id": "FR-190",
@@ -3452,8 +3562,8 @@
           "title": "Self-serve LINE OA connection",
           "declared": "done",
           "status": "verified",
-          "codeCount": 7,
-          "testCount": 17
+          "codeCount": 9,
+          "testCount": 18
         },
         {
           "id": "FR-226",
@@ -3468,16 +3578,16 @@
           "title": "Automatic LINE webhook registration",
           "declared": "done",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 13
+          "codeCount": 5,
+          "testCount": 14
         },
         {
           "id": "FR-228",
           "title": "Derived legacy-transport quiescence",
           "declared": "done",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 9
+          "codeCount": 5,
+          "testCount": 10
         },
         {
           "id": "FR-229",
@@ -3488,12 +3598,35 @@
           "testCount": 15
         },
         {
+          "id": "FR-232",
+          "title": "Erasure propagation beyond Tier 1",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 4,
+          "evidence": [
+            "apps/server/src/app/api/edge/conversation-jobs/[id]/context/route.js",
+            "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/unit/edge-line-memory-context.test.js",
+            "apps/server/tests/unit/edge-memory-invocation.test.js"
+          ]
+        },
+        {
+          "id": "FR-234",
+          "title": "Context Composer",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 19
+        },
+        {
           "id": "FR-235",
           "title": "LINE answer grounding from the published knowledge corpus",
           "declared": "done",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 27
+          "codeCount": 5,
+          "testCount": 28
         },
         {
           "id": "FR-238",
@@ -3541,9 +3674,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 18,
-            "inventoried": 18,
-            "openApiPaths": 302,
+            "routes": 20,
+            "inventoried": 20,
+            "openApiPaths": 304,
             "missingFromOpenApi": 0
           }
         },
@@ -3560,12 +3693,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "not_applicable",
@@ -3596,18 +3735,24 @@
             }
           ],
           "details": {
-            "mutations": 14,
+            "mutations": 16,
             "guardedMutations": 9,
             "reads": 11,
             "unguardedReads": 0
           }
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -3639,15 +3784,40 @@
       ],
       "gaps": [
         {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
           "id": "AUTH-001",
           "severity": "high",
           "check": "authorization",
           "summary": "At least one mutating route lacks a recognizable request viewer seam"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-232",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-232 is partial",
+          "evidence": [
+            "apps/server/src/app/api/edge/conversation-jobs/[id]/context/route.js",
+            "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/unit/edge-line-memory-context.test.js",
+            "apps/server/tests/unit/edge-memory-invocation.test.js"
+          ]
         }
       ],
       "details": {
-        "routes": 28,
-        "apiRoutes": 18,
+        "routes": 30,
+        "apiRoutes": 20,
         "pageRoutes": 10,
         "ownedModels": 6,
         "featureNotes": 12
@@ -3704,7 +3874,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 302,
+            "openApiPaths": 304,
             "missingFromOpenApi": 0
           }
         },
@@ -3871,7 +4041,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 302,
+            "openApiPaths": 304,
             "missingFromOpenApi": 0
           }
         },
@@ -4141,7 +4311,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 302,
+            "openApiPaths": 304,
             "missingFromOpenApi": 0
           }
         },
@@ -4323,7 +4493,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 302,
+            "openApiPaths": 304,
             "missingFromOpenApi": 0
           }
         },
@@ -4826,7 +4996,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 68
+          "testCount": 71
         },
         {
           "id": "FR-073",
@@ -5162,7 +5332,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 12
+          "testCount": 20
         },
         {
           "id": "FR-151",
@@ -5718,7 +5888,7 @@
           "details": {
             "routes": 149,
             "inventoried": 149,
-            "openApiPaths": 302,
+            "openApiPaths": 304,
             "missingFromOpenApi": 0
           }
         },
@@ -7906,15 +8076,20 @@
           "title": "Optional Edge conversation execution",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 8,
-          "testCount": 12
+          "codeCount": 16,
+          "testCount": 20
         }
       ],
       "evidence": [
         "apps/edge/src/conversation/executor.ts",
+        "apps/edge/src/conversation/progress.ts",
+        "apps/edge/tests/unit/conversation-deadline.test.ts",
+        "apps/edge/tests/unit/conversation-progress.test.ts",
         "apps/edge/tests/unit/conversation-worker.test.ts",
+        "apps/edge/tests/unit/desktop-log.test.ts",
         "apps/edge/tests/unit/desktop-package.test.ts",
         "apps/edge/tests/unit/genesisrag17-edge.test.ts",
+        "apps/edge/tests/unit/project-work-tools.test.ts",
         "apps/server/src/app/(pm)/line-oa/edge-connection/page.jsx",
         "apps/server/src/app/(pm)/line-oa/live-crm/page.jsx",
         "apps/server/src/app/(pm)/line-oa/page.jsx",
@@ -7926,6 +8101,7 @@
         "apps/server/src/app/api/agent/line-webhook/route.js",
         "apps/server/src/app/api/edge/conversation-jobs/[id]/complete/route.js",
         "apps/server/src/app/api/edge/conversation-jobs/[id]/fail/route.js",
+        "apps/server/src/app/api/edge/conversation-jobs/[id]/tools/route.js",
         "apps/server/src/app/api/edge/conversation-jobs/claim/route.js",
         "apps/server/src/app/api/line-oa/accounts/[id]/jobs/route.js",
         "apps/server/src/app/api/line-oa/accounts/[id]/webhook/route.js",
@@ -7933,9 +8109,11 @@
         "apps/server/src/app/api/line-oa/jobs/[id]/acknowledge-unknown/route.js",
         "apps/server/src/app/api/line-oa/jobs/failures/route.js",
         "apps/server/src/app/api/line-oa/worker/route.js",
+        "apps/server/src/modules/agent/edge-project-work-tools.js",
         "apps/server/src/modules/agent/execution-trace.js",
         "apps/server/src/modules/agent/grounded-business-answer.js",
         "apps/server/src/modules/agent/legacy-line-transport-ownership.js",
+        "apps/server/src/modules/agent/line-project-work-tools.js",
         "apps/server/src/modules/agent/msp-thread-memory-port.js",
         "apps/server/src/modules/agent/phase1-runtime.js",
         "apps/server/src/modules/agent/server-line-answer.js",
@@ -7952,7 +8130,11 @@
         "apps/server/src/modules/line-oa-studio/application/line-memory-delivery.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
         "apps/server/src/modules/line-oa-studio/application/server-line-runtime.js",
+        "apps/server/src/modules/line-oa-studio/domain/line-execution-budget.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+        "apps/server/src/modules/line-oa-studio/domain/line-oa-readiness-journey.js",
+        "apps/server/src/modules/line-oa-studio/domain/line-trace-summary.js",
+        "apps/server/src/modules/line-oa-studio/ui/LineOaReadinessJourney.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioJobFailures.jsx",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
@@ -7983,6 +8165,7 @@
         "apps/server/tests/integration/line-ingest.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-oa-evidence-convergence.test.js",
+        "apps/server/tests/integration/line-project-work-tools.test.js",
         "apps/server/tests/integration/line-reply-record.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-worker-memory.test.js",
@@ -8006,8 +8189,11 @@
         "apps/server/tests/unit/line-job-failures-route.test.js",
         "apps/server/tests/unit/line-job-failures.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
+        "apps/server/tests/unit/line-oa-readiness-journey.test.js",
         "apps/server/tests/unit/line-oa-worker-route-reconciler.test.js",
+        "apps/server/tests/unit/line-project-work-tool-route.test.js",
         "apps/server/tests/unit/line-studio-job-failures.test.js",
+        "apps/server/tests/unit/line-trace-summary.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/platform/server-line-transport.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
@@ -8870,19 +9056,23 @@
           "title": "Edge answers SmartGift catalog queries from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as a transitional…",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 6,
-          "testCount": 1
+          "codeCount": 9,
+          "testCount": 3
         }
       ],
       "evidence": [
         "apps/edge/src/conversation/executor.ts",
+        "apps/edge/src/rag/genesisrag17/corpus-context.ts",
         "apps/edge/src/rag/genesisrag17/msp-stdio.ts",
+        "apps/edge/src/rag/genesisrag17/product-rag.ts",
         "apps/edge/src/rag/genesisrag17/published-rag.ts",
         "apps/edge/src/rag/genesisrag17/record-store.ts",
         "apps/edge/src/rag/genesisrag17/settings.ts",
         "apps/edge/src/rag/genesisrag17/types.ts",
         "apps/edge/tests/unit/genesisrag17-edge.test.ts",
+        "apps/edge/tests/unit/genesisrag17-products.test.ts",
         "apps/server/src/app/api/knowledge/ingestions/route.js",
+        "apps/server/src/modules/knowledge/edge-published-corpus-context.js",
         "apps/server/src/modules/knowledge/genesisrag17-source.js",
         "apps/server/src/modules/knowledge/genesisrag17-structured-record.js",
         "apps/server/src/modules/knowledge/knowledge-admission-service.js",
@@ -8901,6 +9091,7 @@
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
         "apps/server/tests/integration/knowledge-corpus.test.js",
         "apps/server/tests/integration/smartgift-catalog-admission.test.js",
+        "apps/server/tests/unit/edge-published-corpus-context.test.js",
         "apps/server/tests/unit/genesisrag17-parser-2.test.js",
         "apps/server/tests/unit/genesisrag17-source.test.js",
         "apps/server/tests/unit/ki17-acceptance-harness.test.js",
@@ -9851,8 +10042,8 @@
           "title": "Self-serve LINE OA connection",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
-          "testCount": 17
+          "codeCount": 13,
+          "testCount": 18
         },
         {
           "id": "FR-226",
@@ -9867,16 +10058,16 @@
           "title": "Automatic LINE webhook registration",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 13
+          "codeCount": 8,
+          "testCount": 14
         },
         {
           "id": "FR-228",
           "title": "Derived legacy-transport quiescence",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 3,
-          "testCount": 9
+          "codeCount": 5,
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -9899,9 +10090,11 @@
         "apps/server/src/modules/line-oa-studio/application/server-line-runtime.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-connect-wizard-copy.js",
+        "apps/server/src/modules/line-oa-studio/domain/line-oa-readiness-journey.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-webhook-copy.js",
         "apps/server/src/modules/line-oa-studio/ui/LineOaConnectWizard.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineOaCredentialMigrationCard.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineOaReadinessJourney.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
@@ -9957,6 +10150,7 @@
         "apps/server/tests/unit/line-oa-account-routes.test.js",
         "apps/server/tests/unit/line-oa-connect-wizard-copy.test.js",
         "apps/server/tests/unit/line-oa-connect-wizard-render.test.js",
+        "apps/server/tests/unit/line-oa-readiness-journey.test.js",
         "apps/server/tests/unit/line-oa-rich-menu-jobs-routes.test.js",
         "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
         "apps/server/tests/unit/line-oa-webhook-copy.test.js",
@@ -9988,13 +10182,13 @@
         "project-manager"
       ],
       "useCase": "พนักงานเปิด Inbox แล้วเห็นบทสนทนา LINE ครบทั้งข้อความ สติกเกอร์ รูปที่ลูกค้าส่ง และเหตุการณ์อย่างการเพิ่มเพื่อนหรือบล็อก ค้นหาข้อความเก่าได้ ส่วนเจ้าของธุรกิจกำหนดได้ว่าบัญชีไหนให้ agent จำบริบทได้ รู้ว่าข้อมูลแต่ละชั้นเก็บนานเท่าไร และเมื่อลูกค้าขอลบข้อมูลก็เห็นว่าลบครบทุกชั้นแล้วหรือยังรออยู่ที่ไหน",
-      "progressPercent": 66.7,
+      "progressPercent": 80,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-037 registry status is declared",
         "FR-231 is planned",
-        "FR-232 is planned"
+        "FR-232 is partial"
       ],
       "requirements": [
         {
@@ -10024,10 +10218,10 @@
         {
           "id": "FR-232",
           "title": "Erasure propagation beyond Tier 1",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 4,
+          "testCount": 4
         },
         {
           "id": "FR-233",
@@ -10042,16 +10236,25 @@
           "title": "Context Composer",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 6,
-          "testCount": 12
+          "codeCount": 13,
+          "testCount": 19
         }
       ],
       "evidence": [
+        "apps/edge/src/answer/context-injection.ts",
+        "apps/edge/src/answer/providers/openai-compatible.ts",
+        "apps/edge/tests/unit/context-injection.test.ts",
+        "apps/edge/tests/unit/context-invocation-provider.test.ts",
         "apps/server/src/app/api/crm/conversations/event-counts/route.js",
         "apps/server/src/app/api/crm/conversations/search/route.js",
         "apps/server/src/app/api/crm/retention-sweep/route.js",
+        "apps/server/src/app/api/edge/conversation-jobs/[id]/context/route.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/agent/context-composer.js",
+        "apps/server/src/modules/agent/edge-context-receipt.js",
+        "apps/server/src/modules/agent/edge-invocation-trace.js",
+        "apps/server/src/modules/agent/edge-line-memory-context.js",
+        "apps/server/src/modules/agent/edge-memory-invocation.js",
         "apps/server/src/modules/agent/execution-trace.js",
         "apps/server/src/modules/agent/line-execution-trace.js",
         "apps/server/src/modules/agent/msp-thread-memory-port.js",
@@ -10084,6 +10287,7 @@
         "apps/server/tests/integration/line-gks-grounding.test.js",
         "apps/server/tests/integration/line-ingest.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
+        "apps/server/tests/integration/line-project-work-tools.test.js",
         "apps/server/tests/integration/line-reply-record.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-worker-memory.test.js",
@@ -10101,6 +10305,9 @@
         "apps/server/tests/unit/crm-message-attachments-events-migration.test.js",
         "apps/server/tests/unit/crm-retention-sweep-route.test.js",
         "apps/server/tests/unit/domain-visibility-server-enforcement.test.js",
+        "apps/server/tests/unit/edge-invocation-trace.test.js",
+        "apps/server/tests/unit/edge-line-memory-context.test.js",
+        "apps/server/tests/unit/edge-memory-invocation.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/line-execution-trace.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
@@ -10144,8 +10351,8 @@
           "title": "LINE answer grounding from the published knowledge corpus",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 10,
-          "testCount": 27
+          "codeCount": 12,
+          "testCount": 28
         },
         {
           "id": "FR-236",
@@ -10204,6 +10411,8 @@
         "apps/server/src/modules/line-oa-studio/application/line-oa-rich-menu-service.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-studio-description-admission.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
+        "apps/server/src/modules/line-oa-studio/domain/line-oa-readiness-journey.js",
+        "apps/server/src/modules/line-oa-studio/ui/LineOaReadinessJourney.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
@@ -10267,6 +10476,7 @@
         "apps/server/tests/unit/line-knowledge-grounding.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
+        "apps/server/tests/unit/line-oa-readiness-journey.test.js",
         "apps/server/tests/unit/line-oa-studio-description-admission.test.js",
         "apps/server/tests/unit/line-studio-edge-connection-render.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
@@ -11734,7 +11944,8 @@
       "primaryDomain": "agent",
       "contributorDomains": [
         "agent",
-        "identity"
+        "identity",
+        "line-oa-studio"
       ],
       "useCase": "Agent ขอทำ action ที่มีความเสี่ยงสูงและระบบบังคับ step-up token ก่อน execute และ audit",
       "progressPercent": 100,
@@ -11747,13 +11958,17 @@
           "title": "Agent write/action gate (ADR-007 P7, Gate F)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 5
+          "codeCount": 8,
+          "testCount": 8
         }
       ],
       "evidence": [
+        "apps/edge/tests/unit/project-work-tools.test.ts",
+        "apps/server/src/app/api/edge/conversation-jobs/[id]/tools/route.js",
         "apps/server/src/modules/agent/action-gate.js",
+        "apps/server/src/modules/agent/edge-project-work-tools.js",
         "apps/server/src/modules/agent/index.js",
+        "apps/server/src/modules/agent/line-project-work-tools.js",
         "apps/server/src/modules/agent/step-up.js",
         "apps/server/src/modules/agent/write-tools.js",
         "apps/server/src/modules/identity/link-line-identity.js",
@@ -11761,7 +11976,9 @@
         "apps/server/tests/integration/agent-context.test.js",
         "apps/server/tests/integration/agent-turn.test.js",
         "apps/server/tests/integration/identity-link.test.js",
-        "apps/server/tests/unit/activation-readiness-integration.test.js"
+        "apps/server/tests/integration/line-project-work-tools.test.js",
+        "apps/server/tests/unit/activation-readiness-integration.test.js",
+        "apps/server/tests/unit/line-project-work-tool-route.test.js"
       ]
     },
     {
@@ -13625,6 +13842,8 @@
       ],
       "primaryDomain": "project-manager",
       "contributorDomains": [
+        "agent",
+        "line-oa-studio",
         "project-manager"
       ],
       "useCase": "mutating route ปฏิเสธการแก้ Project หรือ dependency เมื่อ viewer ไม่ได้เป็นเจ้าของ Business ที่เกี่ยวข้อง",
@@ -13638,15 +13857,17 @@
           "title": "Project-Manager mutation authorization",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 31,
-          "testCount": 68
+          "codeCount": 34,
+          "testCount": 71
         }
       ],
       "evidence": [
+        "apps/edge/tests/unit/project-work-tools.test.ts",
         "apps/server/src/app/api/containers/[id]/route.js",
         "apps/server/src/app/api/containers/route.js",
         "apps/server/src/app/api/dependencies/[id]/route.js",
         "apps/server/src/app/api/dependencies/route.js",
+        "apps/server/src/app/api/edge/conversation-jobs/[id]/tools/route.js",
         "apps/server/src/app/api/files/migrate/route.js",
         "apps/server/src/app/api/gates/[id]/route.js",
         "apps/server/src/app/api/gates/route.js",
@@ -13663,6 +13884,8 @@
         "apps/server/src/app/api/workspaces/[id]/route.js",
         "apps/server/src/app/api/workstreams/[id]/route.js",
         "apps/server/src/app/api/workstreams/route.js",
+        "apps/server/src/modules/agent/edge-project-work-tools.js",
+        "apps/server/src/modules/agent/line-project-work-tools.js",
         "apps/server/src/modules/project-manager/application/dependency-service.js",
         "apps/server/src/modules/project-manager/application/file-asset-service.js",
         "apps/server/src/modules/project-manager/application/file-reconcile-cache-service.js",
@@ -13722,6 +13945,7 @@
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
         "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/line-channel-credential-routes.test.js",
+        "apps/server/tests/integration/line-project-work-tools.test.js",
         "apps/server/tests/integration/project-authorization.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/project-core.test.js",
@@ -13735,6 +13959,7 @@
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
         "apps/server/tests/unit/fr089-br018-team-grants-nothing.test.js",
         "apps/server/tests/unit/global-view-drilldown.test.js",
+        "apps/server/tests/unit/line-project-work-tool-route.test.js",
         "apps/server/tests/unit/people-service.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-dependency-service.test.js",
@@ -15501,13 +15726,17 @@
           "title": "Execution Trace & Replay v0.3",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 13,
-          "testCount": 20
+          "codeCount": 16,
+          "testCount": 25
         }
       ],
       "evidence": [
+        "apps/edge/src/conversation/progress.ts",
+        "apps/edge/tests/unit/conversation-progress.test.ts",
+        "apps/edge/tests/unit/desktop-log.test.ts",
         "apps/server/src/app/api/line-oa/jobs/[id]/trace/route.js",
         "apps/server/src/modules/agent/context.js",
+        "apps/server/src/modules/agent/edge-invocation-trace.js",
         "apps/server/src/modules/agent/execution-trace.js",
         "apps/server/src/modules/agent/grounded-business-answer.js",
         "apps/server/src/modules/agent/line-execution-trace.js",
@@ -15519,12 +15748,14 @@
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-job-erasure.js",
         "apps/server/src/modules/line-oa-studio/application/line-memory-delivery.js",
+        "apps/server/src/modules/line-oa-studio/domain/line-trace-summary.js",
         "apps/server/tests/integration/agent-context.test.js",
         "apps/server/tests/integration/agent-msp-port.test.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-multi-principal.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
+        "apps/server/tests/integration/line-project-work-tools.test.js",
         "apps/server/tests/integration/line-worker-memory.test.js",
         "apps/server/tests/integration/memory-trace-linkage.test.js",
         "apps/server/tests/integration/msp-memory-lineage.test.js",
@@ -15532,9 +15763,11 @@
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/integration/server-line-trace.test.js",
+        "apps/server/tests/unit/edge-invocation-trace.test.js",
         "apps/server/tests/unit/grounded-business-answer.test.js",
         "apps/server/tests/unit/line-execution-trace.test.js",
         "apps/server/tests/unit/line-trace-route.test.js",
+        "apps/server/tests/unit/line-trace-summary.test.js",
         "apps/server/tests/unit/model-provider-port.test.js",
         "apps/server/tests/unit/model-provider-trace.test.js",
         "apps/server/tests/unit/msp-memory-evidence.test.js",

@@ -220,8 +220,10 @@ describe('OpenAPI document', () => {
       // 290 + 6 = 296; 388 + 7 = 395.
       // FR-254 adds six Console paths and GET on the existing source path.
       // 296 + 6 = 302; 395 + 7 = 402.
-      pathCount: 302,
-      operationCount: 402,
+      // Negotiated Edge v2 adds two scoped context/tool paths and operations.
+      // 302 + 2 = 304; 402 + 2 = 404.
+      pathCount: 304,
+      operationCount: 404,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

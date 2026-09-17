@@ -82,19 +82,20 @@ export async function updateContainer(id, patch, { viewer } = {}) {
 
 // ---- Items -----------------------------------------------------------------
 
-export async function createItem(input, { viewer } = {}) {
+export async function createItem(input, { viewer, db = prisma, expectedVersion } = {}) {
   const data = zWorkItemInput.parse(input)
-  const ws = await prisma.workstream.findUnique({ where: { id: data.workstreamId } })
+  const ws = await db.workstream.findUnique({ where: { id: data.workstreamId } })
   if (!ws || ws.deletedAt) throw new Error('Workstream not found')
-  await assertWorkstreamWritable(viewer, data.workstreamId)
+  await assertWorkstreamWritable(viewer, data.workstreamId, { db })
   if (data.containerId) {
-    const container = await prisma.workContainer.findUnique({ where: { id: data.containerId } })
+    const container = await db.workContainer.findUnique({ where: { id: data.containerId } })
     if (!container || container.workstreamId !== data.workstreamId) {
       throw new Error('Container must belong to the same workstream')
     }
   }
-  const code = data.code || (await uniqueHumanCode('WI', data.title, codeExists('workItem')))
-  const item = await prisma.workItem.create({
+  if (expectedVersion !== undefined && ws.version !== expectedVersion) throw new Error('WORK_VERSION_CONFLICT')
+  const code = data.code || (await uniqueHumanCode('WI', data.title, async candidate => Boolean(await db.workItem.findUnique({ where: { code: candidate } }))))
+  const item = await db.workItem.create({
     data: {
       code,
       workstreamId: data.workstreamId,
@@ -112,17 +113,18 @@ export async function createItem(input, { viewer } = {}) {
       targetAt: data.targetAt ?? null,
     },
   })
-  await recordAudit(prisma, { entityType: 'WORK_ITEM', entityId: item.id, action: 'CREATED', payload: { code, subtype: data.subtype } })
+  await recordAudit(db, { entityType: 'WORK_ITEM', entityId: item.id, action: 'CREATED', payload: { code, subtype: data.subtype } })
   return item
 }
 
-export async function updateItem(id, patch, { viewer } = {}) {
+export async function updateItem(id, patch, { viewer, db = prisma, expectedVersion } = {}) {
   const data = zWorkItemUpdate.parse(patch)
-  const existing = await prisma.workItem.findUnique({ where: { id } })
+  const existing = await db.workItem.findUnique({ where: { id } })
   if (!existing || existing.deletedAt) throw new Error('Work item not found')
-  await assertWorkstreamWritable(viewer, existing.workstreamId, { notFoundMessage: 'Work item not found' })
-  const item = await prisma.workItem.update({
-    where: { id },
+  await assertWorkstreamWritable(viewer, existing.workstreamId, { db, notFoundMessage: 'Work item not found' })
+  if (expectedVersion !== undefined && existing.version !== expectedVersion) throw new Error('WORK_VERSION_CONFLICT')
+  const item = await db.workItem.update({
+    where: { id, ...(expectedVersion === undefined ? {} : { version: expectedVersion }) },
     data: {
       title: data.title ?? existing.title,
       status: data.status ?? existing.status,
@@ -139,7 +141,7 @@ export async function updateItem(id, patch, { viewer } = {}) {
       version: { increment: 1 },
     },
   })
-  await recordAudit(prisma, { entityType: 'WORK_ITEM', entityId: id, action: 'UPDATED', payload: data })
+  await recordAudit(db, { entityType: 'WORK_ITEM', entityId: id, action: 'UPDATED', payload: data })
   return item
 }
 

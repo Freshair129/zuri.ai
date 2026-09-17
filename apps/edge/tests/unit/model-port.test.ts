@@ -65,6 +65,15 @@ describe('model port selection', () => {
 });
 
 describe('openai-compatible transport', () => {
+  it('uses the compatible API reasoning control for the approved Qwen profile', async () => {
+    let body: Record<string, unknown> = {};
+    const port = createOpenAiCompatiblePort({
+      provider: 'openai-compatible', model: 'qwen3.5:9b', effort: 'low', baseUrl: 'http://localhost:11434/v1',
+    }, { fetchFn: async (_url, init) => { body = JSON.parse(String(init?.body)); return reply({ content: 'ตอบแล้ว' }); } });
+    assert.equal((await port.generate(request())).text, 'ตอบแล้ว');
+    assert.equal(body.reasoning_effort, 'none');
+    assert.equal(body.max_tokens, 700);
+  });
   it('sends no Authorization header when the model is local', async () => {
     let seen: RequestInit | undefined;
     const port = createOpenAiCompatiblePort(

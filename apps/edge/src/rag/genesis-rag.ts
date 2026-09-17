@@ -1,6 +1,7 @@
 import { fetchJson, RagUnavailableError } from './v4/http-client.js';
 import type { PriceTier, SelectedPrice, SearchResponseV4 } from './v4/search.js';
 import type { SearchEvidenceV4 } from '../answer/format-cards.js';
+import type { PublishedProductQueryResult } from './genesisrag17/product-rag.js';
 
 // @req RAG-FR-004 — retrieval is read-only: this door has no write path and no store handle at all.
 // @req RAG-FR-005 — evidence carries provenance — source, version and query path travel with every result.
@@ -25,6 +26,7 @@ export interface GenesisRagOptions {
 }
 
 export interface PriceEvidenceV4 {
+  publishedProducts?: PublishedProductQueryResult;
   found: boolean;
   code: string;
   priceLadder: PriceTier[];

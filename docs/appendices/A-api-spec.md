@@ -1,6 +1,6 @@
 # Appendix A — API Specification
 
-Version diff 1.84.0b -> 1.85.0b: add FR-254 Console to the running pricing and CRM baseline; inventory 302 paths and 402 operations. No baseline route is removed.
+Version diff 1.85.0b -> 1.86.0b: preserve FR-254 Console and add the approved LINE local execution v2 context/tool routes to the running pricing and CRM baseline; inventory 304 paths and 404 operations. No baseline route is removed.
 
 Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operations) with the exact already-deployed CRM legal-hold path. Current inventory is 296 paths and 395 operations; no live CRM route is removed.
 
@@ -27,7 +27,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=302 -->
+<!-- api-spec-counts: route_handlers=304 -->
 
 ### Local model residency by business hours (FR-244, 2026-09-16)
 
@@ -881,6 +881,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.86.0b | 2026-09-17 | beta | Preserve the live FR-254 Knowledge Console and add approved LINE local execution v2 context/tool routes on the pricing and CRM baseline; route handler inventory 302 -> 304 and operations 402 -> 404. Production activation remains separate. | composition-2bd61b49-0c7fd884 | RWANG |
 | 1.83.0b | 2026-09-17 | candidate | FR-254 adds six console route handlers and GET source history; current authority, cursor pages and immutable citation artifacts | working-tree | RWANG |
 | 1.82.0b | 2026-09-17 | candidate | Implement and locally verify owner-approved FR-251 read-only Domain-view contract and runtime Swagger; one GET handler added (288 → 289), typed scope refusals and operation-only SessionAuth verified | reviewed baseline 7465080f; PR443 | RWANG |
 | 1.82.0b | 2026-09-16 | candidate | SEC-034 (ADR-093 D6, TASK-ZAI-113): one handler file, `POST /api/crm/customers/[customerId]/legal-hold` — records an OWNER-recorded legal hold on a Customer's chat evidence archive; while active, a PDPA erasure defers destroying the archive key instead of destroying it. Route handler count 288 -> 289 | working-tree | Claude Sonnet 5 |
@@ -957,6 +958,8 @@ canary evidence; those remain owner-gated release criteria.
 | POST | `/api/line-oa/accounts/[id]/webhook` | Native LINE HMAC over raw bytes plus exact destination; scoped evidence capture is what the 200 acknowledges (PR #306), and atomic CRM/job admission runs after it, in-process and reconcilable; non-2xx redelivery, unique event/inbound keys. 1 MiB, 1000 events maximum. |
 | POST | `/api/line-oa/worker` | Deployment bearer token, minimum 32 characters; bounded execution/send/reconciliation tick. Also sweeps at most 5 LINE evidence rows left `ADMITTING` for over 60 s and re-admits them from the stored payload, reporting `reconciled: { scanned, admitted, skipped, failed }` beside the tick result; a reconciler failure is reported, never raised. No browser or device authority. |
 | POST | `/api/edge/conversation-jobs/claim` | Active Business-scoped device bearer; strict empty object; 204 or v1 minimized job under 300-second lease. |
+| POST | `/api/edge/conversation-jobs/[id]/context` | Active Business-scoped device bearer; validates the bounded MSP/GKS context-injection envelope for the live conversation job and returns `204` with no body. Refusals: `401` without a credential, `400` for malformed or invalid context, `403`/`409` for scope or lease fencing, `413` over the 8 KiB request limit, and `503` when LINE execution is disabled or the context service is unavailable. |
+| POST | `/api/edge/conversation-jobs/[id]/tools` | Active Business-scoped device bearer; executes one bounded Project/Work tool under the live conversation-job claim and returns the redacted tool result. Refusals: `401` without a credential, `400` for an invalid invocation, `403`/`404`/`409` for scope, job or lease fencing, `413` over the 8 KiB request limit, and `503` when LINE execution is disabled or the tool service is unavailable. |
 | POST | `/api/edge/conversation-jobs/[id]/complete` | Same device/scope/live lease/version; `{version,text}` bounded 5000 characters. No provider send. |
 | POST | `/api/edge/conversation-jobs/[id]/fail` | Same lease authority; `{version,code}` from two contract failure codes. |
 | GET | `/api/line-oa/accounts/[id]/jobs` | Studio Business visibility; latest 100 status DTOs, no message text/recipient/token. |

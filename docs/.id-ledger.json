@@ -3301,14 +3301,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "bb6c18b657685cfda4affd8b56c4f72cc66f53d267284ad3d0b30438b726469f",
+      "statement_digest": "c154ded01cc6f7e22e274a7337e886f41fd68ed51273112dcbf523e0e4a940e8",
       "history": [
         {
           "anchor": "optional edge conversation execution",
           "since": "2026-09-06",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-16",
+      "statement_digest_reason": "Owner-approved same-subject execution delta: negotiate v2 server deadline and whole-turn budget while preserving optional Edge compute ownership."
     },
     "FR-151": {
       "family": "FR",
