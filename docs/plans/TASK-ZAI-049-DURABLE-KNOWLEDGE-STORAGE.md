@@ -330,4 +330,4 @@ backup/restore proof and operator gates. Runtime code, database and production u
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-17 | candidate | Initial self-hosted S3 raw durability, retention and coordinated recovery specification | base 0c7fd884 | RWANG |
-| 0.1.0 | 2026-09-17 | beta | Owner-approved isolated implementation: provider port, scoped references, operation journal, backup inventory and Stage 1 readback proof; production acceptance remains NOT_RUN | eef63322 | RWANG |
+| 0.1.0 | 2026-09-17 | beta | Owner-approved isolated implementation: provider port, scoped references, operation journal, backup inventory and Stage 1 readback proof; production acceptance remains NOT_RUN | 335cf917 | RWANG |
