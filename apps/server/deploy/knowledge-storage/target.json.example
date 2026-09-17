@@ -1,0 +1,42 @@
+{
+  "$schema": "../../contracts/knowledge-storage-target.schema.json",
+  "schemaVersion": "knowledge-storage-target.v1",
+  "status": "PENDING",
+  "environment": "production",
+  "scope": {
+    "businessId": "PENDING",
+    "processingBoundary": "PENDING"
+  },
+  "primary": {
+    "provider": "S3_COMPATIBLE",
+    "endpointEnv": "ZURI_KNOWLEDGE_STORAGE_ENDPOINT",
+    "bucketEnv": "ZURI_KNOWLEDGE_STORAGE_BUCKET",
+    "regionEnv": "ZURI_KNOWLEDGE_STORAGE_REGION",
+    "locationId": "PENDING",
+    "dataVolumeId": "PENDING",
+    "imageEnv": "ZURI_KNOWLEDGE_STORAGE_IMAGE",
+    "imageDigest": "PENDING",
+    "tls": true,
+    "encryptionKeyRef": "PENDING",
+    "bindingId": "PENDING",
+    "bindingRevision": 1
+  },
+  "backup": {
+    "provider": "S3_COMPATIBLE",
+    "endpointEnv": "ZURI_KNOWLEDGE_BACKUP_ENDPOINT",
+    "bucketEnv": "ZURI_KNOWLEDGE_BACKUP_BUCKET",
+    "regionEnv": "ZURI_KNOWLEDGE_BACKUP_REGION",
+    "locationId": "PENDING",
+    "failureDomain": "PENDING_SEPARATE_HOST_OR_PROVIDER",
+    "credentialRef": "PENDING",
+    "retentionDays": 30,
+    "schedule": "daily",
+    "rpoHours": 24,
+    "rtoHours": 4
+  },
+  "credentials": {
+    "applicationRef": "PENDING",
+    "backupWriterRef": "PENDING",
+    "operatorEraseRef": "PENDING"
+  }
+}

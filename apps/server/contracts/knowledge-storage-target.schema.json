@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://zuri.ai/contracts/knowledge-storage-target.v1.schema.json",
+  "title": "TASK-ZAI-049 knowledge storage target",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schemaVersion", "status", "environment", "scope", "primary", "backup", "credentials"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": "knowledge-storage-target.v1" },
+    "status": { "enum": ["PENDING", "READY", "BLOCKED"] },
+    "environment": { "const": "production" },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["businessId", "processingBoundary"],
+      "properties": {
+        "businessId": { "type": "string", "minLength": 1 },
+        "processingBoundary": { "type": "string", "minLength": 1 }
+      }
+    },
+    "primary": { "$ref": "#/$defs/primary" },
+    "backup": { "$ref": "#/$defs/backup" },
+    "credentials": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["applicationRef", "backupWriterRef", "operatorEraseRef"],
+      "properties": {
+        "applicationRef": { "type": "string", "minLength": 1 },
+        "backupWriterRef": { "type": "string", "minLength": 1 },
+        "operatorEraseRef": { "type": "string", "minLength": 1 }
+      }
+    }
+  },
+  "$defs": {
+    "envRef": {
+      "type": "string",
+      "pattern": "^ZURI_[A-Z0-9_]+$"
+    },
+    "primary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "endpointEnv", "bucketEnv", "regionEnv", "locationId", "dataVolumeId", "imageEnv", "imageDigest", "tls", "encryptionKeyRef", "bindingId", "bindingRevision"],
+      "properties": {
+        "provider": { "const": "S3_COMPATIBLE" },
+        "endpointEnv": { "$ref": "#/$defs/envRef" },
+        "bucketEnv": { "$ref": "#/$defs/envRef" },
+        "regionEnv": { "$ref": "#/$defs/envRef" },
+        "locationId": { "type": "string", "minLength": 1 },
+        "dataVolumeId": { "type": "string", "minLength": 1 },
+        "imageEnv": { "$ref": "#/$defs/envRef" },
+        "imageDigest": { "type": "string", "minLength": 1 },
+        "tls": { "const": true },
+        "encryptionKeyRef": { "type": "string", "minLength": 1 },
+        "bindingId": { "type": "string", "minLength": 1 },
+        "bindingRevision": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "backup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provider", "endpointEnv", "bucketEnv", "regionEnv", "locationId", "failureDomain", "credentialRef", "retentionDays", "schedule", "rpoHours", "rtoHours"],
+      "properties": {
+        "provider": { "const": "S3_COMPATIBLE" },
+        "endpointEnv": { "$ref": "#/$defs/envRef" },
+        "bucketEnv": { "$ref": "#/$defs/envRef" },
+        "regionEnv": { "$ref": "#/$defs/envRef" },
+        "locationId": { "type": "string", "minLength": 1 },
+        "failureDomain": { "type": "string", "minLength": 1 },
+        "credentialRef": { "type": "string", "minLength": 1 },
+        "retentionDays": { "type": "integer", "minimum": 1 },
+        "schedule": { "const": "daily" },
+        "rpoHours": { "const": 24 },
+        "rtoHours": { "const": 4 }
+      }
+    }
+  }
+}
