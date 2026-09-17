@@ -17,7 +17,7 @@ function fakeDb() {
     { id: 'per-2', code: 'PER-2', displayName: 'Nok' },
   ]
   let seq = 0
-  const controls = { failAt: null, conflictAttempts: 0 }
+  const controls = { failAt: null, conflictAttempts: 0, auditNow: null }
   const db = {
     usageEvent: {
       create: vi.fn(async ({ data }) => {
@@ -86,7 +86,7 @@ function fakeDb() {
     auditEvent: {
       create: vi.fn(async ({ data }) => {
         if (controls.failAt === 'audit') throw new Error('injected audit failure')
-        const row = { id: `audit-${++seq}`, occurredAt: new Date(), ...data }
+        const row = { id: `audit-${++seq}`, occurredAt: controls.auditNow || new Date(), ...data }
         audits.push(row)
         return row
       }),
@@ -173,8 +173,9 @@ describe('NFR-023 rollupUsageEvents', () => {
   })
 
   it('claims a UTC day inside the transaction and returns the same receipt on replay', async () => {
-    const { db, audits } = fakeDb()
+    const { db, audits, controls } = fakeDb()
     const now = new Date('2026-09-16T12:00:00.000Z')
+    controls.auditNow = now
     const first = await rollupUsageEvents(db, { now, oncePerDay: true })
     const replay = await rollupUsageEvents(db, { now: new Date('2026-09-16T23:59:59.000Z'), oncePerDay: true })
     expect(first.alreadyRanToday).toBe(false)
