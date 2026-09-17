@@ -18,8 +18,10 @@ import {
 // metadata only: grants, route guards, and API ownership remain unchanged.
 // @req FR-251 — the existing Delivery Design module gains one read-only
 // Execution Domains Project tab while its Business surfaces stay planned.
+// @req FR-252 — the approved read-only Feature authority is reachable only
+// from the authorized Project Delivery Design context.
 // @spec ADR-096, docs/architecture/project-manager-system/22-NAVIGATION-IMPLEMENTATION-BASELINE.md
-// @tested tests/unit/fr250-navigation.test.js, tests/e2e/fr250-navigation.spec.js, tests/e2e/project-domain-view.spec.js
+// @tested tests/unit/fr250-navigation.test.js, tests/e2e/fr250-navigation.spec.js, tests/e2e/project-domain-view.spec.js, tests/e2e/project-feature-view.spec.js
 
 const PROJECT_PREFIX = '/projects/'
 const EXECUTION_MODES = new Set([
@@ -84,9 +86,9 @@ export const PM_MODULES = [
     ],
     projectTabs: [
       { id: 'dd.domains', label: 'Execution Domains', suffix: '/domain-view', readOnly: true },
+      { id: 'dd.features', label: 'Features', suffix: '/feature-view', readOnly: true },
     ],
     plannedProjectTabs: [
-      { id: 'dd.features', label: 'Features' },
       { id: 'dd.requirements', label: 'Requirements' },
       { id: 'dd.architecture', label: 'Architecture' },
       { id: 'dd.api', label: 'API' },

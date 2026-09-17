@@ -1,6 +1,6 @@
-// @req FR-250, FR-251 — Projects & Work keeps one domain identity while
+// @req FR-250, FR-251, FR-252 — Projects & Work keeps one domain identity while
 // presenting six logical modules, scoped Project surfaces, one shared Import
-// action and the Project-only Execution Domains tab.
+// action, and the read-only Delivery Design Domains and Features tabs.
 // @spec ADR-096, docs/architecture/project-manager-system/22-NAVIGATION-IMPLEMENTATION-BASELINE.md
 // @tested tests/unit/fr250-navigation.test.js
 import { describe, expect, it } from 'vitest'
@@ -123,9 +123,9 @@ describe('FR-250 Projects & Work navigation registry', () => {
     expect(resources.plannedProjectTabs.every((tab) => !Object.prototype.hasOwnProperty.call(tab, 'suffix'))).toBe(true)
     expect(deliveryDesign.projectTabs).toEqual([
       { id: 'dd.domains', label: 'Execution Domains', suffix: '/domain-view', readOnly: true },
+      { id: 'dd.features', label: 'Features', suffix: '/feature-view', readOnly: true },
     ])
     expect(deliveryDesign.plannedProjectTabs.map((tab) => tab.label)).toEqual([
-      'Features',
       'Requirements',
       'Architecture',
       'API',

@@ -81,7 +81,7 @@ test.describe('FR-251 Project Execution Domains', () => {
     await expect(projectSections.getByRole('link', { name: /Execution Domains/ })).toHaveAttribute('aria-current', 'page')
     const planned = page.getByRole('group', { name: 'Delivery Design planned capabilities' })
     await expect(planned).toBeVisible()
-    for (const label of ['Features', 'Requirements', 'Architecture', 'API', 'Docs & Decisions']) {
+    for (const label of ['Requirements', 'Architecture', 'API', 'Docs & Decisions']) {
       await expect(planned.locator(`[data-local-surface-id="dd.${label === 'Docs & Decisions' ? 'docs-decisions' : label.toLowerCase()}"]`)).toContainText(label)
     }
     await expect(planned.getByRole('link')).toHaveCount(0)
