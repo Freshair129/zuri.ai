@@ -52,9 +52,10 @@ The official Community source path was exercised separately for local testing:
 It runs in the local image `zuri-minio-community:source-7aac2a2c5b7c` as
 `zuri-minio-community-local`, with API `127.0.0.1:19000`, console
 `127.0.0.1:19001`, and named data volume `zuri-minio-community-local-data`.
-The endpoint is loopback-only and is not wired into `.env.knowledge`, the web
-container, ngrok, or the production target. The Community repository is archived;
-this profile is smoke-test evidence only and does not replace the AIStor production
+The endpoint is loopback-only and is wired only through an operator-owned ignored
+`.env.knowledge` overlay and a separate local web canary; it is not exposed through
+ngrok and is not the production target. The Community repository is archived; this
+profile is smoke-test evidence only and does not replace the AIStor production
 candidate or provide a production support/SLA claim.
 
 ## Backup target
