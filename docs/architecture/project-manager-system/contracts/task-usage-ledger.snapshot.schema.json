@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://pm-design.invalid/contracts/task-usage-ledger.snapshot.schema.json",
+  "title": "Project Manager public TaskUsageLedger snapshot",
+  "description": "Redacted, read-only task projection. Plan estimates are never copied into actual usage, and report identity fields never cross this boundary.",
+  "type": "object",
+  "required": ["schemaVersion", "snapshotType", "generatedAt", "source", "tasks", "policy"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "type": "string", "const": "1.0.0" },
+    "snapshotType": { "type": "string", "const": "TASK_USAGE_LEDGER_SNAPSHOT" },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "source": {
+      "type": "object",
+      "required": ["kind", "endpoint", "availability", "asOf", "reportedRows"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "type": "string", "enum": ["TASK_USAGE_LEDGER_EXPORT", "STATIC_SNAPSHOT"] },
+        "endpoint": { "type": "string" },
+        "availability": { "type": "string", "enum": ["AVAILABLE", "SOURCE_UNAVAILABLE", "NOT_REPORTED"] },
+        "asOf": { "type": ["string", "null"], "format": "date-time" },
+        "reportedRows": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "tasks": { "type": "array", "items": { "$ref": "#/$defs/task" } },
+    "unattributed": {
+      "type": "object",
+      "required": ["rowCount", "reason"],
+      "additionalProperties": false,
+      "properties": {
+        "rowCount": { "type": "integer", "minimum": 0 },
+        "reason": { "type": "string" }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "required": ["actualTokensFormula", "cacheReadTreatment", "planFallback", "deduplicationKey"],
+      "additionalProperties": false,
+      "properties": {
+        "actualTokensFormula": { "type": "string" },
+        "cacheReadTreatment": { "type": "string" },
+        "planFallback": { "type": "string" },
+        "deduplicationKey": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "tokens": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inputTokens", "cacheWriteTokens", "cacheReadTokens", "outputTokens", "usedTokens"],
+      "properties": {
+        "inputTokens": { "type": "integer", "minimum": 0 },
+        "cacheWriteTokens": { "type": "integer", "minimum": 0 },
+        "cacheReadTokens": { "type": "integer", "minimum": 0 },
+        "outputTokens": { "type": "integer", "minimum": 0 },
+        "usedTokens": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "actual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tokens", "requestCount", "activeMinutes", "startedAt", "endedAt", "reportCount"],
+      "properties": {
+        "tokens": { "$ref": "#/$defs/tokens" },
+        "requestCount": { "type": "integer", "minimum": 0 },
+        "activeMinutes": { "type": "integer", "minimum": 0 },
+        "startedAt": { "type": ["string", "null"], "format": "date-time" },
+        "endedAt": { "type": ["string", "null"], "format": "date-time" },
+        "reportCount": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["taskCode", "taskStatus", "plan", "measurementStatus", "reconciliationStatus", "actual", "attribution", "warnings"],
+      "properties": {
+        "taskCode": { "type": "string", "pattern": "^TASK-ZAI-[0-9]{3}$" },
+        "taskStatus": { "type": "string", "minLength": 1 },
+        "plan": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["predictedTokens", "source"],
+          "properties": {
+            "predictedTokens": { "type": ["integer", "null"], "minimum": 0 },
+            "source": { "const": "PROGRAMME_CONTAINERS" }
+          }
+        },
+        "measurementStatus": { "enum": ["MEASURED_DIRECT", "MEASURED_DIRECT_WITH_WARNING", "NOT_REPORTED", "LANE_ONLY_UNALLOCATED", "UNATTRIBUTED", "SOURCE_UNAVAILABLE", "CONFLICT"] },
+        "reconciliationStatus": { "enum": ["NONE", "METER_OVERLAP", "BRANCH_ONLY_LANE", "UNATTRIBUTED_REPORT", "OVERLAPPING_INTERVALS", "TASK_BINDING_CHANGED"] },
+        "actual": { "anyOf": [{ "$ref": "#/$defs/actual" }, { "type": "null" }] },
+        "attribution": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "directReportCount", "laneIds"],
+          "properties": {
+            "kind": { "enum": ["DIRECT_TASK_CODE", "LANE_ONLY", "UNATTRIBUTED", "NONE"] },
+            "directReportCount": { "type": "integer", "minimum": 0 },
+            "laneIds": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "warnings": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

@@ -1,12 +1,12 @@
 # Appendix A — API Specification
 
-Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operations), the exact already-deployed CRM legal-hold path, and the approved LINE local execution v2 context/tool routes. Current inventory is 298 paths and 397 operations; no live CRM route is removed.
+Version diff 1.84.0b → 1.85.0b: add the deployment-authenticated TaskUsageLedger read projection for task-bound usage. Current inventory is 299 paths and 398 operations; no existing route is removed.
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.84.0b |
+| **Version** | 1.85.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-09-17 |
+| **Last Updated** | 2026-09-18 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -25,7 +25,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=298 -->
+<!-- api-spec-counts: route_handlers=299 -->
 
 ### Local model residency by business hours (FR-244, 2026-09-16)
 
@@ -42,6 +42,7 @@ ADR-086 D5. An agent without local session logs reports one session's usage for 
 | Method | Route | Contract | Failure |
 |---|---|---|---|
 | POST | `/api/platform/programme-usage-reports` | implemented (FR-218): under `Authorization: Bearer $ZURI_PROGRAMME_USAGE_TOKEN` (at least 32 characters), `{ source, sessionId, taskCode, model?, inputTokens, cacheWriteTokens, cacheReadTokens, outputTokens, requestCount, activeMinutes, startedAt, endedAt }` (strict — no other field, so no prompt or response content) is stored once per `(source, sessionId)` in `ProgrammeUsageReport`; `201 { report, replayed: false }` on create (audited `PROGRAMME_USAGE_REPORT` / `REPORTED`), `200 { report, replayed: true }` when the same payload arrives again. `/control/roadmap` merges the rows with the meter's figures, skipping a session the meter already counted | `401 USAGE_REPORT_CREDENTIAL_REQUIRED`; `400 USAGE_REPORT_INVALID` with `issues`; `404 PROGRAMME_TASK_UNKNOWN`; `409 USAGE_REPORT_CONFLICT` (same session, different payload); `503 USAGE_REPORT_UNAVAILABLE` (database, including a migration not yet applied) |
+| GET | `/api/platform/task-usage-ledger?taskCode=` | implemented locally (TaskUsageLedger v1): deployment-bearer-authenticated, read-only redacted projection over explicit taskCode reports; plan prediction and measured actual remain separate, lane-only usage is never allocated, optional taskCode filters one known programme task | `401 TASK_USAGE_LEDGER_CREDENTIAL_REQUIRED`; `404 PROGRAMME_TASK_UNKNOWN`; `503 TASK_USAGE_LEDGER_UNAVAILABLE` |
 
 ### Agent harness pairing and devices (FR-220, FR-221, 2026-09-14)
 
@@ -1070,3 +1071,4 @@ Version diff 1.69.0b → 1.70.0b (2026-09-14): no route added or changed; record
 Version diff 1.70.0b → 1.71.0b (2026-09-14): FR-239 optional `detail` object on `POST /api/platform/programme-usage-reports` (ADR-086 D7); no new handler.
 
 Version diff 1.71.0b → 1.72.0b (2026-09-14): ADR-089 Phase 1 (branch `feat/integration-secret-store-vault`, not merged) — the write-only Channel ID and secret body on `POST /api/line-oa/connections` and three new handlers under `/api/line-oa/connections/[id]/credential` (rotate, revoke, validate), all behind the FR-224 step-up gate and rate limit; 429 responses now carry `retryAfterSeconds` and `Retry-After`. Handler count 270 → 273.
+Version diff 1.84.0b → 1.85.0b (2026-09-18): add `GET /api/platform/task-usage-ledger` for authenticated, redacted task-bound usage; no database model or migration added.

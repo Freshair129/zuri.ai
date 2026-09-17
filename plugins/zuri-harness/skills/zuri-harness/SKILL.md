@@ -41,6 +41,11 @@ via the `zuri-codex` wrapper described below):
   the device from the harness device list server-side if it should stop being
   usable entirely.
 
+For a manually assigned report, append `--task-code TASK-ZAI-###` to a
+`report --claude-transcript`, `report --codex-latest` or `report --codex-session`
+command. Supply it only when the caller owns that task assignment; shared
+branches are never used to infer a task.
+
 ## The `zuri-codex` wrapper
 
 Codex has no session-end hook, so usage reporting is done by wrapping the

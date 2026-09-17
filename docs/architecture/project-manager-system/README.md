@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-SYSTEM-DESIGN
 title: Project Manager complete system design
-version: "0.13.0b"
+version: "0.14.0b"
 status: candidate
 created_at: "2026-09-15T23:49:58+07:00,RWANG,base 087f30258a6831865afd751e28804e36505aff30"
-last_update: "2026-09-17T02:46:11+07:00,RWANG"
+last_update: "2026-09-18T00:00:00+07:00,RWANG,working-tree"
 superseded_by: null
 attributes:
   doc_type: architecture-specification
@@ -25,7 +25,7 @@ relations:
 
 # Project Manager — Full System Design
 
-**Version:** 0.12.0b · **Status:** Candidate · **Risk:** HIGH · **Complexity:** C-3
+**Version:** 0.14.0b · **Status:** Candidate · **Risk:** HIGH · **Complexity:** C-3
 **Evidence baseline:** original design `087f30258a6831865afd751e28804e36505aff30`; MA-I02 source audit `138db6630e650e3c695b81158eff3cecdad6d0a5`.
 **Deliverable:** เอกสารออกแบบและสัญญาแบบเครื่องอ่านได้; navigation FR-250 และ Domain View Phase A (FR-251) ส่งมอบแล้ว โดย Phase A merge/deploy ที่ `c07cfaba` พร้อม archive/rollup repair ใน PR444 เมื่อ 2026-09-17 ส่วน Feature Phase B เป็นข้อเสนอสำหรับ B1 review และ B2 registration ก่อนเขียน application/schema code
 
@@ -118,6 +118,9 @@ Domain และ Feature เป็นคนละแกน:
 | [Contract examples](contracts/contract-foundation.examples.json) | Positive and negative schema examples; not service tests |
 | [Navigation conformance](contracts/nav-conformance.fixtures.json) | Machine-readable documentation invariants; not browser implementation evidence |
 | [Delivery plan index](contracts/delivery-plan.candidate.json) | Non-executable planning data, model policy and ordered work packages |
+| [25 G14 Registry candidate](25-G14-REGISTRY-CANDIDATE.md) | PM-G14 workforce graph/registry, composed as a candidate extension of PM-G01 |
+| [26 G14 implementation packet](26-G14-REGISTRY-IMPLEMENTATION-PACKET.md) | G14 work packages, gates, ownership and acceptance handoff |
+| [27 TaskUsageLedger implementation packet](27-TASK-USAGE-LEDGER-IMPLEMENTATION-PACKET.md) | Task-bound usage projection, redaction and reconciliation contract |
 | [Data model](contracts/data-model.candidate.json) | Machine-readable record/field/relationship catalog |
 | [Blueprint model](contracts/blueprint.candidate.json) | Supplemental typed nodes/edges and owner ports |
 | [SRS trace model](contracts/srs-traceability.candidate.json) | PMR to entity, blueprint node, operation and acceptance family |
@@ -125,7 +128,10 @@ Domain และ Feature เป็นคนละแกน:
 | [OpenAPI candidate](contracts/openapi.candidate.yaml) | HTTP contract ของส่วนเพิ่มที่เสนอ |
 | [Workflow schema](contracts/workflow.schema.json) | โครงสร้าง workflow แบบข้อมูล ตรวจได้ก่อน dispatch |
 | [Workflow example](contracts/workflow.example.json) | ตัวอย่างหลาย Domain: spec → implementation → verification |
-| [Architecture model](contracts/architecture.model.json) | node/edge พร้อมชนิด ทิศทาง owner และ contract |
+| [Architecture model](contracts/architecture.model.json) | PM-G01 + PM-G14 candidate nodes/edges พร้อมชนิด ทิศทาง owner และ contract |
+| [G14 registry](contracts/g14-registry.candidate.json) | Machine-readable workforce registry extension, candidate/codegen disabled |
+| [TaskUsageLedger contract](contracts/task-usage-ledger.contract.json) | Machine-readable task-bound usage projection contract |
+| [TaskUsageLedger snapshot schema](contracts/task-usage-ledger.snapshot.schema.json) | Public/internal snapshot shape and redaction boundary |
 | [Traceability](contracts/traceability.json) | รหัส requirement → capability → owner → contract → test → phase |
 | [Navigation model](contracts/navigation.candidate.json) | destination → scope → route → readiness → implementation slice |
 
@@ -299,3 +305,9 @@ Version diff 0.10.0b → 0.11.0b: record owner approval, canonical FR-251 regist
 Owner approval of packet e5ccfd7a closes B1. [FR-252](../../domains/project-manager/features/FR-252-project-feature-authority.md) and [ADR-097](../../decisions/ADR-097-PROJECT-FEATURE-AUTHORITY-AND-WRITE-CONTRACT.md) register the selected authority and supersede the frozen proposal's historical pending-approval labels. B2 governance and independent verification still precede implementation. The remaining full-system design is not promoted by this approval.
 
 Version diff 0.12.0b → 0.13.0b: record B1 approval and canonical registration only; no Phase B code/schema/migration or production activation.
+
+## Version diff — 0.13.0b → 0.14.0b
+
+- Compose the PM-G14 workforce candidate extension into the single PM-G01 architecture source (28 nodes / 35 typed edges) while retaining `CANDIDATE`, `codegenReady: false` and pending canonical registration.
+- Add the G14 registry, G14 implementation packet, TaskUsageLedger contract and TaskUsageLedger implementation packet to the source documentation index.
+- Keep runtime workforce routes, TaskUsageLedger persistence, migrations and production activation as separate implementation gates; no physical schema is added by this documentation reconciliation.

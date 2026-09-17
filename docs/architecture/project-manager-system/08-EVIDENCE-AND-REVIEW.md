@@ -94,7 +94,7 @@ Final document and contract verification is recorded below after authoring. Prod
 | Workflow JSON Schema and example | VALID with Ajv 8 / Draft 2020-12 | Example is explicitly synthetic and cannot dispatch |
 | Workflow semantic sample | DAG, role/domain bindings, input dependencies and result output resolve | Broader runtime cases remain PMT implementation tests |
 | Executable payload rejection | Unknown command field rejected by schema | Does not prove executor sandbox behavior |
-| Architecture model | 15 nodes / 20 directed typed edges, all refs and write owners resolve | Target logical graph, not live topology |
+| Architecture model | 28 nodes / 35 directed typed edges (G01 + candidate G14), all refs and write owners resolve | Target logical graph; G14 remains candidate/codegen disabled |
 | Requirement traceability | 32 PMR → 32 PMT families; operation IDs resolve | PMR/PMT are proposal IDs, canonical promotion pending |
 | Local document links | 34 local Markdown links resolved in repository context | External citations were read during design; not continuously monitored |
 | Mermaid | 8 diagrams parsed and rendered with Mermaid 11.16.1 in Playwright Chromium | Screenshots/vector output are review artifacts outside tracked source |
@@ -140,7 +140,7 @@ The owner supplied a Business Goal / UX Goal / journey reference and a vertical-
 | Contrast | Chosen body/action pairs pass calculated normal-text threshold; white-on-amber and old blue-body pair rejected for that role | Token calculation, not full WCAG certification |
 | Browser artifact | 14 check groups PASS; 148 visits across 37 screens at 1512/1024/756/390 px; 58 variants; 8 state scenarios | Playwright Chromium 1148; docs prototype only |
 | Interactions | Screen/API search, 10 journeys, native form error focus, conditional MCP/provider fields, fractional risk input, keyboard graph selection, node/edge inspector, key metadata separation and mobile drawer focus pass | Synthetic records; no real mutations or provider probes |
-| Graph/API presentation | 15 nodes / 20 edges available as accessible lists; selected graph projections; all 72 operations searchable from the same OpenAPI | Wireframe is a proposed API Explorer, not installed Swagger runtime |
+| Graph/API presentation | 28 nodes / 35 edges available as accessible lists; selected graph projections; all 72 operations searchable from the same OpenAPI | G14 operations remain candidate; not installed Swagger runtime |
 | Runtime isolation of artifact | No JavaScript errors; only local HTML requested; no product/external API requests; no local/session storage writes | CSP preserved; one-time secret field disabled/synthetic |
 | Document contracts | OpenAPI 52 paths / 72 operations / 98 schemas, workflow example/schema, architecture and 32 PMR→PMT families remain valid | Existing API/run contracts retain version 0.1.0b |
 | Diagrams | All 11 Mermaid blocks parse/render; new journey diagrams use vertical layout | Local SVG/PNG review output |

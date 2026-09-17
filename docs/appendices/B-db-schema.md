@@ -1,12 +1,14 @@
 # Appendix B — Database Schema Summary
 
+Version diff 1.54.0b → 1.55.0b (2026-09-18): add the TaskUsageLedger read-projection contract over ProgrammeUsageReport and declared lane telemetry. It is not a Prisma model, creates no table or migration, and keeps plan.predictedTokens separate from measured actual.tokens; lane-only usage is never allocated to tasks. The composed schema remains 171 models.
+
 Version diff 1.53.0b → 1.54.0b: retain the already-deployed CustomerLegalHold model and add the two FR-253 Commerce pricing models. The composed schema has 171 models; pricing migration has passed a production transaction dry-run and rollback, but is not yet applied.
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.54.0b |
+| **Version** | 1.55.0b |
 | **Status** | Draft |
-| **Last Updated** | 2026-09-16 |
+| **Last Updated** | 2026-09-18 |
 
 Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
 Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)

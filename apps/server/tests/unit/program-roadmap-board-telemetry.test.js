@@ -75,4 +75,37 @@ describe('FR-219 task cards', () => {
     expect(html).toContain('TASK-ZAI-066 subtask progress')
     expect(html).not.toContain('data-testid="task-subtasks-TASK-ZAI-005"')
   })
+
+  it('keeps task plan tokens separate from a directly measured actual', () => {
+    const html = render({
+      taskUsageLedger: {
+        schemaVersion: 'task-usage-ledger.v1',
+        availability: 'AVAILABLE',
+        asOf: '2026-09-18T00:00:00.000Z',
+        tasks: [{
+          taskCode: 'TASK-ZAI-005',
+          taskStatus: 'done',
+          plan: { predictedTokens: 52000, source: 'PROGRAMME_CONTAINERS' },
+          measurementStatus: 'MEASURED_DIRECT',
+          reconciliationStatus: 'NONE',
+          actual: {
+            tokens: { inputTokens: 100, cacheWriteTokens: 20, cacheReadTokens: 300, outputTokens: 80, usedTokens: 200 },
+            requestCount: 4,
+            activeMinutes: 6,
+            startedAt: '2026-09-18T00:00:00.000Z',
+            endedAt: '2026-09-18T00:06:00.000Z',
+            reportCount: 1,
+            models: [],
+          },
+          attribution: { kind: 'DIRECT_TASK_CODE', directReportCount: 1, laneIds: [] },
+          warnings: [],
+        }],
+      },
+    })
+    expect(html).toContain('data-testid="task-usage-ledger-TASK-ZAI-005"')
+    expect(html).toContain('token planned')
+    expect(html).toContain('token used')
+    expect(html).toContain('MEASURED_DIRECT')
+    expect(html).not.toContain('actual 52000')
+  })
 })
