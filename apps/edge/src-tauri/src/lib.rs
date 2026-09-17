@@ -1,6 +1,7 @@
 pub mod commands;
 mod credential_store;
 mod desktop;
+mod durable_log;
 mod machine;
 #[cfg(test)]
 mod packaged_runtime_tests;
@@ -11,7 +12,7 @@ mod window_layout;
 
 use desktop::{
     cancel_provider_login, discover_ollama, get_provider_settings, get_provider_status,
-    get_worker_log, get_worker_status, save_provider_settings, start_provider_login, start_worker,
+    get_worker_log, get_worker_log_page, get_worker_status, save_provider_settings, start_provider_login, start_worker,
     stop_worker,
 };
 use tauri::{
@@ -178,6 +179,7 @@ pub fn run() {
             cancel_provider_login,
             get_worker_status,
             get_worker_log,
+            get_worker_log_page,
             start_worker,
             stop_worker
         ])

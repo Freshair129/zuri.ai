@@ -1,5 +1,6 @@
 import type { ConversationClient } from './client.js';
 import { ConversationError, type ConversationAnswer, type ConversationJob, type FailureCode } from './contract.js';
+import { remainingConversationBudget } from './deadline.js';
 
 // @spec FR-150 — one claimed job at a time, and completion uncertainty never becomes a second
 //   execution or a failure write. A lease that expires before completion was ever attempted is
@@ -10,6 +11,19 @@ export interface ConversationWorkerDeps {
   client: ConversationClient;
   answer(job: ConversationJob): Promise<ConversationAnswer>;
   now?: () => number;
+}
+
+export interface ConversationWorkerEvent {
+  outcome: string; jobId?: string; executionId?: string;
+  deliveryMode?: 'REPLY' | 'DELAYED_PUSH'; remainingBudgetMs?: number;
+  source?: 'model' | 'rules'; reason?: string;
+}
+
+function jobEvent(job: ConversationJob, outcome: string): ConversationWorkerEvent {
+  return { outcome, jobId: job.id, ...('deadline' in job ? {
+    executionId: job.executionId, deliveryMode: job.deadline.deliveryMode,
+    remainingBudgetMs: remainingConversationBudget(job) ?? 0,
+  } : {}) };
 }
 
 /**
@@ -23,7 +37,7 @@ export interface ConversationWorkerDeps {
 async function reportLeaseExpired(
   deps: ConversationWorkerDeps,
   job: ConversationJob
-): Promise<{ outcome: string; jobId?: string }> {
+): Promise<ConversationWorkerEvent> {
   try {
     await deps.client.fail(job, 'EXECUTION_FAILED');
   } catch (error) {
@@ -31,40 +45,60 @@ async function reportLeaseExpired(
     // not an error condition here. Every other error must still propagate.
     if (!(error instanceof ConversationError && error.status === 409)) throw error;
   }
-  return { outcome: 'lease_expired', jobId: job.id };
+  return jobEvent(job, 'lease_expired');
 }
 
 /** One job at a time. Completion uncertainty never becomes a second execution or a failure write. */
 export async function runConversationOnce(
   deps: ConversationWorkerDeps
-): Promise<{ outcome: string; jobId?: string; source?: 'model' | 'rules'; reason?: string }> {
+): Promise<ConversationWorkerEvent> {
   const job = await deps.client.claim();
   if (!job) return { outcome: 'idle' };
   const expired = () => Date.parse(job.leaseExpiresAt) <= (deps.now || Date.now)();
   if (expired()) return reportLeaseExpired(deps, job);
   let answer: ConversationAnswer;
   try {
+    const budget = remainingConversationBudget(job);
+    if (budget !== null && budget <= 0) throw new ConversationError('REPLY_DEADLINE_MISSED');
     answer = await deps.answer(job);
     if (typeof answer.text !== 'string' || !answer.text.trim() || answer.text.length > 5000) {
       throw new ConversationError('INVALID_ANSWER');
     }
   } catch (error) {
     if (expired()) return reportLeaseExpired(deps, job);
-    const code: FailureCode = error instanceof ConversationError && error.code === 'LOCAL_POLICY_UNAVAILABLE'
-      ? 'LOCAL_POLICY_UNAVAILABLE' : 'EXECUTION_FAILED';
-    await deps.client.fail(job, code);
-    return { outcome: 'failed', jobId: job.id };
+    const code: FailureCode = error instanceof Error && error.message === 'MSP_INJECTION_RECEIPT_UNKNOWN'
+      ? 'MSP_INJECTION_RECEIPT_UNKNOWN'
+      : error instanceof ConversationError && error.code === 'REPLY_DEADLINE_MISSED'
+      ? 'REPLY_DEADLINE_MISSED'
+      : error instanceof ConversationError && error.code === 'LOCAL_POLICY_UNAVAILABLE'
+        ? 'LOCAL_POLICY_UNAVAILABLE' : 'EXECUTION_FAILED';
+    await deps.client.fail(job, code, error instanceof ConversationError ? error.contextReceipts : undefined);
+    return jobEvent(job, code === 'REPLY_DEADLINE_MISSED' ? 'deadline_missed'
+      : code === 'MSP_INJECTION_RECEIPT_UNKNOWN' ? 'unknown' : 'failed');
   }
   // The answer was computed but never sent to the server if the lease expired here — same
   // "nothing was sent" reasoning as reportLeaseExpired's own comment, so failing it is correct.
   if (expired()) return reportLeaseExpired(deps, job);
-  await deps.client.complete(job, answer.text);
-  return { outcome: 'completed', jobId: job.id, source: answer.source, ...(answer.reason ? { reason: answer.reason } : {}) };
+  const remaining = remainingConversationBudget(job);
+  if (remaining !== null && remaining <= 0) {
+    await deps.client.fail(job, 'REPLY_DEADLINE_MISSED', answer.contextReceipts);
+    return jobEvent(job, 'deadline_missed');
+  }
+  try {
+    await deps.client.complete(job, answer.text, answer.contextReceipts);
+  } catch (error) {
+    // This typed error is raised before the client sends anything. Network errors
+    // remain uncertain and must never be followed by a second settlement.
+    if (!(error instanceof ConversationError && error.code === 'REPLY_DEADLINE_MISSED')) throw error;
+    await deps.client.fail(job, 'REPLY_DEADLINE_MISSED', answer.contextReceipts);
+    return jobEvent(job, 'deadline_missed');
+  }
+  return { ...jobEvent(job, 'completed'), source: answer.source, ...(answer.reason ? { reason: answer.reason } : {}) };
 }
 
 export async function runConversationLoop(deps: ConversationWorkerDeps & {
   signal: AbortSignal; pollMs?: number;
-  onEvent?: (event: { outcome: string; jobId?: string; source?: 'model' | 'rules'; reason?: string }) => void;
+  onEvent?: (event: ConversationWorkerEvent) => void;
 }): Promise<void> {
   let failures = 0;
   while (!deps.signal.aborted) {

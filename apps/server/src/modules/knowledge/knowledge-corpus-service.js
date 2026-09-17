@@ -559,6 +559,30 @@ async function resolveQueryFunction(options) {
   }
 }
 
+/** Read only the immutable manifest after the same live ACL checks as retrieval. */
+export async function readAuthorizedKnowledgeManifest(
+  { businessId, projectId = null },
+  { db = prisma, repository: suppliedRepository, viewer, env = process.env } = {},
+) {
+  const repository = repositoryFor(db, suppliedRepository)
+  const { corpus } = await resolveAuthorizedCorpus({ businessId, projectId, action: 'read', db, repository, viewer, env })
+  const scope = scopeFromCorpus(corpus)
+  const current = await loadManifest(repository, corpus)
+  const sources = new Map((await listSources(repository, corpus.id)).map((source) => [source.id, source]))
+  const checkedFiles = new Set()
+  for (const entry of current.manifest.entries) {
+    const source = sources.get(entry.sourceId)
+    assertActiveSource(source)
+    assertSourceMatchesEntry(source, { ...entry, corpusId: corpus.id })
+    if (source.activeIngestionId !== entry.ingestionId) throw serviceError(409, 'Knowledge active source changed', 'KNOWLEDGE_MANIFEST_INVALID')
+    if (source.fileAssetId && !checkedFiles.has(source.fileAssetId)) {
+      await assertKnowledgeFileReadable(viewer, source.fileAssetId, { businessId, projectId, db, env })
+      checkedFiles.add(source.fileAssetId)
+    }
+  }
+  return { scope, corpusId: corpus.id, corpusGeneration: current.manifest.generation, manifestHash: current.manifestHash, entries: current.manifest.entries }
+}
+
 /** Query one pinned corpus manifest through explicit native snapshots. */
 export async function queryKnowledgeCorpus(
   input,

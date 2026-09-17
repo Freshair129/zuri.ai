@@ -1,0 +1,89 @@
+{
+  "scope": "isolated synthetic ledger-backed acceptance; not production",
+  "fileAssetId": "539347b7-9a13-4609-94ae-8b9c8ec402b2",
+  "fileSha256": "cd9b440925a101fd33c9ce59e87786fac2c9c818a25e40de48509f9547579ea2",
+  "evaluatorVersion": "pricing.v1",
+  "computedEvidence": [
+    {
+      "externalId": "commerce-sku:abee79b1-61c1-4d07-ad3a-3409ceecb352",
+      "calculationId": "5077774e-161a-489c-bb87-6ae660fc710a",
+      "ruleSetId": "38c44b60-4996-4e17-a5ba-543de95b16aa",
+      "ruleHash": "5fa297f096ffab7f27bc6172142580b185c023497a69768fe29bbc26f4a0d17a",
+      "inputHash": "f74e66d765a8502d4eb082a28c67ce72fafeffdbe48ff36f0badc06a30f37c78",
+      "sourceId": "62c793ef-657e-459f-9de9-498f854872d4",
+      "runId": "a8de8521-dcf5-4c93-ad48-c949391dae0d",
+      "snapshotId": "snap-bb6bfbecb07a89aa62da78810ff9459a",
+      "generation": "g17-afb72591f80b787cbc92c4754cc5ad53",
+      "benchmark": {
+        "fixtureVersion": "commerce-computed-v1:commerce-sku:abee79b1-61c1-4d07-ad3a-3409ceecb352",
+        "queryCount": 1,
+        "recallAt5": 1,
+        "mrr": 1,
+        "citationCorrectness": 1,
+        "crossTenantLeaks": 0
+      },
+      "stageCount": 17,
+      "publicationReceiptCount": 1,
+      "chains": [
+        {
+          "chunk": "kpa_906e9cb89d6bf9ab407023d0cade50368f2443c934bcc6f2:chunk:0",
+          "parsedArtifact": "kpa_906e9cb89d6bf9ab407023d0cade50368f2443c934bcc6f2",
+          "rawArtifact": "kra_3693748a2b9e7bdaf48610fea7f4beee5c2dce3469099501",
+          "rawExternalRecord": "61f0f2e6-9153-43aa-b2ce-a24e9e13082f",
+          "source": "62c793ef-657e-459f-9de9-498f854872d4"
+        }
+      ]
+    },
+    {
+      "externalId": "commerce-price:abee79b1-61c1-4d07-ad3a-3409ceecb352:100",
+      "calculationId": "5077774e-161a-489c-bb87-6ae660fc710a",
+      "ruleSetId": "38c44b60-4996-4e17-a5ba-543de95b16aa",
+      "ruleHash": "5fa297f096ffab7f27bc6172142580b185c023497a69768fe29bbc26f4a0d17a",
+      "inputHash": "f74e66d765a8502d4eb082a28c67ce72fafeffdbe48ff36f0badc06a30f37c78",
+      "sourceId": "280055d3-e981-489f-9a17-f1bc061b2ec9",
+      "runId": "3c847786-ee03-4e80-91a1-546c1e93a7f0",
+      "snapshotId": "snap-8534fb8803b3285e9fbb6d4aa72c58da",
+      "generation": "g17-7e0716fbc57675dc5eb03573b164992a",
+      "benchmark": {
+        "fixtureVersion": "commerce-computed-v1:commerce-price:abee79b1-61c1-4d07-ad3a-3409ceecb352:100",
+        "queryCount": 2,
+        "recallAt5": 1,
+        "mrr": 1,
+        "citationCorrectness": 1,
+        "crossTenantLeaks": 0
+      },
+      "stageCount": 17,
+      "publicationReceiptCount": 1,
+      "chains": [
+        {
+          "chunk": "kpa_4e152945f06bae2dfa089e2b8ac07734f37b31d7780d1a0d:chunk:0",
+          "parsedArtifact": "kpa_4e152945f06bae2dfa089e2b8ac07734f37b31d7780d1a0d",
+          "rawArtifact": "kra_d6dd46bf41299df6a8dc54159ca9213891900bb38c056521",
+          "rawExternalRecord": "d9248653-01a5-46c3-b600-a5858598ad70",
+          "source": "280055d3-e981-489f-9a17-f1bc061b2ec9"
+        },
+        {
+          "chunk": "kpa_4e152945f06bae2dfa089e2b8ac07734f37b31d7780d1a0d:chunk:1",
+          "parsedArtifact": "kpa_4e152945f06bae2dfa089e2b8ac07734f37b31d7780d1a0d",
+          "rawArtifact": "kra_d6dd46bf41299df6a8dc54159ca9213891900bb38c056521",
+          "rawExternalRecord": "d9248653-01a5-46c3-b600-a5858598ad70",
+          "source": "280055d3-e981-489f-9a17-f1bc061b2ec9"
+        },
+        {
+          "chunk": "kpa_4e152945f06bae2dfa089e2b8ac07734f37b31d7780d1a0d:chunk:1",
+          "parsedArtifact": "kpa_4e152945f06bae2dfa089e2b8ac07734f37b31d7780d1a0d",
+          "rawArtifact": "kra_d6dd46bf41299df6a8dc54159ca9213891900bb38c056521",
+          "rawExternalRecord": "d9248653-01a5-46c3-b600-a5858598ad70",
+          "source": "280055d3-e981-489f-9a17-f1bc061b2ec9"
+        },
+        {
+          "chunk": "kpa_4e152945f06bae2dfa089e2b8ac07734f37b31d7780d1a0d:chunk:0",
+          "parsedArtifact": "kpa_4e152945f06bae2dfa089e2b8ac07734f37b31d7780d1a0d",
+          "rawArtifact": "kra_d6dd46bf41299df6a8dc54159ca9213891900bb38c056521",
+          "rawExternalRecord": "d9248653-01a5-46c3-b600-a5858598ad70",
+          "source": "280055d3-e981-489f-9a17-f1bc061b2ec9"
+        }
+      ]
+    }
+  ]
+}
