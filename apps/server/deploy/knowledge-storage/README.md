@@ -5,11 +5,18 @@ This directory contains the **deployment contract**, not a production receipt.
 production host, volume, image digest, Business scope, key custody or backup host.
 Those values must be filled in an operator-owned copy after review.
 
+The local Docker engine currently has the AIStor candidate image pulled as
+`quay.io/minio/aistor/minio@sha256:afcfb54652c40c973012da19f924ebd591d7115d74ea5b75bcb6dc7edaf06c04`
+(`RELEASE.2026-09-07T08-39-31Z`). This is an image-provenance observation, not a
+production approval or a license receipt.
+
 ## Primary endpoint overlay
 
 1. Copy `storage-admin.env.example` to an absolute path outside the checkout and
-   fill the provider-admin values documented by the pinned image. Keep this file
-   separate from the application access key and never commit it.
+   fill the provider-admin values documented by the pinned image. Obtain the
+   provider license separately and keep both files outside the checkout. AIStor
+   requires an active license for production; the license file is not a secret
+   to paste into `.env` or a commit.
 2. Set these private `.env` values on the host:
 
    ```text
@@ -18,6 +25,7 @@ Those values must be filled in an operator-owned copy after review.
    ZURI_KNOWLEDGE_STORAGE_IMAGE=<approved-provider-image>@sha256:<digest>
    ZURI_KNOWLEDGE_STORAGE_DATA_DIR_HOST=<dedicated-primary-data-path>
    ZURI_KNOWLEDGE_STORAGE_ADMIN_ENV_FILE_HOST=<absolute-admin-env-path>
+   ZURI_KNOWLEDGE_STORAGE_LICENSE_FILE_HOST=<absolute-license-file-path>
    ```
 
 3. Fill the TASK-ZAI-049 section in `.env.knowledge`. For an isolated local
@@ -30,8 +38,8 @@ Those values must be filled in an operator-owned copy after review.
 The overlay has no default image or host path. Do not start it until the target
 manifest is `READY`, the provider capability/licence probe is recorded, and the
 primary volume has a capacity and recovery receipt. `docker compose config` is the
-first read-only check on the deployment host; no command was run from this
-checkout because Docker is unavailable here.
+first read-only check on the deployment host. Docker is installed on this machine,
+but no AIStor/MinIO image or container exists in either local Docker context yet.
 
 ## Backup target
 

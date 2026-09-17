@@ -8,15 +8,16 @@
 # a second service in this file: a second container on this host is not a backup
 # failure domain.
 #
-# The provider admin env file is mounted only into this container. The application
-# access key/secret belong in .env.knowledge and are never the provider root key.
+# The provider admin env file and AIStor license are mounted only into this
+# container. The application access key/secret belong in .env.knowledge and are
+# never the provider root key.
 # The API and admin console are reachable only on zuri-network; neither is
 # published through the host or ngrok.
 services:
   knowledge-storage:
     profiles: ["knowledge-storage"]
     image: ${ZURI_KNOWLEDGE_STORAGE_IMAGE:?Set an approved provider image@sha256:digest}
-    command: ["server", "/data", "--console-address", ":9001"]
+    command: ["minio", "server", "/mnt/data", "--license", "/minio.license"]
     restart: unless-stopped
     env_file:
       - path: ${ZURI_KNOWLEDGE_STORAGE_ADMIN_ENV_FILE_HOST:?Set an admin env file outside the checkout}
@@ -24,8 +25,14 @@ services:
     volumes:
       - type: bind
         source: ${ZURI_KNOWLEDGE_STORAGE_DATA_DIR_HOST:?Set a dedicated primary data path}
-        target: /data
+        target: /mnt/data
         read_only: false
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${ZURI_KNOWLEDGE_STORAGE_LICENSE_FILE_HOST:?Set an AIStor license file outside the checkout}
+        target: /minio.license
+        read_only: true
         bind:
           create_host_path: false
     expose:

@@ -40,7 +40,7 @@
     "primary": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["provider", "endpointEnv", "bucketEnv", "regionEnv", "locationId", "dataVolumeId", "imageEnv", "imageDigest", "tls", "encryptionKeyRef", "bindingId", "bindingRevision"],
+      "required": ["provider", "endpointEnv", "bucketEnv", "regionEnv", "locationId", "dataVolumeId", "imageEnv", "imageDigest", "licenseRef", "tls", "encryptionKeyRef", "bindingId", "bindingRevision"],
       "properties": {
         "provider": { "const": "S3_COMPATIBLE" },
         "endpointEnv": { "$ref": "#/$defs/envRef" },
@@ -50,6 +50,7 @@
         "dataVolumeId": { "type": "string", "minLength": 1 },
         "imageEnv": { "$ref": "#/$defs/envRef" },
         "imageDigest": { "type": "string", "minLength": 1 },
+        "licenseRef": { "type": "string", "minLength": 1 },
         "tls": { "const": true },
         "encryptionKeyRef": { "type": "string", "minLength": 1 },
         "bindingId": { "type": "string", "minLength": 1 },
