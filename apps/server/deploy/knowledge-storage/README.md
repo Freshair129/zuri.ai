@@ -39,10 +39,23 @@ The overlay has no default image or host path. Do not start it until the target
 manifest is `READY`, the provider capability/licence probe is recorded, and the
 primary volume has a capacity and recovery receipt. `docker compose config` is the
 first read-only check on the deployment host. Docker is installed on this machine
-and the candidate AIStor image is pulled. A disposable `minio --version` smoke
-check passed, but no AIStor/MinIO container exists in either local Docker context
-and no license file was found in the standard local secret paths. Keep the target
-`PENDING` until an operator supplies the license outside the checkout.
+and the candidate AIStor image is pulled. Its disposable `minio --version` smoke
+check passed, but its container remains stopped because no license file was found
+in the standard local secret paths. Keep the production target `PENDING` until an
+operator supplies the license outside the checkout.
+
+## Local Community source smoke profile
+
+The official Community source path was exercised separately for local testing:
+`go install github.com/minio/minio@latest` resolved to source commit
+`7aac2a2c5b7c` and produced a `DEVELOPMENT.GOGET` Linux binary with Go 1.24.13.
+It runs in the local image `zuri-minio-community:source-7aac2a2c5b7c` as
+`zuri-minio-community-local`, with API `127.0.0.1:19000`, console
+`127.0.0.1:19001`, and named data volume `zuri-minio-community-local-data`.
+The endpoint is loopback-only and is not wired into `.env.knowledge`, the web
+container, ngrok, or the production target. The Community repository is archived;
+this profile is smoke-test evidence only and does not replace the AIStor production
+candidate or provide a production support/SLA claim.
 
 ## Backup target
 
