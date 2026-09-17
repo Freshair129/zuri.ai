@@ -1,0 +1,18 @@
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+
+ RUN  v2.1.9 C:/Users/pc/.codex/visualizations/2026/09/16/01a0ab85-48d9-7380-91a5-7dd7539f6427/zuri-pricing-engine/apps/server
+
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": SQLite database "run-47524-mu4kol8v-31fb0c.db" at "file:./.test-dbs/run-47524-mu4kol8v-31fb0c.db"
+
+SQLite database run-47524-mu4kol8v-31fb0c.db created at file:./.test-dbs/run-47524-mu4kol8v-31fb0c.db
+
+Your database is now in sync with your Prisma schema. Done in 4.90s
+
+ ✓ tests/unit/knowledge-runtime.test.js (7 tests) 1314ms
+   ✓ knowledge durable queue > atomically attaches its real pipeline run before reply loss and resumes that run after restart 758ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  03:48:00
+   Duration  12.75s (transform 4.55s, setup 7ms, collect 751ms, tests 1.31s, environment 0ms, prepare 42ms)

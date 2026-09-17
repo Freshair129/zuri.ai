@@ -1,8 +1,10 @@
 # Appendix A — API Specification
 
+Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operations) with the exact already-deployed CRM legal-hold path. Current inventory is 296 paths and 395 operations; no live CRM route is removed.
+
 | Field | Value |
 |-------|-------|
-| **Version** | 1.82.0b |
+| **Version** | 1.84.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-17 |
 
@@ -23,7 +25,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=289 -->
+<!-- api-spec-counts: route_handlers=296 -->
 
 ### Local model residency by business hours (FR-244, 2026-09-16)
 
@@ -272,6 +274,7 @@ conversations owned by no Business or by one already in the viewer's scope.
 | POST | `/api/crm/customers/[customerId]/consent` | implemented: FR-103 / SEC-005 PDPA consent attestation — a Business **owner** (not merely a Member) records `GRANTED`/`DECLINED` for a Customer reached through their own Business's tenant (BR-001). Writes only `Customer.consent*`; never touches Conversation or Message |
 | POST | `/api/crm/customers/[customerId]/erasure` | implemented: FR-022 PDPA erasure — the production trigger for `erasePrincipal`, which until now had no route, UI or script. Same authority as the consent row above (per-Business **owner** over a Business in the Customer's tenant, BR-001) or the installation operator. Body `{ businessId, confirmation: 'ERASE' }`; any other confirmation is **400** and is checked before any lookup. Every authority refusal is **404**, indistinguishable from a fabricated id (FR-072) — an irreversible action must not double as an existence oracle. Revokes identities/sessions/link tokens, soft-deletes and redacts the Customer, deletes ConversationAnalysis, tombstones `Message.body` and the matching `RawExternalRecord` payloads in one transaction. The response carries counts only, never personal data |
 | POST | `/api/crm/customers/[customerId]/chat-evidence/retrieve` | implemented: FR-245 chat evidence archive retrieval (ADR-093 D7, TASK-ZAI-112) — a per-Business **owner** over a Business in the Customer's tenant (BR-001), stepped up to **AAL2** through the same FR-224 gate credential rotation uses. Body `{ businessId, startDate, endDate, caseReference }` (both dates `YYYY-MM-DD`, `caseReference` required and free text). Recovers exactly the Customer's already-**archived** (retention-swept) messages in range, grouped by the `sessionId` `chat-evidence-archive-service.js` already writes into every archived line. Every manifest is re-checked against its own `manifestHash` and its file re-hashed against `fileSha256` before any line is trusted; a missing, unreadable or hash-mismatched manifest or file is reported in `missingMessageIds` rather than failing the whole retrieval. Every call — including an empty result — writes one `ARCHIVE_RETRIEVED` audit event naming the Customer, the range and the case reference. `403 ASSURANCE_LEVEL_INSUFFICIENT` below AAL2; `403` for a Business seen but not owned; `404` for an unknown Business or a Customer outside its tenant |
+| POST | `/api/crm/customers/[customerId]/legal-hold` | implemented: SEC-034 legal hold on a Customer's chat evidence archive (ADR-093 D6, TASK-ZAI-113) — a per-Business **owner** over a Business in the Customer's tenant (BR-001); no AAL2 step-up, unlike retrieval above, because this writes a reason and a date rather than reading any archived content, and the erasure it defers has never required one either. Body `{ businessId, reason, endDate }` (`reason` non-empty free text, `endDate` a future `YYYY-MM-DD`); a past or same-day `endDate` is **400** before any lookup. Appends one new `CustomerLegalHold` row — a history, never an update — and writes one `LEGAL_HOLD_RECORDED` audit event. While unexpired (`now < endDate`), a later PDPA erasure of this Customer leaves their archive data key alone instead of destroying it, and the erasure's own response and audit event name the hold. `404` for a Business seen but not owned or for an unknown Business/Customer, same shape as the erasure and retrieval rows above |
 | POST | `/api/agent/line-delivery` | implemented: transport delivery receipt endpoint recording outbound LINE reply messages into Conversation/Message history (FR-093 / SDD-051) |
 
 ### CRM retention sweep worker (FR-230, ADR-091 D1/D2, 2026-09-15)
@@ -575,6 +578,12 @@ the VERIFIED payments.
 
 | Method | Path | Success | Failure |
 |---|---|---|---|
+| GET, POST | `/api/commerce/pricing-rules` | FR-253: OWNER-scoped list/template and create draft; businessId plus name/rules for POST | 404 scope; 422 rule schema |
+| PATCH | `/api/commerce/pricing-rules/[id]` | FR-253: version/name/rules/reason; draft-only optimistic update | 404 scope; 409 revision/immutable; 422 formula |
+| POST | `/api/commerce/pricing-rules/[id]/actions` | FR-253: APPROVE with effectiveFrom/expiresAt or REVOKE; version/reason required | 404 scope; 409 state/revision; 422 dates |
+| POST | `/api/commerce/pricing-rules/preview` | FR-253: server evaluator, rules/input and optional compareRuleSetId; simulation only | 404 scope; 422 formula/input |
+| POST | `/api/commerce/pricing-rules/calculate` | FR-253: active rule, input and idempotencyKey; immutable USER_ENTERED result, not publishable | 404 scope; 409 inactive/idempotency; 422 input |
+| POST | `/api/commerce/pricing-rules/catalog` | FR-253: OWNER scoped product/expected rule/quantities/reason/idempotencyKey; previewOnly returns exact ledger prices and previewHash without writes; confirmation requires previewHash and uses existing Knowledge admission, never publication success | 404 scope; 409 stale preview/policy; 422 missing cost; runtime/storage/admission errors |
 | GET | `/api/commerce/orders?businessId=&status=&origin=&customerId=&conversationId=&includeClosed=&limit=` | implemented (FR-166): `{ businessId, orders[], summary: { open, unpaid, pendingPayments } }` — each order with `code` (`ORD-YYYYMMDD-NNN`), `origin` (CHAT / WALK_IN / ONLINE), `attributed`, `status`, `lines[]` (`productId`, `description`, `qty`, `unitPrice`, `discount`, `lineTotal`), `subtotal`, `discount`, `total`, `paid`, `refunded`, `net`, `pending`, `balanceDue`, `paymentState` (UNPAID / PARTIAL / PAID / OVERPAID / REFUNDED), `payments[]`, `customer`, `version`. Open orders by default | `404 Business not found`; `400` validation |
 | POST | `/api/commerce/orders` | implemented (FR-166): `{ businessId, lines: [{ productId?, description?, qty, unitPrice, discount? }], customerId?, conversationId?, origin?, discount?, notes?, orderedAt?, currency? }` — a Conversation supplies its Customer and makes the origin CHAT; a product must be an ACTIVE SKU of the same Business. Audited `SALES_ORDER_CREATED` | `404` (also a viewer without OWNER / SALES_REP); `409 PRODUCT_ARCHIVED`; `422 CUSTOMER_NOT_FOUND \| CONVERSATION_NOT_FOUND \| CONVERSATION_CUSTOMER_MISMATCH \| PRODUCT_NOT_FOUND`; `400` validation (a line needs a product or a description; a discount within its line; two-decimal amounts) |
 | GET | `/api/commerce/orders/[id]` | implemented (FR-166): one order with its lines, payments and money | `404 Business not found` |
@@ -864,6 +873,7 @@ canary evidence; those remain owner-gated release criteria.
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 1.82.0b | 2026-09-17 | candidate | Implement and locally verify owner-approved FR-251 read-only Domain-view contract and runtime Swagger; one GET handler added (288 → 289), typed scope refusals and operation-only SessionAuth verified | reviewed baseline 7465080f; PR443 | RWANG |
+| 1.82.0b | 2026-09-16 | candidate | SEC-034 (ADR-093 D6, TASK-ZAI-113): one handler file, `POST /api/crm/customers/[customerId]/legal-hold` — records an OWNER-recorded legal hold on a Customer's chat evidence archive; while active, a PDPA erasure defers destroying the archive key instead of destroying it. Route handler count 288 -> 289 | working-tree | Claude Sonnet 5 |
 | 1.81.0b | 2026-09-16 | candidate | FR-248, FR-249 (ADR-095 D2, D3): two handler files, `POST/GET /api/platform/usage-events` (record one's own usage; operator reads the breakdown) and `POST /api/platform/usage-events/rollup` (deployment-authenticated 90-day rollup, same shape as the retention sweep). Route handler count 286 -> 288 | working-tree | Claude Sonnet 5 |
 | 1.80.0b | 2026-09-16 | candidate | FR-247 (ADR-095 D1): two handler files, `GET /api/platform/error-events` and `PATCH /api/platform/error-events/[id]` — the deduplicated error list and its resolve action, both operator-only and audited, never request/response content. Route handler count 284 -> 286 | working-tree | Claude Sonnet 5 |
 | 1.79.0b | 2026-09-16 | candidate | FR-245 (ADR-093 D7, TASK-ZAI-112): one handler file, `POST /api/crm/customers/[customerId]/chat-evidence/retrieve` — the archive's one retrieval path, OWNER at AAL2 through the FR-224 gate, grouped by session, every attempt audited. Route handler count 283 -> 284 | working-tree | Claude Sonnet 5 |

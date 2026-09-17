@@ -558,7 +558,7 @@ locates the week.
 | TASK-ZAI-110 | SPR-ZAI-04 | task | Staff replies recorded, FR-246 — a member with CRM write access replies from the inbox, the server pushes it through the account's LINE transport and records an OUTBOUND message with reply source STAFF in the conversation's session | P0 | Claude | done | TASK-ZAI-106 | Section 3.1 row 8; ADR-093 evidence gap; FR-093 |
 | TASK-ZAI-111 | SPR-ZAI-05 | task | Chat evidence archive writer, FR-245 — archive manifest model and migration, per-Customer AES-256-GCM segments under ZURI_ARCHIVE_KEK, write-flush-verify before tombstone inside the retention sweep, failing closed | P1 | Claude | done | TASK-ZAI-108; TASK-ZAI-110 | Section 3.1 row 8; ADR-093 D1 to D4; SDD-103; SEC-034 |
 | TASK-ZAI-112 | SPR-ZAI-05 | task | Chat evidence retrieval, FR-245 — an OWNER at AAL2 retrieves one Customer's archived messages for a date range by session with a case reference, as an export carrying file and manifest hashes, audited | P1 | Claude | review | TASK-ZAI-111 | Section 3.1 row 8; ADR-093 D7; SEC-034; FR-224 |
-| TASK-ZAI-113 | SPR-ZAI-05 | task | Archive key destruction and the legal hold, SEC-034 — expiry and PDPA erasure destroy a Customer's archive data key unless an OWNER-recorded legal hold with a reason and end date is active, shown on the erasure status | P1 | Claude | planned | TASK-ZAI-112 | Section 3.1 row 8; ADR-093 D5, D6; SEC-031; SEC-034 |
+| TASK-ZAI-113 | SPR-ZAI-05 | task | Archive key destruction and the legal hold, SEC-034 — expiry and PDPA erasure destroy a Customer's archive data key unless an OWNER-recorded legal hold with a reason and end date is active, shown on the erasure status | P1 | Claude | review | TASK-ZAI-112 | Section 3.1 row 8; ADR-093 D5, D6; SEC-031; SEC-034 |
 | TASK-ZAI-114 | SPR-ZAI-06 | task | Chat evidence archive on production — the cold-archive compose overlay on F:, ZURI_ARCHIVE_KEK with its offline backup, the migrations applied under ADR-057, the sweep token and 03:00 scheduled task, and the first recorded manifest | P1 | ATHER | planned | TASK-ZAI-113 | ADR-057; ADR-093 phase 4; TASK-ZAI-091 |
 | TASK-ZAI-115 | SPR-ZAI-06 | task | Monthly offline copy of the chat evidence archive — new archive files copied to an offline external drive and verified against the manifest hashes, with the first verified copy recorded | P2 | Owen | planned | TASK-ZAI-114 | ADR-093 D8; FR-245 |
 | TASK-ZAI-116 | SPR-ZAI-02 | task | Observability decision record — ADR-095 for error tracking and per-person feature usage, and the FR/NFR declarations it governs | P1 | Claude | done |  | CR-020; ADR-095 |
@@ -889,8 +889,8 @@ title: Agent Role registry with five core roles
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -5888,24 +5888,24 @@ delivers: []
 subtasks:
   - id: P0
     title: Legal hold record with reason and end date
-    status: planned
+    status: done
   - id: P1
     title: Erasure destroys the archive key or shows the hold
-    status: planned
+    status: done
   - id: P2
     title: Expiry destroys keys and deletes fully expired files
-    status: planned
+    status: done
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a Customer with no legal hold, when a PDPA erasure runs, then their archive data key is destroyed and their archived lines can no longer be decrypted
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a Customer with an active legal hold, when a PDPA erasure runs, then every other copy is erased, the archive key survives, and the erasure status shows the hold until it ends
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given a message older than 10 years, when the expiry runs, then its Customer's key is destroyed once no unexpired line remains and a file whose lines have all expired is deleted
-      checked: false
-changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured.
+      checked: true
+changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured. Built locally on `verify/crm-archive-key-legal-hold`: the append-only OWNER legal-hold record, hold-gated PDPA erasure, 10-year archive-key/file expiry and audit/status reporting are implemented; the Postgres schema and migration `20260916160000` are included. Focused integration evidence is 12/12 tests passed; the full Server suite is 5,947 passed with 32 skipped across 718 files, and the production build compiles successfully. Governance is WARN with 0 CRITICAL and 22 inherited warnings. The migration is written but not applied to production; that operator gate belongs to TASK-ZAI-114, so this task is `review`, not production `done`.
 created_at: 2026-09-16T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5

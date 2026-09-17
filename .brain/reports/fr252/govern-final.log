@@ -1,0 +1,61 @@
+
+> zuri-monorepo@0.1.0 govern
+> npm --prefix apps/server run govern
+
+
+> zuri-ai@0.1.0 govern
+> npm run docs:graph && npm run docs:check && npm run docs:preflight
+
+
+> zuri-ai@0.1.0 docs:graph
+> node scripts/doc-graph.mjs
+
+nodes 3392 · edges 14175 · dangling 5
+FR with code 100% (238/238) · FR with tests 100% (238/238) · rules anchored 97% (171/177)
+data pipeline map 79 nodes · 110 edges · 22 chains
+domain state 14 domains · overall partial · gaps 28
+drift since last regeneration: 2 changed · 0 added · 0 removed — see docs/.doc-graph-drift-report.json
+rules with no code anchor: BR-017, SDD-040, SDD-041, SDD-046, SDD-077, SDD-090
+dangling edges:
+  test:tests/unit/program-task-evidence.test.js → req:FR-500 (unknown node req:FR-500)
+  test:tests/unit/program-task-evidence.test.js → req:FR-501 (unknown node req:FR-501)
+  test:tests/unit/program-task-evidence.test.js → req:FR-502 (unknown node req:FR-502)
+  test:tests/unit/program-task-evidence.test.js → req:FR-503 (unknown node req:FR-503)
+  test:tests/unit/program-task-evidence.test.js → req:FR-999 (unknown node req:FR-999)
+changed nodes: 2
+
+> zuri-ai@0.1.0 docs:check
+> node scripts/doc-graph.mjs --check
+
+doc-graph is up to date
+
+> zuri-ai@0.1.0 docs:preflight
+> node scripts/doc-preflight.mjs --strict
+
+docs 439 · routes 295 · test files 781
+critical 0 · warning 1 · info 24 → WARN
+  [INFO] doc-control: Missing control fields: Version, Status — ARCHITECTURE-TARGET-MODULAR-MONOLITH.md
+  [INFO] doc-control: Missing control fields: Version, Status — DOCUMENT-LINKS.md
+  [INFO] doc-control: Missing control fields: Version — DOMAIN-MAP.md
+  [INFO] doc-control: Missing control fields: Version, Status — DOMAIN-MODEL.md
+  [INFO] doc-control: Missing control fields: Version, Status — CHARTER.md
+  [INFO] doc-control: Missing control fields: Version, Status — CHARTER.md
+  [INFO] doc-control: Missing control fields: Version — CONTEXT-MAP.md
+  [INFO] doc-control: Missing control fields: Version, Status — CHARTER.md
+  [INFO] doc-control: Missing control fields: Version, Status — CHARTER.md
+  [INFO] doc-control: Missing control fields: Version, Status — EXECUTION-MODES.md
+  [INFO] doc-control: Missing control fields: Version, Status — EXTRACT-MSP.codex.md
+  [INFO] doc-control: Missing control fields: Version — TRACE.md
+  [WARNING] doc-code-symlink: Annotations pointing at unknown nodes — 5 dangling edge(s)
+  [INFO] enum-copy: 1 baseline entr(ies) no longer copy an enum — src/app/(pm)/audit/page.jsx::WORKSPACE_SCOPE_TYPES
+  [INFO] client-mutation: 7 file(s) still swallow a failed mutation (accepted debt) — src/app/(pm)/projects/[projectId]/page.jsx:51 · src/app/(pm)/projects/[projectId]/repositories/page.jsx:107 · src/app/(pm)/projects/[projectId]/team/page.jsx:111 · src/app/(pm)/projects/page.jsx:344 · src/app/(pm)/workspaces/page.jsx:141 · src/modules/project-manager/components/ManagedFilesPanel.jsx:308 · src/modules/project-manager/views/universal/DependenciesView.jsx:133
+  [INFO] id-stability: 691 id(s) pinned across 10 families — ADR 97 · BR 42 · FEAT 42 · FR 252 · MI-RQ 72 · NFR 23 · RSK 16 · SDD 103 · SEC 34 · ZV2-CR 10 · roster 691
+  [INFO] roadmap-evidence: 1 roadmap reference(s) name a document that no longer exists (accepted debt) — baseline: docs/.roadmap-evidence-baseline.json
+  [INFO] roadmap-coverage: 1 baseline requirement(s) now have a roadmap row — FR-052
+  [INFO] roadmap-coverage: 22 delivered requirement(s) carry no roadmap row (accepted debt) — baseline: docs/.roadmap-coverage-baseline.json
+  [INFO] table-integrity: table integrity checked in 439 document(s) — swept whole: docs (minus docs/archive and docs/v1-inherited, as every live-tree check is) · registries named by the ledger and always read whichever way the sweep goes: docs/PRD-SDD-v1.0.md, docs/FEATURES.md, docs/appendices/E-risk-matrix.md, docs/domains/market-intelligence/SRS.md
+  [INFO] table-integrity: 3 document(s) contain rows shorter than their table's header — docs/PRD-SDD-v1.0.md:20, docs/SITEMAP-DOMAIN-NAV.md:4, docs/plans/LINE-TO-GKS-GROUNDING-AND-CANDIDATE-PIPELINE-DESIGN.md:4 — GFM pads a short row with empty cells, so each renders exactly as written; counted, not reported per row
+  [INFO] audit-entity-type: audit entityType checked in 111 file(s) that write audit events — every value is SCREAMING_SNAKE_CASE
+  [INFO] schema-migration-drift: schema-migration drift checked: 2391 column(s) across 170 model(s) against 95 migration(s) — every declared column outside the baseline is created by a migration
+  [INFO] edge-id-ambiguity: 45 @req annotation(s) in apps/edge name an id both registries declare, so they bind to neither — 37 distinct id(s): SEC-005×3, BR-010×3, FR-008×2, SDD-007×2, BR-008×2, BR-009×2, SDD-010×1, SDD-006×1
+  [INFO] unreachable-state: 5 declared state(s) are unreachable (accepted debt) — baseline: docs/.unreachable-state-baseline.json
