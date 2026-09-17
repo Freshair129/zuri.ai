@@ -33,8 +33,10 @@ The exact-live CRM backup implementation also allows old snapshots omitting Cust
 - Exact application candidate e2d9665f: Docker image build PASS; loopback canary PASS with final live environment/mount parity. Subsequent changes are pricing test-fixture isolation and release/RCA documentation only.
 - Browser first composed run: 200 passed / four skipped / one failure (shared signup quota). The fixture isolation correction passed both pricing tests and the formerly failing Marketing reviewer path; existing signup tests passed 23/23.
 - Browser corrected full run: 200 passed / four skipped / one flaky Marketing Save revision test; exit 1. Focused diagnostic 5/5 passed without retries, but root cause remains UNKNOWN and the browser gate is NOT_PASSED. See [RCA](../rca/2026-09-17-marketing-revision-release-flake.md).
-- Hosted CI NOT_RUN. Automatic approval review rejected push to the public Freshair129/zuri.ai repository; explicit user approval to publish the candidate remains pending. No branch push or PR was performed.
+- Public publication was explicitly approved and completed: draft PR448, head b5d0da756c55d60b5065c898cd3747ec499f46a1. Exact b5d0da75 Docker build and loopback canary passed; live services remain on release-11675e59.
+- Hosted CI run 35185810853: build, governance and Edge passed; tests failed (6,147 passed / one failed / 32 skipped), so required verify failed. Hosted browser and desktop jobs were skipped by policy. The single unit failure is a confirmed date-dependent usage-rollup fixture, reproduced locally (nine passed / one failed); see [proposed RCA and correction](../rca/2026-09-17-usage-rollup-test-clock.md). No test or production correction has been made yet.
 - Production migration: DRY_RUN_PASSED / NOT_APPLIED.
+- Subsequent owner-approved clock-fixture correction: all ten usage-events tests pass locally on September 17; unchanged assertions and no production source change. New-commit hosted validation is pending.
 - Production deployment: NOT_DEPLOYED.
 
 Version diff: register pricing FR-253/ADR-098, PRD 1.236.0b → 1.237.0b; retain the published PM subjects and the exact live CRM baseline.

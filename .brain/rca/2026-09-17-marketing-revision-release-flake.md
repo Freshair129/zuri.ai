@@ -17,6 +17,7 @@ The composed pricing release browser rerun finished with 200 passed, four skippe
 - A separate diagnostic used the unchanged Marketing test five times, real isolated SQLite/server, trace on every attempt, zero retries, and no warm-up dependency. All five passed (43.4 seconds). This diagnostic is not a replacement for a clean full-suite result.
 - The test, PlanForm and StrategyWorkspace are unchanged from origin/main in the pricing branch.
 - Source review confirms the response waiter is registered before clicking, and PATCH requests are not coalesced. It does not establish a failed-attempt cause.
+- A later passive first-attempt diagnostic did not reach test execution. Its first startup failed with memory allocation errors; after host memory recovered, a bounded retry reached isolated database seeding but produced no test result. By final inspection its diagnostic processes and port 3176 listener were absent. Preserve those startup logs as inconclusive evidence, not an additional pass or a product RCA. Temporary executable observer files were removed; evidence copies remain outside the pricing repository.
 
 ## Root Cause
 UNKNOWN. Available evidence cannot distinguish validation, a lost submit, a remount, a canceled request or a missing response. No production or Marketing code is changed on speculation.
@@ -28,6 +29,6 @@ The failure did not reproduce in the focused five-run diagnostic. The normal sui
 Capture first-attempt request, console, form-validity and remount evidence when reproducing under the full-suite conditions. Keep the existing timeout, assertions and fail-on-flaky gate. Do not count repeated successful focused runs as resolution, disable the limiter or quarantine this test implicitly. A product fix requires a supported RCA and its applicable reviewed scope.
 
 ## Release disposition
-Browser gate remains NOT_PASSED. Production migration and image promotion are not performed. Remote publication separately awaits the explicit public-repository approval requested after automatic approval review rejected the push.
+Browser gate remains NOT_PASSED. Production migration and image promotion are not performed. The owner subsequently approved public publication; branch b5d0da75 is published in draft PR448. This does not waive the browser gate.
 
 The browser run had completed every case but its Windows dev-server teardown remained alive. Only that identified test-server process tree was stopped to allow the runner to write the final JSON/result. This was not a production process. A diagnostic command whose spaced grep was split by the Windows shell was stopped and excluded from acceptance evidence; the five-run result uses an unambiguous no-space regex.
