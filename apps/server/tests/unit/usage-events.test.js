@@ -8,7 +8,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { recordUsageEvent, rollupUsageEvents, listUsageBreakdown } from '@/modules/platform-control/application/usage-events'
 
-function fakeDb() {
+function fakeDb({ auditNow = () => new Date() } = {}) {
   const events = []
   const rollups = []
   const audits = []
@@ -86,7 +86,7 @@ function fakeDb() {
     auditEvent: {
       create: vi.fn(async ({ data }) => {
         if (controls.failAt === 'audit') throw new Error('injected audit failure')
-        const row = { id: `audit-${++seq}`, occurredAt: new Date(), ...data }
+        const row = { id: `audit-${++seq}`, occurredAt: auditNow(), ...data }
         audits.push(row)
         return row
       }),
@@ -173,8 +173,8 @@ describe('NFR-023 rollupUsageEvents', () => {
   })
 
   it('claims a UTC day inside the transaction and returns the same receipt on replay', async () => {
-    const { db, audits } = fakeDb()
     const now = new Date('2026-09-16T12:00:00.000Z')
+    const { db, audits } = fakeDb({ auditNow: () => now })
     const first = await rollupUsageEvents(db, { now, oncePerDay: true })
     const replay = await rollupUsageEvents(db, { now: new Date('2026-09-16T23:59:59.000Z'), oncePerDay: true })
     expect(first.alreadyRanToday).toBe(false)
