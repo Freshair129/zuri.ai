@@ -1,8 +1,8 @@
 ---
 domain: knowledge
-version: "1.7.1"
+version: "1.8.0b"
 status: beta
-last_update: "2026-09-15T00:30:00+07:00,Claude Sonnet 5"
+last_update: "2026-09-17T22:40:00+07:00,RWANG"
 module: src/modules/knowledge
 owns_routes:
   - src/app/(pm)/knowledge/**
@@ -12,6 +12,8 @@ owns_models:
   - KnowledgeIngestion
   - KnowledgeCorpusGeneration
   - KnowledgeRawArtifact
+  - KnowledgeArtifactStorage
+  - KnowledgeArtifactOperation
   - KnowledgeParsedArtifact
   - KnowledgeChunk
   - GenesisRag17IngestionIntent

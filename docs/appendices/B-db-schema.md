@@ -1,12 +1,12 @@
 # Appendix B — Database Schema Summary
 
-Version diff 1.53.0b → 1.54.0b: retain the already-deployed CustomerLegalHold model and add the two FR-253 Commerce pricing models. The composed schema has 171 models; pricing migration has passed a production transaction dry-run and rollback, but is not yet applied.
+Version diff 1.54.0b → 1.55.0b: add the TASK-ZAI-049 KnowledgeArtifactStorage and KnowledgeArtifactOperation models and their additive local/Postgres migrations. The composed schema has 173 models; object-storage cutover, backup restore and production application remain pending.
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.54.0b |
+| **Version** | 1.55.0b |
 | **Status** | Draft |
-| **Last Updated** | 2026-09-16 |
+| **Last Updated** | 2026-09-17 |
 
 Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
 Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)
@@ -456,6 +456,8 @@ Version diff 1.27.0b → 1.28.0b: append-only document versions and exact attemp
 | Model | Identity / retained evidence | Restore order |
 |---|---|---|
 | KnowledgeRawArtifact | Source/version/hash, exact content, existing RawExternalRecord reference and scope | After RawExternalRecord |
+| KnowledgeArtifactStorage | Scoped raw object key/version, SHA-256, byte length, policy and retention state | After KnowledgeRawArtifact |
+| KnowledgeArtifactOperation | Idempotent storage/recovery/erasure operation journal with outcome evidence | After KnowledgeArtifactStorage |
 | KnowledgeParsedArtifact | Immutable parser version and parsed structure referencing raw | After KnowledgeRawArtifact |
 | KnowledgeChunk | Exact substring, offsets, hash and ordinal referencing parsed version | After KnowledgeParsedArtifact |
 | GenesisRag17IngestionIntent | Immutable scoped request/derivation identity with mutable local-stage progress; durable before Stage1 | After PipelineRun and source parents |

@@ -2638,10 +2638,73 @@ model KnowledgeRawArtifact {
 
   rawExternalRecord RawExternalRecord         @relation(fields: [rawExternalRecordId], references: [id])
   parsedArtifacts   KnowledgeParsedArtifact[]
+  storageArtifact   KnowledgeArtifactStorage?
 
   @@unique([portfolioId, tenantId, businessId, workspaceId, agentId, visibility, sourceId, version, contentHash, pipelineVersion])
   @@index([tenantId, documentId, version])
   @@index([tenantId, contentHash])
+}
+
+// @req FR-109, FR-173 — exact raw bytes have an immutable, scoped object-store
+// reference and an auditable lifecycle separate from the lineage payload.
+// @spec TASK-ZAI-049 storage spec, ADR-072
+// @tested tests/unit/knowledge-artifact-storage-schema.test.js
+model KnowledgeArtifactStorage {
+  id              String   @id @default(uuid())
+  rawArtifactId   String   @unique
+  portfolioId     String
+  tenantId        String
+  businessId      String
+  workspaceId     String
+  agentId         String
+  visibility      String
+  bindingId       String
+  bindingRevision Int
+  bucket          String
+  objectKey       String
+  objectVersionId String?
+  sha256          String
+  byteLength      Int
+  contentType     String
+  policyJson      String
+  retentionUntil  DateTime?
+  status          String   @default("PENDING")
+  version         Int      @default(1)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  rawArtifact KnowledgeRawArtifact       @relation(fields: [rawArtifactId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  operations  KnowledgeArtifactOperation[]
+
+  @@index([tenantId, businessId, status])
+  @@index([retentionUntil, status])
+}
+
+model KnowledgeArtifactOperation {
+  id             String   @id @default(uuid())
+  storageId      String
+  portfolioId    String
+  tenantId       String
+  businessId     String
+  workspaceId    String
+  agentId        String
+  visibility     String
+  idempotencyKey String   @unique
+  operation      String
+  status         String
+  attempts       Int      @default(0)
+  actorId        String?
+  reason         String?
+  evidenceHash   String?
+  errorCode      String?
+  version        Int      @default(1)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  storage KnowledgeArtifactStorage @relation(fields: [storageId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([storageId, createdAt])
+  @@index([tenantId, businessId, operation, status])
 }
 
 // @req FR-109 — parsed artifacts retain their immutable link to the raw
