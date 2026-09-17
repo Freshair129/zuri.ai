@@ -3,6 +3,7 @@
 // @spec TASK-ZAI-049 storage spec
 // @tested src/modules/knowledge/knowledge-artifact-storage-service.js
 import { describe, expect, it, vi } from 'vitest'
+import { createHash } from 'node:crypto'
 import { eraseKnowledgeRawArtifact, readKnowledgeRawArtifact, storeKnowledgeRawArtifact } from '@/modules/knowledge/knowledge-artifact-storage-service'
 
 const scope = { portfolioId: 'portfolio-1', tenantId: 'tenant-1', businessId: 'business-1', workspaceId: 'workspace-1', agentId: 'agent-1', visibility: 'PRIVATE' }
@@ -20,7 +21,7 @@ function fakeDb() {
     },
     knowledgeArtifactOperation: {
       findUnique: vi.fn(async ({ where }) => operations.get(where.idempotencyKey) || null),
-      create: vi.fn(async ({ data }) => { const row = { id: `op-${operations.size + 1}`, ...data }; operations.set(row.idempotencyKey, row); return row }),
+      create: vi.fn(async ({ data }) => { const row = { id: `op-${operations.size + 1}`, attempts: 0, ...data }; operations.set(row.idempotencyKey, row); return row }),
       update: vi.fn(async ({ where, data }) => { const row = [...operations.values()].find((item) => item.id === where.id); Object.assign(row, data, { attempts: data.attempts?.increment ? row.attempts + data.attempts.increment : row.attempts }); return row }),
     },
   }
@@ -60,5 +61,37 @@ describe('TASK-ZAI-049 artifact storage service', () => {
     const storage = { putImmutable: vi.fn(async ({ key, expectedSha256, content }) => ({ key, versionId: 'version-1', sha256: expectedSha256, byteLength: content.length })), readExact: vi.fn(async ({ versionId }) => ({ bytes: Buffer.from('different'), versionId, sha256: 'b'.repeat(64), byteLength: 9 })) }
     await expect(storeKnowledgeRawArtifact({ db, storage, scope, rawArtifactId: 'raw-3', content: Buffer.from('raw'), bindingId: 'minio-local', bindingRevision: 1, bucket: 'knowledge-raw', policy: {} })).rejects.toMatchObject({ code: 'KNOWLEDGE_STORAGE_READBACK_MISMATCH' })
     expect([...db.storages.values()][0].status).toBe('QUARANTINED')
+  })
+
+  it('retries the same immutable content idempotently without overwriting a READY version', async () => {
+    const db = fakeDb()
+    const bytes = Buffer.from('same bytes')
+    const storage = {
+      putImmutable: vi.fn(async ({ key, expectedSha256, content }) => ({ key, versionId: 'version-stable', sha256: expectedSha256, byteLength: content.length })),
+      readExact: vi.fn(async ({ versionId }) => ({ bytes, versionId, sha256: createHash('sha256').update(bytes).digest('hex'), byteLength: bytes.length })),
+    }
+    const first = await storeKnowledgeRawArtifact({ db, storage, scope, rawArtifactId: 'raw-idempotent', content: bytes, bindingId: 'minio-local', bindingRevision: 1, bucket: 'knowledge-raw', policy: {} })
+    const second = await storeKnowledgeRawArtifact({ db, storage, scope, rawArtifactId: 'raw-idempotent', content: bytes, bindingId: 'minio-local', bindingRevision: 1, bucket: 'knowledge-raw', policy: {} })
+    expect(second).toMatchObject({ id: first.id, status: 'READY', objectVersionId: 'version-stable' })
+    expect(storage.putImmutable).toHaveBeenCalledTimes(1)
+    expect(db.operations.size).toBe(1)
+  })
+
+  it('leaves a pending reference and failed operation for a retry after readback outage', async () => {
+    const db = fakeDb()
+    const bytes = Buffer.from('retry me')
+    const storage = {
+      putImmutable: vi.fn(async ({ key, expectedSha256, content }) => ({ key, versionId: 'version-retry', sha256: expectedSha256, byteLength: content.length })),
+      readExact: vi.fn()
+        .mockRejectedValueOnce(Object.assign(new Error('storage timeout'), { code: 'KNOWLEDGE_STORAGE_TIMEOUT' }))
+        .mockImplementation(async ({ versionId }) => ({ bytes, versionId, sha256: createHash('sha256').update(bytes).digest('hex'), byteLength: bytes.length })),
+    }
+    await expect(storeKnowledgeRawArtifact({ db, storage, scope, rawArtifactId: 'raw-retry', content: bytes, bindingId: 'minio-local', bindingRevision: 1, bucket: 'knowledge-raw', policy: {} })).rejects.toMatchObject({ code: 'KNOWLEDGE_STORAGE_TIMEOUT' })
+    expect([...db.storages.values()][0]).toMatchObject({ status: 'PENDING' })
+    expect([...db.storages.values()][0].objectVersionId ?? null).toBeNull()
+    expect([...db.operations.values()][0]).toMatchObject({ status: 'FAILED', attempts: 1, errorCode: 'KNOWLEDGE_STORAGE_TIMEOUT' })
+
+    await expect(storeKnowledgeRawArtifact({ db, storage, scope, rawArtifactId: 'raw-retry', content: bytes, bindingId: 'minio-local', bindingRevision: 1, bucket: 'knowledge-raw', policy: {} })).resolves.toMatchObject({ status: 'READY', objectVersionId: 'version-retry' })
+    expect([...db.operations.values()][0]).toMatchObject({ status: 'READY', attempts: 2 })
   })
 })
