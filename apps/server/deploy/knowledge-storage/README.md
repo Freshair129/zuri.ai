@@ -38,8 +38,11 @@ production approval or a license receipt.
 The overlay has no default image or host path. Do not start it until the target
 manifest is `READY`, the provider capability/licence probe is recorded, and the
 primary volume has a capacity and recovery receipt. `docker compose config` is the
-first read-only check on the deployment host. Docker is installed on this machine,
-but no AIStor/MinIO image or container exists in either local Docker context yet.
+first read-only check on the deployment host. Docker is installed on this machine
+and the candidate AIStor image is pulled, but no AIStor/MinIO container exists in
+either local Docker context and no license file was found in the standard local
+secret paths. Keep the target `PENDING` until an operator supplies the license
+outside the checkout.
 
 ## Backup target
 
