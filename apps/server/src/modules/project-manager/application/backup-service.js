@@ -794,6 +794,41 @@ function knowledgeArtifactStorageRecoveryManifest(snapshot) {
   const errors = []
   if (manifest?.schemaVersion !== KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_MANIFEST_VERSION || JSON.stringify(manifest?.requiredTables) !== JSON.stringify(KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_TABLES)) errors.push('Invalid knowledge artifact storage recovery manifest')
   for (const table of KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_TABLES) if (!Array.isArray(snapshot?.tables?.[table])) errors.push(`Knowledge artifact storage recovery snapshot is missing required table: ${table}`)
+  const storageRows = Array.isArray(snapshot?.tables?.knowledgeArtifactStorage) ? snapshot.tables.knowledgeArtifactStorage : []
+  const operationRows = Array.isArray(snapshot?.tables?.knowledgeArtifactOperation) ? snapshot.tables.knowledgeArtifactOperation : []
+  const rawRows = snapshot?.tables?.knowledgeRawArtifact
+  const rawById = new Map(Array.isArray(rawRows) ? rawRows.filter((row) => isSnapshotObject(row) && typeof row.id === 'string').map((row) => [row.id, row]) : [])
+  const storageById = new Map()
+  const scopeKeys = ['portfolioId', 'tenantId', 'businessId', 'workspaceId', 'agentId', 'visibility']
+  if (storageRows.length > 0 && !Array.isArray(rawRows)) errors.push('Knowledge artifact storage recovery requires knowledgeRawArtifact rows when storage references exist')
+  for (const row of storageRows) {
+    const label = row?.id || '<unknown>'
+    if (!isSnapshotObject(row) || typeof row.id !== 'string' || !row.id.trim()) {
+      errors.push(`Knowledge artifact storage row ${label} has an invalid identity`)
+      continue
+    }
+    if (storageById.has(row.id)) errors.push(`Knowledge artifact storage rows reuse id ${row.id}`)
+    storageById.set(row.id, row)
+    const raw = rawById.get(row.rawArtifactId)
+    if (!raw) errors.push(`Knowledge artifact storage ${row.id} references missing KnowledgeRawArtifact ${row.rawArtifactId}`)
+    else for (const key of scopeKeys) if (row[key] !== raw[key]) errors.push(`Knowledge artifact storage ${row.id} crosses scope at ${key}`)
+    if (typeof row.sha256 !== 'string' || !/^[a-f0-9]{64}$/i.test(row.sha256)) errors.push(`Knowledge artifact storage ${row.id} has an invalid sha256`)
+    if (row.status === 'READY' && (typeof row.objectVersionId !== 'string' || !row.objectVersionId.trim())) errors.push(`Knowledge artifact storage ${row.id} is READY without an object version`)
+  }
+  const operationKeys = new Set()
+  for (const row of operationRows) {
+    const label = row?.id || '<unknown>'
+    if (!isSnapshotObject(row) || typeof row.id !== 'string' || !row.id.trim()) {
+      errors.push(`Knowledge artifact operation row ${label} has an invalid identity`)
+      continue
+    }
+    const storage = storageById.get(row.storageId)
+    if (!storage) errors.push(`Knowledge artifact operation ${row.id} references missing KnowledgeArtifactStorage ${row.storageId}`)
+    else for (const key of scopeKeys) if (row[key] !== storage[key]) errors.push(`Knowledge artifact operation ${row.id} crosses scope at ${key}`)
+    if (typeof row.idempotencyKey !== 'string' || !row.idempotencyKey.trim()) errors.push(`Knowledge artifact operation ${row.id} has an invalid idempotency key`)
+    else if (operationKeys.has(row.idempotencyKey)) errors.push(`Knowledge artifact operations reuse idempotency key ${row.idempotencyKey}`)
+    else operationKeys.add(row.idempotencyKey)
+  }
   return { errors, warnings: [], recovery: { status: errors.length ? 'INVALID' : 'AVAILABLE', manifestVersion: manifest?.schemaVersion || null } }
 }
 
