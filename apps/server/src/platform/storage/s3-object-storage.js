@@ -94,6 +94,14 @@ function responseVersion(response) {
   return response.headers.get('x-amz-version-id') || response.headers.get('x-minio-version-id') || null
 }
 
+function exactResponseVersion(response, requestedVersion) {
+  const returnedVersion = responseVersion(response)
+  if (returnedVersion && returnedVersion !== requestedVersion) {
+    throw storageError('Object storage returned a different object version', 409, 'KNOWLEDGE_STORAGE_VERSION_MISMATCH')
+  }
+  return returnedVersion || requestedVersion
+}
+
 async function providerRequest(fetchFn, url, init, expectedStatuses) {
   let response
   try { response = await fetchFn(url, init) } catch (error) {
@@ -164,14 +172,14 @@ export function createS3ObjectStoragePort({
       const version = required(versionId, 'Object storage version')
       const response = await request('GET', key, { query: [['versionId', version]], statuses: [200] })
       const bytes = Buffer.from(await response.arrayBuffer())
-      return { bytes, versionId: version, contentType: response.headers.get('content-type') || 'application/octet-stream', sha256: sha256(bytes), byteLength: bytes.length }
+      return { bytes, versionId: exactResponseVersion(response, version), contentType: response.headers.get('content-type') || 'application/octet-stream', sha256: sha256(bytes), byteLength: bytes.length }
     },
 
     async statExact({ key, versionId } = {}) {
       const version = required(versionId, 'Object storage version')
       const response = await request('HEAD', key, { query: [['versionId', version]], statuses: [200] })
       const contentLength = Number(response.headers.get('content-length'))
-      return { versionId: responseVersion(response) || version, contentType: response.headers.get('content-type') || 'application/octet-stream', byteLength: Number.isSafeInteger(contentLength) ? contentLength : null, sha256: response.headers.get('x-amz-meta-sha256') || null }
+      return { versionId: exactResponseVersion(response, version), contentType: response.headers.get('content-type') || 'application/octet-stream', byteLength: Number.isSafeInteger(contentLength) ? contentLength : null, sha256: response.headers.get('x-amz-meta-sha256') || null }
     },
 
     async eraseExactVersions({ key, versionIds } = {}) {
