@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Zuri Project Manager Phase B Feature API",
-    "version": "0.3.3b",
-    "description": "Candidate machine contract for the Project Manager Phase B Feature authority. Phase B routes and schemas remain documentation input until B1 owner approval and B2 registration; no route, schema migration, code generation or runtime operation is claimed."
+    "version": "0.3.4b",
+    "description": "Owner-approved machine contract for the Project Manager Phase B Feature authority after B1/B2. Runtime delivery is tracked per FR-252 slice. Version 0.3.4b explicitly documents malformed bounded-query refusal on the snapshot metadata GET; it adds no operation or authority. This file does not claim deployment."
   },
   "servers": [
     {
@@ -670,6 +670,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/MalformedRequest"
           },
           "401": {
             "$ref": "#/components/responses/AuthRequired"

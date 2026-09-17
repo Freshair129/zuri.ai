@@ -2,9 +2,9 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.52.0b |
+| **Version** | 1.54.0b |
 | **Status** | Draft |
-| **Last Updated** | 2026-09-16 |
+| **Last Updated** | 2026-09-17 |
 
 Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
 Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)
@@ -68,6 +68,12 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | Gate | projectId, workstreamId?, required, evidenceJson, status | cap progress (BR-006) |
 | Dependency | (sourceType,sourceId,targetType,targetId,dependencyType) unique | cycle-checked ที่ service |
 | Repository / ProjectRepository | provider, externalRepoId?, fullName; (projectId,repoId,role) unique | local metadata, m2m |
+| GovernanceSnapshot | tenantId, businessId, repositoryId, projectRepositoryId, checkoutBindingId, commitSha, manifestHash, verificationProof, validationStatus, sourceManifest | FR-252 / ADR-097 — immutable server-verified evidence; unique (businessId, repositoryId, commitSha, manifestHash), VALID only. JSON object fields are serialized strings in Prisma/SQLite. |
+| ProjectFeature | tenantId, businessId, projectId, code, title, problem, outcome, primaryDomainId, canonicalFeatureKey?, governanceSnapshotId?, lifecycle, version, deletedAt?, deleteBatchId? | FR-252 — unique (projectId, code) includes tombstones. Canonical key/snapshot and deletion/batch are paired. Optional pin must belong to the same Project. |
+| FeatureContribution | tenantId, businessId, featureId, domainId, responsibility, version, deletedAt?, deleteBatchId? | FR-252 — unique (featureId, domainId) preserves identity when revived; grants no Domain access. |
+| FeatureWorkLink | tenantId, businessId, featureId, workItemId, allocationBps?, version, deletedAt?, deleteBatchId? | FR-252 — unique (featureId, workItemId); WorkItem must resolve to the same Project. Nullable allocation is 0–10000; cross-Feature totals are checked by the transaction service. |
+| RequirementBinding | tenantId, businessId, featureId, governanceSnapshotId, sourceNamespace, requirementKey, revisionHash, acceptanceRef, version, deletedAt?, deleteBatchId? | FR-252 — unique (featureId, governanceSnapshotId, sourceNamespace, requirementKey); exact verified source revision, never a client-invented requirement subject. |
+| ProjectFeatureMutationReceipt | tenantId, businessId, projectId, featureId?, targetId, targetType, httpMethod, principalId, operation, idempotencyKey, payloadHash, resourceId, resourceType, version?, etag, auditEventId, status | FR-252 — immutable COMMITTED receipt; unique (tenantId, businessId, principalId, operation, targetId, idempotencyKey). Nine exact operation/method/target/resource tuples; resourceId is polymorphic and verified by policy/service. |
 | Team | code unique, businessId, deletedAt? | FR-089 — organisational grouping, Business-scoped (ADR-037 D2). Grants nothing: the identity module never reads it (BR-018) |
 | TeamMembership | (teamId,personId) unique | Person ↔ Team, deliberately separate from `Membership` — that one is the authority record, and merging the two is what let an unauthenticated POST mint owner authority on 2026-08-17. No `role` column, on purpose |
 | ProjectTeam | (projectId,teamId) unique | m2m: a Project is worked by several Teams and a Team works several Projects (ADR-037 D3) |
@@ -242,6 +248,72 @@ The profile keeps Business tax/PromptPay policy while LegalEntity/Branch remain
 the issuer identity authority; issued documents retain request hashes and
 restrict parent deletion. Backup export/restore validates the billing manifest
 and continues numbering. The Supabase SQL is written and **not applied**.
+
+## Phase B Feature authority (FR-252 / ADR-097)
+
+The additive six-table schema has SQLite and PostgreSQL migration twins named
+`20260917041000_add_phase_b_feature_authority`. Local schema validation, three
+SQLite/schema tests and 140 isolated PostgreSQL role/collision checks pass,
+with independent provider review PASS. Neither migration has been applied to production.
+The exact parent predicates and grants are in
+[policy25](../architecture/project-manager-system/25-PHASE-B-PERSISTENCE-SECURITY-POLICY.md).
+
+```mermaid
+erDiagram
+  Project ||--o{ ProjectFeature : owns
+  Project ||--o{ ProjectRepository : binds
+  Repository ||--o{ ProjectRepository : supplies
+  ProjectRepository ||--o{ GovernanceSnapshot : verifies
+  Repository ||--o{ GovernanceSnapshot : source
+  GovernanceSnapshot o|--o{ ProjectFeature : optional_pin
+  ProjectFeature ||--o{ FeatureContribution : responsibility
+  ProjectFeature ||--o{ FeatureWorkLink : links
+  WorkItem ||--o{ FeatureWorkLink : allocated_work
+  ProjectFeature ||--o{ RequirementBinding : requires
+  GovernanceSnapshot ||--o{ RequirementBinding : proves_revision
+  Project ||--o{ ProjectFeatureMutationReceipt : scopes
+  ProjectFeature o|--o{ ProjectFeatureMutationReceipt : optional_feature
+  AuditEvent ||--o{ ProjectFeatureMutationReceipt : committed_evidence
+```
+
+All six records also reference Tenant and Business. Those scalar references
+alone do not establish scope: PostgreSQL RLS checks complete parent chains;
+the application must resolve the hierarchy before binding transaction-local
+scope. Mutable records have both USING and WITH CHECK predicates. Ordinary
+runtime can only SELECT/INSERT GovernanceSnapshot and mutation receipts.
+
+There is no synthetic Feature seed, graph-state table or author-to-subject
+mapping. Snapshot JSON is serialized as text at the SQLite/Prisma boundary;
+the verifier and repository validate typed objects. Work allocation totals,
+the 200-nondeleted-Feature limit, CAS/idempotency and audit atomicity remain service
+responsibilities, not claims made by a single-column database CHECK.
+
+Protected backup coverage and reviewed PM erasure are W2 work in progress. The
+[recovery/erasure decision](../architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md)
+was approved on 2026-09-17; schema authoring alone does not close the snapshot-coverage
+gate or authorize a destructive importer. The six records must not be excluded
+from recovery merely to silence that gate.
+
+Version diff 1.52.0b → 1.53.0b: document the six locally authored Feature
+records, ERD and policy boundaries; protected recovery and production remain pending.
+
+### CRM legal-hold peer compatibility
+
+`CustomerLegalHold { id, tenantId→Tenant, customerId→Customer, reason, endDate,
+recordedByPersonId→Person, createdAt }` preserves the peer CRM behavior selected
+by recovery decision26. Tenant and Customer deletion cascade; deleting the
+recording Person is restricted. Indexes cover Tenant and `(customerId,endDate)`.
+The service appends hold evidence; its inherited PostgreSQL grant/policy is a
+separate peer security contract, not evidence for Phase B's six-table RLS gate.
+
+The SQLite migration twin is now composed with the peer Supabase migration
+`20260916160000_crm_customer_legal_hold`. Recovery includes the hold after its
+Customer and Person parents. The complete Phase B target inventory has 175
+application models, including snapshot exclusions; see the frozen
+[inventory](../architecture/project-manager-system/contracts/phase-b/target-schema.inventory.json).
+
+Version diff 1.53.0b → 1.54.0b: retain CRM hold schema/backup behavior, add its
+SQLite migration twin and bind the composed 175-model recovery inventory.
 
 ## Product Owner RBAC role (FR-076 / ADR-033)
 

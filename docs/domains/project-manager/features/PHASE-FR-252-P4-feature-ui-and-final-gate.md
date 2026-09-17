@@ -5,10 +5,10 @@ parent_requirement: FR-252
 phase_id: FR-252-P4
 phase_order: 4
 domain: project-manager
-version: "0.1.0b"
+version: "0.2.0b"
 status: beta
 created_at: "2026-09-17T02:46:11+07:00,RWANG,approved e5ccfd7a"
-last_update: "2026-09-17T02:46:11+07:00,RWANG"
+last_update: "2026-09-17T14:40:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:FR-252
@@ -36,10 +36,15 @@ One Features entry under Project Delivery Design, accessible list/detail drawer,
 
 Prove loading/empty/error/stale Project transitions, redacted refusal, optimistic conflict handling, successful receipt then re-read, keyboard/focus/Back behavior and 390px layout. Existing Inventory/Team/Import/navigation/progress regressions remain gates. Report local, hosted CI and production separately; actual RLS/grant/isolation evidence and separately authorized release are required before production writes.
 
-Current state: PLANNED_NOT_RUN. This registered slice does not claim implementation.
+Current state: W3_READY_AFTER_P1_LOCAL_PASS. Root has accepted P1/W2's local
+gates. Dispatch only the Feature list/detail shell and narrow dd.features
+navigation activation alongside the W3 read worker. Reuse the frozen direct
+DTOs; forms and mutation controls wait for W4. This entry records no W3 UI or
+browser result.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.2.0b | 2026-09-17 | beta | Record passed P1 entry and disjoint W3 UI handoff; preserve W4 prerequisite for forms | bd99651f | RWANG |
 | 0.1.0b | 2026-09-17 | beta | Register slice of the approved Phase B design; no new behavior | e5ccfd7a | RWANG |

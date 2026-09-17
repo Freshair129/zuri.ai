@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.82.0b |
+| **Version** | 1.84.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-17 |
 
@@ -23,7 +23,36 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=289 -->
+<!-- api-spec-counts: route_handlers=291 -->
+
+### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
+
+POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM
+peer release while Phase B is composed. Body: `{ businessId, reason, endDate }`,
+with a future calendar date `YYYY-MM-DD`. The caller needs CRM visibility and
+Business ownership; Customer scope is bounded by that Business's Tenant.
+Success returns `{ customerId, legalHoldId, reason, endDate, recordedAt }` and
+records `LEGAL_HOLD_RECORDED`. Identity erasure retains the archive key while
+an active hold exists and reports that pending state independently of PM text
+erasure. This is source compatibility, not a new production verification claim.
+
+Version diff 1.83.0b → 1.84.0b: preserve the peer CRM legal-hold route alongside
+the CSRF issuer; 291 handler paths and 389 runtime operations.
+
+### API-write CSRF issuer (FR-252-P2)
+
+GET `/api/auth/csrf` returns the strict `{ token, expiresAt }` DTO for a live
+persisted session. The API-write audience is `zuri_api_write.v1`; expiry is the
+earlier of 15 minutes and the live session expiry. Responses are `no-store`,
+provide no CORS token, and clients keep the token only in memory. Issuance
+requires the configured `PUBLIC_BASE_URL` Origin; an absent Origin is accepted
+only with `Sec-Fetch-Site: same-origin` or a same-origin Referer. The token grants
+no Business capability and cannot be replaced by plugin-consent tokens.
+
+Refusals use `{ code, message, requestId, retryable }` with matching
+`X-Request-ID`: 401 `AUTH_REQUIRED`, 403 `CSRF_INVALID`, or 503
+`SESSION_UNAVAILABLE`. The published Swagger uses the issuer's runtime Zod
+schemas. Phase B Feature routes remain planned until delivered and validated.
 
 ### Local model residency by business hours (FR-244, 2026-09-16)
 
@@ -863,6 +892,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.83.0b | 2026-09-17 | candidate | Add FR-252 Identity CSRF issuer and typed runtime Swagger; one GET handler (289 to 290), implementation verification in progress | bd99651f | RWANG |
 | 1.82.0b | 2026-09-17 | candidate | Implement and locally verify owner-approved FR-251 read-only Domain-view contract and runtime Swagger; one GET handler added (288 → 289), typed scope refusals and operation-only SessionAuth verified | reviewed baseline 7465080f; PR443 | RWANG |
 | 1.81.0b | 2026-09-16 | candidate | FR-248, FR-249 (ADR-095 D2, D3): two handler files, `POST/GET /api/platform/usage-events` (record one's own usage; operator reads the breakdown) and `POST /api/platform/usage-events/rollup` (deployment-authenticated 90-day rollup, same shape as the retention sweep). Route handler count 286 -> 288 | working-tree | Claude Sonnet 5 |
 | 1.80.0b | 2026-09-16 | candidate | FR-247 (ADR-095 D1): two handler files, `GET /api/platform/error-events` and `PATCH /api/platform/error-events/[id]` — the deduplicated error list and its resolve action, both operator-only and audited, never request/response content. Route handler count 284 -> 286 | working-tree | Claude Sonnet 5 |

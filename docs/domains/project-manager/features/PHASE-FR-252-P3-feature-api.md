@@ -5,10 +5,10 @@ parent_requirement: FR-252
 phase_id: FR-252-P3
 phase_order: 3
 domain: project-manager
-version: "0.1.0b"
+version: "0.2.0b"
 status: beta
 created_at: "2026-09-17T02:46:11+07:00,RWANG,approved e5ccfd7a"
-last_update: "2026-09-17T02:46:11+07:00,RWANG"
+last_update: "2026-09-17T14:40:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:FR-252
@@ -36,10 +36,19 @@ Scoped read aggregate/list/detail, base and complete-set mutations, graph redist
 
 Run positive/negative scope tests plus deterministic multi-writer CAS/allocation races, idempotent replay with one effect/audit, exact graph membership, tombstone uniqueness/cohorts, 200-feature capacity, invalid provenance and source refusal. Both adapters preserve per-WorkItem bounds and weighted progress. Runtime OpenAPI parity must match the selected contract.
 
-Current state: PLANNED_NOT_RUN. This registered slice does not claim implementation.
+Current state: W3_READY_AFTER_P1_LOCAL_PASS. P1/W2 and Identity P2 have passed
+their independent and root local gates. Dispatch W3's four GET routes and
+strict read DTOs against the frozen repository in parallel with P4's list/detail
+shell. W4 mutations and W5 snapshot production remain separate waves.
+
+OpenAPI v0.3.4b makes the snapshot metadata GET's malformed bounded-query 400
+explicit, matching the existing limit/cursor constraints and common error
+contract. It adds no operation or capability. Runtime OpenAPI composition stays
+root-owned after the four GET handlers exist; this entry records no W3 test pass.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.2.0b | 2026-09-17 | beta | Record passed P1/P2 entry and bounded W3 parallel handoff; make existing snapshot query refusal explicit in API contract | bd99651f | RWANG |
 | 0.1.0b | 2026-09-17 | beta | Register slice of the approved Phase B design; no new behavior | e5ccfd7a | RWANG |

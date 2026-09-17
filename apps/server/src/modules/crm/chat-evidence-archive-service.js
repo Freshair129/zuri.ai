@@ -476,3 +476,72 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
     return { archived: true, manifest, redactedMessages: redacted.count, redactedAttachments: redactedAttachments.count, messageIds }
   })
 }
+
+// @req SEC-034 — key destruction and the legal hold (ADR-093 D5, D6; TASK-ZAI-113).
+// -------------------------------------------------------------------------------
+// `destroyCustomerArchiveKey` is the ONLY function in this codebase that may delete
+// a `CustomerArchiveKey` row, and the legal-hold check lives INSIDE it rather than at
+// each call site. Both callers that can end a Customer's chat evidence archive key —
+// `erase-principal.js`'s PDPA erasure and `chat-evidence-archive-expiry-service.js`'s
+// 10-year expiry — go through this one function, so there is exactly one place that
+// answers "may this key be destroyed right now?" and no way to destroy a key by
+// re-deriving that answer slightly differently at a second call site. A sibling task
+// built the same week shipped with two independently-maintained "is this readable"
+// checks that drifted apart; this is the structural fix for that failure mode here.
+//
+// Hard delete, not tombstone-and-clear. The row's only reason to exist is to open
+// this Customer's archived lines: once it may never do that again, a cleared row
+// (kekId/wrappedDek nulled, a destroyedAt column) would carry no information a
+// `recordAudit` call at the call site doesn't already record more precisely (who,
+// when, why), while still naming a real Customer id next to a "this used to be a
+// live key" fact forever — a PII-adjacent shape with no reader. `MfaFactor` keeps its
+// REVOKED rows because a Person's factor history is itself useful (which factors did
+// they ever have, when), and a revoked factor can be re-enrolled; a destroyed archive
+// key has no re-enrolment and nothing analogous to show. Hard delete also matches
+// the design intent this table's own schema comment already states: "a future
+// PDPA-erasure writer destroys exactly one row... to make every line that Customer
+// ever had archived... permanently unreadable."
+
+/**
+ * The Customer's current legal hold, if one is still unexpired. "Active" is
+ * derived — `now < endDate` — never a stored status, so ending a hold means
+ * only letting its endDate pass; there is no code path that edits one in place.
+ * A Customer may have more than one hold on file (sequential disputes); the one
+ * with the furthest-out endDate is what "does a hold still cover this Customer"
+ * needs, so that is what is returned when more than one is still active.
+ */
+export async function findActiveLegalHold(db, { customerId }, now = new Date()) {
+  return db.customerLegalHold.findFirst({
+    where: { customerId, endDate: { gt: now } },
+    orderBy: { endDate: 'desc' },
+  })
+}
+
+/**
+ * Destroy one Customer's chat evidence archive key (SEC-034, ADR-093 D5, D6) —
+ * unless an active legal hold protects it, in which case nothing is touched and
+ * the hold is returned so the caller can report it (ADR-093 D6: "the erasure
+ * status shows the hold"). A Customer with no key row at all (never archived, or
+ * already destroyed) is reported as `destroyed: false, hold: null` — indistinguishable
+ * from "nothing to do" on purpose, since re-destroying an absent key is not a
+ * failure for either caller.
+ *
+ * Callers are responsible for their own audit event: this function's job is the
+ * one mechanical, hold-gated destruction, not deciding what each caller's audit
+ * trail should say about it (the same division `archiveAndTombstoneTenantMessages`
+ * above keeps from its own caller).
+ *
+ * @param {object} db - a Prisma client or transaction proxy.
+ * @param {{tenantId: string, customerId: string, now?: Date}} input
+ * @returns {Promise<{destroyed: boolean, hold: object|null}>}
+ */
+export async function destroyCustomerArchiveKey(db, { tenantId, customerId, now = new Date() }) {
+  const hold = await findActiveLegalHold(db, { customerId }, now)
+  if (hold) return { destroyed: false, hold }
+
+  const existing = await db.customerArchiveKey.findUnique({ where: { customerId } })
+  if (!existing || existing.tenantId !== tenantId) return { destroyed: false, hold: null }
+
+  await db.customerArchiveKey.delete({ where: { customerId } })
+  return { destroyed: true, hold: null }
+}

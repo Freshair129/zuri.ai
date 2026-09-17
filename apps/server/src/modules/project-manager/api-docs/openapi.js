@@ -5,6 +5,7 @@ import { zDomainRow, zDomainViewError, zProjectDomainView } from '../application
 import { EXECUTION_MODES, PROGRESS_STRATEGIES } from '@/lib/validation/enums'
 import { zAssetIntakeEnvelope } from '@/modules/asset-management/domain/asset-intake'
 import { AUTH_SESSION_COOKIE } from '@/modules/identity/auth-service'
+import { zApiWriteCsrfToken, zApiWriteCsrfError } from '@/modules/identity/api-write-csrf'
 
 // @req FR-019 — OpenAPI 3 generated FROM the Zod schemas that actually run at
 // request time, so the integration docs cannot drift from validation.
@@ -17,6 +18,8 @@ extendZodWithOpenApi(z)
 // integration test enumerates src/app/api/**/route.js and fails when this
 // inventory or the generated document falls behind a route change.
 export const CURRENT_API_ROUTE_INVENTORY = [
+  // @req FR-252 — Identity-owned session-bound API-write CSRF issuance.
+  ['/api/auth/csrf', ['GET']],
   // @req FR-173 — shared source admission and scoped corpus retrieval.
   ['/api/knowledge/ingestions', ['GET', 'POST']], ['/api/knowledge/ingestions/{runId}', ['GET']],
   ['/api/knowledge/queries', ['POST']], ['/api/knowledge/citations/{citationId}', ['GET']],
@@ -148,6 +151,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // preview, and every call is independently audited regardless of how many
   // times the same range is asked for.
   ['/api/crm/customers/{customerId}/chat-evidence/retrieve', ['POST']],
+  ['/api/crm/customers/{customerId}/legal-hold', ['POST']],
   // @req FR-230 — the nightly retention sweep's scheduled entry point (ADR-091 D1,
   // D2). Deployment-authenticated (ZURI_RETENTION_SWEEP_TOKEN), same shape as
   // /api/line-oa/worker and /api/platform/programme-usage-reports below.
@@ -282,7 +286,7 @@ function genericResponses(path) {
 }
 
 function registerInventoryOperations(registry) {
-  const detailedOperations = new Set(['get /api/projects/{id}/domain-view', 'post /api/assets/intakes/validate', 'post /api/import/dry-run', 'post /api/import/commit', 'get /api/resolve', 'get /api/import/template'])
+  const detailedOperations = new Set(['get /api/auth/csrf', 'get /api/projects/{id}/domain-view', 'post /api/assets/intakes/validate', 'post /api/import/dry-run', 'post /api/import/commit', 'get /api/resolve', 'get /api/import/template'])
   for (const [path, methods] of CURRENT_API_ROUTE_INVENTORY) {
     for (const method of methods) {
       const methodName = method.toLowerCase()
@@ -397,6 +401,8 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
   registry.register('DomainRow', zDomainRow)
   registry.register('DomainView', zProjectDomainView)
   registry.register('DomainViewError', zDomainViewError)
+  registry.register('CsrfToken', zApiWriteCsrfToken)
+  registry.register('ApiWriteCsrfError', zApiWriteCsrfError)
   registry.registerComponent('securitySchemes', 'SessionAuth', {
     type: 'apiKey',
     in: 'cookie',
@@ -404,6 +410,40 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
     description: 'Current server-resolved session. Authorization is recomputed from live server state; no role is inferred from cookie labels.',
   })
   registry.register('Error', zError)
+
+  // @req FR-252 — publish the issuer's actual runtime schemas and refusal
+  // contract; no Feature mutation route is advertised before it exists.
+  const csrfFailure = (description) => ({
+    description,
+    headers: {
+      'Cache-Control': { schema: { type: 'string', enum: ['no-store'] } },
+      'X-Request-ID': { schema: { type: 'string', format: 'uuid' } },
+    },
+    content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiWriteCsrfError' } } },
+  })
+  registry.registerPath({
+    method: 'get',
+    path: '/api/auth/csrf',
+    operationId: 'getApiWriteCsrfToken',
+    summary: 'Issue a live-session-bound API-write CSRF token',
+    description:
+      'Requires the live persisted zuri_session and the configured PUBLIC_BASE_URL Origin. ' +
+      'When this GET has no Origin, Sec-Fetch-Site same-origin or a same-origin Referer is required. ' +
+      'The zuri_api_write.v1 token expires within 15 minutes and before its session expires. ' +
+      'Keep it in browser memory; no CORS response is provided. It is distinct from plugin consent and grants no Business capability.',
+    tags: ['Identity CSRF'],
+    security: [{ SessionAuth: [] }],
+    responses: {
+      200: {
+        description: 'Session-bound API-write token; never cache or persist it in browser storage.',
+        headers: { 'Cache-Control': { schema: { type: 'string', enum: ['no-store'] } } },
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/CsrfToken' } } },
+      },
+      401: csrfFailure('AUTH_REQUIRED: no valid live persisted session.'),
+      403: csrfFailure('CSRF_INVALID: request origin is foreign or unproven.'),
+      503: csrfFailure('SESSION_UNAVAILABLE: session store, issuer or explicit configuration is unavailable; details are redacted.'),
+    },
+  })
 
   registry.registerPath({
     method: 'post',

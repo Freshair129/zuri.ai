@@ -212,8 +212,9 @@ describe('OpenAPI document', () => {
       // a path, plus the deployment-authenticated rollup (POST) on its own
       // path. 286 + 2 = 288; 383 + 3 = 386.
       // FR-251 adds one read-only Project Domain-view path and GET operation.
-      pathCount: 289,
-      operationCount: 387,
+      // FR-252 adds the Identity API-write CSRF issuer (GET only).
+      pathCount: 291,
+      operationCount: 389,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
@@ -248,6 +249,30 @@ describe('OpenAPI document', () => {
   it('carries the real execution-mode enum, not a hand-written copy', () => {
     const modes = doc.components.schemas.PlanEnvelope.properties.workstreams.items.properties.executionMode
     expect(modes.enum).toEqual(EXECUTION_MODES)
+  })
+
+  // @req FR-252 — the live issuer and Swagger share their strict DTO schemas.
+  it('documents the authenticated no-store CSRF issuer and typed refusals', () => {
+    const operation = doc.paths['/api/auth/csrf'].get
+    expect(operation.operationId).toBe('getApiWriteCsrfToken')
+    expect(operation.security).toEqual([{ SessionAuth: [] }])
+    expect(operation['x-zuri-contract']).toBeUndefined()
+    expect(Object.keys(operation.responses).sort()).toEqual(['200', '401', '403', '503'])
+    for (const [status, response] of Object.entries(operation.responses)) {
+      expect(response.headers['Cache-Control'].schema.enum).toEqual(['no-store'])
+      expect(response.headers).not.toHaveProperty('Access-Control-Allow-Origin')
+      if (status !== '200') {
+        expect(response.headers['X-Request-ID'].schema.format).toBe('uuid')
+        expect(response.content['application/json'].schema.$ref).toBe('#/components/schemas/ApiWriteCsrfError')
+      }
+    }
+    expect(doc.components.schemas.CsrfToken).toMatchObject({
+      type: 'object', additionalProperties: false,
+      required: ['token', 'expiresAt'],
+      properties: { expiresAt: { type: 'string', format: 'date-time' } },
+    })
+    expect(doc.components.schemas.ApiWriteCsrfError.required).toEqual(['code', 'message', 'requestId', 'retryable'])
+    expect(doc.components.schemas.ApiWriteCsrfError.additionalProperties).toBe(false)
   })
 
   it('documents externalRefs on every entity a customer can key', () => {

@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.110.0b"
+version: "2.110.1b"
 updated: "2026-09-17"
 owner: "Owen"
 source_of_truth: true
@@ -18,6 +18,8 @@ live_document: true
 ---
 
 # ROADMAP: zuri-ai — Live Delivery State
+
+> Revision 2.110.1b (2026-09-17): PR446 merged the Phase B design at 9ad61f8a after required CI; independent design entry is PASS. Identity P2 is locally implemented with 60 focused tests, build and governance passing. Feature persistence/API/UI and independent/composed gates remain open; no Phase B production migration or rollout.
 
 > Revision 2.110.0b (2026-09-17): Owner approved the exact Phase B packet e5ccfd7a. Register FR-252 / ADR-097 and P1–P4 ownership slices; root composes B2 while Luna Max independently re-verifies the frozen packet. Implementation remains gated; production role/isolation and migration evidence are separate.
 
@@ -527,7 +529,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FEAT-008 | PHASE-ZAI-PRODUCT | task | Projects Dashboard (FR-086 shipped) + project priority (FR-087), accountable PIC (FR-088), Team grouping models (FR-089) | P1 | Claude | done (FR-087..089 status ruling resolved 2026-08-26 — PRD 1.89.0b) | FR-005; ADR-036; ADR-037 | ../domains/project-manager/features/FR-086-projects-dashboard.md |
 | TASK-FR-250 | PHASE-ZAI-PRODUCT | task | Projects & Work: six sidebar modules, module-local Business/Project views, one Import action; preserve routes and scope authority | P1 | RWANG + Luna max | done (deployed c07cfaba; evidence in FR-251 release note) | FR-039; FR-040; FR-077; FR-086; ADR-096 | ../domains/project-manager/features/FR-250-hierarchical-project-navigation.md |
 | TASK-FR-251 | PHASE-ZAI-PRODUCT | task | Project Execution Domains: read-only scoped projection, stable identity, deduplicated work counts and Project-only Delivery Design navigation | P1 | RWANG + Luna max | done (deployed c07cfaba; required CI and live receipt in FR-251 note) | FR-070; FR-250 | ../domains/project-manager/features/FR-251-project-execution-domains.md |
-| TASK-FR-252 | PHASE-ZAI-PRODUCT | task | Project Feature authority: six-record persistence, Identity CSRF, verified provenance, transactional API and Project Features UI | P1 | RWANG + Luna max | planned (B1 approved; B2 registered/governance pass; independent review pending) | FR-250; FR-251; ADR-097 | ../domains/project-manager/features/FR-252-project-feature-authority.md |
+| TASK-FR-252 | PHASE-ZAI-PRODUCT | task | Project Feature authority: six-record persistence, Identity CSRF, verified provenance, transactional API and Project Features UI | P1 | RWANG + Luna max | in progress (design merged and entry PASS; P2 local tests/build/govern pass; persistence and composed gates open) | FR-250; FR-251; ADR-097 | ../domains/project-manager/features/FR-252-project-feature-authority.md |
 | TASK-FR-090 | PHASE-ZAI-PRODUCT | task | Live production-auth table declaration (PersonCredential, PasswordResetToken, laneId) — resolved 2026-08-26: source branch deleted; successors TASK-FEAT-010 (login/session) and the password-reset row under PHASE-ZAI-IAM | P0 | Claude | done | - | PRD-SDD FR-090 |
 | TASK-FR-105 | PHASE-ZAI-PRODUCT | task | Platform Programme Roadmap `/control/roadmap`: isOperator-only read-only projection of the 24-week programme (ADR-048) | P2 | Claude | done | FR-075; ADR-048 | ../domains/platform-control/features/FR-105-platform-programme-roadmap.md |
 | TASK-FR-211 | PHASE-ZAI-PRODUCT | task | Domain map & inventory tab บน `/control/roadmap` (`?view=domains`, FR-211): ทุกโดเมนเป็น tile พร้อมสถานะ / progress / feature พร้อมใช้ / FR verified / NFR / gap และ inventory ของโดเมนที่เลือก (feature, FR, NFR, readiness checks, gaps) — projection ฝั่ง server จาก snapshot ของ FR-124 ไม่คำนวณสถานะเอง ไม่มี write path; `domain-state.mjs` เพิ่มชื่อย่อ FR และ `nonFunctionalRequirements` | P2 | Claude | done | FR-105; FR-124; ADR-048 | ../../apps/server/tests/unit/platform-control-domain-map.test.js |

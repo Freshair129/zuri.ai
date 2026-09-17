@@ -1,17 +1,17 @@
 ---
 id: ZAI:PM-PHASE-B-FEATURE-IMPLEMENTATION-PLAN
 title: Project Manager Phase B Feature implementation plan
-version: "0.3.3b"
-status: candidate
+version: "0.4.0b"
+status: beta
 created_at: "2026-09-17T01:17:02+07:00,Luna Max,f061a113584aa15db68934dc8451f14b9a1011e1"
-last_update: "2026-09-17T03:23:00+07:00,RWANG final integrator"
+last_update: "2026-09-17T12:20:31+07:00,RWANG final integrator"
 superseded_by: null
 attributes:
   doc_type: implementation-plan
   domain: project-manager
   scope: "MA-I02 Phase B Project Feature authority, UX, persistence and contract"
   complexity: "C-3 / HIGH"
-  evidence_level: "CANDIDATE; NO CODE, SCHEMA OR MIGRATION"
+  evidence_level: "APPROVED DESIGN; W1/P2 LOCAL PROOF; W2 IMPLEMENTATION IN PROGRESS"
   source_commit: "f061a113584aa15db68934dc8451f14b9a1011e1"
   canonical_id_status: "NO NEW FR, FEAT, ADR OR DOM IDS; ROOT OWNS REGISTRATION"
 relations:
@@ -29,7 +29,12 @@ relations:
 
 # Project Manager Phase B Feature implementation plan
 
-**Current entry record:** The owner approved v0.3.2b at e5ccfd7a; B2 registered
+**Current entry record:** The owner approved recovery/erasure decision26
+v0.2.1b on 2026-09-17. Its separate clean-target recovery and reviewed
+field-target erasure replace the earlier unspecified maintenance/erasure
+boundary in section 8. W1 and Identity P2 have local independent PASS; the W2
+repository/recovery/erasure implementation and later application gates remain.
+The owner previously approved v0.3.2b at e5ccfd7a; B2 registered
 FR-252 and ADR-097 at 50b5e1dd with governance passing. ADR-097 is the approval
 authority and supersedes historical B1/B2-pending labels below. This v0.3.3b
 aligns restore prerequisites, owner-only snapshot listing and wire refusals
@@ -39,17 +44,16 @@ independent review and root approval before Phase B DDL or adapter activation;
 Identity P2 is independent of that database gate. Runtime and production proof
 remain NOT_RUN.
 
-**Candidate only.** This document composes the UX packet and backend packet
-into one proposed Phase B design. It is not owner approval, an implementation
-authorization, a migration, a runtime contract, or release evidence. No new
+**Approved design; implementation evidence is recorded per phase.** This
+document composes the UX packet and backend packet into one Phase B design.
+ADR-097 and approved decision26 record the implementation authority. No new
 FR, FEAT, ADR or DOM identifier is allocated here. Root owns canonical
 registration, document graph generation, governance, integration and release
 gates.
 
-The design below makes one bounded choice for each currently open transport
-question so that an owner can review a coherent packet. Every proposed
-route, DTO, table, security binding and worker slice remains gated by the B1
-owner-approval and B2 registration gates. The allocation rule is deliberately
+The design below records the selected transport, records and worker boundaries.
+Every route, DTO, table, security binding and worker slice follows the recorded
+B1/B2 approvals and the independent local/runtime/release gates. The allocation rule is deliberately
 precise: basis points split one
 WorkItem's value across its Feature links; they are never summed across
 unrelated WorkItems.
@@ -838,6 +842,16 @@ The migration gate must prove:
 Backup and restore are additive family work, not a reason to weaken legacy
 snapshots:
 
+Approved [decision26](26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md) selects
+offline recovery into a completely verified empty target. Ordinary web restore
+refuses before every delete when Phase B rows are present, incoming or globally
+unverifiable; its generic loops always skip the six tables. A separate read-only
+protected export supplies complete artifacts using process-only maintenance
+credentials. Runtime snapshot/receipt grants remain append-only. The order
+below applies to the offline insert transaction; it never grants ordinary
+runtime replacement power. The command and exact schema/digest/visibility
+contract are decision26's implementation authority.
+
 1. Restore GovernanceSnapshot after Tenant, Business, Workspace, Project,
    Repository and ProjectRepository. Validate the immutable ProjectRepository
    reference against its Project/Workspace/Business/Tenant chain and the
@@ -871,9 +885,11 @@ rechecks the full scope and Project hierarchy, and restores only children that
 are still deleted with that batch. It recomputes allocationState per affected
 WorkItem without redistribution; any post-restore total above 10000 returns
 `409 ALLOCATION_RESTORE_CONFLICT` and leaves the complete transaction
-unchanged. Privacy erasure follows the existing audited policy: redact
-approved user text where required while retaining immutable relationship
-identity, revision hash and audit evidence. Rollback disables Feature
+unchanged. Privacy erasure follows approved decision26's reviewed field-target
+manifest and Identity-owned atomic transaction. Only explicitly reviewed fields
+are replaced with `[erased]`; actor/author inference is forbidden. Unmapped or
+unreviewed text remains explicitly UNMAPPED/PENDING. Immutable relationship
+identity, revision hash and audit evidence are retained. Rollback disables Feature
 read/writer admission or its flag and retains additive evidence; it does not
 drop tables or delete historical rows.
 
@@ -1059,6 +1075,7 @@ document.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 | --- | --- | --- | --- | --- | --- |
+| 0.4.0b | 2026-09-17 | beta | Record approved decision26 and select offline clean-target recovery, protected export and reviewed field erasure for W2 | bd99651f | RWANG |
 | 0.3.3b | 2026-09-17 | candidate | Reconcile restore prerequisites and owner-only snapshot listing; record B1/B2 completion and explicit independent/root pre-DDL RLS policy gate | 61e28ac9 | RWANG |
 | 0.2.0b | 2026-09-17 | candidate | Composed candidate Phase B Feature authority, typed machine contract input, source provenance bounds, approval-gate/wave separation, UX/state model, restore/privacy and acceptance gates; no implementation or IDs. | f061a113 | Luna Max |
 | 0.3.0b | 2026-09-17 | candidate | Closed verifier contract findings: six-record authority, Project Feature capacity, WorkItem-derived allocation and graph lock/ETag rules, VALID-only snapshot proof, typed receipts, Identity CSRF/Origin, redacted fields and worker allowlists; no implementation or IDs. | f061a113 | Luna Max |

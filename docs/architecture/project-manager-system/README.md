@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-SYSTEM-DESIGN
 title: Project Manager complete system design
-version: "0.13.0b"
+version: "0.15.1b"
 status: candidate
 created_at: "2026-09-15T23:49:58+07:00,RWANG,base 087f30258a6831865afd751e28804e36505aff30"
-last_update: "2026-09-17T02:46:11+07:00,RWANG"
+last_update: "2026-09-17T14:38:00+07:00,RWANG"
 superseded_by: null
 attributes:
   doc_type: architecture-specification
@@ -25,9 +25,9 @@ relations:
 
 # Project Manager — Full System Design
 
-**Version:** 0.12.0b · **Status:** Candidate · **Risk:** HIGH · **Complexity:** C-3
+**Version:** 0.15.1b · **Status:** Candidate · **Risk:** HIGH · **Complexity:** C-3
 **Evidence baseline:** original design `087f30258a6831865afd751e28804e36505aff30`; MA-I02 source audit `138db6630e650e3c695b81158eff3cecdad6d0a5`.
-**Deliverable:** เอกสารออกแบบและสัญญาแบบเครื่องอ่านได้; navigation FR-250 และ Domain View Phase A (FR-251) ส่งมอบแล้ว โดย Phase A merge/deploy ที่ `c07cfaba` พร้อม archive/rollup repair ใน PR444 เมื่อ 2026-09-17 ส่วน Feature Phase B เป็นข้อเสนอสำหรับ B1 review และ B2 registration ก่อนเขียน application/schema code
+**Deliverable:** เอกสารออกแบบและสัญญาแบบเครื่องอ่านได้; navigation FR-250 และ Domain View Phase A (FR-251) ส่งมอบแล้ว โดย Phase A merge/deploy ที่ `c07cfaba` พร้อม archive/rollup repair ใน PR444 เมื่อ 2026-09-17 ส่วน Feature Phase B ผ่าน B1/B2 และเริ่ม implementation ใน worktree แยก; ผลส่งมอบแต่ละ slice อยู่ใน FR-252 และยังไม่ใช่ production rollout
 
 **Spec completeness:** [16 Spec readiness & API reference](16-SPEC-READINESS-AND-API-REFERENCE.md) เป็น baseline audit ของ contracts / API schemas / OpenAPI references และ Swagger UI ใน local review; จำนวน 132 schema definitions ใน audit นั้นเป็น API/JSON shapes ไม่ใช่ตารางฐานข้อมูล ส่วน Phase B ใช้ selected contract ในเอกสาร 24 และต้องผ่าน B1/B2 ก่อน code; ห้ามตีความ structural validation ว่า implementation-ready หรือว่าปิด SPEC-G01–G09 ของทั้งระบบแล้ว
 
@@ -36,7 +36,15 @@ relations:
 **Phase B plan:** [24 Feature implementation plan](24-PHASE-B-FEATURE-IMPLEMENTATION-PLAN.md)
 รวม schema/ERD, API, UX wireframes, snapshot provenance, CSRF, concurrency,
 backup/restore และแผนแบ่ง Luna Max workers → Luna Max verify gate → root final gate.
-เป็นข้อเสนอสำหรับ B1 review; B2 registration และ application code ยังไม่เริ่ม
+B1/B2 และ independent entry review ผ่านแล้ว เอกสาร merge ใน PR446 (`9ad61f8a`)
+และเริ่ม implementation ใน worktree แยกแล้ว: Identity P2, W1 schema และ W2
+repository/recovery/erasure ผ่าน independent review และ root local gate แล้ว
+ชุด Server รวมผ่าน 6066 tests (skip 32), build และ governance ผ่าน พร้อม
+browser regression 32 cases ส่วน actual PostgreSQL adapter ผ่าน 13 checks
+และ CLI recovery ผ่าน 18 standard + 11 adversarial checks บน source ที่ตรึงไว้
+เปิด W3 ให้ API อ่าน Feature และหน้าจอทำขนานกัน โดย API/UI ทั้ง Phase B
+และ production ยังไม่ส่งมอบ; CRM legal-hold race และ runtime-role จริงยังเป็น
+release gates แยกจากผลทดสอบในเครื่อง
 Phase B OpenAPI มี 14 operations ที่อ้างอิงจาก OpenAPI หลักชุดเดียว
 ส่วน release ของ Phase A กับ archive/rollup repair แยกจากเอกสารนี้ที่ PR443/PR444
 และ merged commit `c07cfaba8eedb53f677e313977a1e2344fb5c8c5`.
@@ -47,7 +55,7 @@ Phase B OpenAPI มี 14 operations ที่อ้างอิงจาก Ope
 
 **Navigation delivery state:** [22 Core navigation baseline](22-NAVIGATION-IMPLEMENTATION-BASELINE.md) defines six logical sidebar modules and module-local tabs. Import is one shared Project action. [ADR-096](../../decisions/ADR-096-PROJECTS-AND-WORK-HIERARCHICAL-NAVIGATION.md) and [FR-250](../../domains/project-manager/features/FR-250-hierarchical-project-navigation.md) were approved and delivered in PR435 (`e8fc84bd`). Deferred screen families retain explicitly historical, non-generatable bindings; this does not implement or approve all 37 screens.
 
-**Project / Domain / Feature packet:** [23 Project, Domain and Feature implementation baseline](23-PROJECT-DOMAIN-FEATURE-IMPLEMENTATION-BASELINE.md) is `0.5.0b`: Phase A was approved on baseline `7465080f`, registered as FR-251 and deployed at `c07cfaba`. A2 governance passed with 0 critical findings and 2 existing warnings before worker code. The [FR-251 delivery note](../../domains/project-manager/features/FR-251-project-execution-domains.md) separates local, hosted and production evidence. Phase B's concrete Feature authority, persistence, CSRF and migration proposal is in document 24; B1/B2 remain open.
+**Project / Domain / Feature packet:** [23 Project, Domain and Feature implementation baseline](23-PROJECT-DOMAIN-FEATURE-IMPLEMENTATION-BASELINE.md) is `0.5.0b`: Phase A was approved on baseline `7465080f`, registered as FR-251 and deployed at `c07cfaba`. A2 governance passed with 0 critical findings and 2 existing warnings before worker code. The [FR-251 delivery note](../../domains/project-manager/features/FR-251-project-execution-domains.md) separates local, hosted and production evidence. Phase B's selected Feature authority, persistence, CSRF and migration contract is in document 24; B1/B2 and independent entry review are closed, while implementation and production gates remain distinct.
 
 **ส่วนเพิ่มล่าสุด:** [UX strategy](10-UX-STRATEGY-AND-JOURNEYS.md) → [UI system](11-UI-SYSTEM-AND-INTERACTIONS.md) → [37 wireframes / screen specs](12-WIREFRAMES-AND-SCREEN-SPECS.md). เป็นส่วนต่อยอดจากผังเมนู v0.2.0b; application code ยังไม่เปลี่ยน
 
@@ -113,6 +121,8 @@ Domain และ Feature เป็นคนละแกน:
 | [22 Navigation implementation baseline](22-NAVIGATION-IMPLEMENTATION-BASELINE.md) | Six modules, retained 8/9/14/7 source semantics, current core bindings and deferred scope |
 | [23 Domain / Feature baseline](23-PROJECT-DOMAIN-FEATURE-IMPLEMENTATION-BASELINE.md) | Approved Phase A and the separate B1/B2 gates for Feature authority |
 | [24 Phase B Feature implementation plan](24-PHASE-B-FEATURE-IMPLEMENTATION-PLAN.md) | Selected data/API/security/UX proposal, diagrams, disjoint worker waves, independent verification and root integration |
+| [25 Phase B persistence security policy](25-PHASE-B-PERSISTENCE-SECURITY-POLICY.md) | Reviewed six-table RLS predicates, runtime grants and transaction scope handshake; isolated runtime proof remains separate |
+| [26 Phase B recovery and erasure decision](26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md) | Candidate clean-target recovery and reviewed field erasure boundary; requires owner decision before dependent implementation |
 | [Phase B selected data contract](contracts/phase-b/data-model.candidate.json) | Six selected candidate records, constraints, restore cohorts and mutation receipts |
 | [Phase B OpenAPI](contracts/phase-b/openapi.candidate.json) | One Feature HTTP contract referenced by the broad OpenAPI candidate |
 | [Contract examples](contracts/contract-foundation.examples.json) | Positive and negative schema examples; not service tests |
@@ -262,6 +272,9 @@ Domain และ Feature เป็นคนละแกน:
 | 0.11.0b | 2026-09-17 | candidate | Record approved FR-251 Phase A implementation and local verification | reviewed 7465080f; PR443 | RWANG |
 | 0.12.0b | 2026-09-17 | candidate | Record Phase A deployment and add the selected Phase B plan, data/API contracts and parallel verification gates | deployed c07cfaba; planning base ecc30b94 | RWANG |
 | 0.13.0b | 2026-09-17 | candidate | Record Phase B owner approval and FR-252/ADR-097 registration; keep implementation and production gates distinct | approved e5ccfd7a | RWANG |
+| 0.14.0b | 2026-09-17 | candidate | Record merged entry, local Identity progress, W1 reviewed policy and W2 recovery/erasure proposal | bd99651f | RWANG |
+| 0.15.0b | 2026-09-17 | candidate | Record owner-approved W2 recovery/erasure and initial local composition evidence | bd99651f | RWANG |
+| 0.15.1b | 2026-09-17 | candidate | Record W2 independent/root local PASS and exact full-suite/build/browser/CLI evidence; open parallel W3 handoff | bd99651f | RWANG |
 
 ## Version diff — 0.8.0b → 0.9.0b
 
@@ -299,3 +312,6 @@ Version diff 0.10.0b → 0.11.0b: record owner approval, canonical FR-251 regist
 Owner approval of packet e5ccfd7a closes B1. [FR-252](../../domains/project-manager/features/FR-252-project-feature-authority.md) and [ADR-097](../../decisions/ADR-097-PROJECT-FEATURE-AUTHORITY-AND-WRITE-CONTRACT.md) register the selected authority and supersede the frozen proposal's historical pending-approval labels. B2 governance and independent verification still precede implementation. The remaining full-system design is not promoted by this approval.
 
 Version diff 0.12.0b → 0.13.0b: record B1 approval and canonical registration only; no Phase B code/schema/migration or production activation.
+
+Version diff 0.13.0b → 0.14.0b: add reviewed policy25 and candidate decision26;
+record local implementation progress separately from the deployed Phase A release.
