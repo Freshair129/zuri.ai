@@ -1,7 +1,7 @@
 ---
-id: ZAI:FR-253-NOTE
+id: ZAI:FR-254-NOTE
 title: Knowledge base console
-feature: FR-253
+feature: FR-254
 domain: knowledge
 module: knowledge
 source: v2-native
@@ -11,14 +11,14 @@ created_at: "2026-09-17T04:00:00+07:00,RWANG,base 099ebc8f"
 last_update: "2026-09-17T05:10:00+07:00,RWANG"
 relations:
   - type: references
-    target: ZAI:FR-253
+    target: ZAI:FR-254
   - type: relates_to
     target: ZAI:FEAT-013
   - type: references
     target: ZAI:TASK-ZAI-047-CONSOLE-PLAN
 ---
 
-# FR-253 — Knowledge base console
+# FR-254 — Knowledge base console
 
 Boss approved the [TASK-ZAI-047 specification](../../../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md) on 2026-09-17. Implementation and evidence follow that specification; production activation is separate.
 

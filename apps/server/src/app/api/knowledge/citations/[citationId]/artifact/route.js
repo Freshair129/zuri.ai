@@ -3,9 +3,9 @@ import { consoleRequest, consoleParameters } from '@/modules/knowledge/knowledge
 import { readRouteParams } from '@/modules/knowledge/knowledge-http'
 import { readConsoleCitationArtifact } from '@/modules/knowledge/knowledge-console-service'
 
-// @req FR-253 — exact cited artifact reads and safe text attachment downloads.
+// @req FR-254 — exact cited artifact reads and safe text attachment downloads.
 // @spec ADR-072, SEC-001, SEC-008
-// @tested tests/unit/fr253-knowledge-console-routes.test.js, tests/integration/fr253-citation-artifact.test.js
+// @tested tests/unit/fr254-knowledge-console-routes.test.js, tests/integration/fr254-citation-artifact.test.js
 export const dynamic = 'force-dynamic'
 
 export async function GET(request, context) {

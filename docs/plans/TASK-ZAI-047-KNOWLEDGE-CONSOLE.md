@@ -30,11 +30,11 @@ relations:
 
 Boss instructed this task to proceed on 2026-09-17 after observing an empty SmartGift Files page. The approved programme supplies the objective and acceptance criteria in [TC-TASK-ZAI-047](../roadmap/ROADMAP-zuri-ai-24w-program.md#tc-task-zai-047). This document makes the proposed routes, permissions, display states and verification concrete. Boss approved specification 0.1.0b in this task on 2026-09-17. It is now the approved implementation specification; this approval is not an implementation or production receipt.
 
-FR-253 declares this console under FEAT-013. Current main and every enumerated worktree registry were checked before allocation: other lanes use numbers through FR-252. The approved requirement statement is:
+FR-254 declares this console under FEAT-013. Current main and every enumerated worktree registry were checked before allocation: other lanes use numbers through FR-252. The approved requirement statement is:
 
 > Knowledge base console: an authorized Business viewer can browse authorized source versions, all matching FR-071 runs and their stage evidence, and corpus generations; admit a supported source through the existing service; query one published generation; and open the exact cited chunk, parsed artifact and raw source under current source authorization. Pagination, empty data, unavailable runtime and read failures are explicit. Unauthorized source existence and content are never disclosed.
 
-Primary ownership remains DOM-KNOWLEDGE. FR-253, its FEAT-013 binding, API appendix and task links were declared together before implementation. The architecture-only Data Pipeline Map remains a separate feature.
+Primary ownership remains DOM-KNOWLEDGE. FR-254, its FEAT-013 binding, API appendix and task links were declared together before implementation. The architecture-only Data Pipeline Map remains a separate feature.
 
 ## 2. Parent and peer evidence
 
@@ -152,7 +152,7 @@ Every criterion from TC-TASK-ZAI-047 remains required: sources with versions/adm
 
 ## 8. Version diff and current evidence
 
-`absent → 0.1.0b candidate → 0.2.0b approved → 0.2.1b evidence update`: the owner approved the design, FR-253 was declared without changing existing IDs, and the isolated implementation now provides the specified Console and read boundaries. This patch links evidence; it does not expand the approved scope.
+`absent → 0.1.0b candidate → 0.2.0b approved → 0.2.1b evidence update`: the owner approved the design, FR-254 was declared without changing existing IDs, and the isolated implementation now provides the specified Console and read boundaries. This patch links evidence; it does not expand the approved scope.
 
 The [phase report](../../.brain/reports/2026-09-17-task-zai-047-knowledge-console.md) records exact full-suite, browser, native and build results and remaining gates. Earlier failed attempts remain in that evidence trail. Production deployment and activation are separate and NOT_RUN.
 
@@ -161,5 +161,5 @@ The [phase report](../../.brain/reports/2026-09-17-task-zai-047-knowledge-consol
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-17 | candidate | TASK-ZAI-047 console design and contract/test plan based on current Tier 1 evidence and GKS coordination | uncommitted; base 099ebc8f | RWANG |
-| 0.2.0b | 2026-09-17 | approved | Boss approved 0.1.0b; bind FR-253 and FEAT-013 before implementation | uncommitted | RWANG |
+| 0.2.0b | 2026-09-17 | approved | Boss approved 0.1.0b; bind FR-254 and FEAT-013 before implementation | uncommitted | RWANG |
 | 0.2.1b | 2026-09-17 | approved | Link implementation evidence and preserve the production boundary; no scope change | uncommitted | RWANG |

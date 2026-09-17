@@ -2196,7 +2196,7 @@ export const PROGRAMME_CONTAINERS = {
     "links": {
       "code": "apps/server/src/app/(pm)/knowledge/console/page.jsx",
       "doc": "docs/plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md",
-      "test": "apps/server/tests/e2e/fr253-knowledge-console.spec.js"
+      "test": "apps/server/tests/e2e/fr254-knowledge-console.spec.js"
     },
     "linkState": {
       "code": "present",
@@ -2204,7 +2204,7 @@ export const PROGRAMME_CONTAINERS = {
       "test": "present"
     },
     "delivers": [
-      "FR-253"
+      "FR-254"
     ],
     "subtasks": [],
     "dod": {
@@ -2221,14 +2221,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.1) to provide the missing Console over FR-173 sources, the FR-071 ledger and FR-110 generations. Owner approved the concrete specification on 2026-09-17; FR-253 declared before implementation. Moved to review 2026-09-17 with isolated browser fixtures (6 scenarios plus warmup), full Server tests (5287 passed, 15 skipped), local build and actual native browser acceptance (2 tests, 4 runs with 17 stages each) passing. Native command is npm run test:knowledge-admission; ordinary e2e fixtures alone do not prove publication. Exact scope, commands, full regression results and immutable receipts are recorded in .brain/reports/2026-09-17-task-zai-047-knowledge-console.md. Not deployed; TASK-ZAI-050 production activation remains separate.",
+    "changelog": "Opened 2026-09-13 (v0.4.1) to provide the missing Console over FR-173 sources, the FR-071 ledger and FR-110 generations. Owner approved the concrete specification on 2026-09-17; FR-254 declared before implementation. Moved to review 2026-09-17 with isolated browser fixtures (6 scenarios plus warmup), full Server tests (5287 passed, 15 skipped), local build and actual native browser acceptance (2 tests, 4 runs with 17 stages each) passing. Native command is npm run test:knowledge-admission; ordinary e2e fixtures alone do not prove publication. Exact scope, commands, full regression results and immutable receipts are recorded in .brain/reports/2026-09-17-task-zai-047-knowledge-console.md. Not deployed; TASK-ZAI-050 production activation remains separate.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 60000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-045"
     ],
-    "evidence": "Section 3.1 row 4; FR-253, FR-173, FR-071, FR-110"
+    "evidence": "Section 3.1 row 4; FR-254, FR-173, FR-071, FR-110"
   },
   "TASK-ZAI-048": {
     "container": "TC-TASK-ZAI-048",

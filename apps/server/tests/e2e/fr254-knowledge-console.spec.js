@@ -1,6 +1,6 @@
-// @req FR-253 — console rendering, pagination, scope isolation and evidence navigation.
+// @req FR-254 — console rendering, pagination, scope isolation and evidence navigation.
 // @spec ADR-072, ADR-085, SEC-008
-// @tested tests/e2e/fr253-knowledge-console.spec.js
+// @tested tests/e2e/fr254-knowledge-console.spec.js
 // UI FIXTURE EVIDENCE ONLY: real isolated owner/session and Business scope;
 // intercepted knowledge responses do not prove admission, native execution,
 // authorization enforcement, publication or retrieval correctness.
@@ -32,7 +32,7 @@ async function interceptKnowledge(page, handler) {
   })
 }
 
-test.describe('FR-253 fixture-backed knowledge console', () => {
+test.describe('FR-254 fixture-backed knowledge console', () => {
   test('pages sources and versions, displays every run attempt and generation history', async ({ page }) => {
     await enterBusiness(page)
     const filters = []

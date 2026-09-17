@@ -12,10 +12,10 @@ import { makeViewer } from '../factories/viewer'
 import { createKnowledgeConsoleRepository } from '@/modules/knowledge/knowledge-console-repository'
 import { KNOWLEDGE_INGESTION_DEFINITION_ID, KNOWLEDGE_INGESTION_CONTRACT_ID } from '@/platform/integrations/core/pipeline-tracking-contract'
 
-// @req FR-253 — the console pages real persisted history with current authority,
+// @req FR-254 — the console pages real persisted history with current authority,
 // including legacy runs, without disclosing hidden sources or ingestion bodies.
 // @spec SEC-001, SEC-008, ADR-072
-// @tested tests/integration/fr253-knowledge-console.test.js
+// @tested tests/integration/fr254-knowledge-console.test.js
 
 const unique = (prefix) => `${prefix}-${randomUUID()}`
 const equalTime = new Date('2026-09-17T01:00:00.000Z')
@@ -91,7 +91,7 @@ async function sameNotFound(actual, missing) {
   expect(errors[0]).toEqual(errors[1])
 }
 
-describe('FR-253 knowledge console real Prisma read boundary', () => {
+describe('FR-254 knowledge console real Prisma read boundary', () => {
   let f
   beforeEach(async () => { f = await fixture() })
   afterEach(async () => {

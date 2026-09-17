@@ -1,3 +1,5 @@
+> Historical implementation evidence: this report used unpublished Console ID FR-253. During release composition, published Pricing owned FR-253 and Console moved to FR-254 under AGENTS section18. Historical run filenames below remain unchanged.
+
 # TASK-ZAI-047 — Knowledge Console phase report
 
 Version: 0.2.0b

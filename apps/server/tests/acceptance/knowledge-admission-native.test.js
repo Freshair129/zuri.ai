@@ -19,7 +19,7 @@ import {
 // serve only receipt-backed native snapshots and current-authorized citations.
 // @spec ADR-072, ADR-073
 // @tested tests/acceptance/knowledge-admission-native.test.js
-// @req FR-253 — the Console uses actual native publication and all three citation layers.
+// @req FR-254 — the Console uses actual native publication and all three citation layers.
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 const testDirectory = path.dirname(fileURLToPath(import.meta.url))

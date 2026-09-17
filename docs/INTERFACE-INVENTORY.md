@@ -1,5 +1,5 @@
 ---
-version: "1.32.0b"
+version: "1.33.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
 last_update: "2026-09-17T00:32:00+07:00,RWANG"
 status: "candidate"
@@ -12,16 +12,18 @@ attributes:
 
 # Zuri V2 — Interface Inventory
 
+Version diff 1.32.0b -> 1.33.0b: compose FR-254 Knowledge Console with live FR-253 Pricing Rules; 113 pages and 58 navigation entries.
+
 | Field | Value |
 |---|---|
-| **Version** | 1.32.0b |
+| **Version** | 1.33.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-09-16 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=112; operational_domain_keys=16; operational_subdomain_entries=57; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=113; operational_domain_keys=16; operational_subdomain_entries=58; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -122,6 +124,7 @@ read — totals from lines, paid from verified payments — never from the page.
 | `/commerce/orders` | Orders console | BusinessShell → Commerce / Orders | order list with totals, paid, balance and payment state; confirm / complete (optionally issuing stock) / cancel; per-order lines and payments with record, verify and reject; create form with lines that may name an inventory SKU, a conversation, discounts and notes | Business and `commerce` domain visibility to read; orders and payments need OWNER or `SALES_REP`; verification needs OWNER or `PAYMENT_VERIFIER`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/commerce/orders/page.jsx`, FR-166, FR-163 / ADR-065 |
 | `/commerce/invoices` | Billing and tax documents | BusinessShell → Commerce / Billing | configure the Business's authoritative LegalEntity/Branch, tax and verified PromptPay settings; preview and issue immutable invoice, receipt or tax document snapshots from an existing order; read the issued document after reload | Business and `commerce` domain visibility; OWNER for configuration/issue; unavailable until required issuer, policy and recipient settings are configured; no provider call | implemented; `src/app/(pm)/commerce/invoices/page.jsx`, FR-186 / ADR-065 |
 | `/commerce/pos` | POS checkout | BusinessShell → Commerce / POS | choose configured Branch and WarehouseLocation, add active Inventory products with manual per-line prices, record a sale and cash/transfer/etc. payment as PENDING, and show the existing verification state | Business and `commerce` + `inventory` visibility; checkout requires the existing order/inventory write authorities; empty, loading, error, unavailable location, validation and pending states | implemented; `src/app/(pm)/commerce/pos/page.jsx`, FR-183 / ADR-065 |
+| `/commerce/pricing-rules` | สูตรคำนวณราคา | BusinessShell → Commerce / Pricing Rules | versioned formulas and variables, server simulation, immutable approval, version diff, ledger-backed sell-side admission | Business OWNER; loading, empty, invalid formula, conflict, revoked/expired, queue admission distinct from publication | implementation; FR-253 / ADR-098 |
 
 ### 3.2c Procurement domain
 
@@ -225,7 +228,7 @@ authority the lane consumes; GKS, MSP and GenesisBlockDB remain external systems
 |---|---|---|---|---|---|
 | `/knowledge` | Knowledge Dashboard (domain `knowledge`) | BusinessShell → Knowledge (GKS) / Dashboard | the map's summary figures (chains by status, sources, entry surfaces, recipients), a link to the Data Pipeline Map, and the knowledge base console named as planned (TASK-ZAI-047) | server-side viewer resolution before render; 404 without `knowledge`; per-Business grant by the shell guard | implemented locally 2026-09-13 — FR-214; `tests/unit/knowledge-data-pipeline-map-ui.test.js` |
 | `/knowledge/data-pipeline` | Data Pipeline Map | BusinessShell → Knowledge (GKS) / Data Pipeline Map | layered node-edge SVG of sources, entry surfaces, processes, stores and recipients; chain (`?chain=CH-xx`), domain and status filters; detail panel for a node, edge or chain (domain, FEATs, requirements, surfaces, decisions, production evidence); list view with the same chains, nodes and edges as tables | same admission as `/knowledge`; read-only, no API | implemented locally 2026-09-13 — FR-213; `tests/unit/knowledge-data-pipeline-map-ui.test.js`, `tests/e2e/fr213-data-pipeline-map.spec.js` |
-| `/knowledge/console` | Knowledge console | BusinessShell → Knowledge (GKS) / Knowledge console | scoped source/version pages; complete run attempts; corpus generations; explicit corpus query and exact chunk/parsed/raw evidence; text/FileAsset admission | Knowledge domain and current Business/Project/source/FileAsset authority; runtime capability gates mutations/query | FR-253, approved TASK-ZAI-047 design; isolated validation underway, not deployed |
+| `/knowledge/console` | Knowledge console | BusinessShell → Knowledge (GKS) / Knowledge console | scoped source/version pages; complete run attempts; corpus generations; explicit corpus query and exact chunk/parsed/raw evidence; text/FileAsset admission | Knowledge domain and current Business/Project/source/FileAsset authority; runtime capability gates mutations/query | FR-254, approved TASK-ZAI-047 design; isolated validation underway, not deployed |
 | `/knowledge/candidates` | LINE FAQ candidates | BusinessShell → Knowledge (GKS) / LINE FAQ candidates | one card per `KnowledgeCandidate` for the active Business: canonical question/answer, editable while PENDING_REVIEW, Approve/Reject buttons, the admitted `KnowledgeSource` id once APPROVED | API-authorized (client component): `knowledge` domain to read, Business OWNER or `LINE_OA_PUBLISHER` to draft/edit/decide | implemented locally 2026-09-14 — FR-236, ADR-090 D6; `tests/unit/knowledge-candidates-ui.test.js`, `tests/integration/fr236-knowledge-candidate.test.js` |
 | `/knowledge/gap-report` | Knowledge gap report | BusinessShell → Knowledge (GKS) / Knowledge gap report | one row per distinct product locator (or "no locator" when the traced query carried none) for the active Business: count of `NO_EVIDENCE` turns and last-seen time only — never the question text | API-authorized (client component): `knowledge` domain to read | implemented locally 2026-09-14 — FR-237, ADR-090 D7; `tests/unit/knowledge-gap-report-ui.test.js`, `tests/integration/fr237-knowledge-gap-report.test.js` |
 ### 3.7 Workspace compatibility surfaces
@@ -408,7 +411,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 1.32.0b | 2026-09-17 | candidate | FR-253 Knowledge console route and navigation; 112 pages and 57 subdomain entries; compose the approved Console with the production baseline | working-tree | RWANG |
+| 1.32.0b | 2026-09-17 | candidate | FR-254 Knowledge console route and navigation; 112 pages and 57 subdomain entries; compose the approved Console with the production baseline | working-tree | RWANG |
 | 1.27.0b | 2026-09-14 | candidate | Added the knowledge gap report page `/knowledge/gap-report` (FR-237, ADR-090 D7); page routes 107 -> 108 | working-tree | Claude Sonnet 5 |
 | 1.26.0b | 2026-09-14 | candidate | Added the LINE FAQ candidates review page `/knowledge/candidates` (FR-236, ADR-090 D6), the third Knowledge (GKS) sub-item; page routes 106 -> 107, operational subdomain entries 55 -> 56 | working-tree | Claude Sonnet 5 |
 | 1.23.0b | 2026-09-13 | active | Added the Knowledge (GKS) domain (FR-214, ADR-085) with its Dashboard `/knowledge` and the Data Pipeline Map `/knowledge/data-pipeline` (FR-213); page routes 102 -> 104, operational domain keys 15 -> 16, operational subdomain entries 53 -> 55 | working-tree | Claude Opus 5 |
@@ -469,4 +472,4 @@ Version diff 1.28.0b → 1.29.0b (2026-09-16): add `/control/usage`, the operato
 
 Version diff 1.29.0b → 1.30.0b (2026-09-16): compose the approved PM hierarchical navigation inventory with main's usage breakdown route; preserve both route sets.
 
-Version diff 1.30.0b → 1.31.0b (2026-09-17): register the owner-approved FR-251 Project-only Execution Domains route and its states; reconcile the stale 1.28.0b document-control cell. Enumerate 111 page routes. Local API, browser and build gates passed; hosted CI and release remain separate evidence in PR443.
+Version diff 1.30.0b → 1.32.0b (2026-09-17): register the owner-approved FR-251 Project-only Execution Domains route and its states; reconcile the stale 1.28.0b document-control cell. Enumerate 111 page routes. Local API, browser and build gates passed; hosted CI and release remain separate evidence in PR443.

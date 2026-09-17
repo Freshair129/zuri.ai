@@ -1,8 +1,8 @@
 import prisma from '@/lib/db'
 
-// @req FR-253 — bounded console reads of the existing Tier 1 records.
+// @req FR-254 — bounded console reads of the existing Tier 1 records.
 // @spec ADR-072, ADR-085, SEC-001
-// @tested tests/integration/fr253-knowledge-console.test.js
+// @tested tests/integration/fr254-knowledge-console.test.js
 export const consoleVersionSelect = {
   id: true, sourceId: true, corpusId: true, revision: true, sourceVersion: true,
   contentHash: true, status: true, executionRunId: true, rawArtifactId: true,

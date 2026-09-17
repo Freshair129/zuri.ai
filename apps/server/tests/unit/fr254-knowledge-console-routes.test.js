@@ -1,6 +1,6 @@
-// @req FR-253 — authenticated console routes preserve opaque IDs and hide denied resources.
+// @req FR-254 — authenticated console routes preserve opaque IDs and hide denied resources.
 // @spec ADR-072, SEC-001, SEC-008
-// @tested tests/unit/fr253-knowledge-console-routes.test.js
+// @tested tests/unit/fr254-knowledge-console-routes.test.js
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeViewer } from '../factories/viewer'
 
@@ -29,7 +29,7 @@ const viewer = makeViewer({ role: 'OWNER', visibleBusinessIds: ['business-a'], o
 beforeEach(() => { vi.resetAllMocks(); mocks.viewer.mockResolvedValue(viewer) })
 const request = (url) => new Request('http://local/api/knowledge/' + url)
 
-describe('FR-253 console HTTP boundary', () => {
+describe('FR-254 console HTTP boundary', () => {
   it.each(routes)('%s resolves trusted current authority and disables caching', async (path, service, get, params) => {
     mocks[service].mockResolvedValue({ items: [], nextCursor: null })
     const req = request(path + (params ? '' : '?businessId=business-a&limit=7'))

@@ -10,8 +10,8 @@ import { resolveKnowledgeRequestViewer as resolveRequestViewer, resolveKnowledge
 
 export const dynamic = 'force-dynamic'
 
-// @req FR-253 — authorized source history, without changing withdrawal.
-// @tested tests/unit/fr253-knowledge-console-routes.test.js
+// @req FR-254 — authorized source history, without changing withdrawal.
+// @tested tests/unit/fr254-knowledge-console-routes.test.js
 export async function GET(request, context) {
   return consoleRequest(request, async (options) => readConsoleSource((await readRouteParams(context)).sourceId, consoleParameters(request), options))
 }

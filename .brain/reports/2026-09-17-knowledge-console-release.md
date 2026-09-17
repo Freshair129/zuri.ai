@@ -1,10 +1,18 @@
 # TASK-ZAI-047 Console production release
 
-Version: 0.1.0b
+Version: 0.2.0b
 
-Status: PREPARING — user requested Deploy on 2026-09-17
+Status: PREPARING — user approved fixture repair and public source publication on 2026-09-17
 
-## Authorized scope and baseline
+## Current composition
+
+Live baseline advanced during approval to4191a72180ad8d31c25613478ee7ba6b2c0863ae (release-4191a721). Preserve its already-deployed pricing schema/routes, CRM legal hold and PM changes. No new migration is introduced by the Console delta against this baseline. The incoming release already contains the same approved usage clock repair; retain it verbatim. Console cleanup remains fixture-scoped.
+
+Published main/live pricing owns FR-253. AGENTS section18 requires the unpublished Console to move to FR-254; the sanctioned --abandon writer was run against the branch ledger and the incoming authoritative ledger was preserved before --write adds only FR-254. TASK-ZAI-047 scope is unchanged. Auto-review initially rejected a broad rename, then accepted the enumerated Console-only change after the exact AGENTS.md line432 authorization was demonstrated.
+
+Rollback for this composition is release-4191a721. Recheck live mounts/env before promotion. Earlier sections below retain the initial baseline evidence and are superseded where baseline-specific.
+
+## Authorized scope and initial baseline
 
 Deploy the implemented Console from da9aced1, preserving the actual running source11675e598fb601fa09ba9ed33bc080650cd41217. The release branch composes these exact parents. Production image before deployment is zuri-ai-web:release-11675e59 (sha256:570fce9ff561b59f61cdd3805ce6159ac9a0119c168c43e9564cacd05184f4ff).
 
@@ -37,3 +45,7 @@ Rollback image: zuri-ai-web:release-11675e59. Preserve its image and existing en
 - Roadmap2.109.0b to2.110.0b; programme0.4.10 to0.4.11.
 
 The sanctioned id-ledger writer preserves the live ledger and adds only FR-253. Generated views are rebuilt from the composed source, never concatenated.
+
+## Composed version diff
+
+PRD1.237 ->1.238, FEATURES1.59 ->1.60, interface1.32 ->1.33, API1.84 ->1.85, roadmap2.110 ->2.111; Console FR-253 ->FR-254 collision reconciliation only. API302paths/402operations; pages113/navigation58. Verification of final composed source remains pending.

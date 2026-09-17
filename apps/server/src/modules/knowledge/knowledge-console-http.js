@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server'
 import { ZodError } from 'zod'
 import { resolveKnowledgeRequestViewer } from './knowledge-http'
 
-// @req FR-253 — console requests resolve trusted authority again after slow reads.
+// @req FR-254 — console requests resolve trusted authority again after slow reads.
 // @spec ADR-072, SEC-001, SEC-008
-// @tested tests/unit/fr253-knowledge-console-routes.test.js
+// @tested tests/unit/fr254-knowledge-console-routes.test.js
 export const consoleParameters = (request) => Object.fromEntries(new URL(request.url).searchParams)
 
 export async function consoleRequest(request, operation) {

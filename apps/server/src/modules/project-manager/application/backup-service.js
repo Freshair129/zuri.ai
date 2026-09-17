@@ -1,4 +1,7 @@
 // @req FR-149 — restored LINE jobs preserve delivery evidence but cannot resume sends.
+// @req FR-253 — pricing evidence restores in scoped derivation order without legacy erasure.
+// @spec ADR-098
+// @tested tests/unit/pricing-backup.test.js
 // @spec ADR-061
 // @tested tests/integration/line-server-backup.test.js
 // @req FR-013 - snapshot export/import with preview and confirmation.
@@ -30,6 +33,7 @@ import prisma from '@/lib/db'
 import { BROADCAST_INTENT_STATUSES, hashMarketingBroadcastPayload, parseMarketingBroadcastPayload } from '@/modules/marketing/domain/marketing-broadcast-contract'
 import { recordAudit } from './audit'
 import { computeManifestHash } from '@/modules/crm/chat-evidence-archive-service'
+import { pricingHash } from '@/modules/commerce/domain/pricing-engine'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
 import { requireViewer } from './project-authorization'
 import { assertOperator, assertOperatorAndRecordUse } from '@/modules/identity/operator-use'
@@ -178,6 +182,8 @@ const SNAPSHOT_MODELS = [
   // authoritative seller records.  The profile and numbering sequence must
   // restore before a CommerceDocument can be recreated.
   'businessBillingProfile', 'commerceDocumentSequence',
+  // @req FR-253 — immutable price results restore after their scoped rule versions.
+  'pricingRuleSet', 'pricingCalculation',
   // @req FR-081 — the ingestion tables hang off a connection, so they restore after
   // it and delete before the Tenant/Business they reference. The three integration
   // metadata models were absent from this list entirely; a restore silently dropped
@@ -465,6 +471,8 @@ const KNOWLEDGE_ADMISSION_TABLES = ['knowledgeCorpus', 'knowledgeSource', 'knowl
 // permanently strand archive files or erase retained usage totals.
 const ARCHIVE_RECOVERY_TABLES = Object.freeze(['customerArchiveKey', 'archiveManifest'])
 const USAGE_ROLLUP_RECOVERY_TABLE = 'usageEventRollup'
+const PRICING_RECOVERY_TABLES = Object.freeze(['pricingRuleSet', 'pricingCalculation'])
+export const PRICING_RECOVERY_MANIFEST_VERSION = 'pricing-recovery.v1'
 
 function snapshotTableState(tables, model) {
   if (!tables || !Object.prototype.hasOwnProperty.call(tables, model)) return 'MISSING'
@@ -480,6 +488,88 @@ function snapshotDateMillis(value) {
   if (typeof value !== 'string' || !value.trim()) return null
   const parsed = new Date(value)
   return Number.isNaN(parsed.getTime()) ? null : parsed.getTime()
+}
+
+/** A self-FK cannot rely on insertion order or table-wide DELETE ordering. */
+function pricingRuleRestoreRows(rows, errors) {
+  const byId = new Map(), children = new Map(), pending = new Map()
+  for (const row of rows) {
+    if (!isSnapshotObject(row) || typeof row.id !== 'string' || !row.id.trim()) { errors.push('Pricing rule has no valid identity'); continue }
+    if (!Object.hasOwn(row, 'sourceRuleSetId')) errors.push(`Pricing rule ${row.id} omits sourceRuleSetId lineage`)
+    if (byId.has(row.id)) errors.push(`Pricing rules reuse id ${row.id}`)
+    byId.set(row.id, row)
+  }
+  for (const row of byId.values()) {
+    const parentId = row.sourceRuleSetId
+    if (parentId !== null && parentId !== undefined) {
+      const parent = byId.get(parentId)
+      if (!parent) errors.push(`Pricing rule ${row.id} references missing sourceRuleSetId ${parentId}`)
+      else if (parent.tenantId !== row.tenantId || parent.businessId !== row.businessId) errors.push(`Pricing rule ${row.id} source crosses Business/Tenant scope`)
+      const siblings = children.get(parentId) || []
+      siblings.push(row.id); children.set(parentId, siblings)
+      pending.set(row.id, 1)
+    } else pending.set(row.id, 0)
+  }
+  const queue = [...byId.keys()].filter((id) => pending.get(id) === 0).sort(), ordered = []
+  for (let index = 0; index < queue.length; index += 1) {
+    const id = queue[index]; ordered.push(byId.get(id))
+    for (const child of (children.get(id) || []).sort()) { pending.set(child, 0); queue.push(child) }
+  }
+  if (ordered.length !== byId.size) errors.push('Pricing rule derivation contains a cycle or unresolved source')
+  return ordered
+}
+
+function pricingRecovery(snapshot) {
+  const tables = snapshot?.tables || {}, manifest = snapshot?.pricingRecovery
+  const result = { status: 'AVAILABLE', errors: [], warnings: [], ruleRows: [] }
+  const states = PRICING_RECOVERY_TABLES.map((model) => snapshotTableState(tables, model))
+  if (manifest !== undefined && (!isSnapshotObject(manifest) || manifest.schemaVersion !== PRICING_RECOVERY_MANIFEST_VERSION || !Array.isArray(manifest.requiredTables) || JSON.stringify([...manifest.requiredTables].sort()) !== JSON.stringify([...PRICING_RECOVERY_TABLES].sort()))) result.errors.push('Pricing recovery manifest is invalid')
+  if (states.every((state) => state === 'MISSING') && manifest === undefined) {
+    result.status = 'UNAVAILABLE'
+    result.warnings.push('PRICING_RECOVERY_UNAVAILABLE: snapshot has no pricingRuleSet/pricingCalculation arrays')
+    return result
+  }
+  PRICING_RECOVERY_TABLES.forEach((model, index) => { if (states[index] !== 'PRESENT') result.errors.push(`Pricing recovery requires ${model} array; partial or malformed evidence is not restorable`) })
+  if (result.errors.length) return { ...result, status: 'INVALID' }
+  const businesses = new Map((Array.isArray(tables.business) ? tables.business : []).filter(isSnapshotObject).map((row) => [row.id, row]))
+  const tenants = new Set((Array.isArray(tables.tenant) ? tables.tenant : []).filter(isSnapshotObject).map((row) => row.id))
+  const scoped = (row, label) => {
+    if (!isSnapshotObject(row)) { result.errors.push(`Pricing ${label} is not an object`); return false }
+    const business = businesses.get(row.businessId)
+    if (!business || !tenants.has(row.tenantId) || business.tenantId !== row.tenantId) result.errors.push(`Pricing ${label} ${row.id} has inconsistent Business/Tenant references`)
+    return true
+  }
+  const readJson = (row, field, hashField) => {
+    try {
+      if (typeof row[field] !== 'string' || row[field].length > 100000) throw new Error('Invalid JSON')
+      const parsed = JSON.parse(row[field])
+      if (!isSnapshotObject(parsed) || (hashField && pricingHash(parsed) !== row[hashField])) throw new Error('Hash mismatch')
+      return parsed
+    } catch { result.errors.push(`Pricing ${row.id} has invalid ${field} or hash`); return null }
+  }
+  for (const row of tables.pricingRuleSet) {
+    if (!scoped(row, 'rule')) continue
+    if (!['DRAFT', 'APPROVED', 'REVOKED'].includes(row.status) || !Number.isInteger(row.version) || row.version < 1) result.errors.push(`Pricing rule ${row.id} has invalid lifecycle/version`)
+    readJson(row, 'rulesJson', 'rulesHash')
+  }
+  result.ruleRows = pricingRuleRestoreRows(tables.pricingRuleSet, result.errors)
+  const rules = new Map(result.ruleRows.map((row) => [row.id, row])), ids = new Set(), keys = new Set()
+  for (const row of tables.pricingCalculation) {
+    if (!scoped(row, 'calculation')) continue
+    if (typeof row.id !== 'string' || !row.id.trim() || ids.has(row.id)) result.errors.push(`Pricing calculations reuse or omit id ${row.id}`)
+    ids.add(row.id)
+    const rule = rules.get(row.ruleSetId)
+    if (!rule || rule.tenantId !== row.tenantId || rule.businessId !== row.businessId) result.errors.push(`Pricing calculation ${row.id} rule reference is missing or crosses Business/Tenant scope`)
+    if (!Number.isInteger(row.ruleVersion) || row.ruleVersion < 1 || (rule && row.ruleVersion > rule.version)) result.errors.push(`Pricing calculation ${row.id} has invalid pinned rule version`)
+    const key = JSON.stringify([row.businessId, row.idempotencyKey])
+    if (typeof row.idempotencyKey !== 'string' || !row.idempotencyKey.trim() || keys.has(key)) result.errors.push(`Pricing calculations reuse or omit idempotency key ${key}`)
+    keys.add(key)
+    readJson(row, 'rulesJson', 'rulesHash'); readJson(row, 'inputJson', 'inputHash')
+    const output = readJson(row, 'resultJson')
+    if (output && (output.ruleHash !== row.rulesHash || output.inputHash !== row.inputHash || output.evaluatorVersion !== row.evaluatorVersion)) result.errors.push(`Pricing calculation ${row.id} output lineage is inconsistent`)
+  }
+  if (result.errors.length) result.status = 'INVALID'
+  return result
 }
 
 /**
@@ -1354,6 +1444,7 @@ export async function exportSnapshot({
       schemaVersion: LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION,
       requiredTables: [...LINE_WORKER_MEMORY_RECOVERY_TABLES],
     },
+    pricingRecovery: { schemaVersion: PRICING_RECOVERY_MANIFEST_VERSION, requiredTables: [...PRICING_RECOVERY_TABLES] },
     tables: {},
   }
   for (const model of SNAPSHOT_MODELS) {
@@ -1439,6 +1530,7 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   const lineWorkerMemory = lineWorkerMemoryRecovery(snapshot)
   const archive = archiveRecovery(snapshot)
   const usageRollup = usageRollupRecovery(snapshot)
+  const pricing = pricingRecovery(snapshot)
   const current = {}
   for (const model of SNAPSHOT_MODELS) current[model] = await db[model].count()
   const currentMemoryJobs = await db.lineConversationJob.count({ where: {
@@ -1474,17 +1566,22 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
     usageRollup.errors.push('Usage event rollup recovery is unavailable while the installation contains rollup rows; refusing a restore that would erase aggregate evidence')
     usageRollup.status = 'INVALID'
   }
+  if (pricing.status === 'UNAVAILABLE' && PRICING_RECOVERY_TABLES.some((model) => current[model] > 0)) {
+    pricing.errors.push('Pricing recovery is unavailable while the installation contains pricing rows; refusing a restore that would erase evidence')
+    pricing.status = 'INVALID'
+  }
   return {
     ...base,
-    valid: base.valid && billing.errors.length === 0 && inventory.errors.length === 0 && lineWorkerMemory.errors.length === 0 && marketingBroadcast.errors.length === 0 && archive.errors.length === 0 && usageRollup.errors.length === 0,
-    errors: [...base.errors, ...billing.errors, ...inventory.errors, ...lineWorkerMemory.errors, ...marketingBroadcast.errors, ...archive.errors, ...usageRollup.errors],
-    warnings: [...base.warnings, ...billing.warnings, ...inventory.warnings, ...lineWorkerMemory.warnings, ...marketingBroadcast.warnings, ...archive.warnings, ...usageRollup.warnings],
+    valid: base.valid && billing.errors.length === 0 && inventory.errors.length === 0 && lineWorkerMemory.errors.length === 0 && marketingBroadcast.errors.length === 0 && archive.errors.length === 0 && usageRollup.errors.length === 0 && pricing.errors.length === 0,
+    errors: [...base.errors, ...billing.errors, ...inventory.errors, ...lineWorkerMemory.errors, ...marketingBroadcast.errors, ...archive.errors, ...usageRollup.errors, ...pricing.errors],
+    warnings: [...base.warnings, ...billing.warnings, ...inventory.warnings, ...lineWorkerMemory.warnings, ...marketingBroadcast.warnings, ...archive.warnings, ...usageRollup.warnings, ...pricing.warnings],
     billingRecovery: billing,
     inventoryStocktakeRecovery: inventory,
     lineWorkerMemoryRecovery: lineWorkerMemory,
     marketingBroadcastRecovery: marketingBroadcast,
     archiveRecovery: archive,
     usageEventRollupRecovery: usageRollup,
+    pricingRecovery: pricing,
     current,
     wouldReplace: Object.values(current).some((count) => count > 0),
   }
@@ -1497,6 +1594,11 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
  * turn into a silent wipe.
  */
 async function assertProtectedRecoveryStillSafe(tx, snapshot, preview) {
+  if (preview.pricingRecovery?.status === 'UNAVAILABLE') {
+    for (const model of PRICING_RECOVERY_TABLES) if (await tx[model].count() > 0) throw new BackupRestoreSafetyError('BACKUP_PRICING_RECOVERY_LIVE_DATA_APPEARED', `Pricing recovery became unavailable while ${model} gained live rows; refusing to erase evidence`)
+  }
+  const pricing = pricingRecovery(snapshot)
+  if (pricing.errors.length) throw new BackupRestoreSafetyError('BACKUP_PRICING_RECOVERY_INVALID', pricing.errors.join('; '))
   if (preview.archiveRecovery?.status === 'UNAVAILABLE') {
     for (const model of ARCHIVE_RECOVERY_TABLES) {
       const count = await tx[model].count()
@@ -1592,11 +1694,17 @@ export async function importSnapshot(snapshot, {
       // the restore still authenticates against the data that replaced it.
       await tx.pluginInstallation.deleteMany()
       await tx.localWorkspaceMount.deleteMany()
-      for (const model of [...SNAPSHOT_MODELS].reverse()) await tx[model].deleteMany()
+      for (const model of [...SNAPSHOT_MODELS].reverse()) {
+        if (model === 'pricingRuleSet') {
+          const errors = [], rows = pricingRuleRestoreRows(await tx.pricingRuleSet.findMany(), errors)
+          if (errors.length) throw new BackupRestoreSafetyError('BACKUP_PRICING_LIVE_CHAIN_INVALID', errors.join('; '))
+          for (const row of rows.reverse()) await tx.pricingRuleSet.delete({ where: { id: row.id } })
+        } else await tx[model].deleteMany()
+      }
       for (const model of SNAPSHOT_MODELS) {
         const rows = model === 'archiveManifest'
           ? preview.archiveRecovery.manifestRows
-          : snapshot.tables[model] || []
+          : model === 'pricingRuleSet' ? preview.pricingRecovery.ruleRows : snapshot.tables[model] || []
         for (const row of rows) await tx[model].create({ data: restoredRow(model, row, { lineWorkerMemoryRecovery: preview.lineWorkerMemoryRecovery }) })
       }
       for (const mount of remounts) {
@@ -1647,6 +1755,7 @@ export async function importSnapshot(snapshot, {
         marketingBroadcastRecovery: preview.marketingBroadcastRecovery,
         archiveRecovery: preview.archiveRecovery,
         usageEventRollupRecovery: preview.usageEventRollupRecovery,
+        pricingRecovery: preview.pricingRecovery,
         errorCode: error.code,
       }
     }
@@ -1686,6 +1795,7 @@ export async function importSnapshot(snapshot, {
     marketingBroadcastRecovery: preview.marketingBroadcastRecovery,
     archiveRecovery: preview.archiveRecovery,
     usageEventRollupRecovery: preview.usageEventRollupRecovery,
+    pricingRecovery: preview.pricingRecovery,
     unresolvedContentFileIds,
   }
 }

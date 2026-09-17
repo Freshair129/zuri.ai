@@ -1,8 +1,12 @@
 # Appendix A — API Specification
 
+Version diff 1.84.0b -> 1.85.0b: add FR-254 Console to the running pricing and CRM baseline; inventory 302 paths and 402 operations. No baseline route is removed.
+
+Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operations) with the exact already-deployed CRM legal-hold path. Current inventory is 296 paths and 395 operations; no live CRM route is removed.
+
 | Field | Value |
 |-------|-------|
-| **Version** | 1.83.0b |
+| **Version** | 1.85.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-17 |
 
@@ -23,7 +27,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=296 -->
+<!-- api-spec-counts: route_handlers=302 -->
 
 ### Local model residency by business hours (FR-244, 2026-09-16)
 
@@ -230,13 +234,13 @@ Business-scoped and never returns secret material:
 
 | Method | Path | Contract |
 |---|---|---|
-| GET | `/api/knowledge/sources` | FR-253: Business/optional Project, title/status, limit 1–100 and scope-bound cursor; current-authorized source metadata and runtime capabilities. No payload or hidden totals. |
-| GET | `/api/knowledge/sources/[sourceId]` | FR-253: current-authorized immutable admission versions with cursor pagination; no source content. Existing DELETE unchanged. |
-| GET | `/api/knowledge/console/runs` | FR-253: scoped FR-071 ledger runs, terminal statuses included; unlinked legacy runs remain Business-only. |
-| GET | `/api/knowledge/console/runs/[executionRunId]` | FR-253: every reported attempt, gate metadata and verified publication identity; missing/inconsistent publication evidence is explicitly unavailable. |
-| GET | `/api/knowledge/corpora` | FR-253: all authorized Business/Project corpora with current generation and cursor pagination. |
-| GET | `/api/knowledge/corpora/[corpusId]/generations` | FR-253: validated immutable manifests projected to current-authorized source entries, current/historical generation and cursor. |
-| GET | `/api/knowledge/citations/[citationId]/artifact` | FR-253: citation-bound kind=chunk/parsed/raw, exact retained lineage/hash verification and post-read authority recheck. Preview capped at 65,536 characters; download=true returns complete text/plain attachment with fixed filename, nosniff and private/no-store. No arbitrary artifact/path lookup. |
+| GET | `/api/knowledge/sources` | FR-254: Business/optional Project, title/status, limit 1–100 and scope-bound cursor; current-authorized source metadata and runtime capabilities. No payload or hidden totals. |
+| GET | `/api/knowledge/sources/[sourceId]` | FR-254: current-authorized immutable admission versions with cursor pagination; no source content. Existing DELETE unchanged. |
+| GET | `/api/knowledge/console/runs` | FR-254: scoped FR-071 ledger runs, terminal statuses included; unlinked legacy runs remain Business-only. |
+| GET | `/api/knowledge/console/runs/[executionRunId]` | FR-254: every reported attempt, gate metadata and verified publication identity; missing/inconsistent publication evidence is explicitly unavailable. |
+| GET | `/api/knowledge/corpora` | FR-254: all authorized Business/Project corpora with current generation and cursor pagination. |
+| GET | `/api/knowledge/corpora/[corpusId]/generations` | FR-254: validated immutable manifests projected to current-authorized source entries, current/historical generation and cursor. |
+| GET | `/api/knowledge/citations/[citationId]/artifact` | FR-254: citation-bound kind=chunk/parsed/raw, exact retained lineage/hash verification and post-read authority recheck. Preview capped at 65,536 characters; download=true returns complete text/plain attachment with fixed filename, nosniff and private/no-store. No arbitrary artifact/path lookup. |
 | GET | `/api/platform/integrations` | implemented: trusted Business-scoped provider/connection metadata and redacted Vault status |
 | POST | `/api/platform/integrations` | implemented: create draft metadata with fixed `purpose=PHASE1_LINE_LLM`; accepts only `supabase-vault:<uuid>`; working tree implementation is local-only |
 | GET | `/api/platform/integrations/line-registry` | implemented: trusted Business-scoped LINE Groups and Users registry with automation jobs |
@@ -583,6 +587,12 @@ the VERIFIED payments.
 
 | Method | Path | Success | Failure |
 |---|---|---|---|
+| GET, POST | `/api/commerce/pricing-rules` | FR-253: OWNER-scoped list/template and create draft; businessId plus name/rules for POST | 404 scope; 422 rule schema |
+| PATCH | `/api/commerce/pricing-rules/[id]` | FR-253: version/name/rules/reason; draft-only optimistic update | 404 scope; 409 revision/immutable; 422 formula |
+| POST | `/api/commerce/pricing-rules/[id]/actions` | FR-253: APPROVE with effectiveFrom/expiresAt or REVOKE; version/reason required | 404 scope; 409 state/revision; 422 dates |
+| POST | `/api/commerce/pricing-rules/preview` | FR-253: server evaluator, rules/input and optional compareRuleSetId; simulation only | 404 scope; 422 formula/input |
+| POST | `/api/commerce/pricing-rules/calculate` | FR-253: active rule, input and idempotencyKey; immutable USER_ENTERED result, not publishable | 404 scope; 409 inactive/idempotency; 422 input |
+| POST | `/api/commerce/pricing-rules/catalog` | FR-253: OWNER scoped product/expected rule/quantities/reason/idempotencyKey; previewOnly returns exact ledger prices and previewHash without writes; confirmation requires previewHash and uses existing Knowledge admission, never publication success | 404 scope; 409 stale preview/policy; 422 missing cost; runtime/storage/admission errors |
 | GET | `/api/commerce/orders?businessId=&status=&origin=&customerId=&conversationId=&includeClosed=&limit=` | implemented (FR-166): `{ businessId, orders[], summary: { open, unpaid, pendingPayments } }` — each order with `code` (`ORD-YYYYMMDD-NNN`), `origin` (CHAT / WALK_IN / ONLINE), `attributed`, `status`, `lines[]` (`productId`, `description`, `qty`, `unitPrice`, `discount`, `lineTotal`), `subtotal`, `discount`, `total`, `paid`, `refunded`, `net`, `pending`, `balanceDue`, `paymentState` (UNPAID / PARTIAL / PAID / OVERPAID / REFUNDED), `payments[]`, `customer`, `version`. Open orders by default | `404 Business not found`; `400` validation |
 | POST | `/api/commerce/orders` | implemented (FR-166): `{ businessId, lines: [{ productId?, description?, qty, unitPrice, discount? }], customerId?, conversationId?, origin?, discount?, notes?, orderedAt?, currency? }` — a Conversation supplies its Customer and makes the origin CHAT; a product must be an ACTIVE SKU of the same Business. Audited `SALES_ORDER_CREATED` | `404` (also a viewer without OWNER / SALES_REP); `409 PRODUCT_ARCHIVED`; `422 CUSTOMER_NOT_FOUND \| CONVERSATION_NOT_FOUND \| CONVERSATION_CUSTOMER_MISMATCH \| PRODUCT_NOT_FOUND`; `400` validation (a line needs a product or a description; a discount within its line; two-decimal amounts) |
 | GET | `/api/commerce/orders/[id]` | implemented (FR-166): one order with its lines, payments and money | `404 Business not found` |
@@ -871,7 +881,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 1.83.0b | 2026-09-17 | candidate | FR-253 adds six console route handlers and GET source history; current authority, cursor pages and immutable citation artifacts | working-tree | RWANG |
+| 1.83.0b | 2026-09-17 | candidate | FR-254 adds six console route handlers and GET source history; current authority, cursor pages and immutable citation artifacts | working-tree | RWANG |
 | 1.82.0b | 2026-09-17 | candidate | Implement and locally verify owner-approved FR-251 read-only Domain-view contract and runtime Swagger; one GET handler added (288 → 289), typed scope refusals and operation-only SessionAuth verified | reviewed baseline 7465080f; PR443 | RWANG |
 | 1.82.0b | 2026-09-16 | candidate | SEC-034 (ADR-093 D6, TASK-ZAI-113): one handler file, `POST /api/crm/customers/[customerId]/legal-hold` — records an OWNER-recorded legal hold on a Customer's chat evidence archive; while active, a PDPA erasure defers destroying the archive key instead of destroying it. Route handler count 288 -> 289 | working-tree | Claude Sonnet 5 |
 | 1.81.0b | 2026-09-16 | candidate | FR-248, FR-249 (ADR-095 D2, D3): two handler files, `POST/GET /api/platform/usage-events` (record one's own usage; operator reads the breakdown) and `POST /api/platform/usage-events/rollup` (deployment-authenticated 90-day rollup, same shape as the retention sweep). Route handler count 286 -> 288 | working-tree | Claude Sonnet 5 |

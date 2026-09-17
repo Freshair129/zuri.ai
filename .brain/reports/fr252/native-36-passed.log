@@ -1,0 +1,58 @@
+
+> zuri-ai@0.1.0 test:genesisrag17
+> node scripts/run-genesisrag17-acceptance.mjs
+
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+
+ RUN  v2.1.9 C:/Users/pc/.codex/visualizations/2026/09/16/01a0ab85-48d9-7380-91a5-7dd7539f6427/zuri-pricing-engine/apps/server
+
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": SQLite database "run-74056-mu4jshhi-af853e.db" at "file:./.test-dbs/run-74056-mu4jshhi-af853e.db"
+
+SQLite database run-74056-mu4jshhi-af853e.db created at file:./.test-dbs/run-74056-mu4jshhi-af853e.db
+
+Your database is now in sync with your Prisma schema. Done in 6.44s
+
+ ✓ tests/acceptance/genesisrag17-e2e.test.js (25 tests) 198754ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > starts from raw, preserves lost-reply identity, publishes all17 and resolves actual citations 11728ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > restarts the actual native process and keeps old snapshot citations after correction 11800ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > rejects wrong scope and forged reporters 480ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > blocks malformed attempt evidence without advancing the cursor, then resumes actual evidence 8177ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > records embedding policy denial as a failed actual stage and retains the published snapshot 7192ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > recovers an actual process crash at after-native-commit-before-receipt (graph) without losing historical citations 21573ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > recovers an actual process crash at after-native-commit-before-receipt (final) without losing historical citations 12435ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > recovers an actual process crash at after-graph-receipt-accepted-before-local-state without losing historical citations 12515ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > recovers an actual process crash at before-pointer-replacement without losing historical citations 12496ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > recovers an actual process crash at after-pointer-replacement-before-publication-outbox without losing historical citations 12800ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > executes a real FR-071 replay with new attempts and refuses late evidence from the old run 5807ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > resends the identical msp_pipeline_graph_receipt after an actual accepted reply is lost 8126ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > resends the identical msp_pipeline_write_receipt after an actual accepted reply is lost 7006ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > runs source and native worker loops through automatic receipt-backed finish and stops both 5210ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > refuses publication when the actual candidate reports index failure 7762ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > refuses publication when the actual candidate reports provenance failure 8536ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > refuses publication when the actual candidate reports security failure 7951ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > honors publication policy after real embedding and gate evaluation 6315ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > rolls back run creation when the source process dies before its durable intent 5683ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > resumes the actual source process after Stage3 without caller resubmission 4939ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > resumes the actual source process after Stage8 without caller resubmission 4584ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > routes ambiguous, negated and invalid temporal raw text through actual source and GKS stages 4357ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > isolates retrieval with two populated tenants, shared GKS and scope-owned native stores 9006ms
+   ✓ GenesisRAG17 actual four-process acceptance (no skips) > restores the isolated Tier 1 backup with immutable lineage and publication proof intact 1526ms
+ ✓ tests/acceptance/genesisrag17-smartgift.test.js (11 tests) 47762ms
+   ✓ SmartGift structured-record four-process acceptance (no skips) > publishes PM-TMB through the actual four processes at ontology_v2 Stage 17 PASS 6431ms
+   ✓ SmartGift structured-record four-process acceptance (no skips) > publishes PM-BOTTLE-LED through the actual four processes at ontology_v2 Stage 17 PASS 6816ms
+   ✓ SmartGift structured-record four-process acceptance (no skips) > publishes PM-TMB@qty100 through the actual four processes at ontology_v2 Stage 17 PASS 6783ms
+   ✓ SmartGift structured-record four-process acceptance (no skips) > publishes PKG-NY-2027-REACH-OPS through the actual four processes at ontology_v2 Stage 17 PASS 6669ms
+   ✓ SmartGift structured-record four-process acceptance (no skips) > answers a catalog query from the published snapshot with citations that resolve through Tier 1 890ms
+   ✓ SmartGift structured-record four-process acceptance (no skips) > refuses a cross-tenant snapshot and a forged reporter on the SmartGift scope 548ms
+   ✓ SmartGift structured-record four-process acceptance (no skips) > ends the deliberately unmappable record as a documented no-publish without disturbing the published snapshot 790ms
+   ✓ SmartGift structured-record four-process acceptance (no skips) > publishes Commerce ledger-computed product and price through Stage 17 with real receipts and queries 18544ms
+
+ Test Files  2 passed (2)
+      Tests  36 passed (36)
+   Start at  03:23:06
+   Duration  257.64s (transform 514ms, setup 16ms, collect 2.81s, tests 246.52s, environment 0ms, prepare 104ms)
+
+JSON report written to C:/Users/pc/.codex/visualizations/2026/09/16/01a0ab85-48d9-7380-91a5-7dd7539f6427/zuri-pricing-engine/apps/server/node_modules/.cache/zuri-test-proof/vitest.json
+
+assert-tests-ran: vitest executed 36 test(s).

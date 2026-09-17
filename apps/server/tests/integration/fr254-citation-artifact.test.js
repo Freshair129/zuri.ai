@@ -8,10 +8,10 @@ import { citationReference } from '@/modules/knowledge/knowledge-corpus-service'
 import { readConsoleCitationArtifact } from '@/modules/knowledge/knowledge-console-service'
 import { createKnowledgeConsoleRepository } from '@/modules/knowledge/knowledge-console-repository'
 
-// @req FR-253 — citation artifacts remain bound to retained immutable bytes and
+// @req FR-254 — citation artifacts remain bound to retained immutable bytes and
 // current access after all slow reads; FileAsset changes cannot replace history.
 // @spec ADR-072, SEC-001, SEC-008
-// @tested tests/integration/fr253-citation-artifact.test.js
+// @tested tests/integration/fr254-citation-artifact.test.js
 // Fixture evidence only: Tier 1 stages run locally with a pending transport seam;
 // the corpus generation is arranged directly to exercise reads. This is NOT
 // native publication or the required admission-to-citation browser acceptance.
@@ -78,7 +78,7 @@ async function fixture(content = historicalText) {
   return { source, file, ingestion, content, chunk, citationId, executeVersion, options: { db: prisma, viewer, env: { ZURI_KNOWLEDGE_ENABLED: '0' } } }
 }
 
-describe('FR-253 citation artifact reads against retained Tier 1 Prisma lineage', () => {
+describe('FR-254 citation artifact reads against retained Tier 1 Prisma lineage', () => {
   it('opens the exact old raw, parsed and chunk bytes after a newer file/source version exists', async () => {
     const f = await fixture()
     const newer = 'A newer mutable file must never replace the historical citation.'

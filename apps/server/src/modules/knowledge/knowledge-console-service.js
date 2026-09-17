@@ -10,9 +10,9 @@ import { resolveKnowledgeCitation, validateStoredManifest, scopeFromCorpus, veri
 import { hashGenesisRag17Text } from './genesisrag17-contract'
 import { createKnowledgeRepository } from './knowledge-repository'
 
-// @req FR-253 — source, run and publication metadata never bypass live source authority.
+// @req FR-254 — source, run and publication metadata never bypass live source authority.
 // @spec ADR-072, ADR-085, SEC-001, SEC-008
-// @tested tests/integration/fr253-knowledge-console.test.js, tests/integration/fr253-citation-artifact.test.js
+// @tested tests/integration/fr254-knowledge-console.test.js, tests/integration/fr254-citation-artifact.test.js
 const id = z.string().trim().min(1).max(200)
 const paging = { cursor: z.string().max(2048).optional(), limit: z.coerce.number().int().min(1).max(100).default(25) }
 const scopeInput = { businessId: id, projectId: id.optional(), ...paging }

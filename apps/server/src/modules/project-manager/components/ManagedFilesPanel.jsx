@@ -1,7 +1,7 @@
 'use client'
 
-// @req FR-253 — Files links to knowledge history and reports admission read failures.
-// @tested tests/e2e/fr253-knowledge-console.spec.js
+// @req FR-254 — Files links to knowledge history and reports admission read failures.
+// @tested tests/e2e/fr254-knowledge-console.spec.js
 
 // @req FR-045 - Business and Project File Manager controls over one managed model.
 // @req FR-173 - Files and Project Files admit Text/Markdown through the shared

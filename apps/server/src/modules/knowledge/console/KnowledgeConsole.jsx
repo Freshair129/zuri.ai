@@ -1,8 +1,8 @@
 'use client'
 
-// @req FR-253 — paged, scoped knowledge sources, processing history and exact cited evidence.
+// @req FR-254 — paged, scoped knowledge sources, processing history and exact cited evidence.
 // @spec ADR-072, ADR-085, SEC-001, SEC-008
-// @tested tests/e2e/fr253-knowledge-console.spec.js
+// @tested tests/e2e/fr254-knowledge-console.spec.js
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { FileText, RefreshCw, Search, UploadCloud } from 'lucide-react'

@@ -4,8 +4,8 @@
 //   (the Data Pipeline Map, with its summary figures) and what is planned for it.
 // @spec ADR-085 D1
 // @tested tests/unit/knowledge-data-pipeline-map-ui.test.js
-// @req FR-253 — link to the authorized knowledge console from its domain dashboard.
-// @tested tests/e2e/fr253-knowledge-console.spec.js
+// @req FR-254 — link to the authorized knowledge console from its domain dashboard.
+// @tested tests/e2e/fr254-knowledge-console.spec.js
 
 import Link from 'next/link'
 import { Card, Kpi, PageHeader, SectionTitle } from '@/components/ui'
