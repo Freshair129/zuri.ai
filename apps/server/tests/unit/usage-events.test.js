@@ -175,11 +175,19 @@ describe('NFR-023 rollupUsageEvents', () => {
   it('claims a UTC day inside the transaction and returns the same receipt on replay', async () => {
     const { db, audits } = fakeDb()
     const now = new Date('2026-09-16T12:00:00.000Z')
-    const first = await rollupUsageEvents(db, { now, oncePerDay: true })
-    const replay = await rollupUsageEvents(db, { now: new Date('2026-09-16T23:59:59.000Z'), oncePerDay: true })
-    expect(first.alreadyRanToday).toBe(false)
-    expect(replay).toMatchObject({ auditEventId: first.auditEventId, rolledUpCount: 0, groupCount: 0, alreadyRanToday: true })
-    expect(audits).toHaveLength(1)
+    vi.useFakeTimers({ toFake: ['Date'] })
+    try {
+      vi.setSystemTime(now)
+      const first = await rollupUsageEvents(db, { now, oncePerDay: true })
+      const replayAt = new Date('2026-09-16T23:59:59.000Z')
+      vi.setSystemTime(replayAt)
+      const replay = await rollupUsageEvents(db, { now: replayAt, oncePerDay: true })
+      expect(first.alreadyRanToday).toBe(false)
+      expect(replay).toMatchObject({ auditEventId: first.auditEventId, rolledUpCount: 0, groupCount: 0, alreadyRanToday: true })
+      expect(audits).toHaveLength(1)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('rolls back aggregate and raw deletion when an operation fails, and retries a serialization conflict', async () => {

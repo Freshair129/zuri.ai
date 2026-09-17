@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
 import {
@@ -94,6 +94,9 @@ async function sameNotFound(actual, missing) {
 describe('FR-253 knowledge console real Prisma read boundary', () => {
   let f
   beforeEach(async () => { f = await fixture() })
+  afterEach(async () => {
+    await prisma.knowledgeIngestion.deleteMany({ where: { corpus: { businessId: { in: [f.a.businessId, f.b.businessId] } } } })
+  })
 
   it.each(['missing-receipt', 'missing-artifact-reference'])('keeps a claimed published run readable with %s and withholds unverified snapshot metadata', async (missing) => {
     const source = await f.source(f.aCorpus)
