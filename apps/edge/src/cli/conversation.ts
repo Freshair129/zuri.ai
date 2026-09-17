@@ -15,7 +15,8 @@ export async function runConversationCommand(subcommand: string | undefined): Pr
   if (subcommand !== 'once' && subcommand !== 'serve') throw new Error('Use conversation once | conversation serve');
   const config = loadConfig();
   const client = createConversationClient({ baseUrl: config.cloudBaseUrl || '', deviceKey: config.edgeDeviceKey || '' });
-  const deps = { client, answer: createConversationExecutor(config) };
+  const deps = { client, answer: createConversationExecutor(config, { client,
+    onProgress: event => logDiagnostic('conversation-progress', { ...event }) }) };
   if (subcommand === 'once') { printJsonSuccess(await runConversationOnce(deps)); return; }
   const controller = new AbortController();
   const stop = () => controller.abort();

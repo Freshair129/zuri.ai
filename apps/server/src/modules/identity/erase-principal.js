@@ -28,6 +28,7 @@ import { applyReviewedProjectFeatureErasure } from '@/modules/project-manager/ap
 // RCA: .brain/rca/2026-08-31-conversation-analysis-tenant-binding.md
 // @tested tests/integration/identity-erase.test.js, tests/integration/crm-conversation-analysis.test.js
 // @tested tests/integration/crm-customer-erasure.test.js, tests/integration/server-line-jobs.test.js
+// @tested tests/integration/crm-archive-legal-hold.test.js
 
 const REDACTED = '[erased]'
 
@@ -41,7 +42,7 @@ const REDACTED = '[erased]'
  * an erasure that revoked the identity and then failed to redact would leave the
  * person un-reachable but fully readable, which is the worse half to get wrong.
  *
- * @returns {{ revokedIdentities, revokedChannelIdentities, erasedCustomers, erasedAnalyses, invalidatedTokens, revokedSessions, personRedacted, redactedMessages, tombstonedRawRecords }}
+ * @returns {{ revokedIdentities, revokedChannelIdentities, erasedCustomers, erasedAnalyses, invalidatedTokens, revokedSessions, personRedacted, redactedMessages, tombstonedRawRecords, archiveKeys }}
  */
 export async function erasePrincipal(input, { db = prisma, reviewedPmContext = null } = {}) {
   const { tenantId, personId, reason } = zErasePrincipalInput.parse(input)
@@ -172,11 +173,24 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
 
     // CRM keeps an archive key while an active dispute hold requires it. Retry
     // this independently of PM replay so an expired hold can finish its erasure.
+    // @req SEC-034 — the chat evidence archive is the one copy a PDPA erasure
+    // does not destroy outright (ADR-093 D6, TASK-ZAI-113): a Customer's
+    // archive data key is destroyed here, UNLESS an OWNER has recorded an
+    // active legal hold on them, in which case the key survives and the hold
+    // is reported so the caller can show it ("the erasure status shows the
+    // hold" — ADR-093 D6). `destroyCustomerArchiveKey` is the one function
+    // that may delete the key row; the hold check lives inside it, not here,
+    // so this call site cannot re-derive that answer differently from
+    // `chat-evidence-archive-expiry-service.js`'s own call to it. Looped
+    // rather than assumed singular: nothing here relies on the
+    // @@unique([tenantId, personId]) constraint that makes customerIds hold
+    // at most one id today, matching how activeCustomers above is derived
+    // from the data rather than from that invariant.
     const archiveKeys = []
-    for (const customerId of customerIds) {
-      const result = await destroyCustomerArchiveKey(tx, { tenantId, customerId, now })
+    for (const id of customerIds) {
+      const result = await destroyCustomerArchiveKey(tx, { tenantId, customerId: id, now })
       archiveKeys.push({
-        customerId,
+        customerId: id,
         keyDestroyed: result.destroyed,
         legalHold: result.hold ? { reason: result.hold.reason, endDate: result.hold.endDate.toISOString() } : null,
       })
@@ -246,9 +260,15 @@ export async function erasePrincipal(input, { db = prisma, reviewedPmContext = n
       redactedMessages,
       redactedLineJobs,
       tombstonedRawRecords,
-      archiveKeys,
       personRedacted,
       pmErasure,
+      // @req SEC-034 — one entry per Customer this erasure touched (ADR-093
+      //   D6): `keyDestroyed: true` when no hold protected them, or
+      //   `legalHold` naming the hold that deferred it. Always present as an
+      //   array (empty when this Person has no Customer at all) rather than a
+      //   new required field, so an existing caller that ignores it keeps
+      //   reading exactly the counts it always did.
+      archiveKeys,
     }
   }
   return typeof db.$transaction === 'function'

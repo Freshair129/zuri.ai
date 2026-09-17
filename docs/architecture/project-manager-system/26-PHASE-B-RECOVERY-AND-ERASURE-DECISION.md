@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.2b"
+version: "0.3.4b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-09-17T13:50:00+07:00,RWANG"
+last_update: "2026-09-17T20:21:00+07:00,RWANG"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -165,14 +165,39 @@ W1 isolated schema had 174 models; this is not a production inventory claim.
 Inventory/schema changes require a new reviewed binding. A catalog or binding
 mismatch is `TARGET_SCHEMA_UNVERIFIED` before insertion.
 
-The approved CRM peer reconciliation now composes CustomerLegalHold, giving
-175 application models in [the frozen inventory](contracts/phase-b/target-schema.inventory.json).
-The schema's LF bytes follow the existing `.gitattributes` policy. The composed
-`schemaSha256` is `9bc8c777e00f7716b94b99a6a771e1453b9d667d887bcb2ed0118779ca0ec2be`;
-`targetSchemaSha256` is `617b091c8b94ff306f9b98989676f631360b23f4a7faac0f1e57d16743999f5b`.
-Independent Luna Max inventory verification passed for this 175-model binding
-on 2026-09-17. The executable loader must enforce the same exact-byte/schema
-binding; static inventory review alone does not establish runtime enforcement.
+The historical W2 CRM composition at 052821a7 had 175 application models:
+`schemaSha256` `9bc8c777e00f7716b94b99a6a771e1453b9d667d887bcb2ed0118779ca0ec2be`,
+`targetSchemaSha256` `617b091c8b94ff306f9b98989676f631360b23f4a7faac0f1e57d16743999f5b`.
+Its independent review and actual CLI proof remain evidence for that version.
+
+Composition with main 892f23f3 adds exactly PricingRuleSet and
+PricingCalculation, giving **177 application models** in
+[the frozen inventory](contracts/phase-b/target-schema.inventory.json):
+168 snapshot-included models and nine approved exclusions. The canonical LF
+schema has `schemaSha256`
+`5d3825978c25a731d8088908e1692cf786231595cdf3af3464227c6368774e31`;
+`targetSchemaSha256` is
+`68d92f85611c34fc76fcef1f217815c2ed5e3ed6f351a202e0750fd1c21f3a27`.
+Independent Luna Max review recomputed both hashes, model mappings, ordinal
+serialization and SQLite/PostgreSQL parity and passed on 2026-09-17.
+The loader and all executable adapters enforce this exact binding.
+Historical 175-bound snapshots refuse; no automatic cross-schema artifact
+rewrite is authorized by this decision. The composed actual CLI proof remains
+a separate gate from static inventory review.
+
+That executable gate now passes on the composed 177-model source: 22 positive
+and 15 adversarial checks, with thirteen executable/schema inputs frozen during
+the run. Its populated six PM and two Pricing families restore into fresh
+synthetic targets. The [integration report](../../../.brain/reports/2026-09-17-project-feature-phase-b.md)
+retains the exact proof; this does not establish production role or migration
+readiness.
+
+Version diff 0.3.3b → 0.3.4b: record the successful composed executable recovery
+gate without changing approved recovery or erasure authority.
+
+Version diff 0.3.2b → 0.3.3b: bind the independently reviewed 177-model
+composition and preserve Pricing validation and parent-first offline insertion.
+Recovery and erasure authority are unchanged.
 
 Version diff 0.3.0b → 0.3.1b: bind the mandatory peer-composed inventory;
 the approved recovery and erasure decisions are unchanged.
@@ -368,6 +393,8 @@ still requires its existing independent and real-role gates.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.4b | 2026-09-17 | beta | Close the separate executable 177-model recovery gate with 22 positive and 15 adversarial frozen-source checks | 052821a7 + 892f23f3 | RWANG |
+| 0.3.3b | 2026-09-17 | beta | Bind reviewed Pricing/PM 177-model schema and complete snapshot coverage; require fresh executable proof and preserve obsolete-binding refusal | 052821a7 + 892f23f3 | RWANG |
 | 0.3.2b | 2026-09-17 | beta | Document the implemented operator-checkout dependency boundary and unavailable-validator refusal; selected behaviors unchanged | bd99651f | RWANG |
 | 0.3.1b | 2026-09-17 | beta | Bind the peer-composed 175-model inventory and record independent inventory review; selected recovery and erasure behavior unchanged | bd99651f | RWANG |
 | 0.3.0b | 2026-09-17 | beta | Record owner approval of both frozen v0.2.1b decisions and authorize bounded W2 local implementation | bd99651f | RWANG |

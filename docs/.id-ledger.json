@@ -380,6 +380,7 @@
     "FR-250",
     "FR-251",
     "FR-252",
+    "FR-253",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -767,6 +768,7 @@
     "ADR-095",
     "ADR-096",
     "ADR-097",
+    "ADR-098",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -3298,14 +3300,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "bb6c18b657685cfda4affd8b56c4f72cc66f53d267284ad3d0b30438b726469f",
+      "statement_digest": "c154ded01cc6f7e22e274a7337e886f41fd68ed51273112dcbf523e0e4a940e8",
       "history": [
         {
           "anchor": "optional edge conversation execution",
           "since": "2026-09-06",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-16",
+      "statement_digest_reason": "Owner-approved same-subject execution delta: negotiate v2 server deadline and whole-turn budget while preserving optional Edge compute ownership."
     },
     "FR-151": {
       "family": "FR",
@@ -4705,6 +4709,19 @@
       "history": [
         {
           "anchor": "project feature authority",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-253": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "3dd63b243f6e8ed6a4e54c1b0806a5cd5983b13f33edcabcdc6a107f291b407b",
+      "history": [
+        {
+          "anchor": "business scoped versioned pricing rules and formula console",
           "since": "2026-09-16",
           "reason": "declared"
         }
@@ -9825,6 +9842,19 @@
       "history": [
         {
           "anchor": "project feature authority and scoped write contract",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-098": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-098-COMMERCE-PRICING-RULES-AND-KNOWLEDGE-PUBLICATION.md",
+      "status": "current",
+      "statement_digest": "d053a30c1457f030dc33bbab580a22838c7f33e2d8f456d466cac8032601b5de",
+      "history": [
+        {
+          "anchor": "commerce pricing rules and governed knowledge publication",
           "since": "2026-09-16",
           "reason": "declared"
         }

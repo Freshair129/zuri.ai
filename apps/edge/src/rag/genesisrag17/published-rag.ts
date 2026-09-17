@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import type { AnswerRag, PriceEvidenceV4 } from '../genesis-rag.js';
 import type { SearchEvidenceV4 } from '../../answer/format-cards.js';
 import { createMspStdioTransport, MspTransportError, type MspToolCall } from './msp-stdio.js';
@@ -7,6 +8,8 @@ import {
   type GenesisRag17Scope, type GenesisRag17Settings,
 } from './settings.js';
 import type { PublishedGenerationRef, PublishedPassage } from './types.js';
+import type { EdgePublishedCorpusContext } from './corpus-context.js';
+import { createPublishedProductRag, type PublishedProductRequest } from './product-rag.js';
 
 // @req FR-189 — edge answers SmartGift catalog queries from the published GenesisRAG17 generation
 //   through MSP (`primary`), or keeps answering from v4 while comparing against it (`shadow`); v4
@@ -37,7 +40,8 @@ export interface PublishedQueryResult extends PublishedGenerationRef {
 }
 
 export interface PublishedGenerationClient {
-  query(text: string, topK: number): Promise<PublishedQueryResult>;
+  query(text: string, topK: number, snapshotId?: string, signal?: AbortSignal): Promise<PublishedQueryResult>;
+  productQuery?(context: EdgePublishedCorpusContext, request: PublishedProductRequest, signal?: AbortSignal): Promise<unknown>;
 }
 
 const CITATION_KEYS = ['sourceId', 'rawArtifactId', 'parsedArtifactId', 'chunkId', 'contentHash'] as const;
@@ -53,11 +57,13 @@ const idLike = (value: unknown): boolean => nonEmpty(value) || (typeof value ===
 export function parsePublishedQueryResult(value: unknown, scope: GenesisRag17Scope, topK: number): PublishedQueryResult {
   const result = value as Record<string, any> | null;
   if (!result || result.schemaVersion !== GENESISRAG17_SCHEMA_VERSION) throw new GenesisRag17ResponseError();
-  if (!result.scope || SCOPE_KEYS.some((key) => result.scope[key] !== scope[key])) throw new GenesisRag17ResponseError();
+  if (!result.scope || Object.keys(result.scope).length !== SCOPE_KEYS.length ||
+      SCOPE_KEYS.some((key) => result.scope[key] !== scope[key])) throw new GenesisRag17ResponseError();
   if (!nonEmpty(result.snapshotId) || !idLike(result.generation) || !Array.isArray(result.results) || result.results.length > topK) {
     throw new GenesisRag17ResponseError();
   }
   const generation = String(result.generation);
+  const ids = new Set<string>();
   const passages = result.results.map((row: Record<string, any>) => {
     if (!row || !nonEmpty(row.id) || !Number.isFinite(row.score) || typeof row.text !== 'string' || !row.citation) {
       throw new GenesisRag17ResponseError();
@@ -68,6 +74,10 @@ export function parsePublishedQueryResult(value: unknown, scope: GenesisRag17Sco
       throw new GenesisRag17ResponseError();
     }
     if (CITATION_KEYS.some((key) => !nonEmpty(row.citation[key]))) throw new GenesisRag17ResponseError();
+    if (ids.has(row.id) || row.citation.contentHash !== createHash('sha256').update(row.text, 'utf8').digest('hex')) {
+      throw new GenesisRag17ResponseError();
+    }
+    ids.add(row.id);
     return {
       id: row.id, score: row.score, text: row.text,
       citation: Object.fromEntries(CITATION_KEYS.map((key) => [key, row.citation[key]])) as PublishedPassage['citation'],
@@ -80,15 +90,24 @@ export function createPublishedGenerationClient(options: {
   call: MspToolCall; credential: string; scope: GenesisRag17Scope;
 }): PublishedGenerationClient {
   return {
-    async query(text, topK) {
+    productQuery: (corpusContext, request, signal) => options.call('msp_pipeline_product_query', {
+      schemaVersion: GENESISRAG17_SCHEMA_VERSION, productSchemaVersion: 'published-products.v1',
+      scope: options.scope, credential: options.credential, corpusContext, ...request,
+    }, signal),
+    async query(text, topK, snapshotId, signal) {
+      signal?.throwIfAborted();
       const result = await options.call('msp_pipeline_query', {
         schemaVersion: GENESISRAG17_SCHEMA_VERSION,
         scope: options.scope,
         credential: options.credential,
         query: text.slice(0, 16000),
         topK,
-      });
-      return parsePublishedQueryResult(result, options.scope, topK);
+        ...(snapshotId ? { snapshotId } : {}),
+      }, signal);
+      signal?.throwIfAborted();
+      const parsed = parsePublishedQueryResult(result, options.scope, topK);
+      if (snapshotId !== undefined && parsed.snapshotId !== snapshotId) throw new GenesisRag17ResponseError();
+      return parsed;
     },
   };
 }
@@ -216,25 +235,27 @@ function publishedSearchEvidence(query: string, result: PublishedQueryResult): S
  * The answer path's RAG door for the configured mode. `off` returns the v4 instance itself — not a
  * wrapper around it — so today's behaviour is unchanged by construction, not by test alone.
  */
-export function wrapAnswerRag(v4: AnswerRag, runtime: GenesisRag17Runtime | null): AnswerRag {
+export function wrapAnswerRag(v4: AnswerRag, runtime: GenesisRag17Runtime | null, corpusContext?: EdgePublishedCorpusContext, signal?: AbortSignal): AnswerRag {
+  if (corpusContext) return createPublishedProductRag(corpusContext, runtime, signal);
   if (!runtime) return v4;
-  return runtime.settings.mode === 'shadow' ? shadowRag(v4, runtime) : primaryRag(v4, runtime);
+  return runtime.settings.mode === 'shadow' ? shadowRag(v4, runtime, signal) : primaryRag(v4, runtime, signal);
 }
 
 function record(runtime: GenesisRag17Runtime, entry: GenesisRag17Record): void {
-  runtime.store.append(entry);
+  try { runtime.store.append(entry); } catch { /* Diagnostics never select a different answer source. */ }
 }
 
-function shadowRag(v4: AnswerRag, runtime: GenesisRag17Runtime): AnswerRag {
+function shadowRag(v4: AnswerRag, runtime: GenesisRag17Runtime, signal?: AbortSignal): AnswerRag {
   const { settings, client, now } = runtime;
 
   const shadow = (operation: RecordOperation, query: string, topK: number, answer: SearchEvidenceV4, v4LatencyMs: number) => {
+    if (signal?.aborted) return;
     if (!query.trim()) return; // budget-only searches have no text a published generation could be asked
     try {
       const started = Date.now();
       runtime.track((async () => {
         try {
-          const published = await client.query(query, topK);
+          const published = await client.query(query, topK, undefined, signal);
           record(runtime, {
             kind: 'shadow', at: now().toISOString(), operation, outcome: 'compared',
             snapshotId: published.snapshotId, generation: published.generation,
@@ -269,16 +290,29 @@ function shadowRag(v4: AnswerRag, runtime: GenesisRag17Runtime): AnswerRag {
   };
 }
 
-function primaryRag(v4: AnswerRag, runtime: GenesisRag17Runtime): AnswerRag {
+function primaryRag(v4: AnswerRag, runtime: GenesisRag17Runtime, signal?: AbortSignal): AnswerRag {
   const { settings, client, now } = runtime;
   const fallbackUntil = settings.fallbackUntil as Date;
+  // The executor constructs one wrapper per turn. This state must never live on the shared runtime.
+  let selected: 'published' | 'v4' | undefined;
+  let pinned: PublishedGenerationRef | undefined;
+  let tail = Promise.resolve();
+  const serial = <T>(work: () => Promise<T>): Promise<T> => {
+    const result = tail.then(() => { signal?.throwIfAborted(); return work(); });
+    tail = result.then(() => undefined, () => undefined);
+    return result;
+  };
 
   async function fallbackOr<T>(operation: RecordOperation, error: unknown, useV4: () => Promise<T>, unavailable: (reason: string) => T): Promise<T> {
+    signal?.throwIfAborted();
     const reason = errorCode(error);
     const at = now();
     // Strictly before the configured instant. At or after it there is no v4 answer at all.
-    if (at.getTime() < fallbackUntil.getTime()) {
+    const fallbackPermitted = error instanceof UnsupportedOperationError ||
+      (error instanceof MspTransportError && error.code === 'MSP_TRANSPORT_UNAVAILABLE');
+    if (selected !== 'published' && fallbackPermitted && at.getTime() < fallbackUntil.getTime()) {
       record(runtime, { kind: 'fallback', at: at.toISOString(), operation, reason, fallbackUntil: fallbackUntil.toISOString() });
+      selected = 'v4';
       return useV4();
     }
     record(runtime, { kind: 'primary_unavailable', at: at.toISOString(), operation, reason, fallbackUntil: fallbackUntil.toISOString() });
@@ -286,13 +320,22 @@ function primaryRag(v4: AnswerRag, runtime: GenesisRag17Runtime): AnswerRag {
   }
 
   return {
-    async searchProducts(query, limit = 5) {
+    searchProducts: (query, limit = 5) => serial(async () => {
+      if (selected === 'v4') {
+        return fallbackOr('search', new UnsupportedOperationError(), () => v4.searchProducts(query, limit), (r) => unavailableSearch(query, r));
+      }
       if (!query.trim()) {
         return fallbackOr('search', new UnsupportedOperationError(), () => v4.searchProducts(query, limit), (r) => unavailableSearch(query, r));
       }
       const started = Date.now();
       try {
-        const result = await client.query(query, clampTopK(limit, settings.topK));
+        const result = await client.query(query, clampTopK(limit, settings.topK), pinned?.snapshotId, signal);
+        signal?.throwIfAborted();
+        if (pinned && (result.snapshotId !== pinned.snapshotId || result.generation !== pinned.generation)) {
+          throw new GenesisRag17ResponseError();
+        }
+        pinned = { schemaVersion: result.schemaVersion, snapshotId: result.snapshotId, generation: result.generation };
+        selected = 'published';
         record(runtime, {
           kind: 'primary', at: now().toISOString(), operation: 'search', snapshotId: result.snapshotId,
           generation: result.generation, resultCount: result.passages.length, latencyMs: Date.now() - started,
@@ -301,14 +344,14 @@ function primaryRag(v4: AnswerRag, runtime: GenesisRag17Runtime): AnswerRag {
       } catch (error) {
         return fallbackOr('search', error, () => v4.searchProducts(query, limit), (r) => unavailableSearch(query, r));
       }
-    },
+    }),
     // Budget filtering and price ladders are typed lookups. Under `ontology_v1` a published
     // generation holds opaque catalog text, so these have no published equivalent until FR-188's
     // `PRICED_AT` lands; they are recorded as fallbacks, and stop being answered at sunset.
-    searchWithConstraints: (params) => fallbackOr('search_constraints', new UnsupportedOperationError(),
-      () => v4.searchWithConstraints(params), (r) => unavailableSearch(params.query, r)),
-    priceForCode: (code, qty) => fallbackOr('price', new UnsupportedOperationError(),
-      () => v4.priceForCode(code, qty), (r) => unavailablePrice(code, r)),
+    searchWithConstraints: (params) => serial(() => fallbackOr('search_constraints', new UnsupportedOperationError(),
+      () => v4.searchWithConstraints(params), (r) => unavailableSearch(params.query, r))),
+    priceForCode: (code, qty) => serial(() => fallbackOr('price', new UnsupportedOperationError(),
+      () => v4.priceForCode(code, qty), (r) => unavailablePrice(code, r))),
     health: () => v4.health(),
   };
 }

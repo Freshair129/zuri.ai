@@ -113,6 +113,8 @@ model Tenant {
   productIdentifiers         ProductIdentifier[]
   productUnitConversions     ProductUnitConversion[]
   inventoryCatalogIntakes    InventoryCatalogIntake[]
+  pricingRuleSets           PricingRuleSet[]
+  pricingCalculations       PricingCalculation[]
 
   marketingPlans            MarketingPlan[]
   marketingInitiatives      MarketingInitiative[]
@@ -307,6 +309,8 @@ model Business {
   productIdentifiers         ProductIdentifier[]
   productUnitConversions     ProductUnitConversion[]
   inventoryCatalogIntakes    InventoryCatalogIntake[]
+  pricingRuleSets           PricingRuleSet[]
+  pricingCalculations       PricingCalculation[]
 
   marketingPlans            MarketingPlan[]
   marketingInitiatives      MarketingInitiative[]
@@ -5588,4 +5592,68 @@ model ProjectFeatureMutationReceipt {
   auditEvent AuditEvent     @relation(fields: [auditEventId], references: [id], onDelete: Restrict)
 
   @@unique([tenantId, businessId, principalId, operation, targetId, idempotencyKey], map: "ProjectFeatureMutationReceipt_scope_idempotency_key")
+}
+
+// @req FR-253 — business-scoped draft revisions and immutable approved rule content.
+// @spec ADR-098
+model PricingRuleSet {
+  id                  String    @id @default(uuid())
+  tenantId            String
+  businessId          String
+  name                String
+  status              String    @default("DRAFT")
+  rulesJson           String
+  rulesHash           String
+  sourceRuleSetId     String?
+  createdByPersonId   String?
+  approvedByPersonId  String?
+  approvedAt          DateTime?
+  effectiveFrom       DateTime?
+  expiresAt           DateTime?
+  approvalReason      String?
+  revokedByPersonId   String?
+  revokedAt           DateTime?
+  revocationReason    String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  version             Int       @default(1)
+
+  tenant       Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business     Business             @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  source       PricingRuleSet?      @relation("PricingRuleDerivation", fields: [sourceRuleSetId], references: [id], onDelete: Restrict)
+  derivatives  PricingRuleSet[]     @relation("PricingRuleDerivation")
+  calculations PricingCalculation[]
+
+  @@index([tenantId, businessId])
+  @@index([businessId, effectiveFrom, approvedAt])
+  @@index([sourceRuleSetId])
+}
+
+// @req FR-253 — immutable computed-price lineage; USER_ENTERED is never source verification.
+// @spec ADR-098
+model PricingCalculation {
+  id                String   @id @default(uuid())
+  tenantId          String
+  businessId        String
+  ruleSetId         String
+  ruleVersion       Int
+  rulesHash         String
+  rulesJson         String
+  evaluatorVersion  String
+  inputHash         String
+  inputJson         String
+  resultJson        String
+  inputProvenance   String   @default("USER_ENTERED")
+  requestHash       String
+  idempotencyKey    String
+  createdByPersonId String?
+  createdAt         DateTime @default(now())
+
+  tenant   Tenant         @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business Business       @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  ruleSet  PricingRuleSet @relation(fields: [ruleSetId], references: [id], onDelete: Restrict)
+
+  @@unique([businessId, idempotencyKey])
+  @@index([tenantId, businessId])
+  @@index([ruleSetId])
 }

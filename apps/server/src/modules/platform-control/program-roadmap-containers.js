@@ -282,7 +282,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-007",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -5679,34 +5679,34 @@ export const PROGRAMME_CONTAINERS = {
       {
         "id": "P0",
         "title": "Legal hold record with reason and end date",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P1",
         "title": "Erasure destroys the archive key or shows the hold",
-        "status": "planned"
+        "status": "done"
       },
       {
         "id": "P2",
         "title": "Expiry destroys keys and deletes fully expired files",
-        "status": "planned"
+        "status": "done"
       }
     ],
     "dod": {
       "acceptance": {
         "text": "Given a Customer with no legal hold, when a PDPA erasure runs, then their archive data key is destroyed and their archived lines can no longer be decrypted",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a Customer with an active legal hold, when a PDPA erasure runs, then every other copy is erased, the archive key survives, and the erasure status shows the hold until it ends",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given a message older than 10 years, when the expiry runs, then its Customer's key is destroyed once no unexpired line remains and a file whose lines have all expired is deleted",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured.",
+    "changelog": "Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 (\"ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094\"). Bound to its lane before work starts so its sessions are measured. Built locally on `verify/crm-archive-key-legal-hold`: the append-only OWNER legal-hold record, hold-gated PDPA erasure, 10-year archive-key/file expiry and audit/status reporting are implemented; the Postgres schema and migration `20260916160000` are included. Focused integration evidence is 12/12 tests passed; the full Server suite is 5,947 passed with 32 skipped across 718 files, and the production build compiles successfully. Governance is WARN with 0 CRITICAL and 22 inherited warnings. The migration is written but not applied to production; that operator gate belongs to TASK-ZAI-114, so this task is `review`, not production `done`.",
     "created": "2026-09-16T00:00:00Z,Claude,pending",
     "predictedTokens": 50000,
     "totalTokens": 0,

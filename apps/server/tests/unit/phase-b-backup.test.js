@@ -161,6 +161,29 @@ describe('Phase B protected backup contract', () => {
     expect(valid.targetSchemaSha256).toBe(inventory().targetSchemaSha256)
   })
 
+  it.each([
+    ['top-level mismatch', 'b'.repeat(64), 'VALID'],
+    ['nested mismatch', 'VALID', 'b'.repeat(64)],
+    ['empty top-level', '', 'VALID'],
+    ['empty nested', 'VALID', ''],
+  ])('refuses %s even when the other declaration matches', (_, topLevel, nested) => {
+    const snapshot = baseSnapshot()
+    const schemaInventory = inventory()
+    snapshot.targetSchemaSha256 = topLevel === 'VALID' ? schemaInventory.targetSchemaSha256 : topLevel
+    snapshot.phaseBRecovery.targetSchemaSha256 = nested === 'VALID' ? schemaInventory.targetSchemaSha256 : nested
+    const result = validatePhaseBSnapshot(snapshot, { schemaInventory })
+    expect(result.valid).toBe(false)
+    expect(result.errorCode).toBe('TARGET_SCHEMA_UNVERIFIED')
+  })
+
+  it('accepts two agreeing schema declarations', () => {
+    const snapshot = baseSnapshot()
+    const schemaInventory = inventory()
+    snapshot.targetSchemaSha256 = schemaInventory.targetSchemaSha256
+    snapshot.phaseBRecovery.targetSchemaSha256 = schemaInventory.targetSchemaSha256
+    expect(validatePhaseBSnapshot(snapshot, { schemaInventory }).valid).toBe(true)
+  })
+
   it('distinguishes missing, empty and unreadable family arrays', () => {
     const missing = baseSnapshot()
     delete missing.tables.requirementBinding

@@ -1,20 +1,22 @@
 ---
 id: ZAI:PM-PHASE-B-FEATURE-IMPLEMENTATION-PLAN
 title: Project Manager Phase B Feature implementation plan
-version: "0.4.0b"
+version: "0.5.0b"
 status: beta
 created_at: "2026-09-17T01:17:02+07:00,Luna Max,f061a113584aa15db68934dc8451f14b9a1011e1"
-last_update: "2026-09-17T12:20:31+07:00,RWANG final integrator"
+last_update: "2026-09-17T20:28:51+07:00,RWANG final integrator"
 superseded_by: null
 attributes:
   doc_type: implementation-plan
   domain: project-manager
   scope: "MA-I02 Phase B Project Feature authority, UX, persistence and contract"
   complexity: "C-3 / HIGH"
-  evidence_level: "APPROVED DESIGN; W1/P2 LOCAL PROOF; W2 IMPLEMENTATION IN PROGRESS"
+  evidence_level: "APPROVED DESIGN; LOCAL IMPLEMENTATION AND INDEPENDENT GATES PASS; HOSTED CI AND PRODUCTION PENDING"
   source_commit: "f061a113584aa15db68934dc8451f14b9a1011e1"
   canonical_id_status: "NO NEW FR, FEAT, ADR OR DOM IDS; ROOT OWNS REGISTRATION"
 relations:
+  - type: references
+    target: ZAI:PM-PHASE-B-COMMIT-PROVENANCE
   - type: references
     target: ZAI:PM-PROJECT-DOMAIN-FEATURE-BASELINE
   - type: references
@@ -32,17 +34,21 @@ relations:
 **Current entry record:** The owner approved recovery/erasure decision26
 v0.2.1b on 2026-09-17. Its separate clean-target recovery and reviewed
 field-target erasure replace the earlier unspecified maintenance/erasure
-boundary in section 8. W1 and Identity P2 have local independent PASS; the W2
-repository/recovery/erasure implementation and later application gates remain.
+boundary in section 8. W1, Identity P2 and W2 repository/recovery/erasure
+passed independent and root local gates at 052821a7. W3-W5 implementation and
+independent source reviews pass. The browser acceptance set is closed by
+45 passing checks and the corrected privacy regression passing separately;
+release gates are recorded below. [Contract27](27-PHASE-B-COMMIT-PROVENANCE-CONTRACT.md)
+makes W5 manifest bytes, registry extraction and operator checkout binding
+executable within this same approved six-record and 14-operation scope.
 The owner previously approved v0.3.2b at e5ccfd7a; B2 registered
 FR-252 and ADR-097 at 50b5e1dd with governance passing. ADR-097 is the approval
-authority and supersedes historical B1/B2-pending labels below. This v0.3.3b
-aligns restore prerequisites, owner-only snapshot listing and wire refusals
-with that approved behavior. Independent review must pass before application
-entry. W1 must additionally publish its exact per-table RLS/adapter policy for
-independent review and root approval before Phase B DDL or adapter activation;
-Identity P2 is independent of that database gate. Runtime and production proof
-remain NOT_RUN.
+authority and closes the earlier B1/B2 gates. Version 0.3.3b aligned restore
+prerequisites, owner-only snapshot listing and wire refusals with that approved
+behavior. W1 published its exact per-table RLS/adapter policy and passed the
+independent and root gates before isolated migration/adapter execution.
+Identity P2 passed its separate local gate. The current composed runtime is
+verified per wave; hosted CI and production deployment remain NOT_RUN.
 
 **Approved design; implementation evidence is recorded per phase.** This
 document composes the UX packet and backend packet into one Phase B design.
@@ -57,6 +63,33 @@ B1/B2 approvals and the independent local/runtime/release gates. The allocation 
 precise: basis points split one
 WorkItem's value across its Feature links; they are never summed across
 unrelated WorkItems.
+
+Current evidence: W3 list/detail browser proof passes 21 cases. The expanded
+W4 PostgreSQL proof passes 19 cases, including Session and grant expiry during
+authority-row lock waits, live revocation, CAS and atomic rollback. The latest
+PM/CRM/Identity security composition passes 122 tests across 14 files. The
+final Server suite passes 6376 tests with 32 skipped, including the final
+authority/CRM/UI corrections; 2266 source, test, schema and configuration files
+remained unchanged across that run. The final optimized Server build passes.
+The separately approved CRM
+hold/audit closure passes its independent PostgreSQL gate (14 cases) and final
+SQLite hold suite (21 cases).
+
+W5 owner forms implement the approved pickers, review summaries, uncertain-intent
+retention, field focus and lifecycle/evidence presentation. The independent
+Luna Max source review passes the frozen Forms/View/picker composition, and
+focused UI tests pass 25/25. After correcting the actual Escape-focus defect,
+the full Server suite and optimized build pass. The composed browser run has
+45 passing checks and one failed privacy fixture; after a test-only locator
+correction, that regression passes in a separate run without skips or flaky
+outcomes. The original failed run remains recorded as FAIL. Final governance
+is recorded in the integration report.
+The first browser run's incorrect mocked DELETE receipt remains a recorded
+fixture failure; strict product validation was retained. These conformance
+repairs stay within section 7 and add no API or schema scope. Current evidence
+and portable provider proofs are collected in the
+[integration report](../../../.brain/reports/2026-09-17-project-feature-phase-b.md).
+None of these local results claims hosted CI, production grants or deployment.
 
 ## 1. Boundary and product decision
 
@@ -114,9 +147,12 @@ record extension.
 
 The machine-readable overlay is a standalone OpenAPI 3.0.3 candidate for the
 Phase B routes and schemas. It is documentation input only. OpenAPI validation,
-local reference resolution and DTO schema fixtures have passed; application
-route parity, code generation and migration execution are NOT_RUN. The
-data-model overlay remains backend-owned and is not duplicated in this plan.
+local reference resolution and DTO schema fixtures passed during W0. W1/W2
+later supplied isolated migration and persistence evidence. W3 implements the
+four selected GET operations with runtime Swagger and scoped read tests; W4/W5
+mutation and provenance parity passes local API/provider checks. Code generation is
+not claimed. The data-model overlay remains backend-owned and is not duplicated
+in this plan.
 
 The following reconciliation is incorporated into this plan:
 
@@ -153,10 +189,11 @@ The original backend packet was captured at SHA-256
 8C343604F75EDCD4AD0A53B34C5FBA9EC457D28BCC3B76DDDDFDA6266CFF2FB8
 (source packet last written 2026-09-17T01:22:11+07:00). That digest is historical
 provenance; the superseded QA packet digest in the input list includes its later
-supersession notice. This composed plan and selected API/data overlays are the
-current candidate. Independent frozen-packet re-review remains incomplete after
-the verifier reached its usage limit. B1 approval and B2 registration remain
-pending; no implementation is authorized by these document checks.
+supersession notice. At the original W0 checkpoint, independent frozen-packet
+re-review was incomplete after the verifier reached its usage limit; B1/B2 were
+then pending. That historical checkpoint is superseded by the approvals and
+per-wave evidence in the current entry record. This plan and its selected
+API/data overlays remain the approved implementation inputs.
 
 ## 3. Navigation, scope and route contract
 
@@ -214,7 +251,7 @@ clears Project context.
 
 ## 4. Proposed persisted authority and ERD
 
-These are logical records awaiting B1 data-owner approval and B2 registration.
+These six logical records were approved through B1 and registered through B2.
 No physical table or migration is part of this document.
 
 ~~~mermaid
@@ -328,6 +365,10 @@ allocationBps describes that WorkItem's share allocated to this Feature.
   Rows are sorted lexicographically by `(id,version,deletedAt)`; every
   ProjectFeature row is included, including tombstones. The resulting value is
   `"PROJECT_FEATURE_GRAPH/<projectId>/<sha256>"`; no graph-state table exists.
+  The existing aggregate GET supplies that graph token in its ETag header to
+  Business owners, using all rows in the same scoped read transaction. Shared
+  readers receive no graph token. The detail GET supplies the returned
+  Feature's strong ETag; these headers add no public DTO fields.
   The graph command's `affectedWorkItemIds` must equal the unique union of
   active links currently owned by its named Feature sets and submitted links:
   every submitted link's WorkItem is included, every listed affected WorkItem
@@ -339,12 +380,12 @@ allocationBps describes that WorkItem's share allocated to this Feature.
 * Feature links never mutate Workstream progress strategy, progressWeight,
   progress evidence or weighted Project roll-up.
 
-## 5. API and DTO proposal
+## 5. Approved API and DTO contract
 
-The following is the single candidate transport for B1 owner review and B2
-registration. It is not a
-live route. It closes the current flat-input gap by making each relationship
-set explicit and transactional.
+The following is the selected transport accepted through B1 owner review and B2
+registration. These routes are implemented and verified locally; production
+activation remains a separate gate. Each relationship set is explicit and
+transactional.
 
 ### 5.1 Routes
 
@@ -369,9 +410,8 @@ new rows, and soft-delete omitted active rows with a fresh child-set
 deleteBatchId. A failed replacement leaves the entire previous set and parent
 version unchanged. Re-adding a removed key revives its original child UUID and
 increments its version; unconditional unique keys remain in force. Restore
-cannot move a Feature across Project, Business or Tenant. The route names are
-candidate contract inputs and require the B1/B2 approval and registration
-gates.
+cannot move a Feature across Project, Business or Tenant. B1/B2 approval and
+registration are complete; these route names are the approved contract inputs.
 
 ### 5.2 Request DTOs
 
@@ -436,6 +476,10 @@ capture data, audit fields or canonical requirement subject. Create and child
 set writes may be separate commands because a DRAFT Feature can exist while
 its traceability is completed; each command is atomic and failures do not
 silently create partial child rows.
+
+The [bound-commit implementation contract](27-PHASE-B-COMMIT-PROVENANCE-CONTRACT.md)
+defines exact manifest bytes, operator configuration and canonical key/revision
+proof through the existing verifier port. It adds no persisted proof fields.
 
 The snapshot capture command accepts repositoryId, commitSha, manifestHash and
 sourceManifest as intent only. Identity CSRF and scoped idempotency are
@@ -933,7 +977,9 @@ lane and does not require this Feature DAG to staff people.
 These are proposed post-approval boundaries, not files changed by this
 document:
 
-* UI/navigation: ProjectFeatureView.jsx; the feature-view page; and only the
+* UI/navigation: ProjectFeatureView.jsx, ProjectFeatureForms.jsx and
+  ProjectFeaturePickers.jsx; their focused unit/browser tests; the feature-view
+  page; and only the
   narrow navigation.js, ProjectTabs.jsx or Project layout seam needed to
   activate Features while preserving FR-250.
 * PM backend: project-feature-read-model.js, project-feature-service.js, the
@@ -955,8 +1001,9 @@ generated inventory or production configuration is in the Feature allowlist.
 
 ## 10. Test and acceptance mapping
 
-The cases below are proposed executable proof after the B1/B2 gates. They do not claim
-that any test has run. Existing FR-250 navigation, FR-251 Domain view,
+The cases below define the approved acceptance mapping; execution results are
+recorded in the current entry record and integration report. Existing FR-250
+navigation, FR-251 Domain view,
 authorization, Import, Work and progress tests remain regression gates.
 
 | Case | Required assertion | Proposed proof |
@@ -985,7 +1032,7 @@ authorization, Import, Work and progress tests remain regression gates.
 
 ## 11. Approval and final-gate checklist
 
-### B1 owner approval must explicitly cover
+### B1 owner approval scope — completed
 
 * the six logical records: four product records (ProjectFeature,
   FeatureContribution, FeatureWorkLink and RequirementBinding), immutable
@@ -1029,12 +1076,13 @@ baseline. The composed implementation then requires:
 8. root-owned governance, focused/full tests, build, e2e and any separately
    authorized release gate.
 
-Only documentation/schema/diagram validation has run in this planning packet.
-Independent frozen-packet re-review is incomplete because the Luna Max verifier
-reached its usage limit; the root review does not substitute for its PASS.
-Implementation, migration, runtime authorization, concurrency and product-browser
-proof remain NOT_RUN. Merge and deployment of other releases are outside this
-document.
+Historical W0 evidence was limited to documentation/schema/diagram validation,
+and that proposal's independent re-review was interrupted by a model usage
+limit. Those historical NOT_RUN labels do not describe the current approved
+implementation. Current independent source, isolated migration/provider and
+local runtime results are recorded above and in the integration report. Hosted
+CI and production activation remain separate gates; other releases are outside
+this document.
 
 ## 12. Explicit reconciliation list for root
 
@@ -1051,7 +1099,7 @@ document.
    `fields[]` entries `{path,code,message}` and 503 on every live-session
    route.
 5. Treat the nested complete-set relationship routes and project-level graph
-   route as one candidate design awaiting the B1/B2 gates. The graph ETag must
+   route as one approved design under the completed B1/B2 gates. The graph ETag must
    hash all ProjectFeature rows including tombstones, lock the Project first,
    validate unlisted Feature links and require exact affected-WorkItem
    membership; do not mix this with flat contributingDomainIds or
@@ -1075,6 +1123,11 @@ document.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 | --- | --- | --- | --- | --- | --- |
+| 0.5.0b | 2026-09-17 | beta | Reconcile implemented owner forms, independent source PASS and final 6376-test/build evidence; distinguish historical W0 labels from completed approval and current gates | 052821a7 + 892f23f3 | RWANG |
+| 0.4.4b | 2026-09-17 | beta | Record 19-case PM and 14-case CRM provider gates, 122 focused checks and initial composed build; make UI component ownership explicit while closing existing section 7 conformance findings | 052821a7 + 892f23f3 | RWANG |
+| 0.4.3b | 2026-09-17 | beta | Record W3 browser, W4 PostgreSQL and composed 61-test evidence; clarify owner read CAS headers and committed capture receipt identity while retaining final UI/release gates | 052821a7 + 892f23f3 | RWANG |
+| 0.4.2b | 2026-09-17 | beta | Distinguish historical W0 approval and execution states from completed B1/B2 and current per-wave implementation evidence | 052821a7 | RWANG |
+| 0.4.1b | 2026-09-17 | beta | Record W1/W2 local completion and W5 executable commit-provenance refinement within the approved six-record/14-operation scope | 052821a7 | RWANG |
 | 0.4.0b | 2026-09-17 | beta | Record approved decision26 and select offline clean-target recovery, protected export and reviewed field erasure for W2 | bd99651f | RWANG |
 | 0.3.3b | 2026-09-17 | candidate | Reconcile restore prerequisites and owner-only snapshot listing; record B1/B2 completion and explicit independent/root pre-DDL RLS policy gate | 61e28ac9 | RWANG |
 | 0.2.0b | 2026-09-17 | candidate | Composed candidate Phase B Feature authority, typed machine contract input, source provenance bounds, approval-gate/wave separation, UX/state model, restore/privacy and acceptance gates; no implementation or IDs. | f061a113 | Luna Max |

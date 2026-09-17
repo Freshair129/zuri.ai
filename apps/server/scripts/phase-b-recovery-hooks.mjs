@@ -108,7 +108,9 @@ export async function insertSnapshotIntoEmptyTarget({ tx, adapter, snapshot, pha
   for (const model of service.SNAPSHOT_MODELS) {
     const rows = model === 'archiveManifest'
       ? (recovery.archiveRecovery?.manifestRows || [])
-      : (Array.isArray(snapshot.tables?.[model]) ? snapshot.tables[model] : [])
+      : model === 'pricingRuleSet'
+        ? (recovery.pricingRecovery?.ruleRows || [])
+        : (Array.isArray(snapshot.tables?.[model]) ? snapshot.tables[model] : [])
     if (rows.length === 0) continue
     const transformed = protectedNames.has(model)
       ? rows

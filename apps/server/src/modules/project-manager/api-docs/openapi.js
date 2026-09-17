@@ -2,6 +2,20 @@ import { z } from 'zod'
 import { OpenAPIRegistry, OpenApiGeneratorV3, extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import { zPlanEnvelope, zExternalRef } from '../import/plan-schema'
 import { zDomainRow, zDomainViewError, zProjectDomainView } from '../application/project-domain-read-model'
+import {
+  zFeatureReadError, zFeatureView, zFeatureRecord, zDeletedFeatureRecord,
+  zFeatureRecordPage, zGovernanceSnapshotMetadata, zGovernanceSnapshotPage,
+} from '../application/project-feature-read-model'
+import {
+  zFeatureCreateInput, zFeaturePatchInput, zContributionInput, zContributionsReplaceInput,
+  zWorkLinkInput, zWorkLinksReplaceInput, zFeatureWorkSet, zFeatureWorkGraphInput,
+  zRequirementBindingInput, zRequirementBindingsReplaceInput, zMutationReceipt, zMutationError,
+} from '../application/project-feature-service'
+import {
+  zSourceManifestEntry, zSourceManifest, zCaptureSnapshotInput,
+  zGovernanceVerificationProof, zGovernanceSnapshot,
+} from '../application/governance-source-verifier'
+import { zSnapshotCaptureResult } from '../application/governance-snapshot-service'
 import { EXECUTION_MODES, PROGRESS_STRATEGIES } from '@/lib/validation/enums'
 import { zAssetIntakeEnvelope } from '@/modules/asset-management/domain/asset-intake'
 import { AUTH_SESSION_COOKIE } from '@/modules/identity/auth-service'
@@ -14,12 +28,40 @@ import { zApiWriteCsrfToken, zApiWriteCsrfError } from '@/modules/identity/api-w
 
 extendZodWithOpenApi(z)
 
+const FEATURE_MUTATIONS = [
+  { method: 'post', path: '/api/projects/{id}/features', operationId: 'createProjectFeature', schema: zFeatureCreateInput, summary: 'Create a Project Feature draft', create: true },
+  { method: 'patch', path: '/api/projects/{id}/features/{featureId}', operationId: 'updateProjectFeature', schema: zFeaturePatchInput, summary: 'Edit Feature fields and lifecycle', cas: true },
+  { method: 'put', path: '/api/projects/{id}/features/{featureId}/contributions', operationId: 'replaceProjectFeatureContributions', schema: zContributionsReplaceInput, summary: 'Replace supporting Domain contributions', cas: true },
+  { method: 'put', path: '/api/projects/{id}/features/{featureId}/work-links', operationId: 'replaceProjectFeatureWorkLinks', schema: zWorkLinksReplaceInput, summary: 'Replace one Feature WorkItem relationship set', cas: true },
+  { method: 'put', path: '/api/projects/{id}/feature-work-links', operationId: 'redistributeProjectFeatureWorkLinks', schema: zFeatureWorkGraphInput, summary: 'Replace named Feature WorkItem sets atomically', cas: true },
+  { method: 'put', path: '/api/projects/{id}/features/{featureId}/requirement-bindings', operationId: 'replaceProjectFeatureRequirementBindings', schema: zRequirementBindingsReplaceInput, summary: 'Replace verified requirement revision bindings', cas: true },
+  { method: 'delete', path: '/api/projects/{id}/features/{featureId}', operationId: 'deleteProjectFeature', summary: 'Soft-delete one Feature and its active relationship cohort', cas: true },
+  { method: 'post', path: '/api/projects/{id}/features/{featureId}/restore', operationId: 'restoreProjectFeature', summary: 'Restore the matching Feature deletion cohort', cas: true },
+  { method: 'post', path: '/api/projects/{id}/governance-snapshots', operationId: 'captureProjectGovernanceSnapshot', schema: zCaptureSnapshotInput, summary: 'Capture server-verified bound-commit evidence', create: true, capture: true },
+]
+
 // This is the machine-readable mirror of the current Next route tree. The
 // integration test enumerates src/app/api/**/route.js and fails when this
 // inventory or the generated document falls behind a route change.
 export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-252 — Identity-owned session-bound API-write CSRF issuance.
   ['/api/auth/csrf', ['GET']],
+  ['/api/projects/{id}/feature-view', ['GET']],
+  ['/api/projects/{id}/features', ['GET', 'POST']],
+  ['/api/projects/{id}/features/{featureId}', ['GET', 'PATCH', 'DELETE']],
+  ['/api/projects/{id}/features/{featureId}/contributions', ['PUT']],
+  ['/api/projects/{id}/features/{featureId}/work-links', ['PUT']],
+  ['/api/projects/{id}/features/{featureId}/requirement-bindings', ['PUT']],
+  ['/api/projects/{id}/features/{featureId}/restore', ['POST']],
+  ['/api/projects/{id}/feature-work-links', ['PUT']],
+  ['/api/projects/{id}/governance-snapshots', ['GET', 'POST']],
+  // @req FR-253 — private Commerce rules and explicit sell-side admission.
+  ['/api/commerce/pricing-rules', ['GET', 'POST']],
+  ['/api/commerce/pricing-rules/{id}', ['PATCH']],
+  ['/api/commerce/pricing-rules/{id}/actions', ['POST']],
+  ['/api/commerce/pricing-rules/preview', ['POST']],
+  ['/api/commerce/pricing-rules/calculate', ['POST']],
+  ['/api/commerce/pricing-rules/catalog', ['POST']],
   // @req FR-173 — shared source admission and scoped corpus retrieval.
   ['/api/knowledge/ingestions', ['GET', 'POST']], ['/api/knowledge/ingestions/{runId}', ['GET']],
   ['/api/knowledge/queries', ['POST']], ['/api/knowledge/citations/{citationId}', ['GET']],
@@ -58,6 +100,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/line-oa/jobs/{id}/trace', ['GET']],
   ['/api/line-oa/jobs/failures', ['GET']],
   ['/api/edge/conversation-jobs/claim', ['POST']],
+  ['/api/edge/conversation-jobs/{id}/context', ['POST']], ['/api/edge/conversation-jobs/{id}/tools', ['POST']],
   ['/api/edge/conversation-jobs/{id}/complete', ['POST']], ['/api/edge/conversation-jobs/{id}/fail', ['POST']],
   // @req FR-244 — the identity-free residency poll (ADR-061, ADR-094 D6 option A).
   ['/api/edge/model-residency', ['POST']],
@@ -151,6 +194,10 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // preview, and every call is independently audited regardless of how many
   // times the same range is asked for.
   ['/api/crm/customers/{customerId}/chat-evidence/retrieve', ['POST']],
+  // @req SEC-034 — records a legal hold on a Customer's chat evidence archive
+  // (ADR-093 D6, TASK-ZAI-113). POST only, same reasoning as the erasure and
+  // retrieval rows above: this appends a new history row, never replaces or
+  // previews one, and every recording is independently audited.
   ['/api/crm/customers/{customerId}/legal-hold', ['POST']],
   // @req FR-230 — the nightly retention sweep's scheduled entry point (ADR-091 D1,
   // D2). Deployment-authenticated (ZURI_RETENTION_SWEEP_TOKEN), same shape as
@@ -286,7 +333,8 @@ function genericResponses(path) {
 }
 
 function registerInventoryOperations(registry) {
-  const detailedOperations = new Set(['get /api/auth/csrf', 'get /api/projects/{id}/domain-view', 'post /api/assets/intakes/validate', 'post /api/import/dry-run', 'post /api/import/commit', 'get /api/resolve', 'get /api/import/template'])
+  const detailedOperations = new Set(['get /api/auth/csrf', 'get /api/projects/{id}/domain-view', 'get /api/projects/{id}/feature-view', 'get /api/projects/{id}/features', 'get /api/projects/{id}/features/{featureId}', 'get /api/projects/{id}/governance-snapshots', 'post /api/assets/intakes/validate', 'post /api/import/dry-run', 'post /api/import/commit', 'get /api/resolve', 'get /api/import/template'])
+  for (const route of FEATURE_MUTATIONS) detailedOperations.add(`${route.method} ${route.path}`)
   for (const [path, methods] of CURRENT_API_ROUTE_INVENTORY) {
     for (const method of methods) {
       const methodName = method.toLowerCase()
@@ -403,6 +451,24 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
   registry.register('DomainViewError', zDomainViewError)
   registry.register('CsrfToken', zApiWriteCsrfToken)
   registry.register('ApiWriteCsrfError', zApiWriteCsrfError)
+  registry.register('FeatureReadError', zFeatureReadError)
+  registry.register('FeatureRecord', zFeatureRecord)
+  registry.register('DeletedFeatureRecord', zDeletedFeatureRecord)
+  registry.register('FeatureView', zFeatureView)
+  registry.register('FeatureRecordPage', zFeatureRecordPage)
+  registry.register('GovernanceSnapshotMetadata', zGovernanceSnapshotMetadata)
+  registry.register('GovernanceSnapshotPage', zGovernanceSnapshotPage)
+  for (const [name, schema] of Object.entries({
+    FeatureCreateInput: zFeatureCreateInput, FeaturePatchInput: zFeaturePatchInput,
+    ContributionInput: zContributionInput, ContributionsReplaceInput: zContributionsReplaceInput,
+    WorkLinkInput: zWorkLinkInput, WorkLinksReplaceInput: zWorkLinksReplaceInput,
+    FeatureWorkSet: zFeatureWorkSet, FeatureWorkGraphInput: zFeatureWorkGraphInput,
+    RequirementBindingInput: zRequirementBindingInput, RequirementBindingsReplaceInput: zRequirementBindingsReplaceInput,
+    MutationReceipt: zMutationReceipt, MutationError: zMutationError,
+    SourceManifestEntry: zSourceManifestEntry, SourceManifest: zSourceManifest,
+    CaptureSnapshotInput: zCaptureSnapshotInput, GovernanceVerificationProof: zGovernanceVerificationProof,
+    GovernanceSnapshot: zGovernanceSnapshot, SnapshotCaptureResult: zSnapshotCaptureResult,
+  })) registry.register(name, schema)
   registry.registerComponent('securitySchemes', 'SessionAuth', {
     type: 'apiKey',
     in: 'cookie',
@@ -410,6 +476,130 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
     description: 'Current server-resolved session. Authorization is recomputed from live server state; no role is inferred from cookie labels.',
   })
   registry.register('Error', zError)
+
+  // @req FR-252 — detailed read contracts use the same strict runtime DTOs;
+  // mutation operations join only when their handlers are implemented.
+  const featureFailure = (description) => ({
+    description,
+    headers: {
+      'Cache-Control': { schema: { type: 'string', enum: ['no-store'] } },
+      'X-Request-ID': { schema: { type: 'string', format: 'uuid' } },
+    },
+    content: { 'application/json': { schema: { $ref: '#/components/schemas/FeatureReadError' } } },
+  })
+  const pageQuery = {
+    limit: z.number().int().min(1).max(50).optional(),
+    cursor: z.string().min(1).max(4096).optional(),
+  }
+  const featureReads = [
+    {
+      path: '/api/projects/{id}/feature-view', operationId: 'getProjectFeatureView',
+      summary: 'Read explicit Project Features and distinct WorkItem counts',
+      schema: 'FeatureView',
+      description: 'Full Project hierarchy is proved before reads. At most 200 active records; shared work counts once. Aggregate snapshot remains UNAVAILABLE. Per-record key/revision evidence requires bound-commit verification. Owners receive the complete graph CAS token in ETag; shared readers do not.',
+      etagDescription: 'Owner-only graph CAS token over all Feature ids, versions and deletion instants, including tombstones in the same read transaction.',
+      extraResponses: { 413: featureFailure('FEATURE_VIEW_LIMIT_EXCEEDED: the aggregate exceeds its fixed response bound.') },
+    },
+    {
+      path: '/api/projects/{id}/features', operationId: 'listProjectFeatures',
+      summary: 'List active Features or owner-visible minimal tombstones',
+      schema: 'FeatureRecordPage',
+      description: 'Stable code/id ordering and a signed scope-bound cursor. ACTIVE includes non-deleted DRAFT, ACTIVE and RETIRED records. Non-owner DELETED requests receive a redacted 404.',
+      query: z.object({ ...pageQuery, visibility: z.enum(['ACTIVE', 'DELETED']).optional(), lifecycle: z.enum(['DRAFT', 'ACTIVE', 'RETIRED']).optional() }).strict(),
+      extraResponses: { 400: featureFailure('MALFORMED_REQUEST or INVALID_CURSOR: bounded query or cursor is invalid.') },
+    },
+    {
+      path: '/api/projects/{id}/features/{featureId}', operationId: 'getProjectFeature',
+      summary: 'Read one scoped active Feature and its explicit relationships',
+      schema: 'FeatureRecord', detail: true,
+      description: 'The Feature must belong to the authorized URL Project. Unknown, deleted, foreign and invalid-hierarchy targets share a redacted 404.',
+      etagDescription: 'Strong Feature CAS token for the returned id and version.',
+    },
+    {
+      path: '/api/projects/{id}/governance-snapshots', operationId: 'listProjectGovernanceSnapshots',
+      summary: 'List owner-authorized Project snapshot metadata',
+      schema: 'GovernanceSnapshotPage',
+      description: 'Business owner capability is required after Project hierarchy proof. Returns bounded metadata only; no source manifest, verification payload, checkout path or mutation receipt.',
+      query: z.object(pageQuery).strict(),
+      extraResponses: {
+        400: featureFailure('MALFORMED_REQUEST or INVALID_CURSOR: bounded query or cursor is invalid.'),
+        403: featureFailure('CAPABILITY_DENIED: an in-scope reader lacks snapshot metadata capability.'),
+      },
+    },
+  ]
+  for (const route of featureReads) {
+    registry.registerPath({
+      method: 'get', path: route.path, operationId: route.operationId,
+      summary: route.summary, description: route.description,
+      tags: ['Feature view'], security: [{ SessionAuth: [] }],
+      request: {
+        params: z.object({ id: z.string().uuid(), ...(route.detail ? { featureId: z.string().uuid() } : {}) }).strict(),
+        ...(route.query ? { query: route.query } : {}),
+      },
+      responses: {
+        200: {
+          description: 'Authorized read; no persistence, audit or progress change.',
+          headers: {
+            'Cache-Control': { schema: { type: 'string', enum: ['no-store'] } },
+            ...(route.etagDescription ? { ETag: { description: route.etagDescription, schema: { type: 'string', maxLength: 4096 } } } : {}),
+          },
+          content: { 'application/json': { schema: { $ref: '#/components/schemas/' + route.schema } } },
+        },
+        401: featureFailure('AUTH_REQUIRED: no valid live session.'),
+        404: featureFailure('RESOURCE_NOT_FOUND: missing, deleted, foreign or hierarchy-invalid target; identifiers are redacted.'),
+        503: featureFailure('SESSION_UNAVAILABLE or DATA_INTEGRITY_UNAVAILABLE: source authority is unavailable; internal details are redacted.'),
+        ...route.extraResponses,
+      },
+    })
+  }
+
+  const mutationHeaders = {
+    'Cache-Control': { schema: { type: 'string', enum: ['no-store'] } },
+    'X-Request-ID': { schema: { type: 'string', format: 'uuid' } },
+  }
+  const mutationFailure = (description) => ({
+    description, headers: mutationHeaders,
+    content: { 'application/json': { schema: { $ref: '#/components/schemas/MutationError' } } },
+  })
+  for (const route of FEATURE_MUTATIONS) {
+    const success = (description) => ({
+      description,
+      headers: { ...mutationHeaders, ETag: { schema: { type: 'string', minLength: 1, maxLength: 4096 } } },
+      content: { 'application/json': { schema: { $ref: '#/components/schemas/' + (route.capture ? 'SnapshotCaptureResult' : 'MutationReceipt') } } },
+    })
+    registry.registerPath({
+      method: route.method, path: route.path, operationId: route.operationId,
+      summary: route.summary, tags: ['Feature mutations'], security: [{ SessionAuth: [] }],
+      description: 'Live session, exact configured Origin, session-bound CSRF and Business mutation authority are required. Project hierarchy is proved and locked before body normalization, receipt lookup or effects. Rows, one receipt and one AuditEvent commit atomically. Same normalized intent replays the original effect with a fresh requestId; a changed hash refuses. ' +
+        (route.capture ? 'Input is intent only. The operator-bound Git verifier supplies VALID proof; failed capture inserts nothing. Response is {snapshot,receipt}, without an absolute checkout path.' : 'Response is the direct receipt. Read the current DTO after success. Unknown Domain, invalid allocation, unproven key/revision and cross-scope bindings refuse.') +
+        (route.cas ? ' If-Match must equal the current strong Feature or complete graph token.' : ''),
+      request: {
+        params: z.object({ id: z.string().uuid(), ...(route.path.includes('{featureId}') ? { featureId: z.string().uuid() } : {}) }).strict(),
+        headers: z.object({
+          Origin: z.string().url(),
+          'X-CSRF-Token': z.string().min(1),
+          'Idempotency-Key': z.string().min(8).max(128),
+          ...(route.cas ? { 'If-Match': z.string().min(1).max(4096) } : {}),
+        }),
+        ...(route.schema ? { body: { required: true, content: { 'application/json': { schema: route.schema } } } } : {}),
+      },
+      responses: {
+        200: success(route.create ? 'Original committed result replayed after fresh authorization.' : 'Mutation committed, or original committed result replayed after fresh authorization.'),
+        ...(route.create ? { 201: success('First successful creation; durable effect and receipt committed.') } : {}),
+        400: mutationFailure('MALFORMED_REQUEST: the owned request body or idempotency input is invalid.'),
+        401: mutationFailure('AUTH_REQUIRED: missing, expired or revoked live session.'),
+        403: mutationFailure('CSRF_INVALID or CAPABILITY_DENIED: origin/token or Business mutation authority refused.'),
+        404: mutationFailure('RESOURCE_NOT_FOUND: missing, foreign, deleted or hierarchy-invalid target; no cross-scope details.'),
+        409: mutationFailure('Idempotency, duplicate code, relationship or restore allocation conflict; no partial change.'),
+        ...(route.cas ? {
+          412: mutationFailure('VERSION_MISMATCH: reread currentVersion/currentEtag before a new deliberate intent.'),
+          428: mutationFailure('PRECONDITION_REQUIRED: If-Match was not supplied.'),
+        } : {}),
+        422: mutationFailure('Domain, lifecycle, capacity, graph membership, allocation or verified snapshot/revision invariant refused.'),
+        503: mutationFailure('SESSION_UNAVAILABLE or DATA_INTEGRITY_UNAVAILABLE: safe retryable refusal without internal details.'),
+      },
+    })
+  }
 
   // @req FR-252 — publish the issuer's actual runtime schemas and refusal
   // contract; no Feature mutation route is advertised before it exists.
@@ -611,6 +801,8 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
       { name: 'Intake', description: 'Plan envelope in, work graph out' },
       { name: 'Asset Management', description: 'Evidence-backed physical Asset intake previews' },
       { name: 'Domain view', description: 'Authorized Project Execution Domains projections' },
+      { name: 'Feature view', description: 'Scoped explicit Project Features and verified reference reads' },
+      { name: 'Feature mutations', description: 'Owner writes with live CSRF, CAS, idempotency and atomic audit' },
       { name: 'Identity', description: 'Map customer core ids onto internal records' },
       { name: 'Route inventory', description: 'Complete current route/method coverage with transparent generic boundaries' },
     ],
@@ -628,5 +820,68 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
     const schema = document.components?.schemas?.[schemaName]
     if (schema?.properties?.[field]) schema.properties[field].enum = [null]
   }
+  // Zod superRefine predicates are not represented by zod-to-openapi. Keep
+  // their machine-readable forms explicit and exercise both validators with
+  // the same pair/discriminator/path cases in openapi-docs.test.js.
+  const schemas = document.components.schemas
+  const provenancePair = [
+    {
+      required: ['canonicalFeatureKey', 'governanceSnapshotId'],
+      properties: {
+        canonicalFeatureKey: { type: 'string', nullable: true, enum: [null] },
+        governanceSnapshotId: { type: 'string', nullable: true, enum: [null] },
+      },
+    },
+    {
+      required: ['canonicalFeatureKey', 'governanceSnapshotId'],
+      properties: {
+        canonicalFeatureKey: { type: 'string', minLength: 1, maxLength: 200 },
+        governanceSnapshotId: { type: 'string', format: 'uuid' },
+      },
+    },
+  ]
+  schemas.FeatureCreateInput.oneOf = [
+    { not: { anyOf: [{ required: ['canonicalFeatureKey'] }, { required: ['governanceSnapshotId'] }] } },
+    ...provenancePair,
+  ]
+  schemas.FeatureRecord.oneOf = provenancePair
+  schemas.FeaturePatchInput.minProperties = 1
+  const receiptKinds = {
+    CREATE_FEATURE: ['PROJECT', 'POST', 'PROJECT_FEATURE'],
+    UPDATE_FEATURE: ['FEATURE', 'PATCH', 'PROJECT_FEATURE'],
+    REPLACE_CONTRIBUTIONS: ['FEATURE', 'PUT', 'PROJECT_FEATURE'],
+    REPLACE_WORK_LINKS: ['FEATURE', 'PUT', 'PROJECT_FEATURE'],
+    REPLACE_FEATURE_WORK_GRAPH: ['PROJECT', 'PUT', 'PROJECT_FEATURE_GRAPH'],
+    REPLACE_REQUIREMENT_BINDINGS: ['FEATURE', 'PUT', 'PROJECT_FEATURE'],
+    DELETE_FEATURE: ['FEATURE', 'DELETE', 'PROJECT_FEATURE'],
+    RESTORE_FEATURE: ['FEATURE', 'POST', 'PROJECT_FEATURE'],
+    CAPTURE_GOVERNANCE_SNAPSHOT: ['PROJECT', 'POST', 'GOVERNANCE_SNAPSHOT'],
+  }
+  schemas.MutationReceipt.properties.version = { type: 'integer', minimum: 1, nullable: true }
+  schemas.MutationReceipt.oneOf = Object.entries(receiptKinds).map(([operation, [targetType, httpMethod, resourceType]]) => ({
+    required: ['operation', 'targetType', 'httpMethod', 'resourceType', 'version'],
+    properties: {
+      operation: { type: 'string', enum: [operation] },
+      targetType: { type: 'string', enum: [targetType] },
+      httpMethod: { type: 'string', enum: [httpMethod] },
+      resourceType: { type: 'string', enum: [resourceType] },
+      version: resourceType === 'PROJECT_FEATURE'
+        ? { type: 'integer', minimum: 1 }
+        : { type: 'integer', nullable: true, enum: [null] },
+    },
+  }))
+  schemas.SnapshotCaptureResult.properties.receipt = {
+    allOf: [
+      { $ref: '#/components/schemas/MutationReceipt' },
+      { properties: { operation: { type: 'string', enum: ['CAPTURE_GOVERNANCE_SNAPSHOT'] } } },
+    ],
+  }
+  schemas.SnapshotCaptureResult.description = 'A committed snapshot and its CAPTURE_GOVERNANCE_SNAPSHOT receipt. snapshot.id must equal receipt.resourceId; the server validates this cross-field relationship.'
+  schemas.SnapshotCaptureResult['x-resource-identity'] = 'snapshot.id == receipt.resourceId'
+  schemas.SourceManifestEntry.properties.path.pattern = /^(?![A-Za-z]:)(?!.*(?:^|\/)\.{1,2}(?:\/|$))(?!.*[\\\u0000-\u001f\u007f])[^/]+(?:\/[^/]+)*$/.source
+  schemas.SourceManifest['x-maxBytes'] = 1024 * 1024
+  schemas.SourceManifest.description = 'Compact UTF-8 normalized manifest, at most 1 MiB. Paths are unique across entries. Runtime also enforces path uniqueness when hashes differ; JSON Schema uniqueItems alone cannot express that key constraint.'
+  schemas.SourceManifest.properties.entries.uniqueItems = true
+  schemas.FeatureWorkGraphInput.properties.affectedWorkItemIds.uniqueItems = true
   return document
 }

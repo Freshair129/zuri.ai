@@ -722,8 +722,9 @@ export function validatePhaseBSnapshot(snapshot, {
 
   const normalizedInventory = schemaInventory ? validateInventory(schemaInventory, issues) : null
   let targetSchemaSha256 = normalizedInventory?.targetSchemaSha256 || null
-  const declaredTargetSchemaSha256 = snapshot?.targetSchemaSha256 || snapshot?.phaseBRecovery?.targetSchemaSha256
-  if (declaredTargetSchemaSha256 !== undefined && (!isSha256(declaredTargetSchemaSha256) || declaredTargetSchemaSha256 !== targetSchemaSha256)) issue(issues, PHASE_B_ERROR_CODES.TARGET_SCHEMA_UNVERIFIED, 'Snapshot target schema binding does not match the frozen inventory')
+  for (const declaredTargetSchemaSha256 of [snapshot?.targetSchemaSha256, snapshot?.phaseBRecovery?.targetSchemaSha256]) {
+    if (declaredTargetSchemaSha256 !== undefined && (!isSha256(declaredTargetSchemaSha256) || declaredTargetSchemaSha256 !== targetSchemaSha256)) issue(issues, PHASE_B_ERROR_CODES.TARGET_SCHEMA_UNVERIFIED, 'Snapshot target schema binding does not match the frozen inventory')
+  }
   if (requireTargetSchema && !normalizedInventory) issue(issues, PHASE_B_ERROR_CODES.TARGET_SCHEMA_UNVERIFIED, 'Recovery requires a frozen application table inventory')
   const visibilityFull = schemaVisibility === 'FULL' || schemaVisibility?.status === 'FULL'
   if ((source === 'recovery' || source === 'export') && !visibilityFull) issue(issues, source === 'export' ? PHASE_B_ERROR_CODES.EXPORT_COMPLETENESS_UNAVAILABLE : PHASE_B_ERROR_CODES.TARGET_EMPTY_UNVERIFIED, 'Complete same-connection visibility was not proven')

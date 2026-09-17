@@ -3,11 +3,11 @@ id: ZAI:FR-252-NOTE
 title: Project Feature authority
 feature: FR-252
 domain: project-manager
-source: pending
-version: "0.4.0b"
+source: v2-native
+version: "0.6.0b"
 status: beta
 created_at: "2026-09-17T02:46:11+07:00,RWANG,approved e5ccfd7a"
-last_update: "2026-09-17T14:38:00+07:00,RWANG"
+last_update: "2026-09-17T20:28:51+07:00,RWANG final integrator"
 relations:
   - type: references
     target: ZAI:FR-252
@@ -96,14 +96,62 @@ browser cases pass. Actual PostgreSQL adapter proof passes 13 checks; the actual
 offline CLI passes 18 standard and 11 adversarial checks with unchanged source
 bytes during execution. These overlapping local proofs are not production
 evidence. P1 hands the frozen ports to W3 for parallel read/API and UI work.
-The peer CRM hold serialization finding remains a separate release gate.
+The peer CRM hold serialization finding is closed by the separately approved
+implementation and independent synthetic-provider proof below.
 Production still requires the actual runtime-role isolation gate in ADR-097.
 No Phase B production delivery or database migration is claimed.
+
+### Composed W3-W5 evidence
+
+The integration tree combines the local W1/W2 commit `052821a7` with main
+`892f23f3`, preserving Pricing and LINE changes. The composed schema has 177
+models; fresh isolated recovery proof passes 22 standard and 15 adversarial
+checks. The earlier 175-model proof remains historical and cannot authorize a
+restore into the new schema.
+
+W3 list/detail browser checks pass 21 cases with zero flaky outcomes after
+the recorded rendering/locator corrections. Actual PostgreSQL reads pass 18
+checks. W4's expanded independent PostgreSQL proof passes 19 checks, including
+separately observed Session/Membership/PlatformGrant lock waits, Session and
+actual SUPERADMIN-only grant expiry, competing CAS writers, graph allocations
+and audit rollback. Authorization uses the clock after lock acquisition.
+These synthetic non-bypass-role checks do not prove production grants.
+
+The current composed security/API/read/provenance/Swagger suite passes 111 tests
+across twelve files, with another eleven Identity regression tests in two files
+(122 total). It covers actual bound Git commits, unavailable source handling,
+the default capture-to-Feature-to-requirement evidence path, and a reproduced
+rollback/replay result correction. Snapshot capture returns the committed
+resource named by its receipt. The runtime Swagger inventory has 308 paths and
+411 operations; the selected Phase B contract remains 14 operations.
+
+The owner separately approved the narrow CRM hold/audit transaction and shared
+Customer-lock closure. Its focused suite passes 21 cases; independent PostgreSQL
+proof passes fourteen checks with frozen source, including stale Serializable
+rollback, actual Identity-service rollback and unchanged logical Customer fields.
+Known lock/serialization conflicts retain the existing retryable 503 envelope.
+
+The final full composed Server suite passes 6376 tests with 32 skips and the
+optimized build passes on the final implementation. Source comparison confirms
+2266 source/test/schema/configuration files remained unchanged across the suite.
+Owner forms and the independent Luna Max source review pass; focused UI coverage
+passes 25/25. Browser evidence is 45 passing checks plus two passing privacy
+rechecks after one test-only locator correction (one recheck overlaps the
+previous pass). The earlier 45-pass/one-failure run remains recorded as FAIL.
+Product code is identical across those runs, with zero skips/flaky outcomes.
+The full Server suite and optimized build pass on that product source.
+The [integration report](../../../../.brain/reports/2026-09-17-project-feature-phase-b.md)
+retains portable provider proofs and current gate results. Hosted CI and
+production remain distinct gates. No Phase B implementation revision has been
+deployed.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.6.0b | 2026-09-17 | beta | Record native implementation, independent owner-form source PASS and final 6376-test/build proof; retain browser and hosted release boundaries | 052821a7 + 892f23f3 | RWANG |
+| 0.5.1b | 2026-09-17 | beta | Close independently verified CRM and authority-clock findings; record 122 current focused tests, historical full Server/build pass and remaining UI/release gates | 052821a7 + 892f23f3 | RWANG |
+| 0.5.0b | 2026-09-17 | beta | Record composed 177-model recovery, W3/W4 provider proofs and W5 API/provenance tests; retain owner UI, CRM race and final release gates | 052821a7 + 892f23f3 | RWANG |
 | 0.4.0b | 2026-09-17 | beta | Record W2 independent/root local PASS and full Server/build/browser/CLI evidence; authorize frozen-port W3 handoff | bd99651f | RWANG |
 | 0.3.0b | 2026-09-17 | beta | Record both W2 approvals and first local composition proofs; keep complete W2/release gates open | bd99651f | RWANG |
 | 0.2.1b | 2026-09-17 | beta | Record 67 composed tests, optimized build and W1 independent PASS; expose the W2 snapshot-coverage blocker | bd99651f | RWANG |

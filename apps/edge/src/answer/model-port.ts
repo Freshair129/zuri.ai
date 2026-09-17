@@ -22,7 +22,19 @@
  */
 
 /** JSON Schema for a tool's input. Kept as data so no provider SDK leaks upward. */
+import type { MemorySlice, InvocationReceipt } from './context-injection.js';
 export type JsonSchema = Record<string, unknown>;
+
+export interface InvocationContext {
+  authorized: boolean;
+  threadId?: string;
+  audienceKind?: string;
+  mspSlices?: MemorySlice[];
+  maxBudgetBytes?: number;
+  onReceipt?: (receipt: InvocationReceipt) => void;
+  beforeInvocation?: () => Promise<void>;
+  lifecycle?: (receipt: InvocationReceipt, state: 'RESOLVED' | 'SUBMITTED' | 'COMPLETED' | 'FAILED') => Promise<void>;
+}
 
 /**
  * One tool the model may call.
@@ -65,8 +77,10 @@ export interface ModelRequest {
   images?: ModelImage[];
   /** Stops a model that keeps calling tools instead of answering. */
   maxIterations: number;
-  /** A LINE reply token expires in about thirty seconds; this is the hard ceiling. */
+  /** Model ceiling; the caller also enforces the server-issued end-to-end deadline. */
   timeoutMs: number;
+  maxOutputTokens?: number;
+  context?: InvocationContext;
   signal: AbortSignal;
 }
 

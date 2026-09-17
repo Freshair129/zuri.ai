@@ -1,7 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { readdirSync, readFileSync } from 'fs'
 import path from 'path'
+import Ajv from 'ajv'
+import addFormats from 'ajv-formats'
 import { buildOpenApiDocument } from '@/modules/project-manager/api-docs/openapi'
+import { zFeatureCreateInput, zFeaturePatchInput, zMutationReceipt } from '@/modules/project-manager/application/project-feature-service'
+import { zSourceManifestEntry } from '@/modules/project-manager/application/governance-source-verifier'
+import { zFeatureRecord } from '@/modules/project-manager/application/project-feature-read-model'
 import { EXECUTION_MODES } from '@/lib/validation/enums'
 
 // @req FR-019 — the published contract is generated from the schemas that
@@ -211,10 +216,15 @@ describe('OpenAPI document', () => {
       // the usage breakdown (GET) and recording one's own usage (POST) share
       // a path, plus the deployment-authenticated rollup (POST) on its own
       // path. 286 + 2 = 288; 383 + 3 = 386.
+      // SEC-034 (ADR-093 D6, TASK-ZAI-113) adds one more path and one more
+      // operation: the legal-hold recording path (POST). 288 + 1 = 289;
+      // 386 + 1 = 387.
       // FR-251 adds one read-only Project Domain-view path and GET operation.
       // FR-252 adds the Identity API-write CSRF issuer (GET only).
-      pathCount: 291,
-      operationCount: 389,
+      // Negotiated Edge v2 adds two scoped context/tool paths and operations.
+      // Pricing adds six paths/seven operations; retain the live CRM legal-hold route.
+      pathCount: 308,
+      operationCount: 411,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
@@ -246,6 +256,104 @@ describe('OpenAPI document', () => {
     }
   })
 
+  it('publishes all nine owner mutation operations with exact CSRF, CAS, replay and refusal transport', () => {
+    const candidate = JSON.parse(readFileSync(path.resolve(__dirname, '../../../../docs/architecture/project-manager-system/contracts/phase-b/openapi.candidate.json'), 'utf8'))
+    const writes = Object.entries(candidate.paths).flatMap(([routePath, item]) => Object.entries(item)
+      .filter(([method]) => ['post', 'patch', 'put', 'delete'].includes(method))
+      .map(([method, operation]) => ({ path: routePath.replace('{projectId}', '{id}'), method, operation })))
+    expect(writes).toHaveLength(9)
+    for (const expected of writes) {
+      const operation = doc.paths[expected.path][expected.method]
+      expect(operation.operationId).toBe(expected.operation.operationId)
+      expect(operation.security).toEqual([{ SessionAuth: [] }])
+      expect(operation['x-zuri-contract']).toBeUndefined()
+      const headers = operation.parameters.filter((entry) => entry.in === 'header')
+      for (const name of ['Origin', 'X-CSRF-Token', 'Idempotency-Key']) {
+        expect(headers.find((entry) => entry.name === name)?.required, name).toBe(true)
+      }
+      const append = expected.operation.operationId === 'createProjectFeature' || expected.operation.operationId === 'captureProjectGovernanceSnapshot'
+      expect(headers.some((entry) => entry.name === 'If-Match')).toBe(!append)
+      expect(operation.responses[200]).toBeTruthy()
+      expect(Boolean(operation.responses[201])).toBe(append)
+      for (const status of ['400', '401', '403', '404', '409', '422', '503', ...(!append ? ['412', '428'] : [])]) {
+        expect(operation.responses[status].content['application/json'].schema.$ref).toBe('#/components/schemas/MutationError')
+        expect(operation.responses[status].headers['X-Request-ID'].schema.format).toBe('uuid')
+      }
+      const successSchema = expected.operation.operationId === 'captureProjectGovernanceSnapshot' ? 'SnapshotCaptureResult' : 'MutationReceipt'
+      expect(operation.responses[200].content['application/json'].schema.$ref).toBe('#/components/schemas/' + successSchema)
+      expect(operation.responses[200].headers['Cache-Control'].schema.enum).toEqual(['no-store'])
+      expect(operation.responses[200].headers.ETag).toBeTruthy()
+    }
+    expect(doc.paths['/api/projects/{id}/feature-view'].get.responses[200].headers.ETag.description).toContain('Owner-only')
+    expect(doc.paths['/api/projects/{id}/features/{featureId}'].get.responses[200].headers.ETag).toBeTruthy()
+  })
+
+  it('preserves runtime provenance-pair, receipt-discriminator, patch and path refinements in generated JSON schemas', () => {
+    const ajv = new Ajv({ strict: false, allErrors: true })
+    addFormats(ajv)
+    // OpenAPI 3.0 uses boolean exclusivity; Ajv's draft-07 dialect uses the
+    // numeric bound itself. Preserve the exact constraint when adapting it.
+    function draft7(value) {
+      if (Array.isArray(value)) return value.map(draft7)
+      if (!value || typeof value !== 'object') return value
+      const result = Object.fromEntries(Object.entries(value).map(([key, child]) => [key, draft7(child)]))
+      for (const [exclusive, bound] of [['exclusiveMinimum', 'minimum'], ['exclusiveMaximum', 'maximum']]) {
+        if (typeof result[exclusive] !== 'boolean') continue
+        if (result[exclusive]) {
+          expect(typeof result[bound]).toBe('number')
+          result[exclusive] = result[bound]
+          delete result[bound]
+        } else delete result[exclusive]
+      }
+      return result
+    }
+    const components = draft7(doc.components)
+    const compile = (name) => ajv.compile({ components, $ref: '#/components/schemas/' + name })
+    const create = compile('FeatureCreateInput')
+    const base = { code: 'FE-1', title: 'Feature', problem: 'Problem', outcome: 'Outcome', primaryDomainId: 'DOM-CRM' }
+    const uuid = '11111111-1111-4111-8111-111111111111'
+    for (const pair of [
+      {}, { canonicalFeatureKey: null, governanceSnapshotId: null },
+      { canonicalFeatureKey: 'FEAT-001', governanceSnapshotId: uuid },
+      { canonicalFeatureKey: 'FEAT-001' }, { governanceSnapshotId: uuid },
+      { canonicalFeatureKey: null, governanceSnapshotId: uuid },
+      { canonicalFeatureKey: 'FEAT-001', governanceSnapshotId: null },
+    ]) expect(create({ ...base, ...pair })).toBe(zFeatureCreateInput.safeParse({ ...base, ...pair }).success)
+    const patch = compile('FeaturePatchInput')
+    for (const value of [{}, { title: 'Changed' }, { code: 'immutable' }, { lifecycle: 'ACTIVE' }]) {
+      expect(patch(value)).toBe(zFeaturePatchInput.safeParse(value).success)
+    }
+    const record = compile('FeatureRecord')
+    const recordBase = {
+      ...base, id: uuid, version: 1, projectId: uuid,
+      primaryDomain: { domainId: 'DOM-CRM', label: 'Customer', mappingState: 'MAPPED' },
+      contributions: [], workLinks: [], requirementBindings: [], lifecycle: 'DRAFT',
+      uniqueWorkCount: 0, evidence: [], evidenceState: 'UNAVAILABLE',
+    }
+    delete recordBase.primaryDomainId
+    for (const canonicalFeatureKey of [null, '', 'FEAT-001']) for (const governanceSnapshotId of [null, uuid]) {
+      const value = { ...recordBase, canonicalFeatureKey, governanceSnapshotId }
+      expect(record(value), JSON.stringify({ canonicalFeatureKey, governanceSnapshotId })).toBe(zFeatureRecord.safeParse(value).success)
+    }
+    const receipt = compile('MutationReceipt')
+    const receiptBase = { receiptId: uuid, targetId: uuid, resourceId: uuid, status: 'COMMITTED', etag: '"token"', recordedAt: '2026-09-17T00:00:00.000Z', auditRef: uuid, requestId: uuid }
+    for (const operation of doc.components.schemas.MutationReceipt.properties.operation.enum) {
+      for (const targetType of ['PROJECT', 'FEATURE']) for (const httpMethod of ['POST', 'PATCH', 'PUT', 'DELETE']) {
+        for (const resourceType of ['PROJECT_FEATURE', 'PROJECT_FEATURE_GRAPH', 'GOVERNANCE_SNAPSHOT']) for (const version of [null, 1]) {
+          const value = { ...receiptBase, operation, targetType, httpMethod, resourceType, version }
+          expect(receipt(value), JSON.stringify({ operation, targetType, httpMethod, resourceType, version })).toBe(zMutationReceipt.safeParse(value).success)
+        }
+      }
+    }
+    const entry = compile('SourceManifestEntry')
+    for (const name of ['docs/FEATURES.md', 'docs/a[1]*.md', 'é/file.md', 'one', '/absolute', 'C:/drive', 'C:drive', '../escape', 'a/../escape', './dot', 'a/./dot', 'a//empty', 'trailing/', 'back\\slash', 'nul\u0000file', 'newline\nfile']) {
+      const value = { path: name, sha256: 'a'.repeat(64) }
+      expect(entry(value), name).toBe(zSourceManifestEntry.safeParse(value).success)
+    }
+    expect(doc.components.schemas.SourceManifest.properties.schemaVersion.enum).toEqual(['1.0.0'])
+    expect(doc.components.schemas.SourceManifest['x-maxBytes']).toBe(1048576)
+  })
+
   it('carries the real execution-mode enum, not a hand-written copy', () => {
     const modes = doc.components.schemas.PlanEnvelope.properties.workstreams.items.properties.executionMode
     expect(modes.enum).toEqual(EXECUTION_MODES)
@@ -273,6 +381,38 @@ describe('OpenAPI document', () => {
     })
     expect(doc.components.schemas.ApiWriteCsrfError.required).toEqual(['code', 'message', 'requestId', 'retryable'])
     expect(doc.components.schemas.ApiWriteCsrfError.additionalProperties).toBe(false)
+  })
+
+  it('publishes bounded Feature reads with runtime schemas and session-only authority', () => {
+    const routes = [
+      ['/api/projects/{id}/feature-view', 'FeatureView'],
+      ['/api/projects/{id}/features', 'FeatureRecordPage'],
+      ['/api/projects/{id}/features/{featureId}', 'FeatureRecord'],
+      ['/api/projects/{id}/governance-snapshots', 'GovernanceSnapshotPage'],
+    ]
+    for (const [route, schema] of routes) {
+      const operation = doc.paths[route].get
+      expect(operation.security).toEqual([{ SessionAuth: [] }])
+      expect(operation.responses[200].content['application/json'].schema.$ref).toBe('#/components/schemas/' + schema)
+      expect(operation.responses[200].headers['Cache-Control'].schema.enum).toEqual(['no-store'])
+      for (const status of [401, 404, 503]) {
+        expect(operation.responses[status].content['application/json'].schema.$ref).toBe('#/components/schemas/FeatureReadError')
+        expect(operation.responses[status].headers['X-Request-ID'].schema.format).toBe('uuid')
+      }
+      if (route === '/api/projects/{id}/features') {
+        expect(doc.paths[route].post.operationId).toBe('createProjectFeature')
+      } else if (route === '/api/projects/{id}/governance-snapshots') {
+        expect(doc.paths[route].post.operationId).toBe('captureProjectGovernanceSnapshot')
+      } else expect(doc.paths[route].post).toBeUndefined()
+    }
+    expect(doc.components.schemas.FeatureView.additionalProperties).toBe(false)
+    expect(doc.components.schemas.FeatureView.properties.features.maxItems).toBe(200)
+    expect(doc.components.schemas.FeatureRecordPage.properties.items.maxItems).toBe(50)
+    expect(doc.components.schemas.GovernanceSnapshotMetadata.properties).not.toHaveProperty('sourceManifest')
+    expect(doc.components.schemas.GovernanceSnapshotMetadata.properties).not.toHaveProperty('verificationProof')
+    expect(doc.paths['/api/projects/{id}/governance-snapshots'].get.responses).toHaveProperty('403')
+    expect(doc.paths['/api/projects/{id}/governance-snapshots'].get.responses).toHaveProperty('400')
+    expect(doc.paths['/api/projects/{id}/feature-view'].get.responses).toHaveProperty('413')
   })
 
   it('documents externalRefs on every entity a customer can key', () => {

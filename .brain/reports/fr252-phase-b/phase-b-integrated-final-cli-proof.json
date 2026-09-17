@@ -1,0 +1,50 @@
+{
+  "capturedAt": "2026-09-17T08:29:48.050Z",
+  "environment": "ISOLATED_LOOPBACK_POSTGRES_17",
+  "before": {
+    "apps/server/src/modules/commerce/domain/pricing-engine.js": "f5a6e7bac4292dbafe8c4bd80d947e7661f9bd427f5d71ee16b475a245503e44",
+    "apps/server/src/modules/commerce/domain/pricing-formula.js": "c4f8a1c4e74164e47f75235af0a8cccbb54447896486689f1ee40bc41e81179e",
+    "apps/server/src/modules/commerce/domain/pricing-rules.js": "ac550ef7a7b8de2a3d385b13edd98d48f411b67a2f4a23fcb743606f8818e193",
+    "apps/server/src/modules/project-manager/application/backup-service.js": "b9ac11fa5d1fb1cec006338a3c553526719b87dd459f761f013ebe82aaa1cf16",
+    "apps/server/src/modules/project-manager/application/phase-b-backup.js": "739d507b93ae4c75c0b68c51b59a91c6b67ffbbf13359fa501e2bff30900bcc2",
+    "apps/server/scripts/phase-b-recovery.mjs": "a9654a9c29976a260e22d5547cd0f95032a1a7be1df943167388b60397c59a82",
+    "apps/server/scripts/phase-b-recovery-hooks.mjs": "789d7f0f7cecf7799c50ca2489bec975fa3744f244b10959106a4304f38429c0",
+    "apps/server/scripts/phase-b-clean-target-restore.mjs": "afc3e25da9d4395ad94268a693e8ea00f4bb4214a9f5593a8928eb5f4c8681d4",
+    "apps/server/scripts/phase-b-protected-export.mjs": "db8fc81e7f82e7997a76ecf8243f471362b782da4675f3e7241494afc573afce",
+    "apps/server/prisma/schema.prisma": "5d3825978c25a731d8088908e1692cf786231595cdf3af3464227c6368774e31",
+    "docs/architecture/project-manager-system/contracts/phase-b/target-schema.inventory.json": "c4dfe018f4dbb3bb5c64e52a97bdf6f77c9458b4e55cc583575003f0ba362ccc",
+    "apps/server/package.json": "5b5b843e646416413e85b1c2db77d80175237707230fd0f0bc6dbdf08719f79d",
+    "apps/server/package-lock.json": "aeccb764fdcd7eb95f21b3ec9150e33e9e1c70c1f52e76139c9b2bdf3772e435"
+  },
+  "components": [
+    {
+      "name": "phase-b-integrated-cli-proof",
+      "exitCode": 0,
+      "status": "PASS",
+      "checks": 22
+    },
+    {
+      "name": "phase-b-integrated-cli-adversarial",
+      "exitCode": 0,
+      "status": "PASS",
+      "checks": 15
+    }
+  ],
+  "after": {
+    "apps/server/src/modules/commerce/domain/pricing-engine.js": "f5a6e7bac4292dbafe8c4bd80d947e7661f9bd427f5d71ee16b475a245503e44",
+    "apps/server/src/modules/commerce/domain/pricing-formula.js": "c4f8a1c4e74164e47f75235af0a8cccbb54447896486689f1ee40bc41e81179e",
+    "apps/server/src/modules/commerce/domain/pricing-rules.js": "ac550ef7a7b8de2a3d385b13edd98d48f411b67a2f4a23fcb743606f8818e193",
+    "apps/server/src/modules/project-manager/application/backup-service.js": "b9ac11fa5d1fb1cec006338a3c553526719b87dd459f761f013ebe82aaa1cf16",
+    "apps/server/src/modules/project-manager/application/phase-b-backup.js": "739d507b93ae4c75c0b68c51b59a91c6b67ffbbf13359fa501e2bff30900bcc2",
+    "apps/server/scripts/phase-b-recovery.mjs": "a9654a9c29976a260e22d5547cd0f95032a1a7be1df943167388b60397c59a82",
+    "apps/server/scripts/phase-b-recovery-hooks.mjs": "789d7f0f7cecf7799c50ca2489bec975fa3744f244b10959106a4304f38429c0",
+    "apps/server/scripts/phase-b-clean-target-restore.mjs": "afc3e25da9d4395ad94268a693e8ea00f4bb4214a9f5593a8928eb5f4c8681d4",
+    "apps/server/scripts/phase-b-protected-export.mjs": "db8fc81e7f82e7997a76ecf8243f471362b782da4675f3e7241494afc573afce",
+    "apps/server/prisma/schema.prisma": "5d3825978c25a731d8088908e1692cf786231595cdf3af3464227c6368774e31",
+    "docs/architecture/project-manager-system/contracts/phase-b/target-schema.inventory.json": "c4dfe018f4dbb3bb5c64e52a97bdf6f77c9458b4e55cc583575003f0ba362ccc",
+    "apps/server/package.json": "5b5b843e646416413e85b1c2db77d80175237707230fd0f0bc6dbdf08719f79d",
+    "apps/server/package-lock.json": "aeccb764fdcd7eb95f21b3ec9150e33e9e1c70c1f52e76139c9b2bdf3772e435"
+  },
+  "sourceFrozen": true,
+  "status": "PASS"
+}

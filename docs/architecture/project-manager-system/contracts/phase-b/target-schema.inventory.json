@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "9bc8c777e00f7716b94b99a6a771e1453b9d667d887bcb2ed0118779ca0ec2be",
+  "schemaSha256": "5d3825978c25a731d8088908e1692cf786231595cdf3af3464227c6368774e31",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -627,6 +627,16 @@
       "tableName": "Portfolio"
     },
     {
+      "modelName": "PricingCalculation",
+      "schemaName": "public",
+      "tableName": "PricingCalculation"
+    },
+    {
+      "modelName": "PricingRuleSet",
+      "schemaName": "public",
+      "tableName": "PricingRuleSet"
+    },
+    {
       "modelName": "Product",
       "schemaName": "public",
       "tableName": "Product"
@@ -877,7 +887,7 @@
       "tableName": "Workstream"
     }
   ],
-  "targetSchemaSha256": "617b091c8b94ff306f9b98989676f631360b23f4a7faac0f1e57d16743999f5b",
+  "targetSchemaSha256": "68d92f85611c34fc76fcef1f217815c2ed5e3ed6f351a202e0750fd1c21f3a27",
   "migrationTables": [
     "_prisma_migrations",
     "schema_migrations"

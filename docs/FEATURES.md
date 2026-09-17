@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.58.0b"
+version: "1.59.0b"
 status: active
 last_update: "2026-09-17T02:46:11+07:00,RWANG"
 relations:
@@ -12,6 +12,7 @@ relations:
 
 # Features (FEAT registry)
 
+Version diff 1.58.0b → 1.59.0b: declare FR-253 Commerce pricing rules and formula engine, owner approved 2026-09-17; TASK-ZAI-055/056/059. Implementation in progress, no production activation.
 Version diff 1.57.0b → 1.58.0b: register owner-approved FR-252 Project Feature authority as a project-manager feature-of-one under ADR-097. Cross-domain P1–P4 slices share that requirement; no new FEAT bundle or runtime completion.
 
 Version diff 1.56.0b → 1.57.0b: register owner-approved FR-251 as a project-manager feature-of-one for the read-only Project Execution Domains view, now implemented and verified locally. No new FEAT bundle, Phase B authority or production deployment is declared.
@@ -20,7 +21,7 @@ Version diff 1.55.0b → 1.56.0b: register FR-250 as a project-manager feature-o
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.58.0b |
+| **Version** | 1.59.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -919,6 +920,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FEAT-042",
     "primaryDomain": "platform-control",
     "useCase": "operator เปิดหน้า error ใหม่บน /control/errors แล้วเห็น error ที่เกิดจริงจัดกลุ่มตาม fingerprint พร้อมจำนวนครั้งและเวลาที่เกิดล่าสุด กดปิดเมื่อแก้แล้ว และเปิดอีกหน้าเพื่อดูว่าหน้าไหน/ฟีเจอร์ไหนถูกใช้บ่อยแค่ไหน แยกตามคน"
+  },
+  {
+    "id": "FR-253",
+    "primaryDomain": "commerce",
+    "useCase": "Business OWNER ใส่สูตรและตัวแปรราคา ทดลองเทียบรุ่นเดิม อนุมัติรุ่นใหม่และตรวจที่มาของผลคำนวณ ก่อนส่งราคาขายที่อนุมัติแล้วเข้า Knowledge"
   }
 ]
 ```
@@ -967,3 +973,5 @@ Version diff 1.53.0b → 1.54.0b (2026-09-14): readiness metadata for **FR-241**
 Version diff 1.54.0b → 1.55.0b (2026-09-16): **FEAT-040** (FR-243, FR-244; ADR-094) and **FEAT-041** (FR-245, FR-246; ADR-093) declared with readiness metadata, on the owner's acceptance of both ADRs.
 
 Version diff 1.55.0b → 1.56.0b (2026-09-16): Added **FEAT-042** (FR-247..FR-249, NFR-023) under **ADR-095** — error tracking and per-person feature usage, both extending the existing logger; FR-247 implemented locally, FR-248/FR-249 declared only. Also reconciles the '**Version**' document-control cell, which had drifted behind this table (read 1.47.0b, table already at 1.55.0b).
+
+Version diff 1.58.0b → 1.59.0b (2026-09-17): adds FR-253 Commerce pricing rules/engine readiness entry; local implementation only, no production activation.

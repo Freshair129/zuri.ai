@@ -5,10 +5,10 @@ parent_requirement: FR-252
 phase_id: FR-252-P3
 phase_order: 3
 domain: project-manager
-version: "0.2.0b"
+version: "0.4.1b"
 status: beta
 created_at: "2026-09-17T02:46:11+07:00,RWANG,approved e5ccfd7a"
-last_update: "2026-09-17T14:40:00+07:00,RWANG"
+last_update: "2026-09-17T20:28:51+07:00,RWANG final integrator"
 relations:
   - type: references
     target: ZAI:FR-252
@@ -36,19 +36,35 @@ Scoped read aggregate/list/detail, base and complete-set mutations, graph redist
 
 Run positive/negative scope tests plus deterministic multi-writer CAS/allocation races, idempotent replay with one effect/audit, exact graph membership, tombstone uniqueness/cohorts, 200-feature capacity, invalid provenance and source refusal. Both adapters preserve per-WorkItem bounds and weighted progress. Runtime OpenAPI parity must match the selected contract.
 
-Current state: W3_READY_AFTER_P1_LOCAL_PASS. P1/W2 and Identity P2 have passed
-their independent and root local gates. Dispatch W3's four GET routes and
-strict read DTOs against the frozen repository in parallel with P4's list/detail
-shell. W4 mutations and W5 snapshot production remain separate waves.
+Current state: LOCAL_API_AND_PROVIDER_PASS_RELEASE_PENDING. The four
+GET handlers and nine writes are implemented alongside the existing P2 CSRF
+issuer. The current read, writer, provenance and OpenAPI suite passes 65 tests
+across eight files. The complete PM/CRM/Identity focused composition passes
+122 tests across fourteen files. Real Git commits, exact capture replay identity
+and authority expiry after each lock are covered.
 
-OpenAPI v0.3.4b makes the snapshot metadata GET's malformed bounded-query 400
-explicit, matching the existing limit/cursor constraints and common error
-contract. It adds no operation or capability. Runtime OpenAPI composition stays
-root-owned after the four GET handlers exist; this entry records no W3 test pass.
+Independent actual PostgreSQL verification passes 19 cases with frozen source:
+persisted Session and SUPERADMIN grant expiry after observed authority-row waits,
+revocation, idempotency, race/CAS, graph/tombstone invariants, rollback and RLS.
+The authority clock defect found by the independent source review is repaired
+and closed by this separate provider gate. The synthetic non-bypass lab is not
+evidence of production grants or public HTTP contention behavior.
+
+OpenAPI v0.3.6b retains fourteen operations and makes capture receipt/resource
+identity explicit. Owner aggregate/detail GET headers supply current graph and
+Feature CAS tokens. Runtime Swagger covers 308 paths and 411 operations after
+composition. The final Server suite passes 6376 tests with 32 skips and the
+optimized build passes on the frozen implementation. Independent UI source
+review passes; browser and release gates are recorded in P4 and the
+[integration report](../../../../.brain/reports/2026-09-17-project-feature-phase-b.md).
+No hosted or production result is implied by these local checks.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.4.1b | 2026-09-17 | beta | Record final 6376-test and optimized-build PASS; delegate composed browser status to P4 without changing API scope | 052821a7 + 892f23f3 | RWANG |
+| 0.4.0b | 2026-09-17 | beta | Close the independently found authority-clock defect with deterministic and real-provider proof; record 65 API/provenance and 122 total focused passes, retaining UI and release gates | 052821a7 + 892f23f3 | RWANG |
+| 0.3.0b | 2026-09-17 | beta | Record implemented reads/writes/provenance, composed 61-test and isolated PostgreSQL evidence; retain independent and release gates | 052821a7 + 892f23f3 | RWANG |
 | 0.2.0b | 2026-09-17 | beta | Record passed P1/P2 entry and bounded W3 parallel handoff; make existing snapshot query refusal explicit in API contract | bd99651f | RWANG |
 | 0.1.0b | 2026-09-17 | beta | Register slice of the approved Phase B design; no new behavior | e5ccfd7a | RWANG |
