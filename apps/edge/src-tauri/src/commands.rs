@@ -81,7 +81,7 @@ impl AppState {
             verified: AtomicBool::new(false),
             pairing: tokio::sync::Mutex::new(None),
             lifecycle: tokio::sync::Mutex::new(()),
-            supervisor: crate::supervisor::Supervisor::default(),
+            supervisor: crate::supervisor::Supervisor::with_log_path(get_config_path().ok().and_then(|p| p.parent().map(|dir| dir.join("worker-console.json")))),
             providers: crate::providers::ProviderManager::default(),
             quitting: AtomicBool::new(false),
             resume_generation: AtomicU64::new(0),

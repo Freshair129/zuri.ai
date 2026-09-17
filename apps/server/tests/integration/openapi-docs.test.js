@@ -215,9 +215,10 @@ describe('OpenAPI document', () => {
       // operation: the legal-hold recording path (POST). 288 + 1 = 289;
       // 386 + 1 = 387.
       // FR-251 adds one read-only Project Domain-view path and GET operation.
+      // Negotiated Edge v2 adds two scoped context/tool paths and operations.
       // Pricing adds six paths/seven operations; retain the live CRM legal-hold route.
-      pathCount: 296,
-      operationCount: 395,
+      pathCount: 298,
+      operationCount: 397,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

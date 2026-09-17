@@ -10,6 +10,7 @@ import {
 } from '../pricing/index.js';
 import type { AnswerRag } from '../rag/genesis-rag.js';
 import type { SearchEvidenceV4 } from './format-cards.js';
+import type { PublishedProductQueryResult } from '../rag/genesisrag17/product-rag.js';
 
 /**
  * The facts a model is allowed to answer from.
@@ -69,6 +70,8 @@ function quoteInputFor(p: CatalogProduct, options: EvidenceOptions) {
 export type QuoteBreakEvidence = ScopedQuote['breaks'][number] & { orderTotalThb: number };
 
 export interface QuoteEvidence {
+  publishedProducts?: PublishedProductQueryResult;
+  catalogPrices?: Array<{ minQty: number; unitPriceThb: number; asOf: string | null }>;
   found: boolean;
   /** Set only when the price service itself could not be reached — never a fabricated price. */
   unavailable?: true;
@@ -183,6 +186,16 @@ export async function quotePrice(
     };
   }
 
+  if (priceEv.publishedProducts) {
+    // A published catalog amount has no live tax/shipping/validity authority.
+    // Preserve evidence, prohibit an invented quote total and never fall into RMB estimates.
+    return { found: priceEv.found, quotable: false, sku, priceSource: 'commercial_sku',
+      publishedProducts: priceEv.publishedProducts,
+      catalogPrices: (priceEv.publishedProducts.price?.tiers ?? []).map((t) => ({ minQty: t.minQty, unitPriceThb: t.amountMinor / 100, asOf: t.asOf })),
+      notes: ['ราคาจากแคตตาล็อกที่เผยแพร่ ยังไม่ใช่ใบเสนอราคา; หน่วย ภาษี ค่าส่ง และวันหมดอายุยังไม่ยืนยัน'],
+      message: priceEv.found ? 'โปรดระบุวันที่ข้อมูลและข้อจำกัดของราคา' : 'ยังไม่มีราคาที่เผยแพร่สำหรับรหัสนี้' };
+  }
+
   if (priceEv.found) {
     const breaks: QuoteBreakEvidence[] = priceEv.priceLadder
       .filter((t) => !t.priceMissing && t.qtyTier !== null)
@@ -223,6 +236,7 @@ export async function quotePrice(
 }
 
 export interface BudgetEvidence {
+  publishedProducts?: PublishedProductQueryResult;
   quantity: number;
   maxPriceThb: number;
   usesBreak: number;
@@ -269,6 +283,14 @@ export async function findWithinBudget(
       reason: ev.reason,
       priceSource: 'commercial_sku',
     };
+  }
+
+  if (ev.publishedProducts) {
+    const matches = ev.publishedProducts.results.filter((p) => p.price.selected)
+      .map((p) => ({ sku: p.code, name: p.name, unitPriceThb: p.price.selected!.amountMinor / 100 }));
+    return { quantity, maxPriceThb, usesBreak: quantity, matchCount: matches.length, matches, budgetUnmet: !matches.length,
+      nearest: [], priceSource: 'commercial_sku', publishedProducts: ev.publishedProducts,
+      message: 'เทียบงบจากราคาแคตตาล็อกที่เผยแพร่เท่านั้น ยังไม่รวมเงื่อนไขภาษี ค่าส่ง และอายุราคาที่ไม่ทราบ' };
   }
 
   const budgetUnmet = ev.parsed?.budgetUnmet === true;
@@ -342,6 +364,15 @@ export async function searchProducts(
  */
 export function compactSearchForModel(ev: SearchEvidenceV4): unknown {
   if (ev.unavailable) return { unavailable: true, reason: ev.reason };
+  if (ev.publishedProducts) {
+    const result = ev.publishedProducts;
+    return { query: ev.query, matchCount: ev.matchCount, priceBasis: result.priceBasis,
+      corpus: { corpusId: result.corpusId, corpusGeneration: result.corpusGeneration, manifestHash: result.manifestHash },
+      matches: result.results.map((p) => ({ code: p.code, name: p.name, kind: p.kind, citation: p.citation,
+        relations: p.graph.map((g) => ({ predicate: g.predicate, code: g.targetCode, factId: g.factId, citation: g.citation })),
+        prices: p.price.tiers.map((t) => ({ minQty: t.minQty, unitPriceThb: t.amountMinor / 100, asOf: t.asOf, citation: t.citation })),
+        priceLimitations: { currency: 'THB', unit: null, validUntil: null, taxBasis: null, shippingBasis: null } })) };
+  }
   const one = (m: SearchEvidenceV4['matches'][number]) => ({
     code: m.code,
     name: m.name,

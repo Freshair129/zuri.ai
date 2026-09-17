@@ -26,6 +26,10 @@ const PROVIDER_STATE_LABELS = {
   BLOCKED: 'ยังไม่พร้อม',
 };
 
+function savedWorkerLogCursor() {
+  try { return window.localStorage.getItem('worker-console-cursor.v1'); } catch { return null; }
+}
+
 const state = {
   activeTab: 'overview',
   activePage: { overview: 'overviewHome', connect: 'connectHome', ai: 'aiHome', settings: 'settingsHome' },
@@ -43,6 +47,11 @@ const state = {
   workerPollBusy: false,
   workerLog: [],
   workerLogPage: 0,
+  workerLogCursor: savedWorkerLogCursor(),
+  workerLogInitialized: false,
+  workerLogGap: null,
+  workerLogStorage: null,
+  workerLogBusy: false,
   pairingActive: false,
   pairingBusy: false,
   pairingState: 'IDLE',
@@ -1090,7 +1099,9 @@ function renderWorkerLog() {
   const pages = workerLogPages();
   state.workerLogPage = Math.max(0, Math.min(state.workerLogPage, pages.length - 1));
   const shown = pages[state.workerLogPage];
-  setText('workerLogCount', entries.length ? entries.length + ' รายการ' : 'ยังไม่มีบันทึก');
+  const warning = (state.workerLogGap ? ' · บันทึกไม่ครบ' : '') + (state.workerLogStorage === 'UNAVAILABLE' ? ' · จัดเก็บไม่ได้' : state.workerLogStorage === 'PENDING' ? ' · กำลังบันทึก' : '');
+  setText('workerLogCount', (entries.length ? entries.length + ' รายการ' : 'ยังไม่มีบันทึก') + warning);
+  $('workerLogCount').title = state.workerLogGap ? 'มีช่วงบันทึกขาดหาย หมดอายุ หรือแอปเริ่มใหม่ ไม่สามารถยืนยันว่าบันทึกครบได้' : '';
   setText('workerLogPageLabel', 'หน้า ' + (state.workerLogPage + 1) + ' / ' + pages.length);
   $('workerLogPrev').disabled = state.workerLogPage <= 0;
   $('workerLogNext').disabled = state.workerLogPage >= pages.length - 1;
@@ -1115,15 +1126,34 @@ function renderWorkerLog() {
 }
 
 async function refreshWorkerLog() {
-  if (!native) return;
+  if (!native || state.workerLogBusy) return;
+  state.workerLogBusy = true;
   try {
-    const result = await invoke('get_worker_log');
-    state.workerLog = (result && result.entries) || [];
+    let result = await invoke('get_worker_log_page', { cursor: state.workerLogCursor });
+    if (!result || !Array.isArray(result.entries) || typeof result.cursor !== 'string') throw new Error('INVALID_LOG_PAGE');
+    // Only the content-free cursor persists in WebView storage. Rebuild the bounded history
+    // after a window reload; a native epoch change already returns history with a visible gap.
+    if (!state.workerLogInitialized && state.workerLogCursor && !result.gap) {
+      result = await invoke('get_worker_log_page', { cursor: null });
+      if (!result || !Array.isArray(result.entries) || typeof result.cursor !== 'string') throw new Error('INVALID_LOG_PAGE');
+    }
+    if (result.gap) { state.workerLog = []; state.workerLogGap = result.gap; }
+    const entries = new Map(state.workerLog.map((entry) => [entry.id, entry]));
+    for (const entry of result.entries) if (entry && typeof entry.id === 'string') entries.set(entry.id, entry);
+    state.workerLog = Array.from(entries.values()).filter((entry) => Date.parse(entry.at) >= Date.now() - 7 * 86400000).slice(-200);
+    state.workerLogCursor = result.cursor;
+    state.workerLogInitialized = true;
+    try { window.localStorage.setItem('worker-console-cursor.v1', result.cursor); } catch { /* native buffer remains authoritative */ }
+    state.workerLogStorage = result.storage;
     renderWorkerLog();
   } catch (failure) {
     // The log is a diagnostic panel; failing to read it must not raise an error over the page the
     // operator is using. The count going stale is the signal, and the status panel still reports.
     state.workerLog = state.workerLog || [];
+    state.workerLogStorage = 'UNAVAILABLE';
+    renderWorkerLog();
+  } finally {
+    state.workerLogBusy = false;
   }
 }
 

@@ -62,6 +62,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/line-oa/jobs/{id}/trace', ['GET']],
   ['/api/line-oa/jobs/failures', ['GET']],
   ['/api/edge/conversation-jobs/claim', ['POST']],
+  ['/api/edge/conversation-jobs/{id}/context', ['POST']], ['/api/edge/conversation-jobs/{id}/tools', ['POST']],
   ['/api/edge/conversation-jobs/{id}/complete', ['POST']], ['/api/edge/conversation-jobs/{id}/fail', ['POST']],
   // @req FR-244 — the identity-free residency poll (ADR-061, ADR-094 D6 option A).
   ['/api/edge/model-residency', ['POST']],

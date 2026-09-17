@@ -1,0 +1,60 @@
+{
+  "schemaVersion": "line-local-smoke.v1",
+  "evidence": "MODEL_ONLY_SYNTHETIC_SMOKE_NOT_E2E",
+  "observedAt": "2026-09-16T20:16:12.764Z",
+  "model": "qwen3.5:9b",
+  "digest": "1bdc07fcb6394b54a1174a466d2606c169c68b0fdb92c678dddf12cc533bbd66",
+  "quantization": "Q4_K_M",
+  "residentBefore": {
+    "name": "qwen3.5:9b",
+    "model": "qwen3.5:9b",
+    "size": 5729167604,
+    "digest": "1bdc07fcb6394b54a1174a466d2606c169c68b0fdb92c678dddf12cc533bbd66",
+    "details": {
+      "parent_model": "",
+      "format": "gguf",
+      "family": "qwen35",
+      "families": [
+        "qwen35"
+      ],
+      "parameter_size": "9.7B",
+      "quantization_level": "Q4_K_M"
+    },
+    "expires_at": "2318-12-28T03:01:47.332825707+07:00",
+    "size_vram": 5729167604,
+    "context_length": 8192
+  },
+  "rows": [
+    {
+      "case": 1,
+      "durationMs": 728,
+      "status": "MODEL_ANSWER",
+      "answerChars": 106,
+      "receipts": 1,
+      "promptBytes": 396
+    },
+    {
+      "case": 2,
+      "durationMs": 606,
+      "status": "MODEL_ANSWER",
+      "answerChars": 153,
+      "receipts": 1,
+      "promptBytes": 497
+    },
+    {
+      "case": 3,
+      "durationMs": 207,
+      "status": "MODEL_ANSWER",
+      "answerChars": 19,
+      "receipts": 1,
+      "promptBytes": 483
+    }
+  ],
+  "fullFlowQualification": "NOT_RUN",
+  "limitations": [
+    "No LINE provider call",
+    "No published corpus",
+    "No MSP process or remote Work tools",
+    "No hardware isolation or concurrent-load qualification"
+  ]
+}
