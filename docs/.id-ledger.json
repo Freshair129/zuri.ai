@@ -379,6 +379,7 @@
     "FR-249",
     "FR-250",
     "FR-251",
+    "FR-252",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -765,6 +766,7 @@
     "ADR-094",
     "ADR-095",
     "ADR-096",
+    "ADR-097",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -4692,6 +4694,19 @@
       "history": [
         {
           "anchor": "project execution domains view",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-252": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "dcdee3e23cef0d3066a9043c82a57fb16ff8f0ef34bc7676fd08f0bf9c0eee66",
+      "history": [
+        {
+          "anchor": "project feature authority",
           "since": "2026-09-16",
           "reason": "declared"
         }
@@ -9799,6 +9814,19 @@
       "history": [
         {
           "anchor": "projects and work uses domain module and local view",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-097": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-097-PROJECT-FEATURE-AUTHORITY-AND-WRITE-CONTRACT.md",
+      "status": "current",
+      "statement_digest": "0e0c2bedc42034c722ec0e6b81b2d1ea8392d87b9416e1ded43a34706a76b3f8",
+      "history": [
+        {
+          "anchor": "project feature authority and scoped write contract",
           "since": "2026-09-16",
           "reason": "declared"
         }

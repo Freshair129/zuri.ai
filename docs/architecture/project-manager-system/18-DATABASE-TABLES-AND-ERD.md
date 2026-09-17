@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-TABLES-ERD
 title: Project Manager table dictionary and ERD
-version: "0.1.0b"
+version: "0.2.0b"
 status: candidate
 created_at: "2026-09-16T12:00:32+07:00,RWANG,design base 087f3025"
-last_update: "2026-09-16T12:22:55+07:00,RWANG"
+last_update: "2026-09-17T01:25:33+07:00,RWANG"
 superseded_by: null
 attributes:
   doc_type: data-design
@@ -19,6 +19,43 @@ relations:
 # Database tables & ERD
 
 **Candidate · C-3 · design impact HIGH; documentation-only change.** เอกสารนี้เพิ่มตารางข้อมูลระดับ field และ ERD ให้ชุดเดิม ไม่สร้างตารางจริงหรือ migration.
+
+**Phase B refinement:** [24 Phase B implementation plan](24-PHASE-B-FEATURE-IMPLEMENTATION-PLAN.md)
+defines the selected Feature implementation contract and its support records.
+The wider catalog below remains a full-system proposal. Phase B does not approve
+the other proposed tables. Its field bounds, scope constraints, snapshot trust,
+mutation receipt and allocation concurrency rules take precedence for that slice.
+
+### Selected Phase B contract
+
+The complete selected dictionary is [phase-b/data-model.candidate.json](contracts/phase-b/data-model.candidate.json).
+Its six `selectedPhaseBRecords` and document 24's ERD are the Phase B proposal.
+The 85-record inventory below is the earlier full-system catalog; it does not
+include the newly selected receipt record and must not be used alone to generate
+Phase B schemas. The broad JSON points to this overlay through `selectedSlices.phaseB`.
+
+| Selected record | Source of fields, keys and invariants | Relationship to the earlier catalog |
+|---|---|---|
+| `GovernanceSnapshot` | Selected overlay, same named record | Refines repository/project provenance, trusted verifier proof and bounded manifest |
+| `ProjectFeature` | Selected overlay, same named record | Refines bounds, hierarchy, lifecycle and `deleteBatchId` |
+| `FeatureContribution` | Selected overlay, same named record | Refines scoped uniqueness, bounded responsibility and restore cohort |
+| `FeatureWorkLink` | Selected overlay, same named record | Refines per-WorkItem allocation, Project locking and restore conflict behavior |
+| `RequirementBinding` | Selected overlay, same named record | Uses `sourceNamespace`, pinned verified snapshot, immutable source identity and restore cohort |
+| `ProjectFeatureMutationReceipt` | Selected overlay, same named record | New immutable receipt authority; included in backup, restore and privacy-erasure review |
+
+The receipt binds principal, tenant, Business, operation, HTTP method and exact
+target, with a scoped idempotency key and payload hash. Its resource reference is
+typed: Feature UUID, Project UUID for the allocation graph, or Snapshot UUID.
+There is no universal foreign key from every receipt to ProjectFeature. Exact
+fields, nullability, uniqueness, audit relation and replay rules reside in the
+overlay, with their wire shapes in [Phase B OpenAPI](contracts/phase-b/openapi.candidate.json).
+
+`allocationState` and graph ETag are derived projections, not additional tables.
+Every Feature mutation serializes on the existing Project and rechecks the
+hierarchy and all affected WorkItem allocations. A Feature delete marks only its
+active children with one deletion batch; restore selects only that still-deleted
+cohort and fails atomically if the old shares no longer fit. The selected overlay
+defines these rules and the cross-adapter tests; this document grants no DDL authority.
 
 ## 1. Scope, evidence and naming
 
@@ -47,7 +84,7 @@ relations:
 
 No physical table is proposed for navigation Domain groups, Feature-driven views, Inventory, Workload or Schedule summaries. Domain keys reference the governance registry. Read models rebuild from authorized records; MetricResultSnapshot is optional persisted evidence, not a competing source of facts.
 
-## 3. Table inventory
+## 3. Historical full-system table inventory
 
 | Record | Owner | State | Profile | Purpose/source |
 |---|---|---|---|---|
@@ -912,7 +949,7 @@ Existing model constraints: @@index([runId, status]); @@index([gateId]). Postgre
 | workItemId | uuid | No | FK → WorkItem | No implicit default; owner validates before commit |
 | allocationBps | int | Yes |  | Optional credit basis points |
 
-**Unique:** featureId,workItemId. **Indexes:** businessId,workItemId. **Invariants:** Same project; allocationBps 0..10000; credit sums 10000 only for explicitly complete split.
+**Unique:** featureId,workItemId. **Indexes:** businessId,workItemId. **Invariants:** Same project; allocationBps 0..10000; an explicitly complete split sums 10000 across Features for one WorkItem, never across different WorkItems. Concurrent redistribution is one scoped transaction under document 24.
 
 ### RequirementBinding
 
@@ -929,12 +966,12 @@ Existing model constraints: @@index([runId, status]); @@index([gateId]). Postgre
 | deletedAt | instant | Yes |  | Soft delete; history preserved |
 | featureId | uuid | No | FK → ProjectFeature | No implicit default; owner validates before commit |
 | governanceSnapshotId | uuid | No | FK → GovernanceSnapshot | No implicit default; owner validates before commit |
-| namespace | text | No |  | No implicit default; owner validates before commit |
+| sourceNamespace | text | No |  | One storage/API field; no namespace alias. Owner validates pinned source before commit |
 | requirementKey | text | No |  | No implicit default; owner validates before commit |
 | revisionHash | sha256 | No |  | No implicit default; owner validates before commit |
 | acceptanceRef | text | No |  | No implicit default; owner validates before commit |
 
-**Unique:** featureId,governanceSnapshotId,namespace,requirementKey. **Indexes:** businessId,requirementKey. **Invariants:** Cannot edit canonical FR subject through UI.
+**Unique:** featureId,governanceSnapshotId,sourceNamespace,requirementKey. **Indexes:** businessId,requirementKey. **Invariants:** Cannot edit canonical FR subject through UI.
 
 ### DesignSnapshot
 
@@ -2826,3 +2863,4 @@ This table design partially addresses SPEC-G07 (fields, invariants, indexing, tr
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-16 | candidate | Add enumerated existing-model fields, candidate table dictionary, nine ERD views and persistence acceptance | design base 087f3025; uncommitted | RWANG |
+| 0.2.0b | 2026-09-17 | candidate | Unify sourceNamespace; bind the selected six-record Phase B overlay including typed mutation receipts, per-WorkItem concurrency and restore cohorts; retain the earlier broad catalog explicitly as historical | composed ecc30b94 | RWANG |
