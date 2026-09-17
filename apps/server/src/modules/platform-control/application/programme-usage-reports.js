@@ -10,7 +10,10 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 //   the credential's person and installation, never the body's; a resumed
 //   session's report from the same installation extends when every count and the
 //   end time only grow; the deployment bearer's reports carry no person.
-// @spec ADR-086 D5; ADR-087 D4-D6; SDD-008 (Zod at the boundary)
+// @req FR-239 — an optional, strictly validated usage detail (names and numbers only)
+//   is stored as headline columns plus canonical JSON, digested, and must also grow
+//   for a resumed session to extend.
+// @spec ADR-086 D5, D7; ADR-087 D4-D6; SDD-008 (Zod at the boundary)
 // @tested tests/unit/programme-usage-reports.test.js
 
 /** The deployment bearer, compared in constant time; a secret under 32 characters admits nothing. */
@@ -23,6 +26,39 @@ export function bearerMatches(header, secret) {
 
 const count = z.number().int().min(0).max(2_000_000_000)
 const optionalLabel = (max) => z.string().trim().min(1).max(max).nullish()
+const toolName = /^[\w.:@/-]{1,120}$/
+
+// @req FR-239 — usage detail: names and numbers only (ADR-086 D7). Strict, so a
+// body can never smuggle text into storage; bounded, so a report stays small.
+export const UsageDetailSchema = z.object({
+  reasoningTokens: count,
+  cacheWrite5mTokens: count,
+  cacheWrite1hTokens: count,
+  webSearchRequests: count,
+  webFetchRequests: count,
+  prompts: count,
+  toolCalls: count,
+  toolErrors: count,
+  toolDenials: count,
+  compactions: count,
+  apiErrors: count,
+  tools: z.record(z.string().regex(toolName), z.object({ calls: count, errors: count }).strict())
+    .refine((tools) => Object.keys(tools).length <= 300, 'at most 300 tool names'),
+  models: z.record(z.string().regex(toolName), count)
+    .refine((models) => Object.keys(models).length <= 30, 'at most 30 model names'),
+}).strict()
+
+export const DETAIL_HEADLINE = ['reasoningTokens', 'cacheWrite5mTokens', 'cacheWrite1hTokens', 'webSearchRequests', 'webFetchRequests', 'prompts', 'toolCalls', 'toolErrors', 'toolDenials', 'compactions', 'apiErrors']
+
+/** One serialisation for a detail: sorted keys, so the digest and the stored JSON never depend on key order. */
+export function canonicalDetail(detail) {
+  if (!detail) return null
+  const out = {}
+  for (const key of DETAIL_HEADLINE) out[key] = detail[key] || 0
+  out.tools = Object.fromEntries(Object.keys(detail.tools || {}).sort().map((k) => [k, { calls: detail.tools[k].calls || 0, errors: detail.tools[k].errors || 0 }]))
+  out.models = Object.fromEntries(Object.keys(detail.models || {}).sort().map((k) => [k, detail.models[k]]))
+  return out
+}
 
 export const ProgrammeUsageReportSchema = z.object({
   source: z.string().trim().regex(/^[a-z0-9][a-z0-9._-]{1,39}$/, 'source must be a lowercase tool name such as codex or claude-code'),
@@ -40,6 +76,7 @@ export const ProgrammeUsageReportSchema = z.object({
   activeMinutes: z.number().int().min(0).max(100_000),
   startedAt: z.string().datetime({ offset: true }),
   endedAt: z.string().datetime({ offset: true }),
+  detail: UsageDetailSchema.nullish(),
 }).strict().refine((r) => Date.parse(r.endedAt) >= Date.parse(r.startedAt), { message: 'endedAt is before startedAt', path: ['endedAt'] })
 
 /** The digest a replay must match: every stored field, in a fixed order, times normalised to UTC. */
@@ -49,6 +86,8 @@ export function usageReportDigest(report) {
     report.inputTokens, report.cacheWriteTokens, report.cacheReadTokens, report.outputTokens,
     report.requestCount, report.activeMinutes,
     new Date(report.startedAt).toISOString(), new Date(report.endedAt).toISOString(),
+    // FR-239: a report without detail digests exactly as it did before detail existed.
+    ...(report.detail ? [JSON.stringify(canonicalDetail(report.detail))] : []),
   ].join('')
   return createHash('sha256').update(canonical).digest('hex')
 }
@@ -65,12 +104,24 @@ const view = (row) => ({
 const isUniqueViolation = (error) => error?.code === 'P2002'
 const COUNTS = ['inputTokens', 'cacheWriteTokens', 'cacheReadTokens', 'outputTokens', 'requestCount', 'activeMinutes']
 
-/** A resumed session: same installation, same start, and nothing got smaller (ADR-087 D5). */
+const storedDetail = (row) => {
+  try {
+    return row.detailJson ? JSON.parse(row.detailJson) : null
+  } catch {
+    return null
+  }
+}
+
+/** A resumed session: same installation, same start, and nothing got smaller — detail included (ADR-087 D5, ADR-086 D7). */
 function growsFrom(row, report, reporter) {
   if ((row.installationId || null) !== (reporter.installationId || null)) return false
   if (new Date(row.startedAt).getTime() !== Date.parse(report.startedAt)) return false
   if (Date.parse(report.endedAt) < new Date(row.endedAt).getTime()) return false
-  return COUNTS.every((field) => report[field] >= row[field])
+  if (!COUNTS.every((field) => report[field] >= row[field])) return false
+  const before = storedDetail(row)
+  if (!before) return true
+  const after = report.detail || {}
+  return DETAIL_HEADLINE.every((key) => (after[key] || 0) >= (before[key] || 0))
 }
 
 const rowData = (report, payloadSha256, reporter) => ({
@@ -92,6 +143,12 @@ const rowData = (report, payloadSha256, reporter) => ({
   startedAt: new Date(report.startedAt),
   endedAt: new Date(report.endedAt),
   payloadSha256,
+  // FR-239: headline counts as columns, the whole detail as canonical JSON.
+  reasoningTokens: report.detail?.reasoningTokens ?? 0,
+  toolCallCount: report.detail?.toolCalls ?? 0,
+  toolErrorCount: report.detail?.toolErrors ?? 0,
+  promptCount: report.detail?.prompts ?? 0,
+  detailJson: report.detail ? JSON.stringify(canonicalDetail(report.detail)) : null,
 })
 
 /**
@@ -192,12 +249,12 @@ export async function listProgrammeUsageReports(db) {
         source: true, sessionId: true, branch: true, taskCode: true, repository: true,
         personId: true, installationId: true, aiAccountLabel: true, model: true,
         inputTokens: true, cacheWriteTokens: true, cacheReadTokens: true, outputTokens: true,
-        requestCount: true, activeMinutes: true, startedAt: true, endedAt: true,
+        requestCount: true, activeMinutes: true, startedAt: true, endedAt: true, detailJson: true,
       },
     })
     return {
       available: true,
-      reports: rows.map((r) => ({ ...r, startedAt: r.startedAt.toISOString(), endedAt: r.endedAt.toISOString() })),
+      reports: rows.map(({ detailJson, ...r }) => ({ ...r, detail: storedDetail({ detailJson }), startedAt: r.startedAt.toISOString(), endedAt: r.endedAt.toISOString() })),
     }
   } catch {
     return { available: false, reports: [] }

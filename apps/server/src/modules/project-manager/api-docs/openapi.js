@@ -1,8 +1,10 @@
 import { z } from 'zod'
 import { OpenAPIRegistry, OpenApiGeneratorV3, extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import { zPlanEnvelope, zExternalRef } from '../import/plan-schema'
+import { zDomainRow, zDomainViewError, zProjectDomainView } from '../application/project-domain-read-model'
 import { EXECUTION_MODES, PROGRESS_STRATEGIES } from '@/lib/validation/enums'
 import { zAssetIntakeEnvelope } from '@/modules/asset-management/domain/asset-intake'
+import { AUTH_SESSION_COOKIE } from '@/modules/identity/auth-service'
 
 // @req FR-019 — OpenAPI 3 generated FROM the Zod schemas that actually run at
 // request time, so the integration docs cannot drift from validation.
@@ -24,6 +26,11 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/knowledge/console/runs/{executionRunId}', ['GET']],
   ['/api/knowledge/corpora', ['GET']], ['/api/knowledge/corpora/{corpusId}/generations', ['GET']],
   ['/api/knowledge/citations/{citationId}/artifact', ['GET']],
+  // @req FR-236 — LINE FAQ knowledge candidates (ADR-090 D6).
+  ['/api/knowledge/candidates', ['GET', 'POST']], ['/api/knowledge/candidates/{id}', ['GET', 'PATCH']],
+  ['/api/knowledge/candidates/{id}/decision', ['POST']],
+  // @req FR-237 — LINE knowledge gap report (ADR-090 D7).
+  ['/api/knowledge/gap-report', ['GET']],
   // @req FR-159, FR-158 — Business-scoped Strategy lifecycle and PM handoff.
   ['/api/growth/plans', ['GET', 'POST']], ['/api/growth/plans/{id}', ['GET', 'PATCH']],
   ['/api/growth/plans/{id}/handoff', ['POST']],
@@ -44,11 +51,18 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/line-oa/accounts/{id}/webhook', ['POST']], ['/api/line-oa/accounts/{id}/jobs', ['GET']],
   ['/api/line-oa/accounts/{id}/transport-health', ['GET']],
   ['/api/line-oa/worker', ['POST']], ['/api/line-oa/connections', ['POST']],
+  // @req FR-223, FR-224 — write-only credential rotation, revocation and live
+  // validation (ADR-089); nothing they answer carries material.
+  ['/api/line-oa/connections/{id}/credential', ['POST']],
+  ['/api/line-oa/connections/{id}/credential/revoke', ['POST']],
+  ['/api/line-oa/connections/{id}/credential/validate', ['POST']],
   ['/api/line-oa/jobs/{id}/acknowledge-unknown', ['POST']],
   ['/api/line-oa/jobs/{id}/trace', ['GET']],
   ['/api/line-oa/jobs/failures', ['GET']],
   ['/api/edge/conversation-jobs/claim', ['POST']],
   ['/api/edge/conversation-jobs/{id}/complete', ['POST']], ['/api/edge/conversation-jobs/{id}/fail', ['POST']],
+  // @req FR-244 — the identity-free residency poll (ADR-061, ADR-094 D6 option A).
+  ['/api/edge/model-residency', ['POST']],
   // @req FR-143, FR-144 — the edge-executed extraction surface: three
   // owner-governed credential operations on the Platform side, four
   // device-authenticated job operations, and the review surface's job read.
@@ -64,6 +78,11 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/line-oa/accounts', ['GET', 'POST']], ['/api/line-oa/accounts/{id}', ['GET', 'PATCH']],
   ['/api/line-oa/rich-menus', ['GET', 'POST']], ['/api/line-oa/rich-menus/{id}', ['GET', 'PATCH']],
   ['/api/line-oa/rich-menus/{id}/jobs', ['GET', 'POST', 'PATCH']], ['/api/line-oa/rich-menu-worker', ['POST']], ['/api/platform/programme-usage-reports', ['POST']], ['/api/platform/programme-usage-reports/whoami', ['GET']], ['/api/platform/harness-pairing/start', ['POST']], ['/api/platform/harness-pairing/approve', ['POST']], ['/api/platform/harness-pairing/poll', ['POST']], ['/api/platform/harness-devices', ['GET']], ['/api/platform/harness-devices/{id}', ['PATCH']],
+  // @req FR-247 — the deduplicated error list (GET) and resolving one (PATCH).
+  ['/api/platform/error-events', ['GET']], ['/api/platform/error-events/{id}', ['PATCH']],
+  // @req FR-248, FR-249 — record one's own usage (POST), read the breakdown
+  // (GET), and the deployment-authenticated 90-day rollup.
+  ['/api/platform/usage-events', ['GET', 'POST']], ['/api/platform/usage-events/rollup', ['POST']],
   ['/api/line-oa/liff-apps', ['GET', 'POST']], ['/api/line-oa/liff-apps/{id}', ['GET', 'PATCH']],
   // @req FR-154, FR-155 — the Inventory domain: six catalogue collections
   // (list + create), the product item (read + versioned action; archive is an
@@ -112,11 +131,37 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/business/roadmaps', ['POST']], ['/api/business/roadmaps/{id}', ['PATCH']], ['/api/business/strategy', ['GET']],
   // @req FR-169 — the only writer of Business.capabilitiesJson; PATCH only.
   ['/api/businesses/{id}/capabilities', ['PATCH']],
+  // @req FR-236 — the only writer of Business.knowledgeCandidatesEnabled
+  // (ADR-090 D6, TASK-ZAI-099); PATCH only, OWNER-scoped, same shape as the
+  // capability toggle above.
+  ['/api/businesses/{id}/knowledge-candidates-toggle', ['PATCH']],
   ['/api/containers', ['POST']], ['/api/containers/{id}', ['PATCH']],
-  ['/api/crm/conversations', ['GET']], ['/api/crm/conversations/{id}', ['GET']], ['/api/crm/customers/{customerId}/consent', ['POST']],
+  ['/api/crm/conversations', ['GET']], ['/api/crm/conversations/{id}', ['GET']],
+  // @req FR-246 — the staff reply writer: a Business owner sends a reply from the
+  // Inbox composer, pushed through the LINE transport and recorded only on
+  // acceptance (ADR-093 evidence gap). POST only.
+  ['/api/crm/conversations/{id}/reply', ['POST']],
+  // @req FR-233 — the third, read-only reader: message search and per-account
+  // follow/unfollow counts. GET only, same as the inbox above.
+  ['/api/crm/conversations/search', ['GET']], ['/api/crm/conversations/event-counts', ['GET']],
+  ['/api/crm/customers/{customerId}/consent', ['POST']],
   // @req FR-022 — the PDPA erasure trigger. POST only: there is no preview of an
   // erasure, and the redacted Customer row survives, so DELETE would misdescribe it.
   ['/api/crm/customers/{customerId}/erasure', ['POST']],
+  // @req FR-245 — the chat evidence archive's one retrieval path (ADR-093 D7,
+  // TASK-ZAI-112). POST only, same reasoning as the erasure row above: no GET
+  // preview, and every call is independently audited regardless of how many
+  // times the same range is asked for.
+  ['/api/crm/customers/{customerId}/chat-evidence/retrieve', ['POST']],
+  // @req SEC-034 — records a legal hold on a Customer's chat evidence archive
+  // (ADR-093 D6, TASK-ZAI-113). POST only, same reasoning as the erasure and
+  // retrieval rows above: this appends a new history row, never replaces or
+  // previews one, and every recording is independently audited.
+  ['/api/crm/customers/{customerId}/legal-hold', ['POST']],
+  // @req FR-230 — the nightly retention sweep's scheduled entry point (ADR-091 D1,
+  // D2). Deployment-authenticated (ZURI_RETENTION_SWEEP_TOKEN), same shape as
+  // /api/line-oa/worker and /api/platform/programme-usage-reports below.
+  ['/api/crm/retention-sweep', ['POST']],
   // @req FR-161 — sales tasks: the collection (list + create) and the item
   // (read + versioned action; cancel is an action, never a DELETE).
   ['/api/crm/sales-tasks', ['GET', 'POST']], ['/api/crm/sales-tasks/{id}', ['GET', 'PATCH']],
@@ -165,7 +210,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // (never key material); POST mints; DELETE revokes.
   ['/api/platform/api-access-keys', ['GET', 'POST']], ['/api/platform/api-access-keys/{id}', ['DELETE']],
   ['/api/platform/integrations', ['GET', 'POST']], ['/api/platform/integrations/line-registry', ['GET', 'POST']], ['/api/platform/users', ['GET', 'PATCH']], ['/api/profile', ['GET']], ['/api/progress/portfolio', ['GET']], ['/api/progress/project/{id}', ['GET']], ['/api/progress/workstream/{id}', ['GET']],
-  ['/api/projects', ['GET', 'POST']], ['/api/projects/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/projects/{id}/dependencies', ['GET']], ['/api/projects/{id}/files', ['GET', 'POST']], ['/api/projects/{id}/files/{fileId}', ['DELETE']], ['/api/projects/{id}/inventory', ['GET']], ['/api/projects/{id}/roadmap', ['GET']], ['/api/projects/{id}/team', ['GET', 'POST', 'PATCH', 'DELETE']], ['/api/projects/{id}/teams', ['GET', 'POST', 'DELETE']], ['/api/projects/{id}/tree', ['GET']], ['/api/projects/overview', ['GET']],
+  ['/api/projects', ['GET', 'POST']], ['/api/projects/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/projects/{id}/dependencies', ['GET']], ['/api/projects/{id}/files', ['GET', 'POST']], ['/api/projects/{id}/files/{fileId}', ['DELETE']], ['/api/projects/{id}/inventory', ['GET']], ['/api/projects/{id}/roadmap', ['GET']], ['/api/projects/{id}/domain-view', ['GET']], ['/api/projects/{id}/team', ['GET', 'POST', 'PATCH', 'DELETE']], ['/api/projects/{id}/teams', ['GET', 'POST', 'DELETE']], ['/api/projects/{id}/tree', ['GET']], ['/api/projects/overview', ['GET']],
   ['/api/repositories', ['GET', 'POST']], ['/api/repositories/{id}', ['PATCH']], ['/api/repositories/link', ['POST']], ['/api/repositories/link/{id}', ['DELETE']], ['/api/resolve', ['GET']], ['/api/scope', ['GET', 'POST']], ['/api/auth/login', ['POST']], ['/api/auth/logout', ['POST']], ['/api/auth/reset-password', ['POST']], ['/api/auth/signup', ['POST']], ['/api/onboarding/profile', ['POST']], ['/api/onboarding/state', ['GET']], ['/api/onboarding/workspaces', ['POST']], ['/api/workspace-invites', ['POST']], ['/api/workspace-invites/accept', ['POST']], ['/api/workspace-invites/{id}', ['DELETE']], ['/api/workspace-memberships', ['GET', 'DELETE']], ['/api/platform/users/password-resets', ['POST']],
   // @req FR-038 — the owner attaches an existing Person to a Business they own.
   ['/api/platform/users/memberships', ['POST']],
@@ -247,7 +292,7 @@ function genericResponses(path) {
 }
 
 function registerInventoryOperations(registry) {
-  const detailedOperations = new Set(['post /api/assets/intakes/validate', 'post /api/import/dry-run', 'post /api/import/commit', 'get /api/resolve', 'get /api/import/template'])
+  const detailedOperations = new Set(['get /api/projects/{id}/domain-view', 'post /api/assets/intakes/validate', 'post /api/import/dry-run', 'post /api/import/commit', 'get /api/resolve', 'get /api/import/template'])
   for (const [path, methods] of CURRENT_API_ROUTE_INVENTORY) {
     for (const method of methods) {
       const methodName = method.toLowerCase()
@@ -359,6 +404,15 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
   registry.register('ResolveResponse', zResolveResponse)
   registry.register('AssetIntakeEnvelope', zAssetIntakeEnvelope)
   registry.register('AssetValidationResponse', zAssetValidationResponse)
+  registry.register('DomainRow', zDomainRow)
+  registry.register('DomainView', zProjectDomainView)
+  registry.register('DomainViewError', zDomainViewError)
+  registry.registerComponent('securitySchemes', 'SessionAuth', {
+    type: 'apiKey',
+    in: 'cookie',
+    name: AUTH_SESSION_COOKIE,
+    description: 'Current server-resolved session. Authorization is recomputed from live server state; no role is inferred from cookie labels.',
+  })
   registry.register('Error', zError)
 
   registry.registerPath({
@@ -377,6 +431,66 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
       401: json(zError, 'Authentication required'),
       403: json(zError, 'Asset Management is not enabled for this Business'),
       404: json(zError, 'Business not found or not visible'),
+    },
+  })
+
+  registry.registerPath({
+    method: 'get',
+    path: '/api/projects/{id}/domain-view',
+    operationId: 'getProjectDomainView',
+    summary: 'Read the authorized Project Execution Domains projection',
+    description:
+      'Read-only Phase A projection of FR-070 Workstream domain bindings. ' +
+      'Authorization is resolved against the Project Business/Workspace hierarchy before Workstream or WorkItem aggregation. ' +
+      'Unknown immutable domain ids remain visible as UNMAPPED; Feature, blocker, contract, gap and snapshot fields remain unavailable in Phase A.',
+    tags: ['Domain view'],
+    security: [{ SessionAuth: [] }],
+    request: { params: z.object({ id: z.string().uuid() }).strict() },
+    responses: {
+      200: {
+        description: 'Successful authorized result.',
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/DomainView' } } },
+      },
+      401: {
+        description: 'No valid live session. The redacted body contains no Project, Business or domain identifiers.',
+        headers: {
+          'X-Request-ID': {
+            description: 'Fresh server-generated request UUID; equal to the response body requestId.',
+            schema: { type: 'string', format: 'uuid' },
+          },
+        },
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/DomainViewError' } } },
+      },
+      404: {
+        description: 'The Project is unknown, deleted, foreign-scope or hierarchy-invalid. The same redacted response prevents target enumeration.',
+        headers: {
+          'X-Request-ID': {
+            description: 'Fresh server-generated request UUID; equal to the response body requestId.',
+            schema: { type: 'string', format: 'uuid' },
+          },
+        },
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/DomainViewError' } } },
+      },
+      503: {
+        description: 'The session or read service is temporarily unavailable; internal details are redacted.',
+        headers: {
+          'X-Request-ID': {
+            description: 'Fresh server-generated request UUID; equal to the response body requestId.',
+            schema: { type: 'string', format: 'uuid' },
+          },
+        },
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/DomainViewError' } } },
+      },
+      500: {
+        description: 'Unexpected failure; internal details are redacted.',
+        headers: {
+          'X-Request-ID': {
+            description: 'Fresh server-generated request UUID; equal to the response body requestId.',
+            schema: { type: 'string', format: 'uuid' },
+          },
+        },
+        content: { 'application/json': { schema: { $ref: '#/components/schemas/DomainViewError' } } },
+      },
     },
   })
 
@@ -442,7 +556,7 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
   registerInventoryOperations(registry)
 
   const generator = new OpenApiGeneratorV3(registry.definitions)
-  return generator.generateDocument({
+  const document = generator.generateDocument({
     openapi: '3.0.3',
     info: {
       title: 'Zuri v2 Project Manager — Enterprise Intake API',
@@ -466,6 +580,7 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
     tags: [
       { name: 'Intake', description: 'Plan envelope in, work graph out' },
       { name: 'Asset Management', description: 'Evidence-backed physical Asset intake previews' },
+      { name: 'Domain view', description: 'Authorized Project Execution Domains projections' },
       { name: 'Identity', description: 'Map customer core ids onto internal records' },
       { name: 'Route inventory', description: 'Complete current route/method coverage with transparent generic boundaries' },
     ],
@@ -475,4 +590,13 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
       operationCount: CURRENT_API_ROUTE_INVENTORY.reduce((count, [, methods]) => count + methods.length, 0),
     },
   })
+  // OpenAPI 3.0 represents Zod's `z.null()` as `nullable: true`. Add the
+  // candidate's explicit null enum to the two Phase A fields so consumers can
+  // distinguish an unavailable value from a nullable future value, while the
+  // runtime Zod schemas remain the single validation authority.
+  for (const [schemaName, field] of [['DomainView', 'snapshotId'], ['DomainRow', 'blockerCount']]) {
+    const schema = document.components?.schemas?.[schemaName]
+    if (schema?.properties?.[field]) schema.properties[field].enum = [null]
+  }
+  return document
 }

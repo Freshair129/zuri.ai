@@ -366,6 +366,19 @@
     "FR-236",
     "FR-237",
     "FR-238",
+    "FR-239",
+    "FR-240",
+    "FR-241",
+    "FR-242",
+    "FR-243",
+    "FR-244",
+    "FR-245",
+    "FR-246",
+    "FR-247",
+    "FR-248",
+    "FR-249",
+    "FR-250",
+    "FR-251",
     "FR-253",
     "NFR-001",
     "NFR-002",
@@ -389,6 +402,7 @@
     "NFR-020",
     "NFR-021",
     "NFR-022",
+    "NFR-023",
     "SDD-001",
     "SDD-002",
     "SDD-003",
@@ -489,6 +503,9 @@
     "SDD-098",
     "SDD-099",
     "SDD-100",
+    "SDD-101",
+    "SDD-102",
+    "SDD-103",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -521,6 +538,8 @@
     "SEC-030",
     "SEC-031",
     "SEC-032",
+    "SEC-033",
+    "SEC-034",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -559,6 +578,10 @@
     "FEAT-036",
     "FEAT-037",
     "FEAT-038",
+    "FEAT-039",
+    "FEAT-040",
+    "FEAT-041",
+    "FEAT-042",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -738,6 +761,11 @@
     "ADR-089",
     "ADR-090",
     "ADR-091",
+    "ADR-092",
+    "ADR-093",
+    "ADR-094",
+    "ADR-095",
+    "ADR-096",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -2493,7 +2521,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "e7e399ec7c7e8dc9ef7b048c3ab964864bfefea20177ea1fc4a76a64b12115c8"
+      "statement_digest": "e4940acd0cc1f32e6b8c6548548702312a845d5666989df39aed7ae93d2168a8",
+      "statement_digest_reviewed_at": "2026-09-15",
+      "statement_digest_reason": "TASK-ZAI-110: reworded to name the one write this surface now makes (FR-246's staff reply, sent through Push, never Reply) and why it is not BR-011's second reply owner; subject anchor unchanged"
     },
     "FR-092": {
       "family": "FR",
@@ -2668,7 +2698,7 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "853025bead3e8fd5b56eac3833a6711dcc5913e8c3bdea254a591e0877124ddf",
+      "statement_digest": "11ee4963097d48281f25f5111383d24ee4a643d47b746ebca4a4b4a0d1518cff",
       "history": [
         {
           "anchor": "platform programme roadmap",
@@ -2677,7 +2707,7 @@
         }
       ],
       "statement_digest_reviewed_at": "2026-09-13",
-      "statement_digest_reason": "Re-worded to name programme v0.4.5 after TASK-ZAI-069 to TASK-ZAI-072 were added on the owner's instruction for the Zuri harness usage plugin; the subject anchor and the surface it names are unchanged"
+      "statement_digest_reason": "Names programme v0.4.8 (TASK-ZAI-104, the 30-day roadmap member view under ADR-092); subject unchanged."
     },
     "FR-106": {
       "family": "FR",
@@ -4497,6 +4527,175 @@
         }
       ]
     },
+    "FR-239": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "e731e720e80df2f6d48cf65a7c1d47e1fc0fe4bc04ea3647d5ff3e2f7c4f5d35",
+      "history": [
+        {
+          "anchor": "agent usage detail capture",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-240": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "a5a47382d2142a684ec3812b2481e12140a619f7dc155bd34c0aca4bc2f179dd",
+      "history": [
+        {
+          "anchor": "usage detail on the programme board",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-241": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "291c953c61ec8be5d036becf63848f4c0e33f8398c01f60e289bece7f6681ff6",
+      "history": [
+        {
+          "anchor": "programme roadmap member view",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-242": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "47af76e44a685684f1544903458bd569b6f232fa8c3fa23500e091b61e5c3772",
+      "history": [
+        {
+          "anchor": "the credential vault secretstoreport fr 223 generalises",
+          "since": "2026-09-14",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-243": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "7fe017e78d275496d4bc2a5ef0d49a120557173119549311ad1d5015b64a40f2",
+      "history": [
+        {
+          "anchor": "conversation sessions",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-244": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "7b32decd7a2eefaae5a1be8730799f6431c28adff8ed19ce56d463e3bcb377d0",
+      "history": [
+        {
+          "anchor": "local model residency follows business hours",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-245": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "46362142797879f68142aac8315e3667d201a8cc7e00682dc80875252fbbc60f",
+      "history": [
+        {
+          "anchor": "chat evidence cold archive",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-246": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "e1fc98828f0ff44bf242e7f9ccb30e0ea053fc46d44da77c1fda7ab5b1e0f79f",
+      "history": [
+        {
+          "anchor": "staff replies are recorded",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-247": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "617cf6e382ad3db0467aec026482ef65c423d0daa8783152611f5634a60da0e3",
+      "history": [
+        {
+          "anchor": "error tracking",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-248": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "718f8e57a65ca7df390fcf0da65c14b5d05fdc0769d2a95d691ad5c2e2a1b14f",
+      "history": [
+        {
+          "anchor": "page view usage",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-249": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "3e70992ed142a4553457117e5d74f056f6d7d621a85fb8d2e86c7e603f275b12",
+      "history": [
+        {
+          "anchor": "action level usage",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-250": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "f426850d8a18c4231367529459cdb460b1e1b0929911941107e6f39446612a97",
+      "history": [
+        {
+          "anchor": "hierarchical projects and work navigation",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-251": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "bf7723ffdb3574fff29bcddf9ec9526f977b0daf975e57bf03b350e82099e31a",
+      "history": [
+        {
+          "anchor": "project execution domains view",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
     "FR-253": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4505,7 +4704,7 @@
       "history": [
         {
           "anchor": "knowledge base console",
-          "since": "2026-09-16",
+          "since": "2026-09-17",
           "reason": "declared"
         }
       ]
@@ -4795,6 +4994,21 @@
           "reason": "declared"
         }
       ]
+    },
+    "NFR-023": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "aa61b4ac06830f55945bee605177b6a54d1c98903fe5f560dff4a8131b94ec06",
+      "history": [
+        {
+          "anchor": "person attributed usage retention is bounded",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-16",
+      "statement_digest_reason": "Fixed an unescaped markdown table pipe in the statement text (route|actionName -> route or actionName) and switched the status marker from declared to planned before code exists; subject unchanged."
     },
     "SDD-001": {
       "family": "SDD",
@@ -6118,6 +6332,47 @@
         }
       ]
     },
+    "SDD-101": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "906d44ccf406f19a813f2e551103310905dd3b757a6983cb47589e8e76d34b70",
+      "history": [
+        {
+          "anchor": "a store s bundle validation canonical serialization and",
+          "since": "2026-09-14",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-102": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b06671a583da6b0e0b0a38c029e2207de8f7ac0232fa0ec223f75941d8d48024",
+      "history": [
+        {
+          "anchor": "one function assigns a message s session inside the",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-15",
+      "statement_digest_reason": "TASK-ZAI-106 implementation: the per-conversation lock is taken by writing the Conversation row (a row lock on Postgres, a serialized write on SQLite) instead of a raw SELECT FOR UPDATE, keeping one code path for both engines; the rule is unchanged"
+    },
+    "SDD-103": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "493b6231999bce45459bfc2b67ea50f1b87f65158af3043543ac2fd316dc3aed",
+      "history": [
+        {
+          "anchor": "an archive file is tenantid yyyy runid zca",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -6522,14 +6777,16 @@
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "04061a209b0f8fccfdee557fe156c9654fa930b7bf3b9a52767ccacc2dbc6fdf",
+      "statement_digest": "5026ab037a5278a597ba432f872ed01206a73130b07ec3355aa283c774eeed9b",
       "history": [
         {
           "anchor": "every copy of a person s conversation content has a",
           "since": "2026-09-13",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-15",
+      "statement_digest_reason": "ADR-093 D6 (accepted 2026-09-16): the statement now names the chat evidence archive among the copies and allows an OWNER-recorded legal hold as the one deferral of erasure; the subject anchor is unchanged"
     },
     "SEC-032": {
       "family": "SEC",
@@ -6540,6 +6797,32 @@
         {
           "anchor": "customer conversation content never becomes gks knowledge",
           "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-033": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d929befe78f0b440aaf0276a6a4126d9b8c5e98258a6dc669c2f4474ccbc2b1b",
+      "history": [
+        {
+          "anchor": "resolving a secret reference under an incorrect secretkind",
+          "since": "2026-09-14",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-034": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "5e1b17e72674d3741ed2f4054d613fbf1639e613485125d9cc32d8cdfacface8",
+      "history": [
+        {
+          "anchor": "the chat evidence archive fr 245 is encrypted at rest with",
+          "since": "2026-09-15",
           "reason": "declared"
         }
       ]
@@ -7059,6 +7342,58 @@
         {
           "anchor": "line grounding and knowledge candidates",
           "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-039": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "3dbad1da583d45672467ec3e02dac34442b6cc4cb760c5c614b1475b88434182",
+      "history": [
+        {
+          "anchor": "agent usage detail",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-040": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "8b2b8c2a7b96c56a098f6c91beb957cf789e8c7b8c5ec440be0002fad4d1e4ae",
+      "history": [
+        {
+          "anchor": "conversation sessions and model residency",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-041": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "6cfa3397fd72a03727cf8f39cd82a2cead9340a4f44922663c89df6b758d1c96",
+      "history": [
+        {
+          "anchor": "chat evidence",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-042": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "6a82739f698d62941c79b8b45fde3891328e87424dfb9d07fba12e51d2f79d27",
+      "history": [
+        {
+          "anchor": "observability",
+          "since": "2026-09-16",
           "reason": "declared"
         }
       ]
@@ -9412,6 +9747,71 @@
         {
           "anchor": "the chat record and agent memory are split by role and a",
           "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-092": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-092-TIME-BOXED-MEMBER-VIEW-OF-THE-PROGRAMME-ROADMAP.md",
+      "status": "current",
+      "statement_digest": "d9f671ce98259543627bb388be018bb61227bc2d80d57628b9ae625e7031b0d0",
+      "history": [
+        {
+          "anchor": "a time boxed member view of the programme roadmap",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-093": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md",
+      "status": "current",
+      "statement_digest": "5fa927c87c69c807ebe472464662a21e5b355e5df32e642850b1cf15745258ed",
+      "history": [
+        {
+          "anchor": "swept chat content moves to an encrypted local cold archive",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-094": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md",
+      "status": "current",
+      "statement_digest": "2c3d7728188e402c5413b37039fb45d7596586e899a0e07be0f8d25c41ed1e9e",
+      "history": [
+        {
+          "anchor": "a line conversation is split into idle bounded sessions",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-095": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-095-OBSERVABILITY-ERROR-TRACKING-AND-PER-PERSON-FEATURE-USAGE.md",
+      "status": "current",
+      "statement_digest": "1eef94ad1de85a1eccccdc8d888ff1105f0c197940a0ea2d838347889a8e5c8d",
+      "history": [
+        {
+          "anchor": "observability",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-096": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-096-PROJECTS-AND-WORK-HIERARCHICAL-NAVIGATION.md",
+      "status": "current",
+      "statement_digest": "13b01d03e7db9d6e087a39a10a73f69b3975a28d99baff9a316a45081251bd53",
+      "history": [
+        {
+          "anchor": "projects and work uses domain module and local view",
+          "since": "2026-09-16",
           "reason": "declared"
         }
       ]

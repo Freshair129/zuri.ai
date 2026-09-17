@@ -5,9 +5,12 @@ import { DOMAINS, domainForPath } from '@/config/domains'
 
 // @req FR-091 — the CRM domain stops being a reserved slot, its two pages read through
 // the one authorized endpoint, and neither of them can reply.
-// @req FR-103 — the inbox page's one write is the SEC-005 consent attestation, never
-// a reply; covered here rather than in a new file since it is the same "what can
-// this page's fetches do" contract FR-091's tests already hold.
+// @req FR-103 — the SEC-005 consent attestation is one of this page's writes, covered
+// here rather than in a new file since it is the same "what can this page's fetches
+// do" contract FR-091's tests already hold.
+// @req FR-246 — the other write this page makes: a Business OWNER replies to a LINE
+// conversation, sent through Push and recorded with reply source STAFF. Not a second
+// owner of the automatic reply BR-011 protects — that reply answers no replyToken.
 // @spec SDD-050, SDD-053, BR-001, BR-011, SEC-001, SEC-005
 
 const inboxPage = () => readFileSync('src/app/(pm)/customer/conversations/page.jsx', 'utf8')
@@ -44,23 +47,36 @@ describe('FR-091 inbox page contract', () => {
     expect(source).toMatch(/businessId=\$\{encodeURIComponent\(businessId\)\}/)
   })
 
-  it('cannot reply — BR-011 gives the reply to the runtime that received the message', () => {
+  it('the one reply box is gated on Business OWNER, sends through Push, and touches no replyToken', () => {
     const source = inboxPage()
-    // Not a style preference: a console reply would race a ~30s token owned by the
-    // edge runtime, making two reply owners of a channel that must have one.
-    expect(source).not.toMatch(/<textarea|<form/)
+    // The composer renders nothing at all for a non-owner — same shape as the
+    // erasure control below: a control that exists only to be refused invites the
+    // click the refusal then has to catch.
+    expect(source).toMatch(/\{isOwner && \(\s*<ReplyComposer/)
+    expect(source).toMatch(/function ReplyComposer/)
+    expect(source).toContain('/reply`')
+    expect(source).toMatch(/clientRequestId: crypto\.randomUUID\(\)/)
+    // Never a call shaped like the Reply API (the automatic path's own transport) —
+    // this composer only ever names the /reply push endpoint above.
+    expect(source).not.toMatch(/v2\/bot\/message\/reply/)
     expect(source).toMatch(/BR-011/)
+    expect(source).toMatch(/FR-246/)
   })
 
-  it('the POSTs this page makes are the two PDPA controls, never a reply', () => {
+  it('states that LINE Official Account Manager replies are not recorded here', () => {
+    expect(inboxPage()).toMatch(/LINE Official Account Manager[\s\S]{0,40}ไม่ถูกบันทึก/)
+  })
+
+  it('the POSTs this page makes are exactly the two PDPA controls and the FR-246 reply', () => {
     const source = inboxPage()
-    // Exactly two POSTs in the whole file, and they name the consent and erasure
-    // endpoints — proves by elimination that no fetch to /api/crm/conversations (the
-    // reply-shaped endpoint) is ever a POST, without a regex fragile enough to trip
-    // on the parens inside `encodeURIComponent(...)`.
-    expect(source.match(/method:\s*['"]POST['"]/g)).toHaveLength(2)
+    // Exactly three POSTs in the whole file, and they name the consent, erasure and
+    // reply endpoints — proves by elimination that nothing else this page fetches is
+    // ever a write, without a regex fragile enough to trip on the parens inside
+    // `encodeURIComponent(...)`.
+    expect(source.match(/method:\s*['"]POST['"]/g)).toHaveLength(3)
     expect(source).toContain('/api/crm/customers/${encodeURIComponent(customer.id)}/consent')
     expect(source).toContain('/api/crm/customers/${encodeURIComponent(customer.id)}/erasure')
+    expect(source).toContain('/api/crm/conversations/${encodeURIComponent(conversationId)}/reply')
     expect(source).toMatch(/SEC-005/)
   })
 

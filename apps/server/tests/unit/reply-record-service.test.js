@@ -27,6 +27,13 @@ vi.mock('@/lib/db', () => ({
             calls.create += 1
             return { id: 'msg-new', ...data }
           },
+          // @req FR-233 — refreshConversationPreview reads the newest message back
+          //   inside the same transaction; a fixed reply is enough for this unit
+          //   test, which is about ordering/scope, not the preview column itself.
+          findFirst: async () => ({ body: 'ราคา 450 บาทครับ', createdAt: new Date() }),
+        },
+        conversation: {
+          update: async () => ({}),
         },
         auditEvent: { create: async () => ({}) },
       })

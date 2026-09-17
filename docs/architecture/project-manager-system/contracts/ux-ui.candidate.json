@@ -1,0 +1,3851 @@
+{
+  "schemaVersion": "1.0.0",
+  "version": "0.3.0b",
+  "status": "candidate",
+  "runtimeImplemented": false,
+  "sourceRef": "zuri-pm-design/docs/architecture/project-manager-system/contracts/ux-ui.candidate.json",
+  "navigationRef": "navigation.candidate.json",
+  "requirementsRef": "zuri-pm-execution/docs/domains/project-manager/features/FR-250-hierarchical-project-navigation.md",
+  "documents": [
+    "../10-UX-STRATEGY-AND-JOURNEYS.md",
+    "../11-UI-SYSTEM-AND-INTERACTIONS.md",
+    "../12-WIREFRAMES-AND-SCREEN-SPECS.md"
+  ],
+  "referencePolicy": "User images inspire goal-to-journey structure and readable forms; not PM research evidence or product instructions.",
+  "dataPolicy": {
+    "syntheticOnly": true,
+    "productApiCalls": false,
+    "realSecretsAccepted": false,
+    "localPersistence": false
+  },
+  "tokens": {
+    "primitive": {
+      "brand": "#E8820C",
+      "hover": "#F09420",
+      "brandDark": "#B86A08",
+      "tint": "#FDE8D0",
+      "warm": "#FFF8F0",
+      "canvas": "#F7F8FA",
+      "white": "#FFFFFF",
+      "mid": "#EFF1F3",
+      "ink": "#1F2937",
+      "muted": "#6B7280",
+      "infoBg": "#D6ECFA",
+      "infoAccent": "#3D7A9E"
+    },
+    "semantic": {
+      "textPrimary": "ink",
+      "textSecondary": "muted",
+      "textOnPrimary": "ink",
+      "actionPrimary": "brand",
+      "focusOutline": "ink",
+      "inputOutline": "muted",
+      "navigationBackground": "ink",
+      "textOnInfo": "ink"
+    },
+    "typeScale": {
+      "h1": [
+        28,
+        36
+      ],
+      "h2": [
+        24,
+        32
+      ],
+      "h3": [
+        20,
+        28
+      ],
+      "body": [
+        14,
+        22
+      ],
+      "label": [
+        13,
+        20
+      ],
+      "caption": [
+        12,
+        18
+      ]
+    },
+    "spacing": [
+      0,
+      4,
+      8,
+      12,
+      16,
+      20,
+      24,
+      32,
+      40,
+      48,
+      64,
+      80,
+      96
+    ],
+    "radius": {
+      "control": 8,
+      "card": 12,
+      "dialog": 16
+    },
+    "breakpoints": [
+      640,
+      768,
+      1024,
+      1280,
+      1536
+    ],
+    "formMaxWidth": 640,
+    "touchTarget": 44,
+    "focusOutlineWidth": 2
+  },
+  "contrastPairs": [
+    {
+      "label": "primary text",
+      "fg": "#1F2937",
+      "bg": "#FFFFFF",
+      "ratio": 14.68
+    },
+    {
+      "label": "secondary text",
+      "fg": "#6B7280",
+      "bg": "#FFFFFF",
+      "ratio": 4.83
+    },
+    {
+      "label": "primary action ink",
+      "fg": "#1F2937",
+      "bg": "#E8820C",
+      "ratio": 5.33
+    },
+    {
+      "label": "white on amber",
+      "fg": "#FFFFFF",
+      "bg": "#E8820C",
+      "ratio": 2.75
+    },
+    {
+      "label": "brand dark on white",
+      "fg": "#B86A08",
+      "bg": "#FFFFFF",
+      "ratio": 4.12
+    },
+    {
+      "label": "neutral border",
+      "fg": "#6B7280",
+      "bg": "#FFFFFF",
+      "ratio": 4.83
+    },
+    {
+      "label": "info text",
+      "fg": "#3D7A9E",
+      "bg": "#D6ECFA",
+      "ratio": 3.85
+    }
+  ],
+  "states": [
+    {
+      "id": "ready",
+      "label": "ข้อมูลพร้อมแสดง",
+      "rule": "Show scope, timestamp, evidence and permitted actions."
+    },
+    {
+      "id": "loading",
+      "label": "กำลังโหลด",
+      "rule": "Preserve title/scope and show structural placeholders without fabricated values."
+    },
+    {
+      "id": "empty",
+      "label": "ยังไม่มีข้อมูล",
+      "rule": "Explain whether no records or no filter matches; show authorized next action."
+    },
+    {
+      "id": "error",
+      "label": "โหลดไม่สำเร็จ",
+      "rule": "Readable redacted error, requestId and retry only for safe read."
+    },
+    {
+      "id": "forbidden",
+      "label": "ไม่มีสิทธิ์ / ไม่พบ",
+      "rule": "Equivalent scoped error; do not reveal record names/counts; safe return link."
+    },
+    {
+      "id": "stale",
+      "label": "ข้อมูลยังไม่อัปเดต",
+      "rule": "Show last update and reconnect; do not infer failed execution."
+    },
+    {
+      "id": "conflict",
+      "label": "มีการแก้ไขรุ่นใหม่",
+      "rule": "Preserve non-secret draft, show version diff and reload/reapply; no silent overwrite."
+    },
+    {
+      "id": "validation",
+      "label": "ข้อมูลไม่ครบ",
+      "rule": "Error summary links to field or node; focus summary, then linked invalid field."
+    }
+  ],
+  "screens": [
+    {
+      "id": "WF-01",
+      "title": "Business Dashboard",
+      "navIds": [
+        "pm.projects"
+      ],
+      "scope": "BUSINESS",
+      "phase": "NAV-P1",
+      "type": "dashboard",
+      "requirements": [
+        "PMR-001",
+        "PMR-016",
+        "PMR-027"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Strategy progress and evidence freshness"
+        },
+        {
+          "id": "B2",
+          "label": "Priority and attention queue"
+        },
+        {
+          "id": "B3",
+          "label": "Project list with owner, dates and status"
+        }
+      ],
+      "primaryAction": "New Project",
+      "status": "PROPOSED_UI",
+      "next": "WF-31",
+      "sampleColumns": [
+        "Project",
+        "Owner",
+        "Strategy progress",
+        "Next gate"
+      ],
+      "ux": {
+        "goal": "มองภาพรวมทุกโปรเจกต์ใน Business และเลือกงานที่ต้องตัดสินใจ",
+        "interaction": "Create Project ไป intake; แถว Project เปิด resource ที่ผ่านการตรวจสิทธิ์",
+        "exception": "ยังไม่มี Project: แสดง objective-first action",
+        "responsive": "Summary cards wrap; project table scrolls within region"
+      },
+      "sourceLegacyNavIds": [
+        "b.dashboard"
+      ],
+      "legacyNavIds": [
+        "b.dashboard"
+      ],
+      "actionIds": [],
+      "implementationStatus": "CORE_LIVE_SURFACE",
+      "navigationDisposition": "MAPPED_ACTIVE",
+      "moduleId": "module.project-management",
+      "localSurfaceId": "pm.projects",
+      "codegenEligible": true,
+      "noHref": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-02",
+      "title": "Business Work",
+      "navIds": [
+        "wm.all-work",
+        "wm.timeline",
+        "wm.dependencies",
+        "wm.milestones"
+      ],
+      "scope": "BUSINESS",
+      "phase": "NAV-P1",
+      "type": "work",
+      "requirements": [
+        "PMR-016",
+        "PMR-017"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Business scope and project filters"
+        },
+        {
+          "id": "B2",
+          "label": "Cross-project planning surface"
+        },
+        {
+          "id": "B3",
+          "label": "Selected record details"
+        }
+      ],
+      "primaryAction": "Open project",
+      "status": "PROPOSED_UI",
+      "next": "WF-03",
+      "variants": [
+        "Work Items",
+        "Timeline",
+        "Dependencies",
+        "Milestones & Gates"
+      ],
+      "ux": {
+        "goal": "เทียบงานข้ามโปรเจกต์โดยเห็น Project กำกับทุกแถว",
+        "interaction": "Filter Project/owner/date; row opens original Project without changing grants",
+        "exception": "ไม่มีงานตาม filter: Clear filters; ไม่มีสิทธิ์: ไม่แสดงชื่อโปรเจกต์",
+        "responsive": "Keep Project column; timeline has list alternative"
+      },
+      "sourceLegacyNavIds": [
+        "b.work",
+        "b.timeline",
+        "b.dependencies",
+        "b.milestones"
+      ],
+      "legacyNavIds": [
+        "b.all-work",
+        "b.timeline",
+        "b.dependencies",
+        "b.milestones"
+      ],
+      "actionIds": [],
+      "implementationStatus": "CORE_LIVE_SURFACE",
+      "navigationDisposition": "MAPPED_ACTIVE",
+      "moduleId": "module.work-management",
+      "localSurfaceIds": [
+        "wm.all-work",
+        "wm.timeline",
+        "wm.dependencies",
+        "wm.milestones"
+      ],
+      "canonicalPath": "/work",
+      "canonicalLegacyId": "b.all-work",
+      "sourceAliasCorrection": {
+        "sourceLegacyId": "b.work",
+        "canonicalLegacyId": "b.all-work"
+      },
+      "codegenEligible": true,
+      "noHref": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-03",
+      "title": "Project Overview",
+      "navIds": [
+        "pm.project-overview"
+      ],
+      "scope": "PROJECT",
+      "phase": "NAV-P1",
+      "type": "overview",
+      "requirements": [
+        "PMR-001",
+        "PMR-016",
+        "PMR-027"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Objective, owner and dates"
+        },
+        {
+          "id": "B2",
+          "label": "Strategy progress with source evidence"
+        },
+        {
+          "id": "B3",
+          "label": "Workstreams and next actions"
+        }
+      ],
+      "primaryAction": "Import Plan",
+      "status": "PROPOSED_UI",
+      "next": "WF-30",
+      "ux": {
+        "goal": "รู้เป้าหมาย เจ้าของ workstream และหลักฐานที่ทำให้ progress เปลี่ยน",
+        "interaction": "Import Plan เปิด flow เดิม; workstream opens correct execution mode",
+        "exception": "ยังไม่มี workstream: objective/plan intake; progress UNKNOWN เมื่อไม่มีหลักฐาน",
+        "responsive": "Objective before metrics; workstreams stack"
+      },
+      "sourceLegacyNavIds": [
+        "p.overview"
+      ],
+      "legacyNavIds": [
+        "p.overview"
+      ],
+      "actionIds": [],
+      "implementationStatus": "CORE_LIVE_SURFACE",
+      "navigationDisposition": "MAPPED_ACTIVE",
+      "moduleId": "module.project-management",
+      "localSurfaceId": "pm.project-overview",
+      "sectionId": "section.project",
+      "headerActionIds": [
+        "pm.import"
+      ],
+      "importIsLocalTab": false,
+      "routeTemplate": "/projects/{projectId}",
+      "codegenEligible": true,
+      "noHref": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-04",
+      "title": "Domains",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P1",
+      "type": "domain-list",
+      "requirements": [
+        "PMR-002"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Domain search and readiness filter"
+        },
+        {
+          "id": "B2",
+          "label": "Owners, work, contracts and blockers"
+        },
+        {
+          "id": "B3",
+          "label": "Selected domain entry"
+        }
+      ],
+      "primaryAction": "Open domain",
+      "status": "PROPOSED_UI",
+      "next": "WF-05",
+      "ux": {
+        "goal": "ค้น Domain ตาม owner และความรับผิดชอบ",
+        "interaction": "Domain card เปิด WF-05; filter does not create a Workstream",
+        "exception": "ยังไม่ได้ผูก Domain: เลือกจาก canonical registry ตามสิทธิ์",
+        "responsive": "Cards one column; names and stable keys wrap"
+      },
+      "sourceLegacyNavIds": [
+        "p.domains"
+      ],
+      "legacyNavIds": [
+        "p.domains"
+      ],
+      "actionIds": [],
+      "implementationStatus": "PLANNED_NO_ROUTE",
+      "navigationDisposition": "DEFERRED_NON_GENERATABLE",
+      "moduleId": "module.delivery-design",
+      "localSurfaceId": "dd.domains",
+      "navStatus": "PLANNED_NO_ROUTE",
+      "noHref": true,
+      "codegenEligible": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-05",
+      "title": "Domain Detail",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P1",
+      "type": "domain-detail",
+      "requirements": [
+        "PMR-002",
+        "PMR-015"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Charter, owner and stable ID"
+        },
+        {
+          "id": "B2",
+          "label": "Owned data/services and contributions"
+        },
+        {
+          "id": "B3",
+          "label": "Incoming and outgoing contracts"
+        }
+      ],
+      "primaryAction": "Open owned work",
+      "status": "PROPOSED_UI",
+      "next": "WF-08",
+      "ux": {
+        "goal": "ตรวจ lane ของ Domain และสัญญาที่ข้ามขอบเขต",
+        "interaction": "Open owned work; incoming/outgoing contract opens architecture inspector",
+        "exception": "ไม่มี owned work: อธิบาย contribution-only; ไม่ย้าย ownership อัตโนมัติ",
+        "responsive": "Charter first; contract relationships become a list"
+      },
+      "sourceLegacyNavIds": [],
+      "legacyNavIds": [],
+      "actionIds": [],
+      "implementationStatus": "PRESERVED_NO_ROUTE",
+      "navigationDisposition": "PRESERVED_OUT_OF_D02",
+      "localSurfaceId": null,
+      "noHref": true,
+      "codegenEligible": false,
+      "preservationReason": "Full UX detail/review screen retained with no D02 destination.",
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-06",
+      "title": "Features",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P1",
+      "type": "feature-list",
+      "requirements": [
+        "PMR-003"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Feature search and release filter"
+        },
+        {
+          "id": "B2",
+          "label": "Outcome, primary owner and contributing domains"
+        },
+        {
+          "id": "B3",
+          "label": "Acceptance and readiness evidence"
+        }
+      ],
+      "primaryAction": "Open feature",
+      "status": "PROPOSED_UI",
+      "next": "WF-07",
+      "ux": {
+        "goal": "ค้น Feature ตามผลลัพธ์ผู้ใช้และ acceptance",
+        "interaction": "Feature row เปิด WF-07; contributing Domain chips เปิด Domain detail",
+        "exception": "ไม่มี Feature: authorized link/create requirement-backed draft",
+        "responsive": "Outcome and readiness stay visible; table scrolls"
+      },
+      "sourceLegacyNavIds": [
+        "p.features"
+      ],
+      "legacyNavIds": [
+        "p.features"
+      ],
+      "actionIds": [],
+      "implementationStatus": "PLANNED_NO_ROUTE",
+      "navigationDisposition": "DEFERRED_NON_GENERATABLE",
+      "moduleId": "module.delivery-design",
+      "localSurfaceId": "dd.features",
+      "navStatus": "PLANNED_NO_ROUTE",
+      "noHref": true,
+      "codegenEligible": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-07",
+      "title": "Feature Detail",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P1",
+      "type": "feature-detail",
+      "requirements": [
+        "PMR-003",
+        "PMR-015"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Problem, outcome and acceptance"
+        },
+        {
+          "id": "B2",
+          "label": "Domain contributions and shared work"
+        },
+        {
+          "id": "B3",
+          "label": "Requirements, tests and release trace"
+        }
+      ],
+      "primaryAction": "Open requirements",
+      "status": "PROPOSED_UI",
+      "next": "WF-10",
+      "ux": {
+        "goal": "ติดตาม Requirement → Work → Test → Release ของ Feature เดียว",
+        "interaction": "Requirement opens WF-10; evidence opens exact revision; shared work deduplicated",
+        "exception": "ยังไม่มี acceptance evidence: แสดง missing evidence",
+        "responsive": "Trace chain vertical; no tiny graph text"
+      },
+      "sourceLegacyNavIds": [],
+      "legacyNavIds": [],
+      "actionIds": [],
+      "implementationStatus": "PRESERVED_NO_ROUTE",
+      "navigationDisposition": "PRESERVED_OUT_OF_D02",
+      "localSurfaceId": null,
+      "noHref": true,
+      "codegenEligible": false,
+      "preservationReason": "Full UX detail/review screen retained with no D02 destination.",
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-08",
+      "title": "Project Work",
+      "navIds": [
+        "wm.roadmap",
+        "wm.structure",
+        "wm.board",
+        "wm.work-items",
+        "wm.schedule",
+        "wm.milestones",
+        "wm.dependency-map"
+      ],
+      "scope": "PROJECT",
+      "phase": "NAV-P1 / P6 Calendar",
+      "type": "work",
+      "requirements": [
+        "PMR-016",
+        "PMR-017"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Project filters and view selector"
+        },
+        {
+          "id": "B2",
+          "label": "One work dataset in the chosen view"
+        },
+        {
+          "id": "B3",
+          "label": "Work item acceptance and evidence drawer"
+        }
+      ],
+      "primaryAction": "Inspect work item",
+      "status": "PROPOSED_UI",
+      "variants": [
+        "Work Items",
+        "Board",
+        "Structure Plan",
+        "Timeline",
+        "Milestones & Gates",
+        "Dependencies",
+        "Execution Roadmap",
+        "Calendar"
+      ],
+      "ux": {
+        "goal": "จัดและตรวจงานใน Project ผ่านหลาย view ของข้อมูลชุดเดียว",
+        "interaction": "Switch Work view preserves filters/scope; select row/board card opens work inspector",
+        "exception": "Filtered empty has reset; stale plan locks mutating actions until refreshed",
+        "responsive": "Board scrolls within board; table/graph offer text alternatives"
+      },
+      "sourceLegacyNavIds": [
+        "p.work",
+        "p.work-items",
+        "p.board",
+        "p.structure",
+        "p.timeline",
+        "p.milestones",
+        "p.dependencies",
+        "p.roadmap",
+        "p.calendar"
+      ],
+      "legacyNavIds": [
+        "p.work",
+        "p.work-items",
+        "p.board",
+        "p.structure",
+        "p.timeline",
+        "p.milestones",
+        "p.dependencies",
+        "p.roadmap",
+        "p.calendar"
+      ],
+      "actionIds": [],
+      "implementationStatus": "CORE_LIVE_SURFACE",
+      "navigationDisposition": "MAPPED_ACTIVE_WITH_DEFERRED_BINDING",
+      "moduleId": "module.work-management",
+      "localSurfaceId": "wm.project-work-views",
+      "localSurfaceKind": "VIEW_GROUP",
+      "viewIds": [
+        "wm.roadmap",
+        "wm.structure",
+        "wm.board",
+        "wm.work-items",
+        "wm.schedule",
+        "wm.milestones",
+        "wm.dependency-map"
+      ],
+      "defaultViewId": "wm.structure",
+      "deferredViewIds": [
+        "wm.calendar"
+      ],
+      "deferredLegacyNavIds": [
+        "p.calendar"
+      ],
+      "deferredBindings": [
+        {
+          "legacyNavId": "p.calendar",
+          "targetId": "wm.calendar",
+          "status": "DEFERRED_NON_GENERATABLE",
+          "noHref": true
+        }
+      ],
+      "codegenEligible": true,
+      "activeViewIds": [
+        "wm.roadmap",
+        "wm.structure",
+        "wm.board",
+        "wm.work-items",
+        "wm.schedule",
+        "wm.milestones",
+        "wm.dependency-map"
+      ],
+      "deferredVariants": [
+        "Calendar"
+      ],
+      "noHref": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-09",
+      "title": "Execution Views",
+      "navIds": [
+        "pm.project-overview",
+        "wm.execution"
+      ],
+      "scope": [
+        "BUSINESS",
+        "PROJECT"
+      ],
+      "phase": "NAV-P1",
+      "type": "execution",
+      "requirements": [
+        "PMR-001",
+        "PMR-016"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Resolved scope and selected canonical mode"
+        },
+        {
+          "id": "B2",
+          "label": "Mode-specific outcome measures"
+        },
+        {
+          "id": "B3",
+          "label": "Workstream records and evidence"
+        }
+      ],
+      "primaryAction": "Open work",
+      "status": "PROPOSED_UI",
+      "next": "WF-08",
+      "variants": [
+        "Sprint",
+        "Migration",
+        "B2B Sales",
+        "B2C Campaign",
+        "Product Launch",
+        "Operations",
+        "Expansion"
+      ],
+      "ux": {
+        "goal": "ใช้มุมมองที่เหมาะกับ executionMode ของ Workstream",
+        "interaction": "Select existing Workstream/mode; manual override lives in advanced settings",
+        "exception": "ยังไม่มี workstream ของ mode นี้: กลับ intake; invalid mode ไม่ fallback Sprint",
+        "responsive": "Stage board scrolls; details below selection"
+      },
+      "sourceLegacyNavIds": [
+        "p.execution",
+        "b.execution"
+      ],
+      "legacyNavIds": [
+        "p.execution",
+        "b.execution"
+      ],
+      "actionIds": [],
+      "implementationStatus": "CORE_LIVE_SURFACE",
+      "navigationDisposition": "MAPPED_ACTIVE",
+      "moduleIdByScope": {
+        "BUSINESS": "module.work-management",
+        "PROJECT": "module.project-management"
+      },
+      "localSurfaceIdsByScope": {
+        "BUSINESS": [
+          "wm.execution"
+        ],
+        "PROJECT": [
+          "pm.project-overview"
+        ]
+      },
+      "modeSet": "seven canonical execution modes",
+      "noNewRoute": true,
+      "codegenEligible": true,
+      "noHref": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-10",
+      "title": "Requirements",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P2",
+      "type": "requirements",
+      "requirements": [
+        "PMR-015",
+        "PMR-032"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Requirement IDs and revision filters"
+        },
+        {
+          "id": "B2",
+          "label": "Acceptance criteria and ownership"
+        },
+        {
+          "id": "B3",
+          "label": "Trace links to spec, tests and work"
+        }
+      ],
+      "primaryAction": "Open specification",
+      "status": "PROPOSED_UI",
+      "next": "WF-13",
+      "ux": {
+        "goal": "จัด acceptance และ traceability ของ requirement",
+        "interaction": "Open draft, baseline diff, linked docs and evidence; request review pins revision",
+        "exception": "No linked requirement: authorized draft/link; ID collisions block review",
+        "responsive": "List/detail stack; long acceptance text wraps"
+      },
+      "sourceLegacyNavIds": [
+        "p.requirements"
+      ],
+      "legacyNavIds": [
+        "p.requirements"
+      ],
+      "actionIds": [],
+      "implementationStatus": "PLANNED_NO_ROUTE",
+      "navigationDisposition": "DEFERRED_NON_GENERATABLE",
+      "moduleId": "module.delivery-design",
+      "localSurfaceId": "dd.requirements",
+      "navStatus": "PLANNED_NO_ROUTE",
+      "noHref": true,
+      "codegenEligible": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-11",
+      "title": "Architecture",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P2",
+      "type": "architecture",
+      "requirements": [
+        "PMR-004",
+        "PMR-014",
+        "PMR-032"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Layer and version controls"
+        },
+        {
+          "id": "B2",
+          "label": "Directed typed node/edge canvas"
+        },
+        {
+          "id": "B3",
+          "label": "Inspector with ports, contract, owner and errors"
+        }
+      ],
+      "primaryAction": "Validate diagram",
+      "status": "PROPOSED_UI",
+      "next": "WF-15",
+      "variants": [
+        "Logical",
+        "Runtime",
+        "Deployment",
+        "Dataflow",
+        "Accessible list"
+      ],
+      "ux": {
+        "goal": "ตรวจ node, directed edge, owner และ contract ของ architecture",
+        "interaction": "Select node/edge inspector; validate draft; compare baseline; accessible list",
+        "exception": "No graph: import validated model; cross-owner WRITES blocks generation",
+        "responsive": "Canvas contained pan; inspector stacks; keyboard node/edge list"
+      },
+      "sourceLegacyNavIds": [
+        "p.architecture"
+      ],
+      "legacyNavIds": [
+        "p.architecture"
+      ],
+      "actionIds": [],
+      "implementationStatus": "PLANNED_NO_ROUTE",
+      "navigationDisposition": "DEFERRED_NON_GENERATABLE",
+      "moduleId": "module.delivery-design",
+      "localSurfaceId": "dd.architecture",
+      "navStatus": "PLANNED_NO_ROUTE",
+      "noHref": true,
+      "codegenEligible": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-12",
+      "title": "API Explorer",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P2",
+      "type": "api",
+      "requirements": [
+        "PMR-005"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Domain tags and operation search"
+        },
+        {
+          "id": "B2",
+          "label": "Request, response, auth and error contract"
+        },
+        {
+          "id": "B3",
+          "label": "Environment and sandbox request controls"
+        }
+      ],
+      "primaryAction": "Inspect request",
+      "status": "PROPOSED_UI",
+      "variants": [
+        "Documentation",
+        "Sandbox preview"
+      ],
+      "safety": "No Try it out until exact environment/authority is selected; mutation uses payload review.",
+      "ux": {
+        "goal": "อ่าน API ตาม operation โดยเห็น auth/error/schema และ requirement",
+        "interaction": "Operation select updates detail; Try-it-out only in authorized sandbox with effect review",
+        "exception": "No selected operation: choose one; unavailable contract shows source error",
+        "responsive": "Operation list above detail; code areas contained scroll"
+      },
+      "sourceLegacyNavIds": [
+        "p.api"
+      ],
+      "legacyNavIds": [
+        "p.api"
+      ],
+      "actionIds": [],
+      "implementationStatus": "PLANNED_NO_ROUTE",
+      "navigationDisposition": "DEFERRED_NON_GENERATABLE",
+      "moduleId": "module.delivery-design",
+      "localSurfaceId": "dd.api",
+      "navStatus": "PLANNED_NO_ROUTE",
+      "noHref": true,
+      "codegenEligible": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-13",
+      "title": "Docs & Decisions",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P2",
+      "type": "documents",
+      "requirements": [
+        "PMR-015",
+        "PMR-023",
+        "PMR-032"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Document outline and revision list"
+        },
+        {
+          "id": "B2",
+          "label": "Specification with linked requirements"
+        },
+        {
+          "id": "B3",
+          "label": "Diff, comments and baseline status"
+        }
+      ],
+      "primaryAction": "Request review",
+      "status": "PROPOSED_UI",
+      "next": "WF-15",
+      "ux": {
+        "goal": "อ่านและเทียบเอกสารแบบ revision-pinned",
+        "interaction": "Select doc/version; diff; review references exact content hash",
+        "exception": "Missing doc: link authorized source; broken reference remains visible",
+        "responsive": "Document reader first; comments and versions as sections"
+      },
+      "sourceLegacyNavIds": [
+        "p.documents"
+      ],
+      "legacyNavIds": [
+        "p.documents"
+      ],
+      "actionIds": [],
+      "implementationStatus": "PLANNED_NO_ROUTE",
+      "navigationDisposition": "DEFERRED_NON_GENERATABLE",
+      "moduleId": "module.delivery-design",
+      "localSurfaceId": "dd.docs-decisions",
+      "navStatus": "PLANNED_NO_ROUTE",
+      "noHref": true,
+      "codegenEligible": false,
+      "plannedViews": [
+        "Documents",
+        "Decisions"
+      ],
+      "plannedSemantics": [
+        "revision-pinned document reading",
+        "diff/comments/review references",
+        "architecture decision reading and review"
+      ],
+      "preservationReason": "Keep Docs and Decisions semantics visible with no D02 route.",
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-14",
+      "title": "Command Center",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P4 / P5 Fleet",
+      "type": "command",
+      "requirements": [
+        "PMR-008",
+        "PMR-020",
+        "PMR-021"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Queue, active lanes and attention"
+        },
+        {
+          "id": "B2",
+          "label": "Live run timeline with freshness"
+        },
+        {
+          "id": "B3",
+          "label": "Selected run receipts and available commands"
+        }
+      ],
+      "primaryAction": "Inspect run",
+      "status": "PROPOSED_UI",
+      "next": "WF-15",
+      "ux": {
+        "goal": "เห็น runs, approval queue, budget exposure และ stale heartbeats",
+        "interaction": "Select run opens WF-15; cancel/pause are commands with receipts",
+        "exception": "No run: select approved workflow; no authority means read-only queue",
+        "responsive": "Attention queue first; run columns within scroll region"
+      },
+      "sourceLegacyNavIds": [
+        "p.command"
+      ],
+      "legacyNavIds": [
+        "p.command"
+      ],
+      "actionIds": [],
+      "implementationStatus": "PLANNED_NO_ROUTE",
+      "navigationDisposition": "DEFERRED_NON_GENERATABLE",
+      "moduleId": "module.agent-delivery",
+      "localSurfaceId": "ad.command-center",
+      "navStatus": "PLANNED_NO_ROUTE",
+      "noHref": true,
+      "codegenEligible": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-15",
+      "title": "Run / Review / Recovery",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P4 / P5",
+      "type": "review",
+      "requirements": [
+        "PMR-008",
+        "PMR-013",
+        "PMR-018",
+        "PMR-021"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Exact scope, version and action manifest"
+        },
+        {
+          "id": "B2",
+          "label": "Evidence, diff, effects and blockers"
+        },
+        {
+          "id": "B3",
+          "label": "Decision or reconciliation with receipt"
+        }
+      ],
+      "primaryAction": "Preview decision",
+      "status": "PROPOSED_UI",
+      "formId": "FORM-REVIEW",
+      "variants": [
+        "Admission review",
+        "Run trace",
+        "Approval",
+        "UNKNOWN reconciliation"
+      ],
+      "safety": "Retry is unavailable for unknown external outcome until reconciliation; cancellation request is not completion.",
+      "ux": {
+        "goal": "ตัดสินใจบน manifest/evidence และแก้ unknown effect อย่างตรวจสอบได้",
+        "interaction": "Review exact revision; reasoned approval; reconcile UNKNOWN before any retry",
+        "exception": "Missing evidence blocks approval; expired/stale hash requires new review",
+        "responsive": "Effect summary before trace; trace wraps"
+      },
+      "sourceLegacyNavIds": [],
+      "legacyNavIds": [],
+      "actionIds": [],
+      "implementationStatus": "PRESERVED_NO_ROUTE",
+      "navigationDisposition": "PRESERVED_OUT_OF_D02",
+      "localSurfaceId": null,
+      "noHref": true,
+      "codegenEligible": false,
+      "preservationReason": "Full UX detail/review screen retained with no D02 destination.",
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-16",
+      "title": "Agent Inventory",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P4",
+      "type": "agents",
+      "requirements": [
+        "PMR-006",
+        "PMR-028"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Search by domain, role and readiness"
+        },
+        {
+          "id": "B2",
+          "label": "Definition/version/evaluation table"
+        },
+        {
+          "id": "B3",
+          "label": "Agent charter summary"
+        }
+      ],
+      "primaryAction": "Configure version",
+      "status": "PROPOSED_UI",
+      "next": "WF-17",
+      "formId": "FORM-DEFINITION",
+      "ux": {
+        "goal": "ค้น Agent definitions แยกจาก executable approved versions",
+        "interaction": "Select definition/version; create definition or next draft opens form",
+        "exception": "No agent: create scoped definition; membership grants no tool authority",
+        "responsive": "Inventory list then version inspector"
+      },
+      "sourceLegacyNavIds": [
+        "p.agents"
+      ],
+      "legacyNavIds": [
+        "p.agents"
+      ],
+      "actionIds": [],
+      "implementationStatus": "PLANNED_NO_ROUTE",
+      "navigationDisposition": "DEFERRED_NON_GENERATABLE",
+      "moduleId": "module.agent-delivery",
+      "localSurfaceId": "ad.agents",
+      "navStatus": "PLANNED_NO_ROUTE",
+      "noHref": true,
+      "codegenEligible": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-17",
+      "title": "Agent Version Editor",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P4",
+      "type": "form",
+      "requirements": [
+        "PMR-006",
+        "PMR-013",
+        "PMR-028"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Charter and task contract"
+        },
+        {
+          "id": "B2",
+          "label": "Tools, context, model and executor policy"
+        },
+        {
+          "id": "B3",
+          "label": "Evaluation and version review"
+        }
+      ],
+      "primaryAction": "Validate version",
+      "status": "PROPOSED_UI",
+      "formId": "FORM-AGENT",
+      "next": "WF-15",
+      "ux": {
+        "goal": "กำหนด instruction/tools/model/executor และ evaluation ของ agent version",
+        "interaction": "Edit draft; validate; evaluation evidence then review; approved version immutable",
+        "exception": "Missing references block review; conflict compares revisions",
+        "responsive": "Single-column fieldsets; binding tables scroll locally"
+      },
+      "sourceLegacyNavIds": [],
+      "legacyNavIds": [],
+      "actionIds": [],
+      "implementationStatus": "PRESERVED_NO_ROUTE",
+      "navigationDisposition": "PRESERVED_OUT_OF_D02",
+      "localSurfaceId": null,
+      "noHref": true,
+      "codegenEligible": false,
+      "preservationReason": "Full UX detail/review screen retained with no D02 destination.",
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-18",
+      "title": "Fleet Inventory & Version",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P5",
+      "type": "fleet",
+      "requirements": [
+        "PMR-007",
+        "PMR-013"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Fleet list and immutable version"
+        },
+        {
+          "id": "B2",
+          "label": "Pinned member roles and topology"
+        },
+        {
+          "id": "B3",
+          "label": "Workflow, concurrency and approval policy"
+        }
+      ],
+      "primaryAction": "Preview fleet version",
+      "status": "PROPOSED_UI",
+      "formId": "FORM-FLEET",
+      "next": "WF-19",
+      "variants": [
+        "Inventory",
+        "Version editor"
+      ],
+      "formIds": [
+        "FORM-DEFINITION",
+        "FORM-FLEET"
+      ],
+      "ux": {
+        "goal": "กำหนด fleet membership, workflow, concurrency และ budgets",
+        "interaction": "Inventory selection opens version editor; validate resolved versions; review",
+        "exception": "Unbound agent/workflow or incompatible schema blocks approval",
+        "responsive": "Members list then workflow/policy"
+      },
+      "sourceLegacyNavIds": [
+        "p.fleets"
+      ],
+      "legacyNavIds": [
+        "p.fleets"
+      ],
+      "actionIds": [],
+      "implementationStatus": "PLANNED_NO_ROUTE",
+      "navigationDisposition": "DEFERRED_NON_GENERATABLE",
+      "moduleId": "module.agent-delivery",
+      "localSurfaceId": "ad.fleets",
+      "navStatus": "PLANNED_NO_ROUTE",
+      "noHref": true,
+      "codegenEligible": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-19",
+      "title": "Workflow Builder",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P4 / P5",
+      "type": "workflow",
+      "requirements": [
+        "PMR-007",
+        "PMR-014",
+        "PMR-030"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Workflow versions and step library"
+        },
+        {
+          "id": "B2",
+          "label": "DAG with dependency and handoff edges"
+        },
+        {
+          "id": "B3",
+          "label": "Step inputs, output schema and validation"
+        }
+      ],
+      "primaryAction": "Validate workflow",
+      "status": "PROPOSED_UI",
+      "formId": "FORM-WORKFLOW",
+      "next": "WF-15",
+      "ux": {
+        "goal": "สร้าง workflow ที่ทุก step มี owner,input,output,timeout/retry policy",
+        "interaction": "Node selection opens step schema; validate DAG and bindings; review before admission",
+        "exception": "Cycle/unknown field/owner mismatch shown in graph and error list",
+        "responsive": "Structured step list replaces drag-only editing"
+      },
+      "sourceLegacyNavIds": [
+        "p.workflows"
+      ],
+      "legacyNavIds": [
+        "p.workflows"
+      ],
+      "actionIds": [],
+      "implementationStatus": "PLANNED_NO_ROUTE",
+      "navigationDisposition": "DEFERRED_NON_GENERATABLE",
+      "moduleId": "module.agent-delivery",
+      "localSurfaceId": "ad.workflows",
+      "navStatus": "PLANNED_NO_ROUTE",
+      "noHref": true,
+      "codegenEligible": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-20",
+      "title": "Project Team",
+      "navIds": [
+        "rc.team"
+      ],
+      "scope": "PROJECT",
+      "phase": "NAV-P1",
+      "type": "team",
+      "requirements": [
+        "PMR-012",
+        "PMR-017"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Project participation and role filters"
+        },
+        {
+          "id": "B2",
+          "label": "Authorized member table and allocation hints"
+        },
+        {
+          "id": "B3",
+          "label": "Selected membership and permitted actions"
+        }
+      ],
+      "primaryAction": "Inspect member",
+      "status": "PROPOSED_UI",
+      "ux": {
+        "goal": "ดูสมาชิกโปรเจกต์ บทบาท และขอบเขตที่ได้รับ",
+        "interaction": "Open membership detail; authorized role changes use existing identity boundary",
+        "exception": "No visible member: invite/link path only when allowed",
+        "responsive": "Name and role first; details expand"
+      },
+      "sourceLegacyNavIds": [
+        "p.team"
+      ],
+      "legacyNavIds": [
+        "p.team"
+      ],
+      "actionIds": [],
+      "implementationStatus": "CORE_LIVE_SURFACE",
+      "navigationDisposition": "MAPPED_ACTIVE",
+      "moduleId": "module.resource-coordination",
+      "localSurfaceId": "rc.team",
+      "sectionId": "section.team",
+      "authorityOwner": "identity",
+      "membershipScope": "Business/Tenant Membership",
+      "noGrantFromNavigation": true,
+      "codegenEligible": true,
+      "noHref": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-21",
+      "title": "Files & Artifacts",
+      "navIds": [
+        "rc.files"
+      ],
+      "scope": [
+        "BUSINESS",
+        "PROJECT"
+      ],
+      "phase": "NAV-P1 / P6 Artifacts",
+      "type": "files",
+      "requirements": [
+        "PMR-015",
+        "PMR-025",
+        "PMR-026"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Scope, classification and file search"
+        },
+        {
+          "id": "B2",
+          "label": "Files, versions and deliverable links"
+        },
+        {
+          "id": "B3",
+          "label": "Preview, provenance and share policy"
+        }
+      ],
+      "primaryAction": "Inspect artifact",
+      "status": "PROPOSED_UI",
+      "next": "WF-15",
+      "variants": [
+        "Files",
+        "Artifact detail",
+        "Share preview"
+      ],
+      "ux": {
+        "goal": "จัดไฟล์และหลักฐานตาม scope/version/audience",
+        "interaction": "Open provenance; share preview shows audience/expiry/redactions before action",
+        "exception": "No files: authorized upload; missing evidence does not imply deletion",
+        "responsive": "List then detail/share panel; long names wrap"
+      },
+      "sourceLegacyNavIds": [
+        "p.files",
+        "b.files"
+      ],
+      "legacyNavIds": [
+        "p.files",
+        "b.files"
+      ],
+      "actionIds": [],
+      "implementationStatus": "CORE_LIVE_SURFACE",
+      "navigationDisposition": "MAPPED_ACTIVE",
+      "moduleId": "module.resource-coordination",
+      "localSurfaceId": "rc.files",
+      "businessRoute": "/files",
+      "projectRoute": "/projects/{projectId}/files",
+      "codegenEligible": true,
+      "noHref": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-22",
+      "title": "Repositories",
+      "navIds": [
+        "rc.repositories"
+      ],
+      "scope": [
+        "BUSINESS",
+        "PROJECT"
+      ],
+      "phase": "NAV-P1 / P6 CI",
+      "type": "repositories",
+      "requirements": [
+        "PMR-031"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Repository and project-role filters"
+        },
+        {
+          "id": "B2",
+          "label": "Local metadata and path scope"
+        },
+        {
+          "id": "B3",
+          "label": "Commit/PR/check evidence when configured"
+        }
+      ],
+      "primaryAction": "Inspect repository",
+      "status": "PROPOSED_UI",
+      "ux": {
+        "goal": "เชื่อม repository metadata กับ Project และ evidence revision",
+        "interaction": "Open repository record; verified commit/check links when available",
+        "exception": "No repositories: add metadata; no mandatory GitHub API access",
+        "responsive": "Owner/name and role visible; paths wrap"
+      },
+      "sourceLegacyNavIds": [
+        "p.repositories",
+        "b.repositories"
+      ],
+      "legacyNavIds": [
+        "p.repositories",
+        "b.repositories"
+      ],
+      "actionIds": [],
+      "implementationStatus": "CORE_LIVE_SURFACE",
+      "navigationDisposition": "MAPPED_ACTIVE",
+      "moduleId": "module.resource-coordination",
+      "localSurfaceId": "rc.repositories",
+      "businessRoute": "/repositories",
+      "projectRoute": "/projects/{projectId}/repositories",
+      "capabilitySection": "Inventory",
+      "activeModule": "Resource Coordination",
+      "readOnlyNavigation": true,
+      "codegenEligible": true,
+      "noHref": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-23",
+      "title": "Project Inventory",
+      "navIds": [
+        "pm.inventory"
+      ],
+      "scope": "PROJECT",
+      "phase": "NAV-P1",
+      "type": "index",
+      "requirements": [
+        "PMR-001",
+        "PMR-015"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Read-only project resource index"
+        },
+        {
+          "id": "B2",
+          "label": "Work, milestones, gates, files and team sections"
+        },
+        {
+          "id": "B3",
+          "label": "Direct links to the one owning screen"
+        }
+      ],
+      "primaryAction": "Open work",
+      "status": "PROPOSED_UI",
+      "next": "WF-08",
+      "ux": {
+        "goal": "ค้น inventory/index เดิมโดยไม่สร้าง writer ใหม่",
+        "interaction": "Read-only search and record links; source identity stays stable",
+        "exception": "No match: reset search; no generic asset-create action",
+        "responsive": "Search + semantic list; identifiers wrap"
+      },
+      "sourceLegacyNavIds": [
+        "p.index"
+      ],
+      "legacyNavIds": [
+        "p.index"
+      ],
+      "actionIds": [],
+      "implementationStatus": "CORE_LIVE_SURFACE",
+      "navigationDisposition": "MAPPED_ACTIVE",
+      "moduleId": "module.project-management",
+      "localSurfaceId": "pm.inventory",
+      "sectionId": "section.inventory",
+      "routeTemplate": "/projects/{projectId}/inventory",
+      "readOnlyProjection": true,
+      "codegenEligible": true,
+      "noHref": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-24",
+      "title": "Connections Used",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P3",
+      "type": "connections",
+      "requirements": [
+        "PMR-009",
+        "PMR-010",
+        "PMR-011"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Project connection bindings"
+        },
+        {
+          "id": "B2",
+          "label": "Model, MCP and executor readiness with probe date"
+        },
+        {
+          "id": "B3",
+          "label": "Authorized binding edit and shared-registry link"
+        }
+      ],
+      "primaryAction": "Manage in Integrations",
+      "status": "PROPOSED_UI",
+      "next": "WF-32",
+      "ux": {
+        "goal": "ดู connection ที่ Project ใช้และกลับไปจัดการ Business registry",
+        "interaction": "Select authorized version binding; Manage registry → WF-32 with return context",
+        "exception": "Unconfigured: bind approved resource; no secret entry here",
+        "responsive": "Usage list then binding inspector"
+      },
+      "sourceLegacyNavIds": [
+        "p.connections"
+      ],
+      "legacyNavIds": [
+        "p.connections"
+      ],
+      "actionIds": [],
+      "implementationStatus": "PLANNED_NO_ROUTE",
+      "navigationDisposition": "DEFERRED_NON_GENERATABLE",
+      "moduleId": "module.resource-coordination",
+      "localSurfaceId": "rc.connections",
+      "navStatus": "PLANNED_NO_ROUTE",
+      "noHref": true,
+      "codegenEligible": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-25",
+      "title": "Resources & Budget",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P6",
+      "type": "allocation",
+      "requirements": [
+        "PMR-017",
+        "PMR-020"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Capacity and allocation timeline"
+        },
+        {
+          "id": "B2",
+          "label": "Effort and budget summary with unknown values"
+        },
+        {
+          "id": "B3",
+          "label": "Allocation conflict and override reason"
+        }
+      ],
+      "primaryAction": "Preview allocation",
+      "status": "PROPOSED_UI",
+      "formId": "FORM-ALLOCATION",
+      "ux": {
+        "goal": "วาง capacity allocation และเห็น cost ที่มีที่มา",
+        "interaction": "Allocate resource with dates/effort; override requires reason and authority",
+        "exception": "No cost receipt: UNKNOWN; concurrent capacity conflict distinct",
+        "responsive": "Summary + single-column allocation"
+      },
+      "sourceLegacyNavIds": [
+        "p.budget"
+      ],
+      "legacyNavIds": [
+        "p.budget"
+      ],
+      "actionIds": [],
+      "implementationStatus": "PLANNED_NO_ROUTE",
+      "navigationDisposition": "DEFERRED_NON_GENERATABLE",
+      "moduleId": "module.resource-coordination",
+      "localSurfaceId": "rc.resources",
+      "navStatus": "PLANNED_NO_ROUTE",
+      "noHref": true,
+      "codegenEligible": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-26",
+      "title": "Risks & Issues",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P6",
+      "type": "risks",
+      "requirements": [
+        "PMR-017"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Owner, severity and due filters"
+        },
+        {
+          "id": "B2",
+          "label": "Risk/issue register and dependencies"
+        },
+        {
+          "id": "B3",
+          "label": "Mitigation, owner and resolution evidence"
+        }
+      ],
+      "primaryAction": "Review risk entry",
+      "status": "PROPOSED_UI",
+      "formId": "FORM-RISK",
+      "variants": [
+        "Risk register",
+        "Issue detail"
+      ],
+      "ux": {
+        "goal": "รับผิดชอบ risk/issue พร้อม mitigation, due date และ links",
+        "interaction": "Open risk, edit draft, link blocking work; close requires evidence",
+        "exception": "No risks: create scoped risk; foreign refs rejected",
+        "responsive": "Register then detail; probability/impact separate"
+      },
+      "sourceLegacyNavIds": [
+        "p.risks"
+      ],
+      "legacyNavIds": [
+        "p.risks"
+      ],
+      "actionIds": [],
+      "implementationStatus": "PLANNED_NO_ROUTE",
+      "navigationDisposition": "DEFERRED_NON_GENERATABLE",
+      "moduleId": "module.delivery-governance",
+      "localSurfaceId": "dg.risks",
+      "navStatus": "PLANNED_NO_ROUTE",
+      "noHref": true,
+      "codegenEligible": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-27",
+      "title": "Tests & Releases",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P6",
+      "type": "release",
+      "requirements": [
+        "PMR-018",
+        "PMR-027",
+        "PMR-028",
+        "PMR-031"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Environment and exact revision"
+        },
+        {
+          "id": "B2",
+          "label": "Tests, build, migration and release evidence"
+        },
+        {
+          "id": "B3",
+          "label": "Deploy and activation gates separately"
+        }
+      ],
+      "primaryAction": "Review release evidence",
+      "status": "PROPOSED_UI",
+      "next": "WF-15",
+      "ux": {
+        "goal": "ตัดสิน readiness จาก evidence ที่ตรง revision/environment",
+        "interaction": "Select baseline; inspect tests/deploy/activation separately; release review",
+        "exception": "No deploy receipt stays not deployed even with green CI",
+        "responsive": "Evidence stages vertical; exact revision copyable"
+      },
+      "sourceLegacyNavIds": [
+        "p.releases"
+      ],
+      "legacyNavIds": [
+        "p.releases"
+      ],
+      "actionIds": [],
+      "implementationStatus": "PLANNED_NO_ROUTE",
+      "navigationDisposition": "DEFERRED_NON_GENERATABLE",
+      "moduleId": "module.delivery-governance",
+      "localSurfaceId": "dg.test-release",
+      "navStatus": "PLANNED_NO_ROUTE",
+      "noHref": true,
+      "codegenEligible": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-28",
+      "title": "Activity",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P6",
+      "type": "activity",
+      "requirements": [
+        "PMR-019",
+        "PMR-024"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Event filter and authorized actor"
+        },
+        {
+          "id": "B2",
+          "label": "Immutable event and notification timeline"
+        },
+        {
+          "id": "B3",
+          "label": "Evidence details and request receipt"
+        }
+      ],
+      "primaryAction": "Inspect event",
+      "status": "PROPOSED_UI",
+      "ux": {
+        "goal": "ตรวจเหตุการณ์และ provenance ตาม actor/time/resource",
+        "interaction": "Filter authorized audit; open redacted detail; cursor history",
+        "exception": "No events for filter: clear; unavailable stream shows stale marker",
+        "responsive": "Chronological list; no fixed-width log dependency"
+      },
+      "sourceLegacyNavIds": [
+        "p.activity"
+      ],
+      "legacyNavIds": [
+        "p.activity"
+      ],
+      "actionIds": [],
+      "implementationStatus": "PLANNED_NO_ROUTE",
+      "navigationDisposition": "DEFERRED_NON_GENERATABLE",
+      "moduleId": "module.delivery-governance",
+      "localSurfaceId": "dg.activity",
+      "navStatus": "PLANNED_NO_ROUTE",
+      "noHref": true,
+      "codegenEligible": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-29",
+      "title": "Project Settings",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "P6",
+      "type": "settings",
+      "requirements": [
+        "PMR-012",
+        "PMR-026"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Project identity and existing edit actions"
+        },
+        {
+          "id": "B2",
+          "label": "Retention, sharing and notification policy"
+        },
+        {
+          "id": "B3",
+          "label": "Policy version diff and review"
+        }
+      ],
+      "primaryAction": "Review changes",
+      "status": "PROPOSED_UI",
+      "ux": {
+        "goal": "ปรับ project metadata และ policies ตาม permission",
+        "interaction": "Edit allowed setting; review sensitive effect; dirty draft leave choice",
+        "exception": "Unsupported advanced option shows reason; no new implicit grant",
+        "responsive": "One section at a time, one action group"
+      },
+      "sourceLegacyNavIds": [
+        "p.settings"
+      ],
+      "legacyNavIds": [
+        "p.settings"
+      ],
+      "actionIds": [],
+      "implementationStatus": "PRESERVED_OUT_OF_D02",
+      "navigationDisposition": "PRESERVED_OUT_OF_D02",
+      "localSurfaceId": null,
+      "noHref": true,
+      "codegenEligible": false,
+      "preservationReason": "Retained for a later provider/settings or delivery slice; excluded from D02 generation.",
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-30",
+      "title": "Import Plan",
+      "navIds": [],
+      "scope": "PROJECT",
+      "phase": "NAV-P1",
+      "type": "import",
+      "requirements": [
+        "PMR-001",
+        "PMR-025"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Input source and schema feedback"
+        },
+        {
+          "id": "B2",
+          "label": "Dry-run changes, conflicts and target scope"
+        },
+        {
+          "id": "B3",
+          "label": "Exact preview confirmation and receipt"
+        }
+      ],
+      "primaryAction": "Preview import",
+      "status": "PROPOSED_UI",
+      "next": "WF-03",
+      "variants": [
+        "Input",
+        "Preview",
+        "Conflict",
+        "Receipt"
+      ],
+      "ux": {
+        "goal": "นำเข้าแผนด้วย validate → preview → conflict → commit → receipt เดิม",
+        "interaction": "Preview parses data only; fix conflict; commit exact preview hash",
+        "exception": "Invalid JSON/schema shows location; unknown receipt reconciles",
+        "responsive": "Stepper vertical; preview diff/errors stack"
+      },
+      "sourceLegacyNavIds": [
+        "p.import"
+      ],
+      "legacyNavIds": [
+        "p.import"
+      ],
+      "actionIds": [
+        "pm.import"
+      ],
+      "implementationStatus": "CORE_LIVE_SURFACE",
+      "navigationDisposition": "ACTION_MIGRATED",
+      "moduleId": "module.project-management",
+      "ownerModuleId": "module.project-management",
+      "sharedActionRef": "pm.import",
+      "sectionId": "section.import",
+      "surfaceKind": "ACTION",
+      "renderAs": "header-action",
+      "localSurfaceId": null,
+      "localTab": false,
+      "routeTemplate": "/projects/{projectId}/import",
+      "actionSemantics": "validate -> dry-run -> conflicts -> commit -> receipt",
+      "reachableFromAuthorizedProjectModules": [
+        "module.project-management",
+        "module.work-management",
+        "module.resource-coordination"
+      ],
+      "currentPageCue": true,
+      "returnPath": "/projects/{projectId}",
+      "sharedAction": true,
+      "codegenEligible": true,
+      "noHref": false,
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-31",
+      "title": "Create Project",
+      "navIds": [],
+      "scope": "BUSINESS",
+      "phase": "NAV-P1",
+      "type": "project-form",
+      "requirements": [
+        "PMR-001"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Objective and authorized Workspace"
+        },
+        {
+          "id": "B2",
+          "label": "Workstreams with execution modes"
+        },
+        {
+          "id": "B3",
+          "label": "Dry-run preview and confirmation"
+        }
+      ],
+      "primaryAction": "Preview plan",
+      "status": "PROPOSED_UI",
+      "formId": "FORM-PROJECT",
+      "next": "WF-30",
+      "variants": [
+        "Objective",
+        "Workstreams",
+        "Preview"
+      ],
+      "ux": {
+        "goal": "เริ่มโปรเจกต์จาก objective และ Workspace เป้าหมาย",
+        "interaction": "Objective → workstreams (7 modes) → PlanEnvelope preview → existing writer",
+        "exception": "Missing objective/workspace blocks next; no template picker",
+        "responsive": "Short stepper; one-column inputs"
+      },
+      "sourceLegacyNavIds": [
+        "b.create"
+      ],
+      "legacyNavIds": [
+        "b.create"
+      ],
+      "actionIds": [],
+      "implementationStatus": "PRESERVED_OUT_OF_D02",
+      "navigationDisposition": "PRESERVED_OUT_OF_D02",
+      "localSurfaceId": null,
+      "noHref": true,
+      "codegenEligible": false,
+      "preservationReason": "Retained for a later provider/settings or delivery slice; excluded from D02 generation.",
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-32",
+      "title": "Provider & MCP Registry",
+      "navIds": [],
+      "scope": "BUSINESS",
+      "phase": "P3",
+      "type": "providers",
+      "requirements": [
+        "PMR-009",
+        "PMR-010",
+        "PMR-011"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Connection/model/tool/executor tabs"
+        },
+        {
+          "id": "B2",
+          "label": "Provider, endpoint and dated probe evidence"
+        },
+        {
+          "id": "B3",
+          "label": "Binding, credential and gateway-key boundaries"
+        }
+      ],
+      "primaryAction": "Configure connection",
+      "status": "PROPOSED_UI",
+      "next": "WF-33",
+      "variants": [
+        "Providers & Connections",
+        "Model Deployments",
+        "MCP Servers & Tools",
+        "Inference API Keys",
+        "Executors",
+        "Routing & Budgets"
+      ],
+      "ux": {
+        "goal": "จัด Business registry แยก provider/model/MCP/key/executor/routing",
+        "interaction": "Tabs open setup; Project return link reauthorizes original scope",
+        "exception": "Empty registry: profile setup; denied admin no metadata",
+        "responsive": "Labeled tab selector; inspector stacks"
+      },
+      "sourceLegacyNavIds": [
+        "i.registry"
+      ],
+      "legacyNavIds": [
+        "i.registry"
+      ],
+      "actionIds": [],
+      "implementationStatus": "PRESERVED_OUT_OF_D02",
+      "navigationDisposition": "PRESERVED_OUT_OF_D02",
+      "localSurfaceId": null,
+      "noHref": true,
+      "codegenEligible": false,
+      "preservationReason": "Retained for a later provider/settings or delivery slice; excluded from D02 generation.",
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-33",
+      "title": "Model Connection Setup",
+      "navIds": [],
+      "scope": "BUSINESS",
+      "phase": "P3",
+      "type": "provider-form",
+      "requirements": [
+        "PMR-009",
+        "PMR-011"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Cloud/self-host/local connection identity"
+        },
+        {
+          "id": "B2",
+          "label": "Conditional transport and executor fields"
+        },
+        {
+          "id": "B3",
+          "label": "Credential action and probe result"
+        }
+      ],
+      "primaryAction": "Preview connection",
+      "status": "PROPOSED_UI",
+      "formId": "FORM-PROVIDER",
+      "next": "WF-24",
+      "variants": [
+        "Cloud",
+        "Self-host gateway",
+        "Paired local executor"
+      ],
+      "formIds": [
+        "FORM-PROVIDER",
+        "FORM-MODEL",
+        "FORM-CREDENTIAL"
+      ],
+      "ux": {
+        "goal": "ตั้ง model connection ตาม network/execution profile",
+        "interaction": "Connection → deployment → credential → probe/review/bind",
+        "exception": "Offline executor/unverified capability not healthy; save not probe",
+        "responsive": "Profile selector then conditional fieldsets"
+      },
+      "sourceLegacyNavIds": [],
+      "legacyNavIds": [],
+      "actionIds": [],
+      "implementationStatus": "PRESERVED_OUT_OF_D02",
+      "navigationDisposition": "PRESERVED_OUT_OF_D02",
+      "localSurfaceId": null,
+      "noHref": true,
+      "codegenEligible": false,
+      "preservationReason": "Retained for a later provider/settings or delivery slice; excluded from D02 generation.",
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-34",
+      "title": "MCP Setup",
+      "navIds": [],
+      "scope": "BUSINESS",
+      "phase": "P3",
+      "type": "mcp-form",
+      "requirements": [
+        "PMR-010"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Transport and server identity"
+        },
+        {
+          "id": "B2",
+          "label": "Pinned tool schemas and allow-list"
+        },
+        {
+          "id": "B3",
+          "label": "Auth profile, executor binding and consent"
+        }
+      ],
+      "primaryAction": "Preview MCP binding",
+      "status": "PROPOSED_UI",
+      "formId": "FORM-MCP",
+      "next": "WF-24",
+      "variants": [
+        "Streamable HTTP",
+        "Local stdio"
+      ],
+      "ux": {
+        "goal": "ตั้ง MCP แบบ remote HTTP หรือ paired STDIO",
+        "interaction": "Discover snapshot through broker; choose allowlist; review diff",
+        "exception": "Tool schema change stale; arbitrary command not accepted",
+        "responsive": "Transport first; endpoint/executor condition"
+      },
+      "sourceLegacyNavIds": [],
+      "legacyNavIds": [],
+      "actionIds": [],
+      "implementationStatus": "PRESERVED_OUT_OF_D02",
+      "navigationDisposition": "PRESERVED_OUT_OF_D02",
+      "localSurfaceId": null,
+      "noHref": true,
+      "codegenEligible": false,
+      "preservationReason": "Retained for a later provider/settings or delivery slice; excluded from D02 generation.",
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-35",
+      "title": "Inference API Keys",
+      "navIds": [],
+      "scope": "BUSINESS",
+      "phase": "P3",
+      "type": "key-form",
+      "requirements": [
+        "PMR-011",
+        "PMR-012",
+        "PMR-026"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Project, models, expiry and limits"
+        },
+        {
+          "id": "B2",
+          "label": "Review exact inference-only grant"
+        },
+        {
+          "id": "B3",
+          "label": "One-time reveal, metadata and revocation"
+        }
+      ],
+      "primaryAction": "Review key grant",
+      "status": "PROPOSED_UI",
+      "formId": "FORM-KEY",
+      "variants": [
+        "Create grant",
+        "One-time reveal",
+        "Key metadata"
+      ],
+      "safety": "The wireframe contains no real key and accepts no secret; production reveals once after authorized issuance.",
+      "ux": {
+        "goal": "ออก inference key แบบ Project/model/quota/expiry scoped",
+        "interaction": "Review grant; one-time reveal after receipt; later metadata/revoke",
+        "exception": "Timeout needs lookup; secret never read back from metadata",
+        "responsive": "Grant summary before action; secret excluded from export"
+      },
+      "sourceLegacyNavIds": [],
+      "legacyNavIds": [],
+      "actionIds": [],
+      "implementationStatus": "PRESERVED_OUT_OF_D02",
+      "navigationDisposition": "PRESERVED_OUT_OF_D02",
+      "localSurfaceId": null,
+      "noHref": true,
+      "codegenEligible": false,
+      "preservationReason": "Retained for a later provider/settings or delivery slice; excluded from D02 generation.",
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-36",
+      "title": "Executors",
+      "navIds": [],
+      "scope": "BUSINESS",
+      "phase": "P3 / P4",
+      "type": "executors",
+      "requirements": [
+        "PMR-010",
+        "PMR-021",
+        "PMR-029"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Host/executor inventory and trust state"
+        },
+        {
+          "id": "B2",
+          "label": "Capabilities, heartbeat and lease health"
+        },
+        {
+          "id": "B3",
+          "label": "Pairing, recovery and current grants"
+        }
+      ],
+      "primaryAction": "Inspect executor",
+      "status": "PROPOSED_UI",
+      "ux": {
+        "goal": "ดู enrolled executors, capability, heartbeat และ lease",
+        "interaction": "Open executor; authorized re-enroll/revoke with effect review",
+        "exception": "Offline/stale visible; revoke does not prove remote process stopped",
+        "responsive": "Health summary + lease list"
+      },
+      "sourceLegacyNavIds": [],
+      "legacyNavIds": [],
+      "actionIds": [],
+      "implementationStatus": "PRESERVED_OUT_OF_D02",
+      "navigationDisposition": "PRESERVED_OUT_OF_D02",
+      "localSurfaceId": null,
+      "noHref": true,
+      "codegenEligible": false,
+      "preservationReason": "Retained for a later provider/settings or delivery slice; excluded from D02 generation.",
+      "screenStatus": "PROPOSED_UI"
+    },
+    {
+      "id": "WF-37",
+      "title": "Routing & Budgets",
+      "navIds": [],
+      "scope": "BUSINESS",
+      "phase": "P3",
+      "type": "routing",
+      "requirements": [
+        "PMR-009",
+        "PMR-020",
+        "PMR-029"
+      ],
+      "blocks": [
+        {
+          "id": "B1",
+          "label": "Versioned routing policy and model eligibility"
+        },
+        {
+          "id": "B2",
+          "label": "Priority, failover and data residency constraints"
+        },
+        {
+          "id": "B3",
+          "label": "Budget reservations, limits and evaluation"
+        }
+      ],
+      "primaryAction": "Inspect policy constraints",
+      "status": "PROPOSED_UI",
+      "safety": "Cross-provider failover requires policy authorization; UNKNOWN side effects do not trigger automatic resubmission.",
+      "ux": {
+        "goal": "ตรวจ routing, fallback และ budget policy ที่มีสิทธิ์ใช้งาน",
+        "interaction": "Inspect authorized policy versions and constraints; policy editing/approval stays unavailable until a Business-scoped owner contract is approved",
+        "exception": "No authorized fallback blocks; UNKNOWN cannot auto-failover",
+        "responsive": "Policy steps stacked; candidate/active versions distinct"
+      },
+      "contractLimit": "The 72-operation candidate contract has Project ReviewInput only. It does not define a Business policy review operation. Never send a routing policy through Project reviews; define or bind the owner contract before P3 policy editing.",
+      "sourceLegacyNavIds": [],
+      "legacyNavIds": [],
+      "actionIds": [],
+      "implementationStatus": "PRESERVED_OUT_OF_D02",
+      "navigationDisposition": "PRESERVED_OUT_OF_D02",
+      "localSurfaceId": null,
+      "noHref": true,
+      "codegenEligible": false,
+      "preservationReason": "Retained for a later provider/settings or delivery slice; excluded from D02 generation.",
+      "screenStatus": "PROPOSED_UI"
+    }
+  ],
+  "forms": [
+    {
+      "id": "FORM-PROJECT",
+      "title": "เป้าหมายของโปรเจกต์",
+      "schemaRef": null,
+      "fields": [
+        {
+          "key": "objective",
+          "label": "Objective / เป้าหมาย",
+          "type": "textarea",
+          "hint": "อธิบายผลลัพธ์ที่ต้องการส่งมอบ",
+          "condition": null,
+          "required": true,
+          "constraints": {}
+        },
+        {
+          "key": "workspaceId",
+          "label": "Workspace ปลายทาง",
+          "type": "select",
+          "hint": "เลือกจาก Workspace ที่ได้รับสิทธิ์",
+          "condition": null,
+          "required": true,
+          "constraints": {}
+        },
+        {
+          "key": "description",
+          "label": "รายละเอียด (ไม่บังคับ)",
+          "type": "textarea",
+          "hint": "",
+          "condition": null,
+          "required": false,
+          "constraints": {}
+        },
+        {
+          "key": "targetAt",
+          "label": "วันที่เป้าหมาย (ไม่บังคับ)",
+          "type": "date",
+          "hint": "",
+          "condition": null,
+          "required": false,
+          "constraints": {}
+        }
+      ],
+      "validation": "Server contract is authority; show inline errors and linked summary; no secrets in saved draft.",
+      "sourcePage": "apps/server/src/app/(pm)/projects/new/page.jsx"
+    },
+    {
+      "id": "FORM-DEFINITION",
+      "title": "ข้อมูลนิยาม Agent / Fleet",
+      "schemaRef": "DefinitionInput",
+      "fields": [
+        {
+          "key": "code",
+          "label": "รหัสนิยาม",
+          "type": "text",
+          "hint": "รหัสเดิมคงตัวเมื่อเปลี่ยนชื่อ",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        {
+          "key": "name",
+          "label": "ชื่อที่แสดง",
+          "type": "text",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        {
+          "key": "description",
+          "label": "หน้าที่และขอบเขต",
+          "type": "textarea",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        {
+          "key": "ownerDomain",
+          "label": "Domain เจ้าของ",
+          "type": "select",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          }
+        },
+        {
+          "key": "executionKind",
+          "label": "ประเภทการปฏิบัติงาน",
+          "type": "select",
+          "hint": "แยกงานพัฒนาผลิตภัณฑ์กับ business automation",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "enum": [
+              "PROJECT_DELIVERY",
+              "BUSINESS_AUTOMATION"
+            ]
+          }
+        }
+      ],
+      "validation": "Server contract is authority; show inline errors and linked summary; no secrets in saved draft."
+    },
+    {
+      "id": "FORM-AGENT",
+      "title": "Agent version",
+      "schemaRef": "AgentVersionInput",
+      "fields": [
+        {
+          "key": "charter",
+          "label": "ขอบเขตและความรับผิดชอบ",
+          "type": "textarea",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {}
+        },
+        {
+          "key": "instructions",
+          "label": "คำสั่งการทำงาน",
+          "type": "textarea",
+          "hint": "ข้อความนี้ไม่เพิ่มสิทธิ์ให้ Agent",
+          "condition": null,
+          "required": true,
+          "constraints": {}
+        },
+        {
+          "key": "skillRefs",
+          "label": "Skills ที่อ้างอิง",
+          "type": "multiselect",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "array",
+            "maxItems": 50
+          }
+        },
+        {
+          "key": "tools",
+          "label": "Tools และขอบเขตข้อมูล",
+          "type": "tool-bindings",
+          "hint": "เลือก tool ID, schema hash, effect และ capability",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "array",
+            "maxItems": 100
+          }
+        },
+        {
+          "key": "allowedRoles",
+          "label": "บทบาทที่อนุญาต",
+          "type": "multiselect",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "array",
+            "maxItems": 20
+          }
+        },
+        {
+          "key": "modelPolicyVersionId",
+          "label": "Model policy version",
+          "type": "reference",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "key": "executorProfileId",
+          "label": "Executor profile",
+          "type": "reference",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "key": "inputSchema",
+          "label": "Input schema",
+          "type": "schema",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {}
+        },
+        {
+          "key": "outputSchema",
+          "label": "Output schema",
+          "type": "schema",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {}
+        },
+        {
+          "key": "evaluationSuiteId",
+          "label": "ชุดประเมิน",
+          "type": "reference",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "key": "reason",
+          "label": "เหตุผลของรุ่นนี้",
+          "type": "textarea",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        }
+      ],
+      "validation": "Server contract is authority; show inline errors and linked summary; no secrets in saved draft."
+    },
+    {
+      "id": "FORM-FLEET",
+      "title": "Fleet version",
+      "schemaRef": "FleetVersionInput",
+      "fields": [
+        {
+          "key": "members",
+          "label": "สมาชิกและ role ที่ผูก version",
+          "type": "member-bindings",
+          "hint": "ทุกแถวระบุ agentVersionId ที่แน่นอน",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "array",
+            "maxItems": 50
+          }
+        },
+        {
+          "key": "workflowVersionId",
+          "label": "Workflow version",
+          "type": "reference",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "key": "maxConcurrency",
+          "label": "จำนวนงานพร้อมกันสูงสุด",
+          "type": "number",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 20
+          }
+        },
+        {
+          "key": "approvalPolicy",
+          "label": "นโยบายการอนุมัติ",
+          "type": "policy",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {}
+        },
+        {
+          "key": "budgetPolicyVersionId",
+          "label": "Budget policy version",
+          "type": "reference",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "key": "reason",
+          "label": "เหตุผลของรุ่นนี้",
+          "type": "textarea",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        }
+      ],
+      "validation": "Server contract is authority; show inline errors and linked summary; no secrets in saved draft."
+    },
+    {
+      "id": "FORM-WORKFLOW",
+      "title": "Workflow version",
+      "schemaRef": "WorkflowVersionInput",
+      "fields": [
+        {
+          "key": "definition",
+          "label": "ขั้นตอนและ handoff",
+          "type": "workflow",
+          "hint": "กำหนด step, dependsOn, ownerDomain, inputRefs และ outputs",
+          "condition": null,
+          "required": true,
+          "constraints": {}
+        },
+        {
+          "key": "schemaVersion",
+          "label": "Schema version",
+          "type": "readonly",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "enum": [
+              "1.0"
+            ]
+          }
+        },
+        {
+          "key": "reason",
+          "label": "เหตุผลของรุ่นนี้",
+          "type": "textarea",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        }
+      ],
+      "validation": "Server contract is authority; show inline errors and linked summary; no secrets in saved draft."
+    },
+    {
+      "id": "FORM-REVIEW",
+      "title": "Review decision",
+      "schemaRef": "ReviewInput",
+      "fields": [
+        {
+          "key": "resourceType",
+          "label": "ชนิดรายการ",
+          "type": "readonly",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "enum": [
+              "DESIGN_SNAPSHOT",
+              "AGENT_VERSION",
+              "FLEET_VERSION",
+              "WORKFLOW_VERSION",
+              "CHANGE_REQUEST",
+              "RELEASE"
+            ]
+          }
+        },
+        {
+          "key": "resourceId",
+          "label": "รายการที่กำลังตรวจ",
+          "type": "readonly",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "key": "manifestSha256",
+          "label": "ลายนิ้วมือของรุ่นที่ตรวจ",
+          "type": "readonly",
+          "hint": "แสดงคำอธิบายและเปิดดู hash เต็มได้",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        {
+          "key": "decision",
+          "label": "การตัดสินใจ",
+          "type": "select",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "enum": [
+              "APPROVE",
+              "REJECT"
+            ]
+          }
+        },
+        {
+          "key": "reason",
+          "label": "เหตุผลและข้อสังเกต",
+          "type": "textarea",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        {
+          "key": "evidenceRefs",
+          "label": "หลักฐานประกอบ",
+          "type": "multiselect",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "array",
+            "maxItems": 50
+          }
+        },
+        {
+          "key": "expiresAt",
+          "label": "หมดอายุการอนุมัติ",
+          "type": "datetime-local",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      ],
+      "validation": "Server contract is authority; show inline errors and linked summary; no secrets in saved draft."
+    },
+    {
+      "id": "FORM-PROVIDER",
+      "title": "Provider connection",
+      "schemaRef": "ConnectionInput",
+      "fields": [
+        {
+          "key": "providerId",
+          "label": "Provider",
+          "type": "select",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "key": "name",
+          "label": "ชื่อ connection",
+          "type": "text",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        {
+          "key": "purpose",
+          "label": "วัตถุประสงค์",
+          "type": "select",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "enum": [
+              "PROJECT_MODELS",
+              "PROJECT_MCP"
+            ]
+          }
+        },
+        {
+          "key": "networkProfileId",
+          "label": "Network profile",
+          "type": "reference",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "validation": "Server contract is authority; show inline errors and linked summary; no secrets in saved draft."
+    },
+    {
+      "id": "FORM-MODEL",
+      "title": "Model deployment",
+      "schemaRef": "ModelDeploymentInput",
+      "fields": [
+        {
+          "key": "connectionId",
+          "label": "Connection ที่ใช้",
+          "type": "reference",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "key": "name",
+          "label": "ชื่อ deployment",
+          "type": "text",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        {
+          "key": "executionLocation",
+          "label": "ตำแหน่งที่รัน",
+          "type": "select",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "enum": [
+              "CLOUD",
+              "PRIVATE_SERVER",
+              "PAIRED_EXECUTOR"
+            ]
+          }
+        },
+        {
+          "key": "protocolProfile",
+          "label": "Protocol profile",
+          "type": "select",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "enum": [
+              "OPENAI_CHAT_COMPATIBLE",
+              "ANTHROPIC_MESSAGES",
+              "PROVIDER_NATIVE"
+            ]
+          }
+        },
+        {
+          "key": "endpointUrl",
+          "label": "Endpoint URL",
+          "type": "url",
+          "hint": "ตรวจรูปแบบและ network policy ก่อน probe",
+          "condition": "executionLocation=CLOUD|PRIVATE_SERVER; endpoint may be supplied by provider profile",
+          "required": false,
+          "constraints": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 2048
+          }
+        },
+        {
+          "key": "executorId",
+          "label": "Paired executor",
+          "type": "reference",
+          "hint": "ใช้ executor ที่ enroll แล้ว",
+          "condition": "executionLocation=PAIRED_EXECUTOR",
+          "required": false,
+          "constraints": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "key": "modelIdentifier",
+          "label": "Model identifier",
+          "type": "text",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        {
+          "key": "modelRevision",
+          "label": "Model revision",
+          "type": "text",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          }
+        },
+        {
+          "key": "requiredCapabilities",
+          "label": "Capabilities ที่ต้องใช้",
+          "type": "multiselect",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "array",
+            "maxItems": 6,
+            "itemEnum": [
+              "CHAT",
+              "STREAMING",
+              "TOOLS",
+              "STRUCTURED_OUTPUT",
+              "EMBEDDINGS",
+              "VISION"
+            ]
+          }
+        },
+        {
+          "key": "routingPolicyVersionId",
+          "label": "Routing policy version",
+          "type": "reference",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "validation": "Server contract is authority; show inline errors and linked summary; no secrets in saved draft."
+    },
+    {
+      "id": "FORM-CREDENTIAL",
+      "title": "Write-only credential",
+      "schemaRef": "ModelProviderCredentialInput",
+      "fields": [
+        {
+          "key": "kind",
+          "label": "Credential kind",
+          "type": "readonly",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "enum": [
+              "MODEL_PROVIDER_KEY"
+            ]
+          }
+        },
+        {
+          "key": "apiKey",
+          "label": "Provider API key",
+          "type": "secret",
+          "hint": "กรอกจริงเฉพาะระบบที่อนุมัติแล้ว; wireframe ไม่รับ secret",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 8192
+          }
+        },
+        {
+          "key": "reason",
+          "label": "เหตุผลการตั้งค่า / หมุน key",
+          "type": "textarea",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        }
+      ],
+      "validation": "Server contract is authority; show inline errors and linked summary; no secrets in saved draft.",
+      "artifactPolicy": "Secret field disabled; synthetic marker only. API-key profile; OAuth client profile separately reviewed."
+    },
+    {
+      "id": "FORM-MCP",
+      "title": "MCP binding",
+      "schemaRef": "McpBindingInput",
+      "fields": [
+        {
+          "key": "connectionId",
+          "label": "Connection",
+          "type": "reference",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "key": "name",
+          "label": "ชื่อ MCP server",
+          "type": "text",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        {
+          "key": "transport",
+          "label": "Transport",
+          "type": "select",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "enum": [
+              "STDIO",
+              "STREAMABLE_HTTP"
+            ]
+          }
+        },
+        {
+          "key": "protocolVersion",
+          "label": "Protocol version",
+          "type": "readonly",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "enum": [
+              "2025-11-25"
+            ]
+          }
+        },
+        {
+          "key": "endpointUrl",
+          "label": "Streamable HTTP endpoint",
+          "type": "url",
+          "hint": "สำหรับ HTTP transport",
+          "condition": "transport=STREAMABLE_HTTP",
+          "required": false,
+          "constraints": {
+            "type": "string",
+            "format": "uri",
+            "maxLength": 2048
+          }
+        },
+        {
+          "key": "executorProfileId",
+          "label": "Paired executor profile",
+          "type": "reference",
+          "hint": "ไม่มีช่อง arbitrary command",
+          "condition": "transport=STDIO",
+          "required": false,
+          "constraints": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "key": "toolSnapshot",
+          "label": "Tool schema snapshot",
+          "type": "readonly",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {}
+        },
+        {
+          "key": "allowedToolIds",
+          "label": "Tools ที่อนุญาต",
+          "type": "multiselect",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "array",
+            "maxItems": 100
+          }
+        },
+        {
+          "key": "authProfileId",
+          "label": "Auth profile",
+          "type": "reference",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      ],
+      "validation": "Server contract is authority; show inline errors and linked summary; no secrets in saved draft."
+    },
+    {
+      "id": "FORM-KEY",
+      "title": "Inference API key grant",
+      "schemaRef": "InferenceKeyInput",
+      "fields": [
+        {
+          "key": "name",
+          "label": "ชื่อ key",
+          "type": "text",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        {
+          "key": "projectId",
+          "label": "โปรเจกต์ที่อนุญาต",
+          "type": "reference",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "key": "allowedModelIds",
+          "label": "Models ที่อนุญาต",
+          "type": "multiselect",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "array",
+            "maxItems": 50
+          }
+        },
+        {
+          "key": "expiresAt",
+          "label": "วันเวลาหมดอายุ",
+          "type": "datetime-local",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        {
+          "key": "requestsPerMinute",
+          "label": "Requests ต่อนาที",
+          "type": "number",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10000
+          }
+        },
+        {
+          "key": "maxTokensPerDay",
+          "label": "Tokens ต่อวัน",
+          "type": "number",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "integer",
+            "minimum": 1
+          }
+        },
+        {
+          "key": "reason",
+          "label": "เหตุผลการออก key",
+          "type": "textarea",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        }
+      ],
+      "validation": "Server contract is authority; show inline errors and linked summary; no secrets in saved draft."
+    },
+    {
+      "id": "FORM-ALLOCATION",
+      "title": "Resource allocation",
+      "schemaRef": "AllocationInput",
+      "fields": [
+        {
+          "key": "resourceId",
+          "label": "ทรัพยากร / ผู้ปฏิบัติงาน",
+          "type": "reference",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "key": "workItemId",
+          "label": "รายการงาน",
+          "type": "reference",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "key": "startAt",
+          "label": "เริ่ม",
+          "type": "datetime-local",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        {
+          "key": "endAt",
+          "label": "สิ้นสุด",
+          "type": "datetime-local",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        {
+          "key": "effortHours",
+          "label": "Effort (ชั่วโมง)",
+          "type": "number",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        {
+          "key": "capacityOverrideReason",
+          "label": "เหตุผลใช้เกิน capacity",
+          "type": "textarea",
+          "hint": "ต้องมีเมื่อ override ตาม policy",
+          "condition": "over capacity",
+          "required": false,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1000
+          }
+        }
+      ],
+      "validation": "Server contract is authority; show inline errors and linked summary; no secrets in saved draft."
+    },
+    {
+      "id": "FORM-RISK",
+      "title": "Risk entry",
+      "schemaRef": "RiskInput",
+      "fields": [
+        {
+          "key": "code",
+          "label": "รหัสความเสี่ยง",
+          "type": "text",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        {
+          "key": "title",
+          "label": "ความเสี่ยง",
+          "type": "text",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          }
+        },
+        {
+          "key": "ownerId",
+          "label": "ผู้รับผิดชอบ",
+          "type": "reference",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        {
+          "key": "probability",
+          "label": "โอกาสเกิด",
+          "type": "number",
+          "hint": "ใช้สเกลและขอบเขตจาก contract",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          }
+        },
+        {
+          "key": "impact",
+          "label": "ผลกระทบ",
+          "type": "select",
+          "hint": "ใช้สเกลและขอบเขตจาก contract",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "enum": [
+              "LOW",
+              "MEDIUM",
+              "HIGH",
+              "CRITICAL"
+            ]
+          }
+        },
+        {
+          "key": "mitigation",
+          "label": "แนวทางลดความเสี่ยง",
+          "type": "textarea",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 2000
+          }
+        },
+        {
+          "key": "dueAt",
+          "label": "วันที่ต้องทบทวน",
+          "type": "datetime-local",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        {
+          "key": "linkedRefs",
+          "label": "งาน / Feature ที่เกี่ยวข้อง",
+          "type": "multiselect",
+          "hint": "",
+          "condition": null,
+          "required": true,
+          "constraints": {
+            "type": "array",
+            "maxItems": 100
+          }
+        }
+      ],
+      "validation": "Server contract is authority; show inline errors and linked summary; no secrets in saved draft."
+    }
+  ],
+  "journeys": [
+    {
+      "id": "J01",
+      "title": "สร้างโปรเจกต์",
+      "screens": [
+        "WF-01",
+        "WF-31",
+        "WF-30",
+        "WF-03"
+      ]
+    },
+    {
+      "id": "J02",
+      "title": "วางแผนตาม Domain",
+      "screens": [
+        "WF-03",
+        "WF-04",
+        "WF-05",
+        "WF-08"
+      ]
+    },
+    {
+      "id": "J03",
+      "title": "วางแผนตาม Feature",
+      "screens": [
+        "WF-03",
+        "WF-06",
+        "WF-07",
+        "WF-10"
+      ]
+    },
+    {
+      "id": "J04",
+      "title": "Spec → Diagram → Code",
+      "screens": [
+        "WF-10",
+        "WF-13",
+        "WF-11",
+        "WF-12",
+        "WF-15",
+        "WF-08"
+      ]
+    },
+    {
+      "id": "J05",
+      "title": "ตั้งค่า Agent",
+      "screens": [
+        "WF-16",
+        "WF-17",
+        "WF-24",
+        "WF-15"
+      ]
+    },
+    {
+      "id": "J06",
+      "title": "ตั้งค่า Fleet",
+      "screens": [
+        "WF-18",
+        "WF-19",
+        "WF-15"
+      ]
+    },
+    {
+      "id": "J07",
+      "title": "รันและตรวจหลักฐาน",
+      "screens": [
+        "WF-14",
+        "WF-15",
+        "WF-27"
+      ]
+    },
+    {
+      "id": "J08",
+      "title": "เชื่อม Provider / MCP",
+      "screens": [
+        "WF-32",
+        "WF-33",
+        "WF-34",
+        "WF-24"
+      ]
+    },
+    {
+      "id": "J09",
+      "title": "ออก Inference key",
+      "screens": [
+        "WF-32",
+        "WF-35"
+      ]
+    },
+    {
+      "id": "J10",
+      "title": "ส่งมอบและติดตามผล",
+      "screens": [
+        "WF-27",
+        "WF-15",
+        "WF-28"
+      ]
+    }
+  ],
+  "readiness": {
+    "0": "E",
+    "1": "v",
+    "2": "e",
+    "3": "r",
+    "4": "y",
+    "5": " ",
+    "6": "w",
+    "7": "i",
+    "8": "r",
+    "9": "e",
+    "10": "f",
+    "11": "r",
+    "12": "a",
+    "13": "m",
+    "14": "e",
+    "15": " ",
+    "16": "i",
+    "17": "s",
+    "18": " ",
+    "19": "p",
+    "20": "r",
+    "21": "o",
+    "22": "p",
+    "23": "o",
+    "24": "s",
+    "25": "e",
+    "26": "d",
+    "27": " ",
+    "28": "U",
+    "29": "I",
+    "30": ".",
+    "31": " ",
+    "32": "S",
+    "33": "O",
+    "34": "U",
+    "35": "R",
+    "36": "C",
+    "37": "E",
+    "38": "_",
+    "39": "P",
+    "40": "R",
+    "41": "E",
+    "42": "S",
+    "43": "E",
+    "44": "N",
+    "45": "T",
+    "46": " ",
+    "47": "n",
+    "48": "a",
+    "49": "v",
+    "50": " ",
+    "51": "t",
+    "52": "a",
+    "53": "r",
+    "54": "g",
+    "55": "e",
+    "56": "t",
+    "57": "s",
+    "58": " ",
+    "59": "d",
+    "60": "o",
+    "61": " ",
+    "62": "n",
+    "63": "o",
+    "64": "t",
+    "65": " ",
+    "66": "m",
+    "67": "e",
+    "68": "a",
+    "69": "n",
+    "70": " ",
+    "71": "t",
+    "72": "h",
+    "73": "i",
+    "74": "s",
+    "75": " ",
+    "76": "U",
+    "77": "I",
+    "78": " ",
+    "79": "i",
+    "80": "s",
+    "81": " ",
+    "82": "i",
+    "83": "m",
+    "84": "p",
+    "85": "l",
+    "86": "e",
+    "87": "m",
+    "88": "e",
+    "89": "n",
+    "90": "t",
+    "91": "e",
+    "92": "d",
+    "93": ".",
+    "composedCandidate": "All 37 source screens are retained. Only the explicitly listed core surfaces/actions are codegen eligible; planned/deferred/preserved screens remain design candidates.",
+    "runtimeEvidence": "NOT_RUN",
+    "implementationClaim": "No screen in this packet is claimed implemented or production-ready."
+  },
+  "formPolicy": {
+    "layout": "SINGLE_COLUMN_WITH_SEMANTIC_FIELDSETS",
+    "labelPosition": "ABOVE_CONTROL",
+    "optionalLabel": "ไม่บังคับ",
+    "validationTiming": [
+      "after touched field blur",
+      "on explicit preview",
+      "server submit response"
+    ],
+    "drafts": "NON_SECRET_ONLY_REAUTHORIZE_BEFORE_SUBMIT",
+    "apiBinding": "Fields bind to the named existing candidate schema; display grouping never changes field identity.",
+    "imageFieldMerging": "NOT_AN_AUTOMATIC_RULE"
+  },
+  "attempt": 3,
+  "packetId": "PM-20260916-D02-01-A3",
+  "workPackageId": "MA-D02",
+  "composition": {
+    "kind": "FULL_COMPOSED_CANDIDATE",
+    "baseFile": "zuri-pm-design/docs/architecture/project-manager-system/contracts/ux-ui.candidate.json",
+    "baseSha256": "2aba3053ebaf60be10d65fece6f2efb5c40953a7a0c60417881263c43bbb9ee3",
+    "appliedPatch": "ux-ui.navigation-core.patch.json",
+    "expectedBaseScreenCount": 37,
+    "composedScreenCount": 37,
+    "activeCoreScreenCount": 10,
+    "plannedNoRouteScreenCount": 15,
+    "preservedNoRouteScreenCount": 4,
+    "preservedOutOfD02ScreenCount": 8,
+    "fullModelDoesNotClaimImplementation": true,
+    "rawLegacyNavIdsNeverActive": true
+  },
+  "legacyReferencePolicy": {
+    "source": "navigation.candidate.json#legacyNavigationPolicy",
+    "generatorConsumes": "classifications plus composed navIds/actionIds",
+    "rawLegacyNavIdsNeverActive": true
+  },
+  "codegenScope": {
+    "coreScreenIds": [
+      "WF-01",
+      "WF-02",
+      "WF-03",
+      "WF-08",
+      "WF-09",
+      "WF-20",
+      "WF-21",
+      "WF-22",
+      "WF-23",
+      "WF-30"
+    ],
+    "coreGeneratedSurfaceIds": [
+      "pm.projects",
+      "wm.all-work",
+      "wm.execution",
+      "wm.timeline",
+      "wm.dependencies",
+      "wm.milestones",
+      "pm.project-overview",
+      "wm.project-work-views",
+      "wm.roadmap",
+      "wm.structure",
+      "wm.board",
+      "wm.work-items",
+      "wm.schedule",
+      "wm.milestones",
+      "wm.dependency-map",
+      "rc.team",
+      "rc.files",
+      "rc.repositories",
+      "pm.inventory"
+    ],
+    "coreActionIds": [
+      "pm.import"
+    ],
+    "plannedNoRouteScreenIds": [
+      "WF-04",
+      "WF-06",
+      "WF-10",
+      "WF-11",
+      "WF-12",
+      "WF-13",
+      "WF-14",
+      "WF-16",
+      "WF-18",
+      "WF-19",
+      "WF-24",
+      "WF-25",
+      "WF-26",
+      "WF-27",
+      "WF-28"
+    ],
+    "deferredLegacyBindings": [
+      {
+        "legacyId": "p.domains",
+        "targetId": "dd.domains",
+        "screenIds": [
+          "WF-04"
+        ],
+        "reason": "Delivery Design is planned with no route in D02"
+      },
+      {
+        "legacyId": "p.features",
+        "targetId": "dd.features",
+        "screenIds": [
+          "WF-06"
+        ],
+        "reason": "Delivery Design is planned with no route in D02"
+      },
+      {
+        "legacyId": "p.calendar",
+        "targetId": "wm.calendar",
+        "screenIds": [
+          "WF-08"
+        ],
+        "reason": "Calendar is a planned Work view with no source-backed route in D02"
+      },
+      {
+        "legacyId": "p.requirements",
+        "targetId": "dd.requirements",
+        "screenIds": [
+          "WF-10"
+        ],
+        "reason": "Requirements is named planned content with no route"
+      },
+      {
+        "legacyId": "p.architecture",
+        "targetId": "dd.architecture",
+        "screenIds": [
+          "WF-11"
+        ],
+        "reason": "Architecture is named planned content with no route"
+      },
+      {
+        "legacyId": "p.api",
+        "targetId": "dd.api",
+        "screenIds": [
+          "WF-12"
+        ],
+        "reason": "API is named planned content with no route"
+      },
+      {
+        "legacyId": "p.documents",
+        "targetId": "dd.docs-decisions",
+        "screenIds": [
+          "WF-13"
+        ],
+        "reason": "Docs & Decisions is planned; document and decision semantics remain visible"
+      },
+      {
+        "legacyId": "p.command",
+        "targetId": "ad.command-center",
+        "screenIds": [
+          "WF-14"
+        ],
+        "reason": "Agent Delivery is planned with no route"
+      },
+      {
+        "legacyId": "p.agents",
+        "targetId": "ad.agents",
+        "screenIds": [
+          "WF-16"
+        ],
+        "reason": "Agent Delivery is planned with no route"
+      },
+      {
+        "legacyId": "p.fleets",
+        "targetId": "ad.fleets",
+        "screenIds": [
+          "WF-18"
+        ],
+        "reason": "Agent Delivery is planned with no route"
+      },
+      {
+        "legacyId": "p.workflows",
+        "targetId": "ad.workflows",
+        "screenIds": [
+          "WF-19"
+        ],
+        "reason": "Agent Delivery is planned with no route"
+      },
+      {
+        "legacyId": "p.connections",
+        "targetId": "rc.connections",
+        "screenIds": [
+          "WF-24"
+        ],
+        "reason": "Connections Used is planned with no route"
+      },
+      {
+        "legacyId": "p.budget",
+        "targetId": "rc.resources",
+        "screenIds": [
+          "WF-25"
+        ],
+        "reason": "Workforce Resources is deferred to MA-D02W with no route"
+      },
+      {
+        "legacyId": "p.risks",
+        "targetId": "dg.risks",
+        "screenIds": [
+          "WF-26"
+        ],
+        "reason": "Delivery Governance is planned with no route"
+      },
+      {
+        "legacyId": "p.releases",
+        "targetId": "dg.test-release",
+        "screenIds": [
+          "WF-27"
+        ],
+        "reason": "Delivery Governance is planned with no route"
+      },
+      {
+        "legacyId": "p.activity",
+        "targetId": "dg.activity",
+        "screenIds": [
+          "WF-28"
+        ],
+        "reason": "Delivery Governance is planned with no route"
+      }
+    ],
+    "preservedNoRouteScreenIds": [
+      "WF-05",
+      "WF-07",
+      "WF-15",
+      "WF-17"
+    ],
+    "preservedOutOfD02ScreenIds": [
+      "WF-29",
+      "WF-31",
+      "WF-32",
+      "WF-33",
+      "WF-34",
+      "WF-35",
+      "WF-36",
+      "WF-37"
+    ],
+    "generatorRule": "Only core navIds/actionIds are codegen inputs. Planned, deferred, preserved-no-route, and preserved-out-of-D02 bindings are retained for design traceability and are not emitted as hrefs."
+  }
+}

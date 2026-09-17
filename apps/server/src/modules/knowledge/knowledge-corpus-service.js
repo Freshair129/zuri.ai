@@ -761,6 +761,16 @@ export async function resolveKnowledgeCitation(
  * The operation owns only corpus/source membership rows, so it keeps the
  * corpus Business/Project write gate but does not require the referenced
  * FileAsset to remain live in order to remove that membership.
+ *
+ * @req FR-238 — an optional `authorization` override, mirroring
+ * `admitKnowledge`'s own `authorize()` seam (knowledge-admission-service.js):
+ * when supplied it replaces the default owner-only `resolveKnowledgeScope`
+ * check, exactly once, before the CAS retry loop. Every existing caller keeps
+ * today's owner-only gate untouched (the parameter is optional and unused by
+ * them); the LINE Studio unpublish hook is the first to pass one, because
+ * ADR-090 D7's "unpublish withdraws the source" is exercised by an OWNER or
+ * `LINE_OA_PUBLISHER`, the same authority `line-oa-account-authority.js`'s
+ * `assertMayPublish` already required of the caller before this runs.
  */
 export async function withdrawKnowledgeSource(
   sourceId,
@@ -771,6 +781,7 @@ export async function withdrawKnowledgeSource(
     viewer,
     env = process.env,
     now = () => new Date(),
+    authorization,
   } = {},
 ) {
   const id = requireId(sourceId, 'sourceId')
@@ -781,7 +792,14 @@ export async function withdrawKnowledgeSource(
   const initialCorpus = await repository.getCorpus(initialSource.corpusId)
   if (!initialCorpus) throw serviceError(404, 'Knowledge corpus not found', 'KNOWLEDGE_CORPUS_NOT_FOUND')
   const scope = scopeFromCorpus(initialCorpus)
-  await resolveKnowledgeScope({ viewer, businessId: initialCorpus.businessId, projectId: initialCorpus.projectId, action: 'write', db, env })
+  if (authorization) {
+    const result = await authorization({ viewer, operation: 'write', businessId: initialCorpus.businessId, projectId: initialCorpus.projectId }, { db, env })
+    if (result === false || result?.authorized === false) {
+      throw serviceError(403, 'Knowledge access denied', 'KNOWLEDGE_ACCESS_DENIED')
+    }
+  } else {
+    await resolveKnowledgeScope({ viewer, businessId: initialCorpus.businessId, projectId: initialCorpus.projectId, action: 'write', db, env })
+  }
   for (let attempt = 0; attempt < MAX_CAS_RETRIES; attempt += 1) {
     try {
       const result = await repository.transaction((tx) => withdrawInTransaction(tx, id, expectedVersion, { now, actorId: viewer?.principal?.id || null, initialScope: scope, viewer, db, env }))

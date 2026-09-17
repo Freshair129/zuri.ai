@@ -195,6 +195,57 @@ export const CUSTOMER_CONSENT_STATUSES = ['PENDING', 'GRANTED', 'DECLINED', 'GRA
 export const CONVERSATION_ANALYSIS_CONTACT_TYPES = ['NEW_LEAD', 'RETURNING', 'SUPPORT']
 export const CONVERSATION_ANALYSIS_STATES = ['HOT', 'WARM', 'COLD', 'CLOSED_WON', 'CLOSED_LOST']
 
+// FR-229 — non-text LINE content in the CRM record (ADR-091 D5). Message.contentKind
+// stays coarse on purpose: every media type collapses into MEDIA_REF and the
+// specific kind lives on MessageAttachment.kind, so a new media type never touches
+// Message's own vocabulary.
+export const MESSAGE_CONTENT_KINDS = ['TEXT', 'STICKER', 'LOCATION', 'MEDIA_REF']
+export const MESSAGE_ATTACHMENT_KINDS = ['IMAGE', 'VIDEO', 'AUDIO', 'FILE']
+// STORED/EXPIRED_AT_PROVIDER belong to the later fetch phase FR-229 explicitly
+// defers; only PENDING (admission) and ERASED (unsend/erasure tombstone) are
+// written by this change.
+export const MESSAGE_ATTACHMENT_FETCH_STATES = ['PENDING', 'STORED', 'EXPIRED_AT_PROVIDER', 'ERASED']
+// Exactly FR-229's own list: follow, unfollow, join, leave, member joined, member
+// left, postback and unsend. DELIVERY/READ read receipts are a different, undecided
+// requirement and are deliberately not declared here.
+export const CONVERSATION_EVENT_KINDS = [
+  'FOLLOW', 'UNFOLLOW', 'JOIN', 'LEAVE', 'MEMBER_JOINED', 'MEMBER_LEFT', 'POSTBACK', 'UNSEND',
+]
+
+// FR-230 — every copy of a person's conversation content has a declared retention
+// data class and an installation-default window (ADR-091 D2, SEC-031). A Tenant
+// may only shorten a window (TenantRetentionOverride); lengthening one is refused
+// by the writer. Only MESSAGE_BODY_AND_ATTACHMENTS is swept by this codebase today
+// — the other three name a model this crm-scoped change does not own:
+//   RAW_LINE_PAYLOAD        — RawExternalRecord.payloadJson, integration's charter
+//   AGENT_TRACE_EVENT       — AgentTraceEvent payloads, agent's charter
+//   MSP_SESSION_CONTENT     — MSP's own storage, a separate repository this
+//                             codebase never reaches
+// Their entries here exist so a Tenant can already declare an override for them
+// (and TenantRetentionOverride never needs a schema change when their own
+// sweepers land), not because this change sweeps them.
+export const RETENTION_DATA_CLASSES = [
+  'RAW_LINE_PAYLOAD', 'MESSAGE_BODY_AND_ATTACHMENTS', 'AGENT_TRACE_EVENT', 'MSP_SESSION_CONTENT',
+]
+// Days. 24 months is approximated as 365 * 2 — this repository has no existing
+// month-to-day convention to match, and the owner's numbers are policy, not law
+// (ADR-091 "Retention numbers are product policy, not law").
+export const RETENTION_DEFAULT_WINDOW_DAYS = Object.freeze({
+  RAW_LINE_PAYLOAD: 90,
+  MESSAGE_BODY_AND_ATTACHMENTS: 365 * 2,
+  AGENT_TRACE_EVENT: 90,
+  MSP_SESSION_CONTENT: 90,
+})
+// The subset of RETENTION_DATA_CLASSES this codebase can actually tombstone —
+// see the module comment above. retention-sweep-service.js sweeps exactly this
+// list; a class outside it is not this crm-scoped change's model to write.
+export const CRM_OWNED_RETENTION_CLASSES = ['MESSAGE_BODY_AND_ATTACHMENTS']
+// LineConversationJob's own status vocabulary is deliberately NOT registered
+// here — see the FR-152 comment above this block: a registry entry would read
+// every file's own narrower, purpose-built subset (line-conversation-jobs.js's
+// own `WAITING`, and others) as a "hand copy" of it. retention-sweep-service.js
+// keeps its own local non-terminal list for exactly that reason.
+
 // FR-066/FR-067 — Workspace collaboration boundary (ADR-027 D5). "Workspace"
 // here is the top-level container, schema Portfolio — never schema Workspace,
 // which is a Space (see WORKSPACE_SCOPE_TYPES above, a different axis).
@@ -241,6 +292,19 @@ export const ASSET_PROCUREMENT_REF_TYPES = ['PR', 'PR_LINE', 'PO', 'PO_LINE', 'G
 export const ASSET_RESPONSIBILITY_ROLES = ['ACCOUNTABLE', 'CUSTODIAN', 'USER']
 export const ASSET_DEPRECIATION_METHODS = ['STRAIGHT_LINE']
 
+// @req FR-223 — Integration credential vault vocabulary (ADR-089 D1, D5; SDD-097).
+// A store is named by the reference prefix it answers (`supabase-vault:`,
+// `envelope:`, `deployment-secret:`); a version is PURGED once its material is gone.
+export const SECRET_STORES = ['DEPLOYMENT_MOUNT', 'SUPABASE_VAULT', 'ENVELOPE']
+export const SECRET_KINDS = ['LINE_CHANNEL', 'OAUTH_CLIENT', 'API_KEY', 'MODEL_PROVIDER_KEY']
+export const INTEGRATION_CREDENTIAL_STATUSES = ['PENDING_VALIDATION', 'ACTIVE', 'ROTATING', 'EXPIRED', 'REVOKED', 'REENTRY_REQUIRED']
+// ROTATING still resolves: the previous version stays live until the new one validates.
+export const INTEGRATION_CREDENTIAL_RESOLVABLE_STATUSES = INTEGRATION_CREDENTIAL_STATUSES.filter(status => status === 'ACTIVE' || status === 'ROTATING')
+export const INTEGRATION_CREDENTIAL_VERSION_STATUSES = ['PENDING_VALIDATION', 'ACTIVE', 'SUPERSEDED', 'REJECTED', 'REVOKED', 'PURGED']
+// Every version whose material may still exist in a store.
+export const INTEGRATION_CREDENTIAL_PURGEABLE_VERSION_STATUSES = INTEGRATION_CREDENTIAL_VERSION_STATUSES.filter(status => status !== 'PURGED')
+export const INTEGRATION_CREDENTIAL_CREATED_VIA = ['BROWSER_MFA', 'OPERATOR_CLI', 'BACKFILL']
+
 // @req FR-146 — LINE OA Studio account vocabulary (ADR-060 D2/D5). `LIVE` is
 // derived, never stored: the stored machine is DRAFT → CONNECTED → PAUSED |
 // ARCHIVED, and an account reads LIVE only while the agent lane reports an
@@ -249,7 +313,19 @@ export const ASSET_DEPRECIATION_METHODS = ['STRAIGHT_LINE']
 export const LINE_OA_ACCOUNT_STATUSES = ['DRAFT', 'CONNECTED', 'PAUSED', 'ARCHIVED']
 export const LINE_OA_ACCOUNT_EFFECTIVE_STATUSES = [...LINE_OA_ACCOUNT_STATUSES, 'LIVE']
 export const LINE_OA_TRANSPORT_MODES = ['EDGE', 'CLOUD']
-export const LINE_OA_ACCOUNT_ACTIONS = ['PAUSE', 'RESUME', 'ARCHIVE', 'SET_DEFAULT', 'SWITCH_TRANSPORT_MODE', 'CONFIGURE_EXECUTION', 'ENABLE_SERVER', 'DISABLE_SERVER']
+// @req FR-227 — REGISTER_WEBHOOK sets, reads back and tests the account's LINE
+// webhook endpoint, storing the outcome as computed health (`webhookStateJson`).
+// It never fences transport work: it changes no credential, no transport owner
+// and no execution policy — only which health the account reports.
+export const LINE_OA_ACCOUNT_ACTIONS = ['PAUSE', 'RESUME', 'ARCHIVE', 'SET_DEFAULT', 'SWITCH_TRANSPORT_MODE', 'CONFIGURE_EXECUTION', 'ENABLE_SERVER', 'DISABLE_SERVER', 'CONFIGURE_KNOWLEDGE_GROUNDING', 'REGISTER_WEBHOOK', 'CONFIGURE_SESSION_TIMEOUT', 'CONFIGURE_BUSINESS_HOURS']
+// @req FR-235 — per-account grounding mode (ADR-090 D1): BUSINESS_KNOWLEDGE is
+// the default and every existing account's unchanged behaviour; GKS_CORPUS and
+// GKS_THEN_BUSINESS_KNOWLEDGE read the Business's published corpus generation
+// through an in-process knowledge.query reader before (or instead of) the
+// curated table. A missing or unrecognised value always resolves to
+// BUSINESS_KNOWLEDGE — the least-permissive, already-shipped behaviour — never
+// to a corpus read (fail closed).
+export const KNOWLEDGE_GROUNDING_MODES = ['BUSINESS_KNOWLEDGE', 'GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE']
 // FR-151 — rich menu designer vocabularies (ADR-060 D3, SRS LOS-RQ-040..042).
 export const LINE_OA_RICH_MENU_LAYOUTS = ['1x1', '2x1', '2x2', '2x3', '3x1', '1x2']
 export const LINE_OA_RICH_MENU_STATUSES = ['DRAFT', 'READY', 'ARCHIVED']
@@ -408,6 +484,13 @@ export const PAYMENT_METHODS = ['TRANSFER', 'CASH', 'QR', 'CARD', 'OTHER']
 export const PAYMENT_STATUSES = ['PENDING', 'VERIFIED', 'REJECTED']
 export const PAYMENT_ACTIONS = ['VERIFY', 'REJECT']
 
+// FR-236 (knowledge, ADR-090 D6) — a LINE FAQ knowledge candidate: drafted
+// from one consent-GRANTED Conversation, decided by a Business OWNER or
+// LINE_OA_PUBLISHER, admitted as one immutable LINE_FAQ_CANDIDATE TEXT source
+// on APPROVED. TOMBSTONED is FR-232's erasure outcome, never a user action.
+export const KNOWLEDGE_CANDIDATE_STATUSES = ['PENDING_REVIEW', 'APPROVED', 'REJECTED', 'TOMBSTONED']
+export const KNOWLEDGE_CANDIDATE_DECISIONS = ['APPROVE', 'REJECT']
+
 // @req FR-164, FR-165 — Procurement (ADR-066), the buy side. A supplier is
 // ACTIVE until archived (the row stays). A purchase order is DRAFT until SENT
 // to the supplier; RECEIVED is set by the goods receipt that completes every
@@ -472,6 +555,7 @@ export const zAssetDepreciationMethod = z.enum(ASSET_DEPRECIATION_METHODS)
 export const zLineOaAccountStatus = z.enum(LINE_OA_ACCOUNT_STATUSES)
 export const zLineOaTransportMode = z.enum(LINE_OA_TRANSPORT_MODES)
 export const zLineOaAccountAction = z.enum(LINE_OA_ACCOUNT_ACTIONS)
+export const zKnowledgeGroundingMode = z.enum(KNOWLEDGE_GROUNDING_MODES)
 export const zLineOaRichMenuLayout = z.enum(LINE_OA_RICH_MENU_LAYOUTS)
 export const zLineOaRichMenuStatus = z.enum(LINE_OA_RICH_MENU_STATUSES)
 export const zLineOaRichMenuVersionStatus = z.enum(LINE_OA_RICH_MENU_VERSION_STATUSES)
@@ -513,6 +597,8 @@ export const zPaymentKind = z.enum(PAYMENT_KINDS)
 export const zPaymentMethod = z.enum(PAYMENT_METHODS)
 export const zPaymentStatus = z.enum(PAYMENT_STATUSES)
 export const zPaymentAction = z.enum(PAYMENT_ACTIONS)
+export const zKnowledgeCandidateStatus = z.enum(KNOWLEDGE_CANDIDATE_STATUSES)
+export const zKnowledgeCandidateDecision = z.enum(KNOWLEDGE_CANDIDATE_DECISIONS)
 export const zSupplierStatus = z.enum(SUPPLIER_STATUSES)
 export const zSupplierAction = z.enum(SUPPLIER_ACTIONS)
 export const zPurchaseOrderStatus = z.enum(PURCHASE_ORDER_STATUSES)
@@ -525,6 +611,10 @@ export const zEmploymentType = z.enum(EMPLOYMENT_TYPES)
 export const zRoadmapStatus = z.enum(ROADMAP_STATUSES)
 export const zGoalStatus = z.enum(GOAL_STATUSES)
 export const zGoalPriority = z.enum(GOAL_PRIORITIES)
+export const zMessageContentKind = z.enum(MESSAGE_CONTENT_KINDS)
+export const zMessageAttachmentKind = z.enum(MESSAGE_ATTACHMENT_KINDS)
+export const zMessageAttachmentFetchState = z.enum(MESSAGE_ATTACHMENT_FETCH_STATES)
+export const zConversationEventKind = z.enum(CONVERSATION_EVENT_KINDS)
 
 // Container subtype vocabulary per mode (open set; these are the documented ones).
 export const CONTAINER_SUBTYPES = [
@@ -620,3 +710,35 @@ export const MODE_SLUGS = {
 export const SLUG_BY_MODE = Object.fromEntries(
   Object.entries(MODE_SLUGS).map(([slug, mode]) => [mode, slug])
 )
+
+// @req FR-234 — the Context Composer's slice sources and drop/trim reasons are a
+// single enumerated vocabulary, so a `ContextReceipt` never reports free text for
+// why a slice was excluded.
+// @spec ADR-091 D7, SDD-100
+// @tested tests/unit/context-composer.test.js
+export const CONTEXT_SLICE_SOURCES = ['RECORD', 'KNOWLEDGE', 'MSP']
+export const zContextSliceSource = z.enum(CONTEXT_SLICE_SOURCES)
+
+export const CONTEXT_DROP_REASONS = [
+  // A CRM/ERP record outranks MSP memory; a memory slice naming the same subject
+  // as a record is dropped, never silently overridden.
+  'SUPERSEDED_BY_RECORD',
+  // A group/room thread's slices never cross into another thread; a slice
+  // carrying no thread at all once a thread is in scope is treated the same
+  // way (fail closed), never passed through by omission.
+  'THREAD_SCOPE_MISMATCH',
+  // Passport/cross-thread recall is denied to a non-DIRECT audience.
+  'AUDIENCE_SCOPE_DENIED',
+  // The one prompt-wide budget could not fit the slice; every trim is reported.
+  'BUDGET_TRIMMED',
+]
+export const zContextDropReason = z.enum(CONTEXT_DROP_REASONS)
+
+// The default reason `composeContext` reports when the caller's authorization
+// decision was `false` — named here rather than left as a literal inside the
+// composer, same as every drop reason above.
+export const CONTEXT_DENIAL_REASONS = ['CONTEXT_DENIED']
+export const zContextDenialReason = z.enum(CONTEXT_DENIAL_REASONS)
+
+// FR-230 — retention data class, for TenantRetentionOverride input validation.
+export const zRetentionDataClass = z.enum(RETENTION_DATA_CLASSES)

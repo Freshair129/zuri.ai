@@ -1,7 +1,7 @@
 ---
-version: "0.3.0b"
+version: "0.10.0b"
 status: active
-last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-16T09:00:00+07:00,Claude Opus 5"
 id: ZAI:DOMAIN-CRM
 relations:
   - type: relates_to
@@ -25,8 +25,15 @@ owns_models:
   - CustomerImportReviewDecision
   - Conversation
   - Message
+  - MessageAttachment
+  - ConversationEvent
   - ConversationAnalysis
   - SalesTask
+  - TenantRetentionOverride
+  - ConversationSession
+  - CustomerArchiveKey
+  - ArchiveManifest
+  - CustomerLegalHold
 ---
 
 # Domain charter — crm
@@ -61,17 +68,37 @@ turn flows through before any agent work happens.
 - FR-078 owns the historical Customer Profile backfill contract. It defines
   source identity, entity resolution, PII boundaries and rollback gates; it
   does not authorize a write until its approvals and target-schema gate pass.
-- `recordLineReply` — the outbound writer (FR-093). Resolves the inbound
-  `Message` the reply answers and derives the conversation from that row, so the
-  conversation is never taken from the request and a cross-tenant attachment is
-  unsayable rather than merely refused. Idempotent per inbound message.
+- `recordLineReply` — the automatic outbound writer (FR-093). Resolves the
+  inbound `Message` the reply answers and derives the conversation from that
+  row, so the conversation is never taken from the request and a cross-tenant
+  attachment is unsayable rather than merely refused. Idempotent per inbound
+  message — one stack answer per inbound message, matching LINE's own
+  one-reply-per-token rule.
+- `sendStaffReply` — the second outbound writer, and the one exception to
+  "no reply box" (FR-246, ADR-093 evidence gap). A Business OWNER's reply,
+  composed in the Inbox, is authorized (`assertDomainVisible` then
+  `ownsBusiness`, the same order and gate `recordCustomerConsent` uses,
+  before that same viewer's `principal.id` names the actor), pushed through
+  `@/modules/line-oa-studio/application/server-line-runtime`'s
+  `serverLinePorts` (the one place this file reaches outside its own domain,
+  the same shape identity's `resolveLineIdentity` is already called from
+  `ingestLineMessage`) and recorded only once LINE accepts it. Idempotent on
+  a caller-supplied `clientRequestId`, not on the inbound message it
+  answers — a human composing from the console has no one-reply ceiling, so
+  several staff messages may follow one inbound with none of
+  `recordLineReply`'s per-token collision. Refuses before any push for the
+  legacy channel, an account that is not server-enabled, or a viewer without
+  owner authority. Consumes no replyToken, so it is not the second reply
+  owner BR-011 exists to prevent — that rule is otherwise unchanged.
 - `getConversationInbox` / `getConversationThread` — the read side (FR-091).
-  Read-only by construction: the module exports no writer, so the reader cannot
-  become a second write path into the models the ingest seam owns. It answers
-  within the Tenant of a Business the viewer can see (BR-001) and never replies
-  — the reply belongs to the edge runtime (BR-011). It also reads (never sets)
-  the FR-103 consent fields below, so the console can show current status
-  without a second request.
+  Read-only by construction: the module exports no writer of its own, so the
+  reader cannot become a second write path into the models the ingest seam
+  owns — the two writers above are separate functions a viewer reaches
+  through their own routes, never through a read call. It answers within the
+  Tenant of a Business the viewer can see (BR-001), and the automatic reply
+  still belongs to the edge runtime alone (BR-011). It also reads (never
+  sets) the FR-103 consent fields below, so the console can show current
+  status without a second request.
 - `recordCustomerConsent` — SEC-005's PDPA consent attestation (FR-103). A third
   narrow writer alongside the ingest seam and `recordLineReply`: it only ever
   touches Customer's `consent*` fields, requires per-Business OWNER authority
@@ -85,12 +112,14 @@ turn flows through before any agent work happens.
   transaction rather than writing the table directly. That is the target state both
   charters already name for the `Person` redaction debt below — this surface starts
   on the right side of it instead of adding a second exception. It replaces `body`
-  with a fixed tombstone and touches nothing else: ids, direction and timestamps
-  survive, because a thread that silently lost its messages would read as data loss
-  rather than as an honoured erasure. Tenant-scoped like every writer here, and
-  idempotent — a message already tombstoned is neither counted nor rewritten. If a
-  denormalised preview/snippet column is ever added to `Conversation`, it must be
-  redacted in this same call.
+  with a fixed tombstone; ids, direction and timestamps survive, because a thread
+  that silently lost its messages would read as data loss rather than as an
+  honoured erasure. It also redacts each message's `MessageAttachment` (FR-229):
+  `fetchState` moves to `ERASED` and `providerContentId` is cleared, so a later
+  fetch phase can never retrieve what was just erased. Tenant-scoped like every
+  writer here, and idempotent — a message or attachment already redacted is
+  neither counted nor rewritten. If a denormalised preview/snippet column is ever
+  added to `Conversation`, it must be redacted in this same call.
 - `recordConversationAnalysis` / `getConversationAnalyses` — the FR-127 derived
   CRM record boundary. A run is keyed by an internal `Conversation.id` and its
   generated analysis id; writes require ownership of the exact bound Business
@@ -103,7 +132,79 @@ turn flows through before any agent work happens.
   counts and boolean evidence flags. A Business-scoped Customer Data Reviewer
   may append a decision, but the queue never publishes a Customer or replays
   historical data through LINE.
+- `ingestLineConversationEvent` / `recordExistingConversationEvent` /
+  `ingestLineUnsendEvent` — the FR-229 non-text writers (ADR-091 D5), called only
+  from the ADR-061 native admission seam (`line-conversation-jobs.js`).
+  `ingestLineConversationEvent` (follow, unfollow, postback) resolves identity →
+  customer → conversation exactly as `ingestLineMessage` does, since these three
+  carry `event.source.userId`. `recordExistingConversationEvent` (join, leave,
+  memberJoined, memberLeft) and `ingestLineUnsendEvent` (unsend) both mint no
+  Customer or Conversation and instead attach only to a conversation that already
+  exists for the thread, skipping otherwise: join/leave/memberJoined/memberLeft
+  have no individual identity to resolve in LINE's own payload at all, and an
+  unsend for a thread with no record has nothing to tombstone, so minting one just
+  to record the event would be waste, not completeness.
+  `recordExistingConversationEvent`'s memberJoined/memberLeft payload carries a
+  `memberCount`, never a raw LINE user id — `ConversationEvent` is Tier 1 (inside
+  the erasure boundary) and no identity is ever resolved for a joining/leaving
+  member, so a raw id here would have no erasure hook to be redacted through and
+  would outlive the very principal it named. `ingestLineUnsendEvent` additionally
+  tombstones the `Message.body` and `MessageAttachment` the unsend names when the
+  conversation exists, and never errors on a message this Business never admitted.
+  Every one of the three is idempotent on `(conversationId, externalEventId)`, and
+  none creates a
+  `LineConversationJob`.
 
+- `getEffectiveRetentionWindowDays` / `setTenantRetentionOverride` — the FR-230
+  retention override reader/writer (ADR-091 D2). A Tenant may shorten (never
+  lengthen) the installation-default window for a retention data class; the
+  writer refuses a value above the default outright rather than clamping it,
+  audited as `TENANT_RETENTION_OVERRIDE`/`RETENTION_OVERRIDE_SET`. Declares all
+  four `RETENTION_DATA_CLASSES` (`src/lib/validation/enums.js`) so a Tenant can
+  already record an override for a class this codebase does not yet sweep; only
+  that class's own sweeper, once one exists, would read it.
+- `runRetentionSweep` — the FR-230 nightly sweep, and today it sweeps exactly
+  one data class: `MESSAGE_BODY_AND_ATTACHMENTS` (`Message.body` /
+  `MessageAttachment`, 24-month installation default). It tombstones content
+  past its effective per-Tenant window, keeps envelope columns (the same shape
+  `redactConversationContentForCustomers` already keeps), skips a row a
+  non-terminal `LineConversationJob` still references
+  (`LINE_CONVERSATION_JOB_NON_TERMINAL_STATUSES`), refreshes
+  `Conversation.lastMessageAt`/`lastMessagePreview` for every conversation it
+  touches, and writes exactly one `RETENTION_SWEEP`/`RETENTION_SWEEP_COMPLETED`
+  audit event per run naming the counts it actually produced. It does **not**
+  sweep `RawExternalRecord.payloadJson` (integration's charter) or
+  `AgentTraceEvent` payloads (agent's charter) — each is another domain's model
+  to write, not this one's — and it cannot reach MSP session content at all
+  (a separate repository). `RETENTION_DATA_CLASSES` and
+  `RETENTION_DEFAULT_WINDOW_DAYS` already declare all four classes so neither
+  of those sweepers, once built, needs a schema change to slot in.
+- `getConversationInbox` (extended, FR-233) — each row now carries
+  `lastMessageAt`, `lastMessagePreview`, `retentionClass` (denormalised columns
+  kept current by `conversation-preview-service.js` on every Message write —
+  ingest, reply, unsend, PDPA erasure and the retention sweep all call it) and
+  a per-Business `unreadCount` computed on read: INBOUND messages newer than
+  the conversation's own newest OUTBOUND message (every INBOUND message, if
+  none exists yet) — no stored "last read" marker, and no extra query, since it
+  reuses the messages already fetched for `lastMessage`.
+- `searchConversationMessages` / `getConversationEventCounts` — the FR-233
+  third reader (design §6.9): full-text search over `Message.body` (a `pg_trgm`
+  GIN index on Postgres; `LIKE` on SQLite — one Prisma `contains` query either
+  way, only the physical index differs) and per-account follow/unfollow counts
+  from `ConversationEvent`, both through the exact scope predicate
+  `getConversationInbox` uses (`resolveScope`, exported for this reuse) so a
+  message or count can never surface from a Business the viewer cannot see.
+  Read-only by construction, same enforcement as the rest of this module.
+
+- `readConversationConsentStatus` — a narrow, internal (non-viewer) consent
+  reader for the knowledge lane's candidate decision (FR-236, ADR-090 D6):
+  given a Tenant/Business/Conversation id it returns only the Customer's
+  `consentStatus`, or `null` ("not readable") on any mismatch or a missing
+  row — never a viewer, never message content, and deliberately distinct from
+  `getConversationThread`'s `customer` domain gate, because a Business OWNER
+  or `LINE_OA_PUBLISHER` deciding a candidate has already proven authority
+  over that exact Business through the knowledge domain and must not be
+  refused for lacking an unrelated CRM inbox grant. Read-only by construction.
 - `createSalesTask` / `applySalesTaskAction` / `listSalesTasks` / `getSalesTask`
   — the sales task writer and readers (FR-161, ADR-064). A fifth narrow writer:
   a follow-up a salesperson owes a customer (call, LINE message, email, meeting,
@@ -143,27 +244,117 @@ linkage and legal retention read them — written first in the ADR-061 admission
 transaction. MSP's session events are the agent's ledger and never stand in for
 this record, and GKS never indexes it (ADR-090 D6).
 
-Planned under this charter, not in `owns_models` until each lands:
+**FR-229 landed (2026-09-14):** `MessageAttachment` (media recorded without bytes
+until a later phase fetches them into `FileAsset`) and `ConversationEvent` (follow,
+unfollow, join, leave, member joined, member left, postback, unsend) are now in
+`owns_models` and in the schema (migration `20260914150000`, written and not yet
+applied; both new-table foreign keys are explicit, `ON DELETE CASCADE`, matching
+the `onDelete: Cascade` schema.prisma already declared — SQLite's `prisma db push`
+gives that to tests for free, so a missing Postgres FK was invisible until it was
+checked for directly). `Message.contentKind` (`TEXT | STICKER | LOCATION |
+MEDIA_REF`) landed with them, and every placeholder body is genuinely fixed — no
+provider value is interpolated into it: a sticker's packageId/stickerId and a
+location's own latitude/longitude (personal data, often a home or delivery
+address) never reach `Message.body`, which is exactly what the FR-091 preview,
+FR-233 search and any future prompt read. Admission (`line-conversation-jobs.js`,
+the ADR-061 native seam) no longer skips these event/message kinds; none of them
+creates an answer job. `join`/`leave`/`memberJoined`/`memberLeft` carry no
+individual identity in LINE's own payload, so they attach only to a conversation
+that already exists for the thread and are skipped otherwise — a documented scope
+decision, not a silent gap; `memberJoined`/`memberLeft` record only a
+`memberCount`, never a raw LINE user id, because `ConversationEvent` is inside the
+Tier 1 erasure boundary and no identity is ever resolved for a joining/leaving
+member for erasure to redact later. `unsend` follows the same "existing
+conversation only" rule — it mints no Customer or Conversation, so a thread the
+Business has no record of yet is skipped rather than minted just to record an
+event with nothing to tombstone — and when the conversation exists, tombstones the
+referenced `Message.body` (a distinct tombstone string from the PDPA one,
+`LINE_UNSEND_TOMBSTONE`) and its `MessageAttachment` (`fetchState` → `ERASED`,
+`providerContentId` cleared); the PDPA erasure writer now redacts attachments the
+same way. The legacy `/api/agent/line-webhook` seam still skips every non-text
+event inline and does not call this admission path; it was left unchanged (see
+TASK-ZAI-088's report for why).
 
-- `MessageAttachment` (media recorded without bytes until a later phase fetches
-  them into `FileAsset`) and `ConversationEvent` (follow, unfollow, join, leave,
-  membership changes, postback, unsend) — FR-229. An unsend tombstones the
-  referenced message.
-- `Message` content kind, sender channel identity and retention expiry;
-  `Conversation` last-message time, a preview of at most 120 characters, and a
-  retention class — FR-229, FR-230, FR-233. The erasure writer above already
-  promises to redact such a preview in the same call; it will also redact
-  attachments.
-- A third read-only reader: message search (trigram on Postgres, `LIKE` on SQLite)
-  scoped to visible Businesses and optionally one LINE OA account — FR-233.
-- Retention: message bodies and attachments keep 24 months by default, a Tenant
-  may only shorten it, and a nightly sweep tombstones past the window — FR-230.
+**FR-230 / FR-233 landed (2026-09-14):** `Conversation.lastMessageAt` /
+`lastMessagePreview` / `retentionClass` are now in `owns_models`' schema, kept
+current by `conversation-preview-service.js` on every Message write (ingest,
+reply, unsend, PDPA erasure, the retention sweep). `TenantRetentionOverride` is
+a new owned model (a Tenant's per-data-class shortening, never a lengthening —
+`retention-override-service.js`). `retention-sweep-service.js` sweeps
+`MESSAGE_BODY_AND_ATTACHMENTS` nightly, tombstoning past the effective window,
+skipping a row a non-terminal `LineConversationJob` references, one audit event
+per run. `conversation-search-service.js` adds the third reader: message search
+(`pg_trgm` on Postgres, `LIKE` on SQLite) and per-account follow/unfollow counts
+from `ConversationEvent`. `getConversationInbox` gained a per-Business
+`unreadCount` computed on read. Migration `20260914150400`, written and not yet
+applied. `Message` sender channel identity is **not** part of this landing —
+no FR-230/FR-233 acceptance criterion names it, and it stays declared-only here
+until a requirement actually needs it.
+
+Still planned under this charter, not in `owns_models` until it lands:
+
 - A consent-gated read projection for the knowledge lane's candidate extractor
   (ADR-090 D6), in the shape of `getConversationAnalyses`; crm gains no writer for it.
+- `Message` sender channel identity (mentioned in the original ADR-091 design
+  evidence, not yet required by any FR).
 
 Consent keeps its current meaning and gains one: it never gates recording an
 inbound message, and it now also gates episodic, passport and cross-thread agent
 memory (ADR-091 D4, SEC-031).
+
+## Declared, not yet in schema (FEAT-040, FEAT-041, ADR-093, ADR-094)
+
+[ADR-094](../../decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md)
+(accepted 2026-09-16) gives this lane **`ConversationSession`** (FR-243, SDD-102): the
+session id of the business record, assigned inside the ADR-061 admission
+transaction by a 30-minute idle rule the account may set between 10 and 120
+minutes. `Message`, `ConversationEvent` and `LineConversationJob` will carry it;
+MSP's own `chat_sessions` stay the memory unit, and their id is stored beside
+this one, never in place of it.
+
+[ADR-093](../../decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md)
+(accepted 2026-09-16) gives this lane the **chat evidence archive** (FR-245, SEC-034,
+SDD-103): the retention sweep writes and verifies an encrypted local archive file
+before it tombstones a message body, a manifest model chains the files per Tenant,
+and a legal-hold record on a Customer is the one thing that defers destroying their
+archive key on erasure.
+
+**FR-245 slice 1 built (2026-09-16, TASK-ZAI-111, not merged):** `owns_models` +=
+`CustomerArchiveKey`, `ArchiveManifest`. `chat-evidence-archive-crypto.js` mirrors
+`envelope-secret-store.js`'s AES-256-GCM AAD-bound construction under a dedicated
+key, `ZURI_ARCHIVE_KEK` — never `ZURI_SECRET_KEK` — with the archived segment's AAD
+binding the exact Tenant/Customer/run, so a segment opened under any other
+Customer's key fails GCM authentication before any plaintext exists, not merely
+"is not currently done that way". `chat-evidence-archive-service.js` groups a
+Tenant's swept candidates by Customer, seals one gzip(JSON Lines) segment per
+Customer (lazily minting `CustomerArchiveKey` on first use), writes the file under
+a temp name, fsyncs, renames into place, reads the final bytes back and compares
+SHA-256 — only then does one `db.$transaction` insert the chained `ArchiveManifest`
+row (`manifestHash` covers the previous manifest's own hash, so one tampered field
+anywhere breaks every hash after it) and tombstone exactly the archived messages.
+The tombstone `updateMany` calls exist nowhere else this transaction is not, which
+is what makes "no verified archive, no tombstone" structural rather than a
+convention. `retention-sweep-service.js` calls this per Tenant and catches: a
+Tenant whose archive step throws is skipped for the run (nothing tombstoned,
+nothing counted) rather than aborting every other Tenant's sweep, and the audit
+event's `countsByClass.MESSAGE_BODY_AND_ATTACHMENTS` gains `archiveFailures` and
+`manifests` entries, present only when non-empty. `ZURI_ARCHIVE_DIR` names the
+archive's base directory; unset, it defaults to a per-machine temp directory so
+tests and every developer checkout need no configuration — the real production
+mount (`F:\zuri-cold-archive`, ADR-093 D3) is wired through the same env var by
+TASK-ZAI-114, out of this slice's scope. `replySource` on an archived line is read
+from the `REPLY_DELIVERED`/`OUTBOUND_ACCEPTED`/`STAFF_REPLY_DELIVERED` audit event
+naming that message (the only place `STACK`/`TRANSPORT_FALLBACK`/`STAFF` are
+actually recorded — `Message` itself carries no such column), falling back to
+`UNKNOWN` for an outbound row with no matching event. Migration `20260916150000`,
+written, not applied. Retrieval (TASK-ZAI-112) and key destruction / the legal
+hold (TASK-ZAI-113) are not part of this slice.
+
+**FR-246 built (2026-09-16, TASK-ZAI-110, branch `feat/crm-staff-reply`, not
+merged):** `sendStaffReply`, above, needed no new model or migration — it writes
+`Message`/`AuditEvent` through the columns FR-093's writer already established
+(reply source is audit-only, the same way `STACK`/`TRANSPORT_FALLBACK` always
+were) and reads the FR-243 session the message it answers already carries.
 
 ## Account-aware transport (ADR-061)
 
@@ -177,6 +368,15 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.10.0b | 2026-09-16 | FR-245 slice 1 built (TASK-ZAI-111, not merged): `owns_models` += `CustomerArchiveKey`, `ArchiveManifest`; `chat-evidence-archive-crypto.js` (AES-256-GCM under a dedicated `ZURI_ARCHIVE_KEK`, AAD binds Tenant/Customer/run) and `chat-evidence-archive-service.js` (per-Customer segment write, verify-then-rename, chained manifest, structurally-inseparable tombstone) called from `retention-sweep-service.js`, which now catches per Tenant and reports archive failures/manifests in the audit payload instead of tombstoning without a verified archive; migration `20260916150000` written, not applied; retrieval and key destruction are separate tasks (TASK-ZAI-112, TASK-ZAI-113) | Claude Sonnet 5 |
+| 0.9.0b | 2026-09-16 | FR-246 built (TASK-ZAI-110, not merged): second outbound writer `sendStaffReply` (FR-093's `recordLineReply` is now "the automatic" writer); pushes through line-oa-studio's `serverLinePorts` (a declared cross-domain reach, matching identity's `resolveLineIdentity` precedent), idempotent on `clientRequestId`, refuses before any push for the legacy channel/non-owner/non-server-enabled account; no new model | Claude Sonnet 5 |
+| 0.8.0b | 2026-09-16 | FR-243 surfaces (TASK-ZAI-107, not merged): the thread read model returns each message's session id, code and opening time; the Inbox draws a divider per session; the backfill also copies each LINE job's session from its inbound message | Claude Opus 5 |
+| 0.7.0b | 2026-09-16 | FR-243 built (TASK-ZAI-106, not merged): `owns_models` += `ConversationSession`; `conversation-session-service.js` assigns a message's session inside the writer's transaction, `line-ingest-service.js` and `reply-record-service.js` call it, events take the open session, `conversation-session-backfill.js` and its script assign existing rows; migration `20260916090000` written, not applied | Claude Opus 5 |
+| 0.6.0b | 2026-09-16 | ADR-093 and ADR-094 accepted: declared `ConversationSession` (FR-243), the chat evidence archive and legal hold (FR-245, SEC-034) and the staff reply writer (FR-246); nothing built | Claude Opus 5 |
+| 0.5.0b | 2026-09-14 | FR-230 / FR-233 / FEAT-037 built (TASK-ZAI-089, TASK-ZAI-090): `owns_models` += `TenantRetentionOverride`; `Conversation` gains `lastMessageAt`/`lastMessagePreview`/`retentionClass`, kept current by a new shared `conversation-preview-service.js` helper called from ingest, reply, unsend and PDPA erasure; new `retention-override-service.js` (downward-only Tenant override) and `retention-sweep-service.js` (nightly sweep of the one crm-owned retention class, `MESSAGE_BODY_AND_ATTACHMENTS`; `RAW_LINE_PAYLOAD`/`AGENT_TRACE_EVENT`/`MSP_SESSION_CONTENT` are each another domain's model or another repository, not swept here); new `conversation-search-service.js` (message search + ConversationEvent follow/unfollow counts, both through the existing inbox scope predicate); `getConversationInbox` gains a computed-on-read `unreadCount`; migration `20260914150400`, written, not applied | Claude Sonnet 5 |
+| 0.4.2b | 2026-09-14 | Added `readConversationConsentStatus` (FR-236, ADR-090 D6): a narrow, internal, viewer-free consent reader the knowledge lane's candidate decision calls instead of re-authorizing through `getConversationThread`'s `customer` domain gate; a sixth narrow read-only export, no `owns_models` change | Claude Sonnet 5 |
+| 0.4.1b | 2026-09-14 | Review fixes on FR-229 (same task): placeholder bodies are now genuinely fixed (no packageId/stickerId/lat/lng ever reach `Message.body`); the migration's two new-table foreign keys are explicit `ON DELETE CASCADE` (schema.prisma's cascade was previously Postgres-invisible); memberJoined/memberLeft payload carries a `memberCount`, never a raw LINE user id (closes an erasure gap — `ConversationEvent` is Tier 1); `unsend` for a thread with no existing conversation is skipped rather than minting a Customer and Conversation for nothing | Claude Sonnet 5 |
+| 0.4.0b | 2026-09-14 | FR-229 / FEAT-037 built (TASK-ZAI-088): `owns_models` += `MessageAttachment`, `ConversationEvent`; `Message.contentKind`; three new narrow writers; the ADR-061 native admission seam no longer skips non-text events and creates no answer job for them; unsend tombstones the message and attachment it names; the PDPA erasure writer now redacts attachments too; migration `20260914150000` written, not applied | Claude Sonnet 5 |
 | 0.3.0b | 2026-09-14 | ADR-091 / FEAT-037 declared: CRM is the business record of a conversation; planned `MessageAttachment`, `ConversationEvent`, message and conversation read-model columns, search reader and retention recorded as prose; no `owns_models` change | Claude Opus 5 |
 | 0.2.0b | 2026-09-06 | Claimed `SalesTask` (FR-161, ADR-064): the legacy Tasks section adapted as a CRM sales activity record with its own writer, `SALES_REP` role and `/customer/sales-tasks` page | Claude Fable 5.1 |
 | 0.1.0b | 2026-09-06 | Added document metadata and FEAT-019 handoff navigation; existing domain manifest retained | RWANG |

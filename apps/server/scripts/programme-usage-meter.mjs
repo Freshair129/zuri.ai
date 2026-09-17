@@ -12,12 +12,26 @@ import {
   repositoryRoot,
   validateDeliveryPlan,
 } from './programme-containers.mjs'
+import {
+  buildDetail,
+  claudeActivity,
+  claudeActivityCandidate,
+  claudeRequestExtras,
+  codexActivity,
+  codexActivityCandidate,
+  codexRequestExtras,
+  maxExtras,
+  toolNameIndex,
+} from '../../../plugins/zuri-harness/lib/detail.mjs'
 
 // @req FR-217 — the programme usage meter: real tokens and active time per work
 //   lane, measured from the Claude Code and Codex session logs on the operator's
 //   machine, each billed request counted once, attributed only by a branch a lane
 //   declares, and written back into the programme document with provenance.
-// @spec ADR-086 D3, D4
+// @req FR-239 — and its usage detail (thinking tokens, cache lifetimes, web search and
+//   fetch, tool calls with errors and denials, prompts, compactions, API errors,
+//   models) per lane, by the rules the Zuri harness plugin shares (lib/detail.mjs).
+// @spec ADR-086 D3, D4, D7
 // @tested tests/unit/programme-usage-meter.test.js
 //
 // Usage: node scripts/programme-usage-meter.mjs [--write] [--claude-dir <dir>] [--codex-dir <dir>]
@@ -47,6 +61,28 @@ export function parseClaudeLine(line) {
   } catch {
     return null
   }
+  return claudeRequestFromEntry(entry)
+}
+
+/** One line → its request observation and its activity events, parsed once (FR-239). */
+export function parseClaudeEntry(line) {
+  const wantsUsage = line.includes('"usage"')
+  const wantsActivity = claudeActivityCandidate(line)
+  if (!wantsUsage && !wantsActivity) return { request: null, events: [] }
+  let entry
+  try {
+    entry = JSON.parse(line)
+  } catch {
+    return { request: null, events: [] }
+  }
+  const inRepository = isRepositoryDirectory(entry?.cwd)
+  return {
+    request: wantsUsage ? claudeRequestFromEntry(entry) : null,
+    events: wantsActivity ? claudeActivity(entry).map((e) => ({ ...e, inRepository })) : [],
+  }
+}
+
+function claudeRequestFromEntry(entry) {
   const usage = entry?.message?.usage
   if (entry?.type !== 'assistant' || !usage || !entry.requestId || !entry.sessionId || !entry.timestamp) return null
   return {
@@ -57,6 +93,7 @@ export function parseClaudeLine(line) {
     branch: entry.gitBranch || '',
     inRepository: isRepositoryDirectory(entry.cwd),
     model: entry.message.model || null,
+    extras: claudeRequestExtras(usage),
     tokens: {
       input: usage.input_tokens || 0,
       cacheWrite: usage.cache_creation_input_tokens || 0,
@@ -95,6 +132,7 @@ export function parseCodexLines(lines) {
         requestId: entry.payload.response_id,
         timestamp: entry.timestamp,
         model,
+        extras: codexRequestExtras(u),
         tokens: {
           input: Math.max(0, (u.input_tokens || 0) - cached),
           cacheWrite: u.cache_write_input_tokens || 0,
@@ -123,20 +161,31 @@ export function dedupeRequests(observations) {
     const key = `${o.source}:${o.requestId}`
     const prior = byKey.get(key)
     if (!prior) {
-      byKey.set(key, { ...o, tokens: { ...o.tokens } })
+      byKey.set(key, { ...o, tokens: { ...o.tokens }, extras: { ...(o.extras || {}) } })
       continue
     }
     for (const field of Object.keys(prior.tokens)) prior.tokens[field] = Math.max(prior.tokens[field], o.tokens[field])
+    prior.extras = maxExtras(prior.extras, o.extras)
     if (o.timestamp < prior.timestamp) prior.timestamp = o.timestamp
   }
   return [...byKey.values()]
 }
 
+/** The Codex rule for 'inside this repository', shared by requests and activity. */
+const codexInRepository = (repositoryUrl, cwd) => /freshair129\/zuri\.ai(?:\.git)?$/i.test(repositoryUrl || '') || (!repositoryUrl && isRepositoryDirectory(cwd))
+
+/** A Codex rollout's activity events, marked in or out of this repository like its requests. */
+export function parseCodexActivity(lines) {
+  return codexActivity(lines).map((e) => ({ ...e, inRepository: codexInRepository(e.repositoryUrl, e.cwd) }))
+}
+
 /**
  * Requests → the usage block (ADR-086 D4). Deterministic: sorted keys, integer
  * minutes, and `measuredThrough` is the last counted request, never the clock.
+ * Activity events add each lane's usage detail (FR-239, ADR-086 D7).
  */
-export function measureUsage({ requests, lanes, gapCapMinutes }) {
+export function measureUsage({ requests, activity = [], lanes, gapCapMinutes }) {
+  const toolNames = toolNameIndex(activity)
   const laneOfBranch = new Map()
   for (const lane of lanes) for (const branch of lane.branches) laneOfBranch.set(branch, lane.id)
   const perLane = new Map()
@@ -196,6 +245,11 @@ export function measureUsage({ requests, lanes, gapCapMinutes }) {
       firstActivityAt: first,
       lastActivityAt: last,
       activeMinutes: Math.round(activeMs / 60_000),
+      detail: buildDetail({
+        requests: rs,
+        events: activity.filter((e) => e.inRepository && !UNATTRIBUTABLE.has(e.branch) && laneOfBranch.get(e.branch) === laneId),
+        toolNames,
+      }),
     }
   }
   return {
@@ -232,11 +286,13 @@ async function readLines(file, onLine) {
 
 export async function collectRequests({ claudeDir, codexDir, onSkip = () => {} }) {
   const requests = []
+  const activity = []
   for (const file of jsonlFiles(claudeDir)) {
     try {
       await readLines(file, (line) => {
-        const r = parseClaudeLine(line)
-        if (r) requests.push(r)
+        const { request, events } = parseClaudeEntry(line)
+        if (request) requests.push(request)
+        if (events.length) activity.push(...events)
       })
     } catch (error) {
       onSkip(file, error)
@@ -246,14 +302,15 @@ export async function collectRequests({ claudeDir, codexDir, onSkip = () => {} }
     try {
       const lines = []
       await readLines(file, (line) => {
-        if (line.includes('"session_meta"') || line.includes('"turn_context"') || line.includes('"token_usage_record"')) lines.push(line)
+        if (line.includes('"turn_context"') || line.includes('"token_usage_record"') || codexActivityCandidate(line)) lines.push(line)
       })
       requests.push(...parseCodexLines(lines))
+      activity.push(...parseCodexActivity(lines))
     } catch (error) {
       onSkip(file, error)
     }
   }
-  return requests
+  return { requests, activity }
 }
 
 const argValue = (flag) => {
@@ -273,11 +330,12 @@ if (invokedDirectly) {
     const containers = buildContainers({ markdown, fileExists: () => true })
     const plan = validateDeliveryPlan(parseDeliveryPlan(markdown), containers)
     const skipped = []
-    const requests = await collectRequests({ claudeDir, codexDir, onSkip: (file, error) => skipped.push(`${file}: ${error.message}`) })
-    const { usage, unattributed } = measureUsage({ requests, lanes: plan.lanes, gapCapMinutes: plan.sizing.activeGapCapMinutes })
-    console.log(`programme-usage-meter: ${requests.length} observations read · measured through ${usage.measuredThrough ?? '—'}`)
+    const { requests, activity } = await collectRequests({ claudeDir, codexDir, onSkip: (file, error) => skipped.push(`${file}: ${error.message}`) })
+    const { usage, unattributed } = measureUsage({ requests, activity, lanes: plan.lanes, gapCapMinutes: plan.sizing.activeGapCapMinutes })
+    console.log(`programme-usage-meter: ${requests.length} observations and ${activity.length} activity events read · measured through ${usage.measuredThrough ?? '—'}`)
     for (const [laneId, m] of Object.entries(usage.lanes)) {
-      console.log(`  ${laneId}: ${m.requests} requests · ${m.sessions.length} sessions · used ${used(m.tokens).toLocaleString()} (+cache read ${m.tokens.cacheRead.toLocaleString()}) · active ${m.activeMinutes} min · ${Object.keys(m.bySource).join(', ')}`)
+      const d = m.detail
+      console.log(`  ${laneId}: ${m.requests} requests · ${m.sessions.length} sessions · used ${used(m.tokens).toLocaleString()} (in ${m.tokens.input.toLocaleString()} · out ${m.tokens.output.toLocaleString()} · thinking ${d.reasoningTokens.toLocaleString()} · cache write ${m.tokens.cacheWrite.toLocaleString()} · cache read ${m.tokens.cacheRead.toLocaleString()}) · ${d.toolCalls} tool calls (${d.toolErrors} errors, ${d.toolDenials} denied) · ${d.prompts} prompts · ${d.compactions} compactions · active ${m.activeMinutes} min · ${Object.keys(m.bySource).join(', ')}`)
     }
     for (const lane of plan.lanes) if (!usage.lanes[lane.id]) console.log(`  ${lane.id}: not measured (no request on ${lane.branches.join(', ')})`)
     if (unattributed.length) {

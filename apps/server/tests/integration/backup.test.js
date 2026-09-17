@@ -11,6 +11,7 @@ import {
   previewImport,
   importSnapshot,
 } from '@/modules/project-manager/application/backup-service'
+import { computeManifestHash } from '@/modules/crm/chat-evidence-archive-service'
 import {
   createPortfolio,
   createTenant,
@@ -292,6 +293,22 @@ describe('snapshot backup round trip', () => {
         purpose: 'QUOTE', quantity: 3, expiresAt: new Date('2027-01-01T00:00:00Z'),
       },
     })
+
+    // @req FR-245 — CustomerArchiveKey and ArchiveManifest joined SNAPSHOT_MODELS
+    // after shipping excluded (see backup-service.js's SNAPSHOT_MODELS comment
+    // for why): a randomly generated archive key has no re-entry path, so
+    // excluding it would let a routine restore silently and permanently destroy
+    // access to retained dispute evidence. Fixture values are opaque strings —
+    // this proves the round trip, not the crypto (that is
+    // crm-chat-evidence-archive-crypto.test.js's job).
+    await prisma.customerArchiveKey.create({
+      data: { tenantId: tenant.id, customerId: customer.id, kekId: 'v0', wrappedDek: 'bak.wrapped.dek' },
+    })
+    const backupManifest = {
+      tenantId: tenant.id, runId: 'RUN-BAK-001', filePath: `${tenant.id}/2026/RUN-BAK-001.zca`,
+      fileSha256: 'd'.repeat(64), messageCount: 1, messageIdListHash: 'e'.repeat(64), previousManifestHash: null,
+    }
+    await prisma.archiveManifest.create({ data: { ...backupManifest, manifestHash: computeManifestHash(backupManifest) } })
   })
 
   it('export includes schema version, timestamp and table counts', async () => {
@@ -443,5 +460,131 @@ describe('snapshot backup round trip', () => {
     expect(restoredReviewCase.itemCount).toBe(1)
     expect(restoredReviewDecision.reviewCaseId).toBe(restoredReviewCase.id)
     expect(restoredReviewDecision.provenanceId).toBe(restoredProvenance.id)
+  })
+
+  it('round trip carries the chat evidence archive key and manifest — a restore must not strand retained dispute evidence', async () => {
+    const snapshot = await exportSnapshot()
+    const keyRow = snapshot.tables.customerArchiveKey.find((row) => row.wrappedDek === 'bak.wrapped.dek')
+    const manifestRow = snapshot.tables.archiveManifest.find((row) => row.runId === 'RUN-BAK-001')
+    expect(keyRow).toBeTruthy()
+    expect(manifestRow).toBeTruthy()
+
+    // Delete both before restoring — the exact loss a routine restore would
+    // otherwise cause silently, since neither row can be re-minted: the data
+    // key is random with no re-entry path, and the manifest is the only index
+    // chat-evidence-retrieval-service.js has onto the archive files on disk.
+    await prisma.customerArchiveKey.delete({ where: { id: keyRow.id } })
+    await prisma.archiveManifest.delete({ where: { id: manifestRow.id } })
+    expect(await prisma.customerArchiveKey.findUnique({ where: { id: keyRow.id } })).toBeNull()
+    expect(await prisma.archiveManifest.findUnique({ where: { id: manifestRow.id } })).toBeNull()
+
+    const result = await importSnapshot(snapshot, { confirm: true, viewer: makeOperatorViewer() })
+    expect(result.restored).toBe(true)
+
+    const restoredKey = await prisma.customerArchiveKey.findUnique({ where: { id: keyRow.id } })
+    const restoredManifest = await prisma.archiveManifest.findUnique({ where: { id: manifestRow.id } })
+    expect(restoredKey.wrappedDek).toBe('bak.wrapped.dek')
+    expect(restoredKey.customerId).toBe(keyRow.customerId)
+    expect(restoredManifest.fileSha256).toBe(manifestRow.fileSha256)
+    expect(restoredManifest.manifestHash).toBe(manifestRow.manifestHash)
+  })
+
+  it('refuses missing, partial and malformed protected arrays before any restore write', async () => {
+    const snapshot = await exportSnapshot()
+    const missingArchive = structuredClone(snapshot)
+    delete missingArchive.tables.customerArchiveKey
+    delete missingArchive.tables.archiveManifest
+    const missingPreview = await previewImport(missingArchive, { viewer: makeOperatorViewer() })
+    expect(missingPreview.valid).toBe(false)
+    expect(missingPreview.errors.join(' ')).toMatch(/archive recovery is unavailable/i)
+
+    const partialArchive = structuredClone(snapshot)
+    delete partialArchive.tables.customerArchiveKey
+    const partialPreview = await previewImport(partialArchive, { viewer: makeOperatorViewer() })
+    expect(partialPreview.valid).toBe(false)
+    expect(partialPreview.errors.join(' ')).toMatch(/partial archive family/i)
+
+    const malformedRollup = structuredClone(snapshot)
+    malformedRollup.tables.usageEventRollup = { count: 1 }
+    const malformedPreview = await previewImport(malformedRollup, { viewer: makeOperatorViewer() })
+    expect(malformedPreview.valid).toBe(false)
+    expect(malformedPreview.errors.join(' ')).toMatch(/usageEventRollup must be an array/i)
+
+    const rollup = await prisma.usageEventRollup.create({
+      data: { date: new Date('2026-01-01T00:00:00.000Z'), kind: 'PAGE_VIEW', target: '/backup-safety', count: 4 },
+    })
+    try {
+      const missingRollup = structuredClone(snapshot)
+      delete missingRollup.tables.usageEventRollup
+      const liveRollupPreview = await previewImport(missingRollup, { viewer: makeOperatorViewer() })
+      expect(liveRollupPreview.valid).toBe(false)
+      expect(liveRollupPreview.errors.join(' ')).toMatch(/rollup recovery is unavailable/i)
+      expect(await prisma.usageEventRollup.findUnique({ where: { id: rollup.id } })).toBeTruthy()
+    } finally {
+      await prisma.usageEventRollup.delete({ where: { id: rollup.id } })
+    }
+  })
+
+  it('rejects an invalid archive predecessor before the destructive transaction and restores a child after its parent', async () => {
+    const snapshot = await exportSnapshot()
+    const parent = snapshot.tables.archiveManifest.find((row) => row.runId === 'RUN-BAK-001')
+    expect(parent).toBeTruthy()
+    const invalid = structuredClone(snapshot)
+    invalid.tables.archiveManifest[0] = { ...invalid.tables.archiveManifest[0], previousManifestId: 'missing-predecessor' }
+    const beforeProjects = await prisma.project.count()
+    const invalidResult = await importSnapshot(invalid, { confirm: true, viewer: makeOperatorViewer() })
+    expect(invalidResult.restored).toBe(false)
+    expect(invalidResult.errors.join(' ')).toMatch(/missing predecessor/i)
+    expect(await prisma.project.count()).toBe(beforeProjects)
+
+    const child = {
+      id: `${parent.id}-child`, tenantId: parent.tenantId, runId: 'RUN-BAK-002',
+      filePath: parent.filePath.replace('RUN-BAK-001', 'RUN-BAK-002'), fileSha256: 'c'.repeat(64),
+      messageCount: 2, messageIdListHash: 'b'.repeat(64), previousManifestId: parent.id,
+      previousManifestHash: parent.manifestHash, createdAt: new Date(new Date(parent.createdAt).getTime() + 1000),
+    }
+    child.manifestHash = computeManifestHash(child)
+    const reordered = structuredClone(snapshot)
+    reordered.tables.archiveManifest = [child, parent]
+    const restored = await importSnapshot(reordered, { confirm: true, viewer: makeOperatorViewer() })
+    expect(restored.restored).toBe(true)
+    const rows = await prisma.archiveManifest.findMany({ where: { tenantId: parent.tenantId }, orderBy: { createdAt: 'asc' } })
+    expect(rows.map((row) => row.id)).toEqual([parent.id, child.id])
+  })
+
+  it('rechecks an unavailable archive family inside the restore transaction when a row appears after preview', async () => {
+    const snapshot = await exportSnapshot()
+    const customer = snapshot.tables.customer[0]
+    expect(customer).toBeTruthy()
+    delete snapshot.tables.customerArchiveKey
+    delete snapshot.tables.archiveManifest
+    await prisma.customerArchiveKey.deleteMany()
+    await prisma.archiveManifest.deleteMany()
+    expect(await prisma.customerArchiveKey.count()).toBe(0)
+
+    const restoredAuditBefore = await prisma.auditEvent.count({ where: { action: 'RESTORED' } })
+    const operatorAuditBefore = await prisma.auditEvent.count({ where: { entityType: 'OPERATOR_ACTION', action: 'BACKUP_RESTORE' } })
+    const originalTransaction = prisma.$transaction.bind(prisma)
+    let injected = false
+    const guardedDb = new Proxy(prisma, {
+      get(target, property, receiver) {
+        if (property !== '$transaction') return Reflect.get(target, property, receiver)
+        return async (callback, options) => {
+          if (!injected) {
+            await prisma.customerArchiveKey.create({ data: { tenantId: customer.tenantId, customerId: `${customer.id}-toctou`, kekId: 'toctou', wrappedDek: 'toctou' } })
+            injected = true
+          }
+          return originalTransaction(callback, options)
+        }
+      },
+    })
+
+    const result = await importSnapshot(snapshot, { confirm: true, viewer: makeOperatorViewer(), db: guardedDb })
+    expect(result.restored).toBe(false)
+    expect(result.errors.join(' ')).toMatch(/archive recovery became unavailable/i)
+    expect(await prisma.customerArchiveKey.findUnique({ where: { customerId: `${customer.id}-toctou` } })).toBeTruthy()
+    expect(await prisma.auditEvent.count({ where: { action: 'RESTORED' } })).toBe(restoredAuditBefore)
+    expect(await prisma.auditEvent.count({ where: { entityType: 'OPERATOR_ACTION', action: 'BACKUP_RESTORE' } })).toBe(operatorAuditBefore)
+    await prisma.customerArchiveKey.deleteMany()
   })
 })

@@ -120,6 +120,8 @@ function AddBusinessCard({ scope }) {
 // @req FR-075 — visibility is gated on the exact same `isInstallationOperator`
 // capability the route itself enforces (src/lib/platform-control-guard.js),
 // never re-derived from `isPlatform` or a role (D1-journey-states-tests-docs-12).
+// @req FR-247 — the same card links to the error event list (ADR-095 D1).
+// @req FR-248, FR-249 — and to the feature usage breakdown (ADR-095 D2).
 // @spec ADR-048 D2, SEC-020
 // @tested tests/unit/platform-control-guard.test.js
 function PlatformControlCard() {
@@ -131,9 +133,17 @@ function PlatformControlCard() {
         Platform Control
       </SectionTitle>
       <p className="text-xs">Programme Roadmap (FR-105) — read-only projection of the platform's own delivery plan.</p>
-      <Link href="/control/roadmap" className="btn mt-3 inline-flex">
-        ไปที่ Platform Control
-      </Link>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Link href="/control/roadmap" className="btn inline-flex">
+          ไปที่ Platform Control
+        </Link>
+        <Link href="/control/errors" className="btn inline-flex">
+          Error events (FR-247)
+        </Link>
+        <Link href="/control/usage" className="btn inline-flex">
+          Feature usage (FR-248, FR-249)
+        </Link>
+      </div>
     </Card>
   )
 }

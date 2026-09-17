@@ -36,7 +36,7 @@ export default function ProjectDetailPage() {
   return (
     <div>
       <PageHeader
-        eyebrow={`${p.business?.name || 'Shared project'} · Development`}
+        eyebrow={`${p.business?.name || 'Shared project'} · Projects & Work`}
         title={p.name}
         subtitle={`${p.description || 'No description'} · Space: ${p.workspace?.code || '—'} · ${p.code}`}
         actions={

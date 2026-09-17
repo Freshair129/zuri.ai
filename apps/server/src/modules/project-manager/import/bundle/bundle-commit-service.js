@@ -6,7 +6,7 @@ import {
   updateGoal,
   updateRoadmap,
 } from '../../application/business-strategy-mutation-service'
-import { commitPlan } from '../plan-import-service'
+import { commitPlan, PLAN_COMMIT_TRANSACTION_OPTIONS } from '../plan-import-service'
 import { dryRunBundle } from './bundle-dry-run'
 import { findBundleReplay, normalizedBundleHash, recordBundleReceipt } from './bundle-receipt'
 
@@ -61,8 +61,11 @@ function asTransactionDb(tx) {
 }
 
 // A 100-Project bundle is thousands of upserts; the 5s interactive-transaction
-// default is sized for a single envelope, not a programme.
-const BUNDLE_TRANSACTION_OPTIONS = { maxWait: 10_000, timeout: 120_000 }
+// default is sized for a single envelope, not a programme. `commitPlan` needs
+// the identical extension for a single large envelope (2026-09-14; see the
+// constant's own comment in plan-import-service.js), so this reuses that one
+// value instead of naming a second number for the same reason.
+const BUNDLE_TRANSACTION_OPTIONS = PLAN_COMMIT_TRANSACTION_OPTIONS
 
 class BundleCommitError extends Error {
   constructor(errors) {

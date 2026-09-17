@@ -1,10 +1,8 @@
 import prisma from '@/lib/db'
 import { assertMayView, notFound } from './line-oa-account-authority'
 import { resolvePublicBaseUrl } from '@/lib/public-base-url'
-import {
-  createServerLineSecretManagerFromEnv,
-  resolveServerLineAccount,
-} from '@/platform/integrations/providers/line/server-line-transport'
+import { resolveServerLineAccount } from '@/platform/integrations/providers/line/server-line-transport'
+import { createLineSecretManagerFromEnv } from '@/platform/integrations/core/secret-store/dispatching-secret-manager'
 import {
   classifySilence, classifyEndpoint, expectedWebhookEndpoint, monitoringExclusion,
   QUIET_AFTER_MS, SILENT_AFTER_MS, ENDPOINT_PROBE_TTL_MS,
@@ -178,7 +176,7 @@ async function probeConfiguredEndpoint({ account, db, env, fetchImpl }) {
   if (typeof fetchImpl !== 'function') return { failed: true, reason: 'FETCH_UNAVAILABLE' }
   let token
   try {
-    const secretManager = createServerLineSecretManagerFromEnv(env)
+    const secretManager = createLineSecretManagerFromEnv(env, { db })
     const resolved = await resolveServerLineAccount({ accountId: account.id, db, secretManager })
     token = resolved.channelAccessToken
   } catch {

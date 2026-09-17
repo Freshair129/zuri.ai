@@ -100,12 +100,9 @@ test.describe('universal routes', () => {
     // palette entry reads "Business Home · Dashboard", so no label contains it.
     await input.fill('Overview')
     await expect(page.getByText(/No matches for/i)).toBeVisible()
-    // Queries the domain, not the page. Development's first entry was relabelled
-    // `Dashboard` on 2026-08-19 (ADR-036 D1), so "Projects" no longer appears in
-    // any palette label — the palette builds them as `${domain} · ${item}`.
-    // "Dashboard" would be the wrong query too: every domain now has one and
-    // Business Home sorts first, so Enter would land on `/overview`.
-    await input.fill('Development')
+    // Queries the domain, not the page. The existing `projects` grant now
+    // displays as Projects & Work while keeping `/projects` as its root.
+    await input.fill('Projects & Work')
     await page.keyboard.press('Enter')
     await expect(page).toHaveURL(/projects/)
   })

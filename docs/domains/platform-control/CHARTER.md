@@ -4,10 +4,15 @@ modules:
   - platform-control
 owns_models:
   - ProgrammeUsageReport
+  - ErrorEvent
+  - UsageEvent
+  - UsageEventRollup
 owns_routes:
   - src/app/(control)/control/**
   - src/app/api/health/**
   - src/app/api/platform/programme-usage-reports/**
+  - src/app/api/platform/error-events/**
+  - src/app/api/platform/usage-events/**
 owns_code:
   - src/modules/platform-control/**
   - src/components/layouts/PlatformControlShell.jsx
@@ -23,8 +28,15 @@ owns_code:
 Platform Control owns installation-operator-only, removable operational
 projections. It is deliberately **not** a Business capability domain and owns no
 Tenant, Business, Project, Workstream or user-visible Business navigation entry.
-Its one persistence model, `ProgrammeUsageReport` (FR-218, ADR-086 D5), is
-installation-level operations data with no Tenant, Business or Person scope.
+None of its models carry a Tenant or Business — `ProgrammeUsageReport`
+(FR-218, ADR-086 D5) is installation-level operations data. That line used to
+read "no ... Person scope" too; it stopped being true the moment FR-221 gave
+`ProgrammeUsageReport` a `personId`/`installationId` column (ADR-087 D4), and
+`ErrorEvent`/`UsageEvent` (FR-247..249, ADR-095) make it more false, not less —
+`UsageEvent` exists specifically to record what a person read. What stays true
+without exception: every read here is operator-only (FR-075), and a person's
+own data reaching this lane is always a fact *about* that person's use of the
+system, never anything from a Business they touch.
 
 ## Boundary
 
@@ -34,6 +46,13 @@ installation-level operations data with no Tenant, Business or Person scope.
   nothing here.
 - The first surface, `/control/roadmap` (FR-105), is an immutable static plan
   projection. It accepts no input and makes no API, database or audit write.
+- FR-241 (ADR-092): `/roadmap`, outside `/control/**`, shows the same plan and
+  Domain map to any signed-in person until the constant `MEMBER_VIEW_CLOSES_AT`
+  (2026-10-15 00:00 Asia/Bangkok), then answers 404 to everyone. It is the lane's
+  only non-operator surface. `projectMemberLaneUsage` removes usage by person and
+  device and tool and model names on the server. The board takes lanes, sizing
+  and the measured-through time as props, so no client module imports the
+  generated telemetry module.
 - Its second tab, Domain map & inventory (FR-211), is a projection of the
   Product Readiness snapshot this lane does **not** own: it reads it only through
   Project Manager's `getProductReadinessSnapshot()` (FR-124), projects it on the
@@ -56,6 +75,30 @@ installation-level operations data with no Tenant, Business or Person scope.
   and device through identity's `describeHarnessReporters`. The Agent devices tab
   lists identity's paired devices through its operator route. The Zuri harness
   plugin that sends these reports lives in `plugins/zuri-harness/` (FR-222).
+- FR-247 (ADR-095 D1): `logger.exception(event, error, fields)`
+  (`src/lib/observability/logger.js`, not this lane's own code — `src/lib` stays
+  free of a database dependency by existing convention) fingerprints and parses
+  an error and returns the shape; `recordErrorEvent()` in this lane's
+  `application/error-events.js` persists one deduplicated `ErrorEvent` row per
+  fingerprint. `/control/errors` lists them and lets an operator resolve one.
+  No request/response content, only `name`/`message`/parsed stack frames.
+- FR-248, FR-249 (ADR-095 D2): `UsageEvent` records page views and named
+  actions, per person — the owner's instruction, over the aggregate-only
+  default this decision's own CR proposed. `POST /api/platform/usage-events`
+  is signed-in-person-authenticated, not operator-gated — usage is a fact
+  about whoever is using the product; `GET` on the same path is operator-only.
+  `UsagePageViewTracker` mounts once in `PlatformControlShell` (every route
+  under it, plus `/roadmap`'s member view, gets page-view coverage from one
+  hook); `recordAction(name)` is the primitive any handler can call for the
+  action level, instrumented first on sign-out — an adoptable primitive, not a
+  claim that every control is covered. `/control/usage` lists both, per target,
+  with the last-90-days per-person split. Raw, person-attributed rows are a
+  90-day window (ADR-095 D3): `POST /api/platform/usage-events/rollup`
+  (`ZURI_USAGE_ROLLUP_TOKEN`, same deployment-bearer shape as
+  `/api/crm/retention-sweep`) moves anything older into `UsageEventRollup`,
+  one row per `(day, kind, target)` with no `personId`. No consent gate
+  (ADR-095 D4) — the same discipline `AuditEvent` and access history already
+  apply to every signed-in account.
 - `src/config/domains.js` is the Business-only navigation registry. This domain
   may not add itself to `DOMAINS`.
 - Project-local roadmap work remains Project Manager authority under ADR-028.
@@ -69,5 +112,11 @@ installation-level operations data with no Tenant, Business or Person scope.
 
 Removing the programme consists of deleting this route group, its shell, this
 module, the usage report route and the two programme scripts, and dropping the
-`ProgrammeUsageReport` table. No Business data migration, model ownership transfer or navigation change
-is required.
+`ProgrammeUsageReport` table. Error tracking and feature usage (FR-247..249) are
+a separable capability within the same lane: removing them independently means
+deleting `/control/errors`, `/control/usage`, `error-events.js`,
+`usage-events.js`, `UsagePageViewTracker.jsx` (and its one mount point in
+`PlatformControlShell`), and dropping `ErrorEvent`/`UsageEvent`/
+`UsageEventRollup` — without touching the programme plan. No Business data
+migration, model ownership transfer or navigation change is required for any
+of the three.

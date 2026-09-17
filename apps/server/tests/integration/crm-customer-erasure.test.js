@@ -153,6 +153,11 @@ describe('PDPA erasure from the CRM surface (FR-022)', () => {
     expect(messages[0].createdAt).toBeInstanceOf(Date)
     expect(messages[0].direction).toBe('INBOUND')
 
+    // 1b. FR-233 — the denormalised inbox preview is redacted by this same writer,
+    //   never left showing what the message row itself no longer does.
+    const erasedConversation = await prisma.conversation.findUnique({ where: { id: conversation.id } })
+    expect(erasedConversation.lastMessagePreview).toBe(CUSTOMER_ERASURE_TOMBSTONE)
+
     // 2. The raw evidence carries a tombstone rather than a gap — envelope intact.
     const mine = await prisma.rawExternalRecord.findMany({
       where: { tenantId: tenantA.id, externalId: { in: ['MSG-ERASE-1', 'U-erase-1'] } },
@@ -221,6 +226,30 @@ describe('PDPA erasure from the CRM surface (FR-022)', () => {
     })
     const afterSecond = await prisma.rawExternalRecord.findFirst({ where: { externalId: 'MSG-ERASE-2' } })
     expect(afterSecond.payloadJson).toBe(afterFirst.payloadJson)
+  })
+
+  // @req FR-229 — the crm charter promises the erasure writer "will also redact
+  // attachments"; this proves it does, end to end through the same public surface.
+  it('also redacts the MessageAttachment of a media message the erased customer sent', async () => {
+    const result = await ingestLineMessage({
+      tenantId: tenantA.id, businessId: busA1.id, lineUserId: 'U-erase-attachment-1',
+      displayName: 'ลูกค้าทดสอบ', threadId: 'TH-ERASE-ATTACHMENT-1', text: '[รูปภาพ]',
+      externalMessageId: 'MSG-ERASE-ATTACHMENT-1', contentKind: 'MEDIA_REF',
+      attachment: { kind: 'IMAGE', providerContentId: 'MSG-ERASE-ATTACHMENT-1' },
+    })
+
+    await eraseCustomerPrincipal(
+      result.customerId,
+      { businessId: busA1.id, confirmation: 'ERASE' },
+      { viewer: await ownerOf(busA1.id) },
+    )
+
+    const message = await prisma.message.findUnique({
+      where: { id: result.messageId }, include: { attachments: true },
+    })
+    expect(message.body).toBe(CUSTOMER_ERASURE_TOMBSTONE)
+    expect(message.attachments).toHaveLength(1)
+    expect(message.attachments[0]).toMatchObject({ fetchState: 'ERASED', providerContentId: null })
   })
 
   it('a Member who can see the Business is refused as not-found, and nothing is erased', async () => {

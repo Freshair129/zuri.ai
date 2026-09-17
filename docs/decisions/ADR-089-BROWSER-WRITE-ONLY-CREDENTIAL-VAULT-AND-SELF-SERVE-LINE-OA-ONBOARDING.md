@@ -1,5 +1,5 @@
 ---
-version: "1.0.0"
+version: "1.0.1"
 created_at: "2026-09-14T15:00:00+07:00,Claude Opus 5"
 last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
 status: "accepted"
@@ -219,6 +219,9 @@ claim and its Supabase migration in the same change:
    succeeds after, with no typed confirmation.
 10. A real LINE channel is connected end to end from the browser in a dev deployment before any
     production migration is applied.
+    **Ordering waived by the owner on 2026-09-14:** the five Phase 1 migrations
+    (`20260914140000`..`20260914140400`) were applied on production before this run, on the owner's
+    instruction. The end-to-end proof itself still stands for Phase 1 acceptance (TASK-ZAI-081).
 
 ## Delivery phases (shared numbering with ADR-090 and ADR-091)
 
@@ -252,4 +255,5 @@ in different words; one new decision amending them by pointer is the ADR-063 / A
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.0.1 | 2026-09-14 | accepted | Proof 10's ordering waived by the owner: the Phase 1 migrations were applied on production before the real-channel run; the proof itself is unchanged | working-tree | Claude Opus 5 |
 | 1.0.0 | 2026-09-14 | accepted | Browser write-only credential provisioning into one `SecretStorePort` (Supabase Vault primary, envelope store for self-host, mount operator-only, no cross-store resolution), stateless LINE tokens, AAL2 step-up, installation-wide channel claim, automatic webhook registration and derived legacy quiescence; amends ADR-061 D8, ADR-060 D3, ADR-041 D3 and ADR-032 D2 by pointer; Phase 0 declaration only | working-tree | Claude Opus 5 |

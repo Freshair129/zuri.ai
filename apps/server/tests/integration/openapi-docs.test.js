@@ -185,9 +185,41 @@ describe('OpenAPI document', () => {
       // FR-220/FR-221 (ADR-087) add six paths and six operations: harness pairing
       // start, approve and poll (POST each), the operator device list (GET) and item
       // (PATCH), and the harness credential's whoami read (GET). 264 + 6 = 270; 359 + 6 = 365.
+      // FR-223/FR-224 (ADR-089) add three paths and three operations: credential
+      // rotate, revoke and validate under /api/line-oa/connections/{id} (POST each).
+      // 270 + 3 = 273; 365 + 3 = 368.
+      // FR-236 (ADR-090 D6) adds three paths and five operations: the candidate
+      // list/draft collection (GET, POST), one candidate (GET, PATCH) and the
+      // audited APPROVE/REJECT decision (POST). 273 + 3 = 276; 368 + 5 = 373.
+      // FR-233 (ADR-091 D5) adds two paths and two operations: conversation
+      // search (GET) and per-account follow/unfollow event counts (GET).
+      // 276 + 2 = 278; 373 + 2 = 375.
+      // FR-237 (ADR-090 D7) adds one path and one operation: the gap report
+      // (GET). 278 + 1 = 279; 375 + 1 = 376.
+      // FR-236's per-Business toggle (ADR-090 D6, TASK-ZAI-099) adds one path
+      // and one operation: the knowledge-candidates-toggle route (PATCH
+      // only). 279 + 1 = 280; 376 + 1 = 377.
+      // FR-230 (ADR-091 D1, D2) adds one more path and one more operation: the
+      // retention sweep's scheduled entry point (POST). 280 + 1 = 281; 377 + 1 = 378.
+      // FR-245 (ADR-093 D7, TASK-ZAI-112) adds one more path and one more
+      // operation: the chat evidence archive's one retrieval path (POST).
+      // 283 + 1 = 284; 380 + 1 = 381.
+      // FR-247 (ADR-095 D1) adds two paths and two operations: the error
+      // event list (GET) and the resolve action (PATCH). 284 + 2 = 286;
+      // 381 + 2 = 383.
+      // FR-248, FR-249 (ADR-095 D2, D3) add two paths and three operations:
+      // the usage breakdown (GET) and recording one's own usage (POST) share
+      // a path, plus the deployment-authenticated rollup (POST) on its own
+      // path. 286 + 2 = 288; 383 + 3 = 386.
+      // SEC-034 (ADR-093 D6, TASK-ZAI-113) adds one more path and one more
+      // operation: the legal-hold recording path (POST). 288 + 1 = 289;
+      // 386 + 1 = 387.
+      // FR-251 adds one read-only Project Domain-view path and GET operation.
+      // 289 + 1 = 290; 387 + 1 = 388.
       // FR-253 adds six Console paths and GET on the existing source path.
-      pathCount: 276,
-      operationCount: 372,
+      // 290 + 6 = 296; 388 + 7 = 395.
+      pathCount: 296,
+      operationCount: 395,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

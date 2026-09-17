@@ -204,6 +204,9 @@ export function createLineWebhookPost({
           text: ev.message.text ?? '',
           externalMessageId: ev.message.id,
           correlationId,
+          // @req FR-243 — LINE's timestamp decides the conversation session, clamped to
+          //   this server's clock so a skewed future value cannot move one (SDD-102).
+          ...(Number.isFinite(ev.timestamp) ? { occurredAt: new Date(Math.min(ev.timestamp, Date.now())) } : {}),
         }, {
           ...(phase1Ports ?? {}),
           model: resolvedModel,

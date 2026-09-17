@@ -1,7 +1,7 @@
 import { createCipheriv, createDecipheriv, randomBytes, randomUUID } from 'node:crypto'
 import { z } from 'zod'
 import prisma from '@/lib/db'
-import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
+import { ingestLineMessage, ingestLineConversationEvent, recordExistingConversationEvent, ingestLineUnsendEvent } from '@/modules/crm/line-ingest-service'
 import { appendOutbound } from '@/modules/crm/reply-record-service'
 import { assertMayView, assertMayPublish, notFound } from './line-oa-account-authority'
 import { recordAudit } from '@/modules/project-manager/application/audit'
@@ -9,11 +9,19 @@ import { appendTraceEvent, readExecutionTrace, playbackTrace, sha256 } from '@/m
 import { createLineExecutionTrace } from '@/modules/agent/line-execution-trace'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { prepareMemoryDeliveryPending, reconcileLineMemoryDeliveries } from './line-memory-delivery'
+import { isAccountWithinBusinessHours } from '../domain/line-oa-account'
 
 // @req FR-149, FR-150 — durable admission, optional compute, fenced send and receipt recovery.
 // @req FR-171 — context and execution journal, attempt identity and truthful send observations.
+// @req FR-229 — non-text message kinds and non-message events are admitted into the
+//   CRM record instead of being discarded; none of them creates an answer job.
+// @req FR-244 — outside the account's declared business hours, admission creates the
+//   job straight at READY with the out-of-hours text as its answer, so it is sent and
+//   recorded by the existing send phase and never reaches execution (ADR-094 D6 option A).
 // @spec ADR-061, SEC-001, FR-148 — queue and CRM share a transaction; devices cannot send.
-// @tested tests/integration/server-line-jobs.test.js
+// @spec ADR-091 D5; ADR-094 D6
+// @tested tests/integration/server-line-jobs.test.js, tests/integration/line-non-text-admission.test.js,
+//   tests/integration/fr244-line-oa-business-hours.test.js
 
 export const LINE_JOB_LEASE_MS = 300_000
 const JOB_TTL_MS = 30 * 60_000
@@ -26,6 +34,9 @@ const failure = (status, message) => Object.assign(new Error(message), { status 
 const sourceTimeMs = timestamp => Number.isFinite(timestamp) && Number.isFinite(new Date(timestamp).getTime())
   ? new Date(timestamp).getTime() : null
 const sourceTime = timestamp => { const ms = sourceTimeMs(timestamp); return ms === null ? null : new Date(ms).toISOString() }
+// @req FR-243 — the time a message belongs to for its session: LINE's own timestamp,
+//   clamped to our clock so a skewed future value cannot move a session (SDD-102).
+const providerTime = (timestamp, now = new Date()) => { const ms = sourceTimeMs(timestamp); return new Date(ms === null ? now.getTime() : Math.min(ms, now.getTime())) }
 
 function traceEvent(db, job, kind, key, payload, occurredAt = new Date(), options) {
   return appendTraceEvent(db, { scope: { tenantId: job.tenantId, businessId: job.businessId },
@@ -63,6 +74,53 @@ function activeAccount(account, job) {
     && account.status === 'CONNECTED' && (!job || account.transportEpoch === job.transportEpoch)
 }
 
+// FR-229 — LINE message.type values that are media (recorded with a
+// MessageAttachment); STICKER and LOCATION are message types too but carry no
+// attachment (design §6.3).
+const MEDIA_ATTACHMENT_KINDS = { image: 'IMAGE', video: 'VIDEO', audio: 'AUDIO', file: 'FILE' }
+const NON_TEXT_MESSAGE_TYPES = new Set(['sticker', 'location', ...Object.keys(MEDIA_ATTACHMENT_KINDS)])
+// Event types whose payload carries a resolvable individual (event.source.userId
+// is always present on these, per LINE's own webhook contract).
+const DIRECT_IDENTITY_EVENT_KINDS = { follow: 'FOLLOW', unfollow: 'UNFOLLOW', postback: 'POSTBACK' }
+// Event types with no individual identity in the payload at all (a group/room
+// join/leave has no source.userId); memberJoined/memberLeft carry member ids
+// under event.joined/event.left rather than event.source, but still name no
+// single "sender" the way follow/unfollow/postback do — see admitLineThreadEvent.
+const THREAD_ONLY_EVENT_KINDS = { join: 'JOIN', leave: 'LEAVE', memberJoined: 'MEMBER_JOINED', memberLeft: 'MEMBER_LEFT' }
+const MEDIA_PLACEHOLDERS = { IMAGE: '[รูปภาพ]', VIDEO: '[วิดีโอ]', AUDIO: '[ไฟล์เสียง]', FILE: '[ไฟล์แนบ]' }
+
+// FR-229 says "a fixed placeholder body" — fixed, not "fixed shape with the
+// provider's own values interpolated in". A sticker's packageId/stickerId are
+// harmless as ids, but location's latitude/longitude are personal data (often a
+// home or delivery address), and Message.body is exactly what the FR-091 inbox
+// preview, FR-233 search and any future prompt read — so both stay genuinely
+// fixed strings with nothing provider-supplied inside them. The raw LINE payload
+// (packageId/stickerId/lat/lng included) is still available in RawExternalRecord
+// under its own retention window; this placeholder is never where that detail
+// needs to live.
+const STICKER_PLACEHOLDER = '[สติกเกอร์]'
+const LOCATION_PLACEHOLDER = '[ตำแหน่ง]'
+
+/**
+ * FR-229 — classify a non-text `message` event into what admission must write.
+ * Returns `{}` (no contentKind) for a message type this admission does not yet
+ * understand, which the caller treats as skipped, exactly like an unrecognised
+ * event type.
+ */
+function classifyNonTextMessage(message) {
+  const type = message?.type
+  if (type === 'sticker') return { contentKind: 'STICKER', body: STICKER_PLACEHOLDER }
+  if (type === 'location') return { contentKind: 'LOCATION', body: LOCATION_PLACEHOLDER }
+  const attachmentKind = MEDIA_ATTACHMENT_KINDS[type]
+  if (attachmentKind) {
+    return {
+      contentKind: 'MEDIA_REF', body: MEDIA_PLACEHOLDERS[attachmentKind],
+      attachment: { kind: attachmentKind, providerContentId: message.id },
+    }
+  }
+  return {}
+}
+
 async function atomic(db, work) {
   for (let attempt = 0; ; attempt++) {
     try {
@@ -80,9 +138,38 @@ async function atomic(db, work) {
   }
 }
 
-/** Called only after signature and destination validation. No authority from event text. */
-export async function admitLineConversation({ account, event, correlationId, now = new Date(), ingressReceivedAt = now, env = process.env, db = prisma }) {
-  if (event.type !== 'message' || event.message?.type !== 'text') return { skipped: true }
+/**
+ * Called only after signature and destination validation. No authority from event
+ * text. FR-229 dispatches to the right narrow writer by event/message type; every
+ * non-text branch returns `{ skipped: true, ... }` because none of them creates an
+ * answer job (bounded text replies only, ADR-061 D8).
+ */
+export async function admitLineConversation(args) {
+  const { event } = args
+  if (event.type === 'message') {
+    if (event.message?.type === 'text') return admitLineTextMessage(args)
+    if (NON_TEXT_MESSAGE_TYPES.has(event.message?.type)) return admitLineNonTextMessage(args)
+    return { skipped: true }
+  }
+  if (event.type === 'unsend') return admitLineUnsend(args)
+  if (DIRECT_IDENTITY_EVENT_KINDS[event.type]) return admitLineDirectEvent(args, DIRECT_IDENTITY_EVENT_KINDS[event.type])
+  if (THREAD_ONLY_EVENT_KINDS[event.type]) return admitLineThreadEvent(args, THREAD_ONLY_EVENT_KINDS[event.type])
+  return { skipped: true }
+}
+
+/** Resolve the current account inside the admission transaction and check it is
+ * still the CLOUD owner for this epoch — the guard every admitted event shares,
+ * text or not. */
+async function withAdmittedAccount(db, account, work) {
+  return atomic(db, async (tx) => {
+    const current = await tx.lineOaAccount.findUnique({ where: { id: account.id } })
+    if (!activeAccount(current) || current.transportEpoch !== account.transportEpoch) throw failure(409, 'LINE_ACCOUNT_NOT_SERVER_OWNED')
+    const channelAccountId = current.bindingCode || current.id
+    return work(tx, current, channelAccountId)
+  })
+}
+
+async function admitLineTextMessage({ account, event, correlationId, now = new Date(), ingressReceivedAt = now, env = process.env, db = prisma }) {
   const userId = event.source?.userId
   const threadId = event.source?.groupId || event.source?.roomId || userId
   const audienceKind = event.source?.type === 'group' ? 'GROUP' : event.source?.type === 'room' ? 'ROOM' : 'DIRECT'
@@ -105,12 +192,24 @@ export async function admitLineConversation({ account, event, correlationId, now
     if (existing) return { jobId: existing.id, created: false, inboundMessageId: existing.inboundMessageId }
     const channelAccountId = current.bindingCode || current.id
     const inbound = await ingestLineMessage({ tenantId: current.tenantId, businessId: current.businessId,
-      channelAccountId, lineUserId: userId, threadId, text, externalMessageId: event.message.id, correlationId }, { db: tx })
+      channelAccountId, lineUserId: userId, threadId, text, externalMessageId: event.message.id, correlationId,
+      occurredAt: providerTime(event.timestamp, ingressReceivedAt), sessionIdleTimeoutMinutes: current.sessionIdleTimeoutMinutes }, { db: tx })
     if (!shouldReply) return { skipped: true, inboundMessageId: inbound.messageId }
     const prior = await tx.lineConversationJob.findUnique({ where: { inboundMessageId: inbound.messageId } })
     if (prior) return { jobId: prior.id, created: false, inboundMessageId: inbound.messageId }
+    // @req FR-244 — outside the account's declared business hours, the reply is the
+    // fixed out-of-hours text and no model runs (ADR-094 D6 option A). The job is
+    // created straight at READY with its answer already set, so it never reaches
+    // QUEUED/CLAIMED and no execution ever claims it — the tick worker's existing
+    // send phase (status: 'READY') delivers and records it exactly like any other
+    // completed job, through the same reply-token/push, retry and OUTBOUND_RECORDED
+    // path. `isAccountWithinBusinessHours` returns true for an account with no
+    // declared hours, so this branch is a no-op for every account that never opted in.
+    const outOfHours = !isAccountWithinBusinessHours(current, now) && Boolean(current.outOfHoursReplyText)
     const job = await tx.lineConversationJob.create({ data: {
       accountId: current.id, inboundMessageId: inbound.messageId, eventId,
+      // @req FR-243 — the session the inbound message was just assigned (ADR-094 D4).
+      sessionId: inbound.sessionId ?? null,
       tenantId: current.tenantId, businessId: current.businessId, channelAccountId,
       transportEpoch: current.transportEpoch, executionMode: current.executionMode,
       modelAccess: current.modelAccess, allowDelayedPush: current.allowDelayedPush,
@@ -121,9 +220,10 @@ export async function admitLineConversation({ account, event, correlationId, now
       recipientId: threadId, sourceUserId: userId, sealedReplyToken: sealed,
       replyExpiresAt: sealed ? new Date(replyDeadlineAnchorMs + 45_000) : null,
       availableAt: now, expiresAt: new Date(now.getTime() + JOB_TTL_MS), correlationId,
+      ...(outOfHours ? { status: 'READY', answerText: current.outOfHoursReplyText } : {}),
     } })
     await recordAudit(tx, { entityType: 'LINE_CONVERSATION_JOB', entityId: job.id, action: 'QUEUED',
-      payload: { tenantId: job.tenantId, businessId: job.businessId, accountId: job.accountId, correlationId } })
+      payload: { tenantId: job.tenantId, businessId: job.businessId, accountId: job.accountId, correlationId, ...(outOfHours ? { outOfHours: true } : {}) } })
     await traceEvent(tx, job, 'TURN_RECEIVED', 'received', {
       inboundMessageId: inbound.messageId, conversationId: inbound.conversationId,
       inputSnapshot: { role: 'user', content: text }, inputHash: sha256({ role: 'user', content: text }),
@@ -138,7 +238,122 @@ export async function admitLineConversation({ account, event, correlationId, now
     // Every later trace event for this job (EXECUTION_STARTED, SEND_STARTED, ...) runs in
     // its own later transaction and keeps the real guard.
     }, now, { bypassTurnGuard: true })
+    // @req FR-244 — mirrors settleExecution's own ANSWER_READY shape (the normal
+    // execution path emits the same kind with the same payload keys) so a trace
+    // reader sees one vocabulary for "the answer is ready to send" regardless of
+    // where the text came from; `executionEvidence` is the field that says which.
+    if (outOfHours) {
+      await traceEvent(tx, job, 'ANSWER_READY', 'answer-ready', {
+        text: current.outOfHoursReplyText, answerReadyAt: now.toISOString(), executionEvidence: 'OUT_OF_HOURS_RULE',
+      }, now)
+    }
     return { jobId: job.id, created: true, inboundMessageId: inbound.messageId }
+  })
+}
+
+/**
+ * FR-229 — a non-text message (sticker, location, image, video, audio, file):
+ * admission no longer skips it. A Message is created with its `contentKind` and,
+ * for media, a `MessageAttachment` recorded without bytes. No answer job — the
+ * return shape mirrors the text path's "no reply needed" branch on purpose.
+ */
+async function admitLineNonTextMessage({ account, event, correlationId, db = prisma }) {
+  const userId = event.source?.userId
+  const threadId = event.source?.groupId || event.source?.roomId || userId
+  const eventId = event.webhookEventId || event.message?.id
+  if (!userId || !threadId || !eventId || !event.message?.id) return { skipped: true }
+  const { contentKind, body, attachment } = classifyNonTextMessage(event.message)
+  if (!contentKind) return { skipped: true }
+  return withAdmittedAccount(db, account, async (tx, current, channelAccountId) => {
+    const inbound = await ingestLineMessage({
+      tenantId: current.tenantId, businessId: current.businessId, channelAccountId,
+      lineUserId: userId, threadId, text: body, externalMessageId: event.message.id,
+      contentKind, attachment, correlationId,
+      occurredAt: providerTime(event.timestamp), sessionIdleTimeoutMinutes: current.sessionIdleTimeoutMinutes,
+    }, { db: tx })
+    return { skipped: true, inboundMessageId: inbound.messageId, conversationId: inbound.conversationId }
+  })
+}
+
+/**
+ * FR-229 — follow, unfollow, postback: these always carry `event.source.userId`, so
+ * they resolve identity and create-or-attach a Conversation exactly as an inbound
+ * message would, then record a `ConversationEvent`. No answer job.
+ */
+async function admitLineDirectEvent({ account, event, correlationId, db = prisma }, kind) {
+  const userId = event.source?.userId
+  const threadId = event.source?.groupId || event.source?.roomId || userId
+  const eventId = event.webhookEventId
+  if (!userId || !threadId || !eventId) return { skipped: true }
+  return withAdmittedAccount(db, account, async (tx, current, channelAccountId) => {
+    // POSTBACK's own `data` string is deliberately not stored — it is free text, not
+    // an id, and FR-229 requires the payload to carry ids only. The raw evidence row
+    // (RawExternalRecord) already keeps it for the retained evidence window.
+    const result = await ingestLineConversationEvent({
+      tenantId: current.tenantId, businessId: current.businessId, channelAccountId,
+      lineUserId: userId, threadId, kind, externalEventId: eventId, payload: {}, correlationId,
+      occurredAt: providerTime(event.timestamp), sessionIdleTimeoutMinutes: current.sessionIdleTimeoutMinutes,
+    }, { db: tx })
+    return { skipped: true, conversationId: result.conversationId, eventId: result.eventId }
+  })
+}
+
+/**
+ * FR-229 — join, leave, memberJoined, memberLeft: none of these names an
+ * individual the way follow/unfollow/postback do (a group/room join has no
+ * `source.userId`), so the event attaches only to a conversation that already
+ * exists for the thread; when none does, it is skipped (documented scope decision
+ * — see the task report).
+ *
+ * Raw LINE user ids for the joining/leaving members are deliberately never
+ * persisted here: `ConversationEvent` is Tier 1 (inside the erasure boundary),
+ * and this admission path resolves no identity for a member and mints no
+ * Customer for them (the join/leave decision above), so there is no erasure hook
+ * that could ever reach a raw id sitting in this payload — it would outlive the
+ * very principal it named. `memberCount` carries the fact LINE reported without
+ * carrying anyone's provider identifier.
+ */
+async function admitLineThreadEvent({ account, event, db = prisma, correlationId }, kind) {
+  const threadId = event.source?.groupId || event.source?.roomId
+  const eventId = event.webhookEventId
+  if (!threadId || !eventId) return { skipped: true }
+  const memberCount = kind === 'MEMBER_JOINED' ? (event.joined?.members ?? []).length
+    : kind === 'MEMBER_LEFT' ? (event.left?.members ?? []).length
+      : 0
+  return withAdmittedAccount(db, account, async (tx, current, channelAccountId) => {
+    const result = await recordExistingConversationEvent({
+      tenantId: current.tenantId, businessId: current.businessId, channelAccountId,
+      threadId, kind, externalEventId: eventId, payload: memberCount ? { memberCount } : {}, correlationId,
+      occurredAt: providerTime(event.timestamp), sessionIdleTimeoutMinutes: current.sessionIdleTimeoutMinutes,
+    }, { db: tx })
+    return { skipped: true, conversationId: result.conversationId ?? null, eventId: result.eventId ?? null }
+  })
+}
+
+/**
+ * FR-229 — `unsend`: unlike follow/unfollow/postback, this resolves no identity
+ * and mints no Customer — it attaches only to a conversation that already exists
+ * for the thread (same rule as join/leave/memberJoined/memberLeft) and is skipped
+ * otherwise, since a thread with no record has nothing to tombstone. When the
+ * conversation exists, it additionally tombstones the referenced Message body and
+ * MessageAttachment; recording never fails when the referenced message is unknown
+ * to this Business (ADR-091 proof 4).
+ */
+async function admitLineUnsend({ account, event, correlationId, db = prisma }) {
+  const threadId = event.source?.groupId || event.source?.roomId || event.source?.userId
+  const eventId = event.webhookEventId
+  const unsentExternalMessageId = event.unsend?.messageId
+  if (!threadId || !eventId) return { skipped: true }
+  return withAdmittedAccount(db, account, async (tx, current, channelAccountId) => {
+    const result = await ingestLineUnsendEvent({
+      tenantId: current.tenantId, businessId: current.businessId, channelAccountId,
+      threadId, externalEventId: eventId, unsentExternalMessageId, correlationId,
+      occurredAt: providerTime(event.timestamp), sessionIdleTimeoutMinutes: current.sessionIdleTimeoutMinutes,
+    }, { db: tx })
+    return {
+      skipped: true, conversationId: result.conversationId ?? null, eventId: result.eventId ?? null,
+      tombstonedMessage: result.tombstonedMessage ?? false,
+    }
   })
 }
 
@@ -588,15 +803,39 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
   return { id: job.id, status: changed.count ? status : 'FENCED' }
 }
 
-/** Bounded operational DTO; never exposes LINE ids, tokens or question/answer text. */
-export async function listLineConversationJobs(accountId, { viewer, db = prisma } = {}) {
+/** `S-YYYYMMDD-XXXXXX`, the ConversationSession human code (FR-243). */
+export const SESSION_CODE_PATTERN = /^S-\d{8}-[0-9A-Z]{6}$/
+
+/**
+ * Bounded operational DTO; never exposes LINE ids, tokens or question/answer text.
+ *
+ * @req FR-243 — `sessionCode` narrows the list to one conversation session of this
+ *   account's Tenant and account (ADR-094 D4). A code that names no session of this
+ *   account answers an empty list, never another account's jobs; a malformed code
+ *   is refused before any read.
+ */
+export async function listLineConversationJobs(accountId, { viewer, sessionCode, db = prisma } = {}) {
   const account = await db.lineOaAccount.findUnique({ where: { id: accountId } })
   if (!account) throw notFound()
   assertMayView(viewer, account.businessId)
-  const jobs = await db.lineConversationJob.findMany({ where: { accountId }, orderBy: { createdAt: 'desc' }, take: 100,
+  let session = null
+  const where = { accountId }
+  if (sessionCode !== undefined && sessionCode !== null && sessionCode !== '') {
+    const code = String(sessionCode).trim().toUpperCase()
+    if (!SESSION_CODE_PATTERN.test(code)) throw failure(400, 'SESSION_CODE_INVALID')
+    session = await db.conversationSession.findFirst({
+      where: { tenantId: account.tenantId, code, channelAccountId: account.bindingCode || account.id },
+      select: { id: true, code: true, openedAt: true, lastMessageAt: true, closedAt: true, inboundCount: true, outboundCount: true },
+    })
+    if (!session) return { accountId, session: null, jobs: [] }
+    where.sessionId = session.id
+  }
+  const rows = await db.lineConversationJob.findMany({ where, orderBy: { createdAt: 'desc' }, take: 100,
     select: { id: true, status: true, executionMode: true, modelAccess: true, sendMethod: true,
-      attempts: true, errorCode: true, acceptedAt: true, createdAt: true, updatedAt: true, version: true } })
-  return { accountId, jobs }
+      attempts: true, errorCode: true, acceptedAt: true, createdAt: true, updatedAt: true, version: true,
+      sessionId: true, session: { select: { code: true } } } })
+  const jobs = rows.map(({ session: jobSession, ...job }) => ({ ...job, sessionCode: jobSession?.code ?? null }))
+  return { accountId, session, jobs }
 }
 
 /** Payload inspection needs Business ownership in addition to Studio visibility. */

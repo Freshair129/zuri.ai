@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.71.0b |
+| **Version** | 1.83.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-17 |
 
@@ -23,7 +23,15 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=276 -->
+<!-- api-spec-counts: route_handlers=296 -->
+
+### Local model residency by business hours (FR-244, 2026-09-16)
+
+ADR-094 D6 option A. The compute-owned edge worker polls this to decide whether to keep the local model pinned (`keep_alive: -1`) or release it (`keep_alive: 0`). ADR-061 keeps every LINE identity off this wire, so the answer is one aggregate boolean across every server-enabled `LineOaAccount` — never an account id, a schedule, or which account is currently open.
+
+| Method | Route | Contract | Failure |
+|---|---|---|---|
+| POST | `/api/edge/model-residency` | implemented (FR-244): device-authenticated like every other `/api/edge/*` route (`resolveEdgeDeviceContext`), empty strict body, `200 { shouldBeWarm: boolean }` — `true` when any server-enabled account either declared no hours (today's default) or is currently inside its declared hours; `false` only when every server-enabled account has declared hours and all are currently closed, including the vacuous case of no accounts at all | `401 EDGE_CREDENTIAL_REQUIRED`; `400 MODEL_RESIDENCY_REQUEST_REJECTED` (malformed/non-empty body); `503 LINE_SERVER_DISABLED` \| `MODEL_RESIDENCY_REQUEST_REJECTED` |
 
 ### Programme usage reports (FR-218, 2026-09-13)
 
@@ -44,9 +52,16 @@ ADR-087. A Claude Code or Codex installation pairs like an Edge Device; its cred
 | POST | `/api/platform/harness-pairing/poll` | implemented (FR-220): `Authorization: Bearer <deviceSecret>`, `{ requestId, cancel? }` → `PENDING \| DENIED \| CANCELLED`, or once `{ state: PAIRED, pairing: { key, installationId, personDisplayName, status: ACTIVE \| PENDING_ACTIVATION, deviceLabel, apiBaseUrl } }`; the credential is minted in a transaction and audited `HARNESS_CREDENTIAL` / `MINTED` without key material | `410 PAIRING_EXPIRED_OR_UNAVAILABLE \| PAIRING_ALREADY_USED_START_AGAIN`; `429 PAIRING_POLL_TOO_FAST`; `403 PAIRING_REDEMPTION_FAILED` (authority lost) |
 | GET | `/api/platform/harness-devices` | implemented (FR-220): installation operator only; `{ devices: [{ id, installationId, personDisplayName, harness, deviceLabel, osUser, keyPrefix, status, createdAt, activatedAt, lastUsedAt, revokedAt, version }] }` — never a hash or key | `404` for any non-operator |
 | PATCH | `/api/platform/harness-devices/[id]` | implemented (FR-220): operator only; `{ action: activate \| revoke, version, reason? }`; audited `ACTIVATED` / `REVOKED`; effective on the device's next use | `404`; `400 HARNESS_DEVICE_ACTION_INVALID \| HARNESS_DEVICE_VERSION_REQUIRED`; `409 HARNESS_DEVICE_VERSION_CONFLICT \| HARNESS_DEVICE_REVOKED \| HARNESS_DEVICE_NOT_PENDING` |
+| GET | `/api/platform/error-events` | implemented (FR-247): installation operator only, audited `ERROR_EVENTS_READ`; `{ events: [{ id, fingerprint, name, message, frames, occurrenceCount, firstSeenAt, lastSeenAt, correlationId, route, resolvedAt, resolvedByPersonId }] }`, active rows before resolved ones, newest active first — never request/response content | `404` for any non-operator |
+| PATCH | `/api/platform/error-events/[id]` | implemented (FR-247): operator only, audited `ERROR_EVENT_RESOLVED`; sets `resolvedAt`/`resolvedByPersonId`, stops the fingerprint counting as active | `404` for any non-operator |
+| POST | `/api/platform/usage-events` | implemented (FR-248, FR-249): any signed-in person records their own `{ kind: PAGE_VIEW \| ACTION, route?, actionName? }` — a PAGE_VIEW never carries `actionName`, an ACTION never carries `route`; `actionName` is a static label matching `^[\w.:@/-]{1,120}$`, never free text | `400 USAGE_EVENT_KIND_INVALID \| USAGE_EVENT_ROUTE_INVALID \| USAGE_EVENT_ACTION_NAME_INVALID \| USAGE_EVENT_ROUTE_CARRIES_NO_ACTION_NAME \| USAGE_EVENT_ACTION_CARRIES_NO_ROUTE` |
+| GET | `/api/platform/usage-events` | implemented (FR-248, FR-249): installation operator only, audited `USAGE_EVENTS_READ`; `{ pageViews: [...], actions: [...] }`, each row `{ target, recentCount, rolledUpCount, totalCount, byPerson }` — `byPerson` reflects only the last 90 days, the only window this carries a person for (ADR-095 D3) | `404` for any non-operator |
+| POST | `/api/platform/usage-events/rollup` | implemented (FR-249, NFR-023): deployment-bearer-authenticated (`ZURI_USAGE_ROLLUP_TOKEN`), once-a-day idempotency guard; moves every `UsageEvent` row past its 90-day window into a person-free daily rollup and deletes the rows moved, one audit event per run (same shape as `/api/crm/retention-sweep`) | `401` missing/wrong bearer; `503` on an unhandled failure |
 | GET | `/api/platform/programme-usage-reports/whoami` | implemented (FR-220): the only read a harness credential allows — `{ installationId, personDisplayName, deviceLabel, harness, status }` of that credential | `401 HARNESS_CREDENTIAL_REQUIRED`; `503` |
 
 `POST /api/platform/programme-usage-reports` (FR-221) also accepts an active harness credential: the report stores the credential's person and installation, `branch` (key `(source, sessionId, branch)`), optional `repository` and `aiAccount` label, and `taskCode` becomes optional when a branch is named; a resumed session from the same installation whose counts only grow answers `200 { extended: true }` (audited `EXTENDED`); a pending device answers `403 HARNESS_NOT_ACTIVATED` and an unknown or revoked one `401 HARNESS_CREDENTIAL_REQUIRED`.
+
+FR-239 (ADR-086 D7): the body may also carry an optional, strict `detail` object — `reasoningTokens`, `cacheWrite5mTokens`, `cacheWrite1hTokens`, `webSearchRequests`, `webFetchRequests`, `prompts`, `toolCalls`, `toolErrors`, `toolDenials`, `compactions`, `apiErrors` (integers), `tools` (≤ 300 names matching `^[\w.:@/-]{1,120}$`, each `{ calls, errors }`) and `models` (≤ 30 names, each a request count); any other key is `400 USAGE_REPORT_INVALID`, so no text can be stored. The detail is part of the replay digest (a report without it digests as before) and every headline count must also grow for a resumed session to extend. Full contract: [Zuri harness plugin specification](../ZURI-HARNESS-PLUGIN-SPEC.md) §6–7.
 
 ### Desktop browser/QR pairing (FR-144, 2026-09-08)
 
@@ -118,6 +133,7 @@ Business differs from the Goal's (FR-043 isolation, extended to writes).
 | POST | `/api/business/goals/[id]/projects` | `{projectId}` | serialized Goal (with the link); re-linking an already-linked Project is `409` |
 | DELETE | `/api/business/goals/[id]/projects/[projectId]` | — | serialized Goal (without the link) |
 | PATCH | `/api/businesses/[id]/capabilities` | `{version, capability: 'physicalStock', enabled}` — OWNER-scoped, expected-version CAS (FR-169) | `{id, version, capabilities: {physicalStock: boolean}}`; `409` on a stale `version`, `404` on an unknown Business, `400` if the viewer does not own it |
+| PATCH | `/api/businesses/[id]/knowledge-candidates-toggle` | `{version, enabled, requestedBy, reason?}` — OWNER-scoped, expected-version CAS (FR-236, ADR-090 D6, TASK-ZAI-099); `requestedBy` records who asked, distinct from the acting principal | `{id, version, knowledgeCandidatesEnabled: boolean}`; `409` on a stale `version`, `404` on an unknown Business, `400` if the viewer does not own it or omits `requestedBy` |
 
 Isolation failures (`Roadmap does not belong to Business`, `Horizon does not
 belong to Business`, `Project does not belong to Business`, a mismatched
@@ -257,9 +273,29 @@ conversations owned by no Business or by one already in the viewer's scope.
 |---|---|---|
 | GET | `/api/crm/conversations` | implemented: authorized conversation list for the Business's tenant — customer, channel, message count, last-message preview, owning-Business label, plus counts by direction and channel. `limit` is capped server-side at 200 and the response says whether it truncated |
 | GET | `/api/crm/conversations/[id]` | implemented: one thread, messages oldest-first, with the customer behind it. A conversation outside the resolved scope answers **404**, never 403 — a "denied" would confirm the row exists |
+| POST | `/api/crm/conversations/[id]/reply` | implemented: FR-246 — a Business **owner** sends a reply from the Inbox composer, pushed through the account's LINE transport (never the Reply API) and recorded OUTBOUND with reply source `STAFF`, idempotent on a caller-supplied `clientRequestId` (never the inbound message, so several staff messages may follow one inbound). Refused before any push for a viewer without owner authority, the legacy channel, or an account that is not server-enabled — nothing is recorded on a push LINE does not accept |
+| GET | `/api/crm/conversations/search` | implemented: FR-233 third read-only reader — full-text search over `Message.body` (`pg_trgm` on Postgres, `LIKE` on SQLite), scoped to the viewer's visible Businesses within the Tenant `businessId` anchors, optionally to one LINE OA account (`channelAccountId`). A literal path segment ahead of `[id]/route.js`, so it never collides with a conversation id |
+| GET | `/api/crm/conversations/event-counts` | implemented: FR-233 per-account follow/unfollow counts from `ConversationEvent`, same scope as search and the inbox |
 | POST | `/api/crm/customers/[customerId]/consent` | implemented: FR-103 / SEC-005 PDPA consent attestation — a Business **owner** (not merely a Member) records `GRANTED`/`DECLINED` for a Customer reached through their own Business's tenant (BR-001). Writes only `Customer.consent*`; never touches Conversation or Message |
 | POST | `/api/crm/customers/[customerId]/erasure` | implemented: FR-022 PDPA erasure — the production trigger for `erasePrincipal`, which until now had no route, UI or script. Same authority as the consent row above (per-Business **owner** over a Business in the Customer's tenant, BR-001) or the installation operator. Body `{ businessId, confirmation: 'ERASE' }`; any other confirmation is **400** and is checked before any lookup. Every authority refusal is **404**, indistinguishable from a fabricated id (FR-072) — an irreversible action must not double as an existence oracle. Revokes identities/sessions/link tokens, soft-deletes and redacts the Customer, deletes ConversationAnalysis, tombstones `Message.body` and the matching `RawExternalRecord` payloads in one transaction. The response carries counts only, never personal data |
+| POST | `/api/crm/customers/[customerId]/chat-evidence/retrieve` | implemented: FR-245 chat evidence archive retrieval (ADR-093 D7, TASK-ZAI-112) — a per-Business **owner** over a Business in the Customer's tenant (BR-001), stepped up to **AAL2** through the same FR-224 gate credential rotation uses. Body `{ businessId, startDate, endDate, caseReference }` (both dates `YYYY-MM-DD`, `caseReference` required and free text). Recovers exactly the Customer's already-**archived** (retention-swept) messages in range, grouped by the `sessionId` `chat-evidence-archive-service.js` already writes into every archived line. Every manifest is re-checked against its own `manifestHash` and its file re-hashed against `fileSha256` before any line is trusted; a missing, unreadable or hash-mismatched manifest or file is reported in `missingMessageIds` rather than failing the whole retrieval. Every call — including an empty result — writes one `ARCHIVE_RETRIEVED` audit event naming the Customer, the range and the case reference. `403 ASSURANCE_LEVEL_INSUFFICIENT` below AAL2; `403` for a Business seen but not owned; `404` for an unknown Business or a Customer outside its tenant |
+| POST | `/api/crm/customers/[customerId]/legal-hold` | implemented: SEC-034 legal hold on a Customer's chat evidence archive (ADR-093 D6, TASK-ZAI-113) — a per-Business **owner** over a Business in the Customer's tenant (BR-001); no AAL2 step-up, unlike retrieval above, because this writes a reason and a date rather than reading any archived content, and the erasure it defers has never required one either. Body `{ businessId, reason, endDate }` (`reason` non-empty free text, `endDate` a future `YYYY-MM-DD`); a past or same-day `endDate` is **400** before any lookup. Appends one new `CustomerLegalHold` row — a history, never an update — and writes one `LEGAL_HOLD_RECORDED` audit event. While unexpired (`now < endDate`), a later PDPA erasure of this Customer leaves their archive data key alone instead of destroying it, and the erasure's own response and audit event name the hold. `404` for a Business seen but not owned or for an unknown Business/Customer, same shape as the erasure and retrieval rows above |
 | POST | `/api/agent/line-delivery` | implemented: transport delivery receipt endpoint recording outbound LINE reply messages into Conversation/Message history (FR-093 / SDD-051) |
+
+### CRM retention sweep worker (FR-230, ADR-091 D1/D2, 2026-09-15)
+
+The scheduled entry point for the nightly retention sweep (`retention-sweep-service.js`,
+built by TASK-ZAI-089): until this route existed nothing in the running system ever
+called it. Deployment-authenticated like the LINE worker and the programme usage
+reports endpoint — the bearer is compared in constant time before any work happens,
+and no browser viewer is resolved. Invoked once a day by
+`scripts/server-retention-sweep-worker.mjs`, itself invoked by the host's own
+scheduler (see `scripts/register-retention-sweep-task.ps1`) — not by an always-on
+container.
+
+| Method | Route | Contract | Failure |
+|---|---|---|---|
+| POST | `/api/crm/retention-sweep` | implemented (FR-230): under `Authorization: Bearer $ZURI_RETENTION_SWEEP_TOKEN` (at least 32 characters), runs the crm-owned slice of the nightly retention sweep across every Tenant and returns `{ auditEventId, countsByClass, alreadyRanToday }` — the exact per-class counts the sweep's own `RETENTION_SWEEP_COMPLETED` audit event carries, never message or customer content. A second call inside the same UTC day answers from the existing audit event (`alreadyRanToday: true`) instead of running the sweep or writing a second audit event, so a scheduler retry cannot double-count or duplicate the day's audit trail | `401 RETENTION_SWEEP_CREDENTIAL_REQUIRED`; `503 RETENTION_SWEEP_UNAVAILABLE` (database, or the sweep exceeded its own 10-minute bound) |
 
 ## Market Intelligence reader and translation trigger (FR-092 / SDD-049 / ADR-038)
 
@@ -604,6 +640,25 @@ the receipt lines.
 | GET | `/api/procurement/purchase-orders/[id]/receipts` | implemented (FR-165): `{ purchaseOrderId, purchaseOrderCode, receipts[] }` — each with `code` (`GRN-YYYYMMDD-NNN`), `supplierReference`, `receivedAt`, `lines[]` (`purchaseOrderLineId`, `qty`, `lotCode`, `expiresAt`, `serialNos[]`) | `404` |
 | POST | `/api/procurement/purchase-orders/[id]/receipts` | implemented (FR-165): `{ lines: [{ purchaseOrderLineId, qty, lotCode?, expiresAt?, serialNos? }], supplierReference?, notes?, receivedAt? }` posts a receipt against a SENT order; counted lines land in the Inventory ledger (reference `PO:<code>/GRN:<code>`); the receipt that completes every line makes the order RECEIVED. Answers `{ receipt, order, posted[] }`. Audited `GOODS_RECEIPT_POSTED` (and `PURCHASE_ORDER_RECEIVED`). No PATCH, no DELETE | `404`; `403 PROCUREMENT_RECEIPT_REQUIRES_INVENTORY_AUTHORITY`; `409 PURCHASE_ORDER_NOT_RECEIVABLE \| PROCUREMENT_RECEIPT_EXCEEDS_ORDERED` (with `details: [{ purchaseOrderLineId, description, ordered, received, outstanding, requested }]`) `\| PRODUCT_ARCHIVED \| INVENTORY_*`; `422 PROCUREMENT_RECEIPT_LINE_NOT_FOUND \| PROCUREMENT_RECEIPT_LINE_NOT_COUNTED \| INVENTORY_LOT_REQUIRED \| INVENTORY_SERIAL_COUNT_MISMATCH`; `400` (an order line once per receipt) |
 
+## Project Execution Domains — FR-251 approved contract
+
+Handler and runtime Swagger implemented and verified locally on 2026-09-17;
+hosted CI and production release are separate gates recorded in PR443.
+`GET /api/projects/{projectId}/domain-view` is the read-only Phase A contract in
+[baseline 23](../architecture/project-manager-system/23-PROJECT-DOMAIN-FEATURE-IMPLEMENTATION-BASELINE.md)
+and the [FR-251 note](../domains/project-manager/features/FR-251-project-execution-domains.md).
+The Next.js handler uses the existing `[id]` folder. Resolve the request viewer and
+`assertProjectRoadmapReadable` before aggregates. Return 401 `AUTH_REQUIRED`
+or the same redacted 404 `RESOURCE_NOT_FOUND` for missing/deleted/foreign/invalid hierarchy.
+200 returns schemaVersion, projectId, observedAt, unique Project work total, unbound
+Workstream count and deduplicated primary/supporting domain rows; technical owners
+are separate. Snapshot, blocker, contract, gap and Feature authority remain explicitly
+unavailable/not bound. GET has no persistence, cache or AuditEvent side effect.
+Runtime Swagger carries the exact DTO under `/api/projects/{id}/domain-view`, using
+the existing route-inventory parameter name `id`; this is the same wire URL as
+`{projectId}` in the design contract. Other candidate operations
+remain deferred.
+
 ## Project core
 
 | Method | Path | ทำอะไร |
@@ -611,6 +666,7 @@ the receipt lines.
 | GET/POST | `/api/projects` | list (filter: workspaceId, businessId, tenantId, status, q, limit, view) → `{ items, limit, truncated }` / create; `view=overview\|timeline\|workspace` are explicit relation-rich compatibility reads for existing consumers; create derives `businessId` from the target Space and rejects owner/Space mismatch |
 | GET/PATCH/DELETE | `/api/projects/[id]` | detail (includes direct Business owner and Space context) / update with owner/Space invariant / archive |
 | GET | `/api/projects/[id]/inventory` | implemented: trusted-viewer, read-only `PROJECT_INVENTORY` DTO v1.0 with bounded work, milestones/gates, contained dependencies, file metadata, repository links, team, progress/evidence and redacted activity sections |
+| GET | `/api/projects/[id]/domain-view` | FR-251: authorized read-only Project Execution Domains DTO v1.0; deduplicated primary/supporting Workstream bindings and work counts, technical owners separate, unknown and unavailable sources explicit; correlated typed errors and no writes |
 | GET/POST/PATCH/DELETE | `/api/projects/[id]/team` | team in business scope / add member / change role / remove business-scoped member |
 | GET/POST | `/api/projects/[id]/files` | list/add ProjectFile metadata reference; optional WorkItem must belong to Project |
 | DELETE | `/api/projects/[id]/files/[fileId]` | delete ProjectFile reference within its owning Project |
@@ -800,7 +856,7 @@ that a Codex worker or Supabase apply executed.
 
 - every current API route handler is represented by a current path in this
   appendix;
-- the `route_handlers=239` marker matches the route-file enumeration;
+- the `api-spec-counts` route-handler marker matches the route-file enumeration;
 - the interface inventory separately covers every current page route and its
   published operational domain counts; and
 - generated graph/projection freshness is checked by `npm run docs:check`.
@@ -815,7 +871,18 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 1.71.0b | 2026-09-17 | candidate | FR-253 adds six console route handlers and GET source history; current authority, cursor pages and immutable citation artifacts | working-tree | RWANG |
+| 1.83.0b | 2026-09-17 | candidate | FR-253 adds six console route handlers and GET source history; current authority, cursor pages and immutable citation artifacts | working-tree | RWANG |
+| 1.82.0b | 2026-09-17 | candidate | Implement and locally verify owner-approved FR-251 read-only Domain-view contract and runtime Swagger; one GET handler added (288 → 289), typed scope refusals and operation-only SessionAuth verified | reviewed baseline 7465080f; PR443 | RWANG |
+| 1.82.0b | 2026-09-16 | candidate | SEC-034 (ADR-093 D6, TASK-ZAI-113): one handler file, `POST /api/crm/customers/[customerId]/legal-hold` — records an OWNER-recorded legal hold on a Customer's chat evidence archive; while active, a PDPA erasure defers destroying the archive key instead of destroying it. Route handler count 288 -> 289 | working-tree | Claude Sonnet 5 |
+| 1.81.0b | 2026-09-16 | candidate | FR-248, FR-249 (ADR-095 D2, D3): two handler files, `POST/GET /api/platform/usage-events` (record one's own usage; operator reads the breakdown) and `POST /api/platform/usage-events/rollup` (deployment-authenticated 90-day rollup, same shape as the retention sweep). Route handler count 286 -> 288 | working-tree | Claude Sonnet 5 |
+| 1.80.0b | 2026-09-16 | candidate | FR-247 (ADR-095 D1): two handler files, `GET /api/platform/error-events` and `PATCH /api/platform/error-events/[id]` — the deduplicated error list and its resolve action, both operator-only and audited, never request/response content. Route handler count 284 -> 286 | working-tree | Claude Sonnet 5 |
+| 1.79.0b | 2026-09-16 | candidate | FR-245 (ADR-093 D7, TASK-ZAI-112): one handler file, `POST /api/crm/customers/[customerId]/chat-evidence/retrieve` — the archive's one retrieval path, OWNER at AAL2 through the FR-224 gate, grouped by session, every attempt audited. Route handler count 283 -> 284 | working-tree | Claude Sonnet 5 |
+| 1.78.0b | 2026-09-16 | candidate | FR-244 (ADR-094 D6 option A, TASK-ZAI-109): one handler file, `POST /api/edge/model-residency` — the compute-owned edge worker's identity-free residency poll, returning one aggregate `shouldBeWarm` boolean derived from every server-enabled account's declared business hours, never an account id or a per-account schedule (ADR-061). Route handler count 282 -> 283 | working-tree | Claude Sonnet 5 |
+| 1.77.0b | 2026-09-16 | candidate | FR-246 (ADR-093 evidence gap, TASK-ZAI-110): one handler file, `POST /api/crm/conversations/[id]/reply` — the staff reply writer, a Business owner replying from the Inbox composer, pushed through the LINE transport and recorded only on acceptance. Route handler count 281 -> 282 | working-tree | Claude Sonnet 5 |
+| 1.76.0b | 2026-09-15 | candidate | FR-230 (ADR-091 D1, D2): one handler file, `POST /api/crm/retention-sweep` — the missing scheduled entry point for the nightly retention sweep, deployment-authenticated, same-UTC-day idempotency guard against a scheduler retry. Route handler count 280 -> 281 | working-tree | Claude Sonnet 5 |
+| 1.75.0b | 2026-09-15 | candidate | FR-236 (ADR-090 D6, TASK-ZAI-099): one handler file, `PATCH /api/businesses/[id]/knowledge-candidates-toggle` — the only writer of `Business.knowledgeCandidatesEnabled`, gating LINE FAQ knowledge candidate drafting per Business (off by default). Same shape as the `capabilities` route (FR-169). Route handler count 279 -> 280 | working-tree | Claude Sonnet 5 |
+| 1.74.0b | 2026-09-14 | candidate | FR-237 (ADR-090 D7): one handler file, `GET /api/knowledge/gap-report` — aggregates `EVIDENCE_SELECTED` trace events with `reason=NO_EVIDENCE` per Business, returning counts, product locators and last-seen times only, never the question text. Route handler count 276 -> 277 | working-tree | Claude Sonnet 5 |
+| 1.73.0b | 2026-09-14 | candidate | FR-236 (ADR-090 D6): four handler files under `/api/knowledge/candidates` — list/draft, read/edit one, and the audited APPROVE/REJECT decision that admits an approved candidate through the existing ADR-072 admission service. Route handler count 273 -> 276 | working-tree | Claude Sonnet 5 |
 | 1.67.0b | 2026-09-13 | candidate | FR-208 / FR-209 (ADR-084 catalogue intake): six handler files under `/api/inventory/catalog-intakes` — the list, preview, commit, one intake (GET + CANCEL), the Business-specific workbook template and the workbook upload preview. Route handler count 257 -> 263 | working-tree | Claude Opus 5 |
 | 1.66.0b | 2026-09-13 | candidate | FR-201..FR-207 (ADR-083 SKU governance): five new handler files under `/api/inventory` — `products/resolve` (GET), `products/[id]/identifiers` and `products/[id]/unit-conversions` (GET/POST/PATCH), `catalog-hygiene` and `replenishment` (GET) — plus the nature / variant / lifecycle fields and refusals on the product collection and item and the `services` / `phaseOut` / `belowReorderPoint` counts on the stock summary. Route handler count 252 -> 257 | working-tree | Claude Fable 5.1 |
 | 1.65.0b | 2026-09-12 | candidate | FR-193 (ADR-078 D1): added the Employment WRITE path, which had been declared and built as a service and then left unreachable — `POST /api/people/employment` and `PATCH /api/people/employment/[employmentId]` (`on_leave` / `reinstate` / `end`, the last requiring a reason). `employment-service.js` shipped all four operations in 1.63.0b-era work and no route imported it, so the People Directory could only show rows the ADR-078 backfill created — and on production that was none, because no `Membership.employeeRef` values existed to carry over. The page told the owner to add a record and offered no control that wrote one. Route handler count 250 -> 252 | working-tree | Claude Opus 5 |
@@ -887,7 +954,10 @@ canary evidence; those remain owner-gated release criteria.
 | GET | `/api/line-oa/jobs/failures?businessId=` | Studio Business visibility (same 404 for unknown, invisible or ungranted); read model only, never a retry or acknowledgement. `{ businessId, total, byErrorCode[], failures[] }` — the honest unwindowed count of `FAILED` conversation jobs for the Business, a per-`errorCode` breakdown (a null code is reported as `null`, never relabelled) and the 20 most recently updated rows in the same DTO shape as the per-account list. `400 LINE_OA_BUSINESS_REQUIRED`. |
 | POST | `/api/line-oa/jobs/[id]/acknowledge-unknown` | Studio publisher; `{version,acknowledgePossibleDelivery:true}` terminal audited closure without resend or delivery claim. |
 | GET | `/api/line-oa/jobs/[id]/trace` | Business owner plus Studio visibility; exact persisted execution evidence and read-only playback. Derives Tenant/Business from the job; no model, tool or transport calls. Missing or erased evidence returns `REPLAY_INCOMPLETE`. |
-| POST | `/api/line-oa/connections` | Business owner; register LINE provider connection and secret reference metadata. Secrets are mounted separately. |
+| POST | `/api/line-oa/connections` | Business owner. Body `{businessId,name,destination,secretRef:"deployment-secret:…"}` registers connection metadata for a mounted secret (FR-149). Body `{businessId,name,channelId,channelSecret,channelAccessToken?}` connects write-only (FR-223, FR-224, FR-226, ADR-089): ACTIVE TOTP factor and live AAL2 step-up (403 `MFA_FACTOR_REQUIRED` with `details[0].enrolmentPath`, 403 `ASSURANCE_LEVEL_INSUFFICIENT`), rate limit (429 `CREDENTIAL_RATE_LIMITED` + `retryAfterSeconds` and `Retry-After`), writable store required (503 `CHANNEL_SECRET_STORE_UNAVAILABLE`), live LINE validation (422 `LINE_CREDENTIALS_REJECTED` for a wrong Channel ID or secret alike, 422 `LINE_TOKEN_REJECTED`, 503 `LINE_UNAVAILABLE`), claim (409 `LINE_CHANNEL_ALREADY_CONNECTED` / `LINE_CHANNEL_CLAIMED_ELSEWHERE`, Thai sentence in `details`), then vault write (500 `CREDENTIAL_ORPHAN_PURGED` after compensation). Response `{connection,credential:{status,version,secretStore,displayHint,lastValidatedAt,expiresAt},bot,claim}` — never material. Body ≤ 16 KiB (413 `CREDENTIAL_INPUT_TOO_LARGE`), generic 400 `CREDENTIAL_INPUT_INVALID`, `Cache-Control: no-store`. |
+| POST | `/api/line-oa/connections/[id]/credential` | Business owner; FR-223/FR-224 rotation `{channelId,channelSecret,channelAccessToken?}` with the same gate, limit and validation; 422 `LINE_CHANNEL_MISMATCH` when the pair belongs to another bot; 409 `LINE_CONNECTION_NOT_ACTIVE`. The previous version resolves until the new one validates; no epoch bump. Response `{credential,bot}`; `no-store`. |
+| POST | `/api/line-oa/connections/[id]/credential/revoke` | Business owner; FR-223/FR-224 `{reason,confirmation:"REVOKE"}` with the gate and limit; fences the LINE OA account (server ownership off, epoch +1, queued jobs cancelled) before every version's material is purged. Response `{credential:{status,version}}`; `no-store`. |
+| POST | `/api/line-oa/connections/[id]/credential/validate` | Business owner; FR-223/FR-224 empty body with the gate and limit (a rejected validation counts twice); re-proves the stored credential with LINE bot information and records `lastValidatedAt`/`lastValidationCode`; 409 `CREDENTIAL_REENTRY_REQUIRED` when it no longer resolves, 422 `LINE_CHANNEL_MISMATCH`. Response `{credential,bot}`; `no-store`. |
 
 Execution contract: `contracts/line-conversation-execution.schema.json`. Job errors are redacted; Edge validation 400, missing credentials 401, unavailable/disabled 503, invisible job 404, stale lease/version 409. Transport ownership and execution policy changes increment account epoch and cancel waiting jobs; SENDING or unacknowledged UNKNOWN blocks handoff.
 
@@ -967,6 +1037,12 @@ Five paths / six operations share the [admission contract](../plans/KNOWLEDGE-AD
 | POST | `/api/knowledge/queries` | `{businessId,projectId?,query,topK?}`; pins one corpus manifest, queries explicit native snapshots through MSP, checks lineage and current access, returns ranked results and citationId. |
 | GET | `/api/knowledge/citations/[citationId]` | Resolves a historical source/version/chunk only while current corpus/source/file/project access permits it. |
 | DELETE | `/api/knowledge/sources/[sourceId]` | `{expectedVersion}`; corpus writer atomically withdraws membership, retaining immutable history. This does not modify the FileAsset, and remains available to clean up membership after a file is deleted. |
+| GET | `/api/knowledge/candidates` | `?businessId&status?`; lists `KnowledgeCandidate` rows for a Business, domain-visible (`knowledge`) read only. |
+| POST | `/api/knowledge/candidates` | `{businessId,conversationId,messageIds?,question,answer,idempotencyKey?}`; drafts one candidate from a consent-GRANTED Conversation (crm read projection); OWNER/LINE_OA_PUBLISHER only; Zero-PII checked; idempotent on (businessId, idempotencyKey). |
+| GET | `/api/knowledge/candidates/[id]` | Reads one candidate, domain-visible (`knowledge`) read only. |
+| PATCH | `/api/knowledge/candidates/[id]` | `{question?,answer?,version}`; edits a PENDING_REVIEW draft; OWNER/LINE_OA_PUBLISHER only; Zero-PII re-checked; optimistic concurrency on `version`. |
+| POST | `/api/knowledge/candidates/[id]/decision` | `{decision:APPROVE\|REJECT,version,reason?}`; audited. APPROVE admits one immutable `LINE_FAQ_CANDIDATE` TEXT source through the existing ADR-072 admission service; REJECT never calls it. OWNER/LINE_OA_PUBLISHER only (FR-236, ADR-090 D6). |
+| GET | `/api/knowledge/gap-report` | `?businessId?`; omit to aggregate every Business the viewer sees under the `knowledge` domain. Reads `EVIDENCE_SELECTED` trace events with `reason=NO_EVIDENCE` and returns counts, product locators (where the traced query names one) and last-seen times only — never the question text (FR-237, ADR-090 D7). |
 
 Validation: 400 invalid body, 401 no session/key, 404 inaccessible target, 409 version/hash/CAS conflict, 413 over 1 MiB, 415 unsupported file type, 422 invalid UTF-8/empty content, 503 unconfigured runtime. Machine grants are explicit per action; MCP continues using its existing session resolver. Isolated acceptance is not production activation.
 
@@ -987,3 +1063,7 @@ Version diff 1.67.0b → 1.68.0b (2026-09-13): add `POST /api/platform/programme
 Version diff 1.68.0b → 1.69.0b (2026-09-14): add the six FR-220 harness pairing, device and whoami handlers and the FR-221 attribution contract on the usage report endpoint (ADR-087); handler count 264 → 270.
 
 Version diff 1.69.0b → 1.70.0b (2026-09-14): no route added or changed; record that the MFA factor secret is sealed at rest (SEC-029, ADR-088) and the two 503 refusals that follow from a missing key or an unopenable factor. Handler count unchanged.
+
+Version diff 1.70.0b → 1.71.0b (2026-09-14): FR-239 optional `detail` object on `POST /api/platform/programme-usage-reports` (ADR-086 D7); no new handler.
+
+Version diff 1.71.0b → 1.72.0b (2026-09-14): ADR-089 Phase 1 (branch `feat/integration-secret-store-vault`, not merged) — the write-only Channel ID and secret body on `POST /api/line-oa/connections` and three new handlers under `/api/line-oa/connections/[id]/credential` (rotate, revoke, validate), all behind the FR-224 step-up gate and rate limit; 429 responses now carry `retryAfterSeconds` and `Retry-After`. Handler count 270 → 273.

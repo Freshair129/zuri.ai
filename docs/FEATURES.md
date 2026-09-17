@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.52.0b"
+version: "1.58.0b"
 status: active
-last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-17T00:32:00+07:00,RWANG"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -12,9 +12,13 @@ relations:
 
 # Features (FEAT registry)
 
+Version diff 1.56.0b → 1.57.0b: register owner-approved FR-251 as a project-manager feature-of-one for the read-only Project Execution Domains view, now implemented and verified locally. No new FEAT bundle, Phase B authority or production deployment is declared.
+
+Version diff 1.55.0b → 1.56.0b: register FR-250 as a project-manager feature-of-one for hierarchical Projects & Work navigation. No new FEAT bundle or runtime completion is asserted.
+
 | Field | Value |
 |-------|-------|
-| **Version** | 1.47.0b |
+| **Version** | 1.57.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -65,11 +69,15 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-031 | SKU governance (anti-SKU-bloat) — the product nature declared once at the master and inherited by every SKU so a service is never a variant of a good, variant identity as the key that makes one physical variant one SKU, barcodes and partner codes as resolvable attributes an intake checks before it creates, pack sizes as unit conversions rather than SKUs, the SKU lifecycle (phase-out, reactivate, merge, the archive guard), replenishment parameters, and the read-only catalogue hygiene report with its merge desk on the Inventory console (ADR-083, `DOM-INVENTORY`) | FR-201, FR-202, FR-203, FR-204, FR-205, FR-206, FR-207 | implemented |
 | FEAT-032 | Catalogue intake that resolves before it creates — one envelope that JSON, a Business-specific Excel workbook and a LINE `#sku` command all convert into; a planner that looks up every item by its barcodes, partner codes and SKU code (following merges) before it plans a create, matches without overwriting, and applies ADR-083's guards across the catalogue and the batch; a persisted preview whose plan hash a commit must match; an all-or-nothing commit through the existing catalogue writers; the Import tab; and LINE previews that only a verified staff sender with Inventory write authority can confirm (ADR-084, `DOM-INVENTORY`) | FR-208, FR-209, FR-210 | implemented |
 | FEAT-033 | Data Pipeline Map — where data enters zuri-ai, where it is combined and who receives it, kept as a validated registry whose surface levels, build statuses and FEATs are derived from the tree and the readiness snapshot, drawn as a node-edge view with chain, domain and status filters in a Knowledge (GKS) navigation slot, with live per-edge health for the active Business declared next (ADR-085, `DOM-KNOWLEDGE`) | FR-212, FR-213, FR-214, FR-215 | building |
-| FEAT-034 | Programme delivery telemetry — phase cards on the operator programme board show counts, size, plan window and effort estimate beside the time and tokens really used, measured from local agent session logs and agent usage reports and never presented as progress, and task cards carry evidence badges and subtask progress (ADR-086, `DOM-PLATFORM-CONTROL`) | FR-216, FR-217, FR-218, FR-219 | building |
-| FEAT-035 | Zuri harness usage plugin — Claude Code and Codex agents on any machine pair once through a signed-in browser, hold a credential that can only report usage, and report each finished session attributed to the approving person, the device and the lane of its branch (ADR-087, `DOM-IDENTITY`, `DOM-PLATFORM-CONTROL`) | FR-220, FR-221, FR-222 | building |
-| FEAT-036 | Connect LINE OA yourself — a Business owner connects a LINE Official Account from the browser: after a TOTP step-up they enter the Channel ID and Channel secret once, the server proves them with LINE, claims the bot for this installation, stores the secret write-only in the Integration vault (Supabase Vault, or an encrypted store on self-host) and mints short-lived tokens itself, sets and tests the webhook through LINE's API and decides on its own when the old transport has gone quiet — with no operator and no host file (ADR-089, `DOM-INTEGRATION`, `DOM-IDENTITY`, `DOM-LINE-OA-STUDIO`) | FR-223, FR-224, FR-225, FR-226, FR-227, FR-228 | declared |
+| FEAT-034 | Programme delivery telemetry — phase cards on the operator programme board show counts, size, plan window and effort estimate beside the time and tokens really used, measured from local agent session logs and agent usage reports and never presented as progress, and task cards carry evidence badges and subtask progress (ADR-086, `DOM-PLATFORM-CONTROL`) | FR-216, FR-217, FR-218, FR-219 | live |
+| FEAT-035 | Zuri harness usage plugin — Claude Code and Codex agents on any machine pair once through a signed-in browser, hold a credential that can only report usage, and report each finished session attributed to the approving person, the device and the lane of its branch (ADR-087, `DOM-IDENTITY`, `DOM-PLATFORM-CONTROL`) | FR-220, FR-221, FR-222 | live |
+| FEAT-036 | Connect LINE OA yourself — a Business owner connects a LINE Official Account from the browser: after a TOTP step-up they enter the Channel ID and Channel secret once, the server proves them with LINE, claims the bot for this installation, stores the secret write-only in the Integration vault (Supabase Vault, or an encrypted store on self-host) and mints short-lived tokens itself, sets and tests the webhook through LINE's API and decides on its own when the old transport has gone quiet — with no operator and no host file (ADR-089, `DOM-INTEGRATION`, `DOM-IDENTITY`, `DOM-LINE-OA-STUDIO`) | FR-223, FR-224, FR-225, FR-226, FR-227, FR-228 | building |
 | FEAT-037 | Chat record, memory tiers and retention — every LINE conversation kept in the right place for its role: the complete business record in CRM (text, stickers, media references and events, searchable in the inbox), the agent's own 90-day conversation ledger and consolidated memory in MSP under a per-account policy and per-tier consent, declared retention windows a Tenant can only shorten, erasure that reaches every tier and shows what is still pending, and one Context Composer that decides what a model may see and leaves a receipt of it (ADR-091, `DOM-CRM`, `DOM-AGENT`, `DOM-LINE-OA-STUDIO`) | FR-229, FR-230, FR-231, FR-232, FR-233, FR-234 | declared |
 | FEAT-038 | LINE grounding and knowledge candidates — a LINE OA account can answer from the Business's published GKS corpus, with a traced fallback and never a model call without evidence, and what the business learns from LINE conversations enters that corpus only as a locator-only question-and-answer that an owner or publisher approved, with a report of the questions nobody could answer (ADR-090, `DOM-KNOWLEDGE`, `DOM-AGENT`, `DOM-LINE-OA-STUDIO`) | FR-235, FR-236, FR-237, FR-238 | declared |
+| FEAT-039 | Agent usage detail — for every measured lane, person and device, the programme board shows how the tokens split into input, output, thinking and cache, which tools the agents called and how often they failed or were denied, and how many prompts and compactions a session took, counted from agent logs by the meter and the harness plugin with names and numbers only (ADR-086 D7, `DOM-PLATFORM-CONTROL`) | FR-239, FR-240 | live |
+| FEAT-040 | Conversation sessions and model residency — a long LINE conversation reads as separate sittings: each message and event belongs to a session that closes after 30 quiet minutes (10 to 120 per account), carried on the LINE job and trace and shown as a divider in the inbox, and the local model stays loaded only during each account's business hours, with a fixed reply outside them (ADR-094, `DOM-CRM`, `DOM-LINE-OA-STUDIO`) | FR-243, FR-244 | declared |
+| FEAT-041 | Chat evidence — what a customer and the business said stays provable: staff replies sent from the inbox are part of the record, and message bodies past their retention window move to an encrypted, hash-chained archive on a local disk for 10 years, retrieved only by an owner at AAL2 with a case reference and kept past an erasure only under a recorded legal hold (ADR-093, `DOM-CRM`) | FR-245, FR-246 | declared |
+| FEAT-042 | Observability — error tracking and feature usage: operators read a deduplicated, resolvable error list and a per-person breakdown of which pages and actions are actually used, both extending the existing structured logger rather than a third-party service (ADR-095, `DOM-PLATFORM-CONTROL`) | FR-247, FR-248, FR-249 | building |
 
 Version diff 1.39.0b → 1.40.0b (2026-09-12): FEAT-030 declared and implemented in the same change — audit events carry queryable scope (FR-198) and identity gains the two read models an access review needs (FR-199), under ADR-080. Closes the gap ADR-077's grant lifecycle assumed was already open.
 
@@ -864,6 +872,46 @@ writing one sentence here, or the governance chain stops.
     "id": "FEAT-038",
     "primaryDomain": "knowledge",
     "useCase": "เจ้าของธุรกิจสลับบัญชี LINE OA ให้ตอบลูกค้าจากคลังความรู้ที่ publish แล้วใน GKS ดู trace ได้ว่าคำตอบอ้างเอกสารไหน อนุมัติคำถาม-คำตอบที่ได้จากแชทลูกค้าเข้าเป็นความรู้ของธุรกิจโดยไม่มีข้อมูลส่วนตัวของลูกค้าติดไป และเห็นรายงานว่าลูกค้าถามเรื่องสินค้าตัวไหนที่ระบบยังตอบไม่ได้"
+  },
+  {
+    "id": "FEAT-039",
+    "primaryDomain": "platform-control",
+    "useCase": "installation operator เปิดการ์ด phase บน /control/roadmap แล้วเห็นว่า token ที่ใช้แยกเป็น input, output, thinking และ cache อย่างละเท่าไร agent เรียก tool อะไรบ่อยที่สุด พลาดหรือถูกปฏิเสธกี่ครั้ง ใช้กี่ prompt และ compact กี่รอบ แยกตาม lane คน และเครื่อง โดยไม่มีข้อความของงานถูกเก็บ"
+  },
+  {
+    "id": "FEAT-040",
+    "primaryDomain": "crm",
+    "useCase": "เจ้าของธุรกิจเปิด inbox แล้วเห็นบทสนทนา LINE ของลูกค้าแบ่งเป็น session ตามช่วงที่คุยกัน โดย session ปิดเองเมื่อเงียบเกิน 30 นาที ตั้งค่าได้ 10–120 นาทีต่อบัญชี ย้อนดู job และ trace ของแต่ละ session ได้ ส่วน model บนเครื่อง edge โหลดไว้เฉพาะเวลาทำการของบัญชี และนอกเวลาทำการลูกค้าได้รับข้อความตอบกลับที่ตั้งไว้"
+  },
+  {
+    "id": "FEAT-041",
+    "primaryDomain": "crm",
+    "useCase": "เมื่อลูกค้าอ้างว่าเคยได้รับส่วนลดเมื่อสองปีก่อน เจ้าของธุรกิจยืนยันตัวตนสองชั้นแล้วดึงข้อความของลูกค้าคนนั้นตามช่วงวันที่จาก archive ที่เข้ารหัสบนดิสก์ในเครื่อง พร้อม hash ที่พิสูจน์ว่าไม่ถูกแก้ ข้อความที่พนักงานตอบจาก inbox อยู่ในหลักฐานด้วย และข้อมูลที่อยู่ภายใต้ legal hold ไม่ถูกลบจนกว่าข้อพิพาทจะจบ"
+  },
+  {
+    "id": "FR-241",
+    "primaryDomain": "platform-control",
+    "useCase": "ใครก็ตามที่ login zuri-ai แล้ว เปิด /roadmap ได้ในช่วง 30 วันจนถึง 15 ต.ค. 2026 เพื่ออ่านแผนงาน 24 สัปดาห์กับ Domain map แบบอ่านอย่างเดียว โดยไม่เห็นยอดการใช้งานแยกตามคนหรือเครื่อง ชื่อ tool/model หรือรายการเครื่องที่จับคู่ ส่วน /control/roadmap ยังเปิดได้เฉพาะ operator"
+  },
+  {
+    "id": "FR-242",
+    "primaryDomain": "integration",
+    "useCase": "ทีมพัฒนาต่อยอด vault เดิมที่เก็บ LINE channel secret ให้เก็บ OAuth client (เช่น FlowAccount ในอนาคต) และ model provider API key ได้ด้วย ผ่านขั้นตอนเขียน-ยืนยัน-หมุน-เพิกถอน-อ่านแบบเดียวกัน โดยเขียนทับ credential ผิดประเภทลง connection เดิมไม่ได้ (ระบบปฏิเสธก่อนข้อมูลลับจะถูกเก็บ) และอ่านข้าม kind กันไม่ให้เอา OAuth key ไปอ่านเป็น LINE channel secret"
+  },
+  {
+    "id": "FR-250",
+    "primaryDomain": "project-manager",
+    "useCase": "ผู้ใช้เปิด Projects & Work แล้วเลือกหมวด Project Management, Work Management หรือ Resource Coordination จาก sidebar และเลือกแท็บภายในหมวดนั้น โดยยังอยู่ในโปรเจกต์เดิม เปิด Inventory, Team และ Work views เดิมได้ครบ ใช้ Import plan จากปุ่มเดียว และเห็น Requirements, Risks, Resources กับ Agent Delivery ว่าส่วนใดยัง Planned โดยเมนูไม่เพิ่มสิทธิ์"
+  },
+  {
+    "id": "FR-251",
+    "primaryDomain": "project-manager",
+    "useCase": "ผู้ใช้ที่มีสิทธิ์อ่าน Project เปิด Delivery Design แล้วดู Execution Domains ตาม Workstream จริง แยกเจ้าของหลัก ส่วนสนับสนุน และ technical owner นับงานไม่ซ้ำ เห็นงานที่ยังไม่ผูก domain และ ID ที่ยังไม่รู้จัก พร้อมระบุข้อมูล feature และหลักฐานที่ยังไม่มีอย่างชัดเจน"
+  },
+  {
+    "id": "FEAT-042",
+    "primaryDomain": "platform-control",
+    "useCase": "operator เปิดหน้า error ใหม่บน /control/errors แล้วเห็น error ที่เกิดจริงจัดกลุ่มตาม fingerprint พร้อมจำนวนครั้งและเวลาที่เกิดล่าสุด กดปิดเมื่อแก้แล้ว และเปิดอีกหน้าเพื่อดูว่าหน้าไหน/ฟีเจอร์ไหนถูกใช้บ่อยแค่ไหน แยกตามคน"
   }
 ]
 ```
@@ -902,3 +950,13 @@ Version diff 1.48.0b → 1.49.0b (2026-09-13): Added **FEAT-034** (FR-216..FR-21
 Version diff 1.49.0b → 1.50.0b (2026-09-14): Added **FEAT-035** (FR-220..FR-222) under **ADR-087** — the Zuri harness usage plugin with browser-paired devices and a report-only credential. Declared; building.
 
 Version diff 1.50.0b → 1.51.0b (2026-09-14): Added **FEAT-036** (FR-223..FR-228) under **ADR-089** — connect LINE OA yourself; **FEAT-037** (FR-229..FR-234) under **ADR-091** — chat record, memory tiers and retention; and **FEAT-038** (FR-235..FR-238) under **ADR-090** — LINE grounding and knowledge candidates. Owner-approved design, declared only: no code, model, route or migration.
+
+Version diff 1.51.0b → 1.52.0b (2026-09-14): Added **FEAT-039** (FR-239, FR-240) under **ADR-086 D7** — agent usage detail from agent logs: token types, tool calls, prompts and compactions per lane, person and device. Declared; building.
+
+Version diff 1.52.0b → 1.53.0b (2026-09-14): **FEAT-034**, **FEAT-035** and **FEAT-039** move from building to live — every FR they bundle is merged and deployed (#383, #386, #393; running image `zuri-ai-web:release-daca80fb`) with its migrations applied on production. No feature text changed.
+
+Version diff 1.53.0b → 1.54.0b (2026-09-14): readiness metadata for **FR-241** (a feature of one, ADR-092) — the 30-day roadmap member view for signed-in people.
+
+Version diff 1.54.0b → 1.55.0b (2026-09-16): **FEAT-040** (FR-243, FR-244; ADR-094) and **FEAT-041** (FR-245, FR-246; ADR-093) declared with readiness metadata, on the owner's acceptance of both ADRs.
+
+Version diff 1.55.0b → 1.56.0b (2026-09-16): Added **FEAT-042** (FR-247..FR-249, NFR-023) under **ADR-095** — error tracking and per-person feature usage, both extending the existing logger; FR-247 implemented locally, FR-248/FR-249 declared only. Also reconciles the '**Version**' document-control cell, which had drifted behind this table (read 1.47.0b, table already at 1.55.0b).

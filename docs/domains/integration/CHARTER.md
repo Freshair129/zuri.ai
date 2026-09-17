@@ -1,5 +1,5 @@
 ---
-version: "0.2.0b"
+version: "0.4.2b"
 status: active
 last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
 id: ZAI:DOMAIN-INTEGRATION
@@ -24,6 +24,9 @@ owns_models:
   - IntegrationProvider
   - IntegrationConnection
   - IntegrationCredential
+  - IntegrationCredentialVersion
+  - IntegrationSecretEnvelope
+  - ChannelAccountClaim
   - IngestionRun
   - RawExternalRecord
   - SyncCursor
@@ -248,12 +251,57 @@ or publishing raw provider records into an owner domain.
 
 See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[ZAI:ADR-061]]. Phase ownership does not change this charter's model/route manifest. Server transport is independent of Edge execution; BR-011/FR-050 describe retained legacy forwarding only.
 
-## Credential vault and self-serve LINE OA onboarding (ADR-089, FEAT-036 — declared, not built)
+## Credential vault and self-serve LINE OA onboarding (ADR-089, FEAT-036 — Phase 1 merged and migrations applied, not deployed)
 
 [ADR-089](../../decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md)
 (accepted 2026-09-14) assigns this lane the credential vault and the LINE
-channel-admin port. Nothing below exists in code or schema yet; `owns_models`
-above changes only in the slice that adds each model.
+channel-admin port. `owns_models` above changes only in the slice that adds each model.
+
+**Merged in #398 (main 2aef8caa; TASK-ZAI-078; migrations
+applied on production 2026-09-14, not deployed):**
+
+- `src/platform/integrations/core/secret-store/secret-store-port.js` — the
+  `SecretStorePort` contract (write, activate, revoke, resolve), the reference grammar
+  (`supabase-vault:` / `envelope:` / `deployment-secret:`) and the one LINE bundle
+  schema; errors carry a code and nothing else.
+- `supabase-vault-secret-store.js` over `supabase/migrations/20260914140200_channel_secret_vault_functions.sql`
+  — SECURITY DEFINER write, activate, revoke and resolve, executable only through
+  `zuri_channel_vault_writer` / `zuri_channel_vault_reader` entered with `set local role`.
+- `envelope-secret-store.js` — AES-256-GCM under a per-secret data key wrapped by
+  `ZURI_SECRET_KEK`, AAD bound to Tenant, Business, connection and version;
+  `IntegrationSecretEnvelope` is excluded from backup export.
+- `dispatching-secret-manager.js` — the one resolver the LINE runtime, the rich menu
+  worker, transport health and `ENABLE_SERVER` validation compose (SDD-097); a prefix
+  with no configured store resolves `Unavailable`.
+- `credential-lifecycle.js` — store a validated bundle, compensation purge, revoke
+  with the account fenced first, `REENTRY_REQUIRED` for a restored credential.
+- `IntegrationCredentialVersion` and the new `IntegrationCredential` columns
+  (migration `20260914140000_integration_credential_lifecycle.sql`, with backfill).
+
+**Merged in the same pull request (TASK-ZAI-079; migration applied on production 2026-09-14):**
+
+- `src/platform/integrations/core/channel-account-claim.js` — `ChannelAccountClaim`
+  by sha256(destination), taken before any secret is stored; conflicts answer
+  `LINE_CHANNEL_ALREADY_CONNECTED` or `LINE_CHANNEL_CLAIMED_ELSEWHERE` with a Thai
+  sentence and no foreign Tenant or Business (migration
+  `20260914140100_channel_account_claim.sql`, partial unique on live claims, backfill).
+- `src/platform/integrations/providers/line/line-channel-admin-port.js` — stateless
+  token minting, bot information, webhook endpoint set / get / test with every
+  refusal mapped to a code, and the per-version token cache (≤ 13 minutes, ≤ one
+  mint a minute per account) that `resolveServerLineAccount` uses for a bundle
+  holding no token (SDD-098).
+- `src/modules/integration/application/line-channel-connection-service.js` —
+  `connectLineChannelWithSecret`: validate with LINE → claim + connection → store
+  and activate through the vault, with compensation.
+
+**Routes (TASK-ZAI-080, merged in #398):** `POST /api/line-oa/connections` takes the
+Channel ID and secret body (a `deployment-secret:` body still provisions the mount
+path, FR-149); `POST /api/line-oa/connections/[id]/credential` rotates,
+`…/credential/revoke` revokes with a typed `REVOKE` and fences the account, and
+`…/credential/validate` re-proves the stored pair. All four go through
+`credential-route.js`: a ≤ 16 KiB body refused with a generic 400, identity's write
+gate and rate limit before LINE or the store, `Cache-Control: no-store`, and no
+material in any response (`line-channel-credential-service.js` for the last three).
 
 - **What this lane will own.** The `SecretStorePort` (write, activate, rotate,
   revoke, resolve) over Supabase Vault definer functions and the envelope store
@@ -261,12 +309,11 @@ above changes only in the slice that adds each model.
   `ENABLE_SERVER` resolve through (FR-228); the LINE channel-admin port — stateless
   token minting (SDD-098), bot information, webhook set, get and test (FR-225,
   FR-227); and the installation-wide channel account claim (FR-226).
-- **Planned models, claimed here so no other lane designs them.**
-  `IntegrationCredentialVersion` (append-only version history),
-  `IntegrationSecretEnvelope` (envelope ciphertext, excluded from backup export),
-  `ChannelAccountClaim` (one live claim per bot, keyed by the SHA-256 of its
-  destination) and new lifecycle columns on `IntegrationCredential` (store, kind,
-  display hint, validation and revocation). Prisma never holds material.
+- **Models.** `IntegrationCredentialVersion` (append-only version history),
+  `IntegrationSecretEnvelope` (envelope ciphertext, excluded from backup export) and
+  the lifecycle columns on `IntegrationCredential` (store, kind, display hint,
+  validation and revocation) and `ChannelAccountClaim` (one live claim per bot, keyed
+  by the SHA-256 of its destination) exist on the lane branch. Prisma never holds material.
 - **Boundaries that do not move.** No read-back route in any store; display is a
   mask plus the last four characters of the Channel ID; the store functions
   re-prove Tenant, Business, connection and destination from rows; a reference
@@ -285,5 +332,9 @@ above changes only in the slice that adds each model.
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.4.2b | 2026-09-14 | Migrations 20260914140000..140400 applied on production on the owner's instruction (ADR-057; ADR-089 proof 10 waived); the Phase 1 section says so; nothing deployed | Claude Opus 5 |
+| 0.4.1b | 2026-09-14 | TASK-ZAI-078..080 merged in #398 (main 2aef8caa): the Phase 1 section now says merged instead of built on a branch; migrations 20260914140000..140400 still not applied, nothing deployed | Claude Opus 5 |
+| 0.4.0b | 2026-09-14 | TASK-ZAI-079 built on the same branch: `owns_models` += `ChannelAccountClaim`; claim service, LINE channel-admin port with the stateless token cache, and the connect-with-secret service listed; migration 20260914140100 written, not applied | Claude Opus 5 |
+| 0.3.0b | 2026-09-14 | TASK-ZAI-078 built on `feat/integration-secret-store-vault`: `owns_models` += `IntegrationCredentialVersion`, `IntegrationSecretEnvelope`; SecretStorePort, Supabase Vault and envelope stores, dispatching secret manager and credential lifecycle listed; migrations 20260914140000, 20260914140200 and 20260914140300 written, not applied | Claude Opus 5 |
 | 0.2.0b | 2026-09-14 | ADR-089 / FEAT-036 declared: the credential vault (`SecretStorePort`, Supabase Vault and envelope stores, mount operator-only), LINE channel-admin port and channel account claim assigned to this lane as planned prose; ADR-091 raw-payload retention noted; no `owns_models` change | Claude Opus 5 |
 | 0.1.0b | 2026-09-06 | Added document metadata and FEAT-019 handoff navigation; existing domain manifest retained | RWANG |

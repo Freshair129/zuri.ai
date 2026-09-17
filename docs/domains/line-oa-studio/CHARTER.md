@@ -32,7 +32,7 @@ owns_code:
   - src/modules/line-oa-studio/**
 technical_owner: TD-LINE-OA-STUDIO
 status: phase-1-building
-version: "0.10.0b"
+version: "0.11.0b"
 created_at: "2026-09-05T00:00:00+07:00"
 updated_at: "2026-09-14T15:00:00+07:00"
 ---
@@ -216,6 +216,11 @@ slice so preflight can enforce unique model ownership.
   refusals are 404-shaped (FR-072); client, prompt, model or flow values may
   attenuate but never widen server-owned scope (BR-020, SEC-018).
 - Thai copy on user-facing surfaces; English for code, ids and contracts.
+- `server-line-runtime.js`'s `serverLinePorts` (account resolution, push and
+  reply transports) is reached from outside this domain exactly once, by crm's
+  `sendStaffReply` (FR-246, 2026-09-16) — the same shape identity's
+  `resolveLineIdentity` is already called from crm's ingest seam. crm still
+  resolves no credential itself; it calls this port, which alone reaches Vault.
 
 ## Public contract direction
 
@@ -346,16 +351,31 @@ until recorded and ACTIVE from then; FR-152's translator resolves a rich menu
 credential contract. ADR-060 D14 phases the rest; each slice declares its own
 ids first and updates this charter's ownership claims in the same change.
 
-## Decided, not yet built: self-serve connect, memory policy and knowledge grounding (ADR-089, ADR-090, ADR-091)
+## Decided, not yet built: webhook registration, memory policy and knowledge grounding (ADR-089, ADR-090, ADR-091)
 
 Three decisions accepted on 2026-09-14 add Studio-owned behaviour. None of it is in
 code or schema; each column enters the model in the slice that implements it.
 
-- **Connect wizard (FR-225, FR-227, FR-228 — [ADR-089](../../decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md)).**
-  A Thai wizard replaces the `deployment-secret:` reference field: step-up, Channel
-  ID and Channel secret, live validation, webhook set and test, enable. The wizard
-  posts material write-only to the integration lane's route, so **"Holds no secret"
-  above stays true**. The Studio gains a `REGISTER_WEBHOOK` action and a planned
+- **Connect wizard (FR-225 — [ADR-089](../../decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md)) — built, not merged (TASK-ZAI-082, branch `feat/line-oa-self-serve-onboarding`, 2026-09-14).**
+  `LineOaConnectWizard.jsx` replaces the `deployment-secret:` field in
+  `LineStudioEdgeConnection.jsx` with step-up (inline TOTP enrolment when the
+  Person has no factor), Channel ID / Channel secret / optional access-token
+  override, live validation, and a success card that creates the DRAFT
+  `LineOaAccount` through a second call to the existing accounts route. It posts
+  material write-only to the integration lane's route (already vault-capable
+  since TASK-ZAI-080), so **"Holds no secret" above stays true**.
+  `LineOaCredentialMigrationCard.jsx` gives a DEPLOYMENT_MOUNT-backed account the
+  same re-entry path (design §4.9) through the existing rotate route — no new
+  server code was needed for the migration itself, since
+  `rotateLineChannelCredential` already stores through whichever store is
+  configured regardless of the credential's prior store. FR-227 (webhook
+  registration, `REGISTER_WEBHOOK`) and FR-228 (derived legacy quiescence) are
+  the two pieces of ADR-089 D7/D8 still undone (TASK-ZAI-083, TASK-ZAI-084) — the
+  wizard therefore stops at the DRAFT account and does not yet set or test a
+  webhook, matching the accepted account status machine (§5.2, states before
+  `ACCOUNT_DRAFT`).
+- **Webhook registration (FR-227, FR-228 — same ADR).** The Studio gains a
+  `REGISTER_WEBHOOK` action and a planned
   `LineOaAccount.webhookStateJson` column holding the webhook health only LINE can
   report. For a vault-backed account `ENABLE_SERVER` derives legacy quiescence
   (LINE's endpoint equals ours and no legacy evidence for 120 s) instead of asking
@@ -387,10 +407,25 @@ code or schema; each column enters the model in the slice that implements it.
 - [ADR-059 edge-executed evidence extraction](../../decisions/ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION.md) — the pull-model job precedent
 - [ADR-041 edge device topology](../../decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md) — where LINE secrets live
 
+## Declared, not yet in schema (FEAT-040, ADR-094)
+
+[ADR-094](../../decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md)
+(accepted 2026-09-16) adds three per-account settings to `LineOaAccount`: the
+conversation session idle timeout (FR-243, 30 minutes by default, 10 to 120),
+business hours in Asia/Bangkok, and a fixed out-of-hours reply (FR-244). The edge
+worker reads the hours of the accounts it serves to decide when the local model
+stays loaded; a message outside hours is answered with the out-of-hours reply and
+no model call. A session closing never loads or unloads a model.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.15.0b | 2026-09-16 | phase-1-building | FR-246 (not merged): notes `serverLinePorts` as reachable from crm's `sendStaffReply`, the one place outside this domain that calls it | working-tree | Claude Sonnet 5 |
+| 0.14.0b | 2026-09-16 | phase-1-building | FR-243 (TASK-ZAI-107, not merged): `LineConversationJob.sessionId` copied at admission (migration `20260916120000`); `listLineConversationJobs` filters by session code within the account; the Edge Connection card sets `CONFIGURE_SESSION_TIMEOUT` (audited as `LINE_OA_ACCOUNT_SESSION_TIMEOUT_CONFIGURED`, health-only, never fences) and shows each job's trace | working-tree | Claude Opus 5 |
+| 0.13.0b | 2026-09-16 | phase-1-building | FR-243 (TASK-ZAI-106, not merged): `LineOaAccount.sessionIdleTimeoutMinutes` added (default 30, CHECK 10–120 in migration `20260916090000`); admission passes it and LINE's clamped `event.timestamp` to the crm writers for every message and event; the account setting UI is TASK-ZAI-107 | working-tree | Claude Opus 5 |
+| 0.12.0b | 2026-09-16 | phase-1-building | ADR-094 accepted: `LineOaAccount` session idle timeout, business hours and out-of-hours reply declared (FR-243, FR-244); nothing built | working-tree | Claude Opus 5 |
+| 0.11.0b | 2026-09-14 | phase-1-building | TASK-ZAI-082 built on branch `feat/line-oa-self-serve-onboarding` (not merged): FR-225 Thai self-serve connect wizard (`LineOaConnectWizard.jsx`, `LineOaCredentialMigrationCard.jsx`) replaces the Studio's `deployment-secret:` field; no new server code needed beyond what TASK-ZAI-078..080 already merged — the wizard is a pure caller of the existing connections/accounts/rotate routes; FR-227/FR-228 (webhook, quiescence) remain undone | working-tree | Claude Sonnet 5 |
 | 0.10.0b | 2026-09-14 | phase-1-building | ADR-089/090/091 declared (FEAT-036..038): connect wizard with write-only credentials posted to the integration lane, `REGISTER_WEBHOOK` and derived legacy quiescence, planned `webhookStateJson`, `memoryPolicy` and `knowledgeGrounding` columns, non-text admission; recorded as prose, no `owns_models` change | working-tree | Claude Opus 5 |
 | 0.9.0b | 2026-09-13 | phase-1-building | FR-210 (ADR-084 D4): `POST /api/line-oa/worker` passes `withLineCatalogCommand(createServerLineAnswer(...))` as the answer port, so a DIRECT `#sku` message from a verified sender with Inventory write authority is answered by the Inventory catalogue intake; admission, delivery, the reply transports and every other message are unchanged | working-tree | Claude Opus 5 |
 | 0.6.0 | 2026-09-06 | phase-1-building | Slice 4: claimed `LineOaRichMenuJob` as FR-152 lands — server-owned publish jobs on ADR-061; the integration lane gains the rich menu port; the ADR-060 transport-job sketch is superseded for rich menus | working-tree | Claude Fable 5.1 |

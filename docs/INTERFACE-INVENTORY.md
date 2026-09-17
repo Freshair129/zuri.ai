@@ -1,7 +1,7 @@
 ---
-version: "1.25.0b"
+version: "1.32.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-17T04:20:00+07:00,RWANG"
+last_update: "2026-09-17T00:32:00+07:00,RWANG"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.25.0b |
+| **Version** | 1.32.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
-| **Last Updated** | 2026-09-17 |
+| **Last Updated** | 2026-09-16 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=106; operational_domain_keys=16; operational_subdomain_entries=56; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=112; operational_domain_keys=16; operational_subdomain_entries=57; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -59,11 +59,11 @@ Landing → credential Login → signed viewer resolution → Business Routing
 | **EntryShell** | no authenticated viewer or pre-shell entry | `/`, `/login`, `/signup`, `/reset-password` | `src/components/layouts/EntryShell.jsx` | no domain bar, sidebar or Business context |
 | **BusinessRoutingShell** | viewer exists but Business is not selected | `/businesses`, `/onboarding/profile`, `/waiting-room`, `/workspace-home` | `src/components/layouts/BusinessRoutingShell.jsx` | displays only authorized Business choices; offers sign-out (FR-046/FR-095) |
 | **BusinessShell** | trusted viewer plus authorized `activeBusinessId` | `/overview` and Business domains | `src/app/(pm)/layout.jsx`, `BusinessShellGuard.jsx` | selection occurs before final chrome mounts; Topbar offers sign-out (FR-046/FR-095) |
-| **ProjectResourceShell** | BusinessShell plus opened `projectId` | `/projects/[projectId]/**` | `src/app/(pm)/projects/[projectId]/layout.jsx` | Project tabs remain inside the selected Business |
+| **ProjectResourceShell** | BusinessShell plus opened `projectId` | `/projects/[projectId]/**` | `src/app/(pm)/projects/[projectId]/layout.jsx` | Authorized Project module-local views and one shared Import plan action remain inside the selected Business (FR-250) |
 | **PlatformControlShell** | trusted installation operator; no Business selection | `/control/**` | `src/app/(control)/layout.jsx` | no DomainBar, Business sidebar, Business context or Business navigation entry; offers sign-out (FR-046/FR-095) |
 
 `/overview` is Business Home's Dashboard and the BusinessShell root. It is not a
-Development sub-domain. Development starts at `/projects`.
+Projects & Work sub-domain. Projects & Work starts at `/projects`.
 
 ## 3. Current interface registry
 
@@ -90,23 +90,25 @@ mean production identity, external providers or cutover gates are complete.
 | `/workspace-home` | Workspace Home | BusinessRoutingShell | joined top-level Workspaces (Portfolio); owner collaboration panel — ACTIVE members with remove, PENDING invites with revoke, and a mint form whose invite code is shown once with copy affordances (AC-067.1/2/7); owner continuation into the FR-020 one-step Business creator; Business Routing link only when Business access exists (AC-066.6); shell header offers sign-out (FR-046/FR-095) | auth required, incomplete profile redirect, loading, empty, error, session unavailable (503 kept apart from 401 — retry state, no redirect); panel-only states: roster loading, roster refused (same 404 as an absent Workspace), no members, no pending invites, expired-but-revocable invite, minted-code shown once, per-action confirm and server refusal | implemented; `src/app/(entry)/workspace-home/page.jsx`, `src/modules/identity/workspace-collaboration-view.js`, `src/lib/viewer-failure.js`, `/api/onboarding/state`, `/api/workspace-memberships` (GET roster, DELETE remove), `/api/workspace-invites` (POST mint), `/api/workspace-invites/[id]` (DELETE revoke), FR-046, FR-066, FR-067 |
 | `/overview` | Business Home Dashboard | BusinessShell; shell-level cross-domain projection | Business briefing, KPI/health, strategy and attention links; Topbar offers sign-out (FR-046/FR-095) | Business required, ready, forbidden, loading, empty, error, offline | implemented beta; `src/app/(pm)/overview/page.jsx`, FR-060 |
 
-### 3.2 Development domain — global surfaces
+### 3.2 Projects & Work domain — global surfaces
 
-The runtime registry has eight Development sub-domain entries, including Files;
-the Business Home slot is excluded from this count.
+The route registry retains eight Projects & Work destinations, including Files;
+the Business Home slot is excluded from this count. ADR-096 / FR-250 presents
+these through six logical sidebar modules. The count describes flat route entries,
+not the number of visible modules. Delivery evidence is in the FR-250 feature note.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
-| `/projects` | Projects | BusinessShell → Development / Projects | Business-scoped Project list, filters, open Project, create through objective intake | ready, empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/page.jsx`, FR-003 |
-| `/projects/new` | Objective intake | BusinessShell → Development / Projects | create a structured plan from an objective; preview and submit | validation, conflict, loading, error, success | implemented; `src/app/(pm)/projects/new/page.jsx`, FR-017 |
-| `/work` | All Work | BusinessShell → Development / All Work | global WorkItem browse/filter/status editing | empty, loading, error, forbidden, offline | implemented; `src/app/(pm)/work/page.jsx`, FR-005 |
-| `/execution` | Execution overview | BusinessShell → Development / Execution | choose or summarize the seven canonical execution modes | ready, empty, loading, error, forbidden | implemented; `src/app/(pm)/execution/page.jsx`, FR-009 |
-| `/execution/[mode]` | Execution mode view | BusinessShell → Development / Execution | mode-specific view over the neutral work model | invalid mode, empty, loading, error, forbidden | implemented; `src/app/(pm)/execution/[mode]/page.jsx`, FR-009 |
-| `/timeline` | Global Timeline | BusinessShell → Development / Timeline | cross-Project schedule and date-bound work | empty, loading, error, forbidden | implemented; `src/app/(pm)/timeline/page.jsx`, FR-064 |
-| `/dependencies` | Dependency register | BusinessShell → Development / Dependencies | cross-Project dependency list, create, inspect and delete | empty, loading, error, forbidden, cycle/domain validation | implemented; `src/app/(pm)/dependencies/page.jsx`, FR-007 |
-| `/milestones` | Milestones and Gates | BusinessShell → Development / Milestones & Gates | global milestones/gates, status and evidence updates | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/milestones/page.jsx`, FR-006 |
-| `/files` | Managed Files | BusinessShell → Development / Files | Business/Project file metadata, reconcile, mount and safe content actions | empty, loading, error, capability-disabled, forbidden | implemented beta; `src/app/(pm)/files/page.jsx`, FR-045 |
-| `/repositories` | Repositories | BusinessShell → Development / Repositories | local repository metadata and Project links | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/repositories/page.jsx`, FR-008 |
+| `/projects` | Projects | BusinessShell → Projects & Work → Project Management | Business-scoped Project list, filters, open Project, create through objective intake | ready, empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/page.jsx`, FR-003 |
+| `/projects/new` | Objective intake | BusinessShell → Projects & Work → Project Management | create a structured plan from an objective; preview and submit | validation, conflict, loading, error, success | implemented; `src/app/(pm)/projects/new/page.jsx`, FR-017 |
+| `/work` | All Work | BusinessShell → Projects & Work → Work Management | global WorkItem browse/filter/status editing | empty, loading, error, forbidden, offline | implemented; `src/app/(pm)/work/page.jsx`, FR-005 |
+| `/execution` | Execution overview | BusinessShell → Projects & Work → Work Management | choose or summarize the seven canonical execution modes | ready, empty, loading, error, forbidden | implemented; `src/app/(pm)/execution/page.jsx`, FR-009 |
+| `/execution/[mode]` | Execution mode view | BusinessShell → Projects & Work → Work Management | mode-specific view over the neutral work model | invalid mode, empty, loading, error, forbidden | implemented; `src/app/(pm)/execution/[mode]/page.jsx`, FR-009 |
+| `/timeline` | Global Timeline | BusinessShell → Projects & Work → Work Management | cross-Project schedule and date-bound work | empty, loading, error, forbidden | implemented; `src/app/(pm)/timeline/page.jsx`, FR-064 |
+| `/dependencies` | Dependency register | BusinessShell → Projects & Work → Work Management | cross-Project dependency list, create, inspect and delete | empty, loading, error, forbidden, cycle/domain validation | implemented; `src/app/(pm)/dependencies/page.jsx`, FR-007 |
+| `/milestones` | Milestones and Gates | BusinessShell → Projects & Work → Work Management | global milestones/gates, status and evidence updates | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/milestones/page.jsx`, FR-006 |
+| `/files` | Managed Files | BusinessShell → Projects & Work → Resource Coordination | Business/Project file metadata, reconcile, mount and safe content actions | empty, loading, error, capability-disabled, forbidden | implemented beta; `src/app/(pm)/files/page.jsx`, FR-045 |
+| `/repositories` | Repositories | BusinessShell → Projects & Work → Resource Coordination | local repository metadata and Project links | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/repositories/page.jsx`, FR-008 |
 
 ### 3.2b Commerce domain
 
@@ -224,6 +226,8 @@ authority the lane consumes; GKS, MSP and GenesisBlockDB remain external systems
 | `/knowledge` | Knowledge Dashboard (domain `knowledge`) | BusinessShell → Knowledge (GKS) / Dashboard | the map's summary figures (chains by status, sources, entry surfaces, recipients), a link to the Data Pipeline Map, and the knowledge base console named as planned (TASK-ZAI-047) | server-side viewer resolution before render; 404 without `knowledge`; per-Business grant by the shell guard | implemented locally 2026-09-13 — FR-214; `tests/unit/knowledge-data-pipeline-map-ui.test.js` |
 | `/knowledge/data-pipeline` | Data Pipeline Map | BusinessShell → Knowledge (GKS) / Data Pipeline Map | layered node-edge SVG of sources, entry surfaces, processes, stores and recipients; chain (`?chain=CH-xx`), domain and status filters; detail panel for a node, edge or chain (domain, FEATs, requirements, surfaces, decisions, production evidence); list view with the same chains, nodes and edges as tables | same admission as `/knowledge`; read-only, no API | implemented locally 2026-09-13 — FR-213; `tests/unit/knowledge-data-pipeline-map-ui.test.js`, `tests/e2e/fr213-data-pipeline-map.spec.js` |
 | `/knowledge/console` | Knowledge console | BusinessShell → Knowledge (GKS) / Knowledge console | scoped source/version pages; complete run attempts; corpus generations; explicit corpus query and exact chunk/parsed/raw evidence; text/FileAsset admission | Knowledge domain and current Business/Project/source/FileAsset authority; runtime capability gates mutations/query | FR-253, approved TASK-ZAI-047 design; isolated validation underway, not deployed |
+| `/knowledge/candidates` | LINE FAQ candidates | BusinessShell → Knowledge (GKS) / LINE FAQ candidates | one card per `KnowledgeCandidate` for the active Business: canonical question/answer, editable while PENDING_REVIEW, Approve/Reject buttons, the admitted `KnowledgeSource` id once APPROVED | API-authorized (client component): `knowledge` domain to read, Business OWNER or `LINE_OA_PUBLISHER` to draft/edit/decide | implemented locally 2026-09-14 — FR-236, ADR-090 D6; `tests/unit/knowledge-candidates-ui.test.js`, `tests/integration/fr236-knowledge-candidate.test.js` |
+| `/knowledge/gap-report` | Knowledge gap report | BusinessShell → Knowledge (GKS) / Knowledge gap report | one row per distinct product locator (or "no locator" when the traced query carried none) for the active Business: count of `NO_EVIDENCE` turns and last-seen time only — never the question text | API-authorized (client component): `knowledge` domain to read | implemented locally 2026-09-14 — FR-237, ADR-090 D7; `tests/unit/knowledge-gap-report-ui.test.js`, `tests/integration/fr237-knowledge-gap-report.test.js` |
 ### 3.7 Workspace compatibility surfaces
 
 These pages remain routable Project Manager Space surfaces. They are not a second
@@ -232,8 +236,8 @@ separately documented.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
-| `/workspaces` | Workspace list | BusinessShell → Development/Space compatibility | list and open Spaces | empty, loading, error, forbidden | implemented; `src/app/(pm)/workspaces/page.jsx` |
-| `/workspaces/[workspaceId]` | Workspace detail | BusinessShell → Development/Space compatibility | Space metadata and related Projects | not found, loading, error, forbidden | implemented; `src/app/(pm)/workspaces/[workspaceId]/page.jsx` |
+| `/workspaces` | Workspace list | BusinessShell → Projects & Work/Space compatibility | list and open Spaces | empty, loading, error, forbidden | implemented; `src/app/(pm)/workspaces/page.jsx` |
+| `/workspaces/[workspaceId]` | Workspace detail | BusinessShell → Projects & Work/Space compatibility | Space metadata and related Projects | not found, loading, error, forbidden | implemented; `src/app/(pm)/workspaces/[workspaceId]/page.jsx` |
 
 ### 3.8 Project resource surfaces
 
@@ -242,20 +246,21 @@ not new global domains or new persistence aggregates.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
-| `/projects/[projectId]` | Project Overview | ProjectResourceShell | Project identity, health, summary and tab entry | not found, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/page.jsx`, FR-043 |
-| `/projects/[projectId]/all-work` | Project All Work | ProjectResourceShell → Work | Project-filtered WorkItems and status actions | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/all-work/page.jsx`, FR-005 |
-| `/projects/[projectId]/board` | Project Board | ProjectResourceShell → Work | board view over Project work | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/board/page.jsx`, FR-063 |
-| `/projects/[projectId]/dependencies` | Project Dependency Map | ProjectResourceShell → Work | contained dependency graph; both endpoints must belong to Project | empty, loading, error, forbidden, graph error | implemented; `src/app/(pm)/projects/[projectId]/dependencies/page.jsx`, FR-040 |
-| `/projects/[projectId]/roadmap` | Execution Roadmap | ProjectResourceShell → Work | read-only Project outcome, Business Goals, execution hierarchy, progress, dependencies, blocker evidence, identity references and closure gates | empty, loading, error, forbidden, unavailable fields | implemented; `src/app/(pm)/projects/[projectId]/roadmap/page.jsx`, `tests/unit/project-roadmap-ui.test.js`, FR-068 |
-| `/projects/[projectId]/execution/[mode]` | Project Execution Mode | ProjectResourceShell → Work | mode view scoped to opened Project | invalid mode, empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx`, FR-009 |
-| `/projects/[projectId]/files` | Project Files | ProjectResourceShell → Files | Project file references and metadata actions | empty, loading, error, forbidden, capability-disabled | implemented; `src/app/(pm)/projects/[projectId]/files/page.jsx`, FR-045 |
-| `/projects/[projectId]/import` | Project Plan Import | ProjectResourceShell → Import | validate, dry-run, conflict preview and commit plan | validation, conflict, loading, error, forbidden, success | implemented; `src/app/(pm)/projects/[projectId]/import/page.jsx`, FR-012 |
-| `/projects/[projectId]/inventory` | Project Inventory | ProjectResourceShell → Overview | bounded read-only snapshot of work, gates, files, repos, team, progress and activity | not found, loading, error, forbidden, empty/partial/truncated/unavailable | implemented beta; working tree/pending commit for FR-077; `src/app/(pm)/projects/[projectId]/inventory/page.jsx` |
-| `/projects/[projectId]/milestones` | Project Milestones and Gates | ProjectResourceShell → Milestones & Gates | Project-local milestone/gate browsing and evidence updates | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/projects/[projectId]/milestones/page.jsx`, FR-006 |
-| `/projects/[projectId]/repositories` | Project Repositories | ProjectResourceShell → Repositories | linked repository metadata and link/unlink actions | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/projects/[projectId]/repositories/page.jsx`, FR-008 |
-| `/projects/[projectId]/structure` | Structure Plan | ProjectResourceShell → Work | Project → Workstream → Container → WorkItem WBS | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/structure/page.jsx`, FR-040 |
-| `/projects/[projectId]/team` | Project Team | ProjectResourceShell → Team | Project team membership view and actions | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/projects/[projectId]/team/page.jsx`, FR-036 |
-| `/projects/[projectId]/timeline` | Project Schedule | ProjectResourceShell → Work | Project-local schedule and dates | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/timeline/page.jsx`, FR-064 |
+| `/projects/[projectId]` | Project Overview | ProjectResourceShell → Project Management | Project identity, health, summary and tab entry | not found, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/page.jsx`, FR-043 |
+| `/projects/[projectId]/all-work` | Project All Work | ProjectResourceShell → Work Management | Project-filtered WorkItems and status actions | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/all-work/page.jsx`, FR-005 |
+| `/projects/[projectId]/board` | Project Board | ProjectResourceShell → Work Management | board view over Project work | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/board/page.jsx`, FR-063 |
+| `/projects/[projectId]/dependencies` | Project Dependency Map | ProjectResourceShell → Work Management | contained dependency graph; both endpoints must belong to Project | empty, loading, error, forbidden, graph error | implemented; `src/app/(pm)/projects/[projectId]/dependencies/page.jsx`, FR-040 |
+| `/projects/[projectId]/domain-view` | Execution Domains | ProjectResourceShell → Delivery Design | Read-only projection of active Workstream primary/supporting domains, separate technical owners, deduplicated work and unbound totals; other Delivery Design capabilities remain planned | authorized Project only; loading, request error, 401, redacted 404, empty/unassigned, unmapped, unavailable sources; keyboard and 390px layout | FR-251 owner-approved Phase A implemented and verified locally; not deployed; `src/app/(pm)/projects/[projectId]/domain-view/page.jsx` |
+| `/projects/[projectId]/roadmap` | Execution Roadmap | ProjectResourceShell → Work Management | read-only Project outcome, Business Goals, execution hierarchy, progress, dependencies, blocker evidence, identity references and closure gates | empty, loading, error, forbidden, unavailable fields | implemented; `src/app/(pm)/projects/[projectId]/roadmap/page.jsx`, `tests/unit/project-roadmap-ui.test.js`, FR-068 |
+| `/projects/[projectId]/execution/[mode]` | Project Execution Mode | ProjectResourceShell → Project Management | mode view scoped to opened Project | invalid mode, empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx`, FR-009 |
+| `/projects/[projectId]/files` | Project Files | ProjectResourceShell → Resource Coordination | Project file references and metadata actions | empty, loading, error, forbidden, capability-disabled | implemented; `src/app/(pm)/projects/[projectId]/files/page.jsx`, FR-045 |
+| `/projects/[projectId]/import` | Project Plan Import | ProjectResourceShell → shared Import plan action | validate, dry-run, conflict preview and commit plan | validation, conflict, loading, error, forbidden, success | implemented; `src/app/(pm)/projects/[projectId]/import/page.jsx`, FR-012 |
+| `/projects/[projectId]/inventory` | Project Inventory | ProjectResourceShell → Project Management | bounded read-only snapshot of work, gates, files, repos, team, progress and activity | not found, loading, error, forbidden, empty/partial/truncated/unavailable | implemented beta; working tree/pending commit for FR-077; `src/app/(pm)/projects/[projectId]/inventory/page.jsx` |
+| `/projects/[projectId]/milestones` | Project Milestones and Gates | ProjectResourceShell → Work Management | Project-local milestone/gate browsing and evidence updates | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/projects/[projectId]/milestones/page.jsx`, FR-006 |
+| `/projects/[projectId]/repositories` | Project Repositories | ProjectResourceShell → Resource Coordination | linked repository metadata and link/unlink actions | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/projects/[projectId]/repositories/page.jsx`, FR-008 |
+| `/projects/[projectId]/structure` | Structure Plan | ProjectResourceShell → Work Management | Project → Workstream → Container → WorkItem WBS | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/structure/page.jsx`, FR-040 |
+| `/projects/[projectId]/team` | Project Team | ProjectResourceShell → Resource Coordination | Business-scoped Membership roster and existing membership actions; no Project grant or workforce allocation | empty, loading, error, forbidden, validation | implemented; `src/app/(pm)/projects/[projectId]/team/page.jsx`, FR-036 |
+| `/projects/[projectId]/timeline` | Project Schedule | ProjectResourceShell → Work Management | Project-local schedule and dates | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/timeline/page.jsx`, FR-064 |
 
 ### 3.9 Platform Control surface
 
@@ -266,6 +271,9 @@ and does not require an active Business selection.
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
 | `/control/roadmap` | Platform Programme Roadmap | PlatformControlShell → programme plan snapshot | read-only six-phase / twelve-sprint / thirty-task plan, gates and deliverables; entered from `/settings` (operator-only link) and exits to `/businesses` through the shell header, which also offers sign-out (FR-046/FR-095) | auth required, loading, forbidden, ready; `isOperator` only; no Business scope | implemented locally; `src/app/(control)/control/roadmap/page.jsx`, FR-105 / ADR-048 |
+| `/control/errors` | Error events | PlatformControlShell → deduplicated error list | operator reads errors grouped by fingerprint with occurrence count and first/last seen, resolves one; no request/response content, only name/message/parsed stack frames | forbidden (404), auth required, ready; `isOperator` only; no Business scope | implemented locally; `src/app/(control)/control/errors/page.jsx`, FR-247 / ADR-095 |
+| `/control/usage` | Feature usage | PlatformControlShell → route/action usage breakdown | operator reads route and action counts, total and last-90-days-per-person; older than 90 days survives only as an aggregate (no person) | forbidden (404), auth required, ready; `isOperator` only; no Business scope | implemented locally; `src/app/(control)/control/usage/page.jsx`, FR-248 / FR-249 / ADR-095 |
+| `/roadmap` | Programme Roadmap — signed-in preview | PlatformControlShell (title "Programme Roadmap") → programme plan snapshot, `audience="member"` | read-only programme plan and Domain map tabs for any signed-in person until 2026-10-15 00:00 Asia/Bangkok; no Agent devices tab, no usage by person or device, no tool or model names (removed on the server); no navigation entry — the link is shared by the owner | closed (404 for everyone after the window), session unavailable, auth required, ready; any authenticated session; no Business scope | implemented locally; `src/app/roadmap/page.jsx`, FR-241 / ADR-092 |
 
 ### Marketing Strategy first slice
 
@@ -332,7 +340,7 @@ explicitly so “domain count” cannot silently mix the two concepts:
 | Business Home shell slots | 1 | `business-home`, `/overview`, always visible, not an operational domain |
 | Source sub-domain entries | 56 | includes Business Home Dashboard |
 | Operational sub-domain entries | 55 | excludes Business Home Dashboard |
-| Development sub-domain entries | 8 | includes Files and excludes Business Home |
+| Projects & Work sub-domain entries | 8 | includes Files and excludes Business Home |
 | Asset Management navigation entries | 4 | Dashboard, Receiving, Register and Scanner |
 | LINE OA Studio navigation entries | 8 | Dashboard, Projects & Accounts, Design Studio, Live CRM, Edge connection, Templates, Team and Settings; LINE registry editing lives in Projects (main 2a1b6a81) |
 | Marketing (`growth`) navigation entries | 5 | Dashboard, Strategy, Campaigns, Content & Creative and Operations (FR-157..162); the three FR-185 routes remain direct planning/read surfaces |
@@ -400,7 +408,9 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 1.25.0b | 2026-09-17 | candidate | FR-253 Knowledge console route and navigation; 106 pages and 56 subdomain entries, isolated validation underway | working-tree | RWANG |
+| 1.32.0b | 2026-09-17 | candidate | FR-253 Knowledge console route and navigation; 112 pages and 57 subdomain entries; compose the approved Console with the production baseline | working-tree | RWANG |
+| 1.27.0b | 2026-09-14 | candidate | Added the knowledge gap report page `/knowledge/gap-report` (FR-237, ADR-090 D7); page routes 107 -> 108 | working-tree | Claude Sonnet 5 |
+| 1.26.0b | 2026-09-14 | candidate | Added the LINE FAQ candidates review page `/knowledge/candidates` (FR-236, ADR-090 D6), the third Knowledge (GKS) sub-item; page routes 106 -> 107, operational subdomain entries 55 -> 56 | working-tree | Claude Sonnet 5 |
 | 1.23.0b | 2026-09-13 | active | Added the Knowledge (GKS) domain (FR-214, ADR-085) with its Dashboard `/knowledge` and the Data Pipeline Map `/knowledge/data-pipeline` (FR-213); page routes 102 -> 104, operational domain keys 15 -> 16, operational subdomain entries 53 -> 55 | working-tree | Claude Opus 5 |
 | 1.22.0b | 2026-09-13 | active | Added the Import tab `/inventory/catalog-intake` (FR-208 / FR-209, ADR-084), the seventh Inventory tab; page routes 101 -> 102, operational subdomain entries 52 -> 53 | working-tree | Claude Opus 5 |
 | 1.21.0b | 2026-09-13 | active | Added the SKU detail page `/inventory/products/[productId]` (FR-203 identifier desk, FR-204 unit-conversion desk; reached from the Dashboard, not a tab); page routes 100 -> 101, operational subdomain entries unchanged | working-tree | Claude Opus 5 |
@@ -450,3 +460,13 @@ Version diff 1.7.0b → 1.8.0b: Content adds four route shapes and one navigatio
 Version diff 1.8.0b → 1.9.0b: preserve Warehouse and Marketing in the Server monorepo; enumerate 70 page routes, 11 operational domains and 35 navigation entries.
 
 Version diff 1.18.0b → 1.19.0b: add the approved Stocktake desk and reconcile the enumerated 99 pages / 51 operational entries.
+
+Version diff 1.24.0b → 1.25.0b (2026-09-14): add `/roadmap`, the 30-day signed-in preview of the programme roadmap (FR-241, ADR-092); 106 page routes.
+
+Version diff 1.27.0b → 1.28.0b (2026-09-16): add `/control/errors`, the operator error list (FR-247, ADR-095); 109 page routes.
+
+Version diff 1.28.0b → 1.29.0b (2026-09-16): add `/control/usage`, the operator feature-usage breakdown (FR-248, FR-249, ADR-095); 110 page routes.
+
+Version diff 1.29.0b → 1.30.0b (2026-09-16): compose the approved PM hierarchical navigation inventory with main's usage breakdown route; preserve both route sets.
+
+Version diff 1.30.0b → 1.31.0b (2026-09-17): register the owner-approved FR-251 Project-only Execution Domains route and its states; reconcile the stale 1.28.0b document-control cell. Enumerate 111 page routes. Local API, browser and build gates passed; hosted CI and release remain separate evidence in PR443.

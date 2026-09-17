@@ -1,6 +1,7 @@
 const { test, expect } = require('@playwright/test')
-const { loginAsOwner } = require('./e2e-auth')
+const { loginAsOwner, readScope } = require('./e2e-auth')
 const { PrismaClient } = require('@prisma/client')
+const { randomUUID } = require('node:crypto')
 const { e2eTarget } = require('./e2e-target')
 
 const createdNames = []
@@ -22,29 +23,39 @@ test.afterEach(async () => {
 // @req FR-151 — an owner authors a rich menu in the real console: the draft
 //   persists, the version list shows what still blocks a freeze, and Freeze
 //   stays disabled until it does not.
+// @req FR-225 — the account this spec needs is now seeded through the API
+//   (the FR-149 operator/deployment-secret path, unchanged) rather than the
+//   Studio form, which the self-serve wizard replaced; see fr149's own spec.
 // @spec ADR-060 D3, D11
 // @tested tests/e2e/fr151-line-oa-rich-menu-console.spec.js
 
 test('authoring a rich menu persists it and freezing waits on the image the service asks for', async ({ page }) => {
   await loginAsOwner(page)
-  await page.getByRole('button', { name: /Open Business Business 01/ }).click()
-  await expect(page).toHaveURL(/overview/)
+  await expect(page.getByRole('button', { name: /Open Business Business 01/ })).toBeVisible()
+  const scope = await readScope(page.request)
+  const business = scope.businesses.find((b) => b.code === 'BUS-001')
+  expect(business).toBeTruthy()
 
   // A rich menu belongs to an account, so make one the same way FR-149 does.
   const tag = `rm-e2e-${Date.now()}`
   createdNames.push(tag)
+  const connectionResponse = await page.request.post('/api/line-oa/connections', {
+    data: { businessId: business.id, name: tag, destination: `U${randomUUID().replaceAll('-', '')}`, secretRef: 'deployment-secret:line-main' },
+  })
+  expect(connectionResponse.ok()).toBe(true)
+  const connection = await connectionResponse.json()
+  const accountResponse = await page.request.post('/api/line-oa/accounts', {
+    data: { businessId: business.id, integrationConnectionId: connection.id, code: tag, displayName: tag },
+  })
+  expect(accountResponse.ok()).toBe(true)
+
+  await page.getByRole('button', { name: /Open Business Business 01/ }).click()
+  await expect(page).toHaveURL(/overview/)
   // FR-149's console is a tab of LINE Studio Enterprise now
   // (LineStudioEdgeConnection). `/line-oa` reads `?tab=` straight into the
   // shell's initial tab, so the URL selects it — and survives the reload below,
   // which a click on a tab control would not.
   await page.goto('/line-oa?tab=edge-connection')
-  // One submit provisions the connection and the account together now (see
-  // FR-149's spec): the display name names both, so the cleanup above still
-  // finds the connection by it.
-  await page.getByLabel(/ชื่อบัญชี LINE OA \(Display Name\)/).fill(tag)
-  await page.getByLabel(/LINE bot destination/).fill(`U${'a'.repeat(32)}`)
-  await page.getByLabel(/Deployment secret reference/).fill('deployment-secret:line-main')
-  await page.getByRole('button', { name: 'เชื่อมต่อ LINE Official Account ทันที', exact: true }).click()
   await expect(page.getByRole('heading', { name: tag })).toBeVisible()
 
   await page.goto('/line-oa/rich-menus')

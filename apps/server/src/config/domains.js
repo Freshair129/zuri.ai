@@ -116,7 +116,7 @@ export const DOMAINS = [
     // queue) and now belongs to Business Home; leaving Development rooted there
     // would have kept one page answering to two domains, which is how the two
     // surfaces would have drifted apart.
-    key: 'projects', label: 'Development', icon: BriefcaseBusiness, basePath: '/projects',
+    key: 'projects', label: 'Projects & Work', icon: BriefcaseBusiness, basePath: '/projects',
     // Five of these entries are the cross-project halves of views a Project also
     // carries under its Work tab (FR-005/006/007/009/064 global + project-scoped
     // split). `group` renders as a sidebar section header naming that scope —
@@ -274,6 +274,8 @@ export const DOMAINS = [
       // @tested tests/e2e/fr253-knowledge-console.spec.js
       { label: 'Knowledge console', path: '/knowledge/console', icon: FolderOpen },
       { label: 'Data Pipeline Map', path: '/knowledge/data-pipeline', icon: Workflow },
+      // @req FR-236 — the review surface for LINE FAQ candidates (ADR-090 D6).
+      { label: 'LINE FAQ candidates', path: '/knowledge/candidates', icon: MessagesSquare },
     ],
   },
   {

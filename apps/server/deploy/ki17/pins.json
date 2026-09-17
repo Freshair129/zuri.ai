@@ -1,0 +1,66 @@
+{
+  "manifestVersion": 1,
+  "id": "ZAI:KI17-DEPLOYMENT-PINS",
+  "cycle": "ADR-075 Phase 3 — GenesisRAG17 edge deployment (SmartGift structured-record profile)",
+  "design": "docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md",
+  "recordedAt": "2026-09-16",
+  "note": "The four commits this deployment cycle targets. Each repository's own main may have moved further; these are the versions the ki17 build stage pulls and the pre-deploy gate G-4 checks against the G-2 acceptance record. Never edit a commit here without re-running the acceptance that produced it. Exception recorded 2026-09-16: the genesisblock pin was advanced from 907b0ff4 to 7c9261c4 to pick up the P-2 Linux addon (GenesisBlock PR #177) — the worker source at that commit is unchanged from 907b0ff4 (7c9261c4 is only the merge commit adding the addon binary built from 907b0ff4), so this is not a logic change and does not require a new acceptance run on its own. G-3 (the acceptance run inside these images) is still outstanding regardless.",
+  "runtime": {
+    "node": "24.18.0",
+    "nodePlatform": "linux-x64",
+    "nodeShasums": "https://nodejs.org/dist/v24.18.0/SHASUMS256.txt",
+    "python": "3.12",
+    "pythonImage": "python:3.12-slim-bookworm",
+    "modelRepository": "intfloat/multilingual-e5-small",
+    "modelRevision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+    "workerPort": 19417
+  },
+  "repositories": {
+    "zuri-ai": {
+      "repository": "Freshair129/zuri.ai",
+      "commit": "09d60d248218db27a3a3939b14e11c4db57d0809",
+      "buildContext": null,
+      "verifiedInBuild": false,
+      "note": "This repository is the build's own main context, and .dockerignore excludes .git from it, so the build cannot read its own HEAD. Recorded for the G-4 gate and verified by the operator on the host before the build (`git rev-parse HEAD`).",
+      "entrypoints": []
+    },
+    "msp": {
+      "repository": "Freshair129/Memory-and-Soul-Passport",
+      "commit": "49fe7de7d5603a4a75b279bcd72b16619fdc0046",
+      "buildContext": "msp",
+      "verifiedInBuild": true,
+      "installRoot": "/opt/ki17/msp",
+      "entrypoints": [
+        "apps/msp-server/bin/msp-server.mjs",
+        "package.json",
+        "package-lock.json"
+      ]
+    },
+    "gks": {
+      "repository": "Freshair129/Genesis-Knowledge-System",
+      "commit": "ecf1e4de269e949406a6a5f791f9ff8fe30c9578",
+      "buildContext": "gks",
+      "verifiedInBuild": true,
+      "installRoot": "/opt/ki17/gks",
+      "entrypoints": [
+        "apps/gks-server/bin/gks-server.mjs",
+        "package.json",
+        "package-lock.json"
+      ]
+    },
+    "genesisblock": {
+      "repository": "Freshair129/GenesisBlock",
+      "commit": "7c9261c4a4d4193af4e2613db48896533eb28072",
+      "buildContext": "genesisblock",
+      "verifiedInBuild": true,
+      "installRoot": "/opt/ki17/genesisblock",
+      "entrypoints": [
+        "genesisrag17-worker/src/cli.mjs",
+        "genesisrag17-worker/requirements.txt",
+        "index.js",
+        "npm/linux-x64-gnu/index.linux-x64-gnu.node"
+      ],
+      "note": "P-2 landed (GenesisBlock PR #177, merged as this commit). The Linux napi addon is present at npm/linux-x64-gnu/index.linux-x64-gnu.node, built from and verified against 907b0ff4 (the worker source commit itself; unchanged here). The genesis-worker build target's KI17_GENESISBLOCK_LINUX_ADDON_MISSING assertion should now pass."
+    }
+  }
+}

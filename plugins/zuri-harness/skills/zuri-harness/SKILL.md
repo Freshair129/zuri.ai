@@ -63,8 +63,10 @@ if they want usage reported automatically on every run.
 
 Every report carries only: `source` (`codex`), `sessionId`, `branch`,
 `repository`, `model`, token counts (input / cache-write / cache-read /
-output), request count, active minutes, and start/end timestamps. It never
-carries prompts, responses, file contents, or any credential other than the
+output), request count, active minutes, start/end timestamps, and usage
+detail — reasoning tokens, tool calls per tool name, task starts (prompts) and
+compactions (see `docs/ZURI-HARNESS-PLUGIN-SPEC.md`). It never
+carries prompts, responses, tool arguments or output, file contents, or any credential other than the
 harness credential itself (sent as a bearer token, never logged). A session
 whose repository does not match an allowed repository (default
 `Freshair129/zuri.ai`, configurable in the local config file) is not reported

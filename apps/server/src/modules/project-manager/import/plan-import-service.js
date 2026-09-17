@@ -31,6 +31,20 @@ const KIND_TO_ENDPOINT = {
   item: 'WORK_ITEM',
 }
 
+// Prisma's interactive-transaction default (5 s) is sized for a handful of
+// upserts, not a real programme: a 28-item, 9-workstream envelope committed
+// against production Postgres (~200 ms/query over the session-mode pool,
+// ADR-058 D9) measured past it on 2026-09-14 and rolled back whole with
+// "Transaction API error: Transaction not found" — Prisma's message when the
+// server has already closed a transaction the client is still writing to.
+// `bundle-commit-service.js` sized the same shape of problem for a
+// multi-Project bundle as `BUNDLE_TRANSACTION_OPTIONS`; this is that same
+// constant, exported once so neither file re-invents the numbers. See also
+// `line-conversation-jobs.js`'s `atomic()` and
+// `.brain/rca/2026-09-08-line-webhook-*.md` for the same P2028 class of
+// failure on this database.
+export const PLAN_COMMIT_TRANSACTION_OPTIONS = { maxWait: 10_000, timeout: 120_000 }
+
 function canonicalize(value) {
   if (Array.isArray(value)) return value.map(canonicalize)
   if (value && typeof value === 'object') {
@@ -712,7 +726,7 @@ export async function commitPlan(rawPlan, { workspaceId, viewer, db = prisma } =
       replayOfExecutionStepId,
       preview: dry.preview,
     }
-  })
+  }, PLAN_COMMIT_TRANSACTION_OPTIONS)
 
   if (result.idempotencyConflict) {
     return { committed: false, errors: result.errors, preview: dry.preview }

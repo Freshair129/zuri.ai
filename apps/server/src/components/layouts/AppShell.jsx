@@ -1,14 +1,24 @@
 'use client'
 
+// @req FR-250 — Projects & Work composes module-local Business navigation and
+// a compact mobile module menu inside the existing guarded shell.
+// @spec ADR-096, SDD-019
+// @tested tests/e2e/fr250-navigation.spec.js, tests/e2e/navigation-reachability.spec.js
+
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import Sidebar from './Sidebar'
 import Topbar from './Topbar'
 import DomainBar from './DomainBar'
 import Breadcrumb from './Breadcrumb'
 import CommandPalette from './CommandPalette'
+import ProjectManagerBusinessNav from '@/modules/project-manager/components/ProjectManagerBusinessNav'
+import { domainForPath } from '@/config/domains'
 
 export default function AppShell({ children }) {
   const [paletteOpen, setPaletteOpen] = useState(false)
+  const pathname = usePathname()
+  const isProjectsPath = domainForPath(pathname || '').key === 'projects'
 
   useEffect(() => {
     const onKey = (e) => {
@@ -28,14 +38,17 @@ export default function AppShell({ children }) {
       {/* Row 2 — domain bar, full width horizontal, no longer split by the sidebar. */}
       <DomainBar />
       {/* Row 3 — sidebar (in-flow) + content. Expanding the rail pushes content, never overlays it. */}
-      <div className="flex min-h-0 flex-1">
+      <div className={`flex min-h-0 flex-1 ${isProjectsPath ? 'max-md:flex-col' : ''}`}>
         <Sidebar />
         <div className="flex min-w-0 flex-1 flex-col">
           {/* "You are here" strip — scope › domain › page. */}
           <div className="flex h-9 shrink-0 items-center border-b border-[var(--border)] bg-[var(--surface)] px-6 max-md:px-4">
             <Breadcrumb />
           </div>
-          <main className="flex-1 overflow-y-auto p-6 max-md:p-4">{children}</main>
+          <main className="flex-1 overflow-y-auto p-6 max-md:p-4">
+            <ProjectManagerBusinessNav />
+            {children}
+          </main>
           {/* The two badges that used to sit here — a green "● local" dot and
               "SQLite · offline-first" — were literals with nothing behind them.
               On the production deployment they told every operator the console

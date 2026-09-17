@@ -44,6 +44,34 @@ export const UNATTRIBUTED_LANE = 'UNATTRIBUTED'
 /** The breakdown key for figures that carry no person: the meter's local logs. */
 export const NO_PERSON = ''
 
+// @req FR-240 — usage detail aggregates the same way tokens do. Kept here rather
+// than imported from the plugin so the server bundle never reaches outside its
+// tree; the field list matches ADR-086 D7 and is asserted by the board tests.
+const DETAIL_COUNTS = ['reasoningTokens', 'cacheWrite5mTokens', 'cacheWrite1hTokens', 'webSearchRequests', 'webFetchRequests', 'prompts', 'toolCalls', 'toolErrors', 'toolDenials', 'compactions', 'apiErrors']
+export const emptyUsageDetail = () => ({ ...Object.fromEntries(DETAIL_COUNTS.map((k) => [k, 0])), tools: {}, models: {} })
+
+/** Add one detail into another; returns whether anything was added. */
+export function addUsageDetail(into, detail) {
+  if (!detail) return false
+  for (const key of DETAIL_COUNTS) into[key] += detail[key] || 0
+  for (const [name, row] of Object.entries(detail.tools || {})) {
+    const target = into.tools[name] || { calls: 0, errors: 0 }
+    target.calls += row.calls || 0
+    target.errors += row.errors || 0
+    into.tools[name] = target
+  }
+  for (const [name, n] of Object.entries(detail.models || {})) into.models[name] = (into.models[name] || 0) + n
+  return true
+}
+
+/** The most used tools, calls descending then name, for a task's telemetry. */
+export function topTools(detail, limit = 8) {
+  return Object.entries(detail?.tools || {})
+    .map(([name, row]) => ({ name, calls: row.calls, errors: row.errors }))
+    .sort((a, b) => b.calls - a.calls || a.name.localeCompare(b.name))
+    .slice(0, limit)
+}
+
 function addBreakdown(bucket, label, tokens, sessions) {
   const row = bucket[label] || { used: 0, cacheRead: 0, sessions: 0 }
   row.used += tokensUsed(tokens)
@@ -89,7 +117,10 @@ export function mergeLaneUsage({ lanes = [], usage = {}, reports = [], reporters
       reported: 0,
       byPerson: {},
       byDevice: {},
+      detail: emptyUsageDetail(),
+      detailSessions: 0,
     }
+    if (addUsageDetail(entry.detail, m.detail)) entry.detailSessions += entry.sessions
     addBreakdown(entry.byPerson, NO_PERSON, tokens, entry.sessions)
     merged.set(laneId, entry)
   }
@@ -103,7 +134,9 @@ export function mergeLaneUsage({ lanes = [], usage = {}, reports = [], reporters
     if (counted.has(reportKey)) continue
     const entry = merged.get(laneId) || {
       laneId, tokens: emptyTokens(), requests: 0, sessions: 0, activeMinutes: 0, firstActivityAt: null, lastActivityAt: null, sources: [], reported: 0, byPerson: {}, byDevice: {},
+      detail: emptyUsageDetail(), detailSessions: 0,
     }
+    if (addUsageDetail(entry.detail, report.detail)) entry.detailSessions += 1
     const tokens = { input: report.inputTokens, cacheWrite: report.cacheWriteTokens, cacheRead: report.cacheReadTokens, output: report.outputTokens }
     addTokens(entry.tokens, tokens)
     entry.requests += report.requestCount || 0
@@ -154,8 +187,12 @@ export function phaseDeliveryMetrics({ phase, tasks, containers = {}, sizing, la
   for (const laneId of laneIds) {
     const m = laneUsage.get(laneId)
     if (!m) continue
-    measured ||= { tokens: emptyTokens(), requests: 0, sessions: 0, activeMinutes: 0, firstActivityAt: null, lastActivityAt: null, sources: [], lanes: 0, byPerson: {} }
+    measured ||= { tokens: emptyTokens(), requests: 0, sessions: 0, activeMinutes: 0, firstActivityAt: null, lastActivityAt: null, sources: [], lanes: 0, byPerson: {}, detail: emptyUsageDetail(), detailSessions: 0 }
     addTokens(measured.tokens, m.tokens)
+    if (m.detailSessions) {
+      addUsageDetail(measured.detail, m.detail)
+      measured.detailSessions += m.detailSessions
+    }
     for (const [label, row] of Object.entries(m.byPerson || {})) {
       const into = measured.byPerson[label] || { used: 0, cacheRead: 0, sessions: 0 }
       into.used += row.used

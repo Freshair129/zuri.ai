@@ -31,7 +31,16 @@ describe('FR-149 account configuration', () => {
     expect(account).toMatchObject({ serverEnabled: false, transportMode: 'CLOUD', executionMode: 'SERVER', modelAccess: 'LOCAL_ONLY', transportEpoch: 1 })
   })
   it('requires an explicit legacy handoff and refuses failed credential validation without changing ownership', async () => {
-    expect(() => zLineOaAccountAction.parse({ action: 'ENABLE_SERVER', version: account.version })).toThrow()
+    // @req FR-228 — a mount-backed credential (this account's, via
+    // provisionLineServerConnection's `deployment-secret:` reference) keeps the
+    // exact typed-confirmation requirement it always had; the schema itself no
+    // longer enforces this unconditionally (only a vault-backed account can
+    // derive it, and the schema cannot see which store an account's credential
+    // uses), so the service is what refuses the omission now.
+    expect(() => zLineOaAccountAction.parse({ action: 'ENABLE_SERVER', version: account.version })).not.toThrow()
+    await expect(applyLineOaAccountAction(account.id, { action: 'ENABLE_SERVER', version: account.version }, { viewer: owner, ports }))
+      .rejects.toMatchObject({ status: 409, message: 'LINE_OA_LEGACY_CONFIRMATION_REQUIRED' })
+    expect((await prisma.lineOaAccount.findUnique({ where: { id: account.id } })).serverEnabled).toBe(false)
     await expect(applyLineOaAccountAction(account.id, { action: 'ENABLE_SERVER', version: account.version, legacyQuiesced: true }, {
       viewer: owner, ports: { validateServerCredentials: async () => { throw new Error('CREDENTIALS_UNAVAILABLE') } },
     })).rejects.toThrow('CREDENTIALS_UNAVAILABLE')

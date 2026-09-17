@@ -35,6 +35,9 @@ export const TRACE_EVENT_KINDS = Object.freeze([
   'MEMORY_DELIVERY_CLOSED',
   'ARTIFACT_CREATED',
   'RETENTION_TOMBSTONE',
+  // @req FR-234 — one Context Composer receipt per model invocation: references,
+  // a hash and the budget, never content (ADR-091 D7, SDD-100).
+  'CONTEXT_RECEIPT',
 ])
 
 export const zTraceEventKind = z.enum(TRACE_EVENT_KINDS)

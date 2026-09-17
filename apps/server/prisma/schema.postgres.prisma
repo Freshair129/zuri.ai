@@ -57,6 +57,10 @@ model Tenant {
   channelIdentities          ChannelIdentity[]
   identityLinkTokens         IdentityLinkToken[]
   customers                  Customer[]
+  // @req FR-230 — this Tenant's per-data-class retention shortenings (ADR-091 D2).
+  tenantRetentionOverrides   TenantRetentionOverride[]
+  // @req SEC-034 — this Tenant's Customers' chat evidence archive legal holds (ADR-093 D6).
+  customerLegalHolds         CustomerLegalHold[]
   roleBindings               RoleBinding[]
   customerImportBatches      CustomerImportBatch[]
   customerImportReviewCases  CustomerImportReviewCase[]
@@ -116,6 +120,8 @@ model Tenant {
   marketingBroadcastIntents MarketingBroadcastIntent[]
   // @req FR-195 — a TENANT-scoped AccessInvite hangs off the Tenant directly.
   accessInvites             AccessInvite[]
+  // @req FR-236 — LINE FAQ knowledge candidates (ADR-090 D6).
+  knowledgeCandidates       KnowledgeCandidate[]
 
   @@index([portfolioId])
 }
@@ -208,6 +214,17 @@ model Business {
   // keys default per-capability in code, never here, so adding a new
   // capability is never a migration.
   capabilitiesJson String   @default("{}")
+  // @req FR-236 — whether this Business's viewers may draft LINE FAQ
+  // knowledge candidates at all (ADR-090 D6). Deliberately its own column, not
+  // a new `capabilitiesJson` key: capabilitiesJson says whether a module
+  // APPLIES to this Business (default ON — every existing Business keeps what
+  // it already had), while this says whether reviewed chat content may be
+  // ADMITTED into the knowledge corpus — a content-safety gate, not a module
+  // gate, so it defaults OFF for every Business, including ones that already
+  // use `knowledge`. Written only by
+  // `business-knowledge-candidates-service.js` (OWNER-only, versioned CAS,
+  // audited); read by `draftKnowledgeCandidate` before any authority check.
+  knowledgeCandidatesEnabled Boolean @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
   version          Int      @default(1)
@@ -289,6 +306,8 @@ model Business {
   marketingBroadcastIntents MarketingBroadcastIntent[]
   // @req FR-195 — a BUSINESS-scoped AccessInvite hangs off the Business directly.
   accessInvites             AccessInvite[]
+  // @req FR-236 — LINE FAQ knowledge candidates (ADR-090 D6).
+  knowledgeCandidates       KnowledgeCandidate[]
 
   @@index([tenantId])
 }
@@ -368,6 +387,8 @@ model Person {
   sessions                      Session[]
   // @req FR-220 — agent harness installations this person approved (ADR-087).
   harnessCredentials            HarnessCredential[]            @relation("HarnessCredentialPerson")
+  // @req FR-248, FR-249 — this person's route/action usage events (ADR-095 D2).
+  usageEvents                   UsageEvent[]                   @relation("UsageEventPerson")
   identityLinkTokens            IdentityLinkToken[]
   pluginAuthorizationCodes      PluginAuthorizationCode[]
   pluginSessions                PluginSession[]
@@ -387,6 +408,8 @@ model Person {
   assetResponsibilities         AssetResponsibility[]
   salesTasksAssigned            SalesTask[]                    @relation("SalesTaskAssignee")
   mfaFactors                    MfaFactor[]
+  // @req SEC-034 — legal holds this OWNER recorded on a Customer's chat evidence archive (ADR-093 D6).
+  customerLegalHoldsRecorded    CustomerLegalHold[]             @relation("CustomerLegalHoldRecordedBy")
 }
 
 // @req FR-107 — the server-held store behind FR-075's `isOperator` capability.
@@ -788,6 +811,20 @@ model MfaFactor {
   person Person @relation(fields: [personId], references: [id], onDelete: Cascade)
 
   @@index([personId, status])
+}
+
+// @req FR-224 — fixed-window request counters: the credential-write rate limit per
+//   Person and Business, and installation-wide LINE validation calls. A table
+//   because ADR-058 has no Redis. Holds counts and a key built from ids, nothing
+//   else; ephemeral, so excluded from backup export.
+// @spec ADR-089 D4
+// @tested tests/integration/credential-rate-limit.test.js
+model RateLimitBucket {
+  id          String   @id @default(uuid())
+  key         String   @unique
+  windowStart DateTime
+  count       Int      @default(0)
+  updatedAt   DateTime @updatedAt
 }
 
 // @req FR-094 — external channel subjects are namespaced attributes, never
@@ -1794,6 +1831,18 @@ model Customer {
   importReviewDecisions CustomerImportReviewDecision[] @relation("CustomerImportReviewDecisionTargetCustomer")
   salesTasks            SalesTask[]
   salesOrders           SalesOrder[]
+  // @req FR-245 — this Customer's chat evidence archive data key (ADR-093 D4,
+  //   D6) lives in `CustomerArchiveKey`, keyed by `customerId` alone — no
+  //   Prisma relation here, the same choice `IntegrationCredential` made for
+  //   `IntegrationSecretEnvelope` (SEC-030's precedent). Both models ARE
+  //   included in the backup snapshot (SNAPSHOT_MODELS, backup-service.js) —
+  //   see `CustomerArchiveKey`'s own comment for why exclusion was tried
+  //   first and reverted.
+  //
+  // `legalHolds` is different: SEC-034/ADR-093 D6 holds no key and no file
+  // reference, so it is a normal relation that travels with the Customer like
+  // any other CRM child row.
+  legalHolds            CustomerLegalHold[]
 
   @@unique([tenantId, personId])
   @@index([businessId])
@@ -1915,14 +1964,36 @@ model Conversation {
   channelAccountId String   @default("LEGACY:LINE")
   externalThreadId String
   status           String   @default("OPEN")
-  createdAt        DateTime @default(now())
+  // @req FR-233 — inbox read-model columns (ADR-091 D5, design §6.9). Denormalised
+  // from Message on write (conversation-preview-service.js) so the inbox needs no
+  // per-row N+1 to show them; unreadCount stays computed on read instead (it needs
+  // no storage: it is a function of the messages already on the row).
+  // lastMessagePreview is redacted by the same writer as Message.body — PDPA
+  // erasure (conversation-redaction-service.js) and the retention sweep
+  // (retention-sweep-service.js) both refresh it, never leaving a preview that
+  // outlives the message it was taken from.
+  lastMessageAt      DateTime?
+  lastMessagePreview String?
+  // @req FR-230 — which retention data class governs this conversation's Message
+  // rows (ADR-091 D2). Fixed today (every Conversation's messages fall under
+  // MESSAGE_BODY_AND_ATTACHMENTS); stored rather than inferred so a future
+  // per-conversation class never becomes a silent migration.
+  retentionClass String @default("MESSAGE_BODY_AND_ATTACHMENTS")
+  createdAt      DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  customer    Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  messages    Message[]
-  analyses    ConversationAnalysis[]
-  salesTasks  SalesTask[]
-  salesOrders SalesOrder[]
+  customer            Customer               @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  messages            Message[]
+  events              ConversationEvent[]
+  analyses            ConversationAnalysis[]
+  salesTasks          SalesTask[]
+  salesOrders         SalesOrder[]
+  // @req FR-236 — the candidate names its source conversation only through
+  //   this relation and `sourceRefJson`; a deleted conversation clears the
+  //   reference rather than deleting the candidate (erasure fan-out is FR-232).
+  knowledgeCandidates KnowledgeCandidate[]
+  // @req FR-243 — a long-lived conversation reads as separate sittings (ADR-094 D1).
+  sessions            ConversationSession[]
 
   // @spec BR-002, SEC-001 — a provider thread id is envelope data, not a key. Scoping
   // it by tenant, channel and account isolates the external namespace:
@@ -1939,10 +2010,20 @@ model Message {
   direction         String // INBOUND | OUTBOUND
   body              String
   externalMessageId String?
+  // @req FR-229 — TEXT | STICKER | LOCATION | MEDIA_REF (ADR-091 D5). Media types
+  // collapse into MEDIA_REF; the specific kind lives on MessageAttachment.kind, so a
+  // new media type never touches this vocabulary. Defaulted so every row that
+  // predates this column reads as TEXT, which is what it always was.
+  contentKind       String   @default("TEXT")
+  // @req FR-243 — the sitting this message belongs to (ADR-094 D2, SDD-102). Null only
+  //   for a row written before sessions existed and not yet backfilled.
+  sessionId         String?
   createdAt         DateTime @default(now())
 
   conversation Conversation         @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  session      ConversationSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
   lineJob      LineConversationJob?
+  attachments  MessageAttachment[]
 
   // @spec BR-002, SEC-001 — scoped to the conversation that owns the message rather
   // than to a tenant column: a Message has no tenant of its own, and denormalising one
@@ -1951,6 +2032,246 @@ model Message {
   // NULL stays non-conflicting in both engines, so unkeyed outbound messages are free.
   @@unique([conversationId, externalMessageId])
   @@index([conversationId])
+  @@index([sessionId])
+}
+
+// @req FR-229 — a media message (image, video, audio, file) is recorded without
+// bytes (ADR-091 D5): LINE's own content id is kept so a later phase can fetch it
+// into FileAsset before LINE's retention window closes. mimeType/sizeBytes are
+// unknown at admission — LINE's webhook payload for these types carries neither —
+// and fileAssetId stays null until that fetch happens; none of the three is
+// written by this change.
+// @spec BR-002 — providerContentId is LINE's id, never a primary key here.
+// @tested tests/integration/line-non-text-admission.test.js
+model MessageAttachment {
+  id                String   @id @default(uuid())
+  messageId         String
+  kind              String // IMAGE | VIDEO | AUDIO | FILE
+  providerContentId String? // LINE's message id, used to fetch content later; cleared on unsend
+  fileAssetId       String? // plain reference, not a relation (file management owns FileAsset); null until fetched
+  fetchState        String   @default("PENDING") // PENDING | STORED | EXPIRED_AT_PROVIDER | ERASED
+  mimeType          String?
+  sizeBytes         Int?
+  createdAt         DateTime @default(now())
+
+  message Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+
+  @@index([messageId])
+  @@index([fileAssetId])
+}
+
+// @req FR-229 — non-message LINE webhook events (follow, unfollow, join, leave,
+// memberJoined, memberLeft, postback, unsend) become CRM rows instead of being
+// discarded (ADR-091 D5). The payload stays bounded and id-only — no display name,
+// no free text (e.g. postback's own `data` string is deliberately not stored) —
+// and `unsend` additionally tombstones the Message and MessageAttachment it names.
+// @spec BR-002 — externalEventId is LINE's id, never a primary key here.
+// @tested tests/integration/line-non-text-admission.test.js
+model ConversationEvent {
+  id              String   @id @default(uuid())
+  conversationId  String
+  kind            String // FOLLOW | UNFOLLOW | JOIN | LEAVE | MEMBER_JOINED | MEMBER_LEFT | POSTBACK | UNSEND
+  externalEventId String
+  payloadJson     String   @default("{}")
+  occurredAt      DateTime @default(now())
+  // @req FR-243 — the session open when the event occurred, or null (ADR-094 D2).
+  sessionId       String?
+  createdAt       DateTime @default(now())
+
+  conversation Conversation         @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  session      ConversationSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+
+  // Same idempotency shape as Message's (conversationId, externalMessageId): a
+  // redelivered webhook event must never produce a second row.
+  @@unique([conversationId, externalEventId])
+  @@index([conversationId])
+  @@index([sessionId])
+}
+
+// @req FR-243 — one sitting of a conversation: messages that follow each other within
+//   the account's idle timeout (ADR-094 D1–D4, SDD-102). Owned by crm; the id of the
+//   business record's session. MSP's own chat session id is stored beside it when MSP
+//   thread memory is on, never in its place.
+// @spec ADR-094, SDD-102, BR-002
+model ConversationSession {
+  id                 String    @id @default(uuid())
+  code               String
+  tenantId           String
+  businessId         String?
+  conversationId     String
+  customerId         String
+  channelAccountId   String
+  openedAt           DateTime
+  lastMessageAt      DateTime
+  closedAt           DateTime?
+  idleTimeoutMinutes Int
+  inboundCount       Int       @default(0)
+  outboundCount      Int       @default(0)
+  mspSessionId       String?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  conversation Conversation           @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  messages     Message[]
+  events       ConversationEvent[]
+  lineJobs     LineConversationJob[]
+
+  @@unique([tenantId, code])
+  @@index([conversationId, openedAt])
+  @@index([tenantId, businessId, openedAt])
+}
+
+// @req FR-230 — a Tenant may shorten (never lengthen) an installation-default
+// retention window (ADR-091 D2). One row per (tenant, data class); the
+// installation default in RETENTION_DEFAULT_WINDOW_DAYS is the ceiling — the
+// writer (retention-override-service.js) refuses a windowDays above it, and the
+// sweep (retention-sweep-service.js) applies a defensive min() against it too,
+// so a row that ever got past the writer some other way still cannot lengthen
+// anything. dataClass names one of RETENTION_DATA_CLASSES
+// (src/lib/validation/enums.js) — a class this codebase does not yet sweep
+// (RAW_LINE_PAYLOAD: integration's RawExternalRecord; AGENT_TRACE_EVENT: agent's
+// AgentTraceEvent; MSP_SESSION_CONTENT: a separate repository) may still declare
+// an override row here; only its sweeper, once one exists, would read it.
+// @spec BR-002, SEC-031
+// @tested tests/integration/crm-retention-override-service.test.js, tests/integration/crm-retention-sweep.test.js
+model TenantRetentionOverride {
+  id         String   @id @default(uuid())
+  tenantId   String
+  dataClass  String
+  windowDays Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  version    Int      @default(1)
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, dataClass])
+  @@index([tenantId])
+}
+
+// @req FR-245 — one row per Customer whose messages have ever been archived: the
+// per-Customer data key the chat evidence archive seals their JSON-lines segment
+// under, wrapped (never stored in the clear) under this deployment's
+// `ZURI_ARCHIVE_KEK` (SEC-034, ADR-093 D4). Same shape as
+// `IntegrationSecretEnvelope`'s wrapped-DEK column, deliberately under a
+// separate KEK: `ZURI_ARCHIVE_KEK` is never `ZURI_SECRET_KEK`, so compromising
+// one secret store never opens the other. Lazily created the first time a
+// sweep archives that Customer's content — most Customers never get a row.
+//
+// A dedicated row per Customer (ADR-093 D6) rather than a key folded into every
+// archive file: a future PDPA-erasure writer destroys exactly one row (or, once
+// TASK-ZAI-113 lands, records a legal hold instead) to make every line that
+// Customer ever had archived — in this file and any other — permanently
+// unreadable, without touching a single archive file on disk.
+// @spec SEC-034, ADR-093 D4, D6
+// @tested tests/unit/crm-chat-evidence-archive-crypto.test.js, tests/integration/crm-chat-evidence-archive.test.js
+model CustomerArchiveKey {
+  id         String   @id @default(uuid())
+  tenantId   String
+  customerId String   @unique
+  kekId      String
+  wrappedDek String
+  createdAt  DateTime @default(now())
+
+  // No `@relation` to Tenant/Customer, deliberately — the same choice
+  // `IntegrationSecretEnvelope` already made (SEC-030's precedent): a plain
+  // scope column, not a Prisma-level foreign key.
+  //
+  // This table IS included in the backup snapshot (SNAPSHOT_MODELS,
+  // backup-service.js) — an earlier version of this comment excluded it,
+  // reasoning that a real FK here would make the snapshot restore's
+  // delete-then-reinsert of Tenant/Customer fail on a row nothing re-clears
+  // first. That reasoning does not actually apply: there is no `@relation`
+  // here, so there is no FK for the restore to violate either way, and
+  // `wrappedDek` is exportable ciphertext for the same reason
+  // `integrationCredentialVersion`/`mfaFactor` are — the key-encryption key
+  // that could open it (`ZURI_ARCHIVE_KEK`) is never part of any snapshot.
+  // Unlike a credential, a randomly generated archive key has no re-entry
+  // path, so excluding it would let a routine restore silently and
+  // permanently destroy access to retained dispute evidence.
+
+  @@index([tenantId])
+}
+
+// @req FR-245 — one row per archive file this sweep ever wrote, chained per
+// Tenant (ADR-093 D2, D4; SDD-103; SEC-034). A row is inserted only once its
+// file has been written, flushed, read back and its SHA-256 verified, in the
+// same transaction that tombstones exactly the messages it archived — so a row
+// here always names a real, intact file, never a failed or partial write.
+//
+// The chain: `previousManifestHash` copies the Tenant's prior manifest's own
+// `manifestHash`, and `manifestHash` is computed over this row's own fields
+// (including that copied value) once, at insert, and never recomputed. Verifying
+// the chain means recomputing every row's `manifestHash` from its stored fields
+// and comparing — a single tampered field, in this row or an earlier one,
+// breaks every hash after it. `previousManifestId` is kept alongside the hash
+// purely so the chain can be walked without scanning the whole table.
+// @spec SDD-103, SEC-034, ADR-093 D2, D4
+// @tested tests/unit/crm-chat-evidence-archive-crypto.test.js, tests/integration/crm-chat-evidence-archive.test.js
+model ArchiveManifest {
+  id                   String   @id @default(uuid())
+  tenantId             String
+  runId                String
+  filePath             String
+  fileSha256           String
+  messageCount         Int
+  messageIdListHash    String
+  previousManifestId   String?
+  previousManifestHash String?
+  manifestHash         String
+  createdAt            DateTime @default(now())
+
+  // No `@relation` to Tenant — same reasoning as `CustomerArchiveKey` above.
+  // This table is ALSO included in the backup snapshot (SNAPSHOT_MODELS),
+  // for a sharper reason than "it is recoverable": `chat-evidence-retrieval-
+  // service.js` finds archive files strictly by walking this table's rows
+  // per Tenant, so losing them makes every archived message undiscoverable
+  // even when the files themselves are intact on disk (or brought back by
+  // the ADR-093 D8 offline copy). The self-referential chain link stays a
+  // real FK: both ends are always this same table, so it participates in no
+  // cross-table restore ordering at all.
+  previousManifest ArchiveManifest?  @relation("ArchiveManifestChain", fields: [previousManifestId], references: [id])
+  nextManifests    ArchiveManifest[] @relation("ArchiveManifestChain")
+
+  @@unique([tenantId, runId])
+  @@index([tenantId, createdAt])
+}
+
+// @req SEC-034 — an OWNER-recorded legal hold on a Customer (ADR-093 D6, TASK-ZAI-113):
+//   while an unexpired hold exists, a PDPA erasure still erases every other copy of
+//   that Customer's data but leaves their chat evidence archive key alone, resting on
+//   PDPA's exception for establishing, exercising or defending a legal claim.
+//
+//   A history, not a single mutable row: a Customer can carry more than one hold over
+//   their lifetime (sequential disputes), so there is deliberately no @@unique on
+//   customerId and no update path — a hold is written once and never edited. "Active"
+//   is derived (`now < endDate`), never a stored status column: ADR-093 D6 describes
+//   only an end date, not an OWNER ending a hold early, and nothing here invents that
+//   feature. Business data, not credential material — unlike CustomerArchiveKey and
+//   ArchiveManifest above, this holds no key and no file reference, so it is a normal
+//   member of the backup snapshot (SNAPSHOT_MODELS in backup-service.js) with real
+//   foreign keys, restored with the rest of the Customer's CRM record.
+// @spec ADR-093 D6, SEC-034, BR-001
+// @tested tests/integration/crm-archive-legal-hold.test.js
+model CustomerLegalHold {
+  id       String @id @default(uuid())
+  tenantId String
+  customerId String
+  // @req ADR-093 D6 — "an open dispute, its reason": free text the OWNER
+  //   supplies, the same style as chat-evidence-retrieval-service.js's
+  //   caseReference — whatever the Business's own dispute file calls it,
+  //   never a code this system validates against a registry.
+  reason   String
+  endDate  DateTime
+  recordedByPersonId String
+  createdAt DateTime @default(now())
+
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  recordedBy Person   @relation("CustomerLegalHoldRecordedBy", fields: [recordedByPersonId], references: [id])
+
+  @@index([tenantId])
+  @@index([customerId, endDate])
 }
 
 // @req FR-127 — each recomputable, advisory analysis run belongs to an internal
@@ -2652,6 +2973,69 @@ model KnowledgeCorpusGeneration {
   @@unique([corpusId, number])
 }
 
+// @req FR-236 — a LINE FAQ knowledge candidate: a canonical question/answer
+//   drawn from one consent-GRANTED Conversation, reviewed and decided by a
+//   Business OWNER or LINE_OA_PUBLISHER, admitted through the ADR-072
+//   admission service (knowledge-admission-service.js) as one immutable
+//   LINE_FAQ_CANDIDATE TEXT source on APPROVED — never a second write path
+//   into the corpus.
+// @spec ADR-090 D6, D8; SEC-032; FR-187 (Zero-PII deny policy, reused)
+// @tested tests/unit/knowledge-candidate-service.test.js, tests/integration/fr236-knowledge-candidate.test.js
+model KnowledgeCandidate {
+  id     String @id @default(uuid())
+  // @spec BR-002 — the Business is the write scope; tenantId is carried for
+  //   the same reason every other CRM-adjacent model carries it (query
+  //   locality), never as a second source of truth for scope.
+  tenantId   String
+  businessId String
+  // @req FR-236/ADR-090 D8 — the ONLY fields that name a source conversation.
+  //   `conversationId` is the internal Conversation.id (never the LINE
+  //   externalThreadId / user id); `sourceRefJson` repeats it alongside
+  //   internal `Message.id`s only. FR-232's erasure fan-out tombstones a
+  //   candidate by walking exactly these two fields — nothing else on this
+  //   row may ever come to name a conversation.
+  conversationId String?
+  sourceRefJson  String
+  // PENDING_REVIEW | APPROVED | REJECTED | TOMBSTONED (docs/domains/knowledge/CHARTER.md)
+  status String @default("PENDING_REVIEW")
+  // Canonical, locator-only prose: product locators, policy names, amounts —
+  // no names, no LINE ids, no quoted customer wording (Zero-PII, enforced at
+  // create/edit/decide by knowledge-candidate-zero-pii.js).
+  question    String
+  answer      String
+  contentHash String
+  // Consent snapshot at draft time (must have been GRANTED) — evidence for
+  // ADR-090 proof 7, not re-derived from the live Customer row after the fact.
+  consentStatusAtDraft String
+  // Namespaced per Business, mirroring knowledge-admission-service's own
+  // idempotency contract: the same key with the same content is a no-op
+  // replay; a changed key is a new draft.
+  idempotencyKey    String
+  requestHash       String
+  createdByPersonId String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  decidedByPersonId String?
+  decidedAt         DateTime?
+  decisionReason    String?
+  // Set only on APPROVED, once admission succeeds — the KnowledgeSource/
+  // KnowledgeIngestion this candidate became, through the existing service.
+  admittedSourceId    String?
+  admittedIngestionId String?
+  // FR-232 erasure marks this without deleting the row (GKS cannot delete —
+  // ADR-072 D11); a tombstoned candidate is refused for decision or admission.
+  tombstonedAt DateTime?
+  version      Int       @default(1)
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business     Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  conversation Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+
+  @@unique([businessId, idempotencyKey])
+  @@index([businessId, status])
+  @@index([conversationId])
+}
+
 // @req FR-079 — provider-neutral Business-scoped runtime connection metadata.
 // @spec ADR-031 §D2/D3, SDD-043, SEC-015 — opaque secret references only;
 // the production partial active-primary invariant is an additive Postgres DDL gate.
@@ -2703,20 +3087,117 @@ model IntegrationConnection {
   @@index([tenantId, businessId, purpose, status, role])
 }
 
+// @req FR-223 — lifecycle metadata of one connection's credential. `secretRef` is the
+//   version the runtime resolves; a rotation's pending version lives only in
+//   IntegrationCredentialVersion until it validates. Never material (SEC-030).
+// @spec ADR-089 D1, D2, D5; SDD-097
+// @tested tests/unit/integration/credential-vault-schema-contract.test.js
 model IntegrationCredential {
   id                    String    @id @default(uuid())
   connectionId          String    @unique
   secretRef             String
+  // DEPLOYMENT_MOUNT | SUPABASE_VAULT | ENVELOPE — the store `secretRef` names (SDD-097)
+  secretStore           String    @default("DEPLOYMENT_MOUNT")
+  // LINE_CHANNEL | OAUTH_CLIENT | API_KEY | MODEL_PROVIDER_KEY — selects the bundle schema
+  secretKind            String    @default("LINE_CHANNEL")
+  // PENDING_VALIDATION | ACTIVE | ROTATING | EXPIRED | REVOKED | REENTRY_REQUIRED
   status                String    @default("ACTIVE")
+  // last four characters of the non-secret identifier (Channel ID); never of a secret
+  displayHint           String?
   expiresAt             DateTime?
   accessTokenExpiresAt  DateTime?
   refreshTokenExpiresAt DateTime?
+  lastValidatedAt       DateTime?
+  lastValidationCode    String?
   rotatedAt             DateTime?
+  revokedAt             DateTime?
+  revokeReason          String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
   version               Int       @default(1)
 
-  connection IntegrationConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  connection IntegrationConnection          @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  versions   IntegrationCredentialVersion[]
+}
+
+// @req FR-223 — append-only version history: every write is a new version, so a
+//   rotation, rejection, revocation and purge is auditable per version. `secretRef`
+//   stays after purge as a pointer to material that no longer exists.
+// @spec ADR-089 D5; SEC-030
+// @tested tests/unit/integration/credential-vault-schema-contract.test.js
+model IntegrationCredentialVersion {
+  id            String    @id @default(uuid())
+  credentialId  String
+  tenantId      String
+  businessId    String?
+  versionNumber Int
+  secretRef     String
+  secretStore   String
+  // PENDING_VALIDATION | ACTIVE | SUPERSEDED | REJECTED | REVOKED | PURGED
+  status        String
+  displayHint   String?
+  createdById   String?
+  // BROWSER_MFA | OPERATOR_CLI | BACKFILL
+  createdVia    String
+  createdAt     DateTime  @default(now())
+  activatedAt   DateTime?
+  supersededAt  DateTime?
+  revokedAt     DateTime?
+  purgedAt      DateTime?
+  reason        String?
+
+  credential IntegrationCredential @relation(fields: [credentialId], references: [id], onDelete: Cascade)
+
+  @@unique([credentialId, versionNumber])
+  @@index([tenantId, businessId, status])
+  @@index([secretRef])
+}
+
+// @req FR-223 — the envelope store's ciphertext (ZURI_SECRET_STORE=envelope): a
+//   bundle sealed with AES-256-GCM under a per-secret data key, the data key wrapped
+//   by the deployment's key-encryption key, bound by AAD to Tenant, Business,
+//   connection and version. Purge deletes the row. Excluded from backup export.
+// @spec ADR-089 D1; SDD-097; SEC-030
+// @tested tests/unit/integration/envelope-secret-store.test.js
+model IntegrationSecretEnvelope {
+  id           String    @id @default(uuid())
+  tenantId     String
+  businessId   String?
+  connectionId String
+  kekId        String
+  wrappedDek   String
+  iv           String
+  tag          String
+  ciphertext   String
+  aadVersion   Int
+  expiresAt    DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@index([tenantId, businessId, connectionId])
+}
+
+// @req FR-226 — one external bot bound to at most one live connection across the
+//   whole installation, keyed by the SHA-256 of its destination (never the raw id,
+//   BR-002), taken before any secret is stored.
+// @spec ADR-089 D6
+// @tested tests/integration/channel-account-claim.test.js
+//
+// Postgres holds the pair unique only among live claims (a partial unique index on
+// releasedAt IS NULL, migration 20260914140100); SQLite dev/test keeps the plain
+// unique below, so a claim is released by deleting its row — the one release
+// Phase 1 performs is compensation for a connection that never came to exist.
+model ChannelAccountClaim {
+  id                  String    @id @default(uuid())
+  provider            String
+  externalAccountHash String
+  tenantId            String
+  businessId          String
+  connectionId        String    @unique
+  claimedAt           DateTime  @default(now())
+  releasedAt          DateTime?
+
+  @@unique([provider, externalAccountHash])
+  @@index([tenantId, businessId])
 }
 
 model IngestionRun {
@@ -3091,13 +3572,32 @@ model LineOaAccount {
   serverEnabled           Boolean               @default(false)
   executionMode           String                @default("SERVER")
   modelAccess             String                @default("LOCAL_ONLY")
+  // @req FR-235 — publisher-set grounding mode (ADR-090 D1): BUSINESS_KNOWLEDGE
+  // (default, every existing account, unchanged behaviour) | GKS_CORPUS |
+  // GKS_THEN_BUSINESS_KNOWLEDGE. Additive, opt-in; nothing reads a corpus until
+  // a publisher switches it.
+  knowledgeGrounding      String                @default("BUSINESS_KNOWLEDGE")
   allowDelayedPush        Boolean               @default(false)
   transportEpoch          Int                   @default(1)
+  // @req FR-227 — computed webhook health only LINE can report: {endpoint, active,
+  // lastTestAt, lastTestReason, lastTestStatusCode}. Written only by the
+  // REGISTER_WEBHOOK action; null until a publisher runs it at least once.
+  webhookStateJson        String?
   conversationJobs        LineConversationJob[]
   richMenuJobs            LineOaRichMenuJob[]
   liffApps                LineOaLiffApp[]
   isDefaultForBusiness    Boolean               @default(false)
   botProfileJson          String                @default("{}")
+  // @req FR-243 — minutes of silence after which the next message opens a new
+  //   conversation session; 10 to 120, 30 by default (ADR-094 D3).
+  sessionIdleTimeoutMinutes Int                 @default(30)
+  // @req FR-244 — declared business hours in Asia/Bangkok, "HH:MM" 24h, and the
+  //   fixed reply sent outside them (ADR-094 D6 option A). All three null together
+  //   is "no declared hours" — today's behaviour, the model never sheds for this
+  //   account. Declaring hours sets all three together; clearing unsets all three.
+  businessHoursOpen       String?
+  businessHoursClose      String?
+  outOfHoursReplyText     String?
   archivedAt              DateTime?
   createdAt               DateTime              @default(now())
   updatedAt               DateTime              @updatedAt
@@ -3288,18 +3788,23 @@ model LineConversationJob {
   memoryDeliveryAttempts      Int       @default(0)
   memoryDeliveryNextAttemptAt DateTime?
   memoryDeliveryLeaseUntil    DateTime?
+  // @req FR-243 — the conversation session of the inbound message this job answers,
+  //   copied at admission so the job list and trace can be filtered by session (ADR-094 D4).
+  sessionId                   String?
   correlationId               String
   createdAt                   DateTime  @default(now())
   updatedAt                   DateTime  @updatedAt
   version                     Int       @default(1)
 
-  account LineOaAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  inbound Message       @relation(fields: [inboundMessageId], references: [id], onDelete: Cascade)
+  account LineOaAccount        @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  inbound Message              @relation(fields: [inboundMessageId], references: [id], onDelete: Cascade)
+  session ConversationSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
 
   @@unique([accountId, eventId])
   @@index([status, executionMode, availableAt])
   @@index([tenantId, businessId, status])
   @@index([memoryDeliveryState, memoryDeliveryNextAttemptAt, createdAt])
+  @@index([sessionId])
 }
 
 // @req FR-159 — Business-scoped strategy identity and immutable evidence.
@@ -4742,6 +5247,14 @@ model ProgrammeUsageReport {
   reportedAt       DateTime  @default(now())
   // @req FR-221 — set when a resumed session's report was extended (ADR-087 D5).
   extendedAt       DateTime?
+  // @req FR-239 — usage detail headline counts, and the whole detail as canonical
+  // JSON (tool names with calls and errors, models, cache lifetimes, web search and
+  // fetch, denials, compactions, API errors). Names and numbers only (ADR-086 D7).
+  reasoningTokens  Int       @default(0)
+  toolCallCount    Int       @default(0)
+  toolErrorCount   Int       @default(0)
+  promptCount      Int       @default(0)
+  detailJson       String?
 
   @@unique([source, sessionId, branch])
   @@index([taskCode])
@@ -4778,4 +5291,83 @@ model HarnessCredential {
 
   @@index([personId, status])
   @@index([status, createdAt])
+}
+
+// @req FR-247 — deduplicated, operator-readable error tracking. `fingerprint` is
+// `sha256(name + ':' + message + ':' + firstStackFrame)`, computed by
+// `logger.exception()`; a repeat with the same fingerprint increments
+// `occurrenceCount` and `lastSeenAt` rather than inserting a second row.
+// `stackFramesJson` holds only parsed `{file, line, function}` frames — never a
+// raw stack string, so a frame that is not a file:line shape is dropped rather
+// than stored as free text (ADR-095 D1). No personId: an error is a fact about
+// the system, not about a person.
+// @spec ADR-095 D1, SEC-009, SDD-048
+// @tested tests/unit/observability-logger.test.js, tests/unit/error-events.test.js
+model ErrorEvent {
+  id                  String    @id @default(uuid())
+  fingerprint         String    @unique
+  name                String
+  message             String
+  stackFramesJson     String    @default("[]")
+  occurrenceCount     Int       @default(1)
+  firstSeenAt         DateTime  @default(now())
+  lastSeenAt          DateTime  @default(now())
+  correlationId       String?
+  route               String?
+  resolvedAt          DateTime?
+  resolvedByPersonId  String?
+  createdAt           DateTime  @default(now())
+  version             Int       @default(1)
+
+  @@index([resolvedAt, lastSeenAt])
+  @@index([lastSeenAt])
+}
+
+// @req FR-248, FR-249 — route- and action-level usage, per person (ADR-095 D2,
+// owner's instruction over the aggregate-only default CR-020 §3.3 proposed).
+// `kind` is `PAGE_VIEW` (route set, actionName null) or `ACTION` (actionName a
+// static label the calling code chooses, never built from request data; route
+// null). A row older than 90 days is replaced by a `personId`-less daily
+// rollup rather than deleted outright (ADR-095 D3) — that rollup is a separate
+// aggregate shape, not a row of this model with personId cleared.
+// @spec ADR-095 D2, D3, D4, NFR-023, SEC-009
+// @tested tests/unit/usage-events.test.js
+model UsageEvent {
+  id         String   @id @default(uuid())
+  kind       String
+  route      String?
+  actionName String?
+  personId   String
+  sessionId  String?
+  occurredAt DateTime @default(now())
+
+  person Person @relation("UsageEventPerson", fields: [personId], references: [id], onDelete: Cascade)
+
+  @@index([personId, occurredAt])
+  @@index([kind, route, occurredAt])
+  @@index([kind, actionName, occurredAt])
+}
+
+// @req FR-249, NFR-023 — the aggregate a UsageEvent row over 90 days old becomes:
+// one day, one route or actionName, a count, no personId. A separate shape from
+// UsageEvent on purpose (ADR-095 D3) — the per-person question stays answerable
+// for exactly 90 days, never longer, by construction rather than by convention.
+// `date` is UTC-midnight-truncated so a rollup and a later one for the same day
+// merge into the same row instead of a second one. `target` is the route
+// (PAGE_VIEW) or actionName (ACTION), never null: `@@unique` with a nullable
+// column would let Postgres treat two NULLs as distinct and defeat the very
+// upsert this table exists for, so `kind` plus one non-null `target` replaces
+// UsageEvent's two-nullable-column shape rather than copying it.
+// @spec ADR-095 D3
+// @tested tests/unit/usage-events.test.js
+model UsageEventRollup {
+  id        String   @id @default(uuid())
+  date      DateTime
+  kind      String
+  target    String
+  count     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date, kind, target])
 }

@@ -2,10 +2,10 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 0.8.1b |
+| **Version** | 0.9.0b |
 | **Status** | Accepted |
 | **Author** | Claude |
-| **Date** | 2026-09-10 |
+| **Date** | 2026-09-16 |
 | **Relates to** | ADR-011 (context-bar and Business scope ceiling — authoritative), ADR-055, ADR-060 (LINE OA Studio — local implementation slices), ADR-008, ADR-003, ADR-006, FR-020, FR-039, FR-133, PARITY-INVENTORY.md, ROUTES-SITEMAP.md |
 
 Adopts V1's information architecture — **top-level = domain, sidebar = the domain's
@@ -30,6 +30,15 @@ sub-features, with an explicit root contract per domain** — and binds it to V2
 > Workspace invitation, or open top-level `/workspaces` without creating Tenant,
 > Business, Space or Project. Business Routing remains the gate before BusinessShell;
 > this is a documentation target and is not yet runtime behavior.
+
+> **Approved Projects & Work amendment (FR-250 / ADR-096, 2026-09-16):**
+> the existing `projects` domain is labelled Projects & Work. Its sidebar selects
+> six logical modules; module-local tabs select the existing Business or authorized
+> Project views. The updated sections 3 and 5.1 below supersede the older
+> Development label and project-tab examples retained elsewhere in this document.
+> Business remains the scope ceiling. Domain keys, grants and URLs are unchanged.
+> Implementation evidence is recorded in the
+> [FR-250 note](domains/project-manager/features/FR-250-hierarchical-project-navigation.md).
 
 ## 1. The three navigation tiers
 
@@ -60,7 +69,7 @@ domain identities used by FR-070.
 | `DOM-LINE-OA-STUDIO` | `line-oa` | LINE OA Studio | design, publication and operation of LINE Official Accounts, several per Business (ADR-060; local implementation slices are wired) |
 | `DOM-INVENTORY` | `inventory` | Warehouse | catalogue identity, the stock ledger (lots, serial units, FEFO) and recipes / BOM (FR-154..156; labelled Warehouse because a Project's Inventory tab shares the screen) |
 | `DOM-PROCUREMENT` | `procurement` | Procurement | suppliers, purchase orders and goods receipts that post into the Warehouse ledger (FR-164, FR-165, ADR-066) |
-| `DOM-DEVELOPMENT` | `projects` | Development | Project and execution-plan views |
+| `DOM-DEVELOPMENT` | `projects` | Projects & Work | Project and execution-plan views |
 | `DOM-PLATFORM` | `platform` | Platform | configuration, identity, audit and system capabilities |
 
 Changing a label or route key does not change the product domain ID. A domain
@@ -233,17 +242,21 @@ Instagram, GA4 and SEO in a draft are channel intent, not connected accounts.
 Reserved domains render as reserved here, never as zero — a slot with no module has
 no number to report, and a zero would read as "measured and bad".
 
-### Development — project management  *(existing `projects` route key, FR-001…020)*
-1. Projects
-2. All Work
-3. Execution — 7 modes (sprint · migration · b2b-sales · b2c-campaign · product-launch · operations · expansion)
-4. Timeline
-5. Dependencies
-6. Milestones & Gates
-7. Repositories
+### Projects & Work — six logical modules *(existing `projects` route key, FR-250)*
 
-The Development label in the sidebar is static context. `/overview` is represented by
-the first sidebar sub-domain rather than by a clickable domain heading.
+| Sidebar module | Business-local views | Authorized Project-local views |
+|---|---|---|
+| Project Management | Projects at `/projects` | Project, Inventory; execution modes retain Project as parent |
+| Work Management | All Work, Execution, Timeline, Dependencies, Milestones & Gates | Execution Roadmap, Structure Plan (entry), Board, Work Items, Schedule, Milestones, Dependency Map |
+| Delivery Design | Planned: Domains, Features, Requirements, Architecture, API, Docs & Decisions | Same named planned capabilities; no route |
+| Resource Coordination | Files, Repositories; Resources and Connections Used planned | Team, Files, Repositories; Resources and Connections Used planned |
+| Delivery Governance | Planned: Risks, Reviews, Test & Release Evidence, Activity | Same named planned capabilities; no route |
+| Agent Delivery | Planned: Command Center, Agents, Fleets, Workflows | Same named planned capabilities; no route |
+
+The eight existing Business destinations remain in the flat route registry for
+route ownership and search. Six sidebar modules are a presentation projection,
+not new grant keys or API owners. A planned module opens a readable disclosure,
+not a nonexistent route. `/overview` remains Business Home.
 
 ### HR / People — workforce directory *(new — route key `people`, FR-042)*
 1. **Dashboard** — Business workforce summary
@@ -344,20 +357,26 @@ lacks the domain, land on its Business Overview with a notice.
 
 ### 5.1 Project-local Work views
 
-`/projects/{id}` opens a resource within Development. Its tabs are not shell navigation and do
-not add a Development sidebar item:
+`/projects/{id}` opens an authorized resource within Projects & Work. Module
+switches preserve that Project where supported; an explicit All projects action
+returns to Business context. Only the selected module's local navigation appears:
 
 ```text
-Project tabs: Project | Requirements | Team | Work | Risks | Resources | Files
-
-Work views:   Structure Plan | Board | Schedule | Dependency Map
+Project Management: Project | Inventory
+Work Management: Execution Roadmap | Structure Plan | Board | Work Items |
+                 Schedule | Milestones | Dependency Map
+Resource Coordination: Team | Files | Repositories
+Shared Project action: Import plan (one action, current-page cue, return path)
 ```
 
 - **Structure Plan** is the WBS hierarchy for the opened Project only.
 - **Dependency Map** is the graph of dependency edges whose source and target are both owned by
   that Project.
-- **Development > Dependencies** remains the Business-wide register for cross-project and
-  cross-workstream dependency analysis. It is intentionally not duplicated as a project tab.
+- **Work Management in Business context > Dependencies** remains the Business-wide
+  register for cross-project and cross-workstream dependency analysis. Project
+  Dependency Map retains its existing Project-filtered route.
+- Inventory is a read-only operational projection. Team retains Business Membership
+  semantics. Neither surface is workforce allocation or a new source of authority.
 
 ## 6. Mapping onto today's app (what changes)
 

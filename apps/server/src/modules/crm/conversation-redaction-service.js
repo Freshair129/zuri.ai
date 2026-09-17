@@ -1,10 +1,17 @@
+import { refreshConversationPreview } from './conversation-preview-service'
+
 // @req FR-022 — the crm half of PDPA erasure: the conversation text itself.
 //   Erasure lives in identity (its charter: "the only flow allowed to do so"), but
 //   `Message` is a crm-owned model, so identity asks for this through a contract
 //   call instead of writing another domain's table by hand. That is the target
 //   state both charters already name for the `Person` redaction debt; this new
 //   surface starts on the right side of it rather than adding a second exception.
+// @req FR-229 — also redacts each message's MessageAttachment (fetchState → ERASED,
+//   providerContentId cleared) in the same call.
+// @req FR-233 — also redacts Conversation.lastMessagePreview for every affected
+//   conversation in the same call.
 // @spec BR-001, SEC-005, SDD-048
+// @spec ADR-091 D5
 // @tested tests/integration/crm-customer-erasure.test.js, tests/integration/identity-erase.test.js
 //
 // WHY A TOMBSTONE AND NOT A DELETE
@@ -16,10 +23,19 @@
 // someone on a date and that the content is gone by law — while the personal data
 // itself is no longer readable anywhere in the product.
 //
-// There is no preview or snippet column to chase: `Conversation` stores no denormalised
-// last-message text (prisma/schema.prisma), and the FR-091 inbox derives its preview
-// from the `Message` rows this function rewrites. If a preview column is ever added,
-// it must be redacted here in the same call.
+// FR-233 — Conversation.lastMessagePreview is redacted in the same call: every
+// Message in an affected conversation is tombstoned above, so the true "latest
+// message" of every one of these conversations is now the tombstone text itself.
+// refreshConversationPreview (conversation-preview-service.js) reads that back
+// rather than assuming it, which is the same rule the crm charter states for any
+// future preview/snippet column and the one the PDPA erasure suite already checks.
+//
+// FR-229 — a media message's MessageAttachment is redacted alongside its Message:
+// `fetchState` moves to ERASED and `providerContentId` (LINE's own content id, the
+// only thing a later fetch phase would need) is cleared, so a byte fetch can never
+// retrieve what this call just erased. Nothing else on the row changes — `kind` and
+// `mimeType`/`sizeBytes` (when a later phase has set them) survive, exactly as
+// `direction` and timestamps survive on the Message itself.
 
 /**
  * The one string an erased message body carries. Thai, because a Business owner reads
@@ -58,6 +74,19 @@ export async function redactConversationContentForCustomers(tx, { tenantId, cust
     where: { conversationId: { in: conversationIds }, body: { not: CUSTOMER_ERASURE_TOMBSTONE } },
     data: { body: CUSTOMER_ERASURE_TOMBSTONE },
   })
+  const redactedAttachments = await tx.messageAttachment.updateMany({
+    where: { message: { conversationId: { in: conversationIds } }, fetchState: { not: 'ERASED' } },
+    data: { fetchState: 'ERASED', providerContentId: null },
+  })
 
-  return { conversations: conversations.length, redactedMessages: redacted.count }
+  // @req FR-233 — every message in these conversations is now tombstoned, so the
+  //   read-back preview reduces to the tombstone text itself. Looping rather than
+  //   an updateMany: the resolver already exists and stays the single place a
+  //   preview is computed (conversation-preview-service.js), which is worth an
+  //   extra read query per conversation on what is already a rare, low-volume flow.
+  for (const conversationId of conversationIds) {
+    await refreshConversationPreview(tx, conversationId)
+  }
+
+  return { conversations: conversations.length, redactedMessages: redacted.count, redactedAttachments: redactedAttachments.count }
 }

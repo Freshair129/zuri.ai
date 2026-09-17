@@ -906,7 +906,11 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
     // ADR-061/FR-150: same active Business-scoped device identity, never a browser viewer.
     p.includes('/api/edge/conversation-jobs/claim/') ||
     p.includes('/api/edge/conversation-jobs/[id]/complete/') ||
-    p.includes('/api/edge/conversation-jobs/[id]/fail/')
+    p.includes('/api/edge/conversation-jobs/[id]/fail/') ||
+    // ADR-061/FR-244: the residency poll authenticates the same device credential;
+    // it deliberately resolves no viewer because it must answer identically for
+    // every device regardless of which Business/Tenant it happens to be serving.
+    p.includes('/api/edge/model-residency/')
   const offenders = []
   for (const file of walk(workspacePath(ROOT, 'src', 'app', 'api'), '.js')) {
     if (path.basename(file) !== 'route.js') continue
@@ -920,6 +924,18 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
       // time before the body is read; the agent has no browser session by construction. Proven by
       // tests/unit/programme-usage-reports.test.js.
       rel(file) === 'src/app/api/platform/programme-usage-reports/route.js' ||
+      // ADR-091 D1, D2 / FR-230 (owner decision 2026-09-14): the nightly retention sweep's
+      // scheduled entry point, called once a day by scripts/server-retention-sweep-worker.mjs under
+      // the deployment bearer ZURI_RETENTION_SWEEP_TOKEN, checked in constant time before any work
+      // happens; the host scheduler has no browser session by construction, same class as the LINE
+      // worker and the programme usage reports endpoint above. Proven by
+      // tests/unit/crm-retention-sweep-route.test.js.
+      rel(file) === 'src/app/api/crm/retention-sweep/route.js' ||
+      // ADR-095 D3 / FR-249, NFR-023: the usage-event rollup's scheduled entry point, called
+      // once a day under the deployment bearer ZURI_USAGE_ROLLUP_TOKEN, checked in constant time
+      // before any work happens — same class as the retention sweep above, same reason. Proven
+      // by tests/unit/usage-events.test.js.
+      rel(file) === 'src/app/api/platform/usage-events/rollup/route.js' ||
       // ADR-087 D1 / FR-220: harness pairing start is anonymous and bounded (no credential minted),
       // and poll is authenticated by the initiating device secret, exactly as FR-144's edge pairing
       // start/poll are; approve keeps its browser viewer. Proven by tests/unit/harness-pairing.test.js.

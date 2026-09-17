@@ -26,6 +26,8 @@ describe('FR-214 Knowledge (GKS) slot', () => {
       ['Dashboard', '/knowledge'],
       ['Knowledge console', '/knowledge/console'],
       ['Data Pipeline Map', '/knowledge/data-pipeline'],
+      // @req FR-236 — the LINE FAQ candidate review surface (ADR-090 D6).
+      ['LINE FAQ candidates', '/knowledge/candidates'],
     ])
     expect(VIEWER_DOMAINS).toContain('knowledge')
     expect(domainForPath('/knowledge/data-pipeline').key).toBe('knowledge')
