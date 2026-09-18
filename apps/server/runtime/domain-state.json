@@ -2326,7 +2326,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 45
+          "testCount": 49
         },
         {
           "id": "FR-110",
@@ -2414,7 +2414,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 44
+          "testCount": 49
         },
         {
           "id": "FR-187",
@@ -2422,7 +2422,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-188",
@@ -3054,8 +3054,8 @@
           "title": "Seventeen-stage knowledge ingestion stage catalog and job trace",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 45
+          "codeCount": 5,
+          "testCount": 49
         },
         {
           "id": "FR-110",
@@ -3071,7 +3071,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-112",
@@ -3150,8 +3150,8 @@
           "title": "Knowledge source admission and corpus publication",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 7,
-          "testCount": 44
+          "codeCount": 8,
+          "testCount": 49
         },
         {
           "id": "FR-187",
@@ -3159,7 +3159,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-188",
@@ -3322,8 +3322,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 14,
-            "present": 14
+            "models": 16,
+            "present": 16
           }
         },
         "authorization": {
@@ -3423,7 +3423,7 @@
         "routes": 5,
         "apiRoutes": 0,
         "pageRoutes": 5,
-        "ownedModels": 14,
+        "ownedModels": 16,
         "featureNotes": 18
       },
       "featureIds": [
@@ -5250,7 +5250,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 45
+          "testCount": 49
         },
         {
           "id": "FR-110",
@@ -5530,7 +5530,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 44
+          "testCount": 49
         },
         {
           "id": "FR-174",
@@ -5610,7 +5610,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-191",
@@ -7325,8 +7325,8 @@
           "title": "Seventeen-stage knowledge ingestion stage catalog and job trace",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 16,
-          "testCount": 45
+          "codeCount": 18,
+          "testCount": 49
         },
         {
           "id": "FR-110",
@@ -7342,15 +7342,15 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-173",
           "title": "Knowledge source admission and corpus publication",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 22,
-          "testCount": 44
+          "codeCount": 24,
+          "testCount": 49
         },
         {
           "id": "FR-254",
@@ -7391,6 +7391,7 @@
         "apps/server/src/modules/knowledge/genesisrag17-source.js",
         "apps/server/src/modules/knowledge/ingestion-job.js",
         "apps/server/src/modules/knowledge/knowledge-admission-service.js",
+        "apps/server/src/modules/knowledge/knowledge-artifact-storage-service.js",
         "apps/server/src/modules/knowledge/knowledge-authorization.js",
         "apps/server/src/modules/knowledge/knowledge-console-http.js",
         "apps/server/src/modules/knowledge/knowledge-console-repository.js",
@@ -7416,6 +7417,7 @@
         "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
         "apps/server/src/platform/integrations/core/raw-ingest-service.js",
         "apps/server/src/platform/integrations/core/raw-record-repository.js",
+        "apps/server/src/platform/storage/s3-object-storage.js",
         "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
         "apps/server/tests/acceptance/knowledge-admission-native.test.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
@@ -7443,6 +7445,7 @@
         "apps/server/tests/integration/knowledge-admission.integration.test.js",
         "apps/server/tests/integration/knowledge-corpus-prisma.test.js",
         "apps/server/tests/integration/knowledge-corpus.test.js",
+        "apps/server/tests/integration/knowledge-storage-ingestion.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
@@ -7476,6 +7479,9 @@
         "apps/server/tests/unit/knowledge-admission-routes.test.js",
         "apps/server/tests/unit/knowledge-admission-service.test.js",
         "apps/server/tests/unit/knowledge-admission-ui-contract.test.js",
+        "apps/server/tests/unit/knowledge-artifact-storage-schema.test.js",
+        "apps/server/tests/unit/knowledge-artifact-storage-service.test.js",
+        "apps/server/tests/unit/knowledge-catalog-storage-contract.test.js",
         "apps/server/tests/unit/knowledge-chunking.test.js",
         "apps/server/tests/unit/knowledge-classification.test.js",
         "apps/server/tests/unit/knowledge-corpus-routes.test.js",
@@ -7486,6 +7492,7 @@
         "apps/server/tests/unit/knowledge-ingestion-job.test.js",
         "apps/server/tests/unit/knowledge-published-snapshot-contract.test.js",
         "apps/server/tests/unit/knowledge-runtime.test.js",
+        "apps/server/tests/unit/knowledge-s3-object-storage.test.js",
         "apps/server/tests/unit/knowledge-stage-runner-trace.test.js",
         "apps/server/tests/unit/knowledge-stage-runner.test.js",
         "apps/server/tests/unit/knowledge-zero-pii-policy.test.js",
@@ -9105,7 +9112,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-188",
@@ -9164,6 +9171,7 @@
         "apps/server/tests/unit/knowledge-admission-routes.test.js",
         "apps/server/tests/unit/knowledge-admission-service.test.js",
         "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
+        "apps/server/tests/unit/knowledge-catalog-storage-contract.test.js",
         "apps/server/tests/unit/knowledge-runtime.test.js",
         "apps/server/tests/unit/knowledge-zero-pii-policy.test.js",
         "apps/server/tests/unit/pipeline-mcp-transport.test.js",
