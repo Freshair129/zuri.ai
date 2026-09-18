@@ -1,0 +1,2090 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": "0.1.0",
+  "id": "PM-G14-REGISTRY",
+  "title": "G14 Workforce graph and registry candidate",
+  "status": "CANDIDATE",
+  "codegenReady": false,
+  "canonicalIdStatus": "PENDING_ROOT_REGISTRATION",
+  "scope": "Human workforce capacity, schedule, delivery performance, and the typed G14 architecture extension for the Project Manager domain",
+  "ownerDomain": "project-manager",
+  "sourceAuthority": "docs/architecture/project-manager-system/15-WORKFORCE-CAPACITY-SCHEDULE-AND-PERFORMANCE.md",
+  "approvalContext": {
+    "authorization": "Owner approved contract baseline and TaskUsageLedger baseline for parallel G14/registry and implementation-packet preparation",
+    "approvalType": "DOCUMENTATION_AND_CONTRACT_BASELINE_ONLY",
+    "implementationState": "NOT_STARTED",
+    "productionState": "NOT_RUN"
+  },
+  "baseline": {
+    "currentSourceCommit": "0c7fd88418b8be40a78f1fb8bc743b34c5a52c39",
+    "rootFinalGate": {
+      "packetId": "PM-20260916-D00-01",
+      "verdict": "PASS_DOCUMENT_REVIEW",
+      "scope": "FIRST_DOCUMENT_CLOSURE_WAVE_ONLY",
+      "sourceBaseline": "eddd3dd8d884a0b19a65f9a3019758c05c815b48",
+      "registryReference": "fd9a505240f15bcc10f8359f54259516abb1cbca",
+      "composedCommit": "3f36668fbe70bc447a0f0da4fd7dfcdfbae66617",
+      "modelPolicy": {
+        "workers": "gpt-5.6-luna",
+        "verification": "gpt-5.6-luna",
+        "reasoning": "max"
+      },
+      "productTests": "NOT_RUN",
+      "applicationImplementation": "NOT_RUN",
+      "databaseMigration": "NOT_RUN",
+      "productionActivation": "NOT_RUN"
+    },
+    "graphIdentity": {
+      "baseGraphId": "PM-G01",
+      "baseGraphFile": "docs/architecture/project-manager-system/contracts/architecture.model.json",
+      "baseGraphStatus": "CANDIDATE",
+      "baseGraphNodes": 15,
+      "baseGraphEdges": 20,
+      "extensionGraphId": "PM-G14",
+      "extensionGraphStatus": "CANDIDATE",
+      "extensionPurpose": "Typed workforce flow to be reconciled into one approved architecture authority; it is not a second runtime topology"
+    },
+    "proposalIds": {
+      "requirement": "PMR-033",
+      "capability": "PMF-11",
+      "phases": [
+        "PMR-033-P1",
+        "PMR-033-P2",
+        "PMR-033-P3",
+        "PMR-033-P4",
+        "PMR-033-P5"
+      ],
+      "screens": [
+        "WF-R01",
+        "WF-R02",
+        "WF-R03",
+        "WF-R04",
+        "WF-R05",
+        "WF-R06"
+      ],
+      "acceptanceFamily": "PMT-033-A..P",
+      "specGates": [
+        "SPEC-G01",
+        "SPEC-G02",
+        "SPEC-G03",
+        "SPEC-G04",
+        "SPEC-G05",
+        "SPEC-G06",
+        "SPEC-G07",
+        "SPEC-G08",
+        "SPEC-G09"
+      ]
+    },
+    "canonicalRegistry": {
+      "newFr": null,
+      "newFeat": null,
+      "newAdr": null,
+      "newSdd": null,
+      "reason": "PMR/PMF/PMD/PMT identifiers are proposal-local. Root must reconcile and allocate canonical IDs through docs/.id-ledger.json before implementation annotations or code generation.",
+      "relatedExistingIds": [
+        "FR-036",
+        "FR-042",
+        "FR-064",
+        "FR-086",
+        "FR-193",
+        "FR-250",
+        "FR-251",
+        "FR-252"
+      ],
+      "relatedExistingIdRule": "Context and compatibility references only; do not repurpose these IDs for PMR-033"
+    }
+  },
+  "registryFields": {
+    "baseline": [
+      "baselineId",
+      "sourceCommit",
+      "sourceHashes",
+      "status",
+      "ownerDomain",
+      "canonicalIdStatus",
+      "approvalRef",
+      "implementationState",
+      "productionState"
+    ],
+    "node": [
+      "id",
+      "kind",
+      "ownerDomain",
+      "ownerModule",
+      "label",
+      "baseNodeRef",
+      "status",
+      "specRefs",
+      "dataClassification"
+    ],
+    "edge": [
+      "id",
+      "source",
+      "target",
+      "type",
+      "direction",
+      "contractRef",
+      "ownerDomain",
+      "authPolicyRef",
+      "timeoutMs",
+      "failurePolicy",
+      "classification",
+      "status"
+    ],
+    "requirement": [
+      "id",
+      "namespace",
+      "kind",
+      "subject",
+      "owner",
+      "status",
+      "canonicalIdStatus",
+      "sourceRef",
+      "relations",
+      "acceptanceRefs"
+    ],
+    "screen": [
+      "screenId",
+      "label",
+      "scope",
+      "view",
+      "operationIds",
+      "capabilities",
+      "status",
+      "activeRoute",
+      "evidenceRef"
+    ],
+    "operation": [
+      "operationId",
+      "method",
+      "path",
+      "effectClass",
+      "ownerDomain",
+      "requestSchema",
+      "responseSchema",
+      "capabilities",
+      "status",
+      "evidenceLevel"
+    ],
+    "record": [
+      "recordId",
+      "ownerDomain",
+      "kind",
+      "lifecycle",
+      "identityKey",
+      "scopeKeys",
+      "sourceRef",
+      "status",
+      "invariants"
+    ],
+    "metric": [
+      "metricKey",
+      "label",
+      "formula",
+      "unit",
+      "population",
+      "requiredEvidence",
+      "qualityStates",
+      "status",
+      "sourceRef"
+    ],
+    "evidence": [
+      "evidenceId",
+      "claim",
+      "sourcePath",
+      "sourceSha256",
+      "sourceCommit",
+      "evidenceClass",
+      "freshness",
+      "limitations"
+    ]
+  },
+  "contractCatalog": {
+    "g14-design": {
+      "ref": "docs/architecture/project-manager-system/15-WORKFORCE-CAPACITY-SCHEDULE-AND-PERFORMANCE.md",
+      "sections": [
+        "§1 Requirement",
+        "§3 Typed flow — G14",
+        "§4 Data contracts",
+        "§5 Capacity rules",
+        "§6 Metrics",
+        "§7 WF-R01–WF-R06",
+        "§8 API and authorization",
+        "§9 PMT-033 A–P"
+      ],
+      "status": "CANDIDATE"
+    },
+    "g14-openapi": {
+      "ref": "docs/architecture/project-manager-system/contracts/workforce.openapi.candidate.yaml",
+      "version": "0.2.0b",
+      "operations": 8,
+      "schemas": 30,
+      "status": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "identity-policy": {
+      "ref": "docs/architecture/project-manager-system/01-REQUIREMENTS-AND-UX.md",
+      "section": "Personas and authority; capability intersection",
+      "status": "CANDIDATE",
+      "role": "Identity-owned scope, capability, session, CSRF and Origin policy"
+    },
+    "g01-architecture": {
+      "ref": "docs/architecture/project-manager-system/contracts/architecture.model.json",
+      "id": "PM-G01",
+      "status": "CANDIDATE",
+      "role": "Existing semantic graph authority to extend/reconcile; not replaced by G14"
+    },
+    "blueprint": {
+      "ref": "docs/architecture/project-manager-system/contracts/blueprint.candidate.json",
+      "id": "PM-BLUEPRINT-01",
+      "status": "CANDIDATE",
+      "role": "Target component/deployment context; G14 binds to its workforce service and owner ports"
+    },
+    "data-model": {
+      "ref": "docs/architecture/project-manager-system/contracts/data-model.candidate.json",
+      "status": "CANDIDATE",
+      "role": "Logical records and invariants; exact SQLite/Postgres adapter remains SPEC-G07 work"
+    },
+    "traceability": {
+      "ref": "docs/architecture/project-manager-system/contracts/traceability.json",
+      "status": "CANDIDATE",
+      "role": "Existing PMR/PMT trace source; G14 entries must be reconciled after canonical ID allocation"
+    },
+    "task-usage-boundary": {
+      "ref": "TaskUsageLedger contract prepared in parallel worker packet",
+      "status": "SEPARATE_BASELINE",
+      "role": "May evidence implementation task time/token usage; it does not change G14 runtime readiness or grant authority"
+    }
+  },
+  "graph": {
+    "id": "PM-G14",
+    "schemaVersion": "0.1.0",
+    "status": "CANDIDATE",
+    "extends": "PM-G01",
+    "nodes": [
+      {
+        "id": "g14.identity-authorizer",
+        "kind": "POLICY",
+        "ownerDomain": "identity",
+        "ownerModule": "identity",
+        "label": "Identity scope and capability authorizer",
+        "baseNodeRef": "identity",
+        "status": "PROPOSED",
+        "specRefs": [
+          "g14-design §8",
+          "17-SRS §identity"
+        ],
+        "dataClassification": "INTERNAL"
+      },
+      {
+        "id": "g14.pm-work-read-port",
+        "kind": "PORT",
+        "ownerDomain": "project-manager",
+        "ownerModule": "project-manager",
+        "label": "Scoped PM Work / assignment / accepted-history read port",
+        "baseNodeRef": "pm",
+        "status": "PROPOSED",
+        "specRefs": [
+          "g14-design §3–§4",
+          "g14-openapi"
+        ],
+        "dataClassification": "BUSINESS_SCOPED"
+      },
+      {
+        "id": "g14.people-calendar-read-port",
+        "kind": "PORT",
+        "ownerDomain": "project-manager",
+        "ownerModule": "people",
+        "label": "Employment-linked calendar and availability read port",
+        "baseNodeRef": "pm",
+        "status": "PROPOSED",
+        "specRefs": [
+          "g14-design §3–§4",
+          "FR-193"
+        ],
+        "dataClassification": "BUSINESS_SCOPED"
+      },
+      {
+        "id": "g14.capacity-calculator",
+        "kind": "SERVICE",
+        "ownerDomain": "project-manager",
+        "ownerModule": "project-manager",
+        "label": "Integer-minute capacity and conflict calculator",
+        "baseNodeRef": "pm",
+        "status": "PROPOSED",
+        "specRefs": [
+          "g14-design §5",
+          "PMT-033-E/F"
+        ],
+        "dataClassification": "BUSINESS_SCOPED"
+      },
+      {
+        "id": "g14.workforce-projection",
+        "kind": "PROJECTION",
+        "ownerDomain": "project-manager",
+        "ownerModule": "project-manager",
+        "label": "Person/team workload and schedule projection",
+        "baseNodeRef": "projection",
+        "status": "PROPOSED",
+        "specRefs": [
+          "g14-design §5",
+          "g14-openapi WorkloadResponse/ScheduleResponse"
+        ],
+        "dataClassification": "BUSINESS_SCOPED"
+      },
+      {
+        "id": "g14.performance-calculator",
+        "kind": "SERVICE",
+        "ownerDomain": "project-manager",
+        "ownerModule": "project-manager",
+        "label": "Evidence-linked delivery performance calculator",
+        "baseNodeRef": "pm",
+        "status": "PROPOSED",
+        "specRefs": [
+          "g14-design §6",
+          "PMT-033-H/L/N"
+        ],
+        "dataClassification": "BUSINESS_SCOPED"
+      },
+      {
+        "id": "g14.workload-schedule-view",
+        "kind": "UI",
+        "ownerDomain": "project-manager",
+        "ownerModule": "project-manager",
+        "label": "WF-R01/R02/R03 workload and schedule views",
+        "baseNodeRef": "ui",
+        "status": "PROPOSED",
+        "specRefs": [
+          "WF-R01",
+          "WF-R02",
+          "WF-R03"
+        ],
+        "dataClassification": "AUTHORIZED_VIEW"
+      },
+      {
+        "id": "g14.performance-scorecard-view",
+        "kind": "UI",
+        "ownerDomain": "project-manager",
+        "ownerModule": "project-manager",
+        "label": "WF-R04/R06 scorecard and evidence correction views",
+        "baseNodeRef": "ui",
+        "status": "PROPOSED",
+        "specRefs": [
+          "WF-R04",
+          "WF-R06"
+        ],
+        "dataClassification": "AUTHORIZED_VIEW"
+      },
+      {
+        "id": "g14.plan-preview",
+        "kind": "SERVICE",
+        "ownerDomain": "project-manager",
+        "ownerModule": "project-manager",
+        "label": "Typed workforce plan preview and conflict detector",
+        "baseNodeRef": "pm",
+        "status": "PROPOSED",
+        "specRefs": [
+          "WF-R05",
+          "previewWorkforcePlan",
+          "SPEC-G01",
+          "SPEC-G02"
+        ],
+        "dataClassification": "BUSINESS_SCOPED"
+      },
+      {
+        "id": "g14.plan-commit",
+        "kind": "SERVICE",
+        "ownerDomain": "project-manager",
+        "ownerModule": "project-manager",
+        "label": "Exact versioned workforce plan commit",
+        "baseNodeRef": "pm",
+        "status": "PROPOSED",
+        "specRefs": [
+          "WF-R05",
+          "commitWorkforcePlan",
+          "SPEC-G01",
+          "SPEC-G05"
+        ],
+        "dataClassification": "BUSINESS_MUTATION"
+      },
+      {
+        "id": "g14.people-calendar-writer",
+        "kind": "OWNER_PORT",
+        "ownerDomain": "project-manager",
+        "ownerModule": "people",
+        "label": "People calendar owner writer",
+        "baseNodeRef": "pm",
+        "status": "PROPOSED",
+        "specRefs": [
+          "g14-design §4",
+          "SPEC-G02",
+          "SPEC-G07"
+        ],
+        "dataClassification": "BUSINESS_MUTATION"
+      },
+      {
+        "id": "g14.pm-allocation-writer",
+        "kind": "OWNER_PORT",
+        "ownerDomain": "project-manager",
+        "ownerModule": "project-manager",
+        "label": "PM allocation and assignment owner writer",
+        "baseNodeRef": "pm",
+        "status": "PROPOSED",
+        "specRefs": [
+          "g14-design §4",
+          "WorkAllocation",
+          "SPEC-G01",
+          "SPEC-G07"
+        ],
+        "dataClassification": "BUSINESS_MUTATION"
+      },
+      {
+        "id": "g14.audit-outbox",
+        "kind": "STORE",
+        "ownerDomain": "project-manager",
+        "ownerModule": "project-manager",
+        "label": "Immutable audit and outbox append port",
+        "baseNodeRef": "pm-data",
+        "status": "PROPOSED",
+        "specRefs": [
+          "g14-design §4",
+          "g14-design §8",
+          "SPEC-G05"
+        ],
+        "dataClassification": "AUDIT"
+      }
+    ],
+    "edges": [
+      {
+        "id": "G14-E01",
+        "source": "g14.identity-authorizer",
+        "target": "g14.pm-work-read-port",
+        "type": "AUTHORIZES_BEFORE_READ",
+        "direction": "SOURCE_TO_TARGET",
+        "contractRef": "identity-policy",
+        "ownerDomain": "identity",
+        "authPolicyRef": "identity-policy",
+        "timeoutMs": 120000,
+        "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+        "classification": "INTERNAL",
+        "status": "PROPOSED"
+      },
+      {
+        "id": "G14-E02",
+        "source": "g14.identity-authorizer",
+        "target": "g14.people-calendar-read-port",
+        "type": "AUTHORIZES_BEFORE_READ",
+        "direction": "SOURCE_TO_TARGET",
+        "contractRef": "identity-policy",
+        "ownerDomain": "identity",
+        "authPolicyRef": "identity-policy",
+        "timeoutMs": 120000,
+        "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+        "classification": "INTERNAL",
+        "status": "PROPOSED"
+      },
+      {
+        "id": "G14-E03",
+        "source": "g14.pm-work-read-port",
+        "target": "g14.workforce-projection",
+        "type": "SUPPLIES_WORK_AND_ASSIGNMENTS",
+        "direction": "SOURCE_TO_TARGET",
+        "contractRef": "g14-openapi",
+        "ownerDomain": "project-manager",
+        "authPolicyRef": "identity-policy",
+        "timeoutMs": 120000,
+        "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+        "classification": "INTERNAL",
+        "status": "PROPOSED"
+      },
+      {
+        "id": "G14-E04",
+        "source": "g14.pm-work-read-port",
+        "target": "g14.performance-calculator",
+        "type": "SUPPLIES_ACCEPTED_HISTORY",
+        "direction": "SOURCE_TO_TARGET",
+        "contractRef": "g14-design §6",
+        "ownerDomain": "project-manager",
+        "authPolicyRef": "identity-policy",
+        "timeoutMs": 120000,
+        "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+        "classification": "INTERNAL",
+        "status": "PROPOSED"
+      },
+      {
+        "id": "G14-E05",
+        "source": "g14.people-calendar-read-port",
+        "target": "g14.capacity-calculator",
+        "type": "SUPPLIES_AVAILABLE_INTERVALS",
+        "direction": "SOURCE_TO_TARGET",
+        "contractRef": "g14-design §4–§5",
+        "ownerDomain": "project-manager",
+        "authPolicyRef": "identity-policy",
+        "timeoutMs": 120000,
+        "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+        "classification": "INTERNAL",
+        "status": "PROPOSED"
+      },
+      {
+        "id": "G14-E06",
+        "source": "g14.capacity-calculator",
+        "target": "g14.workforce-projection",
+        "type": "SUPPLIES_CAPACITY",
+        "direction": "SOURCE_TO_TARGET",
+        "contractRef": "g14-design §5",
+        "ownerDomain": "project-manager",
+        "authPolicyRef": "identity-policy",
+        "timeoutMs": 120000,
+        "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+        "classification": "INTERNAL",
+        "status": "PROPOSED"
+      },
+      {
+        "id": "G14-E07",
+        "source": "g14.workforce-projection",
+        "target": "g14.workload-schedule-view",
+        "type": "RENDERS",
+        "direction": "SOURCE_TO_TARGET",
+        "contractRef": "g14-openapi",
+        "ownerDomain": "project-manager",
+        "authPolicyRef": "identity-policy",
+        "timeoutMs": 30000,
+        "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+        "classification": "INTERNAL",
+        "status": "PROPOSED"
+      },
+      {
+        "id": "G14-E08",
+        "source": "g14.performance-calculator",
+        "target": "g14.performance-scorecard-view",
+        "type": "RENDERS_WITH_COVERAGE",
+        "direction": "SOURCE_TO_TARGET",
+        "contractRef": "g14-openapi",
+        "ownerDomain": "project-manager",
+        "authPolicyRef": "identity-policy",
+        "timeoutMs": 30000,
+        "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+        "classification": "INTERNAL",
+        "status": "PROPOSED"
+      },
+      {
+        "id": "G14-E09",
+        "source": "g14.workload-schedule-view",
+        "target": "g14.plan-preview",
+        "type": "REQUESTS_PREVIEW",
+        "direction": "SOURCE_TO_TARGET",
+        "contractRef": "g14-openapi",
+        "ownerDomain": "project-manager",
+        "authPolicyRef": "identity-policy",
+        "timeoutMs": 120000,
+        "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+        "classification": "INTERNAL",
+        "status": "PROPOSED"
+      },
+      {
+        "id": "G14-E10",
+        "source": "g14.plan-preview",
+        "target": "g14.plan-commit",
+        "type": "REQUESTS_EXACT_COMMIT",
+        "direction": "SOURCE_TO_TARGET",
+        "contractRef": "g14-openapi",
+        "ownerDomain": "project-manager",
+        "authPolicyRef": "identity-policy",
+        "timeoutMs": 120000,
+        "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+        "classification": "INTERNAL",
+        "status": "PROPOSED"
+      },
+      {
+        "id": "G14-E11",
+        "source": "g14.identity-authorizer",
+        "target": "g14.plan-preview",
+        "type": "AUTHORIZES_BEFORE_PREVIEW",
+        "direction": "SOURCE_TO_TARGET",
+        "contractRef": "identity-policy",
+        "ownerDomain": "identity",
+        "authPolicyRef": "identity-policy",
+        "timeoutMs": 120000,
+        "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+        "classification": "INTERNAL",
+        "status": "PROPOSED"
+      },
+      {
+        "id": "G14-E12",
+        "source": "g14.identity-authorizer",
+        "target": "g14.plan-commit",
+        "type": "AUTHORIZES_BEFORE_COMMIT",
+        "direction": "SOURCE_TO_TARGET",
+        "contractRef": "identity-policy",
+        "ownerDomain": "identity",
+        "authPolicyRef": "identity-policy",
+        "timeoutMs": 120000,
+        "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+        "classification": "INTERNAL",
+        "status": "PROPOSED"
+      },
+      {
+        "id": "G14-E13",
+        "source": "g14.plan-commit",
+        "target": "g14.people-calendar-writer",
+        "type": "COMMANDS_OWNER_PORT",
+        "direction": "SOURCE_TO_TARGET",
+        "contractRef": "g14-design §4",
+        "ownerDomain": "project-manager",
+        "authPolicyRef": "identity-policy",
+        "timeoutMs": 120000,
+        "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+        "classification": "INTERNAL",
+        "status": "PROPOSED"
+      },
+      {
+        "id": "G14-E14",
+        "source": "g14.plan-commit",
+        "target": "g14.pm-allocation-writer",
+        "type": "COMMANDS_OWNER_PORT",
+        "direction": "SOURCE_TO_TARGET",
+        "contractRef": "g14-design §4",
+        "ownerDomain": "project-manager",
+        "authPolicyRef": "identity-policy",
+        "timeoutMs": 120000,
+        "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+        "classification": "INTERNAL",
+        "status": "PROPOSED"
+      },
+      {
+        "id": "G14-E15",
+        "source": "g14.plan-commit",
+        "target": "g14.audit-outbox",
+        "type": "APPENDS_AUDIT_AND_OUTBOX",
+        "direction": "SOURCE_TO_TARGET",
+        "contractRef": "g14-design §8",
+        "ownerDomain": "project-manager",
+        "authPolicyRef": "identity-policy",
+        "timeoutMs": 120000,
+        "failurePolicy": "DURABLE_RETRY_WITH_DEDUP",
+        "classification": "INTERNAL",
+        "status": "PROPOSED"
+      }
+    ],
+    "edgeTypeRules": {
+      "allowedTypes": [
+        "AUTHORIZES_BEFORE_READ",
+        "AUTHORIZES_BEFORE_PREVIEW",
+        "AUTHORIZES_BEFORE_COMMIT",
+        "SUPPLIES_AVAILABLE_INTERVALS",
+        "SUPPLIES_WORK_AND_ASSIGNMENTS",
+        "SUPPLIES_ACCEPTED_HISTORY",
+        "SUPPLIES_CAPACITY",
+        "RENDERS",
+        "RENDERS_WITH_COVERAGE",
+        "REQUESTS_PREVIEW",
+        "REQUESTS_EXACT_COMMIT",
+        "COMMANDS_OWNER_PORT",
+        "APPENDS_AUDIT_AND_OUTBOX"
+      ],
+      "separationRules": [
+        "G14 graph is separate from the Work Dependency DAG and Data Pipeline Map",
+        "A graph edge is not a permission grant",
+        "Only owner ports persist mutations",
+        "Every executable edge needs contract, authorization, timeout and failure policy"
+      ]
+    }
+  },
+  "registries": {
+    "requirements": [
+      {
+        "id": "PMR-033",
+        "namespace": "proposal-local",
+        "kind": "REQUIREMENT",
+        "subject": "Workforce planning and performance",
+        "owner": "project-manager",
+        "status": "CANDIDATE",
+        "canonicalIdStatus": "PENDING_ROOT_REGISTRATION",
+        "sourceRef": "g14-design §1",
+        "relations": [
+          "PMF-11",
+          "FR-036",
+          "FR-042",
+          "FR-064",
+          "FR-086",
+          "FR-193"
+        ],
+        "acceptanceRefs": [
+          "PMT-033-A..P"
+        ]
+      },
+      {
+        "id": "PMF-11",
+        "namespace": "proposal-local",
+        "kind": "CAPABILITY",
+        "subject": "Workforce planning & performance",
+        "owner": "project-manager",
+        "status": "CANDIDATE",
+        "canonicalIdStatus": "PENDING_ROOT_REGISTRATION",
+        "sourceRef": "g14-design §1",
+        "relations": [
+          "PMR-033",
+          "WF-R01..WF-R06"
+        ]
+      },
+      {
+        "id": "PMR-033-P1",
+        "namespace": "proposal-local",
+        "kind": "PHASE",
+        "subject": "Ownership, permissions, status semantics and typed workforce inputs",
+        "owner": "project-manager + people + identity",
+        "status": "PLANNED",
+        "sourceRef": "g14-design §9",
+        "relations": [
+          "SPEC-G01",
+          "SPEC-G02",
+          "SPEC-G05",
+          "SPEC-G09"
+        ]
+      },
+      {
+        "id": "PMR-033-P2",
+        "namespace": "proposal-local",
+        "kind": "PHASE",
+        "subject": "Capacity calculator and schedule preview/commit",
+        "owner": "project-manager + people ports",
+        "status": "PLANNED",
+        "sourceRef": "g14-design §9",
+        "relations": [
+          "PMR-033-P1",
+          "WF-R05"
+        ]
+      },
+      {
+        "id": "PMR-033-P3",
+        "namespace": "proposal-local",
+        "kind": "PHASE",
+        "subject": "Workforce projections and UI scope",
+        "owner": "project-manager UI/projections",
+        "status": "PLANNED",
+        "sourceRef": "g14-design §9",
+        "relations": [
+          "PMR-033-P2",
+          "WF-R01",
+          "WF-R02",
+          "WF-R03",
+          "SPEC-G06"
+        ]
+      },
+      {
+        "id": "PMR-033-P4",
+        "namespace": "proposal-local",
+        "kind": "PHASE",
+        "subject": "Evidence-linked metrics and correction lifecycle",
+        "owner": "project-manager metrics + identity",
+        "status": "PLANNED",
+        "sourceRef": "g14-design §9",
+        "relations": [
+          "PMR-033-P1",
+          "PMR-033-P3",
+          "WF-R04",
+          "WF-R06",
+          "SPEC-G03",
+          "SPEC-G04"
+        ]
+      },
+      {
+        "id": "PMR-033-P5",
+        "namespace": "proposal-local",
+        "kind": "PHASE",
+        "subject": "Conformance, representative-data pilot and release evidence",
+        "owner": "PM integrator + independent reviewer",
+        "status": "PLANNED",
+        "sourceRef": "g14-design §9",
+        "relations": [
+          "PMR-033-P4",
+          "SPEC-G07",
+          "SPEC-G08"
+        ]
+      },
+      {
+        "id": "PMD-14",
+        "namespace": "proposal-local",
+        "kind": "ARCHITECTURE_GRAPH",
+        "subject": "G14 typed workforce flow",
+        "owner": "project-manager",
+        "status": "CANDIDATE",
+        "canonicalIdStatus": "PENDING_ROOT_REGISTRATION",
+        "sourceRef": "g14-design §3",
+        "relations": [
+          "PM-G01",
+          "PM-G14-REGISTRY"
+        ]
+      },
+      {
+        "id": "PMT-033",
+        "namespace": "proposal-local",
+        "kind": "ACCEPTANCE_FAMILY",
+        "subject": "Workforce planning and performance cases A–P",
+        "owner": "project-manager",
+        "status": "PLANNED",
+        "canonicalIdStatus": "PENDING_ROOT_REGISTRATION",
+        "sourceRef": "g14-design §9",
+        "relations": [
+          "PMR-033-P5"
+        ]
+      },
+      {
+        "id": "SPEC-G06",
+        "namespace": "proposal-local",
+        "kind": "SPEC_GATE",
+        "subject": "Navigation/diagram machine parity including G14 bindings",
+        "owner": "project-manager",
+        "status": "PARTIAL",
+        "sourceRef": "16-SPEC-READINESS-AND-API-REFERENCE.md §3",
+        "relations": [
+          "PMD-14",
+          "WF-R01..WF-R06"
+        ]
+      },
+      {
+        "id": "SPEC-G09",
+        "namespace": "proposal-local",
+        "kind": "SPEC_GATE",
+        "subject": "Registration and approved per-slice baseline",
+        "owner": "root governance",
+        "status": "OPEN",
+        "sourceRef": "16-SPEC-READINESS-AND-API-REFERENCE.md §3",
+        "relations": [
+          "PMR-033",
+          "PMF-11",
+          "PMD-14"
+        ]
+      }
+    ],
+    "screens": [
+      {
+        "screenId": "WF-R01",
+        "label": "Workforce overview / Workload",
+        "scope": "BUSINESS_WITH_PROJECT_FILTER",
+        "view": "Overview | Workload",
+        "operationIds": [
+          "getWorkforceWorkload"
+        ],
+        "capabilities": [
+          "workforce.read.self",
+          "workforce.read.team",
+          "workforce.read.business"
+        ],
+        "status": "CANDIDATE",
+        "activeRoute": false,
+        "evidenceRef": "g14-design §7; 12-WIREFRAMES §WF-25"
+      },
+      {
+        "screenId": "WF-R02",
+        "label": "Person schedule",
+        "scope": "BUSINESS_PERSON",
+        "view": "Schedule",
+        "operationIds": [
+          "getWorkforceSchedule"
+        ],
+        "capabilities": [
+          "workforce.read.self",
+          "workforce.read.team",
+          "workforce.read.business"
+        ],
+        "status": "CANDIDATE",
+        "activeRoute": false,
+        "evidenceRef": "g14-design §7"
+      },
+      {
+        "screenId": "WF-R03",
+        "label": "Team schedule",
+        "scope": "BUSINESS_TEAM",
+        "view": "Schedule",
+        "operationIds": [
+          "getWorkforceSchedule"
+        ],
+        "capabilities": [
+          "workforce.read.team",
+          "workforce.read.business"
+        ],
+        "status": "CANDIDATE",
+        "activeRoute": false,
+        "evidenceRef": "g14-design §7"
+      },
+      {
+        "screenId": "WF-R04",
+        "label": "Performance scorecard",
+        "scope": "PERSON | TEAM | BUSINESS",
+        "view": "Performance",
+        "operationIds": [
+          "getWorkforcePerformance"
+        ],
+        "capabilities": [
+          "workforce.performance.read.self",
+          "workforce.performance.read.team",
+          "workforce.performance.read.business"
+        ],
+        "status": "CANDIDATE",
+        "activeRoute": false,
+        "evidenceRef": "g14-design §7"
+      },
+      {
+        "screenId": "WF-R05",
+        "label": "Planning editor / preview",
+        "scope": "BUSINESS_MUTATION",
+        "view": "Workload | Schedule",
+        "operationIds": [
+          "previewWorkforcePlan",
+          "commitWorkforcePlan"
+        ],
+        "capabilities": [
+          "workforce.plan",
+          "workforce.plan.override",
+          "workforce.calendar.manage"
+        ],
+        "status": "CANDIDATE",
+        "activeRoute": false,
+        "evidenceRef": "g14-design §7; SPEC-G01/G02/G05/G07"
+      },
+      {
+        "screenId": "WF-R06",
+        "label": "Metric evidence and correction",
+        "scope": "AUTHORIZED_PERSON | TEAM | BUSINESS",
+        "view": "Performance",
+        "operationIds": [
+          "getWorkforceMetricEvidence",
+          "submitWorkforceTimeLog",
+          "proposeWorkforceMetricPolicy"
+        ],
+        "capabilities": [
+          "workforce.performance.read.self",
+          "workforce.performance.read.team",
+          "workforce.performance.read.business",
+          "workforce.log.review",
+          "workforce.policy.review"
+        ],
+        "status": "CANDIDATE",
+        "activeRoute": false,
+        "evidenceRef": "g14-design §7–§8; SPEC-G03/G04"
+      }
+    ],
+    "operations": [
+      {
+        "operationId": "getWorkforceWorkload",
+        "method": "GET",
+        "path": "/api/businesses/{businessId}/workforce/workload",
+        "effectClass": "READ_ONLY",
+        "ownerDomain": "project-manager",
+        "requestSchema": null,
+        "responseSchema": "WorkloadResponse",
+        "capabilities": [
+          "workforce.read.self",
+          "workforce.read.team",
+          "workforce.read.business"
+        ],
+        "status": "PROPOSED_NOT_IMPLEMENTED",
+        "evidenceLevel": "PROPOSED_NOT_IMPLEMENTED"
+      },
+      {
+        "operationId": "getWorkforceSchedule",
+        "method": "GET",
+        "path": "/api/businesses/{businessId}/workforce/schedule",
+        "effectClass": "READ_ONLY",
+        "ownerDomain": "project-manager",
+        "requestSchema": null,
+        "responseSchema": "ScheduleResponse",
+        "capabilities": [
+          "workforce.read.self",
+          "workforce.read.team",
+          "workforce.read.business"
+        ],
+        "status": "PROPOSED_NOT_IMPLEMENTED",
+        "evidenceLevel": "PROPOSED_NOT_IMPLEMENTED"
+      },
+      {
+        "operationId": "getWorkforcePerformance",
+        "method": "GET",
+        "path": "/api/businesses/{businessId}/workforce/performance",
+        "effectClass": "READ_ONLY",
+        "ownerDomain": "project-manager",
+        "requestSchema": null,
+        "responseSchema": "PerformanceResponse",
+        "capabilities": [
+          "workforce.performance.read.self",
+          "workforce.performance.read.team",
+          "workforce.performance.read.business"
+        ],
+        "status": "PROPOSED_NOT_IMPLEMENTED",
+        "evidenceLevel": "PROPOSED_NOT_IMPLEMENTED"
+      },
+      {
+        "operationId": "getWorkforceMetricEvidence",
+        "method": "GET",
+        "path": "/api/businesses/{businessId}/workforce/metrics/{metricKey}/evidence",
+        "effectClass": "READ_ONLY",
+        "ownerDomain": "project-manager",
+        "requestSchema": null,
+        "responseSchema": "EvidenceResponse",
+        "capabilities": [
+          "workforce.performance.read.self",
+          "workforce.performance.read.team",
+          "workforce.performance.read.business"
+        ],
+        "status": "PROPOSED_NOT_IMPLEMENTED",
+        "evidenceLevel": "PROPOSED_NOT_IMPLEMENTED"
+      },
+      {
+        "operationId": "previewWorkforcePlan",
+        "method": "POST",
+        "path": "/api/businesses/{businessId}/workforce/plans/preview",
+        "effectClass": "PREVIEW_ONLY",
+        "ownerDomain": "project-manager",
+        "requestSchema": "PreviewInput",
+        "responseSchema": "PreviewResponse",
+        "capabilities": [
+          "workforce.plan"
+        ],
+        "status": "PROPOSED_NOT_IMPLEMENTED",
+        "evidenceLevel": "PROPOSED_NOT_IMPLEMENTED"
+      },
+      {
+        "operationId": "commitWorkforcePlan",
+        "method": "POST",
+        "path": "/api/businesses/{businessId}/workforce/plans/commit",
+        "effectClass": "MUTATION_WITH_RECEIPT",
+        "ownerDomain": "project-manager",
+        "requestSchema": "CommitInput",
+        "responseSchema": "Receipt",
+        "capabilities": [
+          "workforce.plan",
+          "workforce.plan.override"
+        ],
+        "status": "PROPOSED_NOT_IMPLEMENTED",
+        "evidenceLevel": "PROPOSED_NOT_IMPLEMENTED"
+      },
+      {
+        "operationId": "submitWorkforceTimeLog",
+        "method": "POST",
+        "path": "/api/businesses/{businessId}/workforce/time-logs",
+        "effectClass": "MUTATION_WITH_RECEIPT",
+        "ownerDomain": "project-manager",
+        "requestSchema": "TimeLogInput",
+        "responseSchema": "Receipt",
+        "capabilities": [
+          "workforce.read.self",
+          "workforce.log.review"
+        ],
+        "status": "PROPOSED_NOT_IMPLEMENTED",
+        "evidenceLevel": "PROPOSED_NOT_IMPLEMENTED"
+      },
+      {
+        "operationId": "proposeWorkforceMetricPolicy",
+        "method": "POST",
+        "path": "/api/businesses/{businessId}/workforce/metric-policies",
+        "effectClass": "MUTATION_WITH_RECEIPT",
+        "ownerDomain": "project-manager",
+        "requestSchema": "PolicyInput",
+        "responseSchema": "Receipt",
+        "capabilities": [
+          "workforce.policy.review"
+        ],
+        "status": "PROPOSED_NOT_IMPLEMENTED",
+        "evidenceLevel": "PROPOSED_NOT_IMPLEMENTED"
+      }
+    ],
+    "records": [
+      {
+        "recordId": "WorkEstimate",
+        "ownerDomain": "project-manager",
+        "kind": "APPEND",
+        "lifecycle": "VERSIONED",
+        "identityKey": "workItemId + revision",
+        "scopeKeys": [
+          "tenantId",
+          "businessId"
+        ],
+        "sourceRef": "18-DATABASE-TABLES-AND-ERD.md §WorkEstimate",
+        "status": "PROPOSED",
+        "invariants": [
+          "integer minutes",
+          "null means unknown",
+          "zero requires explicit evidence"
+        ]
+      },
+      {
+        "recordId": "WorkingCalendar",
+        "ownerDomain": "project-manager",
+        "kind": "REVISION",
+        "lifecycle": "EFFECTIVE_DATED",
+        "identityKey": "employmentId + revision",
+        "scopeKeys": [
+          "tenantId",
+          "businessId",
+          "personId"
+        ],
+        "sourceRef": "18-DATABASE-TABLES-AND-ERD.md §WorkingCalendar",
+        "status": "PROPOSED",
+        "invariants": [
+          "IANA timezone",
+          "nonoverlapping effective revisions",
+          "no implicit 40-hour week"
+        ]
+      },
+      {
+        "recordId": "AvailabilityException",
+        "ownerDomain": "project-manager",
+        "kind": "MUTABLE",
+        "lifecycle": "SOFT_DELETABLE",
+        "identityKey": "calendarId + sourceSystem + sourceEventId",
+        "scopeKeys": [
+          "tenantId",
+          "businessId",
+          "calendarId"
+        ],
+        "sourceRef": "18-DATABASE-TABLES-AND-ERD.md §AvailabilityException",
+        "status": "PROPOSED",
+        "invariants": [
+          "half-open interval",
+          "deduplicate source event",
+          "subtract unavailable union once"
+        ]
+      },
+      {
+        "recordId": "TeamCapacityShare",
+        "ownerDomain": "project-manager",
+        "kind": "REVISION",
+        "lifecycle": "EFFECTIVE_DATED",
+        "identityKey": "personId + teamId + validFrom + revision",
+        "scopeKeys": [
+          "tenantId",
+          "businessId",
+          "personId",
+          "teamId"
+        ],
+        "sourceRef": "18-DATABASE-TABLES-AND-ERD.md §TeamCapacityShare",
+        "status": "PROPOSED",
+        "invariants": [
+          "shares sum <= 10000 bps",
+          "no shares means shared pool",
+          "does not grant access"
+        ]
+      },
+      {
+        "recordId": "WorkAssignment",
+        "ownerDomain": "project-manager",
+        "kind": "REVISION",
+        "lifecycle": "EFFECTIVE_DATED",
+        "identityKey": "workItemId + revision",
+        "scopeKeys": [
+          "tenantId",
+          "businessId",
+          "workItemId",
+          "personId"
+        ],
+        "sourceRef": "18-DATABASE-TABLES-AND-ERD.md §WorkAssignment",
+        "status": "PROPOSED",
+        "invariants": [
+          "one primary human per instant",
+          "unresolved assignee remains outside human allocation"
+        ]
+      },
+      {
+        "recordId": "WorkAllocation",
+        "ownerDomain": "project-manager",
+        "kind": "MUTABLE",
+        "lifecycle": "DRAFT_CONFIRMED_CANCELLED",
+        "identityKey": "internal UUID",
+        "scopeKeys": [
+          "tenantId",
+          "businessId",
+          "workItemId",
+          "personId"
+        ],
+        "sourceRef": "18-DATABASE-TABLES-AND-ERD.md §WorkAllocation",
+        "status": "PROPOSED",
+        "invariants": [
+          "confirmed slices <= remaining estimate",
+          "FIXED_SLOT duration equals minutes",
+          "cross-project capacity serialized"
+        ]
+      },
+      {
+        "recordId": "WorkforcePlan",
+        "ownerDomain": "project-manager",
+        "kind": "MUTABLE",
+        "lifecycle": "PREVIEWED_COMMITTED_EXPIRED",
+        "identityKey": "businessId + actorPersonId + idempotencyKey",
+        "scopeKeys": [
+          "tenantId",
+          "businessId",
+          "actorPersonId"
+        ],
+        "sourceRef": "18-DATABASE-TABLES-AND-ERD.md §WorkforcePlan",
+        "status": "PROPOSED",
+        "invariants": [
+          "commit rechecks versions and hash",
+          "complete capacity set",
+          "no partial multi-owner success"
+        ]
+      },
+      {
+        "recordId": "WorkLogRevision",
+        "ownerDomain": "project-manager",
+        "kind": "REVISION",
+        "lifecycle": "DRAFT_SUBMITTED_REVIEWED_REJECTED",
+        "identityKey": "businessId + logKey + revision",
+        "scopeKeys": [
+          "tenantId",
+          "businessId",
+          "personId",
+          "workItemId"
+        ],
+        "sourceRef": "18-DATABASE-TABLES-AND-ERD.md §WorkLogRevision",
+        "status": "PROPOSED",
+        "invariants": [
+          "positive duration",
+          "reviewed correction appends",
+          "not attendance proof"
+        ]
+      },
+      {
+        "recordId": "DeliveryEvent",
+        "ownerDomain": "project-manager",
+        "kind": "APPEND",
+        "lifecycle": "IMMUTABLE",
+        "identityKey": "businessId + eventId",
+        "scopeKeys": [
+          "tenantId",
+          "businessId",
+          "workItemId"
+        ],
+        "sourceRef": "18-DATABASE-TABLES-AND-ERD.md §DeliveryEvent",
+        "status": "PROPOSED",
+        "invariants": [
+          "event/hash dedup",
+          "immutable event and ingest times",
+          "never infer from updatedAt"
+        ]
+      },
+      {
+        "recordId": "MetricPolicyRevision",
+        "ownerDomain": "project-manager",
+        "kind": "REVISION",
+        "lifecycle": "DRAFT_IN_REVIEW_APPROVED_REJECTED_RETIRED",
+        "identityKey": "businessId + code + revision",
+        "scopeKeys": [
+          "tenantId",
+          "businessId"
+        ],
+        "sourceRef": "18-DATABASE-TABLES-AND-ERD.md §MetricPolicyRevision",
+        "status": "PROPOSED",
+        "invariants": [
+          "whitelisted formulas",
+          "immutable prior published results",
+          "content hash"
+        ]
+      },
+      {
+        "recordId": "MetricReview",
+        "ownerDomain": "project-manager",
+        "kind": "APPEND",
+        "lifecycle": "IMMUTABLE_RECEIPT",
+        "identityKey": "policyId + reviewerPersonId + policyHash",
+        "scopeKeys": [
+          "tenantId",
+          "businessId",
+          "policyId"
+        ],
+        "sourceRef": "18-DATABASE-TABLES-AND-ERD.md §MetricReview",
+        "status": "PROPOSED",
+        "invariants": [
+          "reviewer authority",
+          "policy hash bound",
+          "reason required"
+        ]
+      },
+      {
+        "recordId": "MetricResultSnapshot",
+        "ownerDomain": "project-manager",
+        "kind": "APPEND",
+        "lifecycle": "REBUILDABLE_SNAPSHOT",
+        "identityKey": "businessId + policyId + subject + period + asOf + visibilityScopeHash",
+        "scopeKeys": [
+          "tenantId",
+          "businessId",
+          "subjectKind",
+          "subjectKey"
+        ],
+        "sourceRef": "18-DATABASE-TABLES-AND-ERD.md §MetricResultSnapshot",
+        "status": "PROPOSED",
+        "invariants": [
+          "PERSON/TEAM/BUSINESS discriminator",
+          "coverage and source versions",
+          "visibility reauthorization"
+        ]
+      },
+      {
+        "recordId": "PerformanceCorrection",
+        "ownerDomain": "project-manager",
+        "kind": "MUTABLE",
+        "lifecycle": "SUBMITTED_IN_REVIEW_ACCEPTED_REJECTED",
+        "identityKey": "internal UUID",
+        "scopeKeys": [
+          "tenantId",
+          "businessId",
+          "resultSnapshotId"
+        ],
+        "sourceRef": "18-DATABASE-TABLES-AND-ERD.md §PerformanceCorrection",
+        "status": "PROPOSED",
+        "invariants": [
+          "source owner changes evidence",
+          "original result preserved",
+          "new result revision"
+        ]
+      }
+    ],
+    "capabilities": [
+      {
+        "id": "workforce.read.self",
+        "owner": "identity",
+        "scope": "PERSON_SELF",
+        "status": "CANDIDATE"
+      },
+      {
+        "id": "workforce.read.team",
+        "owner": "identity",
+        "scope": "AUTHORIZED_TEAM",
+        "status": "CANDIDATE"
+      },
+      {
+        "id": "workforce.read.business",
+        "owner": "identity",
+        "scope": "AUTHORIZED_BUSINESS",
+        "status": "CANDIDATE"
+      },
+      {
+        "id": "workforce.plan",
+        "owner": "identity",
+        "scope": "AUTHORIZED_BUSINESS",
+        "status": "CANDIDATE"
+      },
+      {
+        "id": "workforce.calendar.manage",
+        "owner": "identity",
+        "scope": "AUTHORIZED_CALENDAR",
+        "status": "CANDIDATE"
+      },
+      {
+        "id": "workforce.plan.override",
+        "owner": "identity",
+        "scope": "AUTHORIZED_OVERRIDE",
+        "status": "CANDIDATE"
+      },
+      {
+        "id": "workforce.performance.read.self",
+        "owner": "identity",
+        "scope": "PERSON_SELF",
+        "status": "CANDIDATE"
+      },
+      {
+        "id": "workforce.performance.read.team",
+        "owner": "identity",
+        "scope": "AUTHORIZED_TEAM",
+        "status": "CANDIDATE"
+      },
+      {
+        "id": "workforce.performance.read.business",
+        "owner": "identity",
+        "scope": "AUTHORIZED_BUSINESS",
+        "status": "CANDIDATE"
+      },
+      {
+        "id": "workforce.log.review",
+        "owner": "identity",
+        "scope": "AUTHORIZED_REVIEWER",
+        "status": "CANDIDATE"
+      },
+      {
+        "id": "workforce.policy.review",
+        "owner": "identity",
+        "scope": "AUTHORIZED_POLICY_REVIEWER",
+        "status": "CANDIDATE"
+      }
+    ],
+    "metrics": [
+      {
+        "metricKey": "WF-M01",
+        "label": "Open work / WIP",
+        "formula": "distinct open WorkItems at asOf; in-progress + blocked",
+        "unit": "items",
+        "population": "authorized assignment scope",
+        "requiredEvidence": [
+          "status mapping",
+          "effective assignment"
+        ],
+        "qualityStates": [
+          "COMPLETE",
+          "PARTIAL",
+          "UNKNOWN"
+        ],
+        "status": "CANDIDATE",
+        "sourceRef": "g14-design §6"
+      },
+      {
+        "metricKey": "WF-M02",
+        "label": "Planned load",
+        "formula": "confirmed known planned minutes / available minutes",
+        "unit": "ratio",
+        "population": "person/team/business",
+        "requiredEvidence": [
+          "calendar",
+          "confirmed allocation",
+          "coverage"
+        ],
+        "qualityStates": [
+          "COMPLETE",
+          "PARTIAL",
+          "UNKNOWN"
+        ],
+        "status": "CANDIDATE",
+        "sourceRef": "g14-design §6"
+      },
+      {
+        "metricKey": "WF-M03",
+        "label": "Capacity gap",
+        "formula": "overbooked minutes + unscheduled/unassigned demand + required/capacity FTE",
+        "unit": "minutes and FTE",
+        "population": "person/team/business",
+        "requiredEvidence": [
+          "complete demand",
+          "calendar",
+          "team shares"
+        ],
+        "qualityStates": [
+          "COMPLETE",
+          "PARTIAL",
+          "UNKNOWN"
+        ],
+        "status": "CANDIDATE",
+        "sourceRef": "g14-design §6"
+      },
+      {
+        "metricKey": "WF-M04",
+        "label": "Accepted throughput",
+        "formula": "distinct items with final accepted evidence in period",
+        "unit": "items",
+        "population": "closed accepted cohort",
+        "requiredEvidence": [
+          "DeliveryEvent",
+          "acceptance evidence"
+        ],
+        "qualityStates": [
+          "COMPLETE",
+          "UNKNOWN"
+        ],
+        "status": "CANDIDATE",
+        "sourceRef": "g14-design §6"
+      },
+      {
+        "metricKey": "WF-M05",
+        "label": "On-time commitments",
+        "formula": "accepted by frozen dueAt / items committed as due",
+        "unit": "ratio",
+        "population": "frozen due cohort",
+        "requiredEvidence": [
+          "baseline frozen",
+          "dueAt",
+          "acceptance"
+        ],
+        "qualityStates": [
+          "COMPLETE",
+          "PROVISIONAL",
+          "UNKNOWN"
+        ],
+        "status": "CANDIDATE",
+        "sourceRef": "g14-design §6"
+      },
+      {
+        "metricKey": "WF-M06",
+        "label": "First-pass acceptance",
+        "formula": "items accepted on first formal review / items with first completed review",
+        "unit": "ratio",
+        "population": "review cohort",
+        "requiredEvidence": [
+          "review evidence"
+        ],
+        "qualityStates": [
+          "COMPLETE",
+          "UNKNOWN"
+        ],
+        "status": "CANDIDATE",
+        "sourceRef": "g14-design §6"
+      },
+      {
+        "metricKey": "WF-M07",
+        "label": "Reopen rate",
+        "formula": "accepted items reopened in window / accepted items with observed window",
+        "unit": "ratio",
+        "population": "mature or provisional cohort",
+        "requiredEvidence": [
+          "REOPENED events",
+          "observation window"
+        ],
+        "qualityStates": [
+          "COMPLETE",
+          "PROVISIONAL",
+          "UNKNOWN"
+        ],
+        "status": "CANDIDATE",
+        "sourceRef": "g14-design §6"
+      },
+      {
+        "metricKey": "WF-M08",
+        "label": "Cycle time p50/p85",
+        "formula": "nearest-rank elapsed minutes from first IN_PROGRESS to final ACCEPTED",
+        "unit": "minutes",
+        "population": "accepted cohort",
+        "requiredEvidence": [
+          "status transitions",
+          "accepted evidence"
+        ],
+        "qualityStates": [
+          "COMPLETE",
+          "PARTIAL",
+          "UNKNOWN"
+        ],
+        "status": "CANDIDATE",
+        "sourceRef": "g14-design §6"
+      },
+      {
+        "metricKey": "WF-M09",
+        "label": "Effort variance",
+        "formula": "(reviewed actual minutes - frozen estimate minutes) / frozen estimate minutes",
+        "unit": "ratio and minutes",
+        "population": "completed items with estimate > 0",
+        "requiredEvidence": [
+          "WorkLogRevision reviewed",
+          "WorkEstimate"
+        ],
+        "qualityStates": [
+          "COMPLETE",
+          "PARTIAL",
+          "UNKNOWN"
+        ],
+        "status": "CANDIDATE",
+        "sourceRef": "g14-design §6"
+      },
+      {
+        "metricKey": "WF-M10",
+        "label": "Outcome attainment",
+        "formula": "approved execution-mode progress strategy against target version",
+        "unit": "mode-defined",
+        "population": "Workstream outcome cohort",
+        "requiredEvidence": [
+          "progress strategy",
+          "target version"
+        ],
+        "qualityStates": [
+          "COMPLETE",
+          "PARTIAL",
+          "UNKNOWN"
+        ],
+        "status": "CANDIDATE",
+        "sourceRef": "g14-design §6"
+      },
+      {
+        "metricKey": "WF-M11",
+        "label": "Blocked time",
+        "formula": "union blocked intervals / eligible elapsed working minutes",
+        "unit": "ratio and minutes",
+        "population": "authorized work scope",
+        "requiredEvidence": [
+          "BLOCK_STARTED/BLOCK_ENDED events",
+          "calendar"
+        ],
+        "qualityStates": [
+          "COMPLETE",
+          "PARTIAL",
+          "UNKNOWN"
+        ],
+        "status": "CANDIDATE",
+        "sourceRef": "g14-design §6"
+      },
+      {
+        "metricKey": "WF-M12",
+        "label": "Data coverage",
+        "formula": "eligible records with required data / eligible records",
+        "unit": "ratio",
+        "population": "authorized cohort",
+        "requiredEvidence": [
+          "source permission",
+          "required-field coverage"
+        ],
+        "qualityStates": [
+          "COMPLETE",
+          "PARTIAL",
+          "UNKNOWN",
+          "INSUFFICIENT_SAMPLE"
+        ],
+        "status": "CANDIDATE",
+        "sourceRef": "g14-design §6"
+      }
+    ]
+  },
+  "statusVocabulary": {
+    "design": {
+      "CANDIDATE": "Documented proposal; owner/API/adapter approval or proof may still be required",
+      "APPROVED_DESIGN_BASELINE": "Owner-approved immutable contract baseline; implementation is not implied",
+      "REGISTERED": "Canonical FR/FEAT/ADR/SDD/SEC/NFR subject allocated through the repository ledger",
+      "IMPLEMENTATION_READY": "Affected SPEC gates, owner ports, schemas, migration and acceptance fixtures are closed for the slice",
+      "IN_IMPLEMENTATION": "Code or migration work is active against the pinned packet",
+      "LOCALLY_VERIFIED": "Relevant tests/build/browser checks pass in the named local environment",
+      "HOSTED_VERIFIED": "Hosted CI or artifact verification passed for the named revision",
+      "PRODUCTION_ACTIVE": "Production activation evidence exists for the exact revision",
+      "PROPOSED_NOT_IMPLEMENTED": "Contract file exists; no running handler or live endpoint is claimed"
+    },
+    "data": {
+      "COMPLETE": "Required source and coverage are present for the authorized calculation",
+      "PARTIAL": "Some eligible source or permission coverage is missing; result is shown with exclusions",
+      "UNKNOWN": "A required fact is unavailable; do not substitute zero or infer completion",
+      "UNAVAILABLE": "Source or contract is not available to this surface",
+      "PROVISIONAL": "Window/cohort is still open and may change",
+      "INSUFFICIENT_SAMPLE": "Policy minimum sample is not met",
+      "STALE": "Source version or projection freshness is outside policy",
+      "CONFLICT": "Concurrent/overlap/constraint conflict blocks commit",
+      "FORBIDDEN": "Authorization denies the scope; suppress identifiers and counts"
+    },
+    "delivery": {
+      "PLANNED": "Scheduled for a future phase; no work evidence",
+      "BLOCKED": "Cannot proceed because a named dependency or gate is open",
+      "NOT_RUN": "No verification execution performed",
+      "NOT_REPORTED": "Expected measurement is absent; never fallback to predicted value",
+      "SUPERSEDED": "Replaced by a later approved subject while preserving the old key",
+      "REJECTED": "Review or validation refused the packet"
+    }
+  },
+  "acceptanceCriteria": [
+    {
+      "caseId": "PMT-033-A",
+      "givenWhen": "A=4 tasks/35h and B=8 tasks/18h with available 28h/30h",
+      "required": "A=125%, B=60%, team=91.38%; show A +7h overload",
+      "proof": "Projection fixture + arithmetic test",
+      "phase": "P2/P3",
+      "status": "PLANNED"
+    },
+    {
+      "caseId": "PMT-033-B",
+      "givenWhen": "Estimate, calendar or assignment is missing",
+      "required": "Count remains visible; UNKNOWN/PARTIAL and exclusions visible; no invented free hours/FTE/zero performance",
+      "proof": "Negative contract fixture",
+      "phase": "P1/P3",
+      "status": "PLANNED"
+    },
+    {
+      "caseId": "PMT-033-C",
+      "givenWhen": "Completed nondeleted WorkItem is in old activeWorkItems",
+      "required": "New open count excludes accepted/cancelled through versioned status mapping; compatibility field preserved",
+      "proof": "Status mapping service test",
+      "phase": "P1/P4",
+      "status": "PLANNED"
+    },
+    {
+      "caseId": "PMT-033-D",
+      "givenWhen": "Person belongs to two teams or work links two features",
+      "required": "Business totals deduplicate people/work/allocations; team shares required for additive capacity",
+      "proof": "Dedup fixture",
+      "phase": "P2/P4",
+      "status": "PLANNED"
+    },
+    {
+      "caseId": "PMT-033-E",
+      "givenWhen": "Holiday/leave overlaps or crosses timezone/DST boundary",
+      "required": "Interval union subtracts once; half-open/DST rules hold; no negative capacity",
+      "proof": "Calendar interval test",
+      "phase": "P1/P2",
+      "status": "PLANNED"
+    },
+    {
+      "caseId": "PMT-033-F",
+      "givenWhen": "Two previews book the same person capacity",
+      "required": "At most allowed capacity commits unless authorized reasoned override; stale conflict is visible",
+      "proof": "Concurrency integration test",
+      "phase": "P2/P5",
+      "status": "PLANNED"
+    },
+    {
+      "caseId": "PMT-033-G",
+      "givenWhen": "Project-only viewer asks for Business performance or hidden evidence",
+      "required": "Denied/suppressed without identifier/count leakage; no global-free claim",
+      "proof": "Authorization refusal test",
+      "phase": "P1/P4",
+      "status": "PLANNED"
+    },
+    {
+      "caseId": "PMT-033-H",
+      "givenWhen": "Due date changes after commitment",
+      "required": "Original on-time denominator remains; adjusted baseline is separate",
+      "proof": "Frozen baseline fixture",
+      "phase": "P4",
+      "status": "PLANNED"
+    },
+    {
+      "caseId": "PMT-033-I",
+      "givenWhen": "Task is reassigned or Employment ends",
+      "required": "Historical attribution stays pinned; active capacity changes prospectively; no access mutation",
+      "proof": "History/adoption test",
+      "phase": "P1/P4",
+      "status": "PLANNED"
+    },
+    {
+      "caseId": "PMT-033-J",
+      "givenWhen": "Actual log absent, estimate zero or no formal review",
+      "required": "Metric is null with reason; updatedAt is never substituted",
+      "proof": "Unknown-state contract test",
+      "phase": "P4",
+      "status": "PLANNED"
+    },
+    {
+      "caseId": "PMT-033-K",
+      "givenWhen": "Reopen or late/duplicate delivery event occurs",
+      "required": "Mature/provisional cohort is correct; event counted once; revision auditable",
+      "proof": "Event dedup/reopen test",
+      "phase": "P4/P5",
+      "status": "PLANNED"
+    },
+    {
+      "caseId": "PMT-033-L",
+      "givenWhen": "Team has differently sized metric denominators",
+      "required": "Team percentage pools counts and percentiles recalculate from samples",
+      "proof": "Metric aggregation test",
+      "phase": "P4",
+      "status": "PLANNED"
+    },
+    {
+      "caseId": "PMT-033-M",
+      "givenWhen": "Keyboard/mobile user adjusts schedule",
+      "required": "Table/agenda keyboard path equals drag preview/conflict behavior at 200% zoom",
+      "proof": "Component and browser test",
+      "phase": "P3/P5",
+      "status": "PLANNED"
+    },
+    {
+      "caseId": "PMT-033-N",
+      "givenWhen": "Sample too small or work types are incomparable",
+      "required": "INSUFFICIENT_SAMPLE or separate cohorts; no spurious rank/score",
+      "proof": "Metric policy fixture",
+      "phase": "P4",
+      "status": "PLANNED"
+    },
+    {
+      "caseId": "PMT-033-O",
+      "givenWhen": "Commit succeeds then client retries",
+      "required": "Same key/payload returns same receipt; changed payload is refused",
+      "proof": "Idempotency test",
+      "phase": "P2/P5",
+      "status": "PLANNED"
+    },
+    {
+      "caseId": "PMT-033-P",
+      "givenWhen": "Allocation references agent/unresolved assignee or foreign Business",
+      "required": "Separate queue or refusal; no phantom employee capacity/cross-scope mutation",
+      "proof": "Scope/identity negative test",
+      "phase": "P1/P2",
+      "status": "PLANNED"
+    }
+  ],
+  "implementationHandoff": {
+    "entryGates": [
+      "Root registers canonical requirement/capability/architecture subjects through docs/.id-ledger.json; no proposal-local ID is used in @req annotations",
+      "G14 graph is reconciled as an extension of PM-G01, with one graph authority and no duplicate runtime topology",
+      "workforce.openapi.candidate.yaml version and operation/schema refs are pinned in the approved packet",
+      "SPEC-G01 through SPEC-G08 are closed only for the affected phase; SPEC-G09 registration/baseline proof is recorded",
+      "Identity capability binding and cross-domain owner-port decisions are approved before mutation code",
+      "SPEC-G07 physical adapter, transaction, RLS/grant, backfill and rollback design is approved before schema/migration work"
+    ],
+    "orderedWaves": [
+      {
+        "phase": "PMR-033-P1",
+        "workPackages": [
+          "MA-D01",
+          "MA-D03",
+          "MA-D08"
+        ],
+        "deliverables": [
+          "canonical IDs",
+          "capability matrix",
+          "status mapping",
+          "typed estimate/calendar/history ports",
+          "migration limits"
+        ],
+        "dependsOn": [],
+        "exitEvidence": [
+          "registry row",
+          "owner sign-off",
+          "negative scope fixtures"
+        ]
+      },
+      {
+        "phase": "PMR-033-P2",
+        "workPackages": [
+          "MA-D05",
+          "MA-I04",
+          "MA-I05"
+        ],
+        "deliverables": [
+          "capacity calculator",
+          "preview/commit service",
+          "allocation/calendar owner adapters",
+          "concurrency and idempotency proof"
+        ],
+        "dependsOn": [
+          "PMR-033-P1"
+        ],
+        "exitEvidence": [
+          "service tests",
+          "transaction proof",
+          "migration/rollback packet"
+        ]
+      },
+      {
+        "phase": "PMR-033-P3",
+        "workPackages": [
+          "MA-D02W",
+          "MA-I03"
+        ],
+        "deliverables": [
+          "WF-R01/R02/R03",
+          "route and navigation bindings",
+          "scope/coverage states",
+          "Team/Inventory/People links"
+        ],
+        "dependsOn": [
+          "PMR-033-P2",
+          "SPEC-G06"
+        ],
+        "exitEvidence": [
+          "component/browser evidence",
+          "accessible table/agenda",
+          "route conformance"
+        ]
+      },
+      {
+        "phase": "PMR-033-P4",
+        "workPackages": [
+          "MA-D04",
+          "MA-I06"
+        ],
+        "deliverables": [
+          "WF-R04/R06",
+          "12 metric result shapes",
+          "policy/review/correction lifecycle",
+          "cohort and attribution evidence"
+        ],
+        "dependsOn": [
+          "PMR-033-P1",
+          "PMR-033-P3"
+        ],
+        "exitEvidence": [
+          "metric fixtures",
+          "permission tests",
+          "formula/version evidence"
+        ]
+      },
+      {
+        "phase": "PMR-033-P5",
+        "workPackages": [
+          "MA-D07",
+          "MA-I08",
+          "MA-D08"
+        ],
+        "deliverables": [
+          "PMT-033 A–P executable coverage",
+          "representative-data pilot",
+          "independent verification",
+          "release receipt"
+        ],
+        "dependsOn": [
+          "PMR-033-P4"
+        ],
+        "exitEvidence": [
+          "tests pass",
+          "build/governance",
+          "exact revision proof",
+          "production status separately recorded"
+        ]
+      }
+    ],
+    "targetContractsToReconcile": [
+      "docs/architecture/project-manager-system/contracts/architecture.model.json",
+      "docs/architecture/project-manager-system/contracts/workforce.openapi.candidate.yaml",
+      "docs/architecture/project-manager-system/contracts/workforce.examples.json",
+      "docs/architecture/project-manager-system/contracts/traceability.json",
+      "docs/architecture/project-manager-system/contracts/data-model.candidate.json",
+      "docs/architecture/project-manager-system/16-SPEC-READINESS-AND-API-REFERENCE.md",
+      "docs/architecture/project-manager-system/18-DATABASE-TABLES-AND-ERD.md",
+      "docs/PRD-SDD-v1.0.md",
+      "docs/FEATURES.md",
+      "docs/.id-ledger.json"
+    ],
+    "implementationBoundaries": {
+      "projectManager": [
+        "work estimates",
+        "assignments",
+        "allocations",
+        "workforce projections",
+        "delivery events",
+        "metric projections",
+        "PM UI"
+      ],
+      "peopleModule": [
+        "employment-linked calendar/availability owner port",
+        "calendar semantics",
+        "person source reads"
+      ],
+      "identity": [
+        "capability issuance/resolution",
+        "scope and reviewer authority",
+        "CSRF/session/Origin binding"
+      ],
+      "crm": [
+        "Person identity read contract only"
+      ],
+      "integration": [
+        "future external calendar/time adapters only; no second WorkItem writer"
+      ],
+      "taskUsageLedger": [
+        "separate implementation telemetry evidence; task-bound actual usage only when a direct taskCode/report binding exists; never grants G14 authority or marks a runtime feature ready"
+      ]
+    },
+    "noGo": [
+      "Do not create a route button or production endpoint while the screen status is CANDIDATE/PROPOSED_NOT_IMPLEMENTED",
+      "Do not treat Team membership, Employment title, agent inventory or graph edge as a permission grant",
+      "Do not convert story points to hours or missing actual work/token/time to zero/predicted values",
+      "Do not infer acceptance from WorkItem.updatedAt, comments, worker exit code or status text without DeliveryEvent/evidence",
+      "Do not create a new database table or migration from this candidate registry alone",
+      "Do not register a new canonical ID by guessing the next number or reuse FR-042/FR-036/FR-064/FR-086/FR-193"
+    ]
+  },
+  "constraints": {
+    "scope": [
+      "Business and authorized Project filters",
+      "Person and Team views",
+      "Day/Week/Month periods",
+      "seven execution-mode status mapping"
+    ],
+    "time": "Integer minutes internally; display hours only; IANA timezone and explicit DST handling",
+    "privacy": "Individual performance and evidence are separately authorized; unauthorized identifiers, denominators and evidence links are suppressed",
+    "persistence": "Every mutable record has UUID, scope, timestamps, version, soft-delete/history semantics as specified; AuditEvent is immutable",
+    "progress": "Workforce capacity and delivery performance do not replace strategy-based Workstream progress",
+    "separation": "G14 semantic graph is not the work Dependency DAG or Data Pipeline Map",
+    "evidence": "Static docs, Swagger rendering and synthetic examples are not live API, migration, employee-data or production proof"
+  },
+  "evidence": {
+    "evidenceClass": "LOCAL_SOURCE_SNAPSHOT",
+    "freshness": "SOURCE_HASHED_AFTER_ROOT_RECONCILIATION",
+    "sourceCommit": "0c7fd88418b8be40a78f1fb8bc743b34c5a52c39",
+    "untrackedExcluded": [
+      "apps/server/docker-compose.pricing-release.yml"
+    ],
+    "files": [
+      {
+        "evidenceId": "E-G14-01",
+        "claim": "G01 typed architecture model and graph contract",
+        "sourcePath": "docs/architecture/project-manager-system/contracts/architecture.model.json",
+        "sourceSha256": "6b97b4ca4db31c8eb19ddbf31bc987f1fac1c30e354a68d9292f70e1bce75a54",
+        "sourceCommit": "0c7fd88418b8be40a78f1fb8bc743b34c5a52c39",
+        "evidenceClass": "CANDIDATE_CONTRACT",
+        "freshness": "HASHED",
+        "limitations": "28 nodes/35 edges are composed PM-G01 plus candidate PM-G14; codegen remains disabled"
+      },
+      {
+        "evidenceId": "E-G14-02",
+        "claim": "G14 typed flow, workforce requirement, contracts, metrics, screens and A–P cases",
+        "sourcePath": "docs/architecture/project-manager-system/15-WORKFORCE-CAPACITY-SCHEDULE-AND-PERFORMANCE.md",
+        "sourceSha256": "0891ccfec0dc9f46298ec046076f1e920f50d230ad540eeecffe2467375160e4",
+        "sourceCommit": "0c7fd88418b8be40a78f1fb8bc743b34c5a52c39",
+        "evidenceClass": "CANDIDATE_ARCHITECTURE_SPEC",
+        "freshness": "HASHED",
+        "limitations": "PMR/PMF/PMT IDs remain proposal-local until root registration"
+      },
+      {
+        "evidenceId": "E-G14-03",
+        "claim": "G14 remains open and eight workforce operations are proposed only",
+        "sourcePath": "docs/architecture/project-manager-system/16-SPEC-READINESS-AND-API-REFERENCE.md",
+        "sourceSha256": "50cff2507014a837f935d1e58fccb4d713ccaf8d8f681c2788d9206c7c85b508",
+        "sourceCommit": "0c7fd88418b8be40a78f1fb8bc743b34c5a52c39",
+        "evidenceClass": "READINESS_AUDIT",
+        "freshness": "HASHED",
+        "limitations": "G14 is composed in the candidate architecture model, but structural validation does not prove implementation or live API"
+      },
+      {
+        "evidenceId": "E-G14-04",
+        "claim": "Eight workforce HTTP operations and 30 schemas",
+        "sourcePath": "docs/architecture/project-manager-system/contracts/workforce.openapi.candidate.yaml",
+        "sourceSha256": "c16770ca5c22be36a7c499bddd13b01b49dd4188169c1617694c2af14e0bec98",
+        "sourceCommit": "0c7fd88418b8be40a78f1fb8bc743b34c5a52c39",
+        "evidenceClass": "CANDIDATE_OPENAPI",
+        "freshness": "HASHED",
+        "limitations": "Server is .invalid and all operations are PROPOSED_NOT_IMPLEMENTED"
+      },
+      {
+        "evidenceId": "E-G14-05",
+        "claim": "Proposed workforce record fields, keys, ERDs and invariants",
+        "sourcePath": "docs/architecture/project-manager-system/18-DATABASE-TABLES-AND-ERD.md",
+        "sourceSha256": "018f6383390b1fc2d114007597c844397211715c157f7e155fc45b28df9c56b9",
+        "sourceCommit": "0c7fd88418b8be40a78f1fb8bc743b34c5a52c39",
+        "evidenceClass": "LOGICAL_DATA_MODEL",
+        "freshness": "HASHED",
+        "limitations": "Exact physical adapter/migration and RLS proof remain SPEC-G07"
+      },
+      {
+        "evidenceId": "E-G14-06",
+        "claim": "Blueprint ownership and typed runtime context",
+        "sourcePath": "docs/architecture/project-manager-system/contracts/blueprint.candidate.json",
+        "sourceSha256": "8edc9367f29f52779f63f28975c0c4a04a7ee06cbc81581557618594d9c36ada",
+        "sourceCommit": "0c7fd88418b8be40a78f1fb8bc743b34c5a52c39",
+        "evidenceClass": "CANDIDATE_BLUEPRINT",
+        "freshness": "HASHED",
+        "limitations": "Target architecture; not live topology"
+      },
+      {
+        "evidenceId": "E-G14-07",
+        "claim": "Shared contract transport and owner boundaries",
+        "sourcePath": "docs/architecture/project-manager-system/21-CONTRACT-FOUNDATION.md",
+        "sourceSha256": "50ccbd15befc5a97b93ce09c35b3ec632f5792ea0755115859b0bde05923485b",
+        "sourceCommit": "0c7fd88418b8be40a78f1fb8bc743b34c5a52c39",
+        "evidenceClass": "CANDIDATE_CONTRACT_FOUNDATION",
+        "freshness": "HASHED",
+        "limitations": "Generic CSRF/provider/ledger gaps remain open"
+      },
+      {
+        "evidenceId": "E-G14-08",
+        "claim": "SRS and implementation trace model",
+        "sourcePath": "docs/architecture/project-manager-system/17-SRS.md",
+        "sourceSha256": "3a841c2c456e817d13949714788f6d62636ef8ed34c4095b1836de40d4d436a2",
+        "sourceCommit": "0c7fd88418b8be40a78f1fb8bc743b34c5a52c39",
+        "evidenceClass": "CANDIDATE_SRS",
+        "freshness": "HASHED",
+        "limitations": "Proposal requirements are not canonical implementation annotations"
+      },
+      {
+        "evidenceId": "E-G14-09",
+        "claim": "Current global requirement and ID ledger must be reconciled",
+        "sourcePath": "docs/.id-ledger.json",
+        "sourceSha256": "39db514a63c50bb1b878596653e9e9f5ae9f76b80a549c1d92bae13f132a6d11",
+        "sourceCommit": "0c7fd88418b8be40a78f1fb8bc743b34c5a52c39",
+        "evidenceClass": "CANONICAL_LEDGER",
+        "freshness": "HASHED",
+        "limitations": "No PMR-033 canonical ID is allocated in this worker packet"
+      },
+      {
+        "evidenceId": "E-G14-10",
+        "claim": "PM domain ownership and existing compatibility scope",
+        "sourcePath": "docs/domains/project-manager/CHARTER.md",
+        "sourceSha256": "d7694a08894099431119c116caca07d583d6b1cc46d733134287729fe0513b77",
+        "sourceCommit": "0c7fd88418b8be40a78f1fb8bc743b34c5a52c39",
+        "evidenceClass": "DOMAIN_CHARTER",
+        "freshness": "HASHED",
+        "limitations": "Charter does not make G14 implementation live"
+      }
+    ],
+    "reconciledAt": "2026-09-18T00:00:00+07:00",
+    "reconciledBy": "RWANG"
+  }
+}

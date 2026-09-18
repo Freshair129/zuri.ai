@@ -279,22 +279,22 @@ function readLinesSync(file) {
   return readFileSync(file, 'utf8').split('\n').map((l) => l.trim()).filter(Boolean)
 }
 
-async function reportFromClaudeTranscript({ transcriptPath, cwd, config }) {
+async function reportFromClaudeTranscript({ transcriptPath, cwd, config, taskCode }) {
   if (!transcriptPath || !existsSync(transcriptPath)) return
   const lines = readLinesSync(transcriptPath)
   const repositoryUrl = await resolveClaudeRepositoryUrl(cwd)
   const allowedRepositories = config.repositories || DEFAULT_REPOSITORIES
-  const reports = buildClaudeSessionReports({ lines, repositoryUrl, allowedRepositories, aiAccount: config.aiAccount })
+  const reports = buildClaudeSessionReports({ lines, repositoryUrl, allowedRepositories, aiAccount: config.aiAccount, taskCode })
   if (!reports.length) return
   const client = config.key ? createClient({ server: config.server, key: config.key, timeoutMs: 5000 }) : null
   await enqueueAndFlush({ reports, home: homeDir(), client, queue, log: logToFile })
 }
 
-async function reportFromCodexRollout({ rolloutPath, config }) {
+async function reportFromCodexRollout({ rolloutPath, config, taskCode }) {
   if (!rolloutPath || !existsSync(rolloutPath)) return
   const lines = readLinesSync(rolloutPath)
   const allowedRepositories = config.repositories || DEFAULT_REPOSITORIES
-  const reports = buildCodexSessionReports({ lines, allowedRepositories, aiAccount: config.aiAccount })
+  const reports = buildCodexSessionReports({ lines, allowedRepositories, aiAccount: config.aiAccount, taskCode })
   if (!reports.length) return
   const client = config.key ? createClient({ server: config.server, key: config.key, timeoutMs: 5000 }) : null
   await enqueueAndFlush({ reports, home: homeDir(), client, queue, log: logToFile })
@@ -302,6 +302,7 @@ async function reportFromCodexRollout({ rolloutPath, config }) {
 
 async function cmdReport(argv) {
   const config = readConfig()
+  const taskCode = argValue(argv, '--task-code')
   try {
     if (argv.includes('--claude-hook')) {
       const raw = await readStdin()
@@ -313,7 +314,7 @@ async function cmdReport(argv) {
         return
       }
       if (!config) return // never paired — nothing to report against
-      await reportFromClaudeTranscript({ transcriptPath: hookInput.transcript_path, cwd: hookInput.cwd, config })
+      await reportFromClaudeTranscript({ transcriptPath: hookInput.transcript_path, cwd: hookInput.cwd, config, taskCode })
       return
     }
     if (argv.includes('--claude-transcript')) {
@@ -323,14 +324,14 @@ async function cmdReport(argv) {
         return
       }
       const transcriptPath = argValue(argv, '--claude-transcript')
-      await reportFromClaudeTranscript({ transcriptPath, cwd: process.cwd(), config })
+      await reportFromClaudeTranscript({ transcriptPath, cwd: process.cwd(), config, taskCode })
       return
     }
     if (argv.includes('--codex-latest')) {
       if (!config) return
       const since = argValue(argv, '--since')
       const rolloutPath = newestJsonlFile(codexSessionsDir(), since)
-      await reportFromCodexRollout({ rolloutPath, config })
+      await reportFromCodexRollout({ rolloutPath, config, taskCode })
       return
     }
     if (argv.includes('--codex-session')) {
@@ -340,7 +341,7 @@ async function cmdReport(argv) {
         return
       }
       const rolloutPath = argValue(argv, '--codex-session')
-      await reportFromCodexRollout({ rolloutPath, config })
+      await reportFromCodexRollout({ rolloutPath, config, taskCode })
       return
     }
     console.error('zuri-harness report: pass one of --claude-hook, --claude-transcript <path>, --codex-latest, --codex-session <path>')
@@ -374,9 +375,9 @@ Usage:
   zuri-harness whoami [--hook]
   zuri-harness unpair
   zuri-harness report --claude-hook            (reads SessionEnd hook JSON from stdin)
-  zuri-harness report --claude-transcript <path>
-  zuri-harness report --codex-latest [--since <iso>]
-  zuri-harness report --codex-session <path>
+  zuri-harness report --claude-transcript <path> [--task-code TASK-ZAI-###]
+  zuri-harness report --codex-latest [--since <iso>] [--task-code TASK-ZAI-###]
+  zuri-harness report --codex-session <path> [--task-code TASK-ZAI-###]
   zuri-harness flush`)
 }
 

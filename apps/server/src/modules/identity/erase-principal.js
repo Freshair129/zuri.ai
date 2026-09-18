@@ -5,6 +5,12 @@ import { zErasePrincipalInput } from '@/lib/validation/entities'
 import { redactConversationContentForCustomers } from '@/modules/crm/conversation-redaction-service'
 import { redactLineConversationJobs } from '@/modules/line-oa-studio/application/line-job-erasure'
 import { tombstoneRawRecordsForExternalIds } from '@/platform/integrations/core/raw-record-redaction'
+import { destroyCustomerArchiveKey } from '@/modules/crm/chat-evidence-archive-service'
+import { applyReviewedProjectFeatureErasure } from '@/modules/project-manager/application/project-feature-erasure'
+
+// @req FR-252 — reviewed PM text shares the Identity erasure transaction.
+// @spec docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md
+// @tested tests/integration/phase-b-identity-erasure.test.js
 
 // @req FR-022, FR-095 — PDPA erasure for a principal (the erase-revoke leg of the P3 gate).
 // @spec docs/replacement/IMPACT-SCAN-IDENTITY.md §hazard-5 — ExternalIdentity is a
@@ -22,6 +28,7 @@ import { tombstoneRawRecordsForExternalIds } from '@/platform/integrations/core/
 // RCA: .brain/rca/2026-08-31-conversation-analysis-tenant-binding.md
 // @tested tests/integration/identity-erase.test.js, tests/integration/crm-conversation-analysis.test.js
 // @tested tests/integration/crm-customer-erasure.test.js, tests/integration/server-line-jobs.test.js
+// @tested tests/integration/crm-archive-legal-hold.test.js
 
 const REDACTED = '[erased]'
 
@@ -35,13 +42,13 @@ const REDACTED = '[erased]'
  * an erasure that revoked the identity and then failed to redact would leave the
  * person un-reachable but fully readable, which is the worse half to get wrong.
  *
- * @returns {{ revokedIdentities, revokedChannelIdentities, erasedCustomers, erasedAnalyses, invalidatedTokens, revokedSessions, personRedacted, redactedMessages, tombstonedRawRecords }}
+ * @returns {{ revokedIdentities, revokedChannelIdentities, erasedCustomers, erasedAnalyses, invalidatedTokens, revokedSessions, personRedacted, redactedMessages, tombstonedRawRecords, archiveKeys }}
  */
-export async function erasePrincipal(input) {
+export async function erasePrincipal(input, { db = prisma, reviewedPmContext = null } = {}) {
   const { tenantId, personId, reason } = zErasePrincipalInput.parse(input)
   const now = new Date()
 
-  return prisma.$transaction(async (tx) => {
+  const execute = async (tx) => {
     // @req FR-191 — erasure is downstream of offboarding, never a substitute
     // for it (SEC-026, ADR-077 D6). Before this refusal, erasure *counted*
     // grants to decide whether to redact the Person and ended none: a staff
@@ -64,6 +71,23 @@ export async function erasePrincipal(input) {
       // list here would answer a question the caller may not be scoped to ask.
       error.details = { memberships: liveMemberships, roleBindings: liveBindings, platformGrants: liveGrants }
       throw error
+    }
+
+    // Internal server context only; the public erasure request never accepts it.
+    // Subject identity comes from this orchestrator, not from the manifest.
+    const pmResult = await applyReviewedProjectFeatureErasure(tx, reviewedPmContext?.manifest ?? null, {
+      authority: {
+        ...reviewedPmContext?.authority,
+        tenantId,
+        subjectPersonId: personId,
+      },
+      now,
+    })
+    const pmErasure = {
+      status: pmResult.status,
+      manifestSha256: pmResult.manifestSha256 ?? null,
+      changedRowCount: pmResult.changedRowCount,
+      changedFieldCount: pmResult.changedFieldCount,
     }
 
     const revoked = await tx.externalIdentity.updateMany({
@@ -147,6 +171,31 @@ export async function erasePrincipal(input) {
       now,
     })
 
+    // CRM keeps an archive key while an active dispute hold requires it. Retry
+    // this independently of PM replay so an expired hold can finish its erasure.
+    // @req SEC-034 — the chat evidence archive is the one copy a PDPA erasure
+    // does not destroy outright (ADR-093 D6, TASK-ZAI-113): a Customer's
+    // archive data key is destroyed here, UNLESS an OWNER has recorded an
+    // active legal hold on them, in which case the key survives and the hold
+    // is reported so the caller can show it ("the erasure status shows the
+    // hold" — ADR-093 D6). `destroyCustomerArchiveKey` is the one function
+    // that may delete the key row; the hold check lives inside it, not here,
+    // so this call site cannot re-derive that answer differently from
+    // `chat-evidence-archive-expiry-service.js`'s own call to it. Looped
+    // rather than assumed singular: nothing here relies on the
+    // @@unique([tenantId, personId]) constraint that makes customerIds hold
+    // at most one id today, matching how activeCustomers above is derived
+    // from the data rather than from that invariant.
+    const archiveKeys = []
+    for (const id of customerIds) {
+      const result = await destroyCustomerArchiveKey(tx, { tenantId, customerId: id, now })
+      archiveKeys.push({
+        customerId: id,
+        keyDestroyed: result.destroyed,
+        legalHold: result.hold ? { reason: result.hold.reason, endDate: result.hold.endDate.toISOString() } : null,
+      })
+    }
+
     // Redact the global Person only when erasing it here leaves nothing behind:
     // no LIVE membership anywhere and no other live customer in another tenant.
     //
@@ -195,7 +244,9 @@ export async function erasePrincipal(input) {
         redactedMessages,
         redactedLineJobs,
         tombstonedRawRecords,
+        archiveKeys,
         personRedacted,
+        pmErasure: pmResult.audit ?? pmErasure,
       },
     })
 
@@ -210,6 +261,17 @@ export async function erasePrincipal(input) {
       redactedLineJobs,
       tombstonedRawRecords,
       personRedacted,
+      pmErasure,
+      // @req SEC-034 — one entry per Customer this erasure touched (ADR-093
+      //   D6): `keyDestroyed: true` when no hold protected them, or
+      //   `legalHold` naming the hold that deferred it. Always present as an
+      //   array (empty when this Person has no Customer at all) rather than a
+      //   new required field, so an existing caller that ignores it keeps
+      //   reading exactly the counts it always did.
+      archiveKeys,
     }
-  })
+  }
+  return typeof db.$transaction === 'function'
+    ? db.$transaction(execute, { isolationLevel: 'Serializable', maxWait: 10_000, timeout: 30_000 })
+    : execute(db)
 }

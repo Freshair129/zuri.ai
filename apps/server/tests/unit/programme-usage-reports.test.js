@@ -138,6 +138,24 @@ describe('FR-221 recording', () => {
     }
   })
 
+  it('keeps a session task binding immutable across extensions', async () => {
+    const branchOnly = body({ taskCode: undefined })
+    const reboundToTask = await recordProgrammeUsageReport(
+      fakeDb({ existing: storedFrom(branchOnly) }).db,
+      body({ taskCode: 'TASK-ZAI-066', outputTokens: 900 }),
+      { knownTaskCodes: known, reporter: HARNESS },
+    )
+    expect(reboundToTask).toMatchObject({ status: 409, body: { error: 'USAGE_REPORT_CONFLICT' } })
+
+    const taskBound = body({ taskCode: 'TASK-ZAI-066' })
+    const reboundToBranch = await recordProgrammeUsageReport(
+      fakeDb({ existing: storedFrom(taskBound) }).db,
+      body({ taskCode: undefined, outputTokens: 900 }),
+      { knownTaskCodes: known, reporter: HARNESS },
+    )
+    expect(reboundToBranch).toMatchObject({ status: 409, body: { error: 'USAGE_REPORT_CONFLICT' } })
+  })
+
   it('treats a second branch of one session as its own report', async () => {
     const { db } = fakeDb({ existing: storedFrom(body()) })
     const r = await recordProgrammeUsageReport(db, body({ branch: 'docs/harness-usage-plugin-plan' }), { knownTaskCodes: known, reporter: HARNESS })

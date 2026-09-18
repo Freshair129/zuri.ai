@@ -16,9 +16,9 @@ import { spawn } from 'node:child_process'
 //
 // The child gets an ALLOWLISTED environment, never a copy of this server's.
 // The web process holds the production database URLs, LINE channel secrets,
-// model keys and seal keys; MSP reads none of them, and MSP forwards its own
-// environment to every GKS child it spawns (MSP gks-stdio-provider.mjs), so
-// whatever reaches MSP reaches GKS as well. Names are exact — no prefix — so a
+// model keys and seal keys; MSP reads none of them. The pinned MSP separately
+// filters its GKS child environment, so its thread-signing/identity keys do
+// not cross that next boundary. Names here are exact — no prefix — so a
 // variable MSP starts reading later arrives only after it is named here, which
 // fails closed instead of open.
 
@@ -33,6 +33,14 @@ const DEFAULT_TIMEOUT_MS = 15_000
 export const MSP_RUNTIME_ENV_NAMES = Object.freeze([
   // apps/msp-server/bin/msp-server.mjs — the store; MSP refuses to start without it
   'MSP_DB_PATH',
+  // API-011 MemoryOS, independently provisioned for the MSP child. Never map
+  // a Zuri secret implicitly; deployment must configure both trust endpoints.
+  'MSP_THREAD_SERVICE_KEY',
+  'MSP_THREAD_SERVICE_KEYRING',
+  'MSP_IDENTITY_HMAC_KEY',
+  'MSP_THREAD_IDLE_TIMEOUT_MINUTES',
+  'MSP_THREAD_RECENT_EXCHANGES',
+  'MSP_THREAD_RETENTION_DAYS',
   // apps/msp-server/src/providers/gks-stdio-provider.mjs — how MSP spawns GKS
   'MSP_GKS_COMMAND',
   'MSP_GKS_ARGS',

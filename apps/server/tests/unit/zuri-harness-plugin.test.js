@@ -173,6 +173,13 @@ describe('FR-222 branch split', () => {
     expect(body.source).toBe('claude-code')
     expect(body.branch).toBe('feat/a')
   })
+
+  it('adds an explicit task code when supplied and rejects branch-shaped inference values', () => {
+    const [summary] = summariseByBranch([parseClaudeLine(claudeLine())], { gapCapMinutes: 15 })
+    const body = toReportBody(summary, { taskCode: 'TASK-ZAI-066' })
+    expect(body.taskCode).toBe('TASK-ZAI-066')
+    expect(() => toReportBody(summary, { taskCode: 'feat/a' })).toThrow('TASK_USAGE_TASK_CODE_INVALID')
+  })
 })
 
 // ---------------------------------------------------------------------------
@@ -241,8 +248,9 @@ describe('FR-222 hook report flow', () => {
       claudeLine({ requestId: 'ok-1', sessionId: 'sess-201', branch: 'feat/x', timestamp: '2026-09-13T09:00:00.000Z' }),
     ])
     const lines = readFileSync(transcript, 'utf8').split('\n').filter(Boolean)
-    const reports = buildClaudeSessionReports({ lines, repositoryUrl, allowedRepositories })
+    const reports = buildClaudeSessionReports({ lines, repositoryUrl, allowedRepositories, taskCode: 'TASK-ZAI-066' })
     expect(reports).toHaveLength(1)
+    expect(reports[0].taskCode).toBe('TASK-ZAI-066')
 
     const fetchImpl = makeFakeFetch([{ status: 201 }])
     const client = createClient({ server: 'https://example.test', key: 'hrnk_test', fetch: fetchImpl })

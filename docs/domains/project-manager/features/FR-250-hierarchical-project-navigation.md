@@ -4,10 +4,10 @@ title: Hierarchical Projects and Work navigation
 feature: FR-250
 domain: project-manager
 source: v2-native
-version: "0.2.1b"
+version: "0.2.2b"
 status: beta
 created_at: "2026-09-16T14:38:26+07:00,RWANG,base eddd3dd8"
-last_update: "2026-09-16T18:13:00+07:00,RWANG"
+last_update: "2026-09-16T23:01:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:FR-250
@@ -30,6 +30,10 @@ Project Management, Work Management and Resource Coordination open existing dest
 Project Management retains Project/Inventory. Work Management retains all seven Work views. Resource Coordination retains Team/Files/Repositories. Import is one persistent Project action. Business views remain reachable inside the corresponding module using their existing URLs.
 
 The project-manager lane owns this presentation. Domain/grant identity, API ownership, scoped data authorization and the seven execution modes are unchanged. Business Home links to the same owners and creates no new authority.
+
+## Approved extension — FR-251
+
+The owner approved the separately registered [Project Execution Domains view](FR-251-project-execution-domains.md) on 2026-09-16. It activates only Execution Domains inside Delivery Design in authorized Project context. Business Delivery Design and the other named capabilities remain planned. FR-250's existing routes, hierarchy, grant identity, Import action and acceptance criteria remain regression requirements; its original navigation-only delivery does not claim this new API.
 
 ## Input, output and failures
 
@@ -95,3 +99,4 @@ No new API, database schema, resource calculation, risk register, agent executor
 | 0.1.1b | 2026-09-16 | beta | Record owner approval and start bounded application implementation; preserve all acceptance criteria | approved baseline 3f36668f | RWANG |
 | 0.2.0b | 2026-09-16 | beta | Record implemented navigation, independent source review, runtime evidence and release limits | implementation d33254aa | RWANG |
 | 0.2.1b | 2026-09-16 | beta | Record owner-authorized cross-domain fixes and normal full browser pass; retain original failed run as historical evidence | correction 86de7f61 | RWANG |
+| 0.2.2b | 2026-09-16 | beta | Cross-reference the separately approved FR-251 Project-only Delivery Design extension without changing the original navigation subject | reviewed baseline 7465080f | RWANG |

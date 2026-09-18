@@ -93,32 +93,42 @@ describe('the pin gate', () => {
 describe('the derived SmartGift benchmark (P-6)', () => {
   const corpus = JSON.parse(read('tests/fixtures/genesisrag17-smartgift-corpus-v1.json'))
 
-  it('the acceptance corpus is NOT itself a valid worker fixture — which is why this exists', () => {
-    // The worker validates a top-level `queries` array (validateBenchmarkFixture in
-    // genesisrag17-worker/src/worker.mjs) and the corpus keeps its queries per record,
-    // because the acceptance re-boots the worker once per benchmark entry. If this
-    // assertion ever fails, the corpus grew a top-level queries array and the
-    // derivation should be deleted rather than kept alongside it.
+  it('keeps the acceptance corpus per-record rather than introducing a global query union', () => {
+    // The worker accepts benchmark entries with their own fixtureVersion and
+    // queries. The source corpus also carries records and acceptance metadata,
+    // so the build derives only the worker fixture projection below.
     expect(Array.isArray(corpus.queries)).toBe(false)
     expect(corpus.benchmarks.length).toBeGreaterThan(0)
   })
 
-  it('derives the union of every record queries, in the shape the worker accepts', () => {
+  it('derives one benchmark entry per record in the shape the worker accepts', () => {
     const derived = deriveSmartgiftBenchmark(corpus, { sourceFile: 'corpus.json', sourceSha256: 'f'.repeat(64) })
     expect(typeof derived.fixtureVersion).toBe('string')
-    expect(derived.queries.length).toBeGreaterThan(0)
-    for (const row of derived.queries) {
-      expect(typeof row.query).toBe('string')
-      expect(row.query.trim()).not.toBe('')
-      expect(row.relevantTexts.length).toBeGreaterThan(0)
-      for (const text of row.relevantTexts) expect(typeof text).toBe('string')
+    expect(Array.isArray(derived.queries)).toBe(false)
+    expect(derived.benchmarks).toHaveLength(corpus.benchmarks.length)
+    for (const [index, benchmark] of derived.benchmarks.entries()) {
+      expect(benchmark.externalId).toBe(corpus.benchmarks[index].externalId)
+      expect(benchmark.fixtureVersion).toBe(corpus.benchmarks[index].fixtureVersion)
+      expect(benchmark.queries.length).toBeGreaterThan(0)
+      for (const row of benchmark.queries) {
+        expect(typeof row.query).toBe('string')
+        expect(row.query.trim()).not.toBe('')
+        expect(row.relevantTexts.length).toBeGreaterThan(0)
+        expect(row.fromBenchmarks).toEqual([benchmark.externalId])
+        for (const text of row.relevantTexts) expect(typeof text).toBe('string')
+      }
     }
   })
 
   it('carries its own provenance, so a derived fixture never passes as a hand-written one', () => {
     const derived = deriveSmartgiftBenchmark(corpus, { sourceFile: 'corpus.json', sourceSha256: 'f'.repeat(64) })
     expect(derived.derived).toBe(true)
-    expect(derived.derivedFrom).toMatchObject({ file: 'corpus.json', sha256: 'f'.repeat(64), benchmarkCount: corpus.benchmarks.length })
+    expect(derived.derivedFrom).toMatchObject({
+      file: 'corpus.json',
+      sha256: 'f'.repeat(64),
+      benchmarkCount: corpus.benchmarks.length,
+      shape: 'per-record benchmarks[].queries, scoped by candidate generation',
+    })
   })
 
   it('rejects a corpus whose benchmarks carry no queries instead of writing an empty fixture', () => {

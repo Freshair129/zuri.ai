@@ -4,6 +4,8 @@ domain: commerce
 modules:
   - commerce
 owns_models:
+  - PricingRuleSet
+  - PricingCalculation
   - SalesOrder
   - SalesOrderLine
   - Payment
@@ -17,9 +19,9 @@ owns_code:
   - src/modules/commerce/**
 technical_owner: TD-COMMERCE
 status: active-foundation
-version: "1.0.0"
+version: "1.2.0b"
 created_at: "2026-09-07T00:30:00+07:00"
-updated_at: "2026-09-07T00:30:00+07:00"
+updated_at: "2026-09-17T03:00:00+07:00"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -63,6 +65,11 @@ Display label:    Commerce
 Architecture decision: [ADR-065](../../decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md).
 
 ## Owned records
+
+- `PricingRuleSet` and `PricingCalculation` — Business-scoped draft/immutable
+  approved formula versions and deterministic results with pinned source/rule/input
+  lineage (FR-253, ADR-098; TASK-ZAI-055/056). Only an authorized sell-side projection
+  is admitted by Knowledge; internal costs and rule variables are not public data.
 
 - `SalesOrder` (`order_id`) — `code` `ORD-YYYYMMDD-NNN` unique per Tenant,
   Business-scoped, optional `Customer` and `Conversation` of the same Tenant,
@@ -182,6 +189,7 @@ from a chat.
 ## References
 
 - [ADR-065](../../decisions/ADR-065-COMMERCE-LANE-ORDERS-AND-PAYMENTS-BOUNDARY.md)
+- [FR-253 pricing rules and engine](features/FR-253-pricing-rules-and-engine.md)
 - [FR-166 sales orders](features/FR-166-sales-orders.md)
 - [FR-163 payments and revenue](features/FR-163-payments-and-revenue.md)
 - [Owner-approved Billing/POS contract](../../change-requests/ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910.md)
@@ -194,3 +202,4 @@ from a chat.
 | 1.0.0 | 2026-09-07 | active-foundation | Established the Commerce lane with sales orders, lines and payments; corrections from the legacy Orders & Payments shape recorded in ADR-065 | working-tree | Claude Fable 5.1 |
 | 1.1.0b | 2026-09-11 | owner-approved beta | Added FR-186 durable billing documents and issuer/tax/PromptPay configuration plus FR-183 atomic manual-price POS composition; production migration/provider activation remains pending | working-tree | RWANG |
 | 1.1.1b | 2026-09-11 | owner-approved beta | Published PR #318 claimed FR-182 for SCM, so the already-approved billing subject is recorded as FR-186 through the id-ledger abandonment path; POS remains FR-183 and behavior is unchanged | working-tree | RWANG |
+| 1.2.0b | 2026-09-17 | owner-approved beta | FR-253 versioned rules, formula/variable console, shared pricing and ledger-backed sell-side Knowledge admission; no production activation | uncommitted | RWANG |

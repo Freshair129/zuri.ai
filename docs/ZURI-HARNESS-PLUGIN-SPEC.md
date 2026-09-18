@@ -1,10 +1,10 @@
 ---
 id: ZAI:ZURI-HARNESS-PLUGIN-SPEC
 title: Zuri harness plugin — specification
-version: "1.0.0b"
+version: "1.1.0b"
 status: beta
 created_at: "2026-09-14T12:00:00+07:00,Claude Opus 5"
-last_update: "2026-09-14T12:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-18T05:25:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:ADR-087
@@ -137,7 +137,7 @@ flowchart LR
 | `whoami` | `--hook` | reads config and asks the server `GET …/programme-usage-reports/whoami` (5 s) | 0; 1 when the credential is refused (not in hook mode) |
 | `whoami --hook` | — | prints **one line** (`paired to <person> on <device> (<status>)` or `not paired — run /zuri-harness:pair`), then flushes the queue | always 0 |
 | `unpair` | — | deletes the local config; the server-side revoke is an operator's job (Agent devices tab) | 0 |
-| `report` | exactly one of `--claude-hook` (hook JSON on stdin), `--claude-transcript <path>`, `--codex-latest [--since <iso>]`, `--codex-session <path>` | §2.2 | hook mode always 0; otherwise 1 on a usage error |
+| `report` | exactly one of `--claude-hook` (hook JSON on stdin), `--claude-transcript <path>`, `--codex-latest [--since <iso>]`, `--codex-session <path>`; optional `--task-code TASK-ZAI-###` is an explicit caller-owned task binding | §2.2 | hook mode always 0; otherwise 1 on a usage error |
 | `flush` | — | §5 | 0 |
 
 A command that is not paired does nothing and reports nothing.
@@ -207,6 +207,7 @@ Every error in hook mode is written to `<home>/log.txt` and never surfaces as a 
 | `source` | `claude-code` or `codex` (`^[a-z0-9][a-z0-9._-]{1,39}$`) |
 | `sessionId` | 8–128 chars `[A-Za-z0-9._:-]` |
 | `branch` | git ref name, ≤ 200; the plugin sends `HEAD` for a detached session |
+| `taskCode` | optional explicit programme task key matching `^TASK-ZAI-\\d{3}$`; the caller must own the assignment; never inferred from `branch`, title or repository |
 | `repository` | `Owner/Repo`, optional |
 | `aiAccount` | label ≤ 80, optional; cost split only |
 | `model` | the most-used model of the branch, optional |
@@ -220,6 +221,7 @@ Every error in hook mode is written to `<home>/log.txt` and never surfaces as a 
 
 - **Person and installation** come from the credential, never from the body.
 - **Lane** is resolved from `branch` against the programme's declared lanes, at **read** time. An undeclared branch shows as unattributed.
+- **Task** is carried only when the orchestrator or CLI caller explicitly supplies `--task-code`; a shared branch never selects a task. The server remains authoritative against the known programme task registry, and a report key cannot be rebound to another task on extension.
 - **Row key** is `(source, sessionId, branch)`. One session on two branches is two reports.
 
 **Replay, extension and conflict** (ADR-087 D5, ADR-086 D7). Same tests, plus the detail suite.
@@ -310,3 +312,9 @@ One implementation, `lib/detail.mjs`, is used by the plugin and by `apps/server/
 - Two people on one OS user and one plugin configuration are one reporter. Separate them by OS user, or re-pair (ADR-087).
 - Codex reports no tool error flag, denial, cache lifetime or web tool usage, so those Codex fields are 0.
 - Pending pairing requests live in one web process's memory. A server restart expires them.
+
+## CHANGELOG
+
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---|---|---|---|---|---|
+| 1.1.0b | 2026-09-18 | beta | Add explicit caller-owned task-code handoff and no branch inference | pending | RWANG |

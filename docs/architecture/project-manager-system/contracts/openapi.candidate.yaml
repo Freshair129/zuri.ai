@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
   title: Zuri Project Manager full-system additions — CANDIDATE
-  version: 0.2.0b
-  description: Proposed design contract. NOT_IMPLEMENTED. Synthetic server and examples. Existing routes remain in runtime-generated /api/docs. Approval and canonical registration required before code.
+  version: 0.5.0b
+  description: Full-system candidate. Phase A FR-251 is delivered in PR443 at c07cfaba. Phase B Feature paths and schemas reference the single document-24 candidate contract; B1 approval and B2 registration are pending. Other planned surfaces remain candidates. Synthetic server only; live routes are published by runtime /api/docs.
 servers:
   - url: https://pm-design.invalid
     description: Reserved non-routable documentation target; no live service.
@@ -36,20 +36,28 @@ paths:
         schema:
           type: string
           format: uuid
+        description: Authorized Project UUID. The URL value is not an authorization grant.
     get:
       operationId: getProjectDomainView
       tags:
         - Domain view
       summary: getProjectDomainView
-      description: CANDIDATE addition; validates current scope and the approved contract before any effect.
+      description: FR-251 Phase A implemented and verified locally from document 23's read-only DTO and refusal contract. Hosted CI and release are separate gates in PR443; no production deployment is claimed.
+      security:
+        - SessionAuth: []
       x-proposal-requirements:
         - PMR-002
         - PMR-012
         - PMR-016
       x-owner-domain: project-manager
       x-effect-class: READ_ONLY
-      x-approval: CURRENT_SCOPED_CAPABILITY
-      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
+      x-approval: OWNER_A1_APPROVED_2026_09_16
+      x-registration-status: FR_251_REGISTERED_GOVERNANCE_PASS
+      x-evidence-level: IMPLEMENTED_LOCAL_VERIFIED
+      x-authorization-contract:
+        unauthenticated: "401 AUTH_REQUIRED"
+        target-refusal: "404 RESOURCE_NOT_FOUND for unknown, deleted, foreign-scope or invalid-hierarchy targets"
+        redaction: "The same refusal is used for missing and foreign targets; no target data is returned."
       responses:
         "200":
           description: Successful authorized result.
@@ -57,288 +65,16 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DomainView"
-        "400":
-          $ref: "#/components/responses/StandardError"
         "401":
-          $ref: "#/components/responses/StandardError"
-        "403":
-          $ref: "#/components/responses/StandardError"
+          $ref: "#/components/responses/DomainViewUnauthorized"
         "404":
-          $ref: "#/components/responses/StandardError"
-        "409":
-          $ref: "#/components/responses/StandardError"
-        "410":
-          $ref: "#/components/responses/StandardError"
-        "412":
-          $ref: "#/components/responses/StandardError"
-        "413":
-          $ref: "#/components/responses/StandardError"
-        "422":
-          $ref: "#/components/responses/StandardError"
-        "429":
-          $ref: "#/components/responses/StandardError"
-        "503":
-          $ref: "#/components/responses/StandardError"
+          $ref: "#/components/responses/DomainViewNotFound"
   /api/projects/{projectId}/feature-view:
-    parameters:
-      - name: projectId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-    get:
-      operationId: getProjectFeatureView
-      tags:
-        - Feature view
-      summary: getProjectFeatureView
-      description: CANDIDATE addition; validates current scope and the approved contract before any effect.
-      x-proposal-requirements:
-        - PMR-003
-        - PMR-016
-        - PMR-027
-      x-owner-domain: project-manager
-      x-effect-class: READ_ONLY
-      x-approval: CURRENT_SCOPED_CAPABILITY
-      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
-      responses:
-        "200":
-          description: Successful authorized result.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FeatureView"
-        "400":
-          $ref: "#/components/responses/StandardError"
-        "401":
-          $ref: "#/components/responses/StandardError"
-        "403":
-          $ref: "#/components/responses/StandardError"
-        "404":
-          $ref: "#/components/responses/StandardError"
-        "409":
-          $ref: "#/components/responses/StandardError"
-        "410":
-          $ref: "#/components/responses/StandardError"
-        "412":
-          $ref: "#/components/responses/StandardError"
-        "413":
-          $ref: "#/components/responses/StandardError"
-        "422":
-          $ref: "#/components/responses/StandardError"
-        "429":
-          $ref: "#/components/responses/StandardError"
-        "503":
-          $ref: "#/components/responses/StandardError"
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1projects~1{projectId}~1feature-view"
   /api/projects/{projectId}/features:
-    parameters:
-      - name: projectId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-    get:
-      operationId: listProjectFeatures
-      tags:
-        - Feature view
-      summary: listProjectFeatures
-      description: CANDIDATE addition; validates current scope and the approved contract before any effect.
-      x-proposal-requirements:
-        - PMR-003
-      x-owner-domain: project-manager
-      x-effect-class: READ_ONLY
-      x-approval: CURRENT_SCOPED_CAPABILITY
-      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
-      responses:
-        "200":
-          description: Successful authorized result.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FeatureRecordPage"
-        "400":
-          $ref: "#/components/responses/StandardError"
-        "401":
-          $ref: "#/components/responses/StandardError"
-        "403":
-          $ref: "#/components/responses/StandardError"
-        "404":
-          $ref: "#/components/responses/StandardError"
-        "409":
-          $ref: "#/components/responses/StandardError"
-        "410":
-          $ref: "#/components/responses/StandardError"
-        "412":
-          $ref: "#/components/responses/StandardError"
-        "413":
-          $ref: "#/components/responses/StandardError"
-        "422":
-          $ref: "#/components/responses/StandardError"
-        "429":
-          $ref: "#/components/responses/StandardError"
-        "503":
-          $ref: "#/components/responses/StandardError"
-      parameters:
-        - $ref: "#/components/parameters/Limit"
-        - $ref: "#/components/parameters/Cursor"
-    post:
-      operationId: createProjectFeature
-      tags:
-        - Feature view
-      summary: createProjectFeature
-      description: CANDIDATE addition; validates current scope and the approved contract before any effect.
-      x-proposal-requirements:
-        - PMR-003
-      x-owner-domain: project-manager
-      x-effect-class: WRITE
-      x-approval: CURRENT_SCOPED_CAPABILITY
-      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
-      responses:
-        "201":
-          description: Successful authorized result.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MutationReceipt"
-        "400":
-          $ref: "#/components/responses/StandardError"
-        "401":
-          $ref: "#/components/responses/StandardError"
-        "403":
-          $ref: "#/components/responses/StandardError"
-        "404":
-          $ref: "#/components/responses/StandardError"
-        "409":
-          $ref: "#/components/responses/StandardError"
-        "410":
-          $ref: "#/components/responses/StandardError"
-        "412":
-          $ref: "#/components/responses/StandardError"
-        "413":
-          $ref: "#/components/responses/StandardError"
-        "422":
-          $ref: "#/components/responses/StandardError"
-        "429":
-          $ref: "#/components/responses/StandardError"
-        "503":
-          $ref: "#/components/responses/StandardError"
-      parameters:
-        - $ref: "#/components/parameters/Idempotency"
-        - $ref: "#/components/parameters/Csrf"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FeatureInput"
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1projects~1{projectId}~1features"
   /api/projects/{projectId}/features/{featureId}:
-    parameters:
-      - name: projectId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-      - name: featureId
-        in: path
-        required: true
-        schema:
-          type: string
-          format: uuid
-    get:
-      operationId: getProjectFeature
-      tags:
-        - Feature view
-      summary: getProjectFeature
-      description: CANDIDATE addition; validates current scope and the approved contract before any effect.
-      x-proposal-requirements:
-        - PMR-003
-      x-owner-domain: project-manager
-      x-effect-class: READ_ONLY
-      x-approval: CURRENT_SCOPED_CAPABILITY
-      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
-      responses:
-        "200":
-          description: Successful authorized result.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/FeatureRecord"
-        "400":
-          $ref: "#/components/responses/StandardError"
-        "401":
-          $ref: "#/components/responses/StandardError"
-        "403":
-          $ref: "#/components/responses/StandardError"
-        "404":
-          $ref: "#/components/responses/StandardError"
-        "409":
-          $ref: "#/components/responses/StandardError"
-        "410":
-          $ref: "#/components/responses/StandardError"
-        "412":
-          $ref: "#/components/responses/StandardError"
-        "413":
-          $ref: "#/components/responses/StandardError"
-        "422":
-          $ref: "#/components/responses/StandardError"
-        "429":
-          $ref: "#/components/responses/StandardError"
-        "503":
-          $ref: "#/components/responses/StandardError"
-    patch:
-      operationId: updateProjectFeature
-      tags:
-        - Feature view
-      summary: updateProjectFeature
-      description: Replace editable draft feature fields at expected version. Canonical FR/FEAT subjects are references only.
-      x-proposal-requirements:
-        - PMR-003
-        - PMR-023
-      x-owner-domain: project-manager
-      x-effect-class: WRITE
-      x-approval: CURRENT_SCOPED_CAPABILITY
-      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
-      responses:
-        "200":
-          description: Successful authorized result.
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/MutationReceipt"
-        "400":
-          $ref: "#/components/responses/StandardError"
-        "401":
-          $ref: "#/components/responses/StandardError"
-        "403":
-          $ref: "#/components/responses/StandardError"
-        "404":
-          $ref: "#/components/responses/StandardError"
-        "409":
-          $ref: "#/components/responses/StandardError"
-        "410":
-          $ref: "#/components/responses/StandardError"
-        "412":
-          $ref: "#/components/responses/StandardError"
-        "413":
-          $ref: "#/components/responses/StandardError"
-        "422":
-          $ref: "#/components/responses/StandardError"
-        "429":
-          $ref: "#/components/responses/StandardError"
-        "503":
-          $ref: "#/components/responses/StandardError"
-      parameters:
-        - $ref: "#/components/parameters/Idempotency"
-        - $ref: "#/components/parameters/Csrf"
-        - $ref: "#/components/parameters/IfMatch"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/FeatureInput"
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1projects~1{projectId}~1features~1{featureId}"
   /api/projects/{projectId}/design-snapshots:
     parameters:
       - name: projectId
@@ -3939,6 +3675,20 @@ paths:
           application/json:
             schema:
               $ref: "#/components/schemas/SearchInput"
+  /api/auth/csrf:
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1auth~1csrf"
+  /api/projects/{projectId}/features/{featureId}/contributions:
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1projects~1{projectId}~1features~1{featureId}~1contributions"
+  /api/projects/{projectId}/features/{featureId}/work-links:
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1projects~1{projectId}~1features~1{featureId}~1work-links"
+  /api/projects/{projectId}/feature-work-links:
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1projects~1{projectId}~1feature-work-links"
+  /api/projects/{projectId}/features/{featureId}/requirement-bindings:
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1projects~1{projectId}~1features~1{featureId}~1requirement-bindings"
+  /api/projects/{projectId}/governance-snapshots:
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1projects~1{projectId}~1governance-snapshots"
+  /api/projects/{projectId}/features/{featureId}/restore:
+    $ref: "phase-b/openapi.candidate.json#/paths/~1api~1projects~1{projectId}~1features~1{featureId}~1restore"
 components:
   securitySchemes:
     SessionAuth:
@@ -4113,128 +3863,24 @@ components:
         artifact:
           $ref: "#/components/schemas/ArtifactRef"
     FeatureInput:
-      type: object
-      additionalProperties: false
-      required:
-        - code
-        - title
-        - problem
-        - outcome
-        - primaryDomainId
-        - contributingDomainIds
-        - requirementRefs
-      properties:
-        code:
-          type: string
-          minLength: 1
-          maxLength: 64
-        title:
-          type: string
-          minLength: 1
-          maxLength: 160
-        problem:
-          type: string
-          minLength: 1
-          maxLength: 2000
-        outcome:
-          type: string
-          minLength: 1
-          maxLength: 2000
-        primaryDomainId:
-          type: string
-          minLength: 1
-          maxLength: 128
-        contributingDomainIds:
-          type: array
-          items:
-            type: string
-            minLength: 1
-            maxLength: 128
-          maxItems: 50
-        canonicalFeatureRef:
-          type: string
-          minLength: 1
-          maxLength: 512
-        requirementRefs:
-          type: array
-          items:
-            type: string
-            minLength: 1
-            maxLength: 512
-          maxItems: 500
+      $ref: "phase-b/openapi.candidate.json#/components/schemas/FeatureCreateInput"
     FeatureRecord:
-      type: object
-      additionalProperties: false
-      required:
-        - code
-        - title
-        - problem
-        - outcome
-        - primaryDomainId
-        - contributingDomainIds
-        - requirementRefs
-        - id
-        - version
-        - evidence
-      properties:
-        code:
-          type: string
-          minLength: 1
-          maxLength: 64
-        title:
-          type: string
-          minLength: 1
-          maxLength: 160
-        problem:
-          type: string
-          minLength: 1
-          maxLength: 2000
-        outcome:
-          type: string
-          minLength: 1
-          maxLength: 2000
-        primaryDomainId:
-          type: string
-          minLength: 1
-          maxLength: 128
-        contributingDomainIds:
-          type: array
-          items:
-            type: string
-            minLength: 1
-            maxLength: 128
-          maxItems: 50
-        canonicalFeatureRef:
-          type: string
-          minLength: 1
-          maxLength: 512
-        requirementRefs:
-          type: array
-          items:
-            type: string
-            minLength: 1
-            maxLength: 512
-          maxItems: 500
-        id:
-          type: string
-          format: uuid
-        version:
-          type: integer
-          minimum: 1
-        evidence:
-          type: array
-          items:
-            $ref: "#/components/schemas/Evidence"
-          maxItems: 100
+      $ref: "phase-b/openapi.candidate.json#/components/schemas/FeatureRecord"
     DomainRow:
       type: object
       additionalProperties: false
       required:
         - domainId
         - label
-        - uniqueWorkCount
+        - mappingState
+        - ownership
+        - work
         - featureIds
+        - featureState
+        - blockerState
         - blockerCount
+        - contractState
+        - gapState
         - evidence
       properties:
         domainId:
@@ -4245,73 +3891,135 @@ components:
           type: string
           minLength: 1
           maxLength: 160
-        uniqueWorkCount:
-          type: integer
-          minimum: 0
+        mappingState:
+          type: string
+          enum:
+            - MAPPED
+            - UNMAPPED
+          description: MAPPED when the immutable DOM-* binding is in the approved catalog; otherwise retain the binding as UNMAPPED.
+        ownership:
+          type: object
+          additionalProperties: false
+          required:
+            - primaryWorkstreamCount
+            - supportingWorkstreamCount
+            - technicalOwnerIds
+          properties:
+            primaryWorkstreamCount:
+              type: integer
+              minimum: 0
+            supportingWorkstreamCount:
+              type: integer
+              minimum: 0
+            technicalOwnerIds:
+              type: array
+              items:
+                type: string
+                minLength: 1
+                maxLength: 128
+              description: Technical-owner TD-* identities remain separate from DOM-* product-domain row keys.
+        work:
+          type: object
+          additionalProperties: false
+          required:
+            - uniqueWorkCount
+            - workstreamCount
+          properties:
+            uniqueWorkCount:
+              type: integer
+              minimum: 0
+            workstreamCount:
+              type: integer
+              minimum: 0
         featureIds:
           type: array
           items:
             type: string
             format: uuid
-          maxItems: 200
+          maxItems: 0
+          description: Phase A has no ProjectFeature authority and therefore always returns an empty array; a later Feature contract requires a revised schema.
+        featureState:
+          type: string
+          enum:
+            - NOT_BOUND
+          description: No project-local Feature authority is read in Phase A.
+        blockerState:
+          type: string
+          enum:
+            - UNAVAILABLE
+          description: No blocker source is owned by this Phase A projection.
         blockerCount:
           type: integer
           minimum: 0
+          nullable: true
+          enum:
+            - null
+          description: Null means no blocker source is available; zero means a known zero and is not emitted by the Phase A contract.
+        contractState:
+          type: string
+          enum:
+            - UNAVAILABLE
+          description: No contract snapshot source is owned by this Phase A projection.
+        gapState:
+          type: string
+          enum:
+            - UNAVAILABLE
+          description: No gap source is owned by this Phase A projection.
         evidence:
           type: array
           items:
             $ref: "#/components/schemas/Evidence"
-          maxItems: 100
+          maxItems: 0
     DomainView:
       type: object
       additionalProperties: false
       required:
+        - schemaVersion
         - projectId
         - snapshotId
+        - snapshotState
         - observedAt
+        - totalUniqueWorkCount
+        - unboundWorkstreamCount
         - domains
       properties:
+        schemaVersion:
+          type: string
+          enum:
+            - "1.0"
+          description: Phase A Domain-view DTO version.
         projectId:
           type: string
           format: uuid
         snapshotId:
           type: string
           format: uuid
+          nullable: true
+          enum:
+            - null
+          description: Null because Phase A has no GovernanceSnapshot authority.
+        snapshotState:
+          type: string
+          enum:
+            - UNAVAILABLE
+          description: No snapshot authority is read in Phase A.
         observedAt:
           type: string
           format: date-time
+        totalUniqueWorkCount:
+          type: integer
+          minimum: 0
+          description: Count of each active WorkItem once across the Project, including unbound Workstreams.
+        unboundWorkstreamCount:
+          type: integer
+          minimum: 0
+          description: Active Workstreams without a primary domain binding.
         domains:
           type: array
           items:
             $ref: "#/components/schemas/DomainRow"
-          maxItems: 100
     FeatureView:
-      type: object
-      additionalProperties: false
-      required:
-        - projectId
-        - snapshotId
-        - observedAt
-        - uniqueWorkCount
-        - features
-      properties:
-        projectId:
-          type: string
-          format: uuid
-        snapshotId:
-          type: string
-          format: uuid
-        observedAt:
-          type: string
-          format: date-time
-        uniqueWorkCount:
-          type: integer
-          minimum: 0
-        features:
-          type: array
-          items:
-            $ref: "#/components/schemas/FeatureRecord"
-          maxItems: 200
+      $ref: "phase-b/openapi.candidate.json#/components/schemas/FeatureView"
     SnapshotInput:
       type: object
       additionalProperties: false
@@ -7021,24 +6729,7 @@ components:
           type: string
           format: date-time
     FeatureRecordPage:
-      type: object
-      additionalProperties: false
-      required:
-        - items
-        - nextCursor
-        - observedAt
-      properties:
-        items:
-          type: array
-          items:
-            $ref: "#/components/schemas/FeatureRecord"
-          maxItems: 200
-        nextCursor:
-          type: string
-          nullable: true
-        observedAt:
-          type: string
-          format: date-time
+      $ref: "phase-b/openapi.candidate.json#/components/schemas/FeatureRecordPage"
     SnapshotRecordPage:
       type: object
       additionalProperties: false
@@ -7660,6 +7351,40 @@ components:
         maxLength: 512
       description: Candidate X-CSRF-Token transport name only. Generic Identity API CSRF issuance, verification, same-origin check and client delivery remain NEEDS_OWNER_BINDING. Do not reuse the plugin-consent token audience or add a duplicate cookie reader.
   responses:
+    DomainViewUnauthorized:
+      description: No valid live session. The redacted body contains no Project, Business or domain identifiers.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/PMXRequestID"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            unauthenticated:
+              summary: No valid live session
+              value:
+                code: AUTH_REQUIRED
+                message: Authentication is required.
+                requestId: a0000000-0000-4000-8000-000000000002
+                retryable: false
+    DomainViewNotFound:
+      description: The Project is unknown, deleted, foreign-scope or hierarchy-invalid. The same redacted response prevents target enumeration.
+      headers:
+        X-Request-ID:
+          $ref: "#/components/headers/PMXRequestID"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+          examples:
+            project-refused:
+              summary: Unknown or unauthorized Project
+              value:
+                code: RESOURCE_NOT_FOUND
+                message: Resource not found.
+                requestId: a0000000-0000-4000-8000-000000000003
+                retryable: false
     StandardError:
       description: Redacted error with scope, policy, version and retry semantics.
       content:
@@ -7697,4 +7422,6 @@ components:
         minLength: 1
         maxLength: 128
 x-design-status: CANDIDATE
+x-contract-status: "DOMAIN_VIEW_FR_251_DEPLOYED_C07CFABA; FEATURE_PHASE_B_SELECTED_CANDIDATE; B1_APPROVAL_B2_REGISTRATION_PENDING"
+x-last-update: "2026-09-17T02:07:00+07:00,RWANG"
 x-baseline-commit: 087f30258a6831865afd751e28804e36505aff30

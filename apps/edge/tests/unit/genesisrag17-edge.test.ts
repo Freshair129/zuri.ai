@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { test } from 'node:test';
 import fs from 'node:fs';
 import os from 'node:os';
@@ -17,6 +18,9 @@ import {
 import { createRecordStore, readRecords, summarizeRecords, type GenesisRag17Record, type RecordStore } from '../../src/rag/genesisrag17/record-store.js';
 import { createMspStdioTransport, mspChildEnvironment, MSP_RUNTIME_ENV_NAMES, MSP_OS_ENV_NAMES, MspTransportError, type MspToolCall } from '../../src/rag/genesisrag17/msp-stdio.js';
 import { fileURLToPath } from 'node:url';
+import { setTimeout as delay } from 'node:timers/promises';
+import { ConversationError } from '../../src/conversation/contract.js';
+import { runConversationOnce } from '../../src/conversation/worker.js';
 
 // @req FR-189 — off unchanged, shadow never changes the answer, primary reads the published
 //   generation and falls back to v4 only before the configured sunset, report aggregation.
@@ -68,7 +72,7 @@ function fakeV4(codes: string[] = ['TMS06-4']) {
 const hit = (code: string, index = 0) => ({
   id: `hit-${index}`, snapshotId: 'snap-1', generation: '7', score: 0.8 - index / 10,
   text: JSON.stringify({ entityType: 'PRODUCT', externalId: code, name: 'ไม่ควรถูกบันทึก' }),
-  citation: { sourceId: `source-${code}`, rawArtifactId: 'raw-1', parsedArtifactId: 'parsed-1', chunkId: `chunk-${index}`, contentHash: 'a'.repeat(64) },
+  citation: { sourceId: `source-${code}`, rawArtifactId: 'raw-1', parsedArtifactId: 'parsed-1', chunkId: `chunk-${index}`, contentHash: createHash('sha256').update(JSON.stringify({ entityType: 'PRODUCT', externalId: code, name: 'ไม่ควรถูกบันทึก' })).digest('hex') },
 });
 const envelope = (codes: string[]) => ({ schemaVersion: 'genesisrag17.v1', scope, snapshotId: 'snap-1', generation: '7', results: codes.map(hit) });
 
@@ -285,6 +289,83 @@ test('the published response is checked at the edge boundary: one generation, fu
   assert.throws(() => parsePublishedQueryResult(bad[3], scope, 5), /INVALID_RESPONSE/);
 });
 
+test('one answer turn pins a generation even when tools overlap and a new generation publishes', async () => {
+  const requests: Record<string, unknown>[] = [];
+  let current = 'snap-1';
+  const call: MspToolCall = async (_name, input) => {
+    requests.push(input);
+    const selected = input.snapshotId ?? current;
+    current = 'snap-2';
+    await Promise.resolve();
+    return { ...envelope([]), snapshotId: selected, generation: selected === 'snap-1' ? '7' : '8' };
+  };
+  const runtime = createGenesisRag17Runtime(env('primary', { ZURI_EDGE_GENESISRAG17_FALLBACK_UNTIL: '2027-03-31' }), { call, store: memoryStore().store });
+  const rag = wrapAnswerRag(fakeV4().rag, runtime);
+  const results = await Promise.all([rag.searchProducts('แก้ว'), rag.searchProducts('ขวด')]);
+  assert.deepEqual(results.map((r) => r.published?.snapshotId), ['snap-1', 'snap-1']);
+  assert.deepEqual(requests.map((r) => r.snapshotId), [undefined, 'snap-1']);
+  const nextTurn = await wrapAnswerRag(fakeV4().rag, runtime).searchProducts('ใหม่');
+  assert.equal(nextTurn.published?.snapshotId, 'snap-2');
+});
+
+test('published evidence prevents later v4 price, budget or transport fallback in the same turn', async () => {
+  const v4 = fakeV4();
+  let calls = 0;
+  const runtime = createGenesisRag17Runtime(env('primary', { ZURI_EDGE_GENESISRAG17_FALLBACK_UNTIL: '2027-03-31' }), {
+    call: fakeMsp(() => { if (calls++ > 0) throw new MspTransportError('offline'); return envelope(['A-1']); }).call,
+    store: memoryStore().store, now: at('2026-12-01T00:00:00Z'),
+  });
+  const rag = wrapAnswerRag(v4.rag, runtime);
+  assert.equal((await rag.searchProducts('แก้ว')).unavailable, undefined);
+  assert.equal((await rag.priceForCode('A-1', 100)).unavailable, true);
+  assert.equal((await rag.searchWithConstraints({ query: '', qty: 100, budgetPerUnit: 100 })).unavailable, true);
+  assert.equal((await rag.searchProducts('ขวด')).unavailable, true);
+  assert.deepEqual(v4.calls, []);
+});
+
+test('v4 fallback binds a turn to v4 and does not mix in published knowledge later', async () => {
+  const v4 = fakeV4();
+  const msp = fakeMsp(() => envelope(['A-1']));
+  const runtime = createGenesisRag17Runtime(env('primary', { ZURI_EDGE_GENESISRAG17_FALLBACK_UNTIL: '2027-03-31' }), {
+    call: msp.call, store: memoryStore().store, now: at('2026-12-01T00:00:00Z'),
+  });
+  const rag = wrapAnswerRag(v4.rag, runtime);
+  await rag.priceForCode('A-1', 100);
+  assert.equal((await rag.searchProducts('แก้ว')).published, undefined);
+  assert.deepEqual(v4.calls, ['price', 'search']);
+  assert.equal(msp.calls.length, 0);
+});
+
+test('integrity and authorization failures do not authorize legacy retrieval', async () => {
+  for (const respond of [
+    () => ({ ...envelope([]), scope: { ...scope, tenantId: 'other' } }),
+    () => ({ ...envelope(['A-1']), results: [{ ...hit('A-1'), text: 'tampered' }] }),
+    () => { throw new MspTransportError('vault_scope_denied', 'MSP_TOOL_ERROR'); },
+  ]) {
+    const v4 = fakeV4();
+    const runtime = createGenesisRag17Runtime(env('primary', { ZURI_EDGE_GENESISRAG17_FALLBACK_UNTIL: '2027-03-31' }), {
+      call: fakeMsp(respond).call, store: memoryStore().store, now: at('2026-12-01T00:00:00Z'),
+    });
+    assert.equal((await wrapAnswerRag(v4.rag, runtime).searchProducts('แก้ว')).unavailable, true);
+    assert.deepEqual(v4.calls, []);
+  }
+});
+
+test('a pinned snapshot cannot silently change snapshot or generation and diagnostic failure cannot choose v4', async () => {
+  for (const changed of [{ snapshotId: 'snap-2', generation: '7' }, { snapshotId: 'snap-1', generation: '8' }]) {
+    let calls = 0;
+    const v4 = fakeV4();
+    const runtime = createGenesisRag17Runtime(env('primary', { ZURI_EDGE_GENESISRAG17_FALLBACK_UNTIL: '2027-03-31' }), {
+      call: fakeMsp(() => calls++ ? { ...envelope([]), ...changed } : envelope(['A-1'])).call,
+      store: { append() { throw new Error('disk full'); } }, now: at('2026-12-01T00:00:00Z'),
+    });
+    const rag = wrapAnswerRag(v4.rag, runtime);
+    assert.equal((await rag.searchProducts('แก้ว')).published?.generation, '7');
+    assert.equal((await rag.searchProducts('ขวด')).reason, 'genesisrag17_unavailable:GENESISRAG17_INVALID_RESPONSE');
+    assert.deepEqual(v4.calls, []);
+  }
+});
+
 test('the report aggregates comparisons, mismatches, errors and fallbacks by Bangkok day', () => {
   const root = tmp();
   const store = createRecordStore({ root, retentionDays: 400, maxRecordsPerDay: 100 });
@@ -328,6 +409,7 @@ test('the record store is bounded per day and prunes past its retention', () => 
 
 const FAKE_MSP = `
 import readline from 'node:readline';
+import { createHash } from 'node:crypto';
 const send = (message) => process.stdout.write(JSON.stringify(message) + '\\n');
 readline.createInterface({ input: process.stdin }).on('line', (line) => {
   const message = JSON.parse(line);
@@ -338,7 +420,7 @@ readline.createInterface({ input: process.stdin }).on('line', (line) => {
   if (name === 'msp_pipeline_query') return send({ jsonrpc: '2.0', id: message.id, result: { structuredContent: {
     schemaVersion: 'genesisrag17.v1', scope: args.scope, snapshotId: 'snap-9', generation: 3,
     results: [{ id: 'h1', snapshotId: 'snap-9', generation: 3, score: 0.5, text: '{"externalId":"TMS06-4"}',
-      citation: { sourceId: 's1', rawArtifactId: 'r1', parsedArtifactId: 'p1', chunkId: 'c1', contentHash: 'b'.repeat(64) } }],
+      citation: { sourceId: 's1', rawArtifactId: 'r1', parsedArtifactId: 'p1', chunkId: 'c1', contentHash: createHash('sha256').update('{"externalId":"TMS06-4"}').digest('hex') } }],
   } } });
   send({ jsonrpc: '2.0', id: message.id, result: { structuredContent: {
     echo: name, query: args.query,
@@ -347,6 +429,100 @@ readline.createInterface({ input: process.stdin }).on('line', (line) => {
   } } });
 });
 `;
+
+const CANCELLABLE_MSP = `
+import fs from 'node:fs';
+import readline from 'node:readline';
+const marker = process.argv[2], stallStage = process.argv[3];
+const send = (id, result) => process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id, result }) + '\\n');
+readline.createInterface({ input: process.stdin }).on('line', line => {
+ const m = JSON.parse(line);
+ if (m.id === undefined) return;
+ if (m.method === 'initialize') {
+  if (stallStage === 'initialize') { fs.writeFileSync(marker, String(process.pid)); return; }
+  return send(m.id, { protocolVersion: '2024-11-05', capabilities: {} });
+ }
+ const args = m.params.arguments;
+ fs.appendFileSync(marker + '.calls', args.query + '\\n');
+ if (args.query === 'slow') { fs.writeFileSync(marker, String(process.pid)); return; }
+ send(m.id, { structuredContent: { schemaVersion: 'genesisrag17.v1', scope: args.scope, snapshotId: 'snap-next', generation: '1', results: [] } });
+});
+`;
+
+async function waitUntil(predicate: () => boolean) {
+ const until = Date.now() + 10000;
+ while (!predicate()) {
+  assert.ok(Date.now() < until, 'fixture state did not arrive within 10 seconds');
+  await delay(20);
+ }
+}
+function processAlive(pid: number) {
+ try { process.kill(pid, 0); return true; } catch (error: any) {
+  if (error.code === 'ESRCH') return false;
+  throw error;
+ }
+}
+
+test('per-turn abort terminates an MSP child during initialize or tools/call; pre-abort never spawns', async () => {
+ const root = tmp(), script = path.join(root, 'cancellable.mjs');
+ fs.writeFileSync(script, CANCELLABLE_MSP);
+ for (const stage of ['initialize', 'tools/call']) {
+  const marker = path.join(root, stage.replace('/', '-') + '.pid');
+  const call = createMspStdioTransport({ command: process.execPath, args: [script, marker, stage], timeoutMs: 15000 });
+  const turn = new AbortController();
+  const pending = assert.rejects(call('msp_pipeline_query', { query: 'slow', scope }, turn.signal),
+   error => error instanceof MspTransportError && error.code === 'MSP_REQUEST_ABORTED');
+  try {
+   await waitUntil(() => fs.existsSync(marker));
+   const pid = Number(fs.readFileSync(marker, 'utf8')); assert.ok(processAlive(pid));
+   turn.abort(new ConversationError('REPLY_DEADLINE_MISSED'));
+   await pending;
+   await waitUntil(() => !processAlive(pid));
+  } finally { turn.abort(); await pending; }
+ }
+ const stopped = new AbortController(); stopped.abort();
+ const cannotSpawn = createMspStdioTransport({ command: path.join(root, 'missing.exe'), args: [], timeoutMs: 15000 });
+ await assert.rejects(cannotSpawn('msp_pipeline_query', {}, stopped.signal),
+  error => error instanceof MspTransportError && error.code === 'MSP_REQUEST_ABORTED');
+});
+
+test('expired published turn stops its child and queued reads; next worker claim uses a clean signal', async () => {
+ const root = tmp(), script = path.join(root, 'cancellable.mjs'), marker = path.join(root, 'worker.pid');
+ fs.writeFileSync(script, CANCELLABLE_MSP);
+ const runtime = createGenesisRag17Runtime(env('primary', { ZURI_MSP_ARGS: JSON.stringify([script, marker, 'tools/call']),
+  ZURI_EDGE_GENESISRAG17_FALLBACK_UNTIL: '2027-03-31' }), { store: memoryStore().store });
+ const turn = new AbortController(), nextTurn = new AbortController(), v4 = fakeV4();
+ const jobs = [{ ...job(), question: 'slow' }, { ...job(), question: 'fast' }];
+ const failed: string[] = [], completed: string[] = [];
+ const deps = {
+  client: { claim: async () => jobs.shift() ?? null, complete: async (_job: ConversationJob, text: string) => { completed.push(text); },
+   fail: async (_job: ConversationJob, code: string) => { failed.push(code); } },
+  answer: async (claimed: ConversationJob) => {
+   const rag = wrapAnswerRag(v4.rag, runtime, undefined, claimed.question === 'slow' ? turn.signal : nextTurn.signal);
+   const first = rag.searchProducts(claimed.question);
+   if (claimed.question === 'slow') {
+    const queued = rag.searchProducts('never-start-this-read');
+    const failedReads = Promise.allSettled([first, queued]);
+    await waitUntil(() => fs.existsSync(marker));
+    turn.abort(new ConversationError('REPLY_DEADLINE_MISSED'));
+    const outcomes = await failedReads;
+    assert.ok(outcomes.every(outcome => outcome.status === 'rejected'));
+   }
+   const result = await first;
+   assert.equal(result.published?.snapshotId, 'snap-next');
+   return { text: 'next claim completed', source: 'model' as const };
+  },
+ };
+ try {
+  assert.equal((await runConversationOnce(deps)).outcome, 'deadline_missed');
+  const pid = Number(fs.readFileSync(marker, 'utf8'));
+  await waitUntil(() => !processAlive(pid));
+  assert.equal((await runConversationOnce(deps)).outcome, 'completed');
+  assert.deepEqual(failed, ['REPLY_DEADLINE_MISSED']); assert.deepEqual(completed, ['next claim completed']);
+  assert.deepEqual(v4.calls, [], 'aborted primary reads must not fall back to v4');
+  assert.deepEqual(fs.readFileSync(marker + '.calls', 'utf8').trim().split('\n'), ['slow', 'fast']);
+ } finally { turn.abort(); nextTurn.abort(); }
+});
 
 test('the MSP stdio transport speaks initialize then tools/call, and keeps edge secrets from the child', async () => {
   const script = path.join(tmp(), 'fake-msp.mjs');
@@ -408,6 +584,9 @@ const EDGE_SECRETS = {
   NODE_OPTIONS: '--require ./evil.js',
   ZURI_MSP_COMMAND: 'node',
   ZURI_MSP_TIMEOUT_MS: '15000',
+  MSP_THREAD_SERVICE_KEY: 'thread-service-secret',
+  MSP_THREAD_SERVICE_KEYRING: 'thread-keyring-secret',
+  MSP_IDENTITY_HMAC_KEY: 'identity-hmac-secret',
 };
 
 test('the MSP child environment is an allowlist: every edge secret is withheld, including one nobody named', () => {
@@ -422,7 +601,7 @@ test('allowlisted names are matched without case and copied as the caller spelle
   assert.deepEqual(child, { Path: '/usr/bin', SystemRoot: 'C:/Windows', windir: 'C:/Windows', msp_db_path: '/msp.sqlite' });
 });
 
-test('the edge allowlist matches zuri-ai server transport name for name', () => {
+test('the edge pipeline allowlist matches Server except its explicit MemoryOS-only authority', () => {
   const serverTransport = fs.readFileSync(fileURLToPath(new URL('../../../server/src/modules/agent/msp-stdio-transport.js', import.meta.url)), 'utf8');
   const namesIn = (constant: string) => {
     const start = serverTransport.indexOf(`export const ${constant} = Object.freeze([`);
@@ -430,7 +609,12 @@ test('the edge allowlist matches zuri-ai server transport name for name', () => 
     const end = serverTransport.indexOf('])', start);
     return serverTransport.slice(start, end).match(/'([A-Z0-9_]+)'/g)?.map((quoted) => quoted.slice(1, -1)) ?? [];
   };
-  assert.deepEqual([...MSP_RUNTIME_ENV_NAMES].sort(), namesIn('MSP_RUNTIME_ENV_NAMES').sort());
+  // API-011 memory is authorized on Server and arrives as ephemeral CIN input.
+  // Edge's pipeline child must never acquire the keys that mint memory grants.
+  const serverMemoryOnly = new Set(['MSP_THREAD_SERVICE_KEY', 'MSP_THREAD_SERVICE_KEYRING',
+    'MSP_IDENTITY_HMAC_KEY', 'MSP_THREAD_IDLE_TIMEOUT_MINUTES', 'MSP_THREAD_RETENTION_DAYS', 'MSP_THREAD_RECENT_EXCHANGES']);
+  assert.deepEqual([...MSP_RUNTIME_ENV_NAMES].sort(), namesIn('MSP_RUNTIME_ENV_NAMES').filter((name) => !serverMemoryOnly.has(name)).sort());
+  for (const name of serverMemoryOnly) assert.equal(MSP_RUNTIME_ENV_NAMES.includes(name), false);
   assert.deepEqual([...MSP_OS_ENV_NAMES].sort(), namesIn('MSP_OS_ENV_NAMES').sort());
 });
 

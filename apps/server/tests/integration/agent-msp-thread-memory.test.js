@@ -85,7 +85,7 @@ describe('Zuri API-010 thread memory adapter', () => {
 
   it('does not turn general ALLOW into write permission and rejects mismatched signed scope', async () => {
     const transport = transportFor()
-    const port = createMspThreadMemoryPort({ transport, serviceKey: 'synthetic-service-key-over-32-bytes' })
+    const port = createMspThreadMemoryPort({ transport, serviceKey: 'synthetic-service-key-over-32-bytes', workspaceId: 'test-workspace' })
     await port.resolveThread({ tenantId: 'tenant', businessId: THREAD.businessId, threadKind: 'DIRECT', audienceKind: 'DIRECT',
       channelType: 'LINE', channelAccountId: 'oa', externalRoomRef: 'dm' })
     const authorization = { authContext: { actor: { principalId: 'person' }, scope: { tenantId: 'tenant', businessId: THREAD.businessId },

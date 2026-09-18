@@ -24,11 +24,11 @@
 //
 // ARCHIVE DIRECTORY (ADR-093 D3)
 // -------------------------------
-// `ZURI_ARCHIVE_DIR` names the base directory. This task does not wire the
-// production mount (`F:\zuri-cold-archive`, TASK-ZAI-114's compose overlay) —
-// when the env var is unset, the default is a per-machine temp directory so
-// tests and every developer's checkout work with zero configuration. No
-// Windows-drive-letter path is hard-coded anywhere in this module.
+// Local/test calls may omit `ZURI_ARCHIVE_DIR` and use a per-machine temp
+// directory. Production is fail-closed: `ZURI_ARCHIVE_DIR=/archive` must be
+// selected, exist as a real directory and match the process mount-info boundary
+// before any key, file or tombstone operation. The app guard cannot prove the
+// host's separate physical disk; that remains a deployment gate.
 //
 // FILE FORMAT (SDD-103)
 // ----------------------
@@ -66,19 +66,94 @@ export class ChatEvidenceArchiveWriteError extends Error {
   }
 }
 
+export class ChatEvidenceArchiveStorageError extends Error {
+  constructor(code, cause) {
+    super(code)
+    this.name = 'ChatEvidenceArchiveStorageError'
+    this.code = code
+    if (cause) this.cause = cause
+  }
+}
+
+export class ChatEvidenceArchiveTransactionError extends Error {
+  constructor(code, cause) {
+    super(code)
+    this.name = 'ChatEvidenceArchiveTransactionError'
+    this.code = code
+    this.status = 503
+    this.retryable = true
+    if (cause) this.cause = cause
+  }
+}
+
+const PRODUCTION_ARCHIVE_ROOT = '/archive'
+
 const REPLY_AUDIT_ACTIONS = ['REPLY_DELIVERED', 'OUTBOUND_ACCEPTED', 'STAFF_REPLY_DELIVERED']
 
 /**
- * The archive's base directory. `ZURI_ARCHIVE_DIR` is the real switch —
- * TASK-ZAI-114 points it at the production mount. Unset, it defaults to a
- * per-machine temp directory: safe for tests and every developer checkout,
- * never a repository path (nothing here is meant to be committed) and never a
- * Windows drive letter baked into source.
+ * The archive's base directory. Local/test calls retain the per-machine temp
+ * fallback. Production is a different boundary: only the canonical container
+ * root named by ADR-093/SDD-103 is accepted here; existence and mount proof are
+ * checked asynchronously before any key, file or tombstone operation.
  */
 export function resolveArchiveBaseDir(env = process.env) {
-  const raw = env.ZURI_ARCHIVE_DIR
-  if (typeof raw === 'string' && raw.trim()) return raw.trim()
+  const raw = typeof env.ZURI_ARCHIVE_DIR === 'string' ? env.ZURI_ARCHIVE_DIR.trim() : ''
+  if (env.NODE_ENV === 'production') {
+    if (!raw) throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_REQUIRED')
+    if (!path.posix.isAbsolute(raw) || path.posix.normalize(raw) !== PRODUCTION_ARCHIVE_ROOT || raw !== path.posix.normalize(raw)) {
+      throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_ROOT_INVALID')
+    }
+    return PRODUCTION_ARCHIVE_ROOT
+  }
+  if (raw) return raw
   return path.join(os.tmpdir(), 'zuri-chat-evidence-archive')
+}
+
+function decodeMountInfoPath(value) {
+  return value.replace(/\\040/g, ' ').replace(/\\011/g, '\t').replace(/\\134/g, '\\')
+}
+
+function isPathInside(root, candidate) {
+  const relative = path.relative(root, candidate)
+  return relative === '' || (relative && relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative))
+}
+
+/**
+ * Prove the selected production root is usable before any archive key or file
+ * write. `/proc/self/mountinfo` is intentionally required in production: an
+ * env var naming `/archive` does not prove the compose overlay mounted there.
+ * The separate physical-disk property remains a deployment-level check.
+ */
+export async function assertArchiveStorageReady(baseDir, env = process.env) {
+  if (env.NODE_ENV !== 'production') return baseDir
+  const configured = resolveArchiveBaseDir(env)
+  const selected = path.posix.normalize(String(baseDir || ''))
+  if (selected !== configured || selected !== PRODUCTION_ARCHIVE_ROOT) {
+    throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_ROOT_INVALID')
+  }
+  let stat
+  let realPath
+  try {
+    stat = await fs.stat(selected)
+    realPath = await fs.realpath(selected)
+  } catch (error) {
+    throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_UNAVAILABLE', error)
+  }
+  if (!stat.isDirectory() || realPath !== selected) {
+    throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_NOT_CANONICAL')
+  }
+  let mountInfo
+  try {
+    mountInfo = await fs.readFile('/proc/self/mountinfo', 'utf8')
+  } catch (error) {
+    throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_MOUNT_UNVERIFIED', error)
+  }
+  const mounted = mountInfo.split(/\r?\n/).some((line) => {
+    const fields = line.split(' ')
+    return decodeMountInfoPath(fields[4] || '') === selected
+  })
+  if (!mounted) throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_MOUNT_UNVERIFIED')
+  return selected
 }
 
 function buildRunId(now) {
@@ -114,10 +189,62 @@ export function computeManifestHash({ tenantId, runId, filePath, fileSha256, mes
  * file it names has been altered after the fact, and that is exactly the case
  * this flag exists to catch.
  */
-export async function verifyManifestChain(db, tenantId, { baseDir, checkFiles = false } = {}) {
-  const manifests = await db.archiveManifest.findMany({ where: { tenantId }, orderBy: { createdAt: 'asc' } })
-  let expectedPreviousHash = null
+function orderPersistedManifestChain(manifests) {
+  if (manifests.length === 0) return { manifests, error: null }
+  if (!manifests.every((manifest) => manifest && Object.prototype.hasOwnProperty.call(manifest, 'previousManifestId'))) {
+    return { manifests: [], error: { reason: 'MANIFEST_CHAIN_LINK_MISSING', brokenAtManifestId: manifests.find((manifest) => !manifest || !Object.prototype.hasOwnProperty.call(manifest, 'previousManifestId'))?.id } }
+  }
+  const byId = new Map()
   for (const manifest of manifests) {
+    if (!manifest || typeof manifest.id !== 'string' || !manifest.id || byId.has(manifest.id)) return { manifests: [], error: { reason: 'MANIFEST_CHAIN_ID_INVALID', brokenAtManifestId: manifest?.id } }
+    byId.set(manifest.id, manifest)
+  }
+  const children = new Map()
+  const roots = []
+  for (const manifest of manifests) {
+    const previousId = manifest.previousManifestId ?? null
+    if (previousId === null) {
+      roots.push(manifest)
+      continue
+    }
+    const previous = byId.get(previousId)
+    if (!previous) return { manifests: [], error: { reason: 'PREVIOUS_MANIFEST_MISSING', brokenAtManifestId: manifest.id } }
+    if (manifest.previousManifestHash !== previous.manifestHash) {
+      return { manifests: [], error: { reason: 'PREVIOUS_HASH_MISMATCH', brokenAtManifestId: manifest.id } }
+    }
+    const successors = children.get(previousId) || []
+    successors.push(manifest)
+    children.set(previousId, successors)
+  }
+  if (roots.length !== 1) {
+    const detachedRoot = roots.find((manifest) => manifest.previousManifestHash !== null && manifest.previousManifestHash !== undefined)
+    return { manifests: [], error: { reason: 'MANIFEST_CHAIN_ROOT_INVALID', brokenAtManifestId: detachedRoot?.id || roots[0]?.id } }
+  }
+  for (const [previousId, successors] of children) {
+    if (successors.length > 1) return { manifests: [], error: { reason: 'MANIFEST_CHAIN_BRANCH', brokenAtManifestId: previousId } }
+  }
+  const ordered = []
+  const seen = new Set()
+  let current = roots[0]
+  while (current) {
+    if (seen.has(current.id)) return { manifests: [], error: { reason: 'MANIFEST_CHAIN_CYCLE', brokenAtManifestId: current.id } }
+    seen.add(current.id)
+    ordered.push(current)
+    current = (children.get(current.id) || [])[0] || null
+  }
+  if (ordered.length !== manifests.length) {
+    const disconnected = manifests.find((manifest) => !seen.has(manifest.id))
+    return { manifests: [], error: { reason: 'MANIFEST_CHAIN_CYCLE', brokenAtManifestId: disconnected?.id } }
+  }
+  return { manifests: ordered, error: null }
+}
+
+export async function verifyManifestChain(db, tenantId, { baseDir, checkFiles = false } = {}) {
+  const queried = await db.archiveManifest.findMany({ where: { tenantId }, orderBy: { createdAt: 'asc' } })
+  const ordered = orderPersistedManifestChain(queried)
+  if (ordered.error) return { valid: false, ...ordered.error }
+  let expectedPreviousHash = null
+  for (const manifest of ordered.manifests) {
     if ((manifest.previousManifestHash ?? null) !== expectedPreviousHash) {
       return { valid: false, brokenAtManifestId: manifest.id, reason: 'PREVIOUS_HASH_MISMATCH' }
     }
@@ -150,7 +277,9 @@ export async function verifyManifestChain(db, tenantId, { baseDir, checkFiles = 
  * seeing this would mean the row or the caller is wrong, not that the mismatch
  * should be papered over).
  */
-export async function getOrCreateCustomerArchiveKeyDek(db, { tenantId, customerId }, env = process.env) {
+export async function getOrCreateCustomerArchiveKeyDek(db, { tenantId, customerId }, env = process.env, { baseDir } = {}) {
+  const resolvedBaseDir = baseDir ?? resolveArchiveBaseDir(env)
+  await assertArchiveStorageReady(resolvedBaseDir, env)
   const existing = await db.customerArchiveKey.findUnique({ where: { customerId } })
   if (existing) {
     if (existing.tenantId !== tenantId) throw new ChatEvidenceArchiveCryptoError('ARCHIVE_KEY_SCOPE_MISMATCH')
@@ -236,7 +365,16 @@ function buildArchiveLine(message, { tenantId, replySource }) {
  */
 async function writeArchiveFile({ baseDir, tenantId, runId, now, header, segments }) {
   const dir = path.join(baseDir, tenantId, String(now.getUTCFullYear()))
+  if (!isPathInside(path.resolve(baseDir), path.resolve(dir))) throw new ChatEvidenceArchiveWriteError('ARCHIVE_PATH_ESCAPES_ROOT')
   await fs.mkdir(dir, { recursive: true })
+  try {
+    const rootRealPath = await fs.realpath(baseDir)
+    const directoryRealPath = await fs.realpath(dir)
+    if (!isPathInside(rootRealPath, directoryRealPath)) throw new ChatEvidenceArchiveWriteError('ARCHIVE_PATH_ESCAPES_ROOT')
+  } catch (error) {
+    if (error instanceof ChatEvidenceArchiveWriteError) throw error
+    throw new ChatEvidenceArchiveWriteError('ARCHIVE_PATH_UNAVAILABLE', error)
+  }
   const finalPath = path.join(dir, `${runId}.zca`)
   if (existsSync(finalPath)) throw new ChatEvidenceArchiveWriteError('ARCHIVE_FILE_ALREADY_EXISTS')
 
@@ -292,6 +430,7 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
     return { archived: false, manifest: null, redactedMessages: 0, redactedAttachments: 0 }
   }
   const resolvedBaseDir = baseDir ?? resolveArchiveBaseDir(env)
+  await assertArchiveStorageReady(resolvedBaseDir, env)
   const runId = runIdOverride ?? buildRunId(now)
   const conversationIds = [...new Set(candidates.map((message) => message.conversation.id))]
   const replySourceByMessageId = await resolveReplySources(db, conversationIds)
@@ -305,7 +444,7 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
 
   const segments = []
   for (const [customerId, messages] of byCustomer) {
-    const dek = await getOrCreateCustomerArchiveKeyDek(db, { tenantId, customerId }, env)
+    const dek = await getOrCreateCustomerArchiveKeyDek(db, { tenantId, customerId }, env, { baseDir: resolvedBaseDir })
     try {
       const lines = messages
         .map((message) => buildArchiveLine(message, { tenantId, replySource: replySourceByMessageId.get(message.id) }))
@@ -346,5 +485,180 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
       data: { fetchState: 'ERASED', providerContentId: null },
     })
     return { archived: true, manifest, redactedMessages: redacted.count, redactedAttachments: redactedAttachments.count, messageIds }
+  })
+}
+
+// @req SEC-034 — key destruction and the legal hold (ADR-093 D5, D6; TASK-ZAI-113).
+// -------------------------------------------------------------------------------
+// `destroyCustomerArchiveKey` is the ONLY function in this codebase that may delete
+// a `CustomerArchiveKey` row, and the legal-hold check lives INSIDE it rather than at
+// each call site. Both callers that can end a Customer's chat evidence archive key —
+// `erase-principal.js`'s PDPA erasure and `chat-evidence-archive-expiry-service.js`'s
+// 10-year expiry — go through this one function, so there is exactly one place that
+// answers "may this key be destroyed right now?" and no way to destroy a key by
+// re-deriving that answer slightly differently at a second call site. A sibling task
+// built the same week shipped with two independently-maintained "is this readable"
+// checks that drifted apart; this is the structural fix for that failure mode here.
+//
+// Hard delete, not tombstone-and-clear. The row's only reason to exist is to open
+// this Customer's archived lines: once it may never do that again, a cleared row
+// (kekId/wrappedDek nulled, a destroyedAt column) would carry no information a
+// `recordAudit` call at the call site doesn't already record more precisely (who,
+// when, why), while still naming a real Customer id next to a "this used to be a
+// live key" fact forever — a PII-adjacent shape with no reader. `MfaFactor` keeps its
+// REVOKED rows because a Person's factor history is itself useful (which factors did
+// they ever have, when), and a revoked factor can be re-enrolled; a destroyed archive
+// key has no re-enrolment and nothing analogous to show. Hard delete also matches
+// the design intent this table's own schema comment already states: "a future
+// PDPA-erasure writer destroys exactly one row... to make every line that Customer
+// ever had archived... permanently unreadable."
+
+const CUSTOMER_TRANSACTION_OPTIONS = Object.freeze({ maxWait: 10_000, timeout: 30_000 })
+
+function detectCrmDialect(db, explicitDialect = null) {
+  const provider = explicitDialect
+    || db?.dialect
+    || db?.provider
+    || db?._activeProvider
+    || db?._engineConfig?.activeProvider
+    || db?._engineConfig?.datasources?.[0]?.activeProvider
+    || db?._engineConfig?.datasources?.[0]?.provider
+  if (typeof provider !== 'string') return null
+  if (/postgres/i.test(provider)) return 'postgres'
+  if (/sqlite/i.test(provider)) return 'sqlite'
+  return null
+}
+
+function customerNotFound() {
+  const error = new Error('CUSTOMER_NOT_FOUND')
+  error.status = 404
+  return error
+}
+
+async function queryRaw(tx, sql, params = []) {
+  if (typeof tx.$queryRawUnsafe === 'function') return tx.$queryRawUnsafe(sql, ...params)
+  throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CUSTOMER_LOCK_UNAVAILABLE')
+}
+
+/**
+ * Lock one tenant-bound Customer before a hold or archive-key decision. The
+ * lock is the shared linearization point for both operations:
+ * `recordCustomerLegalHold` uses the root client's transaction path, while
+ * Identity erasure supplies its already-open transaction client. Never accept
+ * a caller-provided hold result as a substitute for this check.
+ *
+ * PostgreSQL uses the exact row lock required by SEC-034. SQLite relies on the
+ * existing Prisma write-transaction serialization path and performs the same
+ * tenant-bound existence check without sending PostgreSQL syntax to SQLite.
+ * An adapter must identify its provider and expose a transaction boundary;
+ * silently running the mutation on an unscoped client would make the lock
+ * claim false.
+ */
+export async function withLockedCustomer(db, {
+  tenantId, customerId, now = new Date(), dialect = null,
+}, callback, { transactionClient = false } = {}) {
+  if (typeof callback !== 'function') throw new TypeError('withLockedCustomer callback is required')
+  if (typeof tenantId !== 'string' || !tenantId || typeof customerId !== 'string' || !customerId) {
+    throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CUSTOMER_SCOPE_REQUIRED')
+  }
+
+  const provider = detectCrmDialect(db, dialect)
+  if (!provider) throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CUSTOMER_PROVIDER_UNAVAILABLE')
+
+  const execute = async (tx) => {
+    let customer
+    if (provider === 'postgres') {
+      const rows = await queryRaw(
+        tx,
+        'SELECT "id" FROM "Customer" WHERE "id" = $1 AND "tenantId" = $2 FOR UPDATE',
+        [customerId, tenantId],
+      )
+      if (!Array.isArray(rows) || rows.length !== 1 || rows[0]?.id !== customerId) throw customerNotFound()
+      // FOR UPDATE alone does not refresh a pre-existing Serializable
+      // snapshot. Both writers mark the row's MVCC version so a stale waiter
+      // aborts before reading an obsolete hold set. Logical fields stay equal.
+      const marked = await queryRaw(
+        tx,
+        'UPDATE "Customer" SET "id" = "id" WHERE "id" = $1 AND "tenantId" = $2 RETURNING "id"',
+        [customerId, tenantId],
+      )
+      if (!Array.isArray(marked) || marked.length !== 1 || marked[0]?.id !== customerId) throw customerNotFound()
+      customer = { id: rows[0].id, tenantId }
+    } else {
+      if (typeof tx.customer?.findMany !== 'function') {
+        throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CUSTOMER_LOCK_UNAVAILABLE')
+      }
+      const rows = await tx.customer.findMany({
+        where: { id: customerId, tenantId },
+        select: { id: true, tenantId: true },
+      })
+      if (!Array.isArray(rows) || rows.length !== 1 || rows[0]?.id !== customerId || rows[0]?.tenantId !== tenantId) {
+        throw customerNotFound()
+      }
+      customer = rows[0]
+    }
+    return callback(tx, { customer, now })
+  }
+
+  const canUseSuppliedTransaction = transactionClient
+    || (typeof db?.$transaction !== 'function'
+      && (typeof db?._activeProvider === 'string' || typeof db?._engineConfig?.activeProvider === 'string'))
+  if (!canUseSuppliedTransaction && typeof db?.$transaction !== 'function') {
+    throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CUSTOMER_TRANSACTION_UNAVAILABLE')
+  }
+  try {
+    return await (canUseSuppliedTransaction ? execute(db) : db.$transaction(execute, CUSTOMER_TRANSACTION_OPTIONS))
+  } catch (error) {
+    const conflictCodes = ['P2034', '40001', '40P01', 'SQLITE_BUSY', 'SQLITE_LOCKED']
+    if (conflictCodes.includes(error?.code) || conflictCodes.includes(error?.meta?.code)) {
+      throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CUSTOMER_LOCK_UNAVAILABLE', error)
+    }
+    throw error
+  }
+}
+
+/**
+ * The Customer's current legal hold, if one is still unexpired. "Active" is
+ * derived — `now < endDate` — never a stored status, so ending a hold means
+ * only letting its endDate pass; there is no code path that edits one in place.
+ * A Customer may have more than one hold on file (sequential disputes); the one
+ * with the furthest-out endDate is what "does a hold still cover this Customer"
+ * needs, so that is what is returned when more than one is still active.
+ */
+export async function findActiveLegalHold(db, { customerId }, now = new Date()) {
+  return db.customerLegalHold.findFirst({
+    where: { customerId, endDate: { gt: now } },
+    orderBy: { endDate: 'desc' },
+  })
+}
+
+/**
+ * Destroy one Customer's chat evidence archive key (SEC-034, ADR-093 D5, D6) —
+ * unless an active legal hold protects it, in which case nothing is touched and
+ * the hold is returned so the caller can report it (ADR-093 D6: "the erasure
+ * status shows the hold"). A Customer with no key row at all (never archived, or
+ * already destroyed) is reported as `destroyed: false, hold: null` — indistinguishable
+ * from "nothing to do" on purpose, since re-destroying an absent key is not a
+ * failure for either caller.
+ *
+ * Callers are responsible for their own audit event: this function's job is the
+ * one mechanical, hold-gated destruction, not deciding what each caller's audit
+ * trail should say about it (the same division `archiveAndTombstoneTenantMessages`
+ * above keeps from its own caller).
+ *
+ * @param {object} db - a Prisma client or transaction proxy.
+ * @param {{tenantId: string, customerId: string, now?: Date}} input
+ * @returns {Promise<{destroyed: boolean, hold: object|null}>}
+ */
+export async function destroyCustomerArchiveKey(db, { tenantId, customerId, now = new Date() }) {
+  return withLockedCustomer(db, { tenantId, customerId, now }, async (tx) => {
+    const hold = await findActiveLegalHold(tx, { customerId }, now)
+    if (hold) return { destroyed: false, hold }
+
+    const existing = await tx.customerArchiveKey.findUnique({ where: { customerId } })
+    if (!existing || existing.tenantId !== tenantId) return { destroyed: false, hold: null }
+
+    await tx.customerArchiveKey.delete({ where: { customerId } })
+    return { destroyed: true, hold: null }
   })
 }

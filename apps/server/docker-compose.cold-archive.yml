@@ -1,0 +1,15 @@
+# ADR-093 D3 / TASK-ZAI-114 — production-only cold archive storage.
+# Apply this overlay only on the production host. The application accepts
+# exactly /archive in production and proves the mount before writing anything.
+# The archive KEK remains in the host env file and is never written here.
+services:
+  web:
+    environment:
+      ZURI_ARCHIVE_DIR: /archive
+    volumes:
+      - type: bind
+        source: ${ZURI_ARCHIVE_DIR_HOST:?Set ZURI_ARCHIVE_DIR_HOST to the dedicated archive disk}
+        target: /archive
+        read_only: false
+        bind:
+          create_host_path: false

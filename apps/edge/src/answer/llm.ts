@@ -1,6 +1,8 @@
-import type { ModelPort, ToolSpec } from './model-port.js';
+import type { ModelPort, ToolSpec, InvocationContext } from './model-port.js';
 import { Role } from '../identity/registry.js';
 import { Turn } from './memory.js';
+import type { PublishedProductQueryResult, PublishedProductPrice } from '../rag/genesisrag17/product-rag.js';
+import type { ProgressDetail } from '../conversation/progress.js';
 import {
   EvidenceOptions,
   EvidenceRecord,
@@ -40,9 +42,14 @@ export interface LlmOptions {
    * make a local deployment impossible to express.
    */
   port: ModelPort;
-  /** Hard ceiling. A LINE reply token expires in about thirty seconds. */
+  /** Model ceiling within the server-issued end-to-end execution budget. */
   timeoutMs: number;
   maxIterations: number;
+  signal?: AbortSignal;
+  maxOutputTokens?: number;
+  context?: InvocationContext;
+  additionalTools?: ToolSpec[];
+  onProgress?: (event: ProgressDetail) => void | Promise<void>;
 }
 
 export interface ConversationResult {
@@ -298,6 +305,49 @@ function textOf(message: { content: Array<{ type: string; text?: string }> }): s
     .trim();
 }
 
+/** Current operational facts need a read this turn, even if the model skips tools.
+ * “งานสกรีนใช้เวลากี่วัน” is a product lead-time question, not a PM status query.
+ */
+function needsCurrentWorkRecords(text: string): boolean {
+  const work = /(?:งาน|โครงการ|โปรเจกต์|เวิร์กสตรีม|\b(?:tasks?|projects?|workstreams?|work\s*items?)\b|\b(?:WI|PRJ|WST)-[\w-]+)/iu;
+  const current = /(?:สถานะ|คืบหน้า|เสร็จ|ติดขัด|ค้าง|ถึงไหน|เป็นไง|เป็นอย่างไร|มีอะไร|มีบ้าง|รายการ|ค้นหา|ดูงาน|ดูโครงการ|\b(?:status|progress|done|completed|blocked|pending|planned|active|cancelled|list|find|search|show)\b)/iu;
+  return work.test(text) && current.test(text);
+}
+
+/** A numeric guard cannot prove tax, shipping or validity claims. Published catalog
+ * evidence therefore owns the final text; model prose cannot turn a snapshot into a quote.
+ */
+function publishedCatalogAnswer(evidence: EvidenceRecord[]): string | null {
+  const catalog = evidence.filter(item => ['quote_price', 'search_products', 'find_within_budget'].includes(item.tool));
+  const published = catalog.map(item => (item.output as { publishedProducts?: PublishedProductQueryResult } | null)?.publishedProducts)
+    .filter((value): value is PublishedProductQueryResult => value?.productSchemaVersion === 'published-products.v1');
+  if (!published.length) return null;
+  const identity = (value: PublishedProductQueryResult) => JSON.stringify([value.scope, value.corpusId, value.corpusGeneration, value.manifestHash]);
+  if (published.some(value => identity(value) !== identity(published[0])) || catalog.some(item => (item.output as { unavailable?: boolean } | null)?.unavailable)) {
+    return 'ยังยืนยันข้อมูลสินค้าจากชุดข้อมูลเดียวกันไม่ได้ กรุณาลองใหม่';
+  }
+  const latest = published.at(-1)!;
+  const label = (value: string, max = 200) => value.replace(/[\r\n\t\u0000-\u001f]/g, ' ').slice(0, max) + (value.length > max ? '…' : '');
+  const priceLines = (price: PublishedProductPrice): string[] => {
+    if (price.status === 'PRICE_MISSING') return ['ยังไม่มีราคาที่อ้างอิงได้'];
+    if (price.status === 'BELOW_MOQ') return ['จำนวนที่ถามต่ำกว่าเกณฑ์ขั้นต่ำ จึงยังไม่มีราคาสำหรับจำนวนนี้'];
+    const tiers = price.selected ? [price.selected] : price.tiers.slice(0, 3);
+    return tiers.map(tier =>
+      `เกณฑ์จำนวนขั้นต่ำ ${tier.minQty}: ${(tier.amountMinor / 100).toFixed(2)} THB ตามแคตตาล็อก · วันที่ข้อมูล ${tier.asOf ?? 'ไม่ระบุ'}`,
+    ).concat(tiers.find(tier => tier.source)?.source ? [`แหล่งข้อมูล: ${label(tiers.find(tier => tier.source)!.source!)}`] : []);
+  };
+  const productLabel = (code: string, name?: string) => name && name !== code ? `${label(name)} (${label(code, 256)})` : label(code, 256);
+  const blocks = latest.operation === 'price' && latest.price
+    ? [[productLabel(latest.price.code, latest.results.find(product => product.code === latest.price!.code)?.name), ...priceLines(latest.price)].join('\n')]
+    : latest.results.map(product => [productLabel(product.code, product.name), ...priceLines(product.price)].join('\n'));
+  let text = 'ราคาอ้างอิงจากแคตตาล็อก (snapshot)';
+  if (!blocks.length) text += '\nไม่พบรายการที่ยืนยันได้ตามเงื่อนไข';
+  let shown = 0;
+  for (const block of blocks) { if (shown >= 5 || text.length + block.length > 4000) break; text += '\n\n' + block; shown++; }
+  if (shown < blocks.length) text += '\n\nมีรายการเพิ่มเติม กรุณาระบุรหัสหรือเงื่อนไขให้แคบลง';
+  return text + '\n\nยังไม่ยืนยันหน่วยสินค้า ภาษี ค่าจัดส่ง และช่วงเวลาที่ราคาใช้ได้ ข้อมูลนี้ยังไม่ใช่ใบเสนอราคาหรือยอดชำระ';
+}
+
 /**
  * One conversational turn.
  *
@@ -316,10 +366,28 @@ export async function answerWithModel(
   personaPrompt: string = DEFAULT_PERSONA
 ): Promise<ConversationResult> {
   const evidence: EvidenceRecord[] = [];
-  const abort = AbortSignal.timeout(llm.timeoutMs);
+  let workProposalAttempted = false;
+  let workReadAttempted = false;
+  const currentWorkRequested = needsCurrentWorkRecords(userText);
+  const timeout = AbortSignal.timeout(llm.timeoutMs);
+  const abort = llm.signal ? AbortSignal.any([llm.signal, timeout]) : timeout;
+  const progress = (event: ProgressDetail) => { try { void Promise.resolve(llm.onProgress?.(event)).catch(() => {}); } catch { /* diagnostic only */ } };
+  const observeTool = (tool: ToolSpec): ToolSpec => ({ ...tool, run: async input => {
+    progress({ phase: 'TOOL', state: 'STARTED', toolName: tool.name });
+    try {
+      const result = await tool.run(input);
+      progress({ phase: 'TOOL', state: 'COMPLETED', toolName: tool.name });
+      return result;
+    } catch (error) {
+      progress({ phase: 'TOOL', state: 'FAILED', toolName: tool.name });
+      throw error;
+    }
+  } });
 
   const rules = (reason: string): ConversationResult => ({
-    text: fallback,
+    text: currentWorkRequested || workReadAttempted
+      ? 'ยังตรวจสอบข้อมูลปัจจุบันจากระบบ Project/Work ไม่ได้ กรุณาลองใหม่ หรือใช้ /work หรือ /projects'
+      : fallback,
     source: 'rules',
     reason,
     toolCalls: evidence.map((e) => e.tool),
@@ -327,7 +395,8 @@ export async function answerWithModel(
 
   try {
     const reply = await llm.port.generate({
-      system: composeSystemPrompt(personaPrompt) + (role === 'owner' ? OWNER_NOTE : SALES_NOTE),
+      system: composeSystemPrompt(personaPrompt) + (role === 'owner' ? OWNER_NOTE : SALES_NOTE)
+        + (llm.additionalTools?.length ? '\nProject/Work: use the authorized work tools for searches and changes. A proposal is only a preview; never claim a task was saved. Only a new human confirmation message can commit it. Never use memory as current work status.' : ''),
       messages: [
         ...history.map((turn) => ({
           role: turn.role as 'user' | 'assistant',
@@ -335,13 +404,60 @@ export async function answerWithModel(
         })),
         { role: 'user' as const, content: userText },
       ],
-      tools: buildTools(evidenceOptions, evidence),
+      tools: [...buildTools(evidenceOptions, evidence), ...(llm.additionalTools ?? []).map(tool => ({
+        ...tool, run: async (input: Record<string, never>) => {
+          if (tool.name === 'propose_work_change') workProposalAttempted = true;
+          if (tool.name === 'search_project_work') workReadAttempted = true;
+          const result = await tool.run(input);
+          evidence.push({ tool: tool.name, input, output: result });
+          return result;
+        },
+      }))].map(observeTool),
       maxIterations: llm.maxIterations,
       timeoutMs: llm.timeoutMs,
       signal: abort,
+      maxOutputTokens: llm.maxOutputTokens,
+      context: llm.context,
     });
 
+    const proposalEvidence = [...evidence].reverse().find(item => item.tool === 'propose_work_change');
+    if (proposalEvidence && typeof proposalEvidence.output === 'string') {
+      const proposal = JSON.parse(proposalEvidence.output);
+      if (proposal.status === 'AWAITING_CONFIRMATION'
+        && typeof proposal.proposalId === 'string'
+        && /^[a-f0-9-]{36}$/i.test(proposal.proposalId)
+        && proposal.confirmationCommand === `ยืนยันงาน ${proposal.proposalId}`) {
+        // The human approves the persisted arguments, never the model's paraphrase.
+        return { text: `รอยืนยัน${proposal.action === 'create_work' ? 'สร้าง' : 'แก้ไข'}งาน\nเป้าหมาย: ${proposal.targetTitle}\n${JSON.stringify(proposal.args)}\nหมดอายุ ${proposal.expiresAt}\nพิมพ์ ${proposal.confirmationCommand}`,
+          source: 'model', reason: 'WORK_PREVIEW_VERIFIED', toolCalls: evidence.map(item => item.tool) };
+      }
+    }
+    if (workProposalAttempted) return rules('work proposal was not verified');
+    const workEvidence = [...evidence].reverse().find(item => item.tool === 'search_project_work');
+    if (workEvidence && typeof workEvidence.output === 'string') {
+      const records = JSON.parse(workEvidence.output);
+      if (records.source === 'PROJECT_MANAGER' && Array.isArray(records.items) && records.items.length <= 10) {
+        return { text: (records.items.length
+          ? records.items.map((item: { code: string; title?: string; name?: string; status: string }) =>
+            `${item.code}: ${item.title ?? item.name} — ${item.status}`).join('\n')
+          : 'ไม่พบงานหรือโครงการในขอบเขตที่คุณมีสิทธิ์') + `\nตรวจจากระบบ Project/Work เมื่อ ${records.observedAt}`,
+          source: 'model', reason: 'CURRENT_WORK_RECORDS_VERIFIED', toolCalls: evidence.map(item => item.tool) };
+      }
+    }
+    if (workReadAttempted) return rules('current work records were not verified');
     const text = reply.text;
+    if (currentWorkRequested || needsCurrentWorkRecords(text)) {
+      return { ...rules('CURRENT_WORK_RECORDS_REQUIRED'),
+        text: 'ยังตรวจสอบข้อมูลปัจจุบันจากระบบ Project/Work ไม่ได้ กรุณาลองใหม่ หรือใช้ /work หรือ /projects' };
+    }
+    if (llm.additionalTools?.length && /(?:งาน|โครงการ|โปรเจกต์|\btask\b|\bproject\b)/iu.test(text)
+      && /(?:บันทึก|สร้าง|แก้ไข|เปลี่ยน|อัปเดต|อัพเดท|ลบ|\bsaved\b|\bcreated\b|\bupdated\b|\bdeleted\b)/iu.test(text)) {
+      // This model has no commit capability, even when it sounds confident.
+      return { text: 'ยังไม่มีการบันทึกหรือแก้ไขงาน ต้องตรวจรายการที่เสนอและยืนยันจาก LINE ก่อน',
+        source: 'rules', reason: 'WORK_CONFIRMATION_REQUIRED', toolCalls: evidence.map(item => item.tool) };
+    }
+    const publishedText = publishedCatalogAnswer(evidence);
+    if (publishedText) return { text: publishedText, source: 'rules', reason: 'PUBLISHED_CATALOG_EVIDENCE', toolCalls: evidence.map(item => item.tool) };
     if (!text) return rules('model returned no text');
 
     const evidenceText = JSON.stringify(evidence);
@@ -357,6 +473,11 @@ export async function answerWithModel(
 
     return { text, source: 'model', toolCalls: evidence.map((e) => e.tool) };
   } catch (error) {
+    if (error instanceof Error && error.message === 'MSP_INJECTION_RECEIPT_UNKNOWN') throw error;
+    if (!abort.aborted && !currentWorkRequested && !workReadAttempted && !workProposalAttempted) {
+      const publishedText = publishedCatalogAnswer(evidence);
+      if (publishedText) return { text: publishedText, source: 'rules', reason: 'PUBLISHED_CATALOG_EVIDENCE', toolCalls: evidence.map(item => item.tool) };
+    }
     const detail = error instanceof Error ? error.message : String(error);
     return rules(`model call failed: ${detail}`);
   }

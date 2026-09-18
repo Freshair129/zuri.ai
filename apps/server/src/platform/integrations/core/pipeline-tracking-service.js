@@ -454,13 +454,14 @@ export async function recordPipelineEvent(input, {
   viewer,
   now = () => new Date(),
   idFactory = defaultIdFactory,
+  transactional = true,
 } = {}) {
   requireLedgerWriter(viewer)
   const event = parsePipelineEvent(input)
   const eventHash = hashContractPayload(event)
   const at = resolveNow(now)
 
-  return transaction(db, async (tx) => {
+  const write = async (tx) => {
     const run = await tx.pipelineRun.findUnique({ where: { executionRunId: event.executionRunId } })
     if (!run) throw serviceError(404, 'Pipeline run not found')
     requireLedgerWriterForRun(viewer, run, event)
@@ -711,7 +712,11 @@ export async function recordPipelineEvent(input, {
       receipt: safeParse(receipt.resultJson, {}),
       auditEventId: receipt.auditEventId,
     }
-  })
+  }
+  // A caller that already owns the transaction boundary (for example the
+  // GenesisRAG17 evidence page importer) passes its transaction client and
+  // disables this wrapper so PostgreSQL never receives a nested transaction.
+  return transactional ? transaction(db, write) : write(db)
 }
 
 export async function listPipelineRuns({ businessId = null, status = null, limit = 25, db = prisma, viewer } = {}) {

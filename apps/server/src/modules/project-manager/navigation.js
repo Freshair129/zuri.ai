@@ -16,8 +16,12 @@ import {
 // @req FR-250 — Projects & Work presents six logical modules while retaining
 // the existing Business and Project routes. This registry is presentation
 // metadata only: grants, route guards, and API ownership remain unchanged.
+// @req FR-251 — the existing Delivery Design module gains one read-only
+// Execution Domains Project tab while its Business surfaces stay planned.
+// @req FR-252 — the approved read-only Feature authority is reachable only
+// from the authorized Project Delivery Design context.
 // @spec ADR-096, docs/architecture/project-manager-system/22-NAVIGATION-IMPLEMENTATION-BASELINE.md
-// @tested tests/unit/fr250-navigation.test.js, tests/e2e/fr250-navigation.spec.js
+// @tested tests/unit/fr250-navigation.test.js, tests/e2e/fr250-navigation.spec.js, tests/e2e/project-domain-view.spec.js, tests/e2e/project-feature-view.spec.js
 
 const PROJECT_PREFIX = '/projects/'
 const EXECUTION_MODES = new Set([
@@ -69,7 +73,9 @@ export const PM_MODULES = [
     status: 'PLANNED_MODULE',
     icon: FileText,
     businessPath: null,
-    projectSuffix: null,
+    // Project context can expose the read-only Execution Domains projection;
+    // Business Delivery Design remains a planned, no-route module.
+    projectSuffix: '/domain-view',
     businessTabs: [
       { id: 'dd.domains', label: 'Domains' },
       { id: 'dd.features', label: 'Features' },
@@ -78,7 +84,16 @@ export const PM_MODULES = [
       { id: 'dd.api', label: 'API' },
       { id: 'dd.docs-decisions', label: 'Docs & Decisions' },
     ],
-    projectTabs: [],
+    projectTabs: [
+      { id: 'dd.domains', label: 'Execution Domains', suffix: '/domain-view', readOnly: true },
+      { id: 'dd.features', label: 'Features', suffix: '/feature-view', readOnly: true },
+    ],
+    plannedProjectTabs: [
+      { id: 'dd.requirements', label: 'Requirements' },
+      { id: 'dd.architecture', label: 'Architecture' },
+      { id: 'dd.api', label: 'API' },
+      { id: 'dd.docs-decisions', label: 'Docs & Decisions' },
+    ],
   },
   {
     id: 'module.resource-coordination',
@@ -195,6 +210,7 @@ export function moduleForProjectPath(pathname, projectId) {
     return PM_MODULES[0]
   }
   if (PM_WORK_VIEWS.some((view) => relative === view.suffix)) return PM_MODULES[1]
+  if (PM_MODULES[2].projectTabs.some((tab) => relative === tab.suffix)) return PM_MODULES[2]
   if (PM_MODULES[3].projectTabs.some((tab) => relative === tab.suffix)) return PM_MODULES[3]
   return null
 }

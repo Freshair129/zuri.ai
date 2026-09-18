@@ -5,6 +5,31 @@
   "designBase": "087f30258a6831865afd751e28804e36505aff30",
   "sourceCrossCheck": "4ca28c1df4a68894e9a5d9ceb4afb20fe996a686",
   "scope": "Logical tables and adapter contract; not executable DDL",
+  "selectedSlices": {
+    "phaseB": {
+      "contract": "phase-b/data-model.candidate.json",
+      "plan": "../24-PHASE-B-FEATURE-IMPLEMENTATION-PLAN.md",
+      "status": "CANDIDATE_B1_B2_PENDING",
+      "codegenReady": false,
+      "records": [
+        "GovernanceSnapshot",
+        "ProjectFeature",
+        "FeatureContribution",
+        "FeatureWorkLink",
+        "RequirementBinding",
+        "ProjectFeatureMutationReceipt"
+      ],
+      "overridesHistoricalRecords": [
+        "GovernanceSnapshot",
+        "ProjectFeature",
+        "FeatureContribution",
+        "FeatureWorkLink",
+        "RequirementBinding"
+      ],
+      "addedRecord": "ProjectFeatureMutationReceipt",
+      "rule": "For Phase B only, resolve the selected overlay for exact fields, keys, bounds, snapshot proof, Project-serialized concurrency, delete-batch restore cohorts and typed receipts. The tables array below preserves the earlier 85-record broad proposal. No other record is overridden; no schema or code generation is authorized. Allocation state and graph ETag are derived; no graph-state table."
+    }
+  },
   "tables": [
     {
       "name": "Portfolio",
@@ -4027,7 +4052,7 @@
           "note": ""
         },
         {
-          "name": "namespace",
+          "name": "sourceNamespace",
           "type": "text",
           "nullable": false,
           "references": null,
@@ -4056,7 +4081,7 @@
         }
       ],
       "unique": [
-        "featureId,governanceSnapshotId,namespace,requirementKey"
+        "featureId,governanceSnapshotId,sourceNamespace,requirementKey"
       ],
       "checks": [
         "Cannot edit canonical FR subject through UI"

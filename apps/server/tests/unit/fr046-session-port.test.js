@@ -1,10 +1,13 @@
 import { describe, expect, it, vi } from 'vitest'
-import { generateSessionToken } from '@/modules/identity/auth-service'
+import { generateSessionToken, hashSessionToken } from '@/modules/identity/auth-service'
 import { createSessionPort } from '@/modules/identity/session-port'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 
 // @req FR-046 — request identity is server-owned and production fails closed.
+// @req FR-252 — P2 authenticated API-write tokens may use only the live
+// persisted session expiry returned by this port.
 // @spec ADR-017, SDD-024, SEC-008
+// @spec ADR-097
 // @tested tests/unit/fr046-session-port.test.js
 
 function requestWith({ cookie = '', headers = {} } = {}) {
@@ -73,6 +76,36 @@ describe('FR-046 trusted request session', () => {
       principalId: 'person-1',
       platformGrant: false,
     }))
+  })
+
+  it('passes the live persisted session expiry through for bounded API-write tokens', async () => {
+    const secret = 'test-session-secret-that-is-long-enough-123456'
+    const now = Date.now() - 60_000
+    const token = generateSessionToken('person-1', { secret, now, sessionId: 'session-1' })
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
+    const db = {
+      session: {
+        findUnique: vi.fn().mockResolvedValue({
+          id: 'session-1',
+          personId: 'person-1',
+          tokenHash: hashSessionToken(token),
+          status: 'ACTIVE',
+          expiresAt,
+        }),
+        updateMany: vi.fn().mockResolvedValue({ count: 1 }),
+      },
+    }
+    const sessionPort = createSessionPort({
+      db,
+      env: { NODE_ENV: 'production', ZURI_SESSION_SECRET: secret },
+    })
+
+    await expect(sessionPort.read(requestWith({ cookie: `zuri_session=${token}` }))).resolves.toMatchObject({
+      state: 'AUTHENTICATED',
+      principalId: 'person-1',
+      sessionId: 'session-1',
+      expiresAt,
+    })
   })
 
   it('rejects tampered, expired, and legacy demo cookies', async () => {

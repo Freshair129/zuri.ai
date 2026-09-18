@@ -33,6 +33,7 @@ owns_models:
   - ConversationSession
   - CustomerArchiveKey
   - ArchiveManifest
+  - CustomerLegalHold
 ---
 
 # Domain charter — crm

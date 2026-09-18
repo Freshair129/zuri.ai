@@ -3,8 +3,8 @@
   "id": "ZAI:KI17-DEPLOYMENT-PINS",
   "cycle": "ADR-075 Phase 3 — GenesisRAG17 edge deployment (SmartGift structured-record profile)",
   "design": "docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md",
-  "recordedAt": "2026-09-16",
-  "note": "The four commits this deployment cycle targets. Each repository's own main may have moved further; these are the versions the ki17 build stage pulls and the pre-deploy gate G-4 checks against the G-2 acceptance record. Never edit a commit here without re-running the acceptance that produced it. Exception recorded 2026-09-16: the genesisblock pin was advanced from 907b0ff4 to 7c9261c4 to pick up the P-2 Linux addon (GenesisBlock PR #177) — the worker source at that commit is unchanged from 907b0ff4 (7c9261c4 is only the merge commit adding the addon binary built from 907b0ff4), so this is not a logic change and does not require a new acceptance run on its own. G-3 (the acceptance run inside these images) is still outstanding regardless.",
+  "recordedAt": "2026-09-18",
+  "note": "TASK-ZAI-050 release tuple: zuri importer transaction fix at a9039dcc, GenesisBlock 5e75c4a, MSP 49fe7de7, GKS ecf1e4de. This tuple includes the transaction-aware pipeline-event writer, the explicit 30s evidence-page timeout, and the no-nested-transaction acceptance guard; require a fresh web-image build, 36-case G-3 acceptance, and production smoke.",
   "runtime": {
     "node": "24.18.0",
     "nodePlatform": "linux-x64",
@@ -18,7 +18,7 @@
   "repositories": {
     "zuri-ai": {
       "repository": "Freshair129/zuri.ai",
-      "commit": "09d60d248218db27a3a3939b14e11c4db57d0809",
+      "commit": "a9039dcc1c78745c595571da66c3935eda6dbebb",
       "buildContext": null,
       "verifiedInBuild": false,
       "note": "This repository is the build's own main context, and .dockerignore excludes .git from it, so the build cannot read its own HEAD. Recorded for the G-4 gate and verified by the operator on the host before the build (`git rev-parse HEAD`).",
@@ -50,7 +50,7 @@
     },
     "genesisblock": {
       "repository": "Freshair129/GenesisBlock",
-      "commit": "7c9261c4a4d4193af4e2613db48896533eb28072",
+      "commit": "5e75c4a85e1a42faf6d2afe42633c4f2a4725c92",
       "buildContext": "genesisblock",
       "verifiedInBuild": true,
       "installRoot": "/opt/ki17/genesisblock",
@@ -60,7 +60,7 @@
         "index.js",
         "npm/linux-x64-gnu/index.linux-x64-gnu.node"
       ],
-      "note": "P-2 landed (GenesisBlock PR #177, merged as this commit). The Linux napi addon is present at npm/linux-x64-gnu/index.linux-x64-gnu.node, built from and verified against 907b0ff4 (the worker source commit itself; unchanged here). The genesis-worker build target's KI17_GENESISBLOCK_LINUX_ADDON_MISSING assertion should now pass."
+      "note": "TASK-ZAI-050 release base 7c9261c4 with ontology-v2 support, per-record benchmark scoping, and GKS-owned Stage 17 denials retained as held; Linux addon included."
     }
   }
 }

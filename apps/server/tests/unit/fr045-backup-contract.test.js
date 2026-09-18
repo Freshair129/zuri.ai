@@ -8,7 +8,7 @@ import { makeOperatorViewer } from '../factories/viewer'
 describe('FR-045 portable backup contract', () => {
   it('exports FileAsset/FileLink and content manifest but excludes absolute mounts', async () => {
     const db = new Proxy({}, {
-      get: (_target, model) => ({
+      get: (_target, model) => model === '_activeProvider' ? 'sqlite' : ({
         findMany: vi.fn().mockResolvedValue(model === 'fileAsset' ? [{
           id: 'a', businessId: 'business-a', storageKind: 'LOCAL_FILE', relativePath: 'Projects/P/a.txt', sha256: 'abc', size: 1, status: 'ACTIVE',
         }] : model === 'fileLink' ? [{ id: 'l', fileId: 'a', entityType: 'PROJECT', entityId: 'p', relationType: 'OWNER' }] : []),
@@ -77,7 +77,7 @@ describe('FR-045 portable backup contract', () => {
 
   it('rejects a declared Commerce recovery manifest with missing tables even on an empty target', async () => {
     const db = new Proxy({}, {
-      get: () => ({ count: vi.fn().mockResolvedValue(0) }),
+      get: (_target, model) => model === '_activeProvider' ? 'sqlite' : ({ count: vi.fn().mockResolvedValue(0) }),
     })
     const snapshot = {
       schemaVersion: '1.0',
