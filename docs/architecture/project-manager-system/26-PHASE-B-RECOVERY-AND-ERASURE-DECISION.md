@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.4b"
+version: "0.3.5b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-09-17T20:21:00+07:00,RWANG"
+last_update: "2026-09-19T04:40:59+07:00,RWANG"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -170,14 +170,13 @@ The historical W2 CRM composition at 052821a7 had 175 application models:
 `targetSchemaSha256` `617b091c8b94ff306f9b98989676f631360b23f4a7faac0f1e57d16743999f5b`.
 Its independent review and actual CLI proof remain evidence for that version.
 
-Composition with main 892f23f3 adds exactly PricingRuleSet and
-PricingCalculation, giving **177 application models** in
-[the frozen inventory](contracts/phase-b/target-schema.inventory.json):
-168 snapshot-included models and nine approved exclusions. The canonical LF
-schema has `schemaSha256`
-`5d3825978c25a731d8088908e1692cf786231595cdf3af3464227c6368774e31`;
+The current composed schema adds `KnowledgeArtifactOperation` and
+`KnowledgeArtifactStorage` to the previously pinned 177-model binding, giving
+**179 application models** in [the frozen inventory](contracts/phase-b/target-schema.inventory.json).
+The canonical LF schema has `schemaSha256`
+`ad87b4bc9244f1fdbd055d138bd02c9bd315498d57c51c22efdf56084cdd089f`;
 `targetSchemaSha256` is
-`68d92f85611c34fc76fcef1f217815c2ed5e3ed6f351a202e0750fd1c21f3a27`.
+`ee7a379237b5e8cbebd7607deb1d28cc400009e54076c60c87fb2dddb3873198`.
 Independent Luna Max review recomputed both hashes, model mappings, ordinal
 serialization and SQLite/PostgreSQL parity and passed on 2026-09-17.
 The loader and all executable adapters enforce this exact binding.
@@ -185,12 +184,16 @@ Historical 175-bound snapshots refuse; no automatic cross-schema artifact
 rewrite is authorized by this decision. The composed actual CLI proof remains
 a separate gate from static inventory review.
 
-That executable gate now passes on the composed 177-model source: 22 positive
+That executable gate now passes on the composed 179-model source: 22 positive
 and 15 adversarial checks, with thirteen executable/schema inputs frozen during
 the run. Its populated six PM and two Pricing families restore into fresh
 synthetic targets. The [integration report](../../../.brain/reports/2026-09-17-project-feature-phase-b.md)
 retains the exact proof; this does not establish production role or migration
 readiness.
+
+Version diff 0.3.4b → 0.3.5b: rebind the frozen recovery inventory to the composed
+179-model schema after adding the two Knowledge artifact storage models; the
+177-model binding remains historical and refuses cross-schema recovery.
 
 Version diff 0.3.3b → 0.3.4b: record the successful composed executable recovery
 gate without changing approved recovery or erasure authority.
@@ -393,6 +396,7 @@ still requires its existing independent and real-role gates.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.5b | 2026-09-19 | beta | Rebind Phase B recovery to the composed 179-model schema after the two Knowledge artifact storage models landed; preserve the historical 177-model binding | working-tree | RWANG |
 | 0.3.4b | 2026-09-17 | beta | Close the separate executable 177-model recovery gate with 22 positive and 15 adversarial frozen-source checks | 052821a7 + 892f23f3 | RWANG |
 | 0.3.3b | 2026-09-17 | beta | Bind reviewed Pricing/PM 177-model schema and complete snapshot coverage; require fresh executable proof and preserve obsolete-binding refusal | 052821a7 + 892f23f3 | RWANG |
 | 0.3.2b | 2026-09-17 | beta | Document the implemented operator-checkout dependency boundary and unavailable-validator refusal; selected behaviors unchanged | bd99651f | RWANG |

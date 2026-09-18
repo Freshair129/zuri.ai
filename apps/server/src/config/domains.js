@@ -266,13 +266,16 @@ export const DOMAINS = [
     // line does; GKS, MSP and GenesisBlockDB stay external systems, never
     // zuri-ai domains (ADR-063 D4). A flat, grantable key like every other
     // leaf, and in no DOMAIN_GROUPS container. It opens with the Data Pipeline
-    // Map (FR-212, FR-213); the knowledge base console is planned next.
+    // Map (FR-212, FR-213) and the knowledge base console (FR-254).
     // @spec ADR-085, ADR-063 D4, FR-060, FR-061
     // @tested tests/unit/knowledge-data-pipeline-map-ui.test.js
     key: 'knowledge', label: 'Knowledge (GKS)', icon: Waypoints, basePath: '/knowledge',
     sub: [
       { label: 'Dashboard', path: '/knowledge', icon: LayoutDashboard, exact: true },
       { label: 'Documents', path: '/knowledge/documents', icon: FileText },
+      // @req FR-254 — source history, run evidence, corpus generations and cited query.
+      // @tested tests/e2e/fr254-knowledge-console.spec.js
+      { label: 'Knowledge console', path: '/knowledge/console', icon: FolderOpen },
       { label: 'Data Pipeline Map', path: '/knowledge/data-pipeline', icon: Workflow },
       // @req FR-236 — the review surface for LINE FAQ candidates (ADR-090 D6).
       { label: 'LINE FAQ candidates', path: '/knowledge/candidates', icon: MessagesSquare },

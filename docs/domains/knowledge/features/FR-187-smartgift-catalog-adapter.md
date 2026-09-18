@@ -131,6 +131,22 @@ the fixture's whole point is that cost, margin, freight and supplier-identity
 columns were stripped, and a strict schema is what stops one reappearing
 unnoticed.
 
+## Production storage binding (TASK-ZAI-050)
+
+The production FileAsset for this projection is stored in the private
+`knowledge-catalog` Supabase Storage bucket, capped at 16 MiB and restricted to
+`application/json`. The existing `asset-evidence` bucket remains PDF/image-only;
+the catalog adapter never changes that contract. The server selects the catalog
+port from the opaque `supabase://knowledge-catalog/...` reference and keeps the
+service-role credential server-side. The bucket is a transport for the frozen
+projection only: admission still creates the normal FileAsset, audit event and
+FR-173 queue records, and the pipeline remains the owner of publication.
+
+The bucket is separate from TASK-ZAI-049's MinIO/S3 raw-artifact binding. This
+binding makes the existing `/api/knowledge/ingestions` and operator admission
+path able to read a structured FileAsset in production; it does not claim the
+full raw-artifact backup/recovery exit criterion.
+
 ## Phase 1 limits, measured rather than patched
 
 - **Chunking splits records mid-record.** Stage 7 uses the frozen 80-token
@@ -167,4 +183,5 @@ unnoticed.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.2.0b | 2026-09-18 | beta | TASK-ZAI-050 production binding: private JSON-only knowledge-catalog bucket and reference-routed managed-blob reader; runtime publication evidence remains separate | working-tree | Codex |
 | 0.1.0b | 2026-09-11 | beta | ADR-075 Phase 1: structured-record adapter, per-record identity and Zero-PII deny at admission and Stage 5; implemented locally, not deployed | working-tree | Claude Fable 5.1 |

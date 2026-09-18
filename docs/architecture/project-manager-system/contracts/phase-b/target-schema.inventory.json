@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "5d3825978c25a731d8088908e1692cf786231595cdf3af3464227c6368774e31",
+  "schemaSha256": "ad87b4bc9244f1fdbd055d138bd02c9bd315498d57c51c22efdf56084cdd089f",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -360,6 +360,16 @@
       "modelName": "KittingWorkOrder",
       "schemaName": "public",
       "tableName": "KittingWorkOrder"
+    },
+    {
+      "modelName": "KnowledgeArtifactOperation",
+      "schemaName": "public",
+      "tableName": "KnowledgeArtifactOperation"
+    },
+    {
+      "modelName": "KnowledgeArtifactStorage",
+      "schemaName": "public",
+      "tableName": "KnowledgeArtifactStorage"
     },
     {
       "modelName": "KnowledgeCandidate",
@@ -887,7 +897,7 @@
       "tableName": "Workstream"
     }
   ],
-  "targetSchemaSha256": "68d92f85611c34fc76fcef1f217815c2ed5e3ed6f351a202e0750fd1c21f3a27",
+  "targetSchemaSha256": "ee7a379237b5e8cbebd7607deb1d28cc400009e54076c60c87fb2dddb3873198",
   "migrationTables": [
     "_prisma_migrations",
     "schema_migrations"

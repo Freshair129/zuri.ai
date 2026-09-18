@@ -225,8 +225,12 @@ describe('OpenAPI document', () => {
       // Pricing adds six paths/seven operations; retain the live CRM legal-hold route.
       // FR-215 (ADR-085 D5) adds the Business-scoped pipeline health read
       // model: one path and one GET operation over the owning-domain ports.
-      pathCount: 310,
-      operationCount: 413,
+      // Current composed main inventory is 309 paths and 412 operations.
+      // FR-254 adds six Console paths and seven operations, including GET on
+      // the existing source path.
+      // The branch's FR-215 pipeline-health route remains in the composition.
+      pathCount: 316,
+      operationCount: 420,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

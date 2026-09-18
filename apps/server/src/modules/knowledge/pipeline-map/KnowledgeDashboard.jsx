@@ -4,6 +4,8 @@
 //   (the Data Pipeline Map, with its summary figures) and what is planned for it.
 // @spec ADR-085 D1
 // @tested tests/unit/knowledge-data-pipeline-map-ui.test.js
+// @req FR-254 — link to the authorized knowledge console from its domain dashboard.
+// @tested tests/e2e/fr254-knowledge-console.spec.js
 
 import Link from 'next/link'
 import { UploadCloud, Search, FileText } from 'lucide-react'
@@ -42,6 +44,10 @@ export default function KnowledgeDashboard({ map }) {
             <Link href="/knowledge/documents?tab=search" className="btn inline-flex items-center gap-1.5 text-xs">
               <Search size={13} /> ค้นหาความรู้
             </Link>
+          </div>
+          <div className="mt-4">
+            <SectionTitle caption="ต้นทางและประวัติรุ่น งานประมวลผล รุ่นที่เผยแพร่ และการค้นพร้อมหลักฐาน">Knowledge base console</SectionTitle>
+            <Link href="/knowledge/console" className="btn btn-primary inline-flex">เปิดคลังความรู้</Link>
           </div>
         </Card>
       </div>
