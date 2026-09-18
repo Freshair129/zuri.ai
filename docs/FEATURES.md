@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.59.0b"
+version: "1.60.0b"
 status: active
 last_update: "2026-09-17T02:46:11+07:00,RWANG"
 relations:
@@ -12,6 +12,8 @@ relations:
 
 # Features (FEAT registry)
 
+Version diff 1.59.0b -> 1.60.0b: compose Knowledge Console as FR-254 in FEAT-013, preserving published FR-253 Commerce pricing. Console scope unchanged; release verification pending.
+
 Version diff 1.58.0b → 1.59.0b: declare FR-253 Commerce pricing rules and formula engine, owner approved 2026-09-17; TASK-ZAI-055/056/059. Implementation in progress, no production activation.
 Version diff 1.57.0b → 1.58.0b: register owner-approved FR-252 Project Feature authority as a project-manager feature-of-one under ADR-097. Cross-domain P1–P4 slices share that requirement; no new FEAT bundle or runtime completion.
 
@@ -21,7 +23,7 @@ Version diff 1.55.0b → 1.56.0b: register FR-250 as a project-manager feature-o
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.59.0b |
+| **Version** | 1.60.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -51,7 +53,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-010 | Production Identity & Access Management — canonical Person/channel identity, persisted sessions, active Membership lifecycle, shared policy enforcement and agent/tool scope isolation | FR-094, FR-095, FR-096, FR-097, FR-098 | building |
 | FEAT-011 | SoT Pipeline Console — plan board, human approval inbox with pull-based decision export, and a node/edge status graph for the business-wide Source-of-Truth pipeline | FR-099, FR-100, FR-101 | building |
 | FEAT-012 | ExecutionPlanBundle — one portable, self-contained programme artifact (strategy + N Projects + cross-Project dependencies) imported through one combined dry-run and one confirmation, above the canonical PlanEnvelope | FR-108 | live |
-| FEAT-013 | Knowledge Ingestion Governance — the governance and isolated execution layer over the seventeen-stage knowledge ingestion pipeline (ADR-073; extension points in docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md): the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run; ADR-072 adds authorized source admission and receipt-backed corpus serving | FR-109, FR-110, FR-111, FR-173 | building |
+| FEAT-013 | Knowledge Ingestion Governance — the governance and isolated execution layer over the seventeen-stage knowledge ingestion pipeline (ADR-073; extension points in docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md): the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run; ADR-072 adds authorized source admission and receipt-backed corpus serving | FR-109, FR-110, FR-111, FR-173, FR-254 | building |
 | FEAT-014 | CRM Conversation Intelligence — the derived-intelligence layer over the FR-023 LINE ingress: an AI-inferred per-Customer profile, per-conversation analysis records, and a per-Business Daily Sales Brief pushed over LINE; table shapes borrowed from the legacy ERD as prior art and rebound to this product's scope chain (ADR-054) | FR-126, FR-127, FR-128 | building |
 | FEAT-015 | Asset Management Foundation — first-class physical asset domain, evidence-backed multi-surface intake, PR/PO/payment/lot validation, temporal responsibility/location/Project allocation and Finance-review depreciation candidates | FR-133, FR-134, FR-135, FR-136 | building |
 | FEAT-016 | Asset Evidence Intake Execution — private cloud evidence, candidate OCR/Vision with human review, canonical Excel/Google Sheets snapshot import-export and trusted LINE FileAsset handoff up to `READY_FOR_REGISTRATION` | FR-137, FR-138, FR-139, FR-140 | live (configuration-gated) |

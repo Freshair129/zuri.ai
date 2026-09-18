@@ -65,7 +65,12 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-173 — shared source admission and scoped corpus retrieval.
   ['/api/knowledge/ingestions', ['GET', 'POST']], ['/api/knowledge/ingestions/{runId}', ['GET']],
   ['/api/knowledge/queries', ['POST']], ['/api/knowledge/citations/{citationId}', ['GET']],
-  ['/api/knowledge/sources/{sourceId}', ['DELETE']],
+  // @req FR-254 — enumerate the Console read contracts alongside existing admission.
+  ['/api/knowledge/sources/{sourceId}', ['GET', 'DELETE']],
+  ['/api/knowledge/sources', ['GET']], ['/api/knowledge/console/runs', ['GET']],
+  ['/api/knowledge/console/runs/{executionRunId}', ['GET']],
+  ['/api/knowledge/corpora', ['GET']], ['/api/knowledge/corpora/{corpusId}/generations', ['GET']],
+  ['/api/knowledge/citations/{citationId}/artifact', ['GET']],
   // @req FR-236 — LINE FAQ knowledge candidates (ADR-090 D6).
   ['/api/knowledge/candidates', ['GET', 'POST']], ['/api/knowledge/candidates/{id}', ['GET', 'PATCH']],
   ['/api/knowledge/candidates/{id}/decision', ['POST']],

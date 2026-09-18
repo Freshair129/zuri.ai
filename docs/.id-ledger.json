@@ -381,6 +381,7 @@
     "FR-251",
     "FR-252",
     "FR-253",
+    "FR-254",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -4723,6 +4724,19 @@
         {
           "anchor": "business scoped versioned pricing rules and formula console",
           "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-254": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "ecface290ccd401a717b2c4593021039c7afedab16ea070514d866998576b0a4",
+      "history": [
+        {
+          "anchor": "knowledge base console",
+          "since": "2026-09-17",
           "reason": "declared"
         }
       ]
