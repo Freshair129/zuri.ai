@@ -1,8 +1,8 @@
 # Appendix B — Database Schema Summary
 
-Version diff 1.54.0b → 1.55.0b (2026-09-18): add the TaskUsageLedger read-projection contract over ProgrammeUsageReport and declared lane telemetry. It is not a Prisma model, creates no table or migration, and keeps plan.predictedTokens separate from measured actual.tokens; lane-only usage is never allocated to tasks. The composed schema remains 175 application models, including the Phase B feature authority records.
+Version diff 1.54.0b → 1.55.0b (2026-09-18): add the TaskUsageLedger read-projection contract over ProgrammeUsageReport and declared lane telemetry, and add the TASK-ZAI-049 KnowledgeArtifactStorage and KnowledgeArtifactOperation models and their additive local/Postgres migrations.
 
-Version diff 1.53.0b → 1.54.0b: retain the already-deployed CustomerLegalHold model and add the two FR-253 Commerce pricing models. The composed schema has 171 models; pricing migration has passed a production transaction dry-run and rollback, but is not yet applied.
+Version diff 1.53.0b → 1.54.0b: retain the already-deployed CustomerLegalHold model and add the two FR-253 Commerce pricing models.
 
 | Field | Value |
 |-------|-------|
@@ -530,6 +530,8 @@ Version diff 1.27.0b → 1.28.0b: append-only document versions and exact attemp
 | Model | Identity / retained evidence | Restore order |
 |---|---|---|
 | KnowledgeRawArtifact | Source/version/hash, exact content, existing RawExternalRecord reference and scope | After RawExternalRecord |
+| KnowledgeArtifactStorage | Scoped raw object key/version, SHA-256, byte length, policy and retention state | After KnowledgeRawArtifact |
+| KnowledgeArtifactOperation | Idempotent storage/recovery/erasure operation journal with outcome evidence | After KnowledgeArtifactStorage |
 | KnowledgeParsedArtifact | Immutable parser version and parsed structure referencing raw | After KnowledgeRawArtifact |
 | KnowledgeChunk | Exact substring, offsets, hash and ordinal referencing parsed version | After KnowledgeParsedArtifact |
 | GenesisRag17IngestionIntent | Immutable scoped request/derivation identity with mutable local-stage progress; durable before Stage1 | After PipelineRun and source parents |

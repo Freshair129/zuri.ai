@@ -2,7 +2,7 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.11"
+version: "0.4.12"
 updated: "2026-09-17"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
@@ -2745,6 +2745,8 @@ ui_state:
 
 ### TC-TASK-ZAI-049
 
+Approved implementation specification: [self-hosted S3 storage, retention and recovery](../plans/TASK-ZAI-049-DURABLE-KNOWLEDGE-STORAGE.md), version `0.1.0`. The owner approved isolated implementation on 2026-09-17; provider deployment, production migration, canary and acceptance remain pending, so the task stays planned.
+
 ```yaml
 task_container_id: TC-TASK-ZAI-049
 task_id: TASK-ZAI-049
@@ -2761,9 +2763,9 @@ executor: ATHER
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/modules/knowledge/genesisrag17-lineage-repository.js
+  code: apps/server/src/modules/knowledge/knowledge-artifact-storage-service.js
   doc: docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md
-  test: apps/server/tests/integration/knowledge-admission-backup.test.js
+  test: apps/server/tests/integration/knowledge-storage-ingestion.test.js
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a raw artifact admitted on production, when the file bytes are requested a year later or after a restore from backup, then the exact bytes and their content hash are returned, and a FileAsset deleted from the File Manager does not delete the knowledge raw artifact that cites it
@@ -7381,3 +7383,5 @@ second run over the same logs writes the same block.
 | 0.4.9 | 2026-09-16 | **Conversation sessions and chat evidence** added on the owner's acceptance of every proposed default in ADR-093 and ADR-094, under deliverable 8 (no Change Request needed). SPR-ZAI-02 (current): TASK-ZAI-105 decision records, in review. SPR-ZAI-03: TASK-ZAI-106 and 107 conversation sessions (FR-243) and TASK-ZAI-108 their production apply. SPR-ZAI-04: TASK-ZAI-109 model residency by business hours (FR-244) and TASK-ZAI-110 staff replies recorded (FR-246), the evidence gap the owner chose to close before the archive. SPR-ZAI-05: TASK-ZAI-111 to 113 the archive writer, OWNER retrieval and the legal hold (FR-245, SEC-034). SPR-ZAI-06: TASK-ZAI-114 the archive on production and TASK-ZAI-115 its monthly offline copy. Five lanes declared before work starts. Sprint goals and exit criteria extended; progress recomputed under the board mapping, which also corrects SPR-ZAI-04 from a stale 3: PHASE-ZAI-01 87, PHASE-ZAI-02 12, PHASE-ZAI-03 2, SPR-ZAI-02 86, SPR-ZAI-03 15, SPR-ZAI-04 8, SPR-ZAI-05 0, SPR-ZAI-06 4. |
 | 0.4.10 | 2026-09-16 | **Observability: error tracking and feature usage** added on the owner's instruction, after asking what the system logs (no Change Request needed): CR-020 surveyed all seven log surfaces and found two gaps; ADR-095 accepted the owner's answer (CR-020 §7) — extend the existing logger for error tracking, and capture feature usage at both route and action level, per person, with a 90-day raw window then an aggregate rollup. TASK-ZAI-116 (declaration) done; TASK-ZAI-117 (error tracking, FR-247) and TASK-ZAI-118 (feature usage, FR-248/FR-249) planned. LANE-OBSERVABILITY-ERROR-AND-USAGE declared before code. Sprint 02 goal and exit criteria extended; progress recomputed (SPR-ZAI-02 86 → 85, PHASE-ZAI-01 88 → 87). |
 | 0.4.11 | 2026-09-17 | TASK-ZAI-047 / FR-254 implemented under its owner-approved Console specification and moved to review with local Server, browser, native pipeline and build evidence. Corpus queries and immutable artifacts reuse existing authorities; no schema or GKS contract change. Release composition preserves all existing tasks and recomputes SPR-ZAI-03 to 34 and PHASE-ZAI-02 to 28 from their statuses. Production deployment and activation remain separate; phase report records full regression outcomes. |
+| 0.4.11 (Storage branch) | 2026-09-17 | Link TASK-ZAI-049 to candidate storage spec 0.1.0b: self-hosted S3/AIStor, retention and coordinated recovery. Task remains planned; no implementation or deployment approval recorded. |
+| 0.4.12 | 2026-09-17 | Owner approved TASK-ZAI-049 spec 0.1.0 and the isolated implementation. Provider deployment, production migration, canary and acceptance remain pending; TASK-ZAI-050 remains separate. |

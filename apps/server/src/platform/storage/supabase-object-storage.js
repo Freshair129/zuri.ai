@@ -58,7 +58,7 @@ export function createSupabaseObjectStoragePort({
 } = {}) {
   const root = required(baseUrl, 'Supabase URL')
   const credential = required(serviceRoleKey, 'Supabase service role key')
-  const bucketId = required(bucket, 'Asset evidence bucket')
+  const bucketId = required(bucket, 'Storage bucket')
   const headers = { apikey: credential, Authorization: `Bearer ${credential}` }
   const objectUrl = (key) => `${root}/storage/v1/object/${encodeURIComponent(bucketId)}/${encodeObjectPath(key)}`
 
@@ -92,5 +92,39 @@ export function createConfiguredAssetObjectStoragePort(env = process.env, option
     serviceRoleKey: env.SUPABASE_STORAGE_SERVICE_ROLE_KEY || env.SUPABASE_SERVICE_ROLE_KEY,
     bucket: env.ZURI_ASSET_EVIDENCE_BUCKET,
     ...options,
+  })
+}
+
+/**
+ * Structured knowledge projections are private JSON objects. They use a
+ * separate bucket so the evidence bucket can keep its image/PDF-only contract.
+ */
+export function createConfiguredKnowledgeCatalogObjectStoragePort(env = process.env, options = {}) {
+  return createSupabaseObjectStoragePort({
+    baseUrl: env.SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL,
+    serviceRoleKey: env.SUPABASE_STORAGE_SERVICE_ROLE_KEY || env.SUPABASE_SERVICE_ROLE_KEY,
+    bucket: env.ZURI_KNOWLEDGE_CATALOG_BUCKET,
+    ...options,
+  })
+}
+
+/**
+ * FileAsset readers may encounter either the evidence or structured-catalog
+ * bucket. The reference selects the already configured private port; callers
+ * still cannot supply an endpoint, bucket or credential.
+ */
+export function createConfiguredManagedBlobObjectStoragePort(env = process.env, options = {}) {
+  let assetPort
+  let catalogPort
+  const asset = () => (assetPort ||= createConfiguredAssetObjectStoragePort(env, options))
+  const catalog = () => (catalogPort ||= createConfiguredKnowledgeCatalogObjectStoragePort(env, options))
+  const portFor = (ref) => {
+    const bucket = env.ZURI_KNOWLEDGE_CATALOG_BUCKET
+    if (typeof bucket === 'string' && bucket.trim() && typeof ref === 'string' && ref.startsWith(`supabase://${bucket}/`)) return catalog()
+    return asset()
+  }
+  return Object.freeze({
+    async get({ ref }) { return portFor(ref).get({ ref }) },
+    async remove({ ref }) { return portFor(ref).remove({ ref }) },
   })
 }
