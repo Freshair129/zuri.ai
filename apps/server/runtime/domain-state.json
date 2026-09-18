@@ -339,7 +339,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-026",
@@ -347,7 +347,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-027",
@@ -355,7 +355,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-028",
@@ -371,7 +371,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 5
+          "testCount": 6
         },
         {
           "id": "FR-047",
@@ -387,7 +387,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-049",
@@ -395,7 +395,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-050",
@@ -432,7 +432,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-054",
@@ -440,7 +440,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-055",
@@ -472,7 +472,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-080",
@@ -1589,7 +1589,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-031",
@@ -2238,7 +2238,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-052",
@@ -2262,7 +2262,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-080",
@@ -3031,7 +3031,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-071",
@@ -3464,7 +3464,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-061",
@@ -6515,7 +6515,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-079",
@@ -6523,7 +6523,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-080",
@@ -6586,7 +6586,8 @@
         "apps/server/tests/unit/model-provider-port.test.js",
         "apps/server/tests/unit/model-provider-trace.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
-        "apps/server/tests/unit/platform/connector-catalog.test.js"
+        "apps/server/tests/unit/platform/connector-catalog.test.js",
+        "apps/server/tests/unit/role-memory-partition.test.js"
       ]
     },
     {
@@ -11948,7 +11949,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 10
+          "testCount": 11
         }
       ],
       "evidence": [
@@ -11967,7 +11968,8 @@
         "apps/server/tests/integration/line-worker-memory.test.js",
         "apps/server/tests/integration/msp-vault-memory-port.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
-        "apps/server/tests/unit/agent-role-registry.test.js"
+        "apps/server/tests/unit/agent-role-registry.test.js",
+        "apps/server/tests/unit/role-memory-partition.test.js"
       ]
     },
     {
@@ -11996,7 +11998,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -12016,7 +12018,8 @@
         "apps/server/tests/integration/line-project-work-tools.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
         "apps/server/tests/unit/agent-role-registry.test.js",
-        "apps/server/tests/unit/line-project-work-tool-route.test.js"
+        "apps/server/tests/unit/line-project-work-tool-route.test.js",
+        "apps/server/tests/unit/role-memory-partition.test.js"
       ]
     },
     {
@@ -12043,7 +12046,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 6
+          "testCount": 7
         }
       ],
       "evidence": [
@@ -12054,7 +12057,8 @@
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-turn.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
-        "apps/server/tests/unit/agent-role-registry.test.js"
+        "apps/server/tests/unit/agent-role-registry.test.js",
+        "apps/server/tests/unit/role-memory-partition.test.js"
       ]
     },
     {
@@ -12123,7 +12127,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 5
+          "testCount": 6
         }
       ],
       "evidence": [
@@ -12133,7 +12137,8 @@
         "apps/server/tests/integration/agent-context.test.js",
         "apps/server/tests/integration/agent-runtime.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
-        "apps/server/tests/unit/agent-role-registry.test.js"
+        "apps/server/tests/unit/agent-role-registry.test.js",
+        "apps/server/tests/unit/role-memory-partition.test.js"
       ]
     },
     {
@@ -13009,7 +13014,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 6
+          "testCount": 7
         }
       ],
       "evidence": [
@@ -13020,7 +13025,8 @@
         "apps/server/tests/integration/smartgift-webhook-e2e.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
         "apps/server/tests/unit/agent-role-registry.test.js",
-        "apps/server/tests/unit/grounded-business-answer.test.js"
+        "apps/server/tests/unit/grounded-business-answer.test.js",
+        "apps/server/tests/unit/role-memory-partition.test.js"
       ]
     },
     {
@@ -13177,7 +13183,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 6
+          "testCount": 7
         }
       ],
       "evidence": [
@@ -13189,7 +13195,8 @@
         "apps/server/tests/unit/activation-readiness-contract.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
         "apps/server/tests/unit/agent-role-registry.test.js",
-        "apps/server/tests/unit/golden-evaluation.test.js"
+        "apps/server/tests/unit/golden-evaluation.test.js",
+        "apps/server/tests/unit/role-memory-partition.test.js"
       ]
     },
     {
@@ -13217,7 +13224,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -13236,6 +13243,7 @@
         "apps/server/tests/unit/activation-readiness-integration.test.js",
         "apps/server/tests/unit/agent-role-registry.test.js",
         "apps/server/tests/unit/line-canary-preflight.test.js",
+        "apps/server/tests/unit/role-memory-partition.test.js",
         "apps/server/tests/unit/runtime-isolation-probe.test.js",
         "apps/server/tests/unit/runtime-postgres-config.test.js"
       ]
