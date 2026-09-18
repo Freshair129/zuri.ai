@@ -1,0 +1,337 @@
+{
+  "schemaVersion": "1.0",
+  "code": "WF_PROJECT_DELIVERY_EXAMPLE",
+  "name": "Synthetic multi-domain delivery with independent acceptance",
+  "version": "0.1.0b",
+  "executionKind": "PROJECT_DELIVERY",
+  "exampleOnly": true,
+  "agentBindings": [
+    {
+      "roleKey": "pm-desk",
+      "agentVersionId": "00000000-0000-4000-8000-000000000301",
+      "ownerDomain": "project-manager"
+    },
+    {
+      "roleKey": "integration-desk",
+      "agentVersionId": "00000000-0000-4000-8000-000000000302",
+      "ownerDomain": "integration"
+    }
+  ],
+  "inputSchema": {
+    "type": "object",
+    "required": [
+      "objectiveRef"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "objectiveRef": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+      }
+    }
+  },
+  "outputSchema": {
+    "type": "object",
+    "required": [
+      "artifactRef",
+      "sha256"
+    ],
+    "additionalProperties": false,
+    "properties": {
+      "artifactRef": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 512
+      },
+      "sha256": {
+        "type": "string",
+        "pattern": "^[a-f0-9]{64}$"
+      }
+    }
+  },
+  "steps": [
+    {
+      "key": "prepare-spec",
+      "kind": "AGENT",
+      "ownerDomain": "project-manager",
+      "dependsOn": [],
+      "effectClass": "ISOLATED_WRITE",
+      "inputRefs": [
+        {
+          "from": "input",
+          "output": "objectiveRef"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "spec",
+          "artifactType": "PROJECT_EVIDENCE",
+          "schema": {
+            "type": "object",
+            "required": [
+              "artifactRef",
+              "sha256"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "artifactRef": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      ],
+      "timeoutSeconds": 900,
+      "retry": {
+        "maxAttempts": 1,
+        "onUnknownEffect": "RECONCILE"
+      },
+      "approval": {
+        "mode": "NONE",
+        "independentReviewer": false
+      },
+      "requiredForSuccess": true,
+      "agentRole": "pm-desk",
+      "executorProfileRef": "urn:zuri:fixture:isolated-doc-profile",
+      "modelPolicyVersionId": "00000000-0000-4000-8000-000000000310"
+    },
+    {
+      "key": "approve-spec",
+      "kind": "HUMAN_APPROVAL",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "prepare-spec"
+      ],
+      "effectClass": "READ_ONLY",
+      "inputRefs": [
+        {
+          "from": "prepare-spec",
+          "output": "spec"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "approval",
+          "artifactType": "PROJECT_EVIDENCE",
+          "schema": {
+            "type": "object",
+            "required": [
+              "artifactRef",
+              "sha256"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "artifactRef": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      ],
+      "timeoutSeconds": 900,
+      "retry": {
+        "maxAttempts": 1,
+        "onUnknownEffect": "RECONCILE"
+      },
+      "approval": {
+        "mode": "REVIEW_OUTPUT",
+        "independentReviewer": true,
+        "capability": "project.design.approve"
+      },
+      "requiredForSuccess": true
+    },
+    {
+      "key": "implement-contract",
+      "kind": "AGENT",
+      "ownerDomain": "integration",
+      "dependsOn": [
+        "approve-spec"
+      ],
+      "effectClass": "ISOLATED_WRITE",
+      "inputRefs": [
+        {
+          "from": "approve-spec",
+          "output": "approval"
+        },
+        {
+          "from": "prepare-spec",
+          "output": "spec"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "implementation",
+          "artifactType": "PROJECT_EVIDENCE",
+          "schema": {
+            "type": "object",
+            "required": [
+              "artifactRef",
+              "sha256"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "artifactRef": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      ],
+      "timeoutSeconds": 900,
+      "retry": {
+        "maxAttempts": 1,
+        "onUnknownEffect": "RECONCILE"
+      },
+      "approval": {
+        "mode": "BEFORE_EFFECT",
+        "independentReviewer": true,
+        "capability": "project.execution.dispatch"
+      },
+      "requiredForSuccess": true,
+      "agentRole": "integration-desk",
+      "executorProfileRef": "urn:zuri:fixture:isolated-repo-profile",
+      "modelPolicyVersionId": "00000000-0000-4000-8000-000000000310"
+    },
+    {
+      "key": "verify-contract",
+      "kind": "DOMAIN_TOOL",
+      "ownerDomain": "integration",
+      "dependsOn": [
+        "implement-contract"
+      ],
+      "effectClass": "READ_ONLY",
+      "inputRefs": [
+        {
+          "from": "implement-contract",
+          "output": "implementation"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "tests",
+          "artifactType": "PROJECT_EVIDENCE",
+          "schema": {
+            "type": "object",
+            "required": [
+              "artifactRef",
+              "sha256"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "artifactRef": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      ],
+      "timeoutSeconds": 900,
+      "retry": {
+        "maxAttempts": 1,
+        "onUnknownEffect": "RECONCILE"
+      },
+      "approval": {
+        "mode": "NONE",
+        "independentReviewer": false
+      },
+      "requiredForSuccess": true,
+      "toolBindingRef": "urn:zuri:fixture:approved-contract-test-runner"
+    },
+    {
+      "key": "accept-result",
+      "kind": "HUMAN_APPROVAL",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "verify-contract"
+      ],
+      "effectClass": "READ_ONLY",
+      "inputRefs": [
+        {
+          "from": "verify-contract",
+          "output": "tests"
+        },
+        {
+          "from": "implement-contract",
+          "output": "implementation"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "accepted-artifact",
+          "artifactType": "PROJECT_EVIDENCE",
+          "schema": {
+            "type": "object",
+            "required": [
+              "artifactRef",
+              "sha256"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "artifactRef": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{64}$"
+              }
+            }
+          }
+        }
+      ],
+      "timeoutSeconds": 900,
+      "retry": {
+        "maxAttempts": 1,
+        "onUnknownEffect": "RECONCILE"
+      },
+      "approval": {
+        "mode": "REVIEW_OUTPUT",
+        "independentReviewer": true,
+        "capability": "project.evidence.accept"
+      },
+      "requiredForSuccess": true
+    }
+  ],
+  "limits": {
+    "maxConcurrency": 2,
+    "maxRunSeconds": 7200,
+    "maxToolCalls": 50,
+    "maxIterations": 20,
+    "maxOutputBytes": 20971520,
+    "budget": {
+      "currency": "THB",
+      "limitMinorUnits": 50000,
+      "maxTokens": 100000
+    }
+  },
+  "resultFrom": {
+    "stepKey": "accept-result",
+    "outputName": "accepted-artifact"
+  }
+}

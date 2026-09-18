@@ -1,0 +1,658 @@
+{
+  "schemaVersion": "1.0.0",
+  "version": "0.1.0b",
+  "status": "candidate",
+  "sourceRef": "087f30258a6831865afd751e28804e36505aff30",
+  "docRef": "../09-NAVIGATION-REFINEMENT.md",
+  "runtimeImplemented": false,
+  "canonicalIdsRegistered": false,
+  "policy": {
+    "shellScopeCeiling": "BUSINESS",
+    "projectContextSource": "AUTHORIZED_ROUTE_RESOURCE",
+    "domainKey": "projects",
+    "topDomainLabel": "Development",
+    "projectSidebarReplacesBusinessSidebar": true,
+    "projectTabRailRemoved": true,
+    "scopeFromLocalStorage": false,
+    "primaryPageSelection": "EXACT_ROUTE_WITH_BOUNDARY",
+    "unavailableProductDestination": "NO_LINK",
+    "missingPermission": "NO_RESOURCE_METADATA",
+    "deepLinksPreserved": true,
+    "importPlacement": "PERSISTENT_HEADER_ACTION",
+    "workEntry": "p.work-items",
+    "workDefaultChange": "EXPLICIT_CANDIDATE_AMENDMENT"
+  },
+  "sections": [
+    {
+      "id": "home",
+      "label": "Project"
+    },
+    {
+      "id": "planning",
+      "label": "Planning",
+      "labelTh": "วางแผนงาน"
+    },
+    {
+      "id": "design",
+      "label": "Design & specs",
+      "labelTh": "แบบและข้อกำหนด"
+    },
+    {
+      "id": "automation",
+      "label": "Agents & runs",
+      "labelTh": "เอเจนต์และการรันงาน"
+    },
+    {
+      "id": "resources",
+      "label": "Project resources",
+      "labelTh": "ทรัพยากรโปรเจกต์"
+    },
+    {
+      "id": "control",
+      "label": "Control & evidence",
+      "labelTh": "ควบคุมและหลักฐาน"
+    }
+  ],
+  "business": [
+    {
+      "id": "b.dashboard",
+      "label": "Dashboard",
+      "scope": "BUSINESS",
+      "section": "home",
+      "url": "/projects",
+      "sourcePage": "apps/server/src/app/(pm)/projects/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1"
+    },
+    {
+      "id": "b.work",
+      "label": "All Work",
+      "scope": "BUSINESS",
+      "section": "work",
+      "url": "/work",
+      "sourcePage": "apps/server/src/app/(pm)/work/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1"
+    },
+    {
+      "id": "b.execution",
+      "label": "Execution",
+      "scope": "BUSINESS",
+      "section": "work",
+      "url": "/execution",
+      "sourcePage": "apps/server/src/app/(pm)/execution/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1"
+    },
+    {
+      "id": "b.timeline",
+      "label": "Timeline",
+      "scope": "BUSINESS",
+      "section": "work",
+      "url": "/timeline",
+      "sourcePage": "apps/server/src/app/(pm)/timeline/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1"
+    },
+    {
+      "id": "b.dependencies",
+      "label": "Dependencies",
+      "scope": "BUSINESS",
+      "section": "work",
+      "url": "/dependencies",
+      "sourcePage": "apps/server/src/app/(pm)/dependencies/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1"
+    },
+    {
+      "id": "b.milestones",
+      "label": "Milestones & Gates",
+      "scope": "BUSINESS",
+      "section": "work",
+      "url": "/milestones",
+      "sourcePage": "apps/server/src/app/(pm)/milestones/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1"
+    },
+    {
+      "id": "b.files",
+      "label": "Files",
+      "scope": "BUSINESS",
+      "section": "resources",
+      "url": "/files",
+      "sourcePage": "apps/server/src/app/(pm)/files/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1"
+    },
+    {
+      "id": "b.repositories",
+      "label": "Repositories",
+      "scope": "BUSINESS",
+      "section": "resources",
+      "url": "/repositories",
+      "sourcePage": "apps/server/src/app/(pm)/repositories/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1"
+    }
+  ],
+  "project": [
+    {
+      "id": "p.overview",
+      "label": "Overview",
+      "scope": "PROJECT",
+      "section": "home",
+      "url": "/projects/{projectId}",
+      "sourcePage": "apps/server/src/app/(pm)/projects/[projectId]/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1",
+      "oldLabel": "Project"
+    },
+    {
+      "id": "p.domains",
+      "label": "Domains",
+      "scope": "PROJECT",
+      "section": "planning",
+      "url": "/projects/{projectId}/domains",
+      "sourcePage": null,
+      "availability": "PROPOSED",
+      "slice": "P1",
+      "proposalRequirements": [
+        "PMR-002"
+      ]
+    },
+    {
+      "id": "p.features",
+      "label": "Features",
+      "scope": "PROJECT",
+      "section": "planning",
+      "url": "/projects/{projectId}/features",
+      "sourcePage": null,
+      "availability": "PROPOSED",
+      "slice": "P1",
+      "proposalRequirements": [
+        "PMR-003"
+      ]
+    },
+    {
+      "id": "p.work",
+      "label": "Work",
+      "scope": "PROJECT",
+      "section": "planning",
+      "kind": "SECTION",
+      "entry": "p.work-items",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1"
+    },
+    {
+      "id": "p.execution",
+      "label": "Execution views",
+      "scope": "PROJECT",
+      "section": "planning",
+      "kind": "MODE_DISCLOSURE",
+      "entry": null,
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1"
+    },
+    {
+      "id": "p.requirements",
+      "label": "Requirements",
+      "scope": "PROJECT",
+      "section": "design",
+      "url": "/projects/{projectId}/requirements",
+      "sourcePage": null,
+      "availability": "PROPOSED",
+      "slice": "P2",
+      "proposalRequirements": [
+        "PMR-015"
+      ]
+    },
+    {
+      "id": "p.architecture",
+      "label": "Architecture",
+      "scope": "PROJECT",
+      "section": "design",
+      "url": "/projects/{projectId}/architecture",
+      "sourcePage": null,
+      "availability": "PROPOSED",
+      "slice": "P2",
+      "proposalRequirements": [
+        "PMR-004",
+        "PMR-014"
+      ]
+    },
+    {
+      "id": "p.api",
+      "label": "API Explorer",
+      "scope": "PROJECT",
+      "section": "design",
+      "url": "/projects/{projectId}/api",
+      "sourcePage": null,
+      "availability": "PROPOSED",
+      "slice": "P2",
+      "proposalRequirements": [
+        "PMR-005"
+      ]
+    },
+    {
+      "id": "p.documents",
+      "label": "Docs & Decisions",
+      "scope": "PROJECT",
+      "section": "design",
+      "url": "/projects/{projectId}/documents",
+      "sourcePage": null,
+      "availability": "PROPOSED",
+      "slice": "P2",
+      "proposalRequirements": [
+        "PMR-015",
+        "PMR-023",
+        "PMR-032"
+      ]
+    },
+    {
+      "id": "p.command",
+      "label": "Command Center",
+      "scope": "PROJECT",
+      "section": "automation",
+      "url": "/projects/{projectId}/command-center",
+      "sourcePage": null,
+      "availability": "PROPOSED",
+      "slice": "P4",
+      "proposalRequirements": [
+        "PMR-008",
+        "PMR-021"
+      ]
+    },
+    {
+      "id": "p.agents",
+      "label": "Agent Inventory",
+      "scope": "PROJECT",
+      "section": "automation",
+      "url": "/projects/{projectId}/agents",
+      "sourcePage": null,
+      "availability": "PROPOSED",
+      "slice": "P4",
+      "proposalRequirements": [
+        "PMR-006"
+      ]
+    },
+    {
+      "id": "p.fleets",
+      "label": "Fleet Inventory",
+      "scope": "PROJECT",
+      "section": "automation",
+      "url": "/projects/{projectId}/fleets",
+      "sourcePage": null,
+      "availability": "PROPOSED",
+      "slice": "P5",
+      "proposalRequirements": [
+        "PMR-007"
+      ]
+    },
+    {
+      "id": "p.workflows",
+      "label": "Workflows",
+      "scope": "PROJECT",
+      "section": "automation",
+      "url": "/projects/{projectId}/workflows",
+      "sourcePage": null,
+      "availability": "PROPOSED",
+      "slice": "P4",
+      "proposalRequirements": [
+        "PMR-007",
+        "PMR-030"
+      ]
+    },
+    {
+      "id": "p.team",
+      "label": "Team",
+      "scope": "PROJECT",
+      "section": "resources",
+      "url": "/projects/{projectId}/team",
+      "sourcePage": "apps/server/src/app/(pm)/projects/[projectId]/team/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1"
+    },
+    {
+      "id": "p.files",
+      "label": "Files & Artifacts",
+      "scope": "PROJECT",
+      "section": "resources",
+      "url": "/projects/{projectId}/files",
+      "sourcePage": "apps/server/src/app/(pm)/projects/[projectId]/files/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1",
+      "oldLabel": "Files",
+      "navP1Label": "Files",
+      "extensionSlice": "P6",
+      "extension": "Artifact lineage and review features remain proposed; NAV-P1 keeps existing file behavior."
+    },
+    {
+      "id": "p.repositories",
+      "label": "Repositories",
+      "scope": "PROJECT",
+      "section": "resources",
+      "url": "/projects/{projectId}/repositories",
+      "sourcePage": "apps/server/src/app/(pm)/projects/[projectId]/repositories/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1",
+      "oldParent": "Inventory"
+    },
+    {
+      "id": "p.index",
+      "label": "Project Index",
+      "scope": "PROJECT",
+      "section": "resources",
+      "url": "/projects/{projectId}/inventory",
+      "sourcePage": "apps/server/src/app/(pm)/projects/[projectId]/inventory/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1",
+      "oldLabel": "Inventory",
+      "readOnly": true
+    },
+    {
+      "id": "p.connections",
+      "label": "Connections used",
+      "scope": "PROJECT",
+      "section": "resources",
+      "url": "/projects/{projectId}/connections",
+      "sourcePage": null,
+      "availability": "PROPOSED",
+      "slice": "P3",
+      "proposalRequirements": [
+        "PMR-009",
+        "PMR-010",
+        "PMR-011"
+      ]
+    },
+    {
+      "id": "p.budget",
+      "label": "Resources & Budget",
+      "scope": "PROJECT",
+      "section": "control",
+      "url": "/projects/{projectId}/resources",
+      "sourcePage": null,
+      "availability": "PROPOSED",
+      "slice": "P6",
+      "proposalRequirements": [
+        "PMR-017"
+      ]
+    },
+    {
+      "id": "p.risks",
+      "label": "Risks & Issues",
+      "scope": "PROJECT",
+      "section": "control",
+      "url": "/projects/{projectId}/risks",
+      "sourcePage": null,
+      "availability": "PROPOSED",
+      "slice": "P6",
+      "proposalRequirements": [
+        "PMR-017"
+      ]
+    },
+    {
+      "id": "p.releases",
+      "label": "Tests & Releases",
+      "scope": "PROJECT",
+      "section": "control",
+      "url": "/projects/{projectId}/releases",
+      "sourcePage": null,
+      "availability": "PROPOSED",
+      "slice": "P6",
+      "proposalRequirements": [
+        "PMR-018",
+        "PMR-028",
+        "PMR-031"
+      ]
+    },
+    {
+      "id": "p.activity",
+      "label": "Activity",
+      "scope": "PROJECT",
+      "section": "control",
+      "url": "/projects/{projectId}/activity",
+      "sourcePage": null,
+      "availability": "PROPOSED",
+      "slice": "P6",
+      "proposalRequirements": [
+        "PMR-019",
+        "PMR-024"
+      ]
+    },
+    {
+      "id": "p.settings",
+      "label": "Project Settings",
+      "scope": "PROJECT",
+      "section": "control",
+      "url": "/projects/{projectId}/settings",
+      "sourcePage": null,
+      "availability": "PROPOSED",
+      "slice": "P6",
+      "proposalRequirements": [
+        "PMR-026"
+      ]
+    }
+  ],
+  "workViews": [
+    {
+      "id": "p.work-items",
+      "label": "Work Items",
+      "scope": "PROJECT",
+      "section": "p.work",
+      "url": "/projects/{projectId}/all-work",
+      "sourcePage": "apps/server/src/app/(pm)/projects/[projectId]/all-work/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1",
+      "presentation": "TABLE",
+      "oldLabel": "Work Items"
+    },
+    {
+      "id": "p.board",
+      "label": "Board",
+      "scope": "PROJECT",
+      "section": "p.work",
+      "url": "/projects/{projectId}/board",
+      "sourcePage": "apps/server/src/app/(pm)/projects/[projectId]/board/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1"
+    },
+    {
+      "id": "p.structure",
+      "label": "Structure Plan",
+      "scope": "PROJECT",
+      "section": "p.work",
+      "url": "/projects/{projectId}/structure",
+      "sourcePage": "apps/server/src/app/(pm)/projects/[projectId]/structure/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1"
+    },
+    {
+      "id": "p.timeline",
+      "label": "Timeline",
+      "scope": "PROJECT",
+      "section": "p.work",
+      "url": "/projects/{projectId}/timeline",
+      "sourcePage": "apps/server/src/app/(pm)/projects/[projectId]/timeline/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1",
+      "oldLabel": "Schedule"
+    },
+    {
+      "id": "p.milestones",
+      "label": "Milestones & Gates",
+      "scope": "PROJECT",
+      "section": "p.work",
+      "url": "/projects/{projectId}/milestones",
+      "sourcePage": "apps/server/src/app/(pm)/projects/[projectId]/milestones/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1",
+      "oldLabel": "Milestones"
+    },
+    {
+      "id": "p.dependencies",
+      "label": "Dependencies",
+      "scope": "PROJECT",
+      "section": "p.work",
+      "url": "/projects/{projectId}/dependencies",
+      "sourcePage": "apps/server/src/app/(pm)/projects/[projectId]/dependencies/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1",
+      "oldLabel": "Dependency Map"
+    },
+    {
+      "id": "p.roadmap",
+      "label": "Execution Roadmap",
+      "scope": "PROJECT",
+      "section": "p.work",
+      "url": "/projects/{projectId}/roadmap",
+      "sourcePage": "apps/server/src/app/(pm)/projects/[projectId]/roadmap/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1"
+    },
+    {
+      "id": "p.calendar",
+      "label": "Calendar",
+      "scope": "PROJECT",
+      "section": "p.work",
+      "url": "/projects/{projectId}/calendar",
+      "sourcePage": null,
+      "availability": "PROPOSED",
+      "slice": "P6",
+      "proposalRequirements": [
+        "PMR-017"
+      ]
+    }
+  ],
+  "executionModes": [
+    {
+      "id": "SOFTWARE_SPRINT",
+      "slug": "sprint",
+      "label": "Sprint"
+    },
+    {
+      "id": "DATA_MIGRATION",
+      "slug": "migration",
+      "label": "Migration"
+    },
+    {
+      "id": "B2B_SALES",
+      "slug": "b2b-sales",
+      "label": "B2B Sales"
+    },
+    {
+      "id": "B2C_CAMPAIGN",
+      "slug": "b2c-campaign",
+      "label": "B2C Campaign"
+    },
+    {
+      "id": "PRODUCT_LAUNCH",
+      "slug": "product-launch",
+      "label": "Product Launch"
+    },
+    {
+      "id": "OPERATIONS",
+      "slug": "operations",
+      "label": "Operations"
+    },
+    {
+      "id": "BUSINESS_EXPANSION",
+      "slug": "expansion",
+      "label": "Expansion"
+    }
+  ],
+  "executionRoute": {
+    "url": "/projects/{projectId}/execution/{mode}",
+    "sourcePage": "apps/server/src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx",
+    "availability": "SOURCE_PRESENT",
+    "activeParent": "p.execution",
+    "invalidMode": "NOT_FOUND",
+    "selectionBehavior": "EXPLICIT_MODE_OR_WORKSTREAM_LINK_NO_FIRST_MODE_FALLBACK"
+  },
+  "businessExecutionRoute": {
+    "url": "/execution/{mode}",
+    "sourcePage": "apps/server/src/app/(pm)/execution/[mode]/page.jsx",
+    "availability": "SOURCE_PRESENT"
+  },
+  "actions": [
+    {
+      "id": "p.import",
+      "label": "Import Plan",
+      "scope": "PROJECT",
+      "section": "HEADER_ACTION",
+      "url": "/projects/{projectId}/import",
+      "sourcePage": "apps/server/src/app/(pm)/projects/[projectId]/import/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1",
+      "oldLabel": "Import",
+      "visibility": "ALWAYS_DISCOVERABLE_WITH_AUTHORIZATION"
+    },
+    {
+      "id": "b.create",
+      "label": "New Project",
+      "scope": "BUSINESS",
+      "section": "HEADER_ACTION",
+      "url": "/projects/new",
+      "sourcePage": "apps/server/src/app/(pm)/projects/new/page.jsx",
+      "availability": "SOURCE_PRESENT",
+      "slice": "NAV-P1"
+    }
+  ],
+  "integrationRegistry": {
+    "id": "i.registry",
+    "label": "Provider & MCP Registry",
+    "scope": "BUSINESS",
+    "ownerDomain": "integration",
+    "parentUrl": "/platform/integrations",
+    "sourcePage": "apps/server/src/app/(pm)/platform/integrations/page.jsx",
+    "availability": "EXTENSION_PROPOSED",
+    "slice": "P3",
+    "contextLinkFrom": "p.connections",
+    "projectMayEdit": "BINDING_ONLY",
+    "subviews": [
+      "Providers & Connections",
+      "Model Deployments",
+      "MCP Servers & Tools",
+      "Inference API Keys",
+      "Executors",
+      "Routing & Budgets"
+    ],
+    "proposalRequirements": [
+      "PMR-009",
+      "PMR-010",
+      "PMR-011"
+    ]
+  },
+  "plannedPresentation": {
+    "reviewMode": "Clicking proposed entries only inspects this design, never navigates to product endpoints.",
+    "productMode": "Hide until the approved feature slice is implemented and authorized; capability map discloses planned items with written reasons and no route href."
+  },
+  "coverage": {
+    "existingBusinessSidebarEntries": 8,
+    "existingProjectPageTemplates": 14,
+    "originalPlannedSections": [
+      "Requirements",
+      "Risks",
+      "Resources"
+    ],
+    "projectTabDestinationsMapped": 6,
+    "projectWorkSubviewsMapped": 7
+  },
+  "relatedProposalRequirements": [
+    "PMR-001",
+    "PMR-002",
+    "PMR-003",
+    "PMR-004",
+    "PMR-005",
+    "PMR-006",
+    "PMR-007",
+    "PMR-008",
+    "PMR-009",
+    "PMR-010",
+    "PMR-011",
+    "PMR-015",
+    "PMR-017",
+    "PMR-026",
+    "PMR-029",
+    "PMR-032"
+  ]
+}

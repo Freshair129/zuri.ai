@@ -1,0 +1,1682 @@
+openapi: 3.0.3
+info:
+  title: Zuri workforce planning and performance — CANDIDATE supplement
+  version: 0.1.0b
+  description: PMR-033 proposal only. NOT_IMPLEMENTED. Existing PM and Identity
+    owner contracts remain authoritative. Authorization, semantic invariants and
+    reviewed migration are required before code.
+servers:
+  - url: https://pm-design.invalid
+    description: Synthetic documentation server; no live service
+security:
+  - SessionAuth: []
+tags:
+  - name: Workforce
+paths:
+  /api/businesses/{businessId}/workforce/workload:
+    parameters:
+      - in: path
+        name: businessId
+        required: true
+        schema: &a2
+          type: string
+          format: uuid
+    get:
+      operationId: getWorkforceWorkload
+      tags:
+        - Workforce
+      summary: getWorkforceWorkload
+      description: Read scoped workload and complete/partial daily capacity. Project
+        filtering must retain authorized cross-project capacity checks.
+      x-owner-domain: project-manager
+      x-proposal-requirements:
+        - PMR-033
+        - PMR-012
+      x-effect-class: READ_ONLY
+      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
+      parameters:
+        - &a4
+          in: query
+          name: from
+          required: true
+          schema: &a1
+            type: string
+            format: date
+        - &a5
+          in: query
+          name: to
+          required: true
+          schema: *a1
+        - &a6
+          in: query
+          name: timezone
+          required: true
+          schema: &a3
+            type: string
+        - &a7
+          in: query
+          name: subjectType
+          required: true
+          schema:
+            type: string
+            enum:
+              - PERSON
+              - TEAM
+              - BUSINESS
+        - &a8
+          in: query
+          name: personId
+          required: false
+          schema: *a2
+        - &a9
+          in: query
+          name: teamId
+          required: false
+          schema: *a2
+        - &a10
+          in: query
+          name: projectId
+          required: false
+          schema: *a2
+        - &a11
+          in: query
+          name: domainId
+          required: false
+          schema: *a3
+        - &a12
+          in: query
+          name: featureId
+          required: false
+          schema: *a3
+        - &a13
+          in: query
+          name: cursor
+          required: false
+          schema: *a3
+        - &a14
+          in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 50
+      responses:
+        "200":
+          description: Authorized typed response; candidate only
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkloadResponse"
+        "400":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "412":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/businesses/{businessId}/workforce/schedule:
+    parameters:
+      - in: path
+        name: businessId
+        required: true
+        schema: *a2
+    get:
+      operationId: getWorkforceSchedule
+      tags:
+        - Workforce
+      summary: getWorkforceSchedule
+      description: Read fixed slots separately from daily effort budgets and
+        unresolved queues.
+      x-owner-domain: project-manager
+      x-proposal-requirements:
+        - PMR-033
+        - PMR-012
+      x-effect-class: READ_ONLY
+      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
+      parameters:
+        - *a4
+        - *a5
+        - *a6
+        - *a7
+        - *a8
+        - *a9
+        - *a10
+        - *a11
+        - *a12
+        - *a13
+        - *a14
+      responses:
+        "200":
+          description: Authorized typed response; candidate only
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduleResponse"
+        "400":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "412":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/businesses/{businessId}/workforce/performance:
+    parameters:
+      - in: path
+        name: businessId
+        required: true
+        schema: *a2
+    get:
+      operationId: getWorkforcePerformance
+      tags:
+        - Workforce
+      summary: getWorkforcePerformance
+      description: Read approved-policy metric cohorts with evidence coverage.
+        Separate performance capability required.
+      x-owner-domain: project-manager
+      x-proposal-requirements:
+        - PMR-033
+        - PMR-012
+      x-effect-class: READ_ONLY
+      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
+      parameters:
+        - *a4
+        - *a5
+        - *a6
+        - *a7
+        - *a8
+        - *a9
+        - *a10
+        - *a11
+        - *a12
+        - *a13
+        - *a14
+      responses:
+        "200":
+          description: Authorized typed response; candidate only
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PerformanceResponse"
+        "400":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "412":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/businesses/{businessId}/workforce/metrics/{metricKey}/evidence:
+    parameters:
+      - in: path
+        name: businessId
+        required: true
+        schema: *a2
+      - in: path
+        name: metricKey
+        required: true
+        schema:
+          $ref: "#/components/schemas/MetricKey"
+    get:
+      operationId: getWorkforceMetricEvidence
+      tags:
+        - Workforce
+      summary: getWorkforceMetricEvidence
+      description: Read scope-bound paginated numerator/denominator evidence.
+        Unauthorized evidence is not disclosed by totals.
+      x-owner-domain: project-manager
+      x-proposal-requirements:
+        - PMR-033
+        - PMR-012
+      x-effect-class: READ_ONLY
+      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
+      parameters:
+        - *a4
+        - *a5
+        - *a6
+        - *a7
+        - *a8
+        - *a9
+        - *a10
+        - *a11
+        - *a12
+        - *a13
+        - *a14
+      responses:
+        "200":
+          description: Authorized typed response; candidate only
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvidenceResponse"
+        "400":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "412":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/businesses/{businessId}/workforce/plans/preview:
+    parameters:
+      - in: path
+        name: businessId
+        required: true
+        schema: *a2
+    post:
+      operationId: previewWorkforcePlan
+      tags:
+        - Workforce
+      summary: previewWorkforcePlan
+      description: Check authority per typed change and pin all source versions.
+        Preview grants no right to commit.
+      x-owner-domain: project-manager
+      x-proposal-requirements:
+        - PMR-033
+        - PMR-012
+      x-effect-class: DRAFT_PREVIEW
+      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+            minLength: 16
+            maxLength: 128
+      responses:
+        "200":
+          description: Authorized typed response; candidate only
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PreviewResponse"
+        "400":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "412":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PreviewInput"
+  /api/businesses/{businessId}/workforce/plans/commit:
+    parameters:
+      - in: path
+        name: businessId
+        required: true
+        schema: *a2
+    post:
+      operationId: commitWorkforcePlan
+      tags:
+        - Workforce
+      summary: commitWorkforcePlan
+      description: Commit the exact unexpired preview atomically through owner
+        services; recheck capacity and versions. A reason alone never authorizes
+        override.
+      x-owner-domain: project-manager
+      x-proposal-requirements:
+        - PMR-033
+        - PMR-012
+      x-effect-class: SCOPED_WRITE
+      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+            minLength: 16
+            maxLength: 128
+        - in: header
+          name: If-Match
+          required: true
+          schema: *a3
+          description: Quoted preview revision. Version mismatch or changed source
+            versions return 412.
+      responses:
+        "200":
+          description: Authorized typed response; candidate only
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Receipt"
+        "400":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "412":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommitInput"
+  /api/businesses/{businessId}/workforce/time-logs:
+    parameters:
+      - in: path
+        name: businessId
+        required: true
+        schema: *a2
+    post:
+      operationId: submitWorkforceTimeLog
+      tags:
+        - Workforce
+      summary: submitWorkforceTimeLog
+      description: Own draft/submission; REVIEW requires a scoped reviewer distinct
+        from the author. CORRECT creates a revision. Never infer working time
+        from status or updatedAt.
+      x-owner-domain: project-manager
+      x-proposal-requirements:
+        - PMR-033
+        - PMR-012
+      x-effect-class: SCOPED_WRITE
+      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+            minLength: 16
+            maxLength: 128
+      responses:
+        "200":
+          description: Authorized typed response; candidate only
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Receipt"
+        "400":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "412":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TimeLogInput"
+  /api/businesses/{businessId}/workforce/metric-policies:
+    parameters:
+      - in: path
+        name: businessId
+        required: true
+        schema: *a2
+    post:
+      operationId: proposeWorkforceMetricPolicy
+      tags:
+        - Workforce
+      summary: proposeWorkforceMetricPolicy
+      description: Create a DRAFT policy revision for the existing governed review
+        flow; cannot self-approve. Built-in formula version only.
+      x-owner-domain: project-manager
+      x-proposal-requirements:
+        - PMR-033
+        - PMR-012
+      x-effect-class: SCOPED_WRITE
+      x-evidence-level: PROPOSED_NOT_IMPLEMENTED
+      parameters:
+        - in: header
+          name: Idempotency-Key
+          required: true
+          schema:
+            type: string
+            minLength: 16
+            maxLength: 128
+      responses:
+        "200":
+          description: Authorized typed response; candidate only
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Receipt"
+        "400":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "403":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "409":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "412":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "429":
+          description: Typed refusal; nonexistent and forbidden resource identifiers use
+            equivalent responses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PolicyInput"
+components:
+  securitySchemes:
+    SessionAuth:
+      type: apiKey
+      in: cookie
+      name: zuri_session
+      description: Documentation placeholder; bind to the current server session
+        resolver before implementation.
+  schemas:
+    Coverage:
+      type: object
+      additionalProperties: false
+      properties:
+        state:
+          type: string
+          enum:
+            - COMPLETE
+            - PARTIAL
+            - UNKNOWN
+        knownRecords: &a15
+          type: integer
+          minimum: 0
+        eligibleRecords:
+          type: integer
+          minimum: 0
+          nullable: true
+        missing:
+          type: array
+          items:
+            type: string
+            enum:
+              - ESTIMATE
+              - CALENDAR
+              - ASSIGNMENT
+              - SCHEDULE
+              - LOG
+              - ACCEPTANCE
+              - HISTORY
+              - PERMISSION
+          maxItems: 10
+        scopeLabel: *a3
+      required:
+        - state
+        - knownRecords
+        - eligibleRecords
+        - missing
+        - scopeLabel
+    Meta:
+      type: object
+      additionalProperties: false
+      properties:
+        asOf: &a16
+          type: string
+          format: date-time
+        sourceVersion: *a3
+        from: *a1
+        to: *a1
+        timezone: *a3
+        scopeBusinessId: *a2
+        coverage:
+          $ref: "#/components/schemas/Coverage"
+        stale:
+          type: boolean
+      required:
+        - asOf
+        - sourceVersion
+        - from
+        - to
+        - timezone
+        - scopeBusinessId
+        - coverage
+        - stale
+    Counts:
+      type: object
+      additionalProperties: false
+      properties:
+        open: *a15
+        planned: *a15
+        inProgress: *a15
+        blocked: *a15
+        accepted: *a15
+        cancelled: *a15
+        unknownStatus: *a15
+        unestimated: *a15
+        unscheduled: *a15
+      required:
+        - open
+        - planned
+        - inProgress
+        - blocked
+        - accepted
+        - cancelled
+        - unknownStatus
+        - unestimated
+        - unscheduled
+    Capacity:
+      type: object
+      additionalProperties: false
+      properties:
+        plannedMinutes: *a15
+        availableMinutes:
+          type: integer
+          minimum: 0
+          nullable: true
+        freeMinutes:
+          type: integer
+          minimum: 0
+          nullable: true
+        overbookedMinutes:
+          type: integer
+          minimum: 0
+          nullable: true
+        loadPercent:
+          type: number
+          nullable: true
+        state:
+          type: string
+          enum:
+            - MEASURED
+            - PARTIAL
+            - UNKNOWN
+            - ZERO_CAPACITY
+            - NOT_APPLICABLE
+      required:
+        - plannedMinutes
+        - availableMinutes
+        - freeMinutes
+        - overbookedMinutes
+        - loadPercent
+        - state
+    DayBucket:
+      type: object
+      additionalProperties: false
+      properties:
+        date: *a1
+        capacity:
+          $ref: "#/components/schemas/Capacity"
+        conflictCodes:
+          type: array
+          items: *a3
+          maxItems: 20
+      required:
+        - date
+        - capacity
+        - conflictCodes
+    WorkforceRow:
+      type: object
+      additionalProperties: false
+      properties:
+        subjectType:
+          type: string
+          enum:
+            - PERSON
+            - TEAM
+            - UNASSIGNED
+        personId:
+          type: string
+          format: uuid
+          nullable: true
+        teamId:
+          type: string
+          format: uuid
+          nullable: true
+        label: *a3
+        counts:
+          $ref: "#/components/schemas/Counts"
+        capacity:
+          $ref: "#/components/schemas/Capacity"
+        coverage:
+          $ref: "#/components/schemas/Coverage"
+        daily:
+          type: array
+          items:
+            $ref: "#/components/schemas/DayBucket"
+          maxItems: 93
+      required:
+        - subjectType
+        - personId
+        - teamId
+        - label
+        - counts
+        - capacity
+        - coverage
+        - daily
+    WorkloadResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        meta:
+          $ref: "#/components/schemas/Meta"
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkforceRow"
+          maxItems: 100
+        totals:
+          type: object
+          additionalProperties: false
+          properties:
+            distinctPeople: *a15
+            distinctOpenWork: *a15
+            capacity:
+              $ref: "#/components/schemas/Capacity"
+            overloadedPeople: *a15
+          required:
+            - distinctPeople
+            - distinctOpenWork
+            - capacity
+            - overloadedPeople
+        nextCursor:
+          type: string
+          nullable: true
+      required:
+        - meta
+        - rows
+        - totals
+        - nextCursor
+    ScheduleEntry:
+      type: object
+      additionalProperties: false
+      properties:
+        allocationId: *a2
+        workItemId: *a2
+        personId:
+          type: string
+          format: uuid
+          nullable: true
+        creditedTeamId:
+          type: string
+          format: uuid
+          nullable: true
+        placement:
+          type: string
+          enum:
+            - DAILY_BUDGET
+            - FIXED_SLOT
+            - UNASSIGNED
+            - UNSCHEDULED
+        startAt:
+          type: string
+          format: date-time
+          nullable: true
+        endAt:
+          type: string
+          format: date-time
+          nullable: true
+        remainingMinutes:
+          type: integer
+          minimum: 0
+          nullable: true
+        sourceVersion: *a3
+        conflictCodes:
+          type: array
+          items: *a3
+          maxItems: 20
+      required:
+        - allocationId
+        - workItemId
+        - personId
+        - creditedTeamId
+        - placement
+        - startAt
+        - endAt
+        - remainingMinutes
+        - sourceVersion
+        - conflictCodes
+    ScheduleResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        meta:
+          $ref: "#/components/schemas/Meta"
+        entries:
+          type: array
+          items:
+            $ref: "#/components/schemas/ScheduleEntry"
+          maxItems: 100
+        nextCursor:
+          type: string
+          nullable: true
+      required:
+        - meta
+        - entries
+        - nextCursor
+    MetricKey:
+      type: string
+      enum:
+        - WF-M01
+        - WF-M02
+        - WF-M03
+        - WF-M04
+        - WF-M05
+        - WF-M06
+        - WF-M07
+        - WF-M08
+        - WF-M09
+        - WF-M10
+        - WF-M11
+        - WF-M12
+    MetricResult:
+      type: object
+      additionalProperties: false
+      properties:
+        metricKey:
+          $ref: "#/components/schemas/MetricKey"
+        subjectType:
+          type: string
+          enum:
+            - PERSON
+            - TEAM
+            - BUSINESS
+        subjectId: *a2
+        value:
+          type: number
+          nullable: true
+        unit:
+          type: string
+          enum:
+            - COUNT
+            - MINUTES
+            - PERCENT
+            - FTE
+            - OUTCOME
+        numerator:
+          type: number
+          nullable: true
+        denominator:
+          type: number
+          nullable: true
+        sampleCount: *a15
+        status:
+          type: string
+          enum:
+            - MEASURED
+            - PARTIAL
+            - UNKNOWN
+            - ZERO_DENOMINATOR
+            - NOT_APPLICABLE
+            - INSUFFICIENT_SAMPLE
+            - PROVISIONAL
+        formulaVersion: *a3
+        baselineVersion: *a3
+        coverage:
+          $ref: "#/components/schemas/Coverage"
+        evidenceRefs:
+          type: array
+          items: *a3
+          maxItems: 100
+        target:
+          type: number
+          nullable: true
+      required:
+        - metricKey
+        - subjectType
+        - subjectId
+        - value
+        - unit
+        - numerator
+        - denominator
+        - sampleCount
+        - status
+        - formulaVersion
+        - baselineVersion
+        - coverage
+        - evidenceRefs
+        - target
+    PerformanceResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        meta:
+          $ref: "#/components/schemas/Meta"
+        metrics:
+          type: array
+          items:
+            $ref: "#/components/schemas/MetricResult"
+          maxItems: 100
+        nextCursor:
+          type: string
+          nullable: true
+      required:
+        - meta
+        - metrics
+        - nextCursor
+    EvidenceRow:
+      type: object
+      additionalProperties: false
+      properties:
+        workItemId: *a2
+        eventId: *a3
+        occurredAt: *a16
+        sourceVersion: *a3
+        inclusion:
+          type: string
+          enum:
+            - NUMERATOR_AND_DENOMINATOR
+            - DENOMINATOR_ONLY
+            - EXCLUDED
+        reason: *a3
+        evidenceRef: *a3
+      required:
+        - workItemId
+        - eventId
+        - occurredAt
+        - sourceVersion
+        - inclusion
+        - reason
+        - evidenceRef
+    EvidenceResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        meta:
+          $ref: "#/components/schemas/Meta"
+        metricKey:
+          $ref: "#/components/schemas/MetricKey"
+        formulaVersion: *a3
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/EvidenceRow"
+          maxItems: 100
+        nextCursor:
+          type: string
+          nullable: true
+      required:
+        - meta
+        - metricKey
+        - formulaVersion
+        - rows
+        - nextCursor
+    SourceVersion:
+      type: object
+      additionalProperties: false
+      properties:
+        kind:
+          type: string
+          enum:
+            - WORK_ITEM
+            - ALLOCATION
+            - CALENDAR
+            - AVAILABILITY
+            - TEAM_SHARE
+            - ASSIGNMENT
+            - POLICY
+        id: *a2
+        version:
+          type: integer
+          minimum: 1
+      required:
+        - kind
+        - id
+        - version
+    WeeklyInterval:
+      type: object
+      additionalProperties: false
+      properties:
+        dayOfWeek:
+          type: integer
+          minimum: 1
+          maximum: 7
+        startLocal:
+          type: string
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9]$
+        endLocal:
+          type: string
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9]$
+      required:
+        - dayOfWeek
+        - startLocal
+        - endLocal
+    CalendarChange:
+      type: object
+      additionalProperties: false
+      properties:
+        kind:
+          type: string
+          enum:
+            - CALENDAR
+        id:
+          type: string
+          format: uuid
+          nullable: true
+        version:
+          type: integer
+          minimum: 1
+          nullable: true
+        personId: *a2
+        employmentId: *a2
+        effectiveFrom: *a1
+        effectiveTo:
+          type: string
+          format: date
+          nullable: true
+        timezone: *a3
+        weekly:
+          type: array
+          items:
+            $ref: "#/components/schemas/WeeklyInterval"
+          maxItems: 28
+      required:
+        - kind
+        - id
+        - version
+        - personId
+        - employmentId
+        - effectiveFrom
+        - effectiveTo
+        - timezone
+        - weekly
+    AvailabilityChange:
+      type: object
+      additionalProperties: false
+      properties:
+        kind:
+          type: string
+          enum:
+            - AVAILABILITY
+        id:
+          type: string
+          format: uuid
+          nullable: true
+        version:
+          type: integer
+          minimum: 1
+          nullable: true
+        calendarId: *a2
+        startAt: *a16
+        endAt: *a16
+        availability:
+          type: string
+          enum:
+            - AVAILABLE
+            - UNAVAILABLE
+        sourceRef: *a3
+      required:
+        - kind
+        - id
+        - version
+        - calendarId
+        - startAt
+        - endAt
+        - availability
+        - sourceRef
+    AllocationChange:
+      type: object
+      additionalProperties: false
+      properties:
+        kind:
+          type: string
+          enum:
+            - ALLOCATION
+        id:
+          type: string
+          format: uuid
+          nullable: true
+        version:
+          type: integer
+          minimum: 1
+          nullable: true
+        workItemId: *a2
+        personId: *a2
+        creditedTeamId:
+          type: string
+          format: uuid
+          nullable: true
+        startAt: *a16
+        endAt: *a16
+        remainingMinutes: *a15
+        placement:
+          type: string
+          enum:
+            - DAILY_BUDGET
+            - FIXED_SLOT
+        state:
+          type: string
+          enum:
+            - CONFIRMED
+            - CANCELLED
+      required:
+        - kind
+        - id
+        - version
+        - workItemId
+        - personId
+        - creditedTeamId
+        - startAt
+        - endAt
+        - remainingMinutes
+        - placement
+        - state
+    PreviewInput:
+      type: object
+      additionalProperties: false
+      properties:
+        from: *a1
+        to: *a1
+        timezone: *a3
+        reason: &a17
+          type: string
+          minLength: 1
+          maxLength: 1000
+        sourceVersions:
+          type: array
+          items:
+            $ref: "#/components/schemas/SourceVersion"
+          maxItems: 200
+        changes:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/CalendarChange"
+              - $ref: "#/components/schemas/AvailabilityChange"
+              - $ref: "#/components/schemas/AllocationChange"
+      required:
+        - from
+        - to
+        - timezone
+        - reason
+        - sourceVersions
+        - changes
+    Conflict:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          enum:
+            - CAPACITY_EXCEEDED
+            - FIXED_SLOT_OVERLAP
+            - DEPENDENCY
+            - NO_AVAILABLE_DATE
+            - ASSIGNEE_UNRESOLVED
+            - SCOPE_INCOMPLETE
+            - STALE_VERSION
+        subjectId:
+          type: string
+          format: uuid
+          nullable: true
+        message: *a3
+        overridable:
+          type: boolean
+      required:
+        - code
+        - subjectId
+        - message
+        - overridable
+    PreviewResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        previewId: *a2
+        inputHash:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        version:
+          type: integer
+          minimum: 1
+        expiresAt: *a16
+        conflicts:
+          type: array
+          items:
+            $ref: "#/components/schemas/Conflict"
+          maxItems: 100
+        sourceVersions:
+          type: array
+          items:
+            $ref: "#/components/schemas/SourceVersion"
+          maxItems: 200
+        before:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkforceRow"
+          maxItems: 100
+        after:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkforceRow"
+          maxItems: 100
+      required:
+        - previewId
+        - inputHash
+        - version
+        - expiresAt
+        - conflicts
+        - sourceVersions
+        - before
+        - after
+    CommitInput:
+      type: object
+      additionalProperties: false
+      properties:
+        previewId: *a2
+        inputHash:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+        version:
+          type: integer
+          minimum: 1
+        reason: *a17
+        overrideReason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          nullable: true
+      required:
+        - previewId
+        - inputHash
+        - version
+        - reason
+        - overrideReason
+    Receipt:
+      type: object
+      additionalProperties: false
+      properties:
+        receiptId: *a2
+        status:
+          type: string
+          enum:
+            - COMMITTED
+            - DRAFT_SAVED
+            - SUBMITTED
+            - REVIEWED
+            - CORRECTED
+        version:
+          type: integer
+          minimum: 1
+        recordedAt: *a16
+        auditRef: *a3
+      required:
+        - receiptId
+        - status
+        - version
+        - recordedAt
+        - auditRef
+    TimeLogInput:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: true
+        version:
+          type: integer
+          minimum: 1
+          nullable: true
+        personId: *a2
+        workItemId: *a2
+        workedAt: *a16
+        durationMinutes:
+          type: integer
+          minimum: 1
+          maximum: 1440
+        action:
+          type: string
+          enum:
+            - SAVE_DRAFT
+            - SUBMIT
+            - REVIEW
+            - CORRECT
+        reason: *a17
+        sourceRef: *a3
+      required:
+        - id
+        - version
+        - personId
+        - workItemId
+        - workedAt
+        - durationMinutes
+        - action
+        - reason
+        - sourceRef
+    PolicyInput:
+      type: object
+      additionalProperties: false
+      properties:
+        metricKey:
+          $ref: "#/components/schemas/MetricKey"
+        subjectType:
+          type: string
+          enum:
+            - PERSON
+            - TEAM
+            - BUSINESS
+        subjectId: *a2
+        formulaVersion: *a3
+        direction:
+          type: string
+          enum:
+            - HIGHER
+            - LOWER
+            - BAND
+        target:
+          type: number
+          nullable: true
+        bandUpper:
+          type: number
+          nullable: true
+        from: *a1
+        to: *a1
+        minimumSample:
+          type: integer
+          minimum: 1
+          maximum: 10000
+        observationWindowDays:
+          type: integer
+          minimum: 1
+          maximum: 93
+        reason: *a17
+      required:
+        - metricKey
+        - subjectType
+        - subjectId
+        - formulaVersion
+        - direction
+        - target
+        - bandUpper
+        - from
+        - to
+        - minimumSample
+        - observationWindowDays
+        - reason
+    Error:
+      type: object
+      additionalProperties: false
+      properties:
+        code: *a3
+        message: *a3
+        correlationId: *a3
+      required:
+        - code
+        - message
+        - correlationId
