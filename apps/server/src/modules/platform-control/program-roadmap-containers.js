@@ -289,29 +289,29 @@ export const PROGRAMME_CONTAINERS = {
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "src/modules/agent/index.js",
+      "code": "src/modules/agent/role-registry.js",
       "doc": "docs/ARCHITECTURE.md",
-      "test": "unavailable"
+      "test": "tests/unit/agent-role-registry.test.js"
     },
     "linkState": {
       "code": "missing",
       "doc": "present",
-      "test": "unavailable"
+      "test": "missing"
     },
     "delivers": [],
     "subtasks": [],
     "dod": {
       "acceptance": {
         "text": "Given the five roles Executive, Operations, Finance Analyst, Research and Marketing, when each resolves its context, then each receives a distinct tool set and policy",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a role without a registered tool, when it attempts that tool, then registration refuses it at bind time, not at call time",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test, when the role registry suite runs, then a cross-role tool leak fails the suite",
-        "checked": false
+        "checked": true
       }
     },
     "changelog": "Opened from the deliverable gap analysis. One generic agent turn exists today through FR-025 to FR-029; no role dimension exists.",
