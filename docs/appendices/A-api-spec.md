@@ -25,7 +25,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=309 -->
+<!-- api-spec-counts: route_handlers=310 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -112,6 +112,7 @@ no snapshot, receipt or audit. No public request or response carries an
 absolute checkout root. The source verifier and actual runtime Zod schemas
 are documented by Swagger; explicit oneOf refinements retain pair and receipt
 discriminator rules that cannot be inferred from Zod superRefine alone.
+>>>>>>> origin/main
 
 ### Local model residency by business hours (FR-244, 2026-09-16)
 
@@ -927,6 +928,7 @@ that a Codex worker or Supabase apply executed.
 
 | Method | Path | Contract |
 |---|---|---|
+| GET | `/api/pipelines/health` | FR-215 (ADR-085 D5): bounded live health read model for the active Business only — authorizes the Knowledge and owning-domain scope, reads `PipelineRun`, `LineConversationJob`, `LineOaRichMenuJob` and `AssetExtractionJob` through one bounded read port each, returns counts/failures/last-run timestamps when available, and returns unavailable/null on failed reads without inventing zeroes |
 | GET | `/api/pipelines/runs` | scope-filtered bounded run list; `businessId`, `status`, `limit` and provenance filters are server-validated |
 | POST | `/api/pipelines/runs` | installation operator creates one idempotent `QUEUED` run envelope; source/artifact identity and scope are explicit |
 | GET | `/api/pipelines/runs/[executionRunId]` | server-filtered monitor read model with stage timeline, first failure, redacted record outcomes, reconciliation, gate evidence, freshness and lineage |
@@ -967,6 +969,7 @@ canary evidence; those remain owner-gated release criteria.
 | 1.83.0b | 2026-09-17 | beta | Approved LINE local execution v2: negotiated deadline, scoped memory/corpus context, invocation receipts; add device-scoped context and Project/Work tool routes (296 → 298). Production activation remains separate. | working-tree | RWANG |
 | 1.82.0b | 2026-09-17 | candidate | Implement and locally verify owner-approved FR-251 read-only Domain-view contract and runtime Swagger; one GET handler added (288 → 289), typed scope refusals and operation-only SessionAuth verified | reviewed baseline 7465080f; PR443 | RWANG |
 | 1.82.0b | 2026-09-16 | candidate | SEC-034 (ADR-093 D6, TASK-ZAI-113): one handler file, `POST /api/crm/customers/[customerId]/legal-hold` — records an OWNER-recorded legal hold on a Customer's chat evidence archive; while active, a PDPA erasure defers destroying the archive key instead of destroying it. Route handler count 288 -> 289 | working-tree | Claude Sonnet 5 |
+| 1.82.0b (Knowledge branch) | 2026-09-16 | candidate | FR-215: add `GET /api/pipelines/health` as a Business-scoped local read model backed by four owning-domain ports; unavailable reads remain null and unbacked edges have no number. Route handler count 288 -> 289 | working-tree | RWANG |
 | 1.81.0b | 2026-09-16 | candidate | FR-248, FR-249 (ADR-095 D2, D3): two handler files, `POST/GET /api/platform/usage-events` (record one's own usage; operator reads the breakdown) and `POST /api/platform/usage-events/rollup` (deployment-authenticated 90-day rollup, same shape as the retention sweep). Route handler count 286 -> 288 | working-tree | Claude Sonnet 5 |
 | 1.80.0b | 2026-09-16 | candidate | FR-247 (ADR-095 D1): two handler files, `GET /api/platform/error-events` and `PATCH /api/platform/error-events/[id]` — the deduplicated error list and its resolve action, both operator-only and audited, never request/response content. Route handler count 284 -> 286 | working-tree | Claude Sonnet 5 |
 | 1.79.0b | 2026-09-16 | candidate | FR-245 (ADR-093 D7, TASK-ZAI-112): one handler file, `POST /api/crm/customers/[customerId]/chat-evidence/retrieve` — the archive's one retrieval path, OWNER at AAL2 through the FR-224 gate, grouped by session, every attempt audited. Route handler count 283 -> 284 | working-tree | Claude Sonnet 5 |

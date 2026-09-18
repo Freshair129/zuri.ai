@@ -144,6 +144,23 @@ export async function listRichMenuJobs(menuId, { viewer, db = prisma } = {}) {
   return { richMenuId: menu.id, jobs: rows.map(jobDto) }
 }
 
+/**
+ * Bounded health read for the owning Business. `LineOaRichMenuJob` carries the
+ * Business id, so the health path does not need an account or menu lookup.
+ */
+export async function listRichMenuJobsForBusiness(businessId, { viewer, limit = 100, db = prisma } = {}) {
+  const id = typeof businessId === 'string' ? businessId.trim() : ''
+  if (!id) throw notFound()
+  assertMayView(viewer, id)
+  const take = Math.min(Math.max(Number(limit) || 100, 1), 100)
+  return db.lineOaRichMenuJob.findMany({
+    where: { businessId: id },
+    orderBy: { updatedAt: 'desc' },
+    take,
+    select: { status: true, updatedAt: true },
+  })
+}
+
 /** An operator closes an UNKNOWN job without claiming the menu exists or does not. */
 export async function acknowledgeUnknownRichMenuJob(menuId, input, { viewer, db = prisma } = {}) {
   const id = typeof menuId === 'string' ? menuId.trim() : ''

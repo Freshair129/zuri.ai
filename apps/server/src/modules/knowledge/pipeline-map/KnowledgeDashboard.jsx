@@ -6,6 +6,7 @@
 // @tested tests/unit/knowledge-data-pipeline-map-ui.test.js
 
 import Link from 'next/link'
+import { UploadCloud, Search, FileText } from 'lucide-react'
 import { Card, Kpi, PageHeader, SectionTitle } from '@/components/ui'
 
 export default function KnowledgeDashboard({ map }) {
@@ -29,8 +30,19 @@ export default function KnowledgeDashboard({ map }) {
           <Link href="/knowledge/data-pipeline" className="btn btn-primary inline-flex">เปิดแผนที่</Link>
         </Card>
         <Card warm>
-          <SectionTitle caption="TASK-ZAI-047 — source library, สถานะ ingestion run, corpus และ cited query">Knowledge base console (วางแผนไว้)</SectionTitle>
-          <p className="text-xs text-muted">วันนี้ admission อยู่ที่หน้า Files และ run ledger อยู่ที่ Execution → Data Migration</p>
+          <div className="flex items-start justify-between">
+            <SectionTitle caption="TASK-ZAI-047 — surface แบบจำกัดสำหรับส่ง Text/Markdown เข้า admission queue ของ Business">Documents & Intake</SectionTitle>
+            <span className="rounded-full bg-[var(--brand-tint)] px-2 py-0.5 text-[10px] font-semibold text-[var(--brand-dark)]">local / isolated</span>
+          </div>
+          <p className="mt-1 text-xs text-muted">อัพโหลดหรือวางเอกสาร .txt/.md/.markdown ตรวจสอบคิว 17 stages และค้นหา citation เมื่อมี Published Corpus; การ์ดนี้ไม่ใช่หลักฐาน production activation</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <Link href="/knowledge/documents" className="btn btn-primary inline-flex items-center gap-1.5 text-xs">
+              <UploadCloud size={13} /> อัพโหลดเอกสาร
+            </Link>
+            <Link href="/knowledge/documents?tab=search" className="btn inline-flex items-center gap-1.5 text-xs">
+              <Search size={13} /> ค้นหาความรู้
+            </Link>
+          </div>
         </Card>
       </div>
     </div>

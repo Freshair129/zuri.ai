@@ -1,8 +1,8 @@
 ---
 domain: knowledge
-version: "1.7.1"
+version: "1.8.0b"
 status: beta
-last_update: "2026-09-15T00:30:00+07:00,Claude Sonnet 5"
+last_update: "2026-09-16T22:45:00+07:00,RWANG"
 module: src/modules/knowledge
 owns_routes:
   - src/app/(pm)/knowledge/**
@@ -113,8 +113,11 @@ external systems with their own repositories and are never zuri-ai domains
   Pipeline Map (FR-212, FR-213) — a projection of `docs/DATA-PIPELINE-MAP.md`
   built by `scripts/data-pipeline-map.mjs` and rendered from
   `src/modules/knowledge/pipeline-map/` — which holds architecture metadata and
-  no Business data. The live per-edge overlay (FR-215) will read each owning
-  domain's ledger through that domain's read port, never a table of its own.
+  no Business data. The live per-edge overlay (FR-215) locally reads each owning
+  domain's ledger or job table through four bounded read ports, never a table of its
+  own. Failed reads remain unavailable/null, unbacked edges show no number, and the
+  static map does not wait. This is not GKS/MSP runtime or production activation
+  evidence.
 
 ## Ingestion lane (FR-109, FR-110, FR-111 — ADR-050)
 
@@ -366,10 +369,11 @@ Design evidence: [the LINE → GKS design](../../plans/LINE-TO-GKS-GROUNDING-AND
   (ADR-085 Consequence 2), replacing the single placeholder edge from `s.crm`
   straight to `in.knowledge-admission` with the real hop through review.
 
-## Documentation version diff — 2026-09-08
+## Documentation version diff — 2026-09-16
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.7.1 → 1.8.0b (2026-09-16) | FR-215 implemented locally through four owning-domain read ports with Business-scoped authorization and unavailable/null failure states; the Knowledge Documents surface is bounded to Text/Markdown admission | No model or migration; no GKS/MSP runtime or production activation |
 | 1.6.0b → 1.7.0b (2026-09-14) | Owner decision (TASK-ZAI-096 review): ADR-090 D6 revised — the candidate creation/edit/decision Zero-PII check AND Stage 5 classify both run the candidate prose policy (`line-faq-candidate-zero-pii-1`), never FR-187's structured-record policy; `LINE_FAQ_CANDIDATE` removed from `structured-record-policy.js`'s `STRUCTURED_RECORD_PROVIDERS`; `genesisrag17-executor.js` gains an explicit provider→policy map (FR-187 unchanged for `SMARTGIFT_CATALOG`) | No schema change; corrects Stage 5 behavior so an approved FAQ containing "ลูกค้า"/"ใบเสนอราคา" is not denied |
 | 1.5.0b → 1.6.0b (2026-09-14) | TASK-ZAI-096/FR-236 built: `KnowledgeCandidate` (the one exception to this domain's pre-ADR-072 "owns no Prisma models" boundary, per ADR-090 D6), the candidate service (`application/knowledge-candidate-service.js`), the Zero-PII prose scan (`knowledge-candidate-zero-pii.js`), `LINE_FAQ_CANDIDATE` added to the admission service and to Stage 5's structured-provider list, the `/knowledge/candidates` review UI, and the `p.knowledge-candidate-review` / `s.knowledge-candidates` pipeline-map nodes wiring CH-22 for real | Additive migration (not applied to any real database by this change — ADR-057); no other domain's model or route touched |
 | 1.4.0b → 1.5.0b (2026-09-14) | ADR-090 / FEAT-038 declared: corpus reader for LINE grounding, planned `KnowledgeCandidate`, gap report and Studio description sources recorded as prose; the one lawful chat-to-knowledge route named in Boundaries | None; no model, route or migration |

@@ -7,7 +7,7 @@ import {
   Workflow, Gauge, TrendingUp,
   PackageCheck, MessageCircle, LayoutGrid, QrCode,
   Warehouse, Truck, ClipboardList,
-  Layers, Bot, Cpu, Bookmark, Contact, Waypoints, Calculator,
+  Layers, Bot, Cpu, Bookmark, Contact, Waypoints, FileText, Calculator,
 } from 'lucide-react'
 import { businessHasCapability } from '@/lib/business-capabilities'
 
@@ -272,6 +272,7 @@ export const DOMAINS = [
     key: 'knowledge', label: 'Knowledge (GKS)', icon: Waypoints, basePath: '/knowledge',
     sub: [
       { label: 'Dashboard', path: '/knowledge', icon: LayoutDashboard, exact: true },
+      { label: 'Documents', path: '/knowledge/documents', icon: FileText },
       { label: 'Data Pipeline Map', path: '/knowledge/data-pipeline', icon: Workflow },
       // @req FR-236 — the review surface for LINE FAQ candidates (ADR-090 D6).
       { label: 'LINE FAQ candidates', path: '/knowledge/candidates', icon: MessagesSquare },

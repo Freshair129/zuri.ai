@@ -21,7 +21,7 @@ attributes:
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=113; operational_domain_keys=16; operational_subdomain_entries=57; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=114; operational_domain_keys=16; operational_subdomain_entries=58; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -225,6 +225,7 @@ authority the lane consumes; GKS, MSP and GenesisBlockDB remain external systems
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
 | `/knowledge` | Knowledge Dashboard (domain `knowledge`) | BusinessShell → Knowledge (GKS) / Dashboard | the map's summary figures (chains by status, sources, entry surfaces, recipients), a link to the Data Pipeline Map, and the knowledge base console named as planned (TASK-ZAI-047) | server-side viewer resolution before render; 404 without `knowledge`; per-Business grant by the shell guard | implemented locally 2026-09-13 — FR-214; `tests/unit/knowledge-data-pipeline-map-ui.test.js` |
+| `/knowledge/documents` | Knowledge Documents & Intake | BusinessShell → Knowledge (GKS) / Documents | bounded Text/Markdown upload, direct Markdown editor with neutral drafts, 1-click admission from existing readable Text/Markdown FileAssets, admission queue/status, published corpus query and source withdrawal | same `/knowledge` server guard; Business-scoped API; 404 without `knowledge`; unsupported and unavailable states are explicit | implemented locally 2026-09-16 — FR-173 / ADR-072; focused `tests/unit/knowledge-documents-ui.test.js`; no production activation |
 | `/knowledge/data-pipeline` | Data Pipeline Map | BusinessShell → Knowledge (GKS) / Data Pipeline Map | layered node-edge SVG of sources, entry surfaces, processes, stores and recipients; chain (`?chain=CH-xx`), domain and status filters; detail panel for a node, edge or chain (domain, FEATs, requirements, surfaces, decisions, production evidence); list view with the same chains, nodes and edges as tables | same admission as `/knowledge`; read-only, no API | implemented locally 2026-09-13 — FR-213; `tests/unit/knowledge-data-pipeline-map-ui.test.js`, `tests/e2e/fr213-data-pipeline-map.spec.js` |
 | `/knowledge/candidates` | LINE FAQ candidates | BusinessShell → Knowledge (GKS) / LINE FAQ candidates | one card per `KnowledgeCandidate` for the active Business: canonical question/answer, editable while PENDING_REVIEW, Approve/Reject buttons, the admitted `KnowledgeSource` id once APPROVED | API-authorized (client component): `knowledge` domain to read, Business OWNER or `LINE_OA_PUBLISHER` to draft/edit/decide | implemented locally 2026-09-14 — FR-236, ADR-090 D6; `tests/unit/knowledge-candidates-ui.test.js`, `tests/integration/fr236-knowledge-candidate.test.js` |
 | `/knowledge/gap-report` | Knowledge gap report | BusinessShell → Knowledge (GKS) / Knowledge gap report | one row per distinct product locator (or "no locator" when the traced query carried none) for the active Business: count of `NO_EVIDENCE` turns and last-seen time only — never the question text | API-authorized (client component): `knowledge` domain to read | implemented locally 2026-09-14 — FR-237, ADR-090 D7; `tests/unit/knowledge-gap-report-ui.test.js`, `tests/integration/fr237-knowledge-gap-report.test.js` |
@@ -470,5 +471,7 @@ Version diff 1.27.0b → 1.28.0b (2026-09-16): add `/control/errors`, the operat
 Version diff 1.28.0b → 1.29.0b (2026-09-16): add `/control/usage`, the operator feature-usage breakdown (FR-248, FR-249, ADR-095); 110 page routes.
 
 Version diff 1.29.0b → 1.30.0b (2026-09-16): compose the approved PM hierarchical navigation inventory with main's usage breakdown route; preserve both route sets.
+
+Version diff 1.30.0b → 1.31.0b (2026-09-16): reconcile the enumerated inventory marker to 111 page routes and 57 operational sub-domain entries, and bound `/knowledge/documents` to the existing Text/Markdown admission path with explicit local/unavailable states.
 
 Version diff 1.30.0b → 1.32.0b (2026-09-17): register the owner-approved FR-251 Project-only Execution Domains route and its states; reconcile the stale 1.28.0b document-control cell. Enumerate 111 page routes. Local API, browser and build gates passed; hosted CI and release remain separate evidence in PR443.

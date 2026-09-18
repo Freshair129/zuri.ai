@@ -223,8 +223,10 @@ describe('OpenAPI document', () => {
       // FR-252 adds the Identity API-write CSRF issuer (GET only).
       // Negotiated Edge v2 adds two scoped context/tool paths and operations.
       // Pricing adds six paths/seven operations; retain the live CRM legal-hold route.
-      pathCount: 309,
-      operationCount: 412,
+      // FR-215 (ADR-085 D5) adds the Business-scoped pipeline health read
+      // model: one path and one GET operation over the owning-domain ports.
+      pathCount: 310,
+      operationCount: 413,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
