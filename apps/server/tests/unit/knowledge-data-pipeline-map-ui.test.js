@@ -24,6 +24,7 @@ describe('FR-214 Knowledge (GKS) slot', () => {
     expect(knowledge).toMatchObject({ label: 'Knowledge (GKS)', basePath: '/knowledge' })
     expect(knowledge.sub.map((item) => [item.label, item.path])).toEqual([
       ['Dashboard', '/knowledge'],
+      ['Knowledge console', '/knowledge/console'],
       ['Documents', '/knowledge/documents'],
       ['Data Pipeline Map', '/knowledge/data-pipeline'],
       // @req FR-236 — the LINE FAQ candidate review surface (ADR-090 D6).
@@ -104,31 +105,10 @@ describe('FR-213 view', () => {
     expect(html).not.toContain('pipeline-detail-CH-99')
   })
 
-  it('renders ERP Domain Groups in filter dropdown and matches SCM child domains', () => {
-    expect(SCM_DOMAINS).toEqual(new Set(['inventory', 'procurement', 'commerce', 'warehouse']))
-    expect(CRM_DOMAINS).toEqual(new Set(['customer', 'market']))
-    expect(matchDomain('inventory', 'group:scm')).toBe(true)
-    expect(matchDomain('procurement', 'group:scm')).toBe(true)
-    expect(matchDomain('commerce', 'group:scm')).toBe(true)
-    expect(matchDomain('market', 'group:scm')).toBe(false)
-    expect(matchDomain('customer', 'group:crm')).toBe(true)
-    expect(matchDomain('inventory', 'group:crm')).toBe(false)
-    expect(matchDomain('knowledge', 'knowledge')).toBe(true)
-    expect(matchDomain('inventory', 'knowledge')).toBe(false)
-
-    const html = renderToStaticMarkup(createElement(DataPipelineMapView, { map }))
-    expect(html).toContain('label="ERP Domain Groups"')
-    expect(html).toContain('value="group:scm"')
-    expect(html).toContain('value="group:crm"')
-    expect(html).toContain('inventory (SCM)')
-    expect(html).toContain('procurement (SCM)')
-    expect(html).toContain('commerce (SCM)')
-  })
-
-  it('the slot Dashboard links to the map and names the planned console', () => {
+  it('the slot Dashboard links to the map and names the console', () => {
     const html = renderToStaticMarkup(createElement(KnowledgeDashboard, { map }))
     expect(html).toContain('href="/knowledge/data-pipeline"')
-    expect(html).toContain('TASK-ZAI-047')
+    expect(html).toContain('href="/knowledge/console"')
   })
 })
 

@@ -1,5 +1,8 @@
 'use client'
 
+// @req FR-254 — Files links to knowledge history and reports admission read failures.
+// @tested tests/e2e/fr254-knowledge-console.spec.js
+
 // @req FR-045 - Business and Project File Manager controls over one managed model.
 // @req FR-173 - Files and Project Files admit Text/Markdown through the shared
 // knowledge service and show durable job/publication state.
@@ -289,6 +292,7 @@ function ManagedFilesPanelBody({ businessId, projectId = null, businessTools = f
     <div className="mb-4 flex flex-wrap gap-2">
       <button className="btn btn-primary flex items-center gap-1" type="button" onClick={() => setAdding(true)}><Plus size={14} /> Add file</button>
       <button className="btn flex items-center gap-1" data-testid="knowledge-admit-text" type="button" onClick={() => setTextAdding(true)}><UploadCloud size={14} /> Add text</button>
+      <a className="btn inline-flex items-center gap-1" href={`/knowledge/console${projectId ? `?projectId=${encodeURIComponent(projectId)}` : ''}`}>Knowledge console</a>
       {businessTools && <>
         <button className="btn flex items-center gap-1" type="button" onClick={() => runBusinessTool('/api/files/reconcile', false)}><RefreshCw size={14} /> Preview reconcile</button>
         <button className="btn" type="button" onClick={() => runBusinessTool('/api/files/reconcile', true)}>Confirm reconcile</button>
@@ -296,6 +300,7 @@ function ManagedFilesPanelBody({ businessId, projectId = null, businessTools = f
       </>}
     </div>
     {message && <pre className="card mb-4 overflow-auto text-[10px]">{message}</pre>}
+    {knowledge.error && <ErrorState title="Could not load knowledge admissions" detail={knowledge.error} retry={reloadKnowledge} />}
     {!knowledge.loading && !knowledge.error && <KnowledgeJobs key={`${businessId}:${projectId || ''}`} data={knowledge.data} onReload={reloadKnowledge} onMessage={setMessage} />}
     <KnowledgeQuery key={`${businessId}:${projectId || ''}`} businessId={businessId} projectId={projectId} onMessage={setMessage} />
     {!assets.length ? <EmptyState title="No managed files" hint="Add a Business or Project file. Local content requires a configured device mount." /> : <FileManagerViews

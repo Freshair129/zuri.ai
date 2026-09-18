@@ -2,8 +2,8 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.11"
-updated: "2026-09-16"
+version: "0.4.12"
+updated: "2026-09-17"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
 programme_start: "2026-08-24"
@@ -497,7 +497,7 @@ locates the week.
 | TASK-ZAI-044 | SPR-ZAI-06 | task | GATE-ZAI-09 evidence run: ERP modules accepted on production for Business one | P0 | Owen | planned | TASK-ZAI-043 | GATE-ZAI-09 |
 | TASK-ZAI-045 | SPR-ZAI-02 | task | Knowledge file intake: Text/Markdown and FileAsset admission into an immutable raw artifact at Stage 1 — FR-173, FR-081, FR-109 | P0 | RWANG | review | TASK-ZAI-005 | Section 3.1 row 4; ADR-072, ADR-073 |
 | TASK-ZAI-046 | SPR-ZAI-02 | task | Tier 1 stage calculators, composition and quarantine, Stage 2 to 8 — FR-111 to FR-119 | P0 | Claude | done | TASK-ZAI-045 | Section 3.1 row 4; ADR-050 |
-| TASK-ZAI-047 | SPR-ZAI-03 | task | Knowledge base console: source library, ingestion run status, corpus and generation registry, cited query | P0 | Codex | planned | TASK-ZAI-045 | Section 3.1 row 4; FR-173, FR-071, FR-110 |
+| TASK-ZAI-047 | SPR-ZAI-03 | task | Knowledge base console: source library, ingestion run status, corpus and generation registry, cited query | P0 | Codex | review | TASK-ZAI-045 | Section 3.1 row 4; FR-254, FR-173, FR-071, FR-110 |
 | TASK-ZAI-048 | SPR-ZAI-03 | task | Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9 | P1 | Codex | planned | TASK-ZAI-046 | 17-stage flow, "PDF/OCR/HTML/table parser" row; FR-115, FR-138 |
 | TASK-ZAI-049 | SPR-ZAI-03 | task | Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1) | P0 | ATHER | planned | TASK-ZAI-045 | Section 3.1 row 4; FR-045, FR-111, FR-137 |
 | TASK-ZAI-050 | SPR-ZAI-03 | task | Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published | P0 | ATHER | planned | TASK-ZAI-045; TASK-ZAI-049 | ADR-073 amendment; ADR-075 Phase 2 gate |
@@ -2670,27 +2670,28 @@ title: Knowledge base console — source library, ingestion run status, corpus a
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: review
+version: 0.3.0
 pic: Codex
 executor: Codex
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/app/api/knowledge/sources
-  doc: docs/domains/knowledge/CHARTER.md
-  test: unavailable
+  code: apps/server/src/app/(pm)/knowledge/console/page.jsx
+  doc: docs/plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md
+  test: apps/server/tests/e2e/fr254-knowledge-console.spec.js
+delivers: [FR-254]
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a Business viewer with knowledge authority, when they open the knowledge base in the console, then they see the source library (each source with its versions and admission state), every ingestion run from the FR-071 ledger with its per-stage terminal evidence, and the corpus generations with the one that is published marked as such
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a question typed in the console, when the query runs, then the answer binds one published generation and every citation opens the exact chunk, parsed artifact and raw source it came from; a viewer without authority over a cited source sees neither the passage nor its existence
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm run test:e2e, when the knowledge console spec runs, then admit → run → publish → query → citation is exercised through the browser and the page carries a declared FR under DOM-KNOWLEDGE
-      checked: false
-changelog: Opened 2026-09-13 (v0.4.1). Today the knowledge domain has HTTP routes (sources, ingestions, queries, citations) and MCP, and no console page — the only pages that mention knowledge are Assets and LINE rich menus. This is the surface a person uses to run the pipeline; it reads FR-173 sources, the FR-071 ledger and FR-110 generations and writes nothing those services do not already write. Declare its FR before building (CLAUDE.md, Adding a feature).
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.1) to provide the missing Console over FR-173 sources, the FR-071 ledger and FR-110 generations. Owner approved the concrete specification on 2026-09-17; FR-254 declared before implementation. Moved to review 2026-09-17 with isolated browser fixtures (6 scenarios plus warmup), full Server tests (5287 passed, 15 skipped), local build and actual native browser acceptance (2 tests, 4 runs with 17 stages each) passing. Native command is npm run test:knowledge-admission; ordinary e2e fixtures alone do not prove publication. Exact scope, commands, full regression results and immutable receipts are recorded in .brain/reports/2026-09-17-task-zai-047-knowledge-console.md. Not deployed; TASK-ZAI-050 production activation remains separate.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -2765,9 +2766,9 @@ executor: ATHER
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/modules/knowledge/genesisrag17-lineage-repository.js
+  code: apps/server/src/modules/knowledge/knowledge-artifact-storage-service.js
   doc: docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md
-  test: apps/server/tests/integration/knowledge-admission-backup.test.js
+  test: apps/server/tests/integration/knowledge-storage-ingestion.test.js
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a raw artifact admitted on production, when the file bytes are requested a year later or after a restore from backup, then the exact bytes and their content hash are returned, and a FileAsset deleted from the File Manager does not delete the knowledge raw artifact that cites it
@@ -7384,3 +7385,6 @@ second run over the same logs writes the same block.
 | 0.4.8 | 2026-09-14 | **Programme roadmap member view** added on the owner's instruction, under deliverable 2 (no Change Request needed): open the roadmap for 30 days. The owner chose anyone signed in, and the programme plan with the Domain map only. SPR-ZAI-02 (current): TASK-ZAI-104, planned; ADR-092 accepted and FR-241 declared in the same change; LANE-ROADMAP-MEMBER-VIEW declared before work starts. /control/roadmap stays operator-only. Sprint 02 goal and exit criteria extended; progress recomputed (SPR-ZAI-02 85 → 83, PHASE-ZAI-01 87 → 85). Delivered locally the same day on feat/roadmap-member-view: TASK-ZAI-104 set to review — implemented with unit tests and govern green, the e2e spec left to CI, not merged and not deployed; progress recomputed (SPR-ZAI-02 83 → 85, PHASE-ZAI-01 85 → 87). |
 | 0.4.9 | 2026-09-16 | **Conversation sessions and chat evidence** added on the owner's acceptance of every proposed default in ADR-093 and ADR-094, under deliverable 8 (no Change Request needed). SPR-ZAI-02 (current): TASK-ZAI-105 decision records, in review. SPR-ZAI-03: TASK-ZAI-106 and 107 conversation sessions (FR-243) and TASK-ZAI-108 their production apply. SPR-ZAI-04: TASK-ZAI-109 model residency by business hours (FR-244) and TASK-ZAI-110 staff replies recorded (FR-246), the evidence gap the owner chose to close before the archive. SPR-ZAI-05: TASK-ZAI-111 to 113 the archive writer, OWNER retrieval and the legal hold (FR-245, SEC-034). SPR-ZAI-06: TASK-ZAI-114 the archive on production and TASK-ZAI-115 its monthly offline copy. Five lanes declared before work starts. Sprint goals and exit criteria extended; progress recomputed under the board mapping, which also corrects SPR-ZAI-04 from a stale 3: PHASE-ZAI-01 87, PHASE-ZAI-02 12, PHASE-ZAI-03 2, SPR-ZAI-02 86, SPR-ZAI-03 15, SPR-ZAI-04 8, SPR-ZAI-05 0, SPR-ZAI-06 4. |
 | 0.4.10 | 2026-09-16 | **Observability: error tracking and feature usage** added on the owner's instruction, after asking what the system logs (no Change Request needed): CR-020 surveyed all seven log surfaces and found two gaps; ADR-095 accepted the owner's answer (CR-020 §7) — extend the existing logger for error tracking, and capture feature usage at both route and action level, per person, with a 90-day raw window then an aggregate rollup. TASK-ZAI-116 (declaration) done; TASK-ZAI-117 (error tracking, FR-247) and TASK-ZAI-118 (feature usage, FR-248/FR-249) planned. LANE-OBSERVABILITY-ERROR-AND-USAGE declared before code. Sprint 02 goal and exit criteria extended; progress recomputed (SPR-ZAI-02 86 → 85, PHASE-ZAI-01 88 → 87). |
+| 0.4.11 | 2026-09-17 | TASK-ZAI-047 / FR-254 implemented under its owner-approved Console specification and moved to review with local Server, browser, native pipeline and build evidence. Corpus queries and immutable artifacts reuse existing authorities; no schema or GKS contract change. Release composition preserves all existing tasks and recomputes SPR-ZAI-03 to 34 and PHASE-ZAI-02 to 28 from their statuses. Production deployment and activation remain separate; phase report records full regression outcomes. |
+| 0.4.11 (Storage branch) | 2026-09-17 | Link TASK-ZAI-049 to candidate storage spec 0.1.0b: self-hosted S3/AIStor, retention and coordinated recovery. Task remains planned; no implementation or deployment approval recorded. |
+| 0.4.12 | 2026-09-17 | Owner approved TASK-ZAI-049 spec 0.1.0 and the isolated implementation. Provider deployment, production migration, canary and acceptance remain pending; TASK-ZAI-050 remains separate. |

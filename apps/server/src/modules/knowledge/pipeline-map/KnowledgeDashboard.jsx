@@ -4,6 +4,8 @@
 //   (the Data Pipeline Map, with its summary figures) and what is planned for it.
 // @spec ADR-085 D1
 // @tested tests/unit/knowledge-data-pipeline-map-ui.test.js
+// @req FR-254 — link to the authorized knowledge console from its domain dashboard.
+// @tested tests/e2e/fr254-knowledge-console.spec.js
 
 import Link from 'next/link'
 import { UploadCloud, Search, FileText } from 'lucide-react'
@@ -30,17 +32,11 @@ export default function KnowledgeDashboard({ map }) {
           <Link href="/knowledge/data-pipeline" className="btn btn-primary inline-flex">เปิดแผนที่</Link>
         </Card>
         <Card warm>
-          <div className="flex items-start justify-between">
-            <SectionTitle caption="TASK-ZAI-047 — surface แบบจำกัดสำหรับส่ง Text/Markdown เข้า admission queue ของ Business">Documents & Intake</SectionTitle>
-            <span className="rounded-full bg-[var(--brand-tint)] px-2 py-0.5 text-[10px] font-semibold text-[var(--brand-dark)]">local / isolated</span>
-          </div>
-          <p className="mt-1 text-xs text-muted">อัพโหลดหรือวางเอกสาร .txt/.md/.markdown ตรวจสอบคิว 17 stages และค้นหา citation เมื่อมี Published Corpus; การ์ดนี้ไม่ใช่หลักฐาน production activation</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            <Link href="/knowledge/documents" className="btn btn-primary inline-flex items-center gap-1.5 text-xs">
+          <SectionTitle caption="ต้นทางและประวัติรุ่น งานประมวลผล รุ่นที่เผยแพร่ และการค้นพร้อมหลักฐาน">Knowledge base console</SectionTitle>
+          <div className="flex flex-wrap gap-2 mt-2">
+            <Link href="/knowledge/console" className="btn btn-primary inline-flex">เปิดคลังความรู้</Link>
+            <Link href="/knowledge/documents" className="btn inline-flex items-center gap-1.5 text-xs">
               <UploadCloud size={13} /> อัพโหลดเอกสาร
-            </Link>
-            <Link href="/knowledge/documents?tab=search" className="btn inline-flex items-center gap-1.5 text-xs">
-              <Search size={13} /> ค้นหาความรู้
             </Link>
           </div>
         </Card>

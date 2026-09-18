@@ -1,10 +1,12 @@
 # Appendix A — API Specification
 
+Version diff 1.87.0b → 1.88.0b: add FR-254 Knowledge Console routes to the composed FR-252/TaskUsageLedger baseline; target 315 paths and 419 operations. Final composed verification and production delivery remain pending.
+
 Version diff 1.86.0b → 1.87.0b: retain the composed FR-252 Feature operations and add the deployment-authenticated TaskUsageLedger read projection. Composition target is 309 paths and 412 operations; TaskUsageLedger is a pure projection with no database model or migration. Final composed verification and production delivery remain pending.
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.87.0b |
+| **Version** | 1.88.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-18 |
 
@@ -25,7 +27,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=310 -->
+<!-- api-spec-counts: route_handlers=316 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -320,6 +322,13 @@ Business-scoped and never returns secret material:
 
 | Method | Path | Contract |
 |---|---|---|
+| GET | `/api/knowledge/sources` | FR-254: Business/optional Project, title/status, limit 1–100 and scope-bound cursor; current-authorized source metadata and runtime capabilities. No payload or hidden totals. |
+| GET | `/api/knowledge/sources/[sourceId]` | FR-254: current-authorized immutable admission versions with cursor pagination; no source content. Existing DELETE unchanged. |
+| GET | `/api/knowledge/console/runs` | FR-254: scoped FR-071 ledger runs, terminal statuses included; unlinked legacy runs remain Business-only. |
+| GET | `/api/knowledge/console/runs/[executionRunId]` | FR-254: every reported attempt, gate metadata and verified publication identity; missing/inconsistent publication evidence is explicitly unavailable. |
+| GET | `/api/knowledge/corpora` | FR-254: all authorized Business/Project corpora with current generation and cursor pagination. |
+| GET | `/api/knowledge/corpora/[corpusId]/generations` | FR-254: validated immutable manifests projected to current-authorized source entries, current/historical generation and cursor. |
+| GET | `/api/knowledge/citations/[citationId]/artifact` | FR-254: citation-bound kind=chunk/parsed/raw, exact retained lineage/hash verification and post-read authority recheck. Preview capped at 65,536 characters; download=true returns complete text/plain attachment with fixed filename, nosniff and private/no-store. No arbitrary artifact/path lookup. |
 | GET | `/api/platform/integrations` | implemented: trusted Business-scoped provider/connection metadata and redacted Vault status |
 | POST | `/api/platform/integrations` | implemented: create draft metadata with fixed `purpose=PHASE1_LINE_LLM`; accepts only `supabase-vault:<uuid>`; working tree implementation is local-only |
 | GET | `/api/platform/integrations/line-registry` | implemented: trusted Business-scoped LINE Groups and Users registry with automation jobs |
@@ -961,12 +970,14 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.88.0b | 2026-09-19 | candidate | Compose FR-254 Knowledge Console source, scoped run/corpus/citation routes and artifact lineage contract with the current 309-path baseline; target 315 paths/419 operations | 2bd61b49 | RWANG |
 | 1.87.0b | 2026-09-18 | candidate | Add authenticated TaskUsageLedger projection and explicit taskCode attribution; reconcile composed inventory to 309 paths/412 operations; no database model or migration | 56ae925a | RWANG |
 | 1.86.0b | 2026-09-17 | candidate | Compose eight Feature writes, snapshot capture, strict schemas/refinements and owner read-side CAS headers; target 308 paths/411 operations, final composed verification pending | 052821a7 + 892f23f3 | RWANG |
 | 1.85.0b | 2026-09-17 | candidate | Compose FR-252 CSRF and four Feature GET routes with main 892f23f3; preserve Pricing, CRM and LINE. Inventory 303 paths/402 operations; read/API tests locally pass, full composed gates pending | 052821a7 + 892f23f3 | RWANG |
 | 1.84.0b | 2026-09-17 | beta | Compose FR-253 Pricing, deployed CRM legal hold and LINE context/tool routes; 298 paths/397 operations | 892f23f3 | RWANG |
 | 1.83.0b (PM branch) | 2026-09-17 | candidate | Add FR-252 Identity CSRF issuer and typed runtime Swagger; one GET handler (289 to 290), implementation verification in progress | bd99651f | RWANG |
 | 1.83.0b | 2026-09-17 | beta | Approved LINE local execution v2: negotiated deadline, scoped memory/corpus context, invocation receipts; add device-scoped context and Project/Work tool routes (296 → 298). Production activation remains separate. | working-tree | RWANG |
+| 1.83.0b | 2026-09-17 | candidate | FR-254 adds six console route handlers and GET source history; current authority, cursor pages and immutable citation artifacts | working-tree | RWANG |
 | 1.82.0b | 2026-09-17 | candidate | Implement and locally verify owner-approved FR-251 read-only Domain-view contract and runtime Swagger; one GET handler added (288 → 289), typed scope refusals and operation-only SessionAuth verified | reviewed baseline 7465080f; PR443 | RWANG |
 | 1.82.0b | 2026-09-16 | candidate | SEC-034 (ADR-093 D6, TASK-ZAI-113): one handler file, `POST /api/crm/customers/[customerId]/legal-hold` — records an OWNER-recorded legal hold on a Customer's chat evidence archive; while active, a PDPA erasure defers destroying the archive key instead of destroying it. Route handler count 288 -> 289 | working-tree | Claude Sonnet 5 |
 | 1.82.0b (Knowledge branch) | 2026-09-16 | candidate | FR-215: add `GET /api/pipelines/health` as a Business-scoped local read model backed by four owning-domain ports; unavailable reads remain null and unbacked edges have no number. Route handler count 288 -> 289 | working-tree | RWANG |

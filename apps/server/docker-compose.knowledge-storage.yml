@@ -1,0 +1,47 @@
+# TASK-ZAI-049 — self-hosted S3-compatible endpoint overlay.
+#
+# This file is a deployment template. It is intentionally not part of the base
+# compose project and it has no image, host path or credential defaults. Before
+# use, the operator must record the pinned provider image digest and the primary
+# volume in deploy/knowledge-storage/target.json.example (copied to the private
+# target receipt). The backup target is a separate host and is not represented by
+# a second service in this file: a second container on this host is not a backup
+# failure domain.
+#
+# The provider admin env file and AIStor license are mounted only into this
+# container. The application access key/secret belong in .env.knowledge and are
+# never the provider root key.
+# The API and admin console are reachable only on zuri-network; neither is
+# published through the host or ngrok.
+services:
+  knowledge-storage:
+    profiles: ["knowledge-storage"]
+    image: ${ZURI_KNOWLEDGE_STORAGE_IMAGE:?Set an approved provider image@sha256:digest}
+    command: ["minio", "server", "/mnt/data", "--license", "/minio.license"]
+    restart: unless-stopped
+    env_file:
+      - path: ${ZURI_KNOWLEDGE_STORAGE_ADMIN_ENV_FILE_HOST:?Set an admin env file outside the checkout}
+        required: true
+    volumes:
+      - type: bind
+        source: ${ZURI_KNOWLEDGE_STORAGE_DATA_DIR_HOST:?Set a dedicated primary data path}
+        target: /mnt/data
+        read_only: false
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ${ZURI_KNOWLEDGE_STORAGE_LICENSE_FILE_HOST:?Set an AIStor license file outside the checkout}
+        target: /minio.license
+        read_only: true
+        bind:
+          create_host_path: false
+    expose:
+      - "9000"
+      - "9001"
+    networks:
+      - zuri-network
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"

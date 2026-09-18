@@ -1,5 +1,5 @@
 ---
-version: "1.34.0b"
+version: "1.35.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
 last_update: "2026-09-17T20:28:51+07:00,RWANG final integrator"
 status: "candidate"
@@ -12,16 +12,18 @@ attributes:
 
 # Zuri V2 — Interface Inventory
 
+Version diff 1.34.0b -> 1.35.0b: compose FR-254 Knowledge Console with live FR-253 Pricing Rules; 114 pages and 58 navigation entries.
+
 | Field | Value |
 |---|---|
-| **Version** | 1.34.0b |
+| **Version** | 1.35.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-09-17 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=114; operational_domain_keys=16; operational_subdomain_entries=58; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=115; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -227,6 +229,7 @@ authority the lane consumes; GKS, MSP and GenesisBlockDB remain external systems
 | `/knowledge` | Knowledge Dashboard (domain `knowledge`) | BusinessShell → Knowledge (GKS) / Dashboard | the map's summary figures (chains by status, sources, entry surfaces, recipients), a link to the Data Pipeline Map, and the knowledge base console named as planned (TASK-ZAI-047) | server-side viewer resolution before render; 404 without `knowledge`; per-Business grant by the shell guard | implemented locally 2026-09-13 — FR-214; `tests/unit/knowledge-data-pipeline-map-ui.test.js` |
 | `/knowledge/documents` | Knowledge Documents & Intake | BusinessShell → Knowledge (GKS) / Documents | bounded Text/Markdown upload, direct Markdown editor with neutral drafts, 1-click admission from existing readable Text/Markdown FileAssets, admission queue/status, published corpus query and source withdrawal | same `/knowledge` server guard; Business-scoped API; 404 without `knowledge`; unsupported and unavailable states are explicit | implemented locally 2026-09-16 — FR-173 / ADR-072; focused `tests/unit/knowledge-documents-ui.test.js`; no production activation |
 | `/knowledge/data-pipeline` | Data Pipeline Map | BusinessShell → Knowledge (GKS) / Data Pipeline Map | layered node-edge SVG of sources, entry surfaces, processes, stores and recipients; chain (`?chain=CH-xx`), domain and status filters; detail panel for a node, edge or chain (domain, FEATs, requirements, surfaces, decisions, production evidence); list view with the same chains, nodes and edges as tables | same admission as `/knowledge`; read-only, no API | implemented locally 2026-09-13 — FR-213; `tests/unit/knowledge-data-pipeline-map-ui.test.js`, `tests/e2e/fr213-data-pipeline-map.spec.js` |
+| `/knowledge/console` | Knowledge console | BusinessShell → Knowledge (GKS) / Knowledge console | scoped source/version pages; complete run attempts; corpus generations; explicit corpus query and exact chunk/parsed/raw evidence; text/FileAsset admission | Knowledge domain and current Business/Project/source/FileAsset authority; runtime capability gates mutations/query | FR-254, approved TASK-ZAI-047 design; isolated validation underway, not deployed |
 | `/knowledge/candidates` | LINE FAQ candidates | BusinessShell → Knowledge (GKS) / LINE FAQ candidates | one card per `KnowledgeCandidate` for the active Business: canonical question/answer, editable while PENDING_REVIEW, Approve/Reject buttons, the admitted `KnowledgeSource` id once APPROVED | API-authorized (client component): `knowledge` domain to read, Business OWNER or `LINE_OA_PUBLISHER` to draft/edit/decide | implemented locally 2026-09-14 — FR-236, ADR-090 D6; `tests/unit/knowledge-candidates-ui.test.js`, `tests/integration/fr236-knowledge-candidate.test.js` |
 | `/knowledge/gap-report` | Knowledge gap report | BusinessShell → Knowledge (GKS) / Knowledge gap report | one row per distinct product locator (or "no locator" when the traced query carried none) for the active Business: count of `NO_EVIDENCE` turns and last-seen time only — never the question text | API-authorized (client component): `knowledge` domain to read | implemented locally 2026-09-14 — FR-237, ADR-090 D7; `tests/unit/knowledge-gap-report-ui.test.js`, `tests/integration/fr237-knowledge-gap-report.test.js` |
 ### 3.7 Workspace compatibility surfaces
@@ -410,8 +413,10 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.35.0b | 2026-09-19 | candidate | Compose FR-254 Knowledge Console route and navigation with the newer PM inventory baseline; retain 114 page routes and record 58 operational subdomain entries | 2bd61b49 | RWANG |
 | 1.34.0b | 2026-09-17 | candidate | Describe implemented owner forms, scoped pickers, review/reconciliation and modal/refusal states; retain 113 page routes and separate hosted release evidence | 052821a7 + 892f23f3 | RWANG |
 | 1.33.0b | 2026-09-17 | candidate | Register FR-252 Project Features list/detail route and states; preserve Pricing and Domain routes, 113 page routes | 052821a7 + 892f23f3 | RWANG |
+| 1.32.0b | 2026-09-17 | candidate | FR-254 Knowledge console route and navigation; 112 pages and 57 subdomain entries; compose the approved Console with the production baseline | working-tree | RWANG |
 | 1.27.0b | 2026-09-14 | candidate | Added the knowledge gap report page `/knowledge/gap-report` (FR-237, ADR-090 D7); page routes 107 -> 108 | working-tree | Claude Sonnet 5 |
 | 1.26.0b | 2026-09-14 | candidate | Added the LINE FAQ candidates review page `/knowledge/candidates` (FR-236, ADR-090 D6), the third Knowledge (GKS) sub-item; page routes 106 -> 107, operational subdomain entries 55 -> 56 | working-tree | Claude Sonnet 5 |
 | 1.23.0b | 2026-09-13 | active | Added the Knowledge (GKS) domain (FR-214, ADR-085) with its Dashboard `/knowledge` and the Data Pipeline Map `/knowledge/data-pipeline` (FR-213); page routes 102 -> 104, operational domain keys 15 -> 16, operational subdomain entries 53 -> 55 | working-tree | Claude Opus 5 |

@@ -1,0 +1,1390 @@
+{
+  "packet": "Zuri self-hosted inference pool",
+  "version": "0.1.0b",
+  "date": "2026-09-17",
+  "status": "PASS_PACKAGE_ONLY",
+  "counts": {
+    "documents": 12,
+    "schema_validated_metadata": 12,
+    "resolved_links_and_relations": 76,
+    "planned_runtime_cases": 52,
+    "package_checks_passed": 274
+  },
+  "id_validation": "Isolated fixture IDs only; none allocated or published.",
+  "repository_governance": "NOT_RUN: no complete checkout/dependencies in this environment.",
+  "runtime_and_hardware_tests": "NOT_RUN: all 52 cases remain planned.",
+  "remote_writes": "NONE",
+  "production_activation": "NONE",
+  "checks": [
+    {
+      "name": "Renderer accepts complete fixture mapping",
+      "status": "PASS",
+      "detail": "Rendered 12 candidate documents and registry rows to <temporary-validation-directory>/rendered.\nCollision scan: NOT_RUN. No target repository or ledger was modified.\n"
+    },
+    {
+      "name": "Exactly twelve complete documents rendered",
+      "status": "PASS",
+      "detail": "12"
+    },
+    {
+      "name": "No unresolved slots: {{ADR_POOL}}-SERVER-OWNED-SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "YAML frontmatter exists: {{ADR_POOL}}-SERVER-OWNED-SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Metadata schema: {{ADR_POOL}}-SERVER-OWNED-SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Candidate version/baseline: {{ADR_POOL}}-SERVER-OWNED-SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Unique document ID: {{ADR_POOL}}-SERVER-OWNED-SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Context: {{ADR_POOL}}-SERVER-OWNED-SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Decision: {{ADR_POOL}}-SERVER-OWNED-SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Alternatives and consequences: {{ADR_POOL}}-SERVER-OWNED-SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Verification: {{ADR_POOL}}-SERVER-OWNED-SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section CHANGELOG: {{ADR_POOL}}-SERVER-OWNED-SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "External reference labels resolve: {{ADR_POOL}}-SERVER-OWNED-SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": "set()"
+    },
+    {
+      "name": "Snapshot source links present: {{ADR_POOL}}-SERVER-OWNED-SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "No unresolved slots: SELF-HOSTED-INFERENCE-POOL-VERIFICATION.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "YAML frontmatter exists: SELF-HOSTED-INFERENCE-POOL-VERIFICATION.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Metadata schema: SELF-HOSTED-INFERENCE-POOL-VERIFICATION.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Candidate version/baseline: SELF-HOSTED-INFERENCE-POOL-VERIFICATION.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Unique document ID: SELF-HOSTED-INFERENCE-POOL-VERIFICATION.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section CHANGELOG: SELF-HOSTED-INFERENCE-POOL-VERIFICATION.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "External reference labels resolve: SELF-HOSTED-INFERENCE-POOL-VERIFICATION.md",
+      "status": "PASS",
+      "detail": "set()"
+    },
+    {
+      "name": "Snapshot source links present: SELF-HOSTED-INFERENCE-POOL-VERIFICATION.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "No unresolved slots: {{FR_EXECUTION}}-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "YAML frontmatter exists: {{FR_EXECUTION}}-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Metadata schema: {{FR_EXECUTION}}-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Candidate version/baseline: {{FR_EXECUTION}}-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Unique document ID: {{FR_EXECUTION}}-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Behavior and ownership: {{FR_EXECUTION}}-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Input, output and failures: {{FR_EXECUTION}}-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Acceptance criteria: {{FR_EXECUTION}}-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section CHANGELOG: {{FR_EXECUTION}}-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "External reference labels resolve: {{FR_EXECUTION}}-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": "set()"
+    },
+    {
+      "name": "Snapshot source links present: {{FR_EXECUTION}}-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "No unresolved slots: {{FR_ROUTING}}-inference-capacity-routing-and-health.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "YAML frontmatter exists: {{FR_ROUTING}}-inference-capacity-routing-and-health.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Metadata schema: {{FR_ROUTING}}-inference-capacity-routing-and-health.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Candidate version/baseline: {{FR_ROUTING}}-inference-capacity-routing-and-health.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Unique document ID: {{FR_ROUTING}}-inference-capacity-routing-and-health.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Behavior and ownership: {{FR_ROUTING}}-inference-capacity-routing-and-health.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Input, output and failures: {{FR_ROUTING}}-inference-capacity-routing-and-health.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Acceptance criteria: {{FR_ROUTING}}-inference-capacity-routing-and-health.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section CHANGELOG: {{FR_ROUTING}}-inference-capacity-routing-and-health.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "External reference labels resolve: {{FR_ROUTING}}-inference-capacity-routing-and-health.md",
+      "status": "PASS",
+      "detail": "set()"
+    },
+    {
+      "name": "Snapshot source links present: {{FR_ROUTING}}-inference-capacity-routing-and-health.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "No unresolved slots: PHASE-{{FR_EXECUTION}}-P1-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "YAML frontmatter exists: PHASE-{{FR_EXECUTION}}-P1-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Metadata schema: PHASE-{{FR_EXECUTION}}-P1-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Candidate version/baseline: PHASE-{{FR_EXECUTION}}-P1-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Unique document ID: PHASE-{{FR_EXECUTION}}-P1-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Entry condition and predecessor: PHASE-{{FR_EXECUTION}}-P1-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Input: PHASE-{{FR_EXECUTION}}-P1-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Output and next handoff: PHASE-{{FR_EXECUTION}}-P1-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Failure, retry and acceptance: PHASE-{{FR_EXECUTION}}-P1-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section CHANGELOG: PHASE-{{FR_EXECUTION}}-P1-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "External reference labels resolve: PHASE-{{FR_EXECUTION}}-P1-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": "set()"
+    },
+    {
+      "name": "Snapshot source links present: PHASE-{{FR_EXECUTION}}-P1-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "No unresolved slots: {{FR_NODES}}-inference-node-registration-and-trust.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "YAML frontmatter exists: {{FR_NODES}}-inference-node-registration-and-trust.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Metadata schema: {{FR_NODES}}-inference-node-registration-and-trust.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Candidate version/baseline: {{FR_NODES}}-inference-node-registration-and-trust.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Unique document ID: {{FR_NODES}}-inference-node-registration-and-trust.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Behavior and ownership: {{FR_NODES}}-inference-node-registration-and-trust.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Input, output and failures: {{FR_NODES}}-inference-node-registration-and-trust.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Acceptance criteria: {{FR_NODES}}-inference-node-registration-and-trust.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section CHANGELOG: {{FR_NODES}}-inference-node-registration-and-trust.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "External reference labels resolve: {{FR_NODES}}-inference-node-registration-and-trust.md",
+      "status": "PASS",
+      "detail": "set()"
+    },
+    {
+      "name": "Snapshot source links present: {{FR_NODES}}-inference-node-registration-and-trust.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "No unresolved slots: PHASE-{{FR_EXECUTION}}-P2-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "YAML frontmatter exists: PHASE-{{FR_EXECUTION}}-P2-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Metadata schema: PHASE-{{FR_EXECUTION}}-P2-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Candidate version/baseline: PHASE-{{FR_EXECUTION}}-P2-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Unique document ID: PHASE-{{FR_EXECUTION}}-P2-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Entry condition and predecessor: PHASE-{{FR_EXECUTION}}-P2-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Input: PHASE-{{FR_EXECUTION}}-P2-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Output and next handoff: PHASE-{{FR_EXECUTION}}-P2-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Failure, retry and acceptance: PHASE-{{FR_EXECUTION}}-P2-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section CHANGELOG: PHASE-{{FR_EXECUTION}}-P2-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "External reference labels resolve: PHASE-{{FR_EXECUTION}}-P2-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": "set()"
+    },
+    {
+      "name": "Snapshot source links present: PHASE-{{FR_EXECUTION}}-P2-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "No unresolved slots: {{FR_LINE}}-self-hosted-inference-policy-and-cutover.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "YAML frontmatter exists: {{FR_LINE}}-self-hosted-inference-policy-and-cutover.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Metadata schema: {{FR_LINE}}-self-hosted-inference-policy-and-cutover.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Candidate version/baseline: {{FR_LINE}}-self-hosted-inference-policy-and-cutover.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Unique document ID: {{FR_LINE}}-self-hosted-inference-policy-and-cutover.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Behavior and ownership: {{FR_LINE}}-self-hosted-inference-policy-and-cutover.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Input, output and failures: {{FR_LINE}}-self-hosted-inference-policy-and-cutover.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Acceptance criteria: {{FR_LINE}}-self-hosted-inference-policy-and-cutover.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section CHANGELOG: {{FR_LINE}}-self-hosted-inference-policy-and-cutover.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "External reference labels resolve: {{FR_LINE}}-self-hosted-inference-policy-and-cutover.md",
+      "status": "PASS",
+      "detail": "set()"
+    },
+    {
+      "name": "Snapshot source links present: {{FR_LINE}}-self-hosted-inference-policy-and-cutover.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "No unresolved slots: PHASE-{{FR_EXECUTION}}-P3-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "YAML frontmatter exists: PHASE-{{FR_EXECUTION}}-P3-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Metadata schema: PHASE-{{FR_EXECUTION}}-P3-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Candidate version/baseline: PHASE-{{FR_EXECUTION}}-P3-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Unique document ID: PHASE-{{FR_EXECUTION}}-P3-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Entry condition and predecessor: PHASE-{{FR_EXECUTION}}-P3-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Input: PHASE-{{FR_EXECUTION}}-P3-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Output and next handoff: PHASE-{{FR_EXECUTION}}-P3-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Failure, retry and acceptance: PHASE-{{FR_EXECUTION}}-P3-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section CHANGELOG: PHASE-{{FR_EXECUTION}}-P3-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "External reference labels resolve: PHASE-{{FR_EXECUTION}}-P3-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": "set()"
+    },
+    {
+      "name": "Snapshot source links present: PHASE-{{FR_EXECUTION}}-P3-server-owned-self-hosted-model-execution.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "No unresolved slots: {{FR_MONITOR}}-inference-pool-operations-projection.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "YAML frontmatter exists: {{FR_MONITOR}}-inference-pool-operations-projection.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Metadata schema: {{FR_MONITOR}}-inference-pool-operations-projection.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Candidate version/baseline: {{FR_MONITOR}}-inference-pool-operations-projection.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Unique document ID: {{FR_MONITOR}}-inference-pool-operations-projection.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Behavior and ownership: {{FR_MONITOR}}-inference-pool-operations-projection.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Input, output and failures: {{FR_MONITOR}}-inference-pool-operations-projection.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section Acceptance criteria: {{FR_MONITOR}}-inference-pool-operations-projection.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section CHANGELOG: {{FR_MONITOR}}-inference-pool-operations-projection.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "External reference labels resolve: {{FR_MONITOR}}-inference-pool-operations-projection.md",
+      "status": "PASS",
+      "detail": "set()"
+    },
+    {
+      "name": "Snapshot source links present: {{FR_MONITOR}}-inference-pool-operations-projection.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "No unresolved slots: PLAN-{{FEAT_POOL}}-DOMAIN-PHASES.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "YAML frontmatter exists: PLAN-{{FEAT_POOL}}-DOMAIN-PHASES.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Metadata schema: PLAN-{{FEAT_POOL}}-DOMAIN-PHASES.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Candidate version/baseline: PLAN-{{FEAT_POOL}}-DOMAIN-PHASES.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Unique document ID: PLAN-{{FEAT_POOL}}-DOMAIN-PHASES.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section CHANGELOG: PLAN-{{FEAT_POOL}}-DOMAIN-PHASES.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "External reference labels resolve: PLAN-{{FEAT_POOL}}-DOMAIN-PHASES.md",
+      "status": "PASS",
+      "detail": "set()"
+    },
+    {
+      "name": "Snapshot source links present: PLAN-{{FEAT_POOL}}-DOMAIN-PHASES.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "No unresolved slots: SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "YAML frontmatter exists: SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Metadata schema: SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Candidate version/baseline: SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Unique document ID: SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Template section CHANGELOG: SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "External reference labels resolve: SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": "set()"
+    },
+    {
+      "name": "Snapshot source links present: SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{ADR_POOL}} -> ZAI:ADR-061",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{ADR_POOL}} -> ZAI:ADR-025",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{ADR_POOL}} -> ZAI:ADR-039",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{ADR_POOL}} -> ZAI:{{FEAT_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{ADR_POOL}} -> ZAI:ADR-061",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{ADR_POOL}} -> ZAI:DOMAIN-AGENT",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{ADR_POOL}} -> ZAI:DOMAIN-INTEGRATION",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{ADR_POOL}} -> ZAI:DOMAIN-LINE-OA-STUDIO",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{ADR_POOL}} -> ZAI:VERIFY-SELF-HOSTED-INFERENCE-POOL",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:VERIFY-SELF-HOSTED-INFERENCE-POOL -> ZAI:{{ADR_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:VERIFY-SELF-HOSTED-INFERENCE-POOL -> ZAI:{{FR_NODES}}-NOTE",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:VERIFY-SELF-HOSTED-INFERENCE-POOL -> ZAI:{{FR_EXECUTION}}-NOTE",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:VERIFY-SELF-HOSTED-INFERENCE-POOL -> ZAI:{{FR_ROUTING}}-NOTE",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:VERIFY-SELF-HOSTED-INFERENCE-POOL -> ZAI:{{FR_MONITOR}}-NOTE",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:VERIFY-SELF-HOSTED-INFERENCE-POOL -> ZAI:{{FR_LINE}}-NOTE",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_EXECUTION}}-NOTE -> ZAI:{{FR_EXECUTION}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_EXECUTION}}-NOTE -> ZAI:{{FEAT_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_EXECUTION}}-NOTE -> ZAI:{{ADR_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_EXECUTION}}-NOTE -> ZAI:DOMAIN-AGENT",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_EXECUTION}}-NOTE -> ZAI:ADR-061",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{FR_EXECUTION}}-NOTE -> ZAI:{{FR_EXECUTION}}-P1",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{FR_EXECUTION}}-NOTE -> ZAI:{{FR_EXECUTION}}-P2",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{FR_EXECUTION}}-NOTE -> ZAI:{{FR_EXECUTION}}-P3",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_ROUTING}}-NOTE -> ZAI:{{FR_ROUTING}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_ROUTING}}-NOTE -> ZAI:{{FEAT_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_ROUTING}}-NOTE -> ZAI:{{ADR_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_ROUTING}}-NOTE -> ZAI:{{FR_NODES}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_ROUTING}}-NOTE -> ZAI:{{FR_EXECUTION}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_EXECUTION}}-P1 -> ZAI:{{FR_EXECUTION}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_EXECUTION}}-P1 -> ZAI:{{FEAT_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_EXECUTION}}-P1 -> ZAI:{{ADR_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{FR_EXECUTION}}-P1 -> ZAI:{{FR_EXECUTION}}-P2",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_NODES}}-NOTE -> ZAI:{{FR_NODES}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_NODES}}-NOTE -> ZAI:{{FEAT_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_NODES}}-NOTE -> ZAI:{{ADR_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_NODES}}-NOTE -> ZAI:DOMAIN-INTEGRATION",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{FR_NODES}}-NOTE -> ZAI:VERIFY-SELF-HOSTED-INFERENCE-POOL",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{FR_NODES}}-NOTE -> ZAI:PLAN-{{FEAT_POOL}}-PHASES",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_EXECUTION}}-P2 -> ZAI:{{FR_EXECUTION}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_EXECUTION}}-P2 -> ZAI:{{FEAT_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_EXECUTION}}-P2 -> ZAI:{{ADR_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{FR_EXECUTION}}-P2 -> ZAI:{{FR_EXECUTION}}-P1",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{FR_EXECUTION}}-P2 -> ZAI:{{FR_EXECUTION}}-P3",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_LINE}}-NOTE -> ZAI:{{FR_LINE}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_LINE}}-NOTE -> ZAI:{{FEAT_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_LINE}}-NOTE -> ZAI:{{ADR_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_LINE}}-NOTE -> ZAI:ADR-061",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_LINE}}-NOTE -> ZAI:{{FR_EXECUTION}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_LINE}}-NOTE -> ZAI:{{FR_NODES}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{FR_LINE}}-NOTE -> ZAI:ADR-061",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{FR_LINE}}-NOTE -> ZAI:DOMAIN-LINE-OA-STUDIO",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{FR_LINE}}-NOTE -> ZAI:{{FR_EXECUTION}}-NOTE",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{FR_LINE}}-NOTE -> ZAI:RUNBOOK-SELF-HOSTED-INFERENCE-POOL",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_EXECUTION}}-P3 -> ZAI:{{FR_EXECUTION}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_EXECUTION}}-P3 -> ZAI:{{FEAT_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_EXECUTION}}-P3 -> ZAI:{{ADR_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{FR_EXECUTION}}-P3 -> ZAI:{{FR_EXECUTION}}-P2",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_MONITOR}}-NOTE -> ZAI:{{FR_MONITOR}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_MONITOR}}-NOTE -> ZAI:{{FEAT_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_MONITOR}}-NOTE -> ZAI:{{ADR_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:{{FR_MONITOR}}-NOTE -> ZAI:{{FR_ROUTING}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:{{FR_MONITOR}}-NOTE -> ZAI:{{FR_ROUTING}}-NOTE",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:PLAN-{{FEAT_POOL}}-PHASES -> ZAI:{{ADR_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:PLAN-{{FEAT_POOL}}-PHASES -> ZAI:{{FEAT_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:PLAN-{{FEAT_POOL}}-PHASES -> ZAI:{{FR_NODES}}-NOTE",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:PLAN-{{FEAT_POOL}}-PHASES -> ZAI:{{FR_EXECUTION}}-NOTE",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:PLAN-{{FEAT_POOL}}-PHASES -> ZAI:{{FR_ROUTING}}-NOTE",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:PLAN-{{FEAT_POOL}}-PHASES -> ZAI:{{FR_MONITOR}}-NOTE",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:PLAN-{{FEAT_POOL}}-PHASES -> ZAI:{{FR_LINE}}-NOTE",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:PLAN-{{FEAT_POOL}}-PHASES -> ZAI:{{ADR_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:PLAN-{{FEAT_POOL}}-PHASES -> ZAI:VERIFY-SELF-HOSTED-INFERENCE-POOL",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wikilink resolves: ZAI:PLAN-{{FEAT_POOL}}-PHASES -> ZAI:RUNBOOK-SELF-HOSTED-INFERENCE-POOL",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:RUNBOOK-SELF-HOSTED-INFERENCE-POOL -> ZAI:{{ADR_POOL}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:RUNBOOK-SELF-HOSTED-INFERENCE-POOL -> ZAI:{{FR_LINE}}",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:RUNBOOK-SELF-HOSTED-INFERENCE-POOL -> ZAI:VERIFY-SELF-HOSTED-INFERENCE-POOL",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Typed relation resolves: ZAI:RUNBOOK-SELF-HOSTED-INFERENCE-POOL -> ZAI:ADR-061",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Three phase order values",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Phase titles preserve parent requirement title",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Phase parent identities preserved",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Five FRs plus six crosscutting requirement rows",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "New feature only bundles five new FRs",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "52 planned acceptance cases all NOT_RUN",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Acceptance case IDs contiguous",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Acceptance reference exists: T01",
+      "status": "PASS",
+      "detail": "NODES-01"
+    },
+    {
+      "name": "Acceptance reference exists: T02",
+      "status": "PASS",
+      "detail": "NODES-01"
+    },
+    {
+      "name": "Acceptance reference exists: T03",
+      "status": "PASS",
+      "detail": "NODES-02"
+    },
+    {
+      "name": "Acceptance reference exists: T04",
+      "status": "PASS",
+      "detail": "NODES-02"
+    },
+    {
+      "name": "Acceptance reference exists: T05",
+      "status": "PASS",
+      "detail": "NODES-03"
+    },
+    {
+      "name": "Acceptance reference exists: T06",
+      "status": "PASS",
+      "detail": "NODES-03"
+    },
+    {
+      "name": "Acceptance reference exists: T07",
+      "status": "PASS",
+      "detail": "NODES-04"
+    },
+    {
+      "name": "Acceptance reference exists: T08",
+      "status": "PASS",
+      "detail": "NODES-05"
+    },
+    {
+      "name": "Acceptance reference exists: T09",
+      "status": "PASS",
+      "detail": "NODES-06"
+    },
+    {
+      "name": "Acceptance reference exists: T10",
+      "status": "PASS",
+      "detail": "NODES-07/08"
+    },
+    {
+      "name": "Acceptance reference exists: T11",
+      "status": "PASS",
+      "detail": "EXEC-01/02"
+    },
+    {
+      "name": "Acceptance reference exists: T12",
+      "status": "PASS",
+      "detail": "EXEC-03"
+    },
+    {
+      "name": "Acceptance reference exists: T13",
+      "status": "PASS",
+      "detail": "EXEC-03"
+    },
+    {
+      "name": "Acceptance reference exists: T14",
+      "status": "PASS",
+      "detail": "EXEC-04"
+    },
+    {
+      "name": "Acceptance reference exists: T15",
+      "status": "PASS",
+      "detail": "EXEC-04"
+    },
+    {
+      "name": "Acceptance reference exists: T16",
+      "status": "PASS",
+      "detail": "EXEC-04"
+    },
+    {
+      "name": "Acceptance reference exists: T17",
+      "status": "PASS",
+      "detail": "EXEC-04/LINE-05"
+    },
+    {
+      "name": "Acceptance reference exists: T18",
+      "status": "PASS",
+      "detail": "EXEC-04"
+    },
+    {
+      "name": "Acceptance reference exists: T19",
+      "status": "PASS",
+      "detail": "EXEC-05"
+    },
+    {
+      "name": "Acceptance reference exists: T20",
+      "status": "PASS",
+      "detail": "EXEC-05"
+    },
+    {
+      "name": "Acceptance reference exists: T21",
+      "status": "PASS",
+      "detail": "EXEC-06"
+    },
+    {
+      "name": "Acceptance reference exists: T22",
+      "status": "PASS",
+      "detail": "EXEC-07"
+    },
+    {
+      "name": "Acceptance reference exists: T23",
+      "status": "PASS",
+      "detail": "ROUTE-01"
+    },
+    {
+      "name": "Acceptance reference exists: T24",
+      "status": "PASS",
+      "detail": "ROUTE-02"
+    },
+    {
+      "name": "Acceptance reference exists: T25",
+      "status": "PASS",
+      "detail": "ROUTE-03"
+    },
+    {
+      "name": "Acceptance reference exists: T26",
+      "status": "PASS",
+      "detail": "ROUTE-03"
+    },
+    {
+      "name": "Acceptance reference exists: T27",
+      "status": "PASS",
+      "detail": "ROUTE-04"
+    },
+    {
+      "name": "Acceptance reference exists: T28",
+      "status": "PASS",
+      "detail": "ROUTE-05"
+    },
+    {
+      "name": "Acceptance reference exists: T29",
+      "status": "PASS",
+      "detail": "ROUTE-06"
+    },
+    {
+      "name": "Acceptance reference exists: T30",
+      "status": "PASS",
+      "detail": "ROUTE-06"
+    },
+    {
+      "name": "Acceptance reference exists: T31",
+      "status": "PASS",
+      "detail": "ROUTE-06"
+    },
+    {
+      "name": "Acceptance reference exists: T32",
+      "status": "PASS",
+      "detail": "ROUTE-07"
+    },
+    {
+      "name": "Acceptance reference exists: T33",
+      "status": "PASS",
+      "detail": "LINE-01/09"
+    },
+    {
+      "name": "Acceptance reference exists: T34",
+      "status": "PASS",
+      "detail": "LINE-03"
+    },
+    {
+      "name": "Acceptance reference exists: T35",
+      "status": "PASS",
+      "detail": "LINE-05"
+    },
+    {
+      "name": "Acceptance reference exists: T36",
+      "status": "PASS",
+      "detail": "LINE-06"
+    },
+    {
+      "name": "Acceptance reference exists: T37",
+      "status": "PASS",
+      "detail": "LINE-07"
+    },
+    {
+      "name": "Acceptance reference exists: T38",
+      "status": "PASS",
+      "detail": "LINE-07"
+    },
+    {
+      "name": "Acceptance reference exists: T39",
+      "status": "PASS",
+      "detail": "LINE-07"
+    },
+    {
+      "name": "Acceptance reference exists: T40",
+      "status": "PASS",
+      "detail": "LINE-07"
+    },
+    {
+      "name": "Acceptance reference exists: T41",
+      "status": "PASS",
+      "detail": "LINE-08"
+    },
+    {
+      "name": "Acceptance reference exists: T42",
+      "status": "PASS",
+      "detail": "LINE-02"
+    },
+    {
+      "name": "Acceptance reference exists: T43",
+      "status": "PASS",
+      "detail": "LINE-04"
+    },
+    {
+      "name": "Acceptance reference exists: T44",
+      "status": "PASS",
+      "detail": "MON-01"
+    },
+    {
+      "name": "Acceptance reference exists: T45",
+      "status": "PASS",
+      "detail": "MON-02/07"
+    },
+    {
+      "name": "Acceptance reference exists: T46",
+      "status": "PASS",
+      "detail": "MON-03/ROUTE-08"
+    },
+    {
+      "name": "Acceptance reference exists: T47",
+      "status": "PASS",
+      "detail": "ROUTE-08"
+    },
+    {
+      "name": "Acceptance reference exists: T48",
+      "status": "PASS",
+      "detail": "MON-04/05"
+    },
+    {
+      "name": "Acceptance reference exists: T49",
+      "status": "PASS",
+      "detail": "MON-06/08"
+    },
+    {
+      "name": "Acceptance reference exists: T50",
+      "status": "PASS",
+      "detail": "ROUTE-09"
+    },
+    {
+      "name": "Acceptance reference exists: T51",
+      "status": "PASS",
+      "detail": "EXEC-03/04"
+    },
+    {
+      "name": "Acceptance reference exists: T52",
+      "status": "PASS",
+      "detail": "ROUTE-10"
+    },
+    {
+      "name": "Existing output is refused",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Null unallocated map is refused",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Duplicate IDs are refused",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Wrong-family IDs are refused",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Output inside packet is refused",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Read-only fixture repository scan succeeds",
+      "status": "PASS",
+      "detail": "Rendered 12 candidate documents and registry rows to <temporary-validation-directory>/scan-rendered.\nCollision scan: PASS_CURRENT_CHECKOUT_ONLY. No target repository or ledger was modified.\n"
+    },
+    {
+      "name": "Fixture Git and files unchanged by renderer",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Output inside target repository refused",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Existing ledger ID collision refused",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "Malformed ledger fails closed",
+      "status": "PASS",
+      "detail": ""
+    }
+  ]
+}

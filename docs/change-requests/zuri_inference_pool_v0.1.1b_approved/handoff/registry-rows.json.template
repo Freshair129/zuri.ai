@@ -1,0 +1,128 @@
+{
+  "baseline_commit": "cfd5521e7d004e63ffead1e07f46045f1cdc06f2",
+  "requirements": [
+    {
+      "id": "{{FR_NODES}}",
+      "family": "FR",
+      "subject": "Inference node registration and trust",
+      "domain": "integration",
+      "statement": "Inference node registration and trust — Provide Business-scoped enrollment, write-only credential references, approved private destinations, explicit qualification and lifecycle management for self-hosted inference nodes and pools.",
+      "status": "approved design — not registered, not implemented, not deployed",
+      "acceptance_source": "NODES-01..08"
+    },
+    {
+      "id": "{{FR_EXECUTION}}",
+      "family": "FR",
+      "subject": "Server-owned self-hosted model execution",
+      "domain": "agent",
+      "statement": "Server-owned self-hosted model execution — Execute authorized LINE answers through a qualified self-hosted pool without requiring Edge, while preserving the existing deterministic, tool, knowledge, memory, receipt and delivery boundaries.",
+      "status": "approved design — not registered, not implemented, not deployed",
+      "acceptance_source": "EXEC-01..08"
+    },
+    {
+      "id": "{{FR_ROUTING}}",
+      "family": "FR",
+      "subject": "Inference capacity routing and health",
+      "domain": "agent",
+      "statement": "Inference capacity routing and health — Admit model invocations through current qualified node observations and atomic per-engine capacity leases, preferring the first eligible node and spilling new work under capacity and deadline constraints without hidden hosted fallback.",
+      "status": "approved design — not registered, not implemented, not deployed",
+      "acceptance_source": "ROUTE-01..10"
+    },
+    {
+      "id": "{{FR_MONITOR}}",
+      "family": "FR",
+      "subject": "Inference pool operations projection",
+      "domain": "platform-control",
+      "statement": "Inference pool operations projection — Expose an installation-operator-only removable projection of node readiness, capacity, observation age and bounded failures, with safe delegated controls and unavailable data labeled truthfully.",
+      "status": "approved design — not registered, not implemented, not deployed",
+      "acceptance_source": "MON-01..08"
+    },
+    {
+      "id": "{{FR_LINE}}",
+      "family": "FR",
+      "subject": "Self-hosted inference policy and cutover",
+      "domain": "line-oa-studio",
+      "statement": "Self-hosted inference policy and cutover — Allow explicit account selection of an authorized self-hosted pool with immutable job policy/profile snapshots, preserved Server-owned LINE delivery and a quiescent reversible inference-only cutover.",
+      "status": "approved design — not registered, not implemented, not deployed",
+      "acceptance_source": "LINE-01..09"
+    },
+    {
+      "id": "{{SEC_NETWORK}}",
+      "family": "SEC",
+      "subject": "Inference destination and credential confinement",
+      "domain": "integration",
+      "statement": "Inference destination and credential confinement — Private inference destinations must be operator-allowlisted and connection-time validated with authenticated transport, no redirects or SSRF to unrelated services, and credentials must remain within the approved write-only secret and transport boundary.",
+      "status": "approved design — not registered, not implemented, not deployed",
+      "acceptance_source": "See related FR acceptance criteria and verification matrix"
+    },
+    {
+      "id": "{{SEC_PRIVACY}}",
+      "family": "SEC",
+      "subject": "Inference processing-scope and cache isolation",
+      "domain": "agent",
+      "statement": "Inference processing-scope and cache isolation — Processing permission and trusted Tenant/Business/conversation authority must constrain each prompt and cache-reuse boundary; self-hosted selection never implies cloud consent, customer-premise residency, shared private memory or an unauthorized provider fallback.",
+      "status": "approved design — not registered, not implemented, not deployed",
+      "acceptance_source": "See related FR acceptance criteria and verification matrix"
+    },
+    {
+      "id": "{{SDD_TOPOLOGY}}",
+      "family": "SDD",
+      "subject": "Independent replicas behind Server orchestration",
+      "domain": "agent",
+      "statement": "Independent replicas behind Server orchestration — Use full independent vLLM replicas behind the Server agent/provider/router seam, retaining existing LINE/CRM/MSP/GKS writers and optional Edge capabilities rather than introducing distributed model state or another durable LINE queue.",
+      "status": "approved design — not registered, not implemented, not deployed",
+      "acceptance_source": "See related FR acceptance criteria and verification matrix"
+    },
+    {
+      "id": "{{SDD_ADMISSION}}",
+      "family": "SDD",
+      "subject": "Atomic inference reservation and uncertain-capacity discipline",
+      "domain": "agent",
+      "statement": "Atomic inference reservation and uncertain-capacity discipline — Reserve each invocation atomically by canonical engine identity across processes using a bounded database lease; distinguish pre-dispatch expiry from uncertain post-dispatch work and never recycle disputed remote capacity without a verified recovery boundary.",
+      "status": "approved design — not registered, not implemented, not deployed",
+      "acceptance_source": "See related FR acceptance criteria and verification matrix"
+    },
+    {
+      "id": "{{NFR_RECOVERY}}",
+      "family": "NFR",
+      "subject": "Inference recovery without duplicate business effects",
+      "domain": "agent",
+      "statement": "Inference recovery without duplicate business effects — Restarts, node failures, deadline expiry and ambiguous transport outcomes must preserve fenced attempts, committed tool effects and LINE delivery reconciliation; no automatic whole-turn replay or hidden change of processing authority is permitted.",
+      "status": "approved design — not registered, not implemented, not deployed",
+      "acceptance_source": "See related FR acceptance criteria and verification matrix"
+    },
+    {
+      "id": "{{NFR_OBSERVABILITY}}",
+      "family": "NFR",
+      "subject": "Inference observation freshness and boundedness",
+      "domain": "integration",
+      "statement": "Inference observation freshness and boundedness — Node observations must have current configuration identity, explicit age/provenance and bounded parsing/labels/storage; stale or absent data remains unknown and the removable monitoring UI is not in the routing correctness path.",
+      "status": "approved design — not registered, not implemented, not deployed",
+      "acceptance_source": "See related FR acceptance criteria and verification matrix"
+    }
+  ],
+  "feature": {
+    "id": "{{FEAT_POOL}}",
+    "subject": "Server-owned self-hosted inference pool",
+    "requirements": [
+      "{{FR_NODES}}",
+      "{{FR_EXECUTION}}",
+      "{{FR_ROUTING}}",
+      "{{FR_MONITOR}}",
+      "{{FR_LINE}}"
+    ],
+    "status": "approved design — repository declaration pending"
+  },
+  "existing_dependencies": [
+    "FR-048",
+    "FR-079",
+    "FR-080",
+    "FR-149",
+    "FR-150",
+    "FR-171",
+    "FR-234",
+    "FR-235",
+    "FR-244"
+  ],
+  "no_reassignment": true
+}
