@@ -4,7 +4,7 @@
   "cycle": "ADR-075 Phase 3 — GenesisRAG17 edge deployment (SmartGift structured-record profile)",
   "design": "docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md",
   "recordedAt": "2026-09-18",
-  "note": "TASK-ZAI-050 release tuple: zuri importer transaction fix at b1c844b1, GenesisBlock 5e75c4a, MSP 49fe7de7, GKS ecf1e4de. This tuple includes the transaction-aware pipeline-event writer and the no-nested-transaction acceptance guard; require a fresh web-image build, 36-case G-3 acceptance, and production smoke.",
+  "note": "TASK-ZAI-050 release tuple: zuri importer transaction fix at a9039dcc, GenesisBlock 5e75c4a, MSP 49fe7de7, GKS ecf1e4de. This tuple includes the transaction-aware pipeline-event writer, the explicit 30s evidence-page timeout, and the no-nested-transaction acceptance guard; require a fresh web-image build, 36-case G-3 acceptance, and production smoke.",
   "runtime": {
     "node": "24.18.0",
     "nodePlatform": "linux-x64",
@@ -18,7 +18,7 @@
   "repositories": {
     "zuri-ai": {
       "repository": "Freshair129/zuri.ai",
-      "commit": "b1c844b1585f994b7af0f278b3377e8d77b36978",
+      "commit": "a9039dcc1c78745c595571da66c3935eda6dbebb",
       "buildContext": null,
       "verifiedInBuild": false,
       "note": "This repository is the build's own main context, and .dockerignore excludes .git from it, so the build cannot read its own HEAD. Recorded for the G-4 gate and verified by the operator on the host before the build (`git rev-parse HEAD`).",
