@@ -1,12 +1,12 @@
 # Appendix A — API Specification
 
-Version diff 1.85.0b → 1.86.0b: compose the FR-252 eight Feature mutation operations and bound-commit snapshot capture with the four reads and Identity CSRF issuer. Composition target: 308 paths and 411 operations, preserving Pricing, CRM legal hold and LINE context/tool routes. Final composed verification and production delivery remain pending.
+Version diff 1.86.0b → 1.87.0b: retain the composed FR-252 Feature operations and add the deployment-authenticated TaskUsageLedger read projection. Composition target is 309 paths and 412 operations; TaskUsageLedger is a pure projection with no database model or migration. Final composed verification and production delivery remain pending.
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.86.0b |
+| **Version** | 1.87.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-09-17 |
+| **Last Updated** | 2026-09-18 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -25,7 +25,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=308 -->
+<!-- api-spec-counts: route_handlers=309 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -145,6 +145,7 @@ ADR-087. A Claude Code or Codex installation pairs like an Edge Device; its cred
 | POST | `/api/platform/usage-events` | implemented (FR-248, FR-249): any signed-in person records their own `{ kind: PAGE_VIEW \| ACTION, route?, actionName? }` — a PAGE_VIEW never carries `actionName`, an ACTION never carries `route`; `actionName` is a static label matching `^[\w.:@/-]{1,120}$`, never free text | `400 USAGE_EVENT_KIND_INVALID \| USAGE_EVENT_ROUTE_INVALID \| USAGE_EVENT_ACTION_NAME_INVALID \| USAGE_EVENT_ROUTE_CARRIES_NO_ACTION_NAME \| USAGE_EVENT_ACTION_CARRIES_NO_ROUTE` |
 | GET | `/api/platform/usage-events` | implemented (FR-248, FR-249): installation operator only, audited `USAGE_EVENTS_READ`; `{ pageViews: [...], actions: [...] }`, each row `{ target, recentCount, rolledUpCount, totalCount, byPerson }` — `byPerson` reflects only the last 90 days, the only window this carries a person for (ADR-095 D3) | `404` for any non-operator |
 | POST | `/api/platform/usage-events/rollup` | implemented (FR-249, NFR-023): deployment-bearer-authenticated (`ZURI_USAGE_ROLLUP_TOKEN`), once-a-day idempotency guard; moves every `UsageEvent` row past its 90-day window into a person-free daily rollup and deletes the rows moved, one audit event per run (same shape as `/api/crm/retention-sweep`) | `401` missing/wrong bearer; `503` on an unhandled failure |
+| GET | `/api/platform/task-usage-ledger?taskCode=` | implemented locally (TaskUsageLedger v1): deployment-bearer-authenticated, read-only redacted projection over explicit taskCode reports; plan prediction and measured actual remain separate, lane-only usage is never allocated, optional taskCode filters one known programme task | `401 TASK_USAGE_LEDGER_CREDENTIAL_REQUIRED`; `404 PROGRAMME_TASK_UNKNOWN`; `503 TASK_USAGE_LEDGER_UNAVAILABLE` |
 | GET | `/api/platform/programme-usage-reports/whoami` | implemented (FR-220): the only read a harness credential allows — `{ installationId, personDisplayName, deviceLabel, harness, status }` of that credential | `401 HARNESS_CREDENTIAL_REQUIRED`; `503` |
 
 `POST /api/platform/programme-usage-reports` (FR-221) also accepts an active harness credential: the report stores the credential's person and installation, `branch` (key `(source, sessionId, branch)`), optional `repository` and `aiAccount` label, and `taskCode` becomes optional when a branch is named; a resumed session from the same installation whose counts only grow answers `200 { extended: true }` (audited `EXTENDED`); a pending device answers `403 HARNESS_NOT_ACTIVATED` and an unknown or revoked one `401 HARNESS_CREDENTIAL_REQUIRED`.
@@ -958,6 +959,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.87.0b | 2026-09-18 | candidate | Add authenticated TaskUsageLedger projection and explicit taskCode attribution; reconcile composed inventory to 309 paths/412 operations; no database model or migration | 56ae925a | RWANG |
 | 1.86.0b | 2026-09-17 | candidate | Compose eight Feature writes, snapshot capture, strict schemas/refinements and owner read-side CAS headers; target 308 paths/411 operations, final composed verification pending | 052821a7 + 892f23f3 | RWANG |
 | 1.85.0b | 2026-09-17 | candidate | Compose FR-252 CSRF and four Feature GET routes with main 892f23f3; preserve Pricing, CRM and LINE. Inventory 303 paths/402 operations; read/API tests locally pass, full composed gates pending | 052821a7 + 892f23f3 | RWANG |
 | 1.84.0b | 2026-09-17 | beta | Compose FR-253 Pricing, deployed CRM legal hold and LINE context/tool routes; 298 paths/397 operations | 892f23f3 | RWANG |

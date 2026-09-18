@@ -676,7 +676,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 308,
+            "openApiPaths": 309,
             "missingFromOpenApi": 0
           }
         },
@@ -957,7 +957,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 308,
+            "openApiPaths": 309,
             "missingFromOpenApi": 0
           }
         },
@@ -1170,7 +1170,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 308,
+            "openApiPaths": 309,
             "missingFromOpenApi": 0
           }
         },
@@ -2008,7 +2008,7 @@
           "details": {
             "routes": 28,
             "inventoried": 27,
-            "openApiPaths": 308,
+            "openApiPaths": 309,
             "missingFromOpenApi": 0
           }
         },
@@ -2512,7 +2512,7 @@
           "details": {
             "routes": 10,
             "inventoried": 10,
-            "openApiPaths": 308,
+            "openApiPaths": 309,
             "missingFromOpenApi": 0
           }
         },
@@ -2875,7 +2875,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 308,
+            "openApiPaths": 309,
             "missingFromOpenApi": 0
           }
         },
@@ -3705,7 +3705,7 @@
           "details": {
             "routes": 20,
             "inventoried": 20,
-            "openApiPaths": 308,
+            "openApiPaths": 309,
             "missingFromOpenApi": 0
           }
         },
@@ -3903,7 +3903,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 308,
+            "openApiPaths": 309,
             "missingFromOpenApi": 0
           }
         },
@@ -4070,7 +4070,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 308,
+            "openApiPaths": 309,
             "missingFromOpenApi": 0
           }
         },
@@ -4226,7 +4226,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-217",
@@ -4241,8 +4241,8 @@
           "title": "Programme usage report endpoint",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 16
+          "codeCount": 5,
+          "testCount": 18
         },
         {
           "id": "FR-219",
@@ -4265,16 +4265,16 @@
           "title": "Usage reports attributed to person, device and lane",
           "declared": "done",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 7
+          "codeCount": 4,
+          "testCount": 8
         },
         {
           "id": "FR-239",
           "title": "Agent usage detail capture",
           "declared": "done",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 4
+          "codeCount": 2,
+          "testCount": 5
         },
         {
           "id": "FR-240",
@@ -4340,7 +4340,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 308,
+            "openApiPaths": 309,
             "missingFromOpenApi": 0
           }
         },
@@ -4522,7 +4522,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 308,
+            "openApiPaths": 309,
             "missingFromOpenApi": 0
           }
         },
@@ -5708,12 +5708,20 @@
           "testCount": 12
         },
         {
+          "id": "FR-216",
+          "title": "Phase card delivery metrics",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 8
+        },
+        {
           "id": "FR-218",
           "title": "Programme usage report endpoint",
           "declared": "done",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 16
+          "codeCount": 2,
+          "testCount": 18
         },
         {
           "id": "FR-223",
@@ -5907,9 +5915,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 152,
-            "inventoried": 152,
-            "openApiPaths": 308,
+            "routes": 153,
+            "inventoried": 153,
+            "openApiPaths": 309,
             "missingFromOpenApi": 0
           }
         },
@@ -5977,8 +5985,8 @@
           "details": {
             "mutations": 121,
             "guardedMutations": 117,
-            "reads": 71,
-            "unguardedReads": 2
+            "reads": 72,
+            "unguardedReads": 3
           }
         },
         "tests": {
@@ -6094,8 +6102,8 @@
         }
       ],
       "details": {
-        "routes": 199,
-        "apiRoutes": 152,
+        "routes": 200,
+        "apiRoutes": 153,
         "pageRoutes": 47,
         "ownedModels": 37,
         "featureNotes": 39
@@ -9838,8 +9846,8 @@
           "title": "Phase card delivery metrics",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 7
+          "codeCount": 5,
+          "testCount": 8
         },
         {
           "id": "FR-217",
@@ -9854,8 +9862,8 @@
           "title": "Programme usage report endpoint",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 16
+          "codeCount": 7,
+          "testCount": 18
         },
         {
           "id": "FR-219",
@@ -9869,7 +9877,9 @@
       "evidence": [
         "apps/server/src/app/(control)/control/roadmap/page.jsx",
         "apps/server/src/app/api/platform/programme-usage-reports/route.js",
+        "apps/server/src/app/api/platform/task-usage-ledger/route.js",
         "apps/server/src/modules/platform-control/application/programme-usage-reports.js",
+        "apps/server/src/modules/platform-control/application/task-usage-ledger.js",
         "apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
         "apps/server/src/modules/platform-control/program-delivery-metrics.js",
         "apps/server/src/modules/platform-control/program-roadmap-containers.js",
@@ -9897,6 +9907,8 @@
         "apps/server/tests/unit/programme-member-view.test.js",
         "apps/server/tests/unit/programme-usage-meter.test.js",
         "apps/server/tests/unit/programme-usage-reports.test.js",
+        "apps/server/tests/unit/task-usage-ledger-export.test.js",
+        "apps/server/tests/unit/task-usage-ledger.test.js",
         "apps/server/tests/unit/zuri-harness-plugin.test.js"
       ]
     },
@@ -9934,8 +9946,8 @@
           "title": "Usage reports attributed to person, device and lane",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 3,
-          "testCount": 7
+          "codeCount": 4,
+          "testCount": 8
         },
         {
           "id": "FR-222",
@@ -9960,6 +9972,7 @@
         "apps/server/src/modules/identity/harness-pairing-runtime.js",
         "apps/server/src/modules/identity/harness-pairing.js",
         "apps/server/src/modules/platform-control/application/programme-usage-reports.js",
+        "apps/server/src/modules/platform-control/application/task-usage-ledger.js",
         "apps/server/src/modules/platform-control/components/HarnessDevicesView.jsx",
         "apps/server/tests/e2e/fr220-harness-pairing.spec.js",
         "apps/server/tests/integration/openapi-docs.test.js",
@@ -9970,6 +9983,7 @@
         "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/program-delivery-metrics.test.js",
         "apps/server/tests/unit/programme-usage-reports.test.js",
+        "apps/server/tests/unit/task-usage-ledger.test.js",
         "apps/server/tests/unit/zuri-harness-plugin.test.js",
         "plugins/zuri-harness/bin/zuri-harness.mjs",
         "plugins/zuri-harness/lib/client.mjs",
@@ -10501,8 +10515,8 @@
           "title": "Agent usage detail capture",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 4
+          "codeCount": 5,
+          "testCount": 5
         },
         {
           "id": "FR-240",
@@ -10515,6 +10529,7 @@
       ],
       "evidence": [
         "apps/server/src/modules/platform-control/application/programme-usage-reports.js",
+        "apps/server/src/modules/platform-control/application/task-usage-ledger.js",
         "apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
         "apps/server/src/modules/platform-control/program-delivery-metrics.js",
         "apps/server/tests/e2e/fr216-programme-delivery-telemetry.spec.js",
@@ -10525,6 +10540,7 @@
         "apps/server/tests/unit/programme-member-view.test.js",
         "apps/server/tests/unit/programme-usage-meter.test.js",
         "apps/server/tests/unit/programme-usage-reports.test.js",
+        "apps/server/tests/unit/task-usage-ledger.test.js",
         "apps/server/tests/unit/usage-detail.test.js",
         "apps/server/tests/unit/zuri-harness-plugin.test.js",
         "plugins/zuri-harness/lib/detail.mjs",

@@ -118,7 +118,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // transport mode) on the item. Archive is a PATCH action, never a DELETE.
   ['/api/line-oa/accounts', ['GET', 'POST']], ['/api/line-oa/accounts/{id}', ['GET', 'PATCH']],
   ['/api/line-oa/rich-menus', ['GET', 'POST']], ['/api/line-oa/rich-menus/{id}', ['GET', 'PATCH']],
-  ['/api/line-oa/rich-menus/{id}/jobs', ['GET', 'POST', 'PATCH']], ['/api/line-oa/rich-menu-worker', ['POST']], ['/api/platform/programme-usage-reports', ['POST']], ['/api/platform/programme-usage-reports/whoami', ['GET']], ['/api/platform/harness-pairing/start', ['POST']], ['/api/platform/harness-pairing/approve', ['POST']], ['/api/platform/harness-pairing/poll', ['POST']], ['/api/platform/harness-devices', ['GET']], ['/api/platform/harness-devices/{id}', ['PATCH']],
+  ['/api/line-oa/rich-menus/{id}/jobs', ['GET', 'POST', 'PATCH']], ['/api/line-oa/rich-menu-worker', ['POST']], ['/api/platform/programme-usage-reports', ['POST']], ['/api/platform/task-usage-ledger', ['GET']], ['/api/platform/programme-usage-reports/whoami', ['GET']], ['/api/platform/harness-pairing/start', ['POST']], ['/api/platform/harness-pairing/approve', ['POST']], ['/api/platform/harness-pairing/poll', ['POST']], ['/api/platform/harness-devices', ['GET']], ['/api/platform/harness-devices/{id}', ['PATCH']],
   // @req FR-247 — the deduplicated error list (GET) and resolving one (PATCH).
   ['/api/platform/error-events', ['GET']], ['/api/platform/error-events/{id}', ['PATCH']],
   // @req FR-248, FR-249 — record one's own usage (POST), read the breakdown

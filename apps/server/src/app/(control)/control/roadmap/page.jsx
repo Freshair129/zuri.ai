@@ -18,6 +18,7 @@ import { PROGRAMME_LANES, PROGRAMME_SIZING, PROGRAMME_USAGE } from '@/modules/pl
 import { mergeLaneUsage } from '@/modules/platform-control/program-delivery-metrics'
 import { projectTaskEvidence } from '@/modules/platform-control/program-task-evidence'
 import { listProgrammeUsageReports } from '@/modules/platform-control/application/programme-usage-reports'
+import { projectTaskUsageLedger, redactTaskUsageLedger } from '@/modules/platform-control/application/task-usage-ledger'
 import { describeHarnessReporters } from '@/modules/identity/harness-credential'
 import { getProductReadinessSnapshot } from '@/modules/project-manager/application/product-readiness-read-model'
 
@@ -31,12 +32,20 @@ export default async function PlatformProgrammeRoadmapPage({ searchParams }) {
   const { available, reports } = await listProgrammeUsageReports(prisma)
   const reporters = await describeHarnessReporters({ installationIds: reports.map((r) => r.installationId), db: prisma })
   const laneUsage = mergeLaneUsage({ lanes: PROGRAMME_LANES, usage: PROGRAMME_USAGE, reports, reporters })
+  const taskUsageLedger = projectTaskUsageLedger({
+    knownTasks: PROGRAMME_TASKS,
+    containers: PROGRAMME_CONTAINERS,
+    lanes: PROGRAMME_LANES,
+    meterUsage: PROGRAMME_USAGE,
+    reports: { available, reports },
+  })
   return (
     <ProgramRoadmapBoard
       domainMap={projectDomainMap(snapshot)}
       initialView={VIEWS.has(searchParams?.view) ? searchParams.view : 'programme'}
       laneUsage={Object.fromEntries(laneUsage)}
       usageReports={{ available, count: reports.length }}
+      taskUsageLedger={redactTaskUsageLedger(taskUsageLedger, 'operator')}
       taskEvidence={projectTaskEvidence({ tasks: PROGRAMME_TASKS, containers: PROGRAMME_CONTAINERS, snapshot })}
       lanes={PROGRAMME_LANES}
       sizing={PROGRAMME_SIZING}

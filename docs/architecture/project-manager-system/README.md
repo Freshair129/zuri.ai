@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-SYSTEM-DESIGN
 title: Project Manager complete system design
-version: "0.17.0b"
+version: "0.18.0b"
 status: candidate
 created_at: "2026-09-15T23:49:58+07:00,RWANG,base 087f30258a6831865afd751e28804e36505aff30"
-last_update: "2026-09-17T20:28:51+07:00,RWANG final integrator"
+last_update: "2026-09-18T05:37:20+07:00,RWANG release integrator"
 superseded_by: null
 attributes:
   doc_type: architecture-specification
@@ -25,7 +25,7 @@ relations:
 
 # Project Manager — Full System Design
 
-**Version:** 0.17.0b · **Status:** Candidate · **Risk:** HIGH · **Complexity:** C-3
+**Version:** 0.18.0b · **Status:** Candidate · **Risk:** HIGH · **Complexity:** C-3
 **Evidence baseline:** original design `087f30258a6831865afd751e28804e36505aff30`; MA-I02 source audit `138db6630e650e3c695b81158eff3cecdad6d0a5`.
 **Deliverable:** เอกสารออกแบบและสัญญาแบบเครื่องอ่านได้; navigation FR-250 และ Domain View Phase A (FR-251) ส่งมอบแล้ว โดย Phase A merge/deploy ที่ `c07cfaba` พร้อม archive/rollup repair ใน PR444 เมื่อ 2026-09-17 ส่วน Feature Phase B ผ่าน B1/B2 และเริ่ม implementation ใน worktree แยก; ผลส่งมอบแต่ละ slice อยู่ใน FR-252 และยังไม่ใช่ production rollout
 
@@ -162,6 +162,11 @@ Domain และ Feature เป็นคนละแกน:
 | [Workflow schema](contracts/workflow.schema.json) | โครงสร้าง workflow แบบข้อมูล ตรวจได้ก่อน dispatch |
 | [Workflow example](contracts/workflow.example.json) | ตัวอย่างหลาย Domain: spec → implementation → verification |
 | [Architecture model](contracts/architecture.model.json) | node/edge พร้อมชนิด ทิศทาง owner และ contract |
+| [G14 registry](contracts/g14-registry.candidate.json) | Machine-readable workforce registry extension, candidate/codegen disabled |
+| [G14 implementation packet](26-G14-REGISTRY-IMPLEMENTATION-PACKET.md) | Implementation boundary, registrations and acceptance evidence for PM-G14 |
+| [TaskUsageLedger contract](contracts/task-usage-ledger.contract.json) | Machine-readable task-bound usage projection contract |
+| [TaskUsageLedger implementation packet](27-TASK-USAGE-LEDGER-IMPLEMENTATION-PACKET.md) | Runtime projection, authenticated route, redaction and reconciliation evidence |
+| [TaskUsageLedger snapshot schema](contracts/task-usage-ledger.snapshot.schema.json) | Public/internal snapshot shape and redaction boundary |
 | [Traceability](contracts/traceability.json) | รหัส requirement → capability → owner → contract → test → phase |
 | [Navigation model](contracts/navigation.candidate.json) | destination → scope → route → readiness → implementation slice |
 
@@ -284,6 +289,7 @@ Domain และ Feature เป็นคนละแกน:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.18.0b | 2026-09-18 | candidate | Add PM-G14 registry/implementation packets and TaskUsageLedger projection, route, explicit taskCode attribution and focused evidence; no schema migration | 56ae925a | RWANG |
 | 0.17.0b | 2026-09-17 | candidate | Reconcile implemented owner forms, source review and 6376-test evidence; preserve actual browser failures and corrective verification separately from hosted release | 052821a7 + 892f23f3 | RWANG |
 | 0.16.1b | 2026-09-17 | candidate | Record independent CRM and PM authority-clock closure, 122 composed security tests and initial full Server/build evidence; preserve final UI and release gates | 052821a7 + 892f23f3 | RWANG |
 | 0.1.0b | 2026-09-15 | candidate | Complete Project Manager design proposal and machine-readable contracts | base 087f3025; uncommitted | RWANG |
@@ -348,3 +354,6 @@ record local implementation progress separately from the deployed Phase A releas
 Version diff 0.15.1b → 0.15.2b: add contract27 for exact commit provenance,
 operator checkout configuration and unavailable-source behavior; W5 remains
 pending implementation and verification.
+
+
+Version diff 0.17.0b → 0.18.0b: compose the PM-G14 workforce registry and TaskUsageLedger implementation packet with the current Phase B design baseline; add the authenticated projection route and explicit taskCode attribution while keeping the projection schema-only and production activation separately gated.

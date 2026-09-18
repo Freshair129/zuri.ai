@@ -19,6 +19,7 @@ import { PROGRAMME_LANES, PROGRAMME_SIZING, PROGRAMME_USAGE } from '@/modules/pl
 import { mergeLaneUsage } from '@/modules/platform-control/program-delivery-metrics'
 import { projectTaskEvidence } from '@/modules/platform-control/program-task-evidence'
 import { listProgrammeUsageReports } from '@/modules/platform-control/application/programme-usage-reports'
+import { projectTaskUsageLedger, redactTaskUsageLedger } from '@/modules/platform-control/application/task-usage-ledger'
 import {
   MEMBER_VIEW_CLOSES_AT,
   projectMemberLaneUsage,
@@ -56,6 +57,13 @@ export default async function ProgrammeRoadmapMemberPage({ searchParams }) {
   // projection drops every breakdown they would feed (ADR-092 D3).
   const { available, reports } = await listProgrammeUsageReports(prisma)
   const laneUsage = projectMemberLaneUsage(mergeLaneUsage({ lanes: PROGRAMME_LANES, usage: PROGRAMME_USAGE, reports, reporters: {} }))
+  const taskUsageLedger = projectTaskUsageLedger({
+    knownTasks: PROGRAMME_TASKS,
+    containers: PROGRAMME_CONTAINERS,
+    lanes: PROGRAMME_LANES,
+    meterUsage: PROGRAMME_USAGE,
+    reports: { available, reports },
+  })
   return (
     <PlatformControlShell title="Programme Roadmap" footer="Programme roadmap · signed-in read-only preview (ADR-092)">
       <ProgramRoadmapBoard
@@ -65,6 +73,7 @@ export default async function ProgrammeRoadmapMemberPage({ searchParams }) {
         initialView={VIEWS.has(searchParams?.view) ? searchParams.view : 'programme'}
         laneUsage={laneUsage}
         usageReports={{ available, count: reports.length }}
+        taskUsageLedger={redactTaskUsageLedger(taskUsageLedger)}
         taskEvidence={projectTaskEvidence({ tasks: PROGRAMME_TASKS, containers: PROGRAMME_CONTAINERS, snapshot })}
         lanes={PROGRAMME_LANES}
         sizing={PROGRAMME_SIZING}

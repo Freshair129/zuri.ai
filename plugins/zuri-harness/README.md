@@ -62,6 +62,12 @@ A session is reported only when it belongs to an allowed repository (default:
 list) — for Claude Code this is read via `git -C <cwd> remote get-url origin`,
 for Codex from the rollout's own `session_meta.git.repository_url`.
 
+When a caller already owns a programme task assignment, a manual report command
+may pass `--task-code TASK-ZAI-###`. The value is sent as an explicit task
+binding; the harness never infers a task from a branch, title or repository.
+Without the flag, the report remains branch-only and the PM ledger leaves task
+actuals unallocated.
+
 ## What is sent — and what never is
 
 Every report carries only:
