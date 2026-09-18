@@ -1,7 +1,7 @@
 ---
-version: "1.0.0"
+version: "1.1.0"
 created_at: "2026-09-13T21:30:00+07:00,Claude Opus 5"
-last_update: "2026-09-13T21:30:00+07:00,Claude Opus 5"
+last_update: "2026-09-16T22:45:00+07:00,RWANG"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -12,8 +12,8 @@ attributes:
 
 # ADR-085 — A Knowledge (GKS) slot, and the data pipeline map as a validated registry
 
-**Status:** Accepted. Implemented by FR-212, FR-213 and FR-214 (FEAT-033) in the same change;
-FR-215 is declared for the live overlay.
+**Status:** Accepted. Implemented locally by FR-212, FR-213, FR-214 and FR-215
+(FEAT-033) in the same lane; production/live activation remains a separate gate.
 **Date:** 2026-09-13
 **Decided by:** Boss (instruction of 2026-09-13: "สร้างเป็น visual node edge เป็น sub domain ในโดเมน genesis knowledge system วางแผนงานทั้งหมดเเล้ว เพิ่มtaskไปในroadmap ก่อนแล้วค่อนลงมือ"), planned as TASK-ZAI-060 to TASK-ZAI-063 in programme v0.4.3.
 **Relates to:** [ADR-063](ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS.md),
@@ -127,7 +127,11 @@ reaches the RSC payload, in the shape FR-124's server-side seam established.
 Counts by status and the last run per edge (FR-215) are Business data. They are read later, for
 the active Business only, through each owning domain's read port — the FR-071 ledger, the LINE and
 rich menu job tables, the extraction jobs — and an edge with no backing table shows no number
-rather than zero. The static map never waits on them.
+rather than zero. The local implementation uses four bounded owning-domain read ports, one read
+per backing table, and returns unavailable/null when a read fails or the owner-domain grant is not
+available; it never turns a failed read into zero. Failed edges retain monitor links. The static map
+never waits on them. Nothing in this overlay adds a GKS, MSP or GenesisBlockDB runtime or proves
+production activation.
 
 ### D6 — Hand-rolled SVG, and a list view that is the same rows
 
@@ -147,3 +151,9 @@ depend on reading a drawing.
    `runtime/data-pipeline-map.json`, exactly as a requirement change carries `domain-state.json`.
 4. The `knowledge` key joins every consumer of `DOMAINS` — the permission checkboxes, the route
    guard, the bar — the same way `inventory` did.
+
+## Version diff
+
+1.0.0 → 1.1.0 (2026-09-16): FR-215 is implemented locally with four owning-domain read ports,
+Business-scoped authorization and truthful unavailable/null states; no model, migration, external
+runtime activation or production evidence is added.

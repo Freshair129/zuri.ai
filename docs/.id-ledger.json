@@ -7460,14 +7460,16 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "cce5c79d777ecf4d8421a3784633dfd5072b4afd07124bbc4b776778f96e1f2b",
+      "statement_digest": "ef6f20536c138fb1069fe0ef716b5d00cc6d323e19f6e081197a215e919aae96",
       "history": [
         {
           "anchor": "data pipeline map",
           "since": "2026-09-13",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-16",
+      "statement_digest_reason": "Record the local FR-215 owning-domain read-port implementation and keep production activation explicitly separate."
     },
     "FEAT-034": {
       "family": "FEAT",

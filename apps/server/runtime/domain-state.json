@@ -39,8 +39,8 @@
     "featureCount": 156,
     "readyFeatureCount": 118,
     "requirementCount": 259,
-    "verifiedRequirementCount": 240,
-    "progressPercent": 93.4,
+    "verifiedRequirementCount": 241,
+    "progressPercent": 93.8,
     "gapCount": 41,
     "gaps": [
       {
@@ -393,7 +393,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 9
+          "testCount": 11
         },
         {
           "id": "FR-026",
@@ -401,7 +401,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 8
+          "testCount": 10
         },
         {
           "id": "FR-027",
@@ -409,7 +409,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 5
+          "testCount": 7
         },
         {
           "id": "FR-028",
@@ -425,7 +425,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 4
+          "testCount": 6
         },
         {
           "id": "FR-047",
@@ -441,7 +441,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 8
+          "testCount": 10
         },
         {
           "id": "FR-049",
@@ -449,7 +449,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 5
+          "testCount": 7
         },
         {
           "id": "FR-050",
@@ -486,7 +486,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 5
+          "testCount": 7
         },
         {
           "id": "FR-054",
@@ -494,7 +494,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 10
+          "testCount": 12
         },
         {
           "id": "FR-055",
@@ -526,7 +526,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 9
+          "testCount": 11
         },
         {
           "id": "FR-080",
@@ -746,7 +746,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 315,
+            "openApiPaths": 316,
             "missingFromOpenApi": 0
           }
         },
@@ -1045,7 +1045,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 315,
+            "openApiPaths": 316,
             "missingFromOpenApi": 0
           }
         },
@@ -1258,7 +1258,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 315,
+            "openApiPaths": 316,
             "missingFromOpenApi": 0
           }
         },
@@ -1677,7 +1677,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 8
+          "testCount": 10
         },
         {
           "id": "FR-031",
@@ -2096,7 +2096,7 @@
           "details": {
             "routes": 28,
             "inventoried": 27,
-            "openApiPaths": 315,
+            "openApiPaths": 316,
             "missingFromOpenApi": 0
           }
         },
@@ -2326,7 +2326,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 8
+          "testCount": 10
         },
         {
           "id": "FR-052",
@@ -2350,7 +2350,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 9
+          "testCount": 11
         },
         {
           "id": "FR-080",
@@ -2502,7 +2502,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 49
+          "testCount": 50
         },
         {
           "id": "FR-187",
@@ -2616,7 +2616,7 @@
           "details": {
             "routes": 10,
             "inventoried": 10,
-            "openApiPaths": 315,
+            "openApiPaths": 316,
             "missingFromOpenApi": 0
           }
         },
@@ -2988,7 +2988,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 315,
+            "openApiPaths": 316,
             "missingFromOpenApi": 0
           }
         },
@@ -3144,7 +3144,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 10
+          "testCount": 12
         },
         {
           "id": "FR-071",
@@ -3255,8 +3255,8 @@
           "title": "Knowledge source admission and corpus publication",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 8,
-          "testCount": 49
+          "codeCount": 10,
+          "testCount": 50
         },
         {
           "id": "FR-187",
@@ -3311,6 +3311,14 @@
           "status": "verified",
           "codeCount": 3,
           "testCount": 13
+        },
+        {
+          "id": "FR-215",
+          "title": "Live pipeline health on the map",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 4
         },
         {
           "id": "FR-235",
@@ -3379,8 +3387,8 @@
             }
           ],
           "details": {
-            "routes": 5,
-            "inventoried": 5,
+            "routes": 6,
+            "inventoried": 6,
             "missing": 0
           }
         },
@@ -3525,9 +3533,9 @@
         }
       ],
       "details": {
-        "routes": 5,
+        "routes": 6,
         "apiRoutes": 0,
-        "pageRoutes": 5,
+        "pageRoutes": 6,
         "ownedModels": 16,
         "featureNotes": 18
       },
@@ -3551,7 +3559,7 @@
       ],
       "featureCount": 16,
       "readyFeatureCount": 11,
-      "progressPercent": 92.1
+      "progressPercent": 95.7
     },
     "line-oa-studio": {
       "status": "partial",
@@ -3578,7 +3586,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 8
+          "testCount": 10
         },
         {
           "id": "FR-061",
@@ -3835,7 +3843,7 @@
           "details": {
             "routes": 20,
             "inventoried": 20,
-            "openApiPaths": 315,
+            "openApiPaths": 316,
             "missingFromOpenApi": 0
           }
         },
@@ -4042,7 +4050,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 315,
+            "openApiPaths": 316,
             "missingFromOpenApi": 0
           }
         },
@@ -4209,7 +4217,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 315,
+            "openApiPaths": 316,
             "missingFromOpenApi": 0
           }
         },
@@ -4487,7 +4495,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 315,
+            "openApiPaths": 316,
             "missingFromOpenApi": 0
           }
         },
@@ -4701,7 +4709,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 315,
+            "openApiPaths": 316,
             "missingFromOpenApi": 0
           }
         },
@@ -5692,7 +5700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 49
+          "testCount": 50
         },
         {
           "id": "FR-174",
@@ -5885,6 +5893,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 13
+        },
+        {
+          "id": "FR-215",
+          "title": "Live pipeline health on the map",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 4
         },
         {
           "id": "FR-216",
@@ -6102,9 +6118,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 159,
-            "inventoried": 159,
-            "openApiPaths": 315,
+            "routes": 160,
+            "inventoried": 160,
+            "openApiPaths": 316,
             "missingFromOpenApi": 0
           }
         },
@@ -6172,7 +6188,7 @@
           "details": {
             "mutations": 121,
             "guardedMutations": 117,
-            "reads": 79,
+            "reads": 80,
             "unguardedReads": 9
           }
         },
@@ -6289,8 +6305,8 @@
         }
       ],
       "details": {
-        "routes": 206,
-        "apiRoutes": 159,
+        "routes": 207,
+        "apiRoutes": 160,
         "pageRoutes": 47,
         "ownedModels": 37,
         "featureNotes": 39
@@ -6688,7 +6704,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 8
+          "testCount": 10
         },
         {
           "id": "FR-079",
@@ -6696,7 +6712,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 9
+          "testCount": 11
         },
         {
           "id": "FR-080",
@@ -6739,6 +6755,7 @@
         "apps/server/tests/integration/line-oa-provider-migration.test.js",
         "apps/server/tests/integration/line-registry-scope.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
+        "apps/server/tests/unit/agent-role-registry.test.js",
         "apps/server/tests/unit/connection-health.test.js",
         "apps/server/tests/unit/fr048-provider-catalog.test.js",
         "apps/server/tests/unit/fr079-credential-vault.test.js",
@@ -6758,7 +6775,8 @@
         "apps/server/tests/unit/model-provider-port.test.js",
         "apps/server/tests/unit/model-provider-trace.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
-        "apps/server/tests/unit/platform/connector-catalog.test.js"
+        "apps/server/tests/unit/platform/connector-catalog.test.js",
+        "apps/server/tests/unit/role-memory-partition.test.js"
       ]
     },
     {
@@ -7511,8 +7529,8 @@
           "title": "Knowledge source admission and corpus publication",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 24,
-          "testCount": 49
+          "codeCount": 26,
+          "testCount": 50
         },
         {
           "id": "FR-254",
@@ -7525,6 +7543,7 @@
       ],
       "evidence": [
         "apps/server/src/app/(pm)/knowledge/console/page.jsx",
+        "apps/server/src/app/(pm)/knowledge/documents/page.jsx",
         "apps/server/src/app/api/knowledge/citations/[citationId]/artifact/route.js",
         "apps/server/src/app/api/knowledge/citations/[citationId]/route.js",
         "apps/server/src/app/api/knowledge/console/runs/[executionRunId]/route.js",
@@ -7565,6 +7584,7 @@
         "apps/server/src/modules/knowledge/knowledge-runtime.js",
         "apps/server/src/modules/knowledge/pipeline-map/KnowledgeDashboard.jsx",
         "apps/server/src/modules/knowledge/published-snapshot-contract.js",
+        "apps/server/src/modules/knowledge/ui/KnowledgeDocumentsView.jsx",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/modules/project-manager/components/ManagedFilesPanel.jsx",
@@ -7648,6 +7668,7 @@
         "apps/server/tests/unit/knowledge-classification.test.js",
         "apps/server/tests/unit/knowledge-corpus-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
+        "apps/server/tests/unit/knowledge-documents-ui.test.js",
         "apps/server/tests/unit/knowledge-entity-extraction.test.js",
         "apps/server/tests/unit/knowledge-http.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job-state.test.js",
@@ -9982,7 +10003,7 @@
     },
     {
       "id": "FEAT-033",
-      "title": "Data Pipeline Map — where data enters zuri-ai, where it is combined and who receives it, kept as a validated registry whose surface levels, build statuses and FEATs are derived from the tree and the readiness snapshot, drawn as a node-edge view with chain, domain and status filters in a Knowledge (GKS) navigation slot, with live per-edge health for the active Business declared next (ADR-085, `DOM-KNOWLEDGE`)",
+      "title": "Data Pipeline Map — where data enters zuri-ai, where it is combined and who receives it, kept as a validated registry whose surface levels, build statuses and FEATs are derived from the tree and the readiness snapshot, drawn as a node-edge view with chain, domain and status filters in a Knowledge (GKS) navigation slot, with live per-edge health for the active Business implemented locally through owning-domain read ports (ADR-085, `DOM-KNOWLEDGE`)",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
@@ -9997,12 +10018,11 @@
         "project-manager"
       ],
       "useCase": "เจ้าของธุรกิจเปิดแท็บ Knowledge (GKS) แล้วเห็นแผนที่ว่าข้อมูลของธุรกิจเข้ามาจากไหน ถูกรวมที่ไหน และถูกส่งต่อให้ใคร เลือก chain เช่น LINE turn เพื่อไล่ดูทีละ hop ว่าแต่ละขั้นเป็นของโดเมนไหน FEAT ไหน มีหน้าจอหรือ endpoint แล้วหรือยัง และขึ้น production แล้วหรือยังพร้อมหลักฐาน",
-      "progressPercent": 75,
+      "progressPercent": 100,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-033 registry status is building",
-        "FR-215 is planned"
+        "FEAT-033 registry status is building"
       ],
       "requirements": [
         {
@@ -10032,22 +10052,25 @@
         {
           "id": "FR-215",
           "title": "Live pipeline health on the map",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 4,
+          "testCount": 4
         }
       ],
       "evidence": [
         "apps/server/src/app/(pm)/knowledge/data-pipeline/page.jsx",
         "apps/server/src/app/(pm)/knowledge/page.jsx",
+        "apps/server/src/app/api/pipelines/health/route.js",
         "apps/server/src/config/domains.js",
         "apps/server/src/modules/knowledge/pipeline-map/DataPipelineMap3D.jsx",
         "apps/server/src/modules/knowledge/pipeline-map/DataPipelineMapView.jsx",
         "apps/server/src/modules/knowledge/pipeline-map/KnowledgeDashboard.jsx",
+        "apps/server/src/modules/knowledge/pipeline-map/pipeline-health-service.js",
         "apps/server/src/modules/knowledge/pipeline-map/pipeline-map-access.js",
         "apps/server/src/modules/knowledge/pipeline-map/pipeline-map-layout.js",
         "apps/server/src/modules/knowledge/pipeline-map/pipeline-map-read-model.js",
+        "apps/server/src/modules/knowledge/pipeline-map/use-pipeline-health.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr213-data-pipeline-map.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
@@ -10060,9 +10083,12 @@
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
+        "apps/server/tests/unit/pipeline-health-route.test.js",
+        "apps/server/tests/unit/pipeline-health-service.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/programme-containers.test.js",
-        "apps/server/tests/unit/scm-group-navigation.test.js"
+        "apps/server/tests/unit/scm-group-navigation.test.js",
+        "apps/server/tests/unit/use-pipeline-health.test.js"
       ]
     },
     {
@@ -12244,7 +12270,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 9
+          "testCount": 11
         }
       ],
       "evidence": [
@@ -12262,7 +12288,9 @@
         "apps/server/tests/integration/agent-tools.test.js",
         "apps/server/tests/integration/line-worker-memory.test.js",
         "apps/server/tests/integration/msp-vault-memory-port.test.js",
-        "apps/server/tests/unit/activation-readiness-integration.test.js"
+        "apps/server/tests/unit/activation-readiness-integration.test.js",
+        "apps/server/tests/unit/agent-role-registry.test.js",
+        "apps/server/tests/unit/role-memory-partition.test.js"
       ]
     },
     {
@@ -12291,7 +12319,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 8
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -12310,7 +12338,9 @@
         "apps/server/tests/integration/identity-link.test.js",
         "apps/server/tests/integration/line-project-work-tools.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
-        "apps/server/tests/unit/line-project-work-tool-route.test.js"
+        "apps/server/tests/unit/agent-role-registry.test.js",
+        "apps/server/tests/unit/line-project-work-tool-route.test.js",
+        "apps/server/tests/unit/role-memory-partition.test.js"
       ]
     },
     {
@@ -12337,7 +12367,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 5
+          "testCount": 7
         }
       ],
       "evidence": [
@@ -12347,7 +12377,9 @@
         "apps/server/tests/integration/agent-context.test.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-turn.test.js",
-        "apps/server/tests/unit/activation-readiness-integration.test.js"
+        "apps/server/tests/unit/activation-readiness-integration.test.js",
+        "apps/server/tests/unit/agent-role-registry.test.js",
+        "apps/server/tests/unit/role-memory-partition.test.js"
       ]
     },
     {
@@ -12416,7 +12448,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 4
+          "testCount": 6
         }
       ],
       "evidence": [
@@ -12425,7 +12457,9 @@
         "apps/server/tests/integration/agent-action-gate.test.js",
         "apps/server/tests/integration/agent-context.test.js",
         "apps/server/tests/integration/agent-runtime.test.js",
-        "apps/server/tests/unit/activation-readiness-integration.test.js"
+        "apps/server/tests/unit/activation-readiness-integration.test.js",
+        "apps/server/tests/unit/agent-role-registry.test.js",
+        "apps/server/tests/unit/role-memory-partition.test.js"
       ]
     },
     {
@@ -13303,7 +13337,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 5
+          "testCount": 7
         }
       ],
       "evidence": [
@@ -13313,7 +13347,9 @@
         "apps/server/tests/integration/agent-context.test.js",
         "apps/server/tests/integration/smartgift-webhook-e2e.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
-        "apps/server/tests/unit/grounded-business-answer.test.js"
+        "apps/server/tests/unit/agent-role-registry.test.js",
+        "apps/server/tests/unit/grounded-business-answer.test.js",
+        "apps/server/tests/unit/role-memory-partition.test.js"
       ]
     },
     {
@@ -13470,7 +13506,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 5
+          "testCount": 7
         }
       ],
       "evidence": [
@@ -13481,7 +13517,9 @@
         "apps/server/tests/integration/agent-context.test.js",
         "apps/server/tests/unit/activation-readiness-contract.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
-        "apps/server/tests/unit/golden-evaluation.test.js"
+        "apps/server/tests/unit/agent-role-registry.test.js",
+        "apps/server/tests/unit/golden-evaluation.test.js",
+        "apps/server/tests/unit/role-memory-partition.test.js"
       ]
     },
     {
@@ -13509,7 +13547,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 10
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -13526,7 +13564,9 @@
         "apps/server/tests/integration/runtime-isolation-probe.postgres.test.js",
         "apps/server/tests/unit/activation-readiness-contract.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
+        "apps/server/tests/unit/agent-role-registry.test.js",
         "apps/server/tests/unit/line-canary-preflight.test.js",
+        "apps/server/tests/unit/role-memory-partition.test.js",
         "apps/server/tests/unit/runtime-isolation-probe.test.js",
         "apps/server/tests/unit/runtime-postgres-config.test.js"
       ]

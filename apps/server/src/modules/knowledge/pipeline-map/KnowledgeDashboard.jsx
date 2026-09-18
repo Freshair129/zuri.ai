@@ -8,6 +8,7 @@
 // @tested tests/e2e/fr254-knowledge-console.spec.js
 
 import Link from 'next/link'
+import { UploadCloud, Search, FileText } from 'lucide-react'
 import { Card, Kpi, PageHeader, SectionTitle } from '@/components/ui'
 
 export default function KnowledgeDashboard({ map }) {
@@ -32,7 +33,12 @@ export default function KnowledgeDashboard({ map }) {
         </Card>
         <Card warm>
           <SectionTitle caption="ต้นทางและประวัติรุ่น งานประมวลผล รุ่นที่เผยแพร่ และการค้นพร้อมหลักฐาน">Knowledge base console</SectionTitle>
-          <Link href="/knowledge/console" className="btn btn-primary inline-flex">เปิดคลังความรู้</Link>
+          <div className="flex flex-wrap gap-2 mt-2">
+            <Link href="/knowledge/console" className="btn btn-primary inline-flex">เปิดคลังความรู้</Link>
+            <Link href="/knowledge/documents" className="btn inline-flex items-center gap-1.5 text-xs">
+              <UploadCloud size={13} /> อัพโหลดเอกสาร
+            </Link>
+          </div>
         </Card>
       </div>
     </div>
