@@ -6,6 +6,11 @@ import { redactConversationContentForCustomers } from '@/modules/crm/conversatio
 import { redactLineConversationJobs } from '@/modules/line-oa-studio/application/line-job-erasure'
 import { tombstoneRawRecordsForExternalIds } from '@/platform/integrations/core/raw-record-redaction'
 import { destroyCustomerArchiveKey } from '@/modules/crm/chat-evidence-archive-service'
+import { applyReviewedProjectFeatureErasure } from '@/modules/project-manager/application/project-feature-erasure'
+
+// @req FR-252 — reviewed PM text shares the Identity erasure transaction.
+// @spec docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md
+// @tested tests/integration/phase-b-identity-erasure.test.js
 
 // @req FR-022, FR-095 — PDPA erasure for a principal (the erase-revoke leg of the P3 gate).
 // @spec docs/replacement/IMPACT-SCAN-IDENTITY.md §hazard-5 — ExternalIdentity is a
@@ -39,11 +44,11 @@ const REDACTED = '[erased]'
  *
  * @returns {{ revokedIdentities, revokedChannelIdentities, erasedCustomers, erasedAnalyses, invalidatedTokens, revokedSessions, personRedacted, redactedMessages, tombstonedRawRecords, archiveKeys }}
  */
-export async function erasePrincipal(input) {
+export async function erasePrincipal(input, { db = prisma, reviewedPmContext = null } = {}) {
   const { tenantId, personId, reason } = zErasePrincipalInput.parse(input)
   const now = new Date()
 
-  return prisma.$transaction(async (tx) => {
+  const execute = async (tx) => {
     // @req FR-191 — erasure is downstream of offboarding, never a substitute
     // for it (SEC-026, ADR-077 D6). Before this refusal, erasure *counted*
     // grants to decide whether to redact the Person and ended none: a staff
@@ -66,6 +71,23 @@ export async function erasePrincipal(input) {
       // list here would answer a question the caller may not be scoped to ask.
       error.details = { memberships: liveMemberships, roleBindings: liveBindings, platformGrants: liveGrants }
       throw error
+    }
+
+    // Internal server context only; the public erasure request never accepts it.
+    // Subject identity comes from this orchestrator, not from the manifest.
+    const pmResult = await applyReviewedProjectFeatureErasure(tx, reviewedPmContext?.manifest ?? null, {
+      authority: {
+        ...reviewedPmContext?.authority,
+        tenantId,
+        subjectPersonId: personId,
+      },
+      now,
+    })
+    const pmErasure = {
+      status: pmResult.status,
+      manifestSha256: pmResult.manifestSha256 ?? null,
+      changedRowCount: pmResult.changedRowCount,
+      changedFieldCount: pmResult.changedFieldCount,
     }
 
     const revoked = await tx.externalIdentity.updateMany({
@@ -149,6 +171,8 @@ export async function erasePrincipal(input) {
       now,
     })
 
+    // CRM keeps an archive key while an active dispute hold requires it. Retry
+    // this independently of PM replay so an expired hold can finish its erasure.
     // @req SEC-034 — the chat evidence archive is the one copy a PDPA erasure
     // does not destroy outright (ADR-093 D6, TASK-ZAI-113): a Customer's
     // archive data key is destroyed here, UNLESS an OWNER has recorded an
@@ -220,8 +244,9 @@ export async function erasePrincipal(input) {
         redactedMessages,
         redactedLineJobs,
         tombstonedRawRecords,
-        personRedacted,
         archiveKeys,
+        personRedacted,
+        pmErasure: pmResult.audit ?? pmErasure,
       },
     })
 
@@ -236,6 +261,7 @@ export async function erasePrincipal(input) {
       redactedLineJobs,
       tombstonedRawRecords,
       personRedacted,
+      pmErasure,
       // @req SEC-034 — one entry per Customer this erasure touched (ADR-093
       //   D6): `keyDestroyed: true` when no hold protected them, or
       //   `legalHold` naming the hold that deferred it. Always present as an
@@ -244,5 +270,8 @@ export async function erasePrincipal(input) {
       //   reading exactly the counts it always did.
       archiveKeys,
     }
-  })
+  }
+  return typeof db.$transaction === 'function'
+    ? db.$transaction(execute, { isolationLevel: 'Serializable', maxWait: 10_000, timeout: 30_000 })
+    : execute(db)
 }

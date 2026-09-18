@@ -7,32 +7,30 @@
 //
 // The worker takes exactly one `GENESIS_WORKER_BENCHMARK_FIXTURE`
 // (genesisrag17-worker/src/cli.mjs), and validates it with
-// `validateBenchmarkFixture`, which requires a **top-level** `fixtureVersion`
-// string and a non-empty **top-level** `queries` array, each row carrying
-// `query` and a non-empty `relevantTexts`. Anything else fails closed at start
-// with BENCHMARK_FIXTURE_INVALID.
+// `validateBenchmarkFixture`, which requires a root `fixtureVersion` and
+// either a top-level legacy `queries` array or a non-empty `benchmarks[]` array.
+// Each benchmark entry carries its own `fixtureVersion` and query rows. Anything
+// else fails closed at start with BENCHMARK_FIXTURE_INVALID.
 //
-// `tests/fixtures/genesisrag17-smartgift-corpus-v1.json` does not have that
-// shape. It is the Phase 2 acceptance corpus, and its queries live *per record*
-// under `benchmarks[].queries`, because the acceptance
-// (tests/acceptance/genesisrag17-smartgift.test.js) re-boots the worker once per
-// benchmark entry and asserts each record against its own fixture. A container
-// boots once, so the per-record form has nowhere to go.
+// `tests/fixtures/genesisrag17-smartgift-corpus-v1.json` is the larger Phase 2
+// acceptance corpus: it carries records and harness metadata in addition to
+// the per-record queries under `benchmarks[].queries`. This build step projects
+// only the worker fixture fields, so one long-running container can still select
+// the applicable record without flattening those queries into a global union.
 //
-// So this script writes a derived fixture: one top-level `queries` array holding
-// the union of every `benchmarks[].queries` row, deduplicated by query text, with
-// `relevantTexts` merged. It records exactly where it came from, so the derivation
-// is auditable rather than implied:
+// So this script writes a derived fixture that preserves the per-record
+// `benchmarks[]` boundary. The worker scopes the selected entry to the candidate
+// generation before computing metrics; it must never score an unrelated
+// catalog-wide query union. Each row records exactly where it came from, so the
+// derivation is auditable rather than implied:
 //
 //   derivedFrom: { file, sha256, fixtureVersion, benchmarkCount, sourceQueryCount }
 //
 // WHAT THIS DOES NOT DECIDE. Whether the ADR-073 thresholds (Recall@5 >= .80,
-// MRR >= .65, citation correctness 1.00, cross-tenant leakage 0) hold against the
-// *union* fixture rather than per-record fixtures is an acceptance question, not a
-// build question. Gate G-3 re-runs the Phase 2 acceptance inside these images and
-// is where that is answered. If G-3 concludes the worker must instead be booted
-// per benchmark entry, this file is deleted and the deploy procedure boots the
-// worker per record — nothing else in the build depends on it.
+// MRR >= .65, citation correctness 1.00, cross-tenant leakage 0) hold for a
+// particular candidate is an acceptance question, not a build question. Gate
+// G-3 re-runs the Phase 2 acceptance inside these images and checks each
+// candidate-scoped fixture entry.
 //
 // Node built-ins only; runs inside the image build before any npm install.
 
@@ -51,26 +49,33 @@ export function deriveSmartgiftBenchmark(corpus, { sourceFile = null, sourceSha2
   if (typeof corpus.fixtureVersion !== 'string' || !corpus.fixtureVersion) throw fail('KI17_BENCHMARK_CORPUS_INVALID', 'corpus has no fixtureVersion')
   if (!Array.isArray(corpus.benchmarks) || corpus.benchmarks.length === 0) throw fail('KI17_BENCHMARK_CORPUS_INVALID', 'corpus has no benchmarks[]')
 
-  const byQuery = new Map()
   let sourceQueryCount = 0
+  const benchmarks = []
   for (const benchmark of corpus.benchmarks) {
+    if (typeof benchmark?.externalId !== 'string' || benchmark.externalId.trim() === '') {
+      throw fail('KI17_BENCHMARK_CORPUS_INVALID', 'benchmark has no externalId')
+    }
+    if (typeof benchmark?.fixtureVersion !== 'string' || benchmark.fixtureVersion.trim() === '') {
+      throw fail('KI17_BENCHMARK_CORPUS_INVALID', `benchmark ${benchmark.externalId} has no fixtureVersion`)
+    }
     if (!Array.isArray(benchmark?.queries) || benchmark.queries.length === 0) {
       throw fail('KI17_BENCHMARK_CORPUS_INVALID', `benchmark ${benchmark?.externalId ?? '(unnamed)'} has no queries[]`)
     }
+    const queries = []
     for (const row of benchmark.queries) {
       if (typeof row?.query !== 'string' || row.query.trim() === '') throw fail('KI17_BENCHMARK_QUERY_INVALID', `benchmark ${benchmark.externalId} has a query that is not a non-empty string`)
       if (!Array.isArray(row.relevantTexts) || row.relevantTexts.length === 0 || row.relevantTexts.some((text) => typeof text !== 'string' || text.length === 0)) {
         throw fail('KI17_BENCHMARK_QUERY_INVALID', `benchmark ${benchmark.externalId} query ${JSON.stringify(row.query.slice(0, 60))} has no usable relevantTexts`)
       }
       sourceQueryCount += 1
-      const existing = byQuery.get(row.query)
-      if (existing) {
-        for (const text of row.relevantTexts) if (!existing.relevantTexts.includes(text)) existing.relevantTexts.push(text)
-        if (!existing.fromBenchmarks.includes(benchmark.externalId)) existing.fromBenchmarks.push(benchmark.externalId)
-        continue
-      }
-      byQuery.set(row.query, { query: row.query, relevantTexts: [...row.relevantTexts], fromBenchmarks: [benchmark.externalId] })
+      queries.push({ query: row.query, relevantTexts: [...row.relevantTexts], fromBenchmarks: [benchmark.externalId] })
     }
+    benchmarks.push({
+      externalId: benchmark.externalId,
+      entityType: benchmark.entityType ?? null,
+      fixtureVersion: benchmark.fixtureVersion,
+      queries,
+    })
   }
 
   return {
@@ -84,9 +89,9 @@ export function deriveSmartgiftBenchmark(corpus, { sourceFile = null, sourceSha2
       ontologyVersion: corpus.ontologyVersion ?? null,
       benchmarkCount: corpus.benchmarks.length,
       sourceQueryCount,
-      shape: 'union of benchmarks[].queries, deduplicated by query text',
+      shape: 'per-record benchmarks[].queries, scoped by candidate generation',
     },
-    queries: [...byQuery.values()],
+    benchmarks,
   }
 }
 
@@ -106,7 +111,7 @@ function main(argv) {
 
   mkdirSync(path.dirname(outPath), { recursive: true })
   writeFileSync(outPath, `${JSON.stringify(fixture, null, 2)}\n`)
-  process.stdout.write(`ki17 benchmark derived  ${fixture.queries.length} queries from ${fixture.derivedFrom.benchmarkCount} benchmarks (${fixture.derivedFrom.sourceQueryCount} rows) -> ${outPath}\n`)
+  process.stdout.write(`ki17 benchmark derived  ${fixture.derivedFrom.sourceQueryCount} per-record queries from ${fixture.derivedFrom.benchmarkCount} benchmarks -> ${outPath}\n`)
 }
 
 const invokedDirectly = process.argv[1] && path.resolve(process.argv[1]) === path.resolve(new URL(import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1'))

@@ -1,7 +1,7 @@
-// @req FR-046, FR-095, FR-096, FR-107 — request identity comes from a
+// @req FR-046, FR-095, FR-096, FR-107, FR-252 — request identity comes from a
 // server-owned, persisted session adapter; the installation-operator capability
 // is resolved per request from the PlatformGrant store.
-// @spec ADR-017, ADR-045 D2-D4, SDD-024, SDD-052, SEC-008, SEC-018
+// @spec ADR-017, ADR-045 D2-D4, ADR-097, SDD-024, SDD-052, SEC-008, SEC-018
 // @tested tests/unit/fr046-session-port.test.js, tests/unit/iam-session.test.js, tests/unit/operator-bootstrap.test.js
 
 import prisma from '@/lib/db'
@@ -24,7 +24,14 @@ export function readRequestCookie(request, name) {
   const header = (typeof request?.headers?.get === 'function' ? request.headers.get('cookie') : request?.headers?.cookie) || ''
   for (const part of header.split(';')) {
     const [key, ...value] = part.trim().split('=')
-    if (key === name) return decodeURIComponent(value.join('='))
+    if (key === name) {
+      try {
+        return decodeURIComponent(value.join('='))
+      } catch {
+        // Malformed credentials are unauthenticated, not a session-store outage.
+        return null
+      }
+    }
   }
   return null
 }
@@ -40,6 +47,7 @@ function normalizeTrustedSession(value) {
     platformGrant: value.platformGrant === true,
     ...(value.superadminGrant === true ? { superadminGrant: true } : {}),
     sessionId: typeof value.sessionId === 'string' ? value.sessionId : null,
+    ...(value.expiresAt != null ? { expiresAt: value.expiresAt } : {}),
   }
 }
 
@@ -60,6 +68,7 @@ export function createSessionPort({ readTrustedSession = async () => null, env =
         // Current login tokens carry a session id and must match a live row.
         // Development-only legacy tokens without `sid` remain compatible;
         // production never accepts them.
+        let persistedExpiresAt = null
         if (session.sessionId) {
           if (typeof db.session?.findUnique !== 'function') {
             if (env.NODE_ENV === 'production') return { state: 'UNAUTHENTICATED' }
@@ -77,6 +86,7 @@ export function createSessionPort({ readTrustedSession = async () => null, env =
                 data: { lastSeenAt: new Date() },
               })
             }
+            persistedExpiresAt = persisted.expiresAt
           }
         } else if (env.NODE_ENV === 'production') {
           return { state: 'UNAUTHENTICATED' }
@@ -94,6 +104,7 @@ export function createSessionPort({ readTrustedSession = async () => null, env =
           // @req FR-200 — never take this capability from cookie claims or headers.
           ...(await hasSuperadminGrant(session.principalId, db) ? { superadminGrant: true } : {}),
           sessionId: session.sessionId ?? `legacy-${session.issuedAt}-${session.expiresAt}`,
+          ...(persistedExpiresAt ? { expiresAt: persistedExpiresAt } : {}),
         }
       }
 

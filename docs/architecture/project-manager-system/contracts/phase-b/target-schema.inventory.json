@@ -1,0 +1,905 @@
+{
+  "schemaSha256": "ad87b4bc9244f1fdbd055d138bd02c9bd315498d57c51c22efdf56084cdd089f",
+  "applicationTables": [
+    {
+      "modelName": "AccessInvite",
+      "schemaName": "public",
+      "tableName": "AccessInvite"
+    },
+    {
+      "modelName": "AgentTraceEvent",
+      "schemaName": "public",
+      "tableName": "AgentTraceEvent"
+    },
+    {
+      "modelName": "ApiAccessKey",
+      "schemaName": "public",
+      "tableName": "ApiAccessKey"
+    },
+    {
+      "modelName": "ArchiveManifest",
+      "schemaName": "public",
+      "tableName": "ArchiveManifest"
+    },
+    {
+      "modelName": "AssetDepreciationCandidate",
+      "schemaName": "public",
+      "tableName": "AssetDepreciationCandidate"
+    },
+    {
+      "modelName": "AssetEvidence",
+      "schemaName": "public",
+      "tableName": "AssetEvidence"
+    },
+    {
+      "modelName": "AssetExtractionJob",
+      "schemaName": "public",
+      "tableName": "AssetExtractionJob"
+    },
+    {
+      "modelName": "AssetIntake",
+      "schemaName": "public",
+      "tableName": "AssetIntake"
+    },
+    {
+      "modelName": "AssetLocationHistory",
+      "schemaName": "public",
+      "tableName": "AssetLocationHistory"
+    },
+    {
+      "modelName": "AssetLot",
+      "schemaName": "public",
+      "tableName": "AssetLot"
+    },
+    {
+      "modelName": "AssetProcurementRef",
+      "schemaName": "public",
+      "tableName": "AssetProcurementRef"
+    },
+    {
+      "modelName": "AssetProjectAllocation",
+      "schemaName": "public",
+      "tableName": "AssetProjectAllocation"
+    },
+    {
+      "modelName": "AssetResponsibility",
+      "schemaName": "public",
+      "tableName": "AssetResponsibility"
+    },
+    {
+      "modelName": "AuditEvent",
+      "schemaName": "public",
+      "tableName": "AuditEvent"
+    },
+    {
+      "modelName": "Branch",
+      "schemaName": "public",
+      "tableName": "Branch"
+    },
+    {
+      "modelName": "Business",
+      "schemaName": "public",
+      "tableName": "Business"
+    },
+    {
+      "modelName": "BusinessBillingProfile",
+      "schemaName": "public",
+      "tableName": "BusinessBillingProfile"
+    },
+    {
+      "modelName": "BusinessGoal",
+      "schemaName": "public",
+      "tableName": "BusinessGoal"
+    },
+    {
+      "modelName": "BusinessRoadmap",
+      "schemaName": "public",
+      "tableName": "BusinessRoadmap"
+    },
+    {
+      "modelName": "BusinessRoadmapHorizon",
+      "schemaName": "public",
+      "tableName": "BusinessRoadmapHorizon"
+    },
+    {
+      "modelName": "ChannelAccountClaim",
+      "schemaName": "public",
+      "tableName": "ChannelAccountClaim"
+    },
+    {
+      "modelName": "ChannelIdentity",
+      "schemaName": "public",
+      "tableName": "ChannelIdentity"
+    },
+    {
+      "modelName": "CommerceDocument",
+      "schemaName": "public",
+      "tableName": "CommerceDocument"
+    },
+    {
+      "modelName": "CommerceDocumentSequence",
+      "schemaName": "public",
+      "tableName": "CommerceDocumentSequence"
+    },
+    {
+      "modelName": "Conversation",
+      "schemaName": "public",
+      "tableName": "Conversation"
+    },
+    {
+      "modelName": "ConversationAnalysis",
+      "schemaName": "public",
+      "tableName": "ConversationAnalysis"
+    },
+    {
+      "modelName": "ConversationEvent",
+      "schemaName": "public",
+      "tableName": "ConversationEvent"
+    },
+    {
+      "modelName": "ConversationSession",
+      "schemaName": "public",
+      "tableName": "ConversationSession"
+    },
+    {
+      "modelName": "Customer",
+      "schemaName": "public",
+      "tableName": "Customer"
+    },
+    {
+      "modelName": "CustomerArchiveKey",
+      "schemaName": "public",
+      "tableName": "CustomerArchiveKey"
+    },
+    {
+      "modelName": "CustomerImportBatch",
+      "schemaName": "public",
+      "tableName": "CustomerImportBatch"
+    },
+    {
+      "modelName": "CustomerImportProvenance",
+      "schemaName": "public",
+      "tableName": "CustomerImportProvenance"
+    },
+    {
+      "modelName": "CustomerImportReviewCase",
+      "schemaName": "public",
+      "tableName": "CustomerImportReviewCase"
+    },
+    {
+      "modelName": "CustomerImportReviewDecision",
+      "schemaName": "public",
+      "tableName": "CustomerImportReviewDecision"
+    },
+    {
+      "modelName": "CustomerLegalHold",
+      "schemaName": "public",
+      "tableName": "CustomerLegalHold"
+    },
+    {
+      "modelName": "CustomizationWorkOrder",
+      "schemaName": "public",
+      "tableName": "CustomizationWorkOrder"
+    },
+    {
+      "modelName": "DeadLetterRecord",
+      "schemaName": "public",
+      "tableName": "DeadLetterRecord"
+    },
+    {
+      "modelName": "Dependency",
+      "schemaName": "public",
+      "tableName": "Dependency"
+    },
+    {
+      "modelName": "EdgeDeviceCredential",
+      "schemaName": "public",
+      "tableName": "EdgeDeviceCredential"
+    },
+    {
+      "modelName": "Employment",
+      "schemaName": "public",
+      "tableName": "Employment"
+    },
+    {
+      "modelName": "ErrorEvent",
+      "schemaName": "public",
+      "tableName": "ErrorEvent"
+    },
+    {
+      "modelName": "ExternalEntityRef",
+      "schemaName": "public",
+      "tableName": "ExternalEntityRef"
+    },
+    {
+      "modelName": "ExternalIdentity",
+      "schemaName": "public",
+      "tableName": "ExternalIdentity"
+    },
+    {
+      "modelName": "ExternalRef",
+      "schemaName": "public",
+      "tableName": "ExternalRef"
+    },
+    {
+      "modelName": "Factory",
+      "schemaName": "public",
+      "tableName": "Factory"
+    },
+    {
+      "modelName": "FeatureContribution",
+      "schemaName": "public",
+      "tableName": "FeatureContribution"
+    },
+    {
+      "modelName": "FeatureWorkLink",
+      "schemaName": "public",
+      "tableName": "FeatureWorkLink"
+    },
+    {
+      "modelName": "FileAsset",
+      "schemaName": "public",
+      "tableName": "FileAsset"
+    },
+    {
+      "modelName": "FileLink",
+      "schemaName": "public",
+      "tableName": "FileLink"
+    },
+    {
+      "modelName": "Gate",
+      "schemaName": "public",
+      "tableName": "Gate"
+    },
+    {
+      "modelName": "GenesisRag17Batch",
+      "schemaName": "public",
+      "tableName": "GenesisRag17Batch"
+    },
+    {
+      "modelName": "GenesisRag17EvidenceCursor",
+      "schemaName": "public",
+      "tableName": "GenesisRag17EvidenceCursor"
+    },
+    {
+      "modelName": "GenesisRag17IngestionIntent",
+      "schemaName": "public",
+      "tableName": "GenesisRag17IngestionIntent"
+    },
+    {
+      "modelName": "GenesisRag17PublicationReceipt",
+      "schemaName": "public",
+      "tableName": "GenesisRag17PublicationReceipt"
+    },
+    {
+      "modelName": "GenesisRag17SourceMention",
+      "schemaName": "public",
+      "tableName": "GenesisRag17SourceMention"
+    },
+    {
+      "modelName": "GenesisRag17StageEvidence",
+      "schemaName": "public",
+      "tableName": "GenesisRag17StageEvidence"
+    },
+    {
+      "modelName": "GoodsReceipt",
+      "schemaName": "public",
+      "tableName": "GoodsReceipt"
+    },
+    {
+      "modelName": "GoodsReceiptLine",
+      "schemaName": "public",
+      "tableName": "GoodsReceiptLine"
+    },
+    {
+      "modelName": "GovernanceSnapshot",
+      "schemaName": "public",
+      "tableName": "GovernanceSnapshot"
+    },
+    {
+      "modelName": "HarnessCredential",
+      "schemaName": "public",
+      "tableName": "HarnessCredential"
+    },
+    {
+      "modelName": "IdentityLinkToken",
+      "schemaName": "public",
+      "tableName": "IdentityLinkToken"
+    },
+    {
+      "modelName": "IngestionRun",
+      "schemaName": "public",
+      "tableName": "IngestionRun"
+    },
+    {
+      "modelName": "IntegrationConnection",
+      "schemaName": "public",
+      "tableName": "IntegrationConnection"
+    },
+    {
+      "modelName": "IntegrationCredential",
+      "schemaName": "public",
+      "tableName": "IntegrationCredential"
+    },
+    {
+      "modelName": "IntegrationCredentialVersion",
+      "schemaName": "public",
+      "tableName": "IntegrationCredentialVersion"
+    },
+    {
+      "modelName": "IntegrationProvider",
+      "schemaName": "public",
+      "tableName": "IntegrationProvider"
+    },
+    {
+      "modelName": "IntegrationSecretEnvelope",
+      "schemaName": "public",
+      "tableName": "IntegrationSecretEnvelope"
+    },
+    {
+      "modelName": "InventoryCatalogIntake",
+      "schemaName": "public",
+      "tableName": "InventoryCatalogIntake"
+    },
+    {
+      "modelName": "InventoryCategory",
+      "schemaName": "public",
+      "tableName": "InventoryCategory"
+    },
+    {
+      "modelName": "InventoryLedgerFence",
+      "schemaName": "public",
+      "tableName": "InventoryLedgerFence"
+    },
+    {
+      "modelName": "InventoryStocktake",
+      "schemaName": "public",
+      "tableName": "InventoryStocktake"
+    },
+    {
+      "modelName": "KittingWorkOrder",
+      "schemaName": "public",
+      "tableName": "KittingWorkOrder"
+    },
+    {
+      "modelName": "KnowledgeArtifactOperation",
+      "schemaName": "public",
+      "tableName": "KnowledgeArtifactOperation"
+    },
+    {
+      "modelName": "KnowledgeArtifactStorage",
+      "schemaName": "public",
+      "tableName": "KnowledgeArtifactStorage"
+    },
+    {
+      "modelName": "KnowledgeCandidate",
+      "schemaName": "public",
+      "tableName": "KnowledgeCandidate"
+    },
+    {
+      "modelName": "KnowledgeChunk",
+      "schemaName": "public",
+      "tableName": "KnowledgeChunk"
+    },
+    {
+      "modelName": "KnowledgeCorpus",
+      "schemaName": "public",
+      "tableName": "KnowledgeCorpus"
+    },
+    {
+      "modelName": "KnowledgeCorpusGeneration",
+      "schemaName": "public",
+      "tableName": "KnowledgeCorpusGeneration"
+    },
+    {
+      "modelName": "KnowledgeEvidenceCursor",
+      "schemaName": "public",
+      "tableName": "KnowledgeEvidenceCursor"
+    },
+    {
+      "modelName": "KnowledgeIngestion",
+      "schemaName": "public",
+      "tableName": "KnowledgeIngestion"
+    },
+    {
+      "modelName": "KnowledgeParsedArtifact",
+      "schemaName": "public",
+      "tableName": "KnowledgeParsedArtifact"
+    },
+    {
+      "modelName": "KnowledgeRawArtifact",
+      "schemaName": "public",
+      "tableName": "KnowledgeRawArtifact"
+    },
+    {
+      "modelName": "KnowledgeSource",
+      "schemaName": "public",
+      "tableName": "KnowledgeSource"
+    },
+    {
+      "modelName": "LegalEntity",
+      "schemaName": "public",
+      "tableName": "LegalEntity"
+    },
+    {
+      "modelName": "LegalEntityIdentifier",
+      "schemaName": "public",
+      "tableName": "LegalEntityIdentifier"
+    },
+    {
+      "modelName": "LineConversationJob",
+      "schemaName": "public",
+      "tableName": "LineConversationJob"
+    },
+    {
+      "modelName": "LineOaAccount",
+      "schemaName": "public",
+      "tableName": "LineOaAccount"
+    },
+    {
+      "modelName": "LineOaLiffApp",
+      "schemaName": "public",
+      "tableName": "LineOaLiffApp"
+    },
+    {
+      "modelName": "LineOaRichMenu",
+      "schemaName": "public",
+      "tableName": "LineOaRichMenu"
+    },
+    {
+      "modelName": "LineOaRichMenuJob",
+      "schemaName": "public",
+      "tableName": "LineOaRichMenuJob"
+    },
+    {
+      "modelName": "LineOaRichMenuVersion",
+      "schemaName": "public",
+      "tableName": "LineOaRichMenuVersion"
+    },
+    {
+      "modelName": "LocalWorkspaceMount",
+      "schemaName": "public",
+      "tableName": "LocalWorkspaceMount"
+    },
+    {
+      "modelName": "MarketObservation",
+      "schemaName": "public",
+      "tableName": "MarketObservation"
+    },
+    {
+      "modelName": "MarketingBroadcastIntent",
+      "schemaName": "public",
+      "tableName": "MarketingBroadcastIntent"
+    },
+    {
+      "modelName": "MarketingBroadcastIntentVersion",
+      "schemaName": "public",
+      "tableName": "MarketingBroadcastIntentVersion"
+    },
+    {
+      "modelName": "MarketingContentBrief",
+      "schemaName": "public",
+      "tableName": "MarketingContentBrief"
+    },
+    {
+      "modelName": "MarketingContentDecision",
+      "schemaName": "public",
+      "tableName": "MarketingContentDecision"
+    },
+    {
+      "modelName": "MarketingContentReview",
+      "schemaName": "public",
+      "tableName": "MarketingContentReview"
+    },
+    {
+      "modelName": "MarketingContentVersion",
+      "schemaName": "public",
+      "tableName": "MarketingContentVersion"
+    },
+    {
+      "modelName": "MarketingDecision",
+      "schemaName": "public",
+      "tableName": "MarketingDecision"
+    },
+    {
+      "modelName": "MarketingHandoff",
+      "schemaName": "public",
+      "tableName": "MarketingHandoff"
+    },
+    {
+      "modelName": "MarketingInitiative",
+      "schemaName": "public",
+      "tableName": "MarketingInitiative"
+    },
+    {
+      "modelName": "MarketingOperationsIntake",
+      "schemaName": "public",
+      "tableName": "MarketingOperationsIntake"
+    },
+    {
+      "modelName": "MarketingPlan",
+      "schemaName": "public",
+      "tableName": "MarketingPlan"
+    },
+    {
+      "modelName": "MarketingPlanVersion",
+      "schemaName": "public",
+      "tableName": "MarketingPlanVersion"
+    },
+    {
+      "modelName": "MarketingReview",
+      "schemaName": "public",
+      "tableName": "MarketingReview"
+    },
+    {
+      "modelName": "Membership",
+      "schemaName": "public",
+      "tableName": "Membership"
+    },
+    {
+      "modelName": "Message",
+      "schemaName": "public",
+      "tableName": "Message"
+    },
+    {
+      "modelName": "MessageAttachment",
+      "schemaName": "public",
+      "tableName": "MessageAttachment"
+    },
+    {
+      "modelName": "MfaFactor",
+      "schemaName": "public",
+      "tableName": "MfaFactor"
+    },
+    {
+      "modelName": "Milestone",
+      "schemaName": "public",
+      "tableName": "Milestone"
+    },
+    {
+      "modelName": "PasswordResetToken",
+      "schemaName": "public",
+      "tableName": "PasswordResetToken"
+    },
+    {
+      "modelName": "Payment",
+      "schemaName": "public",
+      "tableName": "Payment"
+    },
+    {
+      "modelName": "Person",
+      "schemaName": "public",
+      "tableName": "Person"
+    },
+    {
+      "modelName": "PersonCredential",
+      "schemaName": "public",
+      "tableName": "PersonCredential"
+    },
+    {
+      "modelName": "PipelineEventReceipt",
+      "schemaName": "public",
+      "tableName": "PipelineEventReceipt"
+    },
+    {
+      "modelName": "PipelineGateDecision",
+      "schemaName": "public",
+      "tableName": "PipelineGateDecision"
+    },
+    {
+      "modelName": "PipelineReconciliation",
+      "schemaName": "public",
+      "tableName": "PipelineReconciliation"
+    },
+    {
+      "modelName": "PipelineRecordEvent",
+      "schemaName": "public",
+      "tableName": "PipelineRecordEvent"
+    },
+    {
+      "modelName": "PipelineRun",
+      "schemaName": "public",
+      "tableName": "PipelineRun"
+    },
+    {
+      "modelName": "PipelineStep",
+      "schemaName": "public",
+      "tableName": "PipelineStep"
+    },
+    {
+      "modelName": "PlanImportReceipt",
+      "schemaName": "public",
+      "tableName": "PlanImportReceipt"
+    },
+    {
+      "modelName": "PlatformGrant",
+      "schemaName": "public",
+      "tableName": "PlatformGrant"
+    },
+    {
+      "modelName": "PluginAuthorizationCode",
+      "schemaName": "public",
+      "tableName": "PluginAuthorizationCode"
+    },
+    {
+      "modelName": "PluginInstallation",
+      "schemaName": "public",
+      "tableName": "PluginInstallation"
+    },
+    {
+      "modelName": "PluginSession",
+      "schemaName": "public",
+      "tableName": "PluginSession"
+    },
+    {
+      "modelName": "Portfolio",
+      "schemaName": "public",
+      "tableName": "Portfolio"
+    },
+    {
+      "modelName": "PricingCalculation",
+      "schemaName": "public",
+      "tableName": "PricingCalculation"
+    },
+    {
+      "modelName": "PricingRuleSet",
+      "schemaName": "public",
+      "tableName": "PricingRuleSet"
+    },
+    {
+      "modelName": "Product",
+      "schemaName": "public",
+      "tableName": "Product"
+    },
+    {
+      "modelName": "ProductBundle",
+      "schemaName": "public",
+      "tableName": "ProductBundle"
+    },
+    {
+      "modelName": "ProductBundleItem",
+      "schemaName": "public",
+      "tableName": "ProductBundleItem"
+    },
+    {
+      "modelName": "ProductFamily",
+      "schemaName": "public",
+      "tableName": "ProductFamily"
+    },
+    {
+      "modelName": "ProductIdentifier",
+      "schemaName": "public",
+      "tableName": "ProductIdentifier"
+    },
+    {
+      "modelName": "ProductLot",
+      "schemaName": "public",
+      "tableName": "ProductLot"
+    },
+    {
+      "modelName": "ProductMaster",
+      "schemaName": "public",
+      "tableName": "ProductMaster"
+    },
+    {
+      "modelName": "ProductRecipe",
+      "schemaName": "public",
+      "tableName": "ProductRecipe"
+    },
+    {
+      "modelName": "ProductRecipeLine",
+      "schemaName": "public",
+      "tableName": "ProductRecipeLine"
+    },
+    {
+      "modelName": "ProductUnitConversion",
+      "schemaName": "public",
+      "tableName": "ProductUnitConversion"
+    },
+    {
+      "modelName": "ProgrammeUsageReport",
+      "schemaName": "public",
+      "tableName": "ProgrammeUsageReport"
+    },
+    {
+      "modelName": "Project",
+      "schemaName": "public",
+      "tableName": "Project"
+    },
+    {
+      "modelName": "ProjectFeature",
+      "schemaName": "public",
+      "tableName": "ProjectFeature"
+    },
+    {
+      "modelName": "ProjectFeatureMutationReceipt",
+      "schemaName": "public",
+      "tableName": "ProjectFeatureMutationReceipt"
+    },
+    {
+      "modelName": "ProjectFile",
+      "schemaName": "public",
+      "tableName": "ProjectFile"
+    },
+    {
+      "modelName": "ProjectGoal",
+      "schemaName": "public",
+      "tableName": "ProjectGoal"
+    },
+    {
+      "modelName": "ProjectRepository",
+      "schemaName": "public",
+      "tableName": "ProjectRepository"
+    },
+    {
+      "modelName": "ProjectTeam",
+      "schemaName": "public",
+      "tableName": "ProjectTeam"
+    },
+    {
+      "modelName": "PurchaseOrder",
+      "schemaName": "public",
+      "tableName": "PurchaseOrder"
+    },
+    {
+      "modelName": "PurchaseOrderLine",
+      "schemaName": "public",
+      "tableName": "PurchaseOrderLine"
+    },
+    {
+      "modelName": "RateLimitBucket",
+      "schemaName": "public",
+      "tableName": "RateLimitBucket"
+    },
+    {
+      "modelName": "RawExternalRecord",
+      "schemaName": "public",
+      "tableName": "RawExternalRecord"
+    },
+    {
+      "modelName": "RegisteredAsset",
+      "schemaName": "public",
+      "tableName": "RegisteredAsset"
+    },
+    {
+      "modelName": "Repository",
+      "schemaName": "public",
+      "tableName": "Repository"
+    },
+    {
+      "modelName": "RequirementBinding",
+      "schemaName": "public",
+      "tableName": "RequirementBinding"
+    },
+    {
+      "modelName": "RoleBinding",
+      "schemaName": "public",
+      "tableName": "RoleBinding"
+    },
+    {
+      "modelName": "SalesOrder",
+      "schemaName": "public",
+      "tableName": "SalesOrder"
+    },
+    {
+      "modelName": "SalesOrderLine",
+      "schemaName": "public",
+      "tableName": "SalesOrderLine"
+    },
+    {
+      "modelName": "SalesTask",
+      "schemaName": "public",
+      "tableName": "SalesTask"
+    },
+    {
+      "modelName": "SerialUnit",
+      "schemaName": "public",
+      "tableName": "SerialUnit"
+    },
+    {
+      "modelName": "Session",
+      "schemaName": "public",
+      "tableName": "Session"
+    },
+    {
+      "modelName": "SotDataPlaneKey",
+      "schemaName": "public",
+      "tableName": "SotDataPlaneKey"
+    },
+    {
+      "modelName": "SotDecision",
+      "schemaName": "public",
+      "tableName": "SotDecision"
+    },
+    {
+      "modelName": "StockMovement",
+      "schemaName": "public",
+      "tableName": "StockMovement"
+    },
+    {
+      "modelName": "StockReservation",
+      "schemaName": "public",
+      "tableName": "StockReservation"
+    },
+    {
+      "modelName": "Supplier",
+      "schemaName": "public",
+      "tableName": "Supplier"
+    },
+    {
+      "modelName": "SyncCursor",
+      "schemaName": "public",
+      "tableName": "SyncCursor"
+    },
+    {
+      "modelName": "TaxRegistrationBranch",
+      "schemaName": "public",
+      "tableName": "TaxRegistrationBranch"
+    },
+    {
+      "modelName": "Team",
+      "schemaName": "public",
+      "tableName": "Team"
+    },
+    {
+      "modelName": "TeamMembership",
+      "schemaName": "public",
+      "tableName": "TeamMembership"
+    },
+    {
+      "modelName": "Tenant",
+      "schemaName": "public",
+      "tableName": "Tenant"
+    },
+    {
+      "modelName": "TenantRetentionOverride",
+      "schemaName": "public",
+      "tableName": "TenantRetentionOverride"
+    },
+    {
+      "modelName": "UsageEvent",
+      "schemaName": "public",
+      "tableName": "UsageEvent"
+    },
+    {
+      "modelName": "UsageEventRollup",
+      "schemaName": "public",
+      "tableName": "UsageEventRollup"
+    },
+    {
+      "modelName": "WarehouseLocation",
+      "schemaName": "public",
+      "tableName": "WarehouseLocation"
+    },
+    {
+      "modelName": "WorkContainer",
+      "schemaName": "public",
+      "tableName": "WorkContainer"
+    },
+    {
+      "modelName": "WorkItem",
+      "schemaName": "public",
+      "tableName": "WorkItem"
+    },
+    {
+      "modelName": "Workspace",
+      "schemaName": "public",
+      "tableName": "Workspace"
+    },
+    {
+      "modelName": "WorkspaceMembership",
+      "schemaName": "public",
+      "tableName": "WorkspaceMembership"
+    },
+    {
+      "modelName": "Workstream",
+      "schemaName": "public",
+      "tableName": "Workstream"
+    }
+  ],
+  "targetSchemaSha256": "ee7a379237b5e8cbebd7607deb1d28cc400009e54076c60c87fb2dddb3873198",
+  "migrationTables": [
+    "_prisma_migrations",
+    "schema_migrations"
+  ]
+}

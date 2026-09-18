@@ -1,9 +1,10 @@
 import { z } from 'zod'
 import prisma from '@/lib/db'
+import { priceLandedInventoryQuote } from '@/modules/commerce'
+// @req FR-253 — prices use the active Commerce rules, never local margin defaults.
 import { CUSTOMIZATION_TECHNIQUES } from '@/lib/validation/enums'
 import {
-  DEFAULT_SINGLE_DROP_FREIGHT_SATANG,
-  amortiseSatang,
+  assertMayView as assertMayViewInventory,
   availableToPromiseFor,
   createReservation,
   explodeRecipe,
@@ -17,7 +18,6 @@ import {
   productByFlowAccountSku,
   satangToBaht,
   shelfLifeAudit,
-  weightedAverageUnitCostSatang,
 } from '@/modules/inventory'
 import { createToolRegistry } from '../tools'
 import { createWriteToolRegistry, STAFF_WRITE_ROLES } from '../write-tools'
@@ -45,23 +45,6 @@ import { createWriteToolRegistry, STAFF_WRITE_ROLES } from '../write-tools'
 // @tested tests/integration/fr181-smartgift-agent-tools.test.js
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
-
-/**
- * Corporate volume tiers and the gross margin each targets, inside the 20–35%
- * corporate band SmartGift's ADR-009 D3 fixes. These are DEFAULTS a quote
- * reports as assumptions, not a price list: a Business's real, negotiated
- * price list belongs to the Commerce lane's offer catalogue when that exists,
- * and every quote this tool returns says so in `assumptions` so nobody mistakes
- * a computed figure for an approved one.
- */
-export const QUOTE_TIERS = Object.freeze([
-  { minQty: 1000, label: '1000+', grossMargin: 0.22 },
-  { minQty: 500, label: '500', grossMargin: 0.25 },
-  { minQty: 300, label: '300', grossMargin: 0.28 },
-  { minQty: 100, label: '100', grossMargin: 0.32 },
-  { minQty: 50, label: '50', grossMargin: 0.34 },
-  { minQty: 1, label: '<50', grossMargin: 0.35 },
-])
 
 /**
  * Default customization cost per technique, in satang: a one-off setup (a
@@ -93,18 +76,6 @@ const QUOTE_TECHNIQUES = [...CUSTOMIZATION_TECHNIQUES, 'NONE']
  */
 const REMOTE_DESTINATION_PATTERN = /(เกาะ|koh |ko samui|samui|phangan|tao|lipe|phi phi|เบตง|แม่ฮ่องสอน)/i
 
-export function tierForQuantity(quantity) {
-  const qty = Math.max(1, Math.trunc(quantity ?? 1))
-  return QUOTE_TIERS.find((tier) => qty >= tier.minQty) ?? QUOTE_TIERS[QUOTE_TIERS.length - 1]
-}
-
-/** Price from cost and a target gross margin, rounded up to the satang. */
-export function priceFromMarginSatang(unitCostSatang, grossMargin) {
-  const cost = Math.max(0, Math.trunc(unitCostSatang ?? 0))
-  const margin = Math.min(0.9, Math.max(0, Number(grossMargin) || 0))
-  return Math.ceil(cost / (1 - margin))
-}
-
 const zSkuCode = z.string().trim().min(1).max(120)
 
 /**
@@ -133,7 +104,17 @@ async function recipeForProduct(db, productId) {
 
 async function unitCostOf(db, productId) {
   const receipts = await db.stockMovement.findMany({ where: { productId, kind: 'RECEIPT' }, select: { quantity: true, costSatang: true } })
-  return weightedAverageUnitCostSatang(receipts)
+  if (!receipts.length) return null
+  let quantity = 0n
+  let totalCost = 0n
+  for (const row of receipts) {
+    if (!Number.isSafeInteger(row.quantity) || row.quantity <= 0 || !Number.isSafeInteger(row.costSatang) || row.costSatang < 0) throw failure(422, 'INVENTORY_COST_UNKNOWN')
+    quantity += BigInt(row.quantity)
+    totalCost += BigInt(row.quantity) * BigInt(row.costSatang)
+  }
+  const average = (totalCost + quantity - 1n) / quantity
+  if (average > BigInt(Number.MAX_SAFE_INTEGER)) throw failure(422, 'INVENTORY_COST_UNKNOWN')
+  return Number(average)
 }
 
 // ── The three read tools (Gate E) ───────────────────────────────────────────
@@ -210,12 +191,13 @@ export const zCalculateQuote = z.object({
 /**
  * A tiered corporate quote whose freight is ALREADY IN the unit price. The
  * result always carries both `freightSatang: 0` (what the customer is charged)
- * and `freightAbsorbedSatang` (what it actually costs), so a quote can never
- * present delivery as a separate charge and can never claim a zero nobody can
- * audit (BR-027).
+ * and `freightAbsorbedSatang` (additional order delivery cost only). Original
+ * inbound freight is embedded in ledger cost; its separate amount is unknown.
+ * No customer freight line is introduced (BR-027).
  */
 export async function calculateSmartgiftQuote(input, { viewer, businessId, db = prisma } = {}) {
   const data = zCalculateQuote.parse(input)
+  assertMayViewInventory(viewer, businessId)
   const product = await resolveSku(db, businessId, data.skuCode)
   const assumptions = []
 
@@ -231,51 +213,51 @@ export async function calculateSmartgiftQuote(input, { viewer, businessId, db = 
     }
     const blended = kittedUnitCostSatang({ components, laborCostSatang: 0, batchQty: 1 })
     baseCostSatang = blended.unitCostSatang
-    if (!blended.complete) assumptions.push('COMPONENT_COST_UNKNOWN: at least one component has never been received with a cost, so the set cost is a floor, not a total')
+    if (!blended.complete) throw failure(422, 'INVENTORY_COST_UNKNOWN')
   }
   if (baseCostSatang === null) {
     throw Object.assign(failure(422, 'INVENTORY_COST_UNKNOWN'), { details: { skuCode: product.code } })
   }
 
-  const technique = data.customization?.technique ?? 'NONE'
-  const positions = technique === 'NONE' ? 0 : (data.customization?.locationsCount ?? 1)
-  const defaults = CUSTOMIZATION_DEFAULT_COSTS[technique] ?? CUSTOMIZATION_DEFAULT_COSTS.NONE
-  const setupSatang = (data.customization?.setupCostSatang ?? defaults.setupSatang) * Math.max(0, positions)
-  const runSatang = (data.customization?.runCostSatang ?? defaults.runSatang) * Math.max(0, positions)
-  if (positions > 0 && data.customization?.setupCostSatang === undefined) {
-    assumptions.push(`CUSTOMIZATION_DEFAULT_RATE: ${technique} priced at the default setup/run rate, not this workshop's own`)
-  }
-
-  const inboundTruckSatang = data.inboundTruckSatang ?? DEFAULT_SINGLE_DROP_FREIGHT_SATANG
-  const freightPerUnit = amortiseSatang(inboundTruckSatang, data.quantity)
-  const customizationPerUnit = amortiseSatang(setupSatang, data.quantity) + runSatang
-  const unitCostSatang = baseCostSatang + freightPerUnit + customizationPerUnit
-
-  const tier = tierForQuantity(data.quantity)
-  const unitPriceSatang = priceFromMarginSatang(unitCostSatang, tier.grossMargin)
-  const totalPriceSatang = unitPriceSatang * data.quantity
+  const priced = await priceLandedInventoryQuote({
+    businessId, quantity: data.quantity, productId: product.id, baseCostSatang,
+    kind: product.itemKind === 'FINISHED_SET' ? 'set' : 'single',
+    customization: data.customization, inboundTruckSatang: data.inboundTruckSatang,
+  }, { viewer, db })
+  const { unitCostSatang, freightPerUnit } = priced
+  const { unitPriceSatang, totalPriceSatang } = priced.result
+  const inboundTruckSatang = priced.freightAbsorbedSatang
+  assumptions.push(...priced.warnings)
   const remote = Boolean(data.deliveryDestination && REMOTE_DESTINATION_PATTERN.test(data.deliveryDestination))
   if (remote) assumptions.push('REMOTE_DESTINATION: an island or far-province drop is a separate Commerce surcharge line; the flat single-drop truck does not cover it')
-  assumptions.push('TIER_MARGIN_DEFAULT: priced from landed cost at the default corporate tier margin; a negotiated price list is the Commerce lane\'s, not this tool\'s')
 
   return {
     skuCode: product.code,
     productId: product.id,
     quantity: data.quantity,
-    tier: tier.label,
+    tier: String(data.quantity),
+    ruleSetId: priced.ruleSetId,
+    ruleVersion: priced.ruleRevision,
+    ruleHash: priced.result.ruleHash,
+    inputHash: priced.result.inputHash,
+    priceDriver: priced.result.priceDriver,
     unitCostSatang,
     unitPriceSatang,
     totalPriceSatang,
     unitPriceThb: satangToBaht(unitPriceSatang),
     totalPriceThb: satangToBaht(totalPriceSatang),
-    // BR-027 — both numbers, always. Zero is what the customer pays; the
-    // absorbed figure is what it cost, so the claim is auditable.
+    // BR-027 — customer freight stays zero. Absorbed freight here measures
+    // only an explicit additional delivery, never the unknown embedded amount.
     freightSatang: 0,
     freightAbsorbedSatang: inboundTruckSatang,
-    freightNote: 'ฟรีค่าจัดส่งแบบจุดเดียวเหมาคัน (ต้นทุนค่ารถรวมอยู่ในราคาต่อหน่วยแล้ว)',
+    freightCostBasis: priced.freightCostBasis,
+    embeddedFreightSatang: priced.embeddedFreightSatang,
+    freightNote: priced.freightCostBasis === 'ADDITIONAL_DELIVERY'
+      ? 'ฟรีค่าจัดส่งแบบจุดเดียวเหมาคัน (รวมค่าจัดส่งเพิ่มเติมที่ระบุในราคาต่อหน่วยแล้ว; ไม่ทราบยอดค่าขนส่งเดิมที่รวมในต้นทุนรับเข้า)'
+      : 'ฟรีค่าจัดส่งแบบจุดเดียวเหมาคัน (ใช้ต้นทุนรับเข้าที่รวมค่าขนส่งแล้ว; ไม่ทราบยอดค่าขนส่งแยกและไม่ได้บวกซ้ำ)',
     remoteSurchargeRequired: remote,
-    customization: { technique, positions, setupCostSatang: setupSatang, runCostSatang: runSatang, perUnitSatang: customizationPerUnit },
-    breakdown: { base: baseCostSatang, freightPerUnit, customizationPerUnit, grossMargin: tier.grossMargin },
+    customization: priced.customization,
+    breakdown: { base: baseCostSatang, freightPerUnit, customizationPerUnit: priced.customization.perUnitSatang },
     vatIncluded: false,
     assumptions,
   }

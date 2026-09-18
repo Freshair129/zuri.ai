@@ -75,6 +75,17 @@ export class ChatEvidenceArchiveStorageError extends Error {
   }
 }
 
+export class ChatEvidenceArchiveTransactionError extends Error {
+  constructor(code, cause) {
+    super(code)
+    this.name = 'ChatEvidenceArchiveTransactionError'
+    this.code = code
+    this.status = 503
+    this.retryable = true
+    if (cause) this.cause = cause
+  }
+}
+
 const PRODUCTION_ARCHIVE_ROOT = '/archive'
 
 const REPLY_AUDIT_ACTIONS = ['REPLY_DELIVERED', 'OUTBOUND_ACCEPTED', 'STAFF_REPLY_DELIVERED']
@@ -502,6 +513,110 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
 // PDPA-erasure writer destroys exactly one row... to make every line that Customer
 // ever had archived... permanently unreadable."
 
+const CUSTOMER_TRANSACTION_OPTIONS = Object.freeze({ maxWait: 10_000, timeout: 30_000 })
+
+function detectCrmDialect(db, explicitDialect = null) {
+  const provider = explicitDialect
+    || db?.dialect
+    || db?.provider
+    || db?._activeProvider
+    || db?._engineConfig?.activeProvider
+    || db?._engineConfig?.datasources?.[0]?.activeProvider
+    || db?._engineConfig?.datasources?.[0]?.provider
+  if (typeof provider !== 'string') return null
+  if (/postgres/i.test(provider)) return 'postgres'
+  if (/sqlite/i.test(provider)) return 'sqlite'
+  return null
+}
+
+function customerNotFound() {
+  const error = new Error('CUSTOMER_NOT_FOUND')
+  error.status = 404
+  return error
+}
+
+async function queryRaw(tx, sql, params = []) {
+  if (typeof tx.$queryRawUnsafe === 'function') return tx.$queryRawUnsafe(sql, ...params)
+  throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CUSTOMER_LOCK_UNAVAILABLE')
+}
+
+/**
+ * Lock one tenant-bound Customer before a hold or archive-key decision. The
+ * lock is the shared linearization point for both operations:
+ * `recordCustomerLegalHold` uses the root client's transaction path, while
+ * Identity erasure supplies its already-open transaction client. Never accept
+ * a caller-provided hold result as a substitute for this check.
+ *
+ * PostgreSQL uses the exact row lock required by SEC-034. SQLite relies on the
+ * existing Prisma write-transaction serialization path and performs the same
+ * tenant-bound existence check without sending PostgreSQL syntax to SQLite.
+ * An adapter must identify its provider and expose a transaction boundary;
+ * silently running the mutation on an unscoped client would make the lock
+ * claim false.
+ */
+export async function withLockedCustomer(db, {
+  tenantId, customerId, now = new Date(), dialect = null,
+}, callback, { transactionClient = false } = {}) {
+  if (typeof callback !== 'function') throw new TypeError('withLockedCustomer callback is required')
+  if (typeof tenantId !== 'string' || !tenantId || typeof customerId !== 'string' || !customerId) {
+    throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CUSTOMER_SCOPE_REQUIRED')
+  }
+
+  const provider = detectCrmDialect(db, dialect)
+  if (!provider) throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CUSTOMER_PROVIDER_UNAVAILABLE')
+
+  const execute = async (tx) => {
+    let customer
+    if (provider === 'postgres') {
+      const rows = await queryRaw(
+        tx,
+        'SELECT "id" FROM "Customer" WHERE "id" = $1 AND "tenantId" = $2 FOR UPDATE',
+        [customerId, tenantId],
+      )
+      if (!Array.isArray(rows) || rows.length !== 1 || rows[0]?.id !== customerId) throw customerNotFound()
+      // FOR UPDATE alone does not refresh a pre-existing Serializable
+      // snapshot. Both writers mark the row's MVCC version so a stale waiter
+      // aborts before reading an obsolete hold set. Logical fields stay equal.
+      const marked = await queryRaw(
+        tx,
+        'UPDATE "Customer" SET "id" = "id" WHERE "id" = $1 AND "tenantId" = $2 RETURNING "id"',
+        [customerId, tenantId],
+      )
+      if (!Array.isArray(marked) || marked.length !== 1 || marked[0]?.id !== customerId) throw customerNotFound()
+      customer = { id: rows[0].id, tenantId }
+    } else {
+      if (typeof tx.customer?.findMany !== 'function') {
+        throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CUSTOMER_LOCK_UNAVAILABLE')
+      }
+      const rows = await tx.customer.findMany({
+        where: { id: customerId, tenantId },
+        select: { id: true, tenantId: true },
+      })
+      if (!Array.isArray(rows) || rows.length !== 1 || rows[0]?.id !== customerId || rows[0]?.tenantId !== tenantId) {
+        throw customerNotFound()
+      }
+      customer = rows[0]
+    }
+    return callback(tx, { customer, now })
+  }
+
+  const canUseSuppliedTransaction = transactionClient
+    || (typeof db?.$transaction !== 'function'
+      && (typeof db?._activeProvider === 'string' || typeof db?._engineConfig?.activeProvider === 'string'))
+  if (!canUseSuppliedTransaction && typeof db?.$transaction !== 'function') {
+    throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CUSTOMER_TRANSACTION_UNAVAILABLE')
+  }
+  try {
+    return await (canUseSuppliedTransaction ? execute(db) : db.$transaction(execute, CUSTOMER_TRANSACTION_OPTIONS))
+  } catch (error) {
+    const conflictCodes = ['P2034', '40001', '40P01', 'SQLITE_BUSY', 'SQLITE_LOCKED']
+    if (conflictCodes.includes(error?.code) || conflictCodes.includes(error?.meta?.code)) {
+      throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CUSTOMER_LOCK_UNAVAILABLE', error)
+    }
+    throw error
+  }
+}
+
 /**
  * The Customer's current legal hold, if one is still unexpired. "Active" is
  * derived — `now < endDate` — never a stored status, so ending a hold means
@@ -536,12 +651,14 @@ export async function findActiveLegalHold(db, { customerId }, now = new Date()) 
  * @returns {Promise<{destroyed: boolean, hold: object|null}>}
  */
 export async function destroyCustomerArchiveKey(db, { tenantId, customerId, now = new Date() }) {
-  const hold = await findActiveLegalHold(db, { customerId }, now)
-  if (hold) return { destroyed: false, hold }
+  return withLockedCustomer(db, { tenantId, customerId, now }, async (tx) => {
+    const hold = await findActiveLegalHold(tx, { customerId }, now)
+    if (hold) return { destroyed: false, hold }
 
-  const existing = await db.customerArchiveKey.findUnique({ where: { customerId } })
-  if (!existing || existing.tenantId !== tenantId) return { destroyed: false, hold: null }
+    const existing = await tx.customerArchiveKey.findUnique({ where: { customerId } })
+    if (!existing || existing.tenantId !== tenantId) return { destroyed: false, hold: null }
 
-  await db.customerArchiveKey.delete({ where: { customerId } })
-  return { destroyed: true, hold: null }
+    await tx.customerArchiveKey.delete({ where: { customerId } })
+    return { destroyed: true, hold: null }
+  })
 }

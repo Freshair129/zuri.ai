@@ -7,6 +7,7 @@ import {
   resolveKnowledgeCitation,
   withdrawKnowledgeSource,
   citationReference,
+  readAuthorizedKnowledgeManifest,
 } from '@/modules/knowledge/knowledge-corpus-service'
 import { createKnowledgeExecutionAuthority } from '@/modules/knowledge/knowledge-execution-authority'
 import { makeViewer, ownsElsewhere } from '../factories/viewer'
@@ -368,6 +369,19 @@ describe('knowledge corpus publication, query and citation boundary', () => {
 
   beforeEach(() => {
     ({ repo, db, sources, firstIngestion } = seed())
+  })
+
+  it('exports a manifest only while Business, source, active ingestion and immutable hash remain authorized', async () => {
+    await publish(repo, db, firstIngestion)
+    const input = { businessId: scope.businessId, projectId: 'project-1' }
+    const options = { repository: repo, db, viewer: reader }
+    expect((await readAuthorizedKnowledgeManifest(input, options)).entries[0].snapshotId).toBe('snapshot-1')
+    await expect(readAuthorizedKnowledgeManifest(input, { ...options, viewer: deniedViewer })).rejects.toThrow()
+    repo.sources.get('source-1').revokedAt = new Date()
+    await expect(readAuthorizedKnowledgeManifest(input, options)).rejects.toMatchObject({ code: 'KNOWLEDGE_SOURCE_REVOKED' })
+    repo.sources.get('source-1').revokedAt = null
+    repo.sources.get('source-1').activeIngestionId = 'unpublished-replacement'
+    await expect(readAuthorizedKnowledgeManifest(input, options)).rejects.toMatchObject({ code: 'KNOWLEDGE_MANIFEST_INVALID' })
   })
 
   it('rejects a project corpus whose Project has no owning Business', async () => {

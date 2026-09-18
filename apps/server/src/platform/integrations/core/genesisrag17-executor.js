@@ -47,6 +47,11 @@ import {
   assertCandidateProseZeroPii,
   CANDIDATE_ZERO_PII_POLICY,
 } from '@/modules/knowledge/knowledge-candidate-zero-pii'
+import { createConfiguredKnowledgeObjectStoragePort } from '@/platform/storage/s3-object-storage'
+import {
+  createKnowledgeStorageBindingFromEnvironment,
+  storeKnowledgeRawArtifact,
+} from '@/modules/knowledge/knowledge-artifact-storage-service'
 
 // @req FR-173 — only the exact admitted knowledge run accepts private runtime authority.
 // @req FR-109 — one real raw entry produces one document/run, immutable raw
@@ -1074,6 +1079,8 @@ export async function ingestGenesisRag17Raw(input, {
   idFactory,
   transport = null,
   env = process.env,
+  storagePort = createConfiguredKnowledgeObjectStoragePort(env),
+  storageBinding = createKnowledgeStorageBindingFromEnvironment(env),
   credential = null,
   recognizer,
   faultInjector,
@@ -1137,6 +1144,22 @@ export async function ingestGenesisRag17Raw(input, {
       action: async () => {
         const canonicalRawRecord = await ensureCanonicalRawRecord(db, value, rawArtifactId, now)
         raw = await ensureRaw(lineageRepository, value, rawArtifactId, canonicalRawRecord, now)
+        if (storagePort) {
+          if (!storageBinding) throw serviceError(503, 'Knowledge storage binding is unavailable', 'KNOWLEDGE_STORAGE_BINDING_UNAVAILABLE')
+          await storeKnowledgeRawArtifact({
+            db,
+            storage: storagePort,
+            scope: value.scope,
+            rawArtifactId: raw.id,
+            content: Buffer.from(value.content, 'utf8'),
+            contentType: value.contentType || RAW_CONTENT_TYPE,
+            bindingId: storageBinding.id,
+            bindingRevision: storageBinding.revision,
+            bucket: storageBinding.bucket,
+            policy: value.policy,
+            now,
+          })
+        }
         return { recordsIn: 1, recordsOut: 1, details: { artifactId: raw.id, rawExternalRecordId: raw.rawExternalRecordId, contentHash: raw.contentHash, receivedAt: raw.receivedAt.toISOString() } }
       },
     },

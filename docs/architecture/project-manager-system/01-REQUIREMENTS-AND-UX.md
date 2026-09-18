@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-SYSTEM-REQUIREMENTS
 title: Project Manager requirements and user experience
-version: "0.4.0b"
+version: "0.5.0b"
 status: candidate
 created_at: "2026-09-15T23:49:58+07:00,RWANG,base 087f3025"
-last_update: "2026-09-16T03:23:25+07:00,RWANG"
+last_update: "2026-09-18T20:42:13+07:00,RWANG"
 superseded_by: null
 attributes:
   doc_type: requirements-specification
@@ -16,7 +16,7 @@ relations:
 
 # Requirements & UX
 
-**Version:** 0.4.0b · **Status:** Candidate
+**Version:** 0.5.0b · **Status:** Candidate
 
 **Latest owner requirement:** [15 Workforce planning & performance](15-WORKFORCE-CAPACITY-SCHEDULE-AND-PERFORMANCE.md). PMR-033 extends PMR-017 with precise human workforce behavior; approved requirement intent, detailed design remains candidate.
 
@@ -38,43 +38,45 @@ relations:
 
 ## 2. Requirement catalog
 
-`MUST` = acceptance ภายใน proposal เมื่ออนุมัติ; “existing” ใน reuse เป็นความเกี่ยวข้อง ไม่ยืนยันว่าครบ requirement ใหม่
+Requirement bodies are extracted one per file under [Project Manager proposal requirements](../../domains/project-manager/requirements/README.md). This Site-spine document retains personas and UX context; it no longer duplicates the normative requirement prose.
 
-| ID | Requirement / observable acceptance | Capability | Owner | Reuse |
+| Requirement family | Local source | Capability | Owner | Existing FR context |
 |---|---|---|---|---|
-| PMR-001 | สร้าง Project จาก objective, outcome, scope, owner, dates และ execution modes; import dry-run แสดงผลก่อน atomic commit | PMF-01 | project-manager | FR-003, FR-069, FR-108 |
-| PMR-002 | Domain view จัดกลุ่มตาม canonical domain ID; เปลี่ยน label แล้ว links/counts ไม่เปลี่ยน; แสดง ownership, work, contracts, gaps | PMF-01 | project-manager | FR-070, FR-124 |
-| PMR-003 | Feature view เป็นอีก tab; หนึ่ง feature เชื่อมหลาย domain/FR; work ที่เชื่อมหลาย feature ถูก deduplicate ใน totals | PMF-01 | project-manager | FEATURES registry, FR-124 |
-| PMR-004 | Architecture canvas แสดง directed typed edges พร้อม owner/contract/version; มี table และ keyboard alternative | PMF-02 | project-manager | FR-007; ADR-085 as peer |
-| PMR-005 | API explorer แสดง schemas/auth/errors/examples และ source version; Try it out ใช้ sandbox หรือ explicit scoped invocation | PMF-03 | project-manager | FR-019, FR-106 |
-| PMR-006 | Agent inventory มี immutable approved version, charter, skills, tools, model policy, executor constraints, tests และ lifecycle | PMF-04 | project-manager | ADR-026 |
-| PMR-007 | Fleet inventory มี member-version bindings, DAG, handoffs, concurrency, review policy และ budget; validate ก่อน publish | PMF-05 | project-manager | ADR-026 |
-| PMR-008 | Command center แสดง queues, active claims, attempts, events, blockers, usage; dispatch/cancel/retry ผ่าน server command | PMF-06 | integration | Pipeline ledger; FR-070 |
-| PMR-009 | Provider registry แยก provider, connection, deployment, model และ capabilities; probe มีเวลาและ evidence | PMF-07 | integration | IntegrationProvider; FR-048 |
-| PMR-010 | MCP registry pin transport/protocol/tool-schema digest; local stdio อยู่บน paired executor; consent ต่อ tool scope | PMF-07 | integration | Existing MCP seams |
-| PMR-011 | Self-host model เรียกผ่าน gateway API key ที่ scoped/expiring/revocable; raw serving port เป็น private | PMF-07 | integration | FR-242; identity key pattern |
-| PMR-012 | ทุก read/write/stream resolve authority จาก trusted identity; foreign-scope IDs ไม่เผยตัวตนและ aggregate | PMF-08 | identity | FR-191, FR-192 |
-| PMR-013 | Approval ผูก exact artifact/spec/config hashes, action และ expiry; เปลี่ยน input ต้อง approval ใหม่; reviewer conflict ถูกปฏิเสธ | PMF-06 | project-manager | Gate; FR-196 |
-| PMR-014 | Architecture model เป็น structured specification; unknown types, invalid port pairs, orphan refs และ forbidden cycles fail validation | PMF-02 | project-manager | Governance links |
-| PMR-015 | จาก requirement เปิดไป diagram/API/work/test/release ได้; evidence ระบุ SHA, environment, status และเวลา | PMF-08 | project-manager | FR-124; TRACE |
-| PMR-016 | Progress ใช้ strategy/weights/evidence ของ workstream; usage ไม่ใช่ progress; denominator/unknown แสดงได้ | PMF-01 | project-manager | Progress service; ADR-086 |
-| PMR-017 | มี objectives/KPIs, scope baseline, risks/issues/decisions, resources/capacity และ cost plan; allocation เกิน capacity มีเหตุผล override | PMF-01 | project-manager | Goals, Gate, Dependency |
-| PMR-018 | Release แยก environment, build, migration, deploy, activation; promotion ผูก tested SHA และ rollback evidence | PMF-10 | project-manager | Existing release process |
-| PMR-019 | Meaningful changes มี append-only audit refs, actor, scope, reason และ before/after hash; sensitive reads auditable | PMF-08 | identity | AuditEvent; FR-198 |
-| PMR-020 | Trace/usage แยก input/output/cache/reasoning tokens, latency, cost basis และ unknown; ไม่เดาค่าเงินจากจำนวน task | PMF-10 | integration | FR-239, FR-240 patterns |
-| PMR-021 | Worker crash, lease expiry, duplicate receipts, late result, cancellation และ external unknown outcome มี deterministic recovery | PMF-06 | integration | PipelineEventReceipt |
-| PMR-022 | Search ค้นเฉพาะ authorized project artifacts/specs; MSP/GKS ใช้ผ่าน ports; retrieval ต้องมี provenance | PMF-09 | knowledge | ADR-043, ADR-050 |
-| PMR-023 | Comment/mention/review thread ผูก revision; concurrent edit ใช้ version conflict และไม่ทับงานเงียบ | PMF-09 | project-manager | optimistic version pattern |
-| PMR-024 | Notification inbox/webhook/subscription ระบุ event filters, recipients, delivery receipts และ retry; ไม่มี auto-send จากการเปิดหน้า | PMF-09 | integration | Existing delivery ports |
-| PMR-025 | Import/export design bundle มี schemaVersion, namespace, refs, hashes, conflict preview และ sanitized portable export | PMF-09 | project-manager | PlanEnvelope; FR-108 |
-| PMR-026 | Retention/classification และ share grants บังคับ server-side; revocation/expiry ใช้ทันที; export ไม่มี secrets | PMF-09 | identity | Existing identity boundaries |
-| PMR-027 | Readiness แยก PLANNED, IMPLEMENTED, VERIFIED, DEPLOYED, ACTIVATED, UNKNOWN; ทุก promotion อ้าง evidence | PMF-08 | project-manager | FR-124 |
-| PMR-028 | Agent/provider/workflow version ผ่าน eval suite ก่อน approve; regression, adversarial scope และ side-effect checks มี threshold | PMF-10 | project-manager | Existing golden evaluation |
-| PMR-029 | UI/API/workers มี SLO, bounded pagination, queue backpressure, accessibility, backup/restore และ load targets ที่ทดสอบได้ | PMF-10 | integration | NFR baseline |
-| PMR-030 | Manual/scheduled/event triggers มี timezone, dedup, misfire, approval และ loop suppression; pause หยุด enqueue ใหม่ | PMF-06 | integration | workflow extension |
-| PMR-031 | SCM/CI adapters เชื่อม repository/branch/commit/PR/check/release แบบ explicit mappings; webhook ไม่ยืนยัน completion เอง | PMF-10 | integration | Repository metadata |
-| PMR-032 | CI ตรวจ divergence ของ approved spec, architecture graph, OpenAPI, code anchors และ tests; generated views ไม่แก้ด้วยมือ | PMF-02 | project-manager | ADR-081; govern |
-| PMR-033 | จำนวนงานเชื่อม effort/calendar เพื่อสรุปภาระงาน กำลังคน ตารางงาน และ performance รายคน/ทีม รวมหลาย Project พร้อมสูตร cohort/เป้าหมาย/หลักฐาน/coverage | PMF-11 | project-manager; people, Identity/CRM ports | FR-036/064/089/193 are foundations; new precise behavior, see document 15 |
+|PMR-001|[requirement file](../../domains/project-manager/requirements/PMR-001-proposal-requirement.md)|PMF-01|project-manager|FR-003, FR-069, FR-108|
+|PMR-002|[requirement file](../../domains/project-manager/requirements/PMR-002-proposal-requirement.md)|PMF-01|project-manager|FR-070, FR-124|
+|PMR-003|[requirement file](../../domains/project-manager/requirements/PMR-003-proposal-requirement.md)|PMF-01|project-manager|FR-124|
+|PMR-004|[requirement file](../../domains/project-manager/requirements/PMR-004-proposal-requirement.md)|PMF-02|project-manager|FR-007|
+|PMR-005|[requirement file](../../domains/project-manager/requirements/PMR-005-proposal-requirement.md)|PMF-03|project-manager|FR-019, FR-106|
+|PMR-006|[requirement file](../../domains/project-manager/requirements/PMR-006-proposal-requirement.md)|PMF-04|project-manager|none|
+|PMR-007|[requirement file](../../domains/project-manager/requirements/PMR-007-proposal-requirement.md)|PMF-05|project-manager|none|
+|PMR-008|[requirement file](../../domains/project-manager/requirements/PMR-008-proposal-requirement.md)|PMF-06|integration|FR-070|
+|PMR-009|[requirement file](../../domains/project-manager/requirements/PMR-009-proposal-requirement.md)|PMF-07|integration|FR-048|
+|PMR-010|[requirement file](../../domains/project-manager/requirements/PMR-010-proposal-requirement.md)|PMF-07|integration|none|
+|PMR-011|[requirement file](../../domains/project-manager/requirements/PMR-011-proposal-requirement.md)|PMF-07|integration|FR-242|
+|PMR-012|[requirement file](../../domains/project-manager/requirements/PMR-012-proposal-requirement.md)|PMF-08|identity|FR-191, FR-192|
+|PMR-013|[requirement file](../../domains/project-manager/requirements/PMR-013-proposal-requirement.md)|PMF-06|project-manager|FR-196|
+|PMR-014|[requirement file](../../domains/project-manager/requirements/PMR-014-proposal-requirement.md)|PMF-02|project-manager|none|
+|PMR-015|[requirement file](../../domains/project-manager/requirements/PMR-015-proposal-requirement.md)|PMF-08|project-manager|FR-124|
+|PMR-016|[requirement file](../../domains/project-manager/requirements/PMR-016-proposal-requirement.md)|PMF-01|project-manager|none|
+|PMR-017|[requirement file](../../domains/project-manager/requirements/PMR-017-proposal-requirement.md)|PMF-01|project-manager|none|
+|PMR-018|[requirement file](../../domains/project-manager/requirements/PMR-018-proposal-requirement.md)|PMF-10|project-manager|none|
+|PMR-019|[requirement file](../../domains/project-manager/requirements/PMR-019-proposal-requirement.md)|PMF-08|identity|FR-198|
+|PMR-020|[requirement file](../../domains/project-manager/requirements/PMR-020-proposal-requirement.md)|PMF-10|integration|FR-239, FR-240|
+|PMR-021|[requirement file](../../domains/project-manager/requirements/PMR-021-proposal-requirement.md)|PMF-06|integration|none|
+|PMR-022|[requirement file](../../domains/project-manager/requirements/PMR-022-proposal-requirement.md)|PMF-09|knowledge|none|
+|PMR-023|[requirement file](../../domains/project-manager/requirements/PMR-023-proposal-requirement.md)|PMF-09|project-manager|none|
+|PMR-024|[requirement file](../../domains/project-manager/requirements/PMR-024-proposal-requirement.md)|PMF-09|integration|none|
+|PMR-025|[requirement file](../../domains/project-manager/requirements/PMR-025-proposal-requirement.md)|PMF-09|project-manager|FR-108|
+|PMR-026|[requirement file](../../domains/project-manager/requirements/PMR-026-proposal-requirement.md)|PMF-09|identity|none|
+|PMR-027|[requirement file](../../domains/project-manager/requirements/PMR-027-proposal-requirement.md)|PMF-08|project-manager|FR-124|
+|PMR-028|[requirement file](../../domains/project-manager/requirements/PMR-028-proposal-requirement.md)|PMF-10|project-manager|none|
+|PMR-029|[requirement file](../../domains/project-manager/requirements/PMR-029-proposal-requirement.md)|PMF-10|integration|none|
+|PMR-030|[requirement file](../../domains/project-manager/requirements/PMR-030-proposal-requirement.md)|PMF-06|integration|none|
+|PMR-031|[requirement file](../../domains/project-manager/requirements/PMR-031-proposal-requirement.md)|PMF-10|integration|none|
+|PMR-032|[requirement file](../../domains/project-manager/requirements/PMR-032-proposal-requirement.md)|PMF-02|project-manager|none|
+|PMR-033|[requirement file](../../domains/project-manager/requirements/PMR-033-proposal-requirement.md)|PMF-11|project-manager; people, Identity/CRM ports|FR-036|
+
+PMR/PMF/PMT remain proposal-local. Register a canonical FR/FEAT/ADR before implementation.
 
 ## 3. Navigation และ screen contracts
 
@@ -181,6 +183,7 @@ Provider/MCP registry เป็น Business-level integration surface; Project �
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.5.0b | 2026-09-18 | candidate | Extract PMR-001..033 into one-file proposal requirements and retain UX context in the Site spine | working-tree | RWANG |
 | 0.1.0b | 2026-09-15 | candidate | 32 proposal requirements, separate lenses, personas and complete screen journeys | base 087f3025 | RWANG |
 | 0.2.0b | 2026-09-16 | candidate | Replace preliminary menu list with scoped navigation refinement and preserve separate Domain/Feature views | base 087f3025 | RWANG |
 | 0.3.0b | 2026-09-16 | candidate | Link detailed UX/UI journeys, forms and wireframes | base 087f3025 | RWANG |

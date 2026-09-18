@@ -1,0 +1,124 @@
+{
+  "capturedAt": "2026-09-17T12:20:09.991Z",
+  "environment": "ISOLATED_LOOPBACK_POSTGRES_17",
+  "limits": [
+    "Synthetic lab only; legacy parent grants are fixture grants, not production policy.",
+    "Exercises application read services and real RLS role; browser/session transport is separate."
+  ],
+  "before": {
+    "src/modules/project-manager/application/project-feature-read-model.js": "502d593716325158ae56102376ad422524bdf27afd68951c3720c844bd5ff44a",
+    "src/modules/project-manager/application/project-feature-repository.js": "5ad910b25118f526c713ccf8bb0b82d1646cedff68d60554ca4d257d8f0ec8fc",
+    "src/modules/project-manager/application/active-filters.js": "55fb3aebad171a452be694c710e0eba01c2a0660c9764d55d80d42886afbbaea",
+    "prisma/schema.prisma": "5d3825978c25a731d8088908e1692cf786231595cdf3af3464227c6368774e31",
+    "package-lock.json": "aeccb764fdcd7eb95f21b3ec9150e33e9e1c70c1f52e76139c9b2bdf3772e435",
+    "src/modules/project-manager/application/governance-source-verifier.js": "48139c0ba4e8112d8ee12f9b043825cbede9a7416ce2f03184b8c1d2d9c310bb",
+    "src/modules/project-manager/application/project-feature-service.js": "ff84935e4fba98ad72d80b762c5fdfcd4cb0a40a5bcc81b7edfc3cb1dd8377a3",
+    "src/modules/project-manager/project-domain-catalog.js": "6f17f18e45855e90009d913f3f67ece21acc36ec1ece921537f555136e11f09d"
+  },
+  "cases": [
+    {
+      "name": "owned synthetic lab",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "loopback only",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "actual login cannot bypass RLS",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "no ambient protected rows visible",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "real PG active unbound total and Feature dedup",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "real PG allocation and unknown Domain states",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "metadata does not prove canonical key",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "authorized shared reader sees scoped view",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "real PG signed pagination",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "owner tombstones contain no text or relationships",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "owner snapshot metadata remains minimal",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "foreign Project read redacted",
+      "status": "PASS",
+      "detail": "{\"status\":404,\"code\":\"RESOURCE_NOT_FOUND\",\"message\":\"Resource not found.\",\"retryable\":false}"
+    },
+    {
+      "name": "reader tombstones redacted",
+      "status": "PASS",
+      "detail": "{\"status\":404,\"code\":\"RESOURCE_NOT_FOUND\",\"message\":\"Resource not found.\",\"retryable\":false}"
+    },
+    {
+      "name": "reader snapshot listing denied",
+      "status": "PASS",
+      "detail": "{\"status\":403,\"code\":\"CAPABILITY_DENIED\",\"message\":\"Capability denied.\",\"retryable\":false}"
+    },
+    {
+      "name": "cursor cannot cross Project scope",
+      "status": "PASS",
+      "detail": "{\"status\":400,\"code\":\"INVALID_CURSOR\",\"message\":\"Request is invalid.\",\"retryable\":false}"
+    },
+    {
+      "name": "protected scope clears after reads",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "reads/refusals preserve rows audits and progress",
+      "status": "PASS",
+      "detail": ""
+    },
+    {
+      "name": "source remains frozen",
+      "status": "PASS",
+      "detail": ""
+    }
+  ],
+  "database": "fr252_w3_1789647610300",
+  "after": {
+    "src/modules/project-manager/application/project-feature-read-model.js": "502d593716325158ae56102376ad422524bdf27afd68951c3720c844bd5ff44a",
+    "src/modules/project-manager/application/project-feature-repository.js": "5ad910b25118f526c713ccf8bb0b82d1646cedff68d60554ca4d257d8f0ec8fc",
+    "src/modules/project-manager/application/active-filters.js": "55fb3aebad171a452be694c710e0eba01c2a0660c9764d55d80d42886afbbaea",
+    "prisma/schema.prisma": "5d3825978c25a731d8088908e1692cf786231595cdf3af3464227c6368774e31",
+    "package-lock.json": "aeccb764fdcd7eb95f21b3ec9150e33e9e1c70c1f52e76139c9b2bdf3772e435",
+    "src/modules/project-manager/application/governance-source-verifier.js": "48139c0ba4e8112d8ee12f9b043825cbede9a7416ce2f03184b8c1d2d9c310bb",
+    "src/modules/project-manager/application/project-feature-service.js": "ff84935e4fba98ad72d80b762c5fdfcd4cb0a40a5bcc81b7edfc3cb1dd8377a3",
+    "src/modules/project-manager/project-domain-catalog.js": "6f17f18e45855e90009d913f3f67ece21acc36ec1ece921537f555136e11f09d"
+  },
+  "sourceFrozen": true,
+  "status": "PASS",
+  "cleanup": "owned synthetic database dropped after proof"
+}

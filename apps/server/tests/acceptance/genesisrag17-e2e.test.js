@@ -45,6 +45,27 @@ async function bootWorker(extra = {}) {
 const ingest = (input, customTransport = transport) => ingestGenesisRag17Raw(input, { viewer, transport: customTransport, credential: 'ki17-test-source' })
 const finish = (executionRunId) => finishKnowledgeIngestionRun({ dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID, executionContractId: KNOWLEDGE_INGESTION_CONTRACT_ID, executionRunId, scope: { tenantId: scope.tenantId, businessId: scope.businessId }, finishedAt: new Date().toISOString() }, { viewer })
 const pull = (runId) => pullGenesisRag17Evidence({ schemaVersion: version, scope, runId }, { viewer, transport, credential: 'ki17-test-source' })
+
+// Production uses PostgreSQL interactive transactions, whose transaction
+// client also exposes `$transaction`. Keep the page boundary honest here so
+// a nested transaction in the importer fails this acceptance before release.
+function noNestedTransactionDb(db) {
+  return new Proxy(db, {
+    get(target, key, receiver) {
+      if (key === '$transaction') {
+        return (work, options) => target.$transaction((tx) => work(new Proxy(tx, {
+          get(inner, innerKey, innerReceiver) {
+            if (innerKey === '$transaction') return () => { throw new Error('GENESISRAG17_TEST_NESTED_TRANSACTION') }
+            const value = Reflect.get(inner, innerKey, innerReceiver)
+            return typeof value === 'function' ? value.bind(inner) : value
+          },
+        })), options)
+      }
+      const value = Reflect.get(target, key, receiver)
+      return typeof value === 'function' ? value.bind(target) : value
+    },
+  })
+}
 const query = (text, snapshotId) => transport('msp_pipeline_query', { schemaVersion: version, scope, credential: 'ki17-test-source', query: text, topK: 5, ...(snapshotId ? { snapshotId } : {}) })
 
 async function verifyCitation(result) {
@@ -110,7 +131,7 @@ describe('GenesisRAG17 actual four-process acceptance (no skips)', () => {
     expect(work.benchmark).toMatchObject({ queryCount: 5, citationCorrectness: 1, crossTenantLeaks: 0 })
     expect(work.benchmark.recallAt5).toBeGreaterThanOrEqual(0.8)
     expect(work.benchmark.mrr).toBeGreaterThanOrEqual(0.65)
-    await pull(firstRun)
+    await pullGenesisRag17Evidence({ schemaVersion: version, scope, runId: firstRun }, { db: noNestedTransactionDb(prisma), viewer, transport, credential: 'ki17-test-source' })
     expect((await finish(firstRun)).terminal).toBe('SUCCEEDED')
     const job = await readKnowledgeIngestionJob(firstRun, { viewer })
     expect(job.job.state).toBe('PUBLISHED')

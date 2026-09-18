@@ -3,7 +3,7 @@
   "id": "PM-G01",
   "status": "CANDIDATE",
   "diagramRef": "../02-DECISIONS-AND-DIAGRAMS.md#3-g01--context-and-component-flow",
-  "description": "Semantic source for G01; synthetic target architecture, not live topology.",
+  "description": "Semantic source for G01 with the PM-G14 candidate extension; synthetic target architecture, not live topology.",
   "nodes": [
     {
       "id": "human",
@@ -124,6 +124,197 @@
       "label": "MSP / GKS / Genesis substrate",
       "status": "PROPOSED",
       "specRef": "../02-DECISIONS-AND-DIAGRAMS.md"
+    },
+    {
+      "id": "g14.identity-authorizer",
+      "kind": "POLICY",
+      "ownerDomain": "identity",
+      "ownerModule": "identity",
+      "label": "Identity scope and capability authorizer",
+      "baseNodeRef": "identity",
+      "status": "PROPOSED",
+      "specRefs": [
+        "g14-design §8",
+        "17-SRS §identity"
+      ],
+      "dataClassification": "INTERNAL"
+    },
+    {
+      "id": "g14.pm-work-read-port",
+      "kind": "PORT",
+      "ownerDomain": "project-manager",
+      "ownerModule": "project-manager",
+      "label": "Scoped PM Work / assignment / accepted-history read port",
+      "baseNodeRef": "pm",
+      "status": "PROPOSED",
+      "specRefs": [
+        "g14-design §3–§4",
+        "g14-openapi"
+      ],
+      "dataClassification": "BUSINESS_SCOPED"
+    },
+    {
+      "id": "g14.people-calendar-read-port",
+      "kind": "PORT",
+      "ownerDomain": "project-manager",
+      "ownerModule": "people",
+      "label": "Employment-linked calendar and availability read port",
+      "baseNodeRef": "pm",
+      "status": "PROPOSED",
+      "specRefs": [
+        "g14-design §3–§4",
+        "FR-193"
+      ],
+      "dataClassification": "BUSINESS_SCOPED"
+    },
+    {
+      "id": "g14.capacity-calculator",
+      "kind": "SERVICE",
+      "ownerDomain": "project-manager",
+      "ownerModule": "project-manager",
+      "label": "Integer-minute capacity and conflict calculator",
+      "baseNodeRef": "pm",
+      "status": "PROPOSED",
+      "specRefs": [
+        "g14-design §5",
+        "PMT-033-E/F"
+      ],
+      "dataClassification": "BUSINESS_SCOPED"
+    },
+    {
+      "id": "g14.workforce-projection",
+      "kind": "PROJECTION",
+      "ownerDomain": "project-manager",
+      "ownerModule": "project-manager",
+      "label": "Person/team workload and schedule projection",
+      "baseNodeRef": "projection",
+      "status": "PROPOSED",
+      "specRefs": [
+        "g14-design §5",
+        "g14-openapi WorkloadResponse/ScheduleResponse"
+      ],
+      "dataClassification": "BUSINESS_SCOPED"
+    },
+    {
+      "id": "g14.performance-calculator",
+      "kind": "SERVICE",
+      "ownerDomain": "project-manager",
+      "ownerModule": "project-manager",
+      "label": "Evidence-linked delivery performance calculator",
+      "baseNodeRef": "pm",
+      "status": "PROPOSED",
+      "specRefs": [
+        "g14-design §6",
+        "PMT-033-H/L/N"
+      ],
+      "dataClassification": "BUSINESS_SCOPED"
+    },
+    {
+      "id": "g14.workload-schedule-view",
+      "kind": "UI",
+      "ownerDomain": "project-manager",
+      "ownerModule": "project-manager",
+      "label": "WF-R01/R02/R03 workload and schedule views",
+      "baseNodeRef": "ui",
+      "status": "PROPOSED",
+      "specRefs": [
+        "WF-R01",
+        "WF-R02",
+        "WF-R03"
+      ],
+      "dataClassification": "AUTHORIZED_VIEW"
+    },
+    {
+      "id": "g14.performance-scorecard-view",
+      "kind": "UI",
+      "ownerDomain": "project-manager",
+      "ownerModule": "project-manager",
+      "label": "WF-R04/R06 scorecard and evidence correction views",
+      "baseNodeRef": "ui",
+      "status": "PROPOSED",
+      "specRefs": [
+        "WF-R04",
+        "WF-R06"
+      ],
+      "dataClassification": "AUTHORIZED_VIEW"
+    },
+    {
+      "id": "g14.plan-preview",
+      "kind": "SERVICE",
+      "ownerDomain": "project-manager",
+      "ownerModule": "project-manager",
+      "label": "Typed workforce plan preview and conflict detector",
+      "baseNodeRef": "pm",
+      "status": "PROPOSED",
+      "specRefs": [
+        "WF-R05",
+        "previewWorkforcePlan",
+        "SPEC-G01",
+        "SPEC-G02"
+      ],
+      "dataClassification": "BUSINESS_SCOPED"
+    },
+    {
+      "id": "g14.plan-commit",
+      "kind": "SERVICE",
+      "ownerDomain": "project-manager",
+      "ownerModule": "project-manager",
+      "label": "Exact versioned workforce plan commit",
+      "baseNodeRef": "pm",
+      "status": "PROPOSED",
+      "specRefs": [
+        "WF-R05",
+        "commitWorkforcePlan",
+        "SPEC-G01",
+        "SPEC-G05"
+      ],
+      "dataClassification": "BUSINESS_MUTATION"
+    },
+    {
+      "id": "g14.people-calendar-writer",
+      "kind": "OWNER_PORT",
+      "ownerDomain": "project-manager",
+      "ownerModule": "people",
+      "label": "People calendar owner writer",
+      "baseNodeRef": "pm",
+      "status": "PROPOSED",
+      "specRefs": [
+        "g14-design §4",
+        "SPEC-G02",
+        "SPEC-G07"
+      ],
+      "dataClassification": "BUSINESS_MUTATION"
+    },
+    {
+      "id": "g14.pm-allocation-writer",
+      "kind": "OWNER_PORT",
+      "ownerDomain": "project-manager",
+      "ownerModule": "project-manager",
+      "label": "PM allocation and assignment owner writer",
+      "baseNodeRef": "pm",
+      "status": "PROPOSED",
+      "specRefs": [
+        "g14-design §4",
+        "WorkAllocation",
+        "SPEC-G01",
+        "SPEC-G07"
+      ],
+      "dataClassification": "BUSINESS_MUTATION"
+    },
+    {
+      "id": "g14.audit-outbox",
+      "kind": "STORE",
+      "ownerDomain": "project-manager",
+      "ownerModule": "project-manager",
+      "label": "Immutable audit and outbox append port",
+      "baseNodeRef": "pm-data",
+      "status": "PROPOSED",
+      "specRefs": [
+        "g14-design §4",
+        "g14-design §8",
+        "SPEC-G05"
+      ],
+      "dataClassification": "AUDIT"
     }
   ],
   "edgeTypes": [
@@ -140,7 +331,20 @@
     "READS_CONTEXT",
     "REPORTS",
     "PUBLISHES_EVENT",
-    "OBSERVES"
+    "OBSERVES",
+    "AUTHORIZES_BEFORE_READ",
+    "SUPPLIES_WORK_AND_ASSIGNMENTS",
+    "SUPPLIES_ACCEPTED_HISTORY",
+    "SUPPLIES_AVAILABLE_INTERVALS",
+    "SUPPLIES_CAPACITY",
+    "RENDERS",
+    "RENDERS_WITH_COVERAGE",
+    "REQUESTS_PREVIEW",
+    "REQUESTS_EXACT_COMMIT",
+    "AUTHORIZES_BEFORE_PREVIEW",
+    "AUTHORIZES_BEFORE_COMMIT",
+    "COMMANDS_OWNER_PORT",
+    "APPENDS_AUDIT_AND_OUTBOX"
   ],
   "contractCatalog": {
     "pm-http": {
@@ -190,6 +394,54 @@
     "authorized-stream": {
       "ref": "../06-API-AND-CONTRACTS.md",
       "section": "Streaming"
+    },
+    "g14-design": {
+      "ref": "docs/architecture/project-manager-system/15-WORKFORCE-CAPACITY-SCHEDULE-AND-PERFORMANCE.md",
+      "sections": [
+        "§1 Requirement",
+        "§3 Typed flow — G14",
+        "§4 Data contracts",
+        "§5 Capacity rules",
+        "§6 Metrics",
+        "§7 WF-R01–WF-R06",
+        "§8 API and authorization",
+        "§9 PMT-033 A–P"
+      ],
+      "status": "CANDIDATE"
+    },
+    "g14-openapi": {
+      "ref": "docs/architecture/project-manager-system/contracts/workforce.openapi.candidate.yaml",
+      "version": "0.2.0b",
+      "operations": 8,
+      "schemas": 30,
+      "status": "PROPOSED_NOT_IMPLEMENTED"
+    },
+    "g01-architecture": {
+      "ref": "docs/architecture/project-manager-system/contracts/architecture.model.json",
+      "id": "PM-G01",
+      "status": "CANDIDATE",
+      "role": "Existing semantic graph authority to extend/reconcile; not replaced by G14"
+    },
+    "blueprint": {
+      "ref": "docs/architecture/project-manager-system/contracts/blueprint.candidate.json",
+      "id": "PM-BLUEPRINT-01",
+      "status": "CANDIDATE",
+      "role": "Target component/deployment context; G14 binds to its workforce service and owner ports"
+    },
+    "data-model": {
+      "ref": "docs/architecture/project-manager-system/contracts/data-model.candidate.json",
+      "status": "CANDIDATE",
+      "role": "Logical records and invariants; exact SQLite/Postgres adapter remains SPEC-G07 work"
+    },
+    "traceability": {
+      "ref": "docs/architecture/project-manager-system/contracts/traceability.json",
+      "status": "CANDIDATE",
+      "role": "Existing PMR/PMT trace source; G14 entries must be reconciled after canonical ID allocation"
+    },
+    "task-usage-boundary": {
+      "ref": "TaskUsageLedger contract prepared in parallel worker packet",
+      "status": "SEPARATE_BASELINE",
+      "role": "May evidence implementation task time/token usage; it does not change G14 runtime readiness or grant authority"
     }
   },
   "edges": [
@@ -452,6 +704,228 @@
       "timeoutMs": 30000,
       "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
       "classification": "INTERNAL"
+    },
+    {
+      "id": "G14-E01",
+      "source": "g14.identity-authorizer",
+      "target": "g14.pm-work-read-port",
+      "type": "AUTHORIZES_BEFORE_READ",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "identity-policy",
+      "ownerDomain": "identity",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL",
+      "status": "PROPOSED"
+    },
+    {
+      "id": "G14-E02",
+      "source": "g14.identity-authorizer",
+      "target": "g14.people-calendar-read-port",
+      "type": "AUTHORIZES_BEFORE_READ",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "identity-policy",
+      "ownerDomain": "identity",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL",
+      "status": "PROPOSED"
+    },
+    {
+      "id": "G14-E03",
+      "source": "g14.pm-work-read-port",
+      "target": "g14.workforce-projection",
+      "type": "SUPPLIES_WORK_AND_ASSIGNMENTS",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "g14-openapi",
+      "ownerDomain": "project-manager",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL",
+      "status": "PROPOSED"
+    },
+    {
+      "id": "G14-E04",
+      "source": "g14.pm-work-read-port",
+      "target": "g14.performance-calculator",
+      "type": "SUPPLIES_ACCEPTED_HISTORY",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "g14-design §6",
+      "ownerDomain": "project-manager",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL",
+      "status": "PROPOSED"
+    },
+    {
+      "id": "G14-E05",
+      "source": "g14.people-calendar-read-port",
+      "target": "g14.capacity-calculator",
+      "type": "SUPPLIES_AVAILABLE_INTERVALS",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "g14-design §4–§5",
+      "ownerDomain": "project-manager",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL",
+      "status": "PROPOSED"
+    },
+    {
+      "id": "G14-E06",
+      "source": "g14.capacity-calculator",
+      "target": "g14.workforce-projection",
+      "type": "SUPPLIES_CAPACITY",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "g14-design §5",
+      "ownerDomain": "project-manager",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL",
+      "status": "PROPOSED"
+    },
+    {
+      "id": "G14-E07",
+      "source": "g14.workforce-projection",
+      "target": "g14.workload-schedule-view",
+      "type": "RENDERS",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "g14-openapi",
+      "ownerDomain": "project-manager",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 30000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL",
+      "status": "PROPOSED"
+    },
+    {
+      "id": "G14-E08",
+      "source": "g14.performance-calculator",
+      "target": "g14.performance-scorecard-view",
+      "type": "RENDERS_WITH_COVERAGE",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "g14-openapi",
+      "ownerDomain": "project-manager",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 30000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL",
+      "status": "PROPOSED"
+    },
+    {
+      "id": "G14-E09",
+      "source": "g14.workload-schedule-view",
+      "target": "g14.plan-preview",
+      "type": "REQUESTS_PREVIEW",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "g14-openapi",
+      "ownerDomain": "project-manager",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL",
+      "status": "PROPOSED"
+    },
+    {
+      "id": "G14-E10",
+      "source": "g14.plan-preview",
+      "target": "g14.plan-commit",
+      "type": "REQUESTS_EXACT_COMMIT",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "g14-openapi",
+      "ownerDomain": "project-manager",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL",
+      "status": "PROPOSED"
+    },
+    {
+      "id": "G14-E11",
+      "source": "g14.identity-authorizer",
+      "target": "g14.plan-preview",
+      "type": "AUTHORIZES_BEFORE_PREVIEW",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "identity-policy",
+      "ownerDomain": "identity",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL",
+      "status": "PROPOSED"
+    },
+    {
+      "id": "G14-E12",
+      "source": "g14.identity-authorizer",
+      "target": "g14.plan-commit",
+      "type": "AUTHORIZES_BEFORE_COMMIT",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "identity-policy",
+      "ownerDomain": "identity",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL",
+      "status": "PROPOSED"
+    },
+    {
+      "id": "G14-E13",
+      "source": "g14.plan-commit",
+      "target": "g14.people-calendar-writer",
+      "type": "COMMANDS_OWNER_PORT",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "g14-design §4",
+      "ownerDomain": "project-manager",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL",
+      "status": "PROPOSED"
+    },
+    {
+      "id": "G14-E14",
+      "source": "g14.plan-commit",
+      "target": "g14.pm-allocation-writer",
+      "type": "COMMANDS_OWNER_PORT",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "g14-design §4",
+      "ownerDomain": "project-manager",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "FAIL_CLOSED_OR_RECONCILE",
+      "classification": "INTERNAL",
+      "status": "PROPOSED"
+    },
+    {
+      "id": "G14-E15",
+      "source": "g14.plan-commit",
+      "target": "g14.audit-outbox",
+      "type": "APPENDS_AUDIT_AND_OUTBOX",
+      "direction": "SOURCE_TO_TARGET",
+      "contractRef": "g14-design §8",
+      "ownerDomain": "project-manager",
+      "authPolicyRef": "identity-policy",
+      "timeoutMs": 120000,
+      "failurePolicy": "DURABLE_RETRY_WITH_DEDUP",
+      "classification": "INTERNAL",
+      "status": "PROPOSED"
+    }
+  ],
+  "extensions": [
+    {
+      "id": "PM-G14",
+      "sourceRef": "contracts/g14-registry.candidate.json",
+      "mode": "CANDIDATE_EXTENSION",
+      "status": "CANDIDATE",
+      "codegenReady": false,
+      "canonicalIdStatus": "PENDING_ROOT_REGISTRATION",
+      "nodeCount": 13,
+      "edgeCount": 15
     }
   ]
 }

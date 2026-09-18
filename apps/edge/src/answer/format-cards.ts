@@ -2,8 +2,10 @@ import type { ResultV4, SelectedPrice, SearchResponseV4 } from '../rag/v4/search
 import type { ParsedQuery } from '../rag/v4/query-parser.js';
 
 import type { PublishedGenerationRef, PublishedPassage } from '../rag/genesisrag17/types.js';
+import type { PublishedProductQueryResult } from '../rag/genesisrag17/product-rag.js';
 
 export interface SearchEvidenceV4 {
+  publishedProducts?: PublishedProductQueryResult;
   query: string;
   parsed: SearchResponseV4['parsed'] | null;
   matchCount: number;

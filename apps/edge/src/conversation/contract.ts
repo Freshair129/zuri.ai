@@ -1,12 +1,12 @@
 import { z } from 'zod';
+import type { InvocationReceipt } from '../answer/context-injection.js';
+import { zEdgePublishedCorpusContext } from '../rag/genesisrag17/corpus-context.js';
 
 // @spec ADR-061, FR-150 — zuri-ai's decision and requirement. This file is the edge half of
 //   their wire contract: no LINE identity, credential, or delivery capability crosses it.
 
 /** ADR-061 / FR-150 (upstream): no LINE identity, credential, or delivery capability. */
-export const conversationEnvelope = z.object({
-  contractVersion: z.literal('1'),
-  job: z.object({
+const conversationJob = z.object({
     id: z.string().uuid(),
     version: z.number().int().positive(),
     question: z.string().min(1).max(10000),
@@ -17,11 +17,43 @@ export const conversationEnvelope = z.object({
       role: z.literal('sales'),
       retainHistory: z.literal(false),
     }).strict(),
-  }).strict(),
-}).strict();
+  }).strict();
+
+const deadline = z.object({
+  issuedAt: z.string().datetime({ offset: true }),
+  answerDeadlineAt: z.string().datetime({ offset: true }),
+  remainingBudgetMs: z.number().int().min(0).max(240000),
+  deliveryMode: z.enum(['REPLY', 'DELAYED_PUSH']),
+}).strict().refine(value => {
+  const interval = Date.parse(value.answerDeadlineAt) - Date.parse(value.issuedAt);
+  return value.remainingBudgetMs <= Math.max(0, interval)
+    && (value.deliveryMode !== 'REPLY' || value.remainingBudgetMs <= 40000)
+    && (interval >= 0 || value.remainingBudgetMs === 0);
+}, 'INVALID_EXECUTION_BUDGET');
+
+const memoryContext = z.object({
+  schemaVersion: z.literal('line-memory-context.v1'),
+  contextHash: z.string().regex(/^[a-f0-9]{64}$/),
+  threadId: z.string().min(1).max(300), audienceKind: z.literal('DIRECT'),
+  expiresAt: z.string().datetime({ offset: true }),
+  slices: z.array(z.object({
+    id: z.string().min(1).max(300), threadId: z.string().min(1).max(300),
+    text: z.string().max(6000), sequence: z.string().max(100).optional(),
+    scope: z.string().max(100).optional(), subjectKey: z.string().max(300).optional(),
+  }).strict()).max(24),
+}).strict().refine(value => Buffer.byteLength(JSON.stringify(value.slices), 'utf8') <= 6000
+  && value.slices.every(slice => slice.threadId === value.threadId), 'INVALID_MEMORY_CONTEXT');
+
+export const conversationEnvelope = z.discriminatedUnion('contractVersion', [
+  z.object({ contractVersion: z.literal('1'), job: conversationJob }).strict(),
+  z.object({ contractVersion: z.literal('2'), job: conversationJob.extend({
+    executionId: z.string().uuid(), deadline, memoryContext: memoryContext.optional(),
+    corpusContext: zEdgePublishedCorpusContext.optional(),
+  }).strict() }).strict(),
+]);
 
 export type ConversationJob = z.infer<typeof conversationEnvelope>['job'];
-export type FailureCode = 'EXECUTION_FAILED' | 'LOCAL_POLICY_UNAVAILABLE';
+export type FailureCode = 'EXECUTION_FAILED' | 'LOCAL_POLICY_UNAVAILABLE' | 'REPLY_DEADLINE_MISSED' | 'MSP_INJECTION_RECEIPT_UNKNOWN';
 
 /**
  * What the executor hands back to the worker for one job.
@@ -37,9 +69,11 @@ export interface ConversationAnswer {
   source: 'model' | 'rules';
   /** Why the rules answer was used, when it was. */
   reason?: string;
+  contextReceipts?: InvocationReceipt[];
 }
 
 export class ConversationError extends Error {
+  contextReceipts?: InvocationReceipt[];
   constructor(public readonly code: string, public readonly status = 0) {
     super(code);
     this.name = 'ConversationError';

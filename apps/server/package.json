@@ -62,6 +62,7 @@
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1",
     "autoprefixer": "10.4.20",
+    "esbuild": "0.21.5",
     "postcss": "8.4.49",
     "prisma": "5.22.0",
     "supabase": "2.114.0",

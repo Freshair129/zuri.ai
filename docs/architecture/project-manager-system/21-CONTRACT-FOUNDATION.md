@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-CONTRACT-FOUNDATION
 title: Shared allocation, identity and transport contract foundation
-version: "0.3.0b"
+version: "0.3.1b"
 status: candidate
 created_at: "2026-09-16T14:35:11+07:00,Luna Max worker, MA-D01 attempt 2"
-last_update: "2026-09-16T15:34:10+07:00,RWANG final integrator"
+last_update: "2026-09-17T02:03:00+07:00,RWANG final integrator"
 superseded_by: null
 attributes:
   doc_type: architecture-specification
@@ -24,6 +24,19 @@ relations:
 ---
 
 # Shared allocation, identity and transport contract foundation
+
+**Phase B refinement:** [24 Feature implementation plan](24-PHASE-B-FEATURE-IMPLEMENTATION-PLAN.md)
+selects a concrete Identity-owned API CSRF proposal for Feature, graph and snapshot
+mutations, with issuance, expiry, live-session binding, explicit Origin and refusal
+rules. Its selected API/data overlays are the Phase B authority pending B1 owner
+approval and B2 registration. This selection does not implement the port or approve
+Workforce writes; the historical `NEEDS_OWNER_BINDING` findings below describe the
+earlier Workforce packet. Plugin-consent tokens remain a separate audience.
+
+Phase B retains this document's common error fields (`path`, `code`, `message`),
+fresh request correlation and scoped replay rules. Its typed receipt uses an integer
+version for a Feature, and a null version with a strong digest ETag for graph/snapshot
+resources. Those selected resource forms do not change the Workforce receipt below.
 
 ## 1. Packet boundary and outcome
 
@@ -282,3 +295,4 @@ Independent review found missing source pins, overloaded preview/record states a
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.3.0b | 2026-09-16 | candidate | Repair all six independent attempt-2 findings with explicit draft intent and conformance examples | isolated document composition | RWANG |
+| 0.3.1b | 2026-09-17 | candidate | Link the selected Phase B CSRF and typed-receipt proposal while preserving Workforce scope and pending approval | planning base ecc30b94 | RWANG |

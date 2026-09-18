@@ -3,6 +3,7 @@ import prisma from '@/lib/db'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 import { recordAudit } from '@/modules/project-manager/application/audit'
+import { withLockedCustomer } from './chat-evidence-archive-service'
 
 // @req SEC-034 — an OWNER records a legal hold on a Customer's chat evidence
 //   archive (ADR-093 D6, TASK-ZAI-113): an open dispute, its reason and an end
@@ -69,10 +70,10 @@ const notFound = () => failure(404, 'CUSTOMER_NOT_FOUND')
  *
  * @param {string} customerId
  * @param {{businessId: string, reason: string, endDate: string}} input
- * @param {{viewer: object, db?: object, now?: Date}} ctx
+ * @param {{viewer: object, db?: object, now?: Date, dialect?: string}} ctx
  * @returns {Promise<{customerId: string, legalHoldId: string, reason: string, endDate: string, recordedAt: string}>}
  */
-export async function recordCustomerLegalHold(customerId, input, { viewer, db = prisma, now = new Date() } = {}) {
+export async function recordCustomerLegalHold(customerId, input, { viewer, db = prisma, now = new Date(), dialect = null } = {}) {
   if (!customerId) throw failure(400, 'CUSTOMER_ID_REQUIRED')
   const data = zRecordCustomerLegalHold.parse(input)
 
@@ -110,37 +111,44 @@ export async function recordCustomerLegalHold(customerId, input, { viewer, db = 
   const recordedByPersonId = viewer?.principal?.id ?? viewer?.personId
   if (typeof recordedByPersonId !== 'string' || !recordedByPersonId) throw failure(401, 'AUTH_REQUIRED')
 
-  const hold = await db.customerLegalHold.create({
-    data: {
-      tenantId: customer.tenantId,
-      customerId: customer.id,
-      reason: data.reason,
-      endDate,
-      recordedByPersonId,
-    },
-  })
-
-  await recordAudit(db, {
-    entityType: 'ARCHIVE',
-    entityId: customer.id,
-    action: 'LEGAL_HOLD_RECORDED',
-    actorId: recordedByPersonId,
+  return withLockedCustomer(db, {
     tenantId: customer.tenantId,
-    businessId: data.businessId,
-    reason: data.reason,
-    payload: {
-      customerId: customer.id,
-      legalHoldId: hold.id,
-      reason: data.reason,
-      endDate: hold.endDate.toISOString(),
-    },
-  })
-
-  return {
     customerId: customer.id,
-    legalHoldId: hold.id,
-    reason: hold.reason,
-    endDate: hold.endDate.toISOString(),
-    recordedAt: hold.createdAt.toISOString(),
-  }
+    now,
+    dialect,
+  }, async (tx, { customer: lockedCustomer }) => {
+    const hold = await tx.customerLegalHold.create({
+      data: {
+        tenantId: lockedCustomer.tenantId,
+        customerId: lockedCustomer.id,
+        reason: data.reason,
+        endDate,
+        recordedByPersonId,
+      },
+    })
+
+    await recordAudit(tx, {
+      entityType: 'ARCHIVE',
+      entityId: lockedCustomer.id,
+      action: 'LEGAL_HOLD_RECORDED',
+      actorId: recordedByPersonId,
+      tenantId: lockedCustomer.tenantId,
+      businessId: data.businessId,
+      reason: data.reason,
+      payload: {
+        customerId: lockedCustomer.id,
+        legalHoldId: hold.id,
+        reason: data.reason,
+        endDate: hold.endDate.toISOString(),
+      },
+    })
+
+    return {
+      customerId: lockedCustomer.id,
+      legalHoldId: hold.id,
+      reason: hold.reason,
+      endDate: hold.endDate.toISOString(),
+      recordedAt: hold.createdAt.toISOString(),
+    }
+  })
 }

@@ -9,7 +9,7 @@ import { criteriaHash, hashMarketingBroadcastPayload, serializeMarketingBroadcas
 // @tested tests/unit/marketing/marketing-broadcast-backup.test.js
 
 function currentDb(counts = {}) {
-  return new Proxy({}, { get: (_target, property) => ({ count: vi.fn(async () => counts[property] || 0) }) })
+  return new Proxy({}, { get: (_target, property) => property === '_activeProvider' ? 'sqlite' : ({ count: vi.fn(async () => counts[property] || 0) }) })
 }
 
 function baseSnapshot(over = {}) {

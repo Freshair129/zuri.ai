@@ -13,6 +13,8 @@ import { erasePrincipal } from '@/modules/identity/erase-principal'
 //   action past the tenant the caller actually owns into.
 // @spec SEC-001, SEC-005, SEC-003, BR-001, SDD-048
 // @tested tests/integration/crm-customer-erasure.test.js, tests/unit/customer-erasure-confirmation.test.js
+// @req FR-252 — trusted PM review context composes through the same database transaction.
+// @tested tests/integration/phase-b-identity-erasure.test.js
 //
 // WHY THE REFUSALS ARE ALL 404
 // ----------------------------
@@ -57,7 +59,7 @@ const notFound = () => failure(404, 'CUSTOMER_NOT_FOUND')
  * @returns {Promise<{customerId: string, counts: object}>} counts only — never any
  *   personal data, since the caller has just asserted they may not hold it.
  */
-export async function eraseCustomerPrincipal(customerId, input, { viewer, db = prisma } = {}) {
+export async function eraseCustomerPrincipal(customerId, input, { viewer, db = prisma, reviewedPmContext = null } = {}) {
   if (!customerId) throw failure(400, 'CUSTOMER_ID_REQUIRED')
   const data = zCustomerErasureRequest.parse(input)
 
@@ -78,32 +80,58 @@ export async function eraseCustomerPrincipal(customerId, input, { viewer, db = p
     if (!ownsBusiness(viewer, data.businessId)) throw notFound()
   }
 
-  let tenantId = null
-  if (data.businessId) {
-    const business = await db.business.findUnique({
-      where: { id: data.businessId },
-      select: { id: true, tenantId: true },
+  const execute = async (tx) => {
+    let tenantId = null
+    if (data.businessId) {
+      const business = await tx.business.findUnique({
+        where: { id: data.businessId },
+        select: { id: true, tenantId: true },
+      })
+      if (!business) throw notFound()
+      tenantId = business.tenantId
+    }
+
+    const customer = await tx.customer.findFirst({
+      // The operator alone may act without naming a Business; everyone else is bounded
+      // by the tenant of the Business they own, exactly as `recordCustomerConsent` is.
+      where: { id: customerId, ...(tenantId ? { tenantId } : {}) },
+      select: { id: true, tenantId: true, personId: true },
     })
-    if (!business) throw notFound()
-    tenantId = business.tenantId
+    if (!customer) throw notFound()
+
+    let pmContext = null
+    if (reviewedPmContext) {
+      const businessId = data.businessId ?? reviewedPmContext.manifest?.businessId
+      const business = businessId ? await tx.business.findUnique({
+        where: { id: businessId }, select: { id: true, tenantId: true },
+      }) : null
+      if (!business || business.tenantId !== customer.tenantId) throw notFound()
+      if (!operator && !ownsBusiness(viewer, business.id)) throw notFound()
+      pmContext = {
+        manifest: reviewedPmContext.manifest ?? null,
+        authority: {
+          ...reviewedPmContext.authority,
+          viewer,
+          tenantId: customer.tenantId,
+          businessId: business.id,
+          subjectPersonId: customer.personId,
+          wholeFieldsApproved: reviewedPmContext.authority?.wholeFieldsApproved === true,
+        },
+      }
+    }
+
+    const counts = await erasePrincipal({
+      tenantId: customer.tenantId,
+      personId: customer.personId,
+      // A fixed reason, never caller text: the audit payload is the one record of this
+      // action that survives it, and a free-text field on an erasure is exactly where
+      // personal data gets re-introduced.
+      reason: 'PDPA_ERASURE_REQUEST',
+    }, { db: tx, reviewedPmContext: pmContext })
+
+    return { customerId: customer.id, counts }
   }
-
-  const customer = await db.customer.findFirst({
-    // The operator alone may act without naming a Business; everyone else is bounded
-    // by the tenant of the Business they own, exactly as `recordCustomerConsent` is.
-    where: { id: customerId, ...(tenantId ? { tenantId } : {}) },
-    select: { id: true, tenantId: true, personId: true },
-  })
-  if (!customer) throw notFound()
-
-  const counts = await erasePrincipal({
-    tenantId: customer.tenantId,
-    personId: customer.personId,
-    // A fixed reason, never caller text: the audit payload is the one record of this
-    // action that survives it, and a free-text field on an erasure is exactly where
-    // personal data gets re-introduced.
-    reason: 'PDPA_ERASURE_REQUEST',
-  })
-
-  return { customerId: customer.id, counts }
+  return typeof db.$transaction === 'function'
+    ? db.$transaction(execute, { isolationLevel: 'Serializable', maxWait: 10_000, timeout: 30_000 })
+    : execute(db)
 }

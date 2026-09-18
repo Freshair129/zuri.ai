@@ -1,10 +1,14 @@
 # Appendix B — Database Schema Summary
 
+Version diff 1.54.0b → 1.55.0b (2026-09-18): add the TaskUsageLedger read-projection contract over ProgrammeUsageReport and declared lane telemetry, and add the TASK-ZAI-049 KnowledgeArtifactStorage and KnowledgeArtifactOperation models and their additive local/Postgres migrations.
+
+Version diff 1.53.0b → 1.54.0b: retain the already-deployed CustomerLegalHold model and add the two FR-253 Commerce pricing models.
+
 | Field | Value |
 |-------|-------|
-| **Version** | 1.53.0b |
+| **Version** | 1.55.0b |
 | **Status** | Draft |
-| **Last Updated** | 2026-09-16 |
+| **Last Updated** | 2026-09-18 |
 
 Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
 Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)
@@ -68,6 +72,12 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | Gate | projectId, workstreamId?, required, evidenceJson, status | cap progress (BR-006) |
 | Dependency | (sourceType,sourceId,targetType,targetId,dependencyType) unique | cycle-checked ที่ service |
 | Repository / ProjectRepository | provider, externalRepoId?, fullName; (projectId,repoId,role) unique | local metadata, m2m |
+| GovernanceSnapshot | tenantId, businessId, repositoryId, projectRepositoryId, checkoutBindingId, commitSha, manifestHash, verificationProof, validationStatus, sourceManifest | FR-252 / ADR-097 — immutable server-verified evidence; unique (businessId, repositoryId, commitSha, manifestHash), VALID only. JSON object fields are serialized strings in Prisma/SQLite. |
+| ProjectFeature | tenantId, businessId, projectId, code, title, problem, outcome, primaryDomainId, canonicalFeatureKey?, governanceSnapshotId?, lifecycle, version, deletedAt?, deleteBatchId? | FR-252 — unique (projectId, code) includes tombstones. Canonical key/snapshot and deletion/batch are paired. Optional pin must belong to the same Project. |
+| FeatureContribution | tenantId, businessId, featureId, domainId, responsibility, version, deletedAt?, deleteBatchId? | FR-252 — unique (featureId, domainId) preserves identity when revived; grants no Domain access. |
+| FeatureWorkLink | tenantId, businessId, featureId, workItemId, allocationBps?, version, deletedAt?, deleteBatchId? | FR-252 — unique (featureId, workItemId); WorkItem must resolve to the same Project. Nullable allocation is 0–10000; cross-Feature totals are checked by the transaction service. |
+| RequirementBinding | tenantId, businessId, featureId, governanceSnapshotId, sourceNamespace, requirementKey, revisionHash, acceptanceRef, version, deletedAt?, deleteBatchId? | FR-252 — unique (featureId, governanceSnapshotId, sourceNamespace, requirementKey); exact verified source revision, never a client-invented requirement subject. |
+| ProjectFeatureMutationReceipt | tenantId, businessId, projectId, featureId?, targetId, targetType, httpMethod, principalId, operation, idempotencyKey, payloadHash, resourceId, resourceType, version?, etag, auditEventId, status | FR-252 — immutable COMMITTED receipt; unique (tenantId, businessId, principalId, operation, targetId, idempotencyKey). Nine exact operation/method/target/resource tuples; resourceId is polymorphic and verified by policy/service. |
 | Team | code unique, businessId, deletedAt? | FR-089 — organisational grouping, Business-scoped (ADR-037 D2). Grants nothing: the identity module never reads it (BR-018) |
 | TeamMembership | (teamId,personId) unique | Person ↔ Team, deliberately separate from `Membership` — that one is the authority record, and merging the two is what let an unauthenticated POST mint owner authority on 2026-08-17. No `role` column, on purpose |
 | ProjectTeam | (projectId,teamId) unique | m2m: a Project is worked by several Teams and a Team works several Projects (ADR-037 D3) |
@@ -243,6 +253,72 @@ The profile keeps Business tax/PromptPay policy while LegalEntity/Branch remain
 the issuer identity authority; issued documents retain request hashes and
 restrict parent deletion. Backup export/restore validates the billing manifest
 and continues numbering. The Supabase SQL is written and **not applied**.
+
+## Phase B Feature authority (FR-252 / ADR-097)
+
+The additive six-table schema has SQLite and PostgreSQL migration twins named
+`20260917041000_add_phase_b_feature_authority`. Local schema validation, three
+SQLite/schema tests and 140 isolated PostgreSQL role/collision checks pass,
+with independent provider review PASS. Neither migration has been applied to production.
+The exact parent predicates and grants are in
+[policy25](../architecture/project-manager-system/25-PHASE-B-PERSISTENCE-SECURITY-POLICY.md).
+
+```mermaid
+erDiagram
+  Project ||--o{ ProjectFeature : owns
+  Project ||--o{ ProjectRepository : binds
+  Repository ||--o{ ProjectRepository : supplies
+  ProjectRepository ||--o{ GovernanceSnapshot : verifies
+  Repository ||--o{ GovernanceSnapshot : source
+  GovernanceSnapshot o|--o{ ProjectFeature : optional_pin
+  ProjectFeature ||--o{ FeatureContribution : responsibility
+  ProjectFeature ||--o{ FeatureWorkLink : links
+  WorkItem ||--o{ FeatureWorkLink : allocated_work
+  ProjectFeature ||--o{ RequirementBinding : requires
+  GovernanceSnapshot ||--o{ RequirementBinding : proves_revision
+  Project ||--o{ ProjectFeatureMutationReceipt : scopes
+  ProjectFeature o|--o{ ProjectFeatureMutationReceipt : optional_feature
+  AuditEvent ||--o{ ProjectFeatureMutationReceipt : committed_evidence
+```
+
+All six records also reference Tenant and Business. Those scalar references
+alone do not establish scope: PostgreSQL RLS checks complete parent chains;
+the application must resolve the hierarchy before binding transaction-local
+scope. Mutable records have both USING and WITH CHECK predicates. Ordinary
+runtime can only SELECT/INSERT GovernanceSnapshot and mutation receipts.
+
+There is no synthetic Feature seed, graph-state table or author-to-subject
+mapping. Snapshot JSON is serialized as text at the SQLite/Prisma boundary;
+the verifier and repository validate typed objects. Work allocation totals,
+the 200-nondeleted-Feature limit, CAS/idempotency and audit atomicity remain service
+responsibilities, not claims made by a single-column database CHECK.
+
+Protected backup coverage and reviewed PM erasure are W2 work in progress. The
+[recovery/erasure decision](../architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md)
+was approved on 2026-09-17; schema authoring alone does not close the snapshot-coverage
+gate or authorize a destructive importer. The six records must not be excluded
+from recovery merely to silence that gate.
+
+Version diff 1.52.0b → 1.53.0b: document the six locally authored Feature
+records, ERD and policy boundaries; protected recovery and production remain pending.
+
+### CRM legal-hold peer compatibility
+
+`CustomerLegalHold { id, tenantId→Tenant, customerId→Customer, reason, endDate,
+recordedByPersonId→Person, createdAt }` preserves the peer CRM behavior selected
+by recovery decision26. Tenant and Customer deletion cascade; deleting the
+recording Person is restricted. Indexes cover Tenant and `(customerId,endDate)`.
+The service appends hold evidence; its inherited PostgreSQL grant/policy is a
+separate peer security contract, not evidence for Phase B's six-table RLS gate.
+
+The SQLite migration twin is now composed with the peer Supabase migration
+`20260916160000_crm_customer_legal_hold`. Recovery includes the hold after its
+Customer and Person parents. The complete Phase B target inventory has 175
+application models, including snapshot exclusions; see the frozen
+[inventory](../architecture/project-manager-system/contracts/phase-b/target-schema.inventory.json).
+
+Version diff 1.53.0b → 1.54.0b: retain CRM hold schema/backup behavior, add its
+SQLite migration twin and bind the composed 175-model recovery inventory.
 
 ## Product Owner RBAC role (FR-076 / ADR-033)
 
@@ -454,6 +530,8 @@ Version diff 1.27.0b → 1.28.0b: append-only document versions and exact attemp
 | Model | Identity / retained evidence | Restore order |
 |---|---|---|
 | KnowledgeRawArtifact | Source/version/hash, exact content, existing RawExternalRecord reference and scope | After RawExternalRecord |
+| KnowledgeArtifactStorage | Scoped raw object key/version, SHA-256, byte length, policy and retention state | After KnowledgeRawArtifact |
+| KnowledgeArtifactOperation | Idempotent storage/recovery/erasure operation journal with outcome evidence | After KnowledgeArtifactStorage |
 | KnowledgeParsedArtifact | Immutable parser version and parsed structure referencing raw | After KnowledgeRawArtifact |
 | KnowledgeChunk | Exact substring, offsets, hash and ordinal referencing parsed version | After KnowledgeParsedArtifact |
 | GenesisRag17IngestionIntent | Immutable scoped request/derivation identity with mutable local-stage progress; durable before Stage1 | After PipelineRun and source parents |
@@ -562,5 +640,13 @@ Version diff 1.49.0b → 1.50.0b (2026-09-16): `LineConversationJob.sessionId` (
 Version diff 1.50.0b → 1.51.0b (2026-09-16): TASK-ZAI-111 (FR-245, ADR-093 D2-D4, D6) — new models `CustomerArchiveKey` and `ArchiveManifest` (crm; both excluded from the backup snapshot), the chat evidence archive's writer: swept `MESSAGE_BODY_AND_ATTACHMENTS` content is now archived (per-Customer AES-256-GCM segment, verified on disk) before it is tombstoned, inside one transaction with the chained manifest insert. 165 models are now declared. Migration `20260916150000_crm_chat_evidence_archive` written, not applied.
 
 Version diff 1.51.0b → 1.52.0b (2026-09-16): no model or migration changes — `CustomerArchiveKey` and `ArchiveManifest` **moved from excluded to included** in the backup snapshot (`SNAPSHOT_MODELS`, `backup-service.js`). The exclusion's own stated reasons did not hold up: its confidentiality argument was moot (the KEK that could open the wrapped key is never part of any snapshot either way, excluded or not) and its FK-ordering argument was moot (neither model has a real Prisma `@relation`, so there is no FK for a restore to violate). What exclusion actually cost: a randomly generated archive key has no re-entry path (unlike a credential), so a routine restore would silently and permanently destroy access to retained dispute evidence — and without `ArchiveManifest` rows, `chat-evidence-retrieval-service.js` (TASK-ZAI-112) has no index onto the archive files at all, making them undiscoverable even when intact on disk. New test: `backup.test.js`'s round trip proves both rows survive a delete-then-restore.
+
+
+## Commerce pricing rules (FR-253 / ADR-098)
+
+- **PricingRuleSet**: tenant/Business-scoped immutable approved JSON policy, hash, optimistic version, approval/effective/expiry/revocation evidence and source-version ancestry.
+- **PricingCalculation**: immutable rule/input/evaluator snapshots and hashes, ledger-versus-trial provenance and scoped idempotency key. Included in backup after its rule set.
+
+Version diff 1.52.0b → 1.53.0b (2026-09-17): two additive Commerce models; SQLite and Postgres migration 20260917030000_commerce_pricing_rules authored, production NOT_APPLIED. Existing ErrorEvent, UsageEvent and UsageEventRollup remain their established platform models; this change does not alter them.
 
 Version diff 1.52.0b → 1.53.0b (2026-09-16): TASK-ZAI-113 (SEC-034, ADR-093 D6) — new model `CustomerLegalHold` (crm; included in the backup snapshot, unlike its two siblings above), the legal hold that defers archive-key destruction, plus the shared `destroyCustomerArchiveKey`/`findActiveLegalHold` helpers both the PDPA-erasure and 10-year-expiry paths call. `schema.prisma` declares 168 models today; this entry accounts for 166 of them — `ErrorEvent` and `UsageEvent` (ADR-095, 1.80.0b-era) reached the schema without a matching entry here and remain an open gap this change does not close. Migration `20260916160000_crm_customer_legal_hold` written, not applied.
