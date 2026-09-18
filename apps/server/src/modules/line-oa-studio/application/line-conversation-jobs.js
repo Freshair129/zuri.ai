@@ -972,6 +972,24 @@ export async function listLineConversationJobs(accountId, { viewer, sessionCode,
   return { accountId, session, jobs }
 }
 
+/**
+ * Bounded health read for the owning Business. The health overlay must not
+ * enumerate accounts first: this port reads the job table once and returns
+ * only the operational fields FR-215 needs.
+ */
+export async function listLineConversationJobsForBusiness(businessId, { viewer, limit = 100, db = prisma } = {}) {
+  const id = typeof businessId === 'string' ? businessId.trim() : ''
+  if (!id) throw notFound()
+  assertMayView(viewer, id)
+  const take = Math.min(Math.max(Number(limit) || 100, 1), 100)
+  return db.lineConversationJob.findMany({
+    where: { businessId: id },
+    orderBy: { updatedAt: 'desc' },
+    take,
+    select: { status: true, updatedAt: true },
+  })
+}
+
 /** Payload inspection needs Business ownership in addition to Studio visibility. */
 export async function readLineConversationTrace(id, { viewer, db = prisma } = {}) {
   const job = await db.lineConversationJob.findUnique({ where: { id } })

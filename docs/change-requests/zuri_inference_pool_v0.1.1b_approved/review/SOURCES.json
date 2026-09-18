@@ -1,0 +1,252 @@
+{
+  "reviewed_repository": "Freshair129/zuri.ai",
+  "baseline_commit": "cfd5521e7d004e63ffead1e07f46045f1cdc06f2",
+  "review_date": "2026-09-17",
+  "repository_access": "GitHub connector reads; no remote writes",
+  "review_scope": "Targeted structural, template, domain and inference/LINE code review; not a complete repository audit",
+  "limitations": [
+    "Full ID availability was not enumerated; no global numbers reserved.",
+    "No complete Git checkout was available in the local runtime; GitHub connector source excerpts were used.",
+    "Repository npm governance/test/build/E2E, GPU qualification and LINE canary were not run."
+  ],
+  "repository_sources": [
+    {
+      "id": "G01",
+      "path": "AGENTS.md",
+      "blob_sha": "a837e591139e27b93fae0c3d20c91cb6e15ef9e9",
+      "read_scope": "Initial section and source lines 350–650",
+      "purpose": "Documentation layers; immutable requirement IDs; source/derived separation; domain and process rules",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/AGENTS.md"
+    },
+    {
+      "id": "G02",
+      "path": "docs/templates/ADR.md.template",
+      "blob_sha": "ae1dc749acd9f5e4501b7daf87f5fa019ccaffd2",
+      "read_scope": "Full file",
+      "purpose": "ADR metadata, mandatory heading shape and changelog",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/templates/ADR.md.template"
+    },
+    {
+      "id": "G03",
+      "path": "docs/templates/FR.md.template",
+      "blob_sha": "eba75f7c14aa46f7fe926f48150ec3fcc09eb2f8",
+      "read_scope": "Full file",
+      "purpose": "FR note metadata, behavior/input/acceptance and changelog",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/templates/FR.md.template"
+    },
+    {
+      "id": "G04",
+      "path": "docs/templates/FR-PHASE.md.template",
+      "blob_sha": "249862bb27667553659ce554b38a609f6d130bd9",
+      "read_scope": "Full file",
+      "purpose": "Parent/phase/order metadata and handoff sections",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/templates/FR-PHASE.md.template"
+    },
+    {
+      "id": "G05",
+      "path": "docs/GOVERNANCE-LINK-METADATA.md",
+      "blob_sha": "f2727278c1f7b46d476c897ae1f60d6e342daef6",
+      "read_scope": "Full file",
+      "purpose": "Namespace-qualified IDs, typed relations, wikilinks and missing-target behavior",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/GOVERNANCE-LINK-METADATA.md"
+    },
+    {
+      "id": "G06",
+      "path": "apps/server/contracts/doc-link-metadata.schema.json",
+      "blob_sha": "44744bc7235f8da29476706dcc3dec5d35e98732",
+      "read_scope": "Full file",
+      "purpose": "Exact metadata schema copied for local rendered-document validation",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/contracts/doc-link-metadata.schema.json"
+    },
+    {
+      "id": "G07",
+      "path": "docs/.id-ledger.json",
+      "blob_sha": "5f0d0aa8738cd4ef090b77c74040dea27b750f34",
+      "read_scope": "Source lines 1–55 only",
+      "purpose": "Ledger purpose, global registry forms; NOT a full availability scan",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/.id-ledger.json"
+    },
+    {
+      "id": "G08",
+      "path": "docs/FEATURES.md",
+      "blob_sha": "37bbd866aeec60c7ee92cc679b66cc592b344998",
+      "read_scope": "Opening portion; response excerpt truncated",
+      "purpose": "Feature versus FR distinction and existing bundles; not complete inventory",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/FEATURES.md"
+    },
+    {
+      "id": "G09",
+      "path": "docs/PRD-SDD-v1.0.md",
+      "blob_sha": "1c7724567df3cebdeed7b3b318370b961b22a5db",
+      "read_scope": "Opening/version-history portion; response excerpt truncated",
+      "purpose": "Current registry identity; published ID collisions and stale progress corrections",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/PRD-SDD-v1.0.md"
+    },
+    {
+      "id": "G10",
+      "path": "docs/domains/agent/CHARTER.md",
+      "blob_sha": "1140b47591d02419c25daddb131bd2352a20b9f6",
+      "read_scope": "Source lines 1–220",
+      "purpose": "Agent ownership and source-versus-planned behavior caveats",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/domains/agent/CHARTER.md"
+    },
+    {
+      "id": "G11",
+      "path": "docs/domains/integration/CHARTER.md",
+      "blob_sha": "e4334ed719eaf825f61513d0ba356a57a281f9d2",
+      "read_scope": "Source lines 1–220",
+      "purpose": "Provider/credential ownership, management surfaces, production-provider restrictions",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/domains/integration/CHARTER.md"
+    },
+    {
+      "id": "G12",
+      "path": "docs/domains/platform-control/CHARTER.md",
+      "blob_sha": "8bd78db1f10dc9d182d8542a203929376abd1945",
+      "read_scope": "Source lines 1–160",
+      "purpose": "Operator-only removable projections; no critical Business authority",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/domains/platform-control/CHARTER.md"
+    },
+    {
+      "id": "G13",
+      "path": "docs/domains/line-oa-studio/CHARTER.md",
+      "blob_sha": null,
+      "read_scope": "Relevant earlier connector excerpt",
+      "purpose": "LINE job/transport ownership and existing ADR-061 amendment",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/domains/line-oa-studio/CHARTER.md"
+    },
+    {
+      "id": "G14",
+      "path": "docs/roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md",
+      "blob_sha": "d2ba0ada3d06be32137f79433173efb4ec4b3580",
+      "read_scope": "Full returned file",
+      "purpose": "Existing cross-domain phase plan precedent; phase metadata does not execute ordering",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md"
+    },
+    {
+      "id": "G15",
+      "path": "docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md",
+      "blob_sha": "17fdb35474dec92fea2da60c431805ae555d7ffd",
+      "read_scope": "Full earlier connector content",
+      "purpose": "Existing LINE ownership, optional Edge, durable queue and delivery semantics",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md"
+    },
+    {
+      "id": "G16",
+      "path": "apps/server/src/modules/agent/server-line-answer.js",
+      "blob_sha": "2ecf1ec08977bde77c224257552c7b70aefd37b0",
+      "read_scope": "Relevant earlier connector ranges",
+      "purpose": "SERVER LOCAL_ONLY uses deterministic model; existing grounding/context hooks",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/src/modules/agent/server-line-answer.js"
+    },
+    {
+      "id": "G17",
+      "path": "apps/server/src/modules/agent/model-provider.js",
+      "blob_sha": "d48d4bf8c2ba16e0c02845df37c63cbec9246240",
+      "read_scope": "Relevant earlier connector ranges",
+      "purpose": "Production provider restrictions and actual HTTP/usage/trace adapter",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/src/modules/agent/model-provider.js"
+    },
+    {
+      "id": "G18",
+      "path": "apps/server/src/modules/agent/phase1-runtime.js",
+      "blob_sha": "614703c501af23dd4035b7b8aa6fab54acb638bc",
+      "read_scope": "Relevant earlier connector range",
+      "purpose": "Production provider selection and secret/Vault configuration gates",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/src/modules/agent/phase1-runtime.js"
+    },
+    {
+      "id": "G19",
+      "path": "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
+      "blob_sha": "dbbaf23859c0a9210efe7a6084c6a313ab829efa",
+      "read_scope": "Relevant earlier connector ranges",
+      "purpose": "Durable claim/settle/send and bounded parallel Server worker",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js"
+    },
+    {
+      "id": "G20",
+      "path": "apps/server/src/modules/line-oa-studio/domain/line-execution-budget.js",
+      "blob_sha": "c5c7066ba54d88d039baa7aaa235d430baf5cd57",
+      "read_scope": "Full file",
+      "purpose": "5-second send reserve; compute lease does not extend reply lifetime",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/src/modules/line-oa-studio/domain/line-execution-budget.js"
+    },
+    {
+      "id": "G21",
+      "path": "apps/edge/src/conversation/worker.ts",
+      "blob_sha": "9a2975f6fe84370eccd7d9c8a9e1076b8a7f2750",
+      "read_scope": "Full earlier connector content",
+      "purpose": "Sequential pull/answer/completion loop",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/edge/src/conversation/worker.ts"
+    },
+    {
+      "id": "G22",
+      "path": "apps/edge/src/conversation/executor.ts",
+      "blob_sha": "b7dcf5e6f8a8d6fe783b9cf375f86d7848d47487",
+      "read_scope": "Full earlier connector content",
+      "purpose": "Local-only URL restrictions and tools/RAG/context composition",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/edge/src/conversation/executor.ts"
+    },
+    {
+      "id": "G23",
+      "path": "apps/edge/src/answer/providers/openai-compatible.ts",
+      "blob_sha": "beb48c812bdb91e6d96309c7993fbb29d1b332fd",
+      "read_scope": "Full earlier connector content",
+      "purpose": "Provider-neutral protocol with local-provider-specific extra fields",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/edge/src/answer/providers/openai-compatible.ts"
+    },
+    {
+      "id": "G24",
+      "path": "README.md",
+      "blob_sha": "5694a499703a7d9466de16c64c13e045f9089957",
+      "read_scope": "Full earlier connector content",
+      "purpose": "Monorepo app boundaries, deployment overlay, built-not-committed llms corpus",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/README.md"
+    },
+    {
+      "id": "G25",
+      "path": "llms.txt",
+      "blob_sha": "868de6a5803c9a6af558b9eec618a47fcc976441",
+      "read_scope": "Full earlier connector content",
+      "purpose": "JavaScript/Zod Server convention and canonical docs index",
+      "url": "https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/llms.txt"
+    }
+  ],
+  "upstream_sources": [
+    {
+      "id": "V1",
+      "url": "https://docs.vllm.ai/en/stable/usage/security/",
+      "purpose": "API-key coverage, isolation and prefix-cache security; version-sensitive",
+      "checked_date": "2026-09-17"
+    },
+    {
+      "id": "V2",
+      "url": "https://docs.vllm.ai/en/stable/serving/online_serving/openai_compatible_server/",
+      "purpose": "Inference HTTP compatibility; not a Zuri business/queue implementation",
+      "checked_date": "2026-09-17"
+    },
+    {
+      "id": "V3",
+      "url": "https://docs.vllm.ai/en/stable/features/tool_calling/",
+      "purpose": "Model/template/parser-specific tool calling; application-side capability validation",
+      "checked_date": "2026-09-17"
+    },
+    {
+      "id": "V4",
+      "url": "https://docs.vllm.ai/en/stable/usage/metrics/",
+      "purpose": "vLLM production metrics; KV usage is a ratio",
+      "checked_date": "2026-09-17"
+    },
+    {
+      "id": "V5",
+      "url": "https://docs.vllm.ai/en/stable/examples/observability/prometheus_grafana/",
+      "purpose": "Optional official observability deployment example",
+      "checked_date": "2026-09-17"
+    },
+    {
+      "id": "V6",
+      "url": "https://docs.nvidia.com/deploy/nvidia-smi/index.html",
+      "purpose": "Optional hardware monitoring interface; device-dependent values",
+      "checked_date": "2026-09-17"
+    }
+  ]
+}
