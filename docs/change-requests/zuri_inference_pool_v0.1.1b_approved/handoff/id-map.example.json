@@ -1,0 +1,15 @@
+{
+  "ADR_POOL": null,
+  "FEAT_POOL": null,
+  "FR_NODES": null,
+  "FR_EXECUTION": null,
+  "FR_ROUTING": null,
+  "FR_MONITOR": null,
+  "FR_LINE": null,
+  "SEC_NETWORK": null,
+  "SEC_PRIVACY": null,
+  "SDD_TOPOLOGY": null,
+  "SDD_ADMISSION": null,
+  "NFR_RECOVERY": null,
+  "NFR_OBSERVABILITY": null
+}

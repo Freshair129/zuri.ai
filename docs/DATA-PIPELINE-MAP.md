@@ -192,7 +192,7 @@ chain คือเส้นทางจากต้นทางภายนอ�
       "production": { "evidence": "FR-208 status: migration 20260913200000_inventory_catalog_intake APPLIED on production 2026-09-13 (ADR-057) and main ada5188b deployed (PR #377)" } },
     { "id": "in.knowledge-admission", "kind": "ENTRY", "system": "zuri-ai", "domain": "knowledge", "label": "Knowledge admission", "detail": "Text/Markdown · FileAsset · SMARTGIFT_CATALOG_V1",
       "requirements": ["FR-173", "FR-187"], "decisions": ["ADR-072", "ADR-075"],
-      "surfaces": [{ "type": "ENDPOINT", "ref": "/api/knowledge/ingestions" }, { "type": "MCP", "ref": "knowledge.ingestion_create" }, { "type": "UI", "ref": "/files" }] },
+      "surfaces": [{ "type": "ENDPOINT", "ref": "/api/knowledge/ingestions" }, { "type": "MCP", "ref": "knowledge.ingestion_create" }, { "type": "UI", "ref": "/files" }, { "type": "UI", "ref": "/knowledge/documents" }] },
     { "id": "in.knowledge-query", "kind": "ENTRY", "system": "zuri-ai", "domain": "knowledge", "label": "Knowledge query และ citation",
       "requirements": ["FR-173", "FR-110"],
       "surfaces": [{ "type": "ENDPOINT", "ref": "/api/knowledge/queries" }, { "type": "MCP", "ref": "knowledge.query" }, { "type": "MCP", "ref": "knowledge.citation" }] },

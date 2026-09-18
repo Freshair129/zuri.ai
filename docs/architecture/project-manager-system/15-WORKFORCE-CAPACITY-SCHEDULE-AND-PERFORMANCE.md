@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-WORKFORCE-DESIGN
 title: Employee and team workload capacity schedule and performance
-version: "0.1.0b"
+version: "0.3.0b"
 status: candidate
 created_at: "2026-09-16T03:23:25+07:00,RWANG,source 0f5a47fcf2b8b4e846edbc67f2a051c6673e4b83"
-last_update: "2026-09-16T03:23:25+07:00,RWANG"
+last_update: "2026-09-18T20:42:13+07:00,RWANG"
 superseded_by: null
 attributes:
   doc_type: architecture-specification
@@ -31,9 +31,7 @@ relations:
 
 ## 1. Requirement และผลลัพธ์ที่ต้องได้
 
-**PMR-033 — Workforce planning and performance:** ระบบต้องนำงานที่มอบหมายมาสรุปภาระงาน กำลังคนที่มีและที่ต้องใช้ ตารางงานของพนักงานรายคนและรายทีม รวมหลาย Project ภายใต้ scope ที่มีสิทธิ์ พร้อมเมตริกวัดผลงานที่มีสูตร ช่วงเวลา ตัวหาร เป้าหมาย หลักฐาน และสถานะคุณภาพข้อมูลที่ตรวจสอบได้
-
-Capability **PMF-11: Workforce planning & performance**; primary owner `project-manager`, contributors `people` module, Identity and CRM Person read contract. Extends the resource/capacity intent of PMR-017 with a new precise subject; does not repurpose FR-036, FR-042, FR-089 or FR-193. PMR/PMF/PMT are proposal-local IDs pending canonical registration.
+**PMR-033 — Workforce planning and performance:** [canonical extracted requirement](../../domains/project-manager/requirements/PMR-033-proposal-requirement.md). This document owns the workforce-specific design, source audit, formulas, typed API supplement, wireframes and ordered PMR-033-P1→P5 phases; it does not repeat the requirement body.
 
 | ผู้ใช้ | คำถามที่ระบบต้องตอบ | ผลลัพธ์ |
 |---|---|---|
@@ -99,7 +97,7 @@ flowchart TB
   K -->|APPENDS| E["Audit and outbox"]
 ```
 
-Edges are directions of data/commands with explicit types. Only owner services persist changes. G14 and [workforce contract](contracts/workforce.openapi.candidate.yaml) must be reconciled into the approved architecture model before code; the older `architecture.model.json` remains the G01 model, not a claim to contain G14.
+Edges are directions of data/commands with explicit types. Only owner services persist changes. The approved architecture source now composes PM-G01 with the PM-G14 candidate extension in [architecture.model.json](contracts/architecture.model.json): 28 nodes and 35 directed edges. G14 remains `CANDIDATE`, `codegenReady: false`, and `PENDING_ROOT_REGISTRATION`; this is contract composition, not runtime readiness.
 
 ## 4. Data contracts และ invariants
 
@@ -325,4 +323,6 @@ Document/contract checks are reported in the package [Evidence & Review](08-EVID
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.0b | 2026-09-18 | candidate | Link PMR-033 to its extracted requirement source while retaining workforce design detail | working-tree | RWANG |
 | 0.1.0b | 2026-09-16 | candidate | Add owner-required person/team workforce planning, schedule and performance with source audit, formulas, contracts and six wireframes | source 0f5a47fc; uncommitted | RWANG |
+| 0.2.0b | 2026-09-18 | candidate | Compose PM-G14 registry extension into PM-G01 architecture source; preserve proposal-local IDs and runtime gates | working-tree | RWANG |

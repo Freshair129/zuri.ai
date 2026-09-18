@@ -38,6 +38,14 @@ import { createLocalFilesystemPort } from '../local-files/filesystem-port'
 import { requireViewer } from './project-authorization'
 import { assertOperator, assertOperatorAndRecordUse } from '@/modules/identity/operator-use'
 import {
+  PHASE_B_FAMILY_DELEGATES, PHASE_B_RECOVERY_MANIFEST_VERSION,
+  PhaseBRecoveryError, readPhaseBCounts, assertPhaseBWebRestoreSafe,
+} from './phase-b-backup'
+
+// @req FR-252 — complete protected export and a refusal before web replacement.
+// @spec docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md
+// @tested tests/integration/phase-b-web-recovery.test.js
+import {
   BILLING_DOCUMENT_TYPES,
   BILLING_NON_VAT_POLICIES,
   BILLING_PROMPTPAY_PROVIDER,
@@ -93,6 +101,7 @@ export const SNAPSHOT_SCHEMA_VERSION = '1.0'
 export const MARKETING_BROADCAST_RECOVERY_MANIFEST_VERSION = 'marketing-broadcast-recovery.v1'
 const MARKETING_BROADCAST_RECOVERY_TABLES = Object.freeze(['marketingBroadcastIntent', 'marketingBroadcastIntentVersion'])
 export const GENESIS_RAG17_RECOVERY_MANIFEST_VERSION = 'genesisrag17-recovery.v1'
+export const KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_MANIFEST_VERSION = 'knowledge-artifact-storage-recovery.v1'
 export const COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION = 'commerce-billing-recovery.v1'
 export const INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION = 'inventory-stocktake-recovery.v1'
 export const LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION = 'line-worker-memory-recovery.v1'
@@ -110,6 +119,7 @@ const GENESIS_RAG17_RECOVERY_TABLES = Object.freeze([
   'genesisRag17IngestionIntent',
   'genesisRag17SourceMention',
 ])
+const KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_TABLES = Object.freeze(['knowledgeArtifactStorage', 'knowledgeArtifactOperation'])
 const LINE_WORKER_MEMORY_RECOVERY_TABLES = Object.freeze(['lineConversationJob', 'agentTraceEvent'])
 const LINE_WORKER_MEMORY_STATES = Object.freeze(['NONE', 'PENDING', 'ACKNOWLEDGED', 'CLOSED'])
 const LINE_WORKER_MEMORY_AUDIENCES = Object.freeze(['DIRECT', 'GROUP', 'ROOM'])
@@ -163,7 +173,7 @@ function hasMemoryPendingCheckpoint(snapshot, job) {
 }
 
 // Parents precede children for restore; reverse order is used for deletion.
-const SNAPSHOT_MODELS = [
+export const SNAPSHOT_MODELS = [
   // @req FR-218 — agent usage reports reference nothing (installation-level, no
   // Tenant/Business/Person foreign key) and cannot be re-derived: the agent that
   // sent one ran on another machine. Measurements, no secret: exported whole.
@@ -316,7 +326,7 @@ const SNAPSHOT_MODELS = [
   // convention rather than a database constraint.
   // @req FR-173 — restore corpus parents before sources, jobs and immutable generations.
   'knowledgeCorpus', 'knowledgeSource', 'knowledgeIngestion', 'knowledgeCorpusGeneration',
-  'knowledgeRawArtifact', 'knowledgeParsedArtifact', 'knowledgeChunk',
+  'knowledgeRawArtifact', 'knowledgeArtifactStorage', 'knowledgeArtifactOperation', 'knowledgeParsedArtifact', 'knowledgeChunk',
   'genesisRag17IngestionIntent', 'genesisRag17SourceMention',
   'genesisRag17Batch', 'genesisRag17StageEvidence', 'genesisRag17PublicationReceipt', 'genesisRag17EvidenceCursor',
   // @req FR-100 — a SoT decision hangs off Tenant (and optionally Business),
@@ -406,6 +416,10 @@ const SNAPSHOT_MODELS = [
   // Parent rows precede children for restore; reverse deletion preserves FKs.
   'assetIntake', 'assetLot', 'registeredAsset', 'assetEvidence', 'assetProcurementRef',
   'assetResponsibility', 'assetLocationHistory', 'assetProjectAllocation', 'assetDepreciationCandidate',
+  // @req FR-252 — protected family; ordinary replacement always skips it.
+  // Offline clean-target recovery inserts these only after all legacy parents.
+  'governanceSnapshot', 'projectFeature', 'featureContribution', 'featureWorkLink',
+  'requirementBinding', 'projectFeatureMutationReceipt',
 ]
 
 /**
@@ -784,6 +798,50 @@ function admissionRecoveryManifest(snapshot) {
   if (manifest?.schemaVersion !== 'knowledge-admission-recovery.v1' || JSON.stringify(manifest?.requiredTables) !== JSON.stringify(KNOWLEDGE_ADMISSION_TABLES)) errors.push('Invalid knowledge admission recovery manifest')
   for (const table of KNOWLEDGE_ADMISSION_TABLES) if (!Array.isArray(snapshot?.tables?.[table])) errors.push(`Knowledge admission recovery snapshot is missing required table: ${table}`)
   return { errors, warnings: [] }
+}
+
+function knowledgeArtifactStorageRecoveryManifest(snapshot) {
+  const manifest = snapshot?.knowledgeArtifactStorageRecovery
+  if (manifest === undefined) return { errors: [], warnings: ['KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_UNAVAILABLE: snapshot has no object-storage recovery manifest'], recovery: { status: 'UNAVAILABLE', manifestVersion: null } }
+  const errors = []
+  if (manifest?.schemaVersion !== KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_MANIFEST_VERSION || JSON.stringify(manifest?.requiredTables) !== JSON.stringify(KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_TABLES)) errors.push('Invalid knowledge artifact storage recovery manifest')
+  for (const table of KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_TABLES) if (!Array.isArray(snapshot?.tables?.[table])) errors.push(`Knowledge artifact storage recovery snapshot is missing required table: ${table}`)
+  const storageRows = Array.isArray(snapshot?.tables?.knowledgeArtifactStorage) ? snapshot.tables.knowledgeArtifactStorage : []
+  const operationRows = Array.isArray(snapshot?.tables?.knowledgeArtifactOperation) ? snapshot.tables.knowledgeArtifactOperation : []
+  const rawRows = snapshot?.tables?.knowledgeRawArtifact
+  const rawById = new Map(Array.isArray(rawRows) ? rawRows.filter((row) => isSnapshotObject(row) && typeof row.id === 'string').map((row) => [row.id, row]) : [])
+  const storageById = new Map()
+  const scopeKeys = ['portfolioId', 'tenantId', 'businessId', 'workspaceId', 'agentId', 'visibility']
+  if (storageRows.length > 0 && !Array.isArray(rawRows)) errors.push('Knowledge artifact storage recovery requires knowledgeRawArtifact rows when storage references exist')
+  for (const row of storageRows) {
+    const label = row?.id || '<unknown>'
+    if (!isSnapshotObject(row) || typeof row.id !== 'string' || !row.id.trim()) {
+      errors.push(`Knowledge artifact storage row ${label} has an invalid identity`)
+      continue
+    }
+    if (storageById.has(row.id)) errors.push(`Knowledge artifact storage rows reuse id ${row.id}`)
+    storageById.set(row.id, row)
+    const raw = rawById.get(row.rawArtifactId)
+    if (!raw) errors.push(`Knowledge artifact storage ${row.id} references missing KnowledgeRawArtifact ${row.rawArtifactId}`)
+    else for (const key of scopeKeys) if (row[key] !== raw[key]) errors.push(`Knowledge artifact storage ${row.id} crosses scope at ${key}`)
+    if (typeof row.sha256 !== 'string' || !/^[a-f0-9]{64}$/i.test(row.sha256)) errors.push(`Knowledge artifact storage ${row.id} has an invalid sha256`)
+    if (row.status === 'READY' && (typeof row.objectVersionId !== 'string' || !row.objectVersionId.trim())) errors.push(`Knowledge artifact storage ${row.id} is READY without an object version`)
+  }
+  const operationKeys = new Set()
+  for (const row of operationRows) {
+    const label = row?.id || '<unknown>'
+    if (!isSnapshotObject(row) || typeof row.id !== 'string' || !row.id.trim()) {
+      errors.push(`Knowledge artifact operation row ${label} has an invalid identity`)
+      continue
+    }
+    const storage = storageById.get(row.storageId)
+    if (!storage) errors.push(`Knowledge artifact operation ${row.id} references missing KnowledgeArtifactStorage ${row.storageId}`)
+    else for (const key of scopeKeys) if (row[key] !== storage[key]) errors.push(`Knowledge artifact operation ${row.id} crosses scope at ${key}`)
+    if (typeof row.idempotencyKey !== 'string' || !row.idempotencyKey.trim()) errors.push(`Knowledge artifact operation ${row.id} has an invalid idempotency key`)
+    else if (operationKeys.has(row.idempotencyKey)) errors.push(`Knowledge artifact operations reuse idempotency key ${row.idempotencyKey}`)
+    else operationKeys.add(row.idempotencyKey)
+  }
+  return { errors, warnings: [], recovery: { status: errors.length ? 'INVALID' : 'AVAILABLE', manifestVersion: manifest?.schemaVersion || null } }
 }
 
 function recoveryManifest(snapshot) {
@@ -1415,19 +1473,33 @@ function marketingBroadcastRecovery(snapshot) {
   return result
 }
 
-export async function exportSnapshot({
-  db = prisma,
+// @req FR-252 — offline protected export shares extraction/redaction without
+// writing an audit or selecting an ambient application database.
+// @tested tests/integration/phase-b-web-recovery.test.js
+export async function extractSnapshot({
+  db,
   includeBinaryContent = false,
   filesystemPort = createLocalFilesystemPort(),
 } = {}) {
+  if (!db) throw new Error('SNAPSHOT_DATABASE_REQUIRED')
+  const visibility = await readPhaseBCounts(db)
+  if (visibility.status !== 'FULL') throw new PhaseBRecoveryError(
+    'PHASE_B_EXPORT_COMPLETENESS_UNAVAILABLE',
+    'Complete Phase B visibility is unavailable; use the protected offline export command',
+  )
   const snapshot = {
     schemaVersion: SNAPSHOT_SCHEMA_VERSION,
     exportedAt: new Date().toISOString(),
+    phaseBRecovery: {
+      version: PHASE_B_RECOVERY_MANIFEST_VERSION,
+      requiredTables: [...PHASE_B_FAMILY_DELEGATES],
+    },
     genesisRag17Recovery: {
       schemaVersion: GENESIS_RAG17_RECOVERY_MANIFEST_VERSION,
       requiredTables: [...GENESIS_RAG17_RECOVERY_TABLES],
     },
     knowledgeAdmissionRecovery: { schemaVersion: 'knowledge-admission-recovery.v1', requiredTables: [...KNOWLEDGE_ADMISSION_TABLES] },
+    knowledgeArtifactStorageRecovery: { schemaVersion: KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_MANIFEST_VERSION, requiredTables: [...KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_TABLES] },
     marketingBroadcastRecovery: {
       schemaVersion: MARKETING_BROADCAST_RECOVERY_MANIFEST_VERSION,
       requiredTables: [...MARKETING_BROADCAST_RECOVERY_TABLES],
@@ -1481,6 +1553,18 @@ export async function exportSnapshot({
     }
     snapshot.fileContentManifest.push(entry)
   }
+  return snapshot
+}
+
+export async function exportSnapshot({
+  db = prisma,
+  includeBinaryContent = false,
+  filesystemPort = createLocalFilesystemPort(),
+} = {}) {
+  const extract = (tx) => extractSnapshot({ db: tx, includeBinaryContent, filesystemPort })
+  const snapshot = typeof db.$transaction === 'function'
+    ? await db.$transaction(extract, { isolationLevel: 'Serializable', maxWait: 10_000, timeout: 120_000 })
+    : await extract(db)
   await recordAudit(db, {
     entityType: 'SNAPSHOT', entityId: 'local', action: 'EXPORTED',
     payload: { counts: Object.fromEntries(Object.entries(snapshot.tables).map(([key, rows]) => [key, rows.length])), includeBinaryContent },
@@ -1492,27 +1576,52 @@ export function previewSnapshot(snapshot, { remounts = [] } = {}) {
   const errors = []
   const warnings = []
   let recovery = { status: 'UNKNOWN', manifestVersion: null }
+  let artifactStorageRecovery = { status: 'UNKNOWN', manifestVersion: null }
   if (!snapshot || typeof snapshot !== 'object') errors.push('Snapshot is not an object')
   else {
     if (snapshot.schemaVersion !== SNAPSHOT_SCHEMA_VERSION) errors.push(`Unsupported snapshot schemaVersion: ${snapshot.schemaVersion} (expected ${SNAPSHOT_SCHEMA_VERSION})`)
     if (!snapshot.tables || typeof snapshot.tables !== 'object') errors.push('Snapshot has no tables')
     const manifest = recoveryManifest(snapshot)
     const admission = admissionRecoveryManifest(snapshot)
+    const artifactStorage = knowledgeArtifactStorageRecoveryManifest(snapshot)
     errors.push(...admission.errors)
     warnings.push(...admission.warnings)
+    errors.push(...artifactStorage.errors)
     errors.push(...manifest.errors)
     warnings.push(...manifest.warnings)
     recovery = manifest.recovery
+    artifactStorageRecovery = artifactStorage.recovery
   }
-  if (errors.length) return { valid: false, errors, warnings, recovery, counts: null }
+  if (errors.length) return { valid: false, errors, warnings, recovery, artifactStorageRecovery, counts: null }
   const counts = Object.fromEntries(SNAPSHOT_MODELS.map((model) => [model, Array.isArray(snapshot.tables[model]) ? snapshot.tables[model].length : 0]))
   const remounted = new Set(remounts.map((mount) => mount.businessId))
   const businessIds = [...new Set(localAssets(snapshot).map((asset) => asset.businessId))]
   const included = new Set(contentManifest(snapshot).filter((entry) => entry.contentIncluded).map((entry) => entry.fileId))
   return {
-    valid: true, errors: [], warnings, recovery, counts, exportedAt: snapshot.exportedAt || null,
+    valid: true, errors: [], warnings, recovery, artifactStorageRecovery, counts, exportedAt: snapshot.exportedAt || null,
     mountRequiredBusinessIds: businessIds.filter((businessId) => !remounted.has(businessId)).sort(),
     missingContentFileIds: localAssets(snapshot).filter((asset) => !included.has(asset.id)).map((asset) => asset.id).sort(),
+  }
+}
+
+// Offline recovery reuses every existing protected-family validator and the
+// archive chain's normalized order without invoking the web authority wrapper.
+export function validateSnapshotRecovery(snapshot, { remounts = [] } = {}) {
+  const base = previewSnapshot(snapshot, { remounts })
+  if (!base.valid) return base
+  const recoveries = {
+    billingRecovery: commerceBillingRecovery(snapshot),
+    inventoryStocktakeRecovery: inventoryStocktakeRecovery(snapshot),
+    lineWorkerMemoryRecovery: lineWorkerMemoryRecovery(snapshot),
+    marketingBroadcastRecovery: marketingBroadcastRecovery(snapshot),
+    archiveRecovery: archiveRecovery(snapshot),
+    usageEventRollupRecovery: usageRollupRecovery(snapshot),
+    pricingRecovery: pricingRecovery(snapshot),
+  }
+  const errors = [...base.errors, ...Object.values(recoveries).flatMap(result => result.errors)]
+  return {
+    ...base, ...recoveries, valid: errors.length === 0, errors,
+    warnings: [...base.warnings, ...Object.values(recoveries).flatMap(result => result.warnings)],
   }
 }
 
@@ -1531,8 +1640,15 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   const archive = archiveRecovery(snapshot)
   const usageRollup = usageRollupRecovery(snapshot)
   const pricing = pricingRecovery(snapshot)
+  const artifactStorage = knowledgeArtifactStorageRecoveryManifest(snapshot)
   const current = {}
-  for (const model of SNAPSHOT_MODELS) current[model] = await db[model].count()
+  for (const model of SNAPSHOT_MODELS) {
+    if (!PHASE_B_FAMILY_DELEGATES.includes(model)) current[model] = await db[model].count()
+  }
+  if (artifactStorage.recovery.status === 'UNAVAILABLE' && KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_TABLES.some((model) => current[model] > 0)) {
+    artifactStorage.errors.push('Knowledge artifact storage recovery is unavailable while the installation contains object references or operation rows; refusing a restore that would erase recovery evidence')
+    artifactStorage.recovery.status = 'INVALID'
+  }
   const currentMemoryJobs = await db.lineConversationJob.count({ where: {
     OR: [{ memorySyncOptIn: true }, { memoryDeliveryState: { not: 'NONE' } }],
   } })
@@ -1570,10 +1686,22 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
     pricing.errors.push('Pricing recovery is unavailable while the installation contains pricing rows; refusing a restore that would erase evidence')
     pricing.status = 'INVALID'
   }
+  try {
+    const check = tx => assertPhaseBWebRestoreSafe(tx, snapshot)
+    if (typeof db.$transaction === 'function') {
+      await db.$transaction(check, { isolationLevel: 'Serializable', maxWait: 10_000, timeout: 30_000 })
+    } else await check(db)
+    // The guard proves both complete visibility and global zero. Never derive
+    // these six counts from an unbound query that might silently filter rows.
+    for (const model of PHASE_B_FAMILY_DELEGATES) current[model] = 0
+  } catch (error) {
+    if (!(error instanceof PhaseBRecoveryError)) throw error
+    return { ...base, valid: false, errorCode: error.code, errors: [error.message], phaseBRecovery: { status: 'REFUSED' } }
+  }
   return {
     ...base,
-    valid: base.valid && billing.errors.length === 0 && inventory.errors.length === 0 && lineWorkerMemory.errors.length === 0 && marketingBroadcast.errors.length === 0 && archive.errors.length === 0 && usageRollup.errors.length === 0 && pricing.errors.length === 0,
-    errors: [...base.errors, ...billing.errors, ...inventory.errors, ...lineWorkerMemory.errors, ...marketingBroadcast.errors, ...archive.errors, ...usageRollup.errors, ...pricing.errors],
+    valid: base.valid && billing.errors.length === 0 && inventory.errors.length === 0 && lineWorkerMemory.errors.length === 0 && marketingBroadcast.errors.length === 0 && archive.errors.length === 0 && usageRollup.errors.length === 0 && pricing.errors.length === 0 && artifactStorage.errors.length === 0,
+    errors: [...base.errors, ...billing.errors, ...inventory.errors, ...lineWorkerMemory.errors, ...marketingBroadcast.errors, ...archive.errors, ...usageRollup.errors, ...pricing.errors, ...artifactStorage.errors],
     warnings: [...base.warnings, ...billing.warnings, ...inventory.warnings, ...lineWorkerMemory.warnings, ...marketingBroadcast.warnings, ...archive.warnings, ...usageRollup.warnings, ...pricing.warnings],
     billingRecovery: billing,
     inventoryStocktakeRecovery: inventory,
@@ -1582,6 +1710,7 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
     archiveRecovery: archive,
     usageEventRollupRecovery: usageRollup,
     pricingRecovery: pricing,
+    knowledgeArtifactStorageRecovery: artifactStorage,
     current,
     wouldReplace: Object.values(current).some((count) => count > 0),
   }
@@ -1594,6 +1723,11 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
  * turn into a silent wipe.
  */
 async function assertProtectedRecoveryStillSafe(tx, snapshot, preview) {
+  const artifactStorage = knowledgeArtifactStorageRecoveryManifest(snapshot)
+  if (artifactStorage.errors.length) throw new BackupRestoreSafetyError('BACKUP_KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_INVALID', artifactStorage.errors.join('; '))
+  if (artifactStorage.recovery.status === 'UNAVAILABLE') {
+    for (const model of KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_TABLES) if (await tx[model].count() > 0) throw new BackupRestoreSafetyError('BACKUP_KNOWLEDGE_ARTIFACT_STORAGE_LIVE_DATA_APPEARED', `Knowledge artifact storage recovery became unavailable while ${model} gained live rows; refusing to erase evidence`)
+  }
   if (preview.pricingRecovery?.status === 'UNAVAILABLE') {
     for (const model of PRICING_RECOVERY_TABLES) if (await tx[model].count() > 0) throw new BackupRestoreSafetyError('BACKUP_PRICING_RECOVERY_LIVE_DATA_APPEARED', `Pricing recovery became unavailable while ${model} gained live rows; refusing to erase evidence`)
   }
@@ -1629,7 +1763,7 @@ async function assertProtectedRecoveryStillSafe(tx, snapshot, preview) {
 }
 
 /** Restore is recovery of evidence, never authorization to repeat an external send. */
-function restoredRow(model, row, { lineWorkerMemoryRecovery } = {}) {
+export function restoredRow(model, row, { lineWorkerMemoryRecovery } = {}) {
   if (model === 'lineOaAccount') return {
     ...row, serverEnabled: false, transportEpoch: (row.transportEpoch ?? 1) + 1,
     version: (row.version ?? 1) + 1,
@@ -1687,6 +1821,7 @@ export async function importSnapshot(snapshot, {
       // must run before plugin/mount/model deletion so a row that appeared
       // after preview can never be erased by an omitted snapshot array.
       await assertProtectedRecoveryStillSafe(tx, snapshot, preview)
+      await assertPhaseBWebRestoreSafe(tx, snapshot)
       // @req FR-123 — excluded plugin auth records are revoked at the recovery
       // boundary rather than left active beside a restored business snapshot.
       // Deleting the installation cascades to its codes and sessions, so one
@@ -1694,14 +1829,17 @@ export async function importSnapshot(snapshot, {
       // the restore still authenticates against the data that replaced it.
       await tx.pluginInstallation.deleteMany()
       await tx.localWorkspaceMount.deleteMany()
-      for (const model of [...SNAPSHOT_MODELS].reverse()) {
+      // Immutable Phase B families are never replaced by the web runtime, even
+      // when empty. The fresh guard above proves this restore will not need them.
+      const replaceableModels = SNAPSHOT_MODELS.filter(model => !PHASE_B_FAMILY_DELEGATES.includes(model))
+      for (const model of [...replaceableModels].reverse()) {
         if (model === 'pricingRuleSet') {
           const errors = [], rows = pricingRuleRestoreRows(await tx.pricingRuleSet.findMany(), errors)
           if (errors.length) throw new BackupRestoreSafetyError('BACKUP_PRICING_LIVE_CHAIN_INVALID', errors.join('; '))
           for (const row of rows.reverse()) await tx.pricingRuleSet.delete({ where: { id: row.id } })
         } else await tx[model].deleteMany()
       }
-      for (const model of SNAPSHOT_MODELS) {
+      for (const model of replaceableModels) {
         const rows = model === 'archiveManifest'
           ? preview.archiveRecovery.manifestRows
           : model === 'pricingRuleSet' ? preview.pricingRecovery.ruleRows : snapshot.tables[model] || []
@@ -1740,7 +1878,7 @@ export async function importSnapshot(snapshot, {
       timeout: 120_000,
     })
   } catch (error) {
-    if (error instanceof BackupRestoreSafetyError) {
+    if (error instanceof BackupRestoreSafetyError || error instanceof PhaseBRecoveryError) {
       return {
         restored: false,
         valid: false,

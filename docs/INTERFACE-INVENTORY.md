@@ -1,7 +1,7 @@
 ---
-version: "1.33.0b"
+version: "1.35.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-17T00:32:00+07:00,RWANG"
+last_update: "2026-09-17T20:28:51+07:00,RWANG final integrator"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -12,18 +12,18 @@ attributes:
 
 # Zuri V2 — Interface Inventory
 
-Version diff 1.32.0b -> 1.33.0b: compose FR-254 Knowledge Console with live FR-253 Pricing Rules; 113 pages and 58 navigation entries.
+Version diff 1.34.0b -> 1.35.0b: compose FR-254 Knowledge Console with live FR-253 Pricing Rules; 114 pages and 58 navigation entries.
 
 | Field | Value |
 |---|---|
-| **Version** | 1.33.0b |
+| **Version** | 1.35.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
-| **Last Updated** | 2026-09-16 |
+| **Last Updated** | 2026-09-17 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=113; operational_domain_keys=16; operational_subdomain_entries=58; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=115; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -227,6 +227,7 @@ authority the lane consumes; GKS, MSP and GenesisBlockDB remain external systems
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
 | `/knowledge` | Knowledge Dashboard (domain `knowledge`) | BusinessShell → Knowledge (GKS) / Dashboard | the map's summary figures (chains by status, sources, entry surfaces, recipients), a link to the Data Pipeline Map, and the knowledge base console named as planned (TASK-ZAI-047) | server-side viewer resolution before render; 404 without `knowledge`; per-Business grant by the shell guard | implemented locally 2026-09-13 — FR-214; `tests/unit/knowledge-data-pipeline-map-ui.test.js` |
+| `/knowledge/documents` | Knowledge Documents & Intake | BusinessShell → Knowledge (GKS) / Documents | bounded Text/Markdown upload, direct Markdown editor with neutral drafts, 1-click admission from existing readable Text/Markdown FileAssets, admission queue/status, published corpus query and source withdrawal | same `/knowledge` server guard; Business-scoped API; 404 without `knowledge`; unsupported and unavailable states are explicit | implemented locally 2026-09-16 — FR-173 / ADR-072; focused `tests/unit/knowledge-documents-ui.test.js`; no production activation |
 | `/knowledge/data-pipeline` | Data Pipeline Map | BusinessShell → Knowledge (GKS) / Data Pipeline Map | layered node-edge SVG of sources, entry surfaces, processes, stores and recipients; chain (`?chain=CH-xx`), domain and status filters; detail panel for a node, edge or chain (domain, FEATs, requirements, surfaces, decisions, production evidence); list view with the same chains, nodes and edges as tables | same admission as `/knowledge`; read-only, no API | implemented locally 2026-09-13 — FR-213; `tests/unit/knowledge-data-pipeline-map-ui.test.js`, `tests/e2e/fr213-data-pipeline-map.spec.js` |
 | `/knowledge/console` | Knowledge console | BusinessShell → Knowledge (GKS) / Knowledge console | scoped source/version pages; complete run attempts; corpus generations; explicit corpus query and exact chunk/parsed/raw evidence; text/FileAsset admission | Knowledge domain and current Business/Project/source/FileAsset authority; runtime capability gates mutations/query | FR-254, approved TASK-ZAI-047 design; isolated validation underway, not deployed |
 | `/knowledge/candidates` | LINE FAQ candidates | BusinessShell → Knowledge (GKS) / LINE FAQ candidates | one card per `KnowledgeCandidate` for the active Business: canonical question/answer, editable while PENDING_REVIEW, Approve/Reject buttons, the admitted `KnowledgeSource` id once APPROVED | API-authorized (client component): `knowledge` domain to read, Business OWNER or `LINE_OA_PUBLISHER` to draft/edit/decide | implemented locally 2026-09-14 — FR-236, ADR-090 D6; `tests/unit/knowledge-candidates-ui.test.js`, `tests/integration/fr236-knowledge-candidate.test.js` |
@@ -253,7 +254,8 @@ not new global domains or new persistence aggregates.
 | `/projects/[projectId]/all-work` | Project All Work | ProjectResourceShell → Work Management | Project-filtered WorkItems and status actions | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/all-work/page.jsx`, FR-005 |
 | `/projects/[projectId]/board` | Project Board | ProjectResourceShell → Work Management | board view over Project work | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/board/page.jsx`, FR-063 |
 | `/projects/[projectId]/dependencies` | Project Dependency Map | ProjectResourceShell → Work Management | contained dependency graph; both endpoints must belong to Project | empty, loading, error, forbidden, graph error | implemented; `src/app/(pm)/projects/[projectId]/dependencies/page.jsx`, FR-040 |
-| `/projects/[projectId]/domain-view` | Execution Domains | ProjectResourceShell → Delivery Design | Read-only projection of active Workstream primary/supporting domains, separate technical owners, deduplicated work and unbound totals; other Delivery Design capabilities remain planned | authorized Project only; loading, request error, 401, redacted 404, empty/unassigned, unmapped, unavailable sources; keyboard and 390px layout | FR-251 owner-approved Phase A implemented and verified locally; not deployed; `src/app/(pm)/projects/[projectId]/domain-view/page.jsx` |
+| `/projects/[projectId]/domain-view` | Execution Domains | ProjectResourceShell → Delivery Design | Read-only projection of active Workstream primary/supporting domains, separate technical owners, deduplicated work and unbound totals; Requirements, Architecture, API and Docs & Decisions remain planned | authorized Project only; loading, request error, 401, redacted 404, empty/unassigned, unmapped, unavailable sources; keyboard and 390px layout | FR-251 owner-approved Phase A implemented and verified locally; release evidence recorded separately; `src/app/(pm)/projects/[projectId]/domain-view/page.jsx` |
+| `/projects/[projectId]/feature-view` | Project Features | ProjectResourceShell → Delivery Design | Explicit Features and separate primary/supporting Domains; deduplicated Project work including unbound work. Query featureId opens detail. Authorized owner forms create/edit, bind Domain/Work/requirements, capture verified snapshots, redistribute allocation and delete/restore | Project read authority; owner actions reauthorized on every write; canonical/scoped pickers, review, retained uncertain intent, CAS/conflict and typed field errors; loading/refusal masks cached detail; single active modal, Escape/focus return and 390px layout; lifecycle and unavailable provenance remain explicit | FR-252 W3-W5 implemented locally; API/provider and independent source gates pass; browser acceptance covered by 45 passing checks plus two targeted privacy passes after a test-only locator correction (one overlap); original failed run retained in P4/integration evidence. Hosted release separate; `src/app/(pm)/projects/[projectId]/feature-view/page.jsx` |
 | `/projects/[projectId]/roadmap` | Execution Roadmap | ProjectResourceShell → Work Management | read-only Project outcome, Business Goals, execution hierarchy, progress, dependencies, blocker evidence, identity references and closure gates | empty, loading, error, forbidden, unavailable fields | implemented; `src/app/(pm)/projects/[projectId]/roadmap/page.jsx`, `tests/unit/project-roadmap-ui.test.js`, FR-068 |
 | `/projects/[projectId]/execution/[mode]` | Project Execution Mode | ProjectResourceShell → Project Management | mode view scoped to opened Project | invalid mode, empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx`, FR-009 |
 | `/projects/[projectId]/files` | Project Files | ProjectResourceShell → Resource Coordination | Project file references and metadata actions | empty, loading, error, forbidden, capability-disabled | implemented; `src/app/(pm)/projects/[projectId]/files/page.jsx`, FR-045 |
@@ -411,6 +413,9 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.35.0b | 2026-09-19 | candidate | Compose FR-254 Knowledge Console route and navigation with the newer PM inventory baseline; retain 114 page routes and record 58 operational subdomain entries | 2bd61b49 | RWANG |
+| 1.34.0b | 2026-09-17 | candidate | Describe implemented owner forms, scoped pickers, review/reconciliation and modal/refusal states; retain 113 page routes and separate hosted release evidence | 052821a7 + 892f23f3 | RWANG |
+| 1.33.0b | 2026-09-17 | candidate | Register FR-252 Project Features list/detail route and states; preserve Pricing and Domain routes, 113 page routes | 052821a7 + 892f23f3 | RWANG |
 | 1.32.0b | 2026-09-17 | candidate | FR-254 Knowledge console route and navigation; 112 pages and 57 subdomain entries; compose the approved Console with the production baseline | working-tree | RWANG |
 | 1.27.0b | 2026-09-14 | candidate | Added the knowledge gap report page `/knowledge/gap-report` (FR-237, ADR-090 D7); page routes 107 -> 108 | working-tree | Claude Sonnet 5 |
 | 1.26.0b | 2026-09-14 | candidate | Added the LINE FAQ candidates review page `/knowledge/candidates` (FR-236, ADR-090 D6), the third Knowledge (GKS) sub-item; page routes 106 -> 107, operational subdomain entries 55 -> 56 | working-tree | Claude Sonnet 5 |
@@ -471,5 +476,7 @@ Version diff 1.27.0b → 1.28.0b (2026-09-16): add `/control/errors`, the operat
 Version diff 1.28.0b → 1.29.0b (2026-09-16): add `/control/usage`, the operator feature-usage breakdown (FR-248, FR-249, ADR-095); 110 page routes.
 
 Version diff 1.29.0b → 1.30.0b (2026-09-16): compose the approved PM hierarchical navigation inventory with main's usage breakdown route; preserve both route sets.
+
+Version diff 1.30.0b → 1.31.0b (2026-09-16): reconcile the enumerated inventory marker to 111 page routes and 57 operational sub-domain entries, and bound `/knowledge/documents` to the existing Text/Markdown admission path with explicit local/unavailable states.
 
 Version diff 1.30.0b → 1.32.0b (2026-09-17): register the owner-approved FR-251 Project-only Execution Domains route and its states; reconcile the stale 1.28.0b document-control cell. Enumerate 111 page routes. Local API, browser and build gates passed; hosted CI and release remain separate evidence in PR443.

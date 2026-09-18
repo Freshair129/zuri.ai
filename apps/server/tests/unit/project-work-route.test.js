@@ -1,6 +1,6 @@
-// @req FR-006, FR-012, FR-040, FR-068, FR-250, FR-251 — Project Work owns one
+// @req FR-006, FR-012, FR-040, FR-068, FR-250, FR-251, FR-252 — Project Work owns one
 // seven-view local row; Project Management and Resource Coordination own their
-// own local tabs; Delivery Design owns the read-only Execution Domains tab; and
+// own local tabs; Delivery Design owns read-only Domains and Features tabs; and
 // Import is one shared Project action.
 // @spec SDD-019, SDD-039, ADR-012, ADR-028, ADR-096
 // @tested tests/unit/project-work-route.test.js
@@ -93,9 +93,11 @@ describe('Project Manager hierarchical navigation boundary', () => {
     expect(resources.projectTabs.map((tab) => tab.label)).toEqual(['Team', 'Files', 'Repositories'])
     expect(deliveryDesign.projectTabs).toEqual([
       { id: 'dd.domains', label: 'Execution Domains', suffix: '/domain-view', readOnly: true },
+      { id: 'dd.features', label: 'Features', suffix: '/feature-view', readOnly: true },
     ])
     expect(renderedHrefs(deliveryDesign)).toEqual(expect.arrayContaining([
       '/projects/project-1/domain-view',
+      '/projects/project-1/feature-view',
       '/projects/project-1/import',
     ]))
     expect(renderedHrefs(deliveryDesign)).not.toContain('/projects/project-1/features')

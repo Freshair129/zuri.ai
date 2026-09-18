@@ -1,0 +1,131 @@
+---
+id: "ZAI:VERIFY-SELF-HOSTED-INFERENCE-POOL"
+title: "Self-hosted inference pool verification"
+version: "0.1.1b"
+status: approved
+approval_scope: design-and-documentation
+approved_on: "2026-09-18"
+approved_by: "Owner via conversation"
+integration_status: pending
+implementation_status: not-started
+created_at: "2026-09-17"
+last_update: "2026-09-18"
+author: ChatGPT
+domain: agent
+baseline_commit: "cfd5521e7d004e63ffead1e07f46045f1cdc06f2"
+relations:
+  - type: references
+    target: "ZAI:{{ADR_POOL}}"
+  - type: references
+    target: "ZAI:{{FR_NODES}}-NOTE"
+  - type: references
+    target: "ZAI:{{FR_EXECUTION}}-NOTE"
+  - type: references
+    target: "ZAI:{{FR_ROUTING}}-NOTE"
+  - type: references
+    target: "ZAI:{{FR_MONITOR}}-NOTE"
+  - type: references
+    target: "ZAI:{{FR_LINE}}-NOTE"
+---
+
+# Self-hosted inference pool — verification and acceptance matrix
+
+> Design approved by the owner on 2026-09-18; canonical integration and all runtime evidence remain pending.
+
+## Evidence levels
+
+Documentation validation, automated application tests, pinned-engine contract tests, real PostgreSQL concurrency tests, physical GPU qualification and a live LINE canary are separate evidence levels. No level implies the next. Every proposed case below starts **NOT RUN** in this packet.
+
+## Test matrix
+
+| Case | Acceptance link | Stimulus | Required observable outcome | Proof level |
+|---|---|---|---|---|
+| T01 | NODES-01 | Register same-scope node; read response/audit | Only approved metadata; no key bytes | unit/integration |
+| T02 | NODES-01 | Another Business reads/updates connection/pool | Refusal without cross-scope disclosure | integration |
+| T03 | NODES-02 | Good, wrong and absent Bearer key | Only configured credential accepted | contract + real node |
+| T04 | NODES-02 | Public /health succeeds; protected key invalid | Qualification still fails | contract |
+| T05 | NODES-03 | Metadata/loopback/unapproved LAN destination | No socket/request opened | unit/integration |
+| T06 | NODES-03 | Redirect, DNS rebinding, mixed IPv4/IPv6 answer | Approved transport boundary enforced | integration |
+| T07 | NODES-04 | Model alias exists but required tool/profile unverified | Node cannot enable for that workload | contract |
+| T08 | NODES-05 | Stale lifecycle version / key rotation / revoked pool | CAS refusal or explicit requalification | integration |
+| T09 | NODES-06 | Two host aliases resolve to same engine | No duplicated independent budget | integration |
+| T10 | NODES-07/08 | Snapshot restore and synthetic qualification logs | Disabled restored pool; no customer/key content | integration |
+| T11 | EXEC-01/02 | SERVER self-hosted selected with Edge stopped | Actual approved private call; existing policies unchanged | integration + real node |
+| T12 | EXEC-03 | Tool schema pushes full prompt beyond profile limit | No oversized invocation; truthful budget failure | unit/contract |
+| T13 | EXEC-03 | Tokenizer/template revision differs from profile | No claim of exact safe token capacity | contract |
+| T14 | EXEC-04 | Group conversation asks for private MSP content | Audience gate preserved | integration |
+| T15 | EXEC-04 | MSP receipt submission acknowledgement lost | No hidden second model submission | integration |
+| T16 | EXEC-04 | Published corpus generation changes before settlement | Stale evidence refused/fenced | integration |
+| T17 | EXEC-04/LINE-05 | Authorized catalogue/project confirmation command | Existing preview/confirmation/domain writer only | integration/e2e |
+| T18 | EXEC-04 | Required filesystem/CLI/vision capability on text pool | Explicitly unsupported; Edge not silently removed | contract |
+| T19 | EXEC-05 | Unknown/malformed tool call from model | No unauthorized execution | unit/contract |
+| T20 | EXEC-05 | Tool result includes prompt injection / oversized payload | Data-only handling and recomposed bounded context | integration |
+| T21 | EXEC-06 | Tool write completed, model continuation disconnects | No duplicate committed write | integration |
+| T22 | EXEC-07 | Provider omits usage / wrong JSON / empty output | UNAVAILABLE usage; no invented valid answer | contract |
+| T23 | ROUTE-01 | A reaches calibrated slots; B is eligible | New request goes to B; A cap not exceeded | integration + two real nodes |
+| T24 | ROUTE-02 | Two Server processes race for one remaining slot | At most one reservation admitted | real PostgreSQL |
+| T25 | ROUTE-03 | Stale/missing metrics or percent mistakenly 80 not .8 | UNKNOWN/invalid; never extra capacity | unit/integration |
+| T26 | ROUTE-03 | Out-of-order and old-epoch observer writes | Newer state not overwritten | integration |
+| T27 | ROUTE-04 | Free GPU but auth/profile/scope revoked or drained | No dispatch | integration |
+| T28 | ROUTE-05 | A free memory but too slow for job deadline | Eligible B or honest deadline refusal | unit/integration |
+| T29 | ROUTE-06 | Server dies after reserve but before dispatch | Safe RESERVED recovery; no duplicate provider call | fault injection |
+| T30 | ROUTE-06 | Server dies after dispatch or client aborts | Uncertain capacity retained/quarantined | fault injection + real node |
+| T31 | ROUTE-06 | Old provider answer arrives after new execution/erasure | Late result cannot settle/send | integration |
+| T32 | ROUTE-07 | Both nodes saturated/unavailable | Bounded queue/failure; no cloud request | integration |
+| T33 | LINE-01/09 | Old account and older Edge wire consumers | Backward-compatible unchanged behavior | cross-app contract |
+| T34 | LINE-03 | Job carries old pool version after account switch | Explicit fence; no unauthorized retarget | integration |
+| T35 | LINE-05 | Outside account business hours | Existing fixed reply; no GPU invocation | integration |
+| T36 | LINE-06 | One answer ready, sibling model hangs | Ready answer gets independent bounded send opportunity | integration |
+| T37 | LINE-07 | Reply deadline expired and delayed Push disabled | No send; defined deadline failure | integration |
+| T38 | LINE-07 | Delayed Push enabled; original policy selects it | Existing Push/idempotency flow only | integration |
+| T39 | LINE-07 | LINE Reply/Push outcome uncertain | No fresh blind resend/recomputed agent turn | integration |
+| T40 | LINE-07 | LINE accepted but CRM write failed | Receipt-only CRM reconciliation; no second send | integration |
+| T41 | LINE-08 | Quiescent inference rollback | One LINE sender; Edge and evidence untouched | operator rehearsal |
+| T42 | LINE-02 | Authorized actual LINE canary | Provider acceptance and CRM record traced; no read claim | live authorized canary |
+| T43 | LINE-04 | Two real unequal-memory nodes with known workload | Measured capacity/latency, not nominal-memory arithmetic | hardware load test |
+| T44 | MON-01 | Business owner/non-operator visits /control/inference | Operator guard enforced | e2e |
+| T45 | MON-02/07 | Missing GPU exporter/stale engine observation | Unavailable label and timestamp, never fake zero | e2e |
+| T46 | MON-03/ROUTE-08 | Remove dashboard and disable Prometheus | Routing correctness remains; critical observer still runs | integration |
+| T47 | ROUTE-08 | Stop critical observer | Freshness expires; unsafe admission blocks | integration |
+| T48 | MON-04/05 | View dashboard; stale drain/resume action | Read makes no inference/send; mutating action reauthorizes | e2e |
+| T49 | MON-06/08 | Repeated fault and notification unconfigured | Deduplicated/redacted event; no false notified claim | integration |
+| T50 | ROUTE-09 | One metrics parse failure | No host reboot/model unload/GPU restart | integration |
+| T51 | EXEC-03/04 | Private prefixes across conversation/audience boundaries | Salted/disabled reuse; authorization remains independent | contract + real node |
+| T52 | ROUTE-10 | Raise capacity without hardware calibration receipt | Activation/update refused | integration |
+
+## Suggested test placement — new files, not claimed existing
+
+- Server unit: `apps/server/tests/unit/inference-pool-policy.test.js`, `inference-router.test.js`, `inference-metric-normalization.test.js`.
+- Server integration: `apps/server/tests/integration/self-hosted-line-inference.test.js`, `inference-reservation-postgres.test.js`, `inference-node-security.test.js`.
+- Browser: `apps/server/tests/e2e/inference-pool-management.spec.js`, `inference-operations.spec.js`.
+- Cross-app tests retain existing Edge/LINE schemas; no unsupported policy is pushed to old Edge versions.
+
+Use the repository's viewer factory and real writer/service contracts. Source annotations reference only code that actually enforces the requirement. Test files used in `@tested` must exist; do not fabricate proof edges during documentation-only work.
+
+## Hardware proof record
+
+Each run captures image/model/tokenizer/template revisions, GPU/driver, node-specific model/cache settings, admitted concurrency, prompt/output-token distributions, warm/cold state, sample count/window, answer latency/deadline misses, engine queue/cache readings and errors. Report background GPU contention. A memory calculation or one short prompt is not a production concurrency benchmark.
+
+## Release gate
+
+All applicable security, scope, retry/uncertainty, deadline and compatibility cases must pass. Hardware-dependent tests can be unavailable during CI but are mandatory before the account's production activation. Skips require a named reason and cannot be counted as success. One failing critical scope/duplicate-send case blocks rollout regardless of aggregate pass percentage.
+
+Run the current repository's governance and verification commands after integrating sources and approved IDs. Include generated state according to the current branch's policy; do not hand-edit graph/backlink files or force-add ignored built corpora. Live migration, secrets/network provisioning and LINE activation require explicit operator evidence.
+
+## Baseline source references
+
+The following immutable repository sources were reviewed; proposed new behavior above is not a claim that it exists in this snapshot.
+
+- [docs/domains/agent/CHARTER.md](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/domains/agent/CHARTER.md) — Agent ownership and source-versus-planned behavior caveats.
+- [apps/server/src/modules/agent/server-line-answer.js](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/src/modules/agent/server-line-answer.js) — SERVER LOCAL_ONLY uses deterministic model; existing grounding/context hooks.
+- [apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js) — Durable claim/settle/send and bounded parallel Server worker.
+- [apps/server/src/modules/line-oa-studio/domain/line-execution-budget.js](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/src/modules/line-oa-studio/domain/line-execution-budget.js) — 5-second send reserve; compute lease does not extend reply lifetime.
+- [apps/edge/src/conversation/executor.ts](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/edge/src/conversation/executor.ts) — Local-only URL restrictions and tools/RAG/context composition.
+- [apps/edge/src/answer/providers/openai-compatible.ts](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/edge/src/answer/providers/openai-compatible.ts) — Provider-neutral protocol with local-provider-specific extra fields.
+
+## CHANGELOG
+
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---|---|---|---|---|---|
+| 0.1.0b | 2026-09-17 | candidate | Initial documentation proposal; no runtime implementation or activation | uncommitted; baseline cfd5521 | ChatGPT |
+| 0.1.1b | 2026-09-18 | approved design | Record owner approval; design unchanged; canonical IDs, governance and runtime gates remain pending | uncommitted; baseline cfd5521 | ChatGPT |

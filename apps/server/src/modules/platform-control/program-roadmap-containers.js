@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.11, 2026-09-17) so the board can open a task the way the html board
+// (v0.4.12, 2026-09-17) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -239,7 +239,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-006",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "priority": "P1",
     "pic": "Claude",
     "executor": "Claude",
@@ -260,7 +260,7 @@ export const PROGRAMME_CONTAINERS = {
     "dod": {
       "acceptance": {
         "text": "Given the contract document, when a reader asks what a role may write to memory, then the answer is stated per scope rather than implied",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given the existing FR-025 read path, when the contract is applied, then no current read behaviour changes without an explicit note",
@@ -271,7 +271,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened because the Second Brain deliverable has read ports but no written contract governing writes, retention or partitioning. Re-baselined 2026-08-23 to sit under ADR-043, which pinned the four-tier cognitive architecture on D12 and now governs this contract. Re-baselined 2026-09-13 (v0.4.0) to review — no single document titled \"memory contract\" exists, but the contract is now written across five decisions that each passed govern: ADR-050 (Tier 1 ingestion boundary), ADR-063 (Tier 1 direct GenesisBlockDB clients retired; MSP/GKS/GenesisBlockDB stay external), ADR-067 (reporter and run close), ADR-068 (evidence pull through MSP) and ADR-072 (admission and corpus publication), with FR-098 stating what an agent, tool or MSP call may read under the shared authorization context. What is still not stated per scope is what a *role* may write, because roles do not exist yet (TASK-ZAI-007); the acceptance criterion therefore stays open and closes with the role registry.",
+    "changelog": "Opened because the Second Brain deliverable has read ports but no written contract governing writes, retention or partitioning. Re-baselined 2026-08-23 to sit under ADR-043, which pinned the four-tier cognitive architecture on D12 and now governs this contract. Re-baselined 2026-09-13 (v0.4.0) to review. Closed 2026-09-19: role write partition and retrieval policy delivered under TASK-ZAI-007 (role registry) and TASK-ZAI-008 (role memory partition).",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 30000,
     "totalTokens": 0,
@@ -282,39 +282,39 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-007",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "src/modules/agent/index.js",
+      "code": "src/modules/agent/role-registry.js",
       "doc": "docs/ARCHITECTURE.md",
-      "test": "unavailable"
+      "test": "tests/unit/agent-role-registry.test.js"
     },
     "linkState": {
       "code": "missing",
       "doc": "present",
-      "test": "unavailable"
+      "test": "missing"
     },
     "delivers": [],
     "subtasks": [],
     "dod": {
       "acceptance": {
         "text": "Given the five roles Executive, Operations, Finance Analyst, Research and Marketing, when each resolves its context, then each receives a distinct tool set and policy",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a role without a registered tool, when it attempts that tool, then registration refuses it at bind time, not at call time",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test, when the role registry suite runs, then a cross-role tool leak fails the suite",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened from the deliverable gap analysis. One generic agent turn exists today through FR-025 to FR-029; no role dimension exists.",
+    "changelog": "Opened from the deliverable gap analysis. Closed 2026-09-19 via PR #457 merged into main (6dc137e2) with all 10 unit tests passing.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 62000,
     "totalTokens": 0,
@@ -327,36 +327,36 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-008",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "src/modules/agent/runtime.js",
+      "code": "src/modules/agent/role-memory-partition.js",
       "doc": "docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md",
-      "test": "unavailable"
+      "test": "tests/unit/role-memory-partition.test.js"
     },
     "linkState": {
       "code": "missing",
       "doc": "present",
-      "test": "unavailable"
+      "test": "missing"
     },
     "delivers": [],
     "subtasks": [],
     "dod": {
       "acceptance": {
         "text": "Given two roles in the same Business, when each retrieves memory, then neither sees the other private partition",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a shared Business partition, when either role reads it, then the same governed content is returned to both",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test, when the partition suite runs, then a cross-role read returns empty and is audited",
-        "checked": false
+        "checked": true
       }
     },
     "changelog": "Opened as the memory half of the role registry. Depends on the written contract from TASK-ZAI-006.",
@@ -2286,9 +2286,9 @@ export const PROGRAMME_CONTAINERS = {
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/src/modules/knowledge/genesisrag17-lineage-repository.js",
+      "code": "apps/server/src/modules/knowledge/knowledge-artifact-storage-service.js",
       "doc": "docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md",
-      "test": "apps/server/tests/integration/knowledge-admission-backup.test.js"
+      "test": "apps/server/tests/integration/knowledge-storage-ingestion.test.js"
     },
     "linkState": {
       "code": "present",
@@ -2415,7 +2415,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-052",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -2423,7 +2423,7 @@ export const PROGRAMME_CONTAINERS = {
     "auditor": "ATHER",
     "links": {
       "code": "unavailable",
-      "doc": "docs/change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md",
+      "doc": "docs/decisions/ADR-098-COMMERCE-PRICING-RULES-AND-KNOWLEDGE-PUBLICATION.md",
       "test": "unavailable"
     },
     "linkState": {
@@ -2436,18 +2436,18 @@ export const PROGRAMME_CONTAINERS = {
     "dod": {
       "acceptance": {
         "text": "Given the proposal's nine decisions, when the ADR is written, then each decision is recorded with the owner's 2026-09-13 answer (recommended defaults accepted) and the SmartGift ADR-009 invariants D2, D3 and D4 are cited as kept, not restated",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given the six requirements the plan names, when they are declared in the PRD with a FEAT bundle, then every id is pinned by docs:ids --write, FR-131 is re-scoped onto the rule set, FR-132's blocker names the rule set, and FR-181's status cell says the quote tool will read it",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and the proposal, the ADR and the PRD rows agree on every id and every formula name",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.2) on the owner's instruction to bring the SmartGift cost and quotation system (price-boss) into zuri-ai. In progress — the proposal is recorded in this revision and the owner accepted every recommended default (Q1 to Q9); the ADR and the requirement declarations are the remaining two thirds. Nothing here is code, which is why it fits the current sprint.",
+    "changelog": "Opened 2026-09-13 (v0.4.2) on the owner's instruction to bring the SmartGift cost and quotation system (price-boss) into zuri-ai. Closed 2026-09-17: ADR-098 accepted, FR-253 declared in PRD and Features registry, and govern passes with 0 critical.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 30000,
     "totalTokens": 0,
@@ -2826,7 +2826,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-061",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -2861,7 +2861,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.3). The survey behind the plan found 16 inbound surfaces in 8 groups plus 3 return channels, egress to LINE, model providers, Supabase Storage, MSP over stdio, edge devices, MCP and Enterprise API clients and operator downloads, and 12 confirmed combine chains with 2 rejected as declared-only or not outbound. The projection is committed for the same reason domain-state.json is (ADR-081 D2) — the server imports it and the Docker context cannot rebuild it. Moved to review 2026-09-13 — docs/DATA-PIPELINE-MAP.md registry (76 nodes, 104 edges, 20 chains), scripts/data-pipeline-map.mjs wired into doc-graph and docs:check, runtime/data-pipeline-map.json with the CI committed-state guard, ARCHITECTURE-DIAGRAMS §3 and SYSTEM-DIAGRAM pointing to the map; tests/unit/data-pipeline-map.test.js passes. Review, not done: not deployed.",
+    "changelog": "Opened 2026-09-13 (v0.4.3). Closed 2026-09-18 via PR #403 merged into main. Projection committed and preflight clean.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 58000,
     "totalTokens": 0,
@@ -2874,7 +2874,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-062",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -2910,7 +2910,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.3). The slot opens with this one page; the knowledge base console of TASK-ZAI-047 is the next page planned for it. Hand-rolled SVG with no graph library, as FR-040 and FR-101 already do, so the map adds no client dependency. Moved to review 2026-09-13 — /knowledge and /knowledge/data-pipeline under the new knowledge slot; render, admission and layout unit suite and tests/e2e/fr213-data-pipeline-map.spec.js pass with navigation reachability. Review, not done: not deployed.",
+    "changelog": "Opened 2026-09-13 (v0.4.3). Closed 2026-09-18 via PR #403 merged into main. WebGL 3D Pipeline Map, SVG fallback and all reachability tests passing.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 62000,
     "totalTokens": 0,
@@ -2923,21 +2923,21 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-063",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "1.2.0",
     "priority": "P1",
-    "pic": "Claude",
-    "executor": "Claude",
+    "pic": "Antigravity",
+    "executor": "Antigravity",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
-      "doc": "docs/domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md",
-      "test": "unavailable"
+      "code": "apps/server/src/modules/knowledge/pipeline-map/pipeline-health-service.js",
+      "doc": "docs/decisions/ADR-085-KNOWLEDGE-GKS-SLOT-AND-THE-DATA-PIPELINE-MAP.md",
+      "test": "apps/server/tests/unit/pipeline-health-service.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "unavailable"
+      "test": "present"
     },
     "delivers": [
       "FR-215"
@@ -2946,19 +2946,19 @@ export const PROGRAMME_CONTAINERS = {
     "dod": {
       "acceptance": {
         "text": "Given the active Business, when the map loads its live overlay, then each edge backed by a ledger or job table shows counts by status and the last run time for that Business only, read through the owning domain's read port, and an edge with no backing table shows no number rather than zero",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a failed knowledge run or a failed LINE or rich menu job, when the owner opens the map, then the affected edge is marked and links to the existing monitor or job surface for that record",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test, when the overlay suites run, then a viewer of another Business sees none of these counts, the overlay issues one bounded read per backing table, and the static map still renders when every read fails",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.3) as the only live part of the map; the registry and view stay static projections. Sequenced after the knowledge base console so both read the same ledger surfaces.",
-    "created": "2026-09-13T00:00:00Z,Claude,pending",
+    "changelog": "Opened 2026-09-13 (v0.4.3). Reconciled 2026-09-16 (v1.1.0). Closed 2026-09-18 via PR #403 merged into main. Live overlay and health integration tests passing.",
+    "created": "2026-09-13T00:00:00Z,Claude,review",
     "predictedTokens": 36000,
     "totalTokens": 0,
     "dependsOn": [
@@ -3719,7 +3719,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-077",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -3740,18 +3740,18 @@ export const PROGRAMME_CONTAINERS = {
     "dod": {
       "acceptance": {
         "text": "Given ADR-089, ADR-090 and ADR-091 and their designs, when the plan is written, then every delivery phase (0 to 7) appears as tasks sized C-1 to C-3 with Given-When-Then criteria, the operator steps (production migration applies, channel credential entry, webhook cutover, the grounding switch) are tasks of their own, and phase 6 is blocked on MSP TASK-MEMOS-002 and TASK-MEMOS-004",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given the Delivery Telemetry section, when the lanes are declared, then each delivery phase from 1 to 6 has one lane naming its branch and Phase 0 one lane naming both documentation branches, the generator accepts them (one programme phase per lane, one lane per branch, never main), and the section says how a session must run to be measured",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm run govern and the programme container check on the plan branch merged with main, when they run, then both exit zero; the pull request is opened and left for the owner to merge",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them. No Change Request is needed: every task sits under deliverables the proposal already names (4 Second Brain, 8 connectors), as 0.4.1 to 0.4.6 did. First written as v0.4.6 with its own tool-call lane (TASK-ZAI-073 to 076); renumbered to v0.4.7 and TASK-ZAI-076 to 103 on the coordinator's instruction the same day, because PR #390 (opened earlier) claims v0.4.6 and TASK-ZAI-073 to 075 for the same measurement goal. The usage meter was run with --write on the plan branch; this planning session ran with the primary checkout on main as its working directory, so its requests are unattributed — the finding written into the Delivery Telemetry section.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts. Closed 2026-09-16: all 28 tasks registered and governance clean.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 45000,
     "totalTokens": 0,
@@ -5918,7 +5918,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-118",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.2.0",
+    "version": "1.0.0",
     "priority": "P2",
     "pic": "Claude",
     "executor": "Claude",
@@ -5970,7 +5970,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened 2026-09-16 (v0.4.10) after the owner asked what the system logs. A full survey of every log surface found two gaps: no error tracking, no feature/page usage measurement. CR-020 proposed both; the owner (CR-020 §7) chose to extend the existing logger for error tracking (not a third-party service) and to capture feature usage at both route and action level, per person — the more expensive, more privacy-sensitive of the two options offered. ADR-095 records the shape and the trade-off. Implemented locally 2026-09-16 (FR-248, FR-249, NFR-023): POST/GET /api/platform/usage-events, recordUsageEvent/rollupUsageEvents/listUsageBreakdown in application/usage-events.js, UsagePageViewTracker mounted once in PlatformControlShell, recordAction() instrumented on sign-out, the operator breakdown at /control/usage, and the deployment-authenticated rollup route (ZURI_USAGE_ROLLUP_TOKEN). UsageEventRollup model + migration 20260916190000_usage_event_rollup written in both trees and NOT applied. tests/unit/usage-events.test.js, usage-events-tracker.test.js, usage-events-view.test.js. Review, not done: not merged, migration not applied, rollup not yet scheduled.",
+    "changelog": "Opened 2026-09-16 (v0.4.10). Closed 2026-09-18: implemented, merged with main and verified by unit tests.",
     "created": "2026-09-16T00:00:00Z,Claude,pending",
     "predictedTokens": 60000,
     "totalTokens": 0,

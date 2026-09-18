@@ -3,7 +3,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
-import { exportSnapshot, importSnapshot, previewImport } from '@/modules/project-manager/application/backup-service'
+import { exportSnapshot, importSnapshot, previewImport, validateSnapshotRecovery, SNAPSHOT_MODELS } from '@/modules/project-manager/application/backup-service'
+import { insertSnapshotIntoEmptyTarget, validateSnapshotRecovery as validateOfflineSnapshot } from '../../scripts/phase-b-recovery-hooks.mjs'
 import { calculatePrice, defaultPricingRules, pricingHash, normalizePricingInput } from '@/modules/commerce/domain/pricing-engine'
 import { makeOperatorViewer } from '../factories/viewer'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
@@ -14,6 +15,7 @@ const snapshot = () => ({ schemaVersion: '1.0', tables: { tenant: [{ id: 'tenant
 function mockDb(counts = {}, liveRows = []) {
   const models = new Map(), deletes = [], created = []
   const db = new Proxy({}, { get: (_, name) => {
+    if (name === '_activeProvider') return 'sqlite'
     if (name === '$transaction') return async (work) => work(db)
     if (!models.has(name)) models.set(name, {
       count: vi.fn(async () => counts[name] || 0), findMany: vi.fn(async () => name === 'pricingRuleSet' ? liveRows : []),
@@ -27,6 +29,32 @@ function mockDb(counts = {}, liveRows = []) {
 const preview = (s, db) => previewImport(s, { db, viewer: makeOperatorViewer(), nested: true })
 
 describe('pricing backup recovery boundary', () => {
+  // @req FR-252 — the process-only recovery path composes the same Pricing
+  // provenance validator and self-FK order as the web backup service.
+  it('validates Pricing before offline insertion and uses parent-first rows', async () => {
+    const s = snapshot()
+    for (const model of SNAPSHOT_MODELS) s.tables[model] ??= []
+    const validated = await validateOfflineSnapshot(s)
+    expect(validated.valid).toBe(true)
+    expect(validated.pricingRecovery.ruleRows.map((row) => row.id)).toEqual(['root', 'child'])
+    const inserted = []
+    const tx = { insertRows: async (model, rows) => { inserted.push([model, rows]) } }
+    await insertSnapshotIntoEmptyTarget({ tx, adapter: {}, snapshot: s })
+    expect(inserted.find(([model]) => model === 'pricingRuleSet')[1].map((row) => row.id)).toEqual(['root', 'child'])
+  })
+  it.each([
+    ['invalid hash', (s) => { s.tables.pricingRuleSet[0].rulesHash = 'a'.repeat(64) }],
+    ['cyclic lineage', (s) => { s.tables.pricingRuleSet[1].sourceRuleSetId = 'child' }],
+  ])('rejects %s through shared and offline validators before any insert', async (_, mutate) => {
+    const s = snapshot()
+    for (const model of SNAPSHOT_MODELS) s.tables[model] ??= []
+    mutate(s)
+    expect(validateSnapshotRecovery(s).valid).toBe(false)
+    expect((await validateOfflineSnapshot(s)).valid).toBe(false)
+    const tx = { insertRows: vi.fn() }
+    await expect(insertSnapshotIntoEmptyTarget({ tx, adapter: {}, snapshot: s })).rejects.toMatchObject({ code: 'PHASE_B_SNAPSHOT_INVALID' })
+    expect(tx.insertRows).not.toHaveBeenCalled()
+  })
   it('orders unordered derivations parent-first and deletes existing rows children-first', async () => {
     const mock = mockDb({}, [rule('root'), rule('child', 'root')])
     const p = await preview(snapshot(), mock.db)

@@ -253,7 +253,41 @@ function LaneTelemetry({ id, laneUsage, lanes = [], member = false }) {
   )
 }
 
-function TaskDetail({ id, status, container, laneUsage, lanes, member }) {
+function TaskUsageSummary({ usage, detailed = false }) {
+  if (!usage) return null
+  const plan = usage.plan?.predictedTokens
+  const actual = usage.actual
+  const used = actual?.tokens?.usedTokens
+  return (
+    <div className={styles.infoSec} data-testid={`task-usage-ledger-${usage.taskCode}`}>
+      <span className={styles.secLabel}>Task usage ledger</span>
+      <div className={styles.metricRow}>
+        <span className={styles.metricLabel}>แผน</span>
+        <span className={styles.metric} title="ค่าคาดการณ์จาก Task Container ไม่ใช่การวัดจริง">
+          <b>{plan == null ? '—' : formatTokens(plan)}</b> token planned
+        </span>
+        <span className={`${styles.metricLabel} ${styles.metricLabelMeasured}`}>วัดจริง</span>
+        {actual ? (
+          <>
+            <span className={styles.metric} title="input + cache write + output; cache read แสดงแยก"><b>{formatTokens(used)}</b> token used</span>
+            <span className={styles.metricMuted}>cache read {formatTokens(actual.tokens.cacheReadTokens)} · {actual.requestCount} requests · {formatDuration(actual.activeMinutes)} active</span>
+          </>
+        ) : (
+          <span className={styles.metricMuted}>ยังไม่มี actual — {usage.measurementStatus}</span>
+        )}
+      </div>
+      <div className={styles.metricRow}>
+        <span className={styles.metricLabel}>สถานะ</span>
+        <span className={styles.metric}>{usage.measurementStatus}</span>
+        <span className={styles.metricMuted}>reconciliation {usage.reconciliationStatus} · attribution {usage.attribution.kind}</span>
+        {actual ? <span className={styles.metricMuted}>{actual.reportCount} report{actual.reportCount === 1 ? '' : 's'}</span> : null}
+      </div>
+      {detailed && usage.warnings?.length > 0 ? <p className="text-xs text-muted">warnings: {usage.warnings.join(', ')}</p> : null}
+    </div>
+  )
+}
+
+function TaskDetail({ id, status, container, laneUsage, lanes, member, taskUsage }) {
   if (!container) return <p className="mt-2 text-xs text-muted">No Task Container is recorded for {id} in the document.</p>
   return (
     <div className={styles.detail} data-testid={`task-detail-${id}`}>
@@ -289,6 +323,7 @@ function TaskDetail({ id, status, container, laneUsage, lanes, member }) {
           </ul>
         </div>
       )}
+      <TaskUsageSummary usage={taskUsage} detailed />
       <LaneTelemetry id={id} laneUsage={laneUsage} lanes={lanes} member={member} />
       <div className={styles.infoSec}>
         <span className={styles.secLabel}>Changelog</span>
@@ -422,6 +457,7 @@ export default function ProgramRoadmapBoard({
   lanes = [],
   sizing = NO_SIZING,
   measuredThrough = null,
+  taskUsageLedger = null,
   // FR-241 (ADR-092): 'member' is the signed-in view at /roadmap.
   audience = 'operator',
   closesAt = null,
@@ -429,6 +465,7 @@ export default function ProgramRoadmapBoard({
   const member = audience === 'member'
   const views = member ? VIEWS.filter(({ id }) => id !== 'devices') : VIEWS
   const laneUsageMap = new Map(Object.entries(laneUsage))
+  const taskUsageByCode = new Map((taskUsageLedger?.tasks || []).map((task) => [task.taskCode, task]))
   const [view, setView] = useState(domainMap && views.some(({ id }) => id !== 'programme' && id === initialView) ? initialView : 'programme')
   const selectView = (next) => {
     setView(next)
@@ -599,7 +636,7 @@ export default function ProgramRoadmapBoard({
                                       <span className="flex flex-wrap items-center gap-2">
                                         <code className="text-[11px] font-semibold">{id}</code><StatusPill status={badgeStatus(status)} />
                                         <span className="ml-auto text-[11px] text-muted" title={`complexity ${complexity}`}>{type} · {scope}</span>
-                                        {container && <span className="text-[11px] text-muted">PIC <b className="text-[var(--text-primary)]">{container.pic}</b> · {container.predictedTokens.toLocaleString()} tok</span>}
+                                        {container && <span className="text-[11px] text-muted">PIC <b className="text-[var(--text-primary)]">{container.pic}</b> · plan {container.predictedTokens.toLocaleString()} tok</span>}
                                         <ChevronDown size={14} className={`shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden />
                                       </span>
                                       <span className="mt-1 block text-sm font-semibold">{title}</span>
@@ -608,10 +645,11 @@ export default function ProgramRoadmapBoard({
                                   <div className={styles.taskMeta}>
                                     <EvidenceBadges id={id} evidence={taskEvidence?.[id]} />
                                     <SubtaskBar id={id} subtasks={container?.subtasks || []} />
+                                    {taskUsageByCode.has(id) && <TaskUsageSummary usage={taskUsageByCode.get(id)} />}
                                   </div>
                                   {open && (
                                     <div id={`task-detail-${id}`}>
-                                      <TaskDetail id={id} status={status} container={container} laneUsage={laneUsage} lanes={lanes} member={member} />
+                                      <TaskDetail id={id} status={status} container={container} laneUsage={laneUsage} lanes={lanes} member={member} taskUsage={taskUsageByCode.get(id)} />
                                     </div>
                                   )}
                                 </TiltCard>

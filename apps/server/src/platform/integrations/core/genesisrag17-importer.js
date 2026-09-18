@@ -30,6 +30,10 @@ const EXTERNAL_MAX_STAGE = 17
 const DEFAULT_LIMIT = 100
 const MAX_LIMIT = 100
 const DEFAULT_MAX_PAGES = 10
+// A complete external page contains one row for each of Stages 9–17. Each row
+// writes ledger, audit and evidence records, so PostgreSQL's five-second
+// interactive-transaction default is too short for the bounded atomic page.
+const PAGE_TRANSACTION_TIMEOUT_MS = 30_000
 
 function serviceError(status, message, code = null) {
   const error = new Error(message)
@@ -197,14 +201,14 @@ async function applyRows(db, run, scope, resolved, now, viewer) {
     const details = row.details || {}
     const publication = stage17Publication(row, scope, run.executionRunId)
     const terminal = async (tx) => {
-      await recordPipelineEvent(ledgerEvent(run, step, row, 'STEP_STARTED', startedAt), { db: tx, viewer, now: () => startedAt })
+      await recordPipelineEvent(ledgerEvent(run, step, row, 'STEP_STARTED', startedAt), { db: tx, viewer, now: () => startedAt, transactional: false })
       if (row.stageNumber === 17 && row.details?.verdict) {
         const status = publication ? 'APPROVED' : 'REJECTED'
         await recordPipelineEvent({ ...ledgerEvent(run, step, row, 'GATE_UPDATED', finishedAt), status, tenantId: run.tenantId, businessId: run.businessId,
           gate: { gateId: 'GATE-KNOWLEDGE-QUALITY', status, required: true, decidedByPersonId: null, reason: `Stage 17 verdict ${row.details.verdict.verdict}`, evidence: qualityGateEvidence(row, publication, scope) },
-        }, { db: tx, viewer, now: () => finishedAt })
+        }, { db: tx, viewer, now: () => finishedAt, transactional: false })
       }
-      await recordPipelineEvent(ledgerEvent(run, step, row, row.outcome === 'FAILED' ? 'STEP_FAILED' : 'STEP_SUCCEEDED', finishedAt, row.outcome === 'FAILED' ? details : null), { db: tx, viewer, now: () => finishedAt })
+      await recordPipelineEvent(ledgerEvent(run, step, row, row.outcome === 'FAILED' ? 'STEP_FAILED' : 'STEP_SUCCEEDED', finishedAt, row.outcome === 'FAILED' ? details : null), { db: tx, viewer, now: () => finishedAt, transactional: false })
       if (publication) await persistGenesisRag17PublicationReceipt(publication, { db: tx, now: () => finishedAt })
       const evidence = await writeStageEvidence(tx, {
         run,
@@ -220,7 +224,12 @@ async function applyRows(db, run, scope, resolved, now, viewer) {
       })
       return evidence
     }
-    const evidence = typeof db.$transaction === 'function' ? await db.$transaction(terminal) : await terminal(db)
+    // `applyRows` is called by `commitPage`, which already owns the single
+    // page transaction. A Prisma interactive transaction client also exposes
+    // `$transaction`; calling it here would attempt a nested transaction on
+    // the same client and production rejects that with P2028. Keep every row
+    // write on the transaction client supplied by the page boundary.
+    const evidence = await terminal(db)
     applied.push({ cursor: row.cursor, stageNumber: row.stageNumber, pipelineStageId: row.pipelineStageId, executionStepId: row.executionStepId, attemptId: row.attemptId, outcome: row.outcome, status: evidence ? 'CREATED_OR_UNCHANGED' : 'UNCHANGED' })
   }
   return applied
@@ -287,7 +296,9 @@ export async function pullGenesisRag17Evidence({ schemaVersion, scope, runId, af
       await updateCursor(tx)
       return result
     }
-    const pageApplied = typeof db.$transaction === 'function' ? await db.$transaction(commitPage) : await commitPage(db)
+    const pageApplied = typeof db.$transaction === 'function'
+      ? await db.$transaction(commitPage, { timeout: PAGE_TRANSACTION_TIMEOUT_MS })
+      : await commitPage(db)
     applied.push(...pageApplied)
     cursor = nextCursor
     if (!page.rows.length || page.rows.length < limit) break

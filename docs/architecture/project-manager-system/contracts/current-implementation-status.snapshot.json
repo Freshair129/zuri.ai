@@ -1,0 +1,82 @@
+{
+  "snapshotType": "CURRENT_IMPLEMENTATION_STATUS",
+  "generatedAt": "2026-09-18T02:59:30+07:00",
+  "siteScope": "public-static-design-review",
+  "designBaseline": {
+    "version": "v0.9.0b",
+    "status": "CANDIDATE",
+    "note": "Design documents remain a candidate review set; this page adds source and release evidence."
+  },
+  "pmDomain": {
+    "snapshot": "pm-domain-progress-20260918",
+    "taskCount": 17,
+    "taskStatus": { "done": 2, "review": 3, "planned": 12 },
+    "featureCount": 9,
+    "featureReadiness": { "readyByTaskAndRegistry": 1, "tasksRemain": 6, "unmapped": 2 },
+    "frCount": 55,
+    "frReadiness": { "readyByTaskAndRegistry": 1, "tasksRemain": 16, "unmapped": 38 },
+    "sourceHash": "4C40234DDEFB75E23ADF9012735DDAED584BCA18E21D1DE6FD3E488F903D952F"
+  },
+  "documents": {
+    "taskUsageLedger": {
+      "status": "IMPLEMENTED_IN_MAIN",
+      "contract": "task-usage-ledger.contract.json",
+      "packet": "TASK-USAGE-LEDGER-IMPLEMENTATION-PACKET.md",
+      "route": "apps/server/src/app/api/platform/task-usage-ledger/route.js"
+    },
+    "g14Registry": {
+      "status": "CANDIDATE",
+      "registry": "g14-registry.candidate.json",
+      "packet": "G14-REGISTRY-IMPLEMENTATION-PACKET.md",
+      "codegenReady": false,
+      "implementationState": "NOT_STARTED",
+      "productionState": "NOT_RUN"
+    }
+  },
+  "release": {
+    "pullRequest": 454,
+    "pullRequestUrl": "https://github.com/Freshair129/zuri.ai/pull/454",
+    "mergeSha": "65587f1a1f2a47169eca1b173582d99c9b9c748c",
+    "mergeSubject": "Merge pull request #454 from Freshair129/codex/task-usage-ledger-g14",
+    "image": "zuri-ai-web:main-65587f1a",
+    "status": "MERGED_AND_DEPLOYED",
+    "verification": {
+      "governance": "PASS",
+      "tests": "PASS",
+      "build": "PASS",
+      "verify": "PASS",
+      "postMergeE2E": "NOT_FINALIZED_AT_LAST_OBSERVATION"
+    },
+    "caveat": "The static review Site is separate from the product runtime. Full PM feature activation is not implied by this merge."
+  },
+  "runtime": {
+    "evidenceStatus": "HEALTH_EVIDENCE_RECORDED",
+    "service": "web",
+    "image": "zuri-ai-web:main-65587f1a",
+    "healthEndpoint": "/api/health",
+    "activation": "G14 runtime registry and PM feature activation are not separately evidenced here."
+  },
+  "taskUsageLedger": {
+    "snapshotType": "TASK_USAGE_LEDGER_SNAPSHOT",
+    "availability": "NOT_REPORTED",
+    "asOf": "2026-09-14T13:43:56.014Z",
+    "rowCount": 0,
+    "measuredTaskCount": 0,
+    "actualTokens": "NOT_REPORTED",
+    "actualActiveMinutes": "NOT_REPORTED",
+    "policy": {
+      "actualTokens": "inputTokens + cacheWriteTokens + outputTokens",
+      "cacheRead": "informational only; excluded from usedTokens",
+      "planFallback": "predictedTokens, container totalTokens and done status are never actual usage",
+      "laneAllocation": "lane totals are not copied or allocated to individual tasks"
+    },
+    "snapshotSha256": "9398F5BD5343F82DDA18C99E89E60535CA5D341714F3B0BC76F665932E2215EF"
+  },
+  "p1Gate": {
+    "status": "PASS_WITH_LIMITATIONS",
+    "implementationStatus": "BLOCKED_PENDING_CONTRACT_CLOSURE",
+    "evidence": "pmr-033-p1-final-gate.md",
+    "workerDurationAndTokens": "NOT_REPORTED"
+  },
+  "evidencePolicy": "Source-derived counts and hashes; UNKNOWN, NOT_REPORTED and NOT_RUN remain explicit."
+}

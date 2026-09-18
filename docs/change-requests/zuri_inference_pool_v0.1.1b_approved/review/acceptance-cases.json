@@ -1,0 +1,418 @@
+[
+  {
+    "id": "T01",
+    "acceptance": "NODES-01",
+    "stimulus": "Register same-scope node; read response/audit",
+    "expected": "Only approved metadata; no key bytes",
+    "proof_level": "unit/integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T02",
+    "acceptance": "NODES-01",
+    "stimulus": "Another Business reads/updates connection/pool",
+    "expected": "Refusal without cross-scope disclosure",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T03",
+    "acceptance": "NODES-02",
+    "stimulus": "Good, wrong and absent Bearer key",
+    "expected": "Only configured credential accepted",
+    "proof_level": "contract + real node",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T04",
+    "acceptance": "NODES-02",
+    "stimulus": "Public /health succeeds; protected key invalid",
+    "expected": "Qualification still fails",
+    "proof_level": "contract",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T05",
+    "acceptance": "NODES-03",
+    "stimulus": "Metadata/loopback/unapproved LAN destination",
+    "expected": "No socket/request opened",
+    "proof_level": "unit/integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T06",
+    "acceptance": "NODES-03",
+    "stimulus": "Redirect, DNS rebinding, mixed IPv4/IPv6 answer",
+    "expected": "Approved transport boundary enforced",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T07",
+    "acceptance": "NODES-04",
+    "stimulus": "Model alias exists but required tool/profile unverified",
+    "expected": "Node cannot enable for that workload",
+    "proof_level": "contract",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T08",
+    "acceptance": "NODES-05",
+    "stimulus": "Stale lifecycle version / key rotation / revoked pool",
+    "expected": "CAS refusal or explicit requalification",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T09",
+    "acceptance": "NODES-06",
+    "stimulus": "Two host aliases resolve to same engine",
+    "expected": "No duplicated independent budget",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T10",
+    "acceptance": "NODES-07/08",
+    "stimulus": "Snapshot restore and synthetic qualification logs",
+    "expected": "Disabled restored pool; no customer/key content",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T11",
+    "acceptance": "EXEC-01/02",
+    "stimulus": "SERVER self-hosted selected with Edge stopped",
+    "expected": "Actual approved private call; existing policies unchanged",
+    "proof_level": "integration + real node",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T12",
+    "acceptance": "EXEC-03",
+    "stimulus": "Tool schema pushes full prompt beyond profile limit",
+    "expected": "No oversized invocation; truthful budget failure",
+    "proof_level": "unit/contract",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T13",
+    "acceptance": "EXEC-03",
+    "stimulus": "Tokenizer/template revision differs from profile",
+    "expected": "No claim of exact safe token capacity",
+    "proof_level": "contract",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T14",
+    "acceptance": "EXEC-04",
+    "stimulus": "Group conversation asks for private MSP content",
+    "expected": "Audience gate preserved",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T15",
+    "acceptance": "EXEC-04",
+    "stimulus": "MSP receipt submission acknowledgement lost",
+    "expected": "No hidden second model submission",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T16",
+    "acceptance": "EXEC-04",
+    "stimulus": "Published corpus generation changes before settlement",
+    "expected": "Stale evidence refused/fenced",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T17",
+    "acceptance": "EXEC-04/LINE-05",
+    "stimulus": "Authorized catalogue/project confirmation command",
+    "expected": "Existing preview/confirmation/domain writer only",
+    "proof_level": "integration/e2e",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T18",
+    "acceptance": "EXEC-04",
+    "stimulus": "Required filesystem/CLI/vision capability on text pool",
+    "expected": "Explicitly unsupported; Edge not silently removed",
+    "proof_level": "contract",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T19",
+    "acceptance": "EXEC-05",
+    "stimulus": "Unknown/malformed tool call from model",
+    "expected": "No unauthorized execution",
+    "proof_level": "unit/contract",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T20",
+    "acceptance": "EXEC-05",
+    "stimulus": "Tool result includes prompt injection / oversized payload",
+    "expected": "Data-only handling and recomposed bounded context",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T21",
+    "acceptance": "EXEC-06",
+    "stimulus": "Tool write completed, model continuation disconnects",
+    "expected": "No duplicate committed write",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T22",
+    "acceptance": "EXEC-07",
+    "stimulus": "Provider omits usage / wrong JSON / empty output",
+    "expected": "UNAVAILABLE usage; no invented valid answer",
+    "proof_level": "contract",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T23",
+    "acceptance": "ROUTE-01",
+    "stimulus": "A reaches calibrated slots; B is eligible",
+    "expected": "New request goes to B; A cap not exceeded",
+    "proof_level": "integration + two real nodes",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T24",
+    "acceptance": "ROUTE-02",
+    "stimulus": "Two Server processes race for one remaining slot",
+    "expected": "At most one reservation admitted",
+    "proof_level": "real PostgreSQL",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T25",
+    "acceptance": "ROUTE-03",
+    "stimulus": "Stale/missing metrics or percent mistakenly 80 not .8",
+    "expected": "UNKNOWN/invalid; never extra capacity",
+    "proof_level": "unit/integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T26",
+    "acceptance": "ROUTE-03",
+    "stimulus": "Out-of-order and old-epoch observer writes",
+    "expected": "Newer state not overwritten",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T27",
+    "acceptance": "ROUTE-04",
+    "stimulus": "Free GPU but auth/profile/scope revoked or drained",
+    "expected": "No dispatch",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T28",
+    "acceptance": "ROUTE-05",
+    "stimulus": "A free memory but too slow for job deadline",
+    "expected": "Eligible B or honest deadline refusal",
+    "proof_level": "unit/integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T29",
+    "acceptance": "ROUTE-06",
+    "stimulus": "Server dies after reserve but before dispatch",
+    "expected": "Safe RESERVED recovery; no duplicate provider call",
+    "proof_level": "fault injection",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T30",
+    "acceptance": "ROUTE-06",
+    "stimulus": "Server dies after dispatch or client aborts",
+    "expected": "Uncertain capacity retained/quarantined",
+    "proof_level": "fault injection + real node",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T31",
+    "acceptance": "ROUTE-06",
+    "stimulus": "Old provider answer arrives after new execution/erasure",
+    "expected": "Late result cannot settle/send",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T32",
+    "acceptance": "ROUTE-07",
+    "stimulus": "Both nodes saturated/unavailable",
+    "expected": "Bounded queue/failure; no cloud request",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T33",
+    "acceptance": "LINE-01/09",
+    "stimulus": "Old account and older Edge wire consumers",
+    "expected": "Backward-compatible unchanged behavior",
+    "proof_level": "cross-app contract",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T34",
+    "acceptance": "LINE-03",
+    "stimulus": "Job carries old pool version after account switch",
+    "expected": "Explicit fence; no unauthorized retarget",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T35",
+    "acceptance": "LINE-05",
+    "stimulus": "Outside account business hours",
+    "expected": "Existing fixed reply; no GPU invocation",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T36",
+    "acceptance": "LINE-06",
+    "stimulus": "One answer ready, sibling model hangs",
+    "expected": "Ready answer gets independent bounded send opportunity",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T37",
+    "acceptance": "LINE-07",
+    "stimulus": "Reply deadline expired and delayed Push disabled",
+    "expected": "No send; defined deadline failure",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T38",
+    "acceptance": "LINE-07",
+    "stimulus": "Delayed Push enabled; original policy selects it",
+    "expected": "Existing Push/idempotency flow only",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T39",
+    "acceptance": "LINE-07",
+    "stimulus": "LINE Reply/Push outcome uncertain",
+    "expected": "No fresh blind resend/recomputed agent turn",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T40",
+    "acceptance": "LINE-07",
+    "stimulus": "LINE accepted but CRM write failed",
+    "expected": "Receipt-only CRM reconciliation; no second send",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T41",
+    "acceptance": "LINE-08",
+    "stimulus": "Quiescent inference rollback",
+    "expected": "One LINE sender; Edge and evidence untouched",
+    "proof_level": "operator rehearsal",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T42",
+    "acceptance": "LINE-02",
+    "stimulus": "Authorized actual LINE canary",
+    "expected": "Provider acceptance and CRM record traced; no read claim",
+    "proof_level": "live authorized canary",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T43",
+    "acceptance": "LINE-04",
+    "stimulus": "Two real unequal-memory nodes with known workload",
+    "expected": "Measured capacity/latency, not nominal-memory arithmetic",
+    "proof_level": "hardware load test",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T44",
+    "acceptance": "MON-01",
+    "stimulus": "Business owner/non-operator visits /control/inference",
+    "expected": "Operator guard enforced",
+    "proof_level": "e2e",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T45",
+    "acceptance": "MON-02/07",
+    "stimulus": "Missing GPU exporter/stale engine observation",
+    "expected": "Unavailable label and timestamp, never fake zero",
+    "proof_level": "e2e",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T46",
+    "acceptance": "MON-03/ROUTE-08",
+    "stimulus": "Remove dashboard and disable Prometheus",
+    "expected": "Routing correctness remains; critical observer still runs",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T47",
+    "acceptance": "ROUTE-08",
+    "stimulus": "Stop critical observer",
+    "expected": "Freshness expires; unsafe admission blocks",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T48",
+    "acceptance": "MON-04/05",
+    "stimulus": "View dashboard; stale drain/resume action",
+    "expected": "Read makes no inference/send; mutating action reauthorizes",
+    "proof_level": "e2e",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T49",
+    "acceptance": "MON-06/08",
+    "stimulus": "Repeated fault and notification unconfigured",
+    "expected": "Deduplicated/redacted event; no false notified claim",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T50",
+    "acceptance": "ROUTE-09",
+    "stimulus": "One metrics parse failure",
+    "expected": "No host reboot/model unload/GPU restart",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T51",
+    "acceptance": "EXEC-03/04",
+    "stimulus": "Private prefixes across conversation/audience boundaries",
+    "expected": "Salted/disabled reuse; authorization remains independent",
+    "proof_level": "contract + real node",
+    "status": "NOT_RUN"
+  },
+  {
+    "id": "T52",
+    "acceptance": "ROUTE-10",
+    "stimulus": "Raise capacity without hardware calibration receipt",
+    "expected": "Activation/update refused",
+    "proof_level": "integration",
+    "status": "NOT_RUN"
+  }
+]

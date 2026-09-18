@@ -1,0 +1,98 @@
+{
+  "record_version": "0.1.1b",
+  "recorded_on": "2026-09-18",
+  "timezone": "Asia/Bangkok",
+  "source_message": "approve",
+  "approved_by": "Owner via current conversation",
+  "approval_scope": "design-and-documentation",
+  "design_status": "APPROVED",
+  "integration_status": "PENDING",
+  "implementation_status": "NOT_STARTED",
+  "runtime_tests": "NOT_RUN",
+  "planned_runtime_cases": 52,
+  "production_activation": "NOT_PERFORMED",
+  "canonical_ids": "UNALLOCATED",
+  "reviewed_main_commit": "cfd5521e7d004e63ffead1e07f46045f1cdc06f2",
+  "original_packet": {
+    "filename": "Zuri_Inference_Pool_Documentation_v0.1.0b.zip",
+    "sha256": "5d643d5505c04e0483ad3395cc51a2db741f5714dd7365600c97f36bd298feae"
+  },
+  "scope_note": "Owner approval applies to the reviewed twelve-document design. This is a transcribed chat approval record, not a cryptographic owner signature, GitHub review, proof of tests or authorization to bypass gates.",
+  "known_parallel_work": [
+    {
+      "pr": 450,
+      "url": "https://github.com/Freshair129/zuri.ai/pull/450",
+      "reported_requirement": "FR-254",
+      "head": "2bd61b495cd9186acdab02a3312487e6131b7a39",
+      "note": "Visible open PR body reports FR-254. Not a full reservation scan of every active branch."
+    }
+  ],
+  "constraints": [
+    "No existing requirement identity changed.",
+    "No ID ledger edited by hand.",
+    "No production credentials, databases, devices or deployments changed.",
+    "No new canonical IDs asserted without repository writer and governance."
+  ],
+  "sources": [
+    {
+      "path": "drafts/docs/decisions/{{ADR_POOL}}-SERVER-OWNED-SELF-HOSTED-INFERENCE-POOL.md.template",
+      "approved_source_sha256": "cf5db1ec8cd366a4e75b2ba55b5dab90ffdbaf12e7534b1f8b8e790827d0c70c",
+      "approval_revision_sha256": "1531f8baed52638f2740a62712b948b8b829f65288abf5cd6341aba9d26bd058"
+    },
+    {
+      "path": "drafts/docs/domains/agent/SELF-HOSTED-INFERENCE-POOL-VERIFICATION.md.template",
+      "approved_source_sha256": "ee9376eb34a923851e1724be25e20167f34dfdc010c7f750b9d2a1a0987c081c",
+      "approval_revision_sha256": "7cd511089e275c617fc7921b1dbf1cb0229242d047c68f12dfec80999ce7cd75"
+    },
+    {
+      "path": "drafts/docs/domains/agent/features/PHASE-{{FR_EXECUTION}}-P1-server-owned-self-hosted-model-execution.md.template",
+      "approved_source_sha256": "6752adf6460a43be14aca9b36fac4b8392caaa0bf5c32c53fdd1228ef3268885",
+      "approval_revision_sha256": "00e8b9e57cd55e7bc3b934448154233b016288ecff277390cbaf10c37ccea610"
+    },
+    {
+      "path": "drafts/docs/domains/agent/features/{{FR_EXECUTION}}-server-owned-self-hosted-model-execution.md.template",
+      "approved_source_sha256": "9d085698cba83b36acccf70f266ce37594da27e6a2c717a0a075035adfdac887",
+      "approval_revision_sha256": "9223c21df38e17d1a75401843d493473fae47367df123fa4042ec896ced75788"
+    },
+    {
+      "path": "drafts/docs/domains/agent/features/{{FR_ROUTING}}-inference-capacity-routing-and-health.md.template",
+      "approved_source_sha256": "790819e9eb862c4d6092655c519aa8161952d97e527c2f5982e71f156794f4aa",
+      "approval_revision_sha256": "3dcf9261fe5ccc08c5e039a506c843b7adb79a2dd8db9c2b665398cb50ad640a"
+    },
+    {
+      "path": "drafts/docs/domains/integration/features/PHASE-{{FR_EXECUTION}}-P2-server-owned-self-hosted-model-execution.md.template",
+      "approved_source_sha256": "e00517f010de1bfa323c16637bdf1fa150951313bb0bec71d173e04dedc05b71",
+      "approval_revision_sha256": "e668a154f48c08b8028daadf1566ff4f9e75b1f0f612ab61723bc0cb8dc85b88"
+    },
+    {
+      "path": "drafts/docs/domains/integration/features/{{FR_NODES}}-inference-node-registration-and-trust.md.template",
+      "approved_source_sha256": "d9b4192624151c22bf77d9aed9368fbab9966bb6433f4a0957fad2228f42eed3",
+      "approval_revision_sha256": "8e8167b1abca91bf4c2861bd9ddd008aa420086065a876d65b0aa194e37ad1e2"
+    },
+    {
+      "path": "drafts/docs/domains/line-oa-studio/features/PHASE-{{FR_EXECUTION}}-P3-server-owned-self-hosted-model-execution.md.template",
+      "approved_source_sha256": "534ed79e59b78638c18ef467a738ce72e80e63c9d3e2d305d208d2cb525d9e78",
+      "approval_revision_sha256": "6e2d2c7f467d6dba5a7ded00f9d8e1301db0aa538c6e84ec65e7064d687f98eb"
+    },
+    {
+      "path": "drafts/docs/domains/line-oa-studio/features/{{FR_LINE}}-self-hosted-inference-policy-and-cutover.md.template",
+      "approved_source_sha256": "085cf26c7a3b1763e6752dcf6791725907142ccca59d3f70c3b0bcb39918afa9",
+      "approval_revision_sha256": "b104876931d1095b676822fb11d0f891e45b5c0b6c99e6b1a674975015eed08b"
+    },
+    {
+      "path": "drafts/docs/domains/platform-control/features/{{FR_MONITOR}}-inference-pool-operations-projection.md.template",
+      "approved_source_sha256": "f6816c8f6072635930617b4801f644f3a50180eafada0bff874d2d9fb4148035",
+      "approval_revision_sha256": "04e457c34f95c42d14ddb4d3a3aa432a19fc6d59ba2cd5a314e677b99699e8f3"
+    },
+    {
+      "path": "drafts/docs/roadmap/PLAN-{{FEAT_POOL}}-DOMAIN-PHASES.md.template",
+      "approved_source_sha256": "e0df7c89dca049e4d7413eaa1b11fbebc484223c513f3c450615defc8160e0d2",
+      "approval_revision_sha256": "0361fef4de28854588e24892e76a33e5ec7e29890b0d048383f1aea54396ba65"
+    },
+    {
+      "path": "drafts/docs/runbooks/SELF-HOSTED-INFERENCE-POOL.md.template",
+      "approved_source_sha256": "d2c7156a8083b48bd8d6b5f4a25bf4f8ef7789bc749be724c870d276d3be13af",
+      "approval_revision_sha256": "55260905d427ca97ccfa9572e2ebff97e78734024f9a9af1a5a436292246f44e"
+    }
+  ]
+}

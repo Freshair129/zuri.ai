@@ -12,7 +12,7 @@ import prisma from '@/lib/db'
 import { uniqueHumanCode } from '@/lib/ids'
 import { recordAudit } from './audit'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
-import { createConfiguredAssetObjectStoragePort } from '@/platform/storage/supabase-object-storage'
+import { createConfiguredManagedBlobObjectStoragePort } from '@/platform/storage/supabase-object-storage'
 import { assertBusinessWritable, assertFileAssetWritable, assertInstallationOperatorWritable } from './project-authorization'
 import {
   buildBusinessFileManagerReadModel,
@@ -222,7 +222,7 @@ export async function resolveFileAssetContent(fileId, {
   if (asset.status !== 'ACTIVE') throw new Error(`File asset is ${asset.status}`)
   if (asset.storageKind === 'MANAGED_BLOB') {
     if (!asset.blobRef) throw new Error('Managed blob reference is missing')
-    const port = objectStoragePort || createConfiguredAssetObjectStoragePort()
+    const port = objectStoragePort || createConfiguredManagedBlobObjectStoragePort()
     const content = await port.get({ ref: asset.blobRef })
     return { asset, content: Buffer.from(content) }
   }

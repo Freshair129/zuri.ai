@@ -2,8 +2,8 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Zuri Project Manager Phase B Feature API",
-    "version": "0.3.3b",
-    "description": "Candidate machine contract for the Project Manager Phase B Feature authority. Phase B routes and schemas remain documentation input until B1 owner approval and B2 registration; no route, schema migration, code generation or runtime operation is claimed."
+    "version": "0.3.6b",
+    "description": "Owner-approved Phase B contract within six records and fourteen operations. Version 0.3.6b makes capture receipt operation and committed resource identity explicit; 0.3.5b aligned Doc27 manifest version/path rules, read-side CAS headers and first-create versus replay status. Runtime source is composed locally; final verification, hosted CI and production are not claimed by this contract."
   },
   "servers": [
     {
@@ -39,7 +39,7 @@
         ],
         "summary": "Issue the session-bound API-write CSRF token",
         "description": "Identity-owned supporting contract. The token is opaque, API-write audience scoped, bound to the live zuri_session and same-origin policy, and is never the plugin-consent token. Issuance requires the configured Origin; an absent Origin is accepted only with Sec-Fetch-Site same-origin or a same-origin Referer. An unproven or foreign request is 403 CSRF_INVALID, following plan 24.",
-        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
+        "x-phase-b-status": "IMPLEMENTED_COMPOSED_VERIFICATION_PENDING",
         "security": [
           {
             "SessionAuth": []
@@ -86,7 +86,7 @@
         ],
         "summary": "Read the authorized Project Feature aggregate",
         "description": "Scope-first read of active, non-deleted ProjectFeatures and active relationship rows. The Project URL is context, never a grant. The direct response is FeatureView.",
-        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
+        "x-phase-b-status": "IMPLEMENTED_COMPOSED_VERIFICATION_PENDING",
         "responses": {
           "200": {
             "description": "Direct Project Feature aggregate.",
@@ -94,6 +94,18 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/FeatureView"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              },
+              "ETag": {
+                "description": "Owner-only graph CAS token includes all Feature rows and tombstones from the same read transaction; omitted for shared readers.",
+                "schema": {
+                  "type": "string",
+                  "maxLength": 4096
                 }
               }
             }
@@ -126,7 +138,7 @@
         ],
         "summary": "List authorized Project Features",
         "description": "Stable list ordered by code then id. Cursor is signed by the server. visibility=ACTIVE includes DRAFT, ACTIVE and RETIRED rows and excludes soft-deleted rows; visibility=DELETED is available only to an authorized Business owner restoring them and returns owner-only DeletedFeatureRecord tombstones without relationship payload. lifecycle is an independent optional filter over the stored lifecycle in either visibility.",
-        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
+        "x-phase-b-status": "IMPLEMENTED_COMPOSED_VERIFICATION_PENDING",
         "parameters": [
           {
             "$ref": "#/components/parameters/FeatureListVisibility"
@@ -173,7 +185,7 @@
         ],
         "summary": "Create a Project Feature draft",
         "description": "Creates only the base ProjectFeature. Relationship sets are replaced with their explicit commands. Scope, actor, version, timestamps, audit identity and deletedAt are server-derived.",
-        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
+        "x-phase-b-status": "IMPLEMENTED_COMPOSED_VERIFICATION_PENDING",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
@@ -193,6 +205,9 @@
           }
         },
         "responses": {
+          "200": {
+            "$ref": "#/components/responses/MutationAccepted"
+          },
           "201": {
             "$ref": "#/components/responses/MutationCreated"
           },
@@ -236,7 +251,7 @@
         ],
         "summary": "Read one authorized Project Feature",
         "description": "Checks the Project before the Feature. Missing, deleted, foreign and cross-scope targets use the same redacted refusal.",
-        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
+        "x-phase-b-status": "IMPLEMENTED_COMPOSED_VERIFICATION_PENDING",
         "responses": {
           "200": {
             "description": "Feature detail.",
@@ -244,6 +259,18 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/FeatureRecord"
+                }
+              }
+            },
+            "headers": {
+              "Cache-Control": {
+                "$ref": "#/components/headers/NoStore"
+              },
+              "ETag": {
+                "description": "Strong CAS token for the returned Feature id/version.",
+                "schema": {
+                  "type": "string",
+                  "maxLength": 4096
                 }
               }
             }
@@ -266,7 +293,7 @@
         ],
         "summary": "Update base Project Feature fields with CAS",
         "description": "Partial base update. Lifecycle transitions are DRAFT to ACTIVE to RETIRED; unchanged lifecycle is allowed during edits. RETIRED allows authorized metadata/relationship edits, soft delete and restore under the same CAS rules but cannot return to ACTIVE or DRAFT. Soft-delete restore preserves the prior lifecycle.",
-        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
+        "x-phase-b-status": "IMPLEMENTED_COMPOSED_VERIFICATION_PENDING",
         "parameters": [
           {
             "$ref": "#/components/parameters/IfMatch"
@@ -291,6 +318,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/MutationAccepted"
+          },
+          "400": {
+            "$ref": "#/components/responses/MalformedRequest"
           },
           "401": {
             "$ref": "#/components/responses/AuthRequired"
@@ -325,7 +355,7 @@
         ],
         "summary": "Soft-delete a Project Feature",
         "description": "Soft-deletes the Feature and only currently active relationship rows with one new deleteBatchId and shared tombstone timestamp. Unconditional Feature and child uniqueness remains; audit history and immutable identifiers remain. A later restore never redistributes allocation and may refuse atomically with ALLOCATION_RESTORE_CONFLICT.",
-        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
+        "x-phase-b-status": "IMPLEMENTED_COMPOSED_VERIFICATION_PENDING",
         "parameters": [
           {
             "$ref": "#/components/parameters/IfMatch"
@@ -340,6 +370,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/MutationAccepted"
+          },
+          "400": {
+            "$ref": "#/components/responses/MalformedRequest"
           },
           "401": {
             "$ref": "#/components/responses/AuthRequired"
@@ -381,7 +414,7 @@
         ],
         "summary": "Replace the complete Feature contribution set",
         "description": "Unchanged row ids are retained; new rows receive server UUIDs; omitted active rows are soft-deleted with a child-set deleteBatchId. Re-adding an omitted key revives the same UUID and increments its version. Unconditional uniqueness and duplicate/primary-domain rejection are enforced atomically.",
-        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
+        "x-phase-b-status": "IMPLEMENTED_COMPOSED_VERIFICATION_PENDING",
         "parameters": [
           {
             "$ref": "#/components/parameters/IfMatch"
@@ -406,6 +439,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/MutationAccepted"
+          },
+          "400": {
+            "$ref": "#/components/responses/MalformedRequest"
           },
           "401": {
             "$ref": "#/components/responses/AuthRequired"
@@ -450,7 +486,7 @@
         ],
         "summary": "Replace one Feature's complete WorkItem link set",
         "description": "Validates all active links for every affected WorkItem in the Project, including links owned by other Features. Allocation basis points apply to one WorkItem across Features, never to unrelated WorkItems; omitted links use a distinct child-set deleteBatchId and re-add revives the same UUID with an incremented version.",
-        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
+        "x-phase-b-status": "IMPLEMENTED_COMPOSED_VERIFICATION_PENDING",
         "parameters": [
           {
             "$ref": "#/components/parameters/IfMatch"
@@ -475,6 +511,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/MutationAccepted"
+          },
+          "400": {
+            "$ref": "#/components/responses/MalformedRequest"
           },
           "401": {
             "$ref": "#/components/responses/AuthRequired"
@@ -516,7 +555,7 @@
         ],
         "summary": "Redistribute one WorkItem across multiple Features atomically",
         "description": "Names at most 50 Feature sets, unique by featureId, and an exact affected WorkItem set. Every submitted link and every existing active link for a named Feature contributes its workItemId; missing or extra affected IDs refuse before the transaction. Unspecified Features remain unchanged, but all ProjectFeature rows (including tombstones) and every link for each affected WorkItem are locked and revalidated. The graph ETag is SHA-256 over the exact canonical JSON bytes described by GraphIfMatch and is rechecked inside the Project-lock transaction; no graph-state table is introduced.",
-        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
+        "x-phase-b-status": "IMPLEMENTED_COMPOSED_VERIFICATION_PENDING",
         "parameters": [
           {
             "$ref": "#/components/parameters/GraphIfMatch"
@@ -541,6 +580,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/MutationAccepted"
+          },
+          "400": {
+            "$ref": "#/components/responses/MalformedRequest"
           },
           "401": {
             "$ref": "#/components/responses/AuthRequired"
@@ -585,7 +627,7 @@
         ],
         "summary": "Replace the complete pinned requirement set",
         "description": "Every active binding requires an in-scope VALID GovernanceSnapshot and its immutable source revision hash. Omitted active bindings receive a distinct child-set deleteBatchId; re-adding the same key revives its UUID and increments its version under the unconditional unique key.",
-        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
+        "x-phase-b-status": "IMPLEMENTED_COMPOSED_VERIFICATION_PENDING",
         "parameters": [
           {
             "$ref": "#/components/parameters/IfMatch"
@@ -610,6 +652,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/MutationAccepted"
+          },
+          "400": {
+            "$ref": "#/components/responses/MalformedRequest"
           },
           "401": {
             "$ref": "#/components/responses/AuthRequired"
@@ -651,7 +696,7 @@
         ],
         "summary": "List immutable Project GovernanceSnapshots",
         "description": "Owner-scoped metadata listing. Payloads are provenance metadata only; source manifests are not returned as a grant or client-editable authority. Resolve and authorize the full Project hierarchy first (foreign or invalid scope is redacted 404); an authorized Project reader without Business-owner capability receives 403 CAPABILITY_DENIED before any snapshot lookup.",
-        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
+        "x-phase-b-status": "IMPLEMENTED_COMPOSED_VERIFICATION_PENDING",
         "parameters": [
           {
             "$ref": "#/components/parameters/Limit50"
@@ -670,6 +715,9 @@
                 }
               }
             }
+          },
+          "400": {
+            "$ref": "#/components/responses/MalformedRequest"
           },
           "401": {
             "$ref": "#/components/responses/AuthRequired"
@@ -692,7 +740,7 @@
         ],
         "summary": "Capture a verified immutable GovernanceSnapshot",
         "description": "Owner-admitted append-only command. Request metadata is intent only. Identity passes the request to a server-local Git verifier selected by an operator-registered Repository-to-checkout binding, requiring the active same-Business Repository and ProjectRepository link for the URL Project. No arbitrary URL, filesystem path or caller script is used. Only a server-verified VALID result is persisted; Feature create never captures a snapshot implicitly.",
-        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
+        "x-phase-b-status": "IMPLEMENTED_COMPOSED_VERIFICATION_PENDING",
         "parameters": [
           {
             "$ref": "#/components/parameters/IdempotencyKey"
@@ -717,6 +765,9 @@
           },
           "201": {
             "$ref": "#/components/responses/SnapshotCaptureCreated"
+          },
+          "400": {
+            "$ref": "#/components/responses/MalformedRequest"
           },
           "401": {
             "$ref": "#/components/responses/AuthRequired"
@@ -755,7 +806,7 @@
         ],
         "summary": "Restore a soft-deleted Project Feature",
         "description": "Restores the Feature and only children bearing the same deleteBatchId when original scope and Project dependencies still resolve. Older child-set removal tombstones remain deleted; an allocation overflow refuses atomically with ALLOCATION_RESTORE_CONFLICT. A deleted Feature code remains reserved and must be restored rather than re-created. At 200 non-deleted Features, restore refuses atomically with 422 FEATURE_LIMIT_REACHED.",
-        "x-phase-b-status": "APPROVED_UNIMPLEMENTED_ENTRY_REVIEW",
+        "x-phase-b-status": "IMPLEMENTED_COMPOSED_VERIFICATION_PENDING",
         "parameters": [
           {
             "$ref": "#/components/parameters/IfMatch"
@@ -770,6 +821,9 @@
         "responses": {
           "200": {
             "$ref": "#/components/responses/MutationAccepted"
+          },
+          "400": {
+            "$ref": "#/components/responses/MalformedRequest"
           },
           "401": {
             "$ref": "#/components/responses/AuthRequired"
@@ -1231,8 +1285,9 @@
         "properties": {
           "schemaVersion": {
             "type": "string",
-            "minLength": 1,
-            "maxLength": 32
+            "enum": [
+              "1.0.0"
+            ]
           },
           "entries": {
             "type": "array",
@@ -1240,10 +1295,12 @@
             "maxItems": 1000,
             "items": {
               "$ref": "#/components/schemas/SourceManifestEntry"
-            }
+            },
+            "uniqueItems": true
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "description": "Unique canonical relative paths, normalized ordinal UTF-8 path order and compact UTF-8 JSON; at most 1 MiB. Runtime additionally enforces unique path keys when hashes differ."
       },
       "SourceManifestEntry": {
         "type": "object",
@@ -1256,7 +1313,7 @@
             "type": "string",
             "minLength": 1,
             "maxLength": 512,
-            "pattern": "^(?![/\\\\])(?!.*(?:^|[/\\\\])\\.\\.(?:[/\\\\]|$))(?!.*\\\\).{1,512}$"
+            "pattern": "^(?![A-Za-z]:)(?!.*(?:^|\\/)\\.{1,2}(?:\\/|$))(?!.*[\\\\\\u0000-\\u001f\\u007f])[^/]+(?:\\/[^/]+)*$"
           },
           "sha256": {
             "type": "string",
@@ -2695,7 +2752,8 @@
       },
       "SnapshotCaptureResult": {
         "type": "object",
-        "description": "Capture result containing the immutable verified snapshot and its scoped receipt.",
+        "description": "A committed snapshot and its CAPTURE_GOVERNANCE_SNAPSHOT receipt. snapshot.id must equal receipt.resourceId; the server validates this cross-field relationship.",
+        "x-resource-identity": "snapshot.id == receipt.resourceId",
         "required": [
           "snapshot",
           "receipt"
@@ -2705,7 +2763,10 @@
             "$ref": "#/components/schemas/GovernanceSnapshot"
           },
           "receipt": {
-            "$ref": "#/components/schemas/MutationReceipt"
+            "allOf": [
+              { "$ref": "#/components/schemas/MutationReceipt" },
+              { "type": "object", "properties": { "operation": { "type": "string", "enum": ["CAPTURE_GOVERNANCE_SNAPSHOT"] } } }
+            ]
           }
         },
         "additionalProperties": false

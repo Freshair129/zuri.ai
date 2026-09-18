@@ -115,6 +115,10 @@ const storedDetail = (row) => {
 /** A resumed session: same installation, same start, and nothing got smaller — detail included (ADR-087 D5, ADR-086 D7). */
 function growsFrom(row, report, reporter) {
   if ((row.installationId || null) !== (reporter.installationId || null)) return false
+  // A session/branch keeps its task binding for its entire lifetime. A
+  // branch-only report (null) cannot later be rebound to a task, and a task
+  // report cannot be reassigned to another task on extension.
+  if ((row.taskCode || null) !== (report.taskCode || null)) return false
   if (new Date(row.startedAt).getTime() !== Date.parse(report.startedAt)) return false
   if (Date.parse(report.endedAt) < new Date(row.endedAt).getTime()) return false
   if (!COUNTS.every((field) => report[field] >= row[field])) return false
