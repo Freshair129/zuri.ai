@@ -220,7 +220,12 @@ async function applyRows(db, run, scope, resolved, now, viewer) {
       })
       return evidence
     }
-    const evidence = typeof db.$transaction === 'function' ? await db.$transaction(terminal) : await terminal(db)
+    // `applyRows` is called by `commitPage`, which already owns the single
+    // page transaction. A Prisma interactive transaction client also exposes
+    // `$transaction`; calling it here would attempt a nested transaction on
+    // the same client and production rejects that with P2028. Keep every row
+    // write on the transaction client supplied by the page boundary.
+    const evidence = await terminal(db)
     applied.push({ cursor: row.cursor, stageNumber: row.stageNumber, pipelineStageId: row.pipelineStageId, executionStepId: row.executionStepId, attemptId: row.attemptId, outcome: row.outcome, status: evidence ? 'CREATED_OR_UNCHANGED' : 'UNCHANGED' })
   }
   return applied
