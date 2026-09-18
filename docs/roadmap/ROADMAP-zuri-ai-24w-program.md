@@ -458,7 +458,7 @@ locates the week.
 | TASK-ZAI-005 | SPR-ZAI-02 | task | Supabase data pipeline monitor and replay, FR-071 | P0 | ATHER | done | - | PRD FR-071 |
 | TASK-ZAI-006 | SPR-ZAI-02 | task | Write the governed memory read and write contract | P1 | Claude | review | - | Section 3.1 row 4; ADR-050, ADR-063, ADR-067, ADR-068, ADR-072 |
 | TASK-ZAI-007 | SPR-ZAI-03 | task | Agent Role registry with five core roles | P0 | Claude | review | TASK-ZAI-006 | Section 3.1 row 5 |
-| TASK-ZAI-008 | SPR-ZAI-03 | task | Role-scoped memory partition and retrieval policy | P0 | Claude | planned | TASK-ZAI-007 | Section 3.1 rows 4 and 5 |
+| TASK-ZAI-008 | SPR-ZAI-03 | task | Role-scoped memory partition and retrieval policy | P0 | Claude | review | TASK-ZAI-007 | Section 3.1 rows 4 and 5 |
 | TASK-ZAI-009 | SPR-ZAI-03 | task | Agent Factory, the standard business agent template | P1 | Codex | planned | TASK-ZAI-007 | Proposal scope, AI Control |
 | TASK-ZAI-010 | SPR-ZAI-04 | task | Approval Gateway L1 to L4 over the FR-026 action gate | P0 | ATHER | planned | TASK-ZAI-007 | Section 3.1 row 9 |
 | TASK-ZAI-011 | SPR-ZAI-04 | task | Verification and notification fabric on approval outcomes | P0 | Codex | planned | TASK-ZAI-010 | Section 3.1 row 9 |
@@ -938,26 +938,26 @@ title: Role-scoped memory partition and retrieval policy
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/modules/agent/runtime.js
+  code: src/modules/agent/role-memory-partition.js
   doc: docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md
-  test: unavailable
+  test: tests/unit/role-memory-partition.test.js
 definition_of_done:
   acceptance_criteria:
     - criterion: Given two roles in the same Business, when each retrieves memory, then neither sees the other private partition
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a shared Business partition, when either role reads it, then the same governed content is returned to both
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the partition suite runs, then a cross-role read returns empty and is audited
-      checked: false
+      checked: true
 changelog: Opened as the memory half of the role registry. Depends on the written contract from TASK-ZAI-006.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
@@ -966,8 +966,8 @@ token_telemetry:
   predicted_token_usage: 44000
   total_token_usage: 0
 ui_state:
-  dropdown_default: collapsed
-  expanded: false
+  dropdown_default: expanded
+  expanded: true
   disabled_reason: ""
 ```
 

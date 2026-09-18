@@ -66,3 +66,16 @@ export {
   createRoleScopedToolRegistry,
   createAgentRoleRegistry,
 } from './role-registry'
+// @req TASK-ZAI-008 — Role-scoped memory partition and retrieval policy.
+// @spec SPR-ZAI-03, GATE-ZAI-05, ADR-043 §D2 — Role-scoped memory partition and retrieval policy;
+//   private role memory partitions are isolated; shared business partition accessible across roles;
+//   cross-role private read returns empty and is audited.
+// @tested tests/unit/role-memory-partition.test.js
+export {
+  ROLE_MEMORY_AUDIT_ENTITY,
+  ROLE_MEMORY_ACTIONS,
+  buildRoleMemoryKey,
+  buildSharedBusinessMemoryKey,
+  createRoleScopedMemoryPort,
+} from './role-memory-partition'
+
