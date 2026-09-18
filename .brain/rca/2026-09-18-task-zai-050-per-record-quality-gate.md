@@ -1,7 +1,7 @@
 ---
-version: "0.2.0b"
+version: "0.3.0b"
 created_at: "2026-09-18T00:00:00+07:00,Codex"
-last_update: "2026-09-18T18:36:08+07:00,Codex"
+last_update: "2026-09-18T19:12:00+07:00,Codex"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -39,6 +39,10 @@ physical evidence for each claimed decision, but every decision remained
   row with Prisma `P2028` (`Transaction API error: Transaction not found`).
   The stack showed `applyRows` opening `$transaction` on the interactive
   transaction client already supplied by its page-level transaction.
+- After the nested boundary was removed and the new image was promoted, a
+  read-only transaction timing probe measured the same nine-row page at
+  `5014ms`; PostgreSQL closed Prisma's default `5000ms` interactive transaction
+  before `pipelineStep.update`, producing the second `P2028`.
 
 ## Root cause
 
@@ -48,9 +52,12 @@ contract. The worker then evaluated irrelevant queries against isolated
 generations. Separately, the worker treated a terminal GKS `FAIL` verdict as a
 retryable hold even though the Tier 1 importer can close a run only from
 materialized Stage 17 failure evidence or a publication receipt. Once evidence
-was available, the importer added a second transaction boundary inside its
-page transaction; PostgreSQL rejected that nested interactive transaction with
-`P2028`, so the durable run never received local Stage 9–17 evidence.
+was available, the importer first added a second transaction boundary inside
+its page transaction; PostgreSQL rejected that nested interactive transaction
+with `P2028`. Once that boundary was removed, the nine-row page still exceeded
+Prisma's default five-second interactive transaction timeout, so the outer
+transaction closed before its final step update and the durable run again
+received no local Stage 9–17 evidence.
 
 ## Why detection escaped
 
@@ -74,6 +81,9 @@ was started before that gate had a corresponding runtime contract test.
    the production fixture shape matches the admission granularity.
 4. Keep evidence import on one page-level transaction and reject nested
    transaction clients in acceptance coverage.
+5. Bound the page transaction with an explicit timeout sized for the maximum
+   nine-stage evidence page, and retain a production timing probe in the
+   release smoke so a default-timeout regression is visible.
 
 ## Scope and release limit
 
@@ -89,3 +99,4 @@ publication receipt.
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-18 | superseded | Recorded per-record benchmark scope drift and missing terminal Stage 17 failure evidence. | working-tree | Codex |
 | 0.2.0b | 2026-09-18 | candidate | Added production P2028 evidence and the single-page transaction repair boundary. | working-tree | Codex |
+| 0.3.0b | 2026-09-18 | candidate | Added production timing evidence for the five-second transaction timeout and the explicit page-timeout prevention. | working-tree | Codex |

@@ -30,6 +30,10 @@ const EXTERNAL_MAX_STAGE = 17
 const DEFAULT_LIMIT = 100
 const MAX_LIMIT = 100
 const DEFAULT_MAX_PAGES = 10
+// A complete external page contains one row for each of Stages 9–17. Each row
+// writes ledger, audit and evidence records, so PostgreSQL's five-second
+// interactive-transaction default is too short for the bounded atomic page.
+const PAGE_TRANSACTION_TIMEOUT_MS = 30_000
 
 function serviceError(status, message, code = null) {
   const error = new Error(message)
@@ -292,7 +296,9 @@ export async function pullGenesisRag17Evidence({ schemaVersion, scope, runId, af
       await updateCursor(tx)
       return result
     }
-    const pageApplied = typeof db.$transaction === 'function' ? await db.$transaction(commitPage) : await commitPage(db)
+    const pageApplied = typeof db.$transaction === 'function'
+      ? await db.$transaction(commitPage, { timeout: PAGE_TRANSACTION_TIMEOUT_MS })
+      : await commitPage(db)
     applied.push(...pageApplied)
     cursor = nextCursor
     if (!page.rows.length || page.rows.length < limit) break
