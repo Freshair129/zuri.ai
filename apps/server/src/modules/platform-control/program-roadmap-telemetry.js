@@ -1,9 +1,5 @@
 // @req FR-216, FR-217 — the Delivery Telemetry section of ROADMAP-ZURI-AI-24W-PROGRAM
-<<<<<<< HEAD
 // (v0.4.12): the sizing table and work lanes the owner declares, and the usage
-=======
-// (v0.4.11): the sizing table and work lanes the owner declares, and the usage
->>>>>>> origin/main
 // the meter measured from local agent session logs.
 // @spec ADR-086 D1-D4 — planned and measured stay separate; usage is never progress.
 // @tested tests/unit/programme-containers.test.js, tests/unit/program-delivery-metrics.test.js
