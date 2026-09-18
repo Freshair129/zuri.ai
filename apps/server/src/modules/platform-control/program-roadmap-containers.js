@@ -207,7 +207,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "present",
+      "doc": "missing",
       "test": "unavailable"
     },
     "delivers": [
@@ -327,36 +327,36 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-008",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "src/modules/agent/runtime.js",
+      "code": "src/modules/agent/role-memory-partition.js",
       "doc": "docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md",
-      "test": "unavailable"
+      "test": "tests/unit/role-memory-partition.test.js"
     },
     "linkState": {
       "code": "missing",
       "doc": "present",
-      "test": "unavailable"
+      "test": "missing"
     },
     "delivers": [],
     "subtasks": [],
     "dod": {
       "acceptance": {
         "text": "Given two roles in the same Business, when each retrieves memory, then neither sees the other private partition",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a shared Business partition, when either role reads it, then the same governed content is returned to both",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test, when the partition suite runs, then a cross-role read returns empty and is audited",
-        "checked": false
+        "checked": true
       }
     },
     "changelog": "Opened as the memory half of the role registry. Depends on the written contract from TASK-ZAI-006.",
@@ -430,7 +430,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "present",
+      "doc": "missing",
       "test": "unavailable"
     },
     "delivers": [],
@@ -475,7 +475,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "present",
+      "doc": "missing",
       "test": "unavailable"
     },
     "delivers": [],
@@ -610,7 +610,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "present",
+      "doc": "missing",
       "test": "unavailable"
     },
     "delivers": [],
@@ -655,7 +655,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "present",
+      "doc": "missing",
       "test": "missing"
     },
     "delivers": [],
@@ -1199,7 +1199,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "present",
+      "doc": "missing",
       "test": "unavailable"
     },
     "delivers": [],
