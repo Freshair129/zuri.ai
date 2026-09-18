@@ -197,14 +197,14 @@ async function applyRows(db, run, scope, resolved, now, viewer) {
     const details = row.details || {}
     const publication = stage17Publication(row, scope, run.executionRunId)
     const terminal = async (tx) => {
-      await recordPipelineEvent(ledgerEvent(run, step, row, 'STEP_STARTED', startedAt), { db: tx, viewer, now: () => startedAt })
+      await recordPipelineEvent(ledgerEvent(run, step, row, 'STEP_STARTED', startedAt), { db: tx, viewer, now: () => startedAt, transactional: false })
       if (row.stageNumber === 17 && row.details?.verdict) {
         const status = publication ? 'APPROVED' : 'REJECTED'
         await recordPipelineEvent({ ...ledgerEvent(run, step, row, 'GATE_UPDATED', finishedAt), status, tenantId: run.tenantId, businessId: run.businessId,
           gate: { gateId: 'GATE-KNOWLEDGE-QUALITY', status, required: true, decidedByPersonId: null, reason: `Stage 17 verdict ${row.details.verdict.verdict}`, evidence: qualityGateEvidence(row, publication, scope) },
-        }, { db: tx, viewer, now: () => finishedAt })
+        }, { db: tx, viewer, now: () => finishedAt, transactional: false })
       }
-      await recordPipelineEvent(ledgerEvent(run, step, row, row.outcome === 'FAILED' ? 'STEP_FAILED' : 'STEP_SUCCEEDED', finishedAt, row.outcome === 'FAILED' ? details : null), { db: tx, viewer, now: () => finishedAt })
+      await recordPipelineEvent(ledgerEvent(run, step, row, row.outcome === 'FAILED' ? 'STEP_FAILED' : 'STEP_SUCCEEDED', finishedAt, row.outcome === 'FAILED' ? details : null), { db: tx, viewer, now: () => finishedAt, transactional: false })
       if (publication) await persistGenesisRag17PublicationReceipt(publication, { db: tx, now: () => finishedAt })
       const evidence = await writeStageEvidence(tx, {
         run,
