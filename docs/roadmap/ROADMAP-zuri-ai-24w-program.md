@@ -414,8 +414,8 @@ Week numbers map to the calendar in section 5.4. W1 begins Mon 2026-08-24.
 
 | Phase | Weeks | Dates | Goal | Governing SoT | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
-| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2); (v0.4.7) bind the LINE OA platform plan to lanes before its work starts | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, the cost and quote decision record is written, the data pipeline map renders every confirmed chain (v0.4.3), and the board shows measured time and tokens for done work (v0.4.4) | in-progress | 88 |
-| PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; give the seventeen-stage pipeline its knowledge base and file system on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one; (v0.4.7) a Business owner connects a LINE OA from the browser through a write-only credential vault, and the LINE chat record is complete with declared retention | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; a real document is admitted, parsed, published and cited on production; GATE-ZAI-09's migration ledger matches; one production LINE OA account runs on server transport from a vault credential its owner entered, with no operator file (v0.4.7) | in-progress | 25 |
+| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2); (v0.4.7) bind the LINE OA platform plan to lanes before its work starts | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, the cost and quote decision record is written, the data pipeline map renders every confirmed chain (v0.4.3), and the board shows measured time and tokens for done work (v0.4.4) | in-progress | 91 |
+| PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; give the seventeen-stage pipeline its knowledge base and file system on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one; (v0.4.7) a Business owner connects a LINE OA from the browser through a write-only credential vault, and the LINE chat record is complete with declared retention | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; a real document is admitted, parsed, published and cited on production; GATE-ZAI-09's migration ledger matches; one production LINE OA account runs on server transport from a vault credential its owner entered, with no operator file (v0.4.7) | in-progress | 48 |
 | PHASE-ZAI-03 | 9-12 | 2026-10-19 to 2026-11-15 | Second business, cross-business analytics, first workflows and connectors; deliverable 11 accepted for Business one; (v0.4.7) one Context Composer for every LINE prompt, LINE answers grounded by the published corpus, reviewed knowledge candidates, and memory policy with erasure beyond Tier 1 once MSP can hold and erase it | `docs/ARCHITECTURE.md` | GATE-ZAI-04 and GATE-ZAI-07 are met for connectors one and two and workflows one and two; GATE-ZAI-09 is met; a SmartGift LINE answer cites the published corpus in the isolated harness with zero cross-tenant leakage (v0.4.7) | in-progress | 10 |
 | PHASE-ZAI-04 | 13-16 | 2026-11-16 to 2026-12-13 | Visual Office 2.5D and the agent activity experience | `docs/UI-DESIGN-SYSTEM.md` | GATE-ZAI-01 is met | planned | 0 |
 | PHASE-ZAI-05 | 17-20 | 2026-12-14 to 2027-01-10 | Second Brain, Node View 3D and the remaining automation | `docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md` | GATE-ZAI-02, GATE-ZAI-03 and GATE-ZAI-05 are met | in-progress | 17 |
@@ -435,8 +435,8 @@ locates the week.
 | Sprint | Parent ID | Weeks | Dates | Goal | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
 | SPR-ZAI-01 | PHASE-ZAI-01 | 1-2 | 08-24 to 09-06 | Close identity, session and authorization to production standard; (CR-019) Inventory, Sales Tasks, Commerce, Procurement, Asset Management and LINE OA Studio lanes land | A request without a trusted session reaches no mutating route, proven by test; each lane merged with tests | in-progress | 93 |
-| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake; (v0.4.3) the data pipeline registry and its node-edge map land under a Knowledge (GKS) slot; (v0.4.4) delivery telemetry on the programme board: phase card metrics, task card evidence badges with subtask progress, a usage meter over local session logs and a usage report endpoint; (v0.4.5) the Zuri harness usage plugin with browser-approved device pairing; (v0.4.6) the plugin specification and agent usage detail — thinking tokens, tool calls, prompts and compactions; (v0.4.7) the LINE OA platform plan registered with its lanes before work starts; (v0.4.8) a 30-day member view of the roadmap for signed-in people; (v0.4.9) ADR-093 and ADR-094 accepted and their tasks bound to lanes | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, supplier cost sheets land with a locked FX rate, and the map shows every inbound source, outbound recipient and combine chain with its surface level, a done task shows tokens measured from a named source, every task card shows its evidence badges, a paired agent on another machine reports its sessions (v0.4.5), the board shows tool calls and token types per lane and person (v0.4.6), and a signed-in non-operator reads the plan at /roadmap until the window closes (v0.4.8); ADR-093 and ADR-094 read accepted with their requirements pinned (v0.4.9); error tracking and per-person feature usage extend the logger (v0.4.10) | in-progress | 87 |
-| SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; stand up the knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending deliverable-11 migration on production; pricing rule set, the shared pricing engine and quotations; live pipeline health on the data pipeline map; (v0.4.7) the Integration credential vault with Supabase Vault and envelope stores, the LINE channel claim and channel-admin port, and the AAL2 credential-write gate; (v0.4.9) conversation sessions on the record with their production apply | Each role resolves distinct tools, policy and memory partition; a PDF uploaded in the console is published as a cited corpus on production; the migration ledger matches the tree; a quote and the FR-181 tool price the same SKU to the same satang; a failed run is visible on its map edge for its own Business only; ADR-089 proofs 1 to 6 pass on both stores and a real test channel is validated in a dev deployment with no production migration applied (v0.4.7); a gap past the idle timeout opens a second session on production (v0.4.9) | in-progress | 30 |
+| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake; (v0.4.3) the data pipeline registry and its node-edge map land under a Knowledge (GKS) slot; (v0.4.4) delivery telemetry on the programme board: phase card metrics, task card evidence badges with subtask progress, a usage meter over local session logs and a usage report endpoint; (v0.4.5) the Zuri harness usage plugin with browser-approved device pairing; (v0.4.6) the plugin specification and agent usage detail — thinking tokens, tool calls, prompts and compactions; (v0.4.7) the LINE OA platform plan registered with its lanes before work starts; (v0.4.8) a 30-day member view of the roadmap for signed-in people; (v0.4.9) ADR-093 and ADR-094 accepted and their tasks bound to lanes | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, supplier cost sheets land with a locked FX rate, and the map shows every inbound source, outbound recipient and combine chain with its surface level, a done task shows tokens measured from a named source, every task card shows its evidence badges, a paired agent on another machine reports its sessions (v0.4.5), the board shows tool calls and token types per lane and person (v0.4.6), and a signed-in non-operator reads the plan at /roadmap until the window closes (v0.4.8); ADR-093 and ADR-094 read accepted with their requirements pinned (v0.4.9); error tracking and per-person feature usage extend the logger (v0.4.10) | in-progress | 91 |
+| SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; stand up the knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending deliverable-11 migration on production; pricing rule set, the shared pricing engine and quotations; live pipeline health on the data pipeline map; (v0.4.7) the Integration credential vault with Supabase Vault and envelope stores, the LINE channel claim and channel-admin port, and the AAL2 credential-write gate; (v0.4.9) conversation sessions on the record with their production apply | Each role resolves distinct tools, policy and memory partition; a PDF uploaded in the console is published as a cited corpus on production; the migration ledger matches the tree; a quote and the FR-181 tool price the same SKU to the same satang; a failed run is visible on its map edge for its own Business only; ADR-089 proofs 1 to 6 pass on both stores and a real test channel is validated in a dev deployment with no production migration applied (v0.4.7); a gap past the idle timeout opens a second session on production (v0.4.9) | in-progress | 40 |
 | SPR-ZAI-04 | PHASE-ZAI-02 | 7-8 | 10-05 to 10-18 | Approval Gateway L1 to L4 with verification, notification and Mission Control binding; ladder quotation on LINE and knowledge structured records; (v0.4.7) the self-serve LINE OA wizard with automatic webhook registration and derived quiescence, the first production account moved off the mount, and the complete chat record with retention sweep and inbox search; (v0.4.9) local model residency by business hours and staff replies recorded from the inbox | An L4 action cannot execute without four recorded approvals; a LINE quotation request is answered from the shared engine with no margin in the payload; one production LINE OA account runs on server transport from a credential its owner entered, and non-text LINE events appear in the inbox (v0.4.7); the model is unloaded outside business hours and a staff reply is in the record (v0.4.9) | in-progress | 19 |
 | SPR-ZAI-05 | PHASE-ZAI-03 | 9-10 | 10-19 to 11-01 | Standard business template and Business number two onboarding; (v0.4.7) the Context Composer, and LINE grounding from the published corpus with its isolated acceptance; (v0.4.9) the chat evidence archive writer, OWNER retrieval and the legal hold | Business two is live and isolated from SmartGift under test; every LINE prompt carries one ContextReceipt and a grounded answer cites the corpus in the four-process harness (v0.4.7); a swept body is decrypted from a verified archive by an OWNER at AAL2 (v0.4.9) | in-progress | 21 |
 | SPR-ZAI-06 | PHASE-ZAI-03 | 11-12 | 11-02 to 11-15 | Cross-business analytics, connector two, workflows one and two; GATE-ZAI-09 evidence run; (v0.4.7) the SmartGift grounding switch after ADR-075 Phase 3, LINE knowledge candidates, the gap report and Studio descriptions, and memory policy with erasure fan-out once MSP ships its thread and erase tools; (v0.4.9) the chat evidence archive on production and its offline copy | Analytics obey per-business visibility, two workflows run end to end, and the ERP acceptance record is signed; an approved locator-only candidate is admitted with Zero-PII checked twice (v0.4.7); the first manifest is recorded on production and copied offline (v0.4.9) | in-progress | 4 |
@@ -456,8 +456,8 @@ locates the week.
 | TASK-ZAI-003 | SPR-ZAI-01 | task | Profile-first onboarding and Waiting Room, FR-066 | P1 | Codex | done | TASK-ZAI-001 | PRD FR-066, FR-122 |
 | TASK-ZAI-004 | SPR-ZAI-02 | task | Workspace collaboration boundary and scoped invites, FR-067 | P0 | Codex | done | TASK-ZAI-003 | PRD FR-067; FR-195 generalises it |
 | TASK-ZAI-005 | SPR-ZAI-02 | task | Supabase data pipeline monitor and replay, FR-071 | P0 | ATHER | done | - | PRD FR-071 |
-| TASK-ZAI-006 | SPR-ZAI-02 | task | Write the governed memory read and write contract | P1 | Claude | review | - | Section 3.1 row 4; ADR-050, ADR-063, ADR-067, ADR-068, ADR-072 |
-| TASK-ZAI-007 | SPR-ZAI-03 | task | Agent Role registry with five core roles | P0 | Claude | review | TASK-ZAI-006 | Section 3.1 row 5 |
+| TASK-ZAI-006 | SPR-ZAI-02 | task | Write the governed memory read and write contract | P1 | Claude | done | - | Section 3.1 row 4; ADR-050, ADR-063, ADR-067, ADR-068, ADR-072 |
+| TASK-ZAI-007 | SPR-ZAI-03 | task | Agent Role registry with five core roles | P0 | Claude | done | TASK-ZAI-006 | Section 3.1 row 5 |
 | TASK-ZAI-008 | SPR-ZAI-03 | task | Role-scoped memory partition and retrieval policy | P0 | Claude | planned | TASK-ZAI-007 | Section 3.1 rows 4 and 5 |
 | TASK-ZAI-009 | SPR-ZAI-03 | task | Agent Factory, the standard business agent template | P1 | Codex | planned | TASK-ZAI-007 | Proposal scope, AI Control |
 | TASK-ZAI-010 | SPR-ZAI-04 | task | Approval Gateway L1 to L4 over the FR-026 action gate | P0 | ATHER | planned | TASK-ZAI-007 | Section 3.1 row 9 |
@@ -502,7 +502,7 @@ locates the week.
 | TASK-ZAI-049 | SPR-ZAI-03 | task | Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1) | P0 | ATHER | planned | TASK-ZAI-045 | Section 3.1 row 4; FR-045, FR-111, FR-137 |
 | TASK-ZAI-050 | SPR-ZAI-03 | task | Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published | P0 | ATHER | planned | TASK-ZAI-045; TASK-ZAI-049 | ADR-073 amendment; ADR-075 Phase 2 gate |
 | TASK-ZAI-051 | SPR-ZAI-03 | task | Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary | P2 | Claude | planned | TASK-ZAI-050 | 17-stage flow, "connector/แหล่งเอกสาร" row; FR-081 |
-| TASK-ZAI-052 | SPR-ZAI-02 | task | Cost and quote engine decision record — proposal, ADR, FR and FEAT declarations with the owner's nine decisions | P0 | Claude | in-progress | TASK-ZAI-038 | CR-019 deliverable 11; ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; SmartGift ADR-009 |
+| TASK-ZAI-052 | SPR-ZAI-02 | task | Cost and quote engine decision record — proposal, ADR, FR and FEAT declarations with the owner's nine decisions | P0 | Claude | done | TASK-ZAI-038 | CR-019 deliverable 11; ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; SmartGift ADR-009 |
 | TASK-ZAI-053 | SPR-ZAI-02 | task | Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory) | P0 | Claude | planned | TASK-ZAI-052; TASK-ZAI-034 | CR-019 deliverable 11; SmartGift ADR-005 and ADR-009 D4; ADR-084 |
 | TASK-ZAI-054 | SPR-ZAI-02 | task | Goods receipts post the landed unit cost to the stock ledger, and the SKU page gains a cost card | P0 | Claude | planned | TASK-ZAI-053; TASK-ZAI-038 | CR-019 deliverable 11; ADR-074 D3; FR-165; FR-175 |
 | TASK-ZAI-055 | SPR-ZAI-03 | task | PricingRuleSet — versioned, owner-approved pricing rules ported from pricing_rules_formula.yaml with per-block provenance, and the Pricing Rules console | P0 | Claude | planned | TASK-ZAI-052 | CR-019 deliverable 11; SmartGift pricing_rules_formula.yaml v4; FR-131; SDD-077 |
@@ -511,9 +511,9 @@ locates the week.
 | TASK-ZAI-058 | SPR-ZAI-04 | task | Ladder quotation on LINE (FR-132) over the shared engine with a deterministic intent matcher | P1 | Claude | planned | TASK-ZAI-057; TASK-ZAI-036 | CR-019 deliverable 11; FR-132; FR-131; BR-011; FR-047 |
 | TASK-ZAI-059 | SPR-ZAI-04 | task | Knowledge structured records — STRUCTURED_RECORDS_V1 JSON format, an Excel template and converter, and MCP format widening before Stage 1 | P1 | Claude | planned | TASK-ZAI-045; TASK-ZAI-042 | Section 3.1 row 4; ADR-075 D2; FR-187; FR-209; BR-009 |
 | TASK-ZAI-060 | SPR-ZAI-02 | task | Data pipeline map decision record — the ADR for a Knowledge (GKS) navigation slot that consumes GKS without becoming it, and the requirement and FEAT declarations | P0 | Claude | done | - | Section 3.1 row 4; ADR-063 D4; ADR-050; SYSTEM-DIAGRAM; ARCHITECTURE-DIAGRAMS section 3 |
-| TASK-ZAI-061 | SPR-ZAI-02 | task | Data pipeline registry — the written map of inbound sources, outbound recipients and combine chains, a validated JSON registry, a generated runtime projection and a preflight check | P0 | Claude | review | TASK-ZAI-060 | Section 3.1 row 4; FR-124 precedent; ADR-081 D2 |
-| TASK-ZAI-062 | SPR-ZAI-02 | task | Data Pipeline Map node-edge view under the Knowledge (GKS) slot — layered graph, chain, domain and status filters, edge detail with domain, FEAT and surface level, and a list view | P0 | Claude | review | TASK-ZAI-061 | Section 3.1 row 4; FR-040 and FR-101 hand-rolled SVG precedent; FR-061 |
-| TASK-ZAI-063 | SPR-ZAI-03 | task | Live pipeline health on the map — per-edge run and job counts for the active Business from the FR-071 ledger and the transport job tables | P1 | Claude | review | TASK-ZAI-062; TASK-ZAI-047 | Section 3.1 row 4; FR-071; FR-149; FR-152; FR-143 |
+| TASK-ZAI-061 | SPR-ZAI-02 | task | Data pipeline registry — the written map of inbound sources, outbound recipients and combine chains, a validated JSON registry, a generated runtime projection and a preflight check | P0 | Claude | done | TASK-ZAI-060 | Section 3.1 row 4; FR-124 precedent; ADR-081 D2 |
+| TASK-ZAI-062 | SPR-ZAI-02 | task | Data Pipeline Map node-edge view under the Knowledge (GKS) slot — layered graph, chain, domain and status filters, edge detail with domain, FEAT and surface level, and a list view | P0 | Claude | done | TASK-ZAI-061 | Section 3.1 row 4; FR-040 and FR-101 hand-rolled SVG precedent; FR-061 |
+| TASK-ZAI-063 | SPR-ZAI-03 | task | Live pipeline health on the map — per-edge run and job counts for the active Business from the FR-071 ledger and the transport job tables | P1 | Claude | done | TASK-ZAI-062; TASK-ZAI-047 | Section 3.1 row 4; FR-071; FR-149; FR-152; FR-143 |
 | TASK-ZAI-064 | SPR-ZAI-02 | task | Delivery telemetry decision record — the ADR that lets the programme board show measured time and tokens beside the plan without turning either into completion, the sizing table, and the requirement and FEAT declarations | P0 | Claude | done | - | Section 3.1 row 2; ADR-048 D3; FR-105 |
 | TASK-ZAI-065 | SPR-ZAI-02 | task | Phase card delivery metrics — sprint and task counts, size in complexity points, plan window and effort estimate, actual time and measured tokens once done, and done or review cards tinted green or orange | P0 | Claude | done | TASK-ZAI-064 | Section 3.1 row 2; FR-105; FR-211; NFR-008 |
 | TASK-ZAI-066 | SPR-ZAI-02 | task | Usage meter — measured tokens and active time per task from Claude Code and Codex session logs, attributed by the branches each Task Container declares and written back with provenance | P0 | Claude | done | TASK-ZAI-064 | Section 3.1 row 2; ADR-048 D3; section 5.3 measurement precedent |
@@ -527,7 +527,7 @@ locates the week.
 | TASK-ZAI-074 | SPR-ZAI-02 | task | Agent usage detail capture — thinking and reasoning tokens, cache writes by lifetime, tool calls by name with errors and denials, web search and fetch, user prompts, compactions and errors, measured by the meter and the plugin with parity, carried by the report endpoint and stored for each lane, person and device | P0 | Claude | done | TASK-ZAI-072 | Section 3.1 row 2; FR-217; FR-221; FR-222; ADR-086 D4 |
 | TASK-ZAI-075 | SPR-ZAI-02 | task | Usage detail on the programme board — phase and task telemetry show input, output, thinking and cache tokens separately, tool calls with the most used tools and the error rate, prompts and compactions, per lane, person and device | P1 | Claude | done | TASK-ZAI-074 | Section 3.1 row 2; FR-216; FR-221; NFR-008 |
 | TASK-ZAI-076 | SPR-ZAI-02 | task | LINE OA platform decision record — ADR-089 credential vault and self-serve onboarding, ADR-090 GKS grounding and reviewed candidates, ADR-091 chat record, memory tiers and the Context Composer, with FR-223 to FR-238, SEC-030 to SEC-032, SDD-097 to SDD-100 and FEAT-036 to FEAT-038 declared | P0 | Claude | done | - | Section 3.1 rows 4 and 8; ADR-089; ADR-090; ADR-091 |
-| TASK-ZAI-077 | SPR-ZAI-02 | task | LINE OA platform delivery plan — every phase of ADR-089 to ADR-091 registered as sized tasks with acceptance criteria, lanes bound to branches before work starts, the usage-detail capture of TASK-ZAI-074 and TASK-ZAI-075 named as the measurement prerequisite, the Project Manager import path stated, and the usage meter run | P0 | Claude | in-progress | TASK-ZAI-076 | Section 3.1 rows 2, 4 and 8; ADR-086 D3; ADR-089; ADR-090; ADR-091 |
+| TASK-ZAI-077 | SPR-ZAI-02 | task | LINE OA platform delivery plan — every phase of ADR-089 to ADR-091 registered as sized tasks with acceptance criteria, lanes bound to branches before work starts, the usage-detail capture of TASK-ZAI-074 and TASK-ZAI-075 named as the measurement prerequisite, the Project Manager import path stated, and the usage meter run | P0 | Claude | done | TASK-ZAI-076 | Section 3.1 rows 2, 4 and 8; ADR-086 D3; ADR-089; ADR-090; ADR-091 |
 | TASK-ZAI-078 | SPR-ZAI-03 | task | Integration credential vault — a SecretStorePort with the Supabase Vault and envelope stores, a dispatching secret manager by reference prefix, versioned write, activate, rotate, revoke and resolve with compensation and re-entry status, and design migrations 1, 3 and 4 — FR-223, SEC-030, SDD-097 | P0 | Claude | done | TASK-ZAI-077; TASK-ZAI-074; TASK-ZAI-075 | Section 3.1 row 8; ADR-089 D1, D2, D5 |
 | TASK-ZAI-079 | SPR-ZAI-03 | task | LINE channel account claim and the Integration LINE channel-admin port — an installation-wide claim by destination hash taken before any secret is stored, stateless token minting with a per-version cache, bot info, and webhook set, read and test calls, with design migration 2 — FR-226, SDD-098 and the port half of FR-227 | P0 | Claude | done | TASK-ZAI-078 | Section 3.1 row 8; ADR-089 D3, D6, D7 |
 | TASK-ZAI-080 | SPR-ZAI-03 | task | Credential-write step-up gate and the first rate limit — assertSessionAssurance AAL2 on every credential write, rotation, revocation and validation, an enrolment redirect when no factor exists, and a RateLimitBucket store answering 429 with retry hints, design migration 8 — FR-224 | P0 | Claude | done | TASK-ZAI-078 | Section 3.1 row 8; ADR-089 D4 |
@@ -568,7 +568,7 @@ locates the week.
 | TASK-ZAI-115 | SPR-ZAI-06 | task | Monthly offline copy of the chat evidence archive — new archive files copied to an offline external drive and verified against the manifest hashes, with the first verified copy recorded | P2 | Owen | planned | TASK-ZAI-114 | ADR-093 D8; FR-245 |
 | TASK-ZAI-116 | SPR-ZAI-02 | task | Observability decision record — ADR-095 for error tracking and per-person feature usage, and the FR/NFR declarations it governs | P1 | Claude | done |  | CR-020; ADR-095 |
 | TASK-ZAI-117 | SPR-ZAI-02 | task | Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action | P1 | Claude | done | TASK-ZAI-116 | ADR-095 D1; FR-247 |
-| TASK-ZAI-118 | SPR-ZAI-02 | task | Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup | P2 | Claude | review | TASK-ZAI-116 | ADR-095 D2, D3; FR-248, FR-249 |
+| TASK-ZAI-118 | SPR-ZAI-02 | task | Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup | P2 | Claude | done | TASK-ZAI-116 | ADR-095 D2, D3; FR-248, FR-249 |
 
 ## Assignments
 
@@ -850,8 +850,8 @@ title: Write the governed memory read and write contract
 requirement_type: NFR
 complexity: C-3
 access_scope: H3
-status: review
-version: 0.2.0
+status: done
+version: 1.0.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -863,14 +863,14 @@ symbol_links:
 definition_of_done:
   acceptance_criteria:
     - criterion: Given the contract document, when a reader asks what a role may write to memory, then the answer is stated per scope rather than implied
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given the existing FR-025 read path, when the contract is applied, then no current read behaviour changes without an explicit note
       checked: true
   exit_criteria:
     - criterion: Given npm run govern, when the new contract document is added, then preflight strict passes with no new warning
       checked: true
-changelog: Opened because the Second Brain deliverable has read ports but no written contract governing writes, retention or partitioning. Re-baselined 2026-08-23 to sit under ADR-043, which pinned the four-tier cognitive architecture on D12 and now governs this contract. Re-baselined 2026-09-13 (v0.4.0) to review — no single document titled "memory contract" exists, but the contract is now written across five decisions that each passed govern: ADR-050 (Tier 1 ingestion boundary), ADR-063 (Tier 1 direct GenesisBlockDB clients retired; MSP/GKS/GenesisBlockDB stay external), ADR-067 (reporter and run close), ADR-068 (evidence pull through MSP) and ADR-072 (admission and corpus publication), with FR-098 stating what an agent, tool or MSP call may read under the shared authorization context. What is still not stated per scope is what a *role* may write, because roles do not exist yet (TASK-ZAI-007); the acceptance criterion therefore stays open and closes with the role registry.
+changelog: Opened because the Second Brain deliverable has read ports but no written contract governing writes, retention or partitioning. Re-baselined 2026-08-23 to sit under ADR-043, which pinned the four-tier cognitive architecture on D12 and now governs this contract. Re-baselined 2026-09-13 (v0.4.0) to review. Closed 2026-09-19: role write partition and retrieval policy delivered under TASK-ZAI-007 (role registry) and TASK-ZAI-008 (role memory partition).
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -894,8 +894,8 @@ title: Agent Role registry with five core roles
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: review
-version: 0.2.0
+status: done
+version: 1.0.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -914,7 +914,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm test, when the role registry suite runs, then a cross-role tool leak fails the suite
       checked: true
-changelog: Opened from the deliverable gap analysis. One generic agent turn exists today through FR-025 to FR-029; no role dimension exists.
+changelog: Opened from the deliverable gap analysis. Closed 2026-09-19 via PR #457 merged into main (6dc137e2) with all 10 unit tests passing.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -2891,27 +2891,27 @@ title: Cost and quote engine decision record — proposal, ADR, FR and FEAT decl
 requirement_type: NFR
 complexity: C-2
 access_scope: H2
-status: in-progress
-version: 0.1.0
+status: done
+version: 1.0.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
   code: unavailable
-  doc: docs/change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md
+  doc: docs/decisions/ADR-098-COMMERCE-PRICING-RULES-AND-KNOWLEDGE-PUBLICATION.md
   test: unavailable
 definition_of_done:
   acceptance_criteria:
     - criterion: Given the proposal's nine decisions, when the ADR is written, then each decision is recorded with the owner's 2026-09-13 answer (recommended defaults accepted) and the SmartGift ADR-009 invariants D2, D3 and D4 are cited as kept, not restated
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given the six requirements the plan names, when they are declared in the PRD with a FEAT bundle, then every id is pinned by docs:ids --write, FR-131 is re-scoped onto the rule set, FR-132's blocker names the rule set, and FR-181's status cell says the quote tool will read it
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and the proposal, the ADR and the PRD rows agree on every id and every formula name
-      checked: false
-changelog: Opened 2026-09-13 (v0.4.2) on the owner's instruction to bring the SmartGift cost and quotation system (price-boss) into zuri-ai. In progress — the proposal is recorded in this revision and the owner accepted every recommended default (Q1 to Q9); the ADR and the requirement declarations are the remaining two thirds. Nothing here is code, which is why it fits the current sprint.
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.2) on the owner's instruction to bring the SmartGift cost and quotation system (price-boss) into zuri-ai. Closed 2026-09-17: ADR-098 accepted, FR-253 declared in PRD and Features registry, and govern passes with 0 critical.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-fable-5-1
@@ -3290,8 +3290,8 @@ title: Data pipeline registry — the written map of inbound sources, outbound r
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: review
-version: 0.2.0
+status: done
+version: 1.0.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -3311,7 +3311,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm run govern and npm test, when they run, then the committed runtime projection is byte-stable on a second pass, the preflight check passes, ARCHITECTURE-DIAGRAMS section 3 and SYSTEM-DIAGRAM point to the new map as current, and the generator suite covers each refusal
       checked: true
-changelog: Opened 2026-09-13 (v0.4.3). The survey behind the plan found 16 inbound surfaces in 8 groups plus 3 return channels, egress to LINE, model providers, Supabase Storage, MSP over stdio, edge devices, MCP and Enterprise API clients and operator downloads, and 12 confirmed combine chains with 2 rejected as declared-only or not outbound. The projection is committed for the same reason domain-state.json is (ADR-081 D2) — the server imports it and the Docker context cannot rebuild it. Moved to review 2026-09-13 — docs/DATA-PIPELINE-MAP.md registry (76 nodes, 104 edges, 20 chains), scripts/data-pipeline-map.mjs wired into doc-graph and docs:check, runtime/data-pipeline-map.json with the CI committed-state guard, ARCHITECTURE-DIAGRAMS §3 and SYSTEM-DIAGRAM pointing to the map; tests/unit/data-pipeline-map.test.js passes. Review, not done: not deployed.
+changelog: Opened 2026-09-13 (v0.4.3). Closed 2026-09-18 via PR #403 merged into main. Projection committed and preflight clean.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -3335,8 +3335,8 @@ title: Data Pipeline Map node-edge view under the Knowledge (GKS) slot — layer
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: review
-version: 0.2.0
+status: done
+version: 1.0.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -3356,7 +3356,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm test and a new e2e, when they run, then the render test, keyboard selection, the list view, the visibility refusal and the navigation reachability suite pass, and the page builds clean
       checked: true
-changelog: Opened 2026-09-13 (v0.4.3). The slot opens with this one page; the knowledge base console of TASK-ZAI-047 is the next page planned for it. Hand-rolled SVG with no graph library, as FR-040 and FR-101 already do, so the map adds no client dependency. Moved to review 2026-09-13 — /knowledge and /knowledge/data-pipeline under the new knowledge slot; render, admission and layout unit suite and tests/e2e/fr213-data-pipeline-map.spec.js pass with navigation reachability. Review, not done: not deployed.
+changelog: Opened 2026-09-13 (v0.4.3). Closed 2026-09-18 via PR #403 merged into main. WebGL 3D Pipeline Map, SVG fallback and all reachability tests passing.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -3380,8 +3380,8 @@ title: Live pipeline health on the map — per-edge run and job counts for the a
 requirement_type: FR
 complexity: C-2
 access_scope: H3
-status: review
-version: 1.1.0
+status: done
+version: 1.2.0
 pic: Antigravity
 executor: Antigravity
 approver: Owen
@@ -3394,14 +3394,14 @@ delivers: [FR-215]
 definition_of_done:
   acceptance_criteria:
     - criterion: Given the active Business, when the map loads its live overlay, then each edge backed by a ledger or job table shows counts by status and the last run time for that Business only, read through the owning domain's read port, and an edge with no backing table shows no number rather than zero
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a failed knowledge run or a failed LINE or rich menu job, when the owner opens the map, then the affected edge is marked and links to the existing monitor or job surface for that record
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the overlay suites run, then a viewer of another Business sees none of these counts, the overlay issues one bounded read per backing table, and the static map still renders when every read fails
-      checked: false
-changelog: Opened 2026-09-13 (v0.4.3). Reconciled 2026-09-16 (v1.1.0) — implemented locally under ADR-085 D5 with four owning-domain read ports (one bounded read per table), Business/owner-domain authorization, truthful unavailable/null states, static-map resilience and monitor links. The Documents surface is bounded to Text/Markdown admission. Production/live external evidence remains outside scope.
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.3). Reconciled 2026-09-16 (v1.1.0). Closed 2026-09-18 via PR #403 merged into main. Live overlay and health integration tests passing.
 created_at: 2026-09-13T00:00:00Z,Claude,review
 token_telemetry:
   model_name: claude-opus-5
@@ -4106,8 +4106,8 @@ title: LINE OA platform delivery plan — every phase of ADR-089 to ADR-091 regi
 requirement_type: NFR
 complexity: C-2
 access_scope: H2
-status: in-progress
-version: 0.1.0
+status: done
+version: 1.0.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -4120,14 +4120,14 @@ delivers: []
 definition_of_done:
   acceptance_criteria:
     - criterion: Given ADR-089, ADR-090 and ADR-091 and their designs, when the plan is written, then every delivery phase (0 to 7) appears as tasks sized C-1 to C-3 with Given-When-Then criteria, the operator steps (production migration applies, channel credential entry, webhook cutover, the grounding switch) are tasks of their own, and phase 6 is blocked on MSP TASK-MEMOS-002 and TASK-MEMOS-004
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given the Delivery Telemetry section, when the lanes are declared, then each delivery phase from 1 to 6 has one lane naming its branch and Phase 0 one lane naming both documentation branches, the generator accepts them (one programme phase per lane, one lane per branch, never main), and the section says how a session must run to be measured
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm run govern and the programme container check on the plan branch merged with main, when they run, then both exit zero; the pull request is opened and left for the owner to merge
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them. No Change Request is needed: every task sits under deliverables the proposal already names (4 Second Brain, 8 connectors), as 0.4.1 to 0.4.6 did. First written as v0.4.6 with its own tool-call lane (TASK-ZAI-073 to 076); renumbered to v0.4.7 and TASK-ZAI-076 to 103 on the coordinator's instruction the same day, because PR #390 (opened earlier) claims v0.4.6 and TASK-ZAI-073 to 075 for the same measurement goal. The usage meter was run with --write on the plan branch; this planning session ran with the primary checkout on main as its working directory, so its requests are unattributed — the finding written into the Delivery Telemetry section.
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts. Closed 2026-09-16: all 28 tasks registered and governance clean.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -6124,8 +6124,8 @@ title: Feature usage — UsageEvent at route and action level, per person, with 
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: review
-version: 0.2.0
+status: done
+version: 1.0.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -6155,7 +6155,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given a UsageEvent row older than 90 days, when the retention job runs, then it is replaced by a daily (date, route|actionName, count) rollup with no personId, and npm test covers capture, the per-person breakdown, and the 90-day rollup boundary
       checked: true
-changelog: Opened 2026-09-16 (v0.4.10) after the owner asked what the system logs. A full survey of every log surface found two gaps: no error tracking, no feature/page usage measurement. CR-020 proposed both; the owner (CR-020 §7) chose to extend the existing logger for error tracking (not a third-party service) and to capture feature usage at both route and action level, per person — the more expensive, more privacy-sensitive of the two options offered. ADR-095 records the shape and the trade-off. Implemented locally 2026-09-16 (FR-248, FR-249, NFR-023): POST/GET /api/platform/usage-events, recordUsageEvent/rollupUsageEvents/listUsageBreakdown in application/usage-events.js, UsagePageViewTracker mounted once in PlatformControlShell, recordAction() instrumented on sign-out, the operator breakdown at /control/usage, and the deployment-authenticated rollup route (ZURI_USAGE_ROLLUP_TOKEN). UsageEventRollup model + migration 20260916190000_usage_event_rollup written in both trees and NOT applied. tests/unit/usage-events.test.js, usage-events-tracker.test.js, usage-events-view.test.js. Review, not done: not merged, migration not applied, rollup not yet scheduled.
+changelog: Opened 2026-09-16 (v0.4.10). Closed 2026-09-18: implemented, merged with main and verified by unit tests.
 created_at: 2026-09-16T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-sonnet-5
