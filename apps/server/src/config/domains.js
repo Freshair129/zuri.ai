@@ -272,10 +272,10 @@ export const DOMAINS = [
     key: 'knowledge', label: 'Knowledge (GKS)', icon: Waypoints, basePath: '/knowledge',
     sub: [
       { label: 'Dashboard', path: '/knowledge', icon: LayoutDashboard, exact: true },
-      { label: 'Documents', path: '/knowledge/documents', icon: FileText },
       // @req FR-254 — source history, run evidence, corpus generations and cited query.
       // @tested tests/e2e/fr254-knowledge-console.spec.js
       { label: 'Knowledge console', path: '/knowledge/console', icon: FolderOpen },
+      { label: 'Documents', path: '/knowledge/documents', icon: FileText },
       { label: 'Data Pipeline Map', path: '/knowledge/data-pipeline', icon: Workflow },
       // @req FR-236 — the review surface for LINE FAQ candidates (ADR-090 D6).
       { label: 'LINE FAQ candidates', path: '/knowledge/candidates', icon: MessagesSquare },

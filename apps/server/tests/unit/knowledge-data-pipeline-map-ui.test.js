@@ -24,9 +24,9 @@ describe('FR-214 Knowledge (GKS) slot', () => {
     expect(knowledge).toMatchObject({ label: 'Knowledge (GKS)', basePath: '/knowledge' })
     expect(knowledge.sub.map((item) => [item.label, item.path])).toEqual([
       ['Dashboard', '/knowledge'],
-      ['Documents', '/knowledge/documents'],
       // @req FR-254 — the Knowledge Console is a second surface in the same slot.
       ['Knowledge console', '/knowledge/console'],
+      ['Documents', '/knowledge/documents'],
       ['Data Pipeline Map', '/knowledge/data-pipeline'],
       // @req FR-236 — the LINE FAQ candidate review surface (ADR-090 D6).
       ['LINE FAQ candidates', '/knowledge/candidates'],

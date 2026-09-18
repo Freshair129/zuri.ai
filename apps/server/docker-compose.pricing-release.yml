@@ -1,0 +1,13 @@
+services:
+  web:
+    volumes: !override
+      - type: bind
+        source: F:/zuri-cold-archive
+        target: /archive
+        read_only: false
+      - type: bind
+        source: C:/zuri-secrets/zuri-line.json
+        target: /run/secrets/zuri-line.json
+        read_only: true
+  line-worker:
+    volumes: !override []

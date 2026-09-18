@@ -1,0 +1,67 @@
+---
+id: "ZAI:{{FR_EXECUTION}}-P3"
+title: "Server-owned self-hosted model execution"
+version: "0.1.1b"
+status: approved
+approval_scope: design-and-documentation
+approved_on: "2026-09-18"
+approved_by: "Owner via conversation"
+integration_status: pending
+implementation_status: not-started
+created_at: "2026-09-17"
+last_update: "2026-09-18"
+author: ChatGPT
+domain: line-oa-studio
+baseline_commit: "cfd5521e7d004e63ffead1e07f46045f1cdc06f2"
+parent_requirement: "{{FR_EXECUTION}}"
+phase_id: "{{FR_EXECUTION}}-P3"
+phase_order: 3
+relations:
+  - type: references
+    target: "ZAI:{{FR_EXECUTION}}"
+  - type: relates_to
+    target: "ZAI:{{FEAT_POOL}}"
+  - type: relates_to
+    target: "ZAI:{{ADR_POOL}}"
+---
+
+# {{FR_EXECUTION}}-P3 — Server-owned self-hosted model execution
+
+> Design approved by the owner on 2026-09-18; canonical integration and all runtime evidence remain pending.
+
+
+## Entry condition and predecessor
+
+Receive a final bounded result from [[ZAI:{{FR_EXECUTION}}-P2]] through the Server answer seam. Agent has completed required response/grounding checks. This phase coordinates existing Studio settlement and Integration/CRM ports; it transfers no data-model ownership.
+
+## Input
+
+Job/execution/version, account transport epoch, immutable processing binding, validated answer or explicit compute failure, context/attempt evidence and the original delivery/deadline policy. No GPU-supplied recipient or delivery method is accepted.
+
+## Output and next handoff
+
+Fence stale/cancelled/erased work, persist the current valid answer, and use the established send-intent path. Integration performs the one authorized LINE call. CRM records/reconciles accepted outbound messages through its existing writer. A durable acceptance can be reconciled after restart without another send.
+
+If the model result is ready while a sibling invocation is still slow, the scheduler/send path must preserve this answer's remaining delivery budget; do not wait for the sibling just to end a large batch.
+
+## Failure, retry and acceptance
+
+Retain current Reply/Push consent, idempotency and UNKNOWN semantics. A failed/uncertain compute attempt is not reported as LINE delivery. A lost LINE response is not reported as a safe-to-repeat send. No expired/ineligible output is made current by retrying under a new account configuration.
+
+Acceptance: LINE-02/03/06/07/08/09, EXEC-06 and T33–T43. The live canary and rollback are deployment gates, not tests this package claims to have run.
+
+## Baseline source references
+
+The following immutable repository sources were reviewed; proposed new behavior above is not a claim that it exists in this snapshot.
+
+- [docs/domains/line-oa-studio/CHARTER.md](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/domains/line-oa-studio/CHARTER.md) — LINE job/transport ownership and existing ADR-061 amendment.
+- [docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) — Existing LINE ownership, optional Edge, durable queue and delivery semantics.
+- [apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js) — Durable claim/settle/send and bounded parallel Server worker.
+- [apps/server/src/modules/line-oa-studio/domain/line-execution-budget.js](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/src/modules/line-oa-studio/domain/line-execution-budget.js) — 5-second send reserve; compute lease does not extend reply lifetime.
+
+## CHANGELOG
+
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---|---|---|---|---|---|
+| 0.1.0b | 2026-09-17 | candidate | Initial documentation proposal; no runtime implementation or activation | uncommitted; baseline cfd5521 | ChatGPT |
+| 0.1.1b | 2026-09-18 | approved design | Record owner approval; design unchanged; canonical IDs, governance and runtime gates remain pending | uncommitted; baseline cfd5521 | ChatGPT |

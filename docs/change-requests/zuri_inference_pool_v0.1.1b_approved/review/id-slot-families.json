@@ -1,0 +1,15 @@
+{
+  "ADR_POOL": "ADR",
+  "FEAT_POOL": "FEAT",
+  "FR_NODES": "FR",
+  "FR_EXECUTION": "FR",
+  "FR_ROUTING": "FR",
+  "FR_MONITOR": "FR",
+  "FR_LINE": "FR",
+  "SEC_NETWORK": "SEC",
+  "SEC_PRIVACY": "SEC",
+  "SDD_TOPOLOGY": "SDD",
+  "SDD_ADMISSION": "SDD",
+  "NFR_RECOVERY": "NFR",
+  "NFR_OBSERVABILITY": "NFR"
+}
