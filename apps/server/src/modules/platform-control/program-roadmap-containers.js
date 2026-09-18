@@ -207,7 +207,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "missing",
+      "doc": "present",
       "test": "unavailable"
     },
     "delivers": [
@@ -430,7 +430,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "missing",
+      "doc": "present",
       "test": "unavailable"
     },
     "delivers": [],
@@ -475,7 +475,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "missing",
+      "doc": "present",
       "test": "unavailable"
     },
     "delivers": [],
@@ -610,7 +610,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "missing",
+      "doc": "present",
       "test": "unavailable"
     },
     "delivers": [],
@@ -655,7 +655,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "missing",
+      "doc": "present",
       "test": "missing"
     },
     "delivers": [],
@@ -1199,7 +1199,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "missing",
+      "doc": "present",
       "test": "unavailable"
     },
     "delivers": [],
