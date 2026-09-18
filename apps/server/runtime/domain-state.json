@@ -2368,7 +2368,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 45
+          "testCount": 46
         },
         {
           "id": "FR-187",
@@ -2376,7 +2376,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-188",
@@ -3097,7 +3097,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 45
+          "testCount": 46
         },
         {
           "id": "FR-187",
@@ -3105,7 +3105,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-188",
@@ -5467,7 +5467,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 45
+          "testCount": 46
         },
         {
           "id": "FR-174",
@@ -5547,7 +5547,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-191",
@@ -7267,7 +7267,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 24,
-          "testCount": 45
+          "testCount": 46
         }
       ],
       "evidence": [
@@ -7365,6 +7365,7 @@
         "apps/server/tests/unit/knowledge-admission-ui-contract.test.js",
         "apps/server/tests/unit/knowledge-artifact-storage-schema.test.js",
         "apps/server/tests/unit/knowledge-artifact-storage-service.test.js",
+        "apps/server/tests/unit/knowledge-catalog-storage-contract.test.js",
         "apps/server/tests/unit/knowledge-chunking.test.js",
         "apps/server/tests/unit/knowledge-classification.test.js",
         "apps/server/tests/unit/knowledge-corpus-routes.test.js",
@@ -8974,7 +8975,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-188",
@@ -9033,6 +9034,7 @@
         "apps/server/tests/unit/knowledge-admission-routes.test.js",
         "apps/server/tests/unit/knowledge-admission-service.test.js",
         "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
+        "apps/server/tests/unit/knowledge-catalog-storage-contract.test.js",
         "apps/server/tests/unit/knowledge-runtime.test.js",
         "apps/server/tests/unit/knowledge-zero-pii-policy.test.js",
         "apps/server/tests/unit/pipeline-mcp-transport.test.js",
