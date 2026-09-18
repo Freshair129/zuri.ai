@@ -17,7 +17,7 @@ import {
   zCreateProductMaster,
   zProductAction,
 } from '../domain/inventory'
-import { FINISHED_SET_SKU_PATTERN, isFinishedSetSku } from '../domain/inventory-costing'
+import { FINISHED_SET_SKU_PATTERN, isFinishedSetSku, weightedAverageUnitCostSatang } from '../domain/inventory-costing'
 import {
   archiveGuard,
   lookalikeFingerprint,
@@ -314,11 +314,43 @@ export async function listProducts({ businessId, productMasterId, includeArchive
 export async function getProduct(id, { viewer, db = prisma } = {}) {
   const productId = typeof id === 'string' ? id.trim() : ''
   if (!productId) throw notFound()
-  const row = await db.product.findUnique({ where: { id: productId }, select: { ...PRODUCT_SELECT, movements: { select: { quantity: true } } } })
+  const row = await db.product.findUnique({
+    where: { id: productId },
+    select: {
+      ...PRODUCT_SELECT,
+      movements: {
+        select: { id: true, kind: true, quantity: true, costSatang: true, occurredAt: true, createdAt: true, reference: true },
+        orderBy: [{ occurredAt: 'desc' }, { createdAt: 'desc' }],
+      },
+    },
+  })
   if (!row) throw notFound()
   assertMayView(viewer, row.businessId)
   const { movements, ...product } = row
-  return { ...productDto(product), onHand: product.stockPolicy === 'TRACKED' ? stockOnHand(movements) : null }
+
+  const receipts = (movements || [])
+    .filter((m) => m.kind === 'RECEIPT')
+    .sort((a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime() || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  const weightedAverageLandedCostSatang = weightedAverageUnitCostSatang(receipts)
+  const latestWithCost = receipts.find((m) => m.costSatang !== null && m.costSatang !== undefined)
+  const lastReceiptCostSatang = latestWithCost ? latestWithCost.costSatang : null
+  const costHistory = receipts.map((m) => ({
+    id: m.id,
+    quantity: m.quantity,
+    costSatang: m.costSatang ?? null,
+    occurredAt: m.occurredAt,
+    reference: m.reference ?? null,
+  }))
+
+  return {
+    ...productDto(product),
+    onHand: product.stockPolicy === 'TRACKED' ? stockOnHand(movements) : null,
+    costing: {
+      weightedAverageLandedCostSatang,
+      lastReceiptCostSatang,
+      costHistory,
+    },
+  }
 }
 
 const PRODUCT_ACTIONS = Object.freeze({ UPDATE: 'PRODUCT_UPDATED', ARCHIVE: 'PRODUCT_ARCHIVED', PHASE_OUT: 'PRODUCT_PHASED_OUT', REACTIVATE: 'PRODUCT_REACTIVATED', MERGE: 'PRODUCT_MERGED' })

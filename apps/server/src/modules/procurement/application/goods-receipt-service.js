@@ -14,12 +14,16 @@ import {
 import { loadBusiness, notFound } from './procurement-authority'
 import { PO_SELECT, RECEIPT_SELECT, purchaseOrderDto, receiptDto } from './purchase-order-service'
 
-// @req FR-165 — the only writer of GoodsReceipt: post what arrived against a
+import { amortiseSatang } from '@/modules/inventory/domain/inventory-costing'
+
+// @req FR-165, FR-175 — the only writer of GoodsReceipt: post what arrived against a
 //   SENT purchase order. Every receipt line names one order line of that
 //   order and may not receive more than the line still has outstanding
 //   (refused whole with the per-line list). A line whose order line names a
 //   counted SKU writes RECEIPT rows into the Inventory ledger through
 //   Inventory's exported `appendMovement` inside this same transaction —
+//   carrying `costSatang` computed from the line's agreed unitCostSatang plus
+//   the receipt's amortised batch costs (or null if no cost basis, never zero).
 //   `lotCode` names or creates the lot (LOT-tracked SKUs need one; a given
 //   `expiresAt` is set on a lot that has none yet), `serialNos` create the
 //   units (SERIAL-tracked SKUs need exactly one per unit), and the reference
@@ -31,7 +35,7 @@ import { PO_SELECT, RECEIPT_SELECT, purchaseOrderDto, receiptDto } from './purch
 //   A receipt is never edited or deleted: a wrong one is corrected by an
 //   Inventory ADJUSTMENT. Generated `GRN-YYYYMMDD-NNN`; one audit row for
 //   the receipt (and one for the order when it completes).
-// @spec ADR-066; ADR-054 D3/D4; BR-002; SEC-001; FR-072; FR-155
+// @spec ADR-066; ADR-054 D3/D4; ADR-074 D3; BR-002; BR-027; SEC-001; FR-072; FR-155; FR-175
 // @tested tests/integration/fr165-goods-receipt.test.js
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
@@ -133,11 +137,20 @@ export async function postGoodsReceipt(orderId, input, { viewer, db = prisma, no
     })
 
     const reference = receiptReference(order.code, code)
+    const totalCountedQty = stocked.reduce((sum, line) => sum + line.qty, 0)
+    const batchCostPerUnit = (data.batchCostSatang && totalCountedQty > 0)
+      ? amortiseSatang(data.batchCostSatang, totalCountedQty)
+      : 0
+
     const posted = []
     for (const line of stocked) {
       const orderLine = byId.get(line.purchaseOrderLineId)
+      const costBasis = orderLine?.unitCostSatang != null
+        ? orderLine.unitCostSatang + batchCostPerUnit
+        : null
       const movement = await appendMovement(tx, {
         businessId: business.id, productId: orderLine.productId, kind: 'RECEIPT', quantity: line.qty,
+        costSatang: costBasis,
         ...(line.lotCode ? { lotCode: line.lotCode } : {}), ...(line.serialNos?.length ? { serialNos: line.serialNos } : {}),
         reason: 'GOODS_RECEIPT', reference, occurredAt: receivedAt,
       }, { viewer })
@@ -145,7 +158,15 @@ export async function postGoodsReceipt(orderId, input, { viewer, db = prisma, no
         const lot = await tx.productLot.findUnique({ where: { id: movement.lotId }, select: { expiresAt: true } })
         if (lot && !lot.expiresAt) await tx.productLot.update({ where: { id: movement.lotId }, data: { expiresAt: line.expiresAt } })
       }
-      posted.push({ purchaseOrderLineId: orderLine.id, productId: orderLine.productId, code: orderLine.product.code, quantity: line.qty, lotId: movement.lotId, onHandAfter: movement.onHandAfter })
+      posted.push({
+        purchaseOrderLineId: orderLine.id,
+        productId: orderLine.productId,
+        code: orderLine.product.code,
+        quantity: line.qty,
+        lotId: movement.lotId,
+        onHandAfter: movement.onHandAfter,
+        costSatang: movement.costSatang ?? costBasis ?? null,
+      })
     }
 
     const change = { version: { increment: 1 } }
@@ -156,7 +177,12 @@ export async function postGoodsReceipt(orderId, input, { viewer, db = prisma, no
     await tx.purchaseOrder.update({ where: { id: order.id }, data: change })
     await recordAudit(tx, {
       entityType: GOODS_RECEIPT_ENTITY, entityId: receipt.id, action: 'GOODS_RECEIPT_POSTED', actorId: actor(viewer),
-      payload: { businessId: business.id, code, purchaseOrderCode: order.code, supplierReference: receipt.supplierReference, lines: data.lines.length, posted, completesOrder: plan.completesOrder, selfVerified },
+      payload: {
+        businessId: business.id, code, purchaseOrderCode: order.code,
+        supplierReference: receipt.supplierReference,
+        batchCostSatang: data.batchCostSatang ?? null,
+        lines: data.lines.length, posted, completesOrder: plan.completesOrder, selfVerified,
+      },
     })
     if (plan.completesOrder) {
       await recordAudit(tx, {
