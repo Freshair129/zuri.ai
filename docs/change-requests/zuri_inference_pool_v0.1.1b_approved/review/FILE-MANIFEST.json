@@ -1,0 +1,156 @@
+{
+  "packet_version": "0.1.1b",
+  "status": "APPROVED_DESIGN_PENDING_REPOSITORY_INTEGRATION",
+  "files": [
+    {
+      "path": "APPROVAL-TH.md",
+      "bytes": 4067,
+      "sha256": "cde4dbbafa07146ead47c084bfab82e8db6c71a1a044555660c400fd5c06c313"
+    },
+    {
+      "path": "README-TH.md",
+      "bytes": 1916,
+      "sha256": "219094ce3405c9860ad0aad64071189c6d0415ceaa24fb2acbc0fca092f42487"
+    },
+    {
+      "path": "ZURI-INFERENCE-POOL-FULL-REVIEW.md",
+      "bytes": 119170,
+      "sha256": "e17a8f91944e7edba0b676e2d929c299771d8223426e35fd3eb8916b14a95443"
+    },
+    {
+      "path": "drafts/docs/decisions/{{ADR_POOL}}-SERVER-OWNED-SELF-HOSTED-INFERENCE-POOL.md.template",
+      "bytes": 16415,
+      "sha256": "1531f8baed52638f2740a62712b948b8b829f65288abf5cd6341aba9d26bd058"
+    },
+    {
+      "path": "drafts/docs/domains/agent/SELF-HOSTED-INFERENCE-POOL-VERIFICATION.md.template",
+      "bytes": 12090,
+      "sha256": "7cd511089e275c617fc7921b1dbf1cb0229242d047c68f12dfec80999ce7cd75"
+    },
+    {
+      "path": "drafts/docs/domains/agent/features/PHASE-{{FR_EXECUTION}}-P1-server-owned-self-hosted-model-execution.md.template",
+      "bytes": 4753,
+      "sha256": "00e8b9e57cd55e7bc3b934448154233b016288ecff277390cbaf10c37ccea610"
+    },
+    {
+      "path": "drafts/docs/domains/agent/features/{{FR_EXECUTION}}-server-owned-self-hosted-model-execution.md.template",
+      "bytes": 12215,
+      "sha256": "9223c21df38e17d1a75401843d493473fae47367df123fa4042ec896ced75788"
+    },
+    {
+      "path": "drafts/docs/domains/agent/features/{{FR_ROUTING}}-inference-capacity-routing-and-health.md.template",
+      "bytes": 13790,
+      "sha256": "3dcf9261fe5ccc08c5e039a506c843b7adb79a2dd8db9c2b665398cb50ad640a"
+    },
+    {
+      "path": "drafts/docs/domains/integration/features/PHASE-{{FR_EXECUTION}}-P2-server-owned-self-hosted-model-execution.md.template",
+      "bytes": 4016,
+      "sha256": "e668a154f48c08b8028daadf1566ff4f9e75b1f0f612ab61723bc0cb8dc85b88"
+    },
+    {
+      "path": "drafts/docs/domains/integration/features/{{FR_NODES}}-inference-node-registration-and-trust.md.template",
+      "bytes": 12174,
+      "sha256": "8e8167b1abca91bf4c2861bd9ddd008aa420086065a876d65b0aa194e37ad1e2"
+    },
+    {
+      "path": "drafts/docs/domains/line-oa-studio/features/PHASE-{{FR_EXECUTION}}-P3-server-owned-self-hosted-model-execution.md.template",
+      "bytes": 4215,
+      "sha256": "6e2d2c7f467d6dba5a7ded00f9d8e1301db0aa538c6e84ec65e7064d687f98eb"
+    },
+    {
+      "path": "drafts/docs/domains/line-oa-studio/features/{{FR_LINE}}-self-hosted-inference-policy-and-cutover.md.template",
+      "bytes": 10544,
+      "sha256": "b104876931d1095b676822fb11d0f891e45b5c0b6c99e6b1a674975015eed08b"
+    },
+    {
+      "path": "drafts/docs/domains/platform-control/features/{{FR_MONITOR}}-inference-pool-operations-projection.md.template",
+      "bytes": 7722,
+      "sha256": "04e457c34f95c42d14ddb4d3a3aa432a19fc6d59ba2cd5a314e677b99699e8f3"
+    },
+    {
+      "path": "drafts/docs/roadmap/PLAN-{{FEAT_POOL}}-DOMAIN-PHASES.md.template",
+      "bytes": 7304,
+      "sha256": "0361fef4de28854588e24892e76a33e5ec7e29890b0d048383f1aea54396ba65"
+    },
+    {
+      "path": "drafts/docs/runbooks/SELF-HOSTED-INFERENCE-POOL.md.template",
+      "bytes": 10670,
+      "sha256": "55260905d427ca97ccfa9572e2ebff97e78734024f9a9af1a5a436292246f44e"
+    },
+    {
+      "path": "handoff/APPLY-TO-ZURI.md",
+      "bytes": 8229,
+      "sha256": "7e30ae1b885658c42c6cb569651f1484b8cae3fb85aae5a675b4cd48930df1f4"
+    },
+    {
+      "path": "handoff/id-map.example.json",
+      "bytes": 299,
+      "sha256": "7fe63bc9e2af5cc7c3a9ee31f62368d087e1381aed0472e73a3b8fb86180c5bd"
+    },
+    {
+      "path": "handoff/id-map.schema.json",
+      "bytes": 1577,
+      "sha256": "c005c13419718296421e86cf01ff7ee201558ba1fcdb6ca58c954329bb1b4315"
+    },
+    {
+      "path": "handoff/registry-rows.json.template",
+      "bytes": 7337,
+      "sha256": "9662767ff41730dd061da529a01b8285584b4136afb07f8aac424fe3175515da"
+    },
+    {
+      "path": "review/APPROVAL-RECORD.json",
+      "bytes": 5500,
+      "sha256": "280e6caa9932fbc677c1e99a5aa6b09ac9907fc94f4fc9c1af3afad154a2c390"
+    },
+    {
+      "path": "review/PACKAGE-VALIDATION-v0.1.0b.json",
+      "bytes": 40281,
+      "sha256": "710d54f1475a385746bbe1a0e2e686cfd8b676cbc5f1a19ed8d7372394968f6d"
+    },
+    {
+      "path": "review/PACKAGE-VALIDATION-v0.1.0b.md",
+      "bytes": 1774,
+      "sha256": "473923ce14d3e5323e56aa2e2d245e535df0b102e49640b4714b0e17262afbff"
+    },
+    {
+      "path": "review/PACKAGE-VALIDATION.json",
+      "bytes": 4212,
+      "sha256": "23810f8076e2541414e0d1510de1158b7df3e2d8d3d01303eb74e8241f414cf9"
+    },
+    {
+      "path": "review/PACKAGE-VALIDATION.md",
+      "bytes": 335,
+      "sha256": "eb72d8705dd37851a6e00ed03f74b02491b8755861a56157313efea4c12caae2"
+    },
+    {
+      "path": "review/SOURCES.json",
+      "bytes": 12632,
+      "sha256": "2a5683b86cc93866362fbc12a0e99f7100218bf282f6152ccc7868e483c02aad"
+    },
+    {
+      "path": "review/STRUCTURE-REVIEW-TH.md",
+      "bytes": 12459,
+      "sha256": "a542ee2711702b8104f8a1ded84ced5a91829b1e0cd67d5834b398fcef7696de"
+    },
+    {
+      "path": "review/acceptance-cases.json",
+      "bytes": 12448,
+      "sha256": "8f4437fffd5de3b216d7131b4da41965c1fd11de12af21a6a5c50bd067740401"
+    },
+    {
+      "path": "review/doc-link-metadata.schema.json",
+      "bytes": 999,
+      "sha256": "2016e4c6d06ea4e2161eb9683dd5421cd13499364e9ef0e003d0f57ed8072ce1"
+    },
+    {
+      "path": "review/id-slot-families.json",
+      "bytes": 308,
+      "sha256": "d193f4d7143abe26f8711cf932bfa48faf888d89d7d49f860cbb8c343734a8c2"
+    },
+    {
+      "path": "tools/render-drafts.mjs",
+      "bytes": 8700,
+      "sha256": "e8bcebe39926e33225e28106ef62976744af3f89037361427de3d39adaf156b9"
+    }
+  ]
+}

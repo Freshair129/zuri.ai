@@ -1,0 +1,98 @@
+{
+  "packet_version": "0.1.1b",
+  "date": "2026-09-18",
+  "status": "PASS_APPROVAL_REVISION_CHECKS_ONLY",
+  "documents": 12,
+  "design_content": "UNCHANGED_EXCEPT_APPROVAL_METADATA_AND_STATUS",
+  "canonical_ids": "UNALLOCATED",
+  "repository_governance": "NOT_RUN",
+  "runtime_tests": "NOT_RUN",
+  "production_activation": "NOT_PERFORMED",
+  "checks": [
+    {
+      "check": "approved metadata/schema with isolated placeholder substitutions; not canonical-ID validation",
+      "file": "drafts/docs/decisions/{{ADR_POOL}}-SERVER-OWNED-SELF-HOSTED-INFERENCE-POOL.md.template",
+      "status": "PASS"
+    },
+    {
+      "check": "approved metadata/schema with isolated placeholder substitutions; not canonical-ID validation",
+      "file": "drafts/docs/domains/agent/SELF-HOSTED-INFERENCE-POOL-VERIFICATION.md.template",
+      "status": "PASS"
+    },
+    {
+      "check": "approved metadata/schema with isolated placeholder substitutions; not canonical-ID validation",
+      "file": "drafts/docs/domains/agent/features/PHASE-{{FR_EXECUTION}}-P1-server-owned-self-hosted-model-execution.md.template",
+      "status": "PASS"
+    },
+    {
+      "check": "approved metadata/schema with isolated placeholder substitutions; not canonical-ID validation",
+      "file": "drafts/docs/domains/agent/features/{{FR_EXECUTION}}-server-owned-self-hosted-model-execution.md.template",
+      "status": "PASS"
+    },
+    {
+      "check": "approved metadata/schema with isolated placeholder substitutions; not canonical-ID validation",
+      "file": "drafts/docs/domains/agent/features/{{FR_ROUTING}}-inference-capacity-routing-and-health.md.template",
+      "status": "PASS"
+    },
+    {
+      "check": "approved metadata/schema with isolated placeholder substitutions; not canonical-ID validation",
+      "file": "drafts/docs/domains/integration/features/PHASE-{{FR_EXECUTION}}-P2-server-owned-self-hosted-model-execution.md.template",
+      "status": "PASS"
+    },
+    {
+      "check": "approved metadata/schema with isolated placeholder substitutions; not canonical-ID validation",
+      "file": "drafts/docs/domains/integration/features/{{FR_NODES}}-inference-node-registration-and-trust.md.template",
+      "status": "PASS"
+    },
+    {
+      "check": "approved metadata/schema with isolated placeholder substitutions; not canonical-ID validation",
+      "file": "drafts/docs/domains/line-oa-studio/features/PHASE-{{FR_EXECUTION}}-P3-server-owned-self-hosted-model-execution.md.template",
+      "status": "PASS"
+    },
+    {
+      "check": "approved metadata/schema with isolated placeholder substitutions; not canonical-ID validation",
+      "file": "drafts/docs/domains/line-oa-studio/features/{{FR_LINE}}-self-hosted-inference-policy-and-cutover.md.template",
+      "status": "PASS"
+    },
+    {
+      "check": "approved metadata/schema with isolated placeholder substitutions; not canonical-ID validation",
+      "file": "drafts/docs/domains/platform-control/features/{{FR_MONITOR}}-inference-pool-operations-projection.md.template",
+      "status": "PASS"
+    },
+    {
+      "check": "approved metadata/schema with isolated placeholder substitutions; not canonical-ID validation",
+      "file": "drafts/docs/roadmap/PLAN-{{FEAT_POOL}}-DOMAIN-PHASES.md.template",
+      "status": "PASS"
+    },
+    {
+      "check": "approved metadata/schema with isolated placeholder substitutions; not canonical-ID validation",
+      "file": "drafts/docs/runbooks/SELF-HOSTED-INFERENCE-POOL.md.template",
+      "status": "PASS"
+    },
+    {
+      "check": "normative bodies preserved in all twelve documents",
+      "status": "PASS"
+    },
+    {
+      "check": "runtime acceptance cases unchanged byte-for-byte",
+      "status": "PASS"
+    },
+    {
+      "check": "all thirteen canonical ID slots remain unallocated",
+      "status": "PASS"
+    },
+    {
+      "check": "renderer accepts complete isolated fixture map",
+      "status": "PASS"
+    },
+    {
+      "check": "renderer emits twelve documents and preserves approval status",
+      "status": "PASS"
+    },
+    {
+      "check": "renderer rejects an existing output directory",
+      "status": "PASS"
+    }
+  ],
+  "renderer_ids": "ISOLATED_FIXTURE_ONLY; no real ID was assigned"
+}

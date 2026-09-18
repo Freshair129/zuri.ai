@@ -2745,8 +2745,6 @@ ui_state:
 
 ### TC-TASK-ZAI-049
 
-Approved implementation specification: [self-hosted S3 storage, retention and recovery](../plans/TASK-ZAI-049-DURABLE-KNOWLEDGE-STORAGE.md), version `0.1.0`. The owner approved isolated implementation on 2026-09-17; provider deployment, production migration, canary and acceptance remain pending, so the task stays planned.
-
 ```yaml
 task_container_id: TC-TASK-ZAI-049
 task_id: TASK-ZAI-049

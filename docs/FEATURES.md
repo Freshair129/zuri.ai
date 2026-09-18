@@ -83,6 +83,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-040 | Conversation sessions and model residency — a long LINE conversation reads as separate sittings: each message and event belongs to a session that closes after 30 quiet minutes (10 to 120 per account), carried on the LINE job and trace and shown as a divider in the inbox, and the local model stays loaded only during each account's business hours, with a fixed reply outside them (ADR-094, `DOM-CRM`, `DOM-LINE-OA-STUDIO`) | FR-243, FR-244 | declared |
 | FEAT-041 | Chat evidence — what a customer and the business said stays provable: staff replies sent from the inbox are part of the record, and message bodies past their retention window move to an encrypted, hash-chained archive on a local disk for 10 years, retrieved only by an owner at AAL2 with a case reference and kept past an erasure only under a recorded legal hold (ADR-093, `DOM-CRM`) | FR-245, FR-246 | declared |
 | FEAT-042 | Observability — error tracking and feature usage: operators read a deduplicated, resolvable error list and a per-person breakdown of which pages and actions are actually used, both extending the existing structured logger rather than a third-party service (ADR-095, `DOM-PLATFORM-CONTROL`) | FR-247, FR-248, FR-249 | building |
+| FEAT-043 | Server-owned self-hosted inference pool | FR-255, FR-256, FR-257, FR-258, FR-259 | approved design — repository declaration pending |
 
 Version diff 1.39.0b → 1.40.0b (2026-09-12): FEAT-030 declared and implemented in the same change — audit events carry queryable scope (FR-198) and identity gains the two read models an access review needs (FR-199), under ADR-080. Closes the gap ADR-077's grant lifecycle assumed was already open.
 
@@ -922,6 +923,11 @@ writing one sentence here, or the governance chain stops.
     "id": "FEAT-042",
     "primaryDomain": "platform-control",
     "useCase": "operator เปิดหน้า error ใหม่บน /control/errors แล้วเห็น error ที่เกิดจริงจัดกลุ่มตาม fingerprint พร้อมจำนวนครั้งและเวลาที่เกิดล่าสุด กดปิดเมื่อแก้แล้ว และเปิดอีกหน้าเพื่อดูว่าหน้าไหน/ฟีเจอร์ไหนถูกใช้บ่อยแค่ไหน แยกตามคน"
+  },
+  {
+    "id": "FEAT-043",
+    "primaryDomain": "agent",
+    "useCase": "Business owner or Operator configures self-hosted vLLM inference pool (12GB/16GB GPU nodes) without mandatory Edge device for Zuri Server LINE OA responses, including node registration, credential qualification, capacity routing, and safe cutover"
   },
   {
     "id": "FR-253",

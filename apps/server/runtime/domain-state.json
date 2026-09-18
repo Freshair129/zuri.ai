@@ -36,12 +36,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 155,
+    "featureCount": 156,
     "readyFeatureCount": 118,
-    "requirementCount": 254,
+    "requirementCount": 259,
     "verifiedRequirementCount": 240,
-    "progressPercent": 95.3,
-    "gapCount": 34,
+    "progressPercent": 93.4,
+    "gapCount": 41,
     "gaps": [
       {
         "domain": "agent",
@@ -92,6 +92,22 @@
           "apps/server/tests/unit/edge-line-memory-context.test.js",
           "apps/server/tests/unit/edge-memory-invocation.test.js"
         ]
+      },
+      {
+        "domain": "agent",
+        "id": "REQ-FR-256",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-256 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "agent",
+        "id": "REQ-FR-257",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-257 is planned",
+        "evidence": []
       },
       {
         "domain": "asset-management",
@@ -173,6 +189,14 @@
         "severity": "medium",
         "check": "requirements",
         "summary": "FR-125 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "integration",
+        "id": "REQ-FR-255",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-255 is planned",
         "evidence": []
       },
       {
@@ -267,6 +291,21 @@
         ]
       },
       {
+        "domain": "line-oa-studio",
+        "id": "REQ-FR-259",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-259 is planned",
+        "evidence": []
+      },
+      {
+        "domain": "platform-control",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
         "domain": "platform-control",
         "id": "AUTH-001",
         "severity": "high",
@@ -279,6 +318,21 @@
         "severity": "medium",
         "check": "authorization",
         "summary": "At least one read route lacks a recognizable request viewer seam"
+      },
+      {
+        "domain": "platform-control",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "platform-control",
+        "id": "REQ-FR-258",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-258 is planned",
+        "evidence": []
       },
       {
         "domain": "project-manager",
@@ -658,6 +712,22 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 37
+        },
+        {
+          "id": "FR-256",
+          "title": "Server-owned self-hosted model execution",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-257",
+          "title": "Inference capacity routing and health",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -766,11 +836,14 @@
         "docs/domains/agent/features/FR-132-line-ladder-quotation-tool.md",
         "docs/domains/agent/features/FR-141-edge-device-heartbeat-registry.md",
         "docs/domains/agent/features/FR-171-execution-trace-and-replay.md",
+        "docs/domains/agent/features/FR-256-server-owned-self-hosted-model-execution.md",
+        "docs/domains/agent/features/FR-257-inference-capacity-routing-and-health.md",
         "docs/domains/agent/features/INVENTORY-FR-150-edge-desktop-ui.md",
         "docs/domains/agent/features/PHASE-FR-149-P3-server-line-transport.md",
         "docs/domains/agent/features/PHASE-FR-150-P2-optional-edge-execution.md",
         "docs/domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md",
         "docs/domains/agent/features/PHASE-FR-171-P2-memory-provenance.md",
+        "docs/domains/agent/features/PHASE-FR-256-P1-server-owned-self-hosted-model-execution.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -826,6 +899,20 @@
             "apps/server/tests/unit/edge-line-memory-context.test.js",
             "apps/server/tests/unit/edge-memory-invocation.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-256",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-256 is planned",
+          "evidence": []
+        },
+        {
+          "id": "REQ-FR-257",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-257 is planned",
+          "evidence": []
         }
       ],
       "details": {
@@ -833,9 +920,10 @@
         "apiRoutes": 4,
         "pageRoutes": 0,
         "ownedModels": 1,
-        "featureNotes": 15
+        "featureNotes": 18
       },
       "featureIds": [
+        "FEAT-043",
         "FR-025",
         "FR-026",
         "FR-027",
@@ -853,9 +941,9 @@
         "FR-141",
         "FR-171"
       ],
-      "featureCount": 16,
+      "featureCount": 17,
       "readyFeatureCount": 15,
-      "progressPercent": 93.8
+      "progressPercent": 71.4
     },
     "asset-management": {
       "status": "partial",
@@ -2495,6 +2583,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 20
+        },
+        {
+          "id": "FR-255",
+          "title": "Inference node registration and trust",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -2607,8 +2703,10 @@
         "docs/domains/integration/features/FR-125-flowaccount-read-only-pull-pipeline.md",
         "docs/domains/integration/features/FR-129-catalog-publication-approval-gate.md",
         "docs/domains/integration/features/FR-130-github-repository-projection.md",
+        "docs/domains/integration/features/FR-255-inference-node-registration-and-trust.md",
         "docs/domains/integration/features/PHASE-FR-149-P1-server-line-transport.md",
         "docs/domains/integration/features/PHASE-FR-149-P4-server-line-transport.md",
+        "docs/domains/integration/features/PHASE-FR-256-P2-server-owned-self-hosted-model-execution.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -2638,6 +2736,13 @@
           "check": "requirements",
           "summary": "FR-125 is planned",
           "evidence": []
+        },
+        {
+          "id": "REQ-FR-255",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-255 is planned",
+          "evidence": []
         }
       ],
       "details": {
@@ -2645,7 +2750,7 @@
         "apiRoutes": 10,
         "pageRoutes": 4,
         "ownedModels": 19,
-        "featureNotes": 11
+        "featureNotes": 13
       },
       "featureIds": [
         "FEAT-004",
@@ -3697,6 +3802,14 @@
           "status": "verified",
           "codeCount": 4,
           "testCount": 14
+        },
+        {
+          "id": "FR-259",
+          "title": "Self-hosted inference policy and cutover",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -3813,10 +3926,12 @@
         "docs/domains/line-oa-studio/features/FR-152-line-oa-rich-menu-publish-jobs.md",
         "docs/domains/line-oa-studio/features/FR-153-line-oa-liff-app-registry.md",
         "docs/domains/line-oa-studio/features/FR-190-line-transport-health.md",
+        "docs/domains/line-oa-studio/features/FR-259-self-hosted-inference-policy-and-cutover.md",
         "docs/domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md",
         "docs/domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md",
         "docs/domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md",
         "docs/domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md",
+        "docs/domains/line-oa-studio/features/PHASE-FR-256-P3-server-owned-self-hosted-model-execution.md",
         "docs/domains/line-oa-studio/features/REVIEW-LINE-OA-RELIABILITY-2026-09-10.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
@@ -3859,6 +3974,13 @@
             "apps/server/tests/unit/edge-line-memory-context.test.js",
             "apps/server/tests/unit/edge-memory-invocation.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-259",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-259 is planned",
+          "evidence": []
         }
       ],
       "details": {
@@ -3866,7 +3988,7 @@
         "apiRoutes": 20,
         "pageRoutes": 10,
         "ownedModels": 6,
-        "featureNotes": 12
+        "featureNotes": 14
       },
       "featureIds": [
         "FEAT-018",
@@ -4332,6 +4454,14 @@
           "status": "verified",
           "codeCount": 6,
           "testCount": 22
+        },
+        {
+          "id": "FR-258",
+          "title": "Inference pool operations projection",
+          "declared": "planned",
+          "status": "planned",
+          "codeCount": 0,
+          "testCount": 0
         }
       ],
       "checks": {
@@ -4374,12 +4504,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "not_applicable",
@@ -4422,11 +4558,17 @@
           }
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -4435,6 +4577,7 @@
         "docs/appendices/A-api-spec.md",
         "docs/domains/platform-control/CHARTER.md",
         "docs/domains/platform-control/features/FR-105-platform-programme-roadmap.md",
+        "docs/domains/platform-control/features/FR-258-inference-pool-operations-projection.md",
         "prisma/schema.prisma",
         "src/app/api/mcp/route.js",
         "src/modules/line-crm/LineCrmAiMcp.jsx",
@@ -4447,6 +4590,12 @@
       ],
       "gaps": [
         {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
           "id": "AUTH-001",
           "severity": "high",
           "check": "authorization",
@@ -4457,6 +4606,19 @@
           "severity": "medium",
           "check": "authorization",
           "summary": "At least one read route lacks a recognizable request viewer seam"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-258",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-258 is planned",
+          "evidence": []
         }
       ],
       "details": {
@@ -4464,7 +4626,7 @@
         "apiRoutes": 7,
         "pageRoutes": 3,
         "ownedModels": 4,
-        "featureNotes": 1
+        "featureNotes": 2
       },
       "featureIds": [
         "FEAT-034",
@@ -10907,6 +11069,81 @@
       ]
     },
     {
+      "id": "FEAT-043",
+      "title": "Server-owned self-hosted inference pool",
+      "kind": "bundle",
+      "registryStatus": "approved design — repository declaration pending",
+      "requirementIds": [
+        "FR-255",
+        "FR-256",
+        "FR-257",
+        "FR-258",
+        "FR-259"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [
+        "agent",
+        "integration",
+        "line-oa-studio",
+        "platform-control"
+      ],
+      "useCase": "Business owner or Operator configures self-hosted vLLM inference pool (12GB/16GB GPU nodes) without mandatory Edge device for Zuri Server LINE OA responses, including node registration, credential qualification, capacity routing, and safe cutover",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-043 registry status is approved design — repository declaration pending",
+        "FR-255 is planned",
+        "FR-256 is planned",
+        "FR-257 is planned",
+        "FR-258 is planned",
+        "FR-259 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-255",
+          "title": "Inference node registration and trust",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-256",
+          "title": "Server-owned self-hosted model execution",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-257",
+          "title": "Inference capacity routing and health",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-258",
+          "title": "Inference pool operations projection",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-259",
+          "title": "Self-hosted inference policy and cutover",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
+    },
+    {
       "id": "FR-001",
       "title": "จัดการ scope hierarchy: Portfolio / Tenant / Business / Branch / LegalEntity / Workspace (CRUD + human codes)",
       "kind": "requirement",
@@ -16697,6 +16934,22 @@
         "platform-control",
         "project-manager"
       ]
+    },
+    {
+      "id": "NFR-024",
+      "title": "Inference recovery without duplicate business effects",
+      "status": "planned",
+      "codeCount": 0,
+      "testCount": 0,
+      "domains": []
+    },
+    {
+      "id": "NFR-025",
+      "title": "Inference observation freshness and boundedness",
+      "status": "planned",
+      "codeCount": 0,
+      "testCount": 0,
+      "domains": []
     }
   ]
 }

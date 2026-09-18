@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.11, 2026-09-17) so the board can open a task the way the html board
+// (v0.4.12, 2026-09-17) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -2286,9 +2286,9 @@ export const PROGRAMME_CONTAINERS = {
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/src/modules/knowledge/genesisrag17-lineage-repository.js",
+      "code": "apps/server/src/modules/knowledge/knowledge-artifact-storage-service.js",
       "doc": "docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md",
-      "test": "apps/server/tests/integration/knowledge-admission-backup.test.js"
+      "test": "apps/server/tests/integration/knowledge-storage-ingestion.test.js"
     },
     "linkState": {
       "code": "present",

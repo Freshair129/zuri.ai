@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Reviewed Zuri inference-pool ID bindings",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "ADR_POOL",
+    "FEAT_POOL",
+    "FR_NODES",
+    "FR_EXECUTION",
+    "FR_ROUTING",
+    "FR_MONITOR",
+    "FR_LINE",
+    "SEC_NETWORK",
+    "SEC_PRIVACY",
+    "SDD_TOPOLOGY",
+    "SDD_ADMISSION",
+    "NFR_RECOVERY",
+    "NFR_OBSERVABILITY"
+  ],
+  "properties": {
+    "ADR_POOL": {
+      "type": "string",
+      "pattern": "^ADR-[0-9]{3,}$"
+    },
+    "FEAT_POOL": {
+      "type": "string",
+      "pattern": "^FEAT-[0-9]{3,}$"
+    },
+    "FR_NODES": {
+      "type": "string",
+      "pattern": "^FR-[0-9]{3,}$"
+    },
+    "FR_EXECUTION": {
+      "type": "string",
+      "pattern": "^FR-[0-9]{3,}$"
+    },
+    "FR_ROUTING": {
+      "type": "string",
+      "pattern": "^FR-[0-9]{3,}$"
+    },
+    "FR_MONITOR": {
+      "type": "string",
+      "pattern": "^FR-[0-9]{3,}$"
+    },
+    "FR_LINE": {
+      "type": "string",
+      "pattern": "^FR-[0-9]{3,}$"
+    },
+    "SEC_NETWORK": {
+      "type": "string",
+      "pattern": "^SEC-[0-9]{3,}$"
+    },
+    "SEC_PRIVACY": {
+      "type": "string",
+      "pattern": "^SEC-[0-9]{3,}$"
+    },
+    "SDD_TOPOLOGY": {
+      "type": "string",
+      "pattern": "^SDD-[0-9]{3,}$"
+    },
+    "SDD_ADMISSION": {
+      "type": "string",
+      "pattern": "^SDD-[0-9]{3,}$"
+    },
+    "NFR_RECOVERY": {
+      "type": "string",
+      "pattern": "^NFR-[0-9]{3,}$"
+    },
+    "NFR_OBSERVABILITY": {
+      "type": "string",
+      "pattern": "^NFR-[0-9]{3,}$"
+    }
+  }
+}
