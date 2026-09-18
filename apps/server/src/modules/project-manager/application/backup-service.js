@@ -38,6 +38,14 @@ import { createLocalFilesystemPort } from '../local-files/filesystem-port'
 import { requireViewer } from './project-authorization'
 import { assertOperator, assertOperatorAndRecordUse } from '@/modules/identity/operator-use'
 import {
+  PHASE_B_FAMILY_DELEGATES, PHASE_B_RECOVERY_MANIFEST_VERSION,
+  PhaseBRecoveryError, readPhaseBCounts, assertPhaseBWebRestoreSafe,
+} from './phase-b-backup'
+
+// @req FR-252 — complete protected export and a refusal before web replacement.
+// @spec docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md
+// @tested tests/integration/phase-b-web-recovery.test.js
+import {
   BILLING_DOCUMENT_TYPES,
   BILLING_NON_VAT_POLICIES,
   BILLING_PROMPTPAY_PROVIDER,
@@ -163,7 +171,7 @@ function hasMemoryPendingCheckpoint(snapshot, job) {
 }
 
 // Parents precede children for restore; reverse order is used for deletion.
-const SNAPSHOT_MODELS = [
+export const SNAPSHOT_MODELS = [
   // @req FR-218 — agent usage reports reference nothing (installation-level, no
   // Tenant/Business/Person foreign key) and cannot be re-derived: the agent that
   // sent one ran on another machine. Measurements, no secret: exported whole.
@@ -406,6 +414,10 @@ const SNAPSHOT_MODELS = [
   // Parent rows precede children for restore; reverse deletion preserves FKs.
   'assetIntake', 'assetLot', 'registeredAsset', 'assetEvidence', 'assetProcurementRef',
   'assetResponsibility', 'assetLocationHistory', 'assetProjectAllocation', 'assetDepreciationCandidate',
+  // @req FR-252 — protected family; ordinary replacement always skips it.
+  // Offline clean-target recovery inserts these only after all legacy parents.
+  'governanceSnapshot', 'projectFeature', 'featureContribution', 'featureWorkLink',
+  'requirementBinding', 'projectFeatureMutationReceipt',
 ]
 
 /**
@@ -1415,14 +1427,27 @@ function marketingBroadcastRecovery(snapshot) {
   return result
 }
 
-export async function exportSnapshot({
-  db = prisma,
+// @req FR-252 — offline protected export shares extraction/redaction without
+// writing an audit or selecting an ambient application database.
+// @tested tests/integration/phase-b-web-recovery.test.js
+export async function extractSnapshot({
+  db,
   includeBinaryContent = false,
   filesystemPort = createLocalFilesystemPort(),
 } = {}) {
+  if (!db) throw new Error('SNAPSHOT_DATABASE_REQUIRED')
+  const visibility = await readPhaseBCounts(db)
+  if (visibility.status !== 'FULL') throw new PhaseBRecoveryError(
+    'PHASE_B_EXPORT_COMPLETENESS_UNAVAILABLE',
+    'Complete Phase B visibility is unavailable; use the protected offline export command',
+  )
   const snapshot = {
     schemaVersion: SNAPSHOT_SCHEMA_VERSION,
     exportedAt: new Date().toISOString(),
+    phaseBRecovery: {
+      version: PHASE_B_RECOVERY_MANIFEST_VERSION,
+      requiredTables: [...PHASE_B_FAMILY_DELEGATES],
+    },
     genesisRag17Recovery: {
       schemaVersion: GENESIS_RAG17_RECOVERY_MANIFEST_VERSION,
       requiredTables: [...GENESIS_RAG17_RECOVERY_TABLES],
@@ -1481,6 +1506,18 @@ export async function exportSnapshot({
     }
     snapshot.fileContentManifest.push(entry)
   }
+  return snapshot
+}
+
+export async function exportSnapshot({
+  db = prisma,
+  includeBinaryContent = false,
+  filesystemPort = createLocalFilesystemPort(),
+} = {}) {
+  const extract = (tx) => extractSnapshot({ db: tx, includeBinaryContent, filesystemPort })
+  const snapshot = typeof db.$transaction === 'function'
+    ? await db.$transaction(extract, { isolationLevel: 'Serializable', maxWait: 10_000, timeout: 120_000 })
+    : await extract(db)
   await recordAudit(db, {
     entityType: 'SNAPSHOT', entityId: 'local', action: 'EXPORTED',
     payload: { counts: Object.fromEntries(Object.entries(snapshot.tables).map(([key, rows]) => [key, rows.length])), includeBinaryContent },
@@ -1516,6 +1553,27 @@ export function previewSnapshot(snapshot, { remounts = [] } = {}) {
   }
 }
 
+// Offline recovery reuses every existing protected-family validator and the
+// archive chain's normalized order without invoking the web authority wrapper.
+export function validateSnapshotRecovery(snapshot, { remounts = [] } = {}) {
+  const base = previewSnapshot(snapshot, { remounts })
+  if (!base.valid) return base
+  const recoveries = {
+    billingRecovery: commerceBillingRecovery(snapshot),
+    inventoryStocktakeRecovery: inventoryStocktakeRecovery(snapshot),
+    lineWorkerMemoryRecovery: lineWorkerMemoryRecovery(snapshot),
+    marketingBroadcastRecovery: marketingBroadcastRecovery(snapshot),
+    archiveRecovery: archiveRecovery(snapshot),
+    usageEventRollupRecovery: usageRollupRecovery(snapshot),
+    pricingRecovery: pricingRecovery(snapshot),
+  }
+  const errors = [...base.errors, ...Object.values(recoveries).flatMap(result => result.errors)]
+  return {
+    ...base, ...recoveries, valid: errors.length === 0, errors,
+    warnings: [...base.warnings, ...Object.values(recoveries).flatMap(result => result.warnings)],
+  }
+}
+
 export async function previewImport(snapshot, { remounts = [], db = prisma, viewer, nested = false } = {}) {
   // `nested` is importSnapshot's own dry run — the caller already proved
   // authority and will record one BACKUP_RESTORE use, so a second
@@ -1532,7 +1590,9 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   const usageRollup = usageRollupRecovery(snapshot)
   const pricing = pricingRecovery(snapshot)
   const current = {}
-  for (const model of SNAPSHOT_MODELS) current[model] = await db[model].count()
+  for (const model of SNAPSHOT_MODELS) {
+    if (!PHASE_B_FAMILY_DELEGATES.includes(model)) current[model] = await db[model].count()
+  }
   const currentMemoryJobs = await db.lineConversationJob.count({ where: {
     OR: [{ memorySyncOptIn: true }, { memoryDeliveryState: { not: 'NONE' } }],
   } })
@@ -1569,6 +1629,18 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   if (pricing.status === 'UNAVAILABLE' && PRICING_RECOVERY_TABLES.some((model) => current[model] > 0)) {
     pricing.errors.push('Pricing recovery is unavailable while the installation contains pricing rows; refusing a restore that would erase evidence')
     pricing.status = 'INVALID'
+  }
+  try {
+    const check = tx => assertPhaseBWebRestoreSafe(tx, snapshot)
+    if (typeof db.$transaction === 'function') {
+      await db.$transaction(check, { isolationLevel: 'Serializable', maxWait: 10_000, timeout: 30_000 })
+    } else await check(db)
+    // The guard proves both complete visibility and global zero. Never derive
+    // these six counts from an unbound query that might silently filter rows.
+    for (const model of PHASE_B_FAMILY_DELEGATES) current[model] = 0
+  } catch (error) {
+    if (!(error instanceof PhaseBRecoveryError)) throw error
+    return { ...base, valid: false, errorCode: error.code, errors: [error.message], phaseBRecovery: { status: 'REFUSED' } }
   }
   return {
     ...base,
@@ -1629,7 +1701,7 @@ async function assertProtectedRecoveryStillSafe(tx, snapshot, preview) {
 }
 
 /** Restore is recovery of evidence, never authorization to repeat an external send. */
-function restoredRow(model, row, { lineWorkerMemoryRecovery } = {}) {
+export function restoredRow(model, row, { lineWorkerMemoryRecovery } = {}) {
   if (model === 'lineOaAccount') return {
     ...row, serverEnabled: false, transportEpoch: (row.transportEpoch ?? 1) + 1,
     version: (row.version ?? 1) + 1,
@@ -1687,6 +1759,7 @@ export async function importSnapshot(snapshot, {
       // must run before plugin/mount/model deletion so a row that appeared
       // after preview can never be erased by an omitted snapshot array.
       await assertProtectedRecoveryStillSafe(tx, snapshot, preview)
+      await assertPhaseBWebRestoreSafe(tx, snapshot)
       // @req FR-123 — excluded plugin auth records are revoked at the recovery
       // boundary rather than left active beside a restored business snapshot.
       // Deleting the installation cascades to its codes and sessions, so one
@@ -1694,14 +1767,17 @@ export async function importSnapshot(snapshot, {
       // the restore still authenticates against the data that replaced it.
       await tx.pluginInstallation.deleteMany()
       await tx.localWorkspaceMount.deleteMany()
-      for (const model of [...SNAPSHOT_MODELS].reverse()) {
+      // Immutable Phase B families are never replaced by the web runtime, even
+      // when empty. The fresh guard above proves this restore will not need them.
+      const replaceableModels = SNAPSHOT_MODELS.filter(model => !PHASE_B_FAMILY_DELEGATES.includes(model))
+      for (const model of [...replaceableModels].reverse()) {
         if (model === 'pricingRuleSet') {
           const errors = [], rows = pricingRuleRestoreRows(await tx.pricingRuleSet.findMany(), errors)
           if (errors.length) throw new BackupRestoreSafetyError('BACKUP_PRICING_LIVE_CHAIN_INVALID', errors.join('; '))
           for (const row of rows.reverse()) await tx.pricingRuleSet.delete({ where: { id: row.id } })
         } else await tx[model].deleteMany()
       }
-      for (const model of SNAPSHOT_MODELS) {
+      for (const model of replaceableModels) {
         const rows = model === 'archiveManifest'
           ? preview.archiveRecovery.manifestRows
           : model === 'pricingRuleSet' ? preview.pricingRecovery.ruleRows : snapshot.tables[model] || []
@@ -1740,7 +1816,7 @@ export async function importSnapshot(snapshot, {
       timeout: 120_000,
     })
   } catch (error) {
-    if (error instanceof BackupRestoreSafetyError) {
+    if (error instanceof BackupRestoreSafetyError || error instanceof PhaseBRecoveryError) {
       return {
         restored: false,
         valid: false,

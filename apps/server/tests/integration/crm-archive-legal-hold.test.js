@@ -8,7 +8,7 @@ import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
-import { beforeEach, afterEach, describe, expect, it } from 'vitest'
+import { beforeEach, afterEach, describe, expect, it, vi } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { makeViewer } from '../factories/viewer'
@@ -17,6 +17,7 @@ import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { runRetentionSweep } from '@/modules/crm/retention-sweep-service'
 import { RETENTION_DEFAULT_WINDOW_DAYS } from '@/lib/validation/enums'
 import { recordCustomerLegalHold } from '@/modules/crm/chat-evidence-legal-hold-service'
+import { withLockedCustomer } from '@/modules/crm/chat-evidence-archive-service'
 import { erasePrincipal } from '@/modules/identity/erase-principal'
 import { expireChatEvidenceArchive } from '@/modules/crm/chat-evidence-archive-expiry-service'
 
@@ -95,6 +96,119 @@ describe('SEC-034 recordCustomerLegalHold (TASK-ZAI-113 P0)', () => {
     const audit = await prisma.auditEvent.findFirst({ where: { entityId: fresh.customerId, action: 'LEGAL_HOLD_RECORDED' } })
     expect(audit).toBeTruthy()
     expect(audit.reason).toBe('ข้อพิพาทเรื่องส่วนลด')
+  })
+
+  it('rolls back the hold when its audit append fails', async () => {
+    const { tenant, business } = await freshScope('audit-rollback')
+    const { viewer } = await ownerOf(business)
+    const fresh = await ingestLineMessage({ tenantId: tenant.id, businessId: business.id, lineUserId: 'U-ceah-audit-rollback', threadId: 'TH-CEAH-AUDIT-ROLLBACK', text: 'hi', externalMessageId: 'MI-CEAH-AUDIT-ROLLBACK' })
+    const failingDb = prisma.$extends({
+      query: {
+        auditEvent: {
+          async create() {
+            throw new Error('AUDIT_INJECTED_FAILURE')
+          },
+        },
+      },
+    })
+
+    await expect(recordCustomerLegalHold(
+      fresh.customerId,
+      { businessId: business.id, reason: 'audit rollback', endDate: futureDateOnly(365) },
+      { viewer, db: failingDb, dialect: 'sqlite' },
+    )).rejects.toThrow('AUDIT_INJECTED_FAILURE')
+
+    expect(await prisma.customerLegalHold.count({ where: { customerId: fresh.customerId } })).toBe(0)
+    expect(await prisma.auditEvent.count({ where: { entityId: fresh.customerId, action: 'LEGAL_HOLD_RECORDED' } })).toBe(0)
+  })
+
+  it('refuses an unknown provider before opening a transaction or writing', async () => {
+    const calls = []
+    const db = {
+      provider: 'mysql',
+      $transaction: vi.fn(async () => calls.push('transaction')),
+    }
+
+    await expect(withLockedCustomer(
+      db,
+      { tenantId: 'tenant-unknown-provider', customerId: 'customer-unknown-provider' },
+      async () => calls.push('callback'),
+    )).rejects.toMatchObject({ code: 'ARCHIVE_CUSTOMER_PROVIDER_UNAVAILABLE', status: 503 })
+    expect(calls).toEqual([])
+    expect(db.$transaction).not.toHaveBeenCalled()
+  })
+
+  it('binds the PostgreSQL lock to both Customer and Tenant before the callback', async () => {
+    const customerId = 'customer-postgres-lock'
+    const tenantId = 'tenant-postgres-lock'
+    const queryRaw = vi.fn(async () => [{ id: customerId }])
+    const tx = { _activeProvider: 'postgres', $queryRawUnsafe: queryRaw }
+
+    await expect(withLockedCustomer(
+      tx,
+      { tenantId, customerId },
+      async (lockedTx, { customer }) => ({ lockedTx, customer }),
+      { transactionClient: true },
+    )).resolves.toMatchObject({ customer: { id: customerId, tenantId } })
+    expect(queryRaw).toHaveBeenCalledWith(
+      'SELECT "id" FROM "Customer" WHERE "id" = $1 AND "tenantId" = $2 FOR UPDATE',
+      customerId,
+      tenantId,
+    )
+    expect(queryRaw).toHaveBeenNthCalledWith(
+      2,
+      'UPDATE "Customer" SET "id" = "id" WHERE "id" = $1 AND "tenantId" = $2 RETURNING "id"',
+      customerId,
+      tenantId,
+    )
+    expect(queryRaw).toHaveBeenCalledTimes(2)
+  })
+
+  it('does not enter a hold or key effect when PostgreSQL rejects a stale transaction', async () => {
+    const conflict = Object.assign(new Error('could not serialize access due to concurrent update'), { code: 'P2010', meta: { code: '40001' } })
+    const queryRaw = vi.fn()
+      .mockResolvedValueOnce([{ id: 'stale-customer' }])
+      .mockRejectedValueOnce(conflict)
+    const effect = vi.fn()
+    await expect(withLockedCustomer(
+      { _activeProvider: 'postgres', $queryRawUnsafe: queryRaw },
+      { tenantId: 'stale-tenant', customerId: 'stale-customer' },
+      effect,
+      { transactionClient: true },
+    )).rejects.toMatchObject({ code: 'ARCHIVE_CUSTOMER_LOCK_UNAVAILABLE', status: 503, retryable: true, cause: conflict })
+    expect(effect).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    { code: 'P2034' },
+    { code: 'P2010', meta: { code: '40P01' } },
+    { code: 'SQLITE_BUSY' },
+    { code: 'SQLITE_LOCKED' },
+  ])('maps a confirmed transaction conflict to a bounded retryable refusal: %j', async (details) => {
+    const conflict = Object.assign(new Error('injected transaction conflict'), details)
+    const effect = vi.fn()
+    const db = { _activeProvider: 'sqlite', $transaction: vi.fn().mockRejectedValue(conflict) }
+    await expect(withLockedCustomer(
+      db,
+      { tenantId: 'conflict-tenant', customerId: 'conflict-customer' },
+      effect,
+    )).rejects.toMatchObject({ code: 'ARCHIVE_CUSTOMER_LOCK_UNAVAILABLE', status: 503, retryable: true, cause: conflict })
+    expect(db.$transaction).toHaveBeenCalledTimes(1)
+    expect(effect).not.toHaveBeenCalled()
+  })
+
+  it('refuses a Customer from another Tenant before creating a hold', async () => {
+    const first = await freshScope('scope-source')
+    const second = await freshScope('scope-target')
+    const { viewer } = await ownerOf(second.business)
+    const source = await ingestLineMessage({ tenantId: first.tenant.id, businessId: first.business.id, lineUserId: 'U-ceah-cross-tenant', threadId: 'TH-CEAH-CROSS-TENANT', text: 'hi', externalMessageId: 'MI-CEAH-CROSS-TENANT' })
+
+    await expect(recordCustomerLegalHold(
+      source.customerId,
+      { businessId: second.business.id, reason: 'cross tenant', endDate: futureDateOnly(365) },
+      { viewer },
+    )).rejects.toMatchObject({ status: 404 })
+    expect(await prisma.customerLegalHold.count({ where: { customerId: source.customerId } })).toBe(0)
   })
 
   it('allows a second, later hold on the same Customer — a history, not a single row', async () => {

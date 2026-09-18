@@ -1,7 +1,7 @@
 ---
-version: "1.32.0b"
+version: "1.34.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-17T00:32:00+07:00,RWANG"
+last_update: "2026-09-17T20:28:51+07:00,RWANG final integrator"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -14,14 +14,14 @@ attributes:
 
 | Field | Value |
 |---|---|
-| **Version** | 1.32.0b |
+| **Version** | 1.34.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
-| **Last Updated** | 2026-09-16 |
+| **Last Updated** | 2026-09-17 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=112; operational_domain_keys=16; operational_subdomain_entries=57; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=113; operational_domain_keys=16; operational_subdomain_entries=57; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -250,7 +250,8 @@ not new global domains or new persistence aggregates.
 | `/projects/[projectId]/all-work` | Project All Work | ProjectResourceShell → Work Management | Project-filtered WorkItems and status actions | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/all-work/page.jsx`, FR-005 |
 | `/projects/[projectId]/board` | Project Board | ProjectResourceShell → Work Management | board view over Project work | empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/board/page.jsx`, FR-063 |
 | `/projects/[projectId]/dependencies` | Project Dependency Map | ProjectResourceShell → Work Management | contained dependency graph; both endpoints must belong to Project | empty, loading, error, forbidden, graph error | implemented; `src/app/(pm)/projects/[projectId]/dependencies/page.jsx`, FR-040 |
-| `/projects/[projectId]/domain-view` | Execution Domains | ProjectResourceShell → Delivery Design | Read-only projection of active Workstream primary/supporting domains, separate technical owners, deduplicated work and unbound totals; other Delivery Design capabilities remain planned | authorized Project only; loading, request error, 401, redacted 404, empty/unassigned, unmapped, unavailable sources; keyboard and 390px layout | FR-251 owner-approved Phase A implemented and verified locally; not deployed; `src/app/(pm)/projects/[projectId]/domain-view/page.jsx` |
+| `/projects/[projectId]/domain-view` | Execution Domains | ProjectResourceShell → Delivery Design | Read-only projection of active Workstream primary/supporting domains, separate technical owners, deduplicated work and unbound totals; Requirements, Architecture, API and Docs & Decisions remain planned | authorized Project only; loading, request error, 401, redacted 404, empty/unassigned, unmapped, unavailable sources; keyboard and 390px layout | FR-251 owner-approved Phase A implemented and verified locally; release evidence recorded separately; `src/app/(pm)/projects/[projectId]/domain-view/page.jsx` |
+| `/projects/[projectId]/feature-view` | Project Features | ProjectResourceShell → Delivery Design | Explicit Features and separate primary/supporting Domains; deduplicated Project work including unbound work. Query featureId opens detail. Authorized owner forms create/edit, bind Domain/Work/requirements, capture verified snapshots, redistribute allocation and delete/restore | Project read authority; owner actions reauthorized on every write; canonical/scoped pickers, review, retained uncertain intent, CAS/conflict and typed field errors; loading/refusal masks cached detail; single active modal, Escape/focus return and 390px layout; lifecycle and unavailable provenance remain explicit | FR-252 W3-W5 implemented locally; API/provider and independent source gates pass; browser acceptance covered by 45 passing checks plus two targeted privacy passes after a test-only locator correction (one overlap); original failed run retained in P4/integration evidence. Hosted release separate; `src/app/(pm)/projects/[projectId]/feature-view/page.jsx` |
 | `/projects/[projectId]/roadmap` | Execution Roadmap | ProjectResourceShell → Work Management | read-only Project outcome, Business Goals, execution hierarchy, progress, dependencies, blocker evidence, identity references and closure gates | empty, loading, error, forbidden, unavailable fields | implemented; `src/app/(pm)/projects/[projectId]/roadmap/page.jsx`, `tests/unit/project-roadmap-ui.test.js`, FR-068 |
 | `/projects/[projectId]/execution/[mode]` | Project Execution Mode | ProjectResourceShell → Project Management | mode view scoped to opened Project | invalid mode, empty, loading, error, forbidden | implemented; `src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx`, FR-009 |
 | `/projects/[projectId]/files` | Project Files | ProjectResourceShell → Resource Coordination | Project file references and metadata actions | empty, loading, error, forbidden, capability-disabled | implemented; `src/app/(pm)/projects/[projectId]/files/page.jsx`, FR-045 |
@@ -408,6 +409,8 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.34.0b | 2026-09-17 | candidate | Describe implemented owner forms, scoped pickers, review/reconciliation and modal/refusal states; retain 113 page routes and separate hosted release evidence | 052821a7 + 892f23f3 | RWANG |
+| 1.33.0b | 2026-09-17 | candidate | Register FR-252 Project Features list/detail route and states; preserve Pricing and Domain routes, 113 page routes | 052821a7 + 892f23f3 | RWANG |
 | 1.27.0b | 2026-09-14 | candidate | Added the knowledge gap report page `/knowledge/gap-report` (FR-237, ADR-090 D7); page routes 107 -> 108 | working-tree | Claude Sonnet 5 |
 | 1.26.0b | 2026-09-14 | candidate | Added the LINE FAQ candidates review page `/knowledge/candidates` (FR-236, ADR-090 D6), the third Knowledge (GKS) sub-item; page routes 106 -> 107, operational subdomain entries 55 -> 56 | working-tree | Claude Sonnet 5 |
 | 1.23.0b | 2026-09-13 | active | Added the Knowledge (GKS) domain (FR-214, ADR-085) with its Dashboard `/knowledge` and the Data Pipeline Map `/knowledge/data-pipeline` (FR-213); page routes 102 -> 104, operational domain keys 15 -> 16, operational subdomain entries 53 -> 55 | working-tree | Claude Opus 5 |

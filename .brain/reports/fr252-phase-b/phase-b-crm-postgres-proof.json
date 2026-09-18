@@ -1,0 +1,103 @@
+{
+  "capturedAt": "2026-09-17T11:24:15.540Z",
+  "environment": "ISOLATED_LOOPBACK_POSTGRES_17",
+  "lab": "zuri-pm-fr252-w2-01a0a4e5",
+  "limits": [
+    "Synthetic loopback lab only; this is not production evidence.",
+    "zuri_web_login is a local fixture role; this does not prove production grants, deployment or credential configuration.",
+    "No production credentials, archive directory, provider checkout or production database was used.",
+    "The direct blocker transaction used only to force lock order is a fixture writer; service-path assertions use the bundled current source."
+  ],
+  "cases": [
+    {
+      "name": "owned synthetic PostgreSQL container",
+      "status": "PASS",
+      "detail": "container labels match the bounded CRM lab"
+    },
+    {
+      "name": "loopback-only provider endpoint",
+      "status": "PASS",
+      "detail": "127.0.0.1:55137"
+    },
+    {
+      "name": "actual runtime login is non-bypass",
+      "status": "PASS",
+      "detail": "zuri_web_login; NOSUPERUSER/NOBYPASSRLS"
+    },
+    {
+      "name": "persisted owner viewer resolves from Person/Membership",
+      "status": "PASS",
+      "detail": "live persisted Membership produced owner authority"
+    },
+    {
+      "name": "hold-first service path preserves archive key",
+      "status": "PASS",
+      "detail": "recordCustomerLegalHold then destroyCustomerArchiveKey; key and hold audit persisted"
+    },
+    {
+      "name": "erase-first service path deletes key; later hold never recreates it",
+      "status": "PASS",
+      "detail": "key deletion committed before later hold; no key recreation path exists"
+    },
+    {
+      "name": "Customer lock orders hold before waiting key deletion",
+      "status": "PASS",
+      "detail": "real PostgreSQL Customer FOR UPDATE waited, then saw committed hold and retained key"
+    },
+    {
+      "name": "Customer lock orders key deletion before a waiting hold",
+      "status": "PASS",
+      "detail": "waiting public hold committed after the lock winner deleted the key; key stayed absent"
+    },
+    {
+      "name": "supplied Serializable transaction cannot miss hold after lock wait",
+      "status": "PASS",
+      "detail": "safe bounded rollback after PostgreSQL serialization conflict: {\"code\":\"ARCHIVE_CUSTOMER_LOCK_UNAVAILABLE\",\"status\":503,\"message\":\"ARCHIVE_CUSTOMER_LOCK_UNAVAILABLE\"}; cause={\"name\":\"PrismaClientKnownRequestError\",\"code\":\"P2010\",\"clientVersion\":\"5.22.0\",\"meta\":{\"code\":\"40001\",\"message\":\"could not serialize access due to concurrent update\"}}"
+    },
+    {
+      "name": "PostgreSQL hold and audit roll back together on audit fault",
+      "status": "PASS",
+      "detail": "fault after INSERT rolled back both CustomerLegalHold and LEGAL_HOLD_RECORDED"
+    },
+    {
+      "name": "cross-tenant legal-hold refusal is redacted and side-effect free",
+      "status": "PASS",
+      "detail": "Business B owner cannot learn or write Customer A across Tenant scope"
+    },
+    {
+      "name": "Identity erase uses CRM key seam in one real transaction",
+      "status": "PASS",
+      "detail": "real Identity transaction deleted the key, redacted Customer and appended ERASURE audit"
+    },
+    {
+      "name": "Identity transaction rolls back CRM key/customer on final audit fault",
+      "status": "PASS",
+      "detail": "late Identity audit failure rolled back Customer redaction and archive-key deletion"
+    },
+    {
+      "name": "runtime source remains frozen during all CRM PostgreSQL cases",
+      "status": "PASS",
+      "detail": "five CRM/Identity source and test hashes unchanged"
+    }
+  ],
+  "findings": [],
+  "before": {
+    "src/modules/crm/chat-evidence-archive-service.js": "e69f9bbaf24a542e477094a9288b5c1f4291110b399b45b6d5b882b274364fc6",
+    "src/modules/crm/chat-evidence-legal-hold-service.js": "497b14471d6c2fa4bb3d461a6b36f94f658c378605e19abe94fcbcb1d21db32f",
+    "src/modules/identity/erase-principal.js": "4f846153bfb85ece34c5243ecaf16c026224d8913979f6d5dcaf03667e6124f7",
+    "src/modules/crm/chat-evidence-archive-expiry-service.js": "e7553595a396574f7eb2f8481f3480ba0b96b8e091fac8011324e7edefe63843",
+    "tests/integration/crm-archive-legal-hold.test.js": "28ca55dacf15d714f29593819e14d73c90313ae0205cbba4fa75dec4b23364f2"
+  },
+  "loopback": "127.0.0.1:55137",
+  "database": "fr252_crm_01a0a4e5_1789644255852",
+  "after": {
+    "src/modules/crm/chat-evidence-archive-service.js": "e69f9bbaf24a542e477094a9288b5c1f4291110b399b45b6d5b882b274364fc6",
+    "src/modules/crm/chat-evidence-legal-hold-service.js": "497b14471d6c2fa4bb3d461a6b36f94f658c378605e19abe94fcbcb1d21db32f",
+    "src/modules/identity/erase-principal.js": "4f846153bfb85ece34c5243ecaf16c026224d8913979f6d5dcaf03667e6124f7",
+    "src/modules/crm/chat-evidence-archive-expiry-service.js": "e7553595a396574f7eb2f8481f3480ba0b96b8e091fac8011324e7edefe63843",
+    "tests/integration/crm-archive-legal-hold.test.js": "28ca55dacf15d714f29593819e14d73c90313ae0205cbba4fa75dec4b23364f2"
+  },
+  "sourceFrozen": true,
+  "status": "PASS",
+  "cleanup": "database dropped after proof"
+}

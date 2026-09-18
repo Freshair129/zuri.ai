@@ -1,10 +1,10 @@
 # Appendix A — API Specification
 
-Version diff 1.84.0b → 1.85.0b: add the deployment-authenticated TaskUsageLedger read projection for task-bound usage. Current inventory is 299 paths and 398 operations; no existing route is removed.
+Version diff 1.86.0b → 1.87.0b: retain the composed FR-252 Feature operations and add the deployment-authenticated TaskUsageLedger read projection. Composition target is 309 paths and 412 operations; TaskUsageLedger is a pure projection with no database model or migration. Final composed verification and production delivery remain pending.
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.85.0b |
+| **Version** | 1.87.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-09-18 |
 
@@ -25,7 +25,93 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=299 -->
+<!-- api-spec-counts: route_handlers=309 -->
+
+### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
+
+POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM
+peer release while Phase B is composed. Body: `{ businessId, reason, endDate }`,
+with a future calendar date `YYYY-MM-DD`. The caller needs CRM visibility and
+Business ownership; Customer scope is bounded by that Business's Tenant.
+Success returns `{ customerId, legalHoldId, reason, endDate, recordedAt }` and
+records `LEGAL_HOLD_RECORDED`. Identity erasure retains the archive key while
+an active hold exists and reports that pending state independently of PM text
+erasure. This is source compatibility, not a new production verification claim.
+
+Version diff 1.83.0b → 1.84.0b: preserve the peer CRM legal-hold route alongside
+the CSRF issuer; 291 handler paths and 389 runtime operations.
+
+### API-write CSRF issuer (FR-252-P2)
+
+GET `/api/auth/csrf` returns the strict `{ token, expiresAt }` DTO for a live
+persisted session. The API-write audience is `zuri_api_write.v1`; expiry is the
+earlier of 15 minutes and the live session expiry. Responses are `no-store`,
+provide no CORS token, and clients keep the token only in memory. Issuance
+requires the configured `PUBLIC_BASE_URL` Origin; an absent Origin is accepted
+only with `Sec-Fetch-Site: same-origin` or a same-origin Referer. The token grants
+no Business capability and cannot be replaced by plugin-consent tokens.
+
+Refusals use `{ code, message, requestId, retryable }` with matching
+`X-Request-ID`: 401 `AUTH_REQUIRED`, 403 `CSRF_INVALID`, or 503
+`SESSION_UNAVAILABLE`. The published Swagger uses the issuer's runtime Zod
+schemas.
+
+### Phase B Feature reads (FR-252 W3)
+
+| Method | Route | Response |
+|---|---|---|
+| GET | `/api/projects/[id]/feature-view` | FeatureView: each eligible Project WorkItem counted once, including unlinked work |
+| GET | `/api/projects/[id]/features` | FeatureRecordPage: lifecycle filter and owner-only deleted tombstones |
+| GET | `/api/projects/[id]/features/[featureId]` | FeatureRecord: current scoped Feature and explicit relationships |
+| GET | `/api/projects/[id]/governance-snapshots` | GovernanceSnapshotPage: owner-only minimal metadata |
+
+The detail GET supplies the strong Feature ETag. The aggregate GET supplies
+Business owners an ETag over all Feature ids/versions/deletion instants,
+including tombstones in the same read transaction; shared readers receive no
+graph token. Public DTO bodies remain unchanged. Per-record AVAILABLE/PINNED
+evidence requires Doc27's bound-commit verifier. Missing checkout, invalid
+proof, wrong key or revision preserves historical references with UNAVAILABLE
+and null canonicalSubject; snapshot metadata alone is never key proof.
+
+These reads use the actual strict FeatureView, FeatureRecord,
+FeatureRecordPage and GovernanceSnapshotPage schemas. The hierarchy is proved
+before child reads. Results are no-store. List cursors are signed and scoped;
+Feature aggregates stop at 200 rows and pages at 50. Tombstones and snapshot
+metadata retain their owner-capability rules. Reads do not update progress,
+audit or receipts. Swagger includes aggregate 413, bounded-query 400 and
+snapshot-capability 403 refusals.
+
+### Phase B Feature writes and provenance (FR-252 W4/W5)
+
+| Method | Route | Contract |
+|---|---|---|
+| POST | `/api/projects/[id]/features` | FeatureCreateInput; 201 MutationReceipt on first creation, 200 on same-intent replay |
+| PATCH | `/api/projects/[id]/features/[featureId]` | FeaturePatchInput; base fields/lifecycle with Feature CAS |
+| DELETE | `/api/projects/[id]/features/[featureId]` | Feature CAS; soft-delete the active relationship cohort |
+| PUT | `/api/projects/[id]/features/[featureId]/contributions` | ContributionsReplaceInput; complete supporting Domain set |
+| PUT | `/api/projects/[id]/features/[featureId]/work-links` | WorkLinksReplaceInput; per-WorkItem allocation validation |
+| PUT | `/api/projects/[id]/feature-work-links` | FeatureWorkGraphInput; exact affected membership under graph CAS |
+| PUT | `/api/projects/[id]/features/[featureId]/requirement-bindings` | RequirementBindingsReplaceInput; verified canonical revision membership |
+| POST | `/api/projects/[id]/features/[featureId]/restore` | Feature CAS; matching deletion cohort, atomic allocation conflict refusal |
+| POST | `/api/projects/[id]/governance-snapshots` | CaptureSnapshotInput; 201 SnapshotCaptureResult `{snapshot,receipt}`, 200 replay |
+
+Every write requires live session authority, exact configured Origin,
+X-CSRF-Token and Idempotency-Key. Existing-target writes additionally require
+If-Match. Session/CSRF and complete Project scope precede body normalization;
+the locked transaction re-proves live authority before receipt replay/effects.
+One effect, receipt and AuditEvent commit atomically. Responses are no-store
+with matching ETag and X-Request-ID. Errors use the strict
+`{code,message,requestId,retryable,currentVersion?,currentEtag?,fields?}` shape:
+400 malformed input, 401 authentication, 403 CSRF/capability, redacted 404,
+409 conflict, 412 stale CAS, 422 invariant, 428 missing CAS and retryable 503.
+
+Capture accepts only repositoryId, commitSha, manifestHash and SourceManifest
+version 1.0.0. The server verifies bounded raw blobs from the exact commit and
+operator-registered checkout. Only VALID evidence is persisted; refusal adds
+no snapshot, receipt or audit. No public request or response carries an
+absolute checkout root. The source verifier and actual runtime Zod schemas
+are documented by Swagger; explicit oneOf refinements retain pair and receipt
+discriminator rules that cannot be inferred from Zod superRefine alone.
 
 ### Local model residency by business hours (FR-244, 2026-09-16)
 
@@ -42,7 +128,6 @@ ADR-086 D5. An agent without local session logs reports one session's usage for 
 | Method | Route | Contract | Failure |
 |---|---|---|---|
 | POST | `/api/platform/programme-usage-reports` | implemented (FR-218): under `Authorization: Bearer $ZURI_PROGRAMME_USAGE_TOKEN` (at least 32 characters), `{ source, sessionId, taskCode, model?, inputTokens, cacheWriteTokens, cacheReadTokens, outputTokens, requestCount, activeMinutes, startedAt, endedAt }` (strict — no other field, so no prompt or response content) is stored once per `(source, sessionId)` in `ProgrammeUsageReport`; `201 { report, replayed: false }` on create (audited `PROGRAMME_USAGE_REPORT` / `REPORTED`), `200 { report, replayed: true }` when the same payload arrives again. `/control/roadmap` merges the rows with the meter's figures, skipping a session the meter already counted | `401 USAGE_REPORT_CREDENTIAL_REQUIRED`; `400 USAGE_REPORT_INVALID` with `issues`; `404 PROGRAMME_TASK_UNKNOWN`; `409 USAGE_REPORT_CONFLICT` (same session, different payload); `503 USAGE_REPORT_UNAVAILABLE` (database, including a migration not yet applied) |
-| GET | `/api/platform/task-usage-ledger?taskCode=` | implemented locally (TaskUsageLedger v1): deployment-bearer-authenticated, read-only redacted projection over explicit taskCode reports; plan prediction and measured actual remain separate, lane-only usage is never allocated, optional taskCode filters one known programme task | `401 TASK_USAGE_LEDGER_CREDENTIAL_REQUIRED`; `404 PROGRAMME_TASK_UNKNOWN`; `503 TASK_USAGE_LEDGER_UNAVAILABLE` |
 
 ### Agent harness pairing and devices (FR-220, FR-221, 2026-09-14)
 
@@ -60,6 +145,7 @@ ADR-087. A Claude Code or Codex installation pairs like an Edge Device; its cred
 | POST | `/api/platform/usage-events` | implemented (FR-248, FR-249): any signed-in person records their own `{ kind: PAGE_VIEW \| ACTION, route?, actionName? }` — a PAGE_VIEW never carries `actionName`, an ACTION never carries `route`; `actionName` is a static label matching `^[\w.:@/-]{1,120}$`, never free text | `400 USAGE_EVENT_KIND_INVALID \| USAGE_EVENT_ROUTE_INVALID \| USAGE_EVENT_ACTION_NAME_INVALID \| USAGE_EVENT_ROUTE_CARRIES_NO_ACTION_NAME \| USAGE_EVENT_ACTION_CARRIES_NO_ROUTE` |
 | GET | `/api/platform/usage-events` | implemented (FR-248, FR-249): installation operator only, audited `USAGE_EVENTS_READ`; `{ pageViews: [...], actions: [...] }`, each row `{ target, recentCount, rolledUpCount, totalCount, byPerson }` — `byPerson` reflects only the last 90 days, the only window this carries a person for (ADR-095 D3) | `404` for any non-operator |
 | POST | `/api/platform/usage-events/rollup` | implemented (FR-249, NFR-023): deployment-bearer-authenticated (`ZURI_USAGE_ROLLUP_TOKEN`), once-a-day idempotency guard; moves every `UsageEvent` row past its 90-day window into a person-free daily rollup and deletes the rows moved, one audit event per run (same shape as `/api/crm/retention-sweep`) | `401` missing/wrong bearer; `503` on an unhandled failure |
+| GET | `/api/platform/task-usage-ledger?taskCode=` | implemented locally (TaskUsageLedger v1): deployment-bearer-authenticated, read-only redacted projection over explicit taskCode reports; plan prediction and measured actual remain separate, lane-only usage is never allocated, optional taskCode filters one known programme task | `401 TASK_USAGE_LEDGER_CREDENTIAL_REQUIRED`; `404 PROGRAMME_TASK_UNKNOWN`; `503 TASK_USAGE_LEDGER_UNAVAILABLE` |
 | GET | `/api/platform/programme-usage-reports/whoami` | implemented (FR-220): the only read a harness credential allows — `{ installationId, personDisplayName, deviceLabel, harness, status }` of that credential | `401 HARNESS_CREDENTIAL_REQUIRED`; `503` |
 
 `POST /api/platform/programme-usage-reports` (FR-221) also accepts an active harness credential: the report stores the credential's person and installation, `branch` (key `(source, sessionId, branch)`), optional `repository` and `aiAccount` label, and `taskCode` becomes optional when a branch is named; a resumed session from the same installation whose counts only grow answers `200 { extended: true }` (audited `EXTENDED`); a pending device answers `403 HARNESS_NOT_ACTIVATED` and an unknown or revoked one `401 HARNESS_CREDENTIAL_REQUIRED`.
@@ -873,6 +959,11 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.87.0b | 2026-09-18 | candidate | Add authenticated TaskUsageLedger projection and explicit taskCode attribution; reconcile composed inventory to 309 paths/412 operations; no database model or migration | 56ae925a | RWANG |
+| 1.86.0b | 2026-09-17 | candidate | Compose eight Feature writes, snapshot capture, strict schemas/refinements and owner read-side CAS headers; target 308 paths/411 operations, final composed verification pending | 052821a7 + 892f23f3 | RWANG |
+| 1.85.0b | 2026-09-17 | candidate | Compose FR-252 CSRF and four Feature GET routes with main 892f23f3; preserve Pricing, CRM and LINE. Inventory 303 paths/402 operations; read/API tests locally pass, full composed gates pending | 052821a7 + 892f23f3 | RWANG |
+| 1.84.0b | 2026-09-17 | beta | Compose FR-253 Pricing, deployed CRM legal hold and LINE context/tool routes; 298 paths/397 operations | 892f23f3 | RWANG |
+| 1.83.0b (PM branch) | 2026-09-17 | candidate | Add FR-252 Identity CSRF issuer and typed runtime Swagger; one GET handler (289 to 290), implementation verification in progress | bd99651f | RWANG |
 | 1.83.0b | 2026-09-17 | beta | Approved LINE local execution v2: negotiated deadline, scoped memory/corpus context, invocation receipts; add device-scoped context and Project/Work tool routes (296 → 298). Production activation remains separate. | working-tree | RWANG |
 | 1.82.0b | 2026-09-17 | candidate | Implement and locally verify owner-approved FR-251 read-only Domain-view contract and runtime Swagger; one GET handler added (288 → 289), typed scope refusals and operation-only SessionAuth verified | reviewed baseline 7465080f; PR443 | RWANG |
 | 1.82.0b | 2026-09-16 | candidate | SEC-034 (ADR-093 D6, TASK-ZAI-113): one handler file, `POST /api/crm/customers/[customerId]/legal-hold` — records an OWNER-recorded legal hold on a Customer's chat evidence archive; while active, a PDPA erasure defers destroying the archive key instead of destroying it. Route handler count 288 -> 289 | working-tree | Claude Sonnet 5 |
@@ -1071,4 +1162,3 @@ Version diff 1.69.0b → 1.70.0b (2026-09-14): no route added or changed; record
 Version diff 1.70.0b → 1.71.0b (2026-09-14): FR-239 optional `detail` object on `POST /api/platform/programme-usage-reports` (ADR-086 D7); no new handler.
 
 Version diff 1.71.0b → 1.72.0b (2026-09-14): ADR-089 Phase 1 (branch `feat/integration-secret-store-vault`, not merged) — the write-only Channel ID and secret body on `POST /api/line-oa/connections` and three new handlers under `/api/line-oa/connections/[id]/credential` (rotate, revoke, validate), all behind the FR-224 step-up gate and rate limit; 429 responses now carry `retryAfterSeconds` and `Retry-After`. Handler count 270 → 273.
-Version diff 1.84.0b → 1.85.0b (2026-09-18): add `GET /api/platform/task-usage-ledger` for authenticated, redacted task-bound usage; no database model or migration added.

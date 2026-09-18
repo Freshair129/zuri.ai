@@ -1,21 +1,20 @@
 {
-  "schemaVersion": "0.2.3b",
-  "version": "0.2.3b",
+  "schemaVersion": "0.3.0b",
+  "version": "0.3.0b",
   "id": "ZAI:PM-PHASE-B-DATA-MODEL-CANDIDATE",
   "title": "Project Manager Phase B selected data model",
-  "status": "APPROVED_DESIGN_UNIMPLEMENTED",
+  "status": "APPROVED_DESIGN_IMPLEMENTATION_IN_PROGRESS",
   "codegenReady": false,
   "codegenBlockers": [
-    "Independent implementation-entry review must pass on the current selected contracts.",
-    "W1 must publish the exact per-table RLS and adapter scope policy for independent review and root approval before any Phase B DDL or adapter activation.",
-    "Code generation and runtime implementation have not been validated."
+    "W2 scoped repository, protected recovery and reviewed erasure must pass independent and composed tests before later application delivery.",
+    "Code generation is not an implementation or production readiness claim."
   ],
   "sourceSHA": "f061a113584aa15db68934dc8451f14b9a1011e1",
   "contractAuthoringSHA": "ecc30b94f545ac1e9ddde3b59618c89f558bdc49",
   "scope": {
     "owner": "project-manager",
     "boundary": "MA-I02 Phase B Feature persistence and contract",
-    "evidence": "Candidate logical contract; no Prisma model, migration, application code, runtime route, generated ID, or production operation.",
+    "evidence": "Owner-approved six-record contract; W1 schema/migration and Identity P2 have local independent proof. W2 implementation, application and production gates remain separate.",
     "productAuthority": "ProjectFeature and its explicit relationship records; the FR-251 Execution Domain projection remains a separate read authority.",
     "includes": [
       "ProjectFeature",
@@ -2193,7 +2192,7 @@
     }
   ],
   "restoreProtocol": {
-    "phase": "CANDIDATE_B2_PENDING",
+    "phase": "APPROVED_W2_IMPLEMENTATION",
     "familyPresence": {
       "previewAndCommit": true,
       "missingFamily": "Refuse unless an explicit legacy snapshot proves that family has zero rows; never silently convert missing to an empty array.",
@@ -2207,7 +2206,7 @@
       "Validate active Project/WorkItem/Workstream parents and same-Project FeatureWorkLinks.",
       "Validate GovernanceSnapshot dependencies, RequirementBinding revision hashes and Feature canonical pair.",
       "Validate receipt targetType/resourceType/resourceId/version/etag compatibility and retained AuditEvent references.",
-      "Acquire the existing Project lock and recheck scope, graph digest and all affected WorkItem links before commit.",
+      "For ordinary Feature tombstone restoration use the existing Project lock and scope/graph/allocation checks. Offline full recovery locks and proves the complete empty target before any insert.",
       "Preserve unrelated data and protected rows on any failed preview or commit."
     ],
     "tombstone": {
@@ -2225,11 +2224,35 @@
       "FeatureWorkLink",
       "RequirementBinding",
       "ProjectFeatureMutationReceipt"
-    ]
+    ],
+    "mode": "OFFLINE_VERIFIED_EMPTY_TARGET",
+    "decision": "ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION",
+    "webReplacement": {
+      "errorCode": "PHASE_B_RECOVERY_MAINTENANCE_REQUIRED",
+      "beforeAnyDelete": true,
+      "alwaysSkipPhaseBFamilies": true,
+      "refuseIf": [
+        "incoming nonempty family",
+        "any current protected row",
+        "global family completeness unavailable"
+      ],
+      "allowedLegacy": "All six absent from an explicit legacy snapshot, or all six present-empty and valid, only when current complete family is proven empty."
+    },
+    "offline": {
+      "restoreCommand": "node apps/server/scripts/phase-b-clean-target-restore.mjs",
+      "exportCommand": "node apps/server/scripts/phase-b-protected-export.mjs",
+      "secretEnvironment": "ZURI_PHASE_B_RECOVERY_DATABASE_URL",
+      "applicationUrlFallback": false,
+      "schemaBinding": "Exact canonical Prisma bytes and sorted modelName/schemaName/tableName inventory; decision26 defines UTF-8 JSON key order.",
+      "inputDigest": "SHA-256 of retained exact bytes before parsing; never reread after validation.",
+      "emptyTarget": "Complete same-connection catalog, row_security=off visibility, all application models including exclusions, bounded sorted locks, recount before insert.",
+      "apply": "One dependency-ordered transaction, INSERT only, reconcile IDs/versions/hashes/counts. No DELETE, TRUNCATE, role switching or live invocation.",
+      "export": "Read-only repeatable-read complete family extraction, preserve existing exclusions/redactions/manifests, atomic no-overwrite artifact."
+    }
   },
   "migrationAndRollbackGate": {
     "status": "LOCAL_IMPLEMENTATION_GATED_PRODUCTION_NOT_AUTHORIZED",
-    "schema": "No Prisma model or migration in this contract packet.",
+    "schema": "W1 local schema/migration and isolated role proofs passed; application and production gates remain.",
     "sqlite": [
       "Scoped repositories with foreign keys enabled.",
       "CAS transaction boundary and BEGIN IMMEDIATE where the adapter requires a write lock.",
@@ -2320,6 +2343,14 @@
       "summary": "Root reconciliation of receipt targets and audit/version rules, deleted-code refusal, terminal lifecycle edits and issuer-GET CSRF delivery. Independent re-review remains incomplete; no implementation authority.",
       "sourceSHA": "a965f1946fc354d26c90cec3b22b65561cd42af4",
       "agent": "RWANG"
+    },
+    {
+      "version": "0.3.0b",
+      "date": "2026-09-17",
+      "status": "APPROVED_DESIGN_IMPLEMENTATION_IN_PROGRESS",
+      "summary": "Select owner-approved decision26 clean-target recovery, complete protected export and reviewed field erasure; record W1/P2 local proof without claiming W2 or production completion.",
+      "sourceSHA": "bd99651f2322e7c15be04a834399dee4d397cbb4",
+      "agent": "RWANG"
     }
   ],
   "snapshotCapture": {
@@ -2373,7 +2404,57 @@
     "requirement": "ZAI:FR-252",
     "ownerApprovalCommit": "e5ccfd7a8051cce551b95453b7435ac850f66d9d",
     "registrationCommit": "50b5e1dd4d6278f3b252a07729b7de2f9be2a28f",
-    "implementation": "NOT_RUN",
-    "rule": "B1 is approved and B2 registered; independent entry review and the pre-DDL W1 policy review remain required. Approval does not prove runtime or production readiness."
+    "implementation": "W1_P2_LOCAL_PROOF_W2_IN_PROGRESS",
+    "rule": "B1/B2, independent entry and W1 policy gates passed. Approval permits bounded implementation; production requires its actual runtime-role and release gates.",
+    "recoveryErasure": {
+      "decision": "ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION",
+      "ownerApprovedAt": "2026-09-17T12:20:31+07:00",
+      "approvedVersion": "0.2.1b",
+      "approvedSha256": "dd666532e88b6d3c59a1d999adb9621fc0669a4cf071209407dd6e0513407865",
+      "currentVersion": "0.3.2b"
+    }
+  },
+  "reviewedErasure": {
+    "decision": "ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION",
+    "version": "pm-erasure.v1",
+    "authority": "Trusted server reviewer/viewer and authorized subject/Business context passed separately; public erase request stays unchanged.",
+    "allowlist": {
+      "ProjectFeature": [
+        "title",
+        "problem",
+        "outcome"
+      ],
+      "FeatureContribution": [
+        "responsibility"
+      ]
+    },
+    "replacement": "[erased]",
+    "authorInference": false,
+    "manifest": [
+      "version",
+      "tenantId",
+      "businessId",
+      "subjectPersonId",
+      "reviewerPersonId",
+      "requestId",
+      "reasonRef",
+      "targets",
+      "manifestSha256"
+    ],
+    "target": [
+      "projectId",
+      "recordType",
+      "recordId",
+      "field",
+      "expectedVersion"
+    ],
+    "transaction": "Identity owns one transaction; lock subject/replay and sorted Projects, exact scope/version checks, one row/version and affected parent Feature bump, immutable evidence/lifecycle/cohorts retained.",
+    "outcomes": [
+      "APPLIED",
+      "REPLAYED",
+      "UNMAPPED",
+      "PENDING"
+    ],
+    "audit": "Existing PRINCIPAL/ERASED immutable event carries digest/reviewer/target identities/fields/counts, never original text; changed manifest replay refuses atomically."
   }
 }
