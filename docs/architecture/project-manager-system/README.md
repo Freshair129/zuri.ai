@@ -1,7 +1,7 @@
 ---
 id: ZAI:PM-SYSTEM-DESIGN
 title: Project Manager complete system design
-version: "0.18.0b"
+version: "0.19.0b"
 status: candidate
 created_at: "2026-09-15T23:49:58+07:00,RWANG,base 087f30258a6831865afd751e28804e36505aff30"
 last_update: "2026-09-18T05:37:20+07:00,RWANG release integrator"
@@ -25,7 +25,7 @@ relations:
 
 # Project Manager — Full System Design
 
-**Version:** 0.18.0b · **Status:** Candidate · **Risk:** HIGH · **Complexity:** C-3
+**Version:** 0.19.0b · **Status:** Candidate · **Risk:** HIGH · **Complexity:** C-3
 **Evidence baseline:** original design `087f30258a6831865afd751e28804e36505aff30`; MA-I02 source audit `138db6630e650e3c695b81158eff3cecdad6d0a5`.
 **Deliverable:** เอกสารออกแบบและสัญญาแบบเครื่องอ่านได้; navigation FR-250 และ Domain View Phase A (FR-251) ส่งมอบแล้ว โดย Phase A merge/deploy ที่ `c07cfaba` พร้อม archive/rollup repair ใน PR444 เมื่อ 2026-09-17 ส่วน Feature Phase B ผ่าน B1/B2 และเริ่ม implementation ใน worktree แยก; ผลส่งมอบแต่ละ slice อยู่ใน FR-252 และยังไม่ใช่ production rollout
 
@@ -218,8 +218,8 @@ Domain และ Feature เป็นคนละแกน:
 
 ## 7. Version diff — 0.1.0b → 0.2.0b
 
-| 0.1.0b | 0.2.0b |
 |---|---|
+| 0.1.0b | 0.2.0b |
 | แสดงรายการเมนูใหม่ แต่ยังไม่จัดการ sidebar และ ProjectTabs เดิม | เสนอ contextual sidebar และ Work sub-view row พร้อม amendment ต่อ parent navigation contract |
 | ผังรวมยังไม่บอกตำแหน่งหน้าเดิมครบ | Mapping 8 Business destinations / 14 project page templates; Import เป็น header action; Project Index และ Repositories ชัดเจน |
 | P0 registration → P1 feature delivery | NAV-P0/NAV-P1 ทำเมนูเดิมก่อน แล้วจึงเพิ่มความสามารถตาม P1–P7 |
@@ -228,8 +228,8 @@ Domain และ Feature เป็นคนละแกน:
 
 ## 8. Version diff — 0.2.0b → 0.3.0b
 
-| 0.2.0b | 0.3.0b |
 |---|---|
+| 0.2.0b | 0.3.0b |
 | Navigation proposal and menu prototype | Add UX strategy, UI system and 37 detailed wireframe families |
 | 10 docs / 9 diagrams / 6 contracts | 13 docs / 11 diagrams / 7 contracts; plus navigation and artifact RCA records |
 | Broad form/interaction guidance | 13 forms / 83 schema-bound fields, states, accessibility and 14 UI acceptance scenarios |
@@ -237,8 +237,8 @@ Domain และ Feature เป็นคนละแกน:
 
 ## 9. Version diff — 0.3.0b → 0.4.0b
 
-| 0.3.0b | 0.4.0b |
 |---|---|
+| 0.3.0b | 0.4.0b |
 | Project sidebar replaces project tabs | Withdraw this recommendation; retain Domain → module → local tabs |
 | Development label retained | Propose Projects & Work; current key/IDs and grants retained |
 | 13 docs / 11 diagrams | 14 docs / 13 diagrams; add ERP and seven-product comparison |
@@ -246,8 +246,8 @@ Domain และ Feature เป็นคนละแกน:
 
 ## 10. Version diff — 0.4.0b → 0.5.0b
 
-| 0.4.0b | 0.5.0b |
 |---|---|
+| 0.4.0b | 0.5.0b |
 | Inventory omitted from the six-module summary | Restore Project Inventory explicitly; preserve operational read semantics |
 | Risks/Resources hidden by broad grouping | Preserve both named planned capabilities and mark detailed behavior unconfirmed |
 | Team treated broadly as project resources | Record Business Membership authority and current role-change refusal |
@@ -285,10 +285,23 @@ Domain และ Feature เป็นคนละแกน:
 - เพิ่ม directed flow 2 ผัง และ planning JSON; 21 docs / 30 diagrams / 13 machine contracts.
 - 33 PMR, 80 API operations และ SPEC-G01–G09 เดิมไม่เปลี่ยน; product tests ยัง NOT_RUN.
 
+## 15. GitHub source of truth and Site spine
+
+The public GPT design Site is the presentation/export layer. GitHub is the source of truth for the Project Manager design and evidence.
+
+- Core Site order: [Project Manager document spine](../../domains/project-manager/README.md) → documents 01–22.
+- Extracted proposal requirements: [PMR files](../../domains/project-manager/requirements/README.md) and [machine index](contracts/pm-requirement-index.json).
+- Registered FR behavior: [FR index](../../domains/project-manager/FR-INDEX.md) and the existing feature notes; the index does not duplicate their bodies.
+- Repository supplements: documents 23–27, G14/TaskUsageLedger packets and [current status snapshot](28-CURRENT-IMPLEMENTATION-AND-DELIVERY-STATUS.md).
+- Site HTML/MD copies are generated review artifacts. They must be rebuilt from this repository after a source change; they are not edited independently.
+
+This structure keeps the Site's navigation/read order while making each requirement, contract and evidence artifact addressable from GitHub without duplicated normative prose.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.19.0b | 2026-09-18 | candidate | Make the GPT Site order the PM document spine; extract PMR requirements and register GitHub as the single source of truth | working-tree | RWANG |
 | 0.18.0b | 2026-09-18 | candidate | Add PM-G14 registry/implementation packets and TaskUsageLedger projection, route, explicit taskCode attribution and focused evidence; no schema migration | 56ae925a | RWANG |
 | 0.17.0b | 2026-09-17 | candidate | Reconcile implemented owner forms, source review and 6376-test evidence; preserve actual browser failures and corrective verification separately from hosted release | 052821a7 + 892f23f3 | RWANG |
 | 0.16.1b | 2026-09-17 | candidate | Record independent CRM and PM authority-clock closure, 122 composed security tests and initial full Server/build evidence; preserve final UI and release gates | 052821a7 + 892f23f3 | RWANG |
@@ -357,3 +370,11 @@ pending implementation and verification.
 
 
 Version diff 0.17.0b → 0.18.0b: compose the PM-G14 workforce registry and TaskUsageLedger implementation packet with the current Phase B design baseline; add the authenticated projection route and explicit taskCode attribution while keeping the projection schema-only and production activation separately gated.
+
+
+## Version diff — 0.18.0b → 0.19.0b
+
+- Adopt the GPT Site's 01–22 document order as the Project Manager repository spine.
+- Extract the 33 proposal-local PMR bodies into one file per requirement and leave indexes/links in documents 01 and 17.
+- Add a link-only canonical FR index, a machine-readable PMR index and the Site current-status snapshot in GitHub.
+- Keep repository supplements 23+ and preserve explicit candidate, NOT_REPORTED and NOT_RUN boundaries.
