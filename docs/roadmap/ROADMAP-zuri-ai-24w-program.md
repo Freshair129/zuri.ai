@@ -452,7 +452,7 @@ locates the week.
 | TASK-ZAI-004 | SPR-ZAI-02 | task | Workspace collaboration boundary and scoped invites, FR-067 | P0 | Codex | done | TASK-ZAI-003 | PRD FR-067; FR-195 generalises it |
 | TASK-ZAI-005 | SPR-ZAI-02 | task | Supabase data pipeline monitor and replay, FR-071 | P0 | ATHER | done | - | PRD FR-071 |
 | TASK-ZAI-006 | SPR-ZAI-02 | task | Write the governed memory read and write contract | P1 | Claude | review | - | Section 3.1 row 4; ADR-050, ADR-063, ADR-067, ADR-068, ADR-072 |
-| TASK-ZAI-007 | SPR-ZAI-03 | task | Agent Role registry with five core roles | P0 | Claude | planned | TASK-ZAI-006 | Section 3.1 row 5 |
+| TASK-ZAI-007 | SPR-ZAI-03 | task | Agent Role registry with five core roles | P0 | Claude | review | TASK-ZAI-006 | Section 3.1 row 5 |
 | TASK-ZAI-008 | SPR-ZAI-03 | task | Role-scoped memory partition and retrieval policy | P0 | Claude | planned | TASK-ZAI-007 | Section 3.1 rows 4 and 5 |
 | TASK-ZAI-009 | SPR-ZAI-03 | task | Agent Factory, the standard business agent template | P1 | Codex | planned | TASK-ZAI-007 | Proposal scope, AI Control |
 | TASK-ZAI-010 | SPR-ZAI-04 | task | Approval Gateway L1 to L4 over the FR-026 action gate | P0 | ATHER | planned | TASK-ZAI-007 | Section 3.1 row 9 |
@@ -896,19 +896,19 @@ executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/modules/agent/index.js
+  code: src/modules/agent/role-registry.js
   doc: docs/ARCHITECTURE.md
-  test: unavailable
+  test: tests/unit/agent-role-registry.test.js
 definition_of_done:
   acceptance_criteria:
     - criterion: Given the five roles Executive, Operations, Finance Analyst, Research and Marketing, when each resolves its context, then each receives a distinct tool set and policy
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a role without a registered tool, when it attempts that tool, then registration refuses it at bind time, not at call time
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the role registry suite runs, then a cross-role tool leak fails the suite
-      checked: false
+      checked: true
 changelog: Opened from the deliverable gap analysis. One generic agent turn exists today through FR-025 to FR-029; no role dimension exists.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:

@@ -56,3 +56,13 @@ export {
   validateGoldenQuestionCorpus,
 } from './golden-evaluation'
 export { CANARY_RECEIPT_STATES, createCanaryPreflightPlan } from './canary-preflight'
+// @req TASK-ZAI-007 — Agent Role registry with five core roles.
+// @spec SPR-ZAI-03, GATE-ZAI-05 — Five core roles resolve distinct tool sets and policy;
+//   refuses unauthorized tools at bind time, not call time; cross-role leak prohibited.
+// @tested tests/unit/agent-role-registry.test.js
+export {
+  CORE_AGENT_ROLES,
+  ROLE_SPECIFICATIONS,
+  createRoleScopedToolRegistry,
+  createAgentRoleRegistry,
+} from './role-registry'
