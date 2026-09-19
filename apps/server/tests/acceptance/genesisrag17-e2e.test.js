@@ -5,16 +5,22 @@ import { createHash } from 'node:crypto'
 import path from 'node:path'
 import prisma from '@/lib/db'
 import { createBusiness, createPortfolio, createTenant } from '../factories/scope'
-import { makeOperatorViewer } from '../factories/viewer'
+import { makeOperatorViewer, makeViewer } from '../factories/viewer'
 import { ingestGenesisRag17Raw } from '@/platform/integrations/core/genesisrag17-executor'
 import { pullGenesisRag17Evidence } from '@/platform/integrations/core/genesisrag17-importer'
 import { finishKnowledgeIngestionRun, readKnowledgeIngestionJob } from '@/platform/integrations/core/knowledge-ingestion-executor'
 import { KNOWLEDGE_INGESTION_STAGE_CATALOG, KNOWLEDGE_INGESTION_DEFINITION_ID, KNOWLEDGE_INGESTION_CONTRACT_ID } from '@/platform/integrations/core/pipeline-tracking-contract'
-import { isolatedEnvironment, mspTransport, runSourceUntilCrash, startWorkerProcess, temporaryPipeline } from './harness'
+import { isolatedEnvironment, ki17NodeExecutable, mspTransport, runSourceUntilCrash, startWorkerProcess, temporaryPipeline } from './harness'
 import { exportSnapshot, importSnapshot } from '@/modules/project-manager/application/backup-service'
 import { requestPipelineReplay } from '@/platform/integrations/core/pipeline-tracking-service'
 import { createGenesisRag17SourceWorker } from '@/platform/integrations/core/genesisrag17-worker'
 import { normalizeOrganizationName } from '@/modules/knowledge/normalization'
+import { admitKnowledge } from '@/modules/knowledge/knowledge-admission-service'
+import { createKnowledgeAdmissionRuntime } from '@/modules/knowledge/knowledge-runtime'
+import { queryKnowledgeCorpus } from '@/modules/knowledge/knowledge-corpus-service'
+import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
+import { admitLineConversation, readLineConversationTrace, runLineConversationWorker } from '@/modules/line-oa-studio/application/line-conversation-jobs'
+import { createIntegrationConnection, LINE_OA_PROVIDER_CODE, registerIntegrationProvider } from '@/platform/integrations/core/integration-registry'
 
 // @req FR-109 — actual raw acquisition, durable lineage, all17 exact attempts.
 // @req FR-110 — real native embeddings, gated publication, citations and restart.
@@ -26,6 +32,23 @@ const nativeRequire = createRequire(path.resolve('package.json'))
 const sha256 = (value) => createHash('sha256').update(value).digest('hex')
 const version = 'genesisrag17.v1'
 let temp, scope, env, transport, viewer, connection, worker, firstRun, firstSnapshot, firstGeneration
+
+async function withProcessEnvironment(values, work) {
+  const previous = new Map()
+  for (const [key, value] of Object.entries(values)) {
+    previous.set(key, Object.prototype.hasOwnProperty.call(process.env, key) ? process.env[key] : undefined)
+    if (value === undefined || value === null) delete process.env[key]
+    else process.env[key] = String(value)
+  }
+  try {
+    return await work()
+  } finally {
+    for (const [key, value] of previous.entries()) {
+      if (value === undefined) delete process.env[key]
+      else process.env[key] = value
+    }
+  }
+}
 
 function rawInput(over = {}) {
   return { scope, sourceId: fixture.sourceId, documentId: 'ki17-corpus-document', version: fixture.sourceVersion, content: fixture.text, connectionId: connection.id, provider: 'KI17_TEST', policy: { allowEmbedding: true, allowPublication: true }, ...over }
@@ -519,5 +542,207 @@ describe('GenesisRAG17 actual four-process acceptance (no skips)', () => {
     const old = await query(fixture.queries[0].query, firstSnapshot)
     for (const result of old.results) await verifyCitation(result)
     expect((await readKnowledgeIngestionJob(firstRun, { viewer })).job.state).toBe('PUBLISHED')
+  })
+})
+
+// @req FR-235 — a real LINE job must answer from a published generation,
+// persist citation refs on its trace, stay within the configured grounding
+// budget, refuse a foreign tenant, and fall back deterministically when Tier 4
+// is stopped.
+// @spec ADR-090 D1-D5, ADR-073
+// @tested tests/acceptance/genesisrag17-e2e.test.js
+describe('TASK-ZAI-094 isolated LINE grounding acceptance', () => {
+  const NO_EVIDENCE_REPLY = 'ยังไม่พบข้อมูลสินค้าที่ตรงกับคำถามนี้ค่ะ ลองระบุรหัสสินค้า หรือชื่อสินค้าเพิ่มอีกหนึ่งอย่างได้ไหมคะ'
+  const processEnvironmentKeys = [
+    'MSP_DB_PATH', 'GKS_DB_PATH', 'MSP_GKS_COMMAND', 'MSP_GKS_ARGS', 'MSP_GKS_CWD',
+    'MSP_PIPELINE_PRINCIPALS', 'MSP_PIPELINE_WORKER_URL', 'MSP_PIPELINE_WORKER_TOKEN',
+    'MSP_GKS_PIPELINE_CREDENTIAL', 'GKS_PIPELINE_RELAY_CREDENTIAL', 'GKS_DEFAULT_PORTFOLIO_ID',
+    'OLLAMA_BASE_URL', 'ZURI_KNOWLEDGE_ENABLED', 'ZURI_KNOWLEDGE_BINDINGS',
+    'ZURI_MSP_COMMAND', 'ZURI_MSP_ARGS', 'ZURI_MSP_CWD', 'ZURI_MSP_TIMEOUT_MS',
+  ]
+  let lineTemp, lineScope, lineEnv, lineTransport, lineWorker
+  let lineViewer, foreignViewer, lineAccount, foreignAccount, lineProvider
+  let expectedCorpus, expectedRef
+
+  const lineProcessEnvironment = () => Object.fromEntries(
+    processEnvironmentKeys
+      .filter((key) => lineEnv[key] !== undefined)
+      .map((key) => [key, lineEnv[key]]),
+  )
+
+  const lineEvent = (suffix, text) => ({
+    type: 'message',
+    webhookEventId: `task-zai-094-${suffix}`,
+    replyToken: `task-zai-094-token-${suffix}`,
+    source: { type: 'user', userId: `task-zai-094-user-${suffix}` },
+    message: { type: 'text', id: `task-zai-094-message-${suffix}`, text },
+  })
+
+  async function createLineAccount({ tenantId, businessId, code, externalAccountId }) {
+    const connection = await createIntegrationConnection({
+      tenantId, businessId, providerId: lineProvider.id,
+      name: `TASK-ZAI-094 ${code}`, externalAccountId, status: 'ACTIVE',
+    })
+    return prisma.lineOaAccount.create({ data: {
+      tenantId, businessId, integrationConnectionId: connection.id,
+      code, bindingCode: `${code}-binding`, displayName: code,
+      transportMode: 'CLOUD', serverEnabled: true, status: 'CONNECTED',
+      executionMode: 'SERVER', modelAccess: 'LOCAL_ONLY', knowledgeGrounding: 'GKS_CORPUS',
+    } })
+  }
+
+  async function runLineJob(workerId) {
+    const sent = []
+    const answer = createServerLineAnswer({ env: lineEnv, knowledge: { query: async () => ({ records: [] }) } })
+    // The production corpus reader resolves its transport from process.env; this
+    // allowlisted overlay keeps the canonical answer path on this suite's isolated
+    // stores without exposing or replacing the host process configuration.
+    const result = await withProcessEnvironment(lineProcessEnvironment(), () => runLineConversationWorker({
+      db: prisma,
+      env: lineEnv,
+      workerId,
+      answer,
+      resolveAccount: (id) => prisma.lineOaAccount.findUnique({ where: { id } }),
+      replyTransport: { send: async (input) => { sent.push(input); return { status: 'ACCEPTED_BY_LINE', requestId: `${workerId}:reply` } } },
+      pushTransport: { send: async (input) => { sent.push(input); return { status: 'ACCEPTED_BY_LINE', requestId: `${workerId}:push` } } },
+    }))
+    return { result, sent }
+  }
+
+  beforeAll(async () => {
+    for (const key of ['KI17_MSP_ROOT', 'KI17_GKS_ROOT', 'KI17_GENESIS_ROOT', 'KI17_MODEL_DIR']) expect(process.env[key], `${key} is required`).toBeTruthy()
+    lineTemp = temporaryPipeline()
+    const portfolio = await createPortfolio({ name: 'TASK-ZAI-094 acceptance group', code: 'PF-KI17-LINE-094' })
+    const tenant = await createTenant({ portfolioId: portfolio.id, name: 'TASK-ZAI-094 tenant', code: 'TNT-KI17-LINE-094' })
+    const business = await createBusiness({ tenantId: tenant.id, name: 'TASK-ZAI-094 business', code: 'BUS-KI17-LINE-094' })
+    const foreignTenant = await createTenant({ portfolioId: portfolio.id, name: 'TASK-ZAI-094 foreign tenant', code: 'TNT-KI17-LINE-094-X' })
+    const foreignBusiness = await createBusiness({ tenantId: foreignTenant.id, name: 'TASK-ZAI-094 foreign business', code: 'BUS-KI17-LINE-094-X' })
+    lineScope = { portfolioId: portfolio.id, tenantId: tenant.id, businessId: business.id, workspaceId: '', agentId: '', visibility: 'private' }
+    lineViewer = makeViewer({ role: 'OWNER', visibleBusinessIds: [business.id], ownedBusinessIds: [business.id], visibleDomains: ['knowledge', 'line-oa', 'platform'] })
+    foreignViewer = makeViewer({ role: 'OWNER', visibleBusinessIds: [foreignBusiness.id], ownedBusinessIds: [foreignBusiness.id], visibleDomains: ['knowledge', 'line-oa', 'platform'] })
+    lineEnv = isolatedEnvironment(lineTemp.dir, lineScope)
+    lineEnv.ZURI_KNOWLEDGE_ENABLED = '1'
+    lineEnv.ZURI_KNOWLEDGE_BINDINGS = JSON.stringify([{ scope: lineScope, policy: { allowEmbedding: true, allowPublication: true } }])
+    lineEnv.ZURI_MSP_COMMAND = ki17NodeExecutable(lineEnv)
+    lineEnv.ZURI_MSP_ARGS = JSON.stringify([path.join(lineEnv.KI17_MSP_ROOT, 'apps/msp-server/bin/msp-server.mjs')])
+    lineEnv.ZURI_MSP_CWD = lineEnv.KI17_MSP_ROOT
+    lineEnv.ZURI_MSP_TIMEOUT_MS = '120000'
+    lineEnv.ZURI_LINE_KNOWLEDGE_BUDGET_MS = '2500'
+    lineEnv.ZURI_LINE_KNOWLEDGE_TOP_K = '5'
+    lineEnv.ZURI_LINE_KNOWLEDGE_MAX_PACKET_BYTES = '8192'
+    lineEnv.ZURI_LINE_REPLY_SEAL_KEY = 'a7'.repeat(32)
+    lineProvider = await registerIntegrationProvider({ code: LINE_OA_PROVIDER_CODE, name: 'LINE OA' })
+    lineAccount = await createLineAccount({ tenantId: tenant.id, businessId: business.id, code: 'task-zai-094-line', externalAccountId: 'task-zai-094-line' })
+    foreignAccount = await createLineAccount({ tenantId: foreignTenant.id, businessId: foreignBusiness.id, code: 'task-zai-094-line-x', externalAccountId: 'task-zai-094-line-x' })
+
+    lineWorker = await startWorkerProcess(lineEnv, {
+      dbPath: path.join(lineTemp.dir, 'genesis-store'), scope: lineScope,
+      credential: 'ki17-test-worker', workerToken: 'ki17-test-query',
+      modelDir: lineEnv.KI17_MODEL_DIR, benchmarkFixture: fixture,
+    })
+    lineEnv.MSP_PIPELINE_WORKER_URL = lineWorker.url
+    lineTransport = mspTransport(lineEnv)
+
+    const runtime = createKnowledgeAdmissionRuntime({ env: lineEnv, transport: lineTransport, intervalMs: 1000 })
+    const admitted = await admitKnowledge({
+      businessId: lineScope.businessId,
+      idempotencyKey: 'task-zai-094-published-generation',
+      source: { kind: 'TEXT', sourceKey: 'task-zai-094-corpus', version: fixture.sourceVersion, title: 'TASK-ZAI-094 corpus', content: fixture.text },
+    }, { viewer: lineViewer, env: lineEnv })
+    await runtime.runOnce()
+    const published = await lineWorker.call('runOnce')
+    expect(published.status, JSON.stringify(published)).toBe('published')
+    expect(published.benchmark.crossTenantLeaks).toBe(0)
+    await runtime.runOnce()
+    const ingestion = await prisma.knowledgeIngestion.findUnique({ where: { id: admitted.id } })
+    expect(ingestion).toMatchObject({ status: 'PUBLISHED' })
+
+    expectedCorpus = await withProcessEnvironment(lineProcessEnvironment(), () => queryKnowledgeCorpus({
+      businessId: lineScope.businessId, query: fixture.queries[0].query, topK: 5,
+    }, { viewer: lineViewer }))
+    expect(expectedCorpus.results.length).toBeGreaterThan(0)
+    const first = expectedCorpus.results[0]
+    expectedRef = {
+      citationId: first.citationId,
+      sourceId: first.sourceId,
+      snapshotId: first.snapshotId,
+      generation: first.generation,
+      corpusGeneration: expectedCorpus.corpusGeneration,
+      manifestHash: expectedCorpus.manifestHash,
+    }
+  })
+
+  afterAll(async () => {
+    await lineWorker?.close()
+    lineTemp?.cleanup()
+  })
+
+  it('answers a real LINE job from the published generation and records citation refs plus measured spawn cost', async () => {
+    const admitted = await admitLineConversation({
+      account: lineAccount,
+      event: lineEvent('grounded', fixture.queries[0].query),
+      correlationId: 'task-zai-094-grounded',
+      now: new Date(),
+      env: lineEnv,
+    })
+    const { result, sent } = await runLineJob('task-zai-094-server-grounded')
+    expect(result).toMatchObject({ id: admitted.jobId, status: 'RECORDED', executed: 1, sent: 1 })
+    const job = await prisma.lineConversationJob.findUnique({ where: { id: admitted.jobId } })
+    expect(job).toMatchObject({ status: 'RECORDED', executionMode: 'SERVER', modelAccess: 'LOCAL_ONLY' })
+    expect(job.answerText).toBe(expectedCorpus.results[0].text)
+    expect(sent[0].messages).toEqual([{ type: 'text', text: expectedCorpus.results[0].text }])
+
+    const trace = await readLineConversationTrace(admitted.jobId, { viewer: lineViewer })
+    const evidence = trace.events.filter((event) => event.kind === 'EVIDENCE_SELECTED')
+    expect(evidence).toHaveLength(1)
+    expect(evidence[0].payload).toMatchObject({
+      mode: 'GKS_CORPUS', source: 'GKS_CORPUS', reason: null,
+      retrievalRefs: expect.arrayContaining([expectedRef]),
+    })
+    expect(evidence[0].payload.budgetMs).toBeLessThanOrEqual(Number(lineEnv.ZURI_LINE_KNOWLEDGE_BUDGET_MS))
+    expect(trace.events.some((event) => String(event.kind).startsWith('MODEL_'))).toBe(false)
+  })
+
+  it('fails closed for a foreign tenant and records no citation from the primary corpus', async () => {
+    const admitted = await admitLineConversation({
+      account: foreignAccount,
+      event: lineEvent('foreign', fixture.queries[0].query),
+      correlationId: 'task-zai-094-foreign',
+      now: new Date(),
+      env: lineEnv,
+    })
+    const { result } = await runLineJob('task-zai-094-server-foreign')
+    expect(result).toMatchObject({ id: admitted.jobId, status: 'RECORDED', executed: 1, sent: 1 })
+    const job = await prisma.lineConversationJob.findUnique({ where: { id: admitted.jobId } })
+    expect(job.answerText).toBe(NO_EVIDENCE_REPLY)
+    const trace = await readLineConversationTrace(admitted.jobId, { viewer: foreignViewer })
+    expect(trace.events.every((event) => event.tenantId === foreignAccount.tenantId && event.businessId === foreignAccount.businessId)).toBe(true)
+    const evidence = trace.events.filter((event) => event.kind === 'EVIDENCE_SELECTED')
+    expect(evidence).toHaveLength(2)
+    expect(evidence[0].payload).toMatchObject({ source: 'GKS_CORPUS', reason: 'GKS_UNAVAILABLE', retrievalRefs: [] })
+    expect(evidence[1].payload).toMatchObject({ source: 'NONE', reason: 'NO_EVIDENCE' })
+    expect(JSON.stringify(trace.events)).not.toContain(expectedCorpus.results[0].text)
+  })
+
+  it('returns the deterministic no-evidence reply when the native worker is stopped', async () => {
+    await lineWorker.close()
+    const admitted = await admitLineConversation({
+      account: lineAccount,
+      event: lineEvent('worker-stopped', fixture.queries[0].query),
+      correlationId: 'task-zai-094-worker-stopped',
+      now: new Date(),
+      env: lineEnv,
+    })
+    const { result, sent } = await runLineJob('task-zai-094-server-stopped')
+    expect(result).toMatchObject({ id: admitted.jobId, status: 'RECORDED', executed: 1, sent: 1 })
+    const job = await prisma.lineConversationJob.findUnique({ where: { id: admitted.jobId } })
+    expect(job.answerText).toBe(NO_EVIDENCE_REPLY)
+    expect(sent[0].messages).toEqual([{ type: 'text', text: NO_EVIDENCE_REPLY }])
+    const trace = await readLineConversationTrace(admitted.jobId, { viewer: lineViewer })
+    const evidence = trace.events.filter((event) => event.kind === 'EVIDENCE_SELECTED')
+    expect(evidence).toHaveLength(2)
+    expect(evidence[0].payload).toMatchObject({ source: 'GKS_CORPUS', reason: 'GKS_UNAVAILABLE', retrievalRefs: [] })
+    expect(evidence[1].payload).toMatchObject({ source: 'NONE', reason: 'NO_EVIDENCE' })
+    expect(trace.events.some((event) => String(event.kind).startsWith('MODEL_'))).toBe(false)
   })
 })
