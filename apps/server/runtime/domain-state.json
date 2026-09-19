@@ -4348,7 +4348,7 @@
           "title": "Platform Programme Roadmap",
           "declared": "done",
           "status": "verified",
-          "codeCount": 7,
+          "codeCount": 8,
           "testCount": 17
         },
         {
@@ -14984,7 +14984,7 @@
           "title": "Platform Programme Roadmap",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 12,
+          "codeCount": 13,
           "testCount": 17
         }
       ],
@@ -15001,6 +15001,7 @@
         "apps/server/src/modules/platform-control/components/TiltCard.jsx",
         "apps/server/src/modules/platform-control/program-roadmap-containers.js",
         "apps/server/src/modules/platform-control/program-roadmap-data.js",
+        "apps/server/src/modules/platform-control/roadmap-sot.js",
         "apps/server/tests/e2e/fr211-control-domain-map.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",

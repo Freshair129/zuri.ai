@@ -3,7 +3,9 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 // @req FR-105 — the programme board's Task Containers, generated from the YAML
-//   blocks of ROADMAP-ZURI-AI-24W-PROGRAM joined with its Backlog Items table.
+//   blocks of the derived 24-week projection joined with its Backlog Items table.
+// @req FR-105 — task/phase/sprint delivery state is read from the canonical
+//   ROADMAP.md ledger so the projection cannot become a second status source.
 // @req FR-219 — each container also carries its priority, the FR/NFR/FEAT ids it
 //   delivers, whether each declared link still resolves in the repository, and
 //   its subtasks; link existence is checked here because the production image
@@ -19,12 +21,19 @@ import { fileURLToPath } from 'node:url'
 // quotes that a strict YAML parser rejects.
 
 export const PROGRAMME_DOCUMENT = 'docs/roadmap/ROADMAP-zuri-ai-24w-program.md'
+export const ROADMAP_DOCUMENT = 'docs/roadmap/ROADMAP.md'
 export const CONTAINERS_MODULE = 'apps/server/src/modules/platform-control/program-roadmap-containers.js'
 export const TELEMETRY_MODULE = 'apps/server/src/modules/platform-control/program-roadmap-telemetry.js'
+export const ROADMAP_SOT_MODULE = 'apps/server/src/modules/platform-control/roadmap-sot.js'
 
 const PLAN_BLOCK = /<!-- programme-delivery-plan:start -->\s*```json\s*([\s\S]*?)\s*```\s*<!-- programme-delivery-plan:end -->/
 const USAGE_BLOCK = /<!-- programme-usage:start -->\s*```json\s*([\s\S]*?)\s*```\s*<!-- programme-usage:end -->/
+const TASK_LEDGER_BLOCK = /<!-- roadmap-task-ledger:start -->\s*([\s\S]*?)\s*<!-- roadmap-task-ledger:end -->/
+const ROADMAP_SOT_BLOCK = /<!-- roadmap-sot:start -->\s*```json\s*([\s\S]*?)\s*```\s*<!-- roadmap-sot:end -->/
 const UNATTRIBUTABLE_BRANCHES = new Set(['main', 'master', 'HEAD'])
+const STATUS_VALUES = new Set(['planned', 'in-progress', 'review', 'done', 'blocked'])
+const PROOF_SCOPE_VALUES = new Set(['SPEC', 'UNKNOWN', 'LOCAL', 'ISOLATED', 'HOSTED_CI', 'PRODUCTION'])
+const IMPLEMENTATION_STATE_VALUES = new Set(['NOT_STARTED', 'IN_PROGRESS', 'LOCAL', 'ISOLATED_ACCEPTED', 'MERGED', 'DEPLOYED', 'ACTIVE', 'BLOCKED', 'UNKNOWN'])
 
 export class ProgrammeDocumentError extends Error {
   constructor(message) {
@@ -40,6 +49,98 @@ export function parseBacklogRows(markdown) {
     if (m) rows.set(m[1], { sprint: m[2], title: m[3], priority: m[4], owner: m[5], status: m[6], deps: m[7], evidence: m[8] })
   }
   return rows
+}
+
+export function parseRoadmapTaskLedger(markdown) {
+  const block = TASK_LEDGER_BLOCK.exec(markdown)
+  if (!block) throw new ProgrammeDocumentError('ROADMAP.md has no roadmap-task-ledger block')
+  const rows = new Map()
+  for (const line of block[1].split('\n')) {
+    if (!/^\| TASK-ZAI-\d{3} \|/.test(line)) continue
+    const cells = line.slice(1, -1).split('|').map((cell) => cell.trim())
+    if (cells.length !== 9) throw new ProgrammeDocumentError(`canonical task ledger row has ${cells.length} cells: ${line}`)
+    const [id, sprint, title, status, proofScope, implementationState, dependsOn, authority, evidence] = cells
+    if (rows.has(id)) throw new ProgrammeDocumentError(`canonical task ledger declares ${id} twice`)
+    if (!/^TASK-ZAI-\d{3}$/.test(id) || !/^SPR-ZAI-\d{2}$/.test(sprint)) throw new ProgrammeDocumentError(`canonical task ledger has invalid identity: ${id} / ${sprint}`)
+    if (!title || !STATUS_VALUES.has(status) || !PROOF_SCOPE_VALUES.has(proofScope) || !IMPLEMENTATION_STATE_VALUES.has(implementationState)) {
+      throw new ProgrammeDocumentError(`canonical task ledger has invalid state for ${id}`)
+    }
+    if (!authority || !evidence) throw new ProgrammeDocumentError(`canonical task ledger needs authority and evidence for ${id}`)
+    rows.set(id, { id, sprint, title, status, proofScope, implementationState, dependsOn, authority, evidence })
+  }
+  if (!rows.size) throw new ProgrammeDocumentError('canonical task ledger has no TASK-ZAI rows')
+  return rows
+}
+
+export function parseRoadmapSot(markdown) {
+  const block = ROADMAP_SOT_BLOCK.exec(markdown)
+  if (!block) throw new ProgrammeDocumentError('ROADMAP.md has no roadmap-sot block')
+  try {
+    return JSON.parse(block[1])
+  } catch (error) {
+    throw new ProgrammeDocumentError(`the roadmap-sot block is not valid JSON: ${error.message}`)
+  }
+}
+
+export function validateRoadmapSot(sot, ledger) {
+  if (sot?.schemaVersion !== 1) throw new ProgrammeDocumentError('roadmap-sot schemaVersion must be 1')
+  if (!Array.isArray(sot.statusVocabulary) || !Array.isArray(sot.proofScopeVocabulary) || !Array.isArray(sot.implementationStateVocabulary)) {
+    throw new ProgrammeDocumentError('roadmap-sot is missing its state vocabularies')
+  }
+  for (const row of ledger.values()) {
+    if (!sot.statusVocabulary.includes(row.status)) throw new ProgrammeDocumentError(`${row.id} status is outside roadmap-sot vocabulary`)
+    if (!sot.proofScopeVocabulary.includes(row.proofScope)) throw new ProgrammeDocumentError(`${row.id} proof scope is outside roadmap-sot vocabulary`)
+    if (!sot.implementationStateVocabulary.includes(row.implementationState)) throw new ProgrammeDocumentError(`${row.id} implementation state is outside roadmap-sot vocabulary`)
+  }
+  const phaseIds = ['PHASE-ZAI-01', 'PHASE-ZAI-02', 'PHASE-ZAI-03', 'PHASE-ZAI-04', 'PHASE-ZAI-05', 'PHASE-ZAI-06']
+  const sprintIds = Array.from({ length: 12 }, (_, index) => `SPR-ZAI-${String(index + 1).padStart(2, '0')}`)
+  for (const [kind, ids] of [['phase', phaseIds], ['sprint', sprintIds]]) {
+    const group = kind === 'phase' ? sot.programme?.phases : sot.programme?.sprints
+    for (const id of ids) {
+      const row = group?.[id]
+      if (!row || !STATUS_VALUES.has(row.status) || !Number.isInteger(row.progress) || row.progress < 0 || row.progress > 100) {
+        throw new ProgrammeDocumentError(`roadmap-sot has no valid ${kind} progress for ${id}`)
+      }
+    }
+  }
+  const entries = [...(sot.subplans || []), ...(sot.coverage || [])]
+  if (!Array.isArray(sot.subplans) || !Array.isArray(sot.coverage)) throw new ProgrammeDocumentError('roadmap-sot needs subplans and coverage arrays')
+  const duplicateKeys = new Map()
+  for (const entry of entries) {
+    if (!entry.id && !entry.stageId) throw new ProgrammeDocumentError('roadmap-sot coverage entry has no id')
+    if (!entry.status || !STATUS_VALUES.has(entry.status)) throw new ProgrammeDocumentError(`roadmap-sot entry ${entry.id || entry.stageId} has invalid status`)
+    if (!PROOF_SCOPE_VALUES.has(entry.proofScope) || !IMPLEMENTATION_STATE_VALUES.has(entry.implementationState)) throw new ProgrammeDocumentError(`roadmap-sot entry ${entry.id || entry.stageId} has invalid evidence state`)
+    if (!entry.authority || !entry.evidence || !entry.duplicateKey || !entry.relation) throw new ProgrammeDocumentError(`roadmap-sot entry ${entry.id || entry.stageId} is missing traceability fields`)
+    const prior = duplicateKeys.get(entry.duplicateKey) || []
+    prior.push(entry)
+    duplicateKeys.set(entry.duplicateKey, prior)
+  }
+  if (sot.coverage.length !== 17) throw new ProgrammeDocumentError(`roadmap-sot must enumerate 17 stages, got ${sot.coverage.length}`)
+  for (const [key, rows] of duplicateKeys) {
+    if (rows.length > 1 && rows.some((row) => !/(adapter|legacy|fallback|replaces)/i.test(row.relation))) {
+      throw new ProgrammeDocumentError(`duplicate implementation key ${key} needs an adapter/legacy/fallback/replaces relation`)
+    }
+  }
+  return sot
+}
+
+export function reconcileDerivedProgramme({ markdown, ledger, sot }) {
+  const lines = markdown.split('\n').map((line) => {
+    const taskId = /^\| (TASK-ZAI-\d{3}) \|/.exec(line)?.[1]
+    if (taskId && ledger.has(taskId)) {
+      const cells = line.slice(1, -1).split('|').map((cell) => cell.trim())
+      if (cells.length === 9) {
+        cells[6] = ledger.get(taskId).status
+        return `| ${cells.join(' | ')} |`
+      }
+    }
+    const phaseId = /^\| (PHASE-ZAI-\d{2}) \|/.exec(line)?.[1]
+    const sprintId = /^\| (SPR-ZAI-\d{2}) \|/.exec(line)?.[1]
+    const state = phaseId ? sot.programme.phases[phaseId] : sprintId ? sot.programme.sprints[sprintId] : null
+    if (state) return line.replace(/\| (planned|in-progress|review|done|blocked) \| \d+ \|$/, `| ${state.status} | ${state.progress} |`)
+    return line
+  })
+  return lines.join('\n')
 }
 
 const unquote = (s) => {
@@ -260,7 +361,23 @@ export const PROGRAMME_USAGE = ${JSON.stringify(usage, null, 2)}
 `
 }
 
-export function buildProgrammeModules({ markdown, fileExists }) {
+export function renderRoadmapSotModule({ sot, ledger }) {
+  return `// @req FR-105 — canonical delivery status, proof scope and implementation state
+// projected from docs/roadmap/ROADMAP.md. The 24-week document is not a second
+// status source; it supplies the compatibility topology and Task Containers.
+// @spec ADR-048 D3, ADR-086 D3
+// @tested tests/unit/programme-containers.test.js
+//
+// GENERATED by scripts/programme-containers.mjs. Do not hand-edit.
+export const ROADMAP_SOT = ${JSON.stringify(sot, null, 2)}
+
+export const ROADMAP_TASK_LEDGER = ${JSON.stringify([...ledger.values()], null, 2)}
+
+export const ROADMAP_TASK_STATUS = Object.freeze(Object.fromEntries(ROADMAP_TASK_LEDGER.map((row) => [row.id, row.status])))
+`
+}
+
+export function buildProgrammeModules({ markdown, roadmapMarkdown = null, fileExists }) {
   const fm = /^---\n([\s\S]*?)\n---/.exec(markdown)?.[1]
   if (!fm) throw new ProgrammeDocumentError('the programme document has no frontmatter')
   const version = /version:\s*"([^"]+)"/.exec(fm)[1]
@@ -271,12 +388,29 @@ export function buildProgrammeModules({ markdown, fileExists }) {
   for (const laneId of Object.keys(usage.lanes || {})) {
     if (!plan.lanes.some((lane) => lane.id === laneId)) throw new ProgrammeDocumentError(`the usage block measures ${laneId}, which the plan does not declare`)
   }
+  let ledger = new Map()
+  let sot = null
+  if (roadmapMarkdown) {
+    ledger = parseRoadmapTaskLedger(roadmapMarkdown)
+    sot = validateRoadmapSot(parseRoadmapSot(roadmapMarkdown), ledger)
+    const backlog = parseBacklogRows(markdown)
+    if (ledger.size !== backlog.size) throw new ProgrammeDocumentError(`canonical task ledger has ${ledger.size} rows but the programme backlog has ${backlog.size}`)
+    for (const [id, row] of backlog) {
+      const canonical = ledger.get(id)
+      if (!canonical) throw new ProgrammeDocumentError(`programme backlog task ${id} is missing from the canonical task ledger`)
+      if (canonical.sprint !== row.sprint) throw new ProgrammeDocumentError(`${id} is SPR ${canonical.sprint} in ROADMAP.md but ${row.sprint} in the derived programme`)
+    }
+  }
   return {
     containers,
     plan,
     usage,
+    ledger,
+    sot,
+    derivedMarkdown: sot ? reconcileDerivedProgramme({ markdown, ledger, sot }) : null,
     containersSource: renderContainersModule({ containers, version, updated }),
     telemetrySource: renderTelemetryModule({ plan, usage, version }),
+    sotSource: sot ? renderRoadmapSotModule({ sot, ledger }) : null,
   }
 }
 
@@ -284,9 +418,15 @@ export const repositoryRoot = () => path.resolve(path.dirname(fileURLToPath(impo
 
 export function generateProgrammeModules({ root = repositoryRoot(), check = false } = {}) {
   const markdown = readFileSync(path.join(root, PROGRAMME_DOCUMENT), 'utf8').replace(/\r\n/g, '\n')
+  const roadmapMarkdown = readFileSync(path.join(root, ROADMAP_DOCUMENT), 'utf8').replace(/\r\n/g, '\n')
   const fileExists = (link) => !link.includes('..') && existsSync(path.join(root, link))
-  const built = buildProgrammeModules({ markdown, fileExists })
-  const targets = [[CONTAINERS_MODULE, built.containersSource], [TELEMETRY_MODULE, built.telemetrySource]]
+  const built = buildProgrammeModules({ markdown, roadmapMarkdown, fileExists })
+  const targets = [
+    ...(built.derivedMarkdown && built.derivedMarkdown !== markdown ? [[PROGRAMME_DOCUMENT, built.derivedMarkdown]] : []),
+    [CONTAINERS_MODULE, built.containersSource],
+    [TELEMETRY_MODULE, built.telemetrySource],
+    [ROADMAP_SOT_MODULE, built.sotSource],
+  ]
   const drift = []
   for (const [rel, source] of targets) {
     const file = path.join(root, rel)
@@ -307,7 +447,7 @@ if (invokedDirectly) {
     const count = Object.keys(containers).length
     if (check) {
       if (drift.length) {
-        console.error(`programme-containers: stale — ${drift.join(', ')} differ from ${PROGRAMME_DOCUMENT}; run node scripts/programme-containers.mjs`)
+        console.error(`programme-containers: stale — ${drift.join(', ')} differ from ${PROGRAMME_DOCUMENT} or ${ROADMAP_DOCUMENT}; run node scripts/programme-containers.mjs`)
         process.exit(1)
       }
       console.log(`programme-containers: ${count} containers, modules in step`)

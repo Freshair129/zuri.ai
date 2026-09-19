@@ -17,6 +17,7 @@ import {
 import { PROGRAMME_CONTAINERS } from '@/modules/platform-control/program-roadmap-containers'
 import { PROGRAMME_LANES, PROGRAMME_SIZING } from '@/modules/platform-control/program-roadmap-telemetry'
 import { PROGRAMME_TASKS } from '@/modules/platform-control/program-roadmap-data'
+import { ROADMAP_SOT, ROADMAP_TASK_LEDGER, ROADMAP_TASK_STATUS } from '@/modules/platform-control/roadmap-sot'
 
 const block = (extra = '') => `task_container_id: TC-TASK-ZAI-900
 task_id: TASK-ZAI-900
@@ -141,5 +142,20 @@ describe('FR-105 / FR-219 committed modules', () => {
     }
     expect(PROGRAMME_SIZING.effortHours['C-3']).toBeGreaterThan(PROGRAMME_SIZING.effortHours['C-1'])
     expect(PROGRAMME_LANES.find((lane) => lane.id === 'LANE-DELIVERY-TELEMETRY').tasks).toEqual(['TASK-ZAI-064', 'TASK-ZAI-065', 'TASK-ZAI-066', 'TASK-ZAI-067', 'TASK-ZAI-068'])
+  })
+
+  it('uses ROADMAP.md as the one status source and keeps GenesisRAG17 evidence scoped', () => {
+    const roadmap = generateProgrammeModules({ check: true })
+    expect(roadmap.ledger).toHaveLength(118)
+    expect(ROADMAP_TASK_LEDGER).toHaveLength(118)
+    expect(ROADMAP_TASK_STATUS['TASK-ZAI-052']).toBe('done')
+    expect(ROADMAP_TASK_STATUS['TASK-ZAI-061']).toBe('done')
+    expect(ROADMAP_TASK_STATUS['TASK-ZAI-077']).toBe('done')
+    expect(PROGRAMME_TASKS.find(([id]) => id === 'TASK-ZAI-052')?.[6]).toBe('done')
+    expect(PROGRAMME_TASKS.find(([id]) => id === 'TASK-ZAI-077')?.[6]).toBe('done')
+    expect(ROADMAP_SOT.coverage).toHaveLength(17)
+    expect(ROADMAP_SOT.subplans.find((plan) => plan.id === 'SUBPLAN-KI-PRODUCTION-ACTIVATION')).toMatchObject({ status: 'planned', proofScope: 'SPEC' })
+    expect(ROADMAP_SOT.subplans.filter((plan) => plan.duplicateKey === 'KI-CATALOG-PUBLISH')).toHaveLength(2)
+    expect(roadmap.drift).toEqual([])
   })
 })

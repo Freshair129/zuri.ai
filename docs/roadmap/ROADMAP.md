@@ -10,8 +10,8 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.111.0b"
-updated: "2026-09-17"
+version: "2.112.0b"
+updated: "2026-09-19"
 owner: "Owen"
 source_of_truth: true
 live_document: true
@@ -19,6 +19,7 @@ live_document: true
 
 # ROADMAP: zuri-ai — Live Delivery State
 
+> Revision 2.112.0b (2026-09-19): consolidated delivery state into the canonical ledger below. `ROADMAP.md` owns task, phase/sprint progress, proof scope, implementation state and duplicate-claim relations; the 24-week document remains a derived compatibility projection. Added the GenesisRAG17 stage-by-stage coverage so an isolated stage delivery cannot be mistaken for production activation.
 > Revision 2.111.0b (2026-09-17): TASK-ZAI-047 / FR-254 Knowledge Console implemented in an isolated worktree: source versions, complete run evidence, corpus generations and citation-bound artifacts. Local Server tests, Console browser fixtures, native admission-to-citation acceptance and build passed; [phase report](../../.brain/reports/2026-09-17-task-zai-047-knowledge-console.md) records the full regression status. Review; not deployed.
 > Revision 2.110.2b (2026-09-17): W1/W2 local and independent gates passed at 052821a7: 6,066 server tests pass with 32 existing skips, 32 browser cases pass without retries, build/governance and isolated PostgreSQL/CLI proofs pass. W3 read API and UI run in parallel. Root composes main 892f23f3 with Pricing and LINE; composed validation and production release remain open.
 
@@ -432,7 +433,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-ZAI-074 | PHASE-ZAI-USAGE-DETAIL-AND-SPEC | task | Agent usage detail capture (FR-239) — reasoning tokens, cache write lifetimes, tool calls by name with errors and denials, web search/fetch, prompts, compactions and errors; meter and plugin parity; report and storage | P0 | Claude | done (FR-239 deployed daca80fb; migration applied on production 2026-09-14) | TASK-ZAI-072 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-075 | PHASE-ZAI-USAGE-DETAIL-AND-SPEC | task | Usage detail on the board (FR-240) — input, output, thinking and cache tokens separately; tool calls with top tools and error rate; prompts and compactions; per lane, person and device | P1 | Claude | done (FR-240 deployed daca80fb 2026-09-14) | TASK-ZAI-074 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-076 | PHASE-ZAI-LINE-OA-PLATFORM | task | LINE OA platform decision record — ADR-089, ADR-090, ADR-091; FR-223..FR-238, SEC-030..SEC-032, SDD-097..SDD-100, FEAT-036..FEAT-038 declared and pinned | P0 | Claude | done (PR #389 merged as 8cd81196 on 2026-09-14; ADR-089..091 accepted; ids pinned; CI govern, tests, build and verify green) | - | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
-| TASK-ZAI-077 | PHASE-ZAI-LINE-OA-PLATFORM | task | LINE OA platform delivery plan — phases 0 to 7 as sized tasks, lanes bound to branches before work, TASK-ZAI-074/075 as the measurement prerequisite, Project Manager import path, meter run | P0 | Claude | in-progress (plan written on docs/line-oa-programme-plan; pull request #392 open, not merged) | TASK-ZAI-076 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-077 | PHASE-ZAI-LINE-OA-PLATFORM | task | LINE OA platform delivery plan — phases 0 to 7 as sized tasks, lanes bound to branches before work, TASK-ZAI-074/075 as the measurement prerequisite, Project Manager import path, meter run | P0 | Claude | done (reconciled in c1e24157; programme plan, lanes and measurement prerequisites are registered) | TASK-ZAI-076 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-078 | PHASE-ZAI-LINE-OA-PLATFORM | task | Integration credential vault (FR-223, SEC-030, SDD-097) — SecretStorePort, Supabase Vault and envelope stores, dispatching manager, versioned lifecycle; migrations 1, 3, 4 | P0 | Claude | done (SPR-ZAI-03) | TASK-ZAI-077; TASK-ZAI-074; TASK-ZAI-075 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-079 | PHASE-ZAI-LINE-OA-PLATFORM | task | Channel account claim (FR-226) and LINE channel-admin port (SDD-098, port half of FR-227) — claim before store, stateless tokens, bot info, webhook set/get/test; migration 2 | P0 | Claude | done (SPR-ZAI-03) | TASK-ZAI-078 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-080 | PHASE-ZAI-LINE-OA-PLATFORM | task | Credential-write step-up gate and rate limit (FR-224) — AAL2 on every credential write, enrolment redirect, RateLimitBucket with 429 retry hints; migration 8 | P0 | Claude | done (SPR-ZAI-03) | TASK-ZAI-078 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
@@ -475,12 +476,12 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-ZAI-117 | PHASE-ZAI-OBSERVABILITY | task | Error tracking (FR-247) — logger.exception() fingerprints/dedupes into ErrorEvent, operator-only view with resolve | P1 | Claude | done (merged #433, deployed release-992f8f11, migration applied on production 2026-09-16) | TASK-ZAI-116 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-118 | PHASE-ZAI-OBSERVABILITY | task | Feature usage (FR-248, FR-249) — UsageEvent at route + action level, per person, 90-day raw then aggregate rollup, operator-only view | P2 | Claude | done (merged into main, migration 20260916190000 applied 2026-09-19) | TASK-ZAI-116 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
 | TASK-ZAI-060 | PHASE-ZAI-DATA-PIPELINE-MAP | task | Data pipeline map decision record — ADR-085 for a Knowledge (GKS) navigation slot that consumes GKS without becoming it; FEAT-033 declarations | P0 | Claude | done (ADR-085 accepted; FR-212..FR-215 and FEAT-033 declared and pinned 2026-09-13) | ADR-063; ADR-050; FR-124 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
-| TASK-ZAI-061 | PHASE-ZAI-DATA-PIPELINE-MAP | task | Data pipeline registry (FR-212) — written map of inbound sources, outbound recipients and combine chains; validated JSON registry; generated runtime projection; govern and CI guards | P0 | Claude | review (implemented locally 2026-09-13; 76 nodes, 104 edges, 20 chains) | FR-124; ADR-081 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
-| TASK-ZAI-062 | PHASE-ZAI-DATA-PIPELINE-MAP | task | Data Pipeline Map node-edge view (FR-213) under the Knowledge (GKS) slot (FR-214) — layered SVG graph, chain/domain/status filters, edge detail, list view | P0 | Claude | review (implemented locally 2026-09-13; not deployed) | FR-040; FR-101; FR-061 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
-| TASK-ZAI-063 | PHASE-ZAI-DATA-PIPELINE-MAP | task | Live pipeline health on the map (FR-215) — per-edge run and job counts for the active Business from the FR-071 ledger and transport job tables | P1 | Claude | review (implemented locally 2026-09-16; four owning read ports, bounded reads, truthful unavailable state and monitor links; not deployed) | FR-071; FR-149; FR-152; FR-143 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
-| TASK-ZAI-052 | PHASE-ZAI-COST-QUOTE | task | Cost and quote engine decision record — proposal recorded, ADR and FR/FEAT declarations with the owner's nine decisions (Phase 0) | P0 | Claude | in-progress (proposal recorded 2026-09-13; ADR and declarations open) | ADR-074; ADR-065; FR-175; FR-181; FR-131; FR-132 | ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md |
+| TASK-ZAI-061 | PHASE-ZAI-DATA-PIPELINE-MAP | task | Data pipeline registry (FR-212) — written map of inbound sources, outbound recipients and combine chains; validated JSON registry; generated runtime projection; govern and CI guards | P0 | Claude | done (closed via PR #403 on 2026-09-18; projection committed and preflight clean) | FR-124; ADR-081 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-062 | PHASE-ZAI-DATA-PIPELINE-MAP | task | Data Pipeline Map node-edge view (FR-213) under the Knowledge (GKS) slot (FR-214) — layered SVG graph, chain/domain/status filters, edge detail, list view | P0 | Claude | done (closed via PR #403 on 2026-09-18; WebGL 3D map, SVG fallback and reachability tests pass) | FR-040; FR-101; FR-061 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-063 | PHASE-ZAI-DATA-PIPELINE-MAP | task | Live pipeline health on the map (FR-215) — per-edge run and job counts for the active Business from the FR-071 ledger and transport job tables | P1 | Claude | done (closed via PR #403 on 2026-09-18; live overlay and health integration tests pass) | FR-071; FR-149; FR-152; FR-143 | ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-052 | PHASE-ZAI-COST-QUOTE | task | Cost and quote engine decision record — proposal recorded, ADR and FR/FEAT declarations with the owner's nine decisions (Phase 0) | P0 | Claude | done (ADR-098 accepted; FR-253 and FEAT declarations pinned; govern clean) | ADR-074; ADR-065; FR-175; FR-181; FR-131; FR-132 | ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md |
 | TASK-ZAI-053 | PHASE-ZAI-COST-QUOTE | task | Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes on Product (Phase 1) | P0 | Claude | planned | FR-164; FR-154; ADR-084 | ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md |
-| TASK-ZAI-054 | PHASE-ZAI-COST-QUOTE | task | Goods receipts post the landed unit cost to the stock ledger; SKU cost card (Phase 1) | P0 | Claude | planned | FR-165; FR-175; ADR-074 | ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md |
+| TASK-ZAI-054 | PHASE-ZAI-COST-QUOTE | task | Goods receipts post the landed unit cost to the stock ledger; SKU cost card (Phase 1) | P0 | Claude | done (TASK-ZAI-054 landed on main in ab420bd2; receipt cost and SKU cost card delivered) | FR-165; FR-175; ADR-074 | ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md |
 | TASK-ZAI-055 | PHASE-ZAI-COST-QUOTE | task | FR-253 PricingRuleSet — versioned, owner-approved pricing rules ported from pricing_rules_formula.yaml with per-block provenance; Pricing Rules console (Phase 2) | P0 | Claude | planned | ADR-098; FR-253; FR-131 | ../domains/commerce/features/FR-253-pricing-rules-and-engine.md |
 | TASK-ZAI-056 | PHASE-ZAI-COST-QUOTE | task | FR-253 one pure pricing engine in integer satang with price-boss parity fixtures; FR-181 quote tool reads the rule set (Phase 2) | P0 | Claude | planned | ADR-098; FR-253; FR-175; FR-181; BR-027 | ../domains/commerce/features/FR-253-pricing-rules-and-engine.md |
 | TASK-ZAI-057 | PHASE-ZAI-COST-QUOTE | task | Quotations — Quote/QuoteLine with ladder snapshots, two-hat approval, QUOTATION document, conversion to sales order with the FR-180 hold (Phase 3) | P0 | Claude | planned | FR-166; FR-180; FR-186; FR-196 | ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md |
@@ -632,6 +633,523 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FR-187 | PHASE-ZAI-KNOWLEDGE | task | FR-187 Structured-record source adapter before Stage 1 (FEAT-026, ADR-075 D2, **implemented locally (tests), not deployed**): a `FILE` source naming `format: SMARTGIFT_CATALOG_V1` is split, before Stage 1, into one immutable per-record source each through the existing FR-173 admission queue, all sharing the one `fileAssetId` so the existing ACL and revocation checks still hold; identity is `smartgift-catalog:<file>#<externalId>` keyed to the file-level SHA-256 (ADR-075 D3) and nothing enqueues a synthesized stage result; the deny policy ported from SmartGift runs per record at admission and again at Stage 5 `DPS-KI-CLASSIFY`, where a denial is a terminal 422 with `STEP_FAILED` evidence and no Stage 6+ result; FlowAccount/SKU codes stay record attributes, never a key. Phase 1 only: no model, no column, no migration, no deployment — the typed parser profile and `ontology_v2` are TASK-FR-188. | P2 | Claude | implemented locally (tests), not deployed | FR-187; FR-109; FR-111; FR-173; FR-174; FEAT-025; ADR-074; FEAT-026; ADR-075 | ../decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md |
 | TASK-FR-188 | PHASE-ZAI-KNOWLEDGE | task | FR-188 Structured parser profile + ontology_v2 (FEAT-026, ADR-075 D6, **implemented locally (tests), not deployed — PR #327, rollout step 3**): typed Stage 8 catalog occurrences and a frozen `ontology_v2` predicate/endpoint contract agreed by zuri-ai, MSP, GKS and the GenesisBlock worker together before any repo implements, per the flow doc's own change protocol; existing `ontology_v1` snapshots stay queryable, never rewritten. All four acceptance notes are merged (zuri-ai #326, Memory-and-Soul-Passport#4, Genesis-Knowledge-System#5, GenesisBlock#173). Implementation: GenesisBlock#174 (worker accepts v1+v2), Genesis-Knowledge-System#7 (GKS produces `ontology_v2`), zuri-ai #327 (parser-2 + structured recognizer), merged in that order. The four-process SmartGift acceptance run (Recall@5, MRR, citation, cross-tenant) is still to do. | P2 | Claude | proposed (not started) | FR-188; FR-187; FEAT-026; ADR-075; ADR-073 | ../decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md |
 | TASK-FR-189 | PHASE-ZAI-KNOWLEDGE | task | FR-189 Edge reads the published generation through MSP; v4 transitional (FEAT-026, ADR-075 D7, **approved 2026-09-11, not started**): edge query path becomes source caller → MSP credential/scope check → worker loopback query → one published generation → citation, replacing `apps/edge`'s v4 direct sibling-checkout file read/serve on `:8888`; v4 kept only as a time-boxed Phase 4 fallback — 120 days after cutover or until the end of the New Year 2027 season, whichever is later (owner, 2026-09-11) — never a second write path. No code yet — ADR-075 approved 2026-09-11. | P2 | Claude | proposed (not started) | FR-189; FR-110; FEAT-026; ADR-075; ADR-073 | ../decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md |
+
+## Canonical delivery ledger
+
+This section is the single delivery-state source for the programme. The 24-week document remains a derived compatibility projection for phase/sprint goals, Task Containers and usage blocks; it must not be used to override this ledger.
+
+Status means the state of the declared slice. Proof scope says where that state is evidenced. Implementation state says what exists in a repository or environment. Therefore `done + ISOLATED` is not production activation, and `review + LOCAL` is not a deployed claim.
+
+- Status: `planned`, `in-progress`, `review`, `done`, `blocked`.
+- Proof scope: `SPEC`, `UNKNOWN`, `LOCAL`, `ISOLATED`, `HOSTED_CI`, `PRODUCTION`.
+- Implementation state: `NOT_STARTED`, `IN_PROGRESS`, `LOCAL`, `ISOLATED_ACCEPTED`, `MERGED`, `DEPLOYED`, `ACTIVE`, `BLOCKED`, `UNKNOWN`.
+- `duplicate_key` is a capability identity, not a task id. A repeated key is allowed only when the relation explicitly says `adapter`, `legacy/fallback` or `replaces`.
+
+### Programme task ledger
+
+Task names and dependencies below are canonicalized from the programme backlog; every delivery status is owned by this table. The generated board reads these rows, not the status cells in the derived 24-week projection.
+
+<!-- roadmap-task-ledger:start -->
+| task_id | sprint | task | status | proof_scope | implementation_state | depends_on | authority | evidence |
+|---|---|---|---|---|---|---|---|---|
+| TASK-ZAI-001 | SPR-ZAI-01 | Close the production request-session and credential boundary | review | UNKNOWN | IN_PROGRESS | — | ROADMAP.md | 24-week baseline; Section 3.1 row 10; FEAT-010 |
+| TASK-ZAI-002 | SPR-ZAI-01 | Declare the five built-but-undeclared features into the registry | done | UNKNOWN | UNKNOWN | — | ROADMAP.md | 24-week baseline; Section 3 evidence baseline |
+| TASK-ZAI-003 | SPR-ZAI-01 | Profile-first onboarding and Waiting Room, FR-066 | done | UNKNOWN | UNKNOWN | TASK-ZAI-001 | ROADMAP.md | 24-week baseline; PRD FR-066, FR-122 |
+| TASK-ZAI-004 | SPR-ZAI-02 | Workspace collaboration boundary and scoped invites, FR-067 | done | UNKNOWN | UNKNOWN | TASK-ZAI-003 | ROADMAP.md | 24-week baseline; PRD FR-067; FR-195 generalises it |
+| TASK-ZAI-005 | SPR-ZAI-02 | Supabase data pipeline monitor and replay, FR-071 | done | UNKNOWN | UNKNOWN | — | ROADMAP.md | 24-week baseline; PRD FR-071 |
+| TASK-ZAI-006 | SPR-ZAI-02 | Write the governed memory read and write contract | done | UNKNOWN | UNKNOWN | — | ROADMAP.md | 24-week baseline; Section 3.1 row 4; ADR-050, ADR-063, ADR-067, ADR-068, ADR-072 |
+| TASK-ZAI-007 | SPR-ZAI-03 | Agent Role registry with five core roles | done | UNKNOWN | UNKNOWN | TASK-ZAI-006 | ROADMAP.md | 24-week baseline; Section 3.1 row 5 |
+| TASK-ZAI-008 | SPR-ZAI-03 | Role-scoped memory partition and retrieval policy | done | UNKNOWN | UNKNOWN | TASK-ZAI-007 | ROADMAP.md | 24-week baseline; Section 3.1 rows 4 and 5 |
+| TASK-ZAI-009 | SPR-ZAI-03 | Agent Factory, the standard business agent template | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-007 | ROADMAP.md | 24-week baseline; Proposal scope, AI Control |
+| TASK-ZAI-010 | SPR-ZAI-04 | Approval Gateway L1 to L4 over the FR-026 action gate | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-007 | ROADMAP.md | 24-week baseline; Section 3.1 row 9 |
+| TASK-ZAI-011 | SPR-ZAI-04 | Verification and notification fabric on approval outcomes | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-010 | ROADMAP.md | 24-week baseline; Section 3.1 row 9 |
+| TASK-ZAI-012 | SPR-ZAI-04 | Mission feed: agent missions and their approvals surface as Development-domain work in the Project system | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-010 | ROADMAP.md | 24-week baseline; Section 3.1 row 2; FR-040, FR-063, FR-068, FR-108 |
+| TASK-ZAI-013 | SPR-ZAI-05 | Standard Business Template and provisioning path | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-009 | ROADMAP.md | 24-week baseline; Section 3.1 row 6 |
+| TASK-ZAI-014 | SPR-ZAI-05 | Onboard Business number two end to end under isolation | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-013 | ROADMAP.md | 24-week baseline; Section 3.1 row 6 |
+| TASK-ZAI-015 | SPR-ZAI-05 | Per-business visibility regression at two-business scale | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-014 | ROADMAP.md | 24-week baseline; FEATURE-MAP FR-061 and FR-062 |
+| TASK-ZAI-016 | SPR-ZAI-06 | Cross-business governed analytics read model | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-014 | ROADMAP.md | 24-week baseline; Section 3.1 row 6 |
+| TASK-ZAI-017 | SPR-ZAI-06 | Connector number two under the FR-081 ingestion boundary — FlowAccount read-only pull, FR-125 | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-005 | ROADMAP.md | 24-week baseline; Section 3.1 row 8; ADR-053 |
+| TASK-ZAI-018 | SPR-ZAI-06 | Automation workflows one and two end to end | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-010; TASK-ZAI-017 | ROADMAP.md | 24-week baseline; Section 3.1 row 7 |
+| TASK-ZAI-019 | SPR-ZAI-07 | Visual Office 2.5D scene model and shell | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-012 | ROADMAP.md | 24-week baseline; Section 3.1 row 1 |
+| TASK-ZAI-020 | SPR-ZAI-07 | Bind Business, Agent, Mission and Approval objects to live reads | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-019 | ROADMAP.md | 24-week baseline; Section 3.1 row 1 |
+| TASK-ZAI-021 | SPR-ZAI-07 | Accessibility and reduced-motion contract for the 2.5D surface | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-019 | ROADMAP.md | 24-week baseline; UI-DESIGN-SYSTEM section 3 |
+| TASK-ZAI-022 | SPR-ZAI-08 | Live agent activity presence and mission tracking in-scene | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-020 | ROADMAP.md | 24-week baseline; Proposal scope, Business Layer |
+| TASK-ZAI-023 | SPR-ZAI-08 | Surface the L1 to L4 approval queue inside Visual Office | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-011; TASK-ZAI-022 | ROADMAP.md | 24-week baseline; Section 3.1 rows 1 and 9 |
+| TASK-ZAI-024 | SPR-ZAI-09 | Second Brain retrieval by Business, Role and Permission | in-progress | UNKNOWN | IN_PROGRESS | TASK-ZAI-008 | ROADMAP.md | 24-week baseline; Section 3.1 row 4; FR-098, FR-173, ADR-072 |
+| TASK-ZAI-025 | SPR-ZAI-09 | Memory lineage, replay and the no-silent-replay guarantee | in-progress | UNKNOWN | IN_PROGRESS | TASK-ZAI-024 | ROADMAP.md | 24-week baseline; Section 3.1 row 4; FR-116, FR-171, ADR-070 |
+| TASK-ZAI-026 | SPR-ZAI-10 | Interactive Node View 3D over the governed relation graph | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-024 | ROADMAP.md | 24-week baseline; Section 3.1 row 3 |
+| TASK-ZAI-027 | SPR-ZAI-10 | Structure and edge direct manipulation with handoff contracts | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-026 | ROADMAP.md | 24-week baseline; FEATURE-MAP FR-082 to FR-085 |
+| TASK-ZAI-028 | SPR-ZAI-10 | Automation workflows three to five and connector number three | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-018 | ROADMAP.md | 24-week baseline; Section 3.1 rows 7 and 8 |
+| TASK-ZAI-029 | SPR-ZAI-11 | Integration hardening plus load and security test campaign | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-028 | ROADMAP.md | 24-week baseline; Section 3.1 row 10 |
+| TASK-ZAI-030 | SPR-ZAI-12 | UAT, deployment, data and security checklist, training and handover | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-029 | ROADMAP.md | 24-week baseline; Section 3.1 row 10 |
+| TASK-ZAI-031 | SPR-ZAI-01 | Inventory catalogue, stock ledger, recipes and product natures — FEAT-020, FR-154 to FR-156, FR-168 | done | UNKNOWN | UNKNOWN | — | ROADMAP.md | 24-week baseline; CR-019 deliverable 11; ADR-024 |
+| TASK-ZAI-032 | SPR-ZAI-01 | Sales tasks in CRM — FEAT-022, FR-161 | done | UNKNOWN | UNKNOWN | — | ROADMAP.md | 24-week baseline; CR-019 deliverable 11; ADR-064 |
+| TASK-ZAI-033 | SPR-ZAI-01 | Commerce orders and payments — FEAT-023, FR-166, FR-163 | done | UNKNOWN | UNKNOWN | TASK-ZAI-031 | ROADMAP.md | 24-week baseline; CR-019 deliverable 11; ADR-065 |
+| TASK-ZAI-034 | SPR-ZAI-01 | Procurement suppliers, purchase orders and goods receipts — FEAT-024, FR-164, FR-165 | done | UNKNOWN | UNKNOWN | TASK-ZAI-031 | ROADMAP.md | 24-week baseline; CR-019 deliverable 11; ADR-066 |
+| TASK-ZAI-035 | SPR-ZAI-01 | Asset Management foundation, evidence intake and edge extraction — FEAT-015 to FEAT-017, FR-133 to FR-144 | done | UNKNOWN | UNKNOWN | — | ROADMAP.md | 24-week baseline; CR-019 deliverable 11; ADR-055, ADR-056, ADR-059 |
+| TASK-ZAI-036 | SPR-ZAI-01 | LINE OA Studio multi-account, rich menu, LIFF and server-owned transport — FEAT-018, FEAT-019, FR-146 to FR-153, FR-190 | review | UNKNOWN | IN_PROGRESS | — | ROADMAP.md | 24-week baseline; CR-019 deliverable 11; ADR-060, ADR-061 |
+| TASK-ZAI-037 | SPR-ZAI-02 | SCM and CRM parent navigation, Business capabilities and module tabs — FR-167, FR-169, FR-170, FR-172 | done | UNKNOWN | UNKNOWN | TASK-ZAI-031 | ROADMAP.md | 24-week baseline; CR-019 deliverable 11; ADR-069, ADR-071 |
+| TASK-ZAI-038 | SPR-ZAI-02 | SmartGift SCM located ledger, landed cost, work orders, ATP and agent tools — FEAT-025, FR-174 to FR-182 | done | UNKNOWN | UNKNOWN | TASK-ZAI-031; TASK-ZAI-034 | ROADMAP.md | 24-week baseline; CR-019 deliverable 11; ADR-074 |
+| TASK-ZAI-039 | SPR-ZAI-02 | Commerce billing documents, POS checkout and physical stocktake — FR-186, FR-183, FR-184 | review | UNKNOWN | IN_PROGRESS | TASK-ZAI-033; TASK-ZAI-038 | ROADMAP.md | 24-week baseline; CR-019 deliverable 11; ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910 |
+| TASK-ZAI-040 | SPR-ZAI-02 | Marketing strategy, campaigns, content, operations and broadcast planning — FEAT-021, FR-157 to FR-160, FR-162, FR-185 | in-progress | UNKNOWN | IN_PROGRESS | — | ROADMAP.md | 24-week baseline; CR-019 deliverable 11; CR-018 |
+| TASK-ZAI-041 | SPR-ZAI-02 | Identity lifecycle: withdrawable grants, Employment and LegalEntity, invites and segregation of duties, audit access evidence — FEAT-027 to FEAT-030, FR-191 to FR-199 | review | UNKNOWN | IN_PROGRESS | TASK-ZAI-001 | ROADMAP.md | 24-week baseline; Section 3.1 rows 9 and 10; ADR-077 to ADR-080 |
+| TASK-ZAI-042 | SPR-ZAI-02 | SmartGift catalog convergence through the seventeen-stage adapter — FEAT-026, FR-187 to FR-189 | in-progress | UNKNOWN | IN_PROGRESS | TASK-ZAI-025 | ROADMAP.md | 24-week baseline; Section 3.1 row 4; ADR-075 |
+| TASK-ZAI-043 | SPR-ZAI-03 | Apply every pending deliverable-11 migration on production and record it in the migration notes | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-038; TASK-ZAI-039; TASK-ZAI-040; TASK-ZAI-041 | ROADMAP.md | 24-week baseline; GATE-ZAI-09; ADR-057 |
+| TASK-ZAI-044 | SPR-ZAI-06 | GATE-ZAI-09 evidence run: ERP modules accepted on production for Business one | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-043 | ROADMAP.md | 24-week baseline; GATE-ZAI-09 |
+| TASK-ZAI-045 | SPR-ZAI-02 | Knowledge file intake: Text/Markdown and FileAsset admission into an immutable raw artifact at Stage 1 — FR-173, FR-081, FR-109 | review | UNKNOWN | IN_PROGRESS | TASK-ZAI-005 | ROADMAP.md | 24-week baseline; Section 3.1 row 4; ADR-072, ADR-073 |
+| TASK-ZAI-046 | SPR-ZAI-02 | Tier 1 stage calculators, composition and quarantine, Stage 2 to 8 — FR-111 to FR-119 | done | UNKNOWN | UNKNOWN | TASK-ZAI-045 | ROADMAP.md | 24-week baseline; Section 3.1 row 4; ADR-050 |
+| TASK-ZAI-047 | SPR-ZAI-03 | Knowledge base console: source library, ingestion run status, corpus and generation registry, cited query | review | ISOLATED | ISOLATED_ACCEPTED | TASK-ZAI-045 | ROADMAP.md | ROADMAP task row; ../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md |
+| TASK-ZAI-048 | SPR-ZAI-03 | Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9 | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-046 | ROADMAP.md | 24-week baseline; 17-stage flow, "PDF/OCR/HTML/table parser" row; FR-115, FR-138 |
+| TASK-ZAI-049 | SPR-ZAI-03 | Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1) | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-045 | ROADMAP.md | 24-week baseline; Section 3.1 row 4; FR-045, FR-111, FR-137 |
+| TASK-ZAI-050 | SPR-ZAI-03 | Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-045; TASK-ZAI-049 | ROADMAP.md | 24-week baseline; ADR-073 amendment; ADR-075 Phase 2 gate |
+| TASK-ZAI-051 | SPR-ZAI-03 | Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-050 | ROADMAP.md | 24-week baseline; 17-stage flow, "connector/แหล่งเอกสาร" row; FR-081 |
+| TASK-ZAI-052 | SPR-ZAI-02 | Cost and quote engine decision record — proposal, ADR, FR and FEAT declarations with the owner's nine decisions | done | SPEC | UNKNOWN | TASK-ZAI-038 | ROADMAP.md | ROADMAP task row; ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md |
+| TASK-ZAI-053 | SPR-ZAI-02 | Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory) | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-052; TASK-ZAI-034 | ROADMAP.md | ROADMAP task row; ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md |
+| TASK-ZAI-054 | SPR-ZAI-02 | Goods receipts post the landed unit cost to the stock ledger, and the SKU page gains a cost card | done | HOSTED_CI | MERGED | TASK-ZAI-053; TASK-ZAI-038 | ROADMAP.md | ROADMAP task row; ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md |
+| TASK-ZAI-055 | SPR-ZAI-03 | PricingRuleSet — versioned, owner-approved pricing rules ported from pricing_rules_formula.yaml with per-block provenance, and the Pricing Rules console | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-052 | ROADMAP.md | ROADMAP task row; ../domains/commerce/features/FR-253-pricing-rules-and-engine.md |
+| TASK-ZAI-056 | SPR-ZAI-03 | One pure pricing engine in integer satang — landed cost, ladder, profit floor and ten-baht round-up — with parity fixtures against price-boss; the FR-181 quote tool reads the rule set | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-054; TASK-ZAI-055 | ROADMAP.md | ROADMAP task row; ../domains/commerce/features/FR-253-pricing-rules-and-engine.md |
+| TASK-ZAI-057 | SPR-ZAI-03 | Quotations — Quote and QuoteLine with ladder snapshots, two-hat approval, the QUOTATION document and conversion to a sales order with the FR-180 hold | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-056; TASK-ZAI-039 | ROADMAP.md | ROADMAP task row; ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md |
+| TASK-ZAI-058 | SPR-ZAI-04 | Ladder quotation on LINE (FR-132) over the shared engine with a deterministic intent matcher | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-057; TASK-ZAI-036 | ROADMAP.md | ROADMAP task row; ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md |
+| TASK-ZAI-059 | SPR-ZAI-04 | Knowledge structured records — STRUCTURED_RECORDS_V1 JSON format, an Excel template and converter, and MCP format widening before Stage 1 | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-045; TASK-ZAI-042 | ROADMAP.md | ROADMAP task row; ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md |
+| TASK-ZAI-060 | SPR-ZAI-02 | Data pipeline map decision record — the ADR for a Knowledge (GKS) navigation slot that consumes GKS without becoming it, and the requirement and FEAT declarations | done | SPEC | UNKNOWN | — | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-061 | SPR-ZAI-02 | Data pipeline registry — the written map of inbound sources, outbound recipients and combine chains, a validated JSON registry, a generated runtime projection and a preflight check | done | HOSTED_CI | MERGED | TASK-ZAI-060 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-062 | SPR-ZAI-02 | Data Pipeline Map node-edge view under the Knowledge (GKS) slot — layered graph, chain, domain and status filters, edge detail with domain, FEAT and surface level, and a list view | done | HOSTED_CI | MERGED | TASK-ZAI-061 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-063 | SPR-ZAI-03 | Live pipeline health on the map — per-edge run and job counts for the active Business from the FR-071 ledger and the transport job tables | done | HOSTED_CI | MERGED | TASK-ZAI-062; TASK-ZAI-047 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-064 | SPR-ZAI-02 | Delivery telemetry decision record — the ADR that lets the programme board show measured time and tokens beside the plan without turning either into completion, the sizing table, and the requirement and FEAT declarations | done | SPEC | UNKNOWN | — | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-065 | SPR-ZAI-02 | Phase card delivery metrics — sprint and task counts, size in complexity points, plan window and effort estimate, actual time and measured tokens once done, and done or review cards tinted green or orange | done | HOSTED_CI | DEPLOYED | TASK-ZAI-064 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-066 | SPR-ZAI-02 | Usage meter — measured tokens and active time per task from Claude Code and Codex session logs, attributed by the branches each Task Container declares and written back with provenance | done | HOSTED_CI | MERGED | TASK-ZAI-064 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-067 | SPR-ZAI-02 | Usage report endpoint — an operator-authenticated ledger where agents without local logs report per-session tokens for a task, idempotent by session and merged with metered sessions without double counting | done | PRODUCTION | ACTIVE | TASK-ZAI-066 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-068 | SPR-ZAI-02 | Task card evidence badges and subtask progress — DOC, CODE, TEST, FR, NFR and FEAT badges coloured green for done, orange for review, red for needs fix and gray for empty, domain, complexity and priority badges, and P0 to P3 subtasks with a progress bar on the card | done | HOSTED_CI | DEPLOYED | TASK-ZAI-064 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-069 | SPR-ZAI-02 | Harness usage plugin decision record — the ADR for a Zuri plugin that pairs a device by browser approval, holds a report-only credential with a device label, and lets the server attribute each report to a person, a device and a lane; requirement and FEAT declarations | done | SPEC | UNKNOWN | TASK-ZAI-067 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-070 | SPR-ZAI-02 | Harness device pairing and report-only credential — start, browser approval with a check code and poll as in FR-144, one hashed credential per installation scoped to usage reporting with a device label, and an operator list of paired devices with revoke | done | PRODUCTION | ACTIVE | TASK-ZAI-069 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-071 | SPR-ZAI-02 | Usage reports attributed to person, device and lane — the report endpoint accepts the harness credential, derives the lane from the reported branch on the server, extends a resumed session whose counts only grow, and the board breaks lane usage down by person and shows unattributed reports | done | HOSTED_CI | DEPLOYED | TASK-ZAI-070 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-072 | SPR-ZAI-02 | Zuri harness plugin for Claude Code and Codex — pair, whoami and unpair commands, a SessionEnd hook and a Codex wrapper that report each finished session split by branch, an offline retry queue, a marketplace entry, and parser parity with the usage meter | done | HOSTED_CI | MERGED | TASK-ZAI-070; TASK-ZAI-071 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-073 | SPR-ZAI-02 | Zuri harness plugin specification — one document for the CLI, hook input, configuration and queue formats, pairing state machine, counting rules, keep-or-drop rules per response, Codex wrapper, log-format compatibility, versioning and privacy, each rule linked to the test that proves it | done | HOSTED_CI | DEPLOYED | TASK-ZAI-072 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-074 | SPR-ZAI-02 | Agent usage detail capture — thinking and reasoning tokens, cache writes by lifetime, tool calls by name with errors and denials, web search and fetch, user prompts, compactions and errors, measured by the meter and the plugin with parity, carried by the report endpoint and stored for each lane, person and device | done | PRODUCTION | ACTIVE | TASK-ZAI-072 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-075 | SPR-ZAI-02 | Usage detail on the programme board — phase and task telemetry show input, output, thinking and cache tokens separately, tool calls with the most used tools and the error rate, prompts and compactions, per lane, person and device | done | HOSTED_CI | DEPLOYED | TASK-ZAI-074 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-076 | SPR-ZAI-02 | LINE OA platform decision record — ADR-089 credential vault and self-serve onboarding, ADR-090 GKS grounding and reviewed candidates, ADR-091 chat record, memory tiers and the Context Composer, with FR-223 to FR-238, SEC-030 to SEC-032, SDD-097 to SDD-100 and FEAT-036 to FEAT-038 declared | done | HOSTED_CI | MERGED | — | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-077 | SPR-ZAI-02 | LINE OA platform delivery plan — every phase of ADR-089 to ADR-091 registered as sized tasks with acceptance criteria, lanes bound to branches before work starts, the usage-detail capture of TASK-ZAI-074 and TASK-ZAI-075 named as the measurement prerequisite, the Project Manager import path stated, and the usage meter run | done | UNKNOWN | UNKNOWN | TASK-ZAI-076 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-078 | SPR-ZAI-03 | Integration credential vault — a SecretStorePort with the Supabase Vault and envelope stores, a dispatching secret manager by reference prefix, versioned write, activate, rotate, revoke and resolve with compensation and re-entry status, and design migrations 1, 3 and 4 — FR-223, SEC-030, SDD-097 | done | UNKNOWN | UNKNOWN | TASK-ZAI-077; TASK-ZAI-074; TASK-ZAI-075 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-079 | SPR-ZAI-03 | LINE channel account claim and the Integration LINE channel-admin port — an installation-wide claim by destination hash taken before any secret is stored, stateless token minting with a per-version cache, bot info, and webhook set, read and test calls, with design migration 2 — FR-226, SDD-098 and the port half of FR-227 | done | UNKNOWN | UNKNOWN | TASK-ZAI-078 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-080 | SPR-ZAI-03 | Credential-write step-up gate and the first rate limit — assertSessionAssurance AAL2 on every credential write, rotation, revocation and validation, an enrolment redirect when no factor exists, and a RateLimitBucket store answering 429 with retry hints, design migration 8 — FR-224 | done | UNKNOWN | UNKNOWN | TASK-ZAI-078 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-081 | SPR-ZAI-03 | Phase 1 acceptance — ADR-089 proofs 1 to 6 on SQLite and Postgres with both stores, and one real LINE test channel validated end to end through the connection route in a dev deployment, before any production migration | blocked | UNKNOWN | BLOCKED | TASK-ZAI-079; TASK-ZAI-080 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-082 | SPR-ZAI-04 | Self-serve LINE OA connection wizard — Thai step-up, Channel ID and secret entry with an optional override token, live proof with LINE, claim, vault write, connection, a masked credential card and a DRAFT account, and a mount-backed account moved into the vault on re-entry — FR-225 | done | HOSTED_CI | DEPLOYED | TASK-ZAI-081 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-083 | SPR-ZAI-04 | Automatic LINE webhook registration and health — a publisher action sets, reads back and tests the account webhook through LINE, stores webhook health in LineOaAccount.webhookStateJson with its migration, and falls back to a Thai manual card — FR-227 | done | HOSTED_CI | DEPLOYED | TASK-ZAI-082 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-084 | SPR-ZAI-04 | Derived legacy-transport quiescence and restore re-entry — ENABLE_SERVER derives quiescence for a vault-backed account from the endpoint LINE reports and 120 seconds without legacy evidence, validates through the dispatching secret manager, and a restored snapshot forces credential re-entry — FR-228 | done | HOSTED_CI | DEPLOYED | TASK-ZAI-083 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-085 | SPR-ZAI-04 | Apply the credential vault and onboarding migrations on production — design migrations 1 to 4 and 8 and the webhook-state column, under ADR-057 with an inventory, a rolled-back dry run and a verified effect, recorded in the migration notes | in-progress | UNKNOWN | IN_PROGRESS | TASK-ZAI-084 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-086 | SPR-ZAI-04 | Channel credential entry for the first production account — the Business owner, at AAL2, enters the Channel ID and secret in the production wizard to move one mount-backed LINE OA account into the vault; no agent ever types a credential | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-085 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-087 | SPR-ZAI-04 | Webhook cutover for the first production account — register and test the webhook through LINE, observe derived quiescence, enable server transport and record ADR-061 provider-webhook-replaced evidence with a written rollback | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-086 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-088 | SPR-ZAI-04 | Non-text LINE content in the CRM record — sticker, location and media messages become Message rows with a content kind and placeholder body, media gets a MessageAttachment without bytes, follow, join, membership, postback and unsend become ConversationEvent rows, and an unsend tombstones its message — FR-229 | done | PRODUCTION | ACTIVE | TASK-ZAI-077; TASK-ZAI-074; TASK-ZAI-075 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-089 | SPR-ZAI-04 | Declared retention classes and the nightly sweep — installation defaults for raw LINE payloads, message bodies and attachments, trace payloads and MSP session content, per-Tenant downward-only overrides, a sweep that skips rows live LINE jobs reference, and one audit event per run — FR-230, SEC-031 | done | PRODUCTION | ACTIVE | TASK-ZAI-088 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-090 | SPR-ZAI-04 | Conversation inbox read models and message search — last-message time, a redacted 120-character preview, retention class and unread counts, a read-only CRM search reader with a trigram index on Postgres, and follow and unfollow counts per account — FR-233 | done | PRODUCTION | ACTIVE | TASK-ZAI-088 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-091 | SPR-ZAI-04 | Apply the chat record migrations on production — non-text content, read-model columns, the trigram index and the retention override store, under ADR-057, recorded in the migration notes | done | PRODUCTION | ACTIVE | TASK-ZAI-089; TASK-ZAI-090 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-092 | SPR-ZAI-05 | Context Composer — one agent-lane module assembling every LINE model prompt from AuthContext, MSP slices, knowledge evidence and CRM and ERP facts in truth order under one budget, reporting every trim, recording one ContextReceipt per model invocation and calling no model without evidence — FR-234, SDD-100 | done | HOSTED_CI | DEPLOYED | TASK-ZAI-088 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-093 | SPR-ZAI-05 | LINE grounding from the published corpus — an in-process knowledge.query reader over queryKnowledgeCorpus under the runtime knowledge capability, a per-account knowledgeGrounding mode with its migration, a 2 500 ms, top-5, 8 KiB budget, a traced mode-gated fallback and retrievalRefs on EVIDENCE_SELECTED — FR-235, SDD-099 | done | HOSTED_CI | DEPLOYED | TASK-ZAI-092 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-094 | SPR-ZAI-05 | Grounding isolated acceptance — a real LINE job answered from a published generation in the four-process harness with citations on the job trace, zero cross-tenant leakage, the deterministic reply with the worker stopped, and MSP spawn cost measured against the budget | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-093 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-095 | SPR-ZAI-06 | SmartGift grounding switch on production — after ADR-075 Phase 3 is deployed, apply the grounding-mode migration, switch one SmartGift DIRECT account to GKS_THEN_BUSINESS_KNOWLEDGE as an owner-triggered operator step, shadow-compare for one campaign window and keep the rollback | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-094; TASK-ZAI-042; TASK-ZAI-050 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-096 | SPR-ZAI-06 | LINE FAQ knowledge candidates — locator-only question-and-answer candidates from consent-GRANTED conversations checked by the Zero-PII deny policy, an OWNER or LINE_OA_PUBLISHER review surface with audited decisions, and admission of an approved candidate as a LINE_FAQ_CANDIDATE TEXT source through ADR-072 — FR-236, SEC-032 | done | PRODUCTION | ACTIVE | TASK-ZAI-093 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-097 | SPR-ZAI-06 | Knowledge gap report for LINE — NO_EVIDENCE retrievals aggregated per Business in the Knowledge (GKS) slot as counts, product locators and last-seen times, with the question text left in CRM — FR-237 | done | HOSTED_CI | DEPLOYED | TASK-ZAI-093 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-098 | SPR-ZAI-06 | LINE Studio descriptions as knowledge sources — on a publisher action, published rich menu, LIFF app and bot profile descriptions are admitted as LINE_STUDIO_DESCRIPTION TEXT sources, never the Flex or rich menu JSON, and unpublishing withdraws them — FR-238 | done | HOSTED_CI | DEPLOYED | TASK-ZAI-096 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-099 | SPR-ZAI-06 | Apply the knowledge candidate migration on production and turn candidates on for SmartGift only on the owner's instruction, recorded in the migration notes | in-progress | PRODUCTION | ACTIVE | TASK-ZAI-096 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-100 | SPR-ZAI-06 | LINE memory projection policy and receipts — LineOaAccount.memoryPolicy defaulting to OFF, per-job capture of session-tier and memory-tier eligibility by policy, consent and audience, MemoryProjectionReceipt in the delivery settlement, and a projector that refuses until MSP main ships thread and erase tools — FR-231 | blocked | HOSTED_CI | BLOCKED | TASK-ZAI-092; TASK-ZAI-089 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-101 | SPR-ZAI-06 | Erasure propagation beyond Tier 1 — one transaction tombstones CRM bodies, previews, attachments, LINE job fields, raw payloads, trace inputs and knowledge candidates, and leaves durable MSP erase calls per projection receipt and knowledge-source withdrawals, with PENDING_MSP until acknowledged — FR-232, SEC-031 | blocked | UNKNOWN | BLOCKED | TASK-ZAI-100; TASK-ZAI-096 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-102 | SPR-ZAI-06 | Memory policy production activation — apply the memory policy and projection receipt migrations under ADR-057 and, only on the owner's instruction, enable projection for one DIRECT account after the MSP canary (TASK-MEMOS-006) passes, recorded with a rollback | blocked | UNKNOWN | BLOCKED | TASK-ZAI-101 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-103 | SPR-ZAI-10 | Generalise the credential vault to other provider kinds, FR-242 — OAUTH_CLIENT for FlowAccount (ADR-053) and MODEL_PROVIDER_KEY on the same SecretStorePort, built and tested; retiring the Phase-1 model-credential resolver is a separate follow-up | review | PRODUCTION | ACTIVE | TASK-ZAI-085 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-104 | SPR-ZAI-02 | Programme roadmap member view — for 30 days any signed-in person reads the programme plan and the Domain map at /roadmap, with usage by person and device, tool and model names and the Agent devices tab removed on the server, closing by itself at 2026-10-15 00:00 Asia/Bangkok while /control/roadmap stays operator-only | done | HOSTED_CI | DEPLOYED | TASK-ZAI-075 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-105 | SPR-ZAI-02 | Conversation sessions and chat evidence decision records — ADR-093 and ADR-094 accepted with the owner's choices, FR-243 to FR-246, SEC-034, SDD-102, SDD-103, FEAT-040 and FEAT-041 declared, SEC-031 re-worded, and tasks 105 to 115 bound to lanes | done | HOSTED_CI | MERGED | TASK-ZAI-091 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-106 | SPR-ZAI-03 | Conversation sessions, FR-243 — ConversationSession model and migration, session assignment inside LINE admission and reply recording, the per-account idle timeout column, and a backfill of existing messages by the same rule | done | PRODUCTION | ACTIVE | TASK-ZAI-105 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-107 | SPR-ZAI-03 | Sessions on the LINE job, trace and inbox, FR-243 — the session id on LineConversationJob, a trace filter by session, a divider between sessions in the inbox, and the account setting for the idle timeout | done | UNKNOWN | UNKNOWN | TASK-ZAI-106 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-108 | SPR-ZAI-03 | Apply the conversation session migration on production and run the backfill, under ADR-057 with an inventory, a rolled-back dry run and a verified effect, recorded in the migration notes | done | UNKNOWN | UNKNOWN | TASK-ZAI-107 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-109 | SPR-ZAI-04 | Local model residency by business hours, FR-244 — per-account business hours and out-of-hours reply, the edge worker loading the model during any served account's hours and unloading it after the last closes, and no model call outside hours | review | UNKNOWN | IN_PROGRESS | TASK-ZAI-105 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-110 | SPR-ZAI-04 | Staff replies recorded, FR-246 — a member with CRM write access replies from the inbox, the server pushes it through the account's LINE transport and records an OUTBOUND message with reply source STAFF in the conversation's session | done | HOSTED_CI | DEPLOYED | TASK-ZAI-106 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-111 | SPR-ZAI-05 | Chat evidence archive writer, FR-245 — archive manifest model and migration, per-Customer AES-256-GCM segments under ZURI_ARCHIVE_KEK, write-flush-verify before tombstone inside the retention sweep, failing closed | done | PRODUCTION | ACTIVE | TASK-ZAI-108; TASK-ZAI-110 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-112 | SPR-ZAI-05 | Chat evidence retrieval, FR-245 — an OWNER at AAL2 retrieves one Customer's archived messages for a date range by session with a case reference, as an export carrying file and manifest hashes, audited | review | HOSTED_CI | MERGED | TASK-ZAI-111 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-113 | SPR-ZAI-05 | Archive key destruction and the legal hold, SEC-034 — expiry and PDPA erasure destroy a Customer's archive data key unless an OWNER-recorded legal hold with a reason and end date is active, shown on the erasure status | review | LOCAL | LOCAL | TASK-ZAI-112 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-114 | SPR-ZAI-06 | Chat evidence archive on production — the cold-archive compose overlay on F:, ZURI_ARCHIVE_KEK with its offline backup, the migrations applied under ADR-057, the sweep token and 03:00 scheduled task, and the first recorded manifest | review | PRODUCTION | ACTIVE | TASK-ZAI-113 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-115 | SPR-ZAI-06 | Monthly offline copy of the chat evidence archive — new archive files copied to an offline external drive and verified against the manifest hashes, with the first verified copy recorded | planned | UNKNOWN | NOT_STARTED | TASK-ZAI-114 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-116 | SPR-ZAI-02 | Observability decision record — ADR-095 for error tracking and per-person feature usage, and the FR/NFR declarations it governs | done | UNKNOWN | UNKNOWN |  | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-117 | SPR-ZAI-02 | Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action | done | PRODUCTION | ACTIVE | TASK-ZAI-116 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+| TASK-ZAI-118 | SPR-ZAI-02 | Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup | done | HOSTED_CI | MERGED | TASK-ZAI-116 | ROADMAP.md | ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md |
+<!-- roadmap-task-ledger:end -->
+
+### Subplans and implementation coverage
+
+<!-- roadmap-sot:start -->
+```json
+{
+  "schemaVersion": 1,
+  "statusVocabulary": [
+    "planned",
+    "in-progress",
+    "review",
+    "done",
+    "blocked"
+  ],
+  "proofScopeVocabulary": [
+    "SPEC",
+    "UNKNOWN",
+    "LOCAL",
+    "ISOLATED",
+    "HOSTED_CI",
+    "PRODUCTION"
+  ],
+  "implementationStateVocabulary": [
+    "NOT_STARTED",
+    "IN_PROGRESS",
+    "LOCAL",
+    "ISOLATED_ACCEPTED",
+    "MERGED",
+    "DEPLOYED",
+    "ACTIVE",
+    "BLOCKED",
+    "UNKNOWN"
+  ],
+  "programme": {
+    "phases": {
+      "PHASE-ZAI-01": {
+        "status": "in-progress",
+        "progress": 91
+      },
+      "PHASE-ZAI-02": {
+        "status": "in-progress",
+        "progress": 48
+      },
+      "PHASE-ZAI-03": {
+        "status": "in-progress",
+        "progress": 10
+      },
+      "PHASE-ZAI-04": {
+        "status": "planned",
+        "progress": 0
+      },
+      "PHASE-ZAI-05": {
+        "status": "in-progress",
+        "progress": 17
+      },
+      "PHASE-ZAI-06": {
+        "status": "planned",
+        "progress": 0
+      }
+    },
+    "sprints": {
+      "SPR-ZAI-01": {
+        "status": "in-progress",
+        "progress": 93
+      },
+      "SPR-ZAI-02": {
+        "status": "in-progress",
+        "progress": 91
+      },
+      "SPR-ZAI-03": {
+        "status": "in-progress",
+        "progress": 40
+      },
+      "SPR-ZAI-04": {
+        "status": "in-progress",
+        "progress": 19
+      },
+      "SPR-ZAI-05": {
+        "status": "in-progress",
+        "progress": 21
+      },
+      "SPR-ZAI-06": {
+        "status": "in-progress",
+        "progress": 4
+      },
+      "SPR-ZAI-07": {
+        "status": "planned",
+        "progress": 0
+      },
+      "SPR-ZAI-08": {
+        "status": "planned",
+        "progress": 0
+      },
+      "SPR-ZAI-09": {
+        "status": "in-progress",
+        "progress": 50
+      },
+      "SPR-ZAI-10": {
+        "status": "planned",
+        "progress": 0
+      },
+      "SPR-ZAI-11": {
+        "status": "planned",
+        "progress": 0
+      },
+      "SPR-ZAI-12": {
+        "status": "planned",
+        "progress": 0
+      }
+    }
+  },
+  "subplans": [
+    {
+      "id": "SUBPLAN-KI-17STAGE",
+      "parent": "FEAT-013 / FR-109..119",
+      "status": "in-progress",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "KI-17-STAGE",
+      "relation": "primary; production activation is separate"
+    },
+    {
+      "id": "SUBPLAN-KI-ADMISSION",
+      "parent": "FR-173 / ADR-072",
+      "status": "done",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "KI-ADMISSION",
+      "relation": "primary"
+    },
+    {
+      "id": "SUBPLAN-KI-PRODUCTION-ACTIVATION",
+      "parent": "TASK-ZAI-050 / ADR-073 amendment / ADR-075 Phase 2",
+      "status": "planned",
+      "proofScope": "SPEC",
+      "implementationState": "NOT_STARTED",
+      "authority": "docs/decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md",
+      "evidence": "ADR-075 Phase 2 gate; no production activation claim",
+      "duplicateKey": "KI-PRODUCTION-ACTIVATION",
+      "relation": "gate; do not infer from isolated acceptance"
+    },
+    {
+      "id": "SUBPLAN-SMARTGIFT-STRUCTURED-ADAPTER",
+      "parent": "TASK-ZAI-042 / FR-187..189 / ADR-075",
+      "status": "review",
+      "proofScope": "LOCAL",
+      "implementationState": "LOCAL",
+      "authority": "docs/decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md",
+      "evidence": "TASK-FR-187 local tests; four-process acceptance still open",
+      "duplicateKey": "KI-CATALOG-PUBLISH",
+      "relation": "adapter; replaces legacy direct catalog writer after rollout"
+    },
+    {
+      "id": "SUBPLAN-SMARTGIFT-DIRECT-WRITER",
+      "parent": "TASK-ZAI-042 / ADR-075 architecture baseline",
+      "status": "review",
+      "proofScope": "UNKNOWN",
+      "implementationState": "UNKNOWN",
+      "authority": "docs/decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md",
+      "evidence": "legacy direct writer; production status requires a separate live check",
+      "duplicateKey": "KI-CATALOG-PUBLISH",
+      "relation": "legacy/fallback; never a second canonical writer"
+    }
+  ],
+  "coverage": [
+    {
+      "stageId": "DPS-KI-INGEST",
+      "stage": "Stage 1",
+      "owner": "zuri-ai / Tier 1",
+      "status": "done",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "DPS-KI-INGEST",
+      "relation": "primary; production activation remains a separate subplan"
+    },
+    {
+      "stageId": "DPS-KI-PARSE",
+      "stage": "Stage 2",
+      "owner": "zuri-ai / Tier 1",
+      "status": "done",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "DPS-KI-PARSE",
+      "relation": "primary; production activation remains a separate subplan"
+    },
+    {
+      "stageId": "DPS-KI-PROVENANCE",
+      "stage": "Stage 3",
+      "owner": "zuri-ai / Tier 1",
+      "status": "done",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "DPS-KI-PROVENANCE",
+      "relation": "primary; production activation remains a separate subplan"
+    },
+    {
+      "stageId": "DPS-KI-NORMALIZE",
+      "stage": "Stage 4",
+      "owner": "zuri-ai / Tier 1",
+      "status": "done",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "DPS-KI-NORMALIZE",
+      "relation": "primary; production activation remains a separate subplan"
+    },
+    {
+      "stageId": "DPS-KI-CLASSIFY",
+      "stage": "Stage 5",
+      "owner": "zuri-ai / Tier 1",
+      "status": "done",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "DPS-KI-CLASSIFY",
+      "relation": "primary; production activation remains a separate subplan"
+    },
+    {
+      "stageId": "DPS-KI-DEDUPE",
+      "stage": "Stage 6",
+      "owner": "zuri-ai / Tier 1",
+      "status": "done",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "DPS-KI-DEDUPE",
+      "relation": "primary; production activation remains a separate subplan"
+    },
+    {
+      "stageId": "DPS-KI-CHUNK",
+      "stage": "Stage 7",
+      "owner": "zuri-ai / Tier 1",
+      "status": "done",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "DPS-KI-CHUNK",
+      "relation": "primary; production activation remains a separate subplan"
+    },
+    {
+      "stageId": "DPS-KI-ENTITY-EXTRACT",
+      "stage": "Stage 8",
+      "owner": "zuri-ai / Tier 1",
+      "status": "done",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "DPS-KI-ENTITY-EXTRACT",
+      "relation": "primary; production activation remains a separate subplan"
+    },
+    {
+      "stageId": "DPS-KI-ENTITY-RESOLVE",
+      "stage": "Stage 9",
+      "owner": "GKS / Tier 3",
+      "status": "done",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "DPS-KI-ENTITY-RESOLVE",
+      "relation": "primary; production activation remains a separate subplan"
+    },
+    {
+      "stageId": "DPS-KI-FACT-EXTRACT",
+      "stage": "Stage 10",
+      "owner": "GKS / Tier 3",
+      "status": "done",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "DPS-KI-FACT-EXTRACT",
+      "relation": "primary; production activation remains a separate subplan"
+    },
+    {
+      "stageId": "DPS-KI-ONTOLOGY-MAP",
+      "stage": "Stage 11",
+      "owner": "GKS / Tier 3",
+      "status": "done",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "DPS-KI-ONTOLOGY-MAP",
+      "relation": "primary; production activation remains a separate subplan"
+    },
+    {
+      "stageId": "DPS-KI-TEMPORAL-MAP",
+      "stage": "Stage 12",
+      "owner": "GKS / Tier 3",
+      "status": "done",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "DPS-KI-TEMPORAL-MAP",
+      "relation": "primary; production activation remains a separate subplan"
+    },
+    {
+      "stageId": "DPS-KI-GRAPH-BUILD",
+      "stage": "Stage 13",
+      "owner": "GKS decision + GenesisBlock worker execution",
+      "status": "done",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "DPS-KI-GRAPH-BUILD",
+      "relation": "primary; production activation remains a separate subplan"
+    },
+    {
+      "stageId": "DPS-KI-ENRICH",
+      "stage": "Stage 14",
+      "owner": "GKS / Tier 3",
+      "status": "done",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "DPS-KI-ENRICH",
+      "relation": "primary; production activation remains a separate subplan"
+    },
+    {
+      "stageId": "DPS-KI-EMBED",
+      "stage": "Stage 15",
+      "owner": "GenesisBlock worker / Tier 4",
+      "status": "done",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "DPS-KI-EMBED",
+      "relation": "primary; production activation remains a separate subplan"
+    },
+    {
+      "stageId": "DPS-KI-INDEX",
+      "stage": "Stage 16",
+      "owner": "GenesisBlock worker / Tier 4",
+      "status": "done",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "DPS-KI-INDEX",
+      "relation": "primary; production activation remains a separate subplan"
+    },
+    {
+      "stageId": "DPS-KI-QUALITY-GATE",
+      "stage": "Stage 17",
+      "owner": "GKS quality gate + GenesisBlock publication",
+      "status": "done",
+      "proofScope": "ISOLATED",
+      "implementationState": "ISOLATED_ACCEPTED",
+      "authority": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
+      "evidence": ".brain/reports/GENESISRAG17-ACCEPTANCE.md",
+      "duplicateKey": "DPS-KI-QUALITY-GATE",
+      "relation": "primary; production activation remains a separate subplan"
+    }
+  ]
+}
+```
+<!-- roadmap-sot:end -->
+
+The GenesisRAG17 rows deliberately show all 17 stages as isolated-accepted while the production activation subplan remains planned. The two SmartGift catalog rows share `KI-CATALOG-PUBLISH`; the adapter/fallback relation is the only reason that overlap is permitted. A future row that reuses this key without an explicit relation is a duplicate implementation claim.
 
 ## สิ่งที่ยังไม่ได้สร้างจริง (จาก gap analysis 2026-08-26 — เรียงตามน้ำหนัก)
 
