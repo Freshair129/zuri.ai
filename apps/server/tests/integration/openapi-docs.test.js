@@ -163,7 +163,6 @@ describe('OpenAPI document', () => {
       // FR-097 adds identity link tokens and channel identity queries: three paths,
       // three operations (POST /api/identity/link-tokens, POST /api/identity/link-tokens/redeem, GET /api/identity/channel-identities).
       // FR-094/FR-095/FR-096 adds MFA and step-up authentication: four paths, five operations.
-<<<<<<< HEAD
       // FR-191 adds the grant-withdrawal surface that had no route at all: two
       // paths, two operations (POST /api/platform/users/memberships/{id}/lifecycle,
       // which carries suspend, reinstate and revoke as one action parameter

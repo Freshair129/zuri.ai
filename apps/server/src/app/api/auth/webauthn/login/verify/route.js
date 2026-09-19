@@ -12,7 +12,6 @@ import {
   generateSessionToken,
   persistSession,
 } from '@/modules/identity/auth-service'
-import { handleApiError } from '@/app/api/_helpers'
 
 export const dynamic = 'force-dynamic'
 
@@ -66,6 +65,8 @@ export async function POST(request, options = {}) {
 
     return response
   } catch (err) {
-    return handleApiError(err)
+    const message = err?.message || 'Passkey authentication failed'
+    const status = err?.status || (/invalid|not found|expired|failed/i.test(message) ? 400 : 500)
+    return NextResponse.json({ error: message }, { status })
   }
 }

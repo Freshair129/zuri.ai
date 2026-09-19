@@ -84,10 +84,10 @@ function fakeAdapter(sourceInventory = inventory) {
 }
 
 describe('Phase B offline recovery runners', () => {
-  it('loads the committed pinned 179-table inventory', () => {
-    expect(inventory.applicationTables).toHaveLength(179)
-    expect(inventory.schemaSha256).toBe('ad87b4bc9244f1fdbd055d138bd02c9bd315498d57c51c22efdf56084cdd089f')
-    expect(inventory.targetSchemaSha256).toBe('ee7a379237b5e8cbebd7607deb1d28cc400009e54076c60c87fb2dddb3873198')
+  it('loads the committed pinned 180-table inventory', () => {
+    expect(inventory.applicationTables).toHaveLength(180)
+    expect(inventory.schemaSha256).toBe('23f8c04baf70ebc90fe71e3be0002c0b3f33a46de735e4f56eb3ec814ed91a58')
+    expect(inventory.targetSchemaSha256).toBe('8e86b994d15cc165d4d26ea28760f9c1c5f4aa93fa038febf9e636666092b362')
   })
 
   it('rejects a CRLF-mutated schema even with the approved inventory', async () => {
