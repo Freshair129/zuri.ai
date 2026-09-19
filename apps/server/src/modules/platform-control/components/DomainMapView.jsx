@@ -165,7 +165,7 @@ export default function DomainMapView({ domainMap }) {
     })
 
   return (
-    <div className="space-y-6" data-testid="domain-map-view">
+    <div className={`${styles.view} space-y-6`} data-testid="domain-map-view">
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5" aria-label="Domain readiness summary">
         <Kpi label="Domains" value={overall.domainCount} meta="chartered lanes" />
         <Kpi label="Features ready" value={`${overall.readyFeatureCount} / ${overall.featureCount}`} meta="FEAT bundles + unbundled FRs" tone={overall.readyFeatureCount === overall.featureCount ? 'good' : 'warn'} />

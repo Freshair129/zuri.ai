@@ -5,6 +5,19 @@
    Accent edges are inset box-shadows rather than a border so the layout does
    not shift by 4px between states. */
 
+.board {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.board :global(.card),
+.scopeGrid,
+.contentGrid,
+.scopeGrid > *,
+.contentGrid > * {
+  min-width: 0;
+}
+
 .phase {
   box-shadow: var(--shadow-raised), inset 5px 0 0 var(--accent-edge);
   border-color: var(--border-default);
@@ -12,6 +25,8 @@
 }
 .phaseHead {
   background: var(--bg-subtle);
+  min-height: 52px;
+  padding: 16px;
 }
 .phaseHead:hover {
   background: var(--card-subtle-bg);
@@ -19,6 +34,8 @@
 .phaseBody {
   background: var(--bg-sunken);
   border-top: 1px solid var(--border-default);
+  min-width: 0;
+  padding: 16px;
 }
 
 .sprint {
@@ -26,6 +43,7 @@
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
   padding: 12px;
+  min-width: 0;
   box-shadow: var(--shadow-raised);
 }
 .sprintHead {
@@ -42,6 +60,7 @@
   transition:
     background var(--motion-fast) var(--motion-ease),
     border-color var(--motion-fast) var(--motion-ease);
+  min-width: 0;
 }
 .task:hover {
   background: var(--bg-surface);
@@ -85,6 +104,8 @@
   cursor: pointer;
   color: inherit;
   font: inherit;
+  min-height: 52px;
+  padding: 12px;
 }
 
 /* Expanded task body: sunken canvas with bordered panels, dark labels, the three
@@ -96,6 +117,8 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .kvGrid {
   display: grid;
@@ -129,6 +152,7 @@
   line-height: 18px;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   word-break: break-all;
+  overflow-wrap: anywhere;
   color: var(--text-primary);
 }
 .link {
@@ -259,7 +283,10 @@
   border-radius: var(--radius-md);
   background: var(--bg-surface);
   padding: 8px;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
 }
 
 /* 3D tilt + cursor glow. --mx/--my are set by TiltCard on pointer move. */
@@ -313,6 +340,7 @@
   background: var(--bg-subtle);
   width: fit-content;
   max-width: 100%;
+  min-width: 0;
 }
 .tab {
   display: inline-flex;
@@ -327,6 +355,8 @@
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
+  min-height: 44px;
+  text-align: left;
 }
 .tab:hover {
   color: var(--text-primary);
@@ -335,6 +365,13 @@
   background: var(--bg-surface);
   color: var(--text-primary);
   box-shadow: var(--shadow-raised), inset 0 -2px 0 var(--action-primary);
+}
+.tab:focus-visible,
+.phaseHead:focus-visible,
+.taskHead:focus-visible,
+.deviceAction:focus-visible {
+  outline: 3px solid var(--action-primary);
+  outline-offset: 2px;
 }
 
 /* ---- FR-216 / FR-219 (ADR-086 D1, D6): delivery tints, metrics, badges -------
@@ -361,6 +398,12 @@
 .task[data-status='review'] { box-shadow: inset 4px 0 0 var(--tone-review); }
 .task[data-status='review'] .taskDot { background: var(--tone-review); }
 
+.metricFrame {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
 .metrics {
   display: flex;
   flex-direction: column;
@@ -369,12 +412,14 @@
   border-top: 1px solid var(--border-subtle);
   font-size: 12px;
   font-variant-numeric: tabular-nums;
+  min-width: 0;
 }
 .metricRow {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 4px 12px;
+  min-width: 0;
 }
 .metricLabel {
   min-width: 48px;
@@ -388,7 +433,7 @@
 .metricRow[data-measured='false'] .metricLabelMeasured { color: var(--tone-empty); }
 .metric { color: var(--text-secondary); white-space: nowrap; }
 .metric b { color: var(--text-primary); font-weight: 700; }
-.metricMuted { color: var(--text-tertiary); }
+.metricMuted { color: var(--text-tertiary); overflow-wrap: anywhere; }
 
 .legend {
   display: flex;
@@ -398,6 +443,7 @@
   margin-bottom: 10px;
   font-size: 11.5px;
   color: var(--text-secondary);
+  min-width: 0;
 }
 
 .taskMeta {
@@ -405,6 +451,7 @@
   flex-direction: column;
   gap: 6px;
   padding: 0 12px 10px 34px;
+  min-width: 0;
 }
 .badges {
   display: flex;
@@ -440,8 +487,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
-.subtaskChips { display: inline-flex; gap: 3px; }
+.subtaskChips { display: inline-flex; flex-wrap: wrap; gap: 3px; min-width: 0; }
 .subtaskChip {
   padding: 0 5px;
   border-radius: var(--radius-sm, 4px);
@@ -464,7 +512,7 @@
   white-space: nowrap;
 }
 .breakdownChip b { color: var(--text-primary); }
-.tableFrame { overflow-x: auto; }
+.tableFrame { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; }
 .devicesTable { width: 100%; min-width: 760px; border-collapse: collapse; font-size: 12.5px; }
 .devicesTable th { padding: 6px 8px; text-align: left; font-size: 11px; color: var(--text-tertiary); border-bottom: 1px solid var(--border-default); }
 .devicesTable td { padding: 7px 8px; border-bottom: 1px solid var(--border-subtle); vertical-align: middle; }
@@ -478,6 +526,173 @@
   font: inherit;
   font-size: 12px;
   cursor: pointer;
+  min-height: 44px;
 }
 .deviceAction:disabled { opacity: 0.5; cursor: default; }
 .deviceRevoke { color: var(--tone-fix); border-color: color-mix(in srgb, var(--tone-fix) 40%, var(--border-default)); }
+
+/* Canonical ROADMAP.md / roadmap-sot.js status contract. The three fields stay
+   separate so isolated proof cannot visually read as production activation. */
+.sotTags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+}
+.sotTagsCompact {
+  gap: 3px;
+}
+.sotTag {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  max-width: 100%;
+  padding: 2px 7px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  line-height: 16px;
+  overflow-wrap: anywhere;
+}
+.sotTagsCompact .sotTag {
+  padding: 1px 6px;
+  font-size: 9.5px;
+}
+.sotTagLabel {
+  flex: none;
+  color: var(--text-tertiary);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.sotTag b {
+  color: var(--text-primary);
+  font-weight: 700;
+}
+.sotTag[data-sot-kind='status'] {
+  background: var(--tone-review-bg);
+  border-color: color-mix(in srgb, var(--tone-review) 40%, var(--border-default));
+}
+.sotTag[data-sot-kind='proof'] {
+  background: var(--status-info-bg);
+  border-color: color-mix(in srgb, var(--status-info) 40%, var(--border-default));
+}
+.sotTag[data-sot-kind='implementation'] {
+  background: var(--tone-done-bg);
+  border-color: color-mix(in srgb, var(--tone-done) 40%, var(--border-default));
+}
+.sotSummary {
+  padding: 2px 7px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+}
+.truthGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 1fr);
+  gap: 24px;
+  min-width: 0;
+}
+.sotCard {
+  min-width: 0;
+  box-shadow: var(--shadow-raised);
+}
+.stageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px;
+  min-width: 0;
+}
+.stage {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--bg-sunken);
+  box-shadow: inset 3px 0 0 var(--tone-done);
+}
+.stageHead {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+.stageHead strong {
+  font-size: 12px;
+}
+.stageHead code {
+  color: var(--text-tertiary);
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+.stageOwner {
+  margin: 0;
+  color: var(--text-tertiary);
+  font-size: 10px;
+  line-height: 15px;
+  overflow-wrap: anywhere;
+}
+.activationCard {
+  box-shadow: var(--shadow-raised), inset 5px 0 0 var(--tone-review);
+}
+.sotSeparation {
+  margin: 0 0 12px;
+  padding: 9px 10px;
+  border: 1px solid color-mix(in srgb, var(--tone-review) 40%, var(--border-default));
+  border-radius: var(--radius-md);
+  background: var(--tone-review-bg);
+  color: var(--text-primary);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+@media (max-width: 640px) {
+  .tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+  .tab {
+    padding: 8px 10px;
+  }
+  .truthGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .stageGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+  .phaseHead {
+    padding: 12px;
+  }
+  .phaseBody {
+    padding: 10px;
+  }
+  .sprint {
+    padding: 10px;
+  }
+  .taskHead {
+    padding: 12px 10px;
+  }
+  .taskMeta {
+    padding: 0 10px 10px 28px;
+  }
+  .metrics {
+    min-width: 560px;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .sotTag {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+}

@@ -38,3 +38,69 @@ test('a signed-in non-operator reads the roadmap preview and still cannot open t
   const control = await page.goto('/control/roadmap')
   expect(control.status()).toBe(404)
 })
+
+test('the member roadmap remains operable at 390px and 430px without page overflow', async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  const signup = await page.request.post('/api/auth/signup', { data: {
+    email: `fr241-mobile-${randomUUID()}@example.test`, displayName: 'FR-241 mobile member', password: E2E_PASSWORD,
+  } })
+  expect(signup.status()).toBe(201)
+
+  await page.goto('/roadmap')
+  await expect(page.getByTestId('roadmap-evidence')).toBeVisible()
+  await expect(page.getByTestId('production-activation-gate')).toContainText('NOT STARTED')
+  await expect(page.locator('[data-testid^="genesisrag17-stage-"]')).toHaveCount(17)
+  await expect(page.getByRole('tab', { name: 'Agent devices' })).toHaveCount(0)
+
+  const pageOverflow = () => page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)
+  expect(await pageOverflow()).toBeLessThanOrEqual(1)
+
+  const phase = page.getByRole('button', { name: /PHASE-ZAI-01/ }).first()
+  await expect(phase).toHaveAttribute('aria-expanded', 'true')
+  await expect(phase).toHaveAttribute('aria-controls', 'phase-detail-PHASE-ZAI-01')
+  await phase.focus()
+  await expect(phase).toBeFocused()
+  const phaseBox = await phase.boundingBox()
+  expect(phaseBox).not.toBeNull()
+  expect(phaseBox.height).toBeGreaterThanOrEqual(44)
+
+  await phase.click()
+  await expect(phase).toHaveAttribute('aria-expanded', 'false')
+  await phase.click()
+  await expect(phase).toHaveAttribute('aria-expanded', 'true')
+
+  const task = page.locator('#task-TASK-ZAI-001').getByRole('button').first()
+  await expect(task).toHaveAttribute('aria-expanded', 'false')
+  await expect(task).toHaveAttribute('aria-controls', 'task-detail-TASK-ZAI-001')
+  await task.focus()
+  await expect(task).toBeFocused()
+  const taskBox = await task.boundingBox()
+  expect(taskBox).not.toBeNull()
+  expect(taskBox.height).toBeGreaterThanOrEqual(44)
+  await task.click()
+  await expect(task).toHaveAttribute('aria-expanded', 'true')
+
+  const chart = await page.getByTestId('roadmap-history-chart').evaluate((element) => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth,
+  }))
+  expect(chart.scrollWidth).toBeGreaterThan(chart.clientWidth)
+  const metrics = await page.getByTestId('phase-metrics-frame-PHASE-ZAI-01').evaluate((element) => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth,
+  }))
+  expect(metrics.scrollWidth).toBeGreaterThan(metrics.clientWidth)
+  expect(await pageOverflow()).toBeLessThanOrEqual(1)
+
+  await page.getByRole('tab', { name: 'Domain map & inventory' }).click()
+  await expect(page).toHaveURL(/view=domains/)
+  await expect(page.getByTestId('domain-map-view')).toBeVisible()
+  await expect(page.getByTestId('production-activation-gate')).toHaveCount(0)
+  expect(await pageOverflow()).toBeLessThanOrEqual(1)
+
+  await page.setViewportSize({ width: 430, height: 932 })
+  await expect(page.getByTestId('domain-map-view')).toBeVisible()
+  expect(await pageOverflow()).toBeLessThanOrEqual(1)
+
+  await testInfo.attach('roadmap-member-mobile', { body: await page.screenshot({ fullPage: false }), contentType: 'image/png' })
+})

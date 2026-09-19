@@ -3,6 +3,8 @@
 // start/end (ISO, inclusive) are the document's own phase and sprint dates; FR-216 reads them for the plan window.
 // @tested tests/unit/platform-control-route-contract.test.js
 
+import { ROADMAP_SOT, ROADMAP_TASK_STATUS } from './roadmap-sot'
+
 // Re-projected 2026-09-13 from the source document's own frontmatter and
 // tables (v0.3.0 → v0.4.0, CR-019): the metadata below states what the
 // DOCUMENT says about itself, never what today's git happens to be —
@@ -97,7 +99,7 @@ export const PROGRAMME_GATES = [
   ['GATE-ZAI-09', 'ERP modules run on production for Business one with every migration applied and only declared agent tools', 'unmet'],
 ]
 
-export const PROGRAMME_PHASES = [
+const PROGRAMME_PHASE_DEFINITIONS = [
   { id: 'PHASE-ZAI-01', start: '2026-08-24', end: '2026-09-20', weeks: 'W1–4', dates: '24 Aug – 20 Sep 2026', status: 'in-progress', progress: 88, goal: 'Consolidate the inherited foundation into a production-grade base; land the ERP business modules for Business one; open the SmartGift cost and quote engine on the owner\'s instruction; bind the LINE OA platform plan to lanes before its work starts', sprints: [
     { id: 'SPR-ZAI-01', start: '2026-08-24', end: '2026-09-06', weeks: 'W1–2', dates: '24 Aug – 6 Sep', status: 'in-progress', progress: 93, goal: 'Close identity, session and authorization to production standard; Inventory, Sales, Commerce, Procurement, Assets and LINE OA Studio lanes land' },
     { id: 'SPR-ZAI-02', start: '2026-09-07', end: '2026-09-20', weeks: 'W3–4', dates: '7 – 20 Sep', status: 'in-progress', progress: 87, goal: 'Settle tenancy, pipeline monitor and memory contract; seventeen-stage knowledge intake and Tier 1 accounted as built; SmartGift SCM, Marketing, billing/POS, catalog convergence and identity lifecycle land; cost and quote engine decision record and factory cost intake open; data pipeline registry and node-edge map under a Knowledge (GKS) slot; delivery telemetry on the programme board with measured time and tokens and evidence badges on every task card; the Zuri harness usage plugin with browser-approved device pairing; the plugin specification and agent usage detail; the LINE OA platform plan registered with its lanes; a 30-day member view of the roadmap' },
@@ -124,7 +126,18 @@ export const PROGRAMME_PHASES = [
   ] },
 ]
 
-export const PROGRAMME_TASKS = [
+const programmeState = (group, id) => group?.[id] || {}
+
+// The 24-week file supplies goals and dates; ROADMAP.md supplies the live
+// status/progress overlay. Keeping the definitions here preserves the board's
+// existing shape without allowing a second completion claim.
+export const PROGRAMME_PHASES = PROGRAMME_PHASE_DEFINITIONS.map((phase) => ({
+  ...phase,
+  ...programmeState(ROADMAP_SOT.programme.phases, phase.id),
+  sprints: phase.sprints.map((sprint) => ({ ...sprint, ...programmeState(ROADMAP_SOT.programme.sprints, sprint.id) })),
+}))
+
+const PROGRAMME_TASK_DEFINITIONS = [
   ['TASK-ZAI-001', 'SPR-ZAI-01', 'Close the production request-session and credential boundary', 'NFR', 'C-3', 'H3', 'review'],
   ['TASK-ZAI-002', 'SPR-ZAI-01', 'Declare the five built-but-undeclared features into the registry', 'NFR', 'C-1', 'H1', 'done'],
   ['TASK-ZAI-003', 'SPR-ZAI-01', 'Profile-first onboarding and Waiting Room, FR-066', 'FR', 'C-2', 'H2', 'done'],
@@ -244,3 +257,14 @@ export const PROGRAMME_TASKS = [
   ['TASK-ZAI-117', 'SPR-ZAI-02', 'Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action', 'FR', 'C-2', 'H2', 'done'],
   ['TASK-ZAI-118', 'SPR-ZAI-02', 'Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup', 'FR', 'C-3', 'H3', 'review'],
 ]
+
+// Task completion is always read from the canonical ROADMAP.md ledger.
+export const PROGRAMME_TASKS = PROGRAMME_TASK_DEFINITIONS.map(([id, sprint, title, requirementType, complexity, accessScope, projectedStatus]) => [
+  id,
+  sprint,
+  title,
+  requirementType,
+  complexity,
+  accessScope,
+  ROADMAP_TASK_STATUS[id] ?? projectedStatus,
+])
