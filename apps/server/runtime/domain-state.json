@@ -778,7 +778,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-243",
@@ -3409,7 +3409,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-236",
@@ -3868,7 +3868,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-238",
@@ -10904,7 +10904,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-236",
@@ -10969,6 +10969,7 @@
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
+        "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
