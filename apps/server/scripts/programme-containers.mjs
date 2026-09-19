@@ -82,6 +82,56 @@ export function parseRoadmapSot(markdown) {
   }
 }
 
+export function buildRoadmapDag(ledger) {
+  const rows = [...ledger.values()]
+  const ids = new Set(rows.map((row) => row.id))
+  const children = new Map(rows.map((row) => [row.id, []]))
+  const indegree = new Map(rows.map((row) => [row.id, 0]))
+  const missingDependencies = new Set()
+  let edgeCount = 0
+
+  for (const row of rows) {
+    const deps = String(row.dependsOn || '')
+      .split(';')
+      .map((value) => value.trim())
+      .filter((value) => value && value !== '—')
+    for (const dep of deps) {
+      if (!ids.has(dep)) {
+        missingDependencies.add(dep)
+        continue
+      }
+      children.get(dep).push(row.id)
+      indegree.set(row.id, indegree.get(row.id) + 1)
+      edgeCount += 1
+    }
+  }
+
+  let frontier = rows.filter((row) => indegree.get(row.id) === 0).map((row) => row.id).sort()
+  const waves = []
+  while (frontier.length) {
+    waves.push({ wave: waves.length + 1, taskIds: frontier })
+    const next = []
+    for (const id of frontier) {
+      for (const child of children.get(id)) {
+        indegree.set(child, indegree.get(child) - 1)
+        if (indegree.get(child) === 0) next.push(child)
+      }
+    }
+    frontier = next.sort()
+  }
+
+  return {
+    algorithm: 'kahn-topological-layers',
+    nodeCount: rows.length,
+    edgeCount,
+    waveCount: waves.length,
+    missingDependencies: [...missingDependencies].sort(),
+    cycles: rows.filter((row) => indegree.get(row.id) > 0).map((row) => row.id).sort(),
+    parallelPolicy: 'same-wave tasks have no declared dependency path; run them in parallel only after lane, ownership and shared-file conflict checks pass',
+    waves,
+  }
+}
+
 export function validateRoadmapSot(sot, ledger) {
   if (sot?.schemaVersion !== 1) throw new ProgrammeDocumentError('roadmap-sot schemaVersion must be 1')
   if (!Array.isArray(sot.statusVocabulary) || !Array.isArray(sot.proofScopeVocabulary) || !Array.isArray(sot.implementationStateVocabulary)) {
@@ -91,6 +141,13 @@ export function validateRoadmapSot(sot, ledger) {
     if (!sot.statusVocabulary.includes(row.status)) throw new ProgrammeDocumentError(`${row.id} status is outside roadmap-sot vocabulary`)
     if (!sot.proofScopeVocabulary.includes(row.proofScope)) throw new ProgrammeDocumentError(`${row.id} proof scope is outside roadmap-sot vocabulary`)
     if (!sot.implementationStateVocabulary.includes(row.implementationState)) throw new ProgrammeDocumentError(`${row.id} implementation state is outside roadmap-sot vocabulary`)
+  }
+  const expectedDag = buildRoadmapDag(ledger)
+  if (JSON.stringify(sot.dag) !== JSON.stringify(expectedDag)) {
+    throw new ProgrammeDocumentError('roadmap-sot DAG is stale or does not match canonical task dependencies')
+  }
+  if (expectedDag.missingDependencies.length || expectedDag.cycles.length) {
+    throw new ProgrammeDocumentError(`roadmap-sot DAG is not runnable: missing=${expectedDag.missingDependencies.join(',') || 'none'} cycles=${expectedDag.cycles.join(',') || 'none'}`)
   }
   const phaseIds = ['PHASE-ZAI-01', 'PHASE-ZAI-02', 'PHASE-ZAI-03', 'PHASE-ZAI-04', 'PHASE-ZAI-05', 'PHASE-ZAI-06']
   const sprintIds = Array.from({ length: 12 }, (_, index) => `SPR-ZAI-${String(index + 1).padStart(2, '0')}`)

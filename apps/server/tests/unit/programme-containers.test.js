@@ -6,6 +6,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   ProgrammeDocumentError,
+  buildRoadmapDag,
   buildContainers,
   extractDeliveredIds,
   generateProgrammeModules,
@@ -162,6 +163,12 @@ describe('FR-105 / FR-219 committed modules', () => {
       implementationState: 'NOT_STARTED',
       duplicateKey: 'PLATFORM-ROADMAP-UI',
     })
+    const dag = buildRoadmapDag(new Map(ROADMAP_TASK_LEDGER.map((row) => [row.id, row])))
+    expect(dag).toEqual(ROADMAP_SOT.dag)
+    expect(dag).toMatchObject({ nodeCount: 118, edgeCount: 132, waveCount: 21, missingDependencies: [], cycles: [] })
+    expect(dag.waves[0].taskIds).toContain('TASK-ZAI-001')
+    expect(dag.waves[0].taskIds).toContain('TASK-ZAI-116')
+    expect(dag.waves.at(-1).taskIds).toEqual(['TASK-ZAI-115'])
     expect(roadmap.drift).toEqual([])
   })
 })
