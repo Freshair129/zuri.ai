@@ -6068,7 +6068,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-252",
@@ -16572,7 +16572,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 7
+          "testCount": 8
         }
       ],
       "evidence": [
@@ -16586,6 +16586,7 @@
         "apps/server/tests/e2e/fr250-navigation.spec.js",
         "apps/server/tests/e2e/project-domain-view.spec.js",
         "apps/server/tests/e2e/project-feature-view.spec.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/project-domain-view.test.js",
         "apps/server/tests/unit/fr250-navigation.test.js",
         "apps/server/tests/unit/project-domain-read-model.test.js",
