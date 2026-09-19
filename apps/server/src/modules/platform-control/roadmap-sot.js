@@ -166,6 +166,33 @@ export const ROADMAP_SOT = {
       "evidence": "legacy direct writer; production status requires a separate live check",
       "duplicateKey": "KI-CATALOG-PUBLISH",
       "relation": "legacy/fallback; never a second canonical writer"
+    },
+    {
+      "id": "SUBPLAN-ROADMAP-MOBILE",
+      "parent": "FR-105 / FR-241 / ADR-092",
+      "status": "planned",
+      "proofScope": "SPEC",
+      "implementationState": "NOT_STARTED",
+      "authority": "ROADMAP.md#canonical-delivery-ledger",
+      "evidence": "mobile design approved for separate-branch implementation; no mobile viewport evidence yet",
+      "duplicateKey": "PLATFORM-ROADMAP-UI",
+      "relation": "responsive adaptation; one board and one SOT, not a second roadmap",
+      "scope": [
+        "Keep /roadmap member and /control/roadmap operator routes and their existing server-side privacy boundary",
+        "Use the same ROADMAP.md and roadmap-sot.js data; do not create a mobile-only status source",
+        "Make programme/domain tabs, phase and task accordions, SOT/proof chips, GenesisRAG17 coverage, deliverables and gates usable at 360–430 CSS px",
+        "Keep status, proof scope and implementation state visually distinct; show isolated acceptance separately from production activation",
+        "Add mobile E2E evidence at 390x844 for no page overflow, touch hit targets, accordion state, route access and member/operator data boundaries"
+      ],
+      "acceptance": [
+        "The member route is readable and operable at 390x844 and 430x932 without document-level horizontal overflow",
+        "Phase/task controls have touch-sized hit areas and preserve keyboard focus and aria-expanded semantics",
+        "Charts and dense metrics scroll only inside their bounded frame; the page itself does not scroll horizontally",
+        "Member view keeps Domain map but never exposes Agent devices, person/device breakdowns, tool names or model names",
+        "The mobile view exposes the 17-stage GenesisRAG17 coverage and the production-activation planned gate without upgrading isolated proof",
+        "Focused mobile E2E, targeted unit tests, build and governance pass"
+      ],
+      "handoff": "Implementation is delegated to a separate agent worktree after this SOT plan is committed; branch and commit evidence are recorded only after delivery."
     }
   ],
   "coverage": [

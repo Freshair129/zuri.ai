@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.112.0b"
+version: "2.113.0b"
 updated: "2026-09-19"
 owner: "Owen"
 source_of_truth: true
@@ -19,6 +19,7 @@ live_document: true
 
 # ROADMAP: zuri-ai — Live Delivery State
 
+> Revision 2.113.0b (2026-09-19): add `SUBPLAN-ROADMAP-MOBILE` to the canonical SOT. The mobile work remains a responsive adaptation of the existing member/operator board, reads the same roadmap SOT, and is not a new programme task until its separate-branch implementation passes mobile evidence; this prevents a second roadmap source and keeps the 118-task programme ledger stable.
 > Revision 2.112.0b (2026-09-19): consolidated delivery state into the canonical ledger below. `ROADMAP.md` owns task, phase/sprint progress, proof scope, implementation state and duplicate-claim relations; the 24-week document remains a derived compatibility projection. Added the GenesisRAG17 stage-by-stage coverage so an isolated stage delivery cannot be mistaken for production activation.
 > Revision 2.111.0b (2026-09-17): TASK-ZAI-047 / FR-254 Knowledge Console implemented in an isolated worktree: source versions, complete run evidence, corpus generations and citation-bound artifacts. Local Server tests, Console browser fixtures, native admission-to-citation acceptance and build passed; [phase report](../../.brain/reports/2026-09-17-task-zai-047-knowledge-console.md) records the full regression status. Review; not deployed.
 > Revision 2.110.2b (2026-09-17): W1/W2 local and independent gates passed at 052821a7: 6,066 server tests pass with 32 existing skips, 32 browser cases pass without retries, build/governance and isolated PostgreSQL/CLI proofs pass. W3 read API and UI run in parallel. Root composes main 892f23f3 with Pricing and LINE; composed validation and production release remain open.
@@ -937,6 +938,33 @@ Task names and dependencies below are canonicalized from the programme backlog; 
       "evidence": "legacy direct writer; production status requires a separate live check",
       "duplicateKey": "KI-CATALOG-PUBLISH",
       "relation": "legacy/fallback; never a second canonical writer"
+    },
+    {
+      "id": "SUBPLAN-ROADMAP-MOBILE",
+      "parent": "FR-105 / FR-241 / ADR-092",
+      "status": "planned",
+      "proofScope": "SPEC",
+      "implementationState": "NOT_STARTED",
+      "authority": "ROADMAP.md#canonical-delivery-ledger",
+      "evidence": "mobile design approved for separate-branch implementation; no mobile viewport evidence yet",
+      "duplicateKey": "PLATFORM-ROADMAP-UI",
+      "relation": "responsive adaptation; one board and one SOT, not a second roadmap",
+      "scope": [
+        "Keep /roadmap member and /control/roadmap operator routes and their existing server-side privacy boundary",
+        "Use the same ROADMAP.md and roadmap-sot.js data; do not create a mobile-only status source",
+        "Make programme/domain tabs, phase and task accordions, SOT/proof chips, GenesisRAG17 coverage, deliverables and gates usable at 360–430 CSS px",
+        "Keep status, proof scope and implementation state visually distinct; show isolated acceptance separately from production activation",
+        "Add mobile E2E evidence at 390x844 for no page overflow, touch hit targets, accordion state, route access and member/operator data boundaries"
+      ],
+      "acceptance": [
+        "The member route is readable and operable at 390x844 and 430x932 without document-level horizontal overflow",
+        "Phase/task controls have touch-sized hit areas and preserve keyboard focus and aria-expanded semantics",
+        "Charts and dense metrics scroll only inside their bounded frame; the page itself does not scroll horizontally",
+        "Member view keeps Domain map but never exposes Agent devices, person/device breakdowns, tool names or model names",
+        "The mobile view exposes the 17-stage GenesisRAG17 coverage and the production-activation planned gate without upgrading isolated proof",
+        "Focused mobile E2E, targeted unit tests, build and governance pass"
+      ],
+      "handoff": "Implementation is delegated to a separate agent worktree after this SOT plan is committed; branch and commit evidence are recorded only after delivery."
     }
   ],
   "coverage": [
@@ -1149,7 +1177,7 @@ Task names and dependencies below are canonicalized from the programme backlog; 
 ```
 <!-- roadmap-sot:end -->
 
-The GenesisRAG17 rows deliberately show all 17 stages as isolated-accepted while the production activation subplan remains planned. The two SmartGift catalog rows share `KI-CATALOG-PUBLISH`; the adapter/fallback relation is the only reason that overlap is permitted. A future row that reuses this key without an explicit relation is a duplicate implementation claim.
+The GenesisRAG17 rows deliberately show all 17 stages as isolated-accepted while the production activation subplan remains planned. The two SmartGift catalog rows share `KI-CATALOG-PUBLISH`; the adapter/fallback relation is the only reason that overlap is permitted. `SUBPLAN-ROADMAP-MOBILE` is a responsive UI adaptation of the existing board and must continue to read this same SOT; it is not permission to create a second mobile roadmap or a second status source. A future row that reuses a capability key without an explicit relation is a duplicate implementation claim.
 
 ## สิ่งที่ยังไม่ได้สร้างจริง (จาก gap analysis 2026-08-26 — เรียงตามน้ำหนัก)
 

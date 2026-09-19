@@ -156,6 +156,12 @@ describe('FR-105 / FR-219 committed modules', () => {
     expect(ROADMAP_SOT.coverage).toHaveLength(17)
     expect(ROADMAP_SOT.subplans.find((plan) => plan.id === 'SUBPLAN-KI-PRODUCTION-ACTIVATION')).toMatchObject({ status: 'planned', proofScope: 'SPEC' })
     expect(ROADMAP_SOT.subplans.filter((plan) => plan.duplicateKey === 'KI-CATALOG-PUBLISH')).toHaveLength(2)
+    expect(ROADMAP_SOT.subplans.find((plan) => plan.id === 'SUBPLAN-ROADMAP-MOBILE')).toMatchObject({
+      status: 'planned',
+      proofScope: 'SPEC',
+      implementationState: 'NOT_STARTED',
+      duplicateKey: 'PLATFORM-ROADMAP-UI',
+    })
     expect(roadmap.drift).toEqual([])
   })
 })
