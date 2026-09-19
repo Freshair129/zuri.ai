@@ -387,6 +387,11 @@
     "FR-257",
     "FR-258",
     "FR-259",
+    "FR-260",
+    "FR-261",
+    "FR-262",
+    "FR-263",
+    "FR-264",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -596,6 +601,7 @@
     "FEAT-041",
     "FEAT-042",
     "FEAT-043",
+    "FEAT-044",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -4819,6 +4825,71 @@
         }
       ]
     },
+    "FR-260": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "96675609d9c9496c145648f2a382e2c536fd5488fab9101dde7d3db94db7fb74",
+      "history": [
+        {
+          "anchor": "mission control operator projection",
+          "since": "2026-09-19",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-261": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "420a73a4045017cfda99d7a82e7c5089f300bff6b04a77939e50cbd13c26872f",
+      "history": [
+        {
+          "anchor": "programme orchestration run ledger observation contract",
+          "since": "2026-09-19",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-262": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "88ee04e1f9f8ee8e389e05363850208ca5e11eaa9a3810e0d4334692c8f5f28d",
+      "history": [
+        {
+          "anchor": "dag scheduling and merge safety projection",
+          "since": "2026-09-19",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-263": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "8ea0c2c6b53000773fb425b3f8675fd022d83cb9b9c482ba2d569cbd0616e55d",
+      "history": [
+        {
+          "anchor": "member roadmap redaction",
+          "since": "2026-09-19",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-264": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "95395627af276b415dad791748374794121f18e5489933ea30bb4e672ea2a4d8",
+      "history": [
+        {
+          "anchor": "responsive mission control evidence view",
+          "since": "2026-09-19",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -7597,6 +7668,19 @@
         {
           "anchor": "server owned self hosted inference pool",
           "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-044": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "bce14ed4a821e8e77ebed6172b72d036351dff51d626b63afee7717be69be789",
+      "history": [
+        {
+          "anchor": "mission control dag orchestration observability",
+          "since": "2026-09-19",
           "reason": "declared"
         }
       ]

@@ -36,11 +36,11 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 156,
+    "featureCount": 157,
     "readyFeatureCount": 118,
-    "requirementCount": 259,
+    "requirementCount": 264,
     "verifiedRequirementCount": 241,
-    "progressPercent": 93.8,
+    "progressPercent": 92,
     "gapCount": 41,
     "gaps": [
       {
@@ -4640,15 +4640,16 @@
         "FEAT-034",
         "FEAT-039",
         "FEAT-042",
+        "FEAT-044",
         "FR-105",
         "FR-142",
         "FR-145",
         "FR-211",
         "FR-241"
       ],
-      "featureCount": 8,
+      "featureCount": 9,
       "readyFeatureCount": 7,
-      "progressPercent": 100
+      "progressPercent": 73.7
     },
     "procurement": {
       "status": "partial",
@@ -11191,6 +11192,76 @@
         {
           "id": "FR-259",
           "title": "Self-hosted inference policy and cutover",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "id": "FEAT-044",
+      "title": "Mission Control DAG orchestration observability — an installation-operator-only, read-only projection that joins the canonical roadmap DAG and its 21 waves with provenance-bound Programme Orchestration Run Ledger observations for workers, threads, branches, worktrees, commits, checks and evidence; same-wave work is only candidate-parallel until dependency, owner, lane, shared-file, revision and capability gates pass; missing or stale records stay UNKNOWN/NOT_RUN; /roadmap remains server-redacted and mobile uses the same SOT (ADR-048, ADR-086, ADR-092)",
+      "kind": "bundle",
+      "registryStatus": "building",
+      "requirementIds": [
+        "FR-260",
+        "FR-261",
+        "FR-262",
+        "FR-263",
+        "FR-264"
+      ],
+      "primaryDomain": "platform-control",
+      "contributorDomains": [],
+      "useCase": "installation operator opens Mission Control and sees the canonical roadmap DAG by wave together with only provenance-bound worker, thread, branch, worktree, commit, check and evidence observations; same-wave work is marked candidate-parallel until merge-safety gates pass, while stale or absent records remain visibly unknown and members never receive operator orchestration detail",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-044 registry status is building",
+        "FR-260 is planned",
+        "FR-261 is planned",
+        "FR-262 is planned",
+        "FR-263 is planned",
+        "FR-264 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-260",
+          "title": "Mission Control operator projection",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-261",
+          "title": "Programme Orchestration Run Ledger observation contract",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-262",
+          "title": "DAG scheduling and merge-safety projection",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-263",
+          "title": "Member roadmap redaction",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-264",
+          "title": "Responsive Mission Control evidence view",
           "status": "planned",
           "progressPercent": 0,
           "codeCount": 0,
