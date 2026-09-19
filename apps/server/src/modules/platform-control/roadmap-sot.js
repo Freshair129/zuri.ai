@@ -1666,9 +1666,9 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-094",
     "sprint": "SPR-ZAI-05",
     "title": "Grounding isolated acceptance — a real LINE job answered from a published generation in the four-process harness with citations on the job trace, zero cross-tenant leakage, the deterministic reply with the worker stopped, and MSP spawn cost measured against the budget",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "status": "done",
+    "proofScope": "LOCAL",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-093",
     "authority": "ROADMAP.md",
     "evidence": "ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md"

@@ -1,0 +1,15 @@
+{
+  "task": "TASK-ZAI-094",
+  "executionConcurrency": 4,
+  "tickElapsedMs": 504,
+  "groundingHopElapsedMs": [
+    290,
+    300,
+    292,
+    300
+  ],
+  "configuredBudgetMs": 2500,
+  "budgetHolds": true,
+  "measurement": "EVIDENCE_SELECTED.payload.budgetMs covers fresh MSP spawn, initialize, tools/call and worker loopback for each grounding hop; tickElapsedMs is the four-wide Server worker tick wall time.",
+  "transportDecision": "budget-holds"
+}
