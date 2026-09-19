@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.113.0b"
+version: "2.114.0b"
 updated: "2026-09-19"
 owner: "Owen"
 source_of_truth: true
@@ -19,6 +19,7 @@ live_document: true
 
 # ROADMAP: zuri-ai — Live Delivery State
 
+> Revision 2.114.0b (2026-09-19): derive and pin the task DAG from the canonical `depends_on` cells: 118 nodes, 132 edges, 21 topological waves, no missing dependency and no cycle. Same-wave tasks are candidate-parallel only; lane, ownership and shared-file conflict checks remain required before execution.
 > Revision 2.113.0b (2026-09-19): add `SUBPLAN-ROADMAP-MOBILE` to the canonical SOT. The mobile work remains a responsive adaptation of the existing member/operator board, reads the same roadmap SOT, and is not a new programme task until its separate-branch implementation passes mobile evidence; this prevents a second roadmap source and keeps the 118-task programme ledger stable.
 > Revision 2.112.0b (2026-09-19): consolidated delivery state into the canonical ledger below. `ROADMAP.md` owns task, phase/sprint progress, proof scope, implementation state and duplicate-claim relations; the 24-week document remains a derived compatibility projection. Added the GenesisRAG17 stage-by-stage coverage so an isolated stage delivery cannot be mistaken for production activation.
 > Revision 2.111.0b (2026-09-17): TASK-ZAI-047 / FR-254 Knowledge Console implemented in an isolated worktree: source versions, complete run evidence, corpus generations and citation-bound artifacts. Local Server tests, Console browser fixtures, native admission-to-citation acceptance and build passed; [phase report](../../.brain/reports/2026-09-17-task-zai-047-knowledge-console.md) records the full regression status. Review; not deployed.
@@ -883,6 +884,38 @@ Task names and dependencies below are canonicalized from the programme backlog; 
       }
     }
   },
+  "dag": {
+    "algorithm": "kahn-topological-layers",
+    "nodeCount": 118,
+    "edgeCount": 132,
+    "waveCount": 21,
+    "missingDependencies": [],
+    "cycles": [],
+    "parallelPolicy": "same-wave tasks have no declared dependency path; run them in parallel only after lane, ownership and shared-file conflict checks pass",
+    "waves": [
+      { "wave": 1, "taskIds": ["TASK-ZAI-001", "TASK-ZAI-002", "TASK-ZAI-005", "TASK-ZAI-006", "TASK-ZAI-031", "TASK-ZAI-032", "TASK-ZAI-035", "TASK-ZAI-036", "TASK-ZAI-040", "TASK-ZAI-060", "TASK-ZAI-064", "TASK-ZAI-076", "TASK-ZAI-116"] },
+      { "wave": 2, "taskIds": ["TASK-ZAI-003", "TASK-ZAI-007", "TASK-ZAI-017", "TASK-ZAI-033", "TASK-ZAI-034", "TASK-ZAI-037", "TASK-ZAI-041", "TASK-ZAI-045", "TASK-ZAI-061", "TASK-ZAI-065", "TASK-ZAI-066", "TASK-ZAI-068", "TASK-ZAI-077", "TASK-ZAI-117", "TASK-ZAI-118"] },
+      { "wave": 3, "taskIds": ["TASK-ZAI-004", "TASK-ZAI-008", "TASK-ZAI-009", "TASK-ZAI-010", "TASK-ZAI-038", "TASK-ZAI-046", "TASK-ZAI-047", "TASK-ZAI-049", "TASK-ZAI-062", "TASK-ZAI-067"] },
+      { "wave": 4, "taskIds": ["TASK-ZAI-011", "TASK-ZAI-012", "TASK-ZAI-013", "TASK-ZAI-018", "TASK-ZAI-024", "TASK-ZAI-039", "TASK-ZAI-048", "TASK-ZAI-050", "TASK-ZAI-052", "TASK-ZAI-063", "TASK-ZAI-069"] },
+      { "wave": 5, "taskIds": ["TASK-ZAI-014", "TASK-ZAI-019", "TASK-ZAI-025", "TASK-ZAI-026", "TASK-ZAI-028", "TASK-ZAI-043", "TASK-ZAI-051", "TASK-ZAI-053", "TASK-ZAI-055", "TASK-ZAI-070"] },
+      { "wave": 6, "taskIds": ["TASK-ZAI-015", "TASK-ZAI-016", "TASK-ZAI-020", "TASK-ZAI-021", "TASK-ZAI-027", "TASK-ZAI-029", "TASK-ZAI-042", "TASK-ZAI-044", "TASK-ZAI-054", "TASK-ZAI-071"] },
+      { "wave": 7, "taskIds": ["TASK-ZAI-022", "TASK-ZAI-030", "TASK-ZAI-056", "TASK-ZAI-059", "TASK-ZAI-072"] },
+      { "wave": 8, "taskIds": ["TASK-ZAI-023", "TASK-ZAI-057", "TASK-ZAI-073", "TASK-ZAI-074"] },
+      { "wave": 9, "taskIds": ["TASK-ZAI-058", "TASK-ZAI-075"] },
+      { "wave": 10, "taskIds": ["TASK-ZAI-078", "TASK-ZAI-088", "TASK-ZAI-104"] },
+      { "wave": 11, "taskIds": ["TASK-ZAI-079", "TASK-ZAI-080", "TASK-ZAI-089", "TASK-ZAI-090", "TASK-ZAI-092"] },
+      { "wave": 12, "taskIds": ["TASK-ZAI-081", "TASK-ZAI-091", "TASK-ZAI-093", "TASK-ZAI-100"] },
+      { "wave": 13, "taskIds": ["TASK-ZAI-082", "TASK-ZAI-094", "TASK-ZAI-096", "TASK-ZAI-097", "TASK-ZAI-105"] },
+      { "wave": 14, "taskIds": ["TASK-ZAI-083", "TASK-ZAI-095", "TASK-ZAI-098", "TASK-ZAI-099", "TASK-ZAI-101", "TASK-ZAI-106", "TASK-ZAI-109"] },
+      { "wave": 15, "taskIds": ["TASK-ZAI-084", "TASK-ZAI-102", "TASK-ZAI-107", "TASK-ZAI-110"] },
+      { "wave": 16, "taskIds": ["TASK-ZAI-085", "TASK-ZAI-108"] },
+      { "wave": 17, "taskIds": ["TASK-ZAI-086", "TASK-ZAI-103", "TASK-ZAI-111"] },
+      { "wave": 18, "taskIds": ["TASK-ZAI-087", "TASK-ZAI-112"] },
+      { "wave": 19, "taskIds": ["TASK-ZAI-113"] },
+      { "wave": 20, "taskIds": ["TASK-ZAI-114"] },
+      { "wave": 21, "taskIds": ["TASK-ZAI-115"] }
+    ]
+  },
   "subplans": [
     {
       "id": "SUBPLAN-KI-17STAGE",
@@ -1177,7 +1210,7 @@ Task names and dependencies below are canonicalized from the programme backlog; 
 ```
 <!-- roadmap-sot:end -->
 
-The GenesisRAG17 rows deliberately show all 17 stages as isolated-accepted while the production activation subplan remains planned. The two SmartGift catalog rows share `KI-CATALOG-PUBLISH`; the adapter/fallback relation is the only reason that overlap is permitted. `SUBPLAN-ROADMAP-MOBILE` is a responsive UI adaptation of the existing board and must continue to read this same SOT; it is not permission to create a second mobile roadmap or a second status source. A future row that reuses a capability key without an explicit relation is a duplicate implementation claim.
+The DAG block is derived from the canonical task ledger's `depends_on` cells. It reports 118 nodes, 132 dependency edges and 21 topological waves; a same-wave task has no declared dependency path to another same-wave task, but that is not proof of merge safety. Run lane, ownership, duplicate-key and shared-file conflict checks before dispatching a wave in parallel. The GenesisRAG17 rows deliberately show all 17 stages as isolated-accepted while the production activation subplan remains planned. The two SmartGift catalog rows share `KI-CATALOG-PUBLISH`; the adapter/fallback relation is the only reason that overlap is permitted. `SUBPLAN-ROADMAP-MOBILE` is a responsive UI adaptation of the existing board and must continue to read this same SOT; it is not permission to create a second mobile roadmap or a second status source. A future row that reuses a capability key without an explicit relation is a duplicate implementation claim.
 
 ## สิ่งที่ยังไม่ได้สร้างจริง (จาก gap analysis 2026-08-26 — เรียงตามน้ำหนัก)
 
