@@ -16,6 +16,7 @@ import { loadBusiness } from './inventory-authority'
 const PRODUCT_SELECT = {
   id: true, code: true, name: true, color: true, material: true, variantKey: true, productMasterId: true,
   stockPolicy: true, trackingMode: true, unit: true, safetyStock: true, reorderPoint: true, reorderQty: true, leadTimeDays: true,
+  unitsPerCarton: true, cartonCbm: true, cartonKg: true, freightGoodsType: true,
   status: true, createdAt: true,
 }
 

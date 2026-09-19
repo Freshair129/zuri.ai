@@ -342,6 +342,7 @@ const SEVERITY = Object.freeze({
   SKU_WITHOUT_IDENTIFIER: 'LOW',
   SERVICE_WITH_STOCK_FIELDS: 'LOW',
   PHASE_OUT_WITH_STOCK: 'INFO',
+  CARTON_DATA_MISSING: 'LOW',
 })
 
 const MESSAGE = Object.freeze({
@@ -353,6 +354,7 @@ const MESSAGE = Object.freeze({
   SKU_WITHOUT_IDENTIFIER: 'SKU นับสต๊อกที่ยังไม่มีบาร์โค้ดหรือรหัสคู่ค้า จึงสแกนหรือ resolve ไม่ได้',
   SERVICE_WITH_STOCK_FIELDS: 'บริการที่ยังมีค่า safety stock / tracking / จุดสั่งซื้อ ซึ่งใช้กับบริการไม่ได้',
   PHASE_OUT_WITH_STOCK: 'SKU ที่กำลังเลิกขายแต่ยังมีของคงเหลือ — ขายให้หมดก่อน archive',
+  CARTON_DATA_MISSING: 'SKU นับสต๊อกที่ยังไม่มีข้อมูลหน่วยต่อกล่อง, CBM หรือกิโลกรัม จึงคำนวณค่าขนส่งตามจำนวนลังไม่ได้',
 })
 
 const SUGGESTION = Object.freeze({
@@ -364,6 +366,7 @@ const SUGGESTION = Object.freeze({
   SKU_WITHOUT_IDENTIFIER: 'ADD_IDENTIFIER',
   SERVICE_WITH_STOCK_FIELDS: 'CLEAR_STOCK_FIELDS',
   PHASE_OUT_WITH_STOCK: 'SELL_DOWN',
+  CARTON_DATA_MISSING: 'CONFIRM_CARTON_ATTRIBUTES',
 })
 
 const DAY_MS = 86_400_000
@@ -408,6 +411,14 @@ export function hygieneReport({ masters = [], products = [], now = new Date(), d
       findings.push(finding('SERVICE_WITH_STOCK_FIELDS', [{ productId: p.id, code: p.code }]))
     }
     if (p.stockPolicy === 'TRACKED' && typeof p.onHand === 'number') {
+      const missingCartonFields = [
+        p.unitsPerCarton == null ? 'unitsPerCarton' : null,
+        p.cartonCbm == null ? 'cartonCbm' : null,
+        p.cartonKg == null ? 'cartonKg' : null,
+      ].filter(Boolean)
+      if (missingCartonFields.length) {
+        findings.push(finding('CARTON_DATA_MISSING', [{ productId: p.id, code: p.code }], { missingFields: missingCartonFields }))
+      }
       if (p.status === 'PHASE_OUT' && p.onHand > 0) findings.push(finding('PHASE_OUT_WITH_STOCK', [{ productId: p.id, code: p.code }], { onHand: p.onHand }))
       const anchor = p.lastMovementAt ?? p.createdAt
       const ageDays = anchor ? Math.floor((at.getTime() - new Date(anchor).getTime()) / DAY_MS) : null

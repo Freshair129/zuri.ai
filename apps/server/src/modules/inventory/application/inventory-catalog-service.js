@@ -15,6 +15,7 @@ import {
   zCreateFamily,
   zCreateProduct,
   zCreateProductMaster,
+  zProductCartonAttributesInput,
   zProductAction,
 } from '../domain/inventory'
 import { FINISHED_SET_SKU_PATTERN, isFinishedSetSku, weightedAverageUnitCostSatang } from '../domain/inventory-costing'
@@ -31,6 +32,7 @@ import {
 } from '../domain/inventory-governance'
 import { assertMayView, loadBusiness, notFound } from './inventory-authority'
 import { appendMovement } from './inventory-stock-service'
+import { supplierCostBaht, supplierCostSatang } from '@/modules/procurement/domain/procurement'
 
 // @req FR-154 — the only writer of the Inventory catalogue: category, family,
 //   factory, product master, product (SKU) and bundle. Every create derives
@@ -76,6 +78,7 @@ const PRODUCT_SELECT = {
   id: true, code: true, tenantId: true, businessId: true, productMasterId: true, name: true, color: true, material: true, unit: true, stockPolicy: true, trackingMode: true, safetyStock: true, status: true, archivedAt: true, createdAt: true, updatedAt: true, version: true,
   itemKind: true, dedicatedCustomerId: true, dedicatedSalesOrderId: true, maintenanceIntervalDays: true, maxStorageDays: true, flowAccountSku: true,
   variantJson: true, variantKey: true, mergedIntoProductId: true, reorderPoint: true, reorderQty: true, leadTimeDays: true,
+  unitsPerCarton: true, cartonCbm: true, cartonKg: true, freightGoodsType: true,
 }
 const BUNDLE_SELECT = { id: true, code: true, tenantId: true, businessId: true, name: true, description: true, targetRecipients: true, totalPrice: true, status: true, createdAt: true, updatedAt: true, version: true, items: { select: { id: true, productId: true, qty: true }, orderBy: { id: 'asc' } } }
 
@@ -277,6 +280,10 @@ export async function createProduct(input, { viewer, db = prisma } = {}) {
         reorderPoint: isService ? null : (d.reorderPoint ?? null),
         reorderQty: isService ? null : (d.reorderQty ?? null),
         leadTimeDays: isService ? null : (d.leadTimeDays ?? null),
+        unitsPerCarton: isService ? null : (d.unitsPerCarton ?? null),
+        cartonCbm: isService ? null : (d.cartonCbm ?? null),
+        cartonKg: isService ? null : (d.cartonKg ?? null),
+        freightGoodsType: isService ? null : (d.freightGoodsType ?? null),
       },
       select: PRODUCT_SELECT,
     })
@@ -322,11 +329,25 @@ export async function getProduct(id, { viewer, db = prisma } = {}) {
         select: { id: true, kind: true, quantity: true, costSatang: true, occurredAt: true, createdAt: true, reference: true },
         orderBy: [{ occurredAt: 'desc' }, { createdAt: 'desc' }],
       },
+      supplierCostLines: {
+        where: { sheet: { status: 'CONFIRMED' } },
+        select: {
+          id: true, sourceSku: true, minQty: true, unitCostForeign: true, unitsPerCarton: true,
+          cartonCbm: true, cartonKg: true, freightGoodsType: true, leadTimeDays: true,
+          sheet: {
+            select: {
+              id: true, code: true, currency: true, fxRateLocked: true, sourceSha256: true, confirmedAt: true,
+              supplier: { select: { id: true, code: true, name: true } },
+            },
+          },
+        },
+        orderBy: [{ minQty: 'asc' }, { sourceSku: 'asc' }],
+      },
     },
   })
   if (!row) throw notFound()
   assertMayView(viewer, row.businessId)
-  const { movements, ...product } = row
+  const { movements, supplierCostLines, ...product } = row
 
   const receipts = (movements || [])
     .filter((m) => m.kind === 'RECEIPT')
@@ -341,6 +362,28 @@ export async function getProduct(id, { viewer, db = prisma } = {}) {
     occurredAt: m.occurredAt,
     reference: m.reference ?? null,
   }))
+  const supplierCostPriceBreaks = (supplierCostLines || []).map((line) => ({
+    id: line.id,
+    sourceSku: line.sourceSku,
+    minQty: line.minQty,
+    unitCostForeign: line.unitCostForeign,
+    currency: line.sheet.currency,
+    fxRateLocked: line.sheet.fxRateLocked,
+    unitCostSatang: supplierCostSatang(line.unitCostForeign, line.sheet.fxRateLocked),
+    unitCostBaht: supplierCostBaht(line.unitCostForeign, line.sheet.fxRateLocked),
+    unitsPerCarton: line.unitsPerCarton,
+    cartonCbm: line.cartonCbm,
+    cartonKg: line.cartonKg,
+    freightGoodsType: line.freightGoodsType,
+    leadTimeDays: line.leadTimeDays,
+    sheet: {
+      id: line.sheet.id,
+      code: line.sheet.code,
+      sourceSha256: line.sheet.sourceSha256,
+      confirmedAt: line.sheet.confirmedAt,
+      supplier: line.sheet.supplier,
+    },
+  }))
 
   return {
     ...productDto(product),
@@ -349,8 +392,49 @@ export async function getProduct(id, { viewer, db = prisma } = {}) {
       weightedAverageLandedCostSatang,
       lastReceiptCostSatang,
       costHistory,
+      supplierCostPriceBreaks,
     },
+    supplierCostPriceBreaks,
   }
+}
+
+/**
+ * Inventory-owned contract used by Procurement after a person confirms a
+ * supplier-sheet mapping. The caller must already hold Procurement authority;
+ * this function still requires the Inventory write ladder because carton data
+ * is a Product fact and a buyer role must not widen it.
+ */
+export async function setProductCartonAttributes(id, input, { viewer, db = prisma } = {}) {
+  const productId = typeof id === 'string' ? id.trim() : ''
+  if (!productId) throw notFound()
+  const data = zProductCartonAttributesInput.parse(input)
+  return inTx(db, async (tx) => {
+    const row = await tx.product.findUnique({ where: { id: productId }, select: PRODUCT_SELECT })
+    if (!row || row.businessId !== data.businessId) throw notFound()
+    const business = await loadBusiness(tx, viewer, row.businessId, { write: true })
+    if (row.status === 'ARCHIVED') throw failure(409, 'PRODUCT_ARCHIVED')
+    const change = {}
+    for (const key of ['unitsPerCarton', 'cartonCbm', 'cartonKg', 'freightGoodsType', 'leadTimeDays']) {
+      if (data[key] !== undefined) change[key] = data[key]
+    }
+    if (!Object.keys(change).length) return productDto(row)
+    const updated = await tx.product.updateMany({
+      where: { id: row.id, version: row.version },
+      data: { ...change, version: { increment: 1 } },
+    })
+    if (updated.count !== 1) throw failure(409, 'PRODUCT_VERSION_CONFLICT')
+    const fresh = await tx.product.findUnique({ where: { id: row.id }, select: PRODUCT_SELECT })
+    await recordAudit(tx, {
+      entityType: PRODUCT_ENTITY,
+      entityId: row.id,
+      action: 'PRODUCT_CARTON_ATTRIBUTES_SET',
+      actorId: actor(viewer),
+      tenantId: business.tenantId,
+      businessId: business.id,
+      payload: { businessId: business.id, code: row.code, fields: Object.keys(change), version: fresh.version },
+    })
+    return productDto(fresh)
+  })
 }
 
 const PRODUCT_ACTIONS = Object.freeze({ UPDATE: 'PRODUCT_UPDATED', ARCHIVE: 'PRODUCT_ARCHIVED', PHASE_OUT: 'PRODUCT_PHASED_OUT', REACTIVATE: 'PRODUCT_REACTIVATED', MERGE: 'PRODUCT_MERGED' })
@@ -358,7 +442,7 @@ const TERMINAL_WORK_ORDER_STATUSES = ['COMPLETED', 'CANCELLED']
 
 function productFieldColumns(fields = {}) {
   const out = {}
-  for (const key of ['name', 'color', 'material', 'unit', 'safetyStock', 'reorderPoint', 'reorderQty', 'leadTimeDays']) {
+  for (const key of ['name', 'color', 'material', 'unit', 'safetyStock', 'reorderPoint', 'reorderQty', 'leadTimeDays', 'unitsPerCarton', 'cartonCbm', 'cartonKg', 'freightGoodsType']) {
     if (fields[key] !== undefined) out[key] = fields[key]
   }
   return out
