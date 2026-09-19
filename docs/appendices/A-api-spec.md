@@ -4,6 +4,10 @@ Version diff 1.87.0b → 1.88.0b: add FR-254 Knowledge Console routes to the com
 
 Version diff 1.86.0b → 1.87.0b: retain the composed FR-252 Feature operations and add the deployment-authenticated TaskUsageLedger read projection. Composition target is 309 paths and 412 operations; TaskUsageLedger is a pure projection with no database model or migration. Final composed verification and production delivery remain pending.
 
+Version diff 1.85.0b -> 1.86.0b: preserve FR-254 Console and add the approved LINE local execution v2 context/tool routes to the running pricing and CRM baseline; inventory 304 paths and 404 operations. No baseline route is removed.
+
+Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operations) with the exact already-deployed CRM legal-hold path. Current inventory is 296 paths and 395 operations; no live CRM route is removed.
+
 | Field | Value |
 |-------|-------|
 | **Version** | 1.88.0b |
@@ -153,9 +157,7 @@ ADR-087. A Claude Code or Codex installation pairs like an Edge Device; its cred
 `POST /api/platform/programme-usage-reports` (FR-221) also accepts an active harness credential: the report stores the credential's person and installation, `branch` (key `(source, sessionId, branch)`), optional `repository` and `aiAccount` label, and `taskCode` becomes optional when a branch is named; a resumed session from the same installation whose counts only grow answers `200 { extended: true }` (audited `EXTENDED`); a pending device answers `403 HARNESS_NOT_ACTIVATED` and an unknown or revoked one `401 HARNESS_CREDENTIAL_REQUIRED`.
 
 FR-239 (ADR-086 D7): the body may also carry an optional, strict `detail` object — `reasoningTokens`, `cacheWrite5mTokens`, `cacheWrite1hTokens`, `webSearchRequests`, `webFetchRequests`, `prompts`, `toolCalls`, `toolErrors`, `toolDenials`, `compactions`, `apiErrors` (integers), `tools` (≤ 300 names matching `^[\w.:@/-]{1,120}$`, each `{ calls, errors }`) and `models` (≤ 30 names, each a request count); any other key is `400 USAGE_REPORT_INVALID`, so no text can be stored. The detail is part of the replay digest (a report without it digests as before) and every headline count must also grow for a resumed session to extend. Full contract: [Zuri harness plugin specification](../ZURI-HARNESS-PLUGIN-SPEC.md) §6–7.
-=======
-<!-- api-spec-counts: route_handlers=252 -->
->>>>>>> c236f6e8 (feat(identity): P2 WebAuthn and FIDO2 passkey authentication readiness (part of #345))
+
 
 ### Desktop browser/QR pairing (FR-144, 2026-09-08)
 
@@ -991,6 +993,7 @@ canary evidence; those remain owner-gated release criteria.
 |---|---|---|---|---|---|
 | 1.88.0b | 2026-09-19 | candidate | Compose FR-254 Knowledge Console source, scoped run/corpus/citation routes and artifact lineage contract with the current 309-path baseline; target 315 paths/419 operations | 2bd61b49 | RWANG |
 | 1.87.0b | 2026-09-18 | candidate | Add authenticated TaskUsageLedger projection and explicit taskCode attribution; reconcile composed inventory to 309 paths/412 operations; no database model or migration | 56ae925a | RWANG |
+| 1.86.0b (LINE local execution v2) | 2026-09-17 | beta | Preserve the live FR-254 Knowledge Console and add approved LINE local execution v2 context/tool routes on the pricing and CRM baseline; route handler inventory 302 -> 304 and operations 402 -> 404. Production activation remains separate. | composition-2bd61b49-0c7fd884 | RWANG |
 | 1.86.0b | 2026-09-17 | candidate | Compose eight Feature writes, snapshot capture, strict schemas/refinements and owner read-side CAS headers; target 308 paths/411 operations, final composed verification pending | 052821a7 + 892f23f3 | RWANG |
 | 1.85.0b | 2026-09-17 | candidate | Compose FR-252 CSRF and four Feature GET routes with main 892f23f3; preserve Pricing, CRM and LINE. Inventory 303 paths/402 operations; read/API tests locally pass, full composed gates pending | 052821a7 + 892f23f3 | RWANG |
 | 1.84.0b | 2026-09-17 | beta | Compose FR-253 Pricing, deployed CRM legal hold and LINE context/tool routes; 298 paths/397 operations | 892f23f3 | RWANG |
