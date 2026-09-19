@@ -1864,12 +1864,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-112",
     "sprint": "SPR-ZAI-05",
     "title": "Chat evidence retrieval, FR-245 — an OWNER at AAL2 retrieves one Customer's archived messages for a date range by session with a case reference, as an export carrying file and manifest hashes, audited",
-    "status": "review",
+    "status": "done",
     "proofScope": "HOSTED_CI",
     "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-111",
     "authority": "ROADMAP.md",
-    "evidence": "ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md"
+    "evidence": "PR #429 merged as be7bdf6a722dd249efacc8e6c9e4f6cdb2e65af7; follow-up c1d59c1227695e805d67eda763fec95c710ee563 merged; npm test 706 files / 5,883 tests passed; npm run build clean; npm run govern 0 CRITICAL; acceptance/success/exit criteria checked; production activation NOT_RUN"
   },
   {
     "id": "TASK-ZAI-113",
