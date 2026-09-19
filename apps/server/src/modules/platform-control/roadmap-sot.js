@@ -1864,7 +1864,7 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-112",
     "sprint": "SPR-ZAI-05",
     "title": "Chat evidence retrieval, FR-245 — an OWNER at AAL2 retrieves one Customer's archived messages for a date range by session with a case reference, as an export carrying file and manifest hashes, audited",
-    "status": "review",
+    "status": "done",
     "proofScope": "HOSTED_CI",
     "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-111",
