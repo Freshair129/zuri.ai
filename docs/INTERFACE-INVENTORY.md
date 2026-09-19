@@ -1,7 +1,7 @@
 ---
-version: "1.36.0b"
+version: "1.37.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-19T04:40:59+07:00,RWANG"
+last_update: "2026-09-19T19:39:25+07:00,RWANG"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -12,18 +12,18 @@ attributes:
 
 # Zuri V2 — Interface Inventory
 
-Version diff 1.35.0b -> 1.36.0b: reconcile the composed Documents & Intake and FR-254 Knowledge Console surfaces; 115 page routes and 59 operational subdomain entries.
+Version diff 1.36.0b -> 1.37.0b: add the operator-only Mission Control observability surface for the programme DAG; 116 page routes and 59 operational subdomain entries.
 
 | Field | Value |
 |---|---|
-| **Version** | 1.36.0b |
+| **Version** | 1.37.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-09-17 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=115; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=116; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -276,6 +276,7 @@ and does not require an active Business selection.
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
 | `/control/roadmap` | Platform Programme Roadmap | PlatformControlShell → programme plan snapshot | read-only six-phase / twelve-sprint / thirty-task plan, gates and deliverables; entered from `/settings` (operator-only link) and exits to `/businesses` through the shell header, which also offers sign-out (FR-046/FR-095) | auth required, loading, forbidden, ready; `isOperator` only; no Business scope | implemented locally; `src/app/(control)/control/roadmap/page.jsx`, FR-105 / ADR-048 |
+| `/control/mission-control` | Mission Control | PlatformControlShell → programme observability | read-only 119-node / 133-edge / 21-wave programme DAG, candidate-parallel merge gates, blocker families, and PORL observation boundary; no run, dispatch, approval, or deployment action | forbidden (404), auth required, ready; `isOperator` only; no Business scope; unknown/unavailable observations remain explicit | implemented locally; `src/app/(control)/control/mission-control/page.jsx`, FR-260–FR-264 / ADR-086 / ADR-092 |
 | `/control/errors` | Error events | PlatformControlShell → deduplicated error list | operator reads errors grouped by fingerprint with occurrence count and first/last seen, resolves one; no request/response content, only name/message/parsed stack frames | forbidden (404), auth required, ready; `isOperator` only; no Business scope | implemented locally; `src/app/(control)/control/errors/page.jsx`, FR-247 / ADR-095 |
 | `/control/usage` | Feature usage | PlatformControlShell → route/action usage breakdown | operator reads route and action counts, total and last-90-days-per-person; older than 90 days survives only as an aggregate (no person) | forbidden (404), auth required, ready; `isOperator` only; no Business scope | implemented locally; `src/app/(control)/control/usage/page.jsx`, FR-248 / FR-249 / ADR-095 |
 | `/roadmap` | Programme Roadmap — signed-in preview | PlatformControlShell (title "Programme Roadmap") → programme plan snapshot, `audience="member"` | read-only programme plan and Domain map tabs for any signed-in person until 2026-10-15 00:00 Asia/Bangkok; no Agent devices tab, no usage by person or device, no tool or model names (removed on the server); no navigation entry — the link is shared by the owner | closed (404 for everyone after the window), session unavailable, auth required, ready; any authenticated session; no Business scope | implemented locally; `src/app/roadmap/page.jsx`, FR-241 / ADR-092 |
