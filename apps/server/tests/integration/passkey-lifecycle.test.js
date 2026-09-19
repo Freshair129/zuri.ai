@@ -11,6 +11,8 @@ import { POST as postLoginVerify } from '@/app/api/auth/webauthn/login/verify/ro
 import { DELETE as deletePasskey, GET as getPasskeys } from '@/app/api/auth/webauthn/credentials/route'
 import { POST as postStepUp } from '@/app/api/auth/webauthn/step-up/route'
 
+process.env.ZURI_SESSION_SECRET = process.env.ZURI_SESSION_SECRET || 'passkey-lifecycle-test-session-secret-0123456789'
+
 function sha256(buf) {
   return createHash('sha256').update(buf).digest()
 }
