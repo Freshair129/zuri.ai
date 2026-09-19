@@ -21,6 +21,8 @@ import {
   writeBlockReason,
 } from '@/modules/inventory/ui/sku-console'
 
+// @req FR-175 — the SKU detail page displays the moving weighted average
+//   landed cost, last receipt cost, and stock ledger receipt cost history.
 // @req FR-203 — the SKU detail page's identifier desk: the barcodes, GTINs and
 //   partner codes a SKU carries, a form that catches a bad GTIN check digit
 //   before it is sent, and a two-step RETIRE. When the server refuses a value
@@ -31,7 +33,7 @@ import {
 //   integer factor ("1 BOX12 = 12 EA"), its usage, UPDATE and a two-step
 //   RETIRE; a service and a serial-tracked SKU say why they take none instead
 //   of offering a form that can only fail.
-// @spec ADR-083 D3, D4; BR-002, BR-037; SEC-001 — `businessId` is the selected
+// @spec ADR-083 D3, D4; ADR-074 D3; BR-002, BR-027, BR-037; SEC-001 — `businessId` is the selected
 //   Business, sent as a selector the server validates; a SKU from another
 //   Business is shown read-only with the reason.
 // @tested tests/unit/inventory-sku-console.test.js, tests/unit/inventory-product-page.test.js,
@@ -192,6 +194,12 @@ export default function InventoryProductPage() {
         : null,
     },
   ]
+  const costColumns = [
+    { key: 'occurredAt', label: 'วันที่รับของ', render: (r) => r.occurredAt ? new Date(r.occurredAt).toLocaleDateString('th-TH') : '—' },
+    { key: 'reference', label: 'อ้างอิง', render: (r) => <span className="font-mono text-xs">{r.reference || '—'}</span> },
+    { key: 'quantity', label: 'จำนวน', render: (r) => `${r.quantity} ${product?.unit || ''}` },
+    { key: 'costSatang', label: 'ต้นทุนต่อหน่วย', render: (r) => r.costSatang !== null ? `${(r.costSatang / 100).toFixed(2)} ฿` : 'ไม่มีต้นทุน' },
+  ]
 
   return <div>
     <PageHeader
@@ -210,8 +218,9 @@ export default function InventoryProductPage() {
     {error && <p role="alert" className="mb-3 text-sm text-red-700">{error}{holder && <> · <Link className="underline" href={`/inventory/products/${holder.id}`}>เปิด SKU {holder.code}</Link></>}</p>}
     {message && <p role="status" className="mb-3 text-sm" style={{ color: 'var(--success)' }}>{message}</p>}
 
-    {product && <div className="mb-4 grid gap-3 md:grid-cols-4">
+    {product && <div className="mb-4 grid gap-3 md:grid-cols-5">
       <Kpi label="คงเหลือ" value={product.onHand === null ? '—' : `${product.onHand} ${product.unit}`} meta={product.onHand === null ? 'ไม่มี ledger' : 'คำนวณจาก ledger'} />
+      <Kpi label="ต้นทุนเฉลี่ยถ่วงน้ำหนัก" value={product.costing?.weightedAverageLandedCostSatang != null ? `${(product.costing.weightedAverageLandedCostSatang / 100).toFixed(2)} ฿` : '—'} meta={product.costing?.lastReceiptCostSatang != null ? `ล่าสุด ${(product.costing.lastReceiptCostSatang / 100).toFixed(2)} ฿` : 'ยังไม่มีต้นทุนรับเข้า'} />
       <Kpi label="การระบุหน่วย" value={product.stockPolicy === 'TRACKED' ? (MODE_LABEL[product.trackingMode] || product.trackingMode) : '—'} meta={`หน่วยฐาน ${product.unit}`} />
       <Kpi label="รหัสที่ใช้งาน" value={identifiers.filter((r) => r.status === 'ACTIVE').length} meta="บาร์โค้ด / รหัสคู่ค้า" />
       <Kpi label="หน่วยแปลง" value={activeConversions.length} meta={activeConversions.length ? activeConversions.map((c) => c.unit).join(', ') : 'ใช้หน่วยฐานอย่างเดียว'} />
@@ -219,6 +228,43 @@ export default function InventoryProductPage() {
 
     {business && <>
       {blocked && product && <Card className="mb-4"><p className="text-sm text-muted">{blocked}</p></Card>}
+
+      <Card className="mb-4">
+        <SectionTitle caption="ต้นทุนเฉลี่ยถ่วงน้ำหนักเคลื่อนที่ (Moving Weighted Average) จากบันทึกการรับของใน stock ledger · ดูดซับค่าขนส่งเข้าต้นทุนหน่วย">
+          ต้นทุนและประวัติการรับเข้า (Landed Cost)
+        </SectionTitle>
+        <div className="mb-3 grid gap-3 md:grid-cols-3">
+          <div className="rounded-lg border border-[var(--border)] p-3">
+            <span className="text-xs text-muted">ต้นทุนเฉลี่ยถ่วงน้ำหนัก (WAVG)</span>
+            <p className="text-lg font-bold text-slate-900 dark:text-white">
+              {product?.costing?.weightedAverageLandedCostSatang != null
+                ? `${(product.costing.weightedAverageLandedCostSatang / 100).toFixed(2)} ฿ / ${product?.unit || ''}`
+                : 'ยังไม่มีข้อมูลต้นทุน'}
+            </p>
+          </div>
+          <div className="rounded-lg border border-[var(--border)] p-3">
+            <span className="text-xs text-muted">ต้นทุนรับเข้าครั้งล่าสุด</span>
+            <p className="text-lg font-bold text-slate-900 dark:text-white">
+              {product?.costing?.lastReceiptCostSatang != null
+                ? `${(product.costing.lastReceiptCostSatang / 100).toFixed(2)} ฿ / ${product?.unit || ''}`
+                : '—'}
+            </p>
+          </div>
+          <div className="rounded-lg border border-[var(--border)] p-3">
+            <span className="text-xs text-muted">จำนวนครั้งที่รับของเข้าสต๊อก</span>
+            <p className="text-lg font-bold text-slate-900 dark:text-white">
+              {product?.costing?.costHistory?.length ?? 0} ครั้ง
+            </p>
+          </div>
+        </div>
+        <DataTable
+          columns={costColumns}
+          rows={product?.costing?.costHistory ?? []}
+          rowKey={(r) => r.id}
+          empty={<p className="mb-3 text-sm text-muted">ยังไม่มีประวัติการรับเข้าสต๊อกสำหรับ SKU นี้</p>}
+        />
+      </Card>
+
       <label className="mb-3 flex items-center gap-2 text-xs font-semibold">
         <input type="checkbox" aria-label="แสดงรายการที่ยกเลิกแล้ว" checked={showRetired} onChange={(e) => setShowRetired(e.target.checked)} /> แสดงรายการที่ยกเลิกแล้ว
       </label>

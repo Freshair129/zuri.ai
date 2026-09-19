@@ -1,7 +1,7 @@
 ---
-version: "1.35.0b"
+version: "1.36.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-09-17T20:28:51+07:00,RWANG final integrator"
+last_update: "2026-09-19T04:40:59+07:00,RWANG"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -12,11 +12,11 @@ attributes:
 
 # Zuri V2 — Interface Inventory
 
-Version diff 1.34.0b -> 1.35.0b: compose FR-254 Knowledge Console with live FR-253 Pricing Rules; 114 pages and 58 navigation entries.
+Version diff 1.35.0b -> 1.36.0b: reconcile the composed Documents & Intake and FR-254 Knowledge Console surfaces; 115 page routes and 59 operational subdomain entries.
 
 | Field | Value |
 |---|---|
-| **Version** | 1.35.0b |
+| **Version** | 1.36.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-09-17 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
@@ -413,6 +413,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.36.0b | 2026-09-19 | candidate | Reconcile Documents & Intake with the FR-254 Knowledge Console route and navigation; 115 page routes and 59 operational subdomain entries | working-tree | RWANG |
 | 1.35.0b | 2026-09-19 | candidate | Compose FR-254 Knowledge Console route and navigation with the newer PM inventory baseline; retain 114 page routes and record 58 operational subdomain entries | 2bd61b49 | RWANG |
 | 1.34.0b | 2026-09-17 | candidate | Describe implemented owner forms, scoped pickers, review/reconciliation and modal/refusal states; retain 113 page routes and separate hosted release evidence | 052821a7 + 892f23f3 | RWANG |
 | 1.33.0b | 2026-09-17 | candidate | Register FR-252 Project Features list/detail route and states; preserve Pricing and Domain routes, 113 page routes | 052821a7 + 892f23f3 | RWANG |
