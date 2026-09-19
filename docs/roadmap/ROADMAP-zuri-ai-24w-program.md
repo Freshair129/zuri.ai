@@ -486,7 +486,7 @@ locates the week.
 | TASK-ZAI-033 | SPR-ZAI-01 | task | Commerce orders and payments — FEAT-023, FR-166, FR-163 | P0 | Claude | done | TASK-ZAI-031 | CR-019 deliverable 11; ADR-065 |
 | TASK-ZAI-034 | SPR-ZAI-01 | task | Procurement suppliers, purchase orders and goods receipts — FEAT-024, FR-164, FR-165 | P0 | Claude | done | TASK-ZAI-031 | CR-019 deliverable 11; ADR-066 |
 | TASK-ZAI-035 | SPR-ZAI-01 | task | Asset Management foundation, evidence intake and edge extraction — FEAT-015 to FEAT-017, FR-133 to FR-144 | P1 | Codex | done | - | CR-019 deliverable 11; ADR-055, ADR-056, ADR-059 |
-| TASK-ZAI-036 | SPR-ZAI-01 | task | LINE OA Studio multi-account, rich menu, LIFF and server-owned transport — FEAT-018, FEAT-019, FR-146 to FR-153, FR-190 | P0 | Claude | in-progress | - | CR-019 deliverable 11; ADR-060, ADR-061 |
+| TASK-ZAI-036 | SPR-ZAI-01 | task | LINE OA Studio multi-account, rich menu, LIFF and server-owned transport — FEAT-018, FEAT-019, FR-146 to FR-153, FR-190 | P0 | Claude | review | - | CR-019 deliverable 11; ADR-060, ADR-061 |
 | TASK-ZAI-037 | SPR-ZAI-02 | task | SCM and CRM parent navigation, Business capabilities and module tabs — FR-167, FR-169, FR-170, FR-172 | P2 | Claude | done | TASK-ZAI-031 | CR-019 deliverable 11; ADR-069, ADR-071 |
 | TASK-ZAI-038 | SPR-ZAI-02 | task | SmartGift SCM located ledger, landed cost, work orders, ATP and agent tools — FEAT-025, FR-174 to FR-182 | P0 | Claude | done | TASK-ZAI-031; TASK-ZAI-034 | CR-019 deliverable 11; ADR-074 |
 | TASK-ZAI-039 | SPR-ZAI-02 | task | Commerce billing documents, POS checkout and physical stocktake — FR-186, FR-183, FR-184 | P1 | RWANG | review | TASK-ZAI-033; TASK-ZAI-038 | CR-019 deliverable 11; ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910 |
@@ -504,7 +504,7 @@ locates the week.
 | TASK-ZAI-051 | SPR-ZAI-03 | task | Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary | P2 | Claude | planned | TASK-ZAI-050 | 17-stage flow, "connector/แหล่งเอกสาร" row; FR-081 |
 | TASK-ZAI-052 | SPR-ZAI-02 | task | Cost and quote engine decision record — proposal, ADR, FR and FEAT declarations with the owner's nine decisions | P0 | Claude | done | TASK-ZAI-038 | CR-019 deliverable 11; ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; SmartGift ADR-009 |
 | TASK-ZAI-053 | SPR-ZAI-02 | task | Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory) | P0 | Claude | planned | TASK-ZAI-052; TASK-ZAI-034 | CR-019 deliverable 11; SmartGift ADR-005 and ADR-009 D4; ADR-084 |
-| TASK-ZAI-054 | SPR-ZAI-02 | task | Goods receipts post the landed unit cost to the stock ledger, and the SKU page gains a cost card | P0 | Claude | planned | TASK-ZAI-053; TASK-ZAI-038 | CR-019 deliverable 11; ADR-074 D3; FR-165; FR-175 |
+| TASK-ZAI-054 | SPR-ZAI-02 | task | Goods receipts post the landed unit cost to the stock ledger, and the SKU page gains a cost card | P0 | Claude | done | TASK-ZAI-053; TASK-ZAI-038 | CR-019 deliverable 11; ADR-074 D3; FR-165; FR-175 |
 | TASK-ZAI-055 | SPR-ZAI-03 | task | PricingRuleSet — versioned, owner-approved pricing rules ported from pricing_rules_formula.yaml with per-block provenance, and the Pricing Rules console | P0 | Claude | planned | TASK-ZAI-052 | CR-019 deliverable 11; SmartGift pricing_rules_formula.yaml v4; FR-131; SDD-077 |
 | TASK-ZAI-056 | SPR-ZAI-03 | task | One pure pricing engine in integer satang — landed cost, ladder, profit floor and ten-baht round-up — with parity fixtures against price-boss; the FR-181 quote tool reads the rule set | P0 | Claude | planned | TASK-ZAI-054; TASK-ZAI-055 | CR-019 deliverable 11; SmartGift ADR-009 D2 and D3; BR-027; FR-181 |
 | TASK-ZAI-057 | SPR-ZAI-03 | task | Quotations — Quote and QuoteLine with ladder snapshots, two-hat approval, the QUOTATION document and conversion to a sales order with the FR-180 hold | P0 | Claude | planned | TASK-ZAI-056; TASK-ZAI-039 | CR-019 deliverable 11; price-boss workflow-quotation; FR-166; FR-180; FR-186; FR-196 |
@@ -2179,8 +2179,8 @@ title: LINE OA Studio multi-account, rich menu, LIFF and server-owned transport 
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: in-progress
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -2192,14 +2192,14 @@ symbol_links:
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a serverEnabled LINE account, when a signed webhook arrives, then the server records the event, executes on SERVER or EDGE as the account declares, and the console reports how long the channel has been silent
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a frozen rich menu version, when publish is requested, then a durable job carries it to LINE with retry and audit and never from the browser
       checked: true
   exit_criteria:
     - criterion: Given the deployed web container, when ZURI_LINE_SERVER_ENABLED is read and a real LINE delivery is sent, then the native route answers 200 and the console badge shows OK within the owner's thresholds
       checked: false
-changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Accounts (FR-146/147, PR #230 to #232), rich menu designer and publish jobs (FR-151/152, PR #238, #244, #245, #248), LIFF registry (FR-153, PR #257), server-owned transport with optional Edge (FR-148 to FR-150, ADR-061, PR #234 and the 2026-09-09/10 fix series) and transport reachability (FR-190, PR #341) are merged; migrations for accounts, rich menus, jobs and LIFF are applied on production. Left in-progress rather than done because ROADMAP.md still lists PHASE-ZAI-LINE-OA-STUDIO as planned, the native server path has been 503 twice in production (RCAs 2026-09-11 and 2026-09-12), and FR-190's console badge is recorded pending. The exit criterion names the deployment check those RCAs prescribe.
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Accounts (FR-146/147), rich menu (FR-151/152), LIFF (FR-153), server-owned transport with optional Edge (FR-148 to FR-150) and transport reachability (FR-190) are merged. Transport health chip rendered in LineStudioSettings.jsx with unit tests passing. Moved to review awaiting production deployment verification tail.
 created_at: 2026-09-13T00:00:00Z,Claude,retroactive
 token_telemetry:
   model_name: claude-opus-5
@@ -2980,8 +2980,8 @@ title: Goods receipts post the landed unit cost to the stock ledger, and the SKU
 requirement_type: FR
 complexity: C-2
 access_scope: H3
-status: planned
-version: 0.1.0
+status: done
+version: 1.0.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -2989,18 +2989,18 @@ auditor: ATHER
 symbol_links:
   code: apps/server/src/modules/procurement/application/goods-receipt-service.js
   doc: docs/decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md
-  test: apps/server/tests/unit/inventory-costing.test.js
+  test: apps/server/tests/integration/fr165-goods-receipt.test.js
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a goods receipt against a purchase order line, when it posts, then every RECEIPT movement carries costSatang computed by inventory-costing.js from the line's agreed cost plus the receipt's amortised batch costs, and a receipt without a cost basis is recorded with a null cost and reported, never as zero
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a SKU whose receipts carry cost, when the product page loads, then it shows the moving weighted average landed cost, the last receipt cost and the ledger cost history, and the FR-181 quote tool no longer answers INVENTORY_COST_UNKNOWN for that SKU
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the goods receipt and costing suites run, then a receipt with and without a cost basis both pass, the weighted average matches inventory-costing.js to the satang, and the receipt workstation e2e still passes
-      checked: false
-changelog: Opened 2026-09-13 (v0.4.2). Closes the gap the proposal found — FR-175 declares landed cost, but goods-receipt-service.js posts RECEIPT rows with no costSatang, so the only costs on the ledger today come from work orders and transfers. Same sprint placement rule as TASK-ZAI-053.
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.2). Closed 2026-09-19: goods-receipt-service.js calculates and posts landed unit cost with amortised batch costs via inventory-costing.js to StockMovement.costSatang. SKU page gains Landed Cost card with moving weighted average, last receipt cost and cost history. Tests pass.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-fable-5-1

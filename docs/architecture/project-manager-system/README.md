@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-SYSTEM-DESIGN
 title: Project Manager complete system design
-version: "0.19.0b"
+version: "0.20.0b"
 status: candidate
 created_at: "2026-09-15T23:49:58+07:00,RWANG,base 087f30258a6831865afd751e28804e36505aff30"
-last_update: "2026-09-18T05:37:20+07:00,RWANG release integrator"
+last_update: "2026-09-19T04:40:59+07:00,RWANG"
 superseded_by: null
 attributes:
   doc_type: architecture-specification
@@ -25,7 +25,7 @@ relations:
 
 # Project Manager — Full System Design
 
-**Version:** 0.19.0b · **Status:** Candidate · **Risk:** HIGH · **Complexity:** C-3
+**Version:** 0.20.0b · **Status:** Candidate · **Risk:** HIGH · **Complexity:** C-3
 **Evidence baseline:** original design `087f30258a6831865afd751e28804e36505aff30`; MA-I02 source audit `138db6630e650e3c695b81158eff3cecdad6d0a5`.
 **Deliverable:** เอกสารออกแบบและสัญญาแบบเครื่องอ่านได้; navigation FR-250 และ Domain View Phase A (FR-251) ส่งมอบแล้ว โดย Phase A merge/deploy ที่ `c07cfaba` พร้อม archive/rollup repair ใน PR444 เมื่อ 2026-09-17 ส่วน Feature Phase B ผ่าน B1/B2 และเริ่ม implementation ใน worktree แยก; ผลส่งมอบแต่ละ slice อยู่ใน FR-252 และยังไม่ใช่ production rollout
 
@@ -46,8 +46,8 @@ browser regression 32 cases ส่วน actual PostgreSQL adapter ผ่าน 
 W4 PostgreSQL mutations ผ่าน independent review และ 19 checks รวม Session/
 Membership/PlatformGrant lock waits ที่ต้องใช้เวลาหลังได้ lock ในการตรวจสิทธิ์
 ชุด security/API/read/provenance/Swagger/Identity ที่ประกอบล่าสุดผ่าน 122 tests
-ใน 14 files ส่วน recovery ของ schema 177 models ผ่าน
-22 standard + 15 adversarial checks โดยคงผล 175 models เดิมเป็นประวัติ
+ใน 14 files ส่วน recovery ของ schema 179 models ผ่าน
+22 standard + 15 adversarial checks โดยคงผล 177 และ 175 models เดิมเป็นประวัติ
 CRM closure ที่ได้รับอนุมัติแล้วผ่าน focused tests 21 cases และ independent
 PostgreSQL review 14 checks รวม audit rollback, hold/delete race และ logical
 Customer-field invariance บน synthetic non-bypass runtime role
@@ -301,6 +301,7 @@ This structure keeps the Site's navigation/read order while making each requirem
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.20.0b | 2026-09-19 | candidate | Reconcile the Phase B recovery inventory with the composed 179-model schema after Knowledge artifact storage; preserve prior 177/175 bindings as historical | working-tree | RWANG |
 | 0.19.0b | 2026-09-18 | candidate | Make the GPT Site order the PM document spine; extract PMR requirements and register GitHub as the single source of truth | working-tree | RWANG |
 | 0.18.0b | 2026-09-18 | candidate | Add PM-G14 registry/implementation packets and TaskUsageLedger projection, route, explicit taskCode attribution and focused evidence; no schema migration | 56ae925a | RWANG |
 | 0.17.0b | 2026-09-17 | candidate | Reconcile implemented owner forms, source review and 6376-test evidence; preserve actual browser failures and corrective verification separately from hosted release | 052821a7 + 892f23f3 | RWANG |
