@@ -39,6 +39,10 @@ export default function KnowledgeDashboard({ map }) {
               <UploadCloud size={13} /> อัพโหลดเอกสาร
             </Link>
           </div>
+          <div className="mt-4">
+            <SectionTitle caption="ต้นทางและประวัติรุ่น งานประมวลผล รุ่นที่เผยแพร่ และการค้นพร้อมหลักฐาน">Knowledge base console</SectionTitle>
+            <Link href="/knowledge/console" className="btn btn-primary inline-flex">เปิดคลังความรู้</Link>
+          </div>
         </Card>
       </div>
     </div>

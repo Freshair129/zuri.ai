@@ -1618,7 +1618,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-036",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-01",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -1651,7 +1651,7 @@ export const PROGRAMME_CONTAINERS = {
     "dod": {
       "acceptance": {
         "text": "Given a serverEnabled LINE account, when a signed webhook arrives, then the server records the event, executes on SERVER or EDGE as the account declares, and the console reports how long the channel has been silent",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a frozen rich menu version, when publish is requested, then a durable job carries it to LINE with retry and audit and never from the browser",
@@ -1662,7 +1662,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. Accounts (FR-146/147, PR #230 to #232), rich menu designer and publish jobs (FR-151/152, PR #238, #244, #245, #248), LIFF registry (FR-153, PR #257), server-owned transport with optional Edge (FR-148 to FR-150, ADR-061, PR #234 and the 2026-09-09/10 fix series) and transport reachability (FR-190, PR #341) are merged; migrations for accounts, rich menus, jobs and LIFF are applied on production. Left in-progress rather than done because ROADMAP.md still lists PHASE-ZAI-LINE-OA-STUDIO as planned, the native server path has been 503 twice in production (RCAs 2026-09-11 and 2026-09-12), and FR-190's console badge is recorded pending. The exit criterion names the deployment check those RCAs prescribe.",
+    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. Accounts (FR-146/147), rich menu (FR-151/152), LIFF (FR-153), server-owned transport with optional Edge (FR-148 to FR-150) and transport reachability (FR-190) are merged. Transport health chip rendered in LineStudioSettings.jsx with unit tests passing. Moved to review awaiting production deployment verification tail.",
     "created": "2026-09-13T00:00:00Z,Claude,retroactive",
     "predictedTokens": 0,
     "totalTokens": 0,
@@ -2506,7 +2506,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-054",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -2515,7 +2515,7 @@ export const PROGRAMME_CONTAINERS = {
     "links": {
       "code": "apps/server/src/modules/procurement/application/goods-receipt-service.js",
       "doc": "docs/decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md",
-      "test": "apps/server/tests/unit/inventory-costing.test.js"
+      "test": "apps/server/tests/integration/fr165-goods-receipt.test.js"
     },
     "linkState": {
       "code": "present",
@@ -2527,18 +2527,18 @@ export const PROGRAMME_CONTAINERS = {
     "dod": {
       "acceptance": {
         "text": "Given a goods receipt against a purchase order line, when it posts, then every RECEIPT movement carries costSatang computed by inventory-costing.js from the line's agreed cost plus the receipt's amortised batch costs, and a receipt without a cost basis is recorded with a null cost and reported, never as zero",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a SKU whose receipts carry cost, when the product page loads, then it shows the moving weighted average landed cost, the last receipt cost and the ledger cost history, and the FR-181 quote tool no longer answers INVENTORY_COST_UNKNOWN for that SKU",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test, when the goods receipt and costing suites run, then a receipt with and without a cost basis both pass, the weighted average matches inventory-costing.js to the satang, and the receipt workstation e2e still passes",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.2). Closes the gap the proposal found — FR-175 declares landed cost, but goods-receipt-service.js posts RECEIPT rows with no costSatang, so the only costs on the ledger today come from work orders and transfers. Same sprint placement rule as TASK-ZAI-053.",
+    "changelog": "Opened 2026-09-13 (v0.4.2). Closed 2026-09-19: goods-receipt-service.js calculates and posts landed unit cost with amortised batch costs via inventory-costing.js to StockMovement.costSatang. SKU page gains Landed Cost card with moving weighted average, last receipt cost and cost history. Tests pass.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 40000,
     "totalTokens": 0,
