@@ -22,7 +22,7 @@ describe('SUBPLAN-ROADMAP-MOBILE canonical evidence presentation', () => {
     const stageMarkers = html.match(/data-testid="genesisrag17-stage-/g) || []
     const productionGate = ROADMAP_SOT.subplans.find((plan) => plan.id === 'SUBPLAN-KI-PRODUCTION-ACTIVATION')
 
-    expect(PROGRAMME_TASKS).toHaveLength(118)
+    expect(PROGRAMME_TASKS).toHaveLength(119)
     expect(ROADMAP_SOT.coverage).toHaveLength(17)
     expect(stageMarkers).toHaveLength(17)
     expect(html).toContain('GenesisRAG17 coverage')
@@ -32,7 +32,7 @@ describe('SUBPLAN-ROADMAP-MOBILE canonical evidence presentation', () => {
     expect(html).toContain('NOT STARTED')
     expect(html).toContain('proof')
     expect(html).toContain('implementation')
-    expect(html).not.toContain('TASK-ZAI-119')
+    expect(html).toContain('TASK-ZAI-119')
   })
 
   it('keeps phase and task accordions addressable with aria-expanded controls', () => {
