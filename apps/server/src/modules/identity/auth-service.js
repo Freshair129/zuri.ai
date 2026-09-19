@@ -117,13 +117,15 @@ export function verifySessionToken(token, { secret, now = Date.now() } = {}) {
   }
 }
 
-export async function persistSession({ token, sessionId, personId, db = prisma, env = process.env, secret, now = Date.now(), assurance = 'PASSWORD' } = {}) {
+export async function persistSession({ token, sessionId, personId, db = prisma, env = process.env, secret, now = Date.now(), assurance = 'PASSWORD', assuranceLevel } = {}) {
   if (typeof db.session?.create !== 'function') return null
   const sessionSecret = secret ?? requireSessionSecret(env)
   const verified = verifySessionToken(token, { secret: sessionSecret, now })
   if (!verified || verified.sessionId !== sessionId || verified.principalId !== personId) {
     throw new Error('SESSION_PERSISTENCE_INVALID')
   }
+
+  const computedAssuranceLevel = assuranceLevel ?? (assurance === 'WEBAUTHN' ? 'AAL2' : 'AAL1')
 
   return db.session.create({
     data: {
@@ -132,6 +134,7 @@ export async function persistSession({ token, sessionId, personId, db = prisma, 
       tokenHash: hashSessionToken(token),
       status: 'ACTIVE',
       assurance,
+      assuranceLevel: computedAssuranceLevel,
       createdAt: new Date(now),
       lastSeenAt: new Date(now),
       expiresAt: new Date(verified.expiresAt * 1000),

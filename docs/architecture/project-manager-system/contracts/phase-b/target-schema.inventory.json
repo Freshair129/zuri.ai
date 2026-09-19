@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "ad87b4bc9244f1fdbd055d138bd02c9bd315498d57c51c22efdf56084cdd089f",
+  "schemaSha256": "23f8c04baf70ebc90fe71e3be0002c0b3f33a46de735e4f56eb3ec814ed91a58",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -557,6 +557,11 @@
       "tableName": "Milestone"
     },
     {
+      "modelName": "PasskeyCredential",
+      "schemaName": "public",
+      "tableName": "PasskeyCredential"
+    },
+    {
       "modelName": "PasswordResetToken",
       "schemaName": "public",
       "tableName": "PasswordResetToken"
@@ -901,5 +906,5 @@
     "_prisma_migrations",
     "schema_migrations"
   ],
-  "targetSchemaSha256": "ee7a379237b5e8cbebd7607deb1d28cc400009e54076c60c87fb2dddb3873198"
+  "targetSchemaSha256": "8e86b994d15cc165d4d26ea28760f9c1c5f4aa93fa038febf9e636666092b362"
 }

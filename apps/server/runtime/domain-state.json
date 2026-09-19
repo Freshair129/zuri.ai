@@ -746,7 +746,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 316,
+            "openApiPaths": 322,
             "missingFromOpenApi": 0
           }
         },
@@ -1045,7 +1045,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 316,
+            "openApiPaths": 322,
             "missingFromOpenApi": 0
           }
         },
@@ -1258,7 +1258,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 316,
+            "openApiPaths": 322,
             "missingFromOpenApi": 0
           }
         },
@@ -1796,16 +1796,16 @@
           "title": "Canonical IAM principal",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 11,
-          "testCount": 21
+          "codeCount": 21,
+          "testCount": 24
         },
         {
           "id": "FR-095",
           "title": "Persisted session lifecycle",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 14,
-          "testCount": 39
+          "codeCount": 24,
+          "testCount": 42
         },
         {
           "id": "FR-096",
@@ -2094,9 +2094,9 @@
             }
           ],
           "details": {
-            "routes": 28,
-            "inventoried": 27,
-            "openApiPaths": 316,
+            "routes": 34,
+            "inventoried": 33,
+            "openApiPaths": 322,
             "missingFromOpenApi": 0
           }
         },
@@ -2138,8 +2138,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 21,
-            "present": 21
+            "models": 22,
+            "present": 22
           }
         },
         "authorization": {
@@ -2160,9 +2160,9 @@
             }
           ],
           "details": {
-            "mutations": 23,
-            "guardedMutations": 17,
-            "reads": 8,
+            "mutations": 29,
+            "guardedMutations": 23,
+            "reads": 9,
             "unguardedReads": 1
           }
         },
@@ -2265,10 +2265,10 @@
         }
       ],
       "details": {
-        "routes": 37,
-        "apiRoutes": 28,
+        "routes": 43,
+        "apiRoutes": 34,
         "pageRoutes": 9,
-        "ownedModels": 21,
+        "ownedModels": 22,
         "featureNotes": 27
       },
       "featureIds": [
@@ -2616,7 +2616,7 @@
           "details": {
             "routes": 10,
             "inventoried": 10,
-            "openApiPaths": 316,
+            "openApiPaths": 322,
             "missingFromOpenApi": 0
           }
         },
@@ -2816,8 +2816,8 @@
           "title": "Inventory valuation is landed cost in integer satang, and domestic single-drop freight is absorbed into it rather than quoted",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 6
+          "codeCount": 5,
+          "testCount": 10
         },
         {
           "id": "FR-176",
@@ -2988,7 +2988,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 316,
+            "openApiPaths": 322,
             "missingFromOpenApi": 0
           }
         },
@@ -3318,7 +3318,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-235",
@@ -3843,7 +3843,7 @@
           "details": {
             "routes": 20,
             "inventoried": 20,
-            "openApiPaths": 316,
+            "openApiPaths": 322,
             "missingFromOpenApi": 0
           }
         },
@@ -4050,7 +4050,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 316,
+            "openApiPaths": 322,
             "missingFromOpenApi": 0
           }
         },
@@ -4217,7 +4217,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 316,
+            "openApiPaths": 322,
             "missingFromOpenApi": 0
           }
         },
@@ -4341,7 +4341,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 39
+          "testCount": 42
         },
         {
           "id": "FR-105",
@@ -4495,7 +4495,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 316,
+            "openApiPaths": 322,
             "missingFromOpenApi": 0
           }
         },
@@ -4678,6 +4678,14 @@
           "testCount": 6
         },
         {
+          "id": "FR-175",
+          "title": "Inventory valuation is landed cost in integer satang, and domestic single-drop freight is absorbed into it rather than quoted",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 10
+        },
+        {
           "id": "FR-196",
           "title": "Segregation of duties gets a writer, not only a role list",
           "declared": "done",
@@ -4709,7 +4717,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 316,
+            "openApiPaths": 322,
             "missingFromOpenApi": 0
           }
         },
@@ -5332,7 +5340,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 21
+          "testCount": 24
         },
         {
           "id": "FR-095",
@@ -5340,7 +5348,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 39
+          "testCount": 42
         },
         {
           "id": "FR-097",
@@ -5900,7 +5908,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-216",
@@ -6120,7 +6128,7 @@
           "details": {
             "routes": 160,
             "inventoried": 160,
-            "openApiPaths": 316,
+            "openApiPaths": 322,
             "missingFromOpenApi": 0
           }
         },
@@ -7206,16 +7214,16 @@
           "title": "Canonical IAM principal",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 13,
-          "testCount": 21
+          "codeCount": 23,
+          "testCount": 24
         },
         {
           "id": "FR-095",
           "title": "Persisted session lifecycle",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 19,
-          "testCount": 39
+          "codeCount": 29,
+          "testCount": 42
         },
         {
           "id": "FR-096",
@@ -7249,6 +7257,12 @@
         "apps/server/src/app/api/auth/mfa/totp/enroll/route.js",
         "apps/server/src/app/api/auth/mfa/totp/verify/route.js",
         "apps/server/src/app/api/auth/step-up/route.js",
+        "apps/server/src/app/api/auth/webauthn/credentials/route.js",
+        "apps/server/src/app/api/auth/webauthn/login/options/route.js",
+        "apps/server/src/app/api/auth/webauthn/login/verify/route.js",
+        "apps/server/src/app/api/auth/webauthn/register/options/route.js",
+        "apps/server/src/app/api/auth/webauthn/register/verify/route.js",
+        "apps/server/src/app/api/auth/webauthn/step-up/route.js",
         "apps/server/src/app/api/identity/channel-identities/route.js",
         "apps/server/src/app/api/identity/link-tokens/redeem/route.js",
         "apps/server/src/app/api/identity/link-tokens/route.js",
@@ -7273,11 +7287,15 @@
         "apps/server/src/modules/identity/mfa-secret-reseal.js",
         "apps/server/src/modules/identity/mfa-secret-seal.js",
         "apps/server/src/modules/identity/mfa-service.js",
+        "apps/server/src/modules/identity/passkey-service.js",
         "apps/server/src/modules/identity/resolve-line-identity.js",
         "apps/server/src/modules/identity/session-assurance.js",
         "apps/server/src/modules/identity/session-port.js",
         "apps/server/src/modules/identity/sign-out.js",
         "apps/server/src/modules/identity/totp.js",
+        "apps/server/src/modules/identity/webauthn-cbor.js",
+        "apps/server/src/modules/identity/webauthn-challenge.js",
+        "apps/server/src/modules/identity/webauthn.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr044-entry-routing.spec.js",
@@ -7312,6 +7330,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/mfa-totp-lifecycle.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/passkey-lifecycle.test.js",
         "apps/server/tests/integration/password-reset-flow.test.js",
         "apps/server/tests/integration/phase-b-identity-erasure.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
@@ -7331,6 +7350,8 @@
         "apps/server/tests/unit/identity/seal-mfa-factor-secrets-cli.test.js",
         "apps/server/tests/unit/identity/session-assurance.test.js",
         "apps/server/tests/unit/identity/totp.test.js",
+        "apps/server/tests/unit/identity/webauthn-cbor.test.js",
+        "apps/server/tests/unit/identity/webauthn.test.js",
         "apps/server/tests/unit/line-binding-resolver.test.js",
         "apps/server/tests/unit/line-channel-binding.test.js",
         "apps/server/tests/unit/operator-bootstrap.test.js",
@@ -9083,6 +9104,7 @@
         "agent",
         "commerce",
         "inventory",
+        "procurement",
         "project-manager"
       ],
       "useCase": "ฝ่ายคลังเห็นว่าของอยู่จุดไหนของซัพพลายเชน (โรงงานจีน เรือ ท่าเรือ คลังวัตถุดิบ ห้องยิงเลเซอร์ ไลน์ประกอบ คลังสินค้าสำเร็จรูป ของเสีย) ย้ายของข้ามจุดแบบตัดต้นทาง-เพิ่มปลายทางในธุรกรรมเดียว เปิดใบสั่งสกรีน/ยิงเลเซอร์ที่ล็อกของให้ลูกค้ารายนั้นถาวร เปิดใบสั่งประกอบที่ระเบิด BOM พร้อมเผื่อของเสียตามที่สูตรประกาศไว้ และได้ต้นทุนต่อชุดเป็นสตางค์ที่รวมค่ารถส่งเหมาคันไว้แล้ว ส่วนฝ่ายขายถามผ่านผู้ช่วย AI ได้ว่ารับออเดอร์กี่ชุดได้ทันที ราคาต่อชุดเท่าไร แล้วจองสต๊อกให้ลูกค้า 7 วันโดยไม่ชนกับใบเสนอราคาอื่น",
@@ -9106,8 +9128,8 @@
           "title": "Inventory valuation is landed cost in integer satang, and domestic single-drop freight is absorbed into it rather than quoted",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 4,
-          "testCount": 6
+          "codeCount": 7,
+          "testCount": 10
         },
         {
           "id": "FR-176",
@@ -9177,6 +9199,7 @@
       "evidence": [
         "apps/server/src/app/(pm)/inventory/locations/page.jsx",
         "apps/server/src/app/(pm)/inventory/page.jsx",
+        "apps/server/src/app/(pm)/inventory/products/[productId]/page.jsx",
         "apps/server/src/app/(pm)/inventory/reservations/page.jsx",
         "apps/server/src/app/(pm)/inventory/stocktakes/page.jsx",
         "apps/server/src/app/(pm)/inventory/work-orders/page.jsx",
@@ -9216,6 +9239,8 @@
         "apps/server/src/modules/inventory/domain/inventory.js",
         "apps/server/src/modules/inventory/domain/warehouse-location.js",
         "apps/server/src/modules/inventory/index.js",
+        "apps/server/src/modules/procurement/application/goods-receipt-service.js",
+        "apps/server/src/modules/procurement/domain/procurement.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
@@ -9226,6 +9251,7 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr154-inventory-catalog.test.js",
         "apps/server/tests/integration/fr155-inventory-stock.test.js",
+        "apps/server/tests/integration/fr165-goods-receipt.test.js",
         "apps/server/tests/integration/fr174-warehouse-locations.test.js",
         "apps/server/tests/integration/fr176-customization-work-order.test.js",
         "apps/server/tests/integration/fr177-kitting-work-order.test.js",
@@ -9251,13 +9277,16 @@
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/inventory-costing.test.js",
         "apps/server/tests/unit/inventory-domain.test.js",
+        "apps/server/tests/unit/inventory-product-page.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
+        "apps/server/tests/unit/inventory-sku-console.test.js",
         "apps/server/tests/unit/inventory-stocktake-domain.test.js",
         "apps/server/tests/unit/inventory-wip.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/module-tabs.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
+        "apps/server/tests/unit/procurement-domain.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/scm-console-routes.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
@@ -10055,7 +10084,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 4
+          "testCount": 5
         }
       ],
       "evidence": [
@@ -10074,6 +10103,7 @@
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr213-data-pipeline-map.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",

@@ -220,16 +220,18 @@ describe('OpenAPI document', () => {
       // operation: the legal-hold recording path (POST). 288 + 1 = 289;
       // 386 + 1 = 387.
       // FR-251 adds one read-only Project Domain-view path and GET operation.
-      // 289 + 1 = 290; 387 + 1 = 388.
-      // FR-253 pricing adds six paths and seven operations, retaining legal hold.
-      // 290 + 6 = 296; 388 + 7 = 395.
-      // FR-254 adds six Console paths and GET on the existing source path.
-      // 296 + 6 = 302; 395 + 7 = 402.
+      // FR-252 adds the Identity API-write CSRF issuer (GET only).
       // Negotiated Edge v2 adds two scoped context/tool paths and operations.
-      // 302 + 2 = 304; 402 + 2 = 404, before the current main composition.
+      // Pricing adds six paths/seven operations; retain the live CRM legal-hold route.
+      // FR-215 (ADR-085 D5) adds the Business-scoped pipeline health read
+      // model: one path and one GET operation over the owning-domain ports.
       // Current composed inventory is 316 paths and 420 operations.
-      pathCount: 316,
-      operationCount: 420,
+      // FR-254 adds six Console paths and seven operations, including GET on
+      // the existing source path.
+      // The branch's FR-215 pipeline-health route remains in the composition.
+      // FR-094/FR-095 adds WebAuthn Passkeys: six paths, seven operations.
+      pathCount: 322,
+      operationCount: 427,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()

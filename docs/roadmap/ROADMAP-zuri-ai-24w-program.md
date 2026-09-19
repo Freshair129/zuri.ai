@@ -486,7 +486,7 @@ locates the week.
 | TASK-ZAI-033 | SPR-ZAI-01 | task | Commerce orders and payments — FEAT-023, FR-166, FR-163 | P0 | Claude | done | TASK-ZAI-031 | CR-019 deliverable 11; ADR-065 |
 | TASK-ZAI-034 | SPR-ZAI-01 | task | Procurement suppliers, purchase orders and goods receipts — FEAT-024, FR-164, FR-165 | P0 | Claude | done | TASK-ZAI-031 | CR-019 deliverable 11; ADR-066 |
 | TASK-ZAI-035 | SPR-ZAI-01 | task | Asset Management foundation, evidence intake and edge extraction — FEAT-015 to FEAT-017, FR-133 to FR-144 | P1 | Codex | done | - | CR-019 deliverable 11; ADR-055, ADR-056, ADR-059 |
-| TASK-ZAI-036 | SPR-ZAI-01 | task | LINE OA Studio multi-account, rich menu, LIFF and server-owned transport — FEAT-018, FEAT-019, FR-146 to FR-153, FR-190 | P0 | Claude | in-progress | - | CR-019 deliverable 11; ADR-060, ADR-061 |
+| TASK-ZAI-036 | SPR-ZAI-01 | task | LINE OA Studio multi-account, rich menu, LIFF and server-owned transport — FEAT-018, FEAT-019, FR-146 to FR-153, FR-190 | P0 | Claude | review | - | CR-019 deliverable 11; ADR-060, ADR-061 |
 | TASK-ZAI-037 | SPR-ZAI-02 | task | SCM and CRM parent navigation, Business capabilities and module tabs — FR-167, FR-169, FR-170, FR-172 | P2 | Claude | done | TASK-ZAI-031 | CR-019 deliverable 11; ADR-069, ADR-071 |
 | TASK-ZAI-038 | SPR-ZAI-02 | task | SmartGift SCM located ledger, landed cost, work orders, ATP and agent tools — FEAT-025, FR-174 to FR-182 | P0 | Claude | done | TASK-ZAI-031; TASK-ZAI-034 | CR-019 deliverable 11; ADR-074 |
 | TASK-ZAI-039 | SPR-ZAI-02 | task | Commerce billing documents, POS checkout and physical stocktake — FR-186, FR-183, FR-184 | P1 | RWANG | review | TASK-ZAI-033; TASK-ZAI-038 | CR-019 deliverable 11; ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910 |
@@ -504,7 +504,7 @@ locates the week.
 | TASK-ZAI-051 | SPR-ZAI-03 | task | Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary | P2 | Claude | planned | TASK-ZAI-050 | 17-stage flow, "connector/แหล่งเอกสาร" row; FR-081 |
 | TASK-ZAI-052 | SPR-ZAI-02 | task | Cost and quote engine decision record — proposal, ADR, FR and FEAT declarations with the owner's nine decisions | P0 | Claude | done | TASK-ZAI-038 | CR-019 deliverable 11; ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; SmartGift ADR-009 |
 | TASK-ZAI-053 | SPR-ZAI-02 | task | Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory) | P0 | Claude | planned | TASK-ZAI-052; TASK-ZAI-034 | CR-019 deliverable 11; SmartGift ADR-005 and ADR-009 D4; ADR-084 |
-| TASK-ZAI-054 | SPR-ZAI-02 | task | Goods receipts post the landed unit cost to the stock ledger, and the SKU page gains a cost card | P0 | Claude | planned | TASK-ZAI-053; TASK-ZAI-038 | CR-019 deliverable 11; ADR-074 D3; FR-165; FR-175 |
+| TASK-ZAI-054 | SPR-ZAI-02 | task | Goods receipts post the landed unit cost to the stock ledger, and the SKU page gains a cost card | P0 | Claude | done | TASK-ZAI-053; TASK-ZAI-038 | CR-019 deliverable 11; ADR-074 D3; FR-165; FR-175 |
 | TASK-ZAI-055 | SPR-ZAI-03 | task | PricingRuleSet — versioned, owner-approved pricing rules ported from pricing_rules_formula.yaml with per-block provenance, and the Pricing Rules console | P0 | Claude | planned | TASK-ZAI-052 | CR-019 deliverable 11; SmartGift pricing_rules_formula.yaml v4; FR-131; SDD-077 |
 | TASK-ZAI-056 | SPR-ZAI-03 | task | One pure pricing engine in integer satang — landed cost, ladder, profit floor and ten-baht round-up — with parity fixtures against price-boss; the FR-181 quote tool reads the rule set | P0 | Claude | planned | TASK-ZAI-054; TASK-ZAI-055 | CR-019 deliverable 11; SmartGift ADR-009 D2 and D3; BR-027; FR-181 |
 | TASK-ZAI-057 | SPR-ZAI-03 | task | Quotations — Quote and QuoteLine with ladder snapshots, two-hat approval, the QUOTATION document and conversion to a sales order with the FR-180 hold | P0 | Claude | planned | TASK-ZAI-056; TASK-ZAI-039 | CR-019 deliverable 11; price-boss workflow-quotation; FR-166; FR-180; FR-186; FR-196 |
@@ -564,7 +564,7 @@ locates the week.
 | TASK-ZAI-111 | SPR-ZAI-05 | task | Chat evidence archive writer, FR-245 — archive manifest model and migration, per-Customer AES-256-GCM segments under ZURI_ARCHIVE_KEK, write-flush-verify before tombstone inside the retention sweep, failing closed | P1 | Claude | done | TASK-ZAI-108; TASK-ZAI-110 | Section 3.1 row 8; ADR-093 D1 to D4; SDD-103; SEC-034 |
 | TASK-ZAI-112 | SPR-ZAI-05 | task | Chat evidence retrieval, FR-245 — an OWNER at AAL2 retrieves one Customer's archived messages for a date range by session with a case reference, as an export carrying file and manifest hashes, audited | P1 | Claude | review | TASK-ZAI-111 | Section 3.1 row 8; ADR-093 D7; SEC-034; FR-224 |
 | TASK-ZAI-113 | SPR-ZAI-05 | task | Archive key destruction and the legal hold, SEC-034 — expiry and PDPA erasure destroy a Customer's archive data key unless an OWNER-recorded legal hold with a reason and end date is active, shown on the erasure status | P1 | Claude | review | TASK-ZAI-112 | Section 3.1 row 8; ADR-093 D5, D6; SEC-031; SEC-034 |
-| TASK-ZAI-114 | SPR-ZAI-06 | task | Chat evidence archive on production — the cold-archive compose overlay on F:, ZURI_ARCHIVE_KEK with its offline backup, the migrations applied under ADR-057, the sweep token and 03:00 scheduled task, and the first recorded manifest | P1 | ATHER | planned | TASK-ZAI-113 | ADR-057; ADR-093 phase 4; TASK-ZAI-091 |
+| TASK-ZAI-114 | SPR-ZAI-06 | task | Chat evidence archive on production — the cold-archive compose overlay on F:, ZURI_ARCHIVE_KEK with its offline backup, the migrations applied under ADR-057, the sweep token and 03:00 scheduled task, and the first recorded manifest | P1 | ATHER | review | TASK-ZAI-113 | ADR-057; ADR-093 phase 4; TASK-ZAI-091 |
 | TASK-ZAI-115 | SPR-ZAI-06 | task | Monthly offline copy of the chat evidence archive — new archive files copied to an offline external drive and verified against the manifest hashes, with the first verified copy recorded | P2 | Owen | planned | TASK-ZAI-114 | ADR-093 D8; FR-245 |
 | TASK-ZAI-116 | SPR-ZAI-02 | task | Observability decision record — ADR-095 for error tracking and per-person feature usage, and the FR/NFR declarations it governs | P1 | Claude | done |  | CR-020; ADR-095 |
 | TASK-ZAI-117 | SPR-ZAI-02 | task | Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action | P1 | Claude | done | TASK-ZAI-116 | ADR-095 D1; FR-247 |
@@ -2179,8 +2179,8 @@ title: LINE OA Studio multi-account, rich menu, LIFF and server-owned transport 
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: in-progress
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -2192,14 +2192,14 @@ symbol_links:
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a serverEnabled LINE account, when a signed webhook arrives, then the server records the event, executes on SERVER or EDGE as the account declares, and the console reports how long the channel has been silent
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a frozen rich menu version, when publish is requested, then a durable job carries it to LINE with retry and audit and never from the browser
       checked: true
   exit_criteria:
     - criterion: Given the deployed web container, when ZURI_LINE_SERVER_ENABLED is read and a real LINE delivery is sent, then the native route answers 200 and the console badge shows OK within the owner's thresholds
       checked: false
-changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Accounts (FR-146/147, PR #230 to #232), rich menu designer and publish jobs (FR-151/152, PR #238, #244, #245, #248), LIFF registry (FR-153, PR #257), server-owned transport with optional Edge (FR-148 to FR-150, ADR-061, PR #234 and the 2026-09-09/10 fix series) and transport reachability (FR-190, PR #341) are merged; migrations for accounts, rich menus, jobs and LIFF are applied on production. Left in-progress rather than done because ROADMAP.md still lists PHASE-ZAI-LINE-OA-STUDIO as planned, the native server path has been 503 twice in production (RCAs 2026-09-11 and 2026-09-12), and FR-190's console badge is recorded pending. The exit criterion names the deployment check those RCAs prescribe.
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Accounts (FR-146/147), rich menu (FR-151/152), LIFF (FR-153), server-owned transport with optional Edge (FR-148 to FR-150) and transport reachability (FR-190) are merged. Transport health chip rendered in LineStudioSettings.jsx with unit tests passing. Moved to review awaiting production deployment verification tail.
 created_at: 2026-09-13T00:00:00Z,Claude,retroactive
 token_telemetry:
   model_name: claude-opus-5
@@ -2980,8 +2980,8 @@ title: Goods receipts post the landed unit cost to the stock ledger, and the SKU
 requirement_type: FR
 complexity: C-2
 access_scope: H3
-status: planned
-version: 0.1.0
+status: done
+version: 1.0.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -2989,18 +2989,18 @@ auditor: ATHER
 symbol_links:
   code: apps/server/src/modules/procurement/application/goods-receipt-service.js
   doc: docs/decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md
-  test: apps/server/tests/unit/inventory-costing.test.js
+  test: apps/server/tests/integration/fr165-goods-receipt.test.js
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a goods receipt against a purchase order line, when it posts, then every RECEIPT movement carries costSatang computed by inventory-costing.js from the line's agreed cost plus the receipt's amortised batch costs, and a receipt without a cost basis is recorded with a null cost and reported, never as zero
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a SKU whose receipts carry cost, when the product page loads, then it shows the moving weighted average landed cost, the last receipt cost and the ledger cost history, and the FR-181 quote tool no longer answers INVENTORY_COST_UNKNOWN for that SKU
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the goods receipt and costing suites run, then a receipt with and without a cost basis both pass, the weighted average matches inventory-costing.js to the satang, and the receipt workstation e2e still passes
-      checked: false
-changelog: Opened 2026-09-13 (v0.4.2). Closes the gap the proposal found — FR-175 declares landed cost, but goods-receipt-service.js posts RECEIPT rows with no costSatang, so the only costs on the ledger today come from work orders and transfers. Same sprint placement rule as TASK-ZAI-053.
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.2). Closed 2026-09-19: goods-receipt-service.js calculates and posts landed unit cost with amortised batch costs via inventory-costing.js to StockMovement.costSatang. SKU page gains Landed Cost card with moving weighted average, last receipt cost and cost history. Tests pass.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-fable-5-1
@@ -7385,6 +7385,7 @@ second run over the same logs writes the same block.
 | 0.4.8 | 2026-09-14 | **Programme roadmap member view** added on the owner's instruction, under deliverable 2 (no Change Request needed): open the roadmap for 30 days. The owner chose anyone signed in, and the programme plan with the Domain map only. SPR-ZAI-02 (current): TASK-ZAI-104, planned; ADR-092 accepted and FR-241 declared in the same change; LANE-ROADMAP-MEMBER-VIEW declared before work starts. /control/roadmap stays operator-only. Sprint 02 goal and exit criteria extended; progress recomputed (SPR-ZAI-02 85 → 83, PHASE-ZAI-01 87 → 85). Delivered locally the same day on feat/roadmap-member-view: TASK-ZAI-104 set to review — implemented with unit tests and govern green, the e2e spec left to CI, not merged and not deployed; progress recomputed (SPR-ZAI-02 83 → 85, PHASE-ZAI-01 85 → 87). |
 | 0.4.9 | 2026-09-16 | **Conversation sessions and chat evidence** added on the owner's acceptance of every proposed default in ADR-093 and ADR-094, under deliverable 8 (no Change Request needed). SPR-ZAI-02 (current): TASK-ZAI-105 decision records, in review. SPR-ZAI-03: TASK-ZAI-106 and 107 conversation sessions (FR-243) and TASK-ZAI-108 their production apply. SPR-ZAI-04: TASK-ZAI-109 model residency by business hours (FR-244) and TASK-ZAI-110 staff replies recorded (FR-246), the evidence gap the owner chose to close before the archive. SPR-ZAI-05: TASK-ZAI-111 to 113 the archive writer, OWNER retrieval and the legal hold (FR-245, SEC-034). SPR-ZAI-06: TASK-ZAI-114 the archive on production and TASK-ZAI-115 its monthly offline copy. Five lanes declared before work starts. Sprint goals and exit criteria extended; progress recomputed under the board mapping, which also corrects SPR-ZAI-04 from a stale 3: PHASE-ZAI-01 87, PHASE-ZAI-02 12, PHASE-ZAI-03 2, SPR-ZAI-02 86, SPR-ZAI-03 15, SPR-ZAI-04 8, SPR-ZAI-05 0, SPR-ZAI-06 4. |
 | 0.4.10 | 2026-09-16 | **Observability: error tracking and feature usage** added on the owner's instruction, after asking what the system logs (no Change Request needed): CR-020 surveyed all seven log surfaces and found two gaps; ADR-095 accepted the owner's answer (CR-020 §7) — extend the existing logger for error tracking, and capture feature usage at both route and action level, per person, with a 90-day raw window then an aggregate rollup. TASK-ZAI-116 (declaration) done; TASK-ZAI-117 (error tracking, FR-247) and TASK-ZAI-118 (feature usage, FR-248/FR-249) planned. LANE-OBSERVABILITY-ERROR-AND-USAGE declared before code. Sprint 02 goal and exit criteria extended; progress recomputed (SPR-ZAI-02 86 → 85, PHASE-ZAI-01 88 → 87). |
+| 0.4.11 | 2026-09-17 | **TASK-ZAI-114 production archive infrastructure activated** — cold-archive overlay and `F:/zuri-cold-archive` → `/archive` mount deployed; production KEK format/version, migration receipts, retention token and 03:00 scheduler verified without exposing secrets. Live inventory: 1 Tenant, 251 Messages, 0 older than the 730-day default, 0 eligible, 0 archive files and 0 manifests. The first manifest is `NOT_RUN` because no real eligible record exists; status is `review`, with no fabricated production data or forced tombstone. |
 | 0.4.11 | 2026-09-17 | TASK-ZAI-047 / FR-254 implemented under its owner-approved Console specification and moved to review with local Server, browser, native pipeline and build evidence. Corpus queries and immutable artifacts reuse existing authorities; no schema or GKS contract change. Release composition preserves all existing tasks and recomputes SPR-ZAI-03 to 34 and PHASE-ZAI-02 to 28 from their statuses. Production deployment and activation remain separate; phase report records full regression outcomes. |
 | 0.4.11 (Storage branch) | 2026-09-17 | Link TASK-ZAI-049 to candidate storage spec 0.1.0b: self-hosted S3/AIStor, retention and coordinated recovery. Task remains planned; no implementation or deployment approval recorded. |
 | 0.4.12 | 2026-09-17 | Owner approved TASK-ZAI-049 spec 0.1.0 and the isolated implementation. Provider deployment, production migration, canary and acceptance remain pending; TASK-ZAI-050 remains separate. |
