@@ -897,9 +897,9 @@
       "tableName": "Workstream"
     }
   ],
-  "targetSchemaSha256": "ee7a379237b5e8cbebd7607deb1d28cc400009e54076c60c87fb2dddb3873198",
   "migrationTables": [
     "_prisma_migrations",
     "schema_migrations"
-  ]
+  ],
+  "targetSchemaSha256": "ee7a379237b5e8cbebd7607deb1d28cc400009e54076c60c87fb2dddb3873198"
 }
