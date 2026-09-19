@@ -591,7 +591,7 @@ describe('TASK-ZAI-094 isolated LINE grounding acceptance', () => {
     } })
   }
 
-  async function runLineJob(workerId) {
+  async function runLineJob(workerId, { executionConcurrency } = {}) {
     const sent = []
     const answer = createServerLineAnswer({ env: lineEnv, knowledge: { query: async () => ({ records: [] }) } })
     // The production corpus reader resolves its transport from process.env; this
@@ -601,6 +601,7 @@ describe('TASK-ZAI-094 isolated LINE grounding acceptance', () => {
       db: prisma,
       env: lineEnv,
       workerId,
+      ...(executionConcurrency ? { executionConcurrency } : {}),
       answer,
       resolveAccount: (id) => prisma.lineOaAccount.findUnique({ where: { id } }),
       replyTransport: { send: async (input) => { sent.push(input); return { status: 'ACCEPTED_BY_LINE', requestId: `${workerId}:reply` } } },
@@ -701,6 +702,43 @@ describe('TASK-ZAI-094 isolated LINE grounding acceptance', () => {
     })
     expect(evidence[0].payload.budgetMs).toBeLessThanOrEqual(Number(lineEnv.ZURI_LINE_KNOWLEDGE_BUDGET_MS))
     expect(trace.events.some((event) => String(event.kind).startsWith('MODEL_'))).toBe(false)
+  })
+
+  it('measures MSP spawn cost inside a four-wide worker tick against the grounding budget', async () => {
+    const admittedJobs = await Promise.all(['a', 'b', 'c', 'd'].map((suffix) => admitLineConversation({
+      account: lineAccount,
+      event: lineEvent(`four-wide-${suffix}`, fixture.queries[0].query),
+      correlationId: `task-zai-094-four-wide-${suffix}`,
+      now: new Date(),
+      env: lineEnv,
+    })))
+    const startedAt = performance.now()
+    const { result, sent } = await runLineJob('task-zai-094-four-wide', { executionConcurrency: 4 })
+    const tickElapsedMs = Math.round(performance.now() - startedAt)
+    expect(result).toMatchObject({ status: 'RECORDED', executed: 4, sent: 4 })
+    expect(sent).toHaveLength(4)
+
+    const traces = await Promise.all(admittedJobs.map((admitted) => readLineConversationTrace(admitted.jobId, { viewer: lineViewer })))
+    const primaryEvidence = traces.flatMap((trace) => trace.events)
+      .filter((event) => event.kind === 'EVIDENCE_SELECTED' && event.payload?.source === 'GKS_CORPUS')
+    const hopBudgetMs = primaryEvidence.map((event) => event.payload.budgetMs)
+    const configuredBudgetMs = Number(lineEnv.ZURI_LINE_KNOWLEDGE_BUDGET_MS)
+    const budgetHolds = primaryEvidence.length === 4 && hopBudgetMs.every((value) => value <= configuredBudgetMs)
+    const reportDir = path.resolve('../../.brain/reports')
+    mkdirSync(reportDir, { recursive: true })
+    writeFileSync(path.join(reportDir, 'task-zai-094-line-grounding.json'), JSON.stringify({
+      task: 'TASK-ZAI-094',
+      executionConcurrency: 4,
+      tickElapsedMs,
+      groundingHopElapsedMs: hopBudgetMs,
+      configuredBudgetMs,
+      budgetHolds,
+      measurement: 'EVIDENCE_SELECTED.payload.budgetMs covers fresh MSP spawn, initialize, tools/call and worker loopback for each grounding hop; tickElapsedMs is the four-wide Server worker tick wall time.',
+      transportDecision: budgetHolds ? 'budget-holds' : 'MSP-spawn-or-loopback-dominates; evaluate daemon transport, do not widen budget',
+    }, null, 2))
+
+    expect(primaryEvidence).toHaveLength(4)
+    expect(hopBudgetMs.every((value) => value <= configuredBudgetMs)).toBe(true)
   })
 
   it('fails closed for a foreign tenant and records no citation from the primary corpus', async () => {
