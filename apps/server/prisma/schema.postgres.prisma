@@ -871,7 +871,6 @@ model PasskeyCredential {
   @@index([personId, status])
   @@index([credentialId])
 }
-}
 
 // @req FR-094 — external channel subjects are namespaced attributes, never
 // canonical principals or primary keys.
