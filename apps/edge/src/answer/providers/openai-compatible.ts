@@ -1,4 +1,10 @@
 import type { ModelPort, ModelPortConfig, ModelReply, ModelRequest } from '../model-port.js';
+import { composeModelInvocation, invocationEvidenceRefs } from '../context-injection.js';
+
+// @req FR-234 — one actual invocation, one CIN receipt; unknown receipt
+// acknowledgements abort local inference and never trigger a second request.
+// @spec ADR-091 D7, SDD-100
+// @tested tests/unit/context-invocation-provider.test.ts
 
 /**
  * Every local runtime a business would actually run — Ollama, vLLM, LM Studio,
@@ -35,7 +41,18 @@ interface ChatMessage {
   tool_call_id?: string;
 }
 
-const MAX_TOKENS = 2000;
+/**
+ * A LINE reply is a few hundred tokens; the executor rejects anything over 5000 characters
+ * anyway. 2000 let a runaway generation run for 30 s on a 9B model at ~65 t/s (seen live on
+ * 2026-09-13: 1,753 tokens generated, the job's whole model budget gone, EXECUTION_FAILED).
+ * 700 tokens is ~11 s worst case, so a rambling model still hands back a reply in time.
+ */
+const MAX_TOKENS = 700;
+/** Ollama's default is 1.0, which is where the rambling and the invented examples come from. */
+const TEMPERATURE = 0.3;
+/** Sent as the last user turn when the tools are withheld; not a system rule, so a persona cannot drop it. */
+export const FINAL_PASS_NUDGE =
+  'ตอบลูกค้าตอนนี้เลย จากผลลัพธ์ของเครื่องมือด้านบนเท่านั้น เป็นข้อความสั้น ๆ ถ้าข้อมูลยังไม่พอให้บอกตรง ๆ ว่ายังไม่มีข้อมูล ห้ามเรียกเครื่องมือเพิ่ม';
 
 export function createOpenAiCompatiblePort(
   config: ModelPortConfig,
@@ -85,14 +102,41 @@ export function createOpenAiCompatiblePort(
         ];
       }
 
+      let nudged = false;
       for (let iteration = 0; iteration < request.maxIterations; iteration += 1) {
+        request.signal.throwIfAborted();
         // On the last pass the tools are withheld. A model that is still calling them here has
         // already gathered its evidence and simply has no turn left to speak in — offering the
         // tools again guarantees the one outcome the customer cannot use, an empty reply that
         // falls back to the pattern reader. Without them it has to answer from what it holds, and
         // that answer is checked against the evidence like any other.
         const finalPass = iteration === request.maxIterations - 1;
-        const response = await fetchFn(`${baseUrl}/chat/completions`, {
+        if (finalPass && tools.length && iteration > 0 && !nudged) {
+          // A 9B model that has just been refused its tools tends to answer with nothing at all
+          // (seen on qwen3.5:9b after three tool rounds: content "", so the job failed). Told
+          // plainly that this is the reply turn, it summarises what the tools returned.
+          messages.push({ role: 'user', content: FINAL_PASS_NUDGE });
+          nudged = true;
+        }
+        const invocationTools = tools.length && !finalPass ? tools : [];
+        await request.context?.beforeInvocation?.();
+        request.signal.throwIfAborted();
+        const invocation = request.context ? composeModelInvocation({
+          ...request.context, ...invocationEvidenceRefs(messages), messages, tools: invocationTools,
+        }) : null;
+        if (invocation) await request.context?.lifecycle?.(invocation.receipt, 'RESOLVED');
+        request.signal.throwIfAborted();
+        const invocationAbort = new AbortController();
+        const invocationSignal = AbortSignal.any([request.signal, invocationAbort.signal]);
+        const recordState = async (state: 'SUBMITTED' | 'COMPLETED' | 'FAILED') => {
+          if (!invocation) return;
+          try { await request.context?.lifecycle?.(invocation.receipt, state); }
+          catch {
+            invocationAbort.abort();
+            throw new Error('MSP_INJECTION_RECEIPT_UNKNOWN');
+          }
+        };
+        const pendingResponse = fetchFn(`${baseUrl}/chat/completions`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -101,37 +145,80 @@ export function createOpenAiCompatiblePort(
           },
           body: JSON.stringify({
             model: config.model,
-            max_tokens: MAX_TOKENS,
-            messages,
-            ...(tools.length && !finalPass ? { tools } : {}),
+            max_tokens: Math.min(MAX_TOKENS, request.maxOutputTokens || MAX_TOKENS),
+            temperature: TEMPERATURE,
+            messages: invocation?.messages ?? messages,
+            ...(invocationTools.length ? { tools: invocationTools } : {}),
             // Not an OpenAI field, and harmless where it is not understood. Over half
             // the models on a local box are Thinking variants, and they spend their
             // token budget reasoning before answering — which shows up as a reply that
             // arrives after the LINE token has expired, or as `<think>` leaking into
             // what the customer reads. SPEC--LOCAL-LLM-DISPATCH-V2 §5.4.
             think: false,
+            // Ollama's OpenAI-compatible route uses reasoning_effort; the native
+            // think field alone does not disable Qwen3.5's reasoning budget.
+            ...(config.model === 'qwen3.5:9b' ? { reasoning_effort: 'none' } : {}),
             // Ollama reads this; other servers ignore it. Omitted unless configured so
             // a server that sizes its own context is left alone.
             ...(config.numCtx ? { options: { num_ctx: config.numCtx } } : {}),
           }),
-          signal: request.signal,
+          signal: invocationSignal,
         });
-
+        if (invocation) request.context?.onReceipt?.(invocation.receipt);
+        // Capture an early rejection while MSP acknowledges submission; never retry
+        // an invocation whose receipt acknowledgement is uncertain.
+        const observed = pendingResponse.then(response => ({ response }), error => ({ error }));
+        try { await recordState('SUBMITTED'); }
+        catch (error) {
+          // An adapter may ignore abort and settle later. Drain its body without
+          // processing another tool or reissuing the already submitted prompt.
+          void observed.then(outcome => {
+            if ('response' in outcome) void outcome.response.body?.cancel().catch(() => {});
+          });
+          throw error;
+        }
+        const outcome = await observed;
+        if ('error' in outcome) {
+          await recordState('FAILED');
+          throw outcome.error;
+        }
+        const response = outcome.response;
         if (!response.ok) {
           // The body may carry provider detail that has no business in a log or a
           // reply, so only the status crosses this boundary.
+          await recordState('FAILED');
           throw new Error(`MODEL_HTTP_${response.status}`);
         }
 
-        const body = (await response.json()) as {
-          choices?: Array<{ message?: ChatMessage }>;
-        };
+        let body: { choices?: Array<{ message?: ChatMessage }> };
+        try {
+          body = await response.json() as { choices?: Array<{ message?: ChatMessage }> };
+          invocationSignal.throwIfAborted();
+          if (!body || typeof body !== 'object' || !Array.isArray(body.choices)
+            || !body.choices[0]?.message || typeof body.choices[0].message !== 'object') {
+            throw new Error('MODEL_RESPONSE_INVALID');
+          }
+        } catch {
+          await recordState('FAILED');
+          // JSON parser errors may quote private response content.
+          invocationSignal.throwIfAborted();
+          throw new Error('MODEL_RESPONSE_INVALID');
+        }
+        await recordState('COMPLETED');
+        invocationSignal.throwIfAborted();
         const message = body.choices?.[0]?.message;
         if (!message) return { text: '' };
 
         const calls = message.tool_calls ?? [];
         if (calls.length === 0) {
-          return { text: String(message.content ?? '').trim() };
+          const text = String(message.content ?? '').trim();
+          // An empty, tool-less reply in the middle of a tool loop is the same silence as on the
+          // final pass (qwen3.5:9b did it on the third round, 1 run in 3): one nudge, one more
+          // round, instead of handing back nothing and failing the job.
+          if (text || finalPass || !tools.length || nudged) return { text };
+          messages.push({ role: 'user', content: FINAL_PASS_NUDGE });
+          nudged = true;
+          continue;
         }
 
         // Keep the assistant's tool-call turn before appending results, or the server
@@ -143,6 +230,7 @@ export function createOpenAiCompatiblePort(
         });
 
         for (const call of calls) {
+          request.signal.throwIfAborted();
           const tool = byName.get(call.function?.name ?? '');
           let result: string;
           if (!tool) {
@@ -153,6 +241,7 @@ export function createOpenAiCompatiblePort(
             try {
               const args = call.function.arguments ? JSON.parse(call.function.arguments) : {};
               result = await tool.run(args);
+              request.signal.throwIfAborted();
             } catch (error) {
               result = JSON.stringify({
                 error: error instanceof Error ? error.message : 'tool failed',

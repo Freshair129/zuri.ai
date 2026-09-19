@@ -2,9 +2,15 @@ import { randomUUID } from 'node:crypto'
 import { appendTraceEvent, sha256 } from './execution-trace'
 
 // @req FR-171 — preserve the evidence and exact model inputs used by a SERVER job.
+// @req FR-235 — `recordEvidence` accepts an optional per-hop `meta` (source,
+// reason, retrievalRefs, budgetMs) so a mode-gated grounding read can trace
+// every hop it attempts; a caller that omits `meta` gets today's single
+// `BUSINESS_QUERY` shape, unchanged.
 // @spec ADR-070, ADR-061, SEC-001 — public-only remains the default; an opted-in
 // worker records the bounded MSP context packet used by the model.
-// @tested tests/integration/server-line-trace.test.js
+// @spec ADR-090 D2, D3 — one EVIDENCE_SELECTED per hop, never customer content.
+// @tested tests/integration/server-line-trace.test.js, tests/unit/line-execution-trace.test.js,
+//   tests/unit/line-knowledge-grounding.test.js
 
 const digest = sha256
 
@@ -28,9 +34,28 @@ export function createLineExecutionTrace({ db, job }) {
   }
   return {
     assertHealthy() { if (failure) throw failure },
-    async recordEvidence(query, evidence) {
-      retrieval = { retrievalRunId: randomUUID(), source: 'BUSINESS_QUERY', query, evidence,
-        snapshotHash: digest(evidence), observedAt: new Date().toISOString() }
+    // @req FR-235 — a grounding-mode-aware caller may report the account's
+    // grounding mode (`meta.mode`), which source this hop actually read
+    // (`meta.source`), why (`meta.reason`), its retrieval references
+    // (`meta.retrievalRefs` — citation/source/snapshot/generation, never
+    // content) and its measured budget (`meta.budgetMs`), so the console trace
+    // shows which mode answered without inferring it from `source` alone.
+    // Omitting `meta` entirely — every caller before FR-235 — keeps the
+    // original single `source: 'BUSINESS_QUERY'` shape byte-for-byte
+    // (ADR-090 "Required proof" 1).
+    async recordEvidence(query, evidence, meta = {}) {
+      retrieval = {
+        retrievalRunId: randomUUID(),
+        source: meta.source ?? 'BUSINESS_QUERY',
+        query,
+        evidence,
+        snapshotHash: digest(evidence),
+        observedAt: new Date().toISOString(),
+        ...(meta.mode !== undefined ? { mode: meta.mode } : {}),
+        ...(meta.reason !== undefined ? { reason: meta.reason } : {}),
+        ...(meta.retrievalRefs !== undefined ? { retrievalRefs: meta.retrievalRefs } : {}),
+        ...(meta.budgetMs !== undefined ? { budgetMs: meta.budgetMs } : {}),
+      }
       await record('EVIDENCE_SELECTED', `retrieval:${retrieval.retrievalRunId}`, retrieval)
     },
     recordThreadMemory(details) {
@@ -38,6 +63,14 @@ export function createLineExecutionTrace({ db, job }) {
       // this setter synchronous ensures a failed provider never races a second
       // trace write, while the existing trace observer remains the write boundary.
       memoryContext = details && typeof details === 'object' ? details : null
+    },
+    // @req FR-234 — exactly one ContextReceipt per model invocation: references,
+    // a hash and the budget, never content (ADR-091 D7, SDD-100).
+    async recordContextReceipt(receipt) {
+      if (failure) throw failure
+      if (!receipt?.receiptId) throw new Error('CONTEXT_RECEIPT_REQUIRED')
+      await record('CONTEXT_RECEIPT', `context-receipt:${receipt.receiptId}`, receipt)
+      return receipt
     },
     async beforeModelCall({ provider, model, requestBody, promptVersion, systemPrompt }) {
       if (failure) throw failure

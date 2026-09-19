@@ -63,7 +63,7 @@ function Methodology({ snapshot }) {
         <p><strong className="text-[var(--text)]">Code {method.codeWeight}% + Tests {method.testWeight}%</strong><br />นับจาก `@req` และ `@tested` edges ใน graph ไม่ใช่จำนวนไฟล์โดยประมาณ</p>
         <p><strong className="text-[var(--text)]">Readiness แยกจาก Progress</strong><br />{method.readinessRule}</p>
       </div>
-      <p className="mt-3 text-[10px] text-muted">Snapshot สร้างเมื่อ {new Date(snapshot.generatedAt).toLocaleString()} · ไม่มี live telemetry หรือ external activation proof</p>
+      <p className="mt-3 text-[10px] text-muted">Snapshot ที่มาพร้อมแอปเวอร์ชันนี้ · ไม่มี live telemetry หรือ external activation proof</p>
     </details>
   )
 }

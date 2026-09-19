@@ -9,6 +9,7 @@ import {
   zRegisterLiffApp,
 } from '../domain/line-oa-liff-app'
 import { assertMayPublish, assertMayView, notFound } from './line-oa-account-authority'
+import { admitLineStudioDescription, composeLiffAppDescription, lineStudioDescriptionSourceKey, withdrawLineStudioDescription } from './line-oa-studio-description-admission'
 
 // @req FR-153 — the only writer of LineOaLiffApp: register an app for an
 //   account (DRAFT until its liffId is recorded, ACTIVE from then), list and
@@ -20,7 +21,10 @@ import { assertMayPublish, assertMayView, notFound } from './line-oa-account-aut
 //   what exists so the Studio's LIFF actions can resolve to it.
 // @spec SRS LOS-RQ-070; BR-002 (liffId is an attribute, unique per account,
 //   never a key); ADR-060 D11 (404-shaped refusals, publisher writes); SEC-001
-// @tested tests/integration/fr153-line-oa-liff-app.test.js
+// @req FR-238 — becoming ACTIVE (registration with a liffId, or RECORD_LIFF_ID)
+//   admits the app's name/description as a LINE_STUDIO_DESCRIPTION TEXT
+//   source (ADR-090 D7); ARCHIVE withdraws it. Best-effort.
+// @tested tests/integration/fr153-line-oa-liff-app.test.js, tests/integration/fr238-line-studio-description-admission.test.js
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
 
@@ -89,6 +93,18 @@ export async function registerLiffApp(input, { viewer, db = prisma } = {}) {
     })
     return created
   })
+  // @req FR-238 — a registration that already carries a liffId is ACTIVE from
+  // creation (ADR-090 D7's publisher action for a LIFF app); best-effort,
+  // after commit.
+  if (row.status === 'ACTIVE') {
+    await admitLineStudioDescription({
+      businessId: row.businessId,
+      sourceKey: lineStudioDescriptionSourceKey.liffApp(row.id),
+      version: row.version,
+      title: `LIFF app: ${row.name}`,
+      content: composeLiffAppDescription({ name: row.name, description: row.description }),
+    }, { db })
+  }
   return toDto(row)
 }
 
@@ -162,5 +178,24 @@ export async function applyLiffAppAction(id, input, { viewer, db = prisma } = {}
     })
     return tx.lineOaLiffApp.findUnique({ where: { id: row.id }, select: SELECT })
   })
+  // @req FR-238 — RECORD_LIFF_ID is this app's publisher action (activates it,
+  // ADR-090 D7); an UPDATE while already ACTIVE republishes the (possibly
+  // changed) description under the same sourceKey, keyed on the row's own
+  // version so each write is a distinct admitted version; ARCHIVE is the
+  // unpublish. Best-effort, after commit.
+  if (data.action === 'ARCHIVE') {
+    await withdrawLineStudioDescription({
+      businessId: updated.businessId,
+      sourceKey: lineStudioDescriptionSourceKey.liffApp(updated.id),
+    }, { db })
+  } else if (updated.status === 'ACTIVE') {
+    await admitLineStudioDescription({
+      businessId: updated.businessId,
+      sourceKey: lineStudioDescriptionSourceKey.liffApp(updated.id),
+      version: updated.version,
+      title: `LIFF app: ${updated.name}`,
+      content: composeLiffAppDescription({ name: updated.name, description: updated.description }),
+    }, { db })
+  }
   return toDto(updated)
 }

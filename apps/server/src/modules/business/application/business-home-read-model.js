@@ -119,7 +119,7 @@ function attentionQueue({ projects, strategy, now }) {
         id: `gate:${gate.id}`,
         severity: late ? SEVERITY.HIGH : SEVERITY.MED,
         title: late ? `Required gate overdue — ${gate.title}` : `Required gate open — ${gate.title}`,
-        detail: `Development · ${project.code}`,
+        detail: `Projects & Work · ${project.code}`,
         domainKey: 'projects',
         href: `/projects/${project.id}`,
       })
@@ -130,7 +130,7 @@ function attentionQueue({ projects, strategy, now }) {
         id: `milestone:${milestone.id}`,
         severity: SEVERITY.HIGH,
         title: `Milestone past target — ${milestone.title}`,
-        detail: `Development · ${project.code}`,
+        detail: `Projects & Work · ${project.code}`,
         domainKey: 'projects',
         href: `/projects/${project.id}`,
       })

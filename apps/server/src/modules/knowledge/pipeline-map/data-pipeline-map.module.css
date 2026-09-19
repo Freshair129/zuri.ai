@@ -1,0 +1,1007 @@
+/* @req FR-213 — Data Pipeline Map styling with Dark Slate Canvas, Compact KPIs,
+   Motion Edges, and Pan/Zoom Controls. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  height: calc(100vh - 202px);
+  max-height: calc(100vh - 202px);
+  min-height: 480px;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .page {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+}
+
+.headerWrap {
+  flex-shrink: 0;
+}
+
+.headerWrap :global(.mb-5) {
+  margin-bottom: 4px;
+}
+
+.headerWrap :global(h1) {
+  font-size: 20px;
+  line-height: 1.25;
+}
+
+.headerWrap :global(p) {
+  margin-top: 1px;
+}
+
+/* ==========================================================================
+   Compact Top KPI Strip (Reduced Height)
+   ========================================================================== */
+.kpisCompact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--bg-surface, #ffffff);
+  border: 1px solid var(--border-default, #e2e8f0);
+  border-radius: 10px;
+  flex-shrink: 0;
+}
+
+.kpiMiniChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--bg-subtle, #f8fafc);
+  border: 1px solid var(--border-subtle, #cbd5e1);
+  border-radius: 6px;
+  font-size: 11.5px;
+  line-height: 1.2;
+}
+
+.kpiMiniLabel {
+  font-size: 10.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-tertiary, #64748b);
+}
+
+.kpiMiniValue {
+  font-size: 12px;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--text-primary, #0f172a);
+}
+
+.kpiMiniMeta {
+  font-size: 10.5px;
+  color: var(--text-secondary, #475569);
+}
+
+/* ==========================================================================
+   Toolbar & Filters
+   ========================================================================== */
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  flex-shrink: 0;
+}
+
+.toolbarLeft {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.tabs {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--border-default, #e2e8f0);
+  border-radius: 8px;
+  background: var(--bg-subtle, #f8fafc);
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary, #64748b);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tab[aria-selected='true'] {
+  background: var(--bg-surface, #ffffff);
+  color: var(--action-primary, #e8820c);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: var(--text-secondary, #64748b);
+}
+
+.filter select {
+  padding: 4px 8px;
+  border: 1px solid var(--border-default, #e2e8f0);
+  border-radius: 6px;
+  background: var(--bg-surface, #ffffff);
+  color: var(--text-primary, #0f172a);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.clear {
+  padding: 4px 8px;
+  border: 1px solid var(--border-default, #e2e8f0);
+  border-radius: 6px;
+  background: var(--bg-surface, #ffffff);
+  color: var(--text-secondary, #64748b);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.clear:hover {
+  background: var(--bg-subtle, #f8fafc);
+}
+
+/* ==========================================================================
+   Layout Body & Sidebar
+   ========================================================================== */
+.body {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(0, 1fr);
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+@media (min-width: 1280px) {
+  .body {
+    grid-template-columns: minmax(0, 1fr) 330px;
+  }
+}
+
+.main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  font-size: 11px;
+  color: var(--text-secondary, #64748b);
+}
+
+/* ==========================================================================
+   Solid Dark Canvas (Brighter Deep Slate) with Pan & Zoom
+   ========================================================================== */
+.canvasFrame {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  background-color: #162232;
+  background-image: radial-gradient(circle, #2d3f56 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
+  border: 1px solid #2d4059;
+  border-radius: 12px;
+  overflow: hidden;
+  user-select: none;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.canvasViewport {
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+}
+
+.canvasViewport.isDragging {
+  cursor: grabbing;
+}
+
+.svgRoot {
+  display: block;
+  transform-origin: 0 0;
+  will-change: transform;
+}
+
+/* Stage Column Headers in Dark Canvas */
+.columnHeaderGroup {
+  pointer-events: none;
+}
+
+.columnHeaderRect {
+  fill: #1e2d42;
+  stroke: #344a69;
+  stroke-width: 1;
+}
+
+.columnHeaderText {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  fill: #e2e8f0;
+}
+
+.columnHeaderBadge {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  fill: #e8820c;
+}
+
+/* ==========================================================================
+   Motion Edges (Data Flow Animation)
+   ========================================================================== */
+@keyframes flowForward {
+  from {
+    stroke-dashoffset: 36;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes flowBackward {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: 36;
+  }
+}
+
+.edge {
+  cursor: pointer;
+}
+
+.edge[data-dim='true'] {
+  opacity: 0.08;
+}
+
+.edgeHit {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 12;
+  cursor: pointer;
+}
+
+/* Base static edge trace */
+.edgeBase {
+  fill: none;
+  stroke: #2c3e56;
+  stroke-width: 1.4;
+  pointer-events: none;
+}
+
+.edgeBase[data-wired='false'] {
+  stroke-dasharray: 4 4;
+}
+
+/* Animated flow edge layer */
+.edgeFlow {
+  fill: none;
+  stroke-width: 1.5;
+  stroke-dasharray: 6 12;
+  animation: flowForward 1.2s linear infinite;
+  pointer-events: none;
+}
+
+.edgeFlow[data-backward='true'] {
+  animation: flowBackward 1.2s linear infinite;
+}
+
+/* Status colors for animated flow */
+.edge[data-status='PRODUCTION'] .edgeFlow {
+  stroke: #10b981; /* Emerald */
+}
+.edge[data-status='CODE_TESTS'] .edgeFlow {
+  stroke: #38bdf8; /* Cyan Sky */
+}
+.edge[data-status='PARTIAL'] .edgeFlow {
+  stroke: #f59e0b; /* Amber */
+}
+.edge[data-status='DECLARED'] .edgeFlow {
+  stroke: #64748b; /* Slate */
+}
+.edge[data-status='BLOCKED'] .edgeFlow {
+  stroke: #ef4444; /* Rose */
+}
+
+/* Selected or Active Chain Edge */
+.edge[data-path='true'] .edgeFlow,
+.edge[data-selected='true'] .edgeFlow {
+  stroke: #f59e0b;
+  stroke-width: 2.8;
+  stroke-dasharray: 8 10;
+  animation: flowForward 0.8s linear infinite;
+  filter: drop-shadow(0 0 4px rgba(245, 158, 11, 0.8));
+}
+
+.edgeLabel {
+  font-size: 10.5px;
+  font-weight: 500;
+  fill: #f1f5f9;
+  paint-order: stroke;
+  stroke: #162232;
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Static Dark Node Cards
+   ========================================================================== */
+.node {
+  cursor: pointer;
+  outline: none;
+}
+
+.node[data-dim='true'] {
+  opacity: 0.18;
+}
+
+.nodeBox {
+  fill: #1d2b3e;
+  stroke: #334764;
+  stroke-width: 1.2;
+  transition: stroke 0.15s ease, fill 0.15s ease, filter 0.15s ease;
+}
+
+.node:hover .nodeBox {
+  fill: #25374e;
+  stroke: #38bdf8;
+}
+
+/* External systems */
+.node[data-kind='SOURCE'] .nodeBox,
+.node[data-kind='RECIPIENT'] .nodeBox {
+  fill: #141f2d;
+  stroke: #2b3e56;
+  stroke-dasharray: 3 3;
+}
+
+/* Selected Node */
+.node[data-selected='true'] .nodeBox,
+.node:focus-visible .nodeBox {
+  stroke: #e8820c;
+  stroke-width: 2.2;
+  fill: #263852;
+  filter: drop-shadow(0 0 8px rgba(232, 130, 12, 0.45));
+}
+
+.nodeStripe {
+  fill: #334155;
+}
+
+.node[data-status='PRODUCTION'] .nodeStripe {
+  fill: #10b981;
+}
+.node[data-status='CODE_TESTS'] .nodeStripe {
+  fill: #38bdf8;
+}
+.node[data-status='PARTIAL'] .nodeStripe {
+  fill: #f59e0b;
+}
+.node[data-status='DECLARED'] .nodeStripe {
+  fill: #64748b;
+}
+.node[data-status='BLOCKED'] .nodeStripe {
+  fill: #ef4444;
+}
+
+.nodeLabel {
+  font-size: 11.5px;
+  font-weight: 600;
+  fill: #f8fafc;
+  pointer-events: none;
+}
+
+.nodeMeta {
+  font-size: 9.5px;
+  font-weight: 500;
+  fill: #94a3b8;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   HUD Pan/Zoom Controls Floating Overlay
+   ========================================================================== */
+.hudControls {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  background: rgba(22, 34, 50, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid #334764;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  z-index: 10;
+}
+
+.hudButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 6px;
+  background: #25364c;
+  color: #f1f5f9;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.hudButton:hover {
+  background: #364d6c;
+  color: #38bdf8;
+}
+
+.hudBadge {
+  padding: 0 6px;
+  font-size: 11px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+
+.hudResetButton {
+  padding: 0 8px;
+  height: 28px;
+  border: 0;
+  border-radius: 6px;
+  background: #25364c;
+  color: #cbd5e1;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.hudResetButton:hover {
+  background: #364d6c;
+  color: #e8820c;
+}
+
+/* ==========================================================================
+   Inspector / Detail Drawer
+   ========================================================================== */
+.detail {
+  align-self: stretch;
+  height: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 12px 14px;
+  border: 1px solid var(--border-default, #e2e8f0);
+  border-radius: 12px;
+  background: var(--bg-surface, #ffffff);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.detailBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.detailHead {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kind {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #b86a08;
+}
+
+.detailTitle {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--text-primary, #0f172a);
+}
+
+.detailText {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--text-secondary, #475569);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 4px 12px;
+  margin: 0;
+  font-size: 12px;
+}
+
+.facts dt {
+  color: var(--text-tertiary, #64748b);
+}
+
+.facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.subhead {
+  margin: 0 0 4px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-tertiary, #64748b);
+}
+
+.plainList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+
+.surfaceType {
+  display: inline-block;
+  min-width: 60px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-secondary, #475569);
+}
+
+.evidence {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #ecfdf5;
+  color: #065f46;
+  font-size: 11.5px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.blocked {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 11.5px;
+}
+
+.chipRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.chainChip {
+  padding: 2px 7px;
+  border: 1px solid var(--border-default, #cbd5e1);
+  border-radius: 999px;
+  background: var(--bg-surface, #ffffff);
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+.chainChip:hover {
+  border-color: #e8820c;
+  color: #b86a08;
+}
+
+.hops {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hop {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border-subtle, #e2e8f0);
+  border-radius: 6px;
+  background: var(--bg-subtle, #f8fafc);
+  color: var(--text-primary, #0f172a);
+  font: inherit;
+  font-size: 11.5px;
+  text-align: left;
+  cursor: pointer;
+}
+.hop:hover {
+  border-color: #e8820c;
+}
+
+/* Status Chips */
+.status {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.status[data-status='PRODUCTION'] {
+  background: #d1fae5;
+  color: #065f46;
+}
+.status[data-status='CODE_TESTS'] {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+.status[data-status='PARTIAL'] {
+  background: #fef3c7;
+  color: #92400e;
+}
+.status[data-status='BLOCKED'] {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+/* Chain List Accordion / Chips */
+.chainList {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  gap: 6px;
+  list-style: none;
+  margin: 0;
+  padding: 2px 0 4px;
+  flex-shrink: 0;
+  scrollbar-width: thin;
+}
+
+.chainList li {
+  flex-shrink: 0;
+}
+
+.chainButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid var(--border-default, #e2e8f0);
+  border-radius: 6px;
+  background: var(--bg-surface, #ffffff);
+  color: var(--text-primary, #0f172a);
+  font: inherit;
+  font-size: 11.5px;
+  text-align: left;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color 0.15s ease;
+}
+
+.chainButton[aria-pressed='true'] {
+  border-color: #e8820c;
+  box-shadow: inset 3px 0 0 #e8820c;
+  background: #fff8f0;
+}
+
+.chainName {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* List Table View */
+.lists {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+  height: 100%;
+  flex: 1;
+  min-height: 0;
+  padding-right: 4px;
+}
+
+.tableFrame {
+  overflow-x: auto;
+  border: 1px solid var(--border-default, #e2e8f0);
+  border-radius: 10px;
+  background: var(--bg-surface, #ffffff);
+}
+
+.table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.caption {
+  padding: 8px 12px 4px;
+  text-align: left;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-primary, #0f172a);
+}
+
+.table th {
+  padding: 6px 10px;
+  text-align: left;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-tertiary, #64748b);
+  background: var(--bg-subtle, #f8fafc);
+  border-bottom: 1px solid var(--border-default, #e2e8f0);
+}
+
+.table td {
+  padding: 6px 10px;
+  vertical-align: top;
+  border-bottom: 1px solid var(--border-subtle, #f1f5f9);
+}
+
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.refs {
+  font-size: 10.5px;
+  color: var(--text-secondary, #475569);
+  overflow-wrap: anywhere;
+}
+
+.linkButton {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #0284c7;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 10.5px;
+  color: var(--text-secondary, #475569);
+}
+
+.muted {
+  color: var(--text-tertiary, #64748b);
+}
+
+.footnote {
+  margin: 0;
+  font-size: 10.5px;
+  line-height: 1.35;
+  color: var(--text-secondary, #64748b);
+  flex-shrink: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================================================
+   FR-215 Live Pipeline Health Overlay Styles
+   ========================================================================== */
+.healthToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid var(--border-default, #e2e8f0);
+  background: var(--bg-surface, #ffffff);
+  color: var(--text-secondary, #475569);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.healthToggle:hover {
+  background: var(--bg-subtle, #f8fafc);
+  color: var(--text-primary, #0f172a);
+}
+
+.healthToggleActive {
+  background: #f0fdf4;
+  border-color: #86efac;
+  color: #166534;
+}
+
+.edge[data-has-failures='true'] .edgeBase {
+  stroke: #f43f5e;
+  stroke-width: 2.2;
+}
+
+.edge[data-has-failures='true'] .edgeFlow {
+  stroke: #f43f5e;
+  animation: flowForward 0.6s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(244, 63, 94, 0.8));
+}
+
+.healthBadge {
+  cursor: pointer;
+}
+
+.badgeFailBg {
+  fill: #e11d48;
+  stroke: #ffffff;
+  stroke-width: 1.2;
+  filter: drop-shadow(0 1px 4px rgba(225, 29, 72, 0.6));
+}
+
+.badgeFailText {
+  font-size: 8.5px;
+  font-weight: 700;
+  fill: #ffffff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.badgeOkBg {
+  fill: #059669;
+  stroke: #ffffff;
+  stroke-width: 1.2;
+  filter: drop-shadow(0 1px 4px rgba(5, 150, 105, 0.5));
+}
+
+.badgeOkText {
+  font-size: 9px;
+  font-weight: 700;
+  fill: #ffffff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.badgeIdleBg {
+  fill: #334155;
+  stroke: #64748b;
+  stroke-width: 1;
+}
+
+.badgeIdleText {
+  font-size: 8.5px;
+  font-weight: 600;
+  fill: #94a3b8;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.healthSection {
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+
+.healthTitle {
+  margin: 0 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.statusChipsWrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.statusMiniTag {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.statusMiniTag[data-status='FAILED'] {
+  background: #ffe4e6;
+  color: #e11d48;
+}
+
+.statusMiniTag[data-status='SUCCEEDED'],
+.statusMiniTag[data-status='COMPLETED'],
+.statusMiniTag[data-status='APPLIED'] {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.failText {
+  color: #e11d48;
+  font-weight: 600;
+}
+
+.unbackedNotice {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #f1f5f9;
+  border: 1px dashed #cbd5e1;
+}
+
+.monitorButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 6px 12px;
+  background: #e8820c;
+  color: #ffffff;
+  font-size: 11.5px;
+  font-weight: 600;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.monitorButton:hover {
+  background: #f09420;
+  color: #ffffff;
+}
+

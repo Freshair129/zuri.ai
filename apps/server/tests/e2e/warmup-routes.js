@@ -49,7 +49,7 @@ const path = require('node:path')
 const ROUTES = [
   '/', '/login', '/businesses', '/overview', '/profile', '/workspaces',
   // @req FR-166 — Commerce has pages now: the dashboard and the orders console.
-  '/commerce', '/commerce/orders', '/customer', '/customer/conversations',
+  '/commerce', '/commerce/orders', '/commerce/pricing-rules', '/customer', '/customer/conversations',
   '/market',
   '/growth', '/growth/strategy', '/growth/campaigns', '/growth/campaigns/new', '/growth/campaigns/warmup',
   '/growth/content', '/growth/content/new', '/growth/content/briefs/warmup', '/growth/content/assets/warmup',
@@ -89,6 +89,10 @@ const ROUTES = [
   // request that compiles its own module, which is precisely the class of cold
   // start this list exists to pay for before a spec's expect does.
   '/inventory/locations', '/inventory/work-orders', '/inventory/reservations', '/inventory/stocktakes',
+  // @req FR-206 — the SKU hygiene tab (ADR-083), the sixth Inventory page.
+  '/inventory/hygiene',
+  // @req FR-209 — the catalogue intake tab and its SKU links (ADR-084), the seventh Inventory page.
+  '/inventory/catalog-intake',
   // @req FR-167 — the reserved Warehouse slot under SCM. It has no page yet, so
   // this request 404s and `failOnStatusCode: false` below tolerates it, exactly
   // as it does for the `operations` slot above.
@@ -97,6 +101,7 @@ const ROUTES = [
   '/customer/sales-tasks',
   // @req FR-164 — the Procurement dashboard and the purchase-orders console.
   '/procurement', '/procurement/purchase-orders',
+  '/knowledge', '/knowledge/console', '/knowledge/documents', '/knowledge/data-pipeline', '/knowledge/candidates',
   // Route handlers compile on first request too, and a spec that POSTs to a
   // cold one pays that cost inside its own expect. `marketing-content.spec.js`
   // opens a second browser context and immediately POSTs here to create a

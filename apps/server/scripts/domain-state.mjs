@@ -121,6 +121,28 @@ function check(status = 'unknown', evidence = [], gaps = [], details = undefined
   return result
 }
 
+/**
+ * @req FR-211 — a registry statement's subject, short enough to list.
+ *
+ * PRD rows open with a subject and then explain it ("Inventory catalogue
+ * identity (คลังสินค้า) — the Business-scoped catalogue…", "Platform Programme
+ * Roadmap: `/control/roadmap` is…"), so the earliest ": " / " — " / ". " between
+ * characters 12 and 140 is where the subject ends. Rows without one are cut at
+ * a word boundary. Markdown emphasis and code ticks are dropped: the consumer
+ * renders plain text. The full statement stays in the PRD, which is the source.
+ */
+export function shortRequirementTitle(label = '') {
+  const plain = String(label).replace(/\*\*|`/g, '').replace(/\s+/g, ' ').trim()
+  const stops = [': ', ' — ', '. ']
+    .map((stop) => plain.indexOf(stop))
+    // A stop before character 12 is a label, not a subject ("Keyboard: palette…").
+    .filter((index) => index >= 12 && index <= 140)
+  if (stops.length) return plain.slice(0, Math.min(...stops)).trim()
+  if (plain.length <= 140) return plain.replace(/[.;]$/, '')
+  const cut = plain.slice(0, 140)
+  return `${cut.slice(0, cut.lastIndexOf(' ') > 80 ? cut.lastIndexOf(' ') : 140).trim()}…`
+}
+
 function requirementStatus(requirement, code, tests) {
   if (requirement.declared === 'planned') return code.length ? 'partial' : 'planned'
   if (!code.length) return 'not_implemented'
@@ -208,6 +230,7 @@ function requirementEvidence(domain, nodes, edges, featureRequirements) {
       )
       return {
         id,
+        title: shortRequirementTitle(requirement.label),
         declared: requirement.declared,
         status: requirementStatus(requirement, code, tests),
         code,
@@ -254,6 +277,47 @@ function globalRequirementEvidence(nodes, edges) {
         ...observation,
         status: requirementStatus(requirement, code, tests),
         progressPercent: requirementProgress(observation),
+      }
+    })
+}
+
+/**
+ * Every declared NFR with the code that follows it and the tests that verify it.
+ *
+ * @req FR-211 — an NFR is a quality bar, not a feature, so no domain "owns" one;
+ * it lands in a domain when that domain's own code carries it in `@spec` (graph
+ * edge `follows`) or `@req` (`implements`). `domains` is that list, and an NFR no
+ * domain code names keeps an empty list rather than being dropped — "declared,
+ * followed nowhere" is itself the readiness answer. Status reuses the FR rule, so
+ * the two families read the same way on one page.
+ */
+function nonFunctionalRequirementEvidence(nodes, edges) {
+  const nodeById = new Map(nodes.map((node) => [node.id, node]))
+  const codeIdsByDomain = nodes
+    .filter((node) => node.type === 'domain')
+    .map((domain) => [domain.id.slice('domain:'.length), domainCodeIds(domain, nodes, edges)])
+  return nodes
+    .filter((node) => node.type === 'requirement' && node.family === 'NFR')
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map((requirement) => {
+      const codeEdges = edges.filter((edge) => edge.to === requirement.id && ['implements', 'follows'].includes(edge.type))
+      const code = unique(codeEdges.map((edge) => nodeById.get(edge.from)?.path))
+      const tests = unique(
+        edges
+          .filter((edge) => edge.to === requirement.id && edge.type === 'verifies')
+          .map((edge) => nodeById.get(edge.from)?.path),
+      )
+      const domains = codeIdsByDomain
+        .filter(([, codeIds]) => codeEdges.some((edge) => codeIds.has(edge.from)))
+        .map(([name]) => name)
+        .sort()
+      return {
+        id: requirement.id.slice(4),
+        title: shortRequirementTitle(requirement.label),
+        status: requirementStatus(requirement, code, tests),
+        codeCount: code.length,
+        testCount: tests.length,
+        domains,
       }
     })
 }
@@ -393,6 +457,7 @@ function buildFeatureProjection({ nodes, edges, domains, presentation, requireme
       blockers,
       requirements: featureRequirements.map((requirement) => ({
         id: requirement.id,
+        title: shortRequirementTitle(requirement.title),
         status: requirement.status,
         progressPercent: requirement.progressPercent,
         codeCount: requirement.code.length,
@@ -629,7 +694,7 @@ export function collectDomainObservations({ root, nodes, edges, featureRequireme
   return observations
 }
 
-export function buildDomainState({ nodes, edges, featureRequirements = new Map(), observations = {}, featurePresentation = null, generatedAt }) {
+export function buildDomainState({ nodes, edges, featureRequirements = new Map(), observations = {}, featurePresentation = null }) {
   const domains = {}
   const allGaps = []
   const allStatuses = []
@@ -720,9 +785,8 @@ export function buildDomainState({ nodes, edges, featureRequirements = new Map()
     : 0
 
   return {
-    schemaVersion: '1.1',
+    schemaVersion: '2.0',
     generatedBy: 'scripts/domain-state.mjs',
-    generatedAt: generatedAt || new Date().toISOString(),
     generatedFrom: SOURCE_FILES,
     statusVocabulary: STATUS_VALUES,
     progressMethodology: PROGRESS_METHODOLOGY,
@@ -739,15 +803,16 @@ export function buildDomainState({ nodes, edges, featureRequirements = new Map()
     },
     domains,
     features,
+    nonFunctionalRequirements: nonFunctionalRequirementEvidence(nodes, edges),
   }
 }
 
-export function generateDomainState({ root, nodes, edges, generatedAt }) {
+export function generateDomainState({ root, nodes, edges }) {
   const featureRequirements = discoverFeatureRequirements(root)
   const observations = collectDomainObservations({ root, nodes, edges, featureRequirements })
   // Always an array here — `parseFeaturePresentation` throws rather than
   // returning nothing — so the real generation path never takes the `null`
   // "not projecting features" branch that the unit fixtures use.
   const featurePresentation = parseFeaturePresentation(root)
-  return buildDomainState({ nodes, edges, featureRequirements, observations, featurePresentation, generatedAt })
+  return buildDomainState({ nodes, edges, featureRequirements, observations, featurePresentation })
 }

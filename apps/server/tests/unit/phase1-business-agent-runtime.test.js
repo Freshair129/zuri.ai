@@ -64,6 +64,7 @@ describe('Phase 1 business-agent runtime', () => {
     const ports = createPhase1BusinessAgentPortsFromEnv({ ...common,
       ZURI_MSP_THREAD_MEMORY_ENABLED: 'true',
       ZURI_MSP_THREAD_SERVICE_KEY: 'k'.repeat(32),
+      ZURI_MSP_THREAD_WORKSPACE_ID: 'test-workspace',
     }, { queryFn: vi.fn(), mspTransport })
     expect(ports.threadMemory).toBeTruthy()
   })

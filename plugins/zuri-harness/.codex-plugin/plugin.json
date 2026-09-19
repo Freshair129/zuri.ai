@@ -1,0 +1,32 @@
+{
+  "name": "zuri-harness",
+  "version": "0.1.0",
+  "description": "Pairs this Codex device with zuri-ai and reports finished-session token usage, attributed to a signed-in person, device and lane branch — never prompts, responses or credentials.",
+  "author": {
+    "name": "Zuri AI"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "usage-reporting",
+    "device-pairing",
+    "programme-usage",
+    "harness"
+  ],
+  "skills": "./skills",
+  "interface": {
+    "displayName": "Zuri Harness",
+    "shortDescription": "Device pairing and usage reporting for zuri-ai.",
+    "longDescription": "Pair this Codex device with zuri-ai (browser-approved, FR-220), then let the zuri-codex wrapper report each finished session's token usage split by branch (FR-221) so the programme roadmap can attribute work to a person and device. Reports token counts, active time, branch and repository only — never prompts, responses, or your account credentials.",
+    "developerName": "Zuri AI",
+    "category": "Productivity",
+    "capabilities": [
+      "Device pairing",
+      "Usage reporting"
+    ],
+    "defaultPrompt": [
+      "Pair this device with zuri-ai.",
+      "Who is this device paired to?"
+    ],
+    "brandColor": "#1F8A70"
+  }
+}

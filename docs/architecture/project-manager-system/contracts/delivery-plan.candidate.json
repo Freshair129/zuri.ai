@@ -1,0 +1,704 @@
+{
+  "schemaVersion": "1.0.0",
+  "version": "0.1.0b",
+  "status": "candidate",
+  "dispatchable": false,
+  "implementationAuthorized": false,
+  "modelPolicy": {
+    "worker": {
+      "model": "gpt-5.6-luna",
+      "reasoningEffort": "max"
+    },
+    "verifier": {
+      "model": "gpt-5.6-luna",
+      "reasoningEffort": "max",
+      "independentFromWorker": true
+    },
+    "finalGate": "CURRENT_TASK_ROOT_ASSISTANT",
+    "silentFallbackAllowed": false
+  },
+  "concurrency": {
+    "totalSlots": 4,
+    "root": 1,
+    "workers": 2,
+    "verifiers": 1,
+    "verificationQueueBackpressure": 2
+  },
+  "repairPolicy": {
+    "maxAutomaticRepairRounds": 2,
+    "then": "ROOT_RCA_OR_SCOPE_DECISION",
+    "failedChecksNeverAutoPass": true
+  },
+  "baseline": {
+    "designBaseCommit": "087f30258a6831865afd751e28804e36505aff30",
+    "sourceRefreshRequiredBeforeImplementation": true,
+    "sourceDigests": {
+      "01-REQUIREMENTS-AND-UX.md": "05ba644e661055dc8d6b3b79cf09b747cd08c4e91a6c5473a3270ec85cb18f9c",
+      "13-DOMAIN-TAXONOMY-AND-NAVIGATION-BOUNDARIES.md": "b7834a2e8087c1582af327d633e778e0945839d0ed0f09a3bbce5ba472edf498",
+      "14-EXISTING-PROJECT-TAB-SEMANTICS.md": "9d3c9b5938e06ac50d85183c11a352a8be0a8c2544153d913ca66115ed32b4c4",
+      "15-WORKFORCE-CAPACITY-SCHEDULE-AND-PERFORMANCE.md": "da80170fd5f0e0a72cd6773dbbd4ed0c8d6c7e6c49daa3c70fc42968957c9af1",
+      "16-SPEC-READINESS-AND-API-REFERENCE.md": "52c5b8169987bac6dc4e9ab44cecfec6566e3634b1b5a6f114378d6dc2cc88d8",
+      "17-SRS.md": "3a841c2c456e817d13949714788f6d62636ef8ed34c4095b1836de40d4d436a2",
+      "18-DATABASE-TABLES-AND-ERD.md": "d7f7ab59109f38e34356e30629b558d9d94832d1d010037937a6e255550c7dbb",
+      "19-SYSTEM-BLUEPRINT.md": "4f36e1c5db68c498495dd9427edbbfc070c5e1db957ee9aef69746cb0e92be9b",
+      "contracts/openapi.candidate.yaml": "dfad89b6f6b17bcb4bbd6cfd4081fd2b3422e23f4e91c14969ed56b38656a949",
+      "contracts/workforce.openapi.candidate.yaml": "d79ca71bd834ae3c4febb112581bdabe92634a697d9dfecebc48745676847251"
+    }
+  },
+  "gateOrder": [
+    "G0_READY",
+    "G1_SELF_CHECK",
+    "G2_INDEPENDENT_VERIFY",
+    "G3_ROOT_FINAL_REVIEW",
+    "G4_COMPOSED_INTEGRATION",
+    "G5_RELEASE_SCOPE"
+  ],
+  "perSliceBaseline": {
+    "controlWorkPackage": "MA-D08",
+    "runPerSelectedSlice": true,
+    "unrelatedGapClosureIsNotPrerequisite": true,
+    "requiredInputs": [
+      "accepted relevant design outputs",
+      "canonical mapping and approved spec",
+      "exact revision and digests",
+      "entry-level conformance evidence",
+      "file allowlist and test environment"
+    ],
+    "implementationProofDeferredUntilImplementation": true
+  },
+  "sharedWriter": "CURRENT_TASK_ROOT_ASSISTANT",
+  "workPackages": [
+    {
+      "id": "MA-D00",
+      "title": "ตรวจ current source และ pin baseline",
+      "kind": "DESIGN",
+      "ownerDomain": "root",
+      "dependsOn": [],
+      "gaps": [
+        "SPEC-G09"
+      ],
+      "output": "Registry/source/owner reuse inventory, source+spec digests, collision list; ไม่ reset shared primary",
+      "verification": [
+        "Enumerated routes/models/tests, staged candidate bytes included, current registries read before any new ID"
+      ],
+      "fileBoundary": "Source read-only; root controls baseline receipt",
+      "entryGate": "DOC_TASK_SCOPE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-D01",
+      "title": "Shared authority, allocation owner และ transport",
+      "kind": "DESIGN",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "MA-D00"
+      ],
+      "gaps": [
+        "SPEC-G01",
+        "SPEC-G05"
+      ],
+      "output": "One allocation writer; Person/resource mapping; hours/minutes compatibility; common error, requestId, ETag, auth/session/CSRF and refusal matrix",
+      "verification": [
+        "PM vs Identity vs CRM authority; foreign-scope refusal; idempotency/error and required headers; owner sign-off per affected interface"
+      ],
+      "fileBoundary": "03/06/15 and two OpenAPI files as proposed patches; root composes shared schemas",
+      "entryGate": "DOC_TASK_SCOPE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-D02",
+      "title": "Core Navigation / UX parity และ NAV fixtures",
+      "kind": "DESIGN",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "MA-D00"
+      ],
+      "gaps": [
+        "SPEC-G06",
+        "SPEC-G08"
+      ],
+      "output": "Domain→module→tabs mapping, nine sections/14 routes/seven views and core NAV fixtures; Workforce contract bindings are deferred to D02W",
+      "verification": [
+        "Old/new route crosswalk, stable keys, Business Home shortcuts, Inventory read-only and Membership Team semantics; named Resources/Risks remain planned; no orphan core navigation ref"
+      ],
+      "fileBoundary": "09–14 and core navigation/ux model slices; root owns domain config",
+      "entryGate": "DOC_TASK_SCOPE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-D02W",
+      "title": "Workforce screen / operation / G14 bindings",
+      "kind": "DESIGN",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "MA-D02",
+        "MA-D01",
+        "MA-D04"
+      ],
+      "gaps": [
+        "SPEC-G06",
+        "SPEC-G08"
+      ],
+      "output": "Six workforce screens linked to stable input/metric/operation contracts and G14 model; remaining mapping scope after core NAV",
+      "verification": [
+        "WF-R01–06 schema/operation/field parity; no stale metric variant or hours/minutes binding; one linked graph authority and trace refs"
+      ],
+      "fileBoundary": "15 and Workforce-only navigation/ux/architecture/trace patches; root composes shared JSON",
+      "entryGate": "DOC_TASK_SCOPE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-D03",
+      "title": "Workforce inputs และประวัติ",
+      "kind": "DESIGN",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "MA-D01"
+      ],
+      "gaps": [
+        "SPEC-G02"
+      ],
+      "output": "Typed estimates, calendars, availability, team shares, effective assignments/history and seven-mode status maps",
+      "verification": [
+        "Missing inputs remain PARTIAL; effective-date/reassignment and duplicate event examples; agent/unresolved assignee cannot become Person"
+      ],
+      "fileBoundary": "15/17/18 plus workforce contract proposals; CRM/Identity owner-port patches separate",
+      "entryGate": "DOC_TASK_SCOPE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-D04",
+      "title": "Metric variants, policy และ corrections",
+      "kind": "DESIGN",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "MA-D03"
+      ],
+      "gaps": [
+        "SPEC-G03",
+        "SPEC-G04"
+      ],
+      "output": "Twelve metric result shapes, Business/person/team review and correction lifecycle, reviewer authority",
+      "verification": [
+        "Each metric has typed value/sample/coverage/cohort; denominator zero, small samples, quantiles, changed due date, reopened work and history corrections"
+      ],
+      "fileBoundary": "15/17/18, workforce schemas/examples; root reconciles main review contract",
+      "entryGate": "DOC_TASK_SCOPE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-D05",
+      "title": "Physical adapter และ migration design",
+      "kind": "DESIGN",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "MA-D03",
+        "MA-D04"
+      ],
+      "gaps": [
+        "SPEC-G07"
+      ],
+      "output": "Per-owner table reuse, exact SQLite/Postgres mapping, transaction/RLS/grant/backfill/rollback design",
+      "verification": [
+        "Retain source composite keys; person/day conflict locking; no blanket creation of 54 records; migration design vs execution proof separated"
+      ],
+      "fileBoundary": "18/19 and data-model proposals; root owns Prisma/schema/migration composition",
+      "entryGate": "DOC_TASK_SCOPE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-D06",
+      "title": "Provider / agent / ledger compatibility contracts",
+      "kind": "DESIGN",
+      "ownerDomain": "integration",
+      "dependsOn": [
+        "MA-D01"
+      ],
+      "gaps": [
+        "SPEC-G05",
+        "SPEC-G07",
+        "SPEC-G08"
+      ],
+      "output": "Cloud/private/paired locations, model vs MCP protocols, key/secret owner, ledger profile and typed handoff contracts plus conformance fixtures",
+      "verification": [
+        "Existing PipelineRun required definition and unique attempt identity preserved; vault/revoke/private network, lease/epoch/UNKNOWN, no arbitrary execution"
+      ],
+      "fileBoundary": "04/05/06/19 and main/workflow schema proposals; Identity and Edge patches isolated by owner",
+      "entryGate": "DOC_TASK_SCOPE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-D07",
+      "title": "Workforce conformance fixtures และ test design",
+      "kind": "DESIGN",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "MA-D03",
+        "MA-D04",
+        "MA-D05",
+        "MA-D02W"
+      ],
+      "gaps": [
+        "SPEC-G08"
+      ],
+      "output": "Request/response/error/lifecycle example matrix and PMT-033 A–P test design",
+      "verification": [
+        "Positive and invalid payloads; overlaps/dedup/zero capacity; stale preview and concurrent commit; permission revocation; fixtures are not service tests"
+      ],
+      "fileBoundary": "workforce.examples.json, workforce OpenAPI and 15/07 acceptance map",
+      "entryGate": "DOC_TASK_SCOPE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-D08",
+      "title": "Register และอนุมัติ baseline ราย slice",
+      "kind": "CONTROL",
+      "ownerDomain": "root",
+      "dependsOn": [
+        "MA-D00"
+      ],
+      "gaps": [
+        "SPEC-G09"
+      ],
+      "output": "Per-slice REUSE/EXTEND/NEW canonical mapping, exact approved docs/contracts, ledger and phase receipt",
+      "verification": [
+        "Selected slice relevant design outputs and entry-proof accepted; preserve IDs; shared FR with ordered phases; govern after composed registration"
+      ],
+      "fileBoundary": "PRD/FEATURES/ROADMAP/ID ledger/charters only by root using sanctioned writers",
+      "entryGate": "DOC_TASK_SCOPE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-I01",
+      "title": "Navigation เดิมและ named planned states",
+      "kind": "IMPLEMENTATION",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "MA-D02",
+        "MA-D08"
+      ],
+      "phase": "NAV-P1",
+      "requirements": [],
+      "output": "Navigation เดิมและ named planned states",
+      "verification": [
+        "9 sections/14 routes/7 Work views, deep links/history/active states, keyboard/mobile, scope/refusal and planned Risks/Resources"
+      ],
+      "fileBoundary": "PM navigation components; root alone edits shared domain registry/layout contracts",
+      "entryGate": "APPROVED_SLICE_BASELINE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-I02",
+      "title": "Project / Domain / Feature views และ strategy progress",
+      "kind": "IMPLEMENTATION",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "MA-I01",
+        "MA-D01"
+      ],
+      "phase": "P1",
+      "requirements": [
+        "PMR-001",
+        "PMR-002",
+        "PMR-003",
+        "PMR-012",
+        "PMR-016"
+      ],
+      "output": "Project / Domain / Feature views และ strategy progress",
+      "verification": [
+        "Scope before aggregate; cross-feature dedup; immutable identities; objective/import transaction; weighted evidence progress"
+      ],
+      "fileBoundary": "PM application/read-model services and matching owner routes/tests",
+      "entryGate": "APPROVED_SLICE_BASELINE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-I03",
+      "title": "Typed architecture, Visual API, trace/import and drift",
+      "kind": "IMPLEMENTATION",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "MA-I02",
+        "MA-D01"
+      ],
+      "phase": "P2",
+      "requirements": [
+        "PMR-004",
+        "PMR-005",
+        "PMR-014",
+        "PMR-015",
+        "PMR-025",
+        "PMR-027",
+        "PMR-032"
+      ],
+      "output": "Typed architecture, Visual API, trace/import and drift",
+      "verification": [
+        "Typed edge direction/owner/port/cycle tests, read-only API parity, forbidden imported code, stale evidence and spec/code drift checks"
+      ],
+      "fileBoundary": "PM design/API-doc/visualization/import services and consumers; one shared schema baseline",
+      "entryGate": "APPROVED_SLICE_BASELINE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-I04",
+      "title": "Workforce source ports และ persistence",
+      "kind": "IMPLEMENTATION",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "MA-D03",
+        "MA-D05",
+        "MA-D07",
+        "MA-D08"
+      ],
+      "phase": "PMR-033-P1",
+      "requirements": [
+        "PMR-033",
+        "PMR-012"
+      ],
+      "output": "Workforce source ports และ persistence",
+      "verification": [
+        "Calendar/estimate/assignment/history authority; legacy count compatibility; approved adapter constraints, source coverage and historical attribution"
+      ],
+      "fileBoundary": "PM people/work repositories/ports; schema changes assembled by root; CRM and Identity ownership respected",
+      "entryGate": "APPROVED_SLICE_BASELINE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-I05",
+      "title": "Capacity calculator และ schedule preview/commit",
+      "kind": "IMPLEMENTATION",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "MA-I04"
+      ],
+      "phase": "PMR-033-P2",
+      "requirements": [
+        "PMR-033",
+        "PMR-017"
+      ],
+      "output": "Capacity calculator และ schedule preview/commit",
+      "verification": [
+        "PMT-033 A–F/O/P; interval union, timezone, dedup, ordered locking/CAS, same-key same receipt, same-key changed payload denied"
+      ],
+      "fileBoundary": "PM workforce application/calculation/transaction code and isolated fixtures/tests",
+      "entryGate": "APPROVED_SLICE_BASELINE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-I06",
+      "title": "Resources UI / person-team workload / schedule",
+      "kind": "IMPLEMENTATION",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "MA-I05",
+        "MA-I01",
+        "MA-D02W"
+      ],
+      "phase": "PMR-033-P3",
+      "requirements": [
+        "PMR-033"
+      ],
+      "output": "Resources UI / person-team workload / schedule",
+      "verification": [
+        "WF-R01–03/R05, count vs load distinction, per-person overload visible under team average, empty/partial/error and 200% zoom; no new Membership grants"
+      ],
+      "fileBoundary": "PM workforce UI/projections/components and route-scoped UI tests",
+      "entryGate": "APPROVED_SLICE_BASELINE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-I07",
+      "title": "Performance / evidence / policy review / correction",
+      "kind": "IMPLEMENTATION",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "MA-I06",
+        "MA-D04",
+        "MA-D07"
+      ],
+      "phase": "PMR-033-P4",
+      "requirements": [
+        "PMR-033"
+      ],
+      "output": "Performance / evidence / policy review / correction",
+      "verification": [
+        "WF-R04/R06; twelve formulas; PMT-033 G–L/N; immutable cohort, pooled ratios/recomputed quantiles, no invented ranking"
+      ],
+      "fileBoundary": "PM metric/evidence/policy UI and services; Identity review port stays owner-owned",
+      "entryGate": "APPROVED_SLICE_BASELINE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-I08",
+      "title": "Workforce acceptance และ scoped pilot readiness",
+      "kind": "IMPLEMENTATION",
+      "ownerDomain": "root",
+      "dependsOn": [
+        "MA-I07"
+      ],
+      "phase": "PMR-033-P5",
+      "requirements": [
+        "PMR-033",
+        "PMR-029"
+      ],
+      "output": "Workforce acceptance และ scoped pilot readiness",
+      "verification": [
+        "All PMT-033 A–P executed; contract/unit/UI/e2e counts; representative-data pilot requires authorized data/environment; root final composed gate"
+      ],
+      "fileBoundary": "Verification branch/artifacts; no production effect before separate release approval",
+      "entryGate": "APPROVED_SLICE_BASELINE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-I09",
+      "title": "Provider / connection / deployment / MCP registry",
+      "kind": "IMPLEMENTATION",
+      "ownerDomain": "integration",
+      "dependsOn": [
+        "MA-D06",
+        "MA-D08"
+      ],
+      "phase": "P3",
+      "requirements": [
+        "PMR-009",
+        "PMR-010"
+      ],
+      "output": "Provider / connection / deployment / MCP registry",
+      "verification": [
+        "Model capability probe, protocol/tool-schema digest, consent, cloud/private/paired-local differentiation, credentials never in UI/logs"
+      ],
+      "fileBoundary": "Integration provider/MCP owner services and projections; PM consumes ports",
+      "entryGate": "APPROVED_SLICE_BASELINE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-I10",
+      "title": "Scoped inference keys และ authorization/audit ports",
+      "kind": "IMPLEMENTATION",
+      "ownerDomain": "identity",
+      "dependsOn": [
+        "MA-D01",
+        "MA-D06",
+        "MA-D08"
+      ],
+      "phase": "P3",
+      "requirements": [
+        "PMR-011",
+        "PMR-012",
+        "PMR-019"
+      ],
+      "output": "Scoped inference keys และ authorization/audit ports",
+      "verification": [
+        "Audience/scope/model allowlist, expiry/revoke/rotation, CSRF and redacted audit; no key misuse across Business"
+      ],
+      "fileBoundary": "Identity key/grant services and their tests; Integration secret references via its own writer",
+      "entryGate": "APPROVED_SLICE_BASELINE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-I11",
+      "title": "Inference gateway / private or paired executor binding",
+      "kind": "IMPLEMENTATION",
+      "ownerDomain": "integration",
+      "dependsOn": [
+        "MA-I09",
+        "MA-I10"
+      ],
+      "phase": "P3",
+      "requirements": [
+        "PMR-011"
+      ],
+      "output": "Inference gateway / private or paired executor binding",
+      "verification": [
+        "Raw serving port private, gateway refusal/quota, executor readiness, no browser-localhost assumption and failure recovery"
+      ],
+      "fileBoundary": "Integration inference gateway; any Edge/runtime change is a separate owner packet with cross-app contract tests",
+      "entryGate": "APPROVED_SLICE_BASELINE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-I12",
+      "title": "Agent inventory และ immutable version approval",
+      "kind": "IMPLEMENTATION",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "MA-I02",
+        "MA-I09"
+      ],
+      "phase": "P4",
+      "requirements": [
+        "PMR-006",
+        "PMR-013"
+      ],
+      "output": "Agent inventory และ immutable version approval",
+      "verification": [
+        "Approved version immutable; tool/model/executor pins, stale hash refused, fixtures and eval prerequisites captured"
+      ],
+      "fileBoundary": "PM AgentDefinition/Version and review/UI services",
+      "entryGate": "APPROVED_SLICE_BASELINE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-I13",
+      "title": "Durable single run / lease / receipt / recovery",
+      "kind": "IMPLEMENTATION",
+      "ownerDomain": "integration",
+      "dependsOn": [
+        "MA-I12",
+        "MA-I11"
+      ],
+      "phase": "P4",
+      "requirements": [
+        "PMR-008",
+        "PMR-019",
+        "PMR-021"
+      ],
+      "output": "Durable single run / lease / receipt / recovery",
+      "verification": [
+        "Claim race/epoch fence, crash after effect, late result, duplicate receipts, UNKNOWN reconciliation, cancel/pause and isolation"
+      ],
+      "fileBoundary": "Integration run ledger/executor adapters; PM Command Center read projection is a separate allowed-file packet",
+      "entryGate": "APPROVED_SLICE_BASELINE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-I14",
+      "title": "Fleet inventory / typed DAG / handoffs",
+      "kind": "IMPLEMENTATION",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "MA-I03",
+        "MA-I12",
+        "MA-I13"
+      ],
+      "phase": "P5",
+      "requirements": [
+        "PMR-007",
+        "PMR-013"
+      ],
+      "output": "Fleet inventory / typed DAG / handoffs",
+      "verification": [
+        "One durable single-run proof first; cycle/ref/type/owner checks, immutable member pins, terminal result selection, no recursive fleet spawn"
+      ],
+      "fileBoundary": "PM fleet/workflow definitions and compiler-facing UI/contracts",
+      "entryGate": "APPROVED_SLICE_BASELINE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-I15",
+      "title": "Multi-domain execution / Command Center / triggers",
+      "kind": "IMPLEMENTATION",
+      "ownerDomain": "integration",
+      "dependsOn": [
+        "MA-I14",
+        "MA-I13"
+      ],
+      "phase": "P5",
+      "requirements": [
+        "PMR-008",
+        "PMR-020",
+        "PMR-021",
+        "PMR-030"
+      ],
+      "output": "Multi-domain execution / Command Center / triggers",
+      "verification": [
+        "Lane serialization, typed artifact handoff, cancellation/fencing, budget exposure, trigger timezone/misfire/dedup/loop suppression"
+      ],
+      "fileBoundary": "Integration scheduler/events/trigger/usage owners; PM UI consumes projections through separate packet",
+      "entryGate": "APPROVED_SLICE_BASELINE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-I16",
+      "title": "PM support: risks/issues/scope/cost and collaboration",
+      "kind": "IMPLEMENTATION",
+      "ownerDomain": "project-manager",
+      "dependsOn": [
+        "MA-I03",
+        "MA-I15",
+        "MA-D03",
+        "MA-D05"
+      ],
+      "phase": "P6",
+      "requirements": [
+        "PMR-017",
+        "PMR-023"
+      ],
+      "output": "PM support: risks/issues/scope/cost and collaboration",
+      "verification": [
+        "Risks/Issues/ChangeRequest lifecycle, capacity calls existing single writer, revised scope evidence, comment revision and optimistic conflict"
+      ],
+      "fileBoundary": "PM support services/routes/UI; inventory is not stock write; individual features dispatched separately",
+      "entryGate": "APPROVED_SLICE_BASELINE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-I17",
+      "title": "Knowledge retrieval, share/retention และ notifications",
+      "kind": "IMPLEMENTATION",
+      "ownerDomain": "root",
+      "dependsOn": [
+        "MA-I03",
+        "MA-I15"
+      ],
+      "phase": "P6",
+      "requirements": [
+        "PMR-022",
+        "PMR-024",
+        "PMR-026"
+      ],
+      "output": "Knowledge retrieval, share/retention และ notifications",
+      "verification": [
+        "Knowledge provenance/authorized results; Identity revoke/retention and no cached leak; Integration recipient reauthorization and receipts"
+      ],
+      "fileBoundary": "Split into Knowledge, Identity and Integration owner packets; no foreign-store write or automatic real message sending",
+      "entryGate": "APPROVED_SLICE_BASELINE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-I18",
+      "title": "SCM/CI, release evidence, eval and operations",
+      "kind": "IMPLEMENTATION",
+      "ownerDomain": "root",
+      "dependsOn": [
+        "MA-I16",
+        "MA-I17"
+      ],
+      "phase": "P6–P7",
+      "requirements": [
+        "PMR-018",
+        "PMR-020",
+        "PMR-028",
+        "PMR-029",
+        "PMR-031"
+      ],
+      "output": "SCM/CI, release evidence, eval and operations",
+      "verification": [
+        "Exact SHA/env signatures, golden/adversarial eval, actual usage provenance, SLO/load, backup/restore, RLS/grants and migration/rollback evidence"
+      ],
+      "fileBoundary": "Split PM evaluation/release, Integration adapters/ops and Identity checks; final merge/deploy/activation by root under actual release scope",
+      "entryGate": "APPROVED_SLICE_BASELINE",
+      "state": "PLANNED"
+    },
+    {
+      "id": "MA-RWF",
+      "title": "Workforce release gate ราย slice",
+      "kind": "RELEASE_GATE",
+      "ownerDomain": "root",
+      "dependsOn": [
+        "MA-I08"
+      ],
+      "phase": "PMR-033-P5 release",
+      "requirements": [
+        "PMR-033"
+      ],
+      "output": "Exact tested workforce revision and scoped release decision",
+      "verification": [
+        "Hosted CI, migration/RLS/grants/rollback when affected, user-approved concrete release, deployment separate from activation"
+      ],
+      "fileBoundary": "Root release artifacts; no automatic deployment",
+      "entryGate": "EXPLICIT_RELEASE_SCOPE",
+      "state": "PLANNED"
+    }
+  ]
+}

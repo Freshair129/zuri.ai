@@ -12,7 +12,9 @@ import {
   retryDelayMs,
   settleOutcome,
 } from '../domain/line-oa-rich-menu-publish'
+import { parseAreas } from '../domain/line-oa-rich-menu'
 import { assertMayPublish, assertMayView, notFound } from './line-oa-account-authority'
+import { admitLineStudioDescription, composeRichMenuDescription, lineStudioDescriptionSourceKey } from './line-oa-studio-description-admission'
 
 // @req FR-152 — the only writer of LineOaRichMenuJob: a publisher queues one
 //   job per rich menu (PUBLISH a frozen version, SET_DEFAULT or SET_ALIAS a
@@ -27,7 +29,11 @@ import { assertMayPublish, assertMayView, notFound } from './line-oa-account-aut
 //   (compare-and-set claims, bounded leases, acceptance ≠ delivery), D7 (an
 //   ambiguous create is UNKNOWN and visible; stale leases cannot settle;
 //   pause/ownership change fences waiting work); ADR-060 D3, D11; SEC-001
-// @tested tests/integration/fr152-line-oa-rich-menu-jobs.test.js
+// @req FR-238 — the worker's own PUBLISH completion is the rich menu's
+//   publisher action (ADR-090 D7): it admits the menu's composed
+//   human-readable description as a LINE_STUDIO_DESCRIPTION TEXT source,
+//   best-effort, never the Flex object it just sent to LINE.
+// @tested tests/integration/fr152-line-oa-rich-menu-jobs.test.js, tests/integration/fr238-line-studio-description-admission.test.js
 
 const OPEN = ['QUEUED', 'CLAIMED']
 const failure = (status, message, details) => Object.assign(new Error(message), { status, ...(details ? { details } : {}) })
@@ -136,6 +142,23 @@ export async function listRichMenuJobs(menuId, { viewer, db = prisma } = {}) {
   assertMayView(viewer, menu.businessId)
   const rows = await db.lineOaRichMenuJob.findMany({ where: { richMenuId: menu.id }, orderBy: { createdAt: 'desc' }, take: 100, select: JOB_SELECT })
   return { richMenuId: menu.id, jobs: rows.map(jobDto) }
+}
+
+/**
+ * Bounded health read for the owning Business. `LineOaRichMenuJob` carries the
+ * Business id, so the health path does not need an account or menu lookup.
+ */
+export async function listRichMenuJobsForBusiness(businessId, { viewer, limit = 100, db = prisma } = {}) {
+  const id = typeof businessId === 'string' ? businessId.trim() : ''
+  if (!id) throw notFound()
+  assertMayView(viewer, id)
+  const take = Math.min(Math.max(Number(limit) || 100, 1), 100)
+  return db.lineOaRichMenuJob.findMany({
+    where: { businessId: id },
+    orderBy: { updatedAt: 'desc' },
+    take,
+    select: { status: true, updatedAt: true },
+  })
 }
 
 /** An operator closes an UNKNOWN job without claiming the menu exists or does not. */
@@ -274,6 +297,19 @@ export async function runLineRichMenuWorker({
             payload: { businessId: pending.businessId, accountId: pending.accountId, richMenuId: menu.id, versionNumber: version.versionNumber, externalRichMenuId, correlationId: job.correlationId },
           })
         })
+        // @req FR-238 — this worker completing PUBLISH is the rich menu's
+        // publisher action (ADR-090 D7): admit the menu's human-readable
+        // description (name, chat-bar text, area labels/message text) — never
+        // the Flex object `buildLineRichMenuObject` built above. Best-effort,
+        // after commit; keyed on the menu (not the version) so a later
+        // republish updates the same source rather than creating a new one.
+        await admitLineStudioDescription({
+          businessId: pending.businessId,
+          sourceKey: lineStudioDescriptionSourceKey.richMenu(menu.id),
+          version: version.id,
+          title: `Rich menu: ${menu.name}`,
+          content: composeRichMenuDescription({ name: menu.name, chatBarText: version.chatBarText, areas: parseAreas(version.areasJson) }),
+        }, { db })
         return finish('ACCEPTED', { stage: 'DONE', patch: { externalRichMenuId, providerRequestId: result.requestId ?? null, errorCode: null } })
       }
       return finish('FAILED', { patch: { errorCode: 'LINE_OA_RICH_MENU_STAGE_INVALID' } })

@@ -209,7 +209,14 @@ export async function authenticateUser({ username, password, db = prisma, env = 
     },
     include: { credential: true },
   })
-  if (!person?.credential || !verifyPassword(password, person.credential.passwordHash)) {
+  // @req FR-191 — a disabled account is refused with the same generic error as
+  // a wrong password (SEC-026, ADR-077 D6). Distinguishing them would turn the
+  // login form into an oracle for which accounts exist and which have been
+  // closed, which is the shape SEC-001 refuses everywhere else.
+  //
+  // Checked alongside the credential rather than before it, so the response
+  // time does not separate the two cases either.
+  if (!person?.credential || person.accessDisabledAt || !verifyPassword(password, person.credential.passwordHash)) {
     return { success: false, error: 'INVALID_CREDENTIALS' }
   }
 

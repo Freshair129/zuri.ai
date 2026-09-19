@@ -41,11 +41,15 @@ describe('FR-180 Available-to-Promise and reservations', () => {
 
     const category = await createCategory({ businessId: b(), code: 'giftset', nameTh: 'ชุด', nameEn: 'Set' }, { viewer: owner })
     master = await createProductMaster({ businessId: b(), code: 'PM-SET', categoryId: category.id, nameTh: 'ชุด', nameEn: 'Set' }, { viewer: owner })
+    // @req FR-201 — a service is never a variant of a good (ADR-083 D1): the
+    // design service lives under its own SERVICE master, not under the gift set.
+    const serviceMaster = await createProductMaster({ businessId: b(), code: 'PM-DESIGN', categoryId: category.id, nameTh: 'ออกแบบ', nameEn: 'Design', nature: 'SERVICE' }, { viewer: owner })
     const sku = (code, over = {}) => createProduct({ businessId: b(), code, productMasterId: master.id, name: code, ...over }, { viewer: owner })
 
     tumbler = await sku('COMP-TUMBLER')
     powerbank = await sku('COMP-PB')
-    service = await sku('SVC-DESIGN', { stockPolicy: 'SERVICE' })
+    service = await sku('SVC-DESIGN', { productMasterId: serviceMaster.id })
+    expect(service.stockPolicy).toBe('SERVICE')
     giftSet = await sku('SET-TMS06-4-P16', { itemKind: 'FINISHED_SET' })
     await setFlowAccountSku({ businessId: b(), productId: giftSet.id, flowAccountSku: 'TMS06-4(P-16)' }, { viewer: owner })
 

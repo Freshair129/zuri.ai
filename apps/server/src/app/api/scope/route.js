@@ -20,6 +20,7 @@ import {
   createBusinessInGroup,
   createWorkspace,
   createLegalEntity,
+  createTaxRegistrationBranch,
   createBranch,
 } from '@/modules/project-manager/application/scope-service'
 
@@ -68,6 +69,7 @@ const CREATORS = {
   businessInGroup: createBusinessInGroup,
   workspace: createWorkspace,
   legalEntity: createLegalEntity,
+  taxRegistrationBranch: createTaxRegistrationBranch,
   branch: createBranch,
 }
 

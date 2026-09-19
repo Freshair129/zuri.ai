@@ -454,13 +454,14 @@ export async function recordPipelineEvent(input, {
   viewer,
   now = () => new Date(),
   idFactory = defaultIdFactory,
+  transactional = true,
 } = {}) {
   requireLedgerWriter(viewer)
   const event = parsePipelineEvent(input)
   const eventHash = hashContractPayload(event)
   const at = resolveNow(now)
 
-  return transaction(db, async (tx) => {
+  const write = async (tx) => {
     const run = await tx.pipelineRun.findUnique({ where: { executionRunId: event.executionRunId } })
     if (!run) throw serviceError(404, 'Pipeline run not found')
     requireLedgerWriterForRun(viewer, run, event)
@@ -711,7 +712,11 @@ export async function recordPipelineEvent(input, {
       receipt: safeParse(receipt.resultJson, {}),
       auditEventId: receipt.auditEventId,
     }
-  })
+  }
+  // A caller that already owns the transaction boundary (for example the
+  // GenesisRAG17 evidence page importer) passes its transaction client and
+  // disables this wrapper so PostgreSQL never receives a nested transaction.
+  return transactional ? transaction(db, write) : write(db)
 }
 
 export async function listPipelineRuns({ businessId = null, status = null, limit = 25, db = prisma, viewer } = {}) {
@@ -730,6 +735,23 @@ export async function listPipelineRuns({ businessId = null, status = null, limit
     count: rows.length,
     limit: Math.min(Math.max(Number(limit) || 25, 1), 100),
   }
+}
+
+/**
+ * The narrow read port used by the Knowledge pipeline health projection.
+ * Ordering and selecting here keeps the projection from reaching into the
+ * ledger or pulling unrelated run payloads.
+ */
+export async function listPipelineRunsForHealth(businessId, { limit = 100, db = prisma, viewer } = {}) {
+  if (!businessId) throw serviceError(400, 'businessId is required for a scoped pipeline health list')
+  requireVisible(viewer, businessId)
+  const take = Math.min(Math.max(Number(limit) || 100, 1), 100)
+  return db.pipelineRun.findMany({
+    where: { businessId },
+    orderBy: { updatedAt: 'desc' },
+    take,
+    select: { status: true, updatedAt: true },
+  })
 }
 
 export async function getPipelineMonitor(executionRunId, {

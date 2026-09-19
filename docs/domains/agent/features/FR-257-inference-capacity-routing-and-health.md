@@ -1,0 +1,155 @@
+---
+id: "ZAI:FR-257-NOTE"
+title: "Inference capacity routing and health"
+version: "0.1.1b"
+status: approved
+approval_scope: design-and-documentation
+approved_on: "2026-09-18"
+approved_by: "Owner via conversation"
+integration_status: pending
+implementation_status: not-started
+created_at: "2026-09-17"
+last_update: "2026-09-18"
+author: ChatGPT
+domain: agent
+baseline_commit: "cfd5521e7d004e63ffead1e07f46045f1cdc06f2"
+feature: FR-257
+module: agent
+source: pending
+relations:
+  - type: references
+    target: "ZAI:FR-257"
+  - type: relates_to
+    target: "ZAI:FEAT-043"
+  - type: relates_to
+    target: "ZAI:ADR-099"
+  - type: references
+    target: "ZAI:FR-255"
+  - type: references
+    target: "ZAI:FR-256"
+---
+
+# FR-257 — Inference capacity routing and health
+
+> Design approved by the owner on 2026-09-18; canonical integration and all runtime evidence remain pending.
+
+
+## Behavior and ownership
+
+Agent owns capacity-aware admission and node selection for the Server inference path. Integration supplies qualified connection profiles and normalized current observations; it owns no business answer. The LINE job ledger stays the only durable conversation-work queue. Per-engine vLLM scheduling is not a replacement for that application queue.
+
+Preferred-first spillover is the requested default: A receives new work while it is eligible and can meet the remaining answer budget; B receives new work when A is unhealthy, policy-ineligible or sufficiently loaded. Different memory sizes do not prescribe a 12:16 weight or a fixed number of users.
+
+### Proposed capacity ledger
+
+`InferenceCapacityLease` is one **Agent-owned** table with a sole writer under `src/modules/agent/`. Fields include UUID, trusted tenant/business, connection/engine identity, pool/version, job/execution/invocation/attempt references, profile hash, configuration epoch, slot count, conservative reserved tokens, state, created/expires/released times and version. It is scheduling evidence, not chat history, provider billing or the LINE delivery state machine.
+
+Lease states: `RESERVED → DISPATCHED → RELEASED`, with `CANCELLED_PRE_DISPATCH` and `UNCERTAIN_REMOTE` branches. A RESERVED lease can expire safely only if no provider submission started. DISPATCHED or uncertain work is not recycled merely because the client timed out.
+
+A PostgreSQL adapter serializes reservation decisions by canonical engine identity, for example with an advisory transaction lock and aggregate active leases in the same transaction. A SQLite test adapter must exercise equivalent serialization. Do not mutate another domain's models just to acquire a lock. Multi-process correctness must be proved on real PostgreSQL; mocked counters are insufficient.
+
+## Input, output and failures
+
+### Observation contract
+
+Normalize only the selected node/engine's metric series:
+
+```text
+NodeObservation {
+  nodeConnectionId, configurationEpoch, profileHash,
+  receivedAt, observedAt, observerId, sampleSequence,
+  health: READY | UNHEALTHY | UNKNOWN,
+  auth: VALID | INVALID | UNKNOWN,
+  model: MATCH | MISMATCH | UNVERIFIED,
+  runningRequests: integer | null,
+  waitingRequests: integer | null,
+  kvUsageRatio: number[0,1] | null,
+  latencyEstimateMs: number | null,
+  sampleWindowCount: integer,
+  evidenceSource, errorCode
+}
+```
+
+`receivedAt` comes from the collector; do not trust an engine's clock for freshness. An out-of-order or old-epoch sample cannot overwrite a newer one. Bound labels, number of series, response bytes, numeric ranges and parse time. Unknown fields/metrics cannot become zero. Never attach LINE IDs, prompt text or credentials as labels.
+
+The initially verified vLLM metric contract includes `vllm:num_requests_running`, `vllm:num_requests_waiting`, `vllm:kv_cache_usage_perc` (ratio; 1 means 100%) and latency histograms. An exporter profile must verify names/units/labels on the pinned deployment. `/load` is optional and its schema must be qualified; the router must not assume an undocumented JSON shape. [V4]
+
+A memory-use percentage from `nvidia-smi` measures a different thing from active KV pressure. A full preallocated pool is not synonymous with no capacity. Even cache pressure can include release-specific/reclaimable behavior, so it is not an exact free-token API. Do not invent `free_kv_blocks` if the deployed endpoint does not expose it.
+
+### Poller lifecycle and proposed starting defaults
+
+Run a supervised observer from the existing long-lived Server release/supervisor pattern, with startup/shutdown hooks or an authenticated bounded observer tick. Do not rely on a browser tab, one incoming LINE message or an untracked Next.js hot-reload timer to keep monitoring alive. A singleton/lease or idempotent latest-observation write prevents competing observer updates. The observer's internal endpoint is not public.
+
+| Parameter | Proposed starting value | Meaning |
+|---|---:|---|
+| Busy observation interval | 2 s | Per node, with jitter |
+| Idle interval | 10 s | No active/pending pool jobs |
+| Busy sample stale age | 8 s | Exceeding this makes load data UNKNOWN |
+| Idle sample stale age | 30 s | On new work, refresh before admission if busy freshness is not met |
+| Individual probe timeout | 2 s | Bounded network/parse operation |
+| Transport failure circuit threshold | 3 consecutive | Avoid disabling on one transient failure |
+| Initial circuit cool-down | 15 s | Only a bounded half-open probe is allowed afterwards |
+| Recovery successes | 2 current checks | Avoid rapid route flapping |
+
+These values are test defaults to calibrate, not observed performance or an SLA. Invalid credentials, revoked policy or a model mismatch makes the node ineligible immediately regardless of the transient threshold. One metrics parse failure marks that observation unknown; it does not restart the engine or fabricate an empty queue.
+
+### Admission algorithm
+
+1. Resolve the trusted job snapshot, allowed pool and exact model profile. Serialize active turns for the same account/conversation to avoid answer-order and memory races; other conversations may run in parallel. Do not infer conversation ownership from a supplied external LINE user ID.
+2. Require current qualification, administrative ENABLED state, permitted processing trust and fresh required health/auth/model/load evidence. A drained node is excluded even if its health endpoint is green.
+3. Calculate the final prompt token count or a proved conservative upper bound with the pinned tokenizer/template. Add requested output and a documented safety margin. Enforce each node's context limit. A pool has no cross-node token/VRAM sum.
+4. Check the deadline: compare remaining end-to-end budget against a calibrated conservative latency estimate for this workload bucket plus send/persistence reserve. With insufficient history, use a bounded initial calibration envelope, not a fabricated p95 from two samples.
+5. Under the per-engine database lock, check active lease slots and reserved token budget against calibrated node caps. Re-read current policy/configuration epoch. Allocate the lease atomically before dispatch.
+6. Prefer A when eligible. Otherwise attempt B under its own lock. A failed compare-and-set/reservation restarts selection from current state within a small bounded retry count.
+7. If neither qualifies, release any pre-dispatch holds and leave work visibly deferred under the existing job contract until its deadline, or return a defined capacity/deadline failure. No cloud fallback, unlimited inner queue or polling loop that holds an execution lease beyond its useful lifetime.
+
+Let `slots(n)` and `tokens(n)` be the totals from unexpired active/uncertain leases for node n, and `need(r)` the conservative invocation budget. Admission requires `slots(n)+1 <= capSlots(n)` and `tokens(n)+need(r) <= capTokens(n)`, plus all non-capacity gates above. `capTokens` is calibrated usable workload budget, not nominal VRAM converted by a universal formula. Engine observations detect external load/drift; they are not added to lease totals as if every metric represented a distinct extra request.
+
+The first production profile dedicates these engine processes to Zuri. Uncontrolled external clients invalidate the capacity model. Detect unexpected load, degrade availability and require recalibration or centrally governed access; a vLLM service key is not per-Business fairness enforcement.
+
+### Concurrency and uncertainty
+
+Reservations live in PostgreSQL so two web processes cannot both see the same unreserved slot and admit it. Holds include a hard maximum execution horizon configured and tested for the inference deployment. Client cancellation or lease expiry cannot prove remote compute stopped. Retain/quarantine uncertain capacity until a verified cancellation, node restart/requalification, or the tested hard remote execution horizon with safety margin has passed. If no reliable horizon/cancel evidence exists, keep the node unavailable for new admission until operator recovery.
+
+Do not equate the return of `/health` or an aggregate zero queue with proof that a particular disputed request never ran. Late results are accepted only against current job/execution/version/epoch. Retry of a purely model-only call may be a future explicit policy; automatic replay after dispatch is off in this release.
+
+KV affinity is an optional tie-breaker after health/deadline/capacity gates. It cannot pin a user to a dead or full node, grant access to another conversation, or replace Server history. No live migration of an in-flight generation is attempted.
+
+### Suggested failure vocabulary
+
+`POOL_NOT_QUALIFIED`, `POOL_SCOPE_DENIED`, `NO_ELIGIBLE_NODE`, `NODE_AUTH_INVALID`, `NODE_MODEL_MISMATCH`, `NODE_OBSERVATION_STALE`, `CAPACITY_UNAVAILABLE`, `CAPACITY_RESERVATION_CONFLICT`, `CONTEXT_LIMIT_EXCEEDED`, `ANSWER_DEADLINE_EXHAUSTED`, `MODEL_EXECUTION_UNCERTAIN`.
+
+These are proposed internal bounded codes. Map them deliberately to the existing job/trace contract; do not add unapproved values to strict completion schemas.
+
+## Acceptance criteria
+
+- ROUTE-01: Concurrent same-profile requests fill calibrated A capacity and spill new work to B, while total reservations on either node never exceed its caps.
+- ROUTE-02: Two independent Server processes racing for one slot produce at most one successful lease; prove on PostgreSQL.
+- ROUTE-03: Missing/stale/wrong-unit/out-of-order metrics never become zero or extra capacity; stale idle snapshots are refreshed before busy admission.
+- ROUTE-04: Wrong profile, scope, auth, processing policy or drain excludes a node even if VRAM is free.
+- ROUTE-05: A slow node with free memory does not capture work that cannot meet the answer deadline; larger VRAM is not treated as guaranteed lower latency.
+- ROUTE-06: Queued jobs and same-conversation sequencing survive process restart without duplicate answer/tool/send; stranded pre-dispatch and uncertain post-dispatch reservations are distinguished.
+- ROUTE-07: No external provider, active request migration or cross-node cache transfer occurs when both nodes saturate.
+- ROUTE-08: Removing the dashboard/Prometheus does not change reservation correctness; stopping the actual observer makes node data stale and blocks unsafe admission.
+- ROUTE-09: A metric/read outage alone never causes a host reboot, model unload or GPU restart.
+- ROUTE-10: Allocation, latency and memory calibration is captured per physical node/profile/context bucket before raising concurrency.
+
+[V4]: https://docs.vllm.ai/en/stable/usage/metrics/
+
+## Baseline source references
+
+The following immutable repository sources were reviewed; proposed new behavior above is not a claim that it exists in this snapshot.
+
+- [docs/domains/agent/CHARTER.md](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/domains/agent/CHARTER.md) — Agent ownership and source-versus-planned behavior caveats.
+- [apps/server/src/modules/agent/server-line-answer.js](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/src/modules/agent/server-line-answer.js) — SERVER LOCAL_ONLY uses deterministic model; existing grounding/context hooks.
+- [apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js) — Durable claim/settle/send and bounded parallel Server worker.
+- [apps/server/src/modules/line-oa-studio/domain/line-execution-budget.js](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/src/modules/line-oa-studio/domain/line-execution-budget.js) — 5-second send reserve; compute lease does not extend reply lifetime.
+- [apps/edge/src/conversation/executor.ts](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/edge/src/conversation/executor.ts) — Local-only URL restrictions and tools/RAG/context composition.
+- [apps/edge/src/answer/providers/openai-compatible.ts](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/edge/src/answer/providers/openai-compatible.ts) — Provider-neutral protocol with local-provider-specific extra fields.
+
+## CHANGELOG
+
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---|---|---|---|---|---|
+| 0.1.0b | 2026-09-17 | candidate | Initial documentation proposal; no runtime implementation or activation | uncommitted; baseline cfd5521 | ChatGPT |
+| 0.1.1b | 2026-09-18 | approved design | Record owner approval; design unchanged; canonical IDs, governance and runtime gates remain pending | uncommitted; baseline cfd5521 | ChatGPT |

@@ -1,15 +1,19 @@
 ---
 domain: knowledge
-version: "1.3.0b"
+version: "1.8.0b"
 status: beta
-last_update: "2026-09-08T17:30:00+07:00,RWANG"
+last_update: "2026-09-17T22:40:00+07:00,RWANG"
 module: src/modules/knowledge
+owns_routes:
+  - src/app/(pm)/knowledge/**
 owns_models:
   - KnowledgeCorpus
   - KnowledgeSource
   - KnowledgeIngestion
   - KnowledgeCorpusGeneration
   - KnowledgeRawArtifact
+  - KnowledgeArtifactStorage
+  - KnowledgeArtifactOperation
   - KnowledgeParsedArtifact
   - KnowledgeChunk
   - GenesisRag17IngestionIntent
@@ -18,6 +22,7 @@ owns_models:
   - GenesisRag17StageEvidence
   - GenesisRag17EvidenceCursor
   - GenesisRag17PublicationReceipt
+  - KnowledgeCandidate
 ---
 
 # Domain charter — knowledge
@@ -58,6 +63,37 @@ external systems with their own repositories and are never zuri-ai domains
   charter; they are execution records, not canonical GKS knowledge.
 - Knowledge enters through governed import/approval — never automatically from
   conversation (spec §19: MSP → candidate → validation → GKS, in that order).
+  [ADR-090](../../decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md)
+  D6 is the one lawful route for LINE, and it is now built (FR-236,
+  `KnowledgeCandidate`): a locator-only question and answer, drafted from a
+  consent-GRANTED Conversation through crm's existing read projection
+  (`conversation-read-model.js` — crm gains no writer), approved or rejected by a
+  Business OWNER or `LINE_OA_PUBLISHER` with an audited decision, admitted as one
+  immutable `LINE_FAQ_CANDIDATE` TEXT source through the **same** ADR-072 admission
+  service before Stage 1 — never a second write path into the corpus. No raw
+  transcript, MSP episode or automatic promotion, and no Tier 1
+  `gks_knowledge_promote`. Drafting is further gated per Business by
+  `Business.knowledgeCandidatesEnabled` (TASK-ZAI-099), off by default for
+  every Business and turned on only through
+  `business-knowledge-candidates-service.js` (project-manager domain's
+  `business` module — same cross-domain shape as `capabilitiesJson`/FR-169:
+  this domain owns the model that answers "should this candidate be
+  admitted", `business` owns the Business row and the field's write path).
+  `draftKnowledgeCandidate` checks it before any authority check, so a
+  Business with the flag off refuses identically regardless of the caller's
+  role; `updateKnowledgeCandidate`/`decideKnowledgeCandidate` are unaffected,
+  so a candidate already drafted stays reviewable if the flag is later
+  turned off.
+- **"Owns no Prisma models" was this domain's boundary before ADR-072; it no
+  longer is, and the exception ADR-090 D6 adds is `KnowledgeCandidate` alone.**
+  Every other model in `owns_models` already existed before this decision
+  (ADR-072 phases 0–4, then ADR-073's lineage/batch/evidence models); D6 is
+  cited here because it is the reasoning that put a *review* table — not
+  another admission/lineage record — into this domain: the candidate is a
+  human decision this domain now holds evidence of, not a fact GKS asserted.
+  `KnowledgeCandidate` is claimed nowhere else — no other domain's charter or
+  `docs/.doc-graph.json` node names it — so preflight's model-ownership check
+  sees exactly one claimant.
 - Serves grounded answers to the agent domain through the knowledge contract;
   it does not talk to LINE and it does not resolve identity.
 - **Holds no client of GenesisBlockDB** — no `GenesisDatabase` binding, no
@@ -72,6 +108,18 @@ external systems with their own repositories and are never zuri-ai domains
   went the same day (ADR-063 D2a); `smartgift-knowledge-catalog.js` stays as
   data and feeds the PUBLIC business-knowledge fixture the SmartGift webhook
   e2e test reads through the in-memory reader. Zero exceptions remain.
+- **Has one navigation slot, Knowledge (GKS)** ([ADR-085](../../decisions/ADR-085-KNOWLEDGE-GKS-SLOT-AND-THE-DATA-PIPELINE-MAP.md),
+  FR-214): the domain key `knowledge`, base path `/knowledge`. The label names
+  the authority this lane consumes, exactly as the opening line above does; it
+  does not make GKS a zuri-ai domain (ADR-063 D4). The slot opens with the Data
+  Pipeline Map (FR-212, FR-213) — a projection of `docs/DATA-PIPELINE-MAP.md`
+  built by `scripts/data-pipeline-map.mjs` and rendered from
+  `src/modules/knowledge/pipeline-map/` — which holds architecture metadata and
+  no Business data. The live per-edge overlay (FR-215) locally reads each owning
+  domain's ledger or job table through four bounded read ports, never a table of its
+  own. Failed reads remain unavailable/null, unbacked edges show no number, and the
+  static map does not wait. This is not GKS/MSP runtime or production activation
+  evidence.
 
 ## Ingestion lane (FR-109, FR-110, FR-111 — ADR-050)
 
@@ -271,10 +319,67 @@ ingestion lane above, never here.
   matching update.
 
 
-## Documentation version diff — 2026-09-08
+## LINE grounding and knowledge candidates (ADR-090, FEAT-038)
+
+Accepted 2026-09-14. FR-236 (knowledge candidates) is built; FR-235 (corpus reader),
+FR-237 (gap report) and FR-238 (Studio descriptions) remain declared, not built —
+each still names no code or schema of its own, and `owns_models`/`owns_routes`
+change only when their own model or route lands.
+Design evidence: [the LINE → GKS design](../../plans/LINE-TO-GKS-GROUNDING-AND-CANDIDATE-PIPELINE-DESIGN.md).
+
+- **Corpus reader (FR-235, SDD-099) — declared, not built.** This lane will own an
+  in-process implementation of the existing `knowledge.query` port over
+  `queryKnowledgeCorpus`, run under the ADR-072 D5 runtime capability with the LINE
+  job's server-derived scope, within a configurable 2 500 ms / top-5 / 8 KiB budget.
+  The agent lane composes it per the account's grounding mode (stored by
+  line-oa-studio); the business-knowledge port above remains the default. First
+  Business: SmartGift, after ADR-075 Phase 3. It holds no GenesisBlockDB client —
+  every read still goes through MSP.
+- **Knowledge candidates (FR-236) — built.** `KnowledgeCandidate` —
+  PENDING_REVIEW, APPROVED, REJECTED, TOMBSTONED — carries `sourceRef` locators
+  only (`conversationId` + internal `Message.id`s, never a LINE user id or
+  `externalThreadId`); drafted from a consent-GRANTED Conversation through crm's
+  existing read projection (crm gains no writer). **Zero-PII** (ADR-090 D6,
+  revised 2026-09-14, owner decision) runs the **candidate prose policy**
+  (`knowledge-candidate-zero-pii.js`, `line-faq-candidate-zero-pii-1`: names,
+  phone numbers, LINE user ids, quoted wording) — one exported function, called
+  on the exact composed text the admission service stores — at creation, at
+  every edit, again at the decision, and again at Stage 5 classify
+  (`genesisrag17-executor.js`'s explicit provider→policy map). It is
+  deliberately NOT FR-187's structured-record category-word policy
+  (`structured-record-policy.js`, unchanged for `SMARTGIFT_CATALOG`): FR-187
+  denies the literal words ลูกค้า/ใบเสนอราคา/customer/contact/quotation, which
+  an ordinary, already-approved FAQ legitimately contains as free text. Review
+  is a Business OWNER or `LINE_OA_PUBLISHER` in the Knowledge (GKS) slot
+  (`/knowledge/candidates`), and every APPROVE/REJECT decision is audited;
+  APPROVE admits one immutable `LINE_FAQ_CANDIDATE` TEXT source through the
+  **same** ADR-072 `knowledge-admission-service.js` — never a second write path
+  into the corpus — and REJECT never calls it. Erasure tombstones a candidate
+  and withdraws an admitted source (FR-232, not built by this change — the two
+  fields that name a source conversation, `conversationId` and `sourceRefJson`,
+  are the ones a future
+  erasure fan-out walks).
+- **Knowledge gap report (FR-237) — declared, not built.** Counts, product locators
+  and last-seen times of `NO_EVIDENCE` answers per Business; never admitted.
+- **Studio descriptions (FR-238, later) — declared, not built.** Published rich
+  menu, LIFF and bot-profile descriptions as `LINE_STUDIO_DESCRIPTION` TEXT
+  sources; never the JSON.
+- **Registry.** `docs/DATA-PIPELINE-MAP.md`: CH-21 (FR-235) stays an undeclared
+  (`"wired": false`) edge; CH-22 (FR-236) is wired for real now — `p.knowledge-
+  candidate-review` (the review process) and `s.knowledge-candidates` (the
+  PENDING_REVIEW/APPROVED/REJECTED/TOMBSTONED store) landed with their surfaces
+  (ADR-085 Consequence 2), replacing the single placeholder edge from `s.crm`
+  straight to `in.knowledge-admission` with the real hop through review.
+
+## Documentation version diff — 2026-09-16
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.7.1 → 1.8.0b (2026-09-16) | FR-215 implemented locally through four owning-domain read ports with Business-scoped authorization and unavailable/null failure states; the Knowledge Documents surface is bounded to Text/Markdown admission | No model or migration; no GKS/MSP runtime or production activation |
+| 1.6.0b → 1.7.0b (2026-09-14) | Owner decision (TASK-ZAI-096 review): ADR-090 D6 revised — the candidate creation/edit/decision Zero-PII check AND Stage 5 classify both run the candidate prose policy (`line-faq-candidate-zero-pii-1`), never FR-187's structured-record policy; `LINE_FAQ_CANDIDATE` removed from `structured-record-policy.js`'s `STRUCTURED_RECORD_PROVIDERS`; `genesisrag17-executor.js` gains an explicit provider→policy map (FR-187 unchanged for `SMARTGIFT_CATALOG`) | No schema change; corrects Stage 5 behavior so an approved FAQ containing "ลูกค้า"/"ใบเสนอราคา" is not denied |
+| 1.5.0b → 1.6.0b (2026-09-14) | TASK-ZAI-096/FR-236 built: `KnowledgeCandidate` (the one exception to this domain's pre-ADR-072 "owns no Prisma models" boundary, per ADR-090 D6), the candidate service (`application/knowledge-candidate-service.js`), the Zero-PII prose scan (`knowledge-candidate-zero-pii.js`), `LINE_FAQ_CANDIDATE` added to the admission service and to Stage 5's structured-provider list, the `/knowledge/candidates` review UI, and the `p.knowledge-candidate-review` / `s.knowledge-candidates` pipeline-map nodes wiring CH-22 for real | Additive migration (not applied to any real database by this change — ADR-057); no other domain's model or route touched |
+| 1.4.0b → 1.5.0b (2026-09-14) | ADR-090 / FEAT-038 declared: corpus reader for LINE grounding, planned `KnowledgeCandidate`, gap report and Studio description sources recorded as prose; the one lawful chat-to-knowledge route named in Boundaries | None; no model, route or migration |
+| 1.3.0b → 1.4.0b (2026-09-13) | Claim the Knowledge (GKS) navigation slot and `src/app/(pm)/knowledge/**` for the Data Pipeline Map (ADR-085, FR-212..FR-215) | New read-only page; no model, no migration |
 | 1.2.0b → 1.3.0b | Own four admission/corpus models and the ADR-072 snapshot read-set boundary | Additive phases 0–4; no production migration |
 | 1.1.0b → 1.2.0b | Declare source intent and occurrence ownership for approved audit remediation | Additive isolated persistence and recovery; no production migration |
 | unversioned → 1.1.0b | Current isolated profile and extension navigation; stable stage/requirement IDs and original section numbers preserved | None; historical acceptance evidence unchanged |

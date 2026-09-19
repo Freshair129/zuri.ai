@@ -8,6 +8,7 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
+import { moduleForProjectPath } from '@/modules/project-manager/navigation'
 
 const src = (path) => readFileSync(resolve(process.cwd(), path), 'utf8')
 
@@ -18,22 +19,6 @@ const globalExecutionRoute = src('src/app/(pm)/execution/[mode]/page.jsx')
 const projectDetail = src('src/app/(pm)/projects/[projectId]/page.jsx')
 
 /**
- * `TAB_SUFFIXES` is deliberately not exported — Next.js reserves a `layout`
- * file's export surface — so the ordering is exercised by lifting the table out
- * of the source and replaying the resolver's first-match rule over it. The
- * resolver's own two lines are pinned below, so this replay cannot quietly
- * drift away from the code it stands in for.
- */
-function tabSuffixes() {
-  const table = projectLayout.match(/const TAB_SUFFIXES = \[([\s\S]*?)\n\]/)
-  if (!table) throw new Error('TAB_SUFFIXES table not found in the project layout')
-  return [...table[1].matchAll(/\['([\w-]+)',\s*\[([^\]]*)\]\]/g)].map((row) => [
-    row[1],
-    [...row[2].matchAll(/'([^']+)'/g)].map((suffix) => suffix[1]),
-  ])
-}
-
-/**
  * Comments in the view explain why `/projects/undefined` must never be built;
  * the `projectId` guard is what actually stops it. Strip comments before
  * asserting that string is absent, or the explanation trips the assertion and
@@ -41,59 +26,35 @@ function tabSuffixes() {
  */
 const codeOnly = (source) => source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
 
-const BASE = '/projects/p1'
+describe('Project-local module classification', () => {
+  const BASE = '/projects/p1'
 
-function activeProjectTab(pathname) {
-  if (pathname === BASE) return 'project'
-  const hit = tabSuffixes().find(([, suffixes]) => suffixes.some((suffix) => pathname.includes(suffix)))
-  return hit ? hit[0] : undefined
-}
-
-describe('project-scoped execution mode: tab highlight', () => {
-  it('replays the same first-match rule the layout applies', () => {
-    expect(projectLayout).toContain("if (pathname === base) return 'project'")
-    expect(projectLayout).toContain(
-      'TAB_SUFFIXES.find(([, suffixes]) => suffixes.some((suffix) => pathname.includes(suffix)))'
-    )
+  it('uses the typed module resolver instead of a substring-based layout table', () => {
+    expect(projectLayout).toContain('moduleForProjectPath(pathname, projectId)')
+    expect(projectLayout).not.toContain('TAB_SUFFIXES')
+    expect(projectLayout).not.toContain('pathname.includes(')
   })
 
-  it('highlights Project — the tab whose page is the only inbound link — not Work', () => {
-    expect(activeProjectTab(`${BASE}/execution/sprint`)).toBe('project')
-    expect(activeProjectTab(`${BASE}/execution/b2c-campaign`)).toBe('project')
-    expect(activeProjectTab(`${BASE}/execution/sprint`)).not.toBe('work')
-    expect(activeProjectTab(BASE)).toBe('project')
+  it('keeps execution mode routes under Project Management', () => {
+    expect(moduleForProjectPath(`${BASE}/execution/sprint`, 'p1')).toMatchObject({ id: 'module.project-management' })
+    expect(moduleForProjectPath(`${BASE}/execution/b2c-campaign`, 'p1')).toMatchObject({ id: 'module.project-management' })
   })
 
-  it('keeps `/execution` ahead of the broad Work row so nothing can reclaim it', () => {
-    const keys = tabSuffixes().map(([key]) => key)
-    expect(keys.indexOf('project')).toBeGreaterThanOrEqual(0)
-    expect(keys.indexOf('project')).toBeLessThan(keys.indexOf('work'))
-    const work = tabSuffixes().find(([key]) => key === 'work')[1]
-    expect(work).not.toContain('/execution')
-  })
-
-  it('leaves every other project route on the tab it already had', () => {
+  it('maps Work, Resource Coordination, Import, and the Project root to their owners', () => {
     for (const suffix of ['/roadmap', '/structure', '/board', '/all-work', '/timeline', '/milestones', '/dependencies']) {
-      expect(activeProjectTab(`${BASE}${suffix}`)).toBe('work')
+      expect(moduleForProjectPath(`${BASE}${suffix}`, 'p1')).toMatchObject({ id: 'module.work-management' })
     }
-    expect(activeProjectTab(`${BASE}/inventory`)).toBe('inventory')
-    expect(activeProjectTab(`${BASE}/team`)).toBe('team')
-    expect(activeProjectTab(`${BASE}/files`)).toBe('files')
-    expect(activeProjectTab(`${BASE}/import`)).toBe('import')
+    expect(moduleForProjectPath(`${BASE}/inventory`, 'p1')).toMatchObject({ id: 'module.project-management' })
+    expect(moduleForProjectPath(`${BASE}/team`, 'p1')).toMatchObject({ id: 'module.resource-coordination' })
+    expect(moduleForProjectPath(`${BASE}/files`, 'p1')).toMatchObject({ id: 'module.resource-coordination' })
+    expect(moduleForProjectPath(`${BASE}/repositories`, 'p1')).toMatchObject({ id: 'module.resource-coordination' })
+    expect(moduleForProjectPath(`${BASE}/import`, 'p1')).toMatchObject({ id: 'module.project-management' })
+    expect(moduleForProjectPath(BASE, 'p1')).toMatchObject({ id: 'module.project-management' })
   })
 
-  // @req FR-008 — same rule as `/execution`: the tab whose page opens the route
-  // owns the highlight. Repositories has no tab of its own and is reached from
-  // Inventory's "Open repositories →" link, and until this row existed it
-  // resolved to `undefined` — a Project page with nothing marked current.
-  it('maps the tabless /repositories route to the tab that links to it', () => {
-    expect(activeProjectTab(`${BASE}/repositories`)).toBe('inventory')
-    expect(src('src/app/(pm)/projects/[projectId]/inventory/page.jsx'))
-      .toContain('href={`/projects/${project.id}/repositories`}')
-  })
-
-  it('still leaves an unmapped route visibly absent rather than silently wrong', () => {
-    expect(activeProjectTab(`${BASE}/not-a-tab`)).toBeUndefined()
+  it('does not classify a foreign or unknown route as a Project surface', () => {
+    expect(moduleForProjectPath(`${BASE}x/structure`, 'p1')).toBeNull()
+    expect(moduleForProjectPath(`${BASE}/not-a-tab`, 'p1')).toBeNull()
   })
 })
 

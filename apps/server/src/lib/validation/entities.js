@@ -14,6 +14,11 @@ import {
   zWorkspaceScopeType,
   zConversationAnalysisContactType,
   zConversationAnalysisState,
+  zBranchKind,
+  zEmploymentType,
+  zMessageContentKind,
+  zMessageAttachmentKind,
+  zConversationEventKind,
 } from './enums'
 
 const zDate = z.coerce.date()
@@ -32,9 +37,11 @@ export const zTenantInput = z.object({
   status: z.string().optional(),
 })
 
+// @req FR-194 — LegalEntity sits under Tenant, not Portfolio (ADR-078 D1): a
+// Business may only reference a LegalEntity in its own Tenant.
 export const zLegalEntityInput = z.object({
   code: z.string().min(1).optional(),
-  portfolioId: z.string().min(1),
+  tenantId: z.string().min(1),
   legalName: z.string().min(1),
   identifiers: z
     .array(
@@ -45,6 +52,15 @@ export const zLegalEntityInput = z.object({
       })
     )
     .optional(),
+})
+
+// @req FR-194 — one of the legal entity's own VAT branch registrations
+// (ประมวลรัษฎากร ม.86, ภ.พ.20). `00000` is head office.
+export const zTaxRegistrationBranchInput = z.object({
+  legalEntityId: z.string().min(1),
+  branchCode: z.string().regex(/^[0-9]{5}$/, 'branchCode must be 5 digits'),
+  name: z.string().min(1),
+  address: z.string().min(1),
 })
 
 export const zBusinessInput = z.object({
@@ -72,6 +88,8 @@ export const zResolveLineIdentityInput = z.object({
 })
 
 // FR-023 — one inbound LINE message → resolve identity → customer → conversation → message.
+// FR-229 — contentKind/attachment are additive: a plain text message never sets
+// them and keeps reading as TEXT with no attachment, exactly as before this change.
 export const zIngestLineMessageInput = z.object({
   tenantId: z.string().min(1),
   businessId: z.string().optional(),
@@ -82,9 +100,78 @@ export const zIngestLineMessageInput = z.object({
   text: z.string(),
   externalMessageId: z.string().optional(),
   direction: z.enum(['INBOUND', 'OUTBOUND']).default('INBOUND'),
+  contentKind: zMessageContentKind.default('TEXT'),
+  attachment: z.object({
+    kind: zMessageAttachmentKind,
+    providerContentId: z.string().min(1),
+  }).strict().optional(),
   // NFR-017 — carried through to the audit row so a webhook delivery can be joined to
   // the rows it created. Shape already validated by resolveCorrelationId at the edge.
   correlationId: z.string().min(8).max(64).optional(),
+  // @req FR-243 — the provider's time for the message, used to decide its session
+  //   (SDD-102); the caller clamps it to its own clock. Omitted means now.
+  occurredAt: z.coerce.date().optional(),
+  // @req FR-243 — the account's idle timeout in minutes; out of range falls back to 30.
+  sessionIdleTimeoutMinutes: z.number().int().optional(),
+})
+
+// FR-229 — a non-message LINE webhook event with a resolvable individual identity
+// (follow, unfollow, postback, unsend all carry event.source.userId): the same
+// identity → customer → conversation resolution as an inbound message, but writing
+// a ConversationEvent instead of a Message. `payload` is bounded and id-only —
+// never free text — by construction of the caller (line-conversation-jobs.js).
+export const zIngestLineConversationEventInput = z.object({
+  tenantId: z.string().min(1),
+  businessId: z.string().optional(),
+  lineUserId: z.string().min(1),
+  channelAccountId: z.string().min(1).optional(),
+  displayName: z.string().optional(),
+  threadId: z.string().min(1),
+  kind: zConversationEventKind,
+  externalEventId: z.string().min(1),
+  payload: z.record(z.union([z.string(), z.number(), z.boolean(), z.array(z.string())])).default({}),
+  occurredAt: z.coerce.date().optional(),
+  correlationId: z.string().min(8).max(64).optional(),
+  // @req FR-243 — the account's idle timeout, to find the session open at occurredAt.
+  sessionIdleTimeoutMinutes: z.number().int().optional(),
+})
+
+// FR-229 — join/leave/memberJoined/memberLeft carry no individual identity in
+// LINE's own payload (a group/room "join" has no source.userId), so these attach
+// only to a conversation that already exists for the thread; when none does, the
+// event is skipped rather than fabricating a Customer with no real Person behind
+// it (see the crm charter's BR-002 discipline; documented as a scope decision).
+export const zRecordExistingConversationEventInput = z.object({
+  tenantId: z.string().min(1),
+  businessId: z.string().optional(),
+  channelAccountId: z.string().min(1).optional(),
+  threadId: z.string().min(1),
+  kind: zConversationEventKind,
+  externalEventId: z.string().min(1),
+  payload: z.record(z.union([z.string(), z.number(), z.boolean(), z.array(z.string())])).default({}),
+  occurredAt: z.coerce.date().optional(),
+  correlationId: z.string().min(8).max(64).optional(),
+  // @req FR-243 — the account's idle timeout, to find the session open at occurredAt.
+  sessionIdleTimeoutMinutes: z.number().int().optional(),
+})
+
+// FR-229 — an `unsend` event: unlike follow/unfollow/postback, this mints no
+// identity or Customer. It attaches only to a conversation that already exists
+// for the thread (same rule as join/leave), and when it does, tombstones the
+// referenced Message body and MessageAttachment when the named
+// externalMessageId is one this Business actually admitted. Recording the event
+// never fails when the referenced message is unknown (ADR-091 proof 4).
+export const zIngestLineUnsendEventInput = z.object({
+  tenantId: z.string().min(1),
+  businessId: z.string().optional(),
+  channelAccountId: z.string().min(1).optional(),
+  threadId: z.string().min(1),
+  externalEventId: z.string().min(1),
+  unsentExternalMessageId: z.string().min(1).optional(),
+  occurredAt: z.coerce.date().optional(),
+  correlationId: z.string().min(8).max(64).optional(),
+  // @req FR-243 — the account's idle timeout, to find the session open at occurredAt.
+  sessionIdleTimeoutMinutes: z.number().int().optional(),
 })
 
 // FR-022 — account linking: issue a single-use token for an existing Person, then
@@ -168,6 +255,9 @@ export const zHandleAgentTurnInput = z.object({
   externalMessageId: z.string().optional(),
   // NFR-017 — the turn is one hop in the correlation chain, not its own trace.
   correlationId: z.string().min(8).max(64).optional(),
+  // @req FR-243 — LINE's time for the message, already clamped by the webhook route;
+  //   it decides the conversation session (SDD-102).
+  occurredAt: z.coerce.date().optional(),
   sessionId: z.string().min(1).optional(),
   instanceId: z.string().min(1).optional(),
   eventId: z.string().min(1).optional(),
@@ -189,6 +279,22 @@ export const zBranchInput = z.object({
   tenantId: z.string().min(1),
   businessId: z.string().min(1),
   name: z.string().min(1),
+  // @req FR-194 — what the Branch IS; defaults to SITE so every call site that
+  // predates this column keeps creating exactly what it created before.
+  kind: zBranchKind.optional(),
+})
+
+// @req FR-193 — Employment is an HR assignment, never an access grant
+// (ADR-078 D1); nothing here resembles a role or a domain key.
+export const zEmploymentInput = z.object({
+  personId: z.string().min(1),
+  tenantId: z.string().min(1),
+  businessId: z.string().min(1),
+  branchId: z.string().min(1).nullish(),
+  employeeNo: z.string().min(1).nullish(),
+  title: z.string().min(1).nullish(),
+  employmentType: zEmploymentType.optional(),
+  startAt: z.coerce.date().nullish(),
 })
 
 export const zWorkspaceInput = z.object({

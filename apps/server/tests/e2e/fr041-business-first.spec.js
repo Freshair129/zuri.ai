@@ -31,14 +31,15 @@ test.describe('FR-041/042 Business-first shell', () => {
     await page.getByRole('link', { name: 'HR / People' }).first().click()
     await expect(page).toHaveURL(/\/people$/)
     await expect(page.getByRole('heading', { name: 'Business 01 People' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'People Directory' })).toBeVisible()
-    await expect(page.getByText('Local Owner')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Employment', exact: true })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Members with access/ })).toBeVisible()
+    await expect(page.getByRole('listitem').filter({ hasText: 'Local Owner' })).toBeVisible()
     await expect(page.getByText(/Project Team is a separate Project-local view/)).toBeVisible()
-    const developmentLink = page.getByRole('link', { name: 'Development' }).first()
-    await expect(developmentLink).toBeVisible()
-    // FR-060 — Development roots at its own resource list; `/overview` became
-    // the Business Home Dashboard.
-    await expect(developmentLink).toHaveAttribute('href', '/projects')
+    const projectsWorkLink = page.getByRole('link', { name: 'Projects & Work' }).first()
+    await expect(projectsWorkLink).toBeVisible()
+    // FR-060 / FR-250 — Projects & Work roots at its Project Management
+    // surface; `/overview` remains the Business Home Dashboard.
+    await expect(projectsWorkLink).toHaveAttribute('href', '/projects')
   })
 
   test('strategy and people API contracts stay Business-scoped', async ({ request }) => {

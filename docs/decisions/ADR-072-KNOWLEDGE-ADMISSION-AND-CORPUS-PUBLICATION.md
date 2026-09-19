@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-072
 title: Knowledge admission and corpus publication
-version: "1.0.1b"
+version: "1.0.3b"
 status: beta
 created_at: "2026-09-08T16:30:00+07:00,RWANG,base dfdbaf11"
-last_update: "2026-09-08T19:37:00+07:00,RWANG"
+last_update: "2026-09-16T22:45:00+07:00,RWANG"
 relations:
   - type: references
     target: ZAI:ADR-073
@@ -31,6 +31,7 @@ At the audited baseline, FileAsset, document staging, legacy business knowledge 
 ## Decisions
 
 1. One knowledge admission service handles text/Markdown and existing readable FileAsset text/Markdown. UI and MCP use that same service. No direct binary/OCR parser, remote URL fetching, fabricated stage report or caller-supplied worker credential is added.
+   **Amended by [ADR-090](ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md) (2026-09-14):** two TEXT source kinds are added — `LINE_FAQ_CANDIDATE` (a locator-only question and answer an OWNER or `LINE_OA_PUBLISHER` approved) and, later, `LINE_STUDIO_DESCRIPTION`; both are text and admitted before Stage 1 through this same service.
 2. The knowledge domain owns four additive models: KnowledgeCorpus, KnowledgeSource, KnowledgeIngestion and KnowledgeCorpusGeneration. Repository interfaces own their persistence. Corpus identity is Business plus optional Project; the Project must be live and belong to that Business. Corpus association is explicit at Tier 1 and is not silently inserted into the frozen six-field wire scope.
 3. Each authorized immutable source version becomes one durable queued ingestion with text hash, idempotency identity, source link, actor and monotonically ordered source revision. Same request/key returns the same job; changed input/key or changed content at an existing source version conflicts. The raw executor source identity is namespaced by corpus/source UUIDs, not user display names.
 4. End-user authorization occurs before source content/configuration is disclosed. Business writers use existing owner authority; Business readers use existing visibility. Project corpora additionally use the existing Project read/write ancestry guards; this does not invent finer per-project ACLs than the product currently has. Machine credentials cannot gain new authority merely because an API route was added; any admitted API key must have an explicit configured knowledge grant and matching tenant. Scope/policy are server-resolved, never copied unchecked from a request.
@@ -42,6 +43,13 @@ At the audited baseline, FileAsset, document staging, legacy business knowledge 
 10. Citation identifiers bind corpus generation, source, ingestion and chunk. Resolution checks manifest membership, immutable source hashes/lineage and current source/Project/Business access. An old citation may resolve after a correction while still authorized; revocation or deleted source file/Project denies access. Audit retention is not permission to read withdrawn content.
 11. FileAsset metadata removal does not mutate historical snapshots. Serving checks its current state before returning file-backed evidence; explicit knowledge-source withdrawal atomically removes membership and retains audit history. Restore includes corpus/source/job/generation data along with existing immutable lineage, without claiming a zuri-only backup restores native stores.
 12. Existing Files and Project Files gain bounded knowledge controls for Text/Markdown, queue/status, query/citations and source withdrawal. No new navigation domain, arbitrary source crawler, LLM extractor or public reporter-success button is introduced.
+
+The `/knowledge/documents` page is a local convenience surface inside the existing
+Knowledge slot, not a second admission authority. It sends only Text/Markdown content
+through the same `/api/knowledge/ingestions` service and can admit existing readable
+Text/Markdown FileAssets. It does not advertise direct JSON/catalog, binary/OCR or
+remote-URL ingestion. Queue, query and withdrawal states on this page remain local and
+isolated evidence; they do not claim production activation.
 
 The atomic corpus manifest is a Tier 1 read set of independently gated document snapshots, not one FR-110 native knowledge_snapshot_id. This phase proves multi-document retrieval and membership, not corpus-wide graph deduplication, cross-document traversal or one aggregate native quality gate. All selected snapshots use the same configured scope/store; cross-store routing is a later phase.
 
@@ -85,5 +93,7 @@ flowchart TB
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.0.3b | 2026-09-16 | beta | Bound `/knowledge/documents` to the existing Text/Markdown admission path and removed unsupported direct JSON/catalog and binary intake claims; local/isolated evidence only | working-tree | RWANG |
+| 1.0.2b | 2026-09-14 | beta | Pointer only: D1 gains the `LINE_FAQ_CANDIDATE` and `LINE_STUDIO_DESCRIPTION` TEXT source kinds under ADR-090 | working-tree | Claude Opus 5 |
 | 1.0.1b | 2026-09-08 | beta | Record isolated Business surface/native acceptance and distinguish Project/API-grant test evidence | 03256b74 + integration | RWANG |
 | 1.0.0b | 2026-09-08 | beta | Owner-approved phases 0–4: scoped admission, explicit corpus snapshot manifests and current-access citation serving | base dfdbaf11 | RWANG |

@@ -61,7 +61,7 @@ function emptyConfig(branches = []) {
     legalAddress: '', vatRegistered: 'false', vatRateBps: '', vatTreatment: '', taxPolicyVersion: '',
     taxEffectiveAt: '', taxVerifiedAt: '', nonVatDocumentPolicy: '', walkInDocumentPolicy: '',
     promptPayTargetType: '', promptPayTarget: '', promptPayActive: false, promptPayVerifiedAt: '',
-    active: true, branchId: branch?.id || '', branchAddress: branch?.address || '', taxBranchCode: branch?.taxBranchCode || '', expectedVersion: undefined,
+    active: true, branchId: branch?.id || '', branchAddress: branch?.address || '', taxRegistrationBranchId: branch?.taxRegistrationBranch?.id || '', expectedVersion: undefined,
   }
 }
 
@@ -77,7 +77,7 @@ function configFrom(data) {
     promptPayTargetType: profile?.promptPayTargetType || '', promptPayTarget: profile?.promptPayTarget || '',
     promptPayActive: profile?.promptPayActive === true, promptPayVerifiedAt: dateInput(profile?.promptPayVerifiedAt),
     active: profile?.active !== false, branchId: branch?.id || '', branchAddress: branch?.address || '',
-    taxBranchCode: branch?.taxBranchCode || '', expectedVersion: profile?.version,
+    taxRegistrationBranchId: branch?.taxRegistrationBranch?.id || '', expectedVersion: profile?.version,
   }
 }
 
@@ -194,7 +194,7 @@ export default function BillingWorkspace({ businessId: businessIdProp }) {
         nonVatDocumentPolicy: config.nonVatDocumentPolicy || null, walkInDocumentPolicy: config.walkInDocumentPolicy || null,
         promptPayProvider: config.promptPayTarget ? 'PROMPTPAY' : null, promptPayTargetType: config.promptPayTargetType || null,
         promptPayTarget: config.promptPayTarget || null, promptPayActive: config.promptPayActive, promptPayVerifiedAt: isoDate(config.promptPayVerifiedAt), active: config.active,
-        ...(config.branchId ? { branchId: config.branchId, branchAddress: config.branchAddress || selectedBranch?.address || null, taxBranchCode: config.taxBranchCode || selectedBranch?.taxBranchCode || null } : {}),
+        ...(config.branchId ? { branchId: config.branchId, branchAddress: config.branchAddress || selectedBranch?.address || null, taxRegistrationBranchId: config.taxRegistrationBranchId || selectedBranch?.taxRegistrationBranch?.id || null } : {}),
         ...(config.expectedVersion ? { expectedVersion: config.expectedVersion } : {}),
       })
       if (generation !== actionGeneration.current || activeBusinessRef.current !== requestedBusinessId) return
@@ -265,9 +265,12 @@ export default function BillingWorkspace({ businessId: businessIdProp }) {
           <Input label="Tax verified date" type="date" value={config.taxVerifiedAt} onChange={(e) => patchConfig('taxVerifiedAt', e.target.value)} />
           <Select label="เอกสารกรณีไม่จด VAT" value={config.nonVatDocumentPolicy} onChange={(e) => patchConfig('nonVatDocumentPolicy', e.target.value)} options={[['', '— ยังไม่กำหนด —'], ['ALLOW_INVOICE_RECEIPT', 'อนุญาต Invoice/Receipt'], ['DENY', 'ไม่อนุญาต']]} />
           <Select label="ลูกค้าหน้าร้านไม่ระบุชื่อ" value={config.walkInDocumentPolicy} onChange={(e) => patchConfig('walkInDocumentPolicy', e.target.value)} options={[['', '— ยังไม่กำหนด —'], ['ALLOW_ANONYMOUS_RECEIPT', 'อนุญาต Receipt เท่านั้น'], ['DENY', 'ไม่อนุญาต']]} />
-          <Select label="สาขาที่ออกเอกสาร" value={config.branchId} onChange={(e) => { const branch = billing?.branches?.find((item) => item.id === e.target.value); patchConfig('branchId', e.target.value); patchConfig('branchAddress', branch?.address || ''); patchConfig('taxBranchCode', branch?.taxBranchCode || '') }} options={[['', '— เลือกสาขาที่ตั้งค่าแล้ว —'], ...(billing?.branches || []).map((branch) => [branch.id, `${branch.code} · ${branch.name}`])]} />
+          <Select label="สาขาที่ออกเอกสาร" value={config.branchId} onChange={(e) => { const branch = billing?.branches?.find((item) => item.id === e.target.value); patchConfig('branchId', e.target.value); patchConfig('branchAddress', branch?.address || ''); patchConfig('taxRegistrationBranchId', branch?.taxRegistrationBranch?.id || '') }} options={[['', '— เลือกสาขาที่ตั้งค่าแล้ว —'], ...(billing?.branches || []).map((branch) => [branch.id, `${branch.code} · ${branch.name}`])]} />
           <Input label="ที่อยู่สาขา" value={config.branchAddress} onChange={(e) => patchConfig('branchAddress', e.target.value)} placeholder="ที่อยู่สาขา" />
-          <Input label="รหัสสาขาภาษี" value={config.taxBranchCode} onChange={(e) => patchConfig('taxBranchCode', e.target.value)} placeholder="รหัสที่มีอยู่ของสาขา" />
+          {/* @req FR-194 — a registered VAT branch of the LegalEntity, never a
+              free-text code on the Branch: a warehouse Branch legitimately has
+              none, and a TAX_INVOICE / ABB_TAX_INVOICE refuses without one. */}
+          <Select label="สาขาจดทะเบียนภาษี (ภ.พ.20)" value={config.taxRegistrationBranchId} onChange={(e) => patchConfig('taxRegistrationBranchId', e.target.value)} options={[['', '— ไม่มี (ใช้ออกได้เฉพาะ Invoice/Receipt) —'], ...(billing?.taxRegistrationBranches || []).map((taxBranch) => [taxBranch.id, `${taxBranch.branchCode} · ${taxBranch.name}`])]} />
           <Select label="ประเภท PromptPay" value={config.promptPayTargetType} onChange={(e) => patchConfig('promptPayTargetType', e.target.value)} options={[['', '— ยังไม่กำหนด —'], ['MOBILE', 'เบอร์มือถือ'], ['TAX_ID', 'เลขผู้เสียภาษี']]} />
           <Input label="PromptPay recipient" value={config.promptPayTarget} onChange={(e) => patchConfig('promptPayTarget', e.target.value)} placeholder="ค่าที่ผู้ดูแล Business ระบุเอง" />
           <Input label="PromptPay verified date" type="date" value={config.promptPayVerifiedAt} onChange={(e) => patchConfig('promptPayVerifiedAt', e.target.value)} />

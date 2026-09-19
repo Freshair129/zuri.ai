@@ -11,7 +11,15 @@ import {
   INVENTORY_TRACKING_MODES,
   INVENTORY_UNSTOCKED_POLICIES,
 } from '@/lib/validation/enums'
+import { zDefaultStockPolicy, zProductNature, zReplenishmentFields, zVariant, zVariantAxes } from './inventory-governance'
 
+// @req FR-201, FR-202, FR-205, FR-207 — since ADR-083 the master contract
+//   declares its nature and variant axes, the SKU contract carries its
+//   variant values and replenishment parameters, the product action
+//   vocabulary grows to five (PHASE_OUT, REACTIVATE, MERGE), a movement may
+//   name a unit (FR-204), and a phased-out SKU refuses a receipt. The rules
+//   themselves live in `inventory-governance.js`; this file holds the
+//   contracts that carry them.
 // @req FR-154 — the pure vocabulary of the Inventory catalogue (คลังสินค้า):
 //   the input contracts for category, family, factory, product master, product
 //   (SKU) and bundle, the human `code` shape, and the one rule a SKU carries
@@ -88,7 +96,19 @@ export const zCreateProductMaster = z.object({
   nameEn: zText(200),
   baseCost: zMoney.optional(),
   specs: z.record(z.string(), z.unknown()).optional(),
-}).strict()
+  // @req FR-201, FR-202 — the nature every SKU inherits, the policy a GOOD's
+  //   SKU defaults to, and the axes that give its SKUs a variant identity.
+  nature: zProductNature.optional(),
+  defaultStockPolicy: zDefaultStockPolicy.optional(),
+  variantAxes: zVariantAxes.optional(),
+}).strict().superRefine((value, ctx) => {
+  if (value.nature === 'SERVICE' && value.defaultStockPolicy) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['defaultStockPolicy'], message: 'a SERVICE master has no stock policy to default; its SKUs are services' })
+  }
+  if (value.nature === 'SERVICE' && value.variantAxes?.length) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['variantAxes'], message: 'a SERVICE master has no physical variants' })
+  }
+})
 
 export const zProductFields = z.object({
   name: zOptionalText(200),
@@ -96,7 +116,10 @@ export const zProductFields = z.object({
   material: zOptionalText(100),
   unit: zText(20).optional(),
   safetyStock: z.number().int().nonnegative().optional(),
-}).strict()
+  // @req FR-202, FR-207 — a variant value may be corrected (the key is
+  //   recomputed and re-checked) and the replenishment parameters edited.
+  variant: zVariant.optional(),
+}).merge(zReplenishmentFields).strict()
 
 export const zCreateProduct = zProductFields.extend({
   businessId: zBusinessId,
@@ -120,6 +143,9 @@ export const zCreateProduct = zProductFields.extend({
   //   almost every product, and absent means "does not age".
   maintenanceIntervalDays: z.number().int().positive().max(3650).nullable().optional(),
   maxStorageDays: z.number().int().positive().max(3650).nullable().optional(),
+  // @req FR-202 — a caller that has seen the lookalike refusal and still
+  //   means a second SKU says so; the flag is recorded in the audit row.
+  allowLookalike: z.boolean().optional(),
 }).strict().superRefine((value, ctx) => {
   // @req FR-176 — only a CUSTOM_COMPONENT carries a customer lock. Allowing a
   // raw component to name a dedicated customer would create stock that looks
@@ -157,9 +183,22 @@ export const zProductAction = z.object({
   action: z.enum(INVENTORY_PRODUCT_ACTIONS),
   version: z.number().int().positive(),
   fields: zProductFields.partial().strict().optional(),
+  // @req FR-205 — MERGE names its survivor; every lifecycle action may carry
+  //   the reason a person gives, which lands in the audit row.
+  into: zId.optional(),
+  reason: zOptionalText(500),
 }).strict().superRefine((value, ctx) => {
   if (value.action === 'UPDATE' && (!value.fields || Object.keys(value.fields).length === 0)) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['fields'], message: 'fields is required for UPDATE' })
+  }
+  if (value.action === 'MERGE' && !value.into) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['into'], message: 'MERGE names the surviving product in `into`' })
+  }
+  if (value.action !== 'MERGE' && value.into) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['into'], message: 'only MERGE takes `into`' })
+  }
+  if (value.action !== 'UPDATE' && value.fields) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['fields'], message: 'only UPDATE takes fields' })
   }
 })
 
@@ -214,6 +253,10 @@ export const zRecordMovement = z.object({
   customerId: zId.nullable().optional(),
   salesOrderId: zId.nullable().optional(),
   workOrderId: zId.nullable().optional(),
+  // @req FR-204 — the unit `quantity` is expressed in. Absent or the base unit
+  //   means base units; anything else must be a conversion the product
+  //   declares, and the ledger row is written in base units (BR-037).
+  unit: z.string().trim().min(1).max(20).nullable().optional(),
 }).strict().superRefine((value, ctx) => {
   if (value.kind !== 'ADJUSTMENT' && value.quantity <= 0) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['quantity'], message: 'RECEIPT and ISSUE take a positive quantity' })
@@ -258,16 +301,24 @@ export function isBelowSafetyStock(product, onHand) {
 export function stockSummaryRow(product, movements = []) {
   const tracked = product.stockPolicy === 'TRACKED'
   const onHand = tracked ? stockOnHand(movements) : null
+  // @req FR-207 — the reorder threshold is the declared point or, absent one,
+  //   the safety stock; a phased-out SKU is never below it because it is never
+  //   reordered.
+  const reorderPoint = product.reorderPoint ?? null
+  const threshold = reorderPoint ?? product.safetyStock ?? 0
   return {
     productId: product.id,
     code: product.code,
     name: product.name ?? null,
     stockPolicy: product.stockPolicy,
     trackingMode: product.trackingMode,
+    status: product.status ?? 'ACTIVE',
     unit: product.unit,
     safetyStock: product.safetyStock,
+    reorderPoint,
     onHand,
     belowSafetyStock: tracked ? isBelowSafetyStock(product, onHand) : false,
+    belowReorderPoint: tracked && (product.status ?? 'ACTIVE') === 'ACTIVE' ? onHand < threshold : false,
   }
 }
 
@@ -300,6 +351,9 @@ export function movementRule(product, movement) {
   // to count. A caller that reports the reason should be able to say which.
   if (product.stockPolicy === 'SERVICE') return { ok: false, code: 'INVENTORY_PRODUCT_IS_A_SERVICE' }
   if (product.stockPolicy !== 'TRACKED') return { ok: false, code: 'INVENTORY_PRODUCT_UNTRACKED' }
+  // @req FR-205 — a phased-out SKU is sold down, not restocked: issues and
+  //   corrections still land, a receipt does not (ADR-083 D5).
+  if (product.status === 'PHASE_OUT' && movement.kind === 'RECEIPT') return { ok: false, code: 'INVENTORY_PRODUCT_PHASED_OUT' }
   const serials = movement.serialNos ?? []
   if (product.trackingMode === 'SERIAL') {
     if (movement.kind === 'ADJUSTMENT') return { ok: false, code: 'INVENTORY_SERIAL_ADJUSTMENT_NOT_ALLOWED' }

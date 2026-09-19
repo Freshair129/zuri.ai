@@ -11,6 +11,8 @@ const projects = source('src/modules/line-oa-studio/ui/LineStudioProjects.jsx')
 const designHub = source('src/modules/line-oa-studio/ui/LineStudioDesignHub.jsx')
 const crmMenu = source('src/modules/line-crm/LineCrmRichMenu.jsx')
 const edgeConnection = source('src/modules/line-oa-studio/ui/LineStudioEdgeConnection.jsx')
+const connectWizard = source('src/modules/line-oa-studio/ui/LineOaConnectWizard.jsx')
+const migrationCard = source('src/modules/line-oa-studio/ui/LineOaCredentialMigrationCard.jsx')
 const liff = source('src/modules/line-oa-studio/ui/LineStudioLiffApp.jsx')
 const shell = source('src/modules/line-oa-studio/ui/LineStudioShell.jsx')
 const platform = source('src/app/(pm)/platform/integrations/page.jsx')
@@ -51,7 +53,8 @@ describe('LINE settings ownership', () => {
   })
 
   it('keeps Platform model metadata on the shell Business after a context switch', () => {
-    expect(platform).toContain("setTargetBusinessId(currentBusiness?.id || businesses[0]?.id || '')")
+    expect(platform).toContain("const scopeBusinessId = currentBusiness?.id || ''")
+    expect(platform).toContain('setTargetBusinessId(scopeBusinessId)')
     expect(platform).not.toContain('businesses.some((business) => business.id === previous)')
   })
 
@@ -69,10 +72,30 @@ describe('LINE settings ownership', () => {
     expect(designHub).toContain('params.set("tool", tabId === "richmenu" ? "rich-menu" : tabId)')
   })
 
-  it('requires provider-issued destination and an existing deployment reference', () => {
-    expect(edgeConnection).toContain('!/^U[0-9a-fA-F]{32}$/.test(destination)')
-    expect(edgeConnection).toContain('!/^deployment-secret:[A-Za-z0-9_-]{1,100}$/.test(secretRef)')
-    expect(edgeConnection).not.toMatch(/channelSecret|channelAccessToken|Auto-generate valid destination|Auto-generate secret reference/)
+  // FR-225 (ADR-089): the hand-typed provider destination and deployment-secret
+  // reference this test used to require are gone from the Studio's own form —
+  // that was the fake/duplicate surface this suite exists to catch. What
+  // replaced them is the self-serve wizard, which the console now delegates to
+  // rather than reimplementing; a destination and every secret pattern live
+  // only in the wizard/vault code, never invented client-side in this file.
+  it('delegates connection to the self-serve wizard instead of a hand-typed destination and deployment reference', () => {
+    expect(edgeConnection).toContain('LineOaConnectWizard')
+    expect(edgeConnection).toContain('LineOaCredentialMigrationCard')
+    // The removed field's own label, pattern and placeholder — not the bare
+    // word, which this file's own doc comment still uses to explain the change.
+    expect(edgeConnection).not.toContain('Deployment secret reference')
+    expect(edgeConnection).not.toContain('deployment-secret:[A-Za-z0-9_-]{1,100}')
+    expect(edgeConnection).not.toContain('deployment-secret:line-main')
+    expect(edgeConnection).not.toMatch(/U\[0-9a-fA-F\]\{32\}/)
+    expect(edgeConnection).not.toMatch(/channelSecret|channelAccessToken/)
+    // The wizard owns the LINE channel field patterns and never a fabricated one.
+    expect(connectWizard).toContain('channelId')
+    expect(connectWizard).toContain('channelSecret')
+    expect(connectWizard).not.toMatch(/Auto-generate valid destination|Auto-generate secret reference/)
+    // The migration card reaches only the existing rotate route — no new
+    // credential-shaped surface of its own.
+    expect(migrationCard).toContain('/credential')
+    expect(migrationCard).not.toContain('deployment-secret')
   })
 
   it('uses the LIFF registry DTO and preserves the selected account in navigation', () => {

@@ -64,6 +64,18 @@ describe('the one surface that governs device keys offers all three operations',
     expect(page).toMatch(/window\.confirm\(/)
     expect(page).toMatch(/รับงานไม่ได้ทันที/)
   })
+
+  // @req FR-235 — the publisher's grounding-mode control (ADR-090 D1). The
+  // account card is a client component that fetches, so — same as the revoke
+  // button above — the shipped source is the checkable surface.
+  it('offers all three grounding modes and saves through the versioned CONFIGURE_KNOWLEDGE_GROUNDING action', () => {
+    expect(page).toContain('account.knowledgeGrounding')
+    for (const mode of ['BUSINESS_KNOWLEDGE', 'GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE']) {
+      expect(page).toContain(`value="${mode}"`)
+    }
+    expect(page).toMatch(/action:\s*"CONFIGURE_KNOWLEDGE_GROUNDING"/)
+    expect(page).toMatch(/knowledgeGrounding:\s*grounding/)
+  })
 })
 
 describe('LINE OA Studio has one Integrations page, not two', () => {

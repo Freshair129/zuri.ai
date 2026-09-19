@@ -13,7 +13,12 @@ export async function POST(request, { params } = {}) {
     if (!deviceContext) return NextResponse.json({ error: 'EDGE_CREDENTIAL_REQUIRED' }, { status: 401 })
     const body = await request.json()
     z.object({}).strict().parse(body)
-    const result = await claimEdgeConversation({ deviceContext })
+    const offered = request.headers.get('x-zuri-conversation-versions')
+    const contractVersions = offered == null ? ['1'] : offered.split(',').map(value => value.trim())
+    if (!contractVersions.some(value => value === '1' || value === '2')) {
+      return NextResponse.json({ error: 'CONVERSATION_CONTRACT_INCOMPATIBLE' }, { status: 409 })
+    }
+    const result = await claimEdgeConversation({ deviceContext, contractVersions })
     return result ? NextResponse.json(result) : new NextResponse(null, { status: 204 })
   } catch (error) {
     const status = error instanceof z.ZodError || error instanceof SyntaxError ? 400 : [401,404,409].includes(error?.status) ? error.status : 503

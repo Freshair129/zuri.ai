@@ -2,10 +2,10 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.1.0 |
+| **Version** | 1.4.0b |
 | **Status** | Accepted — hand-maintained; every row must name a lane that exists or say "not chartered" |
 | **Created** | 2026-09-07 |
-| **Last Updated** | 2026-09-08 |
+| **Last Updated** | 2026-09-16 |
 | **Relates to** | `docs/PRODUCT.md` §4, `docs/DOMAIN-MAP.md` (generated), `docs/FEATURES.md`, ADR-025, ADR-065, ADR-066, ADR-069, ADR-071 |
 
 > For LLM readers: [llms.txt](../llms.txt) is the repository index, and
@@ -49,7 +49,7 @@ bins, putaway and picking, and stocktake campaigns.
 
 | ERP module | Lane (route key · charter) | FRs / FEAT | State | What is delivered | What is still open |
 |---|---|---|---|---|---|
-| Inventory | `inventory` · `docs/domains/inventory/CHARTER.md` (`DOM-INVENTORY`) | FR-154, FR-155, FR-156, FR-174..FR-181 · FEAT-020, FEAT-025 · ADR-074 | **built** | catalogue identity (category, family, factory, master, SKU, bundle), the three natures, the append-only ledger with lots (FEFO) and serial units, on-hand recomputed on read, recipes / BOM at a batch size and the atomic build; since ADR-074 also warehouse locations and atomic transfers, landed cost in integer satang with the flat single-drop truck absorbed, the customization and kitting work orders with a declared scrap allowance and an irreversible customer lock, de-kitting, the shelf-life storage guard, Available-to-Promise with two-tier reservations, and six agent tools on the existing Gate E / Gate F registries | Excel / LINE stock intake, HTTP routes and console pages for locations, work orders and reservations, FlowAccount catalogue and stock synchronisation, cycle counting |
+| Inventory | `inventory` · `docs/domains/inventory/CHARTER.md` (`DOM-INVENTORY`) | FR-154, FR-155, FR-156, FR-168, FR-174..FR-181, FR-184, FR-201..FR-210 · FEAT-020, FEAT-025, FEAT-031, FEAT-032 · ADR-074, ADR-083, ADR-084 | **built** | catalogue identity (category, family, factory, master, SKU, bundle), the three natures — declared once at the master since ADR-083 so a service is never a variant of a good — the append-only ledger with lots (FEFO) and serial units, on-hand recomputed on read, recipes / BOM at a batch size and the atomic build; since ADR-074 also warehouse locations and atomic transfers, landed cost in integer satang with the flat single-drop truck absorbed, the customization and kitting work orders with a declared scrap allowance and an irreversible customer lock, de-kitting, the shelf-life storage guard, Available-to-Promise with two-tier reservations, six agent tools on the existing Gate E / Gate F registries, and the physical stocktake (FR-184); since ADR-083 the ERP item-master governance: variant axes with a unique variant key per master and a lookalike guard, barcodes / GTIN / supplier and manufacturer codes with a resolve-before-create step, unit-of-measure conversions (a pack is a factor, not a SKU), the SKU lifecycle (PHASE_OUT / REACTIVATE / MERGE with a guarded ARCHIVE), reorder point / quantity / lead time with a replenishment suggestion, and the read-only catalogue hygiene report on its own console tab; since ADR-084 catalogue intake from JSON, a Business-specific Excel workbook and a LINE `#sku` command, each resolving every item by barcode and code before it creates and committing all or nothing | stock (quantity) intake from Excel or LINE, Google Sheets, FlowAccount catalogue and stock synchronisation, cycle-count campaigns, category hierarchy, automatic merge (the report proposes, a person disposes) |
 | Warehouse | `warehouse` — a reserved slot under SCM since FR-167; the stock it reports on, and now its locations too, live in `inventory` | FR-155, FR-174 | **partial** | the ledger is a located stock position per SKU: nine typed locations, atomic transfers, and on-hand per location reported beside the Business-wide total (ADR-074 D1/D2) | bins and their putaway/picking rules, stocktake campaigns and reconciliation (the legacy `StockCount` shape — ERD §22 row "Phase 5 shared/inventory"), and a Warehouse console of its own |
 | Procurement | `procurement` · `docs/domains/procurement/CHARTER.md` (`DOM-PROCUREMENT`) | FR-164, FR-165 · FEAT-024 · ADR-066 | **built** (2026-09-07) | suppliers, purchase orders with lines at the agreed cost, SEND / CLOSE / CANCEL, goods receipts posted line by line into the Inventory ledger with lot, expiry and serials, `receiptState` computed on read, the order RECEIVED by the receipt that completes it | purchase requests and approvals, RFQs and quotes, purchase returns and credit notes, supplier invoices and payables, landed cost, promotion of a Market Intelligence `SupplierCandidate` |
 | Order Management | `commerce` · `docs/domains/commerce/CHARTER.md` (`DOM-COMMERCE`) | FR-162, FR-163 · FEAT-023 · ADR-065 | **partial** | sales orders with lines naming SKUs, DRAFT → CONFIRMED → COMPLETED, payments and refunds verified by a second hat, revenue from verified money, fulfilment that issues stock through the Inventory contract | fulfilment states (picking, packing, shipping, delivered), partial shipments and backorders, invoices and receipts, the offer / price catalogue, an order from a LINE chat, returns |
@@ -91,6 +91,27 @@ Context table records the same check against every other remaining domain
 Studio, Platform) — each already stands as one complete ERP-recognised module
 with no sibling to consolidate.
 
+## Projects & Work
+
+The owner approved [ADR-096](decisions/ADR-096-PROJECTS-AND-WORK-HIERARCHICAL-NAVIGATION.md)
+and FR-250 on 2026-09-16. The existing `projects` key, `DOM-DEVELOPMENT`
+identity and project-manager charter remain. This is one domain with six logical
+modules; it creates neither a new ERP parent nor six grants. Business Home links
+to owner surfaces and remains a cross-domain projection.
+
+| Logical module | Lane and authority | FRs | State and boundary |
+|---|---|---|---|
+| Project Management | project-manager; `projects` | FR-250, FR-086, FR-077, FR-012 | Existing Project and read-only Inventory surfaces; shared Import plan action |
+| Work Management | project-manager; `projects` | FR-250, FR-005, FR-006, FR-007, FR-009, FR-040, FR-064, FR-068 | Existing Business work surfaces and seven Project Work views |
+| Delivery Design | presentation in project-manager; referenced artifact owners retain authority | FR-250 | Planned disclosure only; Domains, Features, Requirements, Architecture, API and Docs & Decisions |
+| Resource Coordination | project-manager navigation; identity owns Membership | FR-250, FR-036, FR-045, FR-008 | Existing Team, Files and Repositories; workforce Resources remains planned and is not represented by Team |
+| Delivery Governance | project-manager presentation; future capability ownership follows its specification | FR-250 | Planned disclosure only; Risks, Reviews, Test & Release Evidence and Activity |
+| Agent Delivery | project-manager presentation; agent/provider execution retains its owner lanes | FR-250 | Planned disclosure only; Command Center, Agents, Fleets and Workflows |
+
+The navigation implementation is tracked separately from each capability in the
+[FR-250 delivery record](domains/project-manager/features/FR-250-hierarchical-project-navigation.md).
+A visible planned module is not evidence that its API, model or workflow exists.
+
 ## Adding a row
 
 When the owner names another ERP module: find the lane in `docs/DOMAIN-MAP.md`
@@ -104,5 +125,8 @@ invented here.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.4.0b | 2026-09-16 | beta | Record the approved Projects & Work six-module presentation, preserve existing lane/grant identities and distinguish planned capabilities from navigation implementation | approved baseline 3f36668f | RWANG |
 | 1.0.0 | 2026-09-07 | accepted | Created with the owner's SCM row: Inventory built (FEAT-020), Warehouse partial, Procurement built (FEAT-024, ADR-066), Order Management partial (FEAT-023) | working-tree | Claude Fable 5.1 |
+| 1.2.0 | 2026-09-13 | accepted | Inventory row: FR-201..FR-207 / FEAT-031 / ADR-083 (SKU governance — nature at the master, variant identity, identifiers, unit conversions, lifecycle with merge, replenishment, hygiene report); the "missing" cell drops cycle counting (FR-184) and gains category hierarchy and automatic merge as deliberate non-goals | working-tree | Claude Fable 5.1 |
+| 1.3.0 | 2026-09-13 | accepted | Inventory row: FR-208..FR-210 / FEAT-032 / ADR-084 (catalogue intake from JSON, Excel and LINE that resolves before it creates); the "missing" cell names stock intake and Google Sheets instead of the catalogue converters that now exist | working-tree | Claude Opus 5 |
 | 1.1.0 | 2026-09-08 | accepted | Added the CRM row (FR-172, ADR-071): Customer built (FR-091/093/103/127/161), Market Intelligence partial (FR-092) | working-tree | Claude Sonnet 5 |

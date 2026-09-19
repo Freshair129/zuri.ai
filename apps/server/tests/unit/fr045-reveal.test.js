@@ -2,7 +2,8 @@
 // @spec SEC-007, SDD-023, ADR-016 D7/D8
 // @tested tests/unit/fr045-reveal.test.js
 import { describe, expect, it, vi } from 'vitest'
-import { revealFileAsset } from '@/modules/project-manager/application/local-file-reveal-service'
+import { launchExplorer, revealFileAsset } from '@/modules/project-manager/application/local-file-reveal-service'
+import { buildOsChildEnv, OS_CHILD_ENV_NAMES } from '@/lib/os-child-env'
 import { makeViewer, ownsElsewhere } from '../factories/viewer'
 
 const owner = makeViewer({ visibleBusinessIds: ['business-a'], ownedBusinessIds: ['business-a'] })
@@ -44,5 +45,32 @@ describe('FR-045 local reveal capability', () => {
     // "not visible": ownership, not visibility, gates this real OS side effect.
     const attacker = ownsElsewhere({ owns: 'business-elsewhere', sees: 'business-a' })
     await expect(revealFileAsset('a', { ...common, origin: 'http://localhost:3100' }, { db, viewer: attacker, env: { ZURI_LOCAL_FILE_BRIDGE: '1' }, launcher: vi.fn(), realpath: async (x) => x })).rejects.toThrow('File asset not found')
+  })
+})
+
+// @req SEC — a child process that has no use for this server's secrets must not
+//   be handed them. Explorer inherits nothing but the OS names it needs to start;
+//   anything the user then launches from that window inherits the same.
+describe('reveal launches Explorer with an OS-only environment', () => {
+  it('hands the child the allowlisted OS names and nothing else', async () => {
+    const spawnImpl = vi.fn().mockReturnValue({ unref: vi.fn() })
+    await launchExplorer('D:\workspace\Projects\P\file.txt', spawnImpl)
+
+    const [, , options] = spawnImpl.mock.calls[0]
+    const forwarded = Object.keys(options.env).map((name) => name.toUpperCase())
+    expect(forwarded.length).toBeGreaterThan(0)
+    for (const name of forwarded) expect(OS_CHILD_ENV_NAMES).toContain(name)
+    for (const secret of ['DATABASE_URL', 'LINE_CHANNEL_SECRET', 'ANTHROPIC_API_KEY', 'NODE_OPTIONS']) {
+      expect(options.env[secret]).toBeUndefined()
+    }
+  })
+
+  it('matches names without case and copies them as spelled, dropping look-alikes', () => {
+    const child = buildOsChildEnv({
+      Path: 'C:/bin', SystemRoot: 'C:/Windows', windir: 'C:/Windows', TEMP: '/tmp',
+      PATH_SECRET: 'decoy', DATABASE_URL: 'postgres://decoy', NODE_OPTIONS: '--require ./decoy.js',
+      AWS_SECRET_ACCESS_KEY: 'decoy',
+    })
+    expect(child).toEqual({ Path: 'C:/bin', SystemRoot: 'C:/Windows', windir: 'C:/Windows', TEMP: '/tmp' })
   })
 })

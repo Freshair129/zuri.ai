@@ -392,22 +392,36 @@ describe('v4 search — searchV4 over the real buildGraphV4(identity-mini.json) 
   });
 });
 
-describe('priced-first tie-break', () => {
-  it('under commercial intent a priced result overtakes an unpriced near-tie, but not a clear winner', async () => {
-    // OFFER_TBY01 is priced; PRODUCT_M3 (drinkware model) has no price in the fixture.
-    const near = deps([[{ id: 'PRODUCT_M3', score: 0.884 }, { id: 'OFFER_TBY01', score: 0.882 }]]);
+describe('result ordering: unorderable sink, priced-first nudge', () => {
+  // OFFER_TBY01 is priced; OFFER_TSET99 has a code but no price; PRODUCT_M3 (drinkware
+  // model) has neither a code nor a price in the fixture — nothing to quote or order.
+  it('under commercial intent a priced result overtakes an unpriced near-tie (measured gap 0.02), but not a clear winner', async () => {
+    const near = deps([[{ id: 'OFFER_TSET99', score: 0.90 }, { id: 'OFFER_TBY01', score: 0.88 }]]);
     const resNear = await searchV4(near.deps, 'ของขวัญ 100 ชุด', { limit: 2 });
     assert.equal(resNear.results[0].id, 'OFFER_TBY01', 'priced item must win a near-tie');
-    assert.equal(resNear.results[0].score, cosineFromEngineScore(0.882), 'reported score stays raw');
+    assert.equal(resNear.results[0].score, cosineFromEngineScore(0.88), 'reported score stays raw');
 
-    const far = deps([[{ id: 'PRODUCT_M3', score: 0.95 }, { id: 'OFFER_TBY01', score: 0.85 }]]);
+    // Engine scores are squashed by cosineFromEngineScore (1 - (1-s)^2/2): 0.95 vs 0.85 is only a
+    // 0.010 reported gap, i.e. still a near-tie; 0.95 vs 0.70 is 0.044, beyond the 0.03 nudge.
+    const far = deps([[{ id: 'OFFER_TSET99', score: 0.95 }, { id: 'OFFER_TBY01', score: 0.70 }]]);
     const resFar = await searchV4(far.deps, 'ของขวัญ 100 ชุด', { limit: 2 });
-    assert.equal(resFar.results[0].id, 'PRODUCT_M3', 'a clear semantic winner keeps its rank');
+    assert.equal(resFar.results[0].id, 'OFFER_TSET99', 'a clear semantic winner with a code keeps its rank');
   });
 
-  it('a browse query (no qty/budget) keeps pure semantic order', async () => {
-    const { deps: d } = deps([[{ id: 'PRODUCT_M3', score: 0.884 }, { id: 'OFFER_TBY01', score: 0.882 }]]);
+  it('a result with no code and no price sinks below every orderable result, whatever its score', async () => {
+    const commercial = deps([[{ id: 'PRODUCT_M3', score: 0.95 }, { id: 'OFFER_TBY01', score: 0.85 }]]);
+    const resC = await searchV4(commercial.deps, 'ของขวัญ 100 ชุด', { limit: 2 });
+    assert.deepEqual(resC.results.map((r) => r.id), ['OFFER_TBY01', 'PRODUCT_M3']);
+
+    const browse = deps([[{ id: 'PRODUCT_M3', score: 0.95 }, { id: 'OFFER_TSET99', score: 0.80 }]]);
+    const resB = await searchV4(browse.deps, 'ของขวัญ', { limit: 2 });
+    assert.deepEqual(resB.results.map((r) => r.id), ['OFFER_TSET99', 'PRODUCT_M3'], 'browsing too: a coded item beats an unorderable one');
+    assert.equal(resB.results[1].score, cosineFromEngineScore(0.95), 'the sunk result still reports its raw score');
+  });
+
+  it('a browse query (no qty/budget) keeps pure semantic order among orderable results', async () => {
+    const { deps: d } = deps([[{ id: 'OFFER_TSET99', score: 0.884 }, { id: 'OFFER_TBY01', score: 0.882 }]]);
     const res = await searchV4(d, 'ของขวัญ', { limit: 2 });
-    assert.equal(res.results[0].id, 'PRODUCT_M3', 'browsing must not reorder by price');
+    assert.equal(res.results[0].id, 'OFFER_TSET99', 'browsing must not reorder by price');
   });
 });

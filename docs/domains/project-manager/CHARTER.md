@@ -15,8 +15,10 @@ owns_models:
   - Tenant
   - LegalEntity
   - LegalEntityIdentifier
+  - TaxRegistrationBranch
   - Business
   - Branch
+  - Employment
   - Workspace
   - Project
   - BusinessRoadmap
@@ -38,9 +40,14 @@ owns_models:
   - LocalWorkspaceMount
   - FileAsset
   - FileLink
-  - Membership
   - AuditEvent
   - PlanImportReceipt
+  - GovernanceSnapshot
+  - ProjectFeature
+  - FeatureContribution
+  - FeatureWorkLink
+  - RequirementBinding
+  - ProjectFeatureMutationReceipt
 owns_routes:
   - src/app/(pm)/**
   - src/app/api/**
@@ -80,10 +87,27 @@ trail. This is the back-office console's core.
   PlanEnvelope writer.
 - `ExecutionPlanBundle` is **not a persistence model** and is not a synonym for
   `WorkContainer`. `container` keeps its existing Workstream-local meaning.
+- FR-252 adds Project-local Feature authority and explicit Domain, WorkItem and
+  requirement relationships. GovernanceSnapshot and mutation receipts retain
+  immutable evidence; Domain-view FR-251 never infers Feature rows. Identity
+  owns the session-bound CSRF dependency. The six-table schema passes local
+  isolated verification; repository, recovery and production gates remain open.
 - `Team`, `TeamMembership` and `ProjectTeam` are organisational grouping and
   grant nothing: the identity resolver never reads them and no route guard
-  consults them (FR-089, BR-018, ADR-037 D1). `Membership` stays the authority
+  consults them (FR-089, BR-018, ADR-037 D1). `Membership` — owned by the identity charter since ADR-077 D8, and written
+  only from that lane — stays the authority
   record — grouping is kept out of it deliberately.
+- `Employment` is an HR assignment record — who works here, with what title,
+  from when to when — and answers a different question from `Membership`'s
+  access grant (FR-193, BR-034, ADR-078 D1). Same discipline as Team: the
+  identity resolver never reads it, and `people-service.js` reads it for the
+  roster while deriving "has system access" FROM `Membership`, never the
+  reverse.
+- `TaxRegistrationBranch` holds a `LegalEntity`'s own VAT branch registrations
+  (ประมวลรัษฎากร ม.86, ภ.พ.20); a `Branch` is an operating site that may
+  optionally point at one (FR-194, ADR-078 D2). `LegalEntity` sits under
+  `Tenant`, not `Portfolio` (ADR-078 D1) — a Business may only reference a
+  LegalEntity in its own Tenant.
 - Does not touch CRM's Person/Customer/Conversation/Message, identity's
   ExternalIdentity/IdentityLinkToken, or anything under `/api/agent/**`.
 

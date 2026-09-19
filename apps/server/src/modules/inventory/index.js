@@ -8,14 +8,58 @@
 //   Available-to-Promise. The agent's tools (FR-181) bind to these exports and
 //   to nothing deeper, which is what keeps a tool from acquiring authority the
 //   service does not grant.
-// @spec ADR-025 (one module, one charter: docs/domains/inventory/CHARTER.md); ADR-074
+// @req FR-201, FR-202, FR-203, FR-204, FR-205, FR-206, FR-207 — and, since
+//   ADR-083, SKU governance: the nature and variant rules, identifiers and
+//   unit conversions with `resolveProduct`, the lifecycle actions, the
+//   hygiene report and the replenishment suggestion.
+// @req FR-208, FR-209, FR-210 — and, since ADR-084, catalogue intake: the
+//   envelope and its planner, the preview/commit pipeline every surface writes
+//   through, and the LINE command's parser and reply formatters, which the
+//   agent's `#sku` adapter binds to and to nothing deeper. Named rather than
+//   `export *`, so no helper name in them can shadow one exported above.
+// @spec ADR-025 (one module, one charter: docs/domains/inventory/CHARTER.md); ADR-074; ADR-083; ADR-084
 // @tested tests/unit/inventory-domain.test.js
 export * from './domain/inventory'
 export * from './domain/inventory-costing'
 export * from './domain/inventory-wip'
 export * from './domain/warehouse-location'
 export * from './domain/inventory-stocktake'
+export * from './domain/inventory-governance'
+export {
+  CATALOG_INTAKE_MAX_ITEMS,
+  CATALOG_INTAKE_SCHEMA_VERSION,
+  catalogIntakePlanHash,
+  planCatalogIntake,
+  zCatalogIntakeEnvelope,
+  zCatalogIntakeItem,
+} from './domain/catalog-intake'
+export {
+  LINE_CATALOG_HELP,
+  formatLineCatalogError,
+  formatLineCatalogPreview,
+  formatLineCatalogResult,
+  formatLineCatalogUnknownKeys,
+  parseLineCatalogCommand,
+} from './import/catalog-line-command'
+export {
+  applyCatalogIntakeAction,
+  commitCatalogIntake,
+  findCatalogIntakeByCode,
+  getCatalogIntake,
+  listCatalogIntakes,
+  previewCatalogIntake,
+} from './application/catalog-intake-service'
 export { assertMayManage, assertMayView, mayManage, mayView } from './application/inventory-authority'
+export {
+  addIdentifier,
+  addUnitConversion,
+  applyIdentifierAction,
+  applyUnitConversionAction,
+  listIdentifiers,
+  listUnitConversions,
+  resolveProduct,
+} from './application/inventory-identity-service'
+export { catalogHygiene, replenishment } from './application/inventory-hygiene-service'
 export {
   applyProductAction,
   createBundle,

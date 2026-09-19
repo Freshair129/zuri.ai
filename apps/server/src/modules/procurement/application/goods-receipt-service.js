@@ -96,6 +96,14 @@ export async function postGoodsReceipt(orderId, input, { viewer, db = prisma, no
     if (!order) throw notFound()
     const business = await loadBusiness(tx, viewer, order.businessId, { capability: 'receipt' })
     if (order.status !== 'SENT') throw failure(409, 'PURCHASE_ORDER_NOT_RECEIVABLE')
+    // @req FR-196 — the same three-way-match shape as payment self-verify: the
+    // person receiving cannot be the person who wrote the order, including a
+    // Business OWNER (the capability gate above already let one through — this
+    // is the refusal that gate does not answer). `selfVerifyAttested: true` is
+    // the auditable exemption for a genuinely one-person Business.
+    const posterId = actor(viewer)
+    const selfVerified = Boolean(order.createdByPersonId) && order.createdByPersonId === posterId
+    if (selfVerified && !data.selfVerifyAttested) throw failure(409, 'GOODS_RECEIPT_SELF_POST_FORBIDDEN')
     const plan = planReceipt(order.lines, data.lines)
     if (!plan.ok) throw Object.assign(failure(plan.code === 'PROCUREMENT_RECEIPT_LINE_NOT_FOUND' ? 422 : 409, plan.code), { details: plan.details })
     const byId = new Map(order.lines.map((line) => [line.id, line]))
@@ -148,7 +156,7 @@ export async function postGoodsReceipt(orderId, input, { viewer, db = prisma, no
     await tx.purchaseOrder.update({ where: { id: order.id }, data: change })
     await recordAudit(tx, {
       entityType: GOODS_RECEIPT_ENTITY, entityId: receipt.id, action: 'GOODS_RECEIPT_POSTED', actorId: actor(viewer),
-      payload: { businessId: business.id, code, purchaseOrderCode: order.code, supplierReference: receipt.supplierReference, lines: data.lines.length, posted, completesOrder: plan.completesOrder },
+      payload: { businessId: business.id, code, purchaseOrderCode: order.code, supplierReference: receipt.supplierReference, lines: data.lines.length, posted, completesOrder: plan.completesOrder, selfVerified },
     })
     if (plan.completesOrder) {
       await recordAudit(tx, {

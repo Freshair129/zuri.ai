@@ -116,10 +116,12 @@ export default function IntegrationsPage() {
   const scope = useScope()
   const businesses = scope.businesses || []
   const currentBusiness = scope.currentBusiness || scope.shell?.activeBusiness || businesses[0]
+  const scopeBusinessId = currentBusiness?.id || ''
   const [activeView, setActiveView] = useState('CATALOG')
   const [filterTab, setFilterTab] = useState('ALL')
   const [searchQuery, setSearchQuery] = useState('')
   const [targetBusinessId, setTargetBusinessId] = useState(currentBusiness?.id || '')
+  const targetBusinessUnavailable = Boolean(targetBusinessId) && !businesses.some((business) => business.id === targetBusinessId)
   const selectedBusiness = useMemo(() => businesses.find((business) => business.id === targetBusinessId) || currentBusiness, [businesses, targetBusinessId, currentBusiness])
   const businessId = selectedBusiness?.id || ''
 
@@ -159,10 +161,11 @@ export default function IntegrationsPage() {
   }, [resetModelForm])
 
   useEffect(() => {
-    const nextBusinessId = currentBusiness?.id || businesses[0]?.id || ''
-    setTargetBusinessId(currentBusiness?.id || businesses[0]?.id || '')
-    invalidateBusinessScope(nextBusinessId)
-  }, [businesses, currentBusiness?.id, invalidateBusinessScope])
+    // A refreshed inventory may be a new array without a scope change. Reset
+    // only when the shell Business changes or the local target loses access.
+    setTargetBusinessId(scopeBusinessId)
+    invalidateBusinessScope(scopeBusinessId)
+  }, [scopeBusinessId, targetBusinessUnavailable, invalidateBusinessScope])
 
   useEffect(() => {
     invalidateBusinessScope(businessId)

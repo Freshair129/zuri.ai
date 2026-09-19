@@ -1,11 +1,23 @@
 import { z } from 'zod'
 import {
+  KNOWLEDGE_GROUNDING_MODES,
   LINE_OA_ACCOUNT_ACTIONS,
   LINE_OA_ACCOUNT_STATUSES,
   LINE_OA_TRANSPORT_MODES,
 } from '@/lib/validation/enums'
 
 // @req FR-149 — server transport and optional execution policy.
+// @req FR-225 — `suggestLineOaAccountCode` is the pure half of the self-serve
+//   wizard's auto-generated account code; the wizard shows it editable and the
+//   service layer still enforces `zLineOaAccountCode` and uniqueness.
+// @req FR-235 — publisher-set grounding mode (ADR-090 D1): BUSINESS_KNOWLEDGE
+//   (default) | GKS_CORPUS | GKS_THEN_BUSINESS_KNOWLEDGE, applied through the
+//   same versioned CONFIGURE_KNOWLEDGE_GROUNDING action as the account's other
+//   configuration writes.
+// @req FR-227, FR-228 — REGISTER_WEBHOOK and ENABLE_SERVER's `legacyQuiesced`
+//   are declared here; ENABLE_SERVER's conditional requirement of
+//   `legacyQuiesced` (mount-backed only, ADR-089 D8) is enforced in the
+//   service, which alone knows the account's credential store.
 // @req FR-146 — the pure vocabulary and rules of the LineOaAccount aggregate:
 //   the input contracts, the stored status machine, the derived effective
 //   status and the transport-mode default. Nothing here opens a database; the
@@ -15,7 +27,8 @@ import {
 //   transportMode is EDGE or CLOUD; ADR-061 makes CLOUD the unconditional default.
 // @spec BR-002 — LINE identifiers (basic id, channel id, bot user id) are
 //   attributes here, never keys.
-// @tested tests/unit/line-oa-account-domain.test.js
+// @tested tests/unit/line-oa-account-domain.test.js, tests/integration/fr227-line-oa-webhook-registration.test.js,
+//   tests/integration/fr228-line-oa-legacy-quiescence.test.js
 
 export const LINE_OA_ACCOUNT_ENTITY = 'LINE_OA_ACCOUNT'
 export const LINE_OA_DOMAIN_KEY = 'line-oa'
@@ -29,6 +42,12 @@ export const zLineOaAccountCode = z.string().trim().min(3).max(64)
 
 // LINE "basic id" (@handle) is presentation metadata, stored as typed.
 const BASIC_ID_PATTERN = /^@[a-z0-9._-]{1,50}$/i
+
+// @req FR-244 — "HH:MM", 24-hour, the account's own declared clock (Asia/Bangkok;
+//   ADR-094 D6 option A). Same-day windows only — close must be later than open;
+//   an overnight window (e.g. open 22:00, close 06:00) is out of this slice's scope.
+const TIME_OF_DAY_PATTERN = /^([01]\d|2[0-3]):[0-5]\d$/
+export const zTimeOfDay = z.string().regex(TIME_OF_DAY_PATTERN, 'must be "HH:MM", 24-hour')
 
 export const zBotProfile = z.object({
   greeting: z.string().trim().max(1000).optional(),
@@ -58,15 +77,47 @@ export const zLineOaAccountAction = z.object({
   modelAccess: z.enum(['LOCAL_ONLY', 'EXTERNAL_MODEL_ALLOWED']).optional(),
   allowDelayedPush: z.boolean().optional(),
   legacyQuiesced: z.literal(true).optional(),
+  // @req FR-235 — publisher-set grounding mode (ADR-090 D1).
+  knowledgeGrounding: z.enum(KNOWLEDGE_GROUNDING_MODES).optional(),
+  // @req FR-243 — minutes of silence before the next message opens a new conversation
+  //   session; 10 to 120 (ADR-094 D3). Out of range is refused, never clamped.
+  sessionIdleTimeoutMinutes: z.number().int().min(10).max(120).optional(),
+  // @req FR-244 — business hours and the out-of-hours reply (ADR-094 D6 option A).
+  //   Declaring sets all three together; `clearBusinessHours` unsets all three,
+  //   returning the account to "no declared hours" (always resident).
+  businessHoursOpen: zTimeOfDay.optional(),
+  businessHoursClose: zTimeOfDay.optional(),
+  outOfHoursReplyText: z.string().trim().min(1).max(1000).optional(),
+  clearBusinessHours: z.literal(true).optional(),
 }).strict().superRefine((value, ctx) => {
   if (value.action === 'CONFIGURE_EXECUTION' && (!value.executionMode || !value.modelAccess || typeof value.allowDelayedPush !== 'boolean')) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Execution mode, model access and delayed push policy are required' })
   }
-  if (value.action === 'ENABLE_SERVER' && value.legacyQuiesced !== true) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['legacyQuiesced'], message: 'Confirm the legacy LINE transport is stopped before enabling server ownership' })
-  }
+  // @req FR-228 — whether ENABLE_SERVER needs the typed `legacyQuiesced` literal
+  // depends on the account's credential store (mount-backed keeps it; a
+  // vault-backed account derives it instead, ADR-089 D8) — data this pure
+  // schema cannot see, so the service enforces it after loading the row rather
+  // than here. This schema only shapes the field when it is present.
   if (value.action === 'SWITCH_TRANSPORT_MODE' && !value.transportMode) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['transportMode'], message: 'transportMode is required for SWITCH_TRANSPORT_MODE' })
+  }
+  if (value.action === 'CONFIGURE_SESSION_TIMEOUT' && value.sessionIdleTimeoutMinutes === undefined) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['sessionIdleTimeoutMinutes'], message: 'sessionIdleTimeoutMinutes is required for CONFIGURE_SESSION_TIMEOUT' })
+  }
+  if (value.action === 'CONFIGURE_KNOWLEDGE_GROUNDING' && !value.knowledgeGrounding) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['knowledgeGrounding'], message: 'knowledgeGrounding is required for CONFIGURE_KNOWLEDGE_GROUNDING' })
+  }
+  if (value.action === 'CONFIGURE_BUSINESS_HOURS') {
+    const declaring = value.businessHoursOpen !== undefined || value.businessHoursClose !== undefined || value.outOfHoursReplyText !== undefined
+    if (value.clearBusinessHours && declaring) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'clearBusinessHours cannot be combined with a declared value' })
+    } else if (!value.clearBusinessHours) {
+      if (value.businessHoursOpen === undefined || value.businessHoursClose === undefined || value.outOfHoursReplyText === undefined) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'businessHoursOpen, businessHoursClose and outOfHoursReplyText are all required together, or pass clearBusinessHours' })
+      } else if (value.businessHoursOpen >= value.businessHoursClose) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['businessHoursClose'], message: 'businessHoursClose must be later than businessHoursOpen (same-day windows only)' })
+      }
+    }
   }
 })
 
@@ -120,6 +171,49 @@ export function deriveEffectiveStatus(storedStatus, bindingStatus, { serverEnabl
 /** ADR-061: LINE transport defaults to the server regardless of paired workers. */
 export function defaultTransportMode() {
   return 'CLOUD'
+}
+
+const MINUTE_MS = 60_000
+// Thailand has no DST, so this is a plain, permanent offset — the same technique
+// conversation-session-service.js's sessionCode uses for the same reason.
+const BANGKOK_OFFSET_MS = 7 * 60 * MINUTE_MS
+
+/** "HH:MM" for `at` (a Date, default now) in Asia/Bangkok. */
+export function timeOfDayInBangkok(at = new Date()) {
+  const bangkok = new Date(at.getTime() + BANGKOK_OFFSET_MS)
+  return bangkok.toISOString().slice(11, 16)
+}
+
+/**
+ * Pure: is `at` inside `account`'s declared business hours?
+ *
+ * `null` means "no declared hours" (`businessHoursOpen`/`Close` unset), which is
+ * always answered `true` — an account that never opted in stays resident at all
+ * times, the behaviour every account already had before FR-244 (ADR-094 D6 D-default).
+ * A declared window is same-day only, inclusive at both ends.
+ */
+export function isAccountWithinBusinessHours(account, at = new Date()) {
+  const open = account?.businessHoursOpen
+  const close = account?.businessHoursClose
+  if (!open || !close) return true
+  const now = timeOfDayInBangkok(at)
+  return now >= open && now <= close
+}
+
+/**
+ * A suggested `zLineOaAccountCode` from a bot's Basic ID or display name, for the
+ * self-serve wizard's success card (FR-225, design §5.3 "รหัสบัญชีในระบบ … สร้างให้
+ * จาก Basic ID; แก้ไขได้"). Never called by anything that opens a database — the
+ * uniqueness check and the disambiguating suffix on a collision are the caller's.
+ */
+export function suggestLineOaAccountCode({ basicId, displayName } = {}) {
+  const source = (basicId ? basicId.replace(/^@/, '') : displayName) || 'line-oa'
+  const slug = source
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+  const padded = slug.length >= 3 ? slug : `line-oa-${slug || 'account'}`
+  return padded.slice(0, 64).replace(/-+$/g, '') || 'line-oa-account'
 }
 
 /** A stored presentation profile, or an empty one when the column cannot be trusted. */

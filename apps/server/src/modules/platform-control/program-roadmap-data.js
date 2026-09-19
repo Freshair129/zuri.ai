@@ -1,25 +1,79 @@
 // @req FR-105 — one immutable projection of the submitted 24-week programme.
 // @spec ADR-048 D3 — plan snapshot only; never a Git-derived completion claim.
+// start/end (ISO, inclusive) are the document's own phase and sprint dates; FR-216 reads them for the plan window.
 // @tested tests/unit/platform-control-route-contract.test.js
 
-// Re-projected 2026-08-26 from the source document's own frontmatter and
-// tables (v0.2.0 → v0.3.0): the metadata below states what the DOCUMENT says
-// about itself, never what today's git happens to be — refreshing
-// baselineCommit to "current HEAD" would falsify the plan's provenance.
+// Re-projected 2026-09-13 from the source document's own frontmatter and
+// tables (v0.3.0 → v0.4.0, CR-019): the metadata below states what the
+// DOCUMENT says about itself, never what today's git happens to be —
+// refreshing baselineCommit to "current HEAD" would falsify the plan's
+// provenance. The document's baseline moved because the document was
+// re-baselined, not because HEAD moved.
 export const PROGRAMME_SNAPSHOT = {
   documentId: 'ROADMAP-ZURI-AI-24W-PROGRAM',
-  status: 'draft',
-  version: '0.3.0',
-  updated: '2026-08-23',
-  baselineCommit: '7d8c9d0',
+  status: 'approved',
+  version: '0.4.10',
+  updated: '2026-09-14',
+  baselineCommit: '2b7ad27d',
   programmeStart: '2026-08-24',
   programmeEnd: '2027-02-07',
-  sourceLabel: 'Submitted 24-week programme',
+  sourceLabel: 'Submitted 24-week programme · CR-019',
+}
+
+// Repository history, sections 5.3 and 5.3.1 of the document — copied from the
+// document, not measured by this page. It is history of the repository, never
+// programme completion (ADR-048 D3): the board labels it as such. Rows are
+// [day, date, commits, +lines, -lines, cumulativeAdjusted, frDeclared, frMark, testFiles].
+// D1–D13: frMark is FEATURE-MAP "live"; D13+ onward it is PRD "✅" (stricter, 62 vs 82 at
+// the baseline — the document says not to compare the two across the join).
+// cumulativeAdjusted excludes the D27 monorepo relocation commit (a5138eec, +209,170).
+export const PROGRAMME_HISTORY = {
+  measuredAt: '9b8a4fc9',
+  measuredOn: '2026-09-13',
+  baselineDay: 'D13',
+  note: 'Repository history from the submitted document (sections 5.3, 5.3.1). Not plan progress.',
+  rows: [
+    ['D1', '2026-08-11', 3, 18260, 15, 18245, null, null, 9],
+    ['D2', '2026-08-12', 36, 62215, 2833, 77627, 30, 30, 31],
+    ['D3', '2026-08-13', 12, 18170, 4845, 90952, 44, 44, 64],
+    ['D4', '2026-08-14', 30, 40759, 6205, 125506, 55, 55, 106],
+    ['D5', '2026-08-15', 12, 11134, 8985, 127655, 57, 57, 113],
+    ['D6', '2026-08-16', 39, 16842, 46234, 98263, 59, 59, 124],
+    ['D7', '2026-08-17', 56, 22120, 1493, 118890, 71, 65, 143],
+    ['D8', '2026-08-18', 57, 48849, 3984, 163755, 81, 75, 194],
+    ['D9', '2026-08-19', 21, 20374, 1628, 182501, 89, 78, 224],
+    ['D10', '2026-08-20', 86, 18472, 2192, 198781, 93, 81, 246],
+    ['D11', '2026-08-21', 31, 13069, 1869, 209981, 93, 82, 262],
+    ['D12', '2026-08-22', 7, 2392, 1385, 210988, 93, 82, 263],
+    ['D13', '2026-08-23', 2, 281, 52, 211217, 93, 82, 263],
+    ['D13+', '2026-08-23', 12, 8300, 289, 219228, 98, 62, 270],
+    ['D14', '2026-08-24', 6, 5463, 599, 224092, 101, 62, 276],
+    ['D15', '2026-08-25', 2, 153, 17, 224228, 102, 62, 280],
+    ['D16', '2026-08-26', 20, 13258, 2687, 234799, 105, 71, 293],
+    ['D17', '2026-08-27', 41, 18815, 1457, 252157, 112, 80, 308],
+    ['D18', '2026-08-28', 65, 7513, 1106, 258564, 117, 87, 321],
+    ['D19', '2026-08-29', 48, 9713, 1008, 267269, 118, 88, 324],
+    ['D20', '2026-08-30', 53, 21116, 1287, 287098, 128, 93, 344],
+    ['D21', '2026-08-31', 16, 5608, 587, 292119, 132, 93, 357],
+    ['D22', '2026-09-01', 4, 4226, 129, 296216, 132, 93, 362],
+    ['D23', '2026-09-02', 43, 34393, 2838, 327771, 141, 92, 398],
+    ['D24', '2026-09-03', 34, 5983, 1081, 332673, 141, 91, 415],
+    ['D25', '2026-09-04', 39, 10609, 1597, 341685, 145, 93, 429],
+    ['D26', '2026-09-05', 20, 5908, 629, 346964, 146, 92, 432],
+    ['D27', '2026-09-06', 172, 316261, 14299, 444524, 147, 92, 438],
+    ['D28', '2026-09-07', 194, 37159, 6881, 474802, 161, 92, 583],
+    ['D29', '2026-09-08', 53, 39026, 2928, 510900, 170, 92, 610],
+    ['D30', '2026-09-09', 17, 14010, 1774, 523136, 173, 91, 648],
+    ['D31', '2026-09-10', 43, 17264, 884, 539516, 173, 91, 656],
+    ['D32', '2026-09-11', 98, 51582, 6823, 584275, 189, 91, 697],
+    ['D33', '2026-09-12', 65, 38504, 4680, 618099, 190, 91, 708],
+    ['D34', '2026-09-13', 17, 3405, 475, 621029, 200, 100, 729],
+  ],
 }
 
 export const PROGRAMME_DELIVERABLES = [
   'Visual Office 2.5D',
-  'GoVibe Mission Control binding',
+  'GoVibe Mission Control — the Development-domain Project system, plus the agent mission feed',
   'Interactive Node View 3D',
   'Second Brain / governed memory',
   'Five core agent roles',
@@ -28,6 +82,7 @@ export const PROGRAMME_DELIVERABLES = [
   'Up to three standard connectors',
   'L1–L4 approval, verification and notification',
   'Deployment, UAT, training and handover',
+  'ERP business modules (CR-019)',
 ]
 
 export const PROGRAMME_GATES = [
@@ -39,64 +94,153 @@ export const PROGRAMME_GATES = [
   ['GATE-ZAI-06', 'Automation, retry, verification and approval pass UAT', 'unmet'],
   ['GATE-ZAI-07', 'Connectors refuse out-of-scope reads', 'unmet'],
   ['GATE-ZAI-08', 'Deployment, documentation and training handover is accepted', 'unmet'],
+  ['GATE-ZAI-09', 'ERP modules run on production for Business one with every migration applied and only declared agent tools', 'unmet'],
 ]
 
 export const PROGRAMME_PHASES = [
-  { id: 'PHASE-ZAI-01', weeks: 'W1–4', dates: '24 Aug – 20 Sep 2026', status: 'in-progress', progress: 27, goal: 'Consolidate the inherited foundation into a production-grade base', sprints: [
-    { id: 'SPR-ZAI-01', weeks: 'W1–2', dates: '24 Aug – 6 Sep', status: 'in-progress', progress: 20, goal: 'Close identity, session and authorization to production standard' },
-    { id: 'SPR-ZAI-02', weeks: 'W3–4', dates: '7 – 20 Sep', status: 'in-progress', progress: 33, goal: 'Settle tenancy, pipeline monitor and memory contract' },
+  { id: 'PHASE-ZAI-01', start: '2026-08-24', end: '2026-09-20', weeks: 'W1–4', dates: '24 Aug – 20 Sep 2026', status: 'in-progress', progress: 88, goal: 'Consolidate the inherited foundation into a production-grade base; land the ERP business modules for Business one; open the SmartGift cost and quote engine on the owner\'s instruction; bind the LINE OA platform plan to lanes before its work starts', sprints: [
+    { id: 'SPR-ZAI-01', start: '2026-08-24', end: '2026-09-06', weeks: 'W1–2', dates: '24 Aug – 6 Sep', status: 'in-progress', progress: 93, goal: 'Close identity, session and authorization to production standard; Inventory, Sales, Commerce, Procurement, Assets and LINE OA Studio lanes land' },
+    { id: 'SPR-ZAI-02', start: '2026-09-07', end: '2026-09-20', weeks: 'W3–4', dates: '7 – 20 Sep', status: 'in-progress', progress: 87, goal: 'Settle tenancy, pipeline monitor and memory contract; seventeen-stage knowledge intake and Tier 1 accounted as built; SmartGift SCM, Marketing, billing/POS, catalog convergence and identity lifecycle land; cost and quote engine decision record and factory cost intake open; data pipeline registry and node-edge map under a Knowledge (GKS) slot; delivery telemetry on the programme board with measured time and tokens and evidence badges on every task card; the Zuri harness usage plugin with browser-approved device pairing; the plugin specification and agent usage detail; the LINE OA platform plan registered with its lanes; a 30-day member view of the roadmap' },
   ] },
-  { id: 'PHASE-ZAI-02', weeks: 'W5–8', dates: '21 Sep – 18 Oct 2026', status: 'planned', progress: 0, goal: 'Stand up the agent workforce and the governance ladder', sprints: [
-    { id: 'SPR-ZAI-03', weeks: 'W5–6', dates: '21 Sep – 4 Oct', status: 'planned', progress: 0, goal: 'Build the agent role registry and five core roles' },
-    { id: 'SPR-ZAI-04', weeks: 'W7–8', dates: '5 – 18 Oct', status: 'planned', progress: 0, goal: 'Add approvals, verification, notification and Mission Control binding' },
+  { id: 'PHASE-ZAI-02', start: '2026-09-21', end: '2026-10-18', weeks: 'W5–8', dates: '21 Sep – 18 Oct 2026', status: 'in-progress', progress: 25, goal: 'Stand up the agent workforce and the governance ladder; knowledge base and file system for the seventeen-stage pipeline on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one; self-serve LINE OA onboarding through a write-only credential vault and a complete LINE chat record', sprints: [
+    { id: 'SPR-ZAI-03', start: '2026-09-21', end: '2026-10-04', weeks: 'W5–6', dates: '21 Sep – 4 Oct', status: 'in-progress', progress: 30, goal: 'Build the agent role registry and five core roles; knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending ERP migration; pricing rule set, pricing engine and quotations; live pipeline health on the map; the Integration credential vault, LINE channel claim and port, and the AAL2 credential-write gate' },
+    { id: 'SPR-ZAI-04', start: '2026-10-05', end: '2026-10-18', weeks: 'W7–8', dates: '5 – 18 Oct', status: 'in-progress', progress: 19, goal: 'Add approvals, verification, notification and Mission Control binding; ladder quotation on LINE and knowledge structured records; the self-serve LINE OA wizard, webhook and derived quiescence with the first account off the mount; the complete chat record, retention sweep and inbox search' },
   ] },
-  { id: 'PHASE-ZAI-03', weeks: 'W9–12', dates: '19 Oct – 15 Nov 2026', status: 'planned', progress: 0, goal: 'Second Business, governed analytics, workflows and connectors', sprints: [
-    { id: 'SPR-ZAI-05', weeks: 'W9–10', dates: '19 Oct – 1 Nov', status: 'planned', progress: 0, goal: 'Business template, onboarding and isolation proof' },
-    { id: 'SPR-ZAI-06', weeks: 'W11–12', dates: '2 – 15 Nov', status: 'planned', progress: 0, goal: 'Analytics, connector two and workflows one/two' },
+  { id: 'PHASE-ZAI-03', start: '2026-10-19', end: '2026-11-15', weeks: 'W9–12', dates: '19 Oct – 15 Nov 2026', status: 'in-progress', progress: 10, goal: 'Second Business, governed analytics, workflows and connectors; deliverable 11 accepted; the Context Composer, LINE grounding from the published corpus, reviewed knowledge candidates, and memory policy with erasure once MSP can erase', sprints: [
+    { id: 'SPR-ZAI-05', start: '2026-10-19', end: '2026-11-01', weeks: 'W9–10', dates: '19 Oct – 1 Nov', status: 'in-progress', progress: 21, goal: 'Business template, onboarding and isolation proof; the Context Composer and LINE corpus grounding with its isolated acceptance' },
+    { id: 'SPR-ZAI-06', start: '2026-11-02', end: '2026-11-15', weeks: 'W11–12', dates: '2 – 15 Nov', status: 'in-progress', progress: 4, goal: 'Analytics, connector two, workflows one/two and the GATE-ZAI-09 evidence run; the SmartGift grounding switch, knowledge candidates and gap report, and memory policy with erasure (blocked on MSP)' },
   ] },
-  { id: 'PHASE-ZAI-04', weeks: 'W13–16', dates: '16 Nov – 13 Dec 2026', status: 'planned', progress: 0, goal: 'Visual Office 2.5D and agent activity experience', sprints: [
-    { id: 'SPR-ZAI-07', weeks: 'W13–14', dates: '16 – 29 Nov', status: 'planned', progress: 0, goal: 'Scene model, live reads and accessibility contract' },
-    { id: 'SPR-ZAI-08', weeks: 'W15–16', dates: '30 Nov – 13 Dec', status: 'planned', progress: 0, goal: 'Agent presence and approval queue in scene' },
+  { id: 'PHASE-ZAI-04', start: '2026-11-16', end: '2026-12-13', weeks: 'W13–16', dates: '16 Nov – 13 Dec 2026', status: 'planned', progress: 0, goal: 'Visual Office 2.5D and agent activity experience', sprints: [
+    { id: 'SPR-ZAI-07', start: '2026-11-16', end: '2026-11-29', weeks: 'W13–14', dates: '16 – 29 Nov', status: 'planned', progress: 0, goal: 'Scene model, live reads and accessibility contract' },
+    { id: 'SPR-ZAI-08', start: '2026-11-30', end: '2026-12-13', weeks: 'W15–16', dates: '30 Nov – 13 Dec', status: 'planned', progress: 0, goal: 'Agent presence and approval queue in scene' },
   ] },
-  { id: 'PHASE-ZAI-05', weeks: 'W17–20', dates: '14 Dec 2026 – 10 Jan 2027', status: 'planned', progress: 0, goal: 'Second Brain, Node View 3D and remaining automation', sprints: [
-    { id: 'SPR-ZAI-09', weeks: 'W17–18', dates: '14 – 27 Dec', status: 'planned', progress: 0, goal: 'Permissioned retrieval and replay lineage' },
-    { id: 'SPR-ZAI-10', weeks: 'W19–20', dates: '28 Dec – 10 Jan', status: 'planned', progress: 0, goal: '3D node view, handoff contracts, workflows and connector three' },
+  { id: 'PHASE-ZAI-05', start: '2026-12-14', end: '2027-01-10', weeks: 'W17–20', dates: '14 Dec 2026 – 10 Jan 2027', status: 'in-progress', progress: 17, goal: 'Second Brain, Node View 3D and remaining automation', sprints: [
+    { id: 'SPR-ZAI-09', start: '2026-12-14', end: '2026-12-27', weeks: 'W17–18', dates: '14 – 27 Dec', status: 'in-progress', progress: 50, goal: 'Permissioned retrieval and replay lineage — started early on the deliverable-4 substrate' },
+    { id: 'SPR-ZAI-10', start: '2026-12-28', end: '2027-01-10', weeks: 'W19–20', dates: '28 Dec – 10 Jan', status: 'planned', progress: 0, goal: '3D node view, handoff contracts, workflows and connector three; the credential vault generalised to other provider kinds' },
   ] },
-  { id: 'PHASE-ZAI-06', weeks: 'W21–24', dates: '11 Jan – 7 Feb 2027', status: 'planned', progress: 0, goal: 'Harden, prove, deploy and hand over', sprints: [
-    { id: 'SPR-ZAI-11', weeks: 'W21–22', dates: '11 – 24 Jan', status: 'planned', progress: 0, goal: 'Integration hardening plus load and security campaign' },
-    { id: 'SPR-ZAI-12', weeks: 'W23–24', dates: '25 Jan – 7 Feb', status: 'planned', progress: 0, goal: 'UAT, deployment, training and handover' },
+  { id: 'PHASE-ZAI-06', start: '2027-01-11', end: '2027-02-07', weeks: 'W21–24', dates: '11 Jan – 7 Feb 2027', status: 'planned', progress: 0, goal: 'Harden, prove, deploy and hand over', sprints: [
+    { id: 'SPR-ZAI-11', start: '2027-01-11', end: '2027-01-24', weeks: 'W21–22', dates: '11 – 24 Jan', status: 'planned', progress: 0, goal: 'Integration hardening plus load and security campaign' },
+    { id: 'SPR-ZAI-12', start: '2027-01-25', end: '2027-02-07', weeks: 'W23–24', dates: '25 Jan – 7 Feb', status: 'planned', progress: 0, goal: 'UAT, deployment, training and handover' },
   ] },
 ]
 
 export const PROGRAMME_TASKS = [
-  ['TASK-ZAI-001', 'SPR-ZAI-01', 'Close the production request-session and credential boundary', 'NFR', 'C-3', 'H3', 'in-progress'],
-  ['TASK-ZAI-002', 'SPR-ZAI-01', 'Declare the five built-but-undeclared features into the registry', 'NFR', 'C-1', 'H1', 'ready'],
-  ['TASK-ZAI-003', 'SPR-ZAI-01', 'Profile-first onboarding and Waiting Room, FR-066', 'FR', 'C-2', 'H2', 'planned'],
-  ['TASK-ZAI-004', 'SPR-ZAI-02', 'Workspace collaboration boundary and scoped invites, FR-067', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-001', 'SPR-ZAI-01', 'Close the production request-session and credential boundary', 'NFR', 'C-3', 'H3', 'review'],
+  ['TASK-ZAI-002', 'SPR-ZAI-01', 'Declare the five built-but-undeclared features into the registry', 'NFR', 'C-1', 'H1', 'done'],
+  ['TASK-ZAI-003', 'SPR-ZAI-01', 'Profile-first onboarding and Waiting Room, FR-066', 'FR', 'C-2', 'H2', 'done'],
+  ['TASK-ZAI-004', 'SPR-ZAI-02', 'Workspace collaboration boundary and scoped invites, FR-067', 'FR', 'C-3', 'H3', 'done'],
   ['TASK-ZAI-005', 'SPR-ZAI-02', 'Supabase data pipeline monitor and replay, FR-071', 'FR', 'C-3', 'H3', 'done'],
-  ['TASK-ZAI-006', 'SPR-ZAI-02', 'Write the governed memory read and write contract', 'NFR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-006', 'SPR-ZAI-02', 'Write the governed memory read and write contract', 'NFR', 'C-3', 'H3', 'review'],
   ['TASK-ZAI-007', 'SPR-ZAI-03', 'Agent Role registry with five core roles', 'FR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-008', 'SPR-ZAI-03', 'Role-scoped memory partition and retrieval policy', 'FR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-009', 'SPR-ZAI-03', 'Agent Factory, the standard business agent template', 'FR', 'C-2', 'H2', 'planned'],
   ['TASK-ZAI-010', 'SPR-ZAI-04', 'Approval Gateway L1 to L4 over the FR-026 action gate', 'FR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-011', 'SPR-ZAI-04', 'Verification and notification fabric on approval outcomes', 'FR', 'C-2', 'H2', 'planned'],
-  ['TASK-ZAI-012', 'SPR-ZAI-04', 'Bind GoVibe Mission Control to the Zuri mission feed', 'FR', 'C-2', 'H2', 'planned'],
+  ['TASK-ZAI-012', 'SPR-ZAI-04', 'Mission feed: agent missions and their approvals surface as Development-domain work in the Project system', 'FR', 'C-2', 'H2', 'planned'],
   ['TASK-ZAI-013', 'SPR-ZAI-05', 'Standard Business Template and provisioning path', 'FR', 'C-2', 'H2', 'planned'],
   ['TASK-ZAI-014', 'SPR-ZAI-05', 'Onboard Business number two end to end under isolation', 'FR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-015', 'SPR-ZAI-05', 'Per-business visibility regression at two-business scale', 'NFR', 'C-2', 'H2', 'planned'],
   ['TASK-ZAI-016', 'SPR-ZAI-06', 'Cross-business governed analytics read model', 'FR', 'C-3', 'H3', 'planned'],
-  ['TASK-ZAI-017', 'SPR-ZAI-06', 'Connector number two under the FR-081 ingestion boundary', 'FR', 'C-2', 'H2', 'planned'],
+  ['TASK-ZAI-017', 'SPR-ZAI-06', 'Connector number two under the FR-081 ingestion boundary — FlowAccount read-only pull, FR-125', 'FR', 'C-2', 'H2', 'planned'],
   ['TASK-ZAI-018', 'SPR-ZAI-06', 'Automation workflows one and two end to end', 'FR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-019', 'SPR-ZAI-07', 'Visual Office 2.5D scene model and shell', 'FR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-020', 'SPR-ZAI-07', 'Bind Business, Agent, Mission and Approval objects to live reads', 'FR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-021', 'SPR-ZAI-07', 'Accessibility and reduced-motion contract for the 2.5D surface', 'NFR', 'C-2', 'H2', 'planned'],
   ['TASK-ZAI-022', 'SPR-ZAI-08', 'Live agent activity presence and mission tracking in-scene', 'FR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-023', 'SPR-ZAI-08', 'Surface the L1 to L4 approval queue inside Visual Office', 'FR', 'C-2', 'H2', 'planned'],
-  ['TASK-ZAI-024', 'SPR-ZAI-09', 'Second Brain retrieval by Business, Role and Permission', 'FR', 'C-3', 'H3', 'planned'],
-  ['TASK-ZAI-025', 'SPR-ZAI-09', 'Memory lineage, replay and the no-silent-replay guarantee', 'NFR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-024', 'SPR-ZAI-09', 'Second Brain retrieval by Business, Role and Permission', 'FR', 'C-3', 'H3', 'in-progress'],
+  ['TASK-ZAI-025', 'SPR-ZAI-09', 'Memory lineage, replay and the no-silent-replay guarantee', 'NFR', 'C-3', 'H3', 'in-progress'],
   ['TASK-ZAI-026', 'SPR-ZAI-10', 'Interactive Node View 3D over the governed relation graph', 'FR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-027', 'SPR-ZAI-10', 'Structure and edge direct manipulation with handoff contracts', 'FR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-028', 'SPR-ZAI-10', 'Automation workflows three to five and connector number three', 'FR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-029', 'SPR-ZAI-11', 'Integration hardening plus load and security test campaign', 'NFR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-030', 'SPR-ZAI-12', 'UAT, deployment, data and security checklist, training and handover', 'NFR', 'C-3', 'H4', 'planned'],
+  ['TASK-ZAI-031', 'SPR-ZAI-01', 'Inventory catalogue, stock ledger, recipes and product natures — FEAT-020, FR-154 to FR-156, FR-168', 'FR', 'C-3', 'H3', 'done'],
+  ['TASK-ZAI-032', 'SPR-ZAI-01', 'Sales tasks in CRM — FEAT-022, FR-161', 'FR', 'C-2', 'H2', 'done'],
+  ['TASK-ZAI-033', 'SPR-ZAI-01', 'Commerce orders and payments — FEAT-023, FR-166, FR-163', 'FR', 'C-3', 'H3', 'done'],
+  ['TASK-ZAI-034', 'SPR-ZAI-01', 'Procurement suppliers, purchase orders and goods receipts — FEAT-024, FR-164, FR-165', 'FR', 'C-3', 'H3', 'done'],
+  ['TASK-ZAI-035', 'SPR-ZAI-01', 'Asset Management foundation, evidence intake and edge extraction — FEAT-015 to FEAT-017, FR-133 to FR-144', 'FR', 'C-3', 'H3', 'done'],
+  ['TASK-ZAI-036', 'SPR-ZAI-01', 'LINE OA Studio multi-account, rich menu, LIFF and server-owned transport — FEAT-018, FEAT-019, FR-146 to FR-153, FR-190', 'FR', 'C-3', 'H3', 'in-progress'],
+  ['TASK-ZAI-037', 'SPR-ZAI-02', 'SCM and CRM parent navigation, Business capabilities and module tabs — FR-167, FR-169, FR-170, FR-172', 'FR', 'C-2', 'H2', 'done'],
+  ['TASK-ZAI-038', 'SPR-ZAI-02', 'SmartGift SCM located ledger, landed cost, work orders, ATP and agent tools — FEAT-025, FR-174 to FR-182', 'FR', 'C-3', 'H3', 'done'],
+  ['TASK-ZAI-039', 'SPR-ZAI-02', 'Commerce billing documents, POS checkout and physical stocktake — FR-186, FR-183, FR-184', 'FR', 'C-3', 'H3', 'review'],
+  ['TASK-ZAI-040', 'SPR-ZAI-02', 'Marketing strategy, campaigns, content, operations and broadcast planning — FEAT-021, FR-157 to FR-160, FR-162, FR-185', 'FR', 'C-3', 'H3', 'in-progress'],
+  ['TASK-ZAI-041', 'SPR-ZAI-02', 'Identity lifecycle: grants, Employment and LegalEntity, invites and SoD, audit access evidence — FEAT-027 to FEAT-030, FR-191 to FR-199', 'FR', 'C-3', 'H3', 'review'],
+  ['TASK-ZAI-042', 'SPR-ZAI-02', 'SmartGift catalog convergence through the seventeen-stage adapter — FEAT-026, FR-187 to FR-189', 'FR', 'C-3', 'H3', 'in-progress'],
+  ['TASK-ZAI-043', 'SPR-ZAI-03', 'Apply every pending deliverable-11 migration on production and record it in the migration notes', 'NFR', 'C-2', 'H4', 'planned'],
+  ['TASK-ZAI-044', 'SPR-ZAI-06', 'GATE-ZAI-09 evidence run: ERP modules accepted on production for Business one', 'NFR', 'C-2', 'H4', 'planned'],
+  ['TASK-ZAI-045', 'SPR-ZAI-02', 'Knowledge file intake: Text/Markdown and FileAsset admission into an immutable raw artifact at Stage 1 — FR-173, FR-081, FR-109', 'FR', 'C-3', 'H3', 'review'],
+  ['TASK-ZAI-046', 'SPR-ZAI-02', 'Tier 1 stage calculators, composition and quarantine, Stage 2 to 8 — FR-111 to FR-119', 'FR', 'C-3', 'H2', 'done'],
+  ['TASK-ZAI-047', 'SPR-ZAI-03', 'Knowledge base console: source library, ingestion run status, corpus and generation registry, cited query', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-048', 'SPR-ZAI-03', 'Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-049', 'SPR-ZAI-03', 'Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1)', 'NFR', 'C-3', 'H4', 'planned'],
+  ['TASK-ZAI-050', 'SPR-ZAI-03', 'Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published', 'NFR', 'C-3', 'H4', 'planned'],
+  ['TASK-ZAI-051', 'SPR-ZAI-03', 'Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-052', 'SPR-ZAI-02', 'Cost and quote engine decision record — proposal, ADR, FR and FEAT declarations with the owner\'s nine decisions', 'NFR', 'C-2', 'H2', 'in-progress'],
+  ['TASK-ZAI-053', 'SPR-ZAI-02', 'Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory)', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-054', 'SPR-ZAI-02', 'Goods receipts post the landed unit cost to the stock ledger, and the SKU page gains a cost card', 'FR', 'C-2', 'H3', 'planned'],
+  ['TASK-ZAI-055', 'SPR-ZAI-03', 'PricingRuleSet — versioned, owner-approved pricing rules ported from pricing_rules_formula.yaml with per-block provenance, and the Pricing Rules console', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-056', 'SPR-ZAI-03', 'One pure pricing engine in integer satang — landed cost, ladder, profit floor and ten-baht round-up — with parity fixtures against price-boss; the FR-181 quote tool reads the rule set', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-057', 'SPR-ZAI-03', 'Quotations — Quote and QuoteLine with ladder snapshots, two-hat approval, the QUOTATION document and conversion to a sales order with the FR-180 hold', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-058', 'SPR-ZAI-04', 'Ladder quotation on LINE (FR-132) over the shared engine with a deterministic intent matcher', 'FR', 'C-2', 'H3', 'planned'],
+  ['TASK-ZAI-059', 'SPR-ZAI-04', 'Knowledge structured records — STRUCTURED_RECORDS_V1 JSON format, an Excel template and converter, and MCP format widening before Stage 1', 'FR', 'C-2', 'H3', 'planned'],
+  ['TASK-ZAI-060', 'SPR-ZAI-02', 'Data pipeline map decision record — the ADR for a Knowledge (GKS) navigation slot that consumes GKS without becoming it, and the requirement and FEAT declarations', 'NFR', 'C-2', 'H2', 'done'],
+  ['TASK-ZAI-061', 'SPR-ZAI-02', 'Data pipeline registry — the written map of inbound sources, outbound recipients and combine chains, a validated JSON registry, a generated runtime projection and a preflight check', 'FR', 'C-3', 'H3', 'review'],
+  ['TASK-ZAI-062', 'SPR-ZAI-02', 'Data Pipeline Map node-edge view under the Knowledge (GKS) slot — layered graph, chain, domain and status filters, edge detail with domain, FEAT and surface level, and a list view', 'FR', 'C-3', 'H3', 'review'],
+  ['TASK-ZAI-063', 'SPR-ZAI-03', 'Live pipeline health on the map — per-edge run and job counts for the active Business from the FR-071 ledger and the transport job tables', 'FR', 'C-2', 'H3', 'review'],
+  ['TASK-ZAI-064', 'SPR-ZAI-02', 'Delivery telemetry decision record — the ADR that lets the programme board show measured time and tokens beside the plan without turning either into completion, the sizing table, and the requirement and FEAT declarations', 'NFR', 'C-2', 'H2', 'done'],
+  ['TASK-ZAI-065', 'SPR-ZAI-02', 'Phase card delivery metrics — sprint and task counts, size in complexity points, plan window and effort estimate, actual time and measured tokens once done, and done or review cards tinted green or orange', 'FR', 'C-2', 'H2', 'done'],
+  ['TASK-ZAI-066', 'SPR-ZAI-02', 'Usage meter — measured tokens and active time per task from Claude Code and Codex session logs, attributed by the branches each Task Container declares and written back with provenance', 'FR', 'C-3', 'H3', 'done'],
+  ['TASK-ZAI-067', 'SPR-ZAI-02', 'Usage report endpoint — an operator-authenticated ledger where agents without local logs report per-session tokens for a task, idempotent by session and merged with metered sessions without double counting', 'FR', 'C-3', 'H3', 'done'],
+  ['TASK-ZAI-068', 'SPR-ZAI-02', 'Task card evidence badges and subtask progress — DOC, CODE, TEST, FR, NFR and FEAT badges coloured green for done, orange for review, red for needs fix and gray for empty, domain, complexity and priority badges, and P0 to P3 subtasks with a progress bar on the card', 'FR', 'C-2', 'H2', 'done'],
+  ['TASK-ZAI-069', 'SPR-ZAI-02', 'Harness usage plugin decision record — the ADR for a Zuri plugin that pairs a device by browser approval, holds a report-only credential with a device label, and lets the server attribute each report to a person, a device and a lane; requirement and FEAT declarations', 'NFR', 'C-2', 'H2', 'done'],
+  ['TASK-ZAI-070', 'SPR-ZAI-02', 'Harness device pairing and report-only credential — start, browser approval with a check code and poll as in FR-144, one hashed credential per installation scoped to usage reporting with a device label, and an operator list of paired devices with revoke', 'FR', 'C-3', 'H3', 'done'],
+  ['TASK-ZAI-071', 'SPR-ZAI-02', 'Usage reports attributed to person, device and lane — the report endpoint accepts the harness credential, derives the lane from the reported branch on the server, extends a resumed session whose counts only grow, and the board breaks lane usage down by person and shows unattributed reports', 'FR', 'C-2', 'H3', 'done'],
+  ['TASK-ZAI-072', 'SPR-ZAI-02', 'Zuri harness plugin for Claude Code and Codex — pair, whoami and unpair commands, a SessionEnd hook and a Codex wrapper that report each finished session split by branch, an offline retry queue, a marketplace entry, and parser parity with the usage meter', 'FR', 'C-3', 'H3', 'done'],
+  ['TASK-ZAI-073', 'SPR-ZAI-02', 'Zuri harness plugin specification — one document for the CLI, hook input, configuration and queue formats, pairing state machine, counting rules, keep-or-drop rules per response, Codex wrapper, log-format compatibility, versioning and privacy, each rule linked to the test that proves it', 'NFR', 'C-2', 'H2', 'done'],
+  ['TASK-ZAI-074', 'SPR-ZAI-02', 'Agent usage detail capture — thinking and reasoning tokens, cache writes by lifetime, tool calls by name with errors and denials, web search and fetch, user prompts, compactions and errors, measured by the meter and the plugin with parity, carried by the report endpoint and stored for each lane, person and device', 'FR', 'C-3', 'H3', 'done'],
+  ['TASK-ZAI-075', 'SPR-ZAI-02', 'Usage detail on the programme board — phase and task telemetry show input, output, thinking and cache tokens separately, tool calls with the most used tools and the error rate, prompts and compactions, per lane, person and device', 'FR', 'C-2', 'H2', 'done'],
+  ['TASK-ZAI-076', 'SPR-ZAI-02', 'LINE OA platform decision record — ADR-089 credential vault and self-serve onboarding, ADR-090 GKS grounding and reviewed candidates, ADR-091 chat record, memory tiers and the Context Composer, with FR-223 to FR-238, SEC-030 to SEC-032, SDD-097 to SDD-100 and FEAT-036 to FEAT-038 declared', 'NFR', 'C-3', 'H2', 'done'],
+  ['TASK-ZAI-077', 'SPR-ZAI-02', 'LINE OA platform delivery plan — every phase of ADR-089 to ADR-091 registered as sized tasks with acceptance criteria, lanes bound to branches before work starts, the usage-detail capture of TASK-ZAI-074 and TASK-ZAI-075 named as the measurement prerequisite, the Project Manager import path stated, and the usage meter run', 'NFR', 'C-2', 'H2', 'in-progress'],
+  ['TASK-ZAI-078', 'SPR-ZAI-03', 'Integration credential vault — a SecretStorePort with the Supabase Vault and envelope stores, a dispatching secret manager by reference prefix, versioned write, activate, rotate, revoke and resolve with compensation and re-entry status, and design migrations 1, 3 and 4 — FR-223, SEC-030, SDD-097', 'FR', 'C-3', 'H3', 'done'],
+  ['TASK-ZAI-079', 'SPR-ZAI-03', 'LINE channel account claim and the Integration LINE channel-admin port — an installation-wide claim by destination hash taken before any secret is stored, stateless token minting with a per-version cache, bot info, and webhook set, read and test calls, with design migration 2 — FR-226, SDD-098 and the port half of FR-227', 'FR', 'C-3', 'H3', 'done'],
+  ['TASK-ZAI-080', 'SPR-ZAI-03', 'Credential-write step-up gate and the first rate limit — assertSessionAssurance AAL2 on every credential write, rotation, revocation and validation, an enrolment redirect when no factor exists, and a RateLimitBucket store answering 429 with retry hints, design migration 8 — FR-224', 'FR', 'C-2', 'H3', 'done'],
+  ['TASK-ZAI-081', 'SPR-ZAI-03', 'Phase 1 acceptance — ADR-089 proofs 1 to 6 on SQLite and Postgres with both stores, and one real LINE test channel validated end to end through the connection route in a dev deployment, before any production migration', 'NFR', 'C-2', 'H3', 'blocked'],
+  ['TASK-ZAI-082', 'SPR-ZAI-04', 'Self-serve LINE OA connection wizard — Thai step-up, Channel ID and secret entry with an optional override token, live proof with LINE, claim, vault write, connection, a masked credential card and a DRAFT account, and a mount-backed account moved into the vault on re-entry — FR-225', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-083', 'SPR-ZAI-04', 'Automatic LINE webhook registration and health — a publisher action sets, reads back and tests the account webhook through LINE, stores webhook health in LineOaAccount.webhookStateJson with its migration, and falls back to a Thai manual card — FR-227', 'FR', 'C-2', 'H3', 'planned'],
+  ['TASK-ZAI-084', 'SPR-ZAI-04', 'Derived legacy-transport quiescence and restore re-entry — ENABLE_SERVER derives quiescence for a vault-backed account from the endpoint LINE reports and 120 seconds without legacy evidence, validates through the dispatching secret manager, and a restored snapshot forces credential re-entry — FR-228', 'FR', 'C-2', 'H3', 'planned'],
+  ['TASK-ZAI-085', 'SPR-ZAI-04', 'Apply the credential vault and onboarding migrations on production — design migrations 1 to 4 and 8 and the webhook-state column, under ADR-057 with an inventory, a rolled-back dry run and a verified effect, recorded in the migration notes', 'NFR', 'C-2', 'H4', 'in-progress'],
+  ['TASK-ZAI-086', 'SPR-ZAI-04', 'Channel credential entry for the first production account — the Business owner, at AAL2, enters the Channel ID and secret in the production wizard to move one mount-backed LINE OA account into the vault; no agent ever types a credential', 'NFR', 'C-1', 'H4', 'planned'],
+  ['TASK-ZAI-087', 'SPR-ZAI-04', 'Webhook cutover for the first production account — register and test the webhook through LINE, observe derived quiescence, enable server transport and record ADR-061 provider-webhook-replaced evidence with a written rollback', 'NFR', 'C-2', 'H4', 'planned'],
+  ['TASK-ZAI-088', 'SPR-ZAI-04', 'Non-text LINE content in the CRM record — sticker, location and media messages become Message rows with a content kind and placeholder body, media gets a MessageAttachment without bytes, follow, join, membership, postback and unsend become ConversationEvent rows, and an unsend tombstones its message — FR-229', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-089', 'SPR-ZAI-04', 'Declared retention classes and the nightly sweep — installation defaults for raw LINE payloads, message bodies and attachments, trace payloads and MSP session content, per-Tenant downward-only overrides, a sweep that skips rows live LINE jobs reference, and one audit event per run — FR-230, SEC-031', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-090', 'SPR-ZAI-04', 'Conversation inbox read models and message search — last-message time, a redacted 120-character preview, retention class and unread counts, a read-only CRM search reader with a trigram index on Postgres, and follow and unfollow counts per account — FR-233', 'FR', 'C-2', 'H2', 'planned'],
+  ['TASK-ZAI-091', 'SPR-ZAI-04', 'Apply the chat record migrations on production — non-text content, read-model columns, the trigram index and the retention override store, under ADR-057, recorded in the migration notes', 'NFR', 'C-1', 'H4', 'in-progress'],
+  ['TASK-ZAI-092', 'SPR-ZAI-05', 'Context Composer — one agent-lane module assembling every LINE model prompt from AuthContext, MSP slices, knowledge evidence and CRM and ERP facts in truth order under one budget, reporting every trim, recording one ContextReceipt per model invocation and calling no model without evidence — FR-234, SDD-100', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-093', 'SPR-ZAI-05', 'LINE grounding from the published corpus — an in-process knowledge.query reader over queryKnowledgeCorpus under the runtime knowledge capability, a per-account knowledgeGrounding mode with its migration, a 2 500 ms, top-5, 8 KiB budget, a traced mode-gated fallback and retrievalRefs on EVIDENCE_SELECTED — FR-235, SDD-099', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-094', 'SPR-ZAI-05', 'Grounding isolated acceptance — a real LINE job answered from a published generation in the four-process harness with citations on the job trace, zero cross-tenant leakage, the deterministic reply with the worker stopped, and MSP spawn cost measured against the budget', 'NFR', 'C-2', 'H3', 'planned'],
+  ['TASK-ZAI-095', 'SPR-ZAI-06', 'SmartGift grounding switch on production — after ADR-075 Phase 3 is deployed, apply the grounding-mode migration, switch one SmartGift DIRECT account to GKS_THEN_BUSINESS_KNOWLEDGE as an owner-triggered operator step, shadow-compare for one campaign window and keep the rollback', 'NFR', 'C-2', 'H4', 'planned'],
+  ['TASK-ZAI-096', 'SPR-ZAI-06', 'LINE FAQ knowledge candidates — locator-only question-and-answer candidates from consent-GRANTED conversations checked by the Zero-PII deny policy, an OWNER or LINE_OA_PUBLISHER review surface with audited decisions, and admission of an approved candidate as a LINE_FAQ_CANDIDATE TEXT source through ADR-072 — FR-236, SEC-032', 'FR', 'C-3', 'H3', 'planned'],
+  ['TASK-ZAI-097', 'SPR-ZAI-06', 'Knowledge gap report for LINE — NO_EVIDENCE retrievals aggregated per Business in the Knowledge (GKS) slot as counts, product locators and last-seen times, with the question text left in CRM — FR-237', 'FR', 'C-1', 'H2', 'planned'],
+  ['TASK-ZAI-098', 'SPR-ZAI-06', 'LINE Studio descriptions as knowledge sources — on a publisher action, published rich menu, LIFF app and bot profile descriptions are admitted as LINE_STUDIO_DESCRIPTION TEXT sources, never the Flex or rich menu JSON, and unpublishing withdraws them — FR-238', 'FR', 'C-2', 'H2', 'planned'],
+  ['TASK-ZAI-099', 'SPR-ZAI-06', 'Apply the knowledge candidate migration on production and turn candidates on for SmartGift only on the owner\'s instruction, recorded in the migration notes', 'NFR', 'C-1', 'H4', 'in-progress'],
+  ['TASK-ZAI-100', 'SPR-ZAI-06', 'LINE memory projection policy and receipts — LineOaAccount.memoryPolicy defaulting to OFF, per-job capture of session-tier and memory-tier eligibility by policy, consent and audience, MemoryProjectionReceipt in the delivery settlement, and a projector that refuses until MSP main ships thread and erase tools — FR-231', 'FR', 'C-3', 'H3', 'blocked'],
+  ['TASK-ZAI-101', 'SPR-ZAI-06', 'Erasure propagation beyond Tier 1 — one transaction tombstones CRM bodies, previews, attachments, LINE job fields, raw payloads, trace inputs and knowledge candidates, and leaves durable MSP erase calls per projection receipt and knowledge-source withdrawals, with PENDING_MSP until acknowledged — FR-232, SEC-031', 'FR', 'C-3', 'H3', 'blocked'],
+  ['TASK-ZAI-102', 'SPR-ZAI-06', 'Memory policy production activation — apply the memory policy and projection receipt migrations under ADR-057 and, only on the owner\'s instruction, enable projection for one DIRECT account after the MSP canary (TASK-MEMOS-006) passes, recorded with a rollback', 'NFR', 'C-2', 'H4', 'blocked'],
+  ['TASK-ZAI-103', 'SPR-ZAI-10', 'Generalise the credential vault to other provider kinds — OAUTH_CLIENT for FlowAccount (ADR-053) and MODEL_PROVIDER_KEY on the same SecretStorePort, and retire the Phase-1 model-credential resolver; requirements declared first', 'FR', 'C-3', 'H3', 'review'],
+  ['TASK-ZAI-104', 'SPR-ZAI-02', 'Programme roadmap member view — for 30 days any signed-in person reads the programme plan and the Domain map at /roadmap, with usage by person and device, tool and model names and the Agent devices tab removed on the server, closing by itself at 2026-10-15 00:00 Asia/Bangkok while /control/roadmap stays operator-only', 'FR', 'C-2', 'H2', 'done'],
+  ['TASK-ZAI-105', 'SPR-ZAI-02', 'Conversation sessions and chat evidence decision records — ADR-093 and ADR-094 accepted with the owner\'s choices, FR-243 to FR-246, SEC-034, SDD-102, SDD-103, FEAT-040 and FEAT-041 declared, SEC-031 re-worded, and tasks 105 to 115 bound to lanes', 'NFR', 'C-2', 'H2', 'done'],
+  ['TASK-ZAI-106', 'SPR-ZAI-03', 'Conversation sessions, FR-243 — ConversationSession model and migration, session assignment inside LINE admission and reply recording, the per-account idle timeout column, and a backfill of existing messages by the same rule', 'FR', 'C-3', 'H3', 'done'],
+  ['TASK-ZAI-107', 'SPR-ZAI-03', 'Sessions on the LINE job, trace and inbox, FR-243 — the session id on LineConversationJob, a trace filter by session, a divider between sessions in the inbox, and the account setting for the idle timeout', 'FR', 'C-2', 'H2', 'done'],
+  ['TASK-ZAI-108', 'SPR-ZAI-03', 'Apply the conversation session migration on production and run the backfill, under ADR-057 with an inventory, a rolled-back dry run and a verified effect, recorded in the migration notes', 'NFR', 'C-1', 'H4', 'done'],
+  ['TASK-ZAI-109', 'SPR-ZAI-04', 'Local model residency by business hours, FR-244 — per-account business hours and out-of-hours reply, the edge worker loading the model during any served account\'s hours and unloading it after the last closes, and no model call outside hours', 'FR', 'C-2', 'H3', 'review'],
+  ['TASK-ZAI-110', 'SPR-ZAI-04', 'Staff replies recorded, FR-246 — a member with CRM write access replies from the inbox, the server pushes it through the account\'s LINE transport and records an OUTBOUND message with reply source STAFF in the conversation\'s session', 'FR', 'C-3', 'H3', 'done'],
+  ['TASK-ZAI-111', 'SPR-ZAI-05', 'Chat evidence archive writer, FR-245 — archive manifest model and migration, per-Customer AES-256-GCM segments under ZURI_ARCHIVE_KEK, write-flush-verify before tombstone inside the retention sweep, failing closed', 'FR', 'C-3', 'H3', 'done'],
+  ['TASK-ZAI-112', 'SPR-ZAI-05', 'Chat evidence retrieval, FR-245 — an OWNER at AAL2 retrieves one Customer\'s archived messages for a date range by session with a case reference, as an export carrying file and manifest hashes, audited', 'FR', 'C-2', 'H3', 'review'],
+  ['TASK-ZAI-113', 'SPR-ZAI-05', 'Archive key destruction and the legal hold, SEC-034 — expiry and PDPA erasure destroy a Customer\'s archive data key unless an OWNER-recorded legal hold with a reason and end date is active, shown on the erasure status', 'FR', 'C-3', 'H3', 'review'],
+  ['TASK-ZAI-114', 'SPR-ZAI-06', 'Chat evidence archive on production — the cold-archive compose overlay on F:, ZURI_ARCHIVE_KEK with its offline backup, the migrations applied under ADR-057, the sweep token and 03:00 scheduled task, and the first recorded manifest', 'NFR', 'C-2', 'H4', 'planned'],
+  ['TASK-ZAI-115', 'SPR-ZAI-06', 'Monthly offline copy of the chat evidence archive — new archive files copied to an offline external drive and verified against the manifest hashes, with the first verified copy recorded', 'NFR', 'C-1', 'H4', 'planned'],
+  ['TASK-ZAI-116', 'SPR-ZAI-02', 'Observability decision record — ADR-095 for error tracking and per-person feature usage, and the FR/NFR declarations it governs', 'NFR', 'C-1', 'H2', 'done'],
+  ['TASK-ZAI-117', 'SPR-ZAI-02', 'Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action', 'FR', 'C-2', 'H2', 'done'],
+  ['TASK-ZAI-118', 'SPR-ZAI-02', 'Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup', 'FR', 'C-3', 'H3', 'review'],
 ]

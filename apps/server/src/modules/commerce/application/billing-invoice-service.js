@@ -27,7 +27,8 @@ import { ORDER_SELECT } from './sales-order-service'
 // durable invoice/receipt/tax-document snapshot. Preview and issue share the
 // same seller, buyer, tax and PromptPay preparation; only issue allocates a
 // number, writes the immutable snapshot and appends its audit row.
-// @spec ADR-065; BR-001; BR-002; SEC-001
+// @req FR-194 — Branch/LegalEntity/TaxRegistrationBranch seller resolution.
+// @spec ADR-065; ADR-078 D2; BR-001; BR-002; BR-034; SDD-093; SEC-001
 // @tested tests/unit/commerce-billing-domain.test.js,
 //   tests/integration/fr186-billing.test.js
 
@@ -116,10 +117,14 @@ async function loadBusinessDetails(db, viewer, businessId, { capability = 'read'
     where: { id: authorized.id },
     select: {
       id: true, code: true, name: true, status: true, tenantId: true, legalEntityId: true,
-      tenant: { select: { portfolioId: true } },
+      // @req FR-194 — no `tenant.portfolioId` read here any more. The ancestry
+      // question this used to answer in application code ("is this LegalEntity
+      // really this Business's?") is now a database invariant: a Business can
+      // only reference a LegalEntity in its own Tenant (ADR-078 D1, the
+      // `Business_legalEntity_tenant_fkey` composite FK).
       legalEntity: {
         select: {
-          id: true, portfolioId: true, legalName: true, legalAddress: true,
+          id: true, legalName: true, legalAddress: true,
           identifiers: { select: { country: true, type: true, value: true, verifiedAt: true } },
         },
       },
@@ -129,14 +134,42 @@ async function loadBusinessDetails(db, viewer, businessId, { capability = 'read'
   return business
 }
 
-async function resolveSeller(tx, business, branchId) {
+/**
+ * @req FR-194 — the tax branch code comes from `Branch.taxRegistrationBranch`,
+ * never from a free-text column on the Branch itself: a VAT branch code is a
+ * fact about the LEGAL ENTITY's tax registration (ประมวลรัษฎากร ม.86, ภ.พ.20),
+ * not about an operating site. A TAX_INVOICE / ABB_TAX_INVOICE refuses without
+ * one; INVOICE / RECEIPT do not need one, so a warehouse Branch with no tax
+ * registration is a valid seller for those two document types and refuses only
+ * the two that carry a branch code onto the document.
+ */
+async function resolveSeller(tx, business, branchId, documentType) {
   const legalEntity = business.legalEntity
-  if (!legalEntity || legalEntity.portfolioId !== business.tenant.portfolioId) throw failure(422, 'BILLING_SELLER_NOT_CONFIGURED')
+  if (!legalEntity) throw failure(422, 'BILLING_SELLER_NOT_CONFIGURED')
   const identifier = legalEntity.identifiers.find((row) => row.country === 'TH' && ACCEPTED_TAX_ID_TYPES.has(row.type) && row.verifiedAt && /^[0-9]{13}$/.test(String(row.value).replace(/[\s-]/g, '')))
   if (!identifier || !legalEntity.legalName || !legalEntity.legalAddress?.trim()) throw failure(422, 'BILLING_SELLER_NOT_CONFIGURED')
-  const branch = await tx.branch.findUnique({ where: { id: branchId }, select: { id: true, code: true, name: true, tenantId: true, businessId: true, address: true, taxBranchCode: true, status: true } })
+  const branch = await tx.branch.findUnique({
+    where: { id: branchId },
+    select: {
+      id: true, code: true, name: true, tenantId: true, businessId: true, address: true, status: true,
+      taxRegistrationBranch: { select: { id: true, branchCode: true, legalEntityId: true, status: true } },
+    },
+  })
   if (!branch || branch.tenantId !== business.tenantId || branch.businessId !== business.id || branch.status !== 'ACTIVE') throw failure(422, 'BILLING_BRANCH_NOT_CONFIGURED')
   if (!branch.address?.trim()) throw failure(422, 'BILLING_BRANCH_NOT_CONFIGURED')
+
+  let taxBranchCode = null
+  const taxBranch = branch.taxRegistrationBranch
+  const taxBranchUsable = taxBranch && taxBranch.status === 'ACTIVE' && taxBranch.legalEntityId === legalEntity.id
+  if (TAX_DOCUMENT_TYPES.has(documentType)) {
+    if (!taxBranch) throw failure(422, 'BILLING_TAX_BRANCH_NOT_CONFIGURED')
+    if (taxBranch.legalEntityId !== legalEntity.id) throw failure(422, 'BILLING_TAX_BRANCH_MISMATCH')
+    if (taxBranch.status !== 'ACTIVE') throw failure(422, 'BILLING_TAX_BRANCH_NOT_CONFIGURED')
+    taxBranchCode = taxBranch.branchCode
+  } else if (taxBranchUsable) {
+    taxBranchCode = taxBranch.branchCode
+  }
+
   return {
     businessId: business.id,
     businessCode: business.code,
@@ -148,7 +181,7 @@ async function resolveSeller(tx, business, branchId) {
     branch: {
       id: branch.id,
       code: branch.code,
-      taxBranchCode: branch.taxBranchCode ?? branch.code,
+      taxBranchCode,
       name: branch.name,
       address: branch.address.trim(),
     },
@@ -230,7 +263,7 @@ async function prepareDocument(tx, data, { viewer, now, includeIdempotency = fal
   }
   if (!profile.vatRegistered && TAX_DOCUMENT_TYPES.has(data.documentType)) throw failure(422, 'BILLING_TAX_NOT_CONFIGURED')
   if (profile.vatRegistered && (!profile.vatRateBps || !profile.taxPolicyVersion?.trim() || !profile.taxEffectiveAt)) throw failure(422, 'BILLING_TAX_NOT_CONFIGURED')
-  const seller = await resolveSeller(tx, business, data.branchId)
+  const seller = await resolveSeller(tx, business, data.branchId, data.documentType)
   const buyer = normalizeBuyer(data.buyer, data.documentType, profile)
   const totals = orderTotals(orderRow.lines, orderRow.discountSatang)
   const payments = paymentSummary(orderRow.payments)
@@ -332,15 +365,28 @@ async function runTransactionWithRetry(db, callback) {
 /** Read owner-maintained billing state and active Branch choices. */
 export async function getBillingProfile(businessId, { viewer, db = prisma } = {}) {
   const business = await loadBusinessDetails(db, viewer, businessId)
-  const [profile, branches] = await Promise.all([
+  const [profile, branches, taxRegistrationBranches] = await Promise.all([
     db.businessBillingProfile.findUnique({ where: { businessId: business.id }, select: PROFILE_SELECT }),
-    db.branch.findMany({ where: { businessId: business.id, status: 'ACTIVE' }, orderBy: [{ code: 'asc' }], select: { id: true, code: true, name: true, address: true, taxBranchCode: true, status: true } }),
+    db.branch.findMany({
+      where: { businessId: business.id, status: 'ACTIVE' },
+      orderBy: [{ code: 'asc' }],
+      select: {
+        id: true, code: true, name: true, address: true, kind: true, status: true,
+        taxRegistrationBranch: { select: { id: true, branchCode: true, name: true, legalEntityId: true, status: true } },
+      },
+    }),
+    business.legalEntityId
+      ? db.taxRegistrationBranch.findMany({ where: { legalEntityId: business.legalEntityId, status: 'ACTIVE' }, orderBy: [{ branchCode: 'asc' }], select: { id: true, branchCode: true, name: true } })
+      : Promise.resolve([]),
   ])
   return {
     businessId: business.id,
     status: profileLifecycleStatus(profile),
     profile,
     branches,
+    // @req FR-194 — the Business's own LegalEntity's registered VAT branches,
+    // so an owner links a Branch to one instead of typing a code by hand.
+    taxRegistrationBranches,
     sellerLink: { legalEntityId: business.legalEntity?.id ?? null, legalName: business.legalEntity?.legalName ?? null, legalAddress: business.legalEntity?.legalAddress ?? null },
   }
 }
@@ -384,13 +430,27 @@ export async function updateBillingProfile(businessId, input, { viewer, db = pri
       }
     }
     let branchChanged = false
-    if (data.branchAddress !== undefined || data.taxBranchCode !== undefined) {
+    if (data.branchAddress !== undefined || data.taxRegistrationBranchId !== undefined) {
       if (!data.branchId) throw failure(422, 'BILLING_BRANCH_NOT_CONFIGURED')
-      const branch = await tx.branch.findUnique({ where: { id: data.branchId }, select: { id: true, businessId: true, tenantId: true, status: true, address: true, taxBranchCode: true } })
+      const branch = await tx.branch.findUnique({ where: { id: data.branchId }, select: { id: true, businessId: true, tenantId: true, status: true, address: true } })
       if (!branch || branch.businessId !== business.id || branch.tenantId !== business.tenantId || branch.status !== 'ACTIVE') throw failure(422, 'BILLING_BRANCH_NOT_CONFIGURED')
       const branchData = {}
       if (data.branchAddress !== undefined) branchData.address = trimOrNull(data.branchAddress)
-      if (data.taxBranchCode !== undefined) branchData.taxBranchCode = trimOrNull(data.taxBranchCode)
+      // @req FR-194 — a Branch may only link a TaxRegistrationBranch that
+      // belongs to its OWN Business's LegalEntity; refuse rather than let one
+      // Business's billing configuration point at another legal entity's VAT
+      // registration.
+      if (data.taxRegistrationBranchId !== undefined) {
+        if (data.taxRegistrationBranchId === null) {
+          branchData.taxRegistrationBranchId = null
+        } else {
+          if (!business.legalEntityId) throw failure(422, 'BILLING_SELLER_NOT_CONFIGURED')
+          const taxBranch = await tx.taxRegistrationBranch.findUnique({ where: { id: data.taxRegistrationBranchId }, select: { id: true, legalEntityId: true, status: true } })
+          if (!taxBranch || taxBranch.status !== 'ACTIVE') throw failure(422, 'BILLING_TAX_BRANCH_NOT_CONFIGURED')
+          if (taxBranch.legalEntityId !== business.legalEntityId) throw failure(422, 'BILLING_TAX_BRANCH_MISMATCH')
+          branchData.taxRegistrationBranchId = data.taxRegistrationBranchId
+        }
+      }
       await tx.branch.update({ where: { id: branch.id }, data: branchData })
       branchChanged = true
     }

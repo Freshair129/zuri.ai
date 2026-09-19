@@ -1,5 +1,6 @@
 const { test, expect } = require('@playwright/test')
-const { loginAsOwner } = require('./e2e-auth')
+const { loginAsOwner, readScope } = require('./e2e-auth')
+const { signUpBusinessActor, switchBusinessActor } = require('./e2e-business-actor')
 
 // @req FR-164 — the owner creates a supplier on the Procurement dashboard, a
 //   purchase order against it on the real console (one line naming a counted
@@ -10,7 +11,7 @@ const { loginAsOwner } = require('./e2e-auth')
 // @spec ADR-066; SEC-001
 // @tested tests/e2e/fr164-procurement.spec.js
 
-test('FR-164/FR-165 — a supplier, a purchase order and two receipts on the Procurement pages, landing in the Warehouse', async ({ page }) => {
+test('FR-164/FR-165 — a supplier, a purchase order and two receipts on the Procurement pages, landing in the Warehouse', async ({ page, request }) => {
   test.setTimeout(120000)
   await loginAsOwner(page)
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
@@ -82,6 +83,11 @@ test('FR-164/FR-165 — a supplier, a purchase order and two receipts on the Pro
   await expect(row()).toContainText('ร่าง')
   await row().getByRole('button', { name: 'ส่งให้ผู้ขาย', exact: true }).click()
   await expect(row()).toContainText('ส่งผู้ขายแล้ว')
+
+  // FR-196: the receiver is not the person who created the PO.
+  const scope = await readScope(page.request)
+  const receiver = await signUpBusinessActor(request, scope.businesses.find((b) => b.code === 'BUS-001').id)
+  await switchBusinessActor(page, receiver)
 
   // First receipt: three boxes — partially received, the Warehouse holds three.
   await row().getByRole('button', { name: code }).click()

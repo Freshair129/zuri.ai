@@ -11,6 +11,8 @@ function fixture() {
   const root=fs.mkdtempSync(path.join(os.tmpdir(),'zuri-desktop-package-'));
   for(const dir of ['edge/dist','edge/src-tauri','edge/state','edge/data'])fs.mkdirSync(path.join(root,dir),{recursive:true});
   fs.writeFileSync(path.join(root,'edge/dist/desktop-worker.js'),'export {};');
+  fs.mkdirSync(path.join(root,'edge/.agents/zuri-01'),{recursive:true});
+  fs.writeFileSync(path.join(root,'edge/.agents/zuri-01/AGENTS.md'),'# Persona: fixture\n');
   fs.writeFileSync(path.join(root,'edge/src-tauri/tauri.conf.json'),JSON.stringify({version:'0.3.0'}));
   fs.writeFileSync(path.join(root,'edge/package.json'),JSON.stringify({name:'fixture',version:'0.1.0',scripts:{postinstall:'MUST_NOT_RUN'}}));
   fs.writeFileSync(path.join(root,'edge/package-lock.json'),'{}');
@@ -28,6 +30,7 @@ test('portable package covers runtime/worker/dependencies and excludes source st
   assert.ok(manifest.files.some((file:any)=>file.path==='runtime/node.exe'));
   assert.ok(manifest.files.some((file:any)=>file.path==='worker/dist/desktop-worker.js'));
   assert.ok(manifest.files.some((file:any)=>file.path==='worker/node_modules/fixture/index.js'));
+  assert.ok(manifest.files.some((file:any)=>file.path==='worker/.agents/zuri-01/AGENTS.md'),'persona folders ship with the worker');
   for(const file of manifest.files)assert.equal(file.sha256,fileHash(path.join(input.outputDir,file.path)));
   for(const name of ['.env','state','data'])assert.equal(fs.existsSync(path.join(input.outputDir,'worker',name)),false);
   assert.equal(JSON.parse(fs.readFileSync(path.join(input.outputDir,'worker/package.json'),'utf8')).scripts,undefined);

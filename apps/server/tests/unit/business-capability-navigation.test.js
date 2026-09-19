@@ -60,10 +60,13 @@ describe('the Warehouse slot is capability-gated on top of being a domain', () =
       '/inventory/work-orders',
       '/inventory/reservations',
       '/inventory/stocktakes',
+      '/inventory/hygiene',
+      '/inventory/catalog-intake',
       '/procurement',
       '/procurement/purchase-orders',
       '/commerce',
       '/commerce/orders',
+      '/commerce/pricing-rules',
     ])
   })
 

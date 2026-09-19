@@ -559,6 +559,30 @@ async function resolveQueryFunction(options) {
   }
 }
 
+/** Read only the immutable manifest after the same live ACL checks as retrieval. */
+export async function readAuthorizedKnowledgeManifest(
+  { businessId, projectId = null },
+  { db = prisma, repository: suppliedRepository, viewer, env = process.env } = {},
+) {
+  const repository = repositoryFor(db, suppliedRepository)
+  const { corpus } = await resolveAuthorizedCorpus({ businessId, projectId, action: 'read', db, repository, viewer, env })
+  const scope = scopeFromCorpus(corpus)
+  const current = await loadManifest(repository, corpus)
+  const sources = new Map((await listSources(repository, corpus.id)).map((source) => [source.id, source]))
+  const checkedFiles = new Set()
+  for (const entry of current.manifest.entries) {
+    const source = sources.get(entry.sourceId)
+    assertActiveSource(source)
+    assertSourceMatchesEntry(source, { ...entry, corpusId: corpus.id })
+    if (source.activeIngestionId !== entry.ingestionId) throw serviceError(409, 'Knowledge active source changed', 'KNOWLEDGE_MANIFEST_INVALID')
+    if (source.fileAssetId && !checkedFiles.has(source.fileAssetId)) {
+      await assertKnowledgeFileReadable(viewer, source.fileAssetId, { businessId, projectId, db, env })
+      checkedFiles.add(source.fileAssetId)
+    }
+  }
+  return { scope, corpusId: corpus.id, corpusGeneration: current.manifest.generation, manifestHash: current.manifestHash, entries: current.manifest.entries }
+}
+
 /** Query one pinned corpus manifest through explicit native snapshots. */
 export async function queryKnowledgeCorpus(
   input,
@@ -761,6 +785,16 @@ export async function resolveKnowledgeCitation(
  * The operation owns only corpus/source membership rows, so it keeps the
  * corpus Business/Project write gate but does not require the referenced
  * FileAsset to remain live in order to remove that membership.
+ *
+ * @req FR-238 — an optional `authorization` override, mirroring
+ * `admitKnowledge`'s own `authorize()` seam (knowledge-admission-service.js):
+ * when supplied it replaces the default owner-only `resolveKnowledgeScope`
+ * check, exactly once, before the CAS retry loop. Every existing caller keeps
+ * today's owner-only gate untouched (the parameter is optional and unused by
+ * them); the LINE Studio unpublish hook is the first to pass one, because
+ * ADR-090 D7's "unpublish withdraws the source" is exercised by an OWNER or
+ * `LINE_OA_PUBLISHER`, the same authority `line-oa-account-authority.js`'s
+ * `assertMayPublish` already required of the caller before this runs.
  */
 export async function withdrawKnowledgeSource(
   sourceId,
@@ -771,6 +805,7 @@ export async function withdrawKnowledgeSource(
     viewer,
     env = process.env,
     now = () => new Date(),
+    authorization,
   } = {},
 ) {
   const id = requireId(sourceId, 'sourceId')
@@ -781,7 +816,14 @@ export async function withdrawKnowledgeSource(
   const initialCorpus = await repository.getCorpus(initialSource.corpusId)
   if (!initialCorpus) throw serviceError(404, 'Knowledge corpus not found', 'KNOWLEDGE_CORPUS_NOT_FOUND')
   const scope = scopeFromCorpus(initialCorpus)
-  await resolveKnowledgeScope({ viewer, businessId: initialCorpus.businessId, projectId: initialCorpus.projectId, action: 'write', db, env })
+  if (authorization) {
+    const result = await authorization({ viewer, operation: 'write', businessId: initialCorpus.businessId, projectId: initialCorpus.projectId }, { db, env })
+    if (result === false || result?.authorized === false) {
+      throw serviceError(403, 'Knowledge access denied', 'KNOWLEDGE_ACCESS_DENIED')
+    }
+  } else {
+    await resolveKnowledgeScope({ viewer, businessId: initialCorpus.businessId, projectId: initialCorpus.projectId, action: 'write', db, env })
+  }
   for (let attempt = 0; attempt < MAX_CAS_RETRIES; attempt += 1) {
     try {
       const result = await repository.transaction((tx) => withdrawInTransaction(tx, id, expectedVersion, { now, actorId: viewer?.principal?.id || null, initialScope: scope, viewer, db, env }))
@@ -828,4 +870,5 @@ async function withdrawInTransaction(repository, sourceId, expectedVersion, { no
   return { status: 'WITHDRAWN', source: sourceUpdated, corpus: corpusUpdated, generation: created, manifest, manifestHash }
 }
 
-export { CORPUS_SCHEMA_VERSION, RRF_K, citationReference, decodeCitationReference }
+// @req FR-254 — console generations reuse the same immutable manifest validator.
+export { CORPUS_SCHEMA_VERSION, RRF_K, citationReference, decodeCitationReference, validateStoredManifest, scopeFromCorpus, verifyPublicationEvidence }

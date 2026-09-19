@@ -164,7 +164,13 @@ describe('Audit page — installation-wide scope is disclosed on the page (FR-04
   it('the API contract this page reads is left untouched', () => {
     const route = src('src/app/api/audit/route.js')
     expect(route).toContain('@req FR-046 — audit is an installation-wide read')
-    expect(route).toContain("isInstallationOperator(viewer)")
+    // @req FR-197 — the operator gate moved behind `assertOperatorAndRecordUse`
+    // (ADR-079), which still refuses a non-operator via `isInstallationOperator`
+    // internally and additionally records the read as an OPERATOR_ACTION —
+    // the contract this test guards (operator-only) is unchanged.
+    expect(route).toContain('assertOperatorAndRecordUse')
+    const guard = src('src/modules/identity/operator-use.js')
+    expect(guard).toContain('isInstallationOperator(viewer)')
   })
 })
 

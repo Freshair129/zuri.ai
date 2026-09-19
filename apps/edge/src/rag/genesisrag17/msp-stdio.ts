@@ -10,31 +10,66 @@ import type { MspCommandSettings } from './settings.js';
 // NDJSON JSON-RPC, `initialize` → `notifications/initialized` → `tools/call`, one child per call,
 // closed in `finally`. Nothing is imported from the MSP repository — the wire is the contract.
 
-export type MspToolCall = (name: string, input: Record<string, unknown>) => Promise<Record<string, unknown>>;
+export type MspToolCall = (name: string, input: Record<string, unknown>, signal?: AbortSignal) => Promise<Record<string, unknown>>;
 
 export class MspTransportError extends Error {
-  constructor(message: string, readonly code: 'MSP_TRANSPORT_UNAVAILABLE' | 'MSP_TOOL_ERROR' = 'MSP_TRANSPORT_UNAVAILABLE') {
+  constructor(message: string, readonly code: 'MSP_TRANSPORT_UNAVAILABLE' | 'MSP_TOOL_ERROR' | 'MSP_REQUEST_ABORTED' = 'MSP_TRANSPORT_UNAVAILABLE') {
     super(message);
     this.name = 'MspTransportError';
   }
 }
 
 /**
- * Edge secrets MSP has no use for. The child still gets the rest of the environment, because MSP
- * reads its own runtime grants from it, exactly as it does when zuri-ai's server starts it.
+ * Every variable an MSP child is allowed to see. An allowlist, not a denylist: a secret added to
+ * this process's environment later must not reach MSP merely because nobody remembered to withhold
+ * it. Mirrors zuri-ai's server transport (`apps/server/src/modules/agent/msp-stdio-transport.js`)
+ * for pipeline settings — `tests/unit/genesisrag17-edge.test.ts` checks that parity and explicitly
+ * excludes Server-only MemoryOS signing keys/settings. Edge consumes an authorized ephemeral CIN
+ * packet; it must not mint thread grants. Nothing named ZURI_* is here: those configure this transport.
  */
-const WITHHELD_FROM_MSP = [
-  'ZURI_EDGE_DEVICE_KEY', 'ZURI_EDGE_DEVICE_KEY_FILE', 'ZURI_AGENT_DEVICE_TOKEN', 'ZURI_AGENT_DEVICE_TOKEN_FILE',
-  'ANTHROPIC_API_KEY', 'ANTHROPIC_API_KEY_FILE', 'ANTHROPIC_AUTH_TOKEN', 'LINE_CHANNEL_ACCESS_TOKEN',
-  'LINE_CHANNEL_ACCESS_TOKEN_FILE', 'LINE_CHANNEL_SECRET', 'LINE_CHANNEL_SECRET_FILE', 'LINE_HISTORY_HASH_KEY',
-  'LINE_HISTORY_HASH_KEY_FILE', 'ZURI_EDGE_ADMIN_KEY_HASH', 'ZURI_EDGE_GENESISRAG17_CREDENTIAL',
-  'ZURI_EDGE_GENESISRAG17_CREDENTIAL_FILE',
-];
+export const MSP_RUNTIME_ENV_NAMES: readonly string[] = Object.freeze([
+  // apps/msp-server/bin/msp-server.mjs — the store; MSP refuses to start without it
+  'MSP_DB_PATH',
+  // apps/msp-server/src/providers/gks-stdio-provider.mjs — how MSP spawns GKS
+  'MSP_GKS_COMMAND',
+  'MSP_GKS_ARGS',
+  'MSP_GKS_CWD',
+  // apps/msp-server/src/transport/handlers/pipeline-handlers.mjs — relay grants and credentials
+  'MSP_PIPELINE_PRINCIPALS',
+  'MSP_GKS_PIPELINE_CREDENTIAL',
+  'MSP_PIPELINE_WORKER_URL',
+  'MSP_PIPELINE_WORKER_TOKEN',
+  // packages/msp-retrieval/src/retrieval/vector.mjs — the embedding endpoint
+  'OLLAMA_BASE_URL',
+  // Read by GKS (apps/gks-server/src/server.mjs, packages/gks-contracts/src/resolution.mjs),
+  // reaching it only because MSP spawns GKS with an allowlist of its own
+  'GKS_DB_PATH',
+  'GKS_PIPELINE_RELAY_CREDENTIAL',
+  'GKS_DEFAULT_PORTFOLIO_ID',
+  'GKS_AUTOMERGE_FLOOR',
+]);
+
+/**
+ * What a Node child needs from the OS to start and to spawn its own child: command lookup, temp and
+ * home directories, the Windows system paths libuv and OpenSSL resolve through, and locale/time zone.
+ * No credentials, no proxies, and no NODE_OPTIONS — that one can load code into the child.
+ */
+export const MSP_OS_ENV_NAMES: readonly string[] = Object.freeze([
+  'PATH', 'HOME', 'TMPDIR', 'TMP', 'TEMP', 'LANG', 'LC_ALL', 'TZ',
+  'PATHEXT', 'SYSTEMROOT', 'SYSTEMDRIVE', 'WINDIR', 'COMSPEC',
+  'USERPROFILE', 'HOMEDRIVE', 'HOMEPATH', 'APPDATA', 'LOCALAPPDATA',
+]);
+
+// Windows spells these `Path` and `SystemRoot`, and its environment is case-insensitive, so names
+// are matched without case and copied as spelled.
+const ALLOWED_ENV_NAMES = new Set([...MSP_RUNTIME_ENV_NAMES, ...MSP_OS_ENV_NAMES].map((name) => name.toUpperCase()));
 
 export function mspChildEnvironment(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
-  const copy: NodeJS.ProcessEnv = { ...env };
-  for (const name of WITHHELD_FROM_MSP) delete copy[name];
-  return copy;
+  const child: NodeJS.ProcessEnv = {};
+  for (const [name, value] of Object.entries(env ?? {})) {
+    if (typeof value === 'string' && ALLOWED_ENV_NAMES.has(name.toUpperCase())) child[name] = value;
+  }
+  return child;
 }
 
 type Pending = { resolve: (value: any) => void; reject: (error: Error) => void; timeout: NodeJS.Timeout };
@@ -43,7 +78,9 @@ export function createMspStdioTransport(settings: MspCommandSettings, env: NodeJ
   if (!settings.command.trim()) throw new MspTransportError('MSP command is not configured');
   const childEnv = mspChildEnvironment(env);
 
-  return async function callMspTool(name, input) {
+  return async function callMspTool(name, input, signal) {
+    const aborted = () => new MspTransportError('MSP retrieval cancelled', 'MSP_REQUEST_ABORTED');
+    if (signal?.aborted) throw aborted();
     const child = spawn(settings.command, settings.args, {
       cwd: settings.cwd, env: childEnv, stdio: ['pipe', 'pipe', 'pipe'], shell: false, windowsHide: true,
     });
@@ -61,7 +98,10 @@ export function createMspStdioTransport(settings: MspCommandSettings, env: NodeJ
       closed = true;
       child.kill();
     };
+    const abort = () => { rejectPending(aborted()); close(); };
+    signal?.addEventListener('abort', abort, { once: true });
     const request = (method: string, params: unknown) => {
+      if (signal?.aborted) return Promise.reject(aborted());
       const id = nextId++;
       return new Promise<any>((resolve, reject) => {
         const timeout = setTimeout(() => {
@@ -109,14 +149,17 @@ export function createMspStdioTransport(settings: MspCommandSettings, env: NodeJ
         capabilities: {},
         clientInfo: { name: 'zuri-edge', version: '0.1.0' },
       });
+      if (signal?.aborted) throw aborted();
       child.stdin.write(`${JSON.stringify({ jsonrpc: '2.0', method: 'notifications/initialized', params: {} })}\n`);
       const result = await request('tools/call', { name, arguments: input ?? {} });
+      if (signal?.aborted) throw aborted();
       if (result?.isError) {
         const text = result.content?.find((item: { type?: string }) => item.type === 'text')?.text;
         throw new MspTransportError(text ?? `MSP tool ${name} returned an error`, 'MSP_TOOL_ERROR');
       }
       return (result?.structuredContent ?? {}) as Record<string, unknown>;
     } finally {
+      signal?.removeEventListener('abort', abort);
       close();
     }
   };

@@ -1,0 +1,134 @@
+---
+id: "ZAI:{{FR_LINE}}-NOTE"
+title: "Self-hosted inference policy and cutover"
+version: "0.1.1b"
+status: approved
+approval_scope: design-and-documentation
+approved_on: "2026-09-18"
+approved_by: "Owner via conversation"
+integration_status: pending
+implementation_status: not-started
+created_at: "2026-09-17"
+last_update: "2026-09-18"
+author: ChatGPT
+domain: line-oa-studio
+baseline_commit: "cfd5521e7d004e63ffead1e07f46045f1cdc06f2"
+feature: "{{FR_LINE}}"
+module: line-oa-studio
+source: pending
+relations:
+  - type: references
+    target: "ZAI:{{FR_LINE}}"
+  - type: relates_to
+    target: "ZAI:{{FEAT_POOL}}"
+  - type: relates_to
+    target: "ZAI:{{ADR_POOL}}"
+  - type: references
+    target: "ZAI:ADR-061"
+  - type: references
+    target: "ZAI:{{FR_EXECUTION}}"
+  - type: references
+    target: "ZAI:{{FR_NODES}}"
+---
+
+# {{FR_LINE}} — Self-hosted inference policy and cutover
+
+> Design approved by the owner on 2026-09-18; canonical integration and all runtime evidence remain pending.
+
+
+## Behavior and ownership
+
+LINE OA Studio adds an explicit account-level selection of a qualified self-hosted inference pool while remaining the owner of `LineConversationJob`, admission and final delivery. It does not become the provider/secret authority or a GPU scheduler. CRM, Integration, Agent, MSP and GKS retain their existing writers.
+
+This is a new requirement, not a reassignment of FR-150 (optional Edge execution) or FR-149 (server-owned LINE transport). Existing accounts keep their current configuration until an authorized per-account transition is performed.
+
+## Input, output and failures
+
+### Proposed configuration matrix
+
+| Execution placement | Model-access policy | Result |
+|---|---|---|
+| SERVER | LOCAL_ONLY | Existing deterministic Server answer remains unchanged |
+| SERVER | EXTERNAL_MODEL_ALLOWED | Existing production provider route remains unchanged |
+| SERVER | SELF_HOSTED_ONLY (proposed) | Qualified same-scope pool required; no external fallback |
+| EDGE | Existing policies | Existing device contract remains unchanged |
+| EDGE | SELF_HOSTED_ONLY (proposed) | Refused in v1; no unsupported enum sent to older devices |
+
+Pool selection is a scoped reference, not an arbitrary URL. An account and selected pool must share the authorized Tenant/Business; data policy must permit the pool's processing boundary. Publisher authority alone must not expose raw credentials; pool management stays in Integration. Model inference on operator-owned hardware is not automatically customer-premise processing.
+
+### Durable job snapshot
+
+Admission records execution placement, processing permission, `inferencePoolId`, pool/configuration version and selected profile hash together with the existing account/job facts. These proposed fields land in both database schemas and an additive migration, with default behavior preserving old jobs. The job also retains the authoritative reply deadline, delivery permission, transport epoch and execution identity.
+
+A model alias/profile change must not redirect an already-admitted prompt silently. At dispatch, compare the immutable snapshot with current policy and qualification. If incompatible, fence or cancel the job visibly rather than retarget it. An owner may explicitly re-admit a new request under a new policy; the system must not manufacture consent.
+
+Reuse `lineExecutionBudget` through an explicit supported Server contract. At the inspected baseline it reserves 5,000 ms for LINE reply sending and treats negotiated execution leases separately from reply lifetime. Do not multiply or extend the LINE token lifetime because a GPU queue is busy. The copied calculator's current constants are existing behavior, not a newly measured service guarantee.
+
+### Preserve the existing delivery path
+
+```text
+Native signed webhook
+  → durable capture / existing admission
+  → LineConversationJob
+  → SERVER answer with explicit pool snapshot
+  → bounded validated answer committed for current execution
+  → existing READY / send-intent flow
+  → Integration LINE transport
+  → accepted-output reconciliation in CRM
+```
+
+Out-of-hours answers, staff/catalogue commands, CRM session namespace, opt-in memory receipts and erasure remain in force. Non-text events are not enrolled in a text model merely because the endpoint can accept a JSON body.
+
+Do not add a second message queue. If the existing worker batch waits for all model calls before sending ready answers, adjust bounded scheduling/send ticks in the existing service so one slow inference does not consume another completed job's remaining reply budget. Prove it with tests; merely increasing the Server concurrency environment variable is not a complete deadline solution.
+
+### Delivery, retries and uncertainty
+
+Reply/Push selection stays the Server's decision. Delayed Push remains opt-in. If permitted and the existing job contract selects it, use its existing retry key and delivery state; no new ungoverned notification path is introduced. Provider acceptance does not prove delivery/read.
+
+An ambiguous model request does not imply LINE was sent. An ambiguous LINE send remains delivery-UNKNOWN and must not be retried as a fresh reply/push. No uncertainty branch recomputes the whole agent turn and repeats already-committed tools. A late answer after lease/configuration/transport-epoch change cannot become a sendable result.
+
+### Cutover procedure and rollback
+
+1. Record the account's current execution/provider policy and outstanding jobs, without exporting secrets.
+2. Qualify both nodes, prove negative auth and private routing, calibrate independent capacities, and run Server-only agent parity tests with delivery stubbed.
+3. Pause new computation for the selected account and drain/settle old claims. Existing LINE Server ingress and durable capture remain available; pending work is visible. An unresolved external send/compute attempt requires explicit reconciliation, not a guessed safe retry.
+4. Through the owning versioned service, select SERVER + SELF_HOSTED_ONLY and a same-scope qualified pool. Preserve LINE transport ownership and webhook URL for already server-owned accounts.
+5. Perform one explicitly authorized live LINE canary. Verify inbound → job → pool admission → selected node/profile → context/answer trace → LINE acceptance → CRM outbound record.
+6. Verify B spillover with controlled load, A-down behavior, both-nodes-unavailable behavior and no external fallback. Expand traffic only after the receipts meet the gate.
+7. Roll back by quiescing new pool dispatch, fencing/reconciling current attempts and restoring the prior approved execution binding. Never enable two LINE senders, delete Edge data or drop new tables in order to roll back.
+
+A docs merge, image build, database migration and account activation are four different evidence events. The current user instruction authorizes preparing documents only.
+
+### Proposed failure outcomes
+
+Invalid scope/policy/pool/profile: refuse configuration or dispatch with a bounded code. Capacity unavailable: visibly queued/deferred only within the job deadline, otherwise existing failure mapping. Reply deadline exhausted with Push disallowed: no late send. Credential/model/telemetry failure: do not silently switch to Edge, deterministic placeholder or cloud unless that separate behavior was already explicitly approved for this exact policy.
+
+## Acceptance criteria
+
+- LINE-01: Existing account/provider/Edge flows retain behavior until explicit per-account opt-in.
+- LINE-02: An activated pool account completes a real Server-only canary with Edge stopped and exactly one authorized LINE send path.
+- LINE-03: Account/job scope, pool/configuration snapshot and current policy are revalidated before dispatch and settlement.
+- LINE-04: A 12 GB node under its calibrated capacity admits concurrent independent requests; subsequent new work spills to the 16 GB node under policy, not VRAM summation.
+- LINE-05: Out-of-hours and deterministic authorized commands still bypass the model where expected.
+- LINE-06: One slow generation does not block sending another ready answer past its deadline; tests cover the existing batch-worker interaction.
+- LINE-07: Both nodes down, expired deadline, uncertain model result and uncertain LINE send produce distinct honest states with no hidden fallback or duplicate send.
+- LINE-08: Rollback preserves CRM/job/trace evidence, installed Edge capabilities and all secrets; it does not change an existing Server webhook unnecessarily.
+- LINE-09: New strict schema fields/enum values are backward-compatible or version-negotiated; older Edge consumers never receive an unsupported policy.
+
+Authority: [[ZAI:ADR-061]], [[ZAI:DOMAIN-LINE-OA-STUDIO]], [[ZAI:{{FR_EXECUTION}}-NOTE]], [[ZAI:RUNBOOK-SELF-HOSTED-INFERENCE-POOL]].
+
+## Baseline source references
+
+The following immutable repository sources were reviewed; proposed new behavior above is not a claim that it exists in this snapshot.
+
+- [docs/domains/line-oa-studio/CHARTER.md](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/domains/line-oa-studio/CHARTER.md) — LINE job/transport ownership and existing ADR-061 amendment.
+- [docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) — Existing LINE ownership, optional Edge, durable queue and delivery semantics.
+- [apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js) — Durable claim/settle/send and bounded parallel Server worker.
+- [apps/server/src/modules/line-oa-studio/domain/line-execution-budget.js](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/src/modules/line-oa-studio/domain/line-execution-budget.js) — 5-second send reserve; compute lease does not extend reply lifetime.
+
+## CHANGELOG
+
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---|---|---|---|---|---|
+| 0.1.0b | 2026-09-17 | candidate | Initial documentation proposal; no runtime implementation or activation | uncommitted; baseline cfd5521 | ChatGPT |
+| 0.1.1b | 2026-09-18 | approved design | Record owner approval; design unchanged; canonical IDs, governance and runtime gates remain pending | uncommitted; baseline cfd5521 | ChatGPT |

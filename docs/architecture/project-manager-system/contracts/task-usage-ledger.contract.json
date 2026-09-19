@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "zuri:platform-control:task-usage-ledger:v1",
+  "title": "TaskUsageLedger v1",
+  "description": "Deterministic task-bound measured usage projection. Planned tokens are never copied into actual usage.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "availability", "asOf", "tasks"],
+  "properties": {
+    "schemaVersion": { "const": "task-usage-ledger.v1" },
+    "availability": { "enum": ["AVAILABLE", "SOURCE_UNAVAILABLE"] },
+    "asOf": { "type": ["string", "null"], "format": "date-time" },
+    "tasks": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/task" }
+    }
+  },
+  "$defs": {
+    "tokens": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["inputTokens", "cacheWriteTokens", "cacheReadTokens", "outputTokens", "usedTokens"],
+      "properties": {
+        "inputTokens": { "type": "integer", "minimum": 0 },
+        "cacheWriteTokens": { "type": "integer", "minimum": 0 },
+        "cacheReadTokens": { "type": "integer", "minimum": 0 },
+        "outputTokens": { "type": "integer", "minimum": 0 },
+        "usedTokens": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "actual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tokens", "requestCount", "activeMinutes", "startedAt", "endedAt", "reportCount", "models"],
+      "properties": {
+        "tokens": { "$ref": "#/$defs/tokens" },
+        "requestCount": { "type": "integer", "minimum": 0 },
+        "activeMinutes": { "type": "integer", "minimum": 0 },
+        "startedAt": { "type": ["string", "null"], "format": "date-time" },
+        "endedAt": { "type": ["string", "null"], "format": "date-time" },
+        "reportCount": { "type": "integer", "minimum": 1 },
+        "models": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "requests"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "requests": { "type": "integer", "minimum": 1 }
+            }
+          }
+        }
+      }
+    },
+    "task": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["taskCode", "taskStatus", "plan", "measurementStatus", "reconciliationStatus", "actual", "attribution", "warnings"],
+      "properties": {
+        "taskCode": { "type": "string", "pattern": "^TASK-ZAI-[0-9]{3}$" },
+        "taskStatus": { "type": "string", "minLength": 1 },
+        "plan": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["predictedTokens", "source"],
+          "properties": {
+            "predictedTokens": { "type": ["integer", "null"], "minimum": 0 },
+            "source": { "const": "PROGRAMME_CONTAINERS" }
+          }
+        },
+        "measurementStatus": {
+          "enum": ["MEASURED_DIRECT", "MEASURED_DIRECT_WITH_WARNING", "NOT_REPORTED", "LANE_ONLY_UNALLOCATED", "UNATTRIBUTED", "SOURCE_UNAVAILABLE", "CONFLICT"]
+        },
+        "reconciliationStatus": {
+          "enum": ["NONE", "METER_OVERLAP", "BRANCH_ONLY_LANE", "UNATTRIBUTED_REPORT", "OVERLAPPING_INTERVALS", "TASK_BINDING_CHANGED"]
+        },
+        "actual": { "type": ["object", "null"], "oneOf": [{ "$ref": "#/$defs/actual" }, { "type": "null" }] },
+        "attribution": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "directReportCount", "laneIds"],
+          "properties": {
+            "kind": { "enum": ["DIRECT_TASK_CODE", "LANE_ONLY", "UNATTRIBUTED", "NONE"] },
+            "directReportCount": { "type": "integer", "minimum": 0 },
+            "laneIds": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "sourceRefs": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["kind", "id", "payloadSha256"],
+                "properties": {
+                  "kind": { "const": "PROGRAMME_USAGE_REPORT" },
+                  "id": { "type": "string", "minLength": 1 },
+                  "payloadSha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" }
+                }
+              }
+            }
+          }
+        },
+        "warnings": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "redaction": {
+    "publicProjection": {
+      "forbiddenFields": ["sessionId", "branch", "repository", "personId", "installationId", "aiAccountLabel", "reportId", "payloadSha256", "detailJson", "toolNames", "rawPrompt", "rawResponse", "toolArguments", "toolOutput"]
+    }
+  }
+}

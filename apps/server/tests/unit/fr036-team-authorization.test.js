@@ -107,7 +107,7 @@ describe('the escalation this closes', () => {
 })
 
 describe('the legitimate owner is unaffected', () => {
-  it('adds, promotes and removes within a Business it owns', async () => {
+  it('adds and removes within a Business it owns, and no longer promotes from here', async () => {
     const w = await world()
     const boss = await prisma.person.create({
       data: { id: randomUUID(), code: `PER-BOSS-${tag()}`, displayName: 'Boss' },
@@ -118,12 +118,31 @@ describe('the legitimate owner is unaffected', () => {
     const owner = await resolveViewer({ principalId: boss.id, db: prisma })
     expect(owner.ownedBusinessIds).toContain(w.target.id)
 
-    const added = await addProjectTeamMember(w.project.id, { personId: w.victim.id, role: 'MEMBER' }, { db: prisma, viewer: owner })
+    // @req FR-191 — `role` is gone from this screen's input (ADR-077 D8). It
+    // could previously pass OWNER straight through `zMembershipRole` into
+    // `membership.create`, minting a Business owner recorded as
+    // PROJECT/TEAM_MEMBER_ADDED — the identity charter's "promotion is a
+    // separate, separately audited act" being false through a second door.
+    const added = await addProjectTeamMember(w.project.id, { personId: w.victim.id }, { db: prisma, viewer: owner })
     expect(added.role).toBe('MEMBER')
-    const promoted = await changeProjectTeamRole(w.project.id, { membershipId: added.id, role: 'OWNER' }, { db: prisma, viewer: owner })
-    expect(promoted.role).toBe('OWNER')
+
+    // Promotion is refused here rather than silently ignored, so a caller
+    // learns where the control moved.
+    await expect(
+      changeProjectTeamRole(w.project.id, { membershipId: added.id, role: 'OWNER' }, { db: prisma, viewer: owner }),
+    ).rejects.toMatchObject({ status: 409, message: 'ROLE_CHANGE_MOVED_TO_PERMISSIONS' })
+
+    // @req FR-191 — removal revokes, never deletes. The hard delete this
+    // replaces destroyed the evidence the grant had existed and left the audit
+    // event's entityId pointing at a row that was gone.
     await removeProjectTeamMember(w.project.id, { membershipId: added.id }, { db: prisma, viewer: owner })
-    expect(await prisma.membership.findUnique({ where: { id: added.id } })).toBeNull()
+    const after = await prisma.membership.findUnique({ where: { id: added.id } })
+    expect(after).not.toBeNull()
+    expect(after.status).toBe('REVOKED')
+    expect(after.revokedByPersonId).toBe(boss.id)
+    // And it no longer grants: the resolver is the proof, not the row.
+    const stripped = await resolveViewer({ principalId: w.victim.id, db: prisma })
+    expect(stripped.visibleBusinessIds).not.toContain(w.target.id)
   })
 })
 

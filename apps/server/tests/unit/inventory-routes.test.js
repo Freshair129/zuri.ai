@@ -33,9 +33,24 @@ const ROUTES = {
   'src/app/api/inventory/stocktakes/preview/route.js': ['POST'],
   'src/app/api/inventory/stocktakes/commit/route.js': ['POST'],
   'src/app/api/inventory/stocktakes/[id]/route.js': ['GET'],
+  // @req FR-203, FR-204, FR-206, FR-207 — SKU governance (ADR-083).
+  'src/app/api/inventory/products/resolve/route.js': ['GET'],
+  'src/app/api/inventory/products/[id]/identifiers/route.js': ['GET', 'POST', 'PATCH'],
+  'src/app/api/inventory/products/[id]/unit-conversions/route.js': ['GET', 'POST', 'PATCH'],
+  'src/app/api/inventory/catalog-hygiene/route.js': ['GET'],
+  'src/app/api/inventory/replenishment/route.js': ['GET'],
+  // @req FR-208, FR-209 — catalogue intake (ADR-084).
+  'src/app/api/inventory/catalog-intakes/route.js': ['GET'],
+  'src/app/api/inventory/catalog-intakes/preview/route.js': ['POST'],
+  'src/app/api/inventory/catalog-intakes/commit/route.js': ['POST'],
+  'src/app/api/inventory/catalog-intakes/[id]/route.js': ['GET', 'PATCH'],
+  'src/app/api/inventory/catalog-intakes/template/route.js': ['GET'],
+  'src/app/api/inventory/catalog-intakes/xlsx/route.js': ['POST'],
 }
-const MODELS = ['InventoryCategory', 'ProductFamily', 'Factory', 'ProductMaster', 'Product', 'ProductBundle', 'ProductBundleItem', 'ProductRecipe', 'ProductRecipeLine', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'InventoryStocktake']
-const LEGACY_MODELS = MODELS.filter((model) => !['InventoryLedgerFence', 'InventoryStocktake'].includes(model))
+const GOVERNANCE_MODELS = ['ProductIdentifier', 'ProductUnitConversion']
+const INTAKE_MODELS = ['InventoryCatalogIntake']
+const MODELS = ['InventoryCategory', 'ProductFamily', 'Factory', 'ProductMaster', 'Product', 'ProductBundle', 'ProductBundleItem', 'ProductRecipe', 'ProductRecipeLine', 'ProductLot', 'SerialUnit', 'StockMovement', 'InventoryLedgerFence', 'InventoryStocktake', ...GOVERNANCE_MODELS, ...INTAKE_MODELS]
+const LEGACY_MODELS = MODELS.filter((model) => !['InventoryLedgerFence', 'InventoryStocktake', ...GOVERNANCE_MODELS, ...INTAKE_MODELS].includes(model))
 
 describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
   it('every handler exposes exactly its inventoried methods, resolves a viewer, and never deletes', () => {
@@ -46,7 +61,7 @@ describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
         expect(declared, `${method} in ${file}`).toBe(methods.includes(method))
       }
       expect(source).toMatch(/resolveRequestViewer/)
-      expect(source).toMatch(/@req FR-(?:15[456]|184)/)
+      expect(source).toMatch(/@req FR-(?:15[456]|184|20[1-9]|210)/)
       expect(source).not.toMatch(/@\/lib\/db|prisma\./)
     }
   })
@@ -83,6 +98,12 @@ describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
     expect(at('productMaster')).toBeLessThan(at('product'))
     expect(at('product')).toBeLessThan(at('productBundleItem'))
     expect(at('productBundle')).toBeLessThan(at('productBundleItem'))
+    // @req FR-203, FR-204 — an identifier and a unit conversion hang off one product only.
+    expect(at('product')).toBeLessThan(at('productIdentifier'))
+    expect(at('product')).toBeLessThan(at('productUnitConversion'))
+    // @req FR-208 — a catalogue intake hangs off its scope only and restores with the catalogue.
+    expect(at('business')).toBeLessThan(at('inventoryCatalogIntake'))
+    expect(at('productUnitConversion')).toBeLessThan(at('inventoryCatalogIntake'))
     expect(at('product')).toBeLessThan(at('productLot'))
     expect(at('product')).toBeLessThan(at('productRecipe'))
     expect(at('productRecipe')).toBeLessThan(at('productRecipeLine'))
@@ -109,6 +130,49 @@ describe('FR-154 / FR-155 Inventory route and persistence contract', () => {
     expect(sql).toMatch(/NOT APPLIED/)
     expect(sql).not.toMatch(/DROP\s+(TABLE|COLUMN)/i)
     expect(twin).not.toMatch(/DROP\s+(TABLE|COLUMN)/i)
+  })
+
+  it('ships additive SKU-governance migrations in both database trees (FR-201..FR-207)', () => {
+    const local = read('prisma/migrations/20260913120000_inventory_sku_governance/migration.sql')
+    const production = read('supabase/migrations/20260913120000_inventory_sku_governance.sql')
+    for (const model of GOVERNANCE_MODELS) {
+      expect(local).toContain(`CREATE TABLE "${model}"`)
+      expect(production).toContain(`CREATE TABLE IF NOT EXISTS "${model}"`)
+    }
+    for (const column of ['nature', 'defaultStockPolicy', 'variantAxesJson']) {
+      expect(local).toContain(`ALTER TABLE "ProductMaster" ADD COLUMN "${column}"`)
+      expect(production).toContain(`ALTER TABLE "ProductMaster" ADD COLUMN IF NOT EXISTS "${column}"`)
+    }
+    for (const column of ['variantJson', 'variantKey', 'mergedIntoProductId', 'reorderPoint', 'reorderQty', 'leadTimeDays']) {
+      expect(local).toContain(`ALTER TABLE "Product" ADD COLUMN "${column}"`)
+      expect(production).toContain(`ALTER TABLE "Product" ADD COLUMN IF NOT EXISTS "${column}"`)
+    }
+    // The nature backfill derives SERVICE masters from their own SKUs, in both trees.
+    expect(local).toMatch(/UPDATE "ProductMaster"[\s\S]*SET "nature" = 'SERVICE'/)
+    expect(production).toMatch(/UPDATE "ProductMaster" pm[\s\S]*SET "nature" = 'SERVICE'/)
+    expect(local).toContain('"Product_productMasterId_variantKey_key"')
+    expect(production).toContain('"Product_productMasterId_variantKey_key"')
+    expect(production).toMatch(/FORCE ROW LEVEL SECURITY/)
+    expect(production).toMatch(/NOT APPLIED/)
+    expect(production).toMatch(/GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE %I TO zuri_app_runtime, zuri_web_login/)
+    expect(local).not.toMatch(/DROP\s+(TABLE|COLUMN)/i)
+    expect(production).not.toMatch(/DROP\s+(TABLE|COLUMN)/i)
+  })
+
+  it('ships the additive catalogue intake migration in both database trees (FR-208)', () => {
+    const local = read('prisma/migrations/20260913200000_inventory_catalog_intake/migration.sql')
+    const production = read('supabase/migrations/20260913200000_inventory_catalog_intake.sql')
+    expect(local).toContain('CREATE TABLE "InventoryCatalogIntake"')
+    expect(production).toContain('CREATE TABLE IF NOT EXISTS "InventoryCatalogIntake"')
+    for (const index of ['InventoryCatalogIntake_businessId_sourceChannel_sourceCorrelationId_key', 'InventoryCatalogIntake_tenantId_code_key']) {
+      expect(local).toContain(index)
+      expect(production).toContain(index)
+    }
+    expect(production).toMatch(/FORCE ROW LEVEL SECURITY/)
+    expect(production).toMatch(/NOT APPLIED/)
+    expect(production).toMatch(/GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE "InventoryCatalogIntake" TO zuri_app_runtime, zuri_web_login/)
+    expect(local).not.toMatch(/DROPs+(TABLE|COLUMN)/i)
+    expect(production).not.toMatch(/DROPs+(TABLE|COLUMN)/i)
   })
 
   it('ships additive stocktake migrations in both database trees', () => {

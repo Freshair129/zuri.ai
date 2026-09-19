@@ -11,6 +11,11 @@ import { loadCatalog } from '../catalog/store.js';
 import { GenesisLocalRag } from '../rag/genesis-rag.js';
 import { createGenesisRag17Runtime, wrapAnswerRag, type GenesisRag17Runtime } from '../rag/genesisrag17/published-rag.js';
 import { ConversationError, type ConversationAnswer, type ConversationJob, isLoopbackUrl } from './contract.js';
+import { remainingConversationBudget, withinConversationBudget } from './deadline.js';
+import type { InvocationReceipt } from '../answer/context-injection.js';
+import type { ConversationClient } from './client.js';
+import { projectWorkTools } from './project-work-tools.js';
+import { createProgressReporter, type ExecutionProgress } from './progress.js';
 
 // @spec ADR-061 — the local-computation boundary: a job may not name an executable, URL, query,
 //   recipient, filesystem location or business scope, and LOCAL_ONLY stays local.
@@ -34,7 +39,16 @@ export function headlessProviderHome(
     : { claudeConfigDir: home };
 }
 
+/** Floor for the model budget on leased jobs; an explicit larger `ZURI_LLM_TIMEOUT_MS` still wins. */
+export const JOB_MODEL_BUDGET_MS = 30000;
+
 export function validateExecutionPolicy(job: ConversationJob, config: Partial<AgentConfig>, ragUrl: string): void {
+  // Corpus-bound answers require the instrumented tool path. Neither a local
+  // catalog fallback nor a headless CLI is bound to this authorized generation.
+  if ('corpusContext' in job && job.corpusContext
+      && (config.headlessEnabled || !config.llmEnabled || !config.llmBaseUrl)) {
+    throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
+  }
   const headlessBin = config.headlessBin || 'claude';
   const managedHome = headlessProviderHome(config, headlessBin);
   if (config.headlessEnabled) requireHeadlessPolicy(headlessBin, true, managedHome.codexHome);
@@ -52,6 +66,8 @@ export function validateExecutionPolicy(job: ConversationJob, config: Partial<Ag
 /** Same local answer tools, server-bound scope, and no durable conversation/session retention. */
 export function createConversationExecutor(config: Partial<AgentConfig>, options: {
   ragUrl?: string; answer?: typeof answerConversation; fetchFn?: typeof fetch;
+  client?: ConversationClient;
+  onProgress?: (event: ExecutionProgress) => void | Promise<void>;
   /** FR-189: injected in tests; otherwise read once from the environment, here, at start-up. */
   genesisRag17?: GenesisRag17Runtime | null;
 } = {}): (job: ConversationJob) => Promise<ConversationAnswer> {
@@ -62,19 +78,33 @@ export function createConversationExecutor(config: Partial<AgentConfig>, options
   // with a missing prerequisite throws here, so the worker refuses to start instead of degrading.
   const genesisRag17 = options.genesisRag17 !== undefined ? options.genesisRag17 : createGenesisRag17Runtime();
   // Prevent a local daemon from redirecting a LOCAL_ONLY question to an external origin.
-  const noRedirectFetch: typeof fetch = (input, init) => (options.fetchFn || fetch)(input, { ...init, redirect: 'error' });
   return async job => {
+    const contextReceipts: InvocationReceipt[] = [];
+    const progress = createProgressReporter(job, config.llmModel, options.onProgress);
+    try { return await withinConversationBudget(job, async signal => {
+    const noRedirectFetch: typeof fetch = (input, init) => {
+      signal.throwIfAborted();
+      return (options.fetchFn || fetch)(input, { ...init, redirect: 'error',
+        signal: init?.signal ? AbortSignal.any([signal, init.signal]) : signal });
+    };
     validateExecutionPolicy(job, config, ragUrl);
     const remaining = Date.parse(job.leaseExpiresAt) - Date.now() - 15000;
     if (remaining <= 0) throw new ConversationError('LEASE_EXPIRED');
-    const timeoutMs = Math.min(remaining, 240000);
+    const budget = remainingConversationBudget(job);
+    const memory = 'memoryContext' in job ? job.memoryContext : undefined;
+    const corpus = 'corpusContext' in job ? job.corpusContext : undefined;
+    if (memory && (config.headlessEnabled || !config.llmEnabled || !config.llmBaseUrl)) {
+      throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
+    }
+    if (memory && Date.parse(memory.expiresAt) <= Date.now()) throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
+    const timeoutMs = Math.min(remaining, budget === null ? 240000 : Math.max(1, budget - 2000));
     const scratch = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-conversation-'));
     // An opaque server identity is not a filesystem path, even if a future caller gets it wrong.
     const key = crypto.createHash('sha256').update(job.conversationKey).digest('hex');
     try {
       // Read here so the post-answer check below can see whether there was ever any data to
       // read, and so a malformed catalogue file's thrown error still hits the `finally` cleanup.
-      const catalog = loadCatalog(config.catalogRoot || 'state/catalog');
+      const catalog = corpus ? { products: [], byCode: new Map() } : loadCatalog(config.catalogRoot || 'state/catalog');
       const local = Boolean(config.llmBaseUrl);
       const llm = config.llmEnabled ? {
         port: createModelPort({
@@ -83,13 +113,40 @@ export function createConversationExecutor(config: Partial<AgentConfig>, options
           ...(local ? { baseUrl: config.llmBaseUrl, numCtx: config.llmNumCtx } : { apiKey: config.anthropicApiKey }),
           effort: config.llmEffort || 'low',
         }, { fetchFn: noRedirectFetch }),
-        timeoutMs: Math.min(timeoutMs, config.llmTimeoutMs || 12000),
-        maxIterations: config.llmMaxIterations || 4,
+        // v2 charges retrieval, all model rounds and completion against one server
+        // budget. Legacy v1 keeps its lease ceiling without a Reply timing guarantee.
+        timeoutMs: Math.min(timeoutMs, budget === null ? Math.max(config.llmTimeoutMs || 0, JOB_MODEL_BUDGET_MS) : 24000),
+        maxIterations: budget === null ? config.llmMaxIterations || 4 : Math.min(config.llmMaxIterations || 3, 3),
+        signal,
+        additionalTools: projectWorkTools(job, options.client),
+        onProgress: progress,
+        ...(budget === null ? {} : { context: {
+          authorized: true, threadId: memory?.threadId, audienceKind: memory?.audienceKind,
+          mspSlices: memory?.slices ?? [], maxBudgetBytes: 32768,
+          onReceipt: (receipt: InvocationReceipt) => { contextReceipts.push(receipt); },
+          beforeInvocation: async () => {
+            progress({ phase: 'CONTEXT', state: 'STARTED' });
+            try { if (memory) {
+              if (Date.parse(memory.expiresAt) <= Date.now() || !options.client?.validateContext)
+                throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
+              await options.client.validateContext(job);
+            } } catch (error) { progress({ phase: 'CONTEXT', state: 'FAILED' }); throw error; }
+          },
+          lifecycle: async (receipt: InvocationReceipt, state: 'RESOLVED' | 'SUBMITTED' | 'COMPLETED' | 'FAILED') => {
+            if (state === 'RESOLVED') progress({ phase: 'CONTEXT', state: 'COMPLETED' });
+            else progress({ phase: 'MODEL', state: state === 'SUBMITTED' ? 'STARTED' : state });
+            if (!memory) return;
+            if (!options.client?.recordInjection) throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
+            await options.client.recordInjection(job, receipt, state, `openai-compatible:${config.llmModel || 'llama3.1'}`);
+          },
+        } }),
+        ...(budget === null ? {} : { maxOutputTokens: 512 }),
       } : null;
       const result = await (options.answer || answerConversation)(job.question, {
         catalog, role: 'sales',
         exchangeRate: config.exchangeRateThbPerRmb || 5,
-        rag: wrapAnswerRag(new GenesisLocalRag({ apiUrl: ragUrl, fetchImpl: noRedirectFetch }), genesisRag17),
+        rag: wrapAnswerRag(new GenesisLocalRag({ apiUrl: ragUrl, fetchImpl: noRedirectFetch }), genesisRag17,
+          corpus, signal),
         conversationKey: key,
         memory: { root: path.join(scratch, 'memory'), hashKey: '', retentionHours: 0 },
         retainHistory: false,
@@ -105,6 +162,14 @@ export function createConversationExecutor(config: Partial<AgentConfig>, options
           webSearch: false, fileAuthoring: false, stateless: true,
         } : null,
       });
+      if (corpus && !['PUBLISHED_CATALOG_EVIDENCE', 'CURRENT_WORK_RECORDS_VERIFIED', 'WORK_PREVIEW_VERIFIED',
+        'WORK_CONFIRMATION_REQUIRED', 'CURRENT_WORK_RECORDS_REQUIRED'].includes(result.reason ?? '')) {
+        // A populated legacy catalog must never turn a bound-corpus outage or
+        // skipped tool into an inferred price, quote, or model-only product claim.
+        return { text: 'ยังตรวจสอบข้อมูลจากแคตตาล็อกที่เชื่อมไว้ไม่ได้ กรุณาลองใหม่ ยังไม่สามารถยืนยันราคาหรือแนะนำสินค้าได้',
+          source: 'rules', reason: 'PUBLISHED_CATALOG_UNAVAILABLE',
+          ...(contextReceipts.length ? { contextReceipts } : {}) };
+      }
       /*
        * A `rules` answer read against an empty catalogue is a holding message produced by a reader
        * that had no data — the pattern reader cannot honestly say a product does not exist when it
@@ -114,10 +179,19 @@ export function createConversationExecutor(config: Partial<AgentConfig>, options
        * a `model` answer is fine even with an empty local catalogue, since the model answers from
        * the RAG index, which has the products.
        */
-      if (result.source === 'rules' && catalog.products.length === 0) {
+      if (result.source === 'rules' && catalog.products.length === 0
+        && !['WORK_CONFIRMATION_REQUIRED', 'CURRENT_WORK_RECORDS_REQUIRED', 'PUBLISHED_CATALOG_EVIDENCE'].includes(result.reason ?? '')) {
         throw new ConversationError('EXECUTION_FAILED');
       }
-      return { text: result.text, source: result.source, ...(result.reason ? { reason: result.reason } : {}) };
+      return { text: result.text, source: result.source, ...(result.reason ? { reason: result.reason } : {}),
+        ...(contextReceipts.length ? { contextReceipts } : {}) };
     } finally { fs.rmSync(scratch, { recursive: true, force: true }); }
+    }); } catch (error) {
+      const failure = error instanceof ConversationError ? error
+        : new ConversationError(error instanceof Error && error.message === 'MSP_INJECTION_RECEIPT_UNKNOWN'
+          ? 'MSP_INJECTION_RECEIPT_UNKNOWN' : 'EXECUTION_FAILED');
+      if (contextReceipts.length) failure.contextReceipts = [...contextReceipts];
+      throw failure;
+    }
   };
 }

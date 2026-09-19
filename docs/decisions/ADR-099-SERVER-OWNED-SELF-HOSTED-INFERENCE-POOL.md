@@ -1,0 +1,164 @@
+---
+id: "ZAI:ADR-099"
+title: "Server-owned self-hosted inference pool"
+version: "0.1.1b"
+status: approved
+approval_scope: design-and-documentation
+approved_on: "2026-09-18"
+approved_by: "Owner via conversation"
+integration_status: pending
+implementation_status: not-started
+created_at: "2026-09-17"
+last_update: "2026-09-18"
+author: ChatGPT
+domain: agent
+baseline_commit: "cfd5521e7d004e63ffead1e07f46045f1cdc06f2"
+attributes:
+  doc_type: architecture-decision
+  domain: agent
+relations:
+  - type: relates_to
+    target: "ZAI:ADR-061"
+  - type: relates_to
+    target: "ZAI:ADR-025"
+  - type: references
+    target: "ZAI:ADR-039"
+  - type: relates_to
+    target: "ZAI:FEAT-043"
+---
+
+# ADR-099 — Server-owned self-hosted inference pool
+
+**Status:** Design approved by the owner in the subsequent `approve` message, recorded 2026-09-18 (Asia/Bangkok). Canonical ID allocation and repository integration remain pending. This approval is not evidence of implementation, test success, migration application or production activation.
+
+## Context
+
+The requested topology uses two independently serving computers, nominally 12 GB and 16 GB VRAM, each loading a complete copy of a compatible approximately 9B model. A shared model replica serves several active requests on one node. New requests spill from preferred node A to B when safe admission or response deadlines require it. This is request distribution, not VRAM aggregation, tensor parallelism, KV migration or a single distributed model.
+
+The owner prefers to remove the **mandatory Edge executor from this LINE inference path**, while retaining Zuri Server as the business/agent authority. Node enrollment, authentication, health/capacity observation and an operations view must be defined, not assumed to appear because vLLM is installed.
+
+At the reviewed baseline, ADR-061 already separates LINE ownership from optional execution. Server holds native ingress, durable jobs and final delivery. Edge pulls scoped jobs and returns bounded results. `server-line-answer.js` selects `createDeterministicBusinessModel()` for `LOCAL_ONLY`; the production provider gates do not already admit a generic private vLLM pool. The Edge adapter speaks Chat Completions, but the Edge executor also composes tools and retrieval. A URL-only replacement is therefore insufficient.
+
+Authority: [[ZAI:ADR-061]], [[ZAI:DOMAIN-AGENT]], [[ZAI:DOMAIN-INTEGRATION]], [[ZAI:DOMAIN-LINE-OA-STUDIO]]. See the accompanying source review for snapshot paths and the stale-prose versus implemented-code distinction.
+
+## Decision
+
+### D1. Placement and scope
+
+Propose `LINE → existing Zuri admission/worker → Server agent → pool router → independent vLLM nodes → existing Server delivery`. No Zuri Edge process is required on either GPU for this lane. No Ray, Kubernetes, Redis/BullMQ, LiteLLM or new LINE gateway is required by this decision. It does not prohibit later additions justified by separate requirements.
+
+The first activation is a **single Business-scoped pool with two nodes**. Separate Business pools may be added only with explicit grants and isolated engine deployments. Sharing one vLLM engine across independent Business schedulers or different trust owners is deferred. A Business scope is not automatically a deployment-wide grant.
+
+### D2. Keep ownership rather than move the entire Edge application
+
+| Concern | Owning lane / process |
+|---|---|
+| LINE account, job lifecycle, admission, reply/push and cutover | line-oa-studio, using Integration's LINE transport |
+| Identity and authorization | identity |
+| Provider connections, credentials, node enrollment and normalized observations | integration |
+| Agent orchestration, prompt/tool control, routing and capacity leases | agent |
+| Customer, conversation and accepted message records | crm |
+| Memory/session policy and canonical knowledge | existing MSP and GKS ports; no direct store access |
+| Operator-only removable monitoring projection | platform-control |
+| Model weights, local inference scheduling and KV cache | each vLLM process |
+
+New proposed models are Integration-owned `InferencePool`, `InferencePoolMember`, `InferenceNodeObservation`, and Agent-owned `InferenceCapacityLease`. A node reuses `IntegrationConnection` with a typed self-hosted provider profile and existing credential references. No second credential table, LINE job table or transcript store is introduced. Add `owns_models` only with actual model implementation; a docs-only declaration lists planned ownership in prose.
+
+### D3. Explicit processing policy
+
+Keep `executionMode=SERVER` for server orchestration. Add a proposed `SELF_HOSTED_ONLY` value to the appropriate LINE model-access contract, plus a versioned pool reference. Do **not** redefine existing `LOCAL_ONLY`, which must retain its baseline deterministic Server behavior and local-only Edge meaning. Do not use `EXTERNAL_MODEL_ALLOWED` as a shortcut to bypass the local guard.
+
+A valid selected pool is necessary but not sufficient: data classification and the authorization of the job/context must permit processing at the pool's declared trust boundary. Where current contracts cannot express this, admission fails closed until the policy extension lands. The proposal does not certify that operator-owned hardware is on the customer's premises.
+
+### D4. Enrollment is configuration plus qualification, not an Edge handshake
+
+An authorized manager registers a permitted origin and a write-only credential, chooses an exact model profile, and requests qualification. Server checks the allowed network target and TLS identity, validates good/missing/wrong credentials on protected API endpoints, lists models, and performs a small synthetic generation test. Qualification receipts bind endpoint, credential version, model profile and configuration epoch. They are not hardware attestation or proof of physical location.
+
+The base inference contract is OpenAI-compatible Chat Completions. No custom `/handshake`, callback, job-pull or LINE credential is added to vLLM. Discovery and all examples are provisional until checked against a pinned engine release. [V1] [V2]
+
+### D5. One model profile, independent node capacities
+
+A pool profile pins the actual model artifact revision, tokenizer revision, quantization, context limit, chat template, reasoning controls, tool parser and capability evidence. A public `model` name is an alias, not proof that two weights files match. The two nodes may have different calibrated slot/token budgets, but must satisfy the same selected semantic/capability profile. A 16 GB card is not assumed faster than a 12 GB card.
+
+### D6. Capacity admission before network dispatch
+
+Use the existing durable Zuri job queue. The router chooses only authorized, current, qualified nodes with fresh observations and a bounded local-engine queue. Prefer A when it can satisfy the job deadline; spill new work to B rather than wait for A's VRAM allocation to become full. Do not migrate active generation or KV state between nodes.
+
+Serialize reservations for a physical engine identity across all Zuri worker processes using the database-backed lease contract, not process-local counters alone. Each invocation reserves one slot and a conservative calibrated token budget. KV metrics are pressure signals, not an exact count of immediately allocatable tokens; never subtract a cache percentage from nominal VRAM and label the result guaranteed capacity.
+
+### D7. Monitoring is an operational input, not a new authority over business records
+
+A supervised observer updates one latest normalized observation per node with timestamps, profile/configuration identity and evidence quality. Unknown or stale values remain unknown, never zero. The router uses current observations plus capacity leases; it never blocks on Grafana.
+
+Baseline monitoring covers readiness, auth failures, model mismatch, running/waiting requests, cache pressure, queue latency and complete Zuri answer duration. GPU temperature/power are optional host-exporter data, separately permissioned and explicitly unavailable when not collected. No automatic reboot, process-kill or GPU-clock adjustment is authorized.
+
+### D8. Preserve agent behavior at Server
+
+Port or adapt only the required provider-neutral tool loop and response validation into the Server's existing agent seam. Preserve deterministic catalogue/project commands, knowledge grounding, scoped MSP context, invocation receipts, cancellation and trace evidence. vLLM receives the minimum authorized prompt/tools and returns text/tool requests; Zuri validates and executes allowed business capabilities. It never receives database superuser credentials or arbitrary shell access.
+
+The first rollout is bounded text conversation. Vision/document extraction, headless coding agents, local filesystem/LAN-only capabilities and all other Edge functions remain unchanged or unavailable on this lane until separately qualified. Do not label a text endpoint as extraction parity.
+
+### D9. One attempt is not permission to repeat side effects
+
+Every model attempt records `jobId`, `executionId`, `invocationId`, `attemptId`, node and profile epoch. Retry before transmission may select another eligible node; an ambiguous post-dispatch result is recorded and fenced rather than blindly generating again and replaying tools. A client abort does not prove that GPU compute has stopped; quarantine capacity until the configured hard execution horizon or verified recovery.
+
+LINE sending is never performed by the inference adapter. Existing `UNKNOWN`, reply/push constraints, send intents, acceptance-versus-delivery distinctions and CRM reconciliation remain in force. This ADR does not promise exactly-once provider computation or LINE delivery.
+
+### D10. Security boundary
+
+Only Zuri's controlled private transport may reach approved inference and observation endpoints. Use HTTPS with verified identity or an authenticated encrypted private tunnel whose identities and routing are explicitly provisioned. API keys authenticate the caller, not the server or GPU location. Protect or block monitoring and administrative endpoints separately; native API-key coverage is not universal. [V1]
+
+Enforce an operator-controlled host/IP/port allowlist, constrained DNS resolution at connection time, no redirects, response/body limits and restricted egress. No registration request may access cloud metadata, local management ports or arbitrary internal services. The GPU cannot resolve URLs supplied by customer text or execute plugins supplied by a model request.
+
+Prefix caching is optional. A cache hit is not application memory. For private contexts, either disable cross-request prefix reuse or use a release-verified, secret cache salt scoped at least to the authorized conversation/audience boundary; salt does not replace authorization or imply zero retention. [V1]
+
+### D11. Operations surface is removable
+
+Integration owns management actions and secrets. Agent owns runtime routing and reservations. The operator dashboard only reads their redacted contracts and delegates approved drain/resume actions to the owning service. Removing the dashboard, Prometheus or Grafana cannot disable inference correctness or delete business state. Business owners see only their pool eligibility through their normal authorized Integration/LINE surfaces, not deployment-wide customer details.
+
+### D12. Activation is an explicit, reversible per-account operation
+
+Add requirements, policy/schema support, test evidence and release artifacts before activation. Quiesce the chosen account's computation, settle or visibly hold old jobs, bind a qualified pool and run one owner-authorized canary through the existing delivery path. No webhook change or LINE transport-owner change is required for an account already on ADR-061 Server transport.
+
+Keep Edge installed/configured for other capabilities. Do not delete `apps/edge`, its secrets, devices, customer files or existing jobs. Roll back the inference binding without enabling a second LINE sender. Database rollback is additive/forward-safe; never drop state containing active leases or unsettled evidence.
+
+## Alternatives and consequences
+
+| Alternative | Why not the first choice for this request | When it remains appropriate |
+|---|---|---|
+| Edge + local inference on each GPU | Keeps job pulling, but retains a full device agent where only inference is needed; needs concurrency work | Customer-premise tools/files, outbound-only network, independently managed endpoints |
+| Server calls one vLLM endpoint | Valid first proof step, not the final two-node spillover requirement | Phase B qualification |
+| LiteLLM gateway in front of nodes | Adds another ownership/routing layer before external keys/billing are needed | Separately approved public API/provider service |
+| Native distributed/tensor-parallel model | Solves a different problem; neither node needs only half the model | A future model that cannot fit one node |
+| Generic round-robin | Ignores unequal capacities, readiness and LINE deadline | Controlled smoke test only, not the proposed default |
+| New inference domain/microservice | Unnecessary while existing Integration/Agent lanes cover the boundaries | Separate product/runtime ownership later |
+
+Consequences: Server needs routed access to GPU APIs; removing Edge loses its outbound-only networking advantage. Server must host the required orchestration capabilities, not merely forward raw LINE text. Capacity observations may be delayed, so calibration, reservation and failure fencing are required. GPU host/Internet/power failure still affects availability; the design adds no fictional HA or throughput SLA.
+
+## Verification
+
+Acceptance is governed by [[ZAI:VERIFY-SELF-HOSTED-INFERENCE-POOL]] and the five FR notes, with separate documentation, software, GPU qualification and live LINE gates. Required evidence includes negative authentication, SSRF refusal, scope isolation, independent replicas, parallel requests, two-worker reservation races, stale telemetry, uncertain execution, deadline exhaustion, tool/RAG/MSP parity, and drain/rollback without duplicate sending.
+
+The package itself does not report runtime tests as passed. No engine version, GPU slot count or model format is approved until measured on the actual computers.
+
+### Upstream contract references
+
+[V1]: https://docs.vllm.ai/en/stable/usage/security/
+[V2]: https://docs.vllm.ai/en/stable/serving/online_serving/openai_compatible_server/
+
+## Baseline source references
+
+The following immutable repository sources were reviewed; proposed new behavior above is not a claim that it exists in this snapshot.
+
+- [AGENTS.md](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/AGENTS.md) — Documentation layers; immutable requirement IDs; source/derived separation; domain and process rules.
+- [docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md) — Existing LINE ownership, optional Edge, durable queue and delivery semantics.
+- [apps/server/src/modules/agent/server-line-answer.js](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/src/modules/agent/server-line-answer.js) — SERVER LOCAL_ONLY uses deterministic model; existing grounding/context hooks.
+- [apps/server/src/modules/agent/model-provider.js](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/src/modules/agent/model-provider.js) — Production provider restrictions and actual HTTP/usage/trace adapter.
+- [apps/server/src/modules/agent/phase1-runtime.js](https://github.com/Freshair129/zuri.ai/blob/cfd5521e7d004e63ffead1e07f46045f1cdc06f2/apps/server/src/modules/agent/phase1-runtime.js) — Production provider selection and secret/Vault configuration gates.
+
+## CHANGELOG
+
+| Version | Date | Status | Summary | Commit Hash | Agent |
+|---|---|---|---|---|---|
+| 0.1.0b | 2026-09-17 | candidate | Initial documentation proposal; no runtime implementation or activation | uncommitted; baseline cfd5521 | ChatGPT |
+| 0.1.1b | 2026-09-18 | approved design | Record owner approval; design unchanged; canonical IDs, governance and runtime gates remain pending | uncommitted; baseline cfd5521 | ChatGPT |

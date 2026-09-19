@@ -2,11 +2,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.8 |
+| **Version** | 1.0.9 |
 | **Status** | Approved |
 | **Author** | Claude (build agent) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-09-06 |
+| **Last Updated** | 2026-09-16 |
 
 The MVP schema was designed to move to Postgres without semantic changes.
 
@@ -289,6 +289,45 @@ MSP persists in **its own store** (the `D:\msp` repo, reached over stdio), confi
 *instance* but must use a separate database/schema/role, because MSP and Zuri have
 different lifecycles: an MSP migration failure must never drag CRM/audit/invoice down.
 DuckDB remains a local cache/analytics/eval tier — not the transactional store.
+
+## Applied — conversation sessions, LINE job session, and the backfill (TASK-ZAI-108, 2026-09-16)
+
+Two migrations from FR-243/ADR-094 — `20260916090000_crm_conversation_sessions.sql`
+(the `ConversationSession` table, `Message.sessionId`, `ConversationEvent.sessionId`,
+`LineOaAccount.sessionIdleTimeoutMinutes`) and `20260916120000_line_job_session.sql`
+(`LineConversationJob.sessionId`) — were applied to production on 2026-09-16 under
+ADR-057, operator session Claude Sonnet 5. Read-only inventory first (ledger tail,
+target versions absent, the four new columns absent, both roles present), then both
+files run together inside one transaction and rolled back with the same
+verification queries run mid-transaction (columns, the five FKs, RLS forced, grants
+scoped to `zuri_app_runtime`/`zuri_web_login`), then re-run and committed with the
+two ledger rows. A fresh connection confirmed both ledger rows, the table present
+with 0 rows, and 236 `Message` rows still unsessioned (expected — the backfill runs
+next).
+
+The backfill (`apps/server/src/modules/crm/conversation-session-backfill.js`) has no
+route to the production image — the runtime container carries no `vite-node`,
+`vitest`, `tests/` directory or `vitest.config.js`, so the documented
+`backfill-conversation-sessions.mjs` invocation cannot run there. Its pure grouping
+logic (`planSittings`, `sittingIndexAt`, and the idle-timeout/session-code helpers
+from `conversation-session-service.js`) was ported verbatim into a raw-SQL `pg`
+script and run the same way as the migration: dry run first (report only, rolled
+back), then applied inside one transaction. Result on the real production data — 6
+conversations, 236 messages: 38 sessions created, all 236 messages assigned, all 49
+reply-linked `LineConversationJob` rows assigned, 2 of 3 unsessioned
+`ConversationEvent` rows assigned and the third left alone because it is a `FOLLOW`
+event that occurred 40 seconds before that conversation's first message — outside
+every session's window under the same rule the live application would apply.
+`Message` rows with no session after apply: 0.
+
+`main` (`0f5a47fc`, including PR #422) was then built as
+`zuri-ai-web:release-0f5a47fc` and deployed via `docker compose up -d
+--remove-orphans` from `apps/server` — migration before deploy, on purpose, because
+the new image's Prisma client reads the new columns. The redeploy kept the ADR-061
+overlay: `com.docker.compose.project.config_files` names both `docker-compose.yml`
+and `docker-compose.line-server.yml`, `ZURI_LINE_SERVER_ENABLED=true`, `/api/health`
+and `/login` both 200, and `zuri-ai-line-worker-1` logs a clean
+`{"event":"line.worker.tick","status":200,"outcome":"IDLE"}`.
 
 ## Cautions
 

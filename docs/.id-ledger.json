@@ -118,6 +118,16 @@
     "BR-030",
     "BR-031",
     "BR-032",
+    "BR-033",
+    "BR-034",
+    "BR-035",
+    "BR-036",
+    "BR-037",
+    "BR-038",
+    "BR-039",
+    "BR-040",
+    "BR-041",
+    "BR-042",
     "FR-001",
     "FR-002",
     "FR-003",
@@ -307,6 +317,76 @@
     "FR-187",
     "FR-188",
     "FR-189",
+    "FR-190",
+    "FR-191",
+    "FR-192",
+    "FR-193",
+    "FR-194",
+    "FR-195",
+    "FR-196",
+    "FR-197",
+    "FR-198",
+    "FR-199",
+    "FR-200",
+    "FR-201",
+    "FR-202",
+    "FR-203",
+    "FR-204",
+    "FR-205",
+    "FR-206",
+    "FR-207",
+    "FR-208",
+    "FR-209",
+    "FR-210",
+    "FR-211",
+    "FR-212",
+    "FR-213",
+    "FR-214",
+    "FR-215",
+    "FR-216",
+    "FR-217",
+    "FR-218",
+    "FR-219",
+    "FR-220",
+    "FR-221",
+    "FR-222",
+    "FR-223",
+    "FR-224",
+    "FR-225",
+    "FR-226",
+    "FR-227",
+    "FR-228",
+    "FR-229",
+    "FR-230",
+    "FR-231",
+    "FR-232",
+    "FR-233",
+    "FR-234",
+    "FR-235",
+    "FR-236",
+    "FR-237",
+    "FR-238",
+    "FR-239",
+    "FR-240",
+    "FR-241",
+    "FR-242",
+    "FR-243",
+    "FR-244",
+    "FR-245",
+    "FR-246",
+    "FR-247",
+    "FR-248",
+    "FR-249",
+    "FR-250",
+    "FR-251",
+    "FR-252",
+    "FR-253",
+    "FR-254",
+    "FR-255",
+    "FR-256",
+    "FR-257",
+    "FR-258",
+    "FR-259",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -329,6 +409,9 @@
     "NFR-020",
     "NFR-021",
     "NFR-022",
+    "NFR-023",
+    "NFR-024",
+    "NFR-025",
     "SDD-001",
     "SDD-002",
     "SDD-003",
@@ -420,6 +503,20 @@
     "SDD-089",
     "SDD-090",
     "SDD-091",
+    "SDD-092",
+    "SDD-093",
+    "SDD-094",
+    "SDD-095",
+    "SDD-096",
+    "SDD-097",
+    "SDD-098",
+    "SDD-099",
+    "SDD-100",
+    "SDD-101",
+    "SDD-102",
+    "SDD-103",
+    "SDD-104",
+    "SDD-105",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -445,6 +542,17 @@
     "SEC-023",
     "SEC-024",
     "SEC-025",
+    "SEC-026",
+    "SEC-027",
+    "SEC-028",
+    "SEC-029",
+    "SEC-030",
+    "SEC-031",
+    "SEC-032",
+    "SEC-033",
+    "SEC-034",
+    "SEC-035",
+    "SEC-036",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -471,6 +579,23 @@
     "FEAT-024",
     "FEAT-025",
     "FEAT-026",
+    "FEAT-027",
+    "FEAT-028",
+    "FEAT-029",
+    "FEAT-030",
+    "FEAT-031",
+    "FEAT-032",
+    "FEAT-033",
+    "FEAT-034",
+    "FEAT-035",
+    "FEAT-036",
+    "FEAT-037",
+    "FEAT-038",
+    "FEAT-039",
+    "FEAT-040",
+    "FEAT-041",
+    "FEAT-042",
+    "FEAT-043",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -635,6 +760,29 @@
     "ADR-074",
     "ADR-075",
     "ADR-076",
+    "ADR-077",
+    "ADR-078",
+    "ADR-079",
+    "ADR-080",
+    "ADR-081",
+    "ADR-082",
+    "ADR-083",
+    "ADR-084",
+    "ADR-085",
+    "ADR-086",
+    "ADR-087",
+    "ADR-088",
+    "ADR-089",
+    "ADR-090",
+    "ADR-091",
+    "ADR-092",
+    "ADR-093",
+    "ADR-094",
+    "ADR-095",
+    "ADR-096",
+    "ADR-097",
+    "ADR-098",
+    "ADR-099",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -1068,6 +1216,136 @@
       ],
       "statement_digest_reviewed_at": "2026-09-10",
       "statement_digest_reason": "Same correction as FR-177: the FlowAccount item code is stored as Product.flowAccountSku, unique per Tenant, rather than as an installation-unique ExternalRef row. The rule itself is unchanged — the code is an external identifier, an attribute and never a key."
+    },
+    "BR-033": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "0d5abb6ff7153207c914fcdc19bc079715d5bf71236b32c63701abe85d85c11a",
+      "history": [
+        {
+          "anchor": "a grant is withdrawn only by an explicit act that records",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-034": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1d33dc0ed96dd2b38592cd251c98def7f01b4fd919f2f16ba573c7499466ea36",
+      "history": [
+        {
+          "anchor": "an hr assignment record and an access grant are two",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-035": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "59f503d42414930fbcd2b740342e3147d9b188593b4d19fd0d40980c8d048754",
+      "history": [
+        {
+          "anchor": "two people complete a cycle that touches money or stock one",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-036": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "345041570e79c5395f37088bb7325b36dedf1a2c66e97c122df4a832839429da",
+      "history": [
+        {
+          "anchor": "an audit event states its scope as data a query can filter",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-037": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "67ce35d7eb4294f0730a9bb41c403665c65f502b7d2bd3a9c3b9da2760978abd",
+      "history": [
+        {
+          "anchor": "a pack size is a unit conversion on the sku never a second",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-038": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "8e3fba2414d683b4fcdff50d51afece78968f8f86a4d0d29eb4c73f3312eefe5",
+      "history": [
+        {
+          "anchor": "a service is never a variant of a good",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-039": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b8a2f7a68ed3f088396d4b3c9557672f24cf1bd008a9f4ac987380f8152bd01b",
+      "history": [
+        {
+          "anchor": "one physical variant is one sku and consolidation never",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-040": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "0807a4825df34e436f17109afc37239c04d6d3eef35f818bd4294fb3843a5076",
+      "history": [
+        {
+          "anchor": "a sku with stock or a live promise cannot leave the",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-041": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b2fbc2c20514ecf38ed2739f386bf965adb8548726f43a05681a389ba0e16f22",
+      "history": [
+        {
+          "anchor": "an intake resolves before it creates and never overwrites",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "BR-042": {
+      "family": "BR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "e15634caaf7d876e5daa101f1e3945bf8119f843284c72e7fb91ad5a719b8dd4",
+      "history": [
+        {
+          "anchor": "a line message may change the catalogue only for a verified",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
     },
     "FR-001": {
       "family": "FR",
@@ -2260,7 +2538,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "e7e399ec7c7e8dc9ef7b048c3ab964864bfefea20177ea1fc4a76a64b12115c8"
+      "statement_digest": "e4940acd0cc1f32e6b8c6548548702312a845d5666989df39aed7ae93d2168a8",
+      "statement_digest_reviewed_at": "2026-09-15",
+      "statement_digest_reason": "TASK-ZAI-110: reworded to name the one write this surface now makes (FR-246's staff reply, sent through Push, never Reply) and why it is not BR-011's second reply owner; subject anchor unchanged"
     },
     "FR-092": {
       "family": "FR",
@@ -2435,14 +2715,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "3121fa857848eecc3b51de456bbca83a410c2b235308a62caeca54f8efd6528a",
+      "statement_digest": "11ee4963097d48281f25f5111383d24ee4a643d47b746ebca4a4b4a0d1518cff",
       "history": [
         {
           "anchor": "platform programme roadmap",
           "since": "2026-08-26",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-13",
+      "statement_digest_reason": "Names programme v0.4.8 (TASK-ZAI-104, the 30-day roadmap member view under ADR-092); subject unchanged."
     },
     "FR-106": {
       "family": "FR",
@@ -3032,14 +3314,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "bb6c18b657685cfda4affd8b56c4f72cc66f53d267284ad3d0b30438b726469f",
+      "statement_digest": "c154ded01cc6f7e22e274a7337e886f41fd68ed51273112dcbf523e0e4a940e8",
       "history": [
         {
           "anchor": "optional edge conversation execution",
           "since": "2026-09-06",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-16",
+      "statement_digest_reason": "Owner-approved same-subject execution delta: negotiate v2 server deadline and whole-turn budget while preserving optional Edge compute ownership."
     },
     "FR-151": {
       "family": "FR",
@@ -3613,6 +3897,928 @@
         }
       ]
     },
+    "FR-190": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4368cdc5cea0727209bf518faf352199c9cd3df31e5d2f6e04c5390f2ed6ec9c",
+      "history": [
+        {
+          "anchor": "server owned line transport reports its own reachability so",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-191": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "33ad25deb47a1bd2e6bf9a6ef8ef72800df1714a6094e3f4e6839f0c556f8455",
+      "history": [
+        {
+          "anchor": "an access grant can be withdrawn by a named person for a",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-12",
+      "statement_digest_reason": "Owner approved explicit Operator revoke capability for HR Remove while keeping the Membership lifecycle subject unchanged."
+    },
+    "FR-192": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b29c94a25d51f63f30f56222f02d30d594b2cefbf9a8b725a99b6feeb7462723",
+      "history": [
+        {
+          "anchor": "the scope of a grant is a declared value never the meaning",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-193": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "2448a98b20cfde0c9417a1564cb6b0a94b811aa102db5b44e8624413b613fc97",
+      "history": [
+        {
+          "anchor": "employment is a new hr assignment record",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-12",
+      "statement_digest_reason": "Owner approved separate HR Remove and retained Employment history, with scoped owner or live Operator authorization."
+    },
+    "FR-194": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "50a4c768b4dfb1c0f937296577103892f310b485f1e702f1e287ce5b6fc34a8b",
+      "history": [
+        {
+          "anchor": "legalentity moves from portfolioid to tenantid adr 078 d2",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-195": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "8e000e4181c8db83a99d7ecc8e6861417b88b2274b69025b7335b5a160af615e",
+      "history": [
+        {
+          "anchor": "accessinvite generalises workspaceinvite to a scoped",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-196": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "bf48734825d8426619ba2f53c5994aacdd6c56ac7e12d85ccb840731d13c3b33",
+      "history": [
+        {
+          "anchor": "segregation of duties gets a writer not only a role list",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-197": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1c249f282f95e84a26400b507051fc72bea6240d576ea247e3638992f51b51f6",
+      "history": [
+        {
+          "anchor": "operator access is time boxed issuable by a standing",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-198": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "014dcc3d3b878f8bdd1d6fe260699547062bbb836025a347e1fda88669b18eff",
+      "history": [
+        {
+          "anchor": "an audit event carries its own scope and the change it made",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-199": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "53c2222e3a16ec832c622d49dcbd0bd016b147fb080b20495658d13130b99560",
+      "history": [
+        {
+          "anchor": "a business owner can read the access history of their own",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-200": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d2e0c567732c88e6d05c2b23ee5e9421dd164f582e8d1f2997291b56f616ba46",
+      "history": [
+        {
+          "anchor": "explicit superadmin access grants an existing person",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-12",
+      "statement_digest_reason": "Record the separately approved FR-191 and FR-193 withdrawal exception without changing Superadmin or Operator scope resolution."
+    },
+    "FR-201": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "6d669e894fe08f7a43c455a82108f9abdf4ba2985a17e15aa9750e37bcb9d72f",
+      "history": [
+        {
+          "anchor": "a product master declares its nature once",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-202": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "ce13e1cb93dbdd9467ee2ee2e3499ffcdda769ca9fdc0586f4b53fa991c62f32",
+      "history": [
+        {
+          "anchor": "a sku is one combination of its master s variant axes and",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-13",
+      "statement_digest_reason": "Escaped the table pipe inside the axis=value fingerprint example; the statement's subject and meaning are unchanged."
+    },
+    "FR-203": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d37f55b8a8d22b5c4b9ccb392fedb830e01f9201fb70a6680045c5903ae2fc52",
+      "history": [
+        {
+          "anchor": "a barcode gtin supplier code manufacturer part or legacy",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-204": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "8caa81eb65b900a7b4efc9820d3d2083a8db47a4403035f46663aaa4e23022c1",
+      "history": [
+        {
+          "anchor": "a pack size is a unit conversion on the sku never a second",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-205": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "27b43d7891a1831539fe38ff9b193eec21a987dbcc9071a51c5903b6a4e0e657",
+      "history": [
+        {
+          "anchor": "a sku has a lifecycle and a consolidation path and it",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-206": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "46a0d1ef5c5e0fe36b6ce88a5517eacaff3460bb33ff1d54df34e8aeeb409d35",
+      "history": [
+        {
+          "anchor": "the catalogue hygiene report names every sku bloat finding",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-207": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "516b6c9a377b13af998bdd8ea2a345dc49ec6d704c4f0b79809b8f19d97c4bae",
+      "history": [
+        {
+          "anchor": "replenishment parameters live on the sku and yield a",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-208": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "454b86ea05b3ff0bee3a8f4ff5c65b699499734781f38674fab2567a1bf259b7",
+      "history": [
+        {
+          "anchor": "catalogue intake resolves every item before it creates",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-209": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4e6ed20af53820398c94f903fa685d5988378adb0def51a5b42d04fdecccd3f3",
+      "history": [
+        {
+          "anchor": "excel is a converter of the catalogue intake with a",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-210": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4fad30260039b6623adba67ef2d9ea539a2dc34658e50a64683b34ee3a2be160",
+      "history": [
+        {
+          "anchor": "a verified staff sender adds or matches skus from line with",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-211": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "58bebebc86b108333357d780e53591d1b15239a365cd54e2a27b27c9e6959303",
+      "history": [
+        {
+          "anchor": "platform domain map and inventory",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-212": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "6edbe71cf20fd77e98ce616738c69d3542617994cfaa7995cee4b39e1701e329",
+      "history": [
+        {
+          "anchor": "data pipeline registry and generated projection",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-213": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "62eb1fe58a10580c9ed119874e57c5f2c2925f825afcb10d3846f007a137e4d3",
+      "history": [
+        {
+          "anchor": "data pipeline map view",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-13",
+      "statement_digest_reason": "Statement tightened in the declaring change to describe the implemented admission: server-side check on the viewer's visible domains, per-Business grant applied by the shell guard"
+    },
+    "FR-214": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "83deca8dc1106923105068868790e367c64ed6b03f2e3af9b65e50deaf62cfff",
+      "history": [
+        {
+          "anchor": "knowledge gks navigation slot",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-13",
+      "statement_digest_reason": "Statement tightened in the declaring change: /knowledge is the slot's Dashboard with the map summary rather than a redirect"
+    },
+    "FR-215": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d87bf0ef20086ab568a88190e8331b5f2529e798639d48abd12fb6c938c2c1d5",
+      "history": [
+        {
+          "anchor": "live pipeline health on the map",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-216": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d3f3af447f0ba37459589826a482a9479a13aa71cff6d163afc2dcc907db5e53",
+      "history": [
+        {
+          "anchor": "phase card delivery metrics",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-217": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "5f670c3d38d556e450eb537177d7225ee0dc8e50b013e93e3780876c608c510f",
+      "history": [
+        {
+          "anchor": "programme usage meter",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-218": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "eaf7974a8f8985d6b9671997160573cd1fe8df5e108dc4ba2e76def9b0715aec",
+      "history": [
+        {
+          "anchor": "programme usage report endpoint",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-219": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "95f083b9f08fb3981417e27a8c0ac2272e0462fca49fec7135a62a3e54c126ce",
+      "history": [
+        {
+          "anchor": "task card evidence badges and subtask progress",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-220": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "95dcd10498b8ff10c0b06eeaa04e491976fb74d8dd46af9ebd2bc9bb352dacce",
+      "history": [
+        {
+          "anchor": "harness device pairing and report only credential",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-221": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "35b96df310c75fbf5a4a07d263987330cfe5a530e9dc87f4b2a46357304f6192",
+      "history": [
+        {
+          "anchor": "usage reports attributed to person device and lane",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-222": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1ab6c8fdb81a042f4bfde95399f8b75a58ca277df85ca00e542bdaf3dc72095f",
+      "history": [
+        {
+          "anchor": "zuri harness plugin",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-223": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "dfa1d17d922c79d9d31cecef5545e4b0722586c598a953314e1233c323b9da7a",
+      "history": [
+        {
+          "anchor": "integration credential vault",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-224": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b785b585c72e2e1caff15bb5bb396fe3f4cbf558a48e81f3a3b16e3214f7ed9c",
+      "history": [
+        {
+          "anchor": "credential write step up gate",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-225": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "63dd31cdf132ee999584034495be36be2793e7c5660d4b10cfd8d958c2d7778a",
+      "history": [
+        {
+          "anchor": "self serve line oa connection",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-226": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "77b6f1f9dd357fede8a6804c3379849643f456a1dde4f1f83aeee0cfb5cd91d3",
+      "history": [
+        {
+          "anchor": "line channel account claim",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-227": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "652a0523ddac4ef9c341d28a403ec0b9bd647b886ddaf65de377a6887cbab716",
+      "history": [
+        {
+          "anchor": "automatic line webhook registration",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-228": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "13e6b7254863961b761dd1bd1980be7deb9cedbf579808e139ceb001008a7788",
+      "history": [
+        {
+          "anchor": "derived legacy transport quiescence",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-229": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "51e4def1b14cf652f212e43e843677cbfd7d4db0c0ca0594aef1706499c63b89",
+      "history": [
+        {
+          "anchor": "non text line content in the crm record",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-230": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "474f3d5ba6bfd00e3a64456ed37630979c27a408ed690c6392f61ee964d493ef",
+      "history": [
+        {
+          "anchor": "chat record and agent memory split with declared retention",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-231": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "648da1663b87083ff2f1e6176d27fefd9c5239ffc4ae7bc23387446ddc3d9764",
+      "history": [
+        {
+          "anchor": "line memory projection policy and receipts",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-232": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b3f2987265a09b0f5d2ac2ac17d299a32f5de19950c2f5b3087c733853b31d1e",
+      "history": [
+        {
+          "anchor": "erasure propagation beyond tier 1",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-233": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "451d9724569810dbb91a019bc79caf195adfc5c6135088513f30bfa0344cbde7",
+      "history": [
+        {
+          "anchor": "conversation inbox read models and search",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-234": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "9727089fca38eea32682203e88ca865f66c67982c93ca48fb81adc84cf329cff",
+      "history": [
+        {
+          "anchor": "context composer",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-235": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "a39df5bc6da45ef39a96d3cda957bbffb55d3efa723590bfec756e1991f567c6",
+      "history": [
+        {
+          "anchor": "line answer grounding from the published knowledge corpus",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-236": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "f6bba754eb08b0401754e3ad3fc3ab7f4db81d83cb9dfa2f71733569091721e0",
+      "history": [
+        {
+          "anchor": "line faq knowledge candidates",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-237": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d5b58de3ae12f1538c9ab5e1d46aa813cd3ea3b097ff3363855341e945d29aea",
+      "history": [
+        {
+          "anchor": "knowledge gap report for line",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-238": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "1905470611611173184dfcdc2071b482efcd796fdb201d9532ac3d441fcc0143",
+      "history": [
+        {
+          "anchor": "line studio descriptions as knowledge sources",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-239": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "e731e720e80df2f6d48cf65a7c1d47e1fc0fe4bc04ea3647d5ff3e2f7c4f5d35",
+      "history": [
+        {
+          "anchor": "agent usage detail capture",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-240": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "a5a47382d2142a684ec3812b2481e12140a619f7dc155bd34c0aca4bc2f179dd",
+      "history": [
+        {
+          "anchor": "usage detail on the programme board",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-241": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "291c953c61ec8be5d036becf63848f4c0e33f8398c01f60e289bece7f6681ff6",
+      "history": [
+        {
+          "anchor": "programme roadmap member view",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-242": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "47af76e44a685684f1544903458bd569b6f232fa8c3fa23500e091b61e5c3772",
+      "history": [
+        {
+          "anchor": "the credential vault secretstoreport fr 223 generalises",
+          "since": "2026-09-14",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-243": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "7fe017e78d275496d4bc2a5ef0d49a120557173119549311ad1d5015b64a40f2",
+      "history": [
+        {
+          "anchor": "conversation sessions",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-244": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "7b32decd7a2eefaae5a1be8730799f6431c28adff8ed19ce56d463e3bcb377d0",
+      "history": [
+        {
+          "anchor": "local model residency follows business hours",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-245": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "46362142797879f68142aac8315e3667d201a8cc7e00682dc80875252fbbc60f",
+      "history": [
+        {
+          "anchor": "chat evidence cold archive",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-246": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "e1fc98828f0ff44bf242e7f9ccb30e0ea053fc46d44da77c1fda7ab5b1e0f79f",
+      "history": [
+        {
+          "anchor": "staff replies are recorded",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-247": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "617cf6e382ad3db0467aec026482ef65c423d0daa8783152611f5634a60da0e3",
+      "history": [
+        {
+          "anchor": "error tracking",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-248": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "718f8e57a65ca7df390fcf0da65c14b5d05fdc0769d2a95d691ad5c2e2a1b14f",
+      "history": [
+        {
+          "anchor": "page view usage",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-249": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "3e70992ed142a4553457117e5d74f056f6d7d621a85fb8d2e86c7e603f275b12",
+      "history": [
+        {
+          "anchor": "action level usage",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-250": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "f426850d8a18c4231367529459cdb460b1e1b0929911941107e6f39446612a97",
+      "history": [
+        {
+          "anchor": "hierarchical projects and work navigation",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-251": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "bf7723ffdb3574fff29bcddf9ec9526f977b0daf975e57bf03b350e82099e31a",
+      "history": [
+        {
+          "anchor": "project execution domains view",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-252": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "dcdee3e23cef0d3066a9043c82a57fb16ff8f0ef34bc7676fd08f0bf9c0eee66",
+      "history": [
+        {
+          "anchor": "project feature authority",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-253": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "3dd63b243f6e8ed6a4e54c1b0806a5cd5983b13f33edcabcdc6a107f291b407b",
+      "history": [
+        {
+          "anchor": "business scoped versioned pricing rules and formula console",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-254": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "ecface290ccd401a717b2c4593021039c7afedab16ea070514d866998576b0a4",
+      "history": [
+        {
+          "anchor": "knowledge base console",
+          "since": "2026-09-17",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-255": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "50eee1d90d16d229930fa7c9f43e58272740d39b98722631ed24b19aa2d8aaa2",
+      "history": [
+        {
+          "anchor": "inference node registration and trust",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-256": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "cecffd9594bae0c44ae33787659c483452f4faa47ddd2d47e06a8ffeb06f5470",
+      "history": [
+        {
+          "anchor": "server owned self hosted model execution",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-257": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "cc04b2bc1d8acf3691a7236bf37d893db743de86fd6b083bfed588fde7c7a1cc",
+      "history": [
+        {
+          "anchor": "inference capacity routing and health",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-258": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "939ad382165d87707343abc2697d3b0adbb6c635fc4e0d062f5e3906c8f7b165",
+      "history": [
+        {
+          "anchor": "inference pool operations projection",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-259": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "f7bc42e2e0ad85848ff54a1d447b8418cabf138eeed5ae884c801f2bce4458e0",
+      "history": [
+        {
+          "anchor": "self hosted inference policy and cutover",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -3895,6 +5101,47 @@
         {
           "anchor": "evidence execution is bounded recoverable and provider",
           "since": "2026-09-02",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-023": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "aa61b4ac06830f55945bee605177b6a54d1c98903fe5f560dff4a8131b94ec06",
+      "history": [
+        {
+          "anchor": "person attributed usage retention is bounded",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-16",
+      "statement_digest_reason": "Fixed an unescaped markdown table pipe in the statement text (route|actionName -> route or actionName) and switched the status marker from declared to planned before code exists; subject unchanged."
+    },
+    "NFR-024": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "eef4ee7fbf99f3f3f16c2683127c1ef8913f5cd133136cf107418e463a4ec010",
+      "history": [
+        {
+          "anchor": "inference recovery without duplicate business effects",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-025": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "c33f47cbebdafaa0689f1311ec50749adf51262c8cbcfecc6bec5f1f0fc27e8f",
+      "history": [
+        {
+          "anchor": "inference observation freshness and boundedness",
+          "since": "2026-09-18",
           "reason": "declared"
         }
       ]
@@ -5104,6 +6351,190 @@
         }
       ]
     },
+    "SDD-092": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "87aa3d5366aca76c95207134c687bcc31fd2a515596d8214c6ee512c758531e9",
+      "history": [
+        {
+          "anchor": "authorization invariants are held by the database not by",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-093": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "0f6fa6b297a98e1ffff9d001dedcf62f3a21ce96f2bff9fa6986deb5ed56eb9c",
+      "history": [
+        {
+          "anchor": "employment is additive and unconnected by foreign key to",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-094": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "5dae8c3a440468009cb8e5645e301b4123bc34316b91b325b7450c5dc7afa5e1",
+      "history": [
+        {
+          "anchor": "one generalised invitation table not three parallel ones",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-095": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "affe54c15eabe9943c6eef78a69c9001c983c54c8137ea6e02022ed049fa5f05",
+      "history": [
+        {
+          "anchor": "auditevent tenantid businessid reason beforejson afterjson",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-096": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "09c0b82157c805b6c2bdf66d69e8000cdac891788972c4d4011e0eb9ded88371",
+      "history": [
+        {
+          "anchor": "mfafactor secret keeps its column and text type and stores",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-097": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "fd7c8dd0cabe903e5b36682c41eee864c74b2b4e2e96de65e252ed355a4e189d",
+      "history": [
+        {
+          "anchor": "secret store selection by reference prefix",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-098": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4f2667517740a2977a855961cf3f72117c57654063471dd72b75b9baae8efadc",
+      "history": [
+        {
+          "anchor": "line channel tokens are minted not stored",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-099": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "292b369af98b138071a2cf3dd7767e195183538c27f60d091e6dd06723e0cd68",
+      "history": [
+        {
+          "anchor": "the line grounding reader is a knowledge lane",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-100": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "47b706a118f38f691115208cad625fefe7f22bb2f27361da68e289935fc5715e",
+      "history": [
+        {
+          "anchor": "context composer placement and receipt",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-101": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "906d44ccf406f19a813f2e551103310905dd3b757a6983cb47589e8e76d34b70",
+      "history": [
+        {
+          "anchor": "a store s bundle validation canonical serialization and",
+          "since": "2026-09-14",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-102": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b06671a583da6b0e0b0a38c029e2207de8f7ac0232fa0ec223f75941d8d48024",
+      "history": [
+        {
+          "anchor": "one function assigns a message s session inside the",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-15",
+      "statement_digest_reason": "TASK-ZAI-106 implementation: the per-conversation lock is taken by writing the Conversation row (a row lock on Postgres, a serialized write on SQLite) instead of a raw SELECT FOR UPDATE, keeping one code path for both engines; the rule is unchanged"
+    },
+    "SDD-103": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "493b6231999bce45459bfc2b67ea50f1b87f65158af3043543ac2fd316dc3aed",
+      "history": [
+        {
+          "anchor": "an archive file is tenantid yyyy runid zca",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-104": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "809752c994eb510672f9b4a630e70385408eaa2bca099ecd348c318c503b246c",
+      "history": [
+        {
+          "anchor": "independent replicas behind server orchestration",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-105": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "680ea9a296c9fde40e007e43bd5415a118813c03d8ddac59dbf352cbf22432f9",
+      "history": [
+        {
+          "anchor": "atomic inference reservation and uncertain capacity",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -5435,6 +6866,151 @@
         {
           "anchor": "device credential and evidence download boundary failing",
           "since": "2026-09-03",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-026": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4e8b3d40db08c464d54bff0bad4232ecf72698e12eea426dd9d2b7503b534993",
+      "history": [
+        {
+          "anchor": "erasure is downstream of offboarding and never a substitute",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-027": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "240c9ebe61cc47c48756202d81b3acf319e56a2fdf78e85f1bc632bc007f88b6",
+      "history": [
+        {
+          "anchor": "installation operator access is time boxed and its use is",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-028": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d93d9e6a87bb40c577b01a0761cb41f6d530fb42b7e1184f80fe3c8c84cb05c3",
+      "history": [
+        {
+          "anchor": "access history is authorized exactly like the grant it",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-029": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "03e555b24784aa792219cb98080582edd800d710269698e96991167b17975d55",
+      "history": [
+        {
+          "anchor": "a totp factor secret is never stored or backed up in the",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-030": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d7600bcff58e6abf34bbeb36964018622f4fb1c9d9b292bf7030315f5eadf760",
+      "history": [
+        {
+          "anchor": "channel and provider credential material is write only",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-031": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "5026ab037a5278a597ba432f872ed01206a73130b07ec3355aa283c774eeed9b",
+      "history": [
+        {
+          "anchor": "every copy of a person s conversation content has a",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-15",
+      "statement_digest_reason": "ADR-093 D6 (accepted 2026-09-16): the statement now names the chat evidence archive among the copies and allows an OWNER-recorded legal hold as the one deferral of erasure; the subject anchor is unchanged"
+    },
+    "SEC-032": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "2fb195160d0c6e5b2f7cbe1132080d2fdbbc6f8dcef050d33fa357d09a5fc698",
+      "history": [
+        {
+          "anchor": "customer conversation content never becomes gks knowledge",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-033": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d929befe78f0b440aaf0276a6a4126d9b8c5e98258a6dc669c2f4474ccbc2b1b",
+      "history": [
+        {
+          "anchor": "resolving a secret reference under an incorrect secretkind",
+          "since": "2026-09-14",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-034": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "5e1b17e72674d3741ed2f4054d613fbf1639e613485125d9cc32d8cdfacface8",
+      "history": [
+        {
+          "anchor": "the chat evidence archive fr 245 is encrypted at rest with",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-035": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "c8ba96080304256d5733e5cecaf8cad98dcca236d987d362cca486c16151d7de",
+      "history": [
+        {
+          "anchor": "inference destination and credential confinement",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-036": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b77adf2ad1aacb598dd29359c6b0102d72eac0aaa786321e4efb9814325d915e",
+      "history": [
+        {
+          "anchor": "inference processing scope and cache isolation",
+          "since": "2026-09-18",
           "reason": "declared"
         }
       ]
@@ -5801,6 +7377,229 @@
       ],
       "statement_digest_reviewed_at": "2026-09-10",
       "statement_digest_reason": "Owner approved ADR-075 on 2026-09-11; FEAT-026 statement changed only its status wording from proposed to approved, subject unchanged"
+    },
+    "FEAT-027": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "6e915d37882b56c092a48f914419cc390b11659f39f1470eb3f854f044826247",
+      "history": [
+        {
+          "anchor": "access grant lifecycle",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-028": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "8578cc8655e49a89e08aba3bca4921e11c14c5271a3128d869b8c21c2329efce",
+      "history": [
+        {
+          "anchor": "org employment legal entity",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-029": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "bfbf5bfde0e685a1fc8906d754c9bd5423b479c9a6a7e6136ac0fd6e3f4367cd",
+      "history": [
+        {
+          "anchor": "access invite segregation of duties and operator lifecycle",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-030": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "a0f274fa0d2feddd93f34901fe1e531ef97fd4236146e90d511ea3b2b97f66f0",
+      "history": [
+        {
+          "anchor": "audit access evidence",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-031": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "08b0e4754281b7b9d524faeaba88d90023abfb8ec719919b3c1d378ed7b670ab",
+      "history": [
+        {
+          "anchor": "sku governance anti sku bloat",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-032": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "c2e2e6cfaff1ba096ca837b139bee5ca97bac38b87fbd9869da97fcc0c6b3539",
+      "history": [
+        {
+          "anchor": "catalogue intake that resolves before it creates",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-033": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "ef6f20536c138fb1069fe0ef716b5d00cc6d323e19f6e081197a215e919aae96",
+      "history": [
+        {
+          "anchor": "data pipeline map",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ],
+      "statement_digest_reviewed_at": "2026-09-16",
+      "statement_digest_reason": "Record the local FR-215 owning-domain read-port implementation and keep production activation explicitly separate."
+    },
+    "FEAT-034": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "b86ab1d1c7b1b1f7d03168c78637440f035e7a7c8ec8648ce293babf3502f36f",
+      "history": [
+        {
+          "anchor": "programme delivery telemetry",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-035": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "2568ecb01270663ee2ead6fbe4226178acf55da2f4b04428a4df728b7439943f",
+      "history": [
+        {
+          "anchor": "zuri harness usage plugin",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-036": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "43bedad0c2226fd3e5e1254f7589e2fac8f58a6f684d41182921f30774a21385",
+      "history": [
+        {
+          "anchor": "connect line oa yourself",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-037": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "bd23160a286e3a1fc9560f8a35173425a58364ca34827d8d53708e5d7e24fbff",
+      "history": [
+        {
+          "anchor": "chat record memory tiers and retention",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-038": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "1c16c2960636399ac81199e3480f7b6baaf3d4443f8fd963a6b033889a9dbbb3",
+      "history": [
+        {
+          "anchor": "line grounding and knowledge candidates",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-039": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "3dbad1da583d45672467ec3e02dac34442b6cc4cb760c5c614b1475b88434182",
+      "history": [
+        {
+          "anchor": "agent usage detail",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-040": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "8b2b8c2a7b96c56a098f6c91beb957cf789e8c7b8c5ec440be0002fad4d1e4ae",
+      "history": [
+        {
+          "anchor": "conversation sessions and model residency",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-041": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "6cfa3397fd72a03727cf8f39cd82a2cead9340a4f44922663c89df6b758d1c96",
+      "history": [
+        {
+          "anchor": "chat evidence",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-042": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "6a82739f698d62941c79b8b45fde3891328e87424dfb9d07fba12e51d2f79d27",
+      "history": [
+        {
+          "anchor": "observability",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-043": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "a2ec34a983c724376110a18ff2266af40cc41d44f9ece9b728059f9e79de63af",
+      "history": [
+        {
+          "anchor": "server owned self hosted inference pool",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
     },
     "RSK-001": {
       "family": "RSK",
@@ -7956,6 +9755,305 @@
         {
           "anchor": "erp canonical organizational hierarchy and scope vocabulary",
           "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-077": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md",
+      "status": "current",
+      "statement_digest": "26b079ca1f7b425c7e2e3dff0bed41e8aeb18981b0f86389a8af3a0798592448",
+      "history": [
+        {
+          "anchor": "membership is a grant with a lifecycle not a membership fact",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-078": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY.md",
+      "status": "current",
+      "statement_digest": "511c334240626d5f5ea6d73eda00812c926a9295123e81e26a4248972b61cce4",
+      "history": [
+        {
+          "anchor": "employment is not membership and a legal entity lives",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-079": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-079-ACCESS-INVITE-SOD-AND-OPERATOR-LIFECYCLE.md",
+      "status": "current",
+      "statement_digest": "11f2ff4ea29209d5e2935f7dadb2fc268794568f08d0d9ce544e7346c24acf0e",
+      "history": [
+        {
+          "anchor": "access invite segregation of duties and the operator",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-080": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-080-AUDIT-SCOPE-AND-ACCESS-EVIDENCE.md",
+      "status": "current",
+      "statement_digest": "09d846a6bc1d92193e91fe0d4ab1178c48ae9238fd73c285d723b0748827dbfd",
+      "history": [
+        {
+          "anchor": "audit events carry their own scope and an owner can read",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-081": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-081-GENERATED-VIEWS-ARE-BUILT-NOT-COMMITTED.md",
+      "status": "current",
+      "statement_digest": "7927b1bf5516df7d3bf590efe0a3bd32402360b85229a11f7aef6d3189c0d50a",
+      "history": [
+        {
+          "anchor": "generated views are built not committed the monorepo",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-082": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-082-EXPLICIT-SUPERADMIN-AUTHORITY.md",
+      "status": "current",
+      "statement_digest": "14d930fb0cafd86ad387bab49ff042ef8bedc2bec1221591bb590a358632cc88",
+      "history": [
+        {
+          "anchor": "explicit superadmin authority",
+          "since": "2026-09-12",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-083": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-083-SKU-GOVERNANCE-NATURE-AT-THE-MASTER-VARIANT-IDENTITY-AND-CATALOGUE-HYGIENE.md",
+      "status": "current",
+      "statement_digest": "5760c99406cd75873f4dfd1641c0ae25eed4ddc288a75540416131150ad48306",
+      "history": [
+        {
+          "anchor": "sku governance",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-084": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-084-CATALOGUE-INTAKE-RESOLVES-BEFORE-IT-CREATES.md",
+      "status": "current",
+      "statement_digest": "c35faec685886a808b0b1283b9c256a41757e745d2171ef94186e34dd590fb47",
+      "history": [
+        {
+          "anchor": "catalogue intake resolves before it creates",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-085": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-085-KNOWLEDGE-GKS-SLOT-AND-THE-DATA-PIPELINE-MAP.md",
+      "status": "current",
+      "statement_digest": "50dd028f9619ed801b862affaa3f453558c38e20a4cf942afa32a88ef92bc5c2",
+      "history": [
+        {
+          "anchor": "a knowledge gks slot and the data pipeline map as a",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-086": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md",
+      "status": "current",
+      "statement_digest": "4dfb8ab69a246cd7653f2e5faa7c0d325c350b4d00184b0ee8ab862e57beffe3",
+      "history": [
+        {
+          "anchor": "programme delivery telemetry",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-087": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md",
+      "status": "current",
+      "statement_digest": "82c7722c9fccd3c8e72440b93c591971af6be79caf7fddcf31d4e228d652fdeb",
+      "history": [
+        {
+          "anchor": "harness usage plugin",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-088": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-088-MFA-FACTOR-SECRETS-SEALED-AT-REST.md",
+      "status": "current",
+      "statement_digest": "4a741303e2af5fcb36048cf8d226dd1227424d1a04c186bf791bb3101c9f146a",
+      "history": [
+        {
+          "anchor": "mfa factor secrets are sealed at rest",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-089": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md",
+      "status": "current",
+      "statement_digest": "d647dcf44ea5e9161da02e65e317e6d2533136cc6ef5730a533e11121601e091",
+      "history": [
+        {
+          "anchor": "browser write only credential provisioning into the",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-090": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md",
+      "status": "current",
+      "statement_digest": "ce96c3d39d216095a99bc93e20bec71e6967ffc0769defaafc838476635ad8d7",
+      "history": [
+        {
+          "anchor": "line answers are grounded by the published gks corpus line",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-091": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md",
+      "status": "current",
+      "statement_digest": "2b7ffe0ada557ee0a23f7730ce358a283fb848905900633a757cad1e76dd244b",
+      "history": [
+        {
+          "anchor": "the chat record and agent memory are split by role and a",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-092": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-092-TIME-BOXED-MEMBER-VIEW-OF-THE-PROGRAMME-ROADMAP.md",
+      "status": "current",
+      "statement_digest": "d9f671ce98259543627bb388be018bb61227bc2d80d57628b9ae625e7031b0d0",
+      "history": [
+        {
+          "anchor": "a time boxed member view of the programme roadmap",
+          "since": "2026-09-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-093": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md",
+      "status": "current",
+      "statement_digest": "5fa927c87c69c807ebe472464662a21e5b355e5df32e642850b1cf15745258ed",
+      "history": [
+        {
+          "anchor": "swept chat content moves to an encrypted local cold archive",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-094": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md",
+      "status": "current",
+      "statement_digest": "2c3d7728188e402c5413b37039fb45d7596586e899a0e07be0f8d25c41ed1e9e",
+      "history": [
+        {
+          "anchor": "a line conversation is split into idle bounded sessions",
+          "since": "2026-09-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-095": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-095-OBSERVABILITY-ERROR-TRACKING-AND-PER-PERSON-FEATURE-USAGE.md",
+      "status": "current",
+      "statement_digest": "1eef94ad1de85a1eccccdc8d888ff1105f0c197940a0ea2d838347889a8e5c8d",
+      "history": [
+        {
+          "anchor": "observability",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-096": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-096-PROJECTS-AND-WORK-HIERARCHICAL-NAVIGATION.md",
+      "status": "current",
+      "statement_digest": "13b01d03e7db9d6e087a39a10a73f69b3975a28d99baff9a316a45081251bd53",
+      "history": [
+        {
+          "anchor": "projects and work uses domain module and local view",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-097": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-097-PROJECT-FEATURE-AUTHORITY-AND-WRITE-CONTRACT.md",
+      "status": "current",
+      "statement_digest": "0e0c2bedc42034c722ec0e6b81b2d1ea8392d87b9416e1ded43a34706a76b3f8",
+      "history": [
+        {
+          "anchor": "project feature authority and scoped write contract",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-098": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-098-COMMERCE-PRICING-RULES-AND-KNOWLEDGE-PUBLICATION.md",
+      "status": "current",
+      "statement_digest": "d053a30c1457f030dc33bbab580a22838c7f33e2d8f456d466cac8032601b5de",
+      "history": [
+        {
+          "anchor": "commerce pricing rules and governed knowledge publication",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-099": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-099-SERVER-OWNED-SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "current",
+      "statement_digest": "a2ec34a983c724376110a18ff2266af40cc41d44f9ece9b728059f9e79de63af",
+      "history": [
+        {
+          "anchor": "server owned self hosted inference pool",
+          "since": "2026-09-18",
           "reason": "declared"
         }
       ]

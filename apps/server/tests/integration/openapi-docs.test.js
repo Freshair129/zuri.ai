@@ -1,7 +1,12 @@
 import { describe, it, expect } from 'vitest'
 import { readdirSync, readFileSync } from 'fs'
 import path from 'path'
+import Ajv from 'ajv'
+import addFormats from 'ajv-formats'
 import { buildOpenApiDocument } from '@/modules/project-manager/api-docs/openapi'
+import { zFeatureCreateInput, zFeaturePatchInput, zMutationReceipt } from '@/modules/project-manager/application/project-feature-service'
+import { zSourceManifestEntry } from '@/modules/project-manager/application/governance-source-verifier'
+import { zFeatureRecord } from '@/modules/project-manager/application/project-feature-read-model'
 import { EXECUTION_MODES } from '@/lib/validation/enums'
 
 // @req FR-019 — the published contract is generated from the schemas that
@@ -153,8 +158,70 @@ describe('OpenAPI document', () => {
       // FR-184 adds three stocktake paths and three operations. FR-185 adds
       // four Marketing planning/projection paths and six operations. FR-186/183
       // add six paths and seven operations.
-      pathCount: 238,
-      operationCount: 327,
+      // FR-190 adds the LINE transport reachability read: one path, one
+      // operation (GET /api/line-oa/accounts/{id}/transport-health).
+      // FR-097 adds identity link tokens and channel identity queries: three paths,
+      // three operations (POST /api/identity/link-tokens, POST /api/identity/link-tokens/redeem, GET /api/identity/channel-identities).
+      // FR-094/FR-095/FR-096 adds MFA and step-up authentication: four paths, five operations.
+      // FR-191 adds the grant-withdrawal surface that had no route at all: two
+      // paths, two operations (POST /api/platform/users/memberships/{id}/lifecycle,
+      // which carries suspend, reinstate and revoke as one action parameter
+      // because the three share every guard, and POST /api/platform/users/offboard).
+      // FR-199 adds the access-review reads that had no route at all: two paths,
+      // two operations (GET /api/platform/access-history, scoped by exactly one
+      // of businessId/tenantId/personId, and GET
+      // /api/platform/businesses/{businessId}/grants, the current-state roster).
+      // 242 + 4 (MFA) + 2 (FR-191) + 2 (FR-199) + 2 (FR-193 write path) = 252;
+      // 331 + 5 + 2 + 2 + 2 = 342. The FR-193 pair is POST
+      // /api/people/employment and PATCH /api/people/employment/{employmentId}
+      // — one operation each, because the three lifecycle transitions travel as
+      // a named `action` on the PATCH rather than as three separate verbs.
+      // FR-203/FR-204/FR-206/FR-207 (ADR-083 SKU governance) add five paths and
+      // nine operations: GET /api/inventory/products/resolve, the identifier and
+      // unit-conversion collections of a SKU (GET, POST, PATCH each — RETIRE is a
+      // versioned action, never a DELETE), GET /api/inventory/catalog-hygiene and
+      // GET /api/inventory/replenishment. 252 + 5 = 257; 342 + 9 = 351.
+      // FR-208/FR-209 (ADR-084 catalogue intake) add six paths and seven
+      // operations: the list (GET), preview and commit (POST each), one intake
+      // (GET, PATCH — cancel is an action, never a DELETE), the workbook
+      // template (GET) and the workbook upload (POST). 257 + 6 = 263; 351 + 7 = 358.
+      // FR-218 (ADR-086 D5) adds one path and one operation: the bearer-authenticated
+      // programme usage report (POST). 263 + 1 = 264; 358 + 1 = 359.
+      // FR-220/FR-221 (ADR-087) add six paths and six operations: harness pairing
+      // start, approve and poll (POST each), the operator device list (GET) and item
+      // (PATCH), and the harness credential's whoami read (GET). 264 + 6 = 270; 359 + 6 = 365.
+      // FR-223/FR-224 (ADR-089) add three paths and three operations: credential
+      // rotate, revoke and validate under /api/line-oa/connections/{id} (POST each).
+      // 270 + 3 = 273; 365 + 3 = 368.
+      // FR-236 (ADR-090 D6) adds three paths and five operations: the candidate
+      // list/draft collection (GET, POST), one candidate (GET, PATCH) and the
+      // audited APPROVE/REJECT decision (POST). 273 + 3 = 276; 368 + 5 = 373.
+      // FR-233 (ADR-091 D5) adds two paths and two operations: conversation
+      // search (GET) and per-account follow/unfollow event counts (GET).
+      // 276 + 2 = 278; 373 + 2 = 375.
+      // FR-237 (ADR-090 D7) adds one path and one operation: the gap report
+      // (GET). 278 + 1 = 279; 375 + 1 = 376.
+      // FR-236's per-Business toggle (ADR-090 D6, TASK-ZAI-099) adds one path
+      // and one operation: the knowledge-candidates-toggle route (PATCH
+      // only). 279 + 1 = 280; 376 + 1 = 377.
+      // FR-230 (ADR-091 D1, D2) adds one more path and one more operation: the
+      // retention sweep's scheduled entry point (POST). 280 + 1 = 281; 377 + 1 = 378.
+      // FR-245 (ADR-093 D7, TASK-ZAI-112) adds one more path and one more
+      // operation: the chat evidence archive's one retrieval path (POST).
+      // 283 + 1 = 284; 380 + 1 = 381.
+      // FR-247 (ADR-095 D1) adds two paths and two operations: the error
+      // event list (GET) and the resolve action (PATCH). 284 + 2 = 286;
+      // 381 + 2 = 383.
+      // FR-248, FR-249 (ADR-095 D2, D3) add two paths and three operations:
+      // the usage breakdown (GET) and recording one's own usage (POST) share
+      // a path, plus the deployment-authenticated rollup (POST) on its own
+      // path. 286 + 2 = 288; 383 + 3 = 386.
+      // SEC-034 (ADR-093 D6, TASK-ZAI-113) adds one more path and one more
+      // operation: the legal-hold recording path (POST). 288 + 1 = 289;
+      // 386 + 1 = 387.
+      // FR-251 adds one read-only Project Domain-view path and GET operation.
+      pathCount: 316,
+      operationCount: 420,
     })
     expect(doc.paths['/api/projects'].get['x-zuri-contract']).toBe('route-inventory')
     expect(doc.paths['/api/import/dry-run'].post.requestBody).toBeTruthy()
@@ -186,9 +253,163 @@ describe('OpenAPI document', () => {
     }
   })
 
+  it('publishes all nine owner mutation operations with exact CSRF, CAS, replay and refusal transport', () => {
+    const candidate = JSON.parse(readFileSync(path.resolve(__dirname, '../../../../docs/architecture/project-manager-system/contracts/phase-b/openapi.candidate.json'), 'utf8'))
+    const writes = Object.entries(candidate.paths).flatMap(([routePath, item]) => Object.entries(item)
+      .filter(([method]) => ['post', 'patch', 'put', 'delete'].includes(method))
+      .map(([method, operation]) => ({ path: routePath.replace('{projectId}', '{id}'), method, operation })))
+    expect(writes).toHaveLength(9)
+    for (const expected of writes) {
+      const operation = doc.paths[expected.path][expected.method]
+      expect(operation.operationId).toBe(expected.operation.operationId)
+      expect(operation.security).toEqual([{ SessionAuth: [] }])
+      expect(operation['x-zuri-contract']).toBeUndefined()
+      const headers = operation.parameters.filter((entry) => entry.in === 'header')
+      for (const name of ['Origin', 'X-CSRF-Token', 'Idempotency-Key']) {
+        expect(headers.find((entry) => entry.name === name)?.required, name).toBe(true)
+      }
+      const append = expected.operation.operationId === 'createProjectFeature' || expected.operation.operationId === 'captureProjectGovernanceSnapshot'
+      expect(headers.some((entry) => entry.name === 'If-Match')).toBe(!append)
+      expect(operation.responses[200]).toBeTruthy()
+      expect(Boolean(operation.responses[201])).toBe(append)
+      for (const status of ['400', '401', '403', '404', '409', '422', '503', ...(!append ? ['412', '428'] : [])]) {
+        expect(operation.responses[status].content['application/json'].schema.$ref).toBe('#/components/schemas/MutationError')
+        expect(operation.responses[status].headers['X-Request-ID'].schema.format).toBe('uuid')
+      }
+      const successSchema = expected.operation.operationId === 'captureProjectGovernanceSnapshot' ? 'SnapshotCaptureResult' : 'MutationReceipt'
+      expect(operation.responses[200].content['application/json'].schema.$ref).toBe('#/components/schemas/' + successSchema)
+      expect(operation.responses[200].headers['Cache-Control'].schema.enum).toEqual(['no-store'])
+      expect(operation.responses[200].headers.ETag).toBeTruthy()
+    }
+    expect(doc.paths['/api/projects/{id}/feature-view'].get.responses[200].headers.ETag.description).toContain('Owner-only')
+    expect(doc.paths['/api/projects/{id}/features/{featureId}'].get.responses[200].headers.ETag).toBeTruthy()
+  })
+
+  it('preserves runtime provenance-pair, receipt-discriminator, patch and path refinements in generated JSON schemas', () => {
+    const ajv = new Ajv({ strict: false, allErrors: true })
+    addFormats(ajv)
+    // OpenAPI 3.0 uses boolean exclusivity; Ajv's draft-07 dialect uses the
+    // numeric bound itself. Preserve the exact constraint when adapting it.
+    function draft7(value) {
+      if (Array.isArray(value)) return value.map(draft7)
+      if (!value || typeof value !== 'object') return value
+      const result = Object.fromEntries(Object.entries(value).map(([key, child]) => [key, draft7(child)]))
+      for (const [exclusive, bound] of [['exclusiveMinimum', 'minimum'], ['exclusiveMaximum', 'maximum']]) {
+        if (typeof result[exclusive] !== 'boolean') continue
+        if (result[exclusive]) {
+          expect(typeof result[bound]).toBe('number')
+          result[exclusive] = result[bound]
+          delete result[bound]
+        } else delete result[exclusive]
+      }
+      return result
+    }
+    const components = draft7(doc.components)
+    const compile = (name) => ajv.compile({ components, $ref: '#/components/schemas/' + name })
+    const create = compile('FeatureCreateInput')
+    const base = { code: 'FE-1', title: 'Feature', problem: 'Problem', outcome: 'Outcome', primaryDomainId: 'DOM-CRM' }
+    const uuid = '11111111-1111-4111-8111-111111111111'
+    for (const pair of [
+      {}, { canonicalFeatureKey: null, governanceSnapshotId: null },
+      { canonicalFeatureKey: 'FEAT-001', governanceSnapshotId: uuid },
+      { canonicalFeatureKey: 'FEAT-001' }, { governanceSnapshotId: uuid },
+      { canonicalFeatureKey: null, governanceSnapshotId: uuid },
+      { canonicalFeatureKey: 'FEAT-001', governanceSnapshotId: null },
+    ]) expect(create({ ...base, ...pair })).toBe(zFeatureCreateInput.safeParse({ ...base, ...pair }).success)
+    const patch = compile('FeaturePatchInput')
+    for (const value of [{}, { title: 'Changed' }, { code: 'immutable' }, { lifecycle: 'ACTIVE' }]) {
+      expect(patch(value)).toBe(zFeaturePatchInput.safeParse(value).success)
+    }
+    const record = compile('FeatureRecord')
+    const recordBase = {
+      ...base, id: uuid, version: 1, projectId: uuid,
+      primaryDomain: { domainId: 'DOM-CRM', label: 'Customer', mappingState: 'MAPPED' },
+      contributions: [], workLinks: [], requirementBindings: [], lifecycle: 'DRAFT',
+      uniqueWorkCount: 0, evidence: [], evidenceState: 'UNAVAILABLE',
+    }
+    delete recordBase.primaryDomainId
+    for (const canonicalFeatureKey of [null, '', 'FEAT-001']) for (const governanceSnapshotId of [null, uuid]) {
+      const value = { ...recordBase, canonicalFeatureKey, governanceSnapshotId }
+      expect(record(value), JSON.stringify({ canonicalFeatureKey, governanceSnapshotId })).toBe(zFeatureRecord.safeParse(value).success)
+    }
+    const receipt = compile('MutationReceipt')
+    const receiptBase = { receiptId: uuid, targetId: uuid, resourceId: uuid, status: 'COMMITTED', etag: '"token"', recordedAt: '2026-09-17T00:00:00.000Z', auditRef: uuid, requestId: uuid }
+    for (const operation of doc.components.schemas.MutationReceipt.properties.operation.enum) {
+      for (const targetType of ['PROJECT', 'FEATURE']) for (const httpMethod of ['POST', 'PATCH', 'PUT', 'DELETE']) {
+        for (const resourceType of ['PROJECT_FEATURE', 'PROJECT_FEATURE_GRAPH', 'GOVERNANCE_SNAPSHOT']) for (const version of [null, 1]) {
+          const value = { ...receiptBase, operation, targetType, httpMethod, resourceType, version }
+          expect(receipt(value), JSON.stringify({ operation, targetType, httpMethod, resourceType, version })).toBe(zMutationReceipt.safeParse(value).success)
+        }
+      }
+    }
+    const entry = compile('SourceManifestEntry')
+    for (const name of ['docs/FEATURES.md', 'docs/a[1]*.md', 'é/file.md', 'one', '/absolute', 'C:/drive', 'C:drive', '../escape', 'a/../escape', './dot', 'a/./dot', 'a//empty', 'trailing/', 'back\\slash', 'nul\u0000file', 'newline\nfile']) {
+      const value = { path: name, sha256: 'a'.repeat(64) }
+      expect(entry(value), name).toBe(zSourceManifestEntry.safeParse(value).success)
+    }
+    expect(doc.components.schemas.SourceManifest.properties.schemaVersion.enum).toEqual(['1.0.0'])
+    expect(doc.components.schemas.SourceManifest['x-maxBytes']).toBe(1048576)
+  })
+
   it('carries the real execution-mode enum, not a hand-written copy', () => {
     const modes = doc.components.schemas.PlanEnvelope.properties.workstreams.items.properties.executionMode
     expect(modes.enum).toEqual(EXECUTION_MODES)
+  })
+
+  // @req FR-252 — the live issuer and Swagger share their strict DTO schemas.
+  it('documents the authenticated no-store CSRF issuer and typed refusals', () => {
+    const operation = doc.paths['/api/auth/csrf'].get
+    expect(operation.operationId).toBe('getApiWriteCsrfToken')
+    expect(operation.security).toEqual([{ SessionAuth: [] }])
+    expect(operation['x-zuri-contract']).toBeUndefined()
+    expect(Object.keys(operation.responses).sort()).toEqual(['200', '401', '403', '503'])
+    for (const [status, response] of Object.entries(operation.responses)) {
+      expect(response.headers['Cache-Control'].schema.enum).toEqual(['no-store'])
+      expect(response.headers).not.toHaveProperty('Access-Control-Allow-Origin')
+      if (status !== '200') {
+        expect(response.headers['X-Request-ID'].schema.format).toBe('uuid')
+        expect(response.content['application/json'].schema.$ref).toBe('#/components/schemas/ApiWriteCsrfError')
+      }
+    }
+    expect(doc.components.schemas.CsrfToken).toMatchObject({
+      type: 'object', additionalProperties: false,
+      required: ['token', 'expiresAt'],
+      properties: { expiresAt: { type: 'string', format: 'date-time' } },
+    })
+    expect(doc.components.schemas.ApiWriteCsrfError.required).toEqual(['code', 'message', 'requestId', 'retryable'])
+    expect(doc.components.schemas.ApiWriteCsrfError.additionalProperties).toBe(false)
+  })
+
+  it('publishes bounded Feature reads with runtime schemas and session-only authority', () => {
+    const routes = [
+      ['/api/projects/{id}/feature-view', 'FeatureView'],
+      ['/api/projects/{id}/features', 'FeatureRecordPage'],
+      ['/api/projects/{id}/features/{featureId}', 'FeatureRecord'],
+      ['/api/projects/{id}/governance-snapshots', 'GovernanceSnapshotPage'],
+    ]
+    for (const [route, schema] of routes) {
+      const operation = doc.paths[route].get
+      expect(operation.security).toEqual([{ SessionAuth: [] }])
+      expect(operation.responses[200].content['application/json'].schema.$ref).toBe('#/components/schemas/' + schema)
+      expect(operation.responses[200].headers['Cache-Control'].schema.enum).toEqual(['no-store'])
+      for (const status of [401, 404, 503]) {
+        expect(operation.responses[status].content['application/json'].schema.$ref).toBe('#/components/schemas/FeatureReadError')
+        expect(operation.responses[status].headers['X-Request-ID'].schema.format).toBe('uuid')
+      }
+      if (route === '/api/projects/{id}/features') {
+        expect(doc.paths[route].post.operationId).toBe('createProjectFeature')
+      } else if (route === '/api/projects/{id}/governance-snapshots') {
+        expect(doc.paths[route].post.operationId).toBe('captureProjectGovernanceSnapshot')
+      } else expect(doc.paths[route].post).toBeUndefined()
+    }
+    expect(doc.components.schemas.FeatureView.additionalProperties).toBe(false)
+    expect(doc.components.schemas.FeatureView.properties.features.maxItems).toBe(200)
+    expect(doc.components.schemas.FeatureRecordPage.properties.items.maxItems).toBe(50)
+    expect(doc.components.schemas.GovernanceSnapshotMetadata.properties).not.toHaveProperty('sourceManifest')
+    expect(doc.components.schemas.GovernanceSnapshotMetadata.properties).not.toHaveProperty('verificationProof')
+    expect(doc.paths['/api/projects/{id}/governance-snapshots'].get.responses).toHaveProperty('403')
+    expect(doc.paths['/api/projects/{id}/governance-snapshots'].get.responses).toHaveProperty('400')
+    expect(doc.paths['/api/projects/{id}/feature-view'].get.responses).toHaveProperty('413')
   })
 
   it('documents externalRefs on every entity a customer can key', () => {

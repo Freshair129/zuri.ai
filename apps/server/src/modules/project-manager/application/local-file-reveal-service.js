@@ -6,6 +6,7 @@
 // @spec SEC-001, SEC-008, BR-001
 // @tested tests/integration/fr072-file-asset-authorization.test.js
 import { spawn } from 'node:child_process'
+import { buildOsChildEnv } from '@/lib/os-child-env'
 import prisma from '@/lib/db'
 import { recordAudit } from './audit'
 import { resolveContainedPath } from '../local-files/path-security'
@@ -26,11 +27,14 @@ function validateLocalRequest({ requestUrl, origin, intent }, env) {
   }
 }
 
-async function launchExplorer(absolutePath) {
-  const child = spawn('explorer.exe', ['/select,', absolutePath], {
+export async function launchExplorer(absolutePath, spawnImpl = spawn) {
+  const child = spawnImpl('explorer.exe', ['/select,', absolutePath], {
     detached: true,
     windowsHide: true,
     stdio: 'ignore',
+    // Explorer needs the OS to start; it has no use for this server's secrets,
+    // and anything the user launches from that window would inherit them too.
+    env: buildOsChildEnv(),
   })
   child.unref()
 }

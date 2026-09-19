@@ -23,8 +23,12 @@ describe('FR-045 API and UI contract', () => {
     ]) expect(fs.existsSync(path), path).toBe(true)
   })
 
-  it('exposes Business Files in Development and replaces metadata-only Project copy', () => {
-    expect(read('src/config/domains.js')).toContain("{ label: 'Files', path: '/files'")
+  it('exposes Business Files in Resource Coordination and keeps the Project copy', () => {
+    const navigation = read('src/modules/project-manager/navigation.js')
+    expect(navigation).toContain("id: 'rc.files'")
+    expect(navigation).toContain("id: 'rc.repositories'")
+    expect(navigation).toContain("path: '/files'")
+    expect(navigation).toContain("path: '/repositories'")
     expect(read('src/app/(pm)/files/page.jsx')).toContain('ManagedFilesPanel')
     const projectPage = read('src/app/(pm)/projects/[projectId]/files/page.jsx')
     expect(projectPage).toContain('ManagedFilesPanel')

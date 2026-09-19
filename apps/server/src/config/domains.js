@@ -7,11 +7,12 @@ import {
   Workflow, Gauge, TrendingUp,
   PackageCheck, MessageCircle, LayoutGrid, QrCode,
   Warehouse, Truck, ClipboardList,
-  Layers, Bot, Cpu, Bookmark, Contact,
+  Layers, Bot, Cpu, Bookmark, Contact, Waypoints, FileText, Calculator,
 } from 'lucide-react'
 import { businessHasCapability } from '@/lib/business-capabilities'
 
 // @req FR-042 - HR / People is a peer domain with route key `people`.
+// @req FR-253 — Commerce's versioned pricing formula console.
 // @req FR-045 - Files is a Business-scoped Development subdomain.
 // @spec ADR-013, SITEMAP-V2-DOMAIN-NAV
 // @tested tests/unit/domain-navigation.test.js, tests/unit/fr045-api-ui-contract.test.js, tests/e2e/fr041-business-first.spec.js
@@ -53,6 +54,7 @@ export const DOMAINS = [
     sub: [
       { label: 'Dashboard', path: '/commerce', icon: LayoutDashboard },
       { label: 'Orders', path: '/commerce/orders', icon: ClipboardCheck },
+      { label: 'สูตรคำนวณราคา', path: '/commerce/pricing-rules', icon: Calculator },
     ],
   },
   {
@@ -116,7 +118,7 @@ export const DOMAINS = [
     // queue) and now belongs to Business Home; leaving Development rooted there
     // would have kept one page answering to two domains, which is how the two
     // surfaces would have drifted apart.
-    key: 'projects', label: 'Development', icon: BriefcaseBusiness, basePath: '/projects',
+    key: 'projects', label: 'Projects & Work', icon: BriefcaseBusiness, basePath: '/projects',
     // Five of these entries are the cross-project halves of views a Project also
     // carries under its Work tab (FR-005/006/007/009/064 global + project-scoped
     // split). `group` renders as a sidebar section header naming that scope —
@@ -212,6 +214,10 @@ export const DOMAINS = [
       { label: 'Work Orders', path: '/inventory/work-orders', icon: ClipboardList },
       { label: 'Reservations', path: '/inventory/reservations', icon: Bookmark },
       { label: 'Stocktake', path: '/inventory/stocktakes', icon: ClipboardList },
+      // @req FR-206 — the catalogue hygiene report and the merge desk (ADR-083 D6).
+      { label: 'SKU Hygiene', path: '/inventory/hygiene', icon: ClipboardCheck },
+      // @req FR-209 — catalogue intake: Excel / JSON preview and commit (ADR-084 D3).
+      { label: 'Import', path: '/inventory/catalog-intake', icon: PackageCheck },
     ],
   },
   {
@@ -252,6 +258,27 @@ export const DOMAINS = [
     sub: [
       { label: 'Dashboard', path: '/procurement', icon: LayoutDashboard },
       { label: 'Purchase Orders', path: '/procurement/purchase-orders', icon: ClipboardList },
+    ],
+  },
+  {
+    // @req FR-214 — Knowledge (GKS): the knowledge lane's own slot (ADR-085 D1).
+    // The label names the authority the lane consumes, as its charter's first
+    // line does; GKS, MSP and GenesisBlockDB stay external systems, never
+    // zuri-ai domains (ADR-063 D4). A flat, grantable key like every other
+    // leaf, and in no DOMAIN_GROUPS container. It opens with the Data Pipeline
+    // Map (FR-212, FR-213) and the knowledge base console (FR-254).
+    // @spec ADR-085, ADR-063 D4, FR-060, FR-061
+    // @tested tests/unit/knowledge-data-pipeline-map-ui.test.js
+    key: 'knowledge', label: 'Knowledge (GKS)', icon: Waypoints, basePath: '/knowledge',
+    sub: [
+      { label: 'Dashboard', path: '/knowledge', icon: LayoutDashboard, exact: true },
+      // @req FR-254 — source history, run evidence, corpus generations and cited query.
+      // @tested tests/e2e/fr254-knowledge-console.spec.js
+      { label: 'Knowledge console', path: '/knowledge/console', icon: FolderOpen },
+      { label: 'Documents', path: '/knowledge/documents', icon: FileText },
+      { label: 'Data Pipeline Map', path: '/knowledge/data-pipeline', icon: Workflow },
+      // @req FR-236 — the review surface for LINE FAQ candidates (ADR-090 D6).
+      { label: 'LINE FAQ candidates', path: '/knowledge/candidates', icon: MessagesSquare },
     ],
   },
   {

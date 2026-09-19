@@ -317,7 +317,7 @@ result** — `verify` fails on a stale copy (`docs:llms:check` is the same gate,
 locally). A stale corpus is worse than none: it reads authoritative while
 stating rules this repository no longer has.
 
-`npm run verify` is the definition of done in one command (test → build → govern →
+`npm run verify` is the definition of done in one command (govern → test → build →
 e2e). Both test commands are wrapped by `scripts/assert-tests-ran.mjs`, which fails a
 run that executed **zero** tests — `vitest run -t "NO_MATCH"` exits 0 with everything
 skipped, and an exit code of 0 must never mean the work did not run. `test:e2e`
@@ -496,6 +496,15 @@ interleave, and the first one to finish commits a graph describing files the oth
 has not committed yet. Say what you changed and let the graph-owning session
 reconcile in a single pass.
 
+For parallel branches sharing PRD, FEATURES, ROADMAP or the ID ledger, one
+integrator reconciles the authoritative rows and versions first. Regenerate
+derived outputs from that composed tree; do not concatenate conflicted generated
+JSON or treat generated files as independent source edits. The ID ledger still
+uses its sanctioned writer. Then run the full governance chain before tests
+that consume generated state, preserving CI's committed-output freshness checks.
+Committed generated snapshots must be deterministic for identical source inputs;
+run timestamps belong in ignored diagnostic output or CI logs.
+
 **Second exception, and it is about scope, not tooling:** a `DOMAIN_GROUPS`
 entry in `apps/server/src/config/domains.js` (SCM, CRM, and whatever groups
 the domain bar next) owns no model, no route and no module, so ADR-069 D5
@@ -570,5 +579,3 @@ role roster (`rkoi`/`kin`/`janus`/`ghost`/`ather`) — dev/build/test for
 either happens in that repo, not in zuri-ai. zuri-ai never writes to their
 Prisma-equivalent stores directly (ADR-050 D3/D4): for stages zuri-ai does
 not execute, it holds counts only, never payload.
-
-

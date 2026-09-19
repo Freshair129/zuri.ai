@@ -110,6 +110,53 @@ export const KNOWLEDGE_SENSITIVITY_LEVELS = ['PUBLIC', 'INTERNAL', 'CONFIDENTIAL
 export const WORKSPACE_SCOPE_TYPES = ['PORTFOLIO', 'TENANT', 'BUSINESS']
 export const MEMBERSHIP_ROLES = ['OWNER', 'MEMBER']
 
+// @req FR-193 — Employment is an HR assignment record, distinct from
+// Membership's access grant (ADR-078; the same separation SAP SU01/PA and
+// Oracle FND_USER/PER_ALL_ASSIGNMENTS_F draw). `ACTIVE` is the only value the
+// FR-193 backfill writes; `ON_LEAVE` and `ENDED` are assigned by
+// `employment-service.js` (setEmploymentOnLeave / endEmployment) so the
+// vocabulary is reachable from the day it is declared (ADR-077 D7 discipline).
+export const EMPLOYMENT_STATUSES = ['ACTIVE', 'ON_LEAVE', 'ENDED']
+// A registry of kinds, not statuses — nothing branches on the absence of one
+// (the same distinction the ADR-077 D7 preflight check draws).
+export const EMPLOYMENT_TYPES = ['EMPLOYEE', 'CONTRACTOR', 'INTERN', 'OWNER_OPERATOR']
+
+// @req FR-194 — a Branch's operating purpose. `SITE` is the default and covers
+// today's undifferentiated Branch rows; the others exist so a warehouse or a
+// kitchen can be named as what it is instead of overloading `name` text.
+export const BRANCH_KINDS = ['SITE', 'WAREHOUSE', 'KITCHEN', 'OFFICE']
+
+// @req FR-191 — the lifecycle ADR-045 D3 declared and nothing could write.
+// Until ADR-077 this vocabulary existed only in prose: `resolve-viewer.js` and
+// `authorization-context.js` both filtered on `status === 'ACTIVE'`, and no
+// service anywhere assigned any other value, so a read filter stood in for a
+// control that was never built
+// (.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md).
+//
+// One vocabulary for every grant-shaped table, not three. `RoleBinding`
+// already used ACTIVE/SUSPENDED/REVOKED and `Membership` used a free string;
+// `WorkspaceMembership` keeps its own ACTIVE/REMOVED because it is a different
+// contract (BR-016) and renaming its values would move a subject.
+export const ACCESS_STATUSES = ['PENDING', 'ACTIVE', 'SUSPENDED', 'REVOKED']
+export const MEMBERSHIP_STATUSES = ACCESS_STATUSES
+export const ROLE_BINDING_STATUSES = ACCESS_STATUSES
+// A grant that is still capable of granting. `REVOKED` is terminal and
+// `PENDING` has not started, so neither reaches the resolver; both still
+// occupy the row, which is why the partial unique indexes key off this set
+// rather than off `ACTIVE` alone.
+export const LIVE_ACCESS_STATUSES = ACCESS_STATUSES.filter((s) => s !== 'REVOKED')
+
+// @req FR-191 — how a grant came to exist, so that a null `grantedByPersonId`
+// is legible. `MIGRATION` means "predates ADR-077 and its author is
+// unrecoverable", which is a different statement from "nobody granted it".
+export const MEMBERSHIP_GRANT_SOURCES = ['ADMIN', 'INVITE', 'SELF_PROVISION', 'SEED', 'MIGRATION']
+
+// @req FR-192 — scope is a declared value, never the meaning of a null.
+// `Membership` uses TENANT and BUSINESS; `RoleBinding` adds BRANCH (ADR-077 D3,
+// extending ADR-033 D3 rather than superseding it).
+export const MEMBERSHIP_SCOPE_TYPES = ['TENANT', 'BUSINESS']
+export const ROLE_BINDING_SCOPE_TYPES = ['TENANT', 'BUSINESS', 'BRANCH']
+
 // Derived subsets — a genuine filter over an enum is named here, next to its
 // source, and imported, rather than hand-copied at each call site (CLAUDE.md;
 // .brain/rca/2026-08-17-a-prose-rule-is-not-a-gate.md). Computed from the
@@ -148,6 +195,57 @@ export const CUSTOMER_CONSENT_STATUSES = ['PENDING', 'GRANTED', 'DECLINED', 'GRA
 export const CONVERSATION_ANALYSIS_CONTACT_TYPES = ['NEW_LEAD', 'RETURNING', 'SUPPORT']
 export const CONVERSATION_ANALYSIS_STATES = ['HOT', 'WARM', 'COLD', 'CLOSED_WON', 'CLOSED_LOST']
 
+// FR-229 — non-text LINE content in the CRM record (ADR-091 D5). Message.contentKind
+// stays coarse on purpose: every media type collapses into MEDIA_REF and the
+// specific kind lives on MessageAttachment.kind, so a new media type never touches
+// Message's own vocabulary.
+export const MESSAGE_CONTENT_KINDS = ['TEXT', 'STICKER', 'LOCATION', 'MEDIA_REF']
+export const MESSAGE_ATTACHMENT_KINDS = ['IMAGE', 'VIDEO', 'AUDIO', 'FILE']
+// STORED/EXPIRED_AT_PROVIDER belong to the later fetch phase FR-229 explicitly
+// defers; only PENDING (admission) and ERASED (unsend/erasure tombstone) are
+// written by this change.
+export const MESSAGE_ATTACHMENT_FETCH_STATES = ['PENDING', 'STORED', 'EXPIRED_AT_PROVIDER', 'ERASED']
+// Exactly FR-229's own list: follow, unfollow, join, leave, member joined, member
+// left, postback and unsend. DELIVERY/READ read receipts are a different, undecided
+// requirement and are deliberately not declared here.
+export const CONVERSATION_EVENT_KINDS = [
+  'FOLLOW', 'UNFOLLOW', 'JOIN', 'LEAVE', 'MEMBER_JOINED', 'MEMBER_LEFT', 'POSTBACK', 'UNSEND',
+]
+
+// FR-230 — every copy of a person's conversation content has a declared retention
+// data class and an installation-default window (ADR-091 D2, SEC-031). A Tenant
+// may only shorten a window (TenantRetentionOverride); lengthening one is refused
+// by the writer. Only MESSAGE_BODY_AND_ATTACHMENTS is swept by this codebase today
+// — the other three name a model this crm-scoped change does not own:
+//   RAW_LINE_PAYLOAD        — RawExternalRecord.payloadJson, integration's charter
+//   AGENT_TRACE_EVENT       — AgentTraceEvent payloads, agent's charter
+//   MSP_SESSION_CONTENT     — MSP's own storage, a separate repository this
+//                             codebase never reaches
+// Their entries here exist so a Tenant can already declare an override for them
+// (and TenantRetentionOverride never needs a schema change when their own
+// sweepers land), not because this change sweeps them.
+export const RETENTION_DATA_CLASSES = [
+  'RAW_LINE_PAYLOAD', 'MESSAGE_BODY_AND_ATTACHMENTS', 'AGENT_TRACE_EVENT', 'MSP_SESSION_CONTENT',
+]
+// Days. 24 months is approximated as 365 * 2 — this repository has no existing
+// month-to-day convention to match, and the owner's numbers are policy, not law
+// (ADR-091 "Retention numbers are product policy, not law").
+export const RETENTION_DEFAULT_WINDOW_DAYS = Object.freeze({
+  RAW_LINE_PAYLOAD: 90,
+  MESSAGE_BODY_AND_ATTACHMENTS: 365 * 2,
+  AGENT_TRACE_EVENT: 90,
+  MSP_SESSION_CONTENT: 90,
+})
+// The subset of RETENTION_DATA_CLASSES this codebase can actually tombstone —
+// see the module comment above. retention-sweep-service.js sweeps exactly this
+// list; a class outside it is not this crm-scoped change's model to write.
+export const CRM_OWNED_RETENTION_CLASSES = ['MESSAGE_BODY_AND_ATTACHMENTS']
+// LineConversationJob's own status vocabulary is deliberately NOT registered
+// here — see the FR-152 comment above this block: a registry entry would read
+// every file's own narrower, purpose-built subset (line-conversation-jobs.js's
+// own `WAITING`, and others) as a "hand copy" of it. retention-sweep-service.js
+// keeps its own local non-terminal list for exactly that reason.
+
 // FR-066/FR-067 — Workspace collaboration boundary (ADR-027 D5). "Workspace"
 // here is the top-level container, schema Portfolio — never schema Workspace,
 // which is a Space (see WORKSPACE_SCOPE_TYPES above, a different axis).
@@ -165,6 +263,19 @@ export const WORKSPACE_INVITE_ROLES = WORKSPACE_MEMBERSHIP_ROLES.filter((r) => r
 // `expiresAt` at acceptance time, never a status column somebody must update.
 export const WORKSPACE_INVITE_STATUSES = ['PENDING', 'ACCEPTED', 'REVOKED']
 
+// @req FR-195 — AccessInvite generalises WorkspaceInvite to TENANT and
+// BUSINESS scope, on top of the PORTFOLIO scope WorkspaceInvite already had.
+// Its own status vocabulary adds DECLINED, a state WorkspaceInvite had no way
+// to express (a targeted invite that a Person actively turns down, distinct
+// from letting it expire or having it revoked).
+export const ACCESS_INVITE_SCOPE_TYPES = ['PORTFOLIO', 'TENANT', 'BUSINESS']
+export const ACCESS_INVITE_STATUSES = ['PENDING', 'ACCEPTED', 'DECLINED', 'REVOKED']
+// TENANT/BUSINESS scope becomes a real Membership on acceptance
+// (`grantBusinessMembership`), whose role vocabulary is MEMBERSHIP_ROLES —
+// OWNER excluded here for the same reason WORKSPACE_INVITE_ROLES excludes it:
+// a token never mints ownership.
+export const ACCESS_INVITE_ROLES = MEMBERSHIP_ROLES.filter((r) => r !== 'OWNER')
+
 // FR-022 — the P3 gate's staff/customer split. In V2's unified identity a Person
 // is STAFF when it holds a Membership in the tenant (RBAC side) and CUSTOMER when
 // it holds a Customer record (CRM side); a Person that is both resolves to STAFF
@@ -181,6 +292,19 @@ export const ASSET_PROCUREMENT_REF_TYPES = ['PR', 'PR_LINE', 'PO', 'PO_LINE', 'G
 export const ASSET_RESPONSIBILITY_ROLES = ['ACCOUNTABLE', 'CUSTODIAN', 'USER']
 export const ASSET_DEPRECIATION_METHODS = ['STRAIGHT_LINE']
 
+// @req FR-223 — Integration credential vault vocabulary (ADR-089 D1, D5; SDD-097).
+// A store is named by the reference prefix it answers (`supabase-vault:`,
+// `envelope:`, `deployment-secret:`); a version is PURGED once its material is gone.
+export const SECRET_STORES = ['DEPLOYMENT_MOUNT', 'SUPABASE_VAULT', 'ENVELOPE']
+export const SECRET_KINDS = ['LINE_CHANNEL', 'OAUTH_CLIENT', 'API_KEY', 'MODEL_PROVIDER_KEY']
+export const INTEGRATION_CREDENTIAL_STATUSES = ['PENDING_VALIDATION', 'ACTIVE', 'ROTATING', 'EXPIRED', 'REVOKED', 'REENTRY_REQUIRED']
+// ROTATING still resolves: the previous version stays live until the new one validates.
+export const INTEGRATION_CREDENTIAL_RESOLVABLE_STATUSES = INTEGRATION_CREDENTIAL_STATUSES.filter(status => status === 'ACTIVE' || status === 'ROTATING')
+export const INTEGRATION_CREDENTIAL_VERSION_STATUSES = ['PENDING_VALIDATION', 'ACTIVE', 'SUPERSEDED', 'REJECTED', 'REVOKED', 'PURGED']
+// Every version whose material may still exist in a store.
+export const INTEGRATION_CREDENTIAL_PURGEABLE_VERSION_STATUSES = INTEGRATION_CREDENTIAL_VERSION_STATUSES.filter(status => status !== 'PURGED')
+export const INTEGRATION_CREDENTIAL_CREATED_VIA = ['BROWSER_MFA', 'OPERATOR_CLI', 'BACKFILL']
+
 // @req FR-146 — LINE OA Studio account vocabulary (ADR-060 D2/D5). `LIVE` is
 // derived, never stored: the stored machine is DRAFT → CONNECTED → PAUSED |
 // ARCHIVED, and an account reads LIVE only while the agent lane reports an
@@ -189,7 +313,19 @@ export const ASSET_DEPRECIATION_METHODS = ['STRAIGHT_LINE']
 export const LINE_OA_ACCOUNT_STATUSES = ['DRAFT', 'CONNECTED', 'PAUSED', 'ARCHIVED']
 export const LINE_OA_ACCOUNT_EFFECTIVE_STATUSES = [...LINE_OA_ACCOUNT_STATUSES, 'LIVE']
 export const LINE_OA_TRANSPORT_MODES = ['EDGE', 'CLOUD']
-export const LINE_OA_ACCOUNT_ACTIONS = ['PAUSE', 'RESUME', 'ARCHIVE', 'SET_DEFAULT', 'SWITCH_TRANSPORT_MODE', 'CONFIGURE_EXECUTION', 'ENABLE_SERVER', 'DISABLE_SERVER']
+// @req FR-227 — REGISTER_WEBHOOK sets, reads back and tests the account's LINE
+// webhook endpoint, storing the outcome as computed health (`webhookStateJson`).
+// It never fences transport work: it changes no credential, no transport owner
+// and no execution policy — only which health the account reports.
+export const LINE_OA_ACCOUNT_ACTIONS = ['PAUSE', 'RESUME', 'ARCHIVE', 'SET_DEFAULT', 'SWITCH_TRANSPORT_MODE', 'CONFIGURE_EXECUTION', 'ENABLE_SERVER', 'DISABLE_SERVER', 'CONFIGURE_KNOWLEDGE_GROUNDING', 'REGISTER_WEBHOOK', 'CONFIGURE_SESSION_TIMEOUT', 'CONFIGURE_BUSINESS_HOURS']
+// @req FR-235 — per-account grounding mode (ADR-090 D1): BUSINESS_KNOWLEDGE is
+// the default and every existing account's unchanged behaviour; GKS_CORPUS and
+// GKS_THEN_BUSINESS_KNOWLEDGE read the Business's published corpus generation
+// through an in-process knowledge.query reader before (or instead of) the
+// curated table. A missing or unrecognised value always resolves to
+// BUSINESS_KNOWLEDGE — the least-permissive, already-shipped behaviour — never
+// to a corpus read (fail closed).
+export const KNOWLEDGE_GROUNDING_MODES = ['BUSINESS_KNOWLEDGE', 'GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE']
 // FR-151 — rich menu designer vocabularies (ADR-060 D3, SRS LOS-RQ-040..042).
 export const LINE_OA_RICH_MENU_LAYOUTS = ['1x1', '2x1', '2x2', '2x3', '3x1', '1x2']
 export const LINE_OA_RICH_MENU_STATUSES = ['DRAFT', 'READY', 'ARCHIVED']
@@ -239,7 +375,34 @@ export const INVENTORY_STOCK_POLICIES = ['TRACKED', 'UNTRACKED', 'SERVICE']
 /** The natures that have no stock ledger: no on-hand, no lot, no serial. */
 export const INVENTORY_UNSTOCKED_POLICIES = ['UNTRACKED', 'SERVICE']
 export const INVENTORY_TRACKING_MODES = ['NONE', 'LOT', 'SERIAL']
-export const INVENTORY_PRODUCT_ACTIONS = ['UPDATE', 'ARCHIVE']
+// FR-201 — the nature is declared once, at the master: a GOOD's SKUs are
+// TRACKED or UNTRACKED, a SERVICE's SKUs are SERVICE, and a service is never a
+// variant of a good (ADR-083 D1, BR-038).
+export const INVENTORY_PRODUCT_NATURES = ['GOOD', 'SERVICE']
+// FR-205 — a SKU's lifecycle: ACTIVE, PHASE_OUT (sell what is left, buy no
+// more), ARCHIVED (gone, never deleted). Other catalogue rows keep the two
+// states in `INVENTORY_RECORD_STATUSES`.
+export const INVENTORY_PRODUCT_STATUSES = ['ACTIVE', 'PHASE_OUT', 'ARCHIVED']
+// FR-205 — the five versioned product actions: the two from FR-154 and the
+// three the lifecycle adds. MERGE is the anti-bloat repair (ADR-083 D5).
+export const INVENTORY_PRODUCT_ACTIONS = ['UPDATE', 'ARCHIVE', 'PHASE_OUT', 'REACTIVATE', 'MERGE']
+// FR-203 — the kinds of identifier a SKU may carry. GTIN covers EAN-13 and
+// UPC-A (GTIN-13 / GTIN-12); BARCODE is any other scannable string; the rest
+// are a partner's names for our item. Never keys (BR-002).
+export const INVENTORY_IDENTIFIER_KINDS = ['GTIN', 'BARCODE', 'SUPPLIER_CODE', 'MANUFACTURER_PART', 'LEGACY_CODE']
+// FR-204 — where a unit conversion applies: buying, selling, or anywhere.
+export const INVENTORY_UNIT_USAGES = ['PURCHASE', 'SALES', 'ANY']
+// FR-208 — catalogue intake (ADR-084): the surfaces that convert into the one
+// envelope, the states of a persisted preview, and what the planner decided
+// for each item after resolving it against the catalogue.
+export const INVENTORY_CATALOG_INTAKE_CHANNELS = ['REST_API', 'EXCEL', 'LINE_OA', 'WEB']
+export const INVENTORY_CATALOG_INTAKE_STATUSES = ['PREVIEWED', 'COMMITTED', 'CANCELLED']
+export const INVENTORY_CATALOG_INTAKE_DECISIONS = ['CREATE', 'MATCH', 'UNCHANGED', 'CONFLICT', 'INVALID']
+// FR-206 — the kinds of finding the catalogue hygiene report can raise.
+export const INVENTORY_HYGIENE_FINDING_KINDS = [
+  'NATURE_MISMATCH', 'LOOKALIKE_SKUS', 'MASTER_WITHOUT_AXES', 'MASTER_WITHOUT_SKUS',
+  'DORMANT_SKU', 'SKU_WITHOUT_IDENTIFIER', 'SERVICE_WITH_STOCK_FIELDS', 'PHASE_OUT_WITH_STOCK',
+]
 export const INVENTORY_LOT_STATUSES = ['OPEN', 'QUARANTINE', 'CLOSED']
 export const INVENTORY_SERIAL_STATUSES = ['IN_STOCK', 'RESERVED', 'ISSUED', 'RETURNED', 'SCRAPPED']
 export const INVENTORY_MOVEMENT_KINDS = ['RECEIPT', 'ISSUE', 'ADJUSTMENT']
@@ -321,6 +484,13 @@ export const PAYMENT_METHODS = ['TRANSFER', 'CASH', 'QR', 'CARD', 'OTHER']
 export const PAYMENT_STATUSES = ['PENDING', 'VERIFIED', 'REJECTED']
 export const PAYMENT_ACTIONS = ['VERIFY', 'REJECT']
 
+// FR-236 (knowledge, ADR-090 D6) — a LINE FAQ knowledge candidate: drafted
+// from one consent-GRANTED Conversation, decided by a Business OWNER or
+// LINE_OA_PUBLISHER, admitted as one immutable LINE_FAQ_CANDIDATE TEXT source
+// on APPROVED. TOMBSTONED is FR-232's erasure outcome, never a user action.
+export const KNOWLEDGE_CANDIDATE_STATUSES = ['PENDING_REVIEW', 'APPROVED', 'REJECTED', 'TOMBSTONED']
+export const KNOWLEDGE_CANDIDATE_DECISIONS = ['APPROVE', 'REJECT']
+
 // @req FR-164, FR-165 — Procurement (ADR-066), the buy side. A supplier is
 // ACTIVE until archived (the row stays). A purchase order is DRAFT until SENT
 // to the supplier; RECEIVED is set by the goods receipt that completes every
@@ -336,6 +506,14 @@ export const SUPPLIER_ACTIONS = ['UPDATE', 'ARCHIVE']
 export const PURCHASE_ORDER_STATUSES = ['DRAFT', 'SENT', 'RECEIVED', 'SHORT_CLOSED', 'CANCELLED']
 export const PURCHASE_ORDER_ACTIONS = ['UPDATE', 'SEND', 'CLOSE', 'CANCEL']
 
+// @req FR-194 — LegalEntity moves under Tenant (ADR-078); its lifecycle is the
+// same shape every other master-data record in this schema uses.
+export const LEGAL_ENTITY_STATUSES = ['ACTIVE', 'ARCHIVED']
+// @req FR-194 — a legal entity's VAT branch registrations (ประมวลรัษฎากร ม.86,
+// ภ.พ.20), split out of `Branch` because a branch code belongs to the legal
+// entity's tax registration, not to an operating site (ADR-078).
+export const TAX_REGISTRATION_BRANCH_STATUSES = ['ACTIVE', 'ARCHIVED']
+
 export const zExecutionMode = z.enum(EXECUTION_MODES)
 export const zProgressStrategy = z.enum(PROGRESS_STRATEGIES)
 export const zDependencyType = z.enum(DEPENDENCY_TYPES)
@@ -349,6 +527,10 @@ export const zMilestoneStatus = z.enum(MILESTONE_STATUSES)
 export const zGateStatus = z.enum(GATE_STATUSES)
 export const zWorkspaceScopeType = z.enum(WORKSPACE_SCOPE_TYPES)
 export const zMembershipRole = z.enum(MEMBERSHIP_ROLES)
+export const zMembershipStatus = z.enum(MEMBERSHIP_STATUSES)
+export const zMembershipScopeType = z.enum(MEMBERSHIP_SCOPE_TYPES)
+export const zMembershipGrantSource = z.enum(MEMBERSHIP_GRANT_SOURCES)
+export const zRoleBindingScopeType = z.enum(ROLE_BINDING_SCOPE_TYPES)
 export const zChannel = z.enum(CHANNELS)
 export const zMessageDirection = z.enum(MESSAGE_DIRECTIONS)
 export const zCustomerLifecycle = z.enum(CUSTOMER_LIFECYCLE)
@@ -359,6 +541,9 @@ export const zWorkspaceMembershipRole = z.enum(WORKSPACE_MEMBERSHIP_ROLES)
 export const zWorkspaceMembershipStatus = z.enum(WORKSPACE_MEMBERSHIP_STATUSES)
 export const zWorkspaceInviteRole = z.enum(WORKSPACE_INVITE_ROLES)
 export const zWorkspaceInviteStatus = z.enum(WORKSPACE_INVITE_STATUSES)
+export const zAccessInviteScopeType = z.enum(ACCESS_INVITE_SCOPE_TYPES)
+export const zAccessInviteStatus = z.enum(ACCESS_INVITE_STATUSES)
+export const zAccessInviteRole = z.enum(ACCESS_INVITE_ROLES)
 export const zPrincipalType = z.enum(PRINCIPAL_TYPES)
 export const zIdentityProvider = z.enum(IDENTITY_PROVIDERS)
 export const zAssetIntakeChannel = z.enum(ASSET_INTAKE_CHANNELS)
@@ -370,6 +555,7 @@ export const zAssetDepreciationMethod = z.enum(ASSET_DEPRECIATION_METHODS)
 export const zLineOaAccountStatus = z.enum(LINE_OA_ACCOUNT_STATUSES)
 export const zLineOaTransportMode = z.enum(LINE_OA_TRANSPORT_MODES)
 export const zLineOaAccountAction = z.enum(LINE_OA_ACCOUNT_ACTIONS)
+export const zKnowledgeGroundingMode = z.enum(KNOWLEDGE_GROUNDING_MODES)
 export const zLineOaRichMenuLayout = z.enum(LINE_OA_RICH_MENU_LAYOUTS)
 export const zLineOaRichMenuStatus = z.enum(LINE_OA_RICH_MENU_STATUSES)
 export const zLineOaRichMenuVersionStatus = z.enum(LINE_OA_RICH_MENU_VERSION_STATUSES)
@@ -383,6 +569,11 @@ export const zLineOaLiffAppAction = z.enum(LINE_OA_LIFF_APP_ACTIONS)
 export const zInventoryStockPolicy = z.enum(INVENTORY_STOCK_POLICIES)
 export const zInventoryTrackingMode = z.enum(INVENTORY_TRACKING_MODES)
 export const zInventoryProductAction = z.enum(INVENTORY_PRODUCT_ACTIONS)
+export const zInventoryProductNature = z.enum(INVENTORY_PRODUCT_NATURES)
+export const zInventoryProductStatus = z.enum(INVENTORY_PRODUCT_STATUSES)
+export const zInventoryIdentifierKind = z.enum(INVENTORY_IDENTIFIER_KINDS)
+export const zInventoryUnitUsage = z.enum(INVENTORY_UNIT_USAGES)
+export const zInventoryHygieneFindingKind = z.enum(INVENTORY_HYGIENE_FINDING_KINDS)
 export const zInventoryLotStatus = z.enum(INVENTORY_LOT_STATUSES)
 export const zInventorySerialStatus = z.enum(INVENTORY_SERIAL_STATUSES)
 export const zInventoryMovementKind = z.enum(INVENTORY_MOVEMENT_KINDS)
@@ -406,13 +597,24 @@ export const zPaymentKind = z.enum(PAYMENT_KINDS)
 export const zPaymentMethod = z.enum(PAYMENT_METHODS)
 export const zPaymentStatus = z.enum(PAYMENT_STATUSES)
 export const zPaymentAction = z.enum(PAYMENT_ACTIONS)
+export const zKnowledgeCandidateStatus = z.enum(KNOWLEDGE_CANDIDATE_STATUSES)
+export const zKnowledgeCandidateDecision = z.enum(KNOWLEDGE_CANDIDATE_DECISIONS)
 export const zSupplierStatus = z.enum(SUPPLIER_STATUSES)
 export const zSupplierAction = z.enum(SUPPLIER_ACTIONS)
 export const zPurchaseOrderStatus = z.enum(PURCHASE_ORDER_STATUSES)
 export const zPurchaseOrderAction = z.enum(PURCHASE_ORDER_ACTIONS)
+export const zLegalEntityStatus = z.enum(LEGAL_ENTITY_STATUSES)
+export const zTaxRegistrationBranchStatus = z.enum(TAX_REGISTRATION_BRANCH_STATUSES)
+export const zBranchKind = z.enum(BRANCH_KINDS)
+export const zEmploymentStatus = z.enum(EMPLOYMENT_STATUSES)
+export const zEmploymentType = z.enum(EMPLOYMENT_TYPES)
 export const zRoadmapStatus = z.enum(ROADMAP_STATUSES)
 export const zGoalStatus = z.enum(GOAL_STATUSES)
 export const zGoalPriority = z.enum(GOAL_PRIORITIES)
+export const zMessageContentKind = z.enum(MESSAGE_CONTENT_KINDS)
+export const zMessageAttachmentKind = z.enum(MESSAGE_ATTACHMENT_KINDS)
+export const zMessageAttachmentFetchState = z.enum(MESSAGE_ATTACHMENT_FETCH_STATES)
+export const zConversationEventKind = z.enum(CONVERSATION_EVENT_KINDS)
 
 // Container subtype vocabulary per mode (open set; these are the documented ones).
 export const CONTAINER_SUBTYPES = [
@@ -508,3 +710,35 @@ export const MODE_SLUGS = {
 export const SLUG_BY_MODE = Object.fromEntries(
   Object.entries(MODE_SLUGS).map(([slug, mode]) => [mode, slug])
 )
+
+// @req FR-234 — the Context Composer's slice sources and drop/trim reasons are a
+// single enumerated vocabulary, so a `ContextReceipt` never reports free text for
+// why a slice was excluded.
+// @spec ADR-091 D7, SDD-100
+// @tested tests/unit/context-composer.test.js
+export const CONTEXT_SLICE_SOURCES = ['RECORD', 'KNOWLEDGE', 'MSP']
+export const zContextSliceSource = z.enum(CONTEXT_SLICE_SOURCES)
+
+export const CONTEXT_DROP_REASONS = [
+  // A CRM/ERP record outranks MSP memory; a memory slice naming the same subject
+  // as a record is dropped, never silently overridden.
+  'SUPERSEDED_BY_RECORD',
+  // A group/room thread's slices never cross into another thread; a slice
+  // carrying no thread at all once a thread is in scope is treated the same
+  // way (fail closed), never passed through by omission.
+  'THREAD_SCOPE_MISMATCH',
+  // Passport/cross-thread recall is denied to a non-DIRECT audience.
+  'AUDIENCE_SCOPE_DENIED',
+  // The one prompt-wide budget could not fit the slice; every trim is reported.
+  'BUDGET_TRIMMED',
+]
+export const zContextDropReason = z.enum(CONTEXT_DROP_REASONS)
+
+// The default reason `composeContext` reports when the caller's authorization
+// decision was `false` — named here rather than left as a literal inside the
+// composer, same as every drop reason above.
+export const CONTEXT_DENIAL_REASONS = ['CONTEXT_DENIED']
+export const zContextDenialReason = z.enum(CONTEXT_DENIAL_REASONS)
+
+// FR-230 — retention data class, for TenantRetentionOverride input validation.
+export const zRetentionDataClass = z.enum(RETENTION_DATA_CLASSES)

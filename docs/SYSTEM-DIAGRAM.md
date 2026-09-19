@@ -7,6 +7,7 @@
 | **Author** | Claude Fable 5.1 |
 | **Date** | 2026-09-05 |
 | **Knowledge profile update** | 2026-09-08 — ADR-073 isolated execution; other domains retain their dated snapshot |
+| **Data flow update** | 2026-09-13 — where data enters, where it is combined and who receives it now lives in [DATA-PIPELINE-MAP.md](DATA-PIPELINE-MAP.md) (FR-212, ADR-085), regenerated on every `govern` with a surface level and build status per hop; this page keeps its dated context view |
 | **Relates to** | [ARCHITECTURE-DIAGRAMS.md](ARCHITECTURE-DIAGRAMS.md) (three-layer, data-flow and flowchart views from 2026-08-15), [ARCHITECTURE.md](ARCHITECTURE.md), [DOMAIN-MAP.md](DOMAIN-MAP.md) (generated ownership), [PRODUCT.md](PRODUCT.md), ADR-007, ADR-018, ADR-025, ADR-041, ADR-043, ADR-044, ADR-058, ADR-059, ADR-060 |
 
 หน้านี้ตอบคำถามเดียว: **ระบบทั้งหมดประกอบด้วยอะไร ใครคุยกับใคร และอะไรสร้างแล้ว/ยังไม่สร้าง** ณ วันที่วาด

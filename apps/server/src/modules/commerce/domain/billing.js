@@ -51,7 +51,10 @@ export const zBillingProfileInput = z.object({
   active: z.boolean().optional(),
   branchId: zId.optional(),
   branchAddress: zOptionalText(1000),
-  taxBranchCode: zOptionalText(20),
+  // @req FR-194 — replaces `taxBranchCode`: the Branch now points at one of
+  // its LegalEntity's registered TaxRegistrationBranch rows rather than
+  // carrying a free-text VAT branch code of its own.
+  taxRegistrationBranchId: zId.nullable().optional(),
   expectedVersion: z.number().int().positive().optional(),
 }).strict().superRefine((value, ctx) => {
   if (value.vatRegistered === true && value.vatRateBps !== undefined && value.vatRateBps !== null && value.vatRateBps <= 0) {

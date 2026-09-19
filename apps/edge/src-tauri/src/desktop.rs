@@ -93,6 +93,11 @@ pub fn get_worker_log(state: State<'_, AppState>) -> Value {
     serde_json::json!({ "entries": state.supervisor.log() })
 }
 
+#[tauri::command]
+pub fn get_worker_log_page(cursor: Option<String>, state: State<'_, AppState>) -> Value {
+    state.supervisor.log_page(cursor.as_deref())
+}
+
 /// The supervisor's own snapshot, plus the reason an automatic resume gave up.
 ///
 /// A resume that fails before the child is spawned — Ollama not up yet at logon, the chosen model

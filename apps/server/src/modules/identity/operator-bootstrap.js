@@ -20,6 +20,7 @@
 import { randomBytes, scryptSync } from 'node:crypto'
 import prisma from '../../lib/db.js'
 import { uniqueHumanCode } from '../../lib/ids.js'
+import { isInstallationOperator } from './viewer-authority.js'
 import { recordAudit } from '../project-manager/application/audit.js'
 
 export const OPERATOR_CAPABILITY = 'OPERATOR'
@@ -53,7 +54,7 @@ export async function bootstrapOperator({ email, displayName, grantOnly = false,
   if (!grantOnly && (typeof displayName !== 'string' || !displayName.trim())) throw failure(400, 'BOOTSTRAP_DISPLAY_NAME_REQUIRED')
 
   const standing = await db.platformGrant.findFirst({
-    where: { capability: OPERATOR_CAPABILITY, status: 'ACTIVE' },
+    where: liveOperatorGrantWhere(new Date()),
     select: { id: true },
   })
   if (standing) throw failure(409, 'BOOTSTRAP_REFUSED_OPERATOR_EXISTS — an ACTIVE OPERATOR grant already stands; new grants are issued by an operator, not by bootstrap')
@@ -67,7 +68,11 @@ export async function bootstrapOperator({ email, displayName, grantOnly = false,
     if (!existing) throw failure(404, 'BOOTSTRAP_GRANT_ONLY_PERSON_NOT_FOUND — grant-only issues a grant to an existing Person; it never creates one')
     const grantId = await db.$transaction(async (tx) => {
       const grant = await tx.platformGrant.create({
-        data: { personId: existing.id, capability: OPERATOR_CAPABILITY, status: 'ACTIVE' },
+        // @req FR-197 — the bootstrap grant is standing (it was never issued BY
+        // a standing operator, since none existed) and carries no expiry: the
+        // 90-day cap and mandatory expiresAt apply only to grants
+        // `issueOperatorGrant` mints afterward.
+        data: { personId: existing.id, capability: OPERATOR_CAPABILITY, status: 'ACTIVE', standing: true },
         select: { id: true },
       })
       await recordAudit(tx, {
@@ -99,7 +104,7 @@ export async function bootstrapOperator({ email, displayName, grantOnly = false,
 
     await tx.personCredential.create({ data: { personId: person.id, passwordHash } })
     const grant = await tx.platformGrant.create({
-      data: { personId: person.id, capability: OPERATOR_CAPABILITY, status: 'ACTIVE' },
+      data: { personId: person.id, capability: OPERATOR_CAPABILITY, status: 'ACTIVE', standing: true },
       select: { id: true },
     })
 
@@ -125,14 +130,126 @@ export async function bootstrapOperator({ email, displayName, grantOnly = false,
 }
 
 /** Per-request operator resolution for the session port: sha-free, one indexed
- * read, false whenever the store is absent (test doubles, pre-migration dbs). */
-export async function hasOperatorGrant(personId, db = prisma) {
+ * read, false whenever the store is absent (test doubles, pre-migration dbs).
+ * @req FR-197 — honours `expiresAt`: an ACTIVE grant past its expiry denies,
+ * the same "recomputed per request" discipline NFR-019 already applies to
+ * Membership (ADR-077). The row is left ACTIVE in the database — nothing
+ * flips its status on a timer — so this is the one place that decision is
+ * enforced; `issueOperatorGrant` is the one place a fresh grant replaces it. */
+export async function hasOperatorGrant(personId, db = prisma, now = Date.now()) {
   if (!personId || typeof db?.platformGrant?.findFirst !== 'function') return false
   const grant = await db.platformGrant.findFirst({
     where: { personId, capability: OPERATOR_CAPABILITY, status: 'ACTIVE' },
-    select: { id: true },
+    select: { id: true, expiresAt: true },
   })
-  return Boolean(grant)
+  if (!grant) return false
+  if (grant.expiresAt && new Date(grant.expiresAt).getTime() <= now) return false
+  return true
+}
+
+// @req FR-197 — a 90-day ceiling on every issued (non-bootstrap) grant. A
+// standing operator renews before or after expiry by issuing a fresh grant —
+// never by editing this constant's caller to omit expiresAt.
+export const OPERATOR_GRANT_MAX_DAYS = 90
+const OPERATOR_GRANT_MAX_MS = OPERATOR_GRANT_MAX_DAYS * 24 * 60 * 60 * 1000
+
+/**
+ * Issue operator access, time-boxed. Requires a STANDING operator caller
+ * (`isInstallationOperator(viewer)` — checked by the caller, same discipline
+ * as `assignRoleBinding` leaving authority to its caller): this is the writer
+ * the file's own prior comment said should exist ("every later grant must be
+ * issued by a standing operator") and did not.
+ *
+ * `expiresAt` is mandatory and capped at `OPERATOR_GRANT_MAX_DAYS`. Renewal is
+ * a FRESH ROW, not an update to an existing one — the same "grant, not a
+ * fact" reasoning ADR-077 D1 applies to Membership — so any prior ACTIVE grant
+ * this same Person holds is superseded (revoked, with its own audit event)
+ * inside the same transaction rather than left to collide with the new row's
+ * partial-unique-active index.
+ */
+/**
+ * @req FR-197 — the ONE definition of a grant that still grants.
+ *
+ * `hasOperatorGrant` learned to honour `expiresAt`; `bootstrapOperator` and
+ * `revokeOperatorGrant`'s last-operator guard did not, and both still asked
+ * for `status: 'ACTIVE'` alone. An expired row is ACTIVE by status, so those
+ * two read a lapsed grant as a standing operator: bootstrap refused ("an
+ * OPERATOR grant already stands") while nobody could actually operate. A
+ * predicate that three callers each spell for themselves is three predicates,
+ * which is the shape ADR-077's own root cause had.
+ */
+export function liveOperatorGrantWhere(now = new Date()) {
+  return {
+    capability: OPERATOR_CAPABILITY,
+    status: 'ACTIVE',
+    OR: [{ expiresAt: null }, { expiresAt: { gt: now } }],
+  }
+}
+
+export async function issueOperatorGrant({ personId, reason, expiresAt, viewer = null, actorId = null, db = prisma, now = () => new Date() } = {}) {
+  // @req FR-197 — "every later grant is issued by a standing operator" is what
+  // FR-197 says and what this function did not check: it took an `actorId`
+  // string and trusted it. An id in an argument is a claim, not an authority.
+  // `viewer` is optional only so the CLI, which runs with database access and
+  // has already proven more than this, can pass none deliberately.
+  if (viewer !== null && !isInstallationOperator(viewer)) {
+    throw failure(403, 'OPERATOR_GRANT_REQUIRES_OPERATOR')
+  }
+  if (typeof personId !== 'string' || !personId.trim()) throw failure(400, 'OPERATOR_GRANT_PERSON_REQUIRED')
+  if (typeof reason !== 'string' || !reason.trim()) throw failure(400, 'OPERATOR_GRANT_REASON_REQUIRED')
+  const expiry = expiresAt instanceof Date ? expiresAt : (typeof expiresAt === 'string' ? new Date(expiresAt) : null)
+  if (!expiry || Number.isNaN(expiry.getTime())) throw failure(400, 'OPERATOR_GRANT_EXPIRY_REQUIRED')
+  const nowDate = now()
+  if (expiry.getTime() <= nowDate.getTime()) throw failure(400, 'OPERATOR_GRANT_EXPIRY_MUST_BE_FUTURE')
+  if (expiry.getTime() - nowDate.getTime() > OPERATOR_GRANT_MAX_MS) {
+    throw failure(400, `OPERATOR_GRANT_EXPIRY_EXCEEDS_MAX_${OPERATOR_GRANT_MAX_DAYS}_DAYS`)
+  }
+
+  const person = await db.person.findUnique({ where: { id: personId }, select: { id: true, code: true, displayName: true } })
+  if (!person) throw failure(404, 'OPERATOR_GRANT_PERSON_NOT_FOUND')
+
+  return db.$transaction(async (tx) => {
+    const superseded = await tx.platformGrant.findFirst({
+      where: { personId, capability: OPERATOR_CAPABILITY, status: 'ACTIVE' },
+      select: { id: true, standing: true },
+    })
+    // @req FR-197 — a standing grant is not renewable into an expiring one.
+    // Superseding it would put the installation's only unexpiring operator on a
+    // 90-day clock: when it lapsed there would be no operator, and
+    // `bootstrapOperator` — which exists for exactly that hole — would refuse
+    // while an expired row sat there looking ACTIVE. Issue the second operator
+    // a grant of their own; revoke the standing one deliberately if that is
+    // what is meant.
+    if (superseded?.standing) {
+      throw failure(409, 'OPERATOR_GRANT_STANDING_NOT_RENEWABLE — revoke the standing grant explicitly rather than superseding it with an expiring one')
+    }
+    if (superseded) {
+      await tx.platformGrant.updateMany({
+        where: { id: superseded.id, status: 'ACTIVE' },
+        data: { status: 'REVOKED', revokedAt: nowDate, revokeReason: 'SUPERSEDED_BY_RENEWAL' },
+      })
+      await recordAudit(tx, {
+        entityType: 'PERSON', entityId: personId, action: 'OPERATOR_GRANT_REVOKED', actorId,
+        payload: { personCode: person.code, grantId: superseded.id, reason: 'SUPERSEDED_BY_RENEWAL', at: nowDate.toISOString() },
+      })
+    }
+
+    const grant = await tx.platformGrant.create({
+      data: {
+        personId, capability: OPERATOR_CAPABILITY, status: 'ACTIVE', standing: false,
+        expiresAt: expiry, grantReason: reason.trim(), grantedByPersonId: actorId,
+      },
+      select: { id: true, expiresAt: true },
+    })
+    await recordAudit(tx, {
+      entityType: 'PERSON', entityId: personId, action: 'OPERATOR_GRANT_ISSUED', actorId,
+      payload: {
+        personCode: person.code, grantId: grant.id, reason: reason.trim(),
+        expiresAt: expiry.toISOString(), supersededGrantId: superseded?.id ?? null,
+      },
+    })
+    return { id: grant.id, personId, personCode: person.code, displayName: person.displayName, expiresAt: grant.expiresAt }
+  })
 }
 
 /**
@@ -202,7 +319,7 @@ export async function revokeOperatorGrant(grantId, { reason = 'REVOKED', allowLa
 
   if (!allowLast) {
     const activeOperatorCount = await db.platformGrant.count({
-      where: { capability: OPERATOR_CAPABILITY, status: 'ACTIVE' },
+      where: liveOperatorGrantWhere(now()),
     })
     if (activeOperatorCount <= 1) {
       throw failure(409, 'OPERATOR_GRANT_REFUSED_LAST_ACTIVE_OPERATOR — revoking the last ACTIVE OPERATOR grant would lock the installation out; pass --allow-last to override')

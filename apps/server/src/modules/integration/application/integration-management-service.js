@@ -99,6 +99,11 @@ function toMetadata(connection, { lastEventAt = null, now = new Date(), staleAft
     secretConfigured: Boolean(credential),
     secretStatus: credential?.status ?? 'MISSING',
     secretRefMasked: maskSecretRef(credential?.secretRef),
+    // @req FR-223 — lifecycle metadata only; the hint is the Channel ID's last four (SEC-030).
+    secretStore: credential?.secretStore ?? null,
+    displayHint: credential?.displayHint ?? null,
+    lastValidatedAt: credential?.lastValidatedAt ?? null,
+    lastValidationCode: credential?.lastValidationCode ?? null,
     credentialVersion: credential?.version ?? null,
     expiresAt: credential?.expiresAt ?? null,
     updatedAt: connection.updatedAt ?? null,

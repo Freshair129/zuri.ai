@@ -194,7 +194,7 @@ function ProjectsDashboardInner() {
   return (
     <div>
       <PageHeader
-        eyebrow="Development"
+        eyebrow="Projects & Work"
         title="Dashboard"
         subtitle="Delivery across the selected scope, and the Projects behind it."
         actions={

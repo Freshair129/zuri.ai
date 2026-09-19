@@ -78,6 +78,18 @@ describe('answerBusinessQuestion (FR-049)', () => {
     expect(JSON.stringify(result)).not.toContain('secret abc')
   })
 
+  // @req FR-235 — the deterministic fallback also has to answer over GKS
+  // corpus evidence (`{kind:'CORPUS_CHUNK', text, citationId, ...}`), which
+  // carries none of the product-row fields above.
+  it('falls back to the corpus chunk text, not product-row fields, when evidence is a CORPUS_CHUNK', async () => {
+    const corpusEvidence = { records: [{ kind: 'CORPUS_CHUNK', text: 'USB-001 ราคา 120 บาท', citationId: 'cit-1' }] }
+    const knowledge = { query: vi.fn(async () => corpusEvidence) }
+    const model = { provider: 'groq', model: 'test', generate: vi.fn(async () => { throw new Error('provider unavailable') }) }
+    const result = await answerBusinessQuestion({ businessId: 'smartgift', question: 'USB-001 ราคาเท่าไร' }, { knowledge, model })
+    expect(result.text).toBe('USB-001 ราคา 120 บาท')
+    expect(result.provider.status).toBe('fallback')
+  })
+
   it('does not turn an unknown memory receipt into a fallback answer', async () => {
     const knowledge = { query: vi.fn(async () => evidence) }
     const model = {

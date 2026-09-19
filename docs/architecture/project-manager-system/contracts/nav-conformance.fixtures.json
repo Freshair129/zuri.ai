@@ -1,0 +1,704 @@
+{
+  "schemaVersion": "1.1.0",
+  "version": "0.3.0b",
+  "status": "candidate",
+  "attempt": 3,
+  "packetId": "PM-20260916-D02-01-A3",
+  "workPackageId": "MA-D02",
+  "navigationRef": "navigation.candidate.json",
+  "sourceCommit": "eddd3dd8d884a0b19a65f9a3019758c05c815b48",
+  "runtimeEvidence": "NOT_RUN",
+  "fixturePolicy": {
+    "idsAreFixtureIds": true,
+    "businessId": "fixture-business-001",
+    "projectId": "fixture-project-001",
+    "noDataMutation": true,
+    "noCanonicalIdAllocation": true,
+    "existingGrantContext": [
+      "projects"
+    ]
+  },
+  "moduleInventory": [
+    {
+      "moduleId": "module.project-management",
+      "label": "Project Management",
+      "entryPath": "/projects",
+      "projectContextEntry": "/projects/{projectId}",
+      "readiness": "LIVE",
+      "sharedActionRefs": [
+        "pm.import"
+      ]
+    },
+    {
+      "moduleId": "module.work-management",
+      "label": "Work Management",
+      "entryPath": "/work",
+      "projectContextEntry": "/projects/{projectId}/structure",
+      "readiness": "LIVE",
+      "sharedActionRefs": [
+        "pm.import"
+      ]
+    },
+    {
+      "moduleId": "module.delivery-design",
+      "label": "Delivery Design",
+      "entryPath": null,
+      "readiness": "PLANNED_NO_ROUTE",
+      "sharedActionRefs": []
+    },
+    {
+      "moduleId": "module.resource-coordination",
+      "label": "Resource Coordination",
+      "entryPath": "/files",
+      "projectContextEntry": "/projects/{projectId}/team",
+      "readiness": "LIVE",
+      "sharedActionRefs": [
+        "pm.import"
+      ]
+    },
+    {
+      "moduleId": "module.delivery-governance",
+      "label": "Delivery Governance",
+      "entryPath": null,
+      "readiness": "PLANNED_NO_ROUTE",
+      "sharedActionRefs": []
+    },
+    {
+      "moduleId": "module.agent-delivery",
+      "label": "Agent Delivery",
+      "entryPath": null,
+      "readiness": "PLANNED_NO_ROUTE",
+      "sharedActionRefs": []
+    }
+  ],
+  "businessDestinationRelocation": [
+    {
+      "legacyId": "b.dashboard",
+      "legacyLabel": "Dashboard",
+      "path": "/projects",
+      "moduleId": "module.project-management",
+      "localSurfaceId": "pm.projects",
+      "status": "LIVE",
+      "grantKey": "projects"
+    },
+    {
+      "legacyId": "b.all-work",
+      "legacyLabel": "All Work",
+      "path": "/work",
+      "moduleId": "module.work-management",
+      "localSurfaceId": "wm.all-work",
+      "status": "LIVE",
+      "grantKey": "projects"
+    },
+    {
+      "legacyId": "b.execution",
+      "legacyLabel": "Execution",
+      "path": "/execution",
+      "moduleId": "module.work-management",
+      "localSurfaceId": "wm.execution",
+      "status": "LIVE",
+      "grantKey": "projects"
+    },
+    {
+      "legacyId": "b.timeline",
+      "legacyLabel": "Timeline",
+      "path": "/timeline",
+      "moduleId": "module.work-management",
+      "localSurfaceId": "wm.timeline",
+      "status": "LIVE",
+      "grantKey": "projects"
+    },
+    {
+      "legacyId": "b.dependencies",
+      "legacyLabel": "Dependencies",
+      "path": "/dependencies",
+      "moduleId": "module.work-management",
+      "localSurfaceId": "wm.dependencies",
+      "status": "LIVE",
+      "grantKey": "projects"
+    },
+    {
+      "legacyId": "b.milestones",
+      "legacyLabel": "Milestones & Gates",
+      "path": "/milestones",
+      "moduleId": "module.work-management",
+      "localSurfaceId": "wm.milestones",
+      "status": "LIVE",
+      "grantKey": "projects"
+    },
+    {
+      "legacyId": "b.files",
+      "legacyLabel": "Files",
+      "path": "/files",
+      "moduleId": "module.resource-coordination",
+      "localSurfaceId": "rc.files",
+      "status": "LIVE",
+      "grantKey": "projects"
+    },
+    {
+      "legacyId": "b.repositories",
+      "legacyLabel": "Repositories",
+      "path": "/repositories",
+      "moduleId": "module.resource-coordination",
+      "localSurfaceId": "rc.repositories",
+      "status": "LIVE",
+      "grantKey": "projects"
+    }
+  ],
+  "routeInventory": {
+    "businessDestinationCount": 8,
+    "projectSectionCount": 9,
+    "projectRouteCount": 14,
+    "workViewCount": 7,
+    "projectRoutes": [
+      "/projects/{projectId}",
+      "/projects/{projectId}/execution/{mode}",
+      "/projects/{projectId}/inventory",
+      "/projects/{projectId}/repositories",
+      "/projects/{projectId}/team",
+      "/projects/{projectId}/files",
+      "/projects/{projectId}/import",
+      "/projects/{projectId}/roadmap",
+      "/projects/{projectId}/structure",
+      "/projects/{projectId}/board",
+      "/projects/{projectId}/all-work",
+      "/projects/{projectId}/timeline",
+      "/projects/{projectId}/milestones",
+      "/projects/{projectId}/dependencies"
+    ],
+    "workViews": [
+      "roadmap",
+      "structure",
+      "board",
+      "all-work",
+      "timeline",
+      "milestones",
+      "dependencies"
+    ],
+    "actualSourceEvidence": {
+      "businessDestinationRouteFiles": 8,
+      "moduleRootRoutes": 3,
+      "projectRouteFiles": 14,
+      "projectWorkRouteFiles": 7,
+      "logicalModules": 6,
+      "sourceCommit": "eddd3dd8d884a0b19a65f9a3019758c05c815b48"
+    },
+    "canonicalWorkIdentity": {
+      "path": "/work",
+      "id": "b.all-work",
+      "forbiddenSourceActiveId": "b.work"
+    }
+  },
+  "positiveCases": [
+    {
+      "id": "NAV3-P01",
+      "acceptance": "TAX-A1",
+      "pathname": "/projects",
+      "expect": {
+        "activeModule": "module.project-management",
+        "localSurface": "pm.projects",
+        "domainLabel": "Projects & Work",
+        "grantKey": "projects"
+      }
+    },
+    {
+      "id": "NAV3-P02",
+      "acceptance": "TAX-A1",
+      "pathname": "/work",
+      "expect": {
+        "activeModule": "module.work-management",
+        "localSurface": "wm.all-work",
+        "scope": "BUSINESS"
+      }
+    },
+    {
+      "id": "NAV3-P03",
+      "acceptance": "TAX-A1",
+      "pathname": "/files",
+      "expect": {
+        "activeModule": "module.resource-coordination",
+        "localSurface": "rc.files",
+        "scope": "BUSINESS"
+      }
+    },
+    {
+      "id": "NAV3-P04",
+      "acceptance": "TAX-A6",
+      "pathname": "/repositories",
+      "expect": {
+        "activeModule": "module.resource-coordination",
+        "localSurface": "rc.repositories",
+        "legacyDestination": "b.repositories"
+      }
+    },
+    {
+      "id": "NAV3-P05",
+      "acceptance": "TAX-A4",
+      "pathname": "/projects/fixture-project-001",
+      "expect": {
+        "activeModule": "module.project-management",
+        "localSurface": "pm.project-overview",
+        "projectId": "fixture-project-001"
+      }
+    },
+    {
+      "id": "NAV3-P06",
+      "acceptance": "TAX-A4",
+      "pathname": "/projects/fixture-project-001/repositories",
+      "expect": {
+        "activeModule": "module.resource-coordination",
+        "localSurface": "rc.repositories",
+        "capabilitySection": "Inventory",
+        "projectId": "fixture-project-001"
+      }
+    },
+    {
+      "id": "NAV3-P07",
+      "acceptance": "TAX-A4",
+      "pathname": "/projects/fixture-project-001/team",
+      "expect": {
+        "activeModule": "module.resource-coordination",
+        "localSurface": "rc.team",
+        "authority": "identity",
+        "membershipScope": "Business/Tenant Membership"
+      }
+    },
+    {
+      "id": "NAV3-P08",
+      "acceptance": "TAX-A7",
+      "pathname": "/projects/fixture-project-001/import",
+      "expect": {
+        "activeModule": "module.project-management",
+        "action": "pm.import",
+        "localTab": false,
+        "headerAction": true,
+        "routeRetained": true
+      }
+    },
+    {
+      "id": "NAV3-P09",
+      "acceptance": "TAX-A2",
+      "pathname": "/projects/fixture-project-001/structure",
+      "expect": {
+        "activeModule": "module.work-management",
+        "view": "Structure Plan",
+        "default": true,
+        "projectSectionsRail": "module-local"
+      }
+    },
+    {
+      "id": "NAV3-P10",
+      "acceptance": "TAX-A2",
+      "pathname": "/projects/fixture-project-001/timeline",
+      "expect": {
+        "activeModule": "module.work-management",
+        "view": "Schedule",
+        "businessLabel": "Timeline"
+      }
+    },
+    {
+      "id": "NAV3-P11",
+      "acceptance": "TAX-A5",
+      "shortcut": "Projects Home -> /projects",
+      "expect": {
+        "ownerDomainKey": "projects",
+        "targetAuthorization": true,
+        "grantEffect": "NONE"
+      }
+    },
+    {
+      "id": "NAV3-P12",
+      "acceptance": "TAX-A9",
+      "pathname": "/projects/fixture-project-001/board",
+      "expect": {
+        "activeModule": "module.work-management",
+        "sevenWorkViewsReachable": true,
+        "oneLocalViewActive": true
+      }
+    },
+    {
+      "id": "NAV3-P13",
+      "acceptance": "TAX-A7",
+      "pathname": "/projects/fixture-project-001/import",
+      "expect": {
+        "sharedActionId": "pm.import",
+        "ownerModuleId": "module.project-management",
+        "reachableFromAuthorizedProjectModules": [
+          "module.project-management",
+          "module.work-management",
+          "module.resource-coordination"
+        ],
+        "localTab": false,
+        "currentPageCue": true,
+        "returnPath": "/projects/fixture-project-001"
+      }
+    },
+    {
+      "id": "NAV3-P14",
+      "acceptance": "TAX-A1",
+      "pathname": "/work",
+      "expect": {
+        "canonicalId": "b.all-work",
+        "forbiddenActiveId": "b.work",
+        "surfaceId": "wm.all-work"
+      }
+    },
+    {
+      "id": "NAV3-P15",
+      "acceptance": "TAX-A6",
+      "screenId": "WF-13",
+      "expect": {
+        "title": "Docs & Decisions",
+        "plannedViews": [
+          "Documents",
+          "Decisions"
+        ],
+        "noHref": true
+      }
+    }
+  ],
+  "negativeCases": [
+    {
+      "id": "NAV3-N01",
+      "acceptance": "TAX-A1",
+      "expect": {
+        "sidebarRows": 6,
+        "oldEightRowsAsTopLevel": false,
+        "moduleActiveCardinality": 1
+      }
+    },
+    {
+      "id": "NAV3-N02",
+      "acceptance": "TAX-A1",
+      "expect": {
+        "allSixProjectTabsSimultaneouslyVisible": false,
+        "localTabsBelongToSelectedModule": true
+      }
+    },
+    {
+      "id": "NAV3-N03",
+      "acceptance": "TAX-A7",
+      "expect": {
+        "importLocalTabCount": 0,
+        "importHeaderActionCount": 1,
+        "duplicateTabAction": false
+      }
+    },
+    {
+      "id": "NAV3-N04",
+      "acceptance": "TAX-A6",
+      "pathname": "/projects/fixture-project-001/requirements",
+      "expect": {
+        "route": "NO_HREF",
+        "status": "PLANNED_NO_ROUTE",
+        "fakeSuccess": false
+      }
+    },
+    {
+      "id": "NAV3-N05",
+      "acceptance": "TAX-A6",
+      "pathname": "/projects/fixture-project-001/risks",
+      "expect": {
+        "route": "NO_HREF",
+        "activeModule": "module.delivery-governance",
+        "fakeSuccess": false
+      }
+    },
+    {
+      "id": "NAV3-N06",
+      "acceptance": "TAX-A6",
+      "pathname": "/projects/fixture-project-001/resources",
+      "expect": {
+        "route": "NO_HREF",
+        "deferredTo": "MA-D02W",
+        "fakeSuccess": false
+      }
+    },
+    {
+      "id": "NAV3-N07",
+      "acceptance": "TAX-A2",
+      "pathname": "/projects/fixture-project-001/calendar",
+      "expect": {
+        "route": "NOT_IN_CORE",
+        "workViewCount": 7,
+        "fallbackView": null
+      }
+    },
+    {
+      "id": "NAV3-N08",
+      "acceptance": "TAX-A4",
+      "pathname": "/projects/fixture-project-001/structure/extra",
+      "expect": {
+        "substringMatch": false,
+        "activeView": null,
+        "existingRouterNotFound": true
+      }
+    },
+    {
+      "id": "NAV3-N09",
+      "acceptance": "TAX-A5",
+      "viewerDomains": [],
+      "shortcut": "Projects Home -> /projects",
+      "expect": {
+        "grantEffect": "NONE",
+        "visibleDomainAdded": false
+      }
+    },
+    {
+      "id": "NAV3-N10",
+      "acceptance": "TAX-A8",
+      "expect": {
+        "providerRegistryOpenedByAgentDelivery": false,
+        "cloudLocalMcpImplemented": false,
+        "grantWidening": false
+      }
+    },
+    {
+      "id": "NAV3-N11",
+      "acceptance": "TAX-A7",
+      "expect": {
+        "sharedImportActionDefinitions": 1,
+        "sharedImportModuleReferences": 3,
+        "importLocalTabOccurrences": 0
+      }
+    },
+    {
+      "id": "NAV3-N12",
+      "acceptance": "TAX-A2",
+      "expect": {
+        "rawLegacyNavIdsAsActive": 0,
+        "undeclaredLocalSurfaceIds": 0,
+        "undeclaredActionAsLocalSurface": 0
+      }
+    },
+    {
+      "id": "NAV3-N13",
+      "acceptance": "TAX-A2",
+      "pathname": "/projects/fixture-project-001/calendar",
+      "expect": {
+        "href": null,
+        "status": "DEFERRED_NON_GENERATABLE"
+      }
+    }
+  ],
+  "authorizationCases": [
+    {
+      "id": "NAV3-AUTH-P01",
+      "phase": "pre-AppShell",
+      "guard": "resolveBusinessShellDecision",
+      "pathname": "/projects/fixture-project-001/structure",
+      "scope": {
+        "businessId": "fixture-business-001",
+        "projects": [
+          {
+            "id": "fixture-project-001",
+            "businessId": "fixture-business-001"
+          }
+        ]
+      },
+      "expect": {
+        "state": "READY",
+        "projectId": "fixture-project-001",
+        "newGrant": false
+      }
+    },
+    {
+      "id": "NAV3-AUTH-N01",
+      "phase": "pre-AppShell",
+      "guard": "resolveBusinessShellDecision",
+      "pathname": "/projects/fixture-project-001/structure",
+      "scope": {
+        "businessId": "other-business-002",
+        "projects": [
+          {
+            "id": "fixture-project-001",
+            "businessId": "fixture-business-001"
+          }
+        ]
+      },
+      "expect": {
+        "state": "FORBIDDEN",
+        "reason": "PROJECT_BUSINESS_MISMATCH",
+        "newGrant": false
+      }
+    },
+    {
+      "id": "NAV3-AUTH-P02",
+      "phase": "pre-AppShell",
+      "guard": "resolveBusinessShellDecision",
+      "scope": {
+        "businessId": "fixture-business-001",
+        "projects": [
+          {
+            "id": "fixture-project-001",
+            "businessId": null
+          }
+        ]
+      },
+      "expect": {
+        "state": "READY",
+        "sharedBusinessIdNullPreserved": true
+      }
+    },
+    {
+      "id": "NAV3-AUTH-N02",
+      "phase": "target-api",
+      "route": "/api/projects/{id}",
+      "expect": {
+        "resolveRequestViewer": true,
+        "assertProjectReadableBeforeRelationRead": true,
+        "useParamsNotAuthority": true
+      }
+    }
+  ],
+  "accessibilityCases": [
+    {
+      "id": "NAV3-A11Y-01",
+      "acceptance": "TAX-A9",
+      "expect": {
+        "domainLandmark": "Domains",
+        "sidebarLandmark": "Projects & Work modules",
+        "oneActiveModule": true,
+        "plannedRowsFocusVisible": true
+      }
+    },
+    {
+      "id": "NAV3-A11Y-02",
+      "acceptance": "TAX-A9",
+      "expect": {
+        "selectedModuleOnlyLocalTabs": true,
+        "keyboardModuleSwitch": true,
+        "plannedRowsNoHref": true
+      }
+    },
+    {
+      "id": "NAV3-A11Y-03",
+      "acceptance": "TAX-A7",
+      "expect": {
+        "importHeaderActionKeyboardReachable": true,
+        "importCurrentCueAfterRoute": true,
+        "noDuplicateImportTab": true
+      }
+    },
+    {
+      "id": "NAV3-A11Y-04",
+      "acceptance": "TAX-A2",
+      "expect": {
+        "projectWorkViewsLandmark": "Project work views",
+        "sevenViewsKeyboardReachable": true,
+        "ariaCurrentOne": true
+      }
+    },
+    {
+      "id": "NAV3-A11Y-05",
+      "acceptance": "TAX-A9",
+      "expect": {
+        "narrowViewportDoesNotHideRequiredModule": true,
+        "moduleAndLocalLevelNamed": true
+      }
+    }
+  ],
+  "structuralAssertions": [
+    {
+      "id": "STRUCT3-01",
+      "assert": "navigation.modules.length === 6"
+    },
+    {
+      "id": "STRUCT3-02",
+      "assert": "three module entry paths are live and three are null planned entries"
+    },
+    {
+      "id": "STRUCT3-03",
+      "assert": "businessDestinationRelocation.length === 8 and b.all-work is the sole canonical /work id"
+    },
+    {
+      "id": "STRUCT3-04",
+      "assert": "every business destination maps to one declared module and one local surface"
+    },
+    {
+      "id": "STRUCT3-05",
+      "assert": "projectSectionCount === 9 and Work uses wm.project-work-views VIEW_GROUP while Import uses pm.import ACTION"
+    },
+    {
+      "id": "STRUCT3-06",
+      "assert": "routeInventory.projectRouteCount === 14 and every routeCrosswalk entry maps to one module"
+    },
+    {
+      "id": "STRUCT3-07",
+      "assert": "workViewCount === 7 and exactly one default view is Structure Plan; Calendar is deferred"
+    },
+    {
+      "id": "STRUCT3-08",
+      "assert": "one pm.import definition is PM-owned, three live module references exist, and zero local Import tabs exist"
+    },
+    {
+      "id": "STRUCT3-09",
+      "assert": "every source legacy nav id has exactly one classification and raw legacy ids are never active generator inputs"
+    },
+    {
+      "id": "STRUCT3-10",
+      "assert": "planned module entries and named planned surfaces have null paths/noHref true"
+    },
+    {
+      "id": "STRUCT3-11",
+      "assert": "full UX screen count is 37 with explicit core/planned/deferred/preserved status on every screen"
+    },
+    {
+      "id": "STRUCT3-12",
+      "assert": "WF-13 preserves Docs & Decisions plus Documents and Decisions semantics"
+    },
+    {
+      "id": "STRUCT3-13",
+      "assert": "source route enumeration is 8 business destinations, 14 project route files, 7 Work route files, and 6 logical modules"
+    }
+  ],
+  "acceptanceStatus": {
+    "TAX-A1": "NOT_RUN",
+    "TAX-A2": "NOT_RUN",
+    "TAX-A3": "NOT_RUN",
+    "TAX-A4": "NOT_RUN",
+    "TAX-A5": "NOT_RUN",
+    "TAX-A6": "NOT_RUN",
+    "TAX-A7": "NOT_RUN",
+    "TAX-A8": "NOT_RUN",
+    "TAX-A9": "NOT_RUN",
+    "TAX-A10": "NOT_RUN"
+  },
+  "notes": [
+    "Attempt 3 is static conformance data only; runtime, browser, product tests, governance, migration, and deployment remain NOT_RUN.",
+    "Expected route counts are source enumeration evidence: 8 business, 14 project, 7 Work, 6 logical modules.",
+    "Import is one PM-owned persistent action exposed from all three authorized live Project module shells; no additional route or local tab.",
+    "Legacy IDs are traceability only and must be consumed through explicit classification.",
+    "WF-13 retains Docs & Decisions semantics; planned screens remain noHref."
+  ],
+  "uxUiRef": "ux-ui.candidate.json",
+  "patchRef": "ux-ui.navigation-core.patch.json",
+  "baselineRef": "22-NAVIGATION-IMPLEMENTATION-BASELINE.md",
+  "sharedProjectActions": [
+    {
+      "id": "pm.import",
+      "ownerModuleId": "module.project-management",
+      "actionDefinitionCount": 1,
+      "reachableFromAuthorizedProjectModules": [
+        "module.project-management",
+        "module.work-management",
+        "module.resource-coordination"
+      ],
+      "localTab": false,
+      "route": "/projects/{projectId}/import",
+      "currentPageCue": true,
+      "returnPath": "/projects/{projectId}"
+    }
+  ],
+  "legacyNavigationPolicy": {
+    "ref": "navigation.candidate.json#legacyNavigationPolicy",
+    "sourceLegacyIdCount": 42,
+    "classifications": [
+      "mapped",
+      "actionMigrated",
+      "deferredNonGeneratable",
+      "preservedOutOfD02"
+    ],
+    "rawLegacyNavIdsNeverActive": true
+  }
+}

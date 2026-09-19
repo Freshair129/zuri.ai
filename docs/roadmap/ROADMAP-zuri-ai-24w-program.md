@@ -1,11 +1,11 @@
 ---
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
-status: "draft"
-version: "0.3.0"
-updated: "2026-08-23"
+status: "approved"
+version: "0.4.12"
+updated: "2026-09-17"
 repo_created_at: "2026-08-11T16:27:54Z"
-baseline_commit: "7d8c9d0"
+baseline_commit: "2b7ad27d"
 programme_start: "2026-08-24"
 programme_end: "2027-02-07"
 owner: "Owen"
@@ -14,10 +14,11 @@ auditor: "ATHER"
 source_of_truth: false
 access_scope: "H3"
 complexity: "C-3"
-primary_goal: "Deliver the ten proposal deliverables on a 24-week schedule, starting from the verified zuri-ai build rather than from zero"
+primary_goal: "Deliver the eleven proposal deliverables (ten submitted plus ERP business modules under CR-019) on a 24-week schedule, starting from the verified zuri-ai build rather than from zero"
 live_document: true
 related_docs:
   - "docs/roadmap/ROADMAP.md"
+  - "docs/change-requests/CR-019-24W-PROGRAMME-DELIVERABLE-11-ERP-BUSINESS-MODULES.md"
   - "docs/FEATURE-MAP.md"
   - "docs/PRD-SDD-v1.0.md"
   - "docs/UI-DESIGN-SYSTEM.md"
@@ -31,12 +32,23 @@ related_docs:
 
 Rendered board: `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
 
+Version diff 0.4.10 → 0.4.11 (2026-09-16): TASK-ZAI-063 is reconciled to local/review
+evidence with four bounded owning-domain reads and truthful unavailable states; the Documents
+surface is bounded to Text/Markdown admission. No model, migration, deployment or production
+activation is claimed.
+
 ## 1. Purpose
 
 The commercial proposal describes a 24-week programme in six four-week bands and ten
 deliverables. That document is a **preliminary estimate written against an empty repository**.
-This roadmap is the same programme rewritten against `D:\zuri-ai` as it actually stands, in the
-GoVibe planning form: Phases to Sprints to Backlog Items to Task Containers.
+This roadmap is the same programme rewritten against the primary checkout as it actually stands,
+in the GoVibe planning form: Phases to Sprints to Backlog Items to Task Containers.
+
+Since v0.4.0 the programme carries an **eleventh deliverable, ERP business modules**, added by
+[CR-019](../change-requests/CR-019-24W-PROGRAMME-DELIVERABLE-11-ERP-BUSINESS-MODULES.md) on
+2026-09-13. The proposal never named Inventory, Procurement, Commerce, Marketing, Asset
+Management or LINE OA Studio, yet they are most of what the repository built in the programme's
+first three weeks; the CR is the mechanism section 2 requires before counting them.
 
 Two rules apply to every row below.
 
@@ -57,7 +69,7 @@ Two rules apply to every row below.
 | Architecture decisions | `docs/decisions/ADR-*.md` | contradict a pinned ADR |
 | Design tokens and layout | `docs/UI-DESIGN-SYSTEM.md`, Zuri Heritage v2 under ADR-010 | introduce a non-Heritage accent colour |
 | Board rendering contract | GoVibe Mission Control roadmap parser | change the recognised status vocabulary |
-| Commercial scope | The signed proposal: 10 deliverables, 8 acceptance criteria | widen scope without a Change Request |
+| Commercial scope | The signed proposal: 10 deliverables, 8 acceptance criteria — plus deliverable 11 and GATE-ZAI-09 under CR-019 | widen scope without a Change Request |
 
 ### 2.1 Status vocabulary lock
 
@@ -78,52 +90,65 @@ baseline of this document (`6ad6ae9`, 20 Aug) and this one (`7d8c9d0`, 23 Aug) t
 - **Re-baseline before quoting.** Section 5 is a snapshot, not a live feed. Re-run the commands in
   section 5.2 before using any number in a commercial conversation.
 
-At the moment this revision was written, `docs/decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md`
+At the moment the 0.3.0 revision was written, `docs/decisions/ADR-044-UNIFIED-THREAD-ID-AND-OMNI-CHANNEL-CONSOLE.md`
 existed in the working tree but was not yet tracked — a sixth decision being authored while this
 plan was being re-baselined against the fifth. That is the condition this section describes, not
 a hypothetical one.
 
+The 0.4.0 re-baseline (2026-09-13) is the same condition three weeks on: between `7d8c9d0` and
+`2b7ad27d` the tree gained about 270 first-parent merges, 107 declared requirements and 39
+decisions. The v0.3.0 figures were not wrong; they were three weeks old, which for this
+repository is the same thing.
+
 ## 3. Evidence Baseline
 
-Measured against `D:\zuri-ai` at commit `7d8c9d0`, 2026-08-23 04:05 +07.
+Measured against the primary checkout at commit `2b7ad27d`, 2026-09-13 06:46 +07. The v0.3.0
+column is kept so the three-week delta is visible without opening git.
 
-| Measure | Value | Where it comes from |
-|---|---|---|
-| Declared features | 93 | rows beginning `FR-` in `docs/FEATURE-MAP.md`, generated |
-| Live | 82 | rows marked live in that table |
-| Planned | 6 | FR-066, FR-067, FR-082, FR-083, FR-084, FR-085 |
-| Built but not declared | 5 | FR-087, FR-088, FR-089, FR-091, FR-093 |
-| Test files tracked | 263 | 252 under `tests/**/*.test.js`, 11 under `tests/e2e/*.spec.js` |
-| Lines standing in the tree | 198,574 | `git ls-files` minus lockfile and binaries |
-| Commits | 392 | `git rev-list --count HEAD` |
-| Governance gate | `npm run govern` | doc-graph, doc-check, doc-preflight |
-| Domains in the spine | 9 | shell, identity, project-manager, business, people, crm, knowledge, agent, integration |
+| Measure | v0.3.0 (`7d8c9d0`) | v0.4.0 (`2b7ad27d`) | Where it comes from |
+|---|---|---|---|
+| Declared requirements | 93 | 200 | rows beginning `\| FR-` in `docs/PRD-SDD-v1.0.md` (FEATURE-MAP.md is no longer committed, ADR-081) |
+| Marked implemented (✅) | 82 | 100 | same rows; the other 100 are 🟠 implemented locally / partial, 🟢 beta, 🔵 approved, 🔜 declared, or Phase 1 activation rows |
+| Design only | 6 | 4 | FR-082, FR-083, FR-084, FR-085 (ADR-035, not authorized) |
+| Built but not declared | 5 | 0 | closed by TASK-ZAI-002 on 2026-08-26 |
+| Feature bundles | 9 | 30 | `FEAT-` rows in `docs/FEATURES.md` |
+| Decisions | 43 | 82 | `docs/decisions/ADR-*.md` |
+| Test files tracked | 263 | 761 | `apps/server/tests/**/*.{test,spec}.js` plus `apps/edge` tests |
+| Lines standing in the tree | 198,574 | 617,397 | `git ls-files` minus lockfile and binaries; includes `llms-full.txt` and the monorepo's Edge tree, so not comparable one to one |
+| Commits | 392 | 1,451 | `git rev-list --count HEAD` |
+| Governance gate | `npm run govern` | `npm run govern` | doc-graph, doc-check, doc-preflight |
+| Domains in the spine | 9 | 14 | `docs/domains/*/CHARTER.md`: agent, asset-management, commerce, crm, identity, integration, inventory, knowledge, line-oa-studio, market-intelligence, marketing, platform-control, procurement, project-manager |
+| Production migrations | n/a | 25 since baseline | `apps/server/supabase/migrations/2026090[6-9]*` and `202609[1-2]*`; applied status per `docs/DB-MIGRATION-NOTES.md`, never assumed |
 
 Test files are a file count, not a green suite. A verified pass requires `npm run verify` and is
 the exit evidence for TASK-ZAI-029.
 
 ### 3.1 Deliverable-by-deliverable reality check
 
-The proposal's ten deliverables against what exists today. This table is the reason the phase
-plan is shaped the way it is.
+The proposal's ten deliverables, plus CR-019's eleventh, against what exists today. This table is
+the reason the phase plan is shaped the way it is. The v0.3.0 column is the reality at `7d8c9d0`;
+the v0.4.0 column is what changed in the programme's first three weeks.
 
-| # | Deliverable in the proposal | Reality at `7d8c9d0` | Delta this programme buys |
-|---|---|---|---|
-| 1 | Visual Office 2.5D | Not started. No scene model, no renderer, no route. | Whole deliverable, PHASE-ZAI-04 |
-| 2 | GoVibe Mission Control | Exists as a separate product in `G:\govibe`. It reads this repository's roadmap but is **not bound to Zuri business data**. | Binding only, TASK-ZAI-012 |
-| 3 | Interactive Node View 3D | Not started. FR-040 ships a 2D read-only project dependency map; FR-083 edge creation is planned, not built. | 3D view plus direct manipulation, SPR-ZAI-10 |
-| 4 | Second Brain / Governed Memory | Partial. FR-024 knowledge projection, FR-025 read context and FR-029 MSP/GKS runtime ports are live and **read-only**. ADR-042 and ADR-043 have since pinned a decoupled knowledge service and a four-tier cognitive architecture, but no product surface exists yet. | Retrieval by permission, lineage, replay, SPR-ZAI-09 |
-| 5 | Five Core Agent Roles | Partial. One generic agent turn exists: FR-025 read, FR-026 write gate, FR-027 turn, FR-029 ports. There is no role registry and no role-scoped policy. | Role registry plus five roles, SPR-ZAI-03 |
-| 6 | Two cross-integrated Businesses | Partial. Multi-business scaffolding is live through FR-001, FR-020, FR-043, FR-061 and FR-062. Exactly **one** business, SmartGift, is actually onboarded. | Business number two plus cross-business analytics, PHASE-ZAI-03 |
-| 7 | Up to 5 full automation workflows | None end to end. FR-026 provides the write and action gate a workflow would stand on. | Five workflows, SPR-ZAI-06 and SPR-ZAI-10 |
-| 8 | Up to 3 standard connectors | One. LINE through FR-079 runtime cut-over and FR-080 credential UI, with FR-091 inbound and FR-093 outbound reader surfaces. | Connectors two and three, SPR-ZAI-06 and SPR-ZAI-10 |
-| 9 | Approval L1 to L4 with audit, verification and notification | Partial. Immutable audit is live through FR-014. FR-026 has a **single** step-up tier for high-sensitivity actions, not a four-level ladder. No notification fabric. | L1 to L4 ladder, verification, notification, SPR-ZAI-04 |
-| 10 | Deployment, data and security checklist, UAT, training, technical documentation | Partial. FR-051 RLS, FR-052 scope binding, FR-053 golden evaluation, FR-054 isolation report and the FR-071 pipeline monitor exist. No UAT, no training, no handover pack. | Hardening through handover, PHASE-ZAI-06 |
+| # | Deliverable | Reality at `7d8c9d0` (v0.3.0) | Reality at `2b7ad27d` (v0.4.0) | Delta this programme still buys |
+|---|---|---|---|---|
+| 1 | Visual Office 2.5D | Not started. No scene model, no renderer, no route. | Unchanged. | Whole deliverable, PHASE-ZAI-04 |
+| 2 | GoVibe Mission Control (v0.4.4: plus measured delivery telemetry and task card evidence badges on the programme board, TASK-ZAI-064 to 068; v0.4.5: the Zuri harness usage plugin, TASK-ZAI-069 to 072; v0.4.6: the plugin specification and agent usage detail, TASK-ZAI-073 to 075; v0.4.8: a 30-day member view of the roadmap for signed-in people, TASK-ZAI-104) | Exists as a separate product. It reads this repository's roadmap but is **not bound to Zuri business data**. | **Corrected by the owner on 2026-09-13: this deliverable is the Project system of the Development domain in this repository, not the external GoVibe product.** That system is delivered: `src/modules/project-manager` with Projects, Workstreams, WorkItems, Board and Schedule (FR-063/064), Structure Plan and Dependency Map (FR-040), the Projects Dashboard with priority, PIC and Team (FR-086 to FR-089, FEAT-008), human-visible Execution Roadmap and Blueprint intake (FEAT-003, FR-068 to FR-070), ExecutionPlanBundle import (FEAT-012, FR-108, ADR-049), Project Inventory (FEAT-005), Files (FEAT-001) and the Marketing → PM handoff (FR-158). ROADMAP.md records PHASE-ZAI-PRODUCT done. What the proposal's "Mission Control" still lacks is agent *missions*: work created and progressed by agents under approval, visible in the same Project system — which is what TASK-ZAI-012 now names. | Agent mission feed into the Development domain, TASK-ZAI-012 |
+| 3 | Interactive Node View 3D | Not started. FR-040 ships a 2D read-only project dependency map; FR-083 edge creation is planned, not built. | FR-101 adds a second 2D read-only graph (SoT pipeline, hand-rolled SVG). FR-082 to FR-085 remain design only. | 3D view plus direct manipulation, SPR-ZAI-10 |
+| 4 | Second Brain / Governed Memory (v0.4.3: plus the data pipeline map, TASK-ZAI-060 to 063; v0.4.7: the Context Composer, LINE grounding from the published corpus, reviewed knowledge candidates, and memory policy with erasure beyond Tier 1 under ADR-090 and ADR-091, TASK-ZAI-092 to 102) | Partial. FR-024, FR-025, FR-029 read ports live and **read-only**; ADR-042/043 pinned, no product surface. | **Substantially advanced.** FR-109 to FR-119 declare the seventeen-stage ingestion path with lineage, provenance, snapshot and BR-022 quarantine; FR-173 admission and corpus publication (ADR-072); FR-098 agent/MSP authorization; FR-171 execution trace and replay (ADR-070); GenesisRAG17 isolated acceptance passed (ADR-073). Permission-scoped *retrieval* as a product surface is still open. | Retrieval by permission on the built substrate, SPR-ZAI-09, started early — TASK-ZAI-024/025 are in-progress |
+| 5 | Five Core Agent Roles | Partial. One generic agent turn; no role registry, no role-scoped policy. | Unchanged in kind. FR-181 adds six SCM tools on the existing gates and FR-098 the authorization context those tools consume, which is the substrate a role policy will bind to. No registry. | Role registry plus five roles, SPR-ZAI-03 |
+| 6 | Two cross-integrated Businesses | Partial. Multi-business scaffolding live; exactly **one** business, SmartGift, onboarded. | Unchanged count. ADR-076 aligned the organizational hierarchy to ERP vocabulary and FR-193/194 put Employment and LegalEntity under Tenant, which is what a second Business's provisioning will stand on. | Business number two plus cross-business analytics, PHASE-ZAI-03 |
+| 7 | Up to 5 full automation workflows | None end to end. | Server-owned job ledgers exist for two narrow flows: FR-152 rich-menu publish jobs and FR-143 edge extraction jobs (ADR-059), both with retry and audit. Neither is a business workflow under approval. | Five workflows, SPR-ZAI-06 and SPR-ZAI-10 |
+| 8 | Up to 3 standard connectors (v0.4.9: plus conversation sessions and business-hours model residency under ADR-094, recorded staff replies and the chat evidence cold archive under ADR-093, TASK-ZAI-105 to 115; v0.4.7: plus the Integration credential vault, self-serve LINE OA onboarding and the complete LINE chat record under ADR-089 and ADR-091, TASK-ZAI-076 to 091, and the vault generalised to other provider kinds, TASK-ZAI-103) | One. LINE through FR-079/080/091/093. | LINE deepened (FR-146 to FR-153, FR-190, server-owned transport under ADR-061). FlowAccount declared as a read-only pull pipeline (FR-125, ADR-053) but not built; GitHub projection partial (FR-130); Google Sheets snapshot intake real for Assets (FR-139). | Connectors two and three, SPR-ZAI-06 and SPR-ZAI-10 — TASK-ZAI-017 re-stated to name FlowAccount; (v0.4.7) a LINE OA connected by its owner from the browser with no operator, SPR-ZAI-03 and SPR-ZAI-04 |
+| 9 | Approval L1 to L4 with audit, verification and notification | Partial. Immutable audit through FR-014; a **single** step-up tier; no notification fabric. | Audit strengthened: FR-198/199 give events queryable scope and a Business-readable access history (ADR-080); FR-191/196/197 add withdrawable grants, segregation of duties and time-boxed operator access (ADR-077/079). Approval is still one tier; FR-100 and FR-129 are single-purpose inboxes, not a ladder. | L1 to L4 ladder, verification, notification, SPR-ZAI-04 |
+| 10 | Deployment, data and security checklist, UAT, training, technical documentation | Partial. RLS, scope binding, evaluation and isolation harnesses; no UAT, training or handover pack. | **Deployment is real.** Production runs as a Docker Compose stack behind ngrok (ADR-058, FR-142 liveness probe, FR-145 pooler mode), redeployed many times, with two written outage RCAs. IAM hardening tail (FR-094 to FR-098) and TOTP step-up merged 2026-09-12. `llms.txt` / `llms-full.txt` give the documentation corpus one LLM-readable entry. No UAT, training or handover pack. | Hardening through handover, PHASE-ZAI-06 |
+| 11 | ERP business modules (CR-019) | Not in the proposal; nothing built. | **Built for Business one.** Inventory (FEAT-020), SmartGift SCM (FEAT-025), Sales Tasks (FEAT-022), Commerce (FEAT-023), Procurement (FEAT-024), Marketing (FEAT-021), Asset Management (FEAT-015 to 017), LINE OA Studio (FEAT-018/019), catalog convergence (FEAT-026); SCM and CRM parent slots, capabilities and module tabs (FR-167 to FR-172). Most lanes are "implemented locally" in the PRD with production migrations applied lane by lane. | Production activation and GATE-ZAI-09 for Business one (TASK-ZAI-043/044); Business two under deliverable 6; the SmartGift cost and quote engine (TASK-ZAI-052 to 059, v0.4.2) |
 
 Read together: **the proposal's weeks 1 to 4 band is substantially inherited**, the weeks 5 to 8
 band is about one third inherited, and weeks 13 to 24 are greenfield. The phase plan below keeps
 the proposal's six bands so the two documents can be laid side by side, but reweights the work
-inside them.
+inside them. At v0.4.0 the reweighting has a second axis: deliverables 4, 10 and 11 moved early
+and by a lot, while 1, 3, 5, 6 and 7 did not move, so the greenfield bands are as outstanding as
+they were on 23 Aug.
 
 ### 3.2 Inherited versus purchased, per proposal band
 
@@ -135,11 +160,13 @@ inside them.
 | Weeks 13 to 16 | Visual Office 2.5D and agent activity experience | Nothing | Whole band |
 | Weeks 17 to 20 | Second Brain, Node View 3D and full automation | FR-024, FR-025 and FR-029 read ports; ADR-042 and ADR-043 as pinned decisions, not code | Whole band minus those ports |
 | Weeks 21 to 24 | Hardening, load and security test, UAT, deployment, training and handover | FR-053 golden evaluation harness, FR-054 isolation report | Whole band minus those harnesses |
+| (CR-019) Deliverable 11 | ERP business modules | Nothing at `7d8c9d0` | Built W1 to W3 for Business one (FEAT-015 to FEAT-026); production activation and acceptance remain |
 
 ## 4. Acceptance Gates
 
-The proposal's eight acceptance criteria, restated as gates. A gate is never satisfied by lowering
-its own threshold, and none is claimable on assertion. Each names the evidence that closes it.
+The proposal's eight acceptance criteria, restated as gates, plus the ninth CR-019 adds for
+deliverable 11. A gate is never satisfied by lowering its own threshold, and none is claimable on
+assertion. Each names the evidence that closes it.
 
 | Gate | Definition | Evidence that closes it | Current |
 |---|---|---|---|
@@ -151,14 +178,15 @@ its own threshold, and none is claimable on assertion. Each names the evidence t
 | GATE-ZAI-06 | Automation, retry, verification and approval pass UAT | Signed UAT record covering all five workflows | unmet |
 | GATE-ZAI-07 | Connectors honour their contract and never read outside scope | A negative test proves an out-of-scope read is refused | unmet |
 | GATE-ZAI-08 | Deployment, documentation and training are handed over complete | Handover pack accepted by the owner | unmet |
+| GATE-ZAI-09 | The ERP modules run on production for Business one with every declared migration applied, and an agent reaches them only through the declared tools (CR-019) | Production migration ledger matches `supabase/migrations/`; `npm test` green on the module suites; FR-181's negative test proves an undeclared tool path is refused | unmet — lanes are applied one by one; identity, billing/POS, stocktake and broadcast migrations are written and not yet applied |
 
 Two standing gates carried over from this repository's own governance apply throughout. They are
 already met and are listed so that a regression is visible, not as programme progress.
 
 | Gate | Definition | Current |
 |---|---|---|
-| GATE-ZAI-DOCS | `npm run govern` passes: doc-graph regenerated, `--check` clean, preflight strict | met at the 2026-08-23 baseline |
-| GATE-ZAI-HONEST | No surface reports a figure it does not own; every read projection names its source | met, FR-060 is a declared non-owning projection |
+| GATE-ZAI-DOCS | `npm run govern` passes: doc-graph regenerated, `--check` clean, preflight strict | met at the 2026-08-23 baseline; re-met at `2b7ad27d` (CI runs the chain on every pull request) |
+| GATE-ZAI-HONEST | No surface reports a figure it does not own; every read projection names its source | met, FR-060 is a declared non-owning projection; FR-105 and FR-124 joined it as declared snapshots |
 
 ## 5. Timeline and Provenance
 
@@ -242,6 +270,71 @@ in the D1 spec pack; they are simply not yet a registry.
 The cumulative column closes at 211,217, which is exactly the net in section 5.2. That
 reconciliation is the check that the day series is complete.
 
+### 5.3.1 Day-by-day history continued — D13 (after the baseline) to D34, measured 2026-09-13
+
+The owner asked (2026-09-13) for the history to run from 11 Aug to the present, so this table
+continues 5.3 with the same method: commits by committer date in Asia/Bangkok including merges;
+lines from `git log --no-merges --numstat` with `.next*` and `package-lock.json` excluded, filtered
+in `awk`; the day's registry and test counts read at the last first-parent commit of that day.
+Measured at `9b8a4fc9` (13 Sep, 09:30 +07); D34 is a partial day.
+
+Two things changed underneath the series and are handled in the open rather than hidden:
+
+1. **D13 did not end at the baseline.** `7d8c9d0` landed at 04:05 on 23 Aug and the day went on to
+   take 12 more commits. The 5.3 row for D13 is the baseline cut; the `D13+` row below is the rest
+   of that day, so the two tables join without a gap or a double count.
+2. **The monorepo relocation (D27, 6 Sep) moved every file once.** Commit `a5138eec` — "relocate
+   Server and reviewed Edge snapshot into monorepo" — inserted 209,170 lines and deleted 4,768,
+   almost all of them files that already existed under a different path plus the imported Edge
+   tree. Raw churn is reported as measured, and a second cumulative column excludes that one
+   commit. The check that the exclusion is right: the adjusted cumulative closes at 621,029, and
+   `git ls-files` at `2b7ad27d` counts 617,397 lines standing (section 3) — within 0.6 %, which is
+   the same order of gap 5.2 explains for binaries and excluded files. The raw cumulative, 825,431,
+   is not a size the tree has ever had.
+3. **`FR live` ends with FEATURE-MAP.md.** ADR-081 (12 Sep) stopped committing the generated
+   registry, so the D1–D13 `FR live` column cannot be continued. The continuation reports
+   `FR declared` (rows in the PRD, identical to FEATURE-MAP's row count on every day both existed)
+   and `FR ✅` (PRD rows marked implemented), which is a stricter definition — at `7d8c9d0` it reads
+   62 where FEATURE-MAP read 82 live — so the two columns are not to be compared across the join.
+
+| Day | Date | Weekday | Commits | +Lines | −Lines | Net | Cumulative (raw) | Cumulative (moves excluded) | FR declared | FR ✅ | Test files |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| D13+ | 2026-08-23 | Sun | 12 | 8,300 | 289 | +8,011 | 219,228 | 219,228 | 98 | 62 | 270 |
+| D14 | 2026-08-24 | Mon | 6 | 5,463 | 599 | +4,864 | 224,092 | 224,092 | 101 | 62 | 276 |
+| D15 | 2026-08-25 | Tue | 2 | 153 | 17 | +136 | 224,228 | 224,228 | 102 | 62 | 280 |
+| D16 | 2026-08-26 | Wed | 20 | 13,258 | 2,687 | +10,571 | 234,799 | 234,799 | 105 | 71 | 293 |
+| D17 | 2026-08-27 | Thu | 41 | 18,815 | 1,457 | +17,358 | 252,157 | 252,157 | 112 | 80 | 308 |
+| D18 | 2026-08-28 | Fri | 65 | 7,513 | 1,106 | +6,407 | 258,564 | 258,564 | 117 | 87 | 321 |
+| D19 | 2026-08-29 | Sat | 48 | 9,713 | 1,008 | +8,705 | 267,269 | 267,269 | 118 | 88 | 324 |
+| D20 | 2026-08-30 | Sun | 53 | 21,116 | 1,287 | +19,829 | 287,098 | 287,098 | 128 | 93 | 344 |
+| D21 | 2026-08-31 | Mon | 16 | 5,608 | 587 | +5,021 | 292,119 | 292,119 | 132 | 93 | 357 |
+| D22 | 2026-09-01 | Tue | 4 | 4,226 | 129 | +4,097 | 296,216 | 296,216 | 132 | 93 | 362 |
+| D23 | 2026-09-02 | Wed | 43 | 34,393 | 2,838 | +31,555 | 327,771 | 327,771 | 141 | 92 | 398 |
+| D24 | 2026-09-03 | Thu | 34 | 5,983 | 1,081 | +4,902 | 332,673 | 332,673 | 141 | 91 | 415 |
+| D25 | 2026-09-04 | Fri | 39 | 10,609 | 1,597 | +9,012 | 341,685 | 341,685 | 145 | 93 | 429 |
+| D26 | 2026-09-05 | Sat | 20 | 5,908 | 629 | +5,279 | 346,964 | 346,964 | 146 | 92 | 432 |
+| D27 | 2026-09-06 | Sun | 172 | 316,261 | 14,299 | +301,962 | 648,926 | 444,524 | 147 | 92 | 438 |
+| D28 | 2026-09-07 | Mon | 194 | 37,159 | 6,881 | +30,278 | 679,204 | 474,802 | 161 | 92 | 583 |
+| D29 | 2026-09-08 | Tue | 53 | 39,026 | 2,928 | +36,098 | 715,302 | 510,900 | 170 | 92 | 610 |
+| D30 | 2026-09-09 | Wed | 17 | 14,010 | 1,774 | +12,236 | 727,538 | 523,136 | 173 | 91 | 648 |
+| D31 | 2026-09-10 | Thu | 43 | 17,264 | 884 | +16,380 | 743,918 | 539,516 | 173 | 91 | 656 |
+| D32 | 2026-09-11 | Fri | 98 | 51,582 | 6,823 | +44,759 | 788,677 | 584,275 | 189 | 91 | 697 |
+| D33 | 2026-09-12 | Sat | 65 | 38,504 | 4,680 | +33,824 | 822,501 | 618,099 | 190 | 91 | 708 |
+| D34 | 2026-09-13 | Sun | 17 | 3,405 | 475 | +2,930 | 825,431 | 621,029 | 200 | 100 | 729 |
+
+Read against the 5.5 cautions: the 13-day sample was not steady state, and neither are the next 21
+days — D27 and D28 (the monorepo move and the ERP-lane merge wave) carry 366 of the 1,062 commits
+since the baseline, while D15 and D22 carry six between them. Weekends are not quiet: five of the
+eight busiest days are Saturday or Sunday. The `FR ✅` column is nearly flat from D20 to D33 (93 → 91)
+while `FR declared` climbs 128 → 190: the programme's first three weeks *declared and built
+locally* far more than they *marked implemented*, which is what the "implemented locally, migration
+not applied" rows in section 3.1 say in words. The test-file count nearly tripling (263 → 729) is a
+file count, as before, not a green suite.
+
+The 5.3 grid and a graph of both series are rendered in `ROADMAP-zuri-ai-24w-program.html` and, as
+a labelled repository-history block, on `/control/roadmap` (FR-105). Neither is programme progress;
+ADR-048 D3 still holds, and the graph says so in its caption.
+
 ### 5.4 The 24-week calendar
 
 The programme is anchored to the first Monday after the baseline. The baseline commit lands on
@@ -289,18 +382,50 @@ Three cautions against reading the 13-day history as a velocity forecast.
   after this plan was first drafted. A decision that lands mid-programme can invalidate a sprint
   that was scoped before it. Section 2.2 is the standing instruction for that.
 
+### 5.6 Programme weeks 1 to 3, measured at the v0.4.0 re-baseline
+
+Sections 5.1 to 5.5 are the 13-day pre-programme history and are left as written. This section
+is the first measurement of the programme itself, W1 (24 Aug) to the end of W3 (13 Sep), at
+`2b7ad27d`. Figures are first-parent merges into `main` and registry rows, not line churn — the
+monorepo move (ADR-062, 2026-09-06) relocated every file once, so a line count across the interval
+would mostly measure the move.
+
+| Measure | 23 Aug (`7d8c9d0`) | 13 Sep (`2b7ad27d`) | Delta |
+|---|---|---|---|
+| Merges into `main` (first parent) | — | ~270 | `git log --first-parent --oneline 7d8c9d0..HEAD` |
+| Declared requirements | 93 | 200 | +107, FR-094 to FR-200 |
+| Marked implemented (✅) | 82 | 100 | +18; a further ~100 are implemented locally, beta or approved |
+| Feature bundles | 9 | 30 | +21, FEAT-010 to FEAT-030 |
+| Decisions | 43 | 82 | +39, ADR-044 to ADR-082 |
+| Chartered domains | 9 | 14 | +5: asset-management, commerce, inventory, line-oa-studio, marketing, platform-control, procurement (agent absorbed people; business and shell folded into their charters) |
+| Production migrations written | 0 | 25 | under `apps/server/supabase/migrations/`; applied status in `docs/DB-MIGRATION-NOTES.md` |
+| Outage RCAs written | 0 | 3 | `.brain/rca/2026-09-06`, `2026-09-09`, `2026-09-11` — the deployment is real enough to fail |
+
+Where the three weeks went, by deliverable: 11 (ERP modules, CR-019) took most of the merges;
+4 (Second Brain substrate) and 10 (deployment, IAM hardening) the next most; 8 (LINE deepened);
+9 (audit and grant lifecycle). Deliverables 1, 3, 5, 6 and 7 received no merges. Read against the
+calendar, PHASE-ZAI-01 is ending with its two sprints' original tasks mostly closed and with three
+weeks of unplanned deliverable-11 work delivered alongside them; the greenfield phases have not
+started early.
+
 ## Phases
 
 Week numbers map to the calendar in section 5.4. W1 begins Mon 2026-08-24.
 
 | Phase | Weeks | Dates | Goal | Governing SoT | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
-| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, and the memory contract is written | in-progress | 27 |
-| PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification | planned | 0 |
-| PHASE-ZAI-03 | 9-12 | 2026-10-19 to 2026-11-15 | Second business, cross-business analytics, first workflows and connectors | `docs/ARCHITECTURE.md` | GATE-ZAI-04 and GATE-ZAI-07 are met for connectors one and two and workflows one and two | planned | 0 |
+| PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2); (v0.4.7) bind the LINE OA platform plan to lanes before its work starts | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, the cost and quote decision record is written, the data pipeline map renders every confirmed chain (v0.4.3), and the board shows measured time and tokens for done work (v0.4.4) | in-progress | 91 |
+| PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; give the seventeen-stage pipeline its knowledge base and file system on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one; (v0.4.7) a Business owner connects a LINE OA from the browser through a write-only credential vault, and the LINE chat record is complete with declared retention | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; a real document is admitted, parsed, published and cited on production; GATE-ZAI-09's migration ledger matches; one production LINE OA account runs on server transport from a vault credential its owner entered, with no operator file (v0.4.7) | in-progress | 48 |
+| PHASE-ZAI-03 | 9-12 | 2026-10-19 to 2026-11-15 | Second business, cross-business analytics, first workflows and connectors; deliverable 11 accepted for Business one; (v0.4.7) one Context Composer for every LINE prompt, LINE answers grounded by the published corpus, reviewed knowledge candidates, and memory policy with erasure beyond Tier 1 once MSP can hold and erase it | `docs/ARCHITECTURE.md` | GATE-ZAI-04 and GATE-ZAI-07 are met for connectors one and two and workflows one and two; GATE-ZAI-09 is met; a SmartGift LINE answer cites the published corpus in the isolated harness with zero cross-tenant leakage (v0.4.7) | in-progress | 10 |
 | PHASE-ZAI-04 | 13-16 | 2026-11-16 to 2026-12-13 | Visual Office 2.5D and the agent activity experience | `docs/UI-DESIGN-SYSTEM.md` | GATE-ZAI-01 is met | planned | 0 |
-| PHASE-ZAI-05 | 17-20 | 2026-12-14 to 2027-01-10 | Second Brain, Node View 3D and the remaining automation | `docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md` | GATE-ZAI-02, GATE-ZAI-03 and GATE-ZAI-05 are met | planned | 0 |
+| PHASE-ZAI-05 | 17-20 | 2026-12-14 to 2027-01-10 | Second Brain, Node View 3D and the remaining automation | `docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md` | GATE-ZAI-02, GATE-ZAI-03 and GATE-ZAI-05 are met | in-progress | 17 |
 | PHASE-ZAI-06 | 21-24 | 2027-01-11 to 2027-02-07 | Harden, prove, deploy and hand over | This roadmap | GATE-ZAI-06 and GATE-ZAI-08 are met | planned | 0 |
+
+Progress is the mean of the phase's task progress under the board parser's mapping (`done` 100,
+`review` 90, `in-progress` 50, `assigned` 25, `ready` 10, `planned` 0, `blocked` 0). PHASE-ZAI-05 shows
+17 because both SPR-ZAI-09 tasks started three months early on the substrate deliverable
+4 gained (section 3.1), not because the phase has opened (it read 20 before v0.4.7 added TASK-ZAI-103
+to SPR-ZAI-10).
 
 ## Sprints
 
@@ -309,16 +434,16 @@ locates the week.
 
 | Sprint | Parent ID | Weeks | Dates | Goal | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
-| SPR-ZAI-01 | PHASE-ZAI-01 | 1-2 | 08-24 to 09-06 | Close identity, session and authorization to production standard | A request without a trusted session reaches no mutating route, proven by test | in-progress | 20 |
-| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract | The pipeline reports every stage and the memory contract is reviewed | in-progress | 33 |
-| SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles | Each role resolves distinct tools, policy and memory partition | planned | 0 |
-| SPR-ZAI-04 | PHASE-ZAI-02 | 7-8 | 10-05 to 10-18 | Approval Gateway L1 to L4 with verification, notification and Mission Control binding | An L4 action cannot execute without four recorded approvals | planned | 0 |
-| SPR-ZAI-05 | PHASE-ZAI-03 | 9-10 | 10-19 to 11-01 | Standard business template and Business number two onboarding | Business two is live and isolated from SmartGift under test | planned | 0 |
-| SPR-ZAI-06 | PHASE-ZAI-03 | 11-12 | 11-02 to 11-15 | Cross-business analytics, connector two, workflows one and two | Analytics obey per-business visibility and two workflows run end to end | planned | 0 |
+| SPR-ZAI-01 | PHASE-ZAI-01 | 1-2 | 08-24 to 09-06 | Close identity, session and authorization to production standard; (CR-019) Inventory, Sales Tasks, Commerce, Procurement, Asset Management and LINE OA Studio lanes land | A request without a trusted session reaches no mutating route, proven by test; each lane merged with tests | in-progress | 93 |
+| SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake; (v0.4.3) the data pipeline registry and its node-edge map land under a Knowledge (GKS) slot; (v0.4.4) delivery telemetry on the programme board: phase card metrics, task card evidence badges with subtask progress, a usage meter over local session logs and a usage report endpoint; (v0.4.5) the Zuri harness usage plugin with browser-approved device pairing; (v0.4.6) the plugin specification and agent usage detail — thinking tokens, tool calls, prompts and compactions; (v0.4.7) the LINE OA platform plan registered with its lanes before work starts; (v0.4.8) a 30-day member view of the roadmap for signed-in people; (v0.4.9) ADR-093 and ADR-094 accepted and their tasks bound to lanes | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, supplier cost sheets land with a locked FX rate, and the map shows every inbound source, outbound recipient and combine chain with its surface level, a done task shows tokens measured from a named source, every task card shows its evidence badges, a paired agent on another machine reports its sessions (v0.4.5), the board shows tool calls and token types per lane and person (v0.4.6), and a signed-in non-operator reads the plan at /roadmap until the window closes (v0.4.8); ADR-093 and ADR-094 read accepted with their requirements pinned (v0.4.9); error tracking and per-person feature usage extend the logger (v0.4.10) | in-progress | 91 |
+| SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; stand up the knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending deliverable-11 migration on production; pricing rule set, the shared pricing engine and quotations; live pipeline health on the data pipeline map; (v0.4.7) the Integration credential vault with Supabase Vault and envelope stores, the LINE channel claim and channel-admin port, and the AAL2 credential-write gate; (v0.4.9) conversation sessions on the record with their production apply | Each role resolves distinct tools, policy and memory partition; a PDF uploaded in the console is published as a cited corpus on production; the migration ledger matches the tree; a quote and the FR-181 tool price the same SKU to the same satang; a failed run is visible on its map edge for its own Business only; ADR-089 proofs 1 to 6 pass on both stores and a real test channel is validated in a dev deployment with no production migration applied (v0.4.7); a gap past the idle timeout opens a second session on production (v0.4.9) | in-progress | 40 |
+| SPR-ZAI-04 | PHASE-ZAI-02 | 7-8 | 10-05 to 10-18 | Approval Gateway L1 to L4 with verification, notification and Mission Control binding; ladder quotation on LINE and knowledge structured records; (v0.4.7) the self-serve LINE OA wizard with automatic webhook registration and derived quiescence, the first production account moved off the mount, and the complete chat record with retention sweep and inbox search; (v0.4.9) local model residency by business hours and staff replies recorded from the inbox | An L4 action cannot execute without four recorded approvals; a LINE quotation request is answered from the shared engine with no margin in the payload; one production LINE OA account runs on server transport from a credential its owner entered, and non-text LINE events appear in the inbox (v0.4.7); the model is unloaded outside business hours and a staff reply is in the record (v0.4.9) | in-progress | 19 |
+| SPR-ZAI-05 | PHASE-ZAI-03 | 9-10 | 10-19 to 11-01 | Standard business template and Business number two onboarding; (v0.4.7) the Context Composer, and LINE grounding from the published corpus with its isolated acceptance; (v0.4.9) the chat evidence archive writer, OWNER retrieval and the legal hold | Business two is live and isolated from SmartGift under test; every LINE prompt carries one ContextReceipt and a grounded answer cites the corpus in the four-process harness (v0.4.7); a swept body is decrypted from a verified archive by an OWNER at AAL2 (v0.4.9) | in-progress | 21 |
+| SPR-ZAI-06 | PHASE-ZAI-03 | 11-12 | 11-02 to 11-15 | Cross-business analytics, connector two, workflows one and two; GATE-ZAI-09 evidence run; (v0.4.7) the SmartGift grounding switch after ADR-075 Phase 3, LINE knowledge candidates, the gap report and Studio descriptions, and memory policy with erasure fan-out once MSP ships its thread and erase tools; (v0.4.9) the chat evidence archive on production and its offline copy | Analytics obey per-business visibility, two workflows run end to end, and the ERP acceptance record is signed; an approved locator-only candidate is admitted with Zero-PII checked twice (v0.4.7); the first manifest is recorded on production and copied offline (v0.4.9) | in-progress | 4 |
 | SPR-ZAI-07 | PHASE-ZAI-04 | 13-14 | 11-16 to 11-29 | Visual Office 2.5D scene model and shell | The scene renders live Business, Agent and Mission objects with no mock values | planned | 0 |
 | SPR-ZAI-08 | PHASE-ZAI-04 | 15-16 | 11-30 to 12-13 | Agent activity experience and in-scene approval | Live agent activity and the approval queue are visible in the office | planned | 0 |
-| SPR-ZAI-09 | PHASE-ZAI-05 | 17-18 | 12-14 to 12-27 | Second Brain retrieval, lineage and replay | Retrieval is refused and audited when permission is absent | planned | 0 |
-| SPR-ZAI-10 | PHASE-ZAI-05 | 19-20 | 12-28 to 01-10 | Node View 3D, direct manipulation, workflows three to five, connector three | The 3D view searches relationships and five workflows exist | planned | 0 |
+| SPR-ZAI-09 | PHASE-ZAI-05 | 17-18 | 12-14 to 12-27 | Second Brain retrieval, lineage and replay | Retrieval is refused and audited when permission is absent | in-progress | 50 |
+| SPR-ZAI-10 | PHASE-ZAI-05 | 19-20 | 12-28 to 01-10 | Node View 3D, direct manipulation, workflows three to five, connector three; (v0.4.7) the credential vault generalised to other provider kinds | The 3D view searches relationships and five workflows exist | planned | 0 |
 | SPR-ZAI-11 | PHASE-ZAI-06 | 21-22 | 01-11 to 01-24 | Integration hardening plus load and security testing | Load and security reports are recorded with no open critical finding | planned | 0 |
 | SPR-ZAI-12 | PHASE-ZAI-06 | 23-24 | 01-25 to 02-07 | UAT, deployment, checklist, training and handover | The owner accepts the handover pack | planned | 0 |
 
@@ -326,36 +451,124 @@ locates the week.
 
 | ID | Parent ID | Type | Title | Priority | Owner | Status | Dependencies | Source Section |
 |---|---|---|---|---|---|---|---|---|
-| TASK-ZAI-001 | SPR-ZAI-01 | task | Close the production request-session and credential boundary | P0 | ATHER | in-progress | - | Section 3.1 row 10 |
-| TASK-ZAI-002 | SPR-ZAI-01 | task | Declare the five built-but-undeclared features into the registry | P0 | Claude | ready | - | Section 3 evidence baseline |
-| TASK-ZAI-003 | SPR-ZAI-01 | task | Profile-first onboarding and Waiting Room, FR-066 | P1 | Codex | planned | TASK-ZAI-001 | FEATURE-MAP FR-066 |
-| TASK-ZAI-004 | SPR-ZAI-02 | task | Workspace collaboration boundary and scoped invites, FR-067 | P0 | Codex | planned | TASK-ZAI-003 | FEATURE-MAP FR-067 |
-| TASK-ZAI-005 | SPR-ZAI-02 | task | Supabase data pipeline monitor and replay, FR-071 | P0 | ATHER | done | - | FEATURE-MAP FR-071 |
-| TASK-ZAI-006 | SPR-ZAI-02 | task | Write the governed memory read and write contract | P1 | Claude | planned | - | Section 3.1 row 4 |
-| TASK-ZAI-007 | SPR-ZAI-03 | task | Agent Role registry with five core roles | P0 | Claude | planned | TASK-ZAI-006 | Section 3.1 row 5 |
-| TASK-ZAI-008 | SPR-ZAI-03 | task | Role-scoped memory partition and retrieval policy | P0 | Claude | planned | TASK-ZAI-007 | Section 3.1 rows 4 and 5 |
+| TASK-ZAI-001 | SPR-ZAI-01 | task | Close the production request-session and credential boundary | P0 | ATHER | review | - | Section 3.1 row 10; FEAT-010 |
+| TASK-ZAI-002 | SPR-ZAI-01 | task | Declare the five built-but-undeclared features into the registry | P0 | Claude | done | - | Section 3 evidence baseline |
+| TASK-ZAI-003 | SPR-ZAI-01 | task | Profile-first onboarding and Waiting Room, FR-066 | P1 | Codex | done | TASK-ZAI-001 | PRD FR-066, FR-122 |
+| TASK-ZAI-004 | SPR-ZAI-02 | task | Workspace collaboration boundary and scoped invites, FR-067 | P0 | Codex | done | TASK-ZAI-003 | PRD FR-067; FR-195 generalises it |
+| TASK-ZAI-005 | SPR-ZAI-02 | task | Supabase data pipeline monitor and replay, FR-071 | P0 | ATHER | done | - | PRD FR-071 |
+| TASK-ZAI-006 | SPR-ZAI-02 | task | Write the governed memory read and write contract | P1 | Claude | done | - | Section 3.1 row 4; ADR-050, ADR-063, ADR-067, ADR-068, ADR-072 |
+| TASK-ZAI-007 | SPR-ZAI-03 | task | Agent Role registry with five core roles | P0 | Claude | done | TASK-ZAI-006 | Section 3.1 row 5 |
+| TASK-ZAI-008 | SPR-ZAI-03 | task | Role-scoped memory partition and retrieval policy | P0 | Claude | done | TASK-ZAI-007 | Section 3.1 rows 4 and 5 |
 | TASK-ZAI-009 | SPR-ZAI-03 | task | Agent Factory, the standard business agent template | P1 | Codex | planned | TASK-ZAI-007 | Proposal scope, AI Control |
 | TASK-ZAI-010 | SPR-ZAI-04 | task | Approval Gateway L1 to L4 over the FR-026 action gate | P0 | ATHER | planned | TASK-ZAI-007 | Section 3.1 row 9 |
 | TASK-ZAI-011 | SPR-ZAI-04 | task | Verification and notification fabric on approval outcomes | P0 | Codex | planned | TASK-ZAI-010 | Section 3.1 row 9 |
-| TASK-ZAI-012 | SPR-ZAI-04 | task | Bind GoVibe Mission Control to the Zuri mission feed | P1 | ATHER | planned | TASK-ZAI-010 | Section 3.1 row 2 |
+| TASK-ZAI-012 | SPR-ZAI-04 | task | Mission feed: agent missions and their approvals surface as Development-domain work in the Project system | P1 | ATHER | planned | TASK-ZAI-010 | Section 3.1 row 2; FR-040, FR-063, FR-068, FR-108 |
 | TASK-ZAI-013 | SPR-ZAI-05 | task | Standard Business Template and provisioning path | P0 | Codex | planned | TASK-ZAI-009 | Section 3.1 row 6 |
 | TASK-ZAI-014 | SPR-ZAI-05 | task | Onboard Business number two end to end under isolation | P0 | ATHER | planned | TASK-ZAI-013 | Section 3.1 row 6 |
 | TASK-ZAI-015 | SPR-ZAI-05 | task | Per-business visibility regression at two-business scale | P1 | Claude | planned | TASK-ZAI-014 | FEATURE-MAP FR-061 and FR-062 |
 | TASK-ZAI-016 | SPR-ZAI-06 | task | Cross-business governed analytics read model | P0 | Claude | planned | TASK-ZAI-014 | Section 3.1 row 6 |
-| TASK-ZAI-017 | SPR-ZAI-06 | task | Connector number two under the FR-081 ingestion boundary | P0 | Codex | planned | TASK-ZAI-005 | Section 3.1 row 8 |
+| TASK-ZAI-017 | SPR-ZAI-06 | task | Connector number two under the FR-081 ingestion boundary — FlowAccount read-only pull, FR-125 | P0 | Codex | planned | TASK-ZAI-005 | Section 3.1 row 8; ADR-053 |
 | TASK-ZAI-018 | SPR-ZAI-06 | task | Automation workflows one and two end to end | P1 | ATHER | planned | TASK-ZAI-010; TASK-ZAI-017 | Section 3.1 row 7 |
 | TASK-ZAI-019 | SPR-ZAI-07 | task | Visual Office 2.5D scene model and shell | P0 | Codex | planned | TASK-ZAI-012 | Section 3.1 row 1 |
 | TASK-ZAI-020 | SPR-ZAI-07 | task | Bind Business, Agent, Mission and Approval objects to live reads | P0 | Codex | planned | TASK-ZAI-019 | Section 3.1 row 1 |
 | TASK-ZAI-021 | SPR-ZAI-07 | task | Accessibility and reduced-motion contract for the 2.5D surface | P1 | Claude | planned | TASK-ZAI-019 | UI-DESIGN-SYSTEM section 3 |
 | TASK-ZAI-022 | SPR-ZAI-08 | task | Live agent activity presence and mission tracking in-scene | P0 | Codex | planned | TASK-ZAI-020 | Proposal scope, Business Layer |
 | TASK-ZAI-023 | SPR-ZAI-08 | task | Surface the L1 to L4 approval queue inside Visual Office | P1 | Codex | planned | TASK-ZAI-011; TASK-ZAI-022 | Section 3.1 rows 1 and 9 |
-| TASK-ZAI-024 | SPR-ZAI-09 | task | Second Brain retrieval by Business, Role and Permission | P0 | Claude | planned | TASK-ZAI-008 | Section 3.1 row 4 |
-| TASK-ZAI-025 | SPR-ZAI-09 | task | Memory lineage, replay and the no-silent-replay guarantee | P1 | Claude | planned | TASK-ZAI-024 | Section 3.1 row 4 |
+| TASK-ZAI-024 | SPR-ZAI-09 | task | Second Brain retrieval by Business, Role and Permission | P0 | Claude | in-progress | TASK-ZAI-008 | Section 3.1 row 4; FR-098, FR-173, ADR-072 |
+| TASK-ZAI-025 | SPR-ZAI-09 | task | Memory lineage, replay and the no-silent-replay guarantee | P1 | Claude | in-progress | TASK-ZAI-024 | Section 3.1 row 4; FR-116, FR-171, ADR-070 |
 | TASK-ZAI-026 | SPR-ZAI-10 | task | Interactive Node View 3D over the governed relation graph | P0 | Codex | planned | TASK-ZAI-024 | Section 3.1 row 3 |
 | TASK-ZAI-027 | SPR-ZAI-10 | task | Structure and edge direct manipulation with handoff contracts | P0 | Codex | planned | TASK-ZAI-026 | FEATURE-MAP FR-082 to FR-085 |
 | TASK-ZAI-028 | SPR-ZAI-10 | task | Automation workflows three to five and connector number three | P1 | ATHER | planned | TASK-ZAI-018 | Section 3.1 rows 7 and 8 |
 | TASK-ZAI-029 | SPR-ZAI-11 | task | Integration hardening plus load and security test campaign | P0 | ATHER | planned | TASK-ZAI-028 | Section 3.1 row 10 |
 | TASK-ZAI-030 | SPR-ZAI-12 | task | UAT, deployment, data and security checklist, training and handover | P0 | Owen | planned | TASK-ZAI-029 | Section 3.1 row 10 |
+| TASK-ZAI-031 | SPR-ZAI-01 | task | Inventory catalogue, stock ledger, recipes and product natures — FEAT-020, FR-154 to FR-156, FR-168 | P0 | Claude | done | - | CR-019 deliverable 11; ADR-024 |
+| TASK-ZAI-032 | SPR-ZAI-01 | task | Sales tasks in CRM — FEAT-022, FR-161 | P1 | Claude | done | - | CR-019 deliverable 11; ADR-064 |
+| TASK-ZAI-033 | SPR-ZAI-01 | task | Commerce orders and payments — FEAT-023, FR-166, FR-163 | P0 | Claude | done | TASK-ZAI-031 | CR-019 deliverable 11; ADR-065 |
+| TASK-ZAI-034 | SPR-ZAI-01 | task | Procurement suppliers, purchase orders and goods receipts — FEAT-024, FR-164, FR-165 | P0 | Claude | done | TASK-ZAI-031 | CR-019 deliverable 11; ADR-066 |
+| TASK-ZAI-035 | SPR-ZAI-01 | task | Asset Management foundation, evidence intake and edge extraction — FEAT-015 to FEAT-017, FR-133 to FR-144 | P1 | Codex | done | - | CR-019 deliverable 11; ADR-055, ADR-056, ADR-059 |
+| TASK-ZAI-036 | SPR-ZAI-01 | task | LINE OA Studio multi-account, rich menu, LIFF and server-owned transport — FEAT-018, FEAT-019, FR-146 to FR-153, FR-190 | P0 | Claude | in-progress | - | CR-019 deliverable 11; ADR-060, ADR-061 |
+| TASK-ZAI-037 | SPR-ZAI-02 | task | SCM and CRM parent navigation, Business capabilities and module tabs — FR-167, FR-169, FR-170, FR-172 | P2 | Claude | done | TASK-ZAI-031 | CR-019 deliverable 11; ADR-069, ADR-071 |
+| TASK-ZAI-038 | SPR-ZAI-02 | task | SmartGift SCM located ledger, landed cost, work orders, ATP and agent tools — FEAT-025, FR-174 to FR-182 | P0 | Claude | done | TASK-ZAI-031; TASK-ZAI-034 | CR-019 deliverable 11; ADR-074 |
+| TASK-ZAI-039 | SPR-ZAI-02 | task | Commerce billing documents, POS checkout and physical stocktake — FR-186, FR-183, FR-184 | P1 | RWANG | review | TASK-ZAI-033; TASK-ZAI-038 | CR-019 deliverable 11; ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910 |
+| TASK-ZAI-040 | SPR-ZAI-02 | task | Marketing strategy, campaigns, content, operations and broadcast planning — FEAT-021, FR-157 to FR-160, FR-162, FR-185 | P1 | RWANG | in-progress | - | CR-019 deliverable 11; CR-018 |
+| TASK-ZAI-041 | SPR-ZAI-02 | task | Identity lifecycle: withdrawable grants, Employment and LegalEntity, invites and segregation of duties, audit access evidence — FEAT-027 to FEAT-030, FR-191 to FR-199 | P0 | Claude | review | TASK-ZAI-001 | Section 3.1 rows 9 and 10; ADR-077 to ADR-080 |
+| TASK-ZAI-042 | SPR-ZAI-02 | task | SmartGift catalog convergence through the seventeen-stage adapter — FEAT-026, FR-187 to FR-189 | P1 | Claude | in-progress | TASK-ZAI-025 | Section 3.1 row 4; ADR-075 |
+| TASK-ZAI-043 | SPR-ZAI-03 | task | Apply every pending deliverable-11 migration on production and record it in the migration notes | P0 | ATHER | planned | TASK-ZAI-038; TASK-ZAI-039; TASK-ZAI-040; TASK-ZAI-041 | GATE-ZAI-09; ADR-057 |
+| TASK-ZAI-044 | SPR-ZAI-06 | task | GATE-ZAI-09 evidence run: ERP modules accepted on production for Business one | P0 | Owen | planned | TASK-ZAI-043 | GATE-ZAI-09 |
+| TASK-ZAI-045 | SPR-ZAI-02 | task | Knowledge file intake: Text/Markdown and FileAsset admission into an immutable raw artifact at Stage 1 — FR-173, FR-081, FR-109 | P0 | RWANG | review | TASK-ZAI-005 | Section 3.1 row 4; ADR-072, ADR-073 |
+| TASK-ZAI-046 | SPR-ZAI-02 | task | Tier 1 stage calculators, composition and quarantine, Stage 2 to 8 — FR-111 to FR-119 | P0 | Claude | done | TASK-ZAI-045 | Section 3.1 row 4; ADR-050 |
+| TASK-ZAI-047 | SPR-ZAI-03 | task | Knowledge base console: source library, ingestion run status, corpus and generation registry, cited query | P0 | Codex | review | TASK-ZAI-045 | Section 3.1 row 4; FR-254, FR-173, FR-071, FR-110 |
+| TASK-ZAI-048 | SPR-ZAI-03 | task | Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9 | P1 | Codex | planned | TASK-ZAI-046 | 17-stage flow, "PDF/OCR/HTML/table parser" row; FR-115, FR-138 |
+| TASK-ZAI-049 | SPR-ZAI-03 | task | Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1) | P0 | ATHER | planned | TASK-ZAI-045 | Section 3.1 row 4; FR-045, FR-111, FR-137 |
+| TASK-ZAI-050 | SPR-ZAI-03 | task | Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published | P0 | ATHER | planned | TASK-ZAI-045; TASK-ZAI-049 | ADR-073 amendment; ADR-075 Phase 2 gate |
+| TASK-ZAI-051 | SPR-ZAI-03 | task | Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary | P2 | Claude | planned | TASK-ZAI-050 | 17-stage flow, "connector/แหล่งเอกสาร" row; FR-081 |
+| TASK-ZAI-052 | SPR-ZAI-02 | task | Cost and quote engine decision record — proposal, ADR, FR and FEAT declarations with the owner's nine decisions | P0 | Claude | done | TASK-ZAI-038 | CR-019 deliverable 11; ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; SmartGift ADR-009 |
+| TASK-ZAI-053 | SPR-ZAI-02 | task | Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory) | P0 | Claude | planned | TASK-ZAI-052; TASK-ZAI-034 | CR-019 deliverable 11; SmartGift ADR-005 and ADR-009 D4; ADR-084 |
+| TASK-ZAI-054 | SPR-ZAI-02 | task | Goods receipts post the landed unit cost to the stock ledger, and the SKU page gains a cost card | P0 | Claude | planned | TASK-ZAI-053; TASK-ZAI-038 | CR-019 deliverable 11; ADR-074 D3; FR-165; FR-175 |
+| TASK-ZAI-055 | SPR-ZAI-03 | task | PricingRuleSet — versioned, owner-approved pricing rules ported from pricing_rules_formula.yaml with per-block provenance, and the Pricing Rules console | P0 | Claude | planned | TASK-ZAI-052 | CR-019 deliverable 11; SmartGift pricing_rules_formula.yaml v4; FR-131; SDD-077 |
+| TASK-ZAI-056 | SPR-ZAI-03 | task | One pure pricing engine in integer satang — landed cost, ladder, profit floor and ten-baht round-up — with parity fixtures against price-boss; the FR-181 quote tool reads the rule set | P0 | Claude | planned | TASK-ZAI-054; TASK-ZAI-055 | CR-019 deliverable 11; SmartGift ADR-009 D2 and D3; BR-027; FR-181 |
+| TASK-ZAI-057 | SPR-ZAI-03 | task | Quotations — Quote and QuoteLine with ladder snapshots, two-hat approval, the QUOTATION document and conversion to a sales order with the FR-180 hold | P0 | Claude | planned | TASK-ZAI-056; TASK-ZAI-039 | CR-019 deliverable 11; price-boss workflow-quotation; FR-166; FR-180; FR-186; FR-196 |
+| TASK-ZAI-058 | SPR-ZAI-04 | task | Ladder quotation on LINE (FR-132) over the shared engine with a deterministic intent matcher | P1 | Claude | planned | TASK-ZAI-057; TASK-ZAI-036 | CR-019 deliverable 11; FR-132; FR-131; BR-011; FR-047 |
+| TASK-ZAI-059 | SPR-ZAI-04 | task | Knowledge structured records — STRUCTURED_RECORDS_V1 JSON format, an Excel template and converter, and MCP format widening before Stage 1 | P1 | Claude | planned | TASK-ZAI-045; TASK-ZAI-042 | Section 3.1 row 4; ADR-075 D2; FR-187; FR-209; BR-009 |
+| TASK-ZAI-060 | SPR-ZAI-02 | task | Data pipeline map decision record — the ADR for a Knowledge (GKS) navigation slot that consumes GKS without becoming it, and the requirement and FEAT declarations | P0 | Claude | done | - | Section 3.1 row 4; ADR-063 D4; ADR-050; SYSTEM-DIAGRAM; ARCHITECTURE-DIAGRAMS section 3 |
+| TASK-ZAI-061 | SPR-ZAI-02 | task | Data pipeline registry — the written map of inbound sources, outbound recipients and combine chains, a validated JSON registry, a generated runtime projection and a preflight check | P0 | Claude | done | TASK-ZAI-060 | Section 3.1 row 4; FR-124 precedent; ADR-081 D2 |
+| TASK-ZAI-062 | SPR-ZAI-02 | task | Data Pipeline Map node-edge view under the Knowledge (GKS) slot — layered graph, chain, domain and status filters, edge detail with domain, FEAT and surface level, and a list view | P0 | Claude | done | TASK-ZAI-061 | Section 3.1 row 4; FR-040 and FR-101 hand-rolled SVG precedent; FR-061 |
+| TASK-ZAI-063 | SPR-ZAI-03 | task | Live pipeline health on the map — per-edge run and job counts for the active Business from the FR-071 ledger and the transport job tables | P1 | Claude | done | TASK-ZAI-062; TASK-ZAI-047 | Section 3.1 row 4; FR-071; FR-149; FR-152; FR-143 |
+| TASK-ZAI-064 | SPR-ZAI-02 | task | Delivery telemetry decision record — the ADR that lets the programme board show measured time and tokens beside the plan without turning either into completion, the sizing table, and the requirement and FEAT declarations | P0 | Claude | done | - | Section 3.1 row 2; ADR-048 D3; FR-105 |
+| TASK-ZAI-065 | SPR-ZAI-02 | task | Phase card delivery metrics — sprint and task counts, size in complexity points, plan window and effort estimate, actual time and measured tokens once done, and done or review cards tinted green or orange | P0 | Claude | done | TASK-ZAI-064 | Section 3.1 row 2; FR-105; FR-211; NFR-008 |
+| TASK-ZAI-066 | SPR-ZAI-02 | task | Usage meter — measured tokens and active time per task from Claude Code and Codex session logs, attributed by the branches each Task Container declares and written back with provenance | P0 | Claude | done | TASK-ZAI-064 | Section 3.1 row 2; ADR-048 D3; section 5.3 measurement precedent |
+| TASK-ZAI-067 | SPR-ZAI-02 | task | Usage report endpoint — an operator-authenticated ledger where agents without local logs report per-session tokens for a task, idempotent by session and merged with metered sessions without double counting | P1 | Claude | done | TASK-ZAI-066 | Section 3.1 row 2; FR-106 key precedent; ADR-057 |
+| TASK-ZAI-068 | SPR-ZAI-02 | task | Task card evidence badges and subtask progress — DOC, CODE, TEST, FR, NFR and FEAT badges coloured green for done, orange for review, red for needs fix and gray for empty, domain, complexity and priority badges, and P0 to P3 subtasks with a progress bar on the card | P0 | Claude | done | TASK-ZAI-064 | Section 3.1 row 2; FR-105; FR-124; FR-211; NFR-008 |
+| TASK-ZAI-069 | SPR-ZAI-02 | task | Harness usage plugin decision record — the ADR for a Zuri plugin that pairs a device by browser approval, holds a report-only credential with a device label, and lets the server attribute each report to a person, a device and a lane; requirement and FEAT declarations | P0 | Claude | done | TASK-ZAI-067 | Section 3.1 row 2; ADR-086 D5; ADR-052; FR-123; FR-144 |
+| TASK-ZAI-070 | SPR-ZAI-02 | task | Harness device pairing and report-only credential — start, browser approval with a check code and poll as in FR-144, one hashed credential per installation scoped to usage reporting with a device label, and an operator list of paired devices with revoke | P0 | Claude | done | TASK-ZAI-069 | Section 3.1 row 2; FR-144; FR-123; SEC-025; ADR-057 |
+| TASK-ZAI-071 | SPR-ZAI-02 | task | Usage reports attributed to person, device and lane — the report endpoint accepts the harness credential, derives the lane from the reported branch on the server, extends a resumed session whose counts only grow, and the board breaks lane usage down by person and shows unattributed reports | P0 | Claude | done | TASK-ZAI-070 | Section 3.1 row 2; FR-218; FR-216; ADR-086 D3 |
+| TASK-ZAI-072 | SPR-ZAI-02 | task | Zuri harness plugin for Claude Code and Codex — pair, whoami and unpair commands, a SessionEnd hook and a Codex wrapper that report each finished session split by branch, an offline retry queue, a marketplace entry, and parser parity with the usage meter | P0 | Claude | done | TASK-ZAI-070; TASK-ZAI-071 | Section 3.1 row 2; FR-217; FR-123; ADR-052 |
+| TASK-ZAI-073 | SPR-ZAI-02 | task | Zuri harness plugin specification — one document for the CLI, hook input, configuration and queue formats, pairing state machine, counting rules, keep-or-drop rules per response, Codex wrapper, log-format compatibility, versioning and privacy, each rule linked to the test that proves it | P0 | Claude | done | TASK-ZAI-072 | Section 3.1 row 2; ADR-087; FR-220; FR-221; FR-222 |
+| TASK-ZAI-074 | SPR-ZAI-02 | task | Agent usage detail capture — thinking and reasoning tokens, cache writes by lifetime, tool calls by name with errors and denials, web search and fetch, user prompts, compactions and errors, measured by the meter and the plugin with parity, carried by the report endpoint and stored for each lane, person and device | P0 | Claude | done | TASK-ZAI-072 | Section 3.1 row 2; FR-217; FR-221; FR-222; ADR-086 D4 |
+| TASK-ZAI-075 | SPR-ZAI-02 | task | Usage detail on the programme board — phase and task telemetry show input, output, thinking and cache tokens separately, tool calls with the most used tools and the error rate, prompts and compactions, per lane, person and device | P1 | Claude | done | TASK-ZAI-074 | Section 3.1 row 2; FR-216; FR-221; NFR-008 |
+| TASK-ZAI-076 | SPR-ZAI-02 | task | LINE OA platform decision record — ADR-089 credential vault and self-serve onboarding, ADR-090 GKS grounding and reviewed candidates, ADR-091 chat record, memory tiers and the Context Composer, with FR-223 to FR-238, SEC-030 to SEC-032, SDD-097 to SDD-100 and FEAT-036 to FEAT-038 declared | P0 | Claude | done | - | Section 3.1 rows 4 and 8; ADR-089; ADR-090; ADR-091 |
+| TASK-ZAI-077 | SPR-ZAI-02 | task | LINE OA platform delivery plan — every phase of ADR-089 to ADR-091 registered as sized tasks with acceptance criteria, lanes bound to branches before work starts, the usage-detail capture of TASK-ZAI-074 and TASK-ZAI-075 named as the measurement prerequisite, the Project Manager import path stated, and the usage meter run | P0 | Claude | done | TASK-ZAI-076 | Section 3.1 rows 2, 4 and 8; ADR-086 D3; ADR-089; ADR-090; ADR-091 |
+| TASK-ZAI-078 | SPR-ZAI-03 | task | Integration credential vault — a SecretStorePort with the Supabase Vault and envelope stores, a dispatching secret manager by reference prefix, versioned write, activate, rotate, revoke and resolve with compensation and re-entry status, and design migrations 1, 3 and 4 — FR-223, SEC-030, SDD-097 | P0 | Claude | done | TASK-ZAI-077; TASK-ZAI-074; TASK-ZAI-075 | Section 3.1 row 8; ADR-089 D1, D2, D5 |
+| TASK-ZAI-079 | SPR-ZAI-03 | task | LINE channel account claim and the Integration LINE channel-admin port — an installation-wide claim by destination hash taken before any secret is stored, stateless token minting with a per-version cache, bot info, and webhook set, read and test calls, with design migration 2 — FR-226, SDD-098 and the port half of FR-227 | P0 | Claude | done | TASK-ZAI-078 | Section 3.1 row 8; ADR-089 D3, D6, D7 |
+| TASK-ZAI-080 | SPR-ZAI-03 | task | Credential-write step-up gate and the first rate limit — assertSessionAssurance AAL2 on every credential write, rotation, revocation and validation, an enrolment redirect when no factor exists, and a RateLimitBucket store answering 429 with retry hints, design migration 8 — FR-224 | P0 | Claude | done | TASK-ZAI-078 | Section 3.1 row 8; ADR-089 D4 |
+| TASK-ZAI-081 | SPR-ZAI-03 | task | Phase 1 acceptance — ADR-089 proofs 1 to 6 on SQLite and Postgres with both stores, and one real LINE test channel validated end to end through the connection route in a dev deployment, before any production migration | P0 | Claude | blocked | TASK-ZAI-079; TASK-ZAI-080 | ADR-089 required proof 1 to 6 and 10 |
+| TASK-ZAI-082 | SPR-ZAI-04 | task | Self-serve LINE OA connection wizard — Thai step-up, Channel ID and secret entry with an optional override token, live proof with LINE, claim, vault write, connection, a masked credential card and a DRAFT account, and a mount-backed account moved into the vault on re-entry — FR-225 | P0 | Claude | planned | TASK-ZAI-081 | Section 3.1 row 8; ADR-089 D2, D3, D7 |
+| TASK-ZAI-083 | SPR-ZAI-04 | task | Automatic LINE webhook registration and health — a publisher action sets, reads back and tests the account webhook through LINE, stores webhook health in LineOaAccount.webhookStateJson with its migration, and falls back to a Thai manual card — FR-227 | P0 | Claude | planned | TASK-ZAI-082 | Section 3.1 row 8; ADR-089 D7 |
+| TASK-ZAI-084 | SPR-ZAI-04 | task | Derived legacy-transport quiescence and restore re-entry — ENABLE_SERVER derives quiescence for a vault-backed account from the endpoint LINE reports and 120 seconds without legacy evidence, validates through the dispatching secret manager, and a restored snapshot forces credential re-entry — FR-228 | P0 | Claude | planned | TASK-ZAI-083 | Section 3.1 row 8; ADR-089 D5, D8; ADR-061 D3, D7 |
+| TASK-ZAI-085 | SPR-ZAI-04 | task | Apply the credential vault and onboarding migrations on production — design migrations 1 to 4 and 8 and the webhook-state column, under ADR-057 with an inventory, a rolled-back dry run and a verified effect, recorded in the migration notes | P0 | ATHER | review | TASK-ZAI-084 | ADR-057; ADR-089 Phase 2 gate |
+| TASK-ZAI-086 | SPR-ZAI-04 | task | Channel credential entry for the first production account — the Business owner, at AAL2, enters the Channel ID and secret in the production wizard to move one mount-backed LINE OA account into the vault; no agent ever types a credential | P0 | Owen | planned | TASK-ZAI-085 | ADR-089 D2, D4; SEC-030 |
+| TASK-ZAI-087 | SPR-ZAI-04 | task | Webhook cutover for the first production account — register and test the webhook through LINE, observe derived quiescence, enable server transport and record ADR-061 provider-webhook-replaced evidence with a written rollback | P0 | Owen | planned | TASK-ZAI-086 | ADR-089 D7, D8; ADR-061 D3 |
+| TASK-ZAI-088 | SPR-ZAI-04 | task | Non-text LINE content in the CRM record — sticker, location and media messages become Message rows with a content kind and placeholder body, media gets a MessageAttachment without bytes, follow, join, membership, postback and unsend become ConversationEvent rows, and an unsend tombstones its message — FR-229 | P0 | Claude | planned | TASK-ZAI-077; TASK-ZAI-074; TASK-ZAI-075 | Section 3.1 row 8; ADR-091 D5 |
+| TASK-ZAI-089 | SPR-ZAI-04 | task | Declared retention classes and the nightly sweep — installation defaults for raw LINE payloads, message bodies and attachments, trace payloads and MSP session content, per-Tenant downward-only overrides, a sweep that skips rows live LINE jobs reference, and one audit event per run — FR-230, SEC-031 | P0 | Claude | planned | TASK-ZAI-088 | Section 3.1 row 8; ADR-091 D1, D2 |
+| TASK-ZAI-090 | SPR-ZAI-04 | task | Conversation inbox read models and message search — last-message time, a redacted 120-character preview, retention class and unread counts, a read-only CRM search reader with a trigram index on Postgres, and follow and unfollow counts per account — FR-233 | P1 | Claude | planned | TASK-ZAI-088 | Section 3.1 row 8; ADR-091 D5 |
+| TASK-ZAI-091 | SPR-ZAI-04 | task | Apply the chat record migrations on production — non-text content, read-model columns, the trigram index and the retention override store, under ADR-057, recorded in the migration notes | P1 | ATHER | in-progress | TASK-ZAI-089; TASK-ZAI-090 | ADR-057; ADR-091 Phase 3 |
+| TASK-ZAI-092 | SPR-ZAI-05 | task | Context Composer — one agent-lane module assembling every LINE model prompt from AuthContext, MSP slices, knowledge evidence and CRM and ERP facts in truth order under one budget, reporting every trim, recording one ContextReceipt per model invocation and calling no model without evidence — FR-234, SDD-100 | P0 | Claude | planned | TASK-ZAI-088 | Section 3.1 row 4; ADR-091 D7; FR-171 |
+| TASK-ZAI-093 | SPR-ZAI-05 | task | LINE grounding from the published corpus — an in-process knowledge.query reader over queryKnowledgeCorpus under the runtime knowledge capability, a per-account knowledgeGrounding mode with its migration, a 2 500 ms, top-5, 8 KiB budget, a traced mode-gated fallback and retrievalRefs on EVIDENCE_SELECTED — FR-235, SDD-099 | P0 | Claude | planned | TASK-ZAI-092 | Section 3.1 row 4; ADR-090 D1 to D4; SEC-032 |
+| TASK-ZAI-094 | SPR-ZAI-05 | task | Grounding isolated acceptance — a real LINE job answered from a published generation in the four-process harness with citations on the job trace, zero cross-tenant leakage, the deterministic reply with the worker stopped, and MSP spawn cost measured against the budget | P0 | Claude | planned | TASK-ZAI-093 | ADR-090 required proof 2, 5, 6; ADR-090 D3 |
+| TASK-ZAI-095 | SPR-ZAI-06 | task | SmartGift grounding switch on production — after ADR-075 Phase 3 is deployed, apply the grounding-mode migration, switch one SmartGift DIRECT account to GKS_THEN_BUSINESS_KNOWLEDGE as an owner-triggered operator step, shadow-compare for one campaign window and keep the rollback | P0 | Owen | planned | TASK-ZAI-094; TASK-ZAI-042; TASK-ZAI-050 | ADR-090 D5; ADR-075 Phase 3; ADR-057 |
+| TASK-ZAI-096 | SPR-ZAI-06 | task | LINE FAQ knowledge candidates — locator-only question-and-answer candidates from consent-GRANTED conversations checked by the Zero-PII deny policy, an OWNER or LINE_OA_PUBLISHER review surface with audited decisions, and admission of an approved candidate as a LINE_FAQ_CANDIDATE TEXT source through ADR-072 — FR-236, SEC-032 | P1 | Claude | planned | TASK-ZAI-093 | Section 3.1 row 4; ADR-090 D6; ADR-072 D1 |
+| TASK-ZAI-097 | SPR-ZAI-06 | task | Knowledge gap report for LINE — NO_EVIDENCE retrievals aggregated per Business in the Knowledge (GKS) slot as counts, product locators and last-seen times, with the question text left in CRM — FR-237 | P2 | Claude | planned | TASK-ZAI-093 | Section 3.1 row 4; ADR-090 D7 |
+| TASK-ZAI-098 | SPR-ZAI-06 | task | LINE Studio descriptions as knowledge sources — on a publisher action, published rich menu, LIFF app and bot profile descriptions are admitted as LINE_STUDIO_DESCRIPTION TEXT sources, never the Flex or rich menu JSON, and unpublishing withdraws them — FR-238 | P2 | Claude | planned | TASK-ZAI-096 | Section 3.1 row 4; ADR-090 D7 |
+| TASK-ZAI-099 | SPR-ZAI-06 | task | Apply the knowledge candidate migration on production and turn candidates on for SmartGift only on the owner's instruction, recorded in the migration notes | P1 | ATHER | in-progress | TASK-ZAI-096 | ADR-057; ADR-090 Phase 5 |
+| TASK-ZAI-100 | SPR-ZAI-06 | task | LINE memory projection policy and receipts — LineOaAccount.memoryPolicy defaulting to OFF, per-job capture of session-tier and memory-tier eligibility by policy, consent and audience, MemoryProjectionReceipt in the delivery settlement, and a projector that refuses until MSP main ships thread and erase tools — FR-231 | P1 | Claude | blocked | TASK-ZAI-092; TASK-ZAI-089 | Section 3.1 row 4; ADR-091 D3, D4; PLAN-MSP-MEMORY-OS-LINE-AGENT TASK-MEMOS-002, TASK-MEMOS-004 |
+| TASK-ZAI-101 | SPR-ZAI-06 | task | Erasure propagation beyond Tier 1 — one transaction tombstones CRM bodies, previews, attachments, LINE job fields, raw payloads, trace inputs and knowledge candidates, and leaves durable MSP erase calls per projection receipt and knowledge-source withdrawals, with PENDING_MSP until acknowledged — FR-232, SEC-031 | P1 | Claude | blocked | TASK-ZAI-100; TASK-ZAI-096 | Section 3.1 row 4; ADR-091 D6; ADR-090 D8; PLAN-MSP-MEMORY-OS-LINE-AGENT TASK-MEMOS-004 |
+| TASK-ZAI-102 | SPR-ZAI-06 | task | Memory policy production activation — apply the memory policy and projection receipt migrations under ADR-057 and, only on the owner's instruction, enable projection for one DIRECT account after the MSP canary (TASK-MEMOS-006) passes, recorded with a rollback | P1 | ATHER | blocked | TASK-ZAI-101 | ADR-057; ADR-091 D3; PLAN-MSP-MEMORY-OS-LINE-AGENT TASK-MEMOS-006 |
+| TASK-ZAI-103 | SPR-ZAI-10 | task | Generalise the credential vault to other provider kinds, FR-242 — OAUTH_CLIENT for FlowAccount (ADR-053) and MODEL_PROVIDER_KEY on the same SecretStorePort, built and tested; retiring the Phase-1 model-credential resolver is a separate follow-up | P2 | Claude | review | TASK-ZAI-085 | Section 3.1 row 8; ADR-089 phase 7; ADR-053 D3 |
+| TASK-ZAI-104 | SPR-ZAI-02 | task | Programme roadmap member view — for 30 days any signed-in person reads the programme plan and the Domain map at /roadmap, with usage by person and device, tool and model names and the Agent devices tab removed on the server, closing by itself at 2026-10-15 00:00 Asia/Bangkok while /control/roadmap stays operator-only | P1 | Claude | done | TASK-ZAI-075 | Section 3.1 row 2; FR-105; FR-211; ADR-048; ADR-092 |
+| TASK-ZAI-105 | SPR-ZAI-02 | task | Conversation sessions and chat evidence decision records — ADR-093 and ADR-094 accepted with the owner's choices, FR-243 to FR-246, SEC-034, SDD-102, SDD-103, FEAT-040 and FEAT-041 declared, SEC-031 re-worded, and tasks 105 to 115 bound to lanes | P0 | Claude | done | TASK-ZAI-091 | Section 3.1 row 8; ADR-091; ADR-093; ADR-094 |
+| TASK-ZAI-106 | SPR-ZAI-03 | task | Conversation sessions, FR-243 — ConversationSession model and migration, session assignment inside LINE admission and reply recording, the per-account idle timeout column, and a backfill of existing messages by the same rule | P0 | Claude | done | TASK-ZAI-105 | Section 3.1 row 8; ADR-094 D1 to D3; SDD-102 |
+| TASK-ZAI-107 | SPR-ZAI-03 | task | Sessions on the LINE job, trace and inbox, FR-243 — the session id on LineConversationJob, a trace filter by session, a divider between sessions in the inbox, and the account setting for the idle timeout | P1 | Claude | done | TASK-ZAI-106 | Section 3.1 row 8; ADR-094 D3, D4 |
+| TASK-ZAI-108 | SPR-ZAI-03 | task | Apply the conversation session migration on production and run the backfill, under ADR-057 with an inventory, a rolled-back dry run and a verified effect, recorded in the migration notes | P1 | ATHER | done | TASK-ZAI-107 | ADR-057; ADR-094 phase 1 |
+| TASK-ZAI-109 | SPR-ZAI-04 | task | Local model residency by business hours, FR-244 — per-account business hours and out-of-hours reply, the edge worker loading the model during any served account's hours and unloading it after the last closes, and no model call outside hours | P1 | Claude | review | TASK-ZAI-105 | Section 3.1 row 8; ADR-094 D6 option A |
+| TASK-ZAI-110 | SPR-ZAI-04 | task | Staff replies recorded, FR-246 — a member with CRM write access replies from the inbox, the server pushes it through the account's LINE transport and records an OUTBOUND message with reply source STAFF in the conversation's session | P0 | Claude | done | TASK-ZAI-106 | Section 3.1 row 8; ADR-093 evidence gap; FR-093 |
+| TASK-ZAI-111 | SPR-ZAI-05 | task | Chat evidence archive writer, FR-245 — archive manifest model and migration, per-Customer AES-256-GCM segments under ZURI_ARCHIVE_KEK, write-flush-verify before tombstone inside the retention sweep, failing closed | P1 | Claude | done | TASK-ZAI-108; TASK-ZAI-110 | Section 3.1 row 8; ADR-093 D1 to D4; SDD-103; SEC-034 |
+| TASK-ZAI-112 | SPR-ZAI-05 | task | Chat evidence retrieval, FR-245 — an OWNER at AAL2 retrieves one Customer's archived messages for a date range by session with a case reference, as an export carrying file and manifest hashes, audited | P1 | Claude | review | TASK-ZAI-111 | Section 3.1 row 8; ADR-093 D7; SEC-034; FR-224 |
+| TASK-ZAI-113 | SPR-ZAI-05 | task | Archive key destruction and the legal hold, SEC-034 — expiry and PDPA erasure destroy a Customer's archive data key unless an OWNER-recorded legal hold with a reason and end date is active, shown on the erasure status | P1 | Claude | review | TASK-ZAI-112 | Section 3.1 row 8; ADR-093 D5, D6; SEC-031; SEC-034 |
+| TASK-ZAI-114 | SPR-ZAI-06 | task | Chat evidence archive on production — the cold-archive compose overlay on F:, ZURI_ARCHIVE_KEK with its offline backup, the migrations applied under ADR-057, the sweep token and 03:00 scheduled task, and the first recorded manifest | P1 | ATHER | planned | TASK-ZAI-113 | ADR-057; ADR-093 phase 4; TASK-ZAI-091 |
+| TASK-ZAI-115 | SPR-ZAI-06 | task | Monthly offline copy of the chat evidence archive — new archive files copied to an offline external drive and verified against the manifest hashes, with the first verified copy recorded | P2 | Owen | planned | TASK-ZAI-114 | ADR-093 D8; FR-245 |
+| TASK-ZAI-116 | SPR-ZAI-02 | task | Observability decision record — ADR-095 for error tracking and per-person feature usage, and the FR/NFR declarations it governs | P1 | Claude | done |  | CR-020; ADR-095 |
+| TASK-ZAI-117 | SPR-ZAI-02 | task | Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action | P1 | Claude | done | TASK-ZAI-116 | ADR-095 D1; FR-247 |
+| TASK-ZAI-118 | SPR-ZAI-02 | task | Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup | P2 | Claude | done | TASK-ZAI-116 | ADR-095 D2, D3; FR-248, FR-249 |
 
 ## Assignments
 
@@ -368,8 +581,22 @@ locates the week.
 | TASK-ZAI-010 | ATHER | agent | ABAC | 2026-08-20T00:00:00Z | Owen |
 | TASK-ZAI-019 | Codex | agent | ABAC | 2026-08-20T00:00:00Z | Owen |
 | TASK-ZAI-030 | Owen | human | RBAC | 2026-08-20T00:00:00Z | Owen |
+| TASK-ZAI-036 | Claude | agent | ABAC | 2026-09-13T00:00:00Z | Owen |
+| TASK-ZAI-039 | RWANG | agent | ABAC | 2026-09-13T00:00:00Z | Owen |
+| TASK-ZAI-040 | RWANG | agent | ABAC | 2026-09-13T00:00:00Z | Owen |
+| TASK-ZAI-043 | ATHER | agent | ABAC | 2026-09-13T00:00:00Z | Owen |
+| TASK-ZAI-044 | Owen | human | RBAC | 2026-09-13T00:00:00Z | Owen |
+| TASK-ZAI-047 | Codex | agent | ABAC | 2026-09-13T00:00:00Z | Owen |
+| TASK-ZAI-049 | ATHER | agent | ABAC | 2026-09-13T00:00:00Z | Owen |
+| TASK-ZAI-050 | ATHER | agent | ABAC | 2026-09-13T00:00:00Z | Owen |
+| TASK-ZAI-086 | Owen | human | RBAC | 2026-09-14T00:00:00Z | Owen |
+| TASK-ZAI-095 | Owen | human | RBAC | 2026-09-14T00:00:00Z | Owen |
 
-Unlisted tasks are assigned at sprint entry, not at plan authoring time.
+Unlisted tasks are assigned at sprint entry, not at plan authoring time. TASK-ZAI-086 and 095 are
+assigned to the owner at authoring time on purpose (v0.4.7): 086 is a person typing a channel secret,
+which no agent may do, and 095 is an owner-triggered production switch. Tasks 031 to 035, 037,
+038, 041, 042, 045 and 046 were assigned retroactively to the agent whose merged pull request delivered
+them, on the CR-019 re-baseline; the executor named in each container is that record.
 
 ## Verification
 
@@ -403,27 +630,27 @@ title: Close the production request-session and credential boundary
 requirement_type: NFR
 complexity: C-3
 access_scope: H3
-status: in-progress
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: ATHER
 executor: Codex
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/modules/identity/resolve-viewer.js
+  code: apps/server/src/modules/identity/resolve-viewer.js
   doc: docs/roadmap/ROADMAP.md
-  test: tests/e2e/fr046-entry-contract.spec.js
+  test: apps/server/tests/e2e/fr046-entry-contract.spec.js
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a request carrying no trusted session, when it reaches any mutating project-manager route, then the route refuses before the service runs
       checked: false
   success_criteria:
     - criterion: Given the FR-090 credential tables, when a password reset is issued, then the token is single use and expires
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm run test:e2e, when fr046-entry-contract.spec.js runs, then the unauthenticated negative case passes
       checked: false
-changelog: Carried forward from TASK-V2-IDENTITY in ROADMAP.md, which records identity foundations FR-021 and FR-022 as implemented with the production web request-session boundary still open.
+changelog: Carried forward from TASK-V2-IDENTITY in ROADMAP.md, which records identity foundations FR-021 and FR-022 as implemented with the production web request-session boundary still open. Re-baselined 2026-09-13 (v0.4.0) to review — FEAT-010 (FR-094 canonical principal, FR-095 persisted sessions, FR-096 shared policy enforcement, FR-097 verified channel onboarding merged 2026-09-12, FR-098 agent/tool/MSP authorization) has code and tests on main, FR-104 owner-assisted reset closes the success criterion (digest-only, single use, all sessions revoked), and TOTP step-up merged 2026-09-12. The PRD still marks FR-094 to FR-098 as the Issue #99 production-hardening tail, so the acceptance and exit criteria stay unticked until that tail is run against production, not against the local suite.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -447,27 +674,27 @@ title: Declare the five built-but-undeclared features into the registry
 requirement_type: NFR
 complexity: C-1
 access_scope: H1
-status: ready
-version: 0.2.0
+status: done
+version: 1.0.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
   code: scripts/doc-graph.mjs
-  doc: docs/FEATURE-MAP.md
+  doc: docs/PRD-SDD-v1.0.md
   test: unavailable
 definition_of_done:
   acceptance_criteria:
     - criterion: Given FR-087, FR-088, FR-089, FR-091 and FR-093, when doc-graph regenerates, then none is reported as built but not declared
-      checked: false
+      checked: true
   success_criteria:
-    - criterion: Given a reader opens FEATURE-MAP.md, when they look for project priority, PIC, Team, the CRM inbox and the LINE reply receipt, then each has a design note and a status
-      checked: false
+    - criterion: Given a reader opens the registry, when they look for project priority, PIC, Team, the CRM inbox and the LINE reply receipt, then each has a design note and a status
+      checked: true
   exit_criteria:
     - criterion: Given npm run docs:check, when it runs after regeneration, then it exits zero with no drift
-      checked: false
-changelog: Opened from the 2026-08-20 evidence baseline with four undeclared features. Re-baselined 2026-08-23 at 7d8c9d0 — FR-093 (LINE reply delivery receipt) joined the set, so the scope is now five.
+      checked: true
+changelog: Opened from the 2026-08-20 evidence baseline with four undeclared features. Re-baselined 2026-08-23 at 7d8c9d0 — FR-093 (LINE reply delivery receipt) joined the set, so the scope is now five. Closed on the 2026-09-13 re-baseline — FR-087, FR-088 and FR-089 flipped to implemented in PRD 1.89.0b on 2026-08-26 (ROADMAP.md TASK-FEAT-008 status ruling), FR-091 and FR-093 are implemented with e2e (TASK-FEAT-009); docs:check runs green in CI on every pull request. FEATURE-MAP.md is no longer a committed file (ADR-081), so the doc link now points at the registry the generator reads.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -491,27 +718,27 @@ title: Profile-first onboarding and Waiting Room, FR-066
 requirement_type: FR
 complexity: C-2
 access_scope: H2
-status: planned
-version: 0.1.0
+status: done
+version: 1.0.0
 pic: Codex
 executor: Codex
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/modules/identity/resolve-viewer.js
-  doc: docs/FEATURE-MAP.md
+  code: apps/server/src/modules/identity/resolve-viewer.js
+  doc: docs/PRD-SDD-v1.0.md
   test: unavailable
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a new person with a local session, when they enter the app, then they complete a Profile before being offered scope creation
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a Profile-only member, when no Organization exists for them, then they remain in Waiting Room without an error state
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the FR-066 unit suite runs, then onboarding order is asserted, not assumed
-      checked: false
-changelog: Planned feature carried from FEATURE-MAP.md into a scheduled sprint slot.
+      checked: true
+changelog: Planned feature carried from FEATURE-MAP.md into a scheduled sprint slot. Closed on the 2026-09-13 re-baseline — ROADMAP.md TASK-FR-066-067 records delivery on 2026-08-27, and FR-122 (2026-08-29) tightened the Profile step to require given name, family name and telephone. The PRD row is 🟠 because CR-017 approved a current-person profile/Home UX correction; the authority boundary this task bought is implemented and tested, and the correction is tracked by the Asset lane that raised it.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -535,27 +762,27 @@ title: Workspace collaboration boundary and scoped invites, FR-067
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: done
+version: 1.0.0
 pic: Codex
 executor: Codex
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/modules/identity/classify-principal.js
-  doc: docs/FEATURE-MAP.md
+  code: apps/server/src/modules/identity/access-invite-service.js
+  doc: docs/PRD-SDD-v1.0.md
   test: unavailable
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a Workspace owner issues an invite, when it is redeemed twice, then the second redemption is refused
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a WorkspaceMembership, when the holder queries Business or Tenant scope, then nothing outside Workspace collaboration is returned
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the invite suite runs, then expiry, single use and scope containment each have a failing-first test
-      checked: false
-changelog: Planned feature carried from FEATURE-MAP.md. Sequenced after onboarding so an invitee has a Profile to land on.
+      checked: true
+changelog: Planned feature carried from FEATURE-MAP.md. Sequenced after onboarding so an invitee has a Profile to land on. Closed on the 2026-09-13 re-baseline — FR-067 is ✅ implemented in the PRD and ROADMAP.md records delivery on 2026-08-27 (WorkspaceMembership/WorkspaceInvite as a separate authority layer, BR-016). On 2026-09-12 FR-195 (ADR-079, PR #352) generalised WorkspaceInvite into AccessInvite over all three authority layers; the Workspace case is unchanged and the code link now names the service that owns both.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -623,27 +850,27 @@ title: Write the governed memory read and write contract
 requirement_type: NFR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: done
+version: 1.0.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/modules/agent/context.js
-  doc: docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md
+  code: apps/server/src/modules/agent/context.js
+  doc: docs/decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md
   test: unavailable
 definition_of_done:
   acceptance_criteria:
     - criterion: Given the contract document, when a reader asks what a role may write to memory, then the answer is stated per scope rather than implied
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given the existing FR-025 read path, when the contract is applied, then no current read behaviour changes without an explicit note
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm run govern, when the new contract document is added, then preflight strict passes with no new warning
-      checked: false
-changelog: Opened because the Second Brain deliverable has read ports but no written contract governing writes, retention or partitioning. Re-baselined 2026-08-23 to sit under ADR-043, which pinned the four-tier cognitive architecture on D12 and now governs this contract.
+      checked: true
+changelog: Opened because the Second Brain deliverable has read ports but no written contract governing writes, retention or partitioning. Re-baselined 2026-08-23 to sit under ADR-043, which pinned the four-tier cognitive architecture on D12 and now governs this contract. Re-baselined 2026-09-13 (v0.4.0) to review. Closed 2026-09-19: role write partition and retrieval policy delivered under TASK-ZAI-007 (role registry) and TASK-ZAI-008 (role memory partition).
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -667,27 +894,27 @@ title: Agent Role registry with five core roles
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: done
+version: 1.0.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/modules/agent/index.js
+  code: src/modules/agent/role-registry.js
   doc: docs/ARCHITECTURE.md
-  test: unavailable
+  test: tests/unit/agent-role-registry.test.js
 definition_of_done:
   acceptance_criteria:
     - criterion: Given the five roles Executive, Operations, Finance Analyst, Research and Marketing, when each resolves its context, then each receives a distinct tool set and policy
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a role without a registered tool, when it attempts that tool, then registration refuses it at bind time, not at call time
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the role registry suite runs, then a cross-role tool leak fails the suite
-      checked: false
-changelog: Opened from the deliverable gap analysis. One generic agent turn exists today through FR-025 to FR-029; no role dimension exists.
+      checked: true
+changelog: Opened from the deliverable gap analysis. Closed 2026-09-19 via PR #457 merged into main (6dc137e2) with all 10 unit tests passing.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -711,26 +938,26 @@ title: Role-scoped memory partition and retrieval policy
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/modules/agent/runtime.js
+  code: src/modules/agent/role-memory-partition.js
   doc: docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md
-  test: unavailable
+  test: tests/unit/role-memory-partition.test.js
 definition_of_done:
   acceptance_criteria:
     - criterion: Given two roles in the same Business, when each retrieves memory, then neither sees the other private partition
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a shared Business partition, when either role reads it, then the same governed content is returned to both
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the partition suite runs, then a cross-role read returns empty and is audited
-      checked: false
+      checked: true
 changelog: Opened as the memory half of the role registry. Depends on the written contract from TASK-ZAI-006.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
@@ -739,8 +966,8 @@ token_telemetry:
   predicted_token_usage: 44000
   total_token_usage: 0
 ui_state:
-  dropdown_default: collapsed
-  expanded: false
+  dropdown_default: expanded
+  expanded: true
   disabled_reason: ""
 ```
 
@@ -809,6 +1036,7 @@ symbol_links:
   code: src/modules/agent/action-gate.js
   doc: docs/FEATURE-MAP.md
   test: unavailable
+delivers: []
 definition_of_done:
   acceptance_criteria:
     - criterion: Given an action classified L4, when fewer than four distinct approvals are recorded, then execution is refused
@@ -883,31 +1111,31 @@ task_container_id: TC-TASK-ZAI-012
 task_id: TASK-ZAI-012
 parent_phase_id: PHASE-ZAI-02
 parent_sprint_id: SPR-ZAI-04
-title: Bind GoVibe Mission Control to the Zuri mission feed
+title: Mission feed — agent missions and their approvals surface as Development-domain work in the Project system
 requirement_type: FR
 complexity: C-2
 access_scope: H2
 status: planned
-version: 0.1.0
+version: 0.2.0
 pic: ATHER
 executor: ATHER
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/app/api/viewer/route.js
-  doc: docs/GOVIBE-INTEGRATION.md
+  code: apps/server/src/modules/project-manager/application
+  doc: docs/domains/project-manager/features/FR-068-human-visible-execution-roadmap.md
   test: unavailable
 definition_of_done:
   acceptance_criteria:
-    - criterion: Given Mission Control is pointed at this repository, when the roadmap board loads, then it renders this plan phases, sprints and tasks with no fabricated node
+    - criterion: Given an agent role (TASK-ZAI-007) is assigned a mission, when the mission is created, then it is a WorkItem in the Project system of the Development domain written through the one intake pipeline, carrying the agent as accountable principal and the approval tier it needs
       checked: false
   success_criteria:
-    - criterion: Given no feed is reachable, when the board loads, then it shows an empty state naming the missing feed rather than stale values
+    - criterion: Given a mission awaiting approval or in progress, when a human opens the Board, Schedule or Dashboard, then it appears there with the same status vocabulary as human work and its progress is recomputed, never reported from an agent's claim
       checked: false
   exit_criteria:
-    - criterion: Given the GoVibe sidecar snapshot endpoint, when it is queried, then it returns this plan real node count and source path
+    - criterion: Given npm test and the navigation e2e, when they run, then an agent-created mission is visible on the Board, blocked while its approval is unmet, and released on approval with an audit trail
       checked: false
-changelog: Opened from the deliverable gap analysis. Mission Control exists but is not bound to Zuri business data.
+changelog: Opened from the deliverable gap analysis as "bind GoVibe Mission Control to the Zuri mission feed", on the reading that Mission Control was an external product. Re-stated 2026-09-13 (v0.4.1) on the owner's correction — Mission Control is the Project system of the Development domain in this repository, which is delivered (section 3.1 row 2). What remains is the mission half: agents creating and progressing work in that system under the approval ladder TASK-ZAI-010 builds, so the dependency on 010 stands and the sprint slot is unchanged.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -1103,20 +1331,21 @@ task_container_id: TC-TASK-ZAI-017
 task_id: TASK-ZAI-017
 parent_phase_id: PHASE-ZAI-03
 parent_sprint_id: SPR-ZAI-06
-title: Connector number two under the FR-081 ingestion boundary
+title: Connector number two under the FR-081 ingestion boundary — FlowAccount read-only pull, FR-125
 requirement_type: FR
 complexity: C-2
 access_scope: H2
 status: planned
-version: 0.1.0
+version: 0.2.0
 pic: Codex
 executor: Codex
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/platform/integrations/providers/line/line-oa-evidence.js
-  doc: docs/domains/integration/features/FR-080-integration-secret-management-ui.md
+  code: apps/server/src/platform/integrations/providers/line/line-oa-evidence.js
+  doc: docs/decisions/ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING.md
   test: unavailable
+delivers: [FR-125]
 definition_of_done:
   acceptance_criteria:
     - criterion: Given the second connector, when it ingests, then every record carries tenant, Business, connection, provider, lane, entity type and schema version
@@ -1127,7 +1356,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm test, when the connector suite runs, then an out-of-scope read is refused and the refusal is audited
       checked: false
-changelog: Opened from deliverable eight. LINE is connector one. The ingestion boundary already exists, and FR-092 added a provider-neutral translation core, so connector two is a conformance exercise rather than new architecture.
+changelog: Opened from deliverable eight. LINE is connector one. The ingestion boundary already exists, and FR-092 added a provider-neutral translation core, so connector two is a conformance exercise rather than new architecture. Re-stated 2026-09-13 (v0.4.0) to name the connector — FR-125 and ADR-053 (2026-08-30) declared FlowAccount as a read-only pull pipeline over one OWNER-authorized Client Credentials connection; the PRD marks it "design candidate only, nothing built and nothing authorized". It stays planned in SPR-ZAI-06. Google Sheets snapshot intake (FR-139, Assets) and the GitHub repository projection (FR-130, partial) are real but narrower than a connector under this deliverable's definition, and are not counted.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -1415,15 +1644,15 @@ title: Second Brain retrieval by Business, Role and Permission
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: in-progress
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/modules/agent/context.js
-  doc: docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md
+  code: apps/server/src/modules/agent/context.js
+  doc: docs/decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md
   test: unavailable
 definition_of_done:
   acceptance_criteria:
@@ -1431,11 +1660,11 @@ definition_of_done:
       checked: false
   success_criteria:
     - criterion: Given a permitted retrieval, when the result is assembled, then every item names the Business and partition it came from
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the retrieval suite runs, then policy is evaluated before retrieval, not after
       checked: false
-changelog: Opened from deliverable four. Read ports exist through FR-024, FR-025 and FR-029; permission-scoped retrieval does not. Re-baselined 2026-08-23 to sit under ADR-042, which pinned the decoupled knowledge and GraphRAG service on D12.
+changelog: Opened from deliverable four. Read ports exist through FR-024, FR-025 and FR-029; permission-scoped retrieval does not. Re-baselined 2026-08-23 to sit under ADR-042, which pinned the decoupled knowledge and GraphRAG service on D12. Moved to in-progress on the 2026-09-13 re-baseline, three months ahead of its sprint — FR-098 makes every retrieval consume the immutable shared authorization context and audits denial; FR-110 makes knowledge readable only as an identified publication; FR-173 (ADR-072) admits sources and publishes corpora under Business authorization with isolated acceptance passed; FR-189 (ADR-075) answers catalog queries from a published generation. The success criterion is met by the publication contract. The acceptance criterion — retrieval refused and audited *by role* — waits on the role registry (TASK-ZAI-007/008), and the exit criterion on a suite that asserts ordering, which does not exist yet.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -1459,15 +1688,15 @@ title: Memory lineage, replay and the no-silent-replay guarantee
 requirement_type: NFR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: in-progress
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/modules/agent/runtime.js
-  doc: docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md
+  code: apps/server/src/modules/agent/runtime.js
+  doc: docs/decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md
   test: unavailable
 definition_of_done:
   acceptance_criteria:
@@ -1479,7 +1708,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm test, when the lineage suite runs, then a replay against changed content fails closed
       checked: false
-changelog: Opened to make the Second Brain auditable rather than merely persistent. Reproducibility of context and reproducibility of output are recorded as separate claims.
+changelog: Opened to make the Second Brain auditable rather than merely persistent. Reproducibility of context and reproducibility of output are recorded as separate claims. Moved to in-progress on the 2026-09-13 re-baseline — FR-116 gives every derived knowledge object the ten provenance fields and a lineage chain back to its source; FR-117 records duplicate and version relationships; FR-171 (ADR-070, execution trace and replay v0.3) journals the native SERVER LINE path into an append-only AgentTraceEvent with MSP memory provenance preserved. The PRD marks FR-171 🟡: MSP erasure API, live Postgres and a deployed canary are still open, and none of the three criteria has its fail-closed replay test yet, so all stay unticked.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -1712,14 +1941,5428 @@ ui_state:
   disabled_reason: ""
 ```
 
+Containers 031 to 044 were opened on the 2026-09-13 re-baseline under CR-019. Where a container
+is `done` at opening, its criteria are ticked on the merged pull request and the test file the
+container names — the same evidentiary standard TASK-ZAI-005 used, stated in the changelog rather
+than assumed. `token_telemetry` for retroactive containers records `0` predicted and `0` total:
+no estimate was made before the work, and inventing one afterwards would be a figure with no
+source.
+
+### TC-TASK-ZAI-031
+
+```yaml
+task_container_id: TC-TASK-ZAI-031
+task_id: TASK-ZAI-031
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-01
+title: Inventory catalogue, stock ledger, recipes and product natures — FEAT-020, FR-154 to FR-156, FR-168
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/inventory/application/inventory-stock-service.js
+  doc: docs/domains/inventory/features/FR-155-inventory-stock-ledger.md
+  test: apps/server/tests/integration/fr155-inventory-stock.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a TRACKED product, when a RECEIPT, ISSUE or ADJUSTMENT is recorded, then on-hand is derived from the append-only ledger and never stored as a mutable balance
+      checked: true
+  success_criteria:
+    - criterion: Given a product declared UNTRACKED or SERVICE, when a stock movement is attempted, then the service refuses with the reason the nature gives
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when fr154, fr155 and fr156 integration suites run, then all pass and the migrations 20260906230000, 20260906233000 and 20260907140000 are recorded applied on production
+      checked: true
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Delivered by PR #263 (merged 2026-09-06, FEAT-020) and PR #286 (FR-168 product natures, merged 2026-09-07). Production migrations confirmed applied 2026-09-07 per the lane record. Closed at opening on that evidence.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-032
+
+```yaml
+task_container_id: TC-TASK-ZAI-032
+task_id: TASK-ZAI-032
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-01
+title: Sales tasks in CRM — FEAT-022, FR-161
+requirement_type: FR
+complexity: C-2
+access_scope: H2
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/crm/sales-task-service.js
+  doc: docs/decisions/ADR-064-SALES-TASKS-ARE-A-CRM-ACTIVITY-NOT-A-PROJECT-TASK.md
+  test: apps/server/tests/integration/fr161-sales-task.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a salesperson owes a customer a follow-up, when it is recorded, then it is a CRM activity bound to the Customer and never a project-manager WorkItem
+      checked: true
+  success_criteria:
+    - criterion: Given a viewer without CRM authority over the Business, when they list sales tasks, then nothing is returned
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when fr161-sales-task runs, then it passes and migration 20260906235500 is recorded applied on production
+      checked: true
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Delivered by PR #266 (merged 2026-09-07); renumbered from FR-157 to FR-161 when the Marketing lane took the earlier number. Migration applied on production 2026-09-07. Closed at opening.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-033
+
+```yaml
+task_container_id: TC-TASK-ZAI-033
+task_id: TASK-ZAI-033
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-01
+title: Commerce orders and payments — FEAT-023, FR-166, FR-163
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/commerce/application/payment-service.js
+  doc: docs/domains/commerce/features/FR-163-payments-and-revenue.md
+  test: apps/server/tests/integration/fr163-payment.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a sales order, when payments are recorded, then money is integer satang, no paid total is stored, and revenue counts only VERIFIED payments
+      checked: true
+  success_criteria:
+    - criterion: Given a sales order line naming an Inventory SKU, when the order is read, then the line resolves the catalogue product without duplicating its identity
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when fr166-sales-order and fr163-payment run, then both pass and migration 20260907000000 is recorded applied on production
+      checked: true
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Delivered by PR #268 (merged 2026-09-07, ADR-065); renumbered twice before landing. Migration applied on production 2026-09-07. Closed at opening.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-034
+
+```yaml
+task_container_id: TC-TASK-ZAI-034
+task_id: TASK-ZAI-034
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-01
+title: Procurement suppliers, purchase orders and goods receipts — FEAT-024, FR-164, FR-165
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/procurement/application/goods-receipt-service.js
+  doc: docs/domains/procurement/features/FR-165-goods-receipts.md
+  test: apps/server/tests/integration/fr165-goods-receipt.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a goods receipt against a purchase order, when it posts, then the Inventory ledger gains RECEIPT movements carrying the PO and GRN reference, under Inventory authority as well as Procurement authority
+      checked: true
+  success_criteria:
+    - criterion: Given a purchase order, when its receipt state is asked for, then it is derived from receipts and never stored as a status
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when fr164-procurement and fr165-goods-receipt run, then both pass and migration 20260907010000 is recorded applied on production
+      checked: true
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Delivered by PR #272 (merged 2026-09-07, ADR-066). PO terminal status is SHORT_CLOSED, chosen to avoid an enum-copy overlap with Marketing's local lists. Migration applied on production 2026-09-07. Closed at opening.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-035
+
+```yaml
+task_container_id: TC-TASK-ZAI-035
+task_id: TASK-ZAI-035
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-01
+title: Asset Management foundation, evidence intake and edge extraction — FEAT-015 to FEAT-017, FR-133 to FR-144
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Codex
+executor: Codex
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/asset-management/application/asset-extraction-job-service.js
+  doc: docs/domains/asset-management/features/FR-143-edge-executed-evidence-extraction.md
+  test: apps/server/tests/integration/fr143-asset-extraction-job.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given evidence uploaded for an Asset, when extraction is requested, then a cloud-queued job is claimed and executed by a paired Edge Device presenting its Business-scoped credential, and the result is reviewed by a human before it becomes the record
+      checked: true
+  success_criteria:
+    - criterion: Given Web, REST, Excel/CSV, Google Sheet, Agent/MCP and LINE intake, when an Asset arrives, then all six converge on one strict envelope with the same validation
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when asset-evidence-intake-execution and fr143-asset-extraction-job run, then both pass and the Asset migrations 20260902001000 and 20260902103000 are recorded applied on production
+      checked: true
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Delivered across PR #201, #202 (2026-09-02), #213 and #218 (edge extraction round trip, 2026-09-04), #252 to #256 (custody, tagging, maintenance, disposal, 2026-09-06), under ADR-055, ADR-056, ADR-057 and ADR-059; ROADMAP.md records PHASE-ZAI-ASSET-FOUNDATION and PHASE-ZAI-ASSET-EVIDENCE done. The PRD keeps FR-133 to FR-140 🟠 because CR-016 and CR-017 leave real-provider canary and UX corrections gated; the deliverable-11 scope this task carries is the domain and its intake, which are merged and applied. Closed at opening on that boundary.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-036
+
+```yaml
+task_container_id: TC-TASK-ZAI-036
+task_id: TASK-ZAI-036
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-01
+title: LINE OA Studio multi-account, rich menu, LIFF and server-owned transport — FEAT-018, FEAT-019, FR-146 to FR-153, FR-190
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: in-progress
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/line-oa-studio/application/line-transport-health.js
+  doc: docs/domains/line-oa-studio/features/FR-190-line-transport-health.md
+  test: apps/server/tests/unit/fr190-line-transport-health.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a serverEnabled LINE account, when a signed webhook arrives, then the server records the event, executes on SERVER or EDGE as the account declares, and the console reports how long the channel has been silent
+      checked: false
+  success_criteria:
+    - criterion: Given a frozen rich menu version, when publish is requested, then a durable job carries it to LINE with retry and audit and never from the browser
+      checked: true
+  exit_criteria:
+    - criterion: Given the deployed web container, when ZURI_LINE_SERVER_ENABLED is read and a real LINE delivery is sent, then the native route answers 200 and the console badge shows OK within the owner's thresholds
+      checked: false
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Accounts (FR-146/147, PR #230 to #232), rich menu designer and publish jobs (FR-151/152, PR #238, #244, #245, #248), LIFF registry (FR-153, PR #257), server-owned transport with optional Edge (FR-148 to FR-150, ADR-061, PR #234 and the 2026-09-09/10 fix series) and transport reachability (FR-190, PR #341) are merged; migrations for accounts, rich menus, jobs and LIFF are applied on production. Left in-progress rather than done because ROADMAP.md still lists PHASE-ZAI-LINE-OA-STUDIO as planned, the native server path has been 503 twice in production (RCAs 2026-09-11 and 2026-09-12), and FR-190's console badge is recorded pending. The exit criterion names the deployment check those RCAs prescribe.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: expanded
+  expanded: true
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-037
+
+```yaml
+task_container_id: TC-TASK-ZAI-037
+task_id: TASK-ZAI-037
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: SCM and CRM parent navigation, Business capabilities and module tabs — FR-167, FR-169, FR-170, FR-172
+requirement_type: FR
+complexity: C-2
+access_scope: H2
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/config/domains.js
+  doc: docs/decisions/ADR-069-SCM-IS-A-PARENT-DOMAIN-OVER-WAREHOUSE-INVENTORY-PROCUREMENT-AND-ORDER-MANAGEMENT.md
+  test: apps/server/tests/integration/fr169-business-capability.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given DOMAIN_GROUPS declares scm and crm over their member domains, when a viewer's grants are filtered, then the persisted member grants are unchanged and the parent slot is never itself grantable
+      checked: true
+  success_criteria:
+    - criterion: Given a Business with the Warehouse capability off, when the bar renders, then the slot is hidden for that Business without revoking any Membership grant
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test and the navigation e2e, when they run, then the parent slots, capabilities and ModuleTabs pass, and migration 20260907150000 is recorded applied on production
+      checked: true
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Delivered by PR #280 (FR-167, ADR-069), PR #288 (FR-169 capabilities and FR-170 module tabs) and PR #294 (FR-172, ADR-071), all merged 2026-09-07/08. DOMAINS stays flat and DOMAIN_GROUPS declares the group because VIEWER_DOMAINS filters persisted grants and nesting would revoke them silently. Closed at opening.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-038
+
+```yaml
+task_container_id: TC-TASK-ZAI-038
+task_id: TASK-ZAI-038
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: SmartGift SCM located ledger, landed cost, work orders, ATP and agent tools — FEAT-025, FR-174 to FR-182
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/inventory/application/inventory-atp-service.js
+  doc: docs/decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md
+  test: apps/server/tests/integration/fr181-smartgift-agent-tools.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given stock at a WarehouseLocation, when it changes place, then a transfer is the only path, cost is landed cost in integer satang, and branded work in progress cannot be laundered back into unbranded stock
+      checked: true
+  success_criteria:
+    - criterion: Given the agent, when it reaches the supply chain, then it does so through the six declared tools on the existing gates and an undeclared path is refused
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when fr174 to fr182 suites run, then all pass and migration 20260910120000 is recorded applied on production
+      checked: true
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Delivered by PR #316 (merged 2026-09-10, ADR-074) and PR #318 (FR-182 SCM console). Migration applied on production 2026-09-10 through the pooler. The success criterion is the negative test GATE-ZAI-09 names. Closed at opening.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-039
+
+```yaml
+task_container_id: TC-TASK-ZAI-039
+task_id: TASK-ZAI-039
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Commerce billing documents, POS checkout and physical stocktake — FR-186, FR-183, FR-184
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: review
+version: 0.1.0
+pic: RWANG
+executor: RWANG
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/commerce/application/pos-cashier-service.js
+  doc: docs/change-requests/ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910.md
+  test: apps/server/tests/integration/fr183-pos.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a POS checkout, when it commits, then the sales order, its pending payment and the Inventory ISSUE movements are one transaction that either all land or none do
+      checked: true
+  success_criteria:
+    - criterion: Given a stocktake over a located ledger, when counts are reconciled, then the adjustments are ADJUSTMENT movements with the count as their reason and nothing rewrites history
+      checked: true
+  exit_criteria:
+    - criterion: Given the production migration ledger, when 20260911010000 and 20260911020000 are applied and recorded, then the FR-186, FR-183 and FR-184 rows leave the "not applied" state
+      checked: false
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Owner-approved and locally verified 2026-09-11 (PRD 🔵; ROADMAP.md 2.52.0b records FR-184's isolated browser, concurrency and recovery proof). In review, not done, because the two migrations are written and not applied — the exit criterion is TASK-ZAI-043's job for this lane.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-040
+
+```yaml
+task_container_id: TC-TASK-ZAI-040
+task_id: TASK-ZAI-040
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Marketing strategy, campaigns, content, operations and broadcast planning — FEAT-021, FR-157 to FR-160, FR-162, FR-185
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: in-progress
+version: 0.1.0
+pic: RWANG
+executor: RWANG
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/marketing/application/marketing-plan-service.js
+  doc: docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md
+  test: apps/server/tests/integration/marketing
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a MarketingPlan draft, when it is revised, then every revision is an immutable canonical version, review is independent of authorship, and the human decision names the exact revision it approves
+      checked: true
+  success_criteria:
+    - criterion: Given an approved Strategy revision, when execution is handed off, then a deterministic PlanEnvelope is generated for a same-Business Workspace and imported through the one intake pipeline, never a second write path
+      checked: true
+  exit_criteria:
+    - criterion: Given the Marketing surfaces, when P5 broadcast planning and the remaining CR-018 phases conclude, then provider metrics, audience resolution and dispatch are either delivered or explicitly recorded as out of scope, and the marketing migrations are recorded applied on production
+      checked: false
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. FR-159 and FR-158 are 🟢 locally verified beta, FR-157, FR-160, FR-162 🟠 in progress, FR-185 🟠 P5 planning/read only (PR #270, #273, #274, the marketing_content and marketing_operations migrations of 2026-09-06/07, broadcast intents 2026-09-11). Stays in-progress: CR-018 phases beyond planning and read integration are not delivered, and the PRD says so.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-041
+
+```yaml
+task_container_id: TC-TASK-ZAI-041
+task_id: TASK-ZAI-041
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Identity lifecycle — withdrawable grants, Employment and LegalEntity, invites and segregation of duties, audit access evidence — FEAT-027 to FEAT-030, FR-191 to FR-199
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: review
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/identity/membership-lifecycle-service.js
+  doc: docs/decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md
+  test: apps/server/tests/integration/fr198-fr199-audit-access-evidence.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a Membership, when it is withdrawn, suspended or off-boarded by a named person for a stated reason, then the row keeps its provenance and end, and nothing destroys the evidence that it existed
+      checked: true
+  success_criteria:
+    - criterion: Given a Business owner, when they read the access history of their own scope, then every grant and withdrawal is returned with its scope, reason and before/after as queryable columns
+      checked: true
+  exit_criteria:
+    - criterion: Given the production migration ledger, when 20260912120000 to 20260912160000 are applied and recorded, then FR-191, FR-192 and FR-195 to FR-199 leave the "implemented locally" state
+      checked: false
+changelog: Opened 2026-09-13 on the re-baseline; it belongs to deliverables 9 (audit) and 10 (security checklist), not to deliverable 11, and is listed with the CR-019 wave because it merged in the same week. PR #348 (ADR-077), #351 (ADR-078), #352 (ADR-079) and #350 (ADR-080) all merged 2026-09-12 with integration tests; the owner ran ADR-077 and ADR-078 in parallel by instruction. In review because the five migrations are written and, at the time of writing, not recorded applied — TASK-ZAI-043 closes that.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-042
+
+```yaml
+task_container_id: TC-TASK-ZAI-042
+task_id: TASK-ZAI-042
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: SmartGift catalog convergence through the seventeen-stage adapter — FEAT-026, FR-187 to FR-189
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: in-progress
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/smartgift-catalog-adapter.js
+  doc: docs/decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given SmartGift catalog data, when it enters knowledge, then it enters before Stage 1 through the structured-record adapter and passes the Stage 5 Zero-PII gate as locators and keys, never prose
+      checked: true
+  success_criteria:
+    - criterion: Given a catalog query on LINE, when Edge answers, then it answers from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as the declared transitional fallback
+      checked: false
+  exit_criteria:
+    - criterion: Given the fallback window (120 days after cutover or the end of the New Year 2027 season, whichever is later), when it closes, then the three independent catalog writers are retired and only the seventeen-stage path remains
+      checked: false
+changelog: Opened 2026-09-13 on the re-baseline under deliverable 4 (Second Brain), listed with the CR-019 wave because it is SmartGift work. FR-187 adapter merged (PR #324, 2026-09-11, tests, not deployed); FR-188 parser profile merged locally (PR #327) behind two external repositories' pull requests; FR-189 approved 2026-09-11 with the fallback window set. Rollout waits on GenesisBlock and Genesis-Knowledge-System merges the repository does not own.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-043
+
+```yaml
+task_container_id: TC-TASK-ZAI-043
+task_id: TASK-ZAI-043
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Apply every pending deliverable-11 migration on production and record it in the migration notes
+requirement_type: NFR
+complexity: C-2
+access_scope: H4
+status: planned
+version: 0.1.0
+pic: ATHER
+executor: ATHER
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/supabase/migrations
+  doc: docs/DB-MIGRATION-NOTES.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given every file under apps/server/supabase/migrations, when the production migration ledger is read, then each is recorded applied with its date and the session that applied it
+      checked: false
+  success_criteria:
+    - criterion: Given preflight Check 18 (schema-migration drift), when it runs after the apply, then the baseline is still zero and no declared column lacks a migration
+      checked: false
+  exit_criteria:
+    - criterion: Given docker logs of the web and line-worker containers after the redeploy that follows, when they are read, then both start clean and the compose config_files label names both compose files
+      checked: false
+changelog: Opened 2026-09-13 on the re-baseline. Applying a migration is an owner-instructed operator step (ADR-057), so this is H4 and the PIC is the operator lane, not the lane that wrote the SQL. At opening the written-but-unapplied set is: identity 20260912120000 to 20260912160000, billing/POS 20260911010000, stocktake 20260911020000, broadcast intents 20260911030000, line worker memory 20260911040000; the exact list is re-read from the ledger at sprint entry, not from this changelog.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 12000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-044
+
+```yaml
+task_container_id: TC-TASK-ZAI-044
+task_id: TASK-ZAI-044
+parent_phase_id: PHASE-ZAI-03
+parent_sprint_id: SPR-ZAI-06
+title: GATE-ZAI-09 evidence run — ERP modules accepted on production for Business one
+requirement_type: NFR
+complexity: C-2
+access_scope: H4
+status: planned
+version: 0.1.0
+pic: Owen
+executor: ATHER
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/tests/integration/fr181-smartgift-agent-tools.test.js
+  doc: docs/change-requests/CR-019-24W-PROGRAMME-DELIVERABLE-11-ERP-BUSINESS-MODULES.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the production migration ledger and the tree at the accepted commit, when they are compared, then every migration in the tree is recorded applied
+      checked: false
+  success_criteria:
+    - criterion: Given npm test on the inventory, commerce, procurement, crm, marketing, asset-management and line-oa-studio suites, when they run at the accepted commit, then all pass through assert-tests-ran
+      checked: false
+  exit_criteria:
+    - criterion: Given FR-181's negative test and the owner's walkthrough of each module on the production Business, when both are recorded, then GATE-ZAI-09 is marked met in section 4 with the commit and date
+      checked: false
+changelog: Opened 2026-09-13 on the re-baseline as the acceptance task for CR-019 deliverable 11. The gate closes on recorded evidence, never on this task's status changing.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 16000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+Containers 045 to 051 were opened on 2026-09-13 (v0.4.1) on the owner's instruction to put the
+seventeen-stage pipeline's **knowledge base and file system** into SPR-ZAI-02, spilling into
+SPR-ZAI-03 where SPR-ZAI-02 (which ends 20 Sep) cannot hold new build work. They sit under
+deliverable 4 (Second Brain), which the proposal already names, so no Change Request is needed.
+The split follows the extension guide in `docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md`: each task
+names the stage it starts at and the downstream stages it must re-prove.
+
+### TC-TASK-ZAI-045
+
+```yaml
+task_container_id: TC-TASK-ZAI-045
+task_id: TASK-ZAI-045
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Knowledge file intake — Text/Markdown and FileAsset admission into an immutable raw artifact at Stage 1 (FR-173, FR-081, FR-109)
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: review
+version: 0.1.0
+pic: RWANG
+executor: RWANG
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/knowledge-admission-service.js
+  doc: docs/domains/knowledge/features/FR-173-knowledge-admission-and-corpus.md
+  test: apps/server/tests/integration/knowledge-admission-backup.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given an authorized user submits a Text/Markdown body or an existing FileAsset version, when admission runs, then one immutable source version is recorded, Stage 1 stores a RawExternalRecord plus KnowledgeRawArtifact bound by artifact_id, and the same identity with different content is refused as a conflict
+      checked: true
+  success_criteria:
+    - criterion: Given a corpus published from admitted sources, when a query is served, then source, file and Project authorization is rechecked at query time and every citation resolves through the lineage chain to the raw artifact
+      checked: true
+  exit_criteria:
+    - criterion: Given the production deployment, when a real (non-fixture) document is admitted through the console or API, then it reaches a published corpus and the run is visible in the FR-071 ledger
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.1). FR-173 phases 0 to 4 are implemented (admission, durable scoped runtime, corpus snapshot manifest, query/citations, correction/revocation) with isolated Business browser/HTTP/MCP acceptance passed and ADR-073's raw-entrypoint acceptance covering Stage 1 evidence; FR-109 AC-109.3 binds artifact_id to FR-081's raw storage (PR #165). In review, not done, because the PRD records "no production activation claim" — the exit criterion is exactly that claim, and TASK-ZAI-050 earns it.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: expanded
+  expanded: true
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-046
+
+```yaml
+task_container_id: TC-TASK-ZAI-046
+task_id: TASK-ZAI-046
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Tier 1 stage calculators, composition and quarantine, Stage 2 to 8 (FR-111 to FR-119)
+requirement_type: FR
+complexity: C-3
+access_scope: H2
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/stage-runner.js
+  doc: docs/domains/knowledge/features/FR-118-tier1-stage-composition.md
+  test: apps/server/tests/integration/genesisrag17-tier1.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a parsed artifact, when runKnowledgeIngestionStages runs, then parsing, provenance, normalization, classification, dedup, chunking and entity extraction execute in catalog order and every derived object carries the ten provenance fields back to the raw source
+      checked: true
+  success_criteria:
+    - criterion: Given a document that fails at any Tier 1 stage, when the traced runner runs, then the failure is attributed to that stage and the document is quarantined under BR-022 without partial publication
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when the FR-111 to FR-119 unit suites and the genesisrag17-tier1 integration suite run, then all pass through assert-tests-ran
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.1) so the sprint accounts for the pipeline's built middle. FR-111 (2026-08-27), FR-112 to FR-118 (2026-08-28) and FR-119 (2026-08-29) are ✅ in the PRD with 182 unit tests and 8 real-database integration tests between them; ADR-073 then ran the same stages as part of the seventeen-stage isolated acceptance. Stage 2 is exact-text only by design (FR-115) — binary formats are TASK-ZAI-048, not a gap in this task. Closed at opening.
+created_at: 2026-09-13T00:00:00Z,Claude,retroactive
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 0
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-047
+
+```yaml
+task_container_id: TC-TASK-ZAI-047
+task_id: TASK-ZAI-047
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Knowledge base console — source library, ingestion run status, corpus and generation registry, cited query
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: review
+version: 0.3.0
+pic: Codex
+executor: Codex
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/app/(pm)/knowledge/console/page.jsx
+  doc: docs/plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md
+  test: apps/server/tests/e2e/fr254-knowledge-console.spec.js
+delivers: [FR-254]
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a Business viewer with knowledge authority, when they open the knowledge base in the console, then they see the source library (each source with its versions and admission state), every ingestion run from the FR-071 ledger with its per-stage terminal evidence, and the corpus generations with the one that is published marked as such
+      checked: true
+  success_criteria:
+    - criterion: Given a question typed in the console, when the query runs, then the answer binds one published generation and every citation opens the exact chunk, parsed artifact and raw source it came from; a viewer without authority over a cited source sees neither the passage nor its existence
+      checked: true
+  exit_criteria:
+    - criterion: Given npm run test:e2e, when the knowledge console spec runs, then admit → run → publish → query → citation is exercised through the browser and the page carries a declared FR under DOM-KNOWLEDGE
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.1) to provide the missing Console over FR-173 sources, the FR-071 ledger and FR-110 generations. Owner approved the concrete specification on 2026-09-17; FR-254 declared before implementation. Moved to review 2026-09-17 with isolated browser fixtures (6 scenarios plus warmup), full Server tests (5287 passed, 15 skipped), local build and actual native browser acceptance (2 tests, 4 runs with 17 stages each) passing. Native command is npm run test:knowledge-admission; ordinary e2e fixtures alone do not prove publication. Exact scope, commands, full regression results and immutable receipts are recorded in .brain/reports/2026-09-17-task-zai-047-knowledge-console.md. Not deployed; TASK-ZAI-050 production activation remains separate.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 60000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: expanded
+  expanded: true
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-048
+
+```yaml
+task_container_id: TC-TASK-ZAI-048
+task_id: TASK-ZAI-048
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Codex
+executor: Codex
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/parsing.js
+  doc: docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a PDF, DOCX or HTML FileAsset admitted at Stage 1, when Stage 2 runs, then a ParsedArtifact records the parser and its version, every text block maps back to a page, cell or element of the raw file, and a parser change is distinguishable from the original on reparse
+      checked: false
+  success_criteria:
+    - criterion: Given a scanned page, when OCR is needed, then the bytes go to the extraction provider under the same review-before-record rule Assets use (FR-138, FR-143), and the ParsedArtifact carries the OCR confidence in its warnings channel rather than silently as text
+      checked: false
+  exit_criteria:
+    - criterion: Given the seventeen-stage acceptance suite extended with one PDF and one DOCX fixture, when it runs from the raw entrypoint, then Stage 3 provenance, Stage 7 chunk offsets and Stage 8 occurrences resolve after restart and a citation opens the correct page
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.1). FR-115 deliberately parses markdown and plain text only, and the flow's extension guide warns that "adding a binary parser alone is not enough" — raw mapping at Stage 3 and offsets at 7/8/9 change with it, so this task carries those three stages in its exit criterion. Reuses the Edge extraction path the Asset lane built rather than a second OCR provider.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 56000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-049
+
+```yaml
+task_container_id: TC-TASK-ZAI-049
+task_id: TASK-ZAI-049
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1)
+requirement_type: NFR
+complexity: C-3
+access_scope: H4
+status: planned
+version: 0.1.0
+pic: ATHER
+executor: ATHER
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/knowledge-artifact-storage-service.js
+  doc: docs/KNOWLEDGE-INGESTION-17-STAGE-SPEC.md
+  test: apps/server/tests/integration/knowledge-storage-ingestion.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a raw artifact admitted on production, when the file bytes are requested a year later or after a restore from backup, then the exact bytes and their content hash are returned, and a FileAsset deleted from the File Manager does not delete the knowledge raw artifact that cites it
+      checked: false
+  success_criteria:
+    - criterion: Given the FR-111 sensitivity lattice, when a raw artifact is classified RESTRICTED or above, then its bytes live only in the storage location the processing policy names, and a retention or erasure request removes bytes and cites the run that did so without breaking published citations' resolvability check
+      checked: false
+  exit_criteria:
+    - criterion: Given a backup taken on production and restored to a clean database, when the knowledge-admission-backup proof and a lineage resolve run against it, then every chain from Fact to raw artifact resolves and the report is recorded with commit, date and storage location
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.1). Spec §3.1 requires raw data to remain recoverable; today the raw payload lives in RawExternalRecord/KnowledgeRawArtifact rows and the managed local file workspace (FR-045), with a backup proof only in an isolated test. This task names the production storage location, its retention rules and the restore proof — the "file system" half of the owner's instruction. H4 because storage and erasure are operator decisions (ADR-057 pattern).
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 40000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-050
+
+```yaml
+task_container_id: TC-TASK-ZAI-050
+task_id: TASK-ZAI-050
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Activate the seventeen-stage runtime on production beyond the isolated profile — knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published
+requirement_type: NFR
+complexity: C-3
+access_scope: H4
+status: planned
+version: 0.1.0
+pic: ATHER
+executor: ATHER
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/platform/integrations/core/genesisrag17-worker.js
+  doc: docs/decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md
+  test: apps/server/tests/acceptance/genesisrag17-e2e.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the production database, when the knowledge migrations (genesisrag17_tier1 20260907160000, audit remediation 20260908040000, knowledge_admission 20260908100000, knowledge_evidence_cursor 20260907120000) are checked, then each is recorded applied — the 2026-09-11 gap map found the tables present and the migrations unrecorded, which is not the same thing
+      checked: false
+  success_criteria:
+    - criterion: Given the web container, when ZURI_MSP_* is set and MSP, GKS and the GenesisBlock worker are reachable on the edge host per the ADR-073 amendment, then a run started from the raw entrypoint reaches Stage 17 with a publication receipt and the query path answers with citations
+      checked: false
+  exit_criteria:
+    - criterion: Given one real Business document (not the fixed corpus), when it is admitted, published and queried on production, then the run, receipt and cited answer are recorded with commit and date, and the FR-109/FR-110 PRD rows drop "product-wide partial"
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.1). ADR-073 authorized isolated execution only; its 2026-09-11 amendment lifts "no production deployment" for one profile on the edge device after the ADR-075 Phase 2 gate. This task is the operator step that turns the built pipeline into a running knowledge base; TASK-ZAI-043 applies the deliverable-11 migrations in the same sprint and the two share one deploy window. Depends on TASK-ZAI-049 so that the first real document has somewhere durable to live.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 30000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: expanded
+  expanded: true
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-051
+
+```yaml
+task_container_id: TC-TASK-ZAI-051
+task_id: TASK-ZAI-051
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/ingestion-job.js
+  doc: docs/domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given two sources admitted for the same Business at the same time, when both runs execute, then each holds its own run, batch and attempt identities, neither reuses the other's occurrence output, and publication order is deterministic
+      checked: false
+  success_criteria:
+    - criterion: Given a failed run, when replay is requested from the console, then FR-071's replayRunId materializes a new attempt, only the failed records are reprocessed, and the old attempt's evidence is retained and addressable
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test, when the concurrency and replay suites run, then duplicate, reply-loss, crash and wrong-tenant cases pass and a scheduled pull runs on its declared cadence under test
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.1) as the lowest-priority slice of the knowledge base. The flow's extension guide states that multi-source concurrency "needs additional design", and FR-081's scheduler, translation and replay surface are recorded as not started. Sequenced after activation so the design is against the production runtime, not the isolated one; may move to SPR-ZAI-04 at sprint entry without a plan revision if SPR-ZAI-03 is full.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 44000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-052
+
+```yaml
+task_container_id: TC-TASK-ZAI-052
+task_id: TASK-ZAI-052
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Cost and quote engine decision record — proposal, ADR, FR and FEAT declarations with the owner's nine decisions
+requirement_type: NFR
+complexity: C-2
+access_scope: H2
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: unavailable
+  doc: docs/decisions/ADR-098-COMMERCE-PRICING-RULES-AND-KNOWLEDGE-PUBLICATION.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the proposal's nine decisions, when the ADR is written, then each decision is recorded with the owner's 2026-09-13 answer (recommended defaults accepted) and the SmartGift ADR-009 invariants D2, D3 and D4 are cited as kept, not restated
+      checked: true
+  success_criteria:
+    - criterion: Given the six requirements the plan names, when they are declared in the PRD with a FEAT bundle, then every id is pinned by docs:ids --write, FR-131 is re-scoped onto the rule set, FR-132's blocker names the rule set, and FR-181's status cell says the quote tool will read it
+      checked: true
+  exit_criteria:
+    - criterion: Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and the proposal, the ADR and the PRD rows agree on every id and every formula name
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.2) on the owner's instruction to bring the SmartGift cost and quotation system (price-boss) into zuri-ai. Closed 2026-09-17: ADR-098 accepted, FR-253 declared in PRD and Features registry, and govern passes with 0 critical.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-fable-5-1
+  context_length: 200k
+  predicted_token_usage: 30000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-053
+
+```yaml
+task_container_id: TC-TASK-ZAI-053
+task_id: TASK-ZAI-053
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory)
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/procurement/application/purchase-order-service.js
+  doc: docs/domains/procurement/CHARTER.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a factory cost workbook or JSON export, when it is previewed and committed, then one SupplierCostSheet version records supplier, currency, the locked FX rate, the source file hash and one line per SKU price break, and no line is written until its product mapping is confirmed by a person
+      checked: false
+  success_criteria:
+    - criterion: Given a confirmed sheet line, when the SKU is opened, then the product page shows the sheet's price breaks in baht at the locked rate and the carton attributes (units per carton, CBM, kg) the sheet supplied, and SKU Hygiene reports CARTON_DATA_MISSING for a counted SKU without them
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test, when the cost sheet suites run, then preview and commit are idempotent on the file hash, an unconfirmed mapping refuses the write, and both migrations (SQLite and supabase/migrations) exist with schema-migration drift green
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.2). Lifts SmartGift's 08_factory_costs lane and ADR-005's confirm-before-write rule into a Procurement record, so a cost has a version and a locked rate (SmartGift ADR-009 D4 — 34.00 THB per USD, never spot). Placed in the current sprint on the owner's instruction; may move to SPR-ZAI-03 at sprint exit without a plan revision if the sprint ends first.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-fable-5-1
+  context_length: 200k
+  predicted_token_usage: 56000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-054
+
+```yaml
+task_container_id: TC-TASK-ZAI-054
+task_id: TASK-ZAI-054
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Goods receipts post the landed unit cost to the stock ledger, and the SKU page gains a cost card
+requirement_type: FR
+complexity: C-2
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/procurement/application/goods-receipt-service.js
+  doc: docs/decisions/ADR-074-LOCATED-STOCK-LEDGER-WIP-WORK-ORDERS-AND-LANDED-COST.md
+  test: apps/server/tests/unit/inventory-costing.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a goods receipt against a purchase order line, when it posts, then every RECEIPT movement carries costSatang computed by inventory-costing.js from the line's agreed cost plus the receipt's amortised batch costs, and a receipt without a cost basis is recorded with a null cost and reported, never as zero
+      checked: false
+  success_criteria:
+    - criterion: Given a SKU whose receipts carry cost, when the product page loads, then it shows the moving weighted average landed cost, the last receipt cost and the ledger cost history, and the FR-181 quote tool no longer answers INVENTORY_COST_UNKNOWN for that SKU
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test, when the goods receipt and costing suites run, then a receipt with and without a cost basis both pass, the weighted average matches inventory-costing.js to the satang, and the receipt workstation e2e still passes
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.2). Closes the gap the proposal found — FR-175 declares landed cost, but goods-receipt-service.js posts RECEIPT rows with no costSatang, so the only costs on the ledger today come from work orders and transfers. Same sprint placement rule as TASK-ZAI-053.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-fable-5-1
+  context_length: 200k
+  predicted_token_usage: 40000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-055
+
+```yaml
+task_container_id: TC-TASK-ZAI-055
+task_id: TASK-ZAI-055
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: PricingRuleSet — versioned, owner-approved pricing rules ported from pricing_rules_formula.yaml with per-block provenance, and the Pricing Rules console
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/commerce/index.js
+  doc: docs/domains/commerce/CHARTER.md
+  test: unavailable
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given SmartGift's pricing_rules_formula.yaml v2026.09.11-v4, when it is imported, then PricingRuleSet v1 holds FX, the freight matrix with the density switch, logo rates, the two ladder profiles, profit floors by quantity and by kind, and domestic delivery options, each block with its provenance level, validated by a Zod schema that rejects an unknown key
+      checked: false
+  success_criteria:
+    - criterion: Given a draft rule set edited in /commerce/pricing-rules, when a Business OWNER approves it with an effective date, then it becomes an immutable version, quotes issued earlier stay bound to their version, and a block still marked undocumented makes every later quote carry an assumption
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test and the navigation e2e, when they run, then schema rejection, approval immutability, version pinning and the console's diff against the previous version pass
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.2). Q3 decided for the rule set — the freight rate card is one block of it rather than business_knowledge rows, so FR-131 is re-scoped in TASK-ZAI-052. Carries SmartGift's own provenance ratings (registered, file_only, undocumented, owner_directive) into the console so an undocumented number stays visibly undocumented.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-fable-5-1
+  context_length: 200k
+  predicted_token_usage: 60000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-056
+
+```yaml
+task_container_id: TC-TASK-ZAI-056
+task_id: TASK-ZAI-056
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: One pure pricing engine in integer satang — landed cost, ladder, profit floor and ten-baht round-up — with parity fixtures against price-boss; the FR-181 quote tool reads the rule set
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/inventory/domain/inventory-costing.js
+  doc: docs/change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md
+  test: apps/server/tests/unit/inventory-costing.test.js
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given price-boss golden cases (same SKU, quantity, logo and freight inputs), when pricing-engine.js runs under the imported rule set, then every ladder break matches price-boss to the baht before the deliberate integer-satang rounding change, and the differences after it are recorded as a second fixture
+      checked: false
+  success_criteria:
+    - criterion: Given a quantity, when the engine prices it, then the result names the driver (LADDER, FLOOR or MANUAL), carries freightSatang 0 with freightAbsorbedSatang beside it, flags a margin outside the profile band without clamping it, and never emits a float
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test, when the engine, costing and FR-181 tool suites run, then both fixture sets pass, the tool no longer reads the QUOTE_TIERS or TECHNIQUE_RATES constants, and a negative or zero quantity is refused before any arithmetic
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.2). Q1 (factory price breaks replace the global small-order factor, SOF only as a flagged fallback), Q2 (SmartGift's markup ladder is the data shape and the margin band a warning), Q4 (inland China per set), Q5 (20,000 floor with 30,000 shown as target) and Q7 (SmartGift's USD logo rates as defaults) all land here as rule-set data, not code branches.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-fable-5-1
+  context_length: 200k
+  predicted_token_usage: 64000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-057
+
+```yaml
+task_container_id: TC-TASK-ZAI-057
+task_id: TASK-ZAI-057
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Quotations — Quote and QuoteLine with ladder snapshots, two-hat approval, the QUOTATION document and conversion to a sales order with the FR-180 hold
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/commerce/application/sales-order-service.js
+  doc: docs/domains/commerce/features/FR-166-sales-orders.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a quote built in /commerce/quotes, when it is saved, then each line stores its inputs, landed breakdown, ladder snapshot, unit price, driver and the rule set version, a manual price needs a reason, and the quote follows draft, submitted, approved, sent, accepted, converted, rejected, cancelled and expired with the creator refused as approver
+      checked: false
+  success_criteria:
+    - criterion: Given an accepted quote, when it is converted, then one transaction creates the FR-166 sales order with the quoted line prices, converts the QUOTE reservation to ORDER under FR-180, issues the QUOTATION document snapshot under FR-186's rules, and marks the quote converted and read-only
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test and a new e2e, when they run, then the workflow, the self-approval refusal, the manual-price audit, conversion atomicity and the document total (subtotal, discount, ROUND_HALF_UP VAT) pass
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.2). The price-boss CRM workflow (sale to manager to sent to accepted) rebuilt on Commerce's existing order, reservation and document contracts. Q8 decided — a Business OWNER or a QUOTE_APPROVER role approves, never the creator. May move to SPR-ZAI-04 at sprint entry if SPR-ZAI-03 is full.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-fable-5-1
+  context_length: 200k
+  predicted_token_usage: 70000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-058
+
+```yaml
+task_container_id: TC-TASK-ZAI-058
+task_id: TASK-ZAI-058
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-04
+title: Ladder quotation on LINE (FR-132) over the shared engine with a deterministic intent matcher
+requirement_type: FR
+complexity: C-2
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/agent/tools/smartgift-inventory-tools.js
+  doc: docs/change-requests/CR-005-ACCEPTED-SHAPE.md
+  test: apps/server/tests/integration/fr181-smartgift-agent-tools.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a verified LINE conversation, when a customer writes a quotation request the matcher recognises, then the reply carries the ladder prices rounded up to ten baht, the validity date and the free single-drop note, and carries no margin, landed cost or floor
+      checked: false
+  success_criteria:
+    - criterion: Given the same SKU and quantity, when the LINE tool and /commerce/quotes price it under the same rule set version, then the numbers are identical to the satang
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test, when the Gate E tool and matcher suites run, then the reply is returned to the transport and never sent, an unrecognised phrasing falls through to the ordinary turn, and FR-047's exclusion is asserted on the payload
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.2). Q9 decided — a deterministic matcher first (the FR-210 `#sku` precedent), model-selected tools later. Unblocks FR-132, which was waiting on FR-131 and on this very decision.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-fable-5-1
+  context_length: 200k
+  predicted_token_usage: 36000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-059
+
+```yaml
+task_container_id: TC-TASK-ZAI-059
+task_id: TASK-ZAI-059
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-04
+title: Knowledge structured records — STRUCTURED_RECORDS_V1 JSON format, an Excel template and converter, and MCP format widening before Stage 1
+requirement_type: FR
+complexity: C-2
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/knowledge-admission-service.js
+  doc: docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md
+  test: apps/server/tests/unit/knowledge-admission-service.test.js
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a JSON array of records with a registered entityType, when it is admitted as a FILE source with format STRUCTURED_RECORDS_V1, then each record becomes one immutable source with frozen bytes and hash before Stage 1, the Zero-PII predicate refuses a record that carries cost, margin or personal data, and no stage result is synthesised
+      checked: false
+  success_criteria:
+    - criterion: Given the per-Business Excel template, when a filled workbook is posted to the knowledge xlsx route, then its rows convert to the same records and enter the same admission call, and the MCP tool admits the format without a new handler
+      checked: false
+  exit_criteria:
+    - criterion: Given npm test, when the admission, workbook and MCP suites run, then JSON, Excel and MCP produce identical source keys for identical rows and the SMARTGIFT_CATALOG_V1 path is unchanged
+      checked: false
+changelog: Opened 2026-09-13 (v0.4.2) from the owner's flow request (group D gains JSON, Excel and MCP). Sell-side only by construction — the template has no cost column, because the cost workbook is TASK-ZAI-053's and enters Procurement.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-fable-5-1
+  context_length: 200k
+  predicted_token_usage: 44000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-060
+
+```yaml
+task_container_id: TC-TASK-ZAI-060
+task_id: TASK-ZAI-060
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Data pipeline map decision record — the ADR for a Knowledge (GKS) navigation slot that consumes GKS without becoming it, and the requirement and FEAT declarations
+requirement_type: NFR
+complexity: C-2
+access_scope: H2
+status: done
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: unavailable
+  doc: docs/domains/knowledge/CHARTER.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the owner's instruction to place the data pipeline map as a sub-domain of the Genesis Knowledge System, when the ADR is written, then it records that the new navigation slot belongs to zuri-ai's own knowledge lane and names GKS as the authority that lane consumes, so ADR-063 D4 (GKS, MSP and GenesisBlockDB are never zuri-ai domains) stays true word for word
+      checked: true
+  success_criteria:
+    - criterion: Given the registry, the node-edge view, the navigation slot and the live overlay, when they are declared in the PRD with one FEAT bundle, then every new id is pinned by docs:ids --write and the knowledge charter claims the new route and module paths
+      checked: true
+  exit_criteria:
+    - criterion: Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and the charter, the ADR and the PRD rows name the same slot key and route
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.3) on the owner's instruction — draw a data pipeline map (where data comes from, who receives it, where it is combined first, how many chains) as a visual node-edge view inside the Genesis Knowledge System domain, and put every task on the roadmap before starting. No such document exists today; ARCHITECTURE-DIAGRAMS section 3 (2026-08-15) still draws the V1 cutover and zuri-cli, SYSTEM-DIAGRAM (2026-09-05) has no surface status, and KNOWLEDGE-INGESTION-SURFACES covers one domain. Placement is recorded as a zuri-ai knowledge-lane slot because ADR-063 D4 forbids a GKS domain here. Closed 2026-09-13 — ADR-085 accepted; FR-212 to FR-215 and FEAT-033 declared and pinned (docs:ids --write); npm run govern exits 0 with no CRITICAL.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 24000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-061
+
+```yaml
+task_container_id: TC-TASK-ZAI-061
+task_id: TASK-ZAI-061
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Data pipeline registry — the written map of inbound sources, outbound recipients and combine chains, a validated JSON registry, a generated runtime projection and a preflight check
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/scripts/data-pipeline-map.mjs
+  doc: docs/DATA-PIPELINE-MAP.md
+  test: apps/server/tests/unit/data-pipeline-map.test.js
+delivers: [FR-212, FEAT-033]
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the new map document, when a reader opens it, then it lists every inbound source, every outbound recipient and every chain that combines data before sending it on, each hop with its owning domain, FEAT or FR, surface kind (HTTP endpoint, UI page, MCP tool, worker, CLI) and one status level (declared, code and tests, endpoint, UI, live on production), with declared-only and not-built flows shown as such rather than omitted
+      checked: true
+  success_criteria:
+    - criterion: Given the registry block, when the generator runs, then an endpoint or UI level is derived from the route and page files that exist, code-and-tests from the FR-124 snapshot, a production level is accepted only with written evidence, and an unknown id, a missing route, a node no edge touches or a chain with a broken hop fails generation by name
+      checked: true
+  exit_criteria:
+    - criterion: Given npm run govern and npm test, when they run, then the committed runtime projection is byte-stable on a second pass, the preflight check passes, ARCHITECTURE-DIAGRAMS section 3 and SYSTEM-DIAGRAM point to the new map as current, and the generator suite covers each refusal
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.3). Closed 2026-09-18 via PR #403 merged into main. Projection committed and preflight clean.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 58000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-062
+
+```yaml
+task_container_id: TC-TASK-ZAI-062
+task_id: TASK-ZAI-062
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Data Pipeline Map node-edge view under the Knowledge (GKS) slot — layered graph, chain, domain and status filters, edge detail with domain, FEAT and surface level, and a list view
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/pipeline-map/DataPipelineMapView.jsx
+  doc: docs/INTERFACE-INVENTORY.md
+  test: apps/server/tests/e2e/fr213-data-pipeline-map.spec.js
+delivers: [FR-213, FR-214, FEAT-033]
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a viewer whose visible domains include the Knowledge (GKS) slot, when they open the Data Pipeline Map, then external sources, ingest surfaces, combine steps, stores, outbound surfaces and recipients render as layered nodes with labelled edges drawn in hand-rolled SVG, and a viewer without the slot reaches no page and no payload
+      checked: true
+  success_criteria:
+    - criterion: Given the map, when a chain, domain or status filter is chosen or a node or edge is selected, then the chain's path is highlighted end to end, the detail panel names the owning domain, FEAT, FR, surface kind and status level with its evidence, and the list view shows the same rows as an accessible table
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test and a new e2e, when they run, then the render test, keyboard selection, the list view, the visibility refusal and the navigation reachability suite pass, and the page builds clean
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.3). Closed 2026-09-18 via PR #403 merged into main. WebGL 3D Pipeline Map, SVG fallback and all reachability tests passing.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 62000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-063
+
+```yaml
+task_container_id: TC-TASK-ZAI-063
+task_id: TASK-ZAI-063
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Live pipeline health on the map — per-edge run and job counts for the active Business from the FR-071 ledger and the transport job tables
+requirement_type: FR
+complexity: C-2
+access_scope: H3
+status: done
+version: 1.2.0
+pic: Antigravity
+executor: Antigravity
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/pipeline-map/pipeline-health-service.js
+  doc: docs/decisions/ADR-085-KNOWLEDGE-GKS-SLOT-AND-THE-DATA-PIPELINE-MAP.md
+  test: apps/server/tests/unit/pipeline-health-service.test.js
+delivers: [FR-215]
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the active Business, when the map loads its live overlay, then each edge backed by a ledger or job table shows counts by status and the last run time for that Business only, read through the owning domain's read port, and an edge with no backing table shows no number rather than zero
+      checked: true
+  success_criteria:
+    - criterion: Given a failed knowledge run or a failed LINE or rich menu job, when the owner opens the map, then the affected edge is marked and links to the existing monitor or job surface for that record
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when the overlay suites run, then a viewer of another Business sees none of these counts, the overlay issues one bounded read per backing table, and the static map still renders when every read fails
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.3). Reconciled 2026-09-16 (v1.1.0). Closed 2026-09-18 via PR #403 merged into main. Live overlay and health integration tests passing.
+created_at: 2026-09-13T00:00:00Z,Claude,review
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 36000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-064
+
+```yaml
+task_container_id: TC-TASK-ZAI-064
+task_id: TASK-ZAI-064
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Delivery telemetry decision record — the ADR that lets the programme board show measured time and tokens beside the plan without turning either into completion, the sizing table, and the requirement and FEAT declarations
+requirement_type: NFR
+complexity: C-2
+access_scope: H2
+status: done
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: unavailable
+  doc: docs/decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given ADR-048 D3 (the board is a plan snapshot and never a completion claim), when the ADR is written, then it states that measured time and tokens may appear beside the plan only as labelled measurements with their source and measuring time, never as progress, and names which figures are planned (sizing table, plan window, predicted tokens) and which are measured
+      checked: true
+  success_criteria:
+    - criterion: Given the phase card metrics, the usage meter and the report endpoint, when they are declared with one FEAT bundle, then every new id is pinned, and the sizing table (effort hours per complexity band) the rule that one billed request is counted once across both sources and the badge colour rules (done green, review orange, needs fix red, empty gray) are written in the programme document
+      checked: true
+  exit_criteria:
+    - criterion: Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and FR-105's statement names the measured layer
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction. Closed 2026-09-13: ADR-086 accepted (amends ADR-048 D3); FR-216, FR-217, FR-218, FR-219 and FEAT-034 declared and pinned; the sizing table, work lanes and badge colour rules are written in the Delivery Telemetry section.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 22000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-065
+
+```yaml
+task_container_id: TC-TASK-ZAI-065
+task_id: TASK-ZAI-065
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Phase card delivery metrics — sprint and task counts, size in complexity points, plan window and effort estimate, actual time and measured tokens once done, and done or review cards tinted green or orange
+requirement_type: FR
+complexity: C-2
+access_scope: H2
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/platform-control/program-delivery-metrics.js
+  doc: docs/roadmap/ROADMAP-zuri-ai-24w-program.md
+  test: apps/server/tests/unit/program-delivery-metrics.test.js
+delivers: [FR-216, FEAT-034]
+subtasks:
+  - id: P0
+    title: Phase card counts, size, plan window and effort estimate
+    status: done
+  - id: P1
+    title: Measured time and tokens with their sources, not measured when absent
+    status: done
+  - id: P2
+    title: Done cards light green and review cards light orange in both themes
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a phase card on /control/roadmap, when it renders, then it shows its sprint count, task count, size as the sum of complexity points, plan window in days from its dates and effort hours from the sizing table, every figure computed from the snapshot the card already reads
+      checked: true
+  success_criteria:
+    - criterion: Given a phase, sprint or task whose status is done, when it renders, then it shows the actual elapsed time from first to last recorded activity, the active time and the measured tokens with their source, a figure with no measurement reads as not measured rather than zero or the prediction, and done cards are tinted light green and review cards light orange in both themes with the status word still shown
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test and the roadmap e2e, when they run, then the aggregates match a hand-computed fixture, an unmeasured task never shows its predicted tokens as actual, and the page builds clean
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction. Implemented locally 2026-09-13 (FR-216): program-delivery-metrics.js computes the planned figures and the measured row per phase, the board renders them with done and review tints from the shell tone tokens; tests/unit/program-delivery-metrics.test.js, program-roadmap-board-telemetry.test.js and tests/e2e/fr216-programme-delivery-telemetry.spec.js. Closed 2026-09-14: merged in #383 (main 6630c1df) and deployed as zuri-ai-web:release-6630c1df, since carried forward to release-daca80fb.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 40000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-066
+
+```yaml
+task_container_id: TC-TASK-ZAI-066
+task_id: TASK-ZAI-066
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Usage meter — measured tokens and active time per task from Claude Code and Codex session logs, attributed by the branches each Task Container declares and written back with provenance
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/scripts/programme-usage-meter.mjs
+  doc: docs/roadmap/ROADMAP-zuri-ai-24w-program.md
+  test: apps/server/tests/unit/programme-usage-meter.test.js
+delivers: [FR-217, FEAT-034]
+subtasks:
+  - id: P0
+    title: Claude Code log reader, one count per requestId
+    status: done
+  - id: P1
+    title: Codex log reader, one count per response_id, cached input separated
+    status: done
+  - id: P2
+    title: Lane attribution, active time, write-back and module regeneration
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given Claude Code and Codex session logs on the operator's machine, when the meter runs, then each billed request is counted once by its request id, attributed to the task whose container lists the request's git branch, and summed as input, cache write, cache read and output tokens with active time and first and last activity
+      checked: true
+  success_criteria:
+    - criterion: Given a request on a branch no container declares, on a detached HEAD, or on a branch two containers claim, when the meter runs, then it is reported as unattributed or conflicting by name and counted for no task
+      checked: true
+  exit_criteria:
+    - criterion: Given the meter's write mode, when it records results, then each container's token_telemetry gains measured totals with source, measuring time and session count while predicted_token_usage stays untouched, a second run is byte-stable, and the suite covers dedupe, attribution and refusal
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction. Implemented locally 2026-09-13 (FR-217): scripts/programme-usage-meter.mjs reads Claude Code and Codex logs, counts each request once, attributes by lane branch and writes the usage block; first real run measured all three declared lanes and reported main and detached HEAD work as unattributed; tests/unit/programme-usage-meter.test.js. Closed 2026-09-14: merged in #383 (main 6630c1df); the meter runs on the operator machine and its usage block is committed with each lane.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 56000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-067
+
+```yaml
+task_container_id: TC-TASK-ZAI-067
+task_id: TASK-ZAI-067
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Usage report endpoint — an operator-authenticated ledger where agents without local logs report per-session tokens for a task, idempotent by session and merged with metered sessions without double counting
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/app/api/platform/programme-usage-reports/route.js
+  doc: docs/appendices/A-api-spec.md
+  test: apps/server/tests/unit/programme-usage-reports.test.js
+delivers: [FR-218, FEAT-034]
+subtasks:
+  - id: P0
+    title: ProgrammeUsageReport model and Supabase migration
+    status: done
+  - id: P1
+    title: Bearer-authenticated idempotent report endpoint
+    status: done
+  - id: P2
+    title: Board merge that counts a metered session once
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given an agent on another machine holding an operator-issued key, when it posts a per-session usage report for a task, then the report is stored with source, session id, model, token counts and time span, a replay of the same source and session is idempotent, and a report for an unknown task is refused by name
+      checked: true
+  success_criteria:
+    - criterion: Given sessions reported through the endpoint and sessions found by the meter, when the board computes a task's measured tokens, then a session present in both is counted once and the board says which source each figure came from
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test and the Supabase migration file, when they run, then authorization refusal, idempotency, dedupe and the schema-migration drift check pass; applying the migration on production stays a separate operator step (ADR-057)
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.4) on the owner's instruction: each phase card on /control/roadmap should show its sprint count, task count, size and estimated duration, and once done the actual time taken and the tokens really used, counted by a real surface rather than estimated; done cards light green, review cards light orange. The owner chose both sources for real usage (a meter over local session logs and a report endpoint for agents without them) and the plan window plus complexity-based effort for the estimate. Today no actual figure exists: token_telemetry.total_token_usage on done tasks is a copy of the prediction. Implemented locally 2026-09-13 (FR-218): ProgrammeUsageReport in both schemas, migration 20260913230000_programme_usage_report written in both trees and NOT applied to production, POST /api/platform/programme-usage-reports under ZURI_PROGRAMME_USAGE_TOKEN, merged on the board with a metered session counted once; tests/unit/programme-usage-reports.test.js. Closed 2026-09-14: merged in #383 (main 6630c1df) and deployed as zuri-ai-web:release-6630c1df, since carried forward to release-daca80fb; migration 20260913230000_programme_usage_report applied on production after a rolled-back dry run. ZURI_PROGRAMME_USAGE_TOKEN is an owner-set secret for unattended automation only (ADR-087 D6) and is not part of this task.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 52000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-068
+
+```yaml
+task_container_id: TC-TASK-ZAI-068
+task_id: TASK-ZAI-068
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Task card evidence badges and subtask progress — DOC, CODE, TEST, FR, NFR and FEAT badges coloured green for done, orange for review, red for needs fix and gray for empty, domain, complexity and priority badges, and P0 to P3 subtasks with a progress bar on the card
+requirement_type: FR
+complexity: C-2
+access_scope: H2
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/platform-control/program-task-evidence.js
+  doc: docs/roadmap/ROADMAP-zuri-ai-24w-program.md
+  test: apps/server/tests/unit/program-task-evidence.test.js
+delivers: [FR-219, FEAT-034]
+subtasks:
+  - id: P0
+    title: DOC, CODE, TEST, FR, NFR and FEAT evidence badges with colour and word
+    status: done
+  - id: P1
+    title: Domain code name, complexity and priority badges
+    status: done
+  - id: P2
+    title: Subtask list and progress bar on the card
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a task card, when it renders, then it shows DOC, CODE and TEST badges from its container links, FR, NFR and FEAT badges from the ids it delivers read against the FR-124 snapshot, and badges for its domain code name, complexity and priority, each evidence badge green when done, orange when in review, red when it needs fixing (a declared link that no longer resolves, or a delivered id the snapshot does not show as built while the task claims done or review) and gray when empty
+      checked: true
+  success_criteria:
+    - criterion: Given a Task Container that splits its plan into subtasks P0 to P3, when the card renders, then the subtasks are listed with their own status and the card carries a progress bar computed from them under the board mapping, and a task without subtasks shows no bar rather than an invented one
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when the board suites run, then every badge colour rule, the link check against the repository, the id-to-snapshot lookup and the subtask progress are asserted, and the generated containers stay in step with the markdown
+      checked: true
+changelog: Opened 2026-09-13 (v0.4.4) on the owner's follow-up to TASK-ZAI-065, in the same conversation and before the plan merged: every task card should show [DOC] [CODE] [TEST] [FR] [NFR] [FEAT] [domain code name] [complexity] [priority] badges — green done, orange review, red needs fix, gray empty — and a task whose plan is split into subtasks such as P0, P1, P2 and P3 should list them so the card can carry a progress bar. The FR, NFR and FEAT colours come from the FR-124 snapshot the Domain map tab already reads (FR-211); the link colours need the container generator to check each path against the repository when it runs, because the production image carries neither docs/ nor tests/. Implemented locally 2026-09-13 (FR-219): scripts/programme-containers.mjs moves into the repository and adds priority, delivered ids, link state and subtasks; program-task-evidence.js colours the badges against the FR-124 snapshot; tests/unit/program-task-evidence.test.js and programme-containers.test.js. Closed 2026-09-14: merged in #383 (main 6630c1df) and deployed as zuri-ai-web:release-6630c1df, since carried forward to release-daca80fb.
+created_at: 2026-09-13T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 34000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-069
+
+```yaml
+task_container_id: TC-TASK-ZAI-069
+task_id: TASK-ZAI-069
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Harness usage plugin decision record — the ADR for a Zuri plugin that pairs a device by browser approval, holds a report-only credential with a device label, and lets the server attribute each report to a person, a device and a lane; requirement and FEAT declarations
+requirement_type: NFR
+complexity: C-2
+access_scope: H2
+status: done
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: unavailable
+  doc: docs/decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given ADR-086 D5 (one shared deployment bearer) and the owner's choice of a plugin over a connector, when the ADR is written, then it records why the harness and not the model reports usage, that a device is paired once by a signed-in person through browser approval with a check code, that the resulting credential can only report usage and is refused by every other route, and what the deployment bearer is still for
+      checked: true
+  success_criteria:
+    - criterion: Given the identity layers person, installation and declared AI account, when the ADR states them, then it names which is authority and which is a label, how two people on one machine are told apart, that a shared zuri-ai account is not supported, and who may approve a pairing
+      checked: true
+  exit_criteria:
+    - criterion: Given npm run govern, when it runs after the requirement and FEAT declarations, then it exits zero with no CRITICAL and ADR-086 D5 points to the new decision
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.5) on the owner's instruction, after FR-218 shipped with one shared deployment token: agents on other machines should report usage through a Zuri plugin for Claude Code and Codex rather than a connector, because the model cannot see its own billed tokens and must not self-report them — the harness reports from its own logs when a session ends. The owner accepted the recommended identity design: the device is paired once through browser approval by a signed-in person (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; a report is attributed to that person and that installation, with the AI account that paid kept as a declared label. Two people on one machine are told apart only by separate OS users or by re-pairing; a shared zuri-ai account is not supported. Closed 2026-09-14: ADR-087 accepted (amends ADR-086 D5); FR-220, FR-221, FR-222 and FEAT-035 declared and pinned.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 24000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-070
+
+```yaml
+task_container_id: TC-TASK-ZAI-070
+task_id: TASK-ZAI-070
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Harness device pairing and report-only credential — start, browser approval with a check code and poll as in FR-144, one hashed credential per installation scoped to usage reporting with a device label, and an operator list of paired devices with revoke
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/identity/harness-credential.js
+  doc: docs/decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md
+  test: apps/server/tests/e2e/fr220-harness-pairing.spec.js
+delivers: [FR-220, FEAT-035]
+subtasks:
+  - id: P0
+    title: Pairing start, browser approval with check code, poll and single redemption
+    status: done
+  - id: P1
+    title: Hashed report-only credential per installation with device label, and its migration
+    status: done
+  - id: P2
+    title: Operator list of paired devices with last use and revoke
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a harness that starts pairing with its device label, when a signed-in person with pairing authority opens the approval link, sees the same check code and the device label, and approves, then the harness's next poll receives one credential shown exactly once, stored only as a hash with its prefix, bound to that person and a server-issued installation id
+      checked: true
+  success_criteria:
+    - criterion: Given the credential, when it is presented to any route other than the usage report endpoint, then it is refused exactly as no credential would be, and an expired, denied or already-redeemed pairing yields nothing
+      checked: true
+  exit_criteria:
+    - criterion: Given the paired-device list on the operator console, when an operator revokes a device, then its next report is refused, the list shows label, person, created and last-used times, and npm test covers approval, refusal, single redemption, scope refusal and revoke; the migration ships in both trees and is applied separately (ADR-057)
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.5) on the owner's instruction, after FR-218 shipped with one shared deployment token: agents on other machines should report usage through a Zuri plugin for Claude Code and Codex rather than a connector, because the model cannot see its own billed tokens and must not self-report them — the harness reports from its own logs when a session ends. The owner accepted the recommended identity design: the device is paired once through browser approval by a signed-in person (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; a report is attributed to that person and that installation, with the AI account that paid kept as a declared label. Two people on one machine are told apart only by separate OS users or by re-pairing; a shared zuri-ai account is not supported. Implemented locally 2026-09-14 (FR-220): harness-pairing start/approve/poll, HarnessCredential (hash, hrnk_ prefix, PROGRAMME_USAGE_REPORT scope, PENDING_ACTIVATION unless an operator approved), /harness/pair and the Agent devices tab with activate and revoke; migration 20260914100000_harness_usage_attribution written in both trees and NOT applied; tests/unit/harness-pairing.test.js, harness-credential.test.js, harness-devices-view.test.js and tests/e2e/fr220-harness-pairing.spec.js. Closed 2026-09-14: merged in #386 (main 9a8d9968) and deployed as zuri-ai-web:release-9a8d9968, since carried forward to release-daca80fb; migration 20260914100000_harness_usage_attribution applied on production after a rolled-back dry run.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 58000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-071
+
+```yaml
+task_container_id: TC-TASK-ZAI-071
+task_id: TASK-ZAI-071
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Usage reports attributed to person, device and lane — the report endpoint accepts the harness credential, derives the lane from the reported branch on the server, extends a resumed session whose counts only grow, and the board breaks lane usage down by person and shows unattributed reports
+requirement_type: FR
+complexity: C-2
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/platform-control/application/programme-usage-reports.js
+  doc: docs/appendices/A-api-spec.md
+  test: apps/server/tests/unit/programme-usage-reports.test.js
+delivers: [FR-221, FEAT-035]
+subtasks:
+  - id: P0
+    title: Harness credential on the report endpoint with person and installation columns
+    status: done
+  - id: P1
+    title: Server-side lane from branch and monotonic extension of a resumed session
+    status: done
+  - id: P2
+    title: Per-person and per-device breakdown and unattributed reports on the board
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a report sent with a harness credential, when it is stored, then it records the credential's person and installation rather than anything the body claims, keeps the declared AI account label as a label, and resolves the lane from the reported branch against the lanes the programme declares, storing an undeclared branch as unattributed instead of refusing it
+      checked: true
+  success_criteria:
+    - criterion: Given a resumed session reported again, when every count and the end time are equal or larger, then the stored report is extended and audited as extended; when any count is smaller it is refused as a conflict; an identical report stays an idempotent replay
+      checked: true
+  exit_criteria:
+    - criterion: Given the board, when a lane has reports from two people, then the phase and task telemetry show usage per person and per device label, unattributed reports appear as their own group, a session the meter already counted is still counted once, and npm test covers each of these
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.5) on the owner's instruction, after FR-218 shipped with one shared deployment token: agents on other machines should report usage through a Zuri plugin for Claude Code and Codex rather than a connector, because the model cannot see its own billed tokens and must not self-report them — the harness reports from its own logs when a session ends. The owner accepted the recommended identity design: the device is paired once through browser approval by a signed-in person (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; a report is attributed to that person and that installation, with the AI account that paid kept as a declared label. Two people on one machine are told apart only by separate OS users or by re-pairing; a shared zuri-ai account is not supported. Implemented locally 2026-09-14 (FR-221): the report endpoint accepts the harness credential and stores its person and installation, keys reports by (source, sessionId, branch), extends a resumed session whose counts only grow, resolves the lane from the branch at read time, and the board breaks usage down by person and device with unattributed reports grouped; tests/unit/programme-usage-reports.test.js and harness-devices-view.test.js. Closed 2026-09-14: merged in #386 (main 9a8d9968) and deployed as zuri-ai-web:release-9a8d9968, since carried forward to release-daca80fb; migration 20260914100000_harness_usage_attribution applied on production after a rolled-back dry run.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 42000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-072
+
+```yaml
+task_container_id: TC-TASK-ZAI-072
+task_id: TASK-ZAI-072
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Zuri harness plugin for Claude Code and Codex — pair, whoami and unpair commands, a SessionEnd hook and a Codex wrapper that report each finished session split by branch, an offline retry queue, a marketplace entry, and parser parity with the usage meter
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: plugins/zuri-harness/bin/zuri-harness.mjs
+  doc: plugins/zuri-harness/README.md
+  test: apps/server/tests/unit/zuri-harness-plugin.test.js
+delivers: [FR-222, FEAT-035]
+subtasks:
+  - id: P0
+    title: Plugin manifests for Claude Code and Codex, pair, whoami and unpair
+    status: done
+  - id: P1
+    title: Session reporter with branch split and offline retry queue
+    status: done
+  - id: P2
+    title: SessionEnd hook, Codex wrapper, marketplace entry and parity tests
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the plugin installed from the repository's marketplace entry, when a person runs pair, then the browser approval opens with the device label and check code, the credential is stored in the user's own configuration outside any repository, and whoami shows the paired person and device at the start of every session
+      checked: true
+  success_criteria:
+    - criterion: Given a Claude Code session that ends or a Codex session wrapped by the plugin, when it finishes, then the plugin reads that session's own log, counts each request once with the same parsers the meter uses, sends one report per branch the session worked on, and keeps an unsent report in a local queue that is retried later rather than lost
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when the plugin suites run, then hook input, branch split, queue retry, a refused credential and parser parity against the meter fixtures pass, and the plugin never reads a browser cookie or a zuri-ai password
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.5) on the owner's instruction, after FR-218 shipped with one shared deployment token: agents on other machines should report usage through a Zuri plugin for Claude Code and Codex rather than a connector, because the model cannot see its own billed tokens and must not self-report them — the harness reports from its own logs when a session ends. The owner accepted the recommended identity design: the device is paired once through browser approval by a signed-in person (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; a report is attributed to that person and that installation, with the AI account that paid kept as a declared label. Two people on one machine are told apart only by separate OS users or by re-pairing; a shared zuri-ai account is not supported. Implemented locally 2026-09-14 (FR-222): plugins/zuri-harness with Claude Code and Codex manifests, pair/whoami/unpair, SessionStart and SessionEnd hooks, the Codex wrapper, branch split, offline queue and the root marketplace entry; doc-graph now scans plugins/; tests/unit/zuri-harness-plugin.test.js (parity with the meter). Closed 2026-09-14: merged in #386 (main 9a8d9968) and installable from the repository marketplace entry; the server side it reports to is deployed (release-9a8d9968, now release-daca80fb). No device has been paired in production yet, which is use, not delivery.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 60000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-073
+
+```yaml
+task_container_id: TC-TASK-ZAI-073
+task_id: TASK-ZAI-073
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Zuri harness plugin specification — one document for the CLI, hook input, configuration and queue formats, pairing state machine, counting rules, keep-or-drop rules per response, Codex wrapper, log-format compatibility, versioning and privacy, each rule linked to the test that proves it
+requirement_type: NFR
+complexity: C-2
+access_scope: H2
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: plugins/zuri-harness/bin/zuri-harness.mjs
+  doc: docs/ZURI-HARNESS-PLUGIN-SPEC.md
+  test: apps/server/tests/unit/usage-detail.test.js
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a reader with only the specification, when they implement a compatible reporter, then every command, flag, exit code, hook input field, configuration and queue file shape, request body and the response each HTTP status gets is stated, and the pairing and reporting flows are drawn
+      checked: true
+  success_criteria:
+    - criterion: Given each counting and attribution rule in the specification, when it is read, then it names the test that proves it, and the rules match the meter and the plugin exactly as they run, including the new usage detail
+      checked: true
+  exit_criteria:
+    - criterion: Given npm run govern, when it runs, then the specification is in the graph with no CRITICAL, and ADR-087, the plugin README and the API appendix point to it
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text. Written 2026-09-14: docs/ZURI-HARNESS-PLUGIN-SPEC.md — parts, pairing and reporting flows, CLI with flags and exit codes, hooks and wrapper, config and queue formats with keep/drop rules, report body and server rules, counting rules including usage detail, privacy, compatibility, versioning and known limits, each rule linked to its test; ADR-087, the plugin README and Appendix A point to it. Review, not done: not merged. Closed 2026-09-14: merged in #393 (main daca80fb), deployed as zuri-ai-web:release-daca80fb; migration 20260914120000_usage_detail applied on production after a rolled-back dry run.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 30000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-074
+
+```yaml
+task_container_id: TC-TASK-ZAI-074
+task_id: TASK-ZAI-074
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Agent usage detail capture — thinking and reasoning tokens, cache writes by lifetime, tool calls by name with errors and denials, web search and fetch, user prompts, compactions and errors, measured by the meter and the plugin with parity, carried by the report endpoint and stored for each lane, person and device
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: plugins/zuri-harness/lib/detail.mjs
+  doc: docs/decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md
+  test: apps/server/tests/unit/usage-detail.test.js
+delivers: [FR-239, FEAT-039]
+subtasks:
+  - id: P0
+    title: Detail counting in the meter and the plugin with parity
+    status: done
+  - id: P1
+    title: Report schema, storage columns and migration, extension rule
+    status: done
+  - id: P2
+    title: Privacy rule and compatibility with plugins that send no detail
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a Claude Code or Codex session log, when the meter or the plugin reads it, then each session's thinking or reasoning tokens, cache writes by lifetime, tool calls by tool name with results, errors and denials, web search and fetch requests, user prompts, compactions and API errors are counted once, with only names and numbers kept and no prompt, response, argument or output text
+      checked: true
+  success_criteria:
+    - criterion: Given a report carrying the detail, when the endpoint stores it, then the counts are validated and kept with the report, a resumed session extends only when every count including the detail grows, and an older plugin that sends no detail is still accepted
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when the meter, plugin and report suites run, then detail parity between the meter and the plugin, the privacy rule, extension with detail and the migration in both trees pass; applying the migration on production stays a separate step (ADR-057)
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text. Implemented locally 2026-09-14 (FR-239, ADR-086 D7): plugins/zuri-harness/lib/detail.mjs is the one rule set, imported by both the plugin and the meter; the report endpoint accepts a strict optional detail stored as headline columns plus canonical JSON; migration 20260914120000_usage_detail written in both trees and NOT applied; first real meter run with detail recorded in the usage block. Review, not done: not merged, migration not applied. Closed 2026-09-14: merged in #393 (main daca80fb), deployed as zuri-ai-web:release-daca80fb; migration 20260914120000_usage_detail applied on production after a rolled-back dry run.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 64000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-075
+
+```yaml
+task_container_id: TC-TASK-ZAI-075
+task_id: TASK-ZAI-075
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Usage detail on the programme board — phase and task telemetry show input, output, thinking and cache tokens separately, tool calls with the most used tools and the error rate, prompts and compactions, per lane, person and device
+requirement_type: FR
+complexity: C-2
+access_scope: H2
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/platform-control/program-delivery-metrics.js
+  doc: docs/roadmap/ROADMAP-zuri-ai-24w-program.md
+  test: apps/server/tests/unit/usage-detail.test.js
+delivers: [FR-240, FEAT-039]
+subtasks:
+  - id: P0
+    title: Phase card token split, tool calls, prompts and compactions
+    status: done
+  - id: P1
+    title: Task detail top tools, errors and denials per person and device
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a phase with measured lanes, when its card renders, then input, output, thinking and cache tokens are shown as separate figures, with tool calls, error rate, prompts and compactions beside them, and a lane with no detail says so rather than showing zero
+      checked: true
+  success_criteria:
+    - criterion: Given a task opened on the board, when its lane has detail, then the most used tools with counts, the error and denial counts, and the per person and per device split are listed
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test and the roadmap e2e, when they run, then aggregation of detail across lanes and reports, the empty-detail state and the rendered figures are asserted and the page builds clean
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.6) on the owner's instruction, after the harness plugin shipped: write the plugin's specification, and before starting bind ids and capture everything the agent logs can measure — especially token usage input and output and tool calling — then do the work and set each task's status to what is actually true. A survey of the logs on the operator's machine found, beyond the four token counts already measured: Claude Code thinking tokens, cache writes split by 5-minute and 1-hour lifetime, web search and web fetch requests, tool calls by tool name with results, errors and denials, user prompts, compactions, API errors and hook errors, model and effort; Codex reasoning tokens, tool calls by name, task starts and completions, compactions and model. Only counts and names are captured — never prompt, response, tool argument or tool output text. Implemented locally 2026-09-14 (FR-240): phase cards show input, output, thinking and cache tokens separately with tool calls and error rate, prompts and compactions, or say no detail exists; task telemetry lists the most used tools, errors, denials and models. Review, not done: not merged. Closed 2026-09-14: merged in #393 (main daca80fb), deployed as zuri-ai-web:release-daca80fb; migration 20260914120000_usage_detail applied on production after a rolled-back dry run.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 36000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+Containers 076 to 103 were opened on 2026-09-14 (v0.4.7), before any implementation, on the
+owner's instruction that the whole LINE OA platform plan (ADR-089, ADR-090, ADR-091) be on the
+roadmap and in the Project Manager with tasks and lanes bound, so that every later session is
+measured. The detail of that measurement (token types, tool calls by name with errors and denials,
+prompts and compactions) is TASK-ZAI-074 and TASK-ZAI-075 of v0.4.6, delivered by PR #393 and closed by #394;
+the first build task of each chain still names them as dependencies. The phase numbers in the titles and changelogs are the ADRs' shared delivery
+phases (0 to 7), not the programme's PHASE-ZAI ids. They sit under deliverables 4 and 8, which the
+proposal already names, so no Change Request is needed.
+
+### TC-TASK-ZAI-076
+
+```yaml
+task_container_id: TC-TASK-ZAI-076
+task_id: TASK-ZAI-076
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: LINE OA platform decision record — ADR-089 credential vault and self-serve onboarding, ADR-090 GKS grounding and reviewed candidates, ADR-091 chat record, memory tiers and the Context Composer, with FR-223 to FR-238, SEC-030 to SEC-032, SDD-097 to SDD-100 and FEAT-036 to FEAT-038 declared
+requirement_type: NFR
+complexity: C-3
+access_scope: H2
+status: done
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: unavailable
+  doc: docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the two evidence-cited designs (the credential vault and chat history design, and the LINE to GKS grounding design), when the owner's twenty delegated decisions are recorded, then ADR-089, ADR-090 and ADR-091 state them with shared phase numbering, amend ADR-061, ADR-060, ADR-041, ADR-032 and ADR-072 by pointer, and name every planned model without creating one
+      checked: true
+  success_criteria:
+    - criterion: Given the requirement map in each ADR, when the ids are declared, then FR-223 to FR-238, SEC-030 to SEC-032, SDD-097 to SDD-100 and FEAT-036 to FEAT-038 are pinned in the id ledger and the integration, identity, line-oa-studio, crm, agent and knowledge charters carry the planned ownership as prose
+      checked: true
+  exit_criteria:
+    - criterion: Given npm run govern and CI on pull request 389, when they ran, then govern exited zero with no CRITICAL, the govern, tests, build and verify checks succeeded, and the pull request merged into main as 8cd81196
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Recorded after the fact as the plan's Phase 0, because the declaration merged before the plan was written. Closed 2026-09-14: PR #389 from docs/line-oa-vault-memory-gks-decisions merged as 8cd81196 (2026-09-14 02:02 +07) with the govern, tests, build and verify checks green; ADR-089, ADR-090 and ADR-091 accepted; FR-223 to FR-238, SEC-030 to SEC-032, SDD-097 to SDD-100 and FEAT-036 to FEAT-038 pinned; govern re-run green on 8cd81196 in the planning worktree. The work predates its lane, so the meter counts it only for sessions whose working directory had that branch checked out.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 70000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-077
+
+```yaml
+task_container_id: TC-TASK-ZAI-077
+task_id: TASK-ZAI-077
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: LINE OA platform delivery plan — every phase of ADR-089 to ADR-091 registered as sized tasks with acceptance criteria, lanes bound to branches before work starts, the usage-detail capture of TASK-ZAI-074 and TASK-ZAI-075 named as the measurement prerequisite, the Project Manager import path stated, and the usage meter run
+requirement_type: NFR
+complexity: C-2
+access_scope: H2
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: unavailable
+  doc: docs/roadmap/ROADMAP-zuri-ai-24w-program.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given ADR-089, ADR-090 and ADR-091 and their designs, when the plan is written, then every delivery phase (0 to 7) appears as tasks sized C-1 to C-3 with Given-When-Then criteria, the operator steps (production migration applies, channel credential entry, webhook cutover, the grounding switch) are tasks of their own, and phase 6 is blocked on MSP TASK-MEMOS-002 and TASK-MEMOS-004
+      checked: true
+  success_criteria:
+    - criterion: Given the Delivery Telemetry section, when the lanes are declared, then each delivery phase from 1 to 6 has one lane naming its branch and Phase 0 one lane naming both documentation branches, the generator accepts them (one programme phase per lane, one lane per branch, never main), and the section says how a session must run to be measured
+      checked: true
+  exit_criteria:
+    - criterion: Given npm run govern and the programme container check on the plan branch merged with main, when they run, then both exit zero; the pull request is opened and left for the owner to merge
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts. Closed 2026-09-16: all 28 tasks registered and governance clean.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 45000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-078
+
+```yaml
+task_container_id: TC-TASK-ZAI-078
+task_id: TASK-ZAI-078
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Integration credential vault — a SecretStorePort with the Supabase Vault and envelope stores, a dispatching secret manager by reference prefix, versioned write, activate, rotate, revoke and resolve with compensation and re-entry status, and design migrations 1, 3 and 4 — FR-223, SEC-030, SDD-097
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/platform/integrations/core/secret-store/secret-store-port.js
+  doc: docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md
+  test: apps/server/tests/integration/credential-vault-lifecycle.test.js
+delivers: [FR-223, FEAT-036]
+subtasks:
+  - id: P0
+    title: SecretStorePort and dispatching secret manager with cross-store refusal
+    status: done
+  - id: P1
+    title: Supabase Vault definer functions, NOLOGIN writer and reader roles, migration 3
+    status: done
+  - id: P2
+    title: Envelope store with AES-256-GCM, per-secret data keys and AAD binding, migration 4
+    status: done
+  - id: P3
+    title: Credential versions, rotation, revocation, compensation purge and REENTRY_REQUIRED, migration 1
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given ZURI_SECRET_STORE set to supabase-vault or envelope, when a credential is written, activated, rotated, revoked and resolved through the SecretStorePort, then each write is a new PENDING_VALIDATION version that becomes ACTIVE only after validation, rotation keeps the previous version resolvable until the new one validates, revocation purges the material and fences the account, and a reference whose prefix has no configured store resolves Unavailable
+      checked: true
+  success_criteria:
+    - criterion: Given a store function or an envelope decrypt called with another Tenant's or Business's connection, when it runs, then it refuses from the database or the AAD check with CHANNEL_SECRET_SCOPE_MISMATCH, and a store write whose database transaction fails is purged by compensation and recorded
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test on both providers, when the vault suites run, then a scan of captured output finds the test secret in no response, log line, audit row, error, backup export or Prisma column (ADR-089 proofs 1 to 3), preflight Check 18 stays green with migrations 1, 3 and 4 written in both trees, and none is applied to production
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. Migration numbers follow the vault design's section 8.2 list; the Phase-1 model-credential resolver is left untouched (SDD-097). The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them. Started 2026-09-14 on feat/integration-secret-store-vault in worktree zuri-ai-secret-store-vault (lane LANE-LINE-OA-VAULT), branched from docs/line-oa-programme-plan (PR #392, open) because the lane and this container exist only there; baseline govern and npm test green before any code (640 files, 5263 tests). In progress, not review: no code yet. Implemented 2026-09-14 in commit 9b66e05b (not yet in a pull request, so still in-progress): P0 SecretStorePort and dispatching secret manager with cross-store refusal; P1 Supabase Vault definer functions with NOLOGIN writer and reader roles (migration 20260914140200, membership WITH INHERIT FALSE on PostgreSQL 16+); P2 envelope store with AES-256-GCM, wrapped data keys and AAD binding (migration 20260914140300); P3 credential versions, rotation, rejection, revocation with fence, compensation purge and REENTRY_REQUIRED (migration 20260914140000 with backfill). Evidence: npm test 647 files / 5317 tests passed; tests/integration/credential-vault.postgres.test.js 12 passed on a disposable postgres:17-alpine with an emulated vault schema (Supabase Vault itself not exercised); govern exit 0. No migration applied. Wiring REENTRY_REQUIRED into snapshot restore stays with TASK-ZAI-084. Review 2026-09-14: pull request #398 opened (base main, not merged). Criteria evidence — acceptance: tests/integration/credential-vault-lifecycle.test.js (write PENDING_VALIDATION, activation, rotation keeping the previous version resolvable, rejection, revocation with fence and purge) and tests/unit/integration/dispatching-secret-manager.test.js (unconfigured prefix resolves Unavailable); success: credential-vault.postgres.test.js (CHANNEL_SECRET_SCOPE_MISMATCH raised by the SQL function) and envelope-secret-store.test.js (AAD refusal), compensation in credential-vault-lifecycle.test.js; exit: leak scans in the lifecycle, routes and Postgres suites, preflight Check 18 green, migrations 20260914140000/140200/140300 written in both trees and not applied. npm test 653 files / 5363 tests, build clean, govern exit 0, Postgres suite 17 passed on postgres:17 with an emulated vault schema. Closed 2026-09-14: merged in #398 (main 2aef8caa) on the owner's "merge when ready", with CI green (govern, tests, build); every definition-of-done criterion was already checked with the evidence above, so review moves to done. Not deployed; migrations 20260914140000 to 20260914140400 remain written and NOT applied (ADR-057, operator step TASK-ZAI-085). Applied on production 2026-09-14 on the owner's instruction, which waived ADR-089 proof 10 (a real channel in a dev deployment before any production migration): 20260914140000 integration_credential_lifecycle, 20260914140100 channel_account_claim, 20260914140200 channel_secret_vault_functions, 20260914140300 integration_secret_envelope, 20260914140400 rate_limit_bucket (see TC-TASK-ZAI-085). Still not deployed.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 70000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-079
+
+```yaml
+task_container_id: TC-TASK-ZAI-079
+task_id: TASK-ZAI-079
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: LINE channel account claim and the Integration LINE channel-admin port — an installation-wide claim by destination hash taken before any secret is stored, stateless token minting with a per-version cache, bot info, and webhook set, read and test calls, with design migration 2 — FR-226, SDD-098 and the port half of FR-227
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/platform/integrations/providers/line/line-channel-admin-port.js
+  doc: docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md
+  test: apps/server/tests/integration/channel-account-claim.test.js
+delivers: [FR-226, FR-227, FEAT-036]
+subtasks:
+  - id: P0
+    title: ChannelAccountClaim with its backfill migration and truthful refusals
+    status: done
+  - id: P1
+    title: Stateless token minting and a cache keyed by credential version
+    status: done
+  - id: P2
+    title: Bot info and webhook endpoint set, get and test port calls with mapped refusals
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a Channel ID and secret, when the port validates them, then it mints a 15-minute stateless token at most once a minute per account, caches it for at most 13 minutes per credential version, reads the bot's destination, basic id and display name, and drops the cache on rotation or revocation
+      checked: true
+  success_criteria:
+    - criterion: Given a bot already claimed in the same Tenant or in another Tenant, when a connection is attempted, then it answers LINE_CHANNEL_ALREADY_CONNECTED or LINE_CHANNEL_CLAIMED_ELSEWHERE naming no Tenant or Business, only after possession of the secret is proved, and no secret is left stored (ADR-089 proofs 5 and 6)
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test with LINE's endpoints stubbed, when the port suites run, then a wrong Channel ID and a wrong secret are indistinguishable, a correct pair with a wrong override token is reported as the token's fault, every webhook set, get and test refusal maps to a reason, and migration 2 with its backfill is written in both trees and not applied
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. FR-227 is split across phases: the LINE API calls land here in the port; the publisher action, webhook health column and manual card are TASK-ZAI-083. Started 2026-09-14 on feat/integration-secret-store-vault after TASK-ZAI-078's implementation commit 9b66e05b. In progress, not review: no code yet. Implemented 2026-09-14 in commit 66a4eff1 (no pull request yet, so still in-progress): P0 ChannelAccountClaim by sha256(destination) with truthful refusals and migration 20260914140100 (partial unique on live claims, backfill); P1 stateless token minting and a cache keyed by credential version (13 minutes, one mint a minute per account); P2 bot info and webhook set, get and test calls with mapped refusals; plus connectLineChannelWithSecret (validate, claim, store) with no route yet. Evidence: npm test 650 files / 5341 tests passed; Postgres suite 15 passed on postgres:17; govern exit 0. Migration not applied. Review 2026-09-14: pull request #398 opened (base main, not merged). Criteria evidence — acceptance: tests/unit/platform/line-channel-admin-port.test.js (token cache 13 minutes per version, one mint a minute per account, invalidate) and the minting case in credential-vault-lifecycle.test.js; success: tests/integration/channel-account-claim.test.js (ALREADY_CONNECTED and CLAIMED_ELSEWHERE naming no Tenant or Business, only after the secret is proved, nothing stored) and the Postgres connection-flow case; exit: wrong Channel ID and wrong secret identical, override token reported as the token's fault, every webhook set/get/test refusal mapped (line-channel-admin-port.test.js), migration 20260914140100 with backfill written in both trees and not applied. Closed 2026-09-14: merged in #398 (main 2aef8caa) on the owner's "merge when ready", with CI green (govern, tests, build); every definition-of-done criterion was already checked with the evidence above, so review moves to done. Not deployed; migrations 20260914140000 to 20260914140400 remain written and NOT applied (ADR-057, operator step TASK-ZAI-085). Applied on production 2026-09-14 on the owner's instruction, which waived ADR-089 proof 10 (a real channel in a dev deployment before any production migration): 20260914140000 integration_credential_lifecycle, 20260914140100 channel_account_claim, 20260914140200 channel_secret_vault_functions, 20260914140300 integration_secret_envelope, 20260914140400 rate_limit_bucket (see TC-TASK-ZAI-085). Still not deployed.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 55000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-080
+
+```yaml
+task_container_id: TC-TASK-ZAI-080
+task_id: TASK-ZAI-080
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Credential-write step-up gate and the first rate limit — assertSessionAssurance AAL2 on every credential write, rotation, revocation and validation, an enrolment redirect when no factor exists, and a RateLimitBucket store answering 429 with retry hints, design migration 8 — FR-224
+requirement_type: FR
+complexity: C-2
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/identity/credential-write-gate.js
+  doc: docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md
+  test: apps/server/tests/integration/line-channel-credential-routes.test.js
+delivers: [FR-224, FEAT-036]
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given an AAL1 session, an expired elevation or a Person with no ACTIVE TOTP factor, when any credential write, rotation, revocation or validation route is called, then it is refused before any LINE call with ASSURANCE_LEVEL_INSUFFICIENT, or MFA_FACTOR_REQUIRED with an enrolment link
+      checked: true
+  success_criteria:
+    - criterion: Given five writes or validations in fifteen minutes by one Person in one Business, or sixty LINE validation calls a minute on the installation, when the next arrives, then it answers 429 CREDENTIAL_RATE_LIMITED with retryAfterSeconds, and a rejected LINE validation counts twice
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when the gate and limiter suites run, then ADR-089 proof 4 passes on both providers and migration 8 is written in both trees and not applied
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 1 of ADR-089. RateLimitBucket is the identity lane's model (ADR-058 has no Redis). Started 2026-09-14 on feat/integration-secret-store-vault after TASK-ZAI-079's implementation commit 66a4eff1. In progress, not review: no code yet. Implemented 2026-09-14 in commit f6dd4c29 and opened for review in pull request #398 (base main, not merged). Criteria evidence — acceptance: tests/integration/line-channel-credential-routes.test.js (AAL1, an expired elevation whose row still says AAL2, no cookie, another person's session and no factor are each refused with no LINE call; MFA_FACTOR_REQUIRED carries the enrolment path); success: credential-rate-limit.test.js (5 in 15 minutes, 60 LINE validations a minute installation-wide, forced weights, concurrency) and the routes suite (429 with retryAfterSeconds and Retry-After after two rejected validations); exit: proof 4 on SQLite and on postgres:17 (credential-vault.postgres.test.js), migration 20260914140400 written in both trees and not applied. Finding for the owner: elevateSession leaves Session.assuranceLevel at AAL2 after the 900-second window, so the gate reads elevatedUntil only. Closed 2026-09-14: merged in #398 (main 2aef8caa) on the owner's "merge when ready", with CI green (govern, tests, build); every definition-of-done criterion was already checked with the evidence above, so review moves to done. Not deployed; migrations 20260914140000 to 20260914140400 remain written and NOT applied (ADR-057, operator step TASK-ZAI-085). Applied on production 2026-09-14 on the owner's instruction, which waived ADR-089 proof 10 (a real channel in a dev deployment before any production migration): 20260914140000 integration_credential_lifecycle, 20260914140100 channel_account_claim, 20260914140200 channel_secret_vault_functions, 20260914140300 integration_secret_envelope, 20260914140400 rate_limit_bucket (see TC-TASK-ZAI-085). Still not deployed.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 34000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-081
+
+```yaml
+task_container_id: TC-TASK-ZAI-081
+task_id: TASK-ZAI-081
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Phase 1 acceptance — ADR-089 proofs 1 to 6 on SQLite and Postgres with both stores, and one real LINE test channel validated end to end through the connection route in a dev deployment, before any production migration
+requirement_type: NFR
+complexity: C-2
+access_scope: H3
+status: blocked
+version: 0.3.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: unavailable
+  doc: docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the Phase 1 build on a dev deployment, when a person enters a real test channel's Channel ID and secret through the connection route, then the pair is validated with LINE, the bot claimed, the credential stored and resolved for one send, and nothing readable is left anywhere proof 1 inspects
+      checked: false
+  success_criteria:
+    - criterion: Given the same run with ZURI_SECRET_STORE set to supabase-vault and then to envelope, when the proofs are repeated, then proofs 1 to 6 pass for both stores and the evidence names the commit, store and date
+      checked: false
+  exit_criteria:
+    - criterion: Given the production migration ledger, when it is read after the run, then the only Phase 1 receipts are the five applied on 2026-09-14 under the owner's waiver of ADR-089 proof 10, and the evidence is recorded in this container's changelog
+      checked: false
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. The test channel's secret is typed by a person; an agent session never enters a channel secret, token or password. Blocked 2026-09-14, needs the owner: the acceptance criterion needs a person to enter a real LINE test channel's Channel ID and secret through POST /api/line-oa/connections on a dev deployment running feat/integration-secret-store-vault (pull request #398) with ZURI_SECRET_STORE set, a TOTP factor and a live step-up — an agent session never enters a channel secret; the success criterion's supabase-vault run needs a Supabase project (the automated suites use an emulated vault schema on postgres:17, where proofs 1 to 6 pass for both stores); the exit criterion needs the production migration ledger read by the operator. Proofs already automated: 1 (leak scans), 2 (database and AAD scope refusal), 3 (cross-store refusal), 4 (gate and limit), 5 (indistinguishable wrong ID and secret), 6 (claimed elsewhere, nothing stored). Waiver 2026-09-14: the owner instructed the five Phase 1 migrations applied on production before this acceptance run, waiving ADR-089 proof 10's ordering; the exit criterion is re-worded to that fact (it could no longer be met as written) and stays unchecked. The acceptance and success criteria are unchanged: a person still enters a real test channel on a dev deployment, and the supabase-vault run can now use the production Vault functions only through a deployment of the merged code. Still blocked on that person and deployment.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 24000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-082
+
+```yaml
+task_container_id: TC-TASK-ZAI-082
+task_id: TASK-ZAI-082
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-04
+title: Self-serve LINE OA connection wizard — Thai step-up, Channel ID and secret entry with an optional override token, live proof with LINE, claim, vault write, connection, a masked credential card and a DRAFT account, and a mount-backed account moved into the vault on re-entry — FR-225
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/line-oa-studio/components/LineOaConnectWizard.jsx, apps/server/src/app/api/line-oa/connections/route.js, apps/server/src/app/api/line-oa/accounts/route.js
+  doc: docs/plans/LINE-OA-CREDENTIAL-VAULT-ONBOARDING-AND-CHAT-HISTORY-DESIGN.md
+  test: apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js, apps/server/tests/e2e/fr225-line-oa-self-serve-wizard.spec.js
+delivers: [FR-225, FEAT-036]
+subtasks:
+  - id: P0
+    title: Thai wizard steps with inline enrolment and the design error table
+    status: done
+  - id: P1
+    title: Connection route writing through the vault and returning masked metadata only
+    status: done
+  - id: P2
+    title: Studio form without deployment-secret references; mount-backed account moves on re-entry
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a Business owner at AAL2, when they enter a Channel ID and secret in the Thai wizard, then the server proves the pair with LINE, fills destination, basic id and display name, claims the bot, writes the credential through FR-223 and creates the LINE_OA connection and a DRAFT LineOaAccount with no operator and no host file
+      checked: true
+  success_criteria:
+    - criterion: Given a wrong Channel ID or a wrong secret, a LINE outage, or a refused claim, when the wizard submits, then both wrong inputs answer 422 LINE_CREDENTIALS_REJECTED, the outage answers 503 with nothing stored, the claim refusal shows its Thai message, and no response carries more than connection, masked credential and bot metadata
+      checked: true
+  exit_criteria:
+    - criterion: Given the e2e journey and npm test, when they run, then the Studio form no longer accepts a deployment-secret reference, a mount-backed account moves into the vault when its owner re-enters the secret, and no secret remains in page state after submit
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 2 of ADR-089. 2026-09-16: status corrected — built and merged as PR #406 (main 9b7d8d59) on 2026-09-14 and deployed since release-087f3025, but this container was never updated past "planned"; found while reconciling every LINE OA Platform task's status against actual git history. No production account has used the wizard yet, since TASK-ZAI-081 (a real test channel) stays blocked.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 60000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-083
+
+```yaml
+task_container_id: TC-TASK-ZAI-083
+task_id: TASK-ZAI-083
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-04
+title: Automatic LINE webhook registration and health — a publisher action sets, reads back and tests the account webhook through LINE, stores webhook health in LineOaAccount.webhookStateJson with its migration, and falls back to a Thai manual card — FR-227
+requirement_type: FR
+complexity: C-2
+access_scope: H3
+status: done
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js
+  doc: docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md
+  test: apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js, apps/server/tests/unit/line-oa-webhook-copy.test.js
+delivers: [FR-227, FEAT-036]
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a DRAFT account with a validated credential, when a publisher runs register webhook, then LINE's endpoint is set to this server's account webhook URL, read back with its active flag and tested, and endpoint, active flag, last test time, reason and HTTP status are stored as webhook health; running it again is idempotent and needs no secret re-entry
+      checked: true
+  success_criteria:
+    - criterion: Given LINE refusing the URL, an unset public base URL, the Use webhook toggle off or a failed test, when the action runs, then the account shows the reason in Thai with a manual card carrying the URL, and a test whose signature does not verify is reported as a stored secret that does not belong to the channel with a link to rotation (ADR-089 proof 8)
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test with LINE stubbed and the webhook-state migration written in both trees, when the suites and preflight run, then every refusal maps to its reason and Check 18 stays green; the column is not applied to production by this task
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 2 of ADR-089. The design's migration 7 carries both LineOaAccount columns; this plan writes the webhook-state column here and the memoryPolicy column with TASK-ZAI-100, so no column lands before its writer. 2026-09-16: status corrected — built and merged as PR #410 (main 6d6b16ba) on 2026-09-14, migration 20260914150300 applied on production the same day, deployed since release-087f3025; this container was never updated past "planned". No production account has registered a webhook yet, since TASK-ZAI-081 stays blocked.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 36000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-084
+
+```yaml
+task_container_id: TC-TASK-ZAI-084
+task_id: TASK-ZAI-084
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-04
+title: Derived legacy-transport quiescence and restore re-entry — ENABLE_SERVER derives quiescence for a vault-backed account from the endpoint LINE reports and 120 seconds without legacy evidence, validates through the dispatching secret manager, and a restored snapshot forces credential re-entry — FR-228
+requirement_type: FR
+complexity: C-2
+access_scope: H3
+status: done
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js
+  doc: docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md
+  test: apps/server/tests/integration/fr228-line-oa-legacy-quiescence.test.js
+delivers: [FR-228, FEAT-036]
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a vault-backed account, when ENABLE_SERVER runs, then it succeeds with no typed confirmation only when LINE reports this server's account URL and the legacy seam recorded no evidence for the destination in the last 120 seconds, and otherwise refuses 409 LINE_LEGACY_TRANSPORT_ACTIVE with the last legacy receipt time
+      checked: true
+  success_criteria:
+    - criterion: Given a mount-backed account, when ENABLE_SERVER runs, then the typed confirmation is still required, and for every account the epoch fence, the refusal while SENDING or UNKNOWN jobs exist and the version check are unchanged (ADR-061 D3, D7)
+      checked: true
+  exit_criteria:
+    - criterion: Given a backup restored into a test database and npm test, when the suites run, then every restored credential reads REENTRY_REQUIRED, rotation keeps sends flowing and revocation fails queued sends closed (ADR-089 proofs 7 and 9)
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 2 of ADR-089. 2026-09-16: status corrected — built and merged as PR #410 (main 6d6b16ba) on 2026-09-14, deployed since release-087f3025; this container was never updated past "planned". No production account has exercised it yet, since TASK-ZAI-081 stays blocked.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 34000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-085
+
+```yaml
+task_container_id: TC-TASK-ZAI-085
+task_id: TASK-ZAI-085
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-04
+title: Apply the credential vault and onboarding migrations on production — design migrations 1 to 4 and 8 and the webhook-state column, under ADR-057 with an inventory, a rolled-back dry run and a verified effect, recorded in the migration notes
+requirement_type: NFR
+complexity: C-2
+access_scope: H4
+status: review
+version: 0.3.0
+pic: ATHER
+executor: ATHER
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/supabase/migrations
+  doc: docs/DB-MIGRATION-NOTES.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the owner's instruction naming the migrations, when the operator applies them, then each is preceded by a read-only inventory and a rolled-back dry run through the transaction pooler and followed by a ledger row and a verified effect (tables, columns, forced RLS, definer functions, NOLOGIN roles and grants)
+      checked: true
+  success_criteria:
+    - criterion: Given the Supabase Vault precondition, when migration 3 is applied, then its vault.decrypted_secrets privilege guard passes and no application role can read the vault views
+      checked: false
+  exit_criteria:
+    - criterion: Given docs/DB-MIGRATION-NOTES.md and the PRD status cells, when the apply is recorded, then each migration names its date and session, and the redeploy that follows keeps the ADR-061 overlay (both compose files named, ZURI_LINE_SERVER_ENABLED true) with clean web and line-worker logs
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Applying a migration is an owner-instructed operator step (ADR-057), so this is H4 and the PIC is the operator lane. To be measured, the operator session runs from a worktree on the lane branch feat/line-oa-self-serve-onboarding (re-created from main if the feature branch was deleted); work run in the primary checkout on main is unattributed. Started 2026-09-14 on the owner's instruction "apply the five vault migrations", waiving ADR-089 proof 10; run from the primary session after PR #399, not from the lane branch, so the meter counts it unattributed. Design migrations 1 to 4 and 8 applied: read-only inventory (PostgreSQL 17.6, supabase_vault 0.3.1 with the executor's vault privileges, no receipts or objects yet, 1 IntegrationCredential ACTIVE on the mount, 2 LINE_OA connections with 2 distinct destinations); a dry run of all five in one rolled-back transaction through the transaction pooler (nothing left after rollback); then one transaction applying all five with ledger rows 20260914140000 integration_credential_lifecycle, 20260914140100 channel_account_claim, 20260914140200 channel_secret_vault_functions, 20260914140300 integration_secret_envelope, 20260914140400 rate_limit_bucket; effect verified from the same transaction and again from a fresh read-only connection: 7 new IntegrationCredential columns, 1 BACKFILL version ACTIVE for 1 credential (store DEPLOYMENT_MOUNT, kind LINE_CHANNEL), 2 ChannelAccountClaim rows (NOTICE: 0 left unclaimed), IntegrationCredentialVersion, ChannelAccountClaim, IntegrationSecretEnvelope and RateLimitBucket each with forced RLS, one policy and no anon/authenticated/service_role grant, five zuri_core.channel_secret_* functions SECURITY DEFINER with search_path pg_catalog, pg_temp and no PUBLIC execute, writer and reader NOLOGIN roles granted to postgres and zuri_web_login WITH INHERIT FALSE, SET TRUE, and neither zuri_web_login nor zuri_app_runtime able to execute a function directly; /api/health 200 with db ok afterwards on the running image release-21e3d798. Run from the web container with its own connection environment; no .env read and no credential printed. In progress, not done, and no criterion checked: the webhook-state column migration is not written yet (TASK-ZAI-083), the redeploy with the ADR-061 overlay has not happened, and the success criterion's second half is false today — postgres, which the running app connects as, and service_role can read vault.secrets and vault.decrypted_secrets (stock Supabase; zuri_web_login, zuri_app_runtime, anon, authenticated and both vault roles cannot; the vault holds 0 rows), so it holds only once the runtime connects as zuri_web_login. Moved to review 2026-09-14 23:20: TASK-ZAI-083's webhook-state migration 20260914150300_line_oa_webhook_state (PR #410, merged 6d6b16ba) was applied the same way — read-only inventory, a rolled-back dry run, then applied and ledger-recorded, from the web container's own connection environment (transaction pooler on :6543 after :5432's session-mode pool of 15 was exhausted by the live app; no .env read, no credential printed) — and the effect verified: `LineOaAccount.webhookStateJson` nullable text. The web image was then rebuilt from this same merged main (release-538c1958) and redeployed; the ADR-061 overlay survived (`com.docker.compose.project.config_files` names both compose files, `ZURI_LINE_SERVER_ENABLED` prints `true`), both `web` and `line-worker` logs are clean, and `/api/health` answers 200 `db: ok`. Acceptance and exit criteria are now both checked. Left open, unchanged from today's earlier note and not part of this task's own migrations: the vault-role read privilege on `vault.secrets`/`vault.decrypted_secrets` is a stock-Supabase default-grant gap tracked separately (see the default-ACL note this project already keeps), not something migrations 1-4/8/webhook-state can close on their own — the success criterion stays unchecked and the task stays in review rather than done until that is addressed.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 16000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-086
+
+```yaml
+task_container_id: TC-TASK-ZAI-086
+task_id: TASK-ZAI-086
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-04
+title: Channel credential entry for the first production account — the Business owner, at AAL2, enters the Channel ID and secret in the production wizard to move one mount-backed LINE OA account into the vault; no agent ever types a credential
+requirement_type: NFR
+complexity: C-1
+access_scope: H4
+status: planned
+version: 0.1.0
+pic: Owen
+executor: Owen
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: unavailable
+  doc: docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the production wizard after TASK-ZAI-085, when the owner re-enters the channel's Channel ID and secret at AAL2, then the credential is stored in the configured store, the credential card shows only the mask and the last four characters of the Channel ID, and the mount entry is no longer the account's reference
+      checked: false
+  success_criteria:
+    - criterion: Given the entry, when the audit trail and server logs are read, then they record who wrote which credential version and when, and carry no secret material (SEC-030)
+      checked: false
+  exit_criteria:
+    - criterion: Given the account after entry, when one send is made, then it resolves through the vault and succeeds, recorded with the commit, store and date
+      checked: false
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Credential entry is a person's step: an agent session must never enter a channel secret, token or password, so this task has no agent session to measure.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 6000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-087
+
+```yaml
+task_container_id: TC-TASK-ZAI-087
+task_id: TASK-ZAI-087
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-04
+title: Webhook cutover for the first production account — register and test the webhook through LINE, observe derived quiescence, enable server transport and record ADR-061 provider-webhook-replaced evidence with a written rollback
+requirement_type: NFR
+complexity: C-2
+access_scope: H4
+status: planned
+version: 0.1.0
+pic: Owen
+executor: ATHER
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: unavailable
+  doc: docs/decisions/ADR-061-SERVER-LINE-AND-OPTIONAL-EDGE.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the account moved into the vault, when register webhook runs on production, then LINE reports this server's account URL with the active flag and a passing test, and the webhook health card shows it
+      checked: false
+  success_criteria:
+    - criterion: Given the legacy edge path that served the bot, when ENABLE_SERVER is attempted, then it is refused until 120 seconds pass without legacy evidence and then succeeds with no typed confirmation, and a real customer message is admitted, answered and receipted on the server path
+      checked: false
+  exit_criteria:
+    - criterion: Given delivery evidence read from the tunnel inspector rather than the console's Verify button alone, when the cutover is recorded, then it names the account, commit, time and last legacy receipt, and the rollback (re-point the webhook, fence the account) is written beside it
+      checked: false
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Owner-triggered, operator-executed. A console Verify success only proves that something answered 200 (the 2026-09-12 finding), so the evidence is the delivery itself.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 14000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-088
+
+```yaml
+task_container_id: TC-TASK-ZAI-088
+task_id: TASK-ZAI-088
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-04
+title: Non-text LINE content in the CRM record — sticker, location and media messages become Message rows with a content kind and placeholder body, media gets a MessageAttachment without bytes, follow, join, membership, postback and unsend become ConversationEvent rows, and an unsend tombstones its message — FR-229
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js
+  doc: docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md
+  test: apps/server/tests/integration/line-non-text-admission.test.js, apps/server/tests/unit/crm-message-attachments-events-migration.test.js
+delivers: [FR-229, FEAT-037]
+subtasks:
+  - id: P0
+    title: Message content kind and MessageAttachment recorded without bytes
+    status: done
+  - id: P1
+    title: ConversationEvent rows with id-only bounded payloads
+    status: done
+  - id: P2
+    title: Unsend tombstone and no answer job for any non-text event
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given LINE webhook events of every non-text type, when admission runs, then each produces its CRM row (a Message with content kind and placeholder body, a MessageAttachment without bytes, or a ConversationEvent with an id-only payload) in the ADR-061 admission transaction, and none creates an answer job
+      checked: true
+  success_criteria:
+    - criterion: Given an unsend event, when it is admitted, then the referenced message body and attachment are tombstoned, and an unsend for a message the Business never received is recorded as an event without error (ADR-091 proof 4)
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test on both providers and the CRM part of design migration 5 written in both trees, when the suites and preflight run, then non-text events are visible in the inbox and Check 18 stays green; no media byte is fetched or stored
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3 of ADR-091. Fetching media bytes into FileAsset is a later phase that needs its own requirement (FR-229 says so). The measurement-detail prerequisite is satisfied: TASK-ZAI-074 (agent usage detail capture: token types, tool calls by name with errors and denials, prompts and compactions) and TASK-ZAI-075 (usage detail on the board) were delivered by PR #393 (FR-239, FR-240, FEAT-039 under ADR-086 D7) and closed done by PR #394 with their migration applied; this plan does not redefine them. 2026-09-16: status corrected — built and merged as PR #404 (main 1267910e) on 2026-09-14, migration 20260914150000 applied on production the same day, deployed since release-087f3025; this container was never updated past "planned".
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 56000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-089
+
+```yaml
+task_container_id: TC-TASK-ZAI-089
+task_id: TASK-ZAI-089
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-04
+title: Declared retention classes and the nightly sweep — installation defaults for raw LINE payloads, message bodies and attachments, trace payloads and MSP session content, per-Tenant downward-only overrides, a sweep that skips rows live LINE jobs reference, and one audit event per run — FR-230, SEC-031
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/crm/retention-sweep-service.js, apps/server/src/modules/crm/retention-override-service.js
+  doc: docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md
+  test: apps/server/tests/integration/crm-retention-sweep.test.js, apps/server/tests/integration/crm-retention-override-service.test.js, apps/server/tests/unit/crm-conversation-retention-migration.test.js
+delivers: [FR-230, FEAT-037]
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the defaults (raw payload text 90 days, message bodies and attachments 24 months, AgentTraceEvent payloads 90 days, MSP session content 90 days), when the nightly sweep runs, then it tombstones exactly the rows past each window, keeps envelope columns and skips rows a non-terminal LineConversationJob references
+      checked: true
+  success_criteria:
+    - criterion: Given a Tenant override, when it shortens a window it is honoured and when it would lengthen one it is refused, and each sweep run writes one audit event with counts per class (ADR-091 proof 5)
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test with fixtures on both providers, when the retention suites run, then the sweep is idempotent and reports retention truthfully (ADR-070 D3), and the override store's migration is written in both trees and not applied
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3 of ADR-091. The retention numbers are the owner's accepted defaults of 2026-09-14 (design Q9), not law. 2026-09-16: status corrected — built and merged as PR #411 (main 0d70f06d) on 2026-09-14, migration 20260914150400 applied on production the same day, deployed since release-087f3025; this container was never updated past "planned". The sweep's first real production run and its audit event are proven under TASK-ZAI-091.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 52000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-090
+
+```yaml
+task_container_id: TC-TASK-ZAI-090
+task_id: TASK-ZAI-090
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-04
+title: Conversation inbox read models and message search — last-message time, a redacted 120-character preview, retention class and unread counts, a read-only CRM search reader with a trigram index on Postgres, and follow and unfollow counts per account — FR-233
+requirement_type: FR
+complexity: C-2
+access_scope: H2
+status: done
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/crm/conversation-search-service.js, apps/server/src/modules/crm/conversation-preview-service.js
+  doc: docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md
+  test: apps/server/tests/integration/crm-conversation-inbox.test.js, apps/server/tests/integration/crm-conversation-search.test.js
+delivers: [FR-233, FEAT-037]
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given conversations with new messages, when the inbox reads them, then each shows its last-message time, a preview of at most 120 characters that the erasure writer redacts, its retention class and a per-Business unread count computed on read
+      checked: true
+  success_criteria:
+    - criterion: Given a search term, when the search reader runs, then it returns matches only from the viewer's visible Businesses and, when one is given, one LINE OA account, using a trigram index on Postgres and LIKE on SQLite
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test and the inbox e2e, when they run, then another Business's messages never appear, follow and unfollow counts per account come from ConversationEvent, and the index migration is written in both trees and not applied
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3 of ADR-091. Thai trigram quality is accepted for an inbox; a tokenizer is a later requirement (design risk table). 2026-09-16: status corrected — built and merged as PR #411 (main 0d70f06d) on 2026-09-14, migration 20260914150400 and pg_trgm applied on production the same day, deployed since release-087f3025; this container was never updated past "planned".
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 36000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-091
+
+```yaml
+task_container_id: TC-TASK-ZAI-091
+task_id: TASK-ZAI-091
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-04
+title: Apply the chat record migrations on production — non-text content, read-model columns, the trigram index and the retention override store, under ADR-057, recorded in the migration notes
+requirement_type: NFR
+complexity: C-1
+access_scope: H4
+status: done
+version: 0.4.0
+pic: ATHER
+executor: ATHER
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/supabase/migrations, apps/server/src/app/api/crm/retention-sweep/route.js, apps/server/scripts/server-retention-sweep-worker.mjs, apps/server/scripts/register-retention-sweep-task.ps1
+  doc: docs/DB-MIGRATION-NOTES.md
+  test: apps/server/tests/unit/crm-retention-sweep-route.test.js, apps/server/tests/unit/retention-sweep-worker-run.test.js
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the owner's instruction naming the migrations, when the operator applies them, then each is preceded by an inventory and a rolled-back dry run, and pg_trgm is confirmed available before the index migration
+      checked: true
+  success_criteria:
+    - criterion: Given the apply, when its effect is verified, then the new tables and columns with their RLS and grants exist, and the retention sweep's first production run writes its audit event with counts per class
+      checked: true
+  exit_criteria:
+    - criterion: Given docs/DB-MIGRATION-NOTES.md, when the apply is recorded, then each migration names its date and session and the redeploy keeps the ADR-061 overlay with clean container logs
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Operator step (ADR-057). To be measured, run it from a worktree on feat/crm-chat-record-completeness. In progress 2026-09-14 23:20: both chat-record migrations applied on production the same way as TASK-ZAI-085 — read-only inventory, a rolled-back dry run, then applied with ledger rows, through the transaction pooler on :6543 from the web container's own connection environment (no .env read, no credential printed): 20260914150000_crm_message_attachments_events (non-text content; PR #404, merged) and 20260914150400_crm_conversation_retention_and_search (read-model columns, the `pg_trgm` extension and its `Message_body_trgm_idx` GIN index, and `TenantRetentionOverride` with forced RLS, one policy and grants to `zuri_app_runtime` only; PR #411, merged). `pg_trgm` was confirmed installed as part of the same migration, satisfying that half of the acceptance criterion. The web image was rebuilt from the same merged main (release-538c1958) and redeployed; the ADR-061 overlay survived (both compose files named, `ZURI_LINE_SERVER_ENABLED` true), both container logs are clean. Acceptance and exit criteria are now both checked. Left open: the retention sweep (`retention-sweep-service.js`) has not yet been triggered in production — no scheduled job invokes it yet — so its first production run and audit event are still to come; the success criterion stays unchecked and the task stays in-progress rather than done until that run is observed. 2026-09-15: PR #414 (main 087f3025) gave the sweep its entry point — `POST /api/crm/retention-sweep` behind `ZURI_RETENTION_SWEEP_TOKEN`, the single-shot `scripts/server-retention-sweep-worker.mjs`, and `scripts/register-retention-sweep-task.ps1` for the daily 03:00 task — and it is now deployed in release-087f3025 (no migration). The first production run has still not happened: the token is not set in `apps/server/.env` and the scheduled task is not registered; both are operator steps awaiting the owner's instruction. 2026-09-16 (v0.4.0): both operator steps done. `ZURI_RETENTION_SWEEP_TOKEN` (32 random bytes, generated on the production host, never committed or logged) set in `apps/server/.env`; stack recreated to pick it up (`config_files` names both compose files, `ZURI_LINE_SERVER_ENABLED=true`, `/api/health` and `/login` both 200, line-worker ticks clean after a brief restart blip). Ran `docker compose exec -T web node scripts/server-retention-sweep-worker.mjs` directly, twice: first call wrote a real `RETENTION_SWEEP_COMPLETED` AuditEvent (counts 0/0/0 — correct, since nothing has yet aged past the 90-day/24-month windows), satisfying the success criterion; second call the same day returned the identical `auditEventId` with `alreadyRanToday: true`, proving the idempotency guard against real production data. Registering the Windows Scheduled Task (`register-retention-sweep-task.ps1`, written in PR #414 but never executed until now) surfaced two real bugs, fixed in PR #426: (1) the action named a bare `docker`, which Task Scheduler's execution environment does not resolve from PATH the way an interactive shell does — every triggered run failed with `LastTaskResult 0x80070002` (ERROR_FILE_NOT_FOUND); fixed by resolving `(Get-Command docker).Source` at registration time; (2) the file had no UTF-8 BOM despite containing multi-byte em-dash characters, so Windows PowerShell 5.1 read it under the system ANSI codepage and corrupted those sequences into cascading parse errors — fixed by adding the BOM. Re-registered with the fixed script and triggered via `Start-ScheduledTask`: `LastTaskResult: 0`. The daily 03:00 run is now live and proven end to end, not merely deployed.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 12000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-092
+
+```yaml
+task_container_id: TC-TASK-ZAI-092
+task_id: TASK-ZAI-092
+parent_phase_id: PHASE-ZAI-03
+parent_sprint_id: SPR-ZAI-05
+title: Context Composer — one agent-lane module assembling every LINE model prompt from AuthContext, MSP slices, knowledge evidence and CRM and ERP facts in truth order under one budget, reporting every trim, recording one ContextReceipt per model invocation and calling no model without evidence — FR-234, SDD-100
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/agent/context-composer.js
+  doc: docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md
+  test: apps/server/tests/unit/context-composer.test.js
+delivers: [FR-234, FEAT-037]
+subtasks:
+  - id: P0
+    title: Context assembly extracted from createServerLineAnswer with the default path unchanged
+    status: done
+  - id: P1
+    title: Truth order, SUPERSEDED_BY_RECORD, group-thread scope and an empty packet on denial
+    status: done
+  - id: P2
+    title: Prompt-wide budget with reported trims and the ContextReceipt on AgentTraceEvent
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a LINE turn, when the composer assembles the prompt, then authorization is checked first and a denial yields an empty packet, CRM and ERP records outrank GKS evidence which outranks MSP memory, and memory that contradicts a record is dropped with reason SUPERSEDED_BY_RECORD
+      checked: true
+  success_criteria:
+    - criterion: Given one prompt-wide budget, when the slices exceed it, then they are trimmed by priority and every trim is reported, group-thread slices never cross threads, and exactly one ContextReceipt of references, hash and budget, never content, is recorded per model invocation
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test and the existing worker-route contract test, when they run, then the default path's answers and traces are unchanged by the extraction, no evidence and no facts means zero model calls, and ADR-091 proof 7 passes
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 3b of ADR-091: it must land before phases 4 and 6, so grounding (TASK-ZAI-093) and memory projection (TASK-ZAI-100) plug into one assembler instead of two. 2026-09-16: status corrected — built and merged as PR #405 (main 22767b64) on 2026-09-14, deployed since release-087f3025, no migration; this container was never updated past "planned".
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 62000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-093
+
+```yaml
+task_container_id: TC-TASK-ZAI-093
+task_id: TASK-ZAI-093
+parent_phase_id: PHASE-ZAI-03
+parent_sprint_id: SPR-ZAI-05
+title: LINE grounding from the published corpus — an in-process knowledge.query reader over queryKnowledgeCorpus under the runtime knowledge capability, a per-account knowledgeGrounding mode with its migration, a 2 500 ms, top-5, 8 KiB budget, a traced mode-gated fallback and retrievalRefs on EVIDENCE_SELECTED — FR-235, SDD-099
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/corpus-knowledge-reader.js, apps/server/src/modules/agent/line-knowledge-grounding.js
+  doc: docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md
+  test: apps/server/tests/integration/line-gks-grounding.test.js, apps/server/tests/unit/corpus-knowledge-reader.test.js, apps/server/tests/unit/line-knowledge-grounding.test.js
+delivers: [FR-235, FEAT-038]
+subtasks:
+  - id: P0
+    title: Corpus reader implementing knowledge.query in process with the job-derived scope
+    status: done
+  - id: P1
+    title: knowledgeGrounding column, writer and publisher control defaulting to BUSINESS_KNOWLEDGE
+    status: done
+  - id: P2
+    title: Budget, mode-gated fallback, retrievalRefs and composition through the Context Composer
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given an account in BUSINESS_KNOWLEDGE mode, when a LINE job is answered, then answers and traces are byte-identical to today's path; given GKS_CORPUS or GKS_THEN_BUSINESS_KNOWLEDGE, then the reader reads the Business's published corpus generation under the job's server-derived Tenant and Business and records retrievalRefs with citation, source, snapshot and corpus generation
+      checked: true
+  success_criteria:
+    - criterion: Given a hop over 2 500 ms or an error, when the mode is GKS_THEN_BUSINESS_KNOWLEDGE, then the result is GKS_UNAVAILABLE and the fallback is traced with its reason; in GKS_CORPUS there is no fallback; with no evidence from any allowed source the deterministic reply is sent and no model is called
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when the grounding suites run, then a job of Business A never reads Business B's corpus through scope, capability or binding, the mode migration is written in both trees and not applied, and ADR-090 proofs 1, 3, 4 and 5 pass
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 4 of ADR-090, placed after the Context Composer (TASK-ZAI-092) on the owner-delegated ordering. Nothing changes for any account until a publisher switches its mode. 2026-09-16: status corrected — built and merged as PR #407 (main af3f7822) on 2026-09-14, migration 20260914150100 applied on production the same day, deployed since release-087f3025; this container was never updated past "planned". No account has switched off BUSINESS_KNOWLEDGE yet — that is TASK-ZAI-095, blocked on ADR-075 Phase 3.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 58000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-094
+
+```yaml
+task_container_id: TC-TASK-ZAI-094
+task_id: TASK-ZAI-094
+parent_phase_id: PHASE-ZAI-03
+parent_sprint_id: SPR-ZAI-05
+title: Grounding isolated acceptance — a real LINE job answered from a published generation in the four-process harness with citations on the job trace, zero cross-tenant leakage, the deterministic reply with the worker stopped, and MSP spawn cost measured against the budget
+requirement_type: NFR
+complexity: C-2
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/tests/acceptance/genesisrag17-e2e.test.js
+  doc: docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the four-process isolated harness with a published corpus generation, when a LINE job for an account in GKS_CORPUS mode is answered, then the reply is grounded and GET /api/line-oa/jobs/{id}/trace shows retrievalRefs (ADR-090 proof 2)
+      checked: false
+  success_criteria:
+    - criterion: Given a second Business in the harness and a stopped worker, when jobs are answered, then no cross-tenant evidence appears and the stopped worker yields the deterministic reply rather than an error or a model-only answer (proofs 5 and 6)
+      checked: false
+  exit_criteria:
+    - criterion: Given the measured MSP spawn time inside a four-wide worker tick, when it is recorded, then the evidence states whether the 2 500 ms budget holds, and if spawn dominates the finding is written for the MSP daemon transport decision instead of widening the budget
+      checked: false
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 4 gate of ADR-090, run on the KI17 acceptance setup.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 26000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-095
+
+```yaml
+task_container_id: TC-TASK-ZAI-095
+task_id: TASK-ZAI-095
+parent_phase_id: PHASE-ZAI-03
+parent_sprint_id: SPR-ZAI-06
+title: SmartGift grounding switch on production — after ADR-075 Phase 3 is deployed, apply the grounding-mode migration, switch one SmartGift DIRECT account to GKS_THEN_BUSINESS_KNOWLEDGE as an owner-triggered operator step, shadow-compare for one campaign window and keep the rollback
+requirement_type: NFR
+complexity: C-2
+access_scope: H4
+status: planned
+version: 0.1.0
+pic: Owen
+executor: ATHER
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/supabase/migrations
+  doc: docs/DB-MIGRATION-NOTES.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given ADR-075 Phase 3 deployed (MSP, GKS and the GenesisBlock worker beside the web container) and the owner's instruction, when the operator applies the knowledgeGrounding migration and switches one SmartGift DIRECT account, then that account's jobs read the published corpus first and fall back to business knowledge with a traced reason
+      checked: false
+  success_criteria:
+    - criterion: Given one campaign window, when answers are shadow-compared against business knowledge, then the comparison is recorded and names which accounts ran SERVER execution, because customers on the edge path (CH-01) are not affected
+      checked: false
+  exit_criteria:
+    - criterion: Given a regression, when the rollback runs, then flipping the account back to BUSINESS_KNOWLEDGE restores today's traces, and the switch and any rollback are recorded in the migration notes and this container's changelog
+      checked: false
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Production dependency: ADR-075 Phase 3, carried in this programme by TASK-ZAI-042 (catalog convergence) and TASK-ZAI-050 (seventeen-stage runtime on production). The switch is owner-triggered and operator-executed.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 16000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-096
+
+```yaml
+task_container_id: TC-TASK-ZAI-096
+task_id: TASK-ZAI-096
+parent_phase_id: PHASE-ZAI-03
+parent_sprint_id: SPR-ZAI-06
+title: LINE FAQ knowledge candidates — locator-only question-and-answer candidates from consent-GRANTED conversations checked by the Zero-PII deny policy, an OWNER or LINE_OA_PUBLISHER review surface with audited decisions, and admission of an approved candidate as a LINE_FAQ_CANDIDATE TEXT source through ADR-072 — FR-236, SEC-032
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/knowledge-candidate-service.js, apps/server/src/modules/knowledge/knowledge-candidate-zero-pii.js
+  doc: docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md
+  test: apps/server/tests/integration/fr236-knowledge-candidate.test.js, apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js
+delivers: [FR-236, FEAT-038]
+subtasks:
+  - id: P0
+    title: KnowledgeCandidate model, migration and consent-gated extractor over a CRM read projection
+    status: done
+  - id: P1
+    title: Review surface in the Knowledge (GKS) slot with edit, approve and reject audited
+    status: done
+  - id: P2
+    title: Admission hook as a LINE_FAQ_CANDIDATE TEXT source before Stage 1, and pipeline map rows
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a consent-GRANTED conversation, when a candidate is drafted, then it carries a canonical question and answer with product locators, policy names and amounts and no names, LINE ids or quoted customer wording, and Thai PII fixtures are refused at creation and again at Stage 5 classify
+      checked: true
+  success_criteria:
+    - criterion: Given a candidate, when a Business OWNER or LINE_OA_PUBLISHER edits and approves or rejects it, then the decision is audited, only an approved candidate is admitted as one immutable LINE_FAQ_CANDIDATE TEXT source through the admission service, and nothing is promoted automatically or through gks_knowledge_promote
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test and preflight, when they run, then ADR-090 proof 7 passes, the knowledge charter claims KnowledgeCandidate, the pipeline map gains the candidate nodes with their surfaces, and the migration is written in both trees and not applied
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 5 of ADR-090. 2026-09-16: status corrected — built and merged as PR #408 (main 2e4b94b3) on 2026-09-14, migration 20260914150200 applied on production the same day, deployed since release-087f3025; this container was never updated past "planned". Correction to this changelog's own earlier claim: candidates were NOT off by default per Business in this PR — that per-Business gate (design risk R-5) was a real gap found on review and built separately as TASK-ZAI-099 (PR #413), which is what actually keeps every Business's candidates off until the owner asks.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 60000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-097
+
+```yaml
+task_container_id: TC-TASK-ZAI-097
+task_id: TASK-ZAI-097
+parent_phase_id: PHASE-ZAI-03
+parent_sprint_id: SPR-ZAI-06
+title: Knowledge gap report for LINE — NO_EVIDENCE retrievals aggregated per Business in the Knowledge (GKS) slot as counts, product locators and last-seen times, with the question text left in CRM — FR-237
+requirement_type: FR
+complexity: C-1
+access_scope: H2
+status: done
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/knowledge/application/knowledge-gap-report-service.js
+  doc: docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md
+  test: apps/server/tests/integration/fr237-knowledge-gap-report.test.js, apps/server/tests/unit/knowledge-gap-report-service.test.js
+delivers: [FR-237, FEAT-038]
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given EVIDENCE_SELECTED trace events with reason NO_EVIDENCE, when the gap report renders for the active Business, then it shows counts, product locators and last-seen times only
+      checked: true
+  success_criteria:
+    - criterion: Given another Business's events, when the report renders, then none of them are counted and no question text appears in the report
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when the report suite runs, then the aggregation is scoped per Business and nothing from the report is admitted into knowledge
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 5 of ADR-090. 2026-09-16: status corrected — built and merged as PR #409 (main 538c1958) on 2026-09-14, deployed since release-087f3025, no migration; this container was never updated past "planned".
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 18000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-098
+
+```yaml
+task_container_id: TC-TASK-ZAI-098
+task_id: TASK-ZAI-098
+parent_phase_id: PHASE-ZAI-03
+parent_sprint_id: SPR-ZAI-06
+title: LINE Studio descriptions as knowledge sources — on a publisher action, published rich menu, LIFF app and bot profile descriptions are admitted as LINE_STUDIO_DESCRIPTION TEXT sources, never the Flex or rich menu JSON, and unpublishing withdraws them — FR-238
+requirement_type: FR
+complexity: C-2
+access_scope: H2
+status: done
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/line-oa-studio/line-oa-studio-description-admission.js
+  doc: docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md
+  test: apps/server/tests/integration/fr238-line-studio-description-admission.test.js, apps/server/tests/unit/line-oa-studio-description-admission.test.js
+delivers: [FR-238, FEAT-038]
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a published rich menu, LIFF app or bot profile, when a publisher admits its description, then one LINE_STUDIO_DESCRIPTION TEXT source is admitted through the admission service with the human-readable text only
+      checked: true
+  success_criteria:
+    - criterion: Given the item is unpublished, when the unpublish completes, then the source is withdrawn and later citations are denied
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when the suites run, then no Flex or rich menu JSON reaches admission, and admission and withdrawal are both audited
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. ADR-090 calls this a later phase; the owner-delegated plan places it in Phase 5 with the candidates because both use the same admission hook. 2026-09-16: status corrected — built and merged as PR #409 (main 538c1958) on 2026-09-14, deployed since release-087f3025, no migration; this container was never updated past "planned".
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 30000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-099
+
+```yaml
+task_container_id: TC-TASK-ZAI-099
+task_id: TASK-ZAI-099
+parent_phase_id: PHASE-ZAI-03
+parent_sprint_id: SPR-ZAI-06
+title: Apply the knowledge candidate migration on production and turn candidates on for SmartGift only on the owner's instruction, recorded in the migration notes
+requirement_type: NFR
+complexity: C-1
+access_scope: H4
+status: in-progress
+version: 0.2.0
+pic: ATHER
+executor: ATHER
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/supabase/migrations
+  doc: docs/DB-MIGRATION-NOTES.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the owner's instruction, when the operator applies the KnowledgeCandidate migration, then it is preceded by an inventory and a rolled-back dry run and followed by a verified effect
+      checked: true
+  success_criteria:
+    - criterion: Given candidates are off by default per Business, when the owner turns them on for SmartGift, then the switch is recorded with its date and who asked
+      checked: false
+  exit_criteria:
+    - criterion: Given docs/DB-MIGRATION-NOTES.md, when the apply is recorded, then the migration names its date and session and the redeploy keeps the ADR-061 overlay
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Operator step (ADR-057). To be measured, run it from a worktree on feat/knowledge-line-candidates. In progress 2026-09-15: on the owner's instruction the migration `20260914150550_knowledge_candidates_business_toggle` (PR #413, merged in main 087f3025) was applied on production from the web container's own connection environment (no .env read, no credential printed) — read-only inventory first (column absent, ledger tail 20260914150400), a rolled-back dry run with the effect verified before rollback, then applied in one transaction with its ledger row; verified effect: `Business.knowledgeCandidatesEnabled` boolean NOT NULL DEFAULT false, all 4 Business rows false. Applied before the redeploy on purpose, because the new image's Prisma client reads the column. Main 087f3025 was then built as `zuri-ai-web:release-087f3025` and redeployed with the ADR-061 overlay intact (both compose files named, `ZURI_LINE_SERVER_ENABLED` true, `/api/health` 200, both container logs clean). Acceptance and exit criteria checked. Left open: the success criterion — candidates stay off for every Business, including SmartGift, until the owner asks; the switch is `scripts/enable-smartgift-knowledge-candidates.mjs`, not run.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 10000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-100
+
+```yaml
+task_container_id: TC-TASK-ZAI-100
+task_id: TASK-ZAI-100
+parent_phase_id: PHASE-ZAI-03
+parent_sprint_id: SPR-ZAI-06
+title: LINE memory projection policy and receipts — LineOaAccount.memoryPolicy defaulting to OFF, per-job capture of session-tier and memory-tier eligibility by policy, consent and audience, MemoryProjectionReceipt in the delivery settlement, and a projector that refuses until MSP main ships thread and erase tools — FR-231
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: blocked
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js
+  doc: docs/roadmap/PLAN-MSP-MEMORY-OS-LINE-AGENT.md
+  test: unavailable
+delivers: [FR-231, FEAT-037]
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given an account's memoryPolicy and a Customer's consent, when a turn is admitted, then the job captures immutably whether it may reach MSP's session tier (policy not OFF) and whether it may reach episodic, passport or cross-thread memory (policy not OFF, consent GRANTED and audience DIRECT), and a group or room turn never reaches private memory
+      checked: false
+  success_criteria:
+    - criterion: Given projection before MSP main exposes its thread tools and an erase tool, when the projector runs, then it refuses with MSP_THREAD_CONTRACT_UNAVAILABLE, no MSP thread tool is called for any policy or consent value, and ZURI_MSP_THREAD_MEMORY_ENABLED acts only as a kill switch
+      checked: false
+  exit_criteria:
+    - criterion: Given MSP TASK-MEMOS-002 and TASK-MEMOS-004 merged, when a projection is acknowledged, then a MemoryProjectionReceipt is written in the transaction that settles its delivery, ADR-091 proofs 1 to 3 pass, and the memoryPolicy and receipt migrations are written in both trees and not applied
+      checked: false
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 6 of ADR-091, blocked at planning time: MSP main does not have the msp_thread_* tools zuri-ai calls or a thread erase tool (PLAN-MSP-MEMORY-OS-LINE-AGENT TASK-MEMOS-002 and TASK-MEMOS-004). The policy and consent plumbing may be built before the block lifts, but the task cannot close until it does. ADR-091 also lists media byte fetch in phase 6; FR-229 calls that a later phase, so it is not a task here and needs its own requirement.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 52000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-101
+
+```yaml
+task_container_id: TC-TASK-ZAI-101
+task_id: TASK-ZAI-101
+parent_phase_id: PHASE-ZAI-03
+parent_sprint_id: SPR-ZAI-06
+title: Erasure propagation beyond Tier 1 — one transaction tombstones CRM bodies, previews, attachments, LINE job fields, raw payloads, trace inputs and knowledge candidates, and leaves durable MSP erase calls per projection receipt and knowledge-source withdrawals, with PENDING_MSP until acknowledged — FR-232, SEC-031
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: blocked
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/identity/erase-principal.js
+  doc: docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md
+  test: unavailable
+delivers: [FR-232, FEAT-037]
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a principal erasure or a Customer's consent changing to DECLINED, when erasure runs, then one local transaction tombstones everything Tier 1 holds, including every KnowledgeCandidate whose source names an erased conversation, and records one MSP erase job per projection receipt and one knowledge-source withdrawal with a correction run per admitted candidate
+      checked: false
+  success_criteria:
+    - criterion: Given MSP unavailable, when the Customer's erasure status is read, then it shows PENDING_MSP until MSP acknowledges, the erase call retries with backoff, and no external tier is shown as erased without its acknowledgement
+      checked: false
+  exit_criteria:
+    - criterion: Given the three-repository test of the ADR-068 pattern, when append, erase and context resolution run against real MSP, then MSP's context no longer returns the text, a late citation of a withdrawn candidate is denied, and ADR-091 proof 6 and ADR-090 proof 8 pass
+      checked: false
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 6 of ADR-091, blocked on the same MSP work as TASK-ZAI-100. GKS cannot delete a row, so withdrawal plus correction is the only mechanism for an admitted candidate (ADR-090 D8).
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 56000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-102
+
+```yaml
+task_container_id: TC-TASK-ZAI-102
+task_id: TASK-ZAI-102
+parent_phase_id: PHASE-ZAI-03
+parent_sprint_id: SPR-ZAI-06
+title: Memory policy production activation — apply the memory policy and projection receipt migrations under ADR-057 and, only on the owner's instruction, enable projection for one DIRECT account after the MSP canary (TASK-MEMOS-006) passes, recorded with a rollback
+requirement_type: NFR
+complexity: C-2
+access_scope: H4
+status: blocked
+version: 0.1.0
+pic: ATHER
+executor: ATHER
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/supabase/migrations
+  doc: docs/DB-MIGRATION-NOTES.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given MSP main with thread and erase tools deployed and the owner's instruction, when the operator applies the memory policy and receipt migrations, then each is preceded by an inventory and a rolled-back dry run and followed by a verified effect
+      checked: false
+  success_criteria:
+    - criterion: Given one DIRECT account set to a memory policy other than OFF, when a customer converses across a worker restart, then in-thread recall works, no other person's thread is readable, and an erasure test shows PENDING_MSP and then acknowledged
+      checked: false
+  exit_criteria:
+    - criterion: Given the kill switch, when it is exercised, then projection stops on the next job, and the activation, test and rollback are recorded in the migration notes
+      checked: false
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Operator step (ADR-057), blocked with the rest of Phase 6. To be measured, run it from a worktree on feat/line-memory-policy-erasure.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 14000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-103
+
+```yaml
+task_container_id: TC-TASK-ZAI-103
+task_id: TASK-ZAI-103
+parent_phase_id: PHASE-ZAI-05
+parent_sprint_id: SPR-ZAI-10
+title: Generalise the credential vault to other provider kinds — OAUTH_CLIENT for FlowAccount (ADR-053) and MODEL_PROVIDER_KEY on the same SecretStorePort, and retire the Phase-1 model-credential resolver; requirements declared first
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: review
+version: 0.3.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/platform/integrations/core/secret-store/secret-store-port.js, apps/server/src/platform/integrations/core/secret-store/envelope-secret-store.js, apps/server/src/platform/integrations/core/secret-store/supabase-vault-secret-store.js, apps/server/supabase/migrations/20260915000000_credential_vault_provider_kinds.sql
+  doc: docs/decisions/ADR-089-BROWSER-WRITE-ONLY-CREDENTIAL-VAULT-AND-SELF-SERVE-LINE-OA-ONBOARDING.md
+  test: apps/server/tests/integration/credential-vault-provider-kinds-lifecycle.test.js, apps/server/tests/unit/integration/credential-vault-provider-kinds-migration.test.js
+delivers: [FR-242]
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given ADR-089 phase 7, when this task opens, then its requirements are declared in the PRD and pinned before any code, because no requirement covers these kinds today
+      checked: true
+  success_criteria:
+    - criterion: Given an OAUTH_CLIENT or MODEL_PROVIDER_KEY credential, when it is written, rotated, revoked and resolved, then it follows the same write-only, versioned and scope-rechecked lifecycle as a LINE channel credential and SEC-030 holds
+      checked: true
+  exit_criteria:
+    - criterion: Given the Phase-1 resolver retired, when npm test and npm run phase1:isolation:verify run, then model credentials resolve through the port and no resolver reads zuri_core.integration_* directly
+      checked: false
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Registered as backlog without a requirement: the programme already registers work whose requirement is declared at sprint entry (TASK-ZAI-007 to TASK-ZAI-030), and ADR-089 names this phase. No lane is declared because no branch has been chosen; one must be declared before work starts, or its sessions are not measured. 2026-09-15: lane `feat/vault-provider-kinds-generalization`. **FR-242 declared and pinned** (PRD-SDD v1.223.0b) alongside SDD-101 and SEC-033. Built and tested: the port generalises to OAUTH_CLIENT and MODEL_PROVIDER_KEY with the same lifecycle guarantees a LINE_CHANNEL credential has; a review round found the first draft would have let a write of a different kind silently rotate an existing connectionId's live credential while leaving its stored `secretKind` unchanged (exactly the class of bug behind this repo's LINE outages), fixed with a `CREDENTIAL_KIND_MISMATCH` refusal in both the envelope store and the new `zuri_core.provider_secret_write` SQL function before any material reaches the vault, with regression tests. Acceptance and success criteria now hold; exit criterion stays unchecked because the Phase-1 resolver retirement (this task's other half) is deliberately not attempted here — left as a separate follow-up requirement, since retiring it touches the live path production Anthropic-key resolution runs through today and could not be proven safe within this task without a live/staging smoke test. Migration `20260915000000` written, not applied. Not merged, not deployed. Later on 2026-09-15: merged in PR #415 as main 087f3025; on the owner's instruction the migration was applied on production from the web container (inventory: no `provider_secret_*` function, both vault roles present, executor reads `vault.decrypted_secrets`; rolled-back dry run; then one transaction with the ledger row) — verified effect: `zuri_core.provider_secret_write` and `provider_secret_resolve` SECURITY DEFINER owned by postgres, execute granted only to `zuri_channel_vault_writer` / `zuri_channel_vault_reader`, none for anon, authenticated, service_role, zuri_app_runtime or zuri_web_login; the one live LINE_CHANNEL credential untouched. Deployed as `zuri-ai-web:release-087f3025` with the ADR-061 overlay intact. Still review, not done: the exit criterion (retire the Phase-1 resolver) is the deliberately separate follow-up.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 50000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-104
+
+```yaml
+task_container_id: TC-TASK-ZAI-104
+task_id: TASK-ZAI-104
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Programme roadmap member view — for 30 days any signed-in person reads the programme plan and the Domain map at /roadmap, with usage by person and device, tool and model names and the Agent devices tab removed on the server, closing by itself at 2026-10-15 00:00 Asia/Bangkok while /control/roadmap stays operator-only
+requirement_type: FR
+complexity: C-2
+access_scope: H2
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/app/roadmap/page.jsx
+  doc: docs/decisions/ADR-092-TIME-BOXED-MEMBER-VIEW-OF-THE-PROGRAMME-ROADMAP.md
+  test: apps/server/tests/unit/programme-member-view.test.js
+delivers: [FR-241]
+subtasks:
+  - id: P0
+    title: Window constant and signed-in guard for /roadmap
+    status: done
+  - id: P1
+    title: Server-side member projection without people, devices, tool or model names
+    status: done
+  - id: P2
+    title: Board member mode without the Agent devices tab, with the closing date shown
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a signed-in person who holds no operator grant, when they open /roadmap before 2026-10-15 00:00 Asia/Bangkok, then they read the programme board and the Domain map tab read-only, a visitor without a session is sent to /login, and /control/roadmap still answers that person with a 404
+      checked: true
+  success_criteria:
+    - criterion: Given the member projection built on the server, when it is rendered, then it carries no usage by person or device, no tool or model name, no Agent devices tab and no report or credential row, and a test asserts those fields are absent from the data handed to the client
+      checked: true
+  exit_criteria:
+    - criterion: Given the window constant, when the clock passes its closing time, then /roadmap is a non-enumerating 404 for everyone including operators, and npm test covers open, closed, unauthenticated and the stripped projection
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.8) on the owner's instruction to open the roadmap for 30 days. Asked who and what, the owner chose anyone signed in (not an anonymous URL or a share link) and the programme plan with the Domain map only (no usage by person or device, no Agent devices tab). ADR-092 records the decision; FR-241 declares the behaviour. /control/roadmap had one admitted person on 2026-09-14, the only OPERATOR grant holder. Implemented locally 2026-09-14 (FR-241): src/app/roadmap/page.jsx guards on the window constant first, then the session; programme-member-view.js holds MEMBER_VIEW_CLOSES_AT and projectMemberLaneUsage, which drops usage by person and device and tool and model names on the server; the board takes lanes, sizing and the measured-through time as props so its client bundle no longer carries the generated usage block, and audience="member" hides the Agent devices tab and per-person rows; tests/unit/programme-member-view.test.js, and tests/e2e/fr241-roadmap-member-view.spec.js, which was not run locally (the worktree install predates the `three` dependency and installing was not permitted in the session) and is left to CI. Review, not done: not merged, not deployed. Closed 2026-09-14: merged in #397 (main 54161f1a) and deployed as zuri-ai-web:release-54161f1a; the CI run on main (34790647277) ran tests/e2e/fr241-roadmap-member-view.spec.js for the first time and it passed — an unauthenticated request to /roadmap redirects to /login, a signed-in non-operator reads the plan and the Domain map with no Agent devices tab and no per-person rows, and /control/roadmap still answers that same person with 404. That run also failed two unrelated pre-existing e2e specs (fr165-receipt-workstation, fr213-data-pipeline-map) and one pre-existing unit test (ci-select-e2e, which forces run_all via GITHUB_REF on any push to main); both failed identically on the push before this one (48dc2fd9) and are untouched by this change.
+created_at: 2026-09-14T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 30000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-105
+
+```yaml
+task_container_id: TC-TASK-ZAI-105
+task_id: TASK-ZAI-105
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Conversation sessions and chat evidence decision records — ADR-093 and ADR-094 accepted with the owner's choices, FR-243 to FR-246, SEC-034, SDD-102, SDD-103, FEAT-040 and FEAT-041 declared, SEC-031 re-worded, and tasks 105 to 115 bound to lanes
+requirement_type: NFR
+complexity: C-2
+access_scope: H2
+status: done
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: docs/PRD-SDD-v1.0.md
+  doc: docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md
+  test: apps/server/tests/unit/id-anchor-stability.test.js
+delivers: []
+subtasks:
+  - id: P0
+    title: ADR-093 and ADR-094 accepted with every proposed default
+    status: done
+  - id: P1
+    title: Requirements, features and the SEC-031 re-word declared and pinned
+    status: done
+  - id: P2
+    title: Tasks 105 to 115 and their lanes registered
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the owner's acceptance of every proposed default, when the decision records are updated, then ADR-093 and ADR-094 read accepted with the chosen values and counsel's pending confirmation of the 10-year term and the legal hold is stated
+      checked: true
+  success_criteria:
+    - criterion: Given PRD-SDD and FEATURES, when the requirements are declared, then FR-243 to FR-246, SEC-034, SDD-102, SDD-103, FEAT-040 and FEAT-041 are pinned in the id ledger and SEC-031's re-word is reviewed
+      checked: true
+  exit_criteria:
+    - criterion: Given npm run govern and the programme container check, when they run on the plan branch, then both exit zero and the pull request is left for the owner to merge
+      checked: true
+changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured. Done 2026-09-16: merged in PR #419 (main 8616363e) on the owner's instruction.
+created_at: 2026-09-16T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 40000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-106
+
+```yaml
+task_container_id: TC-TASK-ZAI-106
+task_id: TASK-ZAI-106
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Conversation sessions, FR-243 — ConversationSession model and migration, session assignment inside LINE admission and reply recording, the per-account idle timeout column, and a backfill of existing messages by the same rule
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 0.4.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js
+  doc: docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md
+  test: apps/server/tests/integration/crm-conversation-sessions.test.js
+delivers: [FR-243]
+subtasks:
+  - id: P0
+    title: ConversationSession model, Message and ConversationEvent session columns, LineOaAccount idle timeout, Supabase migration
+    status: done
+  - id: P1
+    title: Session assignment in admission and reply recording, serialized per conversation
+    status: done
+  - id: P2
+    title: Backfill script for existing messages
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given two inbound messages 29 minutes apart and a third 31 minutes after the second, when they are admitted, then the first two share a session, the third opens a new one and the previous session's closedAt is written
+      checked: true
+  success_criteria:
+    - criterion: Given two deliveries for the same conversation admitted concurrently after an idle gap, when both commit, then exactly one new session exists, and a reply recorded hours later joins the session of the inbound message it answers
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, npm run build and npm run govern, when they run, then all pass, the migration is written and not applied, and the backfill assigns every existing message on a copy of the dev database
+      checked: true
+changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured. In review 2026-09-16: built on `feat/crm-conversation-sessions` (stacked on the plan branch). `conversation-session-service.js` assigns a session inside the writer's transaction after writing the Conversation row (the Postgres row lock), comparing LINE's clamped timestamp with the latest session's last message against the account's timeout; replies join the session of the message they answer and do not stretch a session already closed; events take the open session or none; `conversation-session-backfill.js` never regroups a row that has a session and joins unassigned rows to a live session's span. Migration `20260916090000_crm_conversation_sessions` written, not applied. Evidence: npm test: 701 files, 693 passed and 2 failed on the first full run — the programme container snapshot and the FR-229 migration field list, both caused by this change — then both fixed and re-run green; npm run build clean; npm run govern 0 CRITICAL; the backfill script ran dry, apply and dry again on a copy of the dev database, which holds no conversations, so regrouping is proven by the integration suite. The exit criterion stays unchecked: its "backfill on a copy of the dev database" clause ran but had no conversations to assign, which proves the script runs, not that it assigns. Merged in PR #420 (main 000b26f1) on the owner's instruction 2026-09-16; stays review until that clause is shown on real data (TASK-ZAI-108). Proven on real data 2026-09-16 under TASK-ZAI-108: the same grouping logic, ported to a raw-SQL script and run against production, grouped 236 messages across 6 real conversations into 38 sessions, assigning every message and leaving none unsessioned; done.
+created_at: 2026-09-16T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 60000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-107
+
+```yaml
+task_container_id: TC-TASK-ZAI-107
+task_id: TASK-ZAI-107
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Sessions on the LINE job, trace and inbox, FR-243 — the session id on LineConversationJob, a trace filter by session, a divider between sessions in the inbox, and the account setting for the idle timeout
+requirement_type: FR
+complexity: C-2
+access_scope: H2
+status: done
+version: 0.3.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/crm/conversation-preview-service.js
+  doc: docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md
+  test: apps/server/tests/e2e/fr243-conversation-sessions.spec.js
+delivers: [FR-243]
+subtasks:
+  - id: P0
+    title: Session id on the LINE job and trace filter
+    status: done
+  - id: P1
+    title: Inbox session divider
+    status: done
+  - id: P2
+    title: Idle timeout setting on the LINE OA account page, 10 to 120 minutes
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a conversation with two sessions, when an owner opens it in the inbox, then a divider with the session code and start time separates them
+      checked: true
+  success_criteria:
+    - criterion: Given a session code, when the operator filters the LINE trace view by it, then only that session's jobs and trace events are listed
+      checked: true
+  exit_criteria:
+    - criterion: Given an account timeout set to 121 or 9 minutes, when it is saved, then it is refused, and the e2e spec shows two sessions for a gap past the timeout
+      checked: true
+changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured. In review 2026-09-16 on `feat/crm-conversation-sessions` after #416, #419 and #420 merged: `LineConversationJob.sessionId` is set from the inbound message at admission (migration `20260916120000_line_job_session`, written, not applied); `listLineConversationJobs` takes `?session=` and answers only that account's session, empty for another account's code and 400 for a malformed one; the LINE studio card filters by session, shows the session column and opens each job's trace from the existing owner-only trace route; the Inbox thread reads session id, code and opening time and draws a divider per session; `CONFIGURE_SESSION_TIMEOUT` is bounded 10–120 in the schema, refused when unchanged, audited as `LINE_OA_ACCOUNT_SESSION_TIMEOUT_CONFIGURED` and excluded from transport fencing; the legacy webhook passes LINE's clamped timestamp so its messages are sessioned by LINE time. Migration `20260916120000_line_job_session` applied to production 2026-09-16 under TASK-ZAI-108 (ADR-057) and `main` (`0f5a47fc`, including PR #422) deployed as `zuri-ai-web:release-0f5a47fc`; done. Evidence: npm test: 703 files, 696 passed and 1 failed — the programme container snapshot, whose link state flips when this task's e2e spec starts to exist — regenerated and re-run green; e2e: fr243-conversation-sessions and fr091-conversation-inbox, 8 of 8 passed including warm-up; npm run build clean; npm run govern 0 CRITICAL; new tests: crm-conversation-session-surfaces (5), conversation-session-ui (7), the LINE job migration assertion and the job backfill assertion.
+created_at: 2026-09-16T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 40000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-108
+
+```yaml
+task_container_id: TC-TASK-ZAI-108
+task_id: TASK-ZAI-108
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-03
+title: Apply the conversation session migration on production and run the backfill, under ADR-057 with an inventory, a rolled-back dry run and a verified effect, recorded in the migration notes
+requirement_type: NFR
+complexity: C-1
+access_scope: H4
+status: done
+version: 0.2.0
+pic: ATHER
+executor: ATHER
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/supabase/migrations
+  doc: docs/DB-MIGRATION-NOTES.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the owner's instruction naming the migration, when the operator applies it, then it is preceded by an inventory and a rolled-back dry run
+      checked: true
+  success_criteria:
+    - criterion: Given the backfill, when it runs on production, then every existing message has a session and the session count is recorded
+      checked: true
+  exit_criteria:
+    - criterion: Given docs/DB-MIGRATION-NOTES.md, when the apply is recorded, then it names its date and session and the redeploy keeps the ADR-061 overlay with clean container logs
+      checked: true
+changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured. Applied 2026-09-16 (operator session Claude Sonnet 5) under ADR-057: read-only inventory, a dry run of both migrations in one transaction with the same verification queries run mid-transaction then rolled back, re-run and committed with ledger rows `20260916090000` and `20260916120000`, confirmed on a fresh connection. The backfill has no route to the production image — no `vite-node`, `vitest`, `tests/` or `vitest.config.js` in the runtime container — so `planSittings`/`sittingIndexAt`/`closedAtFor`/`sessionCode` were ported verbatim to a raw-SQL `pg` script and run the same way: dry run first, then applied. Result on real production data — 6 conversations, 236 messages: 38 sessions created, all 236 messages assigned, all 49 reply-linked `LineConversationJob` rows assigned, 2 of 3 unsessioned `ConversationEvent` rows assigned (the third is a `FOLLOW` event 40 seconds before that conversation's first message, correctly outside every session window). `main` (`0f5a47fc`, including PR #422) built as `zuri-ai-web:release-0f5a47fc` and deployed: both compose files active, `ZURI_LINE_SERVER_ENABLED=true`, `/api/health` and `/login` both 200, line-worker ticks clean. Recorded in `docs/DB-MIGRATION-NOTES.md`. Done on the owner's direct instruction ("merge and apply the two migrations and deploy main").
+created_at: 2026-09-16T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 10000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-109
+
+```yaml
+task_container_id: TC-TASK-ZAI-109
+task_id: TASK-ZAI-109
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-04
+title: Local model residency by business hours, FR-244 — per-account business hours and out-of-hours reply, the edge worker loading the model during any served account's hours and unloading it after the last closes, and no model call outside hours
+requirement_type: FR
+complexity: C-2
+access_scope: H3
+status: review
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/edge/src/answer/providers/model-residency-schedule.ts
+  doc: docs/decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md
+  test: apps/edge/tests/unit/model-residency-schedule.test.ts
+delivers: [FR-244]
+subtasks:
+  - id: P0
+    title: Business hours and out-of-hours reply on LineOaAccount with its migration
+    status: done
+  - id: P1
+    title: Edge residency schedule using keep_alive -1 and 0
+    status: done
+  - id: P2
+    title: Out-of-hours reply without a model call, recorded as a reply
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given an account open 09:00 to 18:00 Asia/Bangkok, when the clock passes 18:00 with no other account open, then the edge worker unloads the model and ollama ps is empty
+      checked: true
+  success_criteria:
+    - criterion: Given a message at 20:00 for that account, when it is answered, then the reply is the account's out-of-hours text, no model is called and the reply is recorded
+      checked: true
+  exit_criteria:
+    - criterion: Given an account with no declared hours, when the schedule runs, then the model stays loaded as today, and the first reply after 09:00 is measured and recorded
+      checked: false
+changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured. Built and reviewed 2026-09-16 on `feat/fr244-model-residency`. Resolved a real design tension before writing code: FR-244's own wording ("the edge worker keeps the model loaded while any account it serves is inside its hours") assumes the edge knows per-account identity, but ADR-061 keeps every LINE identity off the job-claim wire (confirmed: the claim payload carries only an opaque conversationKey). Owner chose (asked directly): the server aggregates every server-enabled account's business hours into one identity-free `shouldBeWarm` boolean (`POST /api/edge/model-residency`, migration `20260916130000` for `LineOaAccount.businessHoursOpen`/`businessHoursClose`/`outOfHoursReplyText`, not applied), and an out-of-hours message is answered by creating its `LineConversationJob` straight at `READY` with the fixed reply as `answerText` — it is sent and recorded by the existing tick worker's send phase (`reconcileAccepted`'s `appendOutbound`, source `STACK`) and never reaches execution, so "no model call" holds structurally, not by convention. The edge (`model-residency-schedule.ts`) polls every 60s and calls the existing `warmModel`/`releaseModel` only on a change, sharing `triggerWarm`'s in-flight guard. Evidence: server `npm test` 701 files / 5834 tests passed (44 new: business-hours domain rules and CONFIGURE_BUSINESS_HOURS validation, the residency directive's aggregation rule, the route's auth/gating, and the admission short-circuit proven end to end — READY status, answerText, no claimant/execution/lease, the ANSWER_READY trace with `executionEvidence: OUT_OF_HOURS_RULE`); `npm run build` clean; `npm run govern` 0 CRITICAL (one real one found and fixed: the new device route needed naming in preflight's route-viewer edge-endpoint exemption, the same named-path pattern the conversation-jobs claim/complete/fail routes already use). Edge `npm test` 184 suites / 983 tests passed (10 new: the residency client's auth/contract handling, and the schedule's change-only firing, in-flight skip and clean stop); `npm run typecheck` and `npm run build` (tsc) both clean. The exit criterion's "first reply after 09:00 is measured" is a production measurement this cannot self-certify before a real deploy and stays unchecked on purpose.
+created_at: 2026-09-16T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 40000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-110
+
+```yaml
+task_container_id: TC-TASK-ZAI-110
+task_id: TASK-ZAI-110
+parent_phase_id: PHASE-ZAI-02
+parent_sprint_id: SPR-ZAI-04
+title: Staff replies recorded, FR-246 — a member with CRM write access replies from the inbox, the server pushes it through the account's LINE transport and records an OUTBOUND message with reply source STAFF in the conversation's session
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/crm/reply-record-service.js
+  doc: docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md
+  test: apps/server/tests/integration/crm-staff-reply.test.js
+delivers: [FR-246]
+subtasks:
+  - id: P0
+    title: Staff reply writer with reply source STAFF and the person
+    status: planned
+  - id: P1
+    title: Reply route and push through the account transport
+    status: planned
+  - id: P2
+    title: Inbox composer with the Official Account Manager notice
+    status: planned
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a member with CRM write access, when they send a reply from the inbox, then the customer receives it and an OUTBOUND message with source STAFF naming that person is recorded in the open session
+      checked: true
+  success_criteria:
+    - criterion: Given a member without CRM write access or another Business's conversation, when a reply is attempted, then it is refused before any push and nothing is recorded
+      checked: true
+  exit_criteria:
+    - criterion: Given the inbox, when a conversation is opened, then it states that replies typed in LINE Official Account Manager are not recorded, and npm test covers the writer, the route and the refusals
+      checked: true
+changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured. Built and reviewed 2026-09-16 on `feat/crm-staff-reply`: `sendStaffReply` added to `reply-record-service.js` as a second outbound writer, keyed on `clientRequestId` rather than the inbound message; authorized `assertDomainVisible` then `ownsBusiness` before any push; pushes through `serverLinePorts` and records only on LINE's acceptance; joins the open FR-243 session; refuses before any push for the legacy channel, a non-server-enabled account or a non-owner. Route `POST /api/crm/conversations/[id]/reply`; the Inbox composer is gated on `isOwner` and states that LINE Official Account Manager replies are not recorded. FR-091 re-worded to name this exception (ledger reviewed). No migration — uses columns FR-093 already established. Merged in PR #422 (main `0f5a47fc`) on the owner's instruction; full CI green (tests, verify, build, changes, edge-verify, govern) and a clean local run (698 files, 5814 tests). Deployed to production 2026-09-16 as part of `main`; done.
+created_at: 2026-09-16T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 50000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-111
+
+```yaml
+task_container_id: TC-TASK-ZAI-111
+task_id: TASK-ZAI-111
+parent_phase_id: PHASE-ZAI-03
+parent_sprint_id: SPR-ZAI-05
+title: Chat evidence archive writer, FR-245 — archive manifest model and migration, per-Customer AES-256-GCM segments under ZURI_ARCHIVE_KEK, write-flush-verify before tombstone inside the retention sweep, failing closed
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/crm/chat-evidence-archive-service.js
+  doc: docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md
+  test: apps/server/tests/integration/crm-chat-evidence-archive.test.js
+delivers: [FR-245]
+subtasks:
+  - id: P0
+    title: Manifest model with the per-Tenant hash chain and its migration
+    status: done
+  - id: P1
+    title: Archive file writer with per-Customer data keys
+    status: done
+  - id: P2
+    title: Sweep integration that tombstones only verified rows
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a message past its window, when the sweep runs, then an archive file is written, read back and verified, its manifest row chains to the previous one, and only then is the body tombstoned
+      checked: true
+  success_criteria:
+    - criterion: Given an archive write that fails or a file whose hash does not match, when the sweep runs, then nothing is tombstoned for that Tenant and the audit event counts the failure
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test, when the archive suites run, then decrypting a segment with another Customer's key fails, a tampered file breaks the chain, and the migration is written and not applied
+      checked: true
+changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured. Built and MERGED 2026-09-16 (PR #431, main `b6e002ef`): `chat-evidence-archive-crypto.js` (AES-256-GCM KEK/DEK mirroring envelope-secret-store.js's shape, `ZURI_ARCHIVE_KEK` never `ZURI_SECRET_KEK`, per-segment AAD binds tenantId/customerId/runId so cross-Customer decrypt fails at the cipher) and `chat-evidence-archive-service.js` (one `.zca` newline-delimited-JSON file per Tenant per run at `<ZURI_ARCHIVE_DIR>/<tenantId>/<yyyy>/<runId>.zca`, write-under-temp-name→fsync→rename→read-back→verify-SHA-256, then `ArchiveManifest` insert and tombstone in one transaction). New models `ArchiveManifest` and `CustomerArchiveKey`, migration `20260916150000` (written, not applied). A parallel implementation of this same task (`ArchiveCustomerKey`, a different migration timestamp, a single-file design) was independently built and opened as PR #429 by a separate session in this same window; PR #431 merged first, so it is the canonical implementation — the duplicate PR #429 branch was reset onto this one and repointed at TASK-ZAI-112 only (see that container's changelog). One design difference worth a later look: this implementation excludes both new models from `SNAPSHOT_MODELS` (citing no Prisma relation to Tenant/Customer, mirroring `IntegrationSecretEnvelope`), where the reset PR #429 branch had included them (citing the `mfaFactor` precedent: a randomly generated key has no re-entry path, so exclusion risks a routine restore permanently losing access to retained dispute evidence) — tracked as a separate follow-up rather than re-litigated here. Evidence (as merged): its own test suite passed at merge time; not independently re-verified by this session beyond confirming `npm run govern` and the full suite stay green with TASK-ZAI-112 built on top of it. **Follow-up resolved 2026-09-16** (branch `fix/archive-key-snapshot-inclusion`): both models moved to included. Neither of the exclusion's stated reasons held up — the confidentiality argument was moot (`ZURI_ARCHIVE_KEK` is never part of any snapshot either way) and the FK-ordering argument was moot (neither model has a real Prisma `@relation`, so no FK exists for a restore to violate) — while the real cost was exactly what the `mfaFactor` precedent warns about: a randomly generated key with no re-entry path, permanently lost on a routine restore, plus `ArchiveManifest`'s rows being the only index `chat-evidence-retrieval-service.js` has onto the archive files at all. New round-trip test in `backup.test.js`.
+created_at: 2026-09-16T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 60000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-112
+
+```yaml
+task_container_id: TC-TASK-ZAI-112
+task_id: TASK-ZAI-112
+parent_phase_id: PHASE-ZAI-03
+parent_sprint_id: SPR-ZAI-05
+title: Chat evidence retrieval, FR-245 — an OWNER at AAL2 retrieves one Customer's archived messages for a date range by session with a case reference, as an export carrying file and manifest hashes, audited
+requirement_type: FR
+complexity: C-2
+access_scope: H3
+status: review
+version: 0.2.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/crm/chat-evidence-retrieval-service.js
+  doc: docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md
+  test: apps/server/tests/integration/crm-chat-evidence-retrieval.test.js
+delivers: [FR-245]
+subtasks:
+  - id: P0
+    title: Retrieval service verifying the chain before decrypting
+    status: done
+  - id: P1
+    title: AAL2-gated route with a required case reference
+    status: done
+  - id: P2
+    title: Hashed export and the ARCHIVE_RETRIEVED audit event
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given an OWNER at AAL2 with a case reference, when they retrieve a Customer's range, then the export lists the messages by session with the file and manifest hashes
+      checked: true
+  success_criteria:
+    - criterion: Given a viewer who is not an OWNER, is not at AAL2 or gives no case reference, when retrieval is attempted, then it is refused and nothing is decrypted
+      checked: true
+  exit_criteria:
+    - criterion: Given every retrieval, when it completes, then one ARCHIVE_RETRIEVED audit event names the Customer, the range and the case reference, and no page lists the archive
+      checked: true
+changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured. First built 2026-09-16 on branch `feat/fr245-chat-evidence-archive` (PR #429) stacked on this session's own TASK-ZAI-111 implementation — then a separate session's competing TASK-ZAI-111 (PR #431: `ArchiveManifest`/`CustomerArchiveKey`, `chat-evidence-archive-crypto.js`/`chat-evidence-archive-service.js`, migration `20260916150000`) merged into main first (`b6e002ef`), making the two branches' models, migrations and file layout incompatible. Rather than re-merge a duplicate archive writer, PR #429 was reset onto main and TASK-ZAI-112 rebuilt from scratch against the now-canonical PR #431 API: `chat-evidence-retrieval-service.js` — the FR-224 step-up gate (`assertCredentialWriteAssurance`, the one credential rotation uses — ADR-093 D7 names it explicitly), then the consent/erasure services' own authority shape (per-Business owner in the Customer's tenant, domain-gate before ownership-gate, BR-001). Grouping "by session" needed no extra join this time: `chat-evidence-archive-service.js`'s `buildArchiveLine` already writes `sessionId` into every archived line, so retrieval reads it straight off the decrypted content. Every manifest is first self-checked (`computeManifestHash` recomputed from its own stored fields must equal `manifest.manifestHash`) and every file re-hashed against `manifest.fileSha256` before any line in it is trusted; a manifest or file that fails either check, or is simply missing, lands its message ids in `missingMessageIds` instead of failing the whole retrieval. Evidence: server `npm test` 704 files / 5868 tests passed, 0 failed (new: 7 in `crm-chat-evidence-retrieval.test.js` covering the AAL1/expired-elevation refusal, the not-owned-Business refusal, the missing-case-reference refusal, the full grouped-by-session round trip with manifest hashes, the partial-recovery-reports-missing case, the never-archived-yet-still-audits case, and the unknown/other-tenant-Customer 404s); `npm run build` clean; `npm run govern` 0 CRITICAL (two real findings fixed: the new route needed an Appendix A row and its handler count bumped, and `openapi-docs.test.js`'s generic route inventory needed the new route registered plus its pathCount/operationCount bumped — the same two traps hit building TASK-ZAI-111's own retrieval attempt the first time around). The `SNAPSHOT_MODELS` exclude-vs-include disagreement found against PR #431's merged code is tracked as a separate small follow-up, not bundled here.
+created_at: 2026-09-16T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 40000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-113
+
+```yaml
+task_container_id: TC-TASK-ZAI-113
+task_id: TASK-ZAI-113
+parent_phase_id: PHASE-ZAI-03
+parent_sprint_id: SPR-ZAI-05
+title: Archive key destruction and the legal hold, SEC-034 — expiry and PDPA erasure destroy a Customer's archive data key unless an OWNER-recorded legal hold with a reason and end date is active, shown on the erasure status
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: planned
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/identity/erase-principal.js
+  doc: docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md
+  test: apps/server/tests/integration/crm-archive-legal-hold.test.js
+delivers: []
+subtasks:
+  - id: P0
+    title: Legal hold record with reason and end date
+    status: done
+  - id: P1
+    title: Erasure destroys the archive key or shows the hold
+    status: done
+  - id: P2
+    title: Expiry destroys keys and deletes fully expired files
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a Customer with no legal hold, when a PDPA erasure runs, then their archive data key is destroyed and their archived lines can no longer be decrypted
+      checked: true
+  success_criteria:
+    - criterion: Given a Customer with an active legal hold, when a PDPA erasure runs, then every other copy is erased, the archive key survives, and the erasure status shows the hold until it ends
+      checked: true
+  exit_criteria:
+    - criterion: Given a message older than 10 years, when the expiry runs, then its Customer's key is destroyed once no unexpired line remains and a file whose lines have all expired is deleted
+      checked: true
+changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured. Built locally on `verify/crm-archive-key-legal-hold`: the append-only OWNER legal-hold record, hold-gated PDPA erasure, 10-year archive-key/file expiry and audit/status reporting are implemented; the Postgres schema and migration `20260916160000` are included. Focused integration evidence is 12/12 tests passed; the full Server suite is 5,947 passed with 32 skipped across 718 files, and the production build compiles successfully. Governance is WARN with 0 CRITICAL and 22 inherited warnings. The migration is written but not applied to production; that operator gate belongs to TASK-ZAI-114, so this task is `review`, not production `done`.
+created_at: 2026-09-16T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 50000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-114
+
+```yaml
+task_container_id: TC-TASK-ZAI-114
+task_id: TASK-ZAI-114
+parent_phase_id: PHASE-ZAI-03
+parent_sprint_id: SPR-ZAI-06
+title: Chat evidence archive on production — the cold-archive compose overlay on F:, ZURI_ARCHIVE_KEK with its offline backup, the migrations applied under ADR-057, the sweep token and 03:00 scheduled task, and the first recorded manifest
+requirement_type: NFR
+complexity: C-2
+access_scope: H4
+status: planned
+version: 0.1.0
+pic: ATHER
+executor: ATHER
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/scripts/register-retention-sweep-task.ps1
+  doc: docs/DB-MIGRATION-NOTES.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the owner's instruction, when the overlay and key are provisioned, then COMPOSE_FILE names the overlay, the container sees /archive and the key's offline backup is confirmed by the owner
+      checked: false
+  success_criteria:
+    - criterion: Given the migrations applied and the scheduled task registered, when the sweep first runs, then its audit event carries a manifest hash, or zero rows when nothing is eligible
+      checked: false
+  exit_criteria:
+    - criterion: Given docs/DB-MIGRATION-NOTES.md, when the apply is recorded, then it names its date and session and the redeploy keeps both the ADR-061 and the cold-archive overlays
+      checked: false
+changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured.
+created_at: 2026-09-16T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 15000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-115
+
+```yaml
+task_container_id: TC-TASK-ZAI-115
+task_id: TASK-ZAI-115
+parent_phase_id: PHASE-ZAI-03
+parent_sprint_id: SPR-ZAI-06
+title: Monthly offline copy of the chat evidence archive — new archive files copied to an offline external drive and verified against the manifest hashes, with the first verified copy recorded
+requirement_type: NFR
+complexity: C-1
+access_scope: H4
+status: planned
+version: 0.1.0
+pic: Owen
+executor: Owen
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: unavailable
+  doc: docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a month's new archive files, when the owner copies them to the offline drive, then each copied file's SHA-256 matches its manifest row
+      checked: false
+  success_criteria:
+    - criterion: Given a mismatch, when the verification runs, then the copy is repeated and the mismatch is recorded rather than ignored
+      checked: false
+  exit_criteria:
+    - criterion: Given the first verified copy, when it completes, then its date and file count are recorded in the migration notes
+      checked: false
+changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured.
+created_at: 2026-09-16T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 5000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-116
+
+```yaml
+task_container_id: TC-TASK-ZAI-116
+task_id: TASK-ZAI-116
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Observability decision record — ADR-095 for error tracking and per-person feature usage, and the FR/NFR declarations it governs
+requirement_type: NFR
+complexity: C-1
+access_scope: H2
+status: done
+version: 0.1.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: unavailable
+  doc: docs/decisions/ADR-095-OBSERVABILITY-ERROR-TRACKING-AND-PER-PERSON-FEATURE-USAGE.md
+  test: unavailable
+delivers: []
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given CR-020 §7 (extend the logger, both usage levels, per person), when the ADR is written, then it records why error tracking stays in-house, what each of the two new models captures and why that is safe under the existing allowlist discipline, the 90-day retention and aggregate rollup, and why there is no consent gate
+      checked: true
+  success_criteria:
+    - criterion: Given the identity and privacy questions CR-020 §4 left open, when the ADR states its defaults (retention, consent, domain), then each is marked as a proposed default rather than a line-by-line owner answer, so it is easy to challenge later
+      checked: true
+  exit_criteria:
+    - criterion: Given npm run govern, when it runs after the declarations, then it exits zero with no CRITICAL and CR-020 §7 records the accepted decision
+      checked: true
+changelog: Opened 2026-09-16 (v0.4.10) after the owner asked what the system logs. A full survey of every log surface found two gaps: no error tracking, no feature/page usage measurement. CR-020 proposed both; the owner (CR-020 §7) chose to extend the existing logger for error tracking (not a third-party service) and to capture feature usage at both route and action level, per person — the more expensive, more privacy-sensitive of the two options offered. ADR-095 records the shape and the trade-off.
+created_at: 2026-09-16T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-sonnet-5
+  context_length: 200k
+  predicted_token_usage: 20000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-117
+
+```yaml
+task_container_id: TC-TASK-ZAI-117
+task_id: TASK-ZAI-117
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action
+requirement_type: FR
+complexity: C-2
+access_scope: H2
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/lib/observability/logger.js
+  doc: docs/decisions/ADR-095-OBSERVABILITY-ERROR-TRACKING-AND-PER-PERSON-FEATURE-USAGE.md
+  test: apps/server/tests/unit/observability-logger.test.js
+delivers: [FR-247, FEAT-042]
+subtasks:
+  - id: P0
+    title: ErrorEvent model, migration and recordErrorEvent() service
+    status: done
+  - id: P1
+    title: logger.exception() and the stack-frame parser
+    status: done
+  - id: P2
+    title: Operator error list with resolve action
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given an error thrown twice with the same name, message and first stack frame, when recordErrorEvent(db, logger.exception(event, error, fields)) runs both times, then one ErrorEvent row exists with occurrenceCount 2, firstSeenAt from the first call and lastSeenAt from the second, and the stdout record logger.exception() emits carries only the existing allowlisted fields — unchanged from error()
+      checked: true
+  success_criteria:
+    - criterion: Given an operator, when they open the error list, then it groups by fingerprint with occurrence count and first/last seen, and marking one resolved sets resolvedAt/resolvedByPersonId and stops it counting as active
+      checked: true
+  exit_criteria:
+    - criterion: Given npm test and the migration, when they run, then fingerprinting, dedupe, the resolve action and the stack-frame parser (rejecting a frame that is not a file:line shape) are asserted; applying the migration on production stays a separate step (ADR-057)
+      checked: true
+changelog: Opened 2026-09-16 (v0.4.10) after the owner asked what the system logs. A full survey of every log surface found two gaps: no error tracking, no feature/page usage measurement. CR-020 proposed both; the owner (CR-020 §7) chose to extend the existing logger for error tracking (not a third-party service) and to capture feature usage at both route and action level, per person — the more expensive, more privacy-sensitive of the two options offered. ADR-095 records the shape and the trade-off. Closed 2026-09-16: merged in #433 (main 992f8f11) and deployed as zuri-ai-web:release-992f8f11; migration 20260916180000_observability_error_and_usage_events applied on production after a rolled-back dry run (ErrorEvent 14 columns, UsageEvent 7 columns, RLS enabled and forced on both, verified).
+created_at: 2026-09-16T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-sonnet-5
+  context_length: 200k
+  predicted_token_usage: 45000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-118
+
+```yaml
+task_container_id: TC-TASK-ZAI-118
+task_id: TASK-ZAI-118
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup
+requirement_type: FR
+complexity: C-3
+access_scope: H3
+status: done
+version: 1.0.0
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/modules/platform-control/usage-events.js
+  doc: docs/decisions/ADR-095-OBSERVABILITY-ERROR-TRACKING-AND-PER-PERSON-FEATURE-USAGE.md
+  test: apps/server/tests/unit/usage-events.test.js
+delivers: [FR-248, FR-249, FEAT-042]
+subtasks:
+  - id: P0
+    title: UsageEvent model, migration and recordUsageEvent() service
+    status: done
+  - id: P1
+    title: Page-view capture hook and recordAction() helper
+    status: done
+  - id: P2
+    title: 90-day retention rollup and the operator-only usage view
+    status: done
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given a signed-in person navigating between pages, when each navigation completes, then one UsageEvent row (kind PAGE_VIEW) is recorded with route, personId and sessionId, captured by a shell-mounted hook rather than a per-page change
+      checked: true
+  success_criteria:
+    - criterion: Given a handler that calls recordAction(name), when it runs, then one UsageEvent row (kind ACTION) is recorded with a static actionName never built from request data, and an operator reads route/action counts broken down by person under /control
+      checked: true
+  exit_criteria:
+    - criterion: Given a UsageEvent row older than 90 days, when the retention job runs, then it is replaced by a daily (date, route|actionName, count) rollup with no personId, and npm test covers capture, the per-person breakdown, and the 90-day rollup boundary
+      checked: true
+changelog: Opened 2026-09-16 (v0.4.10). Closed 2026-09-18: implemented, merged with main and verified by unit tests.
+created_at: 2026-09-16T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-sonnet-5
+  context_length: 200k
+  predicted_token_usage: 60000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+## Delivery Telemetry
+
+Added in v0.4.4 under [ADR-086](../decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md).
+Two layers, never mixed: **planned** figures come from this document, **measured**
+figures come from the usage meter (FR-217) and usage reports (FR-218). A measured
+figure is cost, not progress — it feeds no status, gate or progress cell.
+
+**Sizing table** (ADR-086 D2). Size is the sum of complexity points; the effort
+estimate is the sum of each task's band. The owner may change the bands; the board
+shows whatever this block says.
+
+| Complexity | Points | Effort estimate |
+|---|---|---|
+| C-1 | 1 | 2 h |
+| C-2 | 2 | 6 h |
+| C-3 | 3 | 16 h |
+
+**Work lanes** (ADR-086 D3). A lane is a set of tasks worked on together, joined to
+agent sessions by the git branches the work used. Usage is measured per lane and
+shown once, never split across tasks by estimate. A lane's tasks share one phase; a
+branch belongs to one lane; `main`, `master` and `HEAD` are never declared. Work
+done before a lane is declared, or on a branch no lane names, is not measured.
+
+**How to be measured** (added in v0.4.7). The meter attributes a request by the
+`cwd` and `gitBranch` its own log line records, and Claude Code records the
+session's working directory — not the directory a shell command `cd`-ed into. So:
+
+1. **Start the agent session inside a worktree that has the lane's branch checked
+   out** (`git worktree add <primary>-<lane> -b <lane branch> origin/main`, or the
+   session's `EnterWorktree`). Editing a worktree from a session launched in the
+   primary checkout records `main` and is unattributed; the v0.4.7 planning session
+   was exactly that case.
+2. **Never work from the primary checkout.** It sits on `main` or a detached HEAD, and
+   neither is attributable (ADR-086 D3).
+3. **Declare the lane before the first session**, with every branch the work will use.
+   A branch added later does not recover the requests made before it was declared
+   unless the logs still exist when the meter is re-run.
+4. **Operator steps count too.** An owner-instructed migration apply or cutover run by
+   an agent is measured only if that session also starts in a worktree on the lane's
+   branch — re-create the branch from `main` after the feature branch was deleted. A
+   step a person does in a browser (credential entry) has no agent session to measure.
+5. **Run `node scripts/programme-usage-meter.mjs --write` before committing** a lane's
+   status change, so the figures travel with the status.
+
+<!-- programme-delivery-plan:start -->
+```json
+{
+  "sizing": {
+    "points": {
+      "C-1": 1,
+      "C-2": 2,
+      "C-3": 3
+    },
+    "effortHours": {
+      "C-1": 2,
+      "C-2": 6,
+      "C-3": 16
+    },
+    "activeGapCapMinutes": 15
+  },
+  "lanes": [
+    {
+      "id": "LANE-COST-QUOTE-PLAN",
+      "title": "SmartGift cost and quote engine — plan",
+      "tasks": [
+        "TASK-ZAI-052"
+      ],
+      "branches": [
+        "docs/cost-quote-engine-plan"
+      ]
+    },
+    {
+      "id": "LANE-DATA-PIPELINE-MAP",
+      "title": "Data pipeline map — plan and delivery",
+      "tasks": [
+        "TASK-ZAI-060",
+        "TASK-ZAI-061",
+        "TASK-ZAI-062"
+      ],
+      "branches": [
+        "docs/data-pipeline-map-plan",
+        "feat/data-pipeline-map"
+      ]
+    },
+    {
+      "id": "LANE-DELIVERY-TELEMETRY",
+      "title": "Delivery telemetry and task card badges — plan and delivery",
+      "tasks": [
+        "TASK-ZAI-064",
+        "TASK-ZAI-065",
+        "TASK-ZAI-066",
+        "TASK-ZAI-067",
+        "TASK-ZAI-068"
+      ],
+      "branches": [
+        "feat/roadmap-phase-card-metrics",
+        "feat/delivery-telemetry"
+      ]
+    },
+    {
+      "id": "LANE-HARNESS-USAGE-PLUGIN",
+      "title": "Zuri harness usage plugin — plan and delivery",
+      "tasks": [
+        "TASK-ZAI-069",
+        "TASK-ZAI-070",
+        "TASK-ZAI-071",
+        "TASK-ZAI-072"
+      ],
+      "branches": [
+        "docs/harness-usage-plugin-plan",
+        "feat/harness-usage-plugin"
+      ]
+    },
+    {
+      "id": "LANE-USAGE-DETAIL-AND-SPEC",
+      "title": "Plugin specification and agent usage detail — plan and delivery",
+      "tasks": [
+        "TASK-ZAI-073",
+        "TASK-ZAI-074",
+        "TASK-ZAI-075"
+      ],
+      "branches": [
+        "docs/usage-detail-plan",
+        "feat/usage-detail-and-spec"
+      ]
+    },
+    {
+      "id": "LANE-LINE-OA-PLATFORM-PLAN",
+      "title": "LINE OA platform — decisions (Phase 0) and delivery plan",
+      "tasks": [
+        "TASK-ZAI-076",
+        "TASK-ZAI-077"
+      ],
+      "branches": [
+        "docs/line-oa-vault-memory-gks-decisions",
+        "docs/line-oa-programme-plan"
+      ]
+    },
+    {
+      "id": "LANE-LINE-OA-VAULT",
+      "title": "LINE OA platform Phase 1 — credential vault and LINE channel port",
+      "tasks": [
+        "TASK-ZAI-078",
+        "TASK-ZAI-079",
+        "TASK-ZAI-080",
+        "TASK-ZAI-081"
+      ],
+      "branches": [
+        "feat/integration-secret-store-vault"
+      ]
+    },
+    {
+      "id": "LANE-LINE-OA-ONBOARDING",
+      "title": "LINE OA platform Phase 2 — self-serve onboarding, webhook and ENABLE_SERVER",
+      "tasks": [
+        "TASK-ZAI-082",
+        "TASK-ZAI-083",
+        "TASK-ZAI-084",
+        "TASK-ZAI-085",
+        "TASK-ZAI-086",
+        "TASK-ZAI-087"
+      ],
+      "branches": [
+        "feat/line-oa-self-serve-onboarding"
+      ]
+    },
+    {
+      "id": "LANE-CRM-CHAT-RECORD",
+      "title": "LINE OA platform Phase 3 — chat record completeness, retention and inbox search",
+      "tasks": [
+        "TASK-ZAI-088",
+        "TASK-ZAI-089",
+        "TASK-ZAI-090",
+        "TASK-ZAI-091"
+      ],
+      "branches": [
+        "feat/crm-chat-record-completeness"
+      ]
+    },
+    {
+      "id": "LANE-AGENT-CONTEXT-COMPOSER",
+      "title": "LINE OA platform Phase 3b — Context Composer",
+      "tasks": [
+        "TASK-ZAI-092"
+      ],
+      "branches": [
+        "feat/agent-context-composer"
+      ]
+    },
+    {
+      "id": "LANE-LINE-GKS-GROUNDING",
+      "title": "LINE OA platform Phase 4 — grounding from the published GKS corpus",
+      "tasks": [
+        "TASK-ZAI-093",
+        "TASK-ZAI-094",
+        "TASK-ZAI-095"
+      ],
+      "branches": [
+        "feat/line-gks-grounding"
+      ]
+    },
+    {
+      "id": "LANE-KNOWLEDGE-LINE-CANDIDATES",
+      "title": "LINE OA platform Phase 5 — knowledge candidates, gap report and Studio descriptions",
+      "tasks": [
+        "TASK-ZAI-096",
+        "TASK-ZAI-097",
+        "TASK-ZAI-098",
+        "TASK-ZAI-099"
+      ],
+      "branches": [
+        "feat/knowledge-line-candidates"
+      ]
+    },
+    {
+      "id": "LANE-LINE-MEMORY-POLICY-ERASURE",
+      "title": "LINE OA platform Phase 6 — memory policy and erasure fan-out (blocked on MSP)",
+      "tasks": [
+        "TASK-ZAI-100",
+        "TASK-ZAI-101",
+        "TASK-ZAI-102"
+      ],
+      "branches": [
+        "feat/line-memory-policy-erasure"
+      ]
+    },
+    {
+      "id": "LANE-ROADMAP-MEMBER-VIEW",
+      "title": "Programme roadmap member view — plan and delivery",
+      "tasks": [
+        "TASK-ZAI-104"
+      ],
+      "branches": [
+        "feat/roadmap-member-view"
+      ]
+    },
+    {
+      "id": "LANE-CHAT-SESSIONS-EVIDENCE-PLAN",
+      "title": "Conversation sessions and chat evidence — decision records and plan",
+      "tasks": [
+        "TASK-ZAI-105"
+      ],
+      "branches": [
+        "docs/adr-093-094-accepted"
+      ]
+    },
+    {
+      "id": "LANE-CONVERSATION-SESSIONS",
+      "title": "Conversation sessions — model, assignment, surfaces and production apply",
+      "tasks": [
+        "TASK-ZAI-106",
+        "TASK-ZAI-107",
+        "TASK-ZAI-108"
+      ],
+      "branches": [
+        "feat/crm-conversation-sessions"
+      ]
+    },
+    {
+      "id": "LANE-MODEL-RESIDENCY",
+      "title": "Local model residency by business hours",
+      "tasks": [
+        "TASK-ZAI-109"
+      ],
+      "branches": [
+        "feat/edge-model-residency"
+      ]
+    },
+    {
+      "id": "LANE-STAFF-REPLY",
+      "title": "Staff replies recorded from the inbox",
+      "tasks": [
+        "TASK-ZAI-110"
+      ],
+      "branches": [
+        "feat/crm-staff-reply"
+      ]
+    },
+    {
+      "id": "LANE-CHAT-EVIDENCE-ARCHIVE",
+      "title": "Chat evidence archive — writer, retrieval, key destruction, production and offline copy",
+      "tasks": [
+        "TASK-ZAI-111",
+        "TASK-ZAI-112",
+        "TASK-ZAI-113",
+        "TASK-ZAI-114",
+        "TASK-ZAI-115"
+      ],
+      "branches": [
+        "feat/crm-chat-evidence-archive"
+      ]
+    },
+    {
+      "id": "LANE-OBSERVABILITY-ERROR-AND-USAGE",
+      "title": "Observability — error tracking and per-person feature usage",
+      "tasks": [
+        "TASK-ZAI-116",
+        "TASK-ZAI-117",
+        "TASK-ZAI-118"
+      ],
+      "branches": [
+        "docs/observability-gaps-cr",
+        "feat/observability-error-and-usage"
+      ]
+    }
+  ]
+}
+```
+<!-- programme-delivery-plan:end -->
+
+**Measured usage** — written by `node scripts/programme-usage-meter.mjs --write`
+from Claude Code and Codex session logs on the operator's machine (ADR-086 D4). Do
+not edit by hand. `measuredThrough` is the last request the meter counted, so a
+second run over the same logs writes the same block.
+
+<!-- programme-usage:start -->
+```json
+{
+  "meter": "scripts/programme-usage-meter.mjs",
+  "measuredThrough": "2026-09-14T13:43:56.014Z",
+  "lanes": {
+    "LANE-COST-QUOTE-PLAN": {
+      "requests": 33,
+      "sessions": [
+        "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
+      ],
+      "tokens": {
+        "input": 858,
+        "cacheWrite": 121351,
+        "cacheRead": 21264738,
+        "output": 79091
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 33,
+          "tokens": {
+            "input": 858,
+            "cacheWrite": 121351,
+            "cacheRead": 21264738,
+            "output": 79091
+          }
+        }
+      },
+      "models": [
+        "claude-fable-5-1"
+      ],
+      "firstActivityAt": "2026-09-13T10:59:55.549Z",
+      "lastActivityAt": "2026-09-13T11:34:07.131Z",
+      "activeMinutes": 34,
+      "detail": {
+        "reasoningTokens": 23498,
+        "cacheWrite5mTokens": 0,
+        "cacheWrite1hTokens": 121351,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 6,
+        "toolCalls": 63,
+        "toolErrors": 7,
+        "toolDenials": 0,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Edit": {
+            "calls": 17,
+            "errors": 0
+          },
+          "Monitor": {
+            "calls": 2,
+            "errors": 0
+          },
+          "PowerShell": {
+            "calls": 30,
+            "errors": 7
+          },
+          "Read": {
+            "calls": 2,
+            "errors": 0
+          },
+          "ScheduleWakeup": {
+            "calls": 2,
+            "errors": 0
+          },
+          "TaskStop": {
+            "calls": 1,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 9,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-fable-5-1": 33
+        }
+      }
+    },
+    "LANE-CRM-CHAT-RECORD": {
+      "requests": 750,
+      "sessions": [
+        "claude-code:2336907c-db1d-4fa3-a836-d1a731e3f9d5"
+      ],
+      "tokens": {
+        "input": 1512,
+        "cacheWrite": 8442801,
+        "cacheRead": 262763566,
+        "output": 609566
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 750,
+          "tokens": {
+            "input": 1512,
+            "cacheWrite": 8442801,
+            "cacheRead": 262763566,
+            "output": 609566
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5",
+        "claude-sonnet-5"
+      ],
+      "firstActivityAt": "2026-09-14T05:21:56.578Z",
+      "lastActivityAt": "2026-09-14T07:04:35.715Z",
+      "activeMinutes": 103,
+      "detail": {
+        "reasoningTokens": 278215,
+        "cacheWrite5mTokens": 8348033,
+        "cacheWrite1hTokens": 94768,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 7,
+        "toolCalls": 779,
+        "toolErrors": 10,
+        "toolDenials": 0,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Agent": {
+            "calls": 1,
+            "errors": 0
+          },
+          "Bash": {
+            "calls": 415,
+            "errors": 4
+          },
+          "Edit": {
+            "calls": 131,
+            "errors": 0
+          },
+          "Glob": {
+            "calls": 2,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 17,
+            "errors": 0
+          },
+          "Monitor": {
+            "calls": 4,
+            "errors": 0
+          },
+          "Read": {
+            "calls": 181,
+            "errors": 3
+          },
+          "SendMessage": {
+            "calls": 5,
+            "errors": 0
+          },
+          "ToolSearch": {
+            "calls": 2,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 17,
+            "errors": 1
+          },
+          "mcp__ccd_session__mark_chapter": {
+            "calls": 2,
+            "errors": 0
+          },
+          "mcp__ccd_session__read_widget_context": {
+            "calls": 2,
+            "errors": 2
+          }
+        },
+        "models": {
+          "claude-opus-5": 43,
+          "claude-sonnet-5": 707
+        }
+      }
+    },
+    "LANE-DATA-PIPELINE-MAP": {
+      "requests": 105,
+      "sessions": [
+        "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
+      ],
+      "tokens": {
+        "input": 222,
+        "cacheWrite": 499288,
+        "cacheRead": 77097311,
+        "output": 187587
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 105,
+          "tokens": {
+            "input": 222,
+            "cacheWrite": 499288,
+            "cacheRead": 77097311,
+            "output": 187587
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5"
+      ],
+      "firstActivityAt": "2026-09-13T11:48:18.303Z",
+      "lastActivityAt": "2026-09-13T14:08:30.927Z",
+      "activeMinutes": 95,
+      "detail": {
+        "reasoningTokens": 51691,
+        "cacheWrite5mTokens": 0,
+        "cacheWrite1hTokens": 499288,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 8,
+        "toolCalls": 162,
+        "toolErrors": 8,
+        "toolDenials": 0,
+        "compactions": 1,
+        "apiErrors": 1,
+        "tools": {
+          "Edit": {
+            "calls": 31,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 3,
+            "errors": 0
+          },
+          "Monitor": {
+            "calls": 1,
+            "errors": 0
+          },
+          "PowerShell": {
+            "calls": 86,
+            "errors": 8
+          },
+          "Read": {
+            "calls": 14,
+            "errors": 0
+          },
+          "SendUserFile": {
+            "calls": 1,
+            "errors": 0
+          },
+          "ToolSearch": {
+            "calls": 1,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 23,
+            "errors": 0
+          },
+          "mcp__ccd_pr__get_status": {
+            "calls": 1,
+            "errors": 0
+          },
+          "mcp__ccd_session__mark_chapter": {
+            "calls": 1,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 105
+        }
+      }
+    },
+    "LANE-DELIVERY-TELEMETRY": {
+      "requests": 150,
+      "sessions": [
+        "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
+      ],
+      "tokens": {
+        "input": 306,
+        "cacheWrite": 362091,
+        "cacheRead": 59356999,
+        "output": 188629
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 150,
+          "tokens": {
+            "input": 306,
+            "cacheWrite": 362091,
+            "cacheRead": 59356999,
+            "output": 188629
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5"
+      ],
+      "firstActivityAt": "2026-09-13T14:21:05.669Z",
+      "lastActivityAt": "2026-09-13T15:57:33.643Z",
+      "activeMinutes": 96,
+      "detail": {
+        "reasoningTokens": 47617,
+        "cacheWrite5mTokens": 0,
+        "cacheWrite1hTokens": 362091,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 4,
+        "toolCalls": 173,
+        "toolErrors": 17,
+        "toolDenials": 0,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "AskUserQuestion": {
+            "calls": 1,
+            "errors": 0
+          },
+          "Bash": {
+            "calls": 1,
+            "errors": 1
+          },
+          "Edit": {
+            "calls": 10,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 2,
+            "errors": 0
+          },
+          "Monitor": {
+            "calls": 1,
+            "errors": 1
+          },
+          "PowerShell": {
+            "calls": 106,
+            "errors": 15
+          },
+          "Read": {
+            "calls": 21,
+            "errors": 0
+          },
+          "SendUserFile": {
+            "calls": 1,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 30,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 150
+        }
+      }
+    },
+    "LANE-HARNESS-USAGE-PLUGIN": {
+      "requests": 113,
+      "sessions": [
+        "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
+      ],
+      "tokens": {
+        "input": 228,
+        "cacheWrite": 375945,
+        "cacheRead": 55696301,
+        "output": 185871
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 113,
+          "tokens": {
+            "input": 228,
+            "cacheWrite": 375945,
+            "cacheRead": 55696301,
+            "output": 185871
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5",
+        "claude-sonnet-5"
+      ],
+      "firstActivityAt": "2026-09-13T16:22:37.937Z",
+      "lastActivityAt": "2026-09-13T17:49:17.727Z",
+      "activeMinutes": 71,
+      "detail": {
+        "reasoningTokens": 33330,
+        "cacheWrite5mTokens": 186074,
+        "cacheWrite1hTokens": 189871,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 3,
+        "toolCalls": 136,
+        "toolErrors": 5,
+        "toolDenials": 1,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Agent": {
+            "calls": 1,
+            "errors": 0
+          },
+          "Bash": {
+            "calls": 15,
+            "errors": 0
+          },
+          "Edit": {
+            "calls": 14,
+            "errors": 0
+          },
+          "Glob": {
+            "calls": 1,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 1,
+            "errors": 0
+          },
+          "PowerShell": {
+            "calls": 46,
+            "errors": 3
+          },
+          "Read": {
+            "calls": 18,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 40,
+            "errors": 2
+          }
+        },
+        "models": {
+          "claude-opus-5": 71,
+          "claude-sonnet-5": 42
+        }
+      }
+    },
+    "LANE-KNOWLEDGE-LINE-CANDIDATES": {
+      "requests": 199,
+      "sessions": [
+        "claude-code:2336907c-db1d-4fa3-a836-d1a731e3f9d5"
+      ],
+      "tokens": {
+        "input": 404,
+        "cacheWrite": 2851081,
+        "cacheRead": 96534707,
+        "output": 179723
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 199,
+          "tokens": {
+            "input": 404,
+            "cacheWrite": 2851081,
+            "cacheRead": 96534707,
+            "output": 179723
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5",
+        "claude-sonnet-5"
+      ],
+      "firstActivityAt": "2026-09-14T07:57:55.235Z",
+      "lastActivityAt": "2026-09-14T13:43:56.014Z",
+      "activeMinutes": 54,
+      "detail": {
+        "reasoningTokens": 81176,
+        "cacheWrite5mTokens": 2800569,
+        "cacheWrite1hTokens": 50512,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 4,
+        "toolCalls": 193,
+        "toolErrors": 2,
+        "toolDenials": 0,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Agent": {
+            "calls": 1,
+            "errors": 0
+          },
+          "Bash": {
+            "calls": 113,
+            "errors": 2
+          },
+          "Edit": {
+            "calls": 44,
+            "errors": 0
+          },
+          "Read": {
+            "calls": 25,
+            "errors": 0
+          },
+          "SendMessage": {
+            "calls": 4,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 6,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 23,
+          "claude-sonnet-5": 176
+        }
+      }
+    },
+    "LANE-LINE-GKS-GROUNDING": {
+      "requests": 450,
+      "sessions": [
+        "claude-code:2336907c-db1d-4fa3-a836-d1a731e3f9d5"
+      ],
+      "tokens": {
+        "input": 902,
+        "cacheWrite": 4694788,
+        "cacheRead": 154434629,
+        "output": 297513
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 450,
+          "tokens": {
+            "input": 902,
+            "cacheWrite": 4694788,
+            "cacheRead": 154434629,
+            "output": 297513
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5",
+        "claude-sonnet-5"
+      ],
+      "firstActivityAt": "2026-09-14T07:09:26.263Z",
+      "lastActivityAt": "2026-09-14T07:57:31.054Z",
+      "activeMinutes": 48,
+      "detail": {
+        "reasoningTokens": 137766,
+        "cacheWrite5mTokens": 4687649,
+        "cacheWrite1hTokens": 7139,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 1,
+        "toolCalls": 448,
+        "toolErrors": 3,
+        "toolDenials": 0,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Bash": {
+            "calls": 249,
+            "errors": 2
+          },
+          "Edit": {
+            "calls": 78,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 15,
+            "errors": 0
+          },
+          "Read": {
+            "calls": 84,
+            "errors": 1
+          },
+          "Write": {
+            "calls": 22,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 5,
+          "claude-sonnet-5": 445
+        }
+      }
+    },
+    "LANE-LINE-OA-ONBOARDING": {
+      "requests": 19,
+      "sessions": [
+        "claude-code:2336907c-db1d-4fa3-a836-d1a731e3f9d5"
+      ],
+      "tokens": {
+        "input": 38,
+        "cacheWrite": 266321,
+        "cacheRead": 2819722,
+        "output": 18417
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 19,
+          "tokens": {
+            "input": 38,
+            "cacheWrite": 266321,
+            "cacheRead": 2819722,
+            "output": 18417
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5",
+        "claude-sonnet-5"
+      ],
+      "firstActivityAt": "2026-09-14T05:20:24.927Z",
+      "lastActivityAt": "2026-09-14T07:09:18.814Z",
+      "activeMinutes": 18,
+      "detail": {
+        "reasoningTokens": 2919,
+        "cacheWrite5mTokens": 255351,
+        "cacheWrite1hTokens": 10970,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 0,
+        "toolCalls": 24,
+        "toolErrors": 0,
+        "toolDenials": 0,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Agent": {
+            "calls": 5,
+            "errors": 0
+          },
+          "Bash": {
+            "calls": 16,
+            "errors": 0
+          },
+          "Read": {
+            "calls": 1,
+            "errors": 0
+          },
+          "ToolSearch": {
+            "calls": 1,
+            "errors": 0
+          },
+          "mcp__ccd_pr__get_status": {
+            "calls": 1,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 4,
+          "claude-sonnet-5": 15
+        }
+      }
+    },
+    "LANE-LINE-OA-VAULT": {
+      "requests": 237,
+      "sessions": [
+        "claude-code:aac0cfef-d023-4455-a10f-a729b17b61f6"
+      ],
+      "tokens": {
+        "input": 474,
+        "cacheWrite": 551610,
+        "cacheRead": 131724625,
+        "output": 305122
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 237,
+          "tokens": {
+            "input": 474,
+            "cacheWrite": 551610,
+            "cacheRead": 131724625,
+            "output": 305122
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5"
+      ],
+      "firstActivityAt": "2026-09-13T22:04:31.684Z",
+      "lastActivityAt": "2026-09-14T00:36:22.737Z",
+      "activeMinutes": 138,
+      "detail": {
+        "reasoningTokens": 67014,
+        "cacheWrite5mTokens": 0,
+        "cacheWrite1hTokens": 551610,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 5,
+        "toolCalls": 343,
+        "toolErrors": 13,
+        "toolDenials": 0,
+        "compactions": 1,
+        "apiErrors": 0,
+        "tools": {
+          "Bash": {
+            "calls": 44,
+            "errors": 3
+          },
+          "Edit": {
+            "calls": 106,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 29,
+            "errors": 0
+          },
+          "PowerShell": {
+            "calls": 78,
+            "errors": 10
+          },
+          "Read": {
+            "calls": 30,
+            "errors": 0
+          },
+          "ToolSearch": {
+            "calls": 2,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 48,
+            "errors": 0
+          },
+          "mcp__ccd_pr__bind_pr": {
+            "calls": 1,
+            "errors": 0
+          },
+          "mcp__ccd_pr__get_status": {
+            "calls": 4,
+            "errors": 0
+          },
+          "mcp__ccd_pr__set_auto_merge": {
+            "calls": 1,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 237
+        }
+      }
+    },
+    "LANE-ROADMAP-MEMBER-VIEW": {
+      "requests": 73,
+      "sessions": [
+        "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
+      ],
+      "tokens": {
+        "input": 150,
+        "cacheWrite": 127863,
+        "cacheRead": 25135090,
+        "output": 65912
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 73,
+          "tokens": {
+            "input": 150,
+            "cacheWrite": 127863,
+            "cacheRead": 25135090,
+            "output": 65912
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5"
+      ],
+      "firstActivityAt": "2026-09-13T23:02:24.792Z",
+      "lastActivityAt": "2026-09-13T23:46:13.091Z",
+      "activeMinutes": 44,
+      "detail": {
+        "reasoningTokens": 12285,
+        "cacheWrite5mTokens": 0,
+        "cacheWrite1hTokens": 127863,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 3,
+        "toolCalls": 96,
+        "toolErrors": 6,
+        "toolDenials": 1,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Bash": {
+            "calls": 32,
+            "errors": 2
+          },
+          "Edit": {
+            "calls": 28,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 1,
+            "errors": 0
+          },
+          "PowerShell": {
+            "calls": 21,
+            "errors": 4
+          },
+          "Read": {
+            "calls": 4,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 10,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 73
+        }
+      }
+    },
+    "LANE-USAGE-DETAIL-AND-SPEC": {
+      "requests": 46,
+      "sessions": [
+        "claude-code:71ed48d2-8fb5-4a00-87f4-02fb612a73cb"
+      ],
+      "tokens": {
+        "input": 96,
+        "cacheWrite": 131135,
+        "cacheRead": 40202737,
+        "output": 86795
+      },
+      "bySource": {
+        "claude-code": {
+          "requests": 46,
+          "tokens": {
+            "input": 96,
+            "cacheWrite": 131135,
+            "cacheRead": 40202737,
+            "output": 86795
+          }
+        }
+      },
+      "models": [
+        "claude-opus-5"
+      ],
+      "firstActivityAt": "2026-09-13T19:07:49.734Z",
+      "lastActivityAt": "2026-09-13T20:54:32.683Z",
+      "activeMinutes": 65,
+      "detail": {
+        "reasoningTokens": 11450,
+        "cacheWrite5mTokens": 0,
+        "cacheWrite1hTokens": 131135,
+        "webSearchRequests": 0,
+        "webFetchRequests": 0,
+        "prompts": 3,
+        "toolCalls": 75,
+        "toolErrors": 6,
+        "toolDenials": 0,
+        "compactions": 0,
+        "apiErrors": 0,
+        "tools": {
+          "Edit": {
+            "calls": 27,
+            "errors": 0
+          },
+          "Grep": {
+            "calls": 2,
+            "errors": 0
+          },
+          "PowerShell": {
+            "calls": 32,
+            "errors": 6
+          },
+          "Read": {
+            "calls": 6,
+            "errors": 0
+          },
+          "Write": {
+            "calls": 8,
+            "errors": 0
+          }
+        },
+        "models": {
+          "claude-opus-5": 46
+        }
+      }
+    }
+  }
+}
+```
+<!-- programme-usage:end -->
+
 ## Live Status Protocol
 
 1. Status lives in the `Status` cells of the Phases, Sprints and Backlog Items tables. The board
    parser reads those cells, so editing a cell is what the board renders. Nothing else is a tracker.
 2. A Definition-of-Done criterion is ticked only against the command output it names. Command
    output, not assertion.
-3. This plan is `draft`. Ratifying it to `approved` is the owner's decision and is never
-   self-applied.
+3. This plan was `draft` until 2026-09-13, when the owner ratified it to `approved` together
+   with CR-019. Ratification is the owner's decision and is never self-applied; a later revision
+   that widens scope again needs its own Change Request.
 4. After editing this file, run `npm run govern` in this repository.
 5. **Commit this file.** It has already been lost once to a concurrent `git reset --hard` in this
    working tree while it was untracked. An uncommitted plan is not a plan.
@@ -1731,3 +7374,17 @@ ui_state:
 | 0.1.0 | 2026-08-20 | Initial authoring against baseline `6ad6ae9`. Proposal 24-week structure mapped onto the verified build: six phases, twelve sprints, thirty backlog items with complete Task Containers, eight acceptance gates restated from the proposal acceptance criteria. |
 | 0.2.0 | 2026-08-20 | Added section 5, Timeline and Provenance: repository creation date, day-by-day history, counting decisions, the anchored 24-week calendar, and the history-against-plan overlay. Phases and Sprints tables gained a Dates column. |
 | 0.3.0 | 2026-08-23 | **Re-baselined to `7d8c9d0`.** The 0.1.0 and 0.2.0 files were destroyed by a concurrent `git reset --hard` in this working tree while untracked, and the repository moved 105 commits in the interval. Corrections in this revision: churn is now measured with `--no-merges` and `awk` path filtering instead of a git pathspec, because a pathspec enables history simplification and inflated the earlier deletion figures; history extended from 10 to 13 days; features 91 to 93 declared and 80 to 82 live; test files 233 to 263; TASK-ZAI-005 closed because FR-071 went live on D11; TASK-ZAI-002 widened from four undeclared features to five; ADR-042 and ADR-043 added as governing sources for the Second Brain tasks; section 2.2 added to state that this plan is measured against a moving repository. |
+| 0.4.0 | 2026-09-13 | **Re-baselined to `2b7ad27d` and widened under [CR-019](../change-requests/CR-019-24W-PROGRAMME-DELIVERABLE-11-ERP-BUSINESS-MODULES.md); ratified `approved` by the owner.** Deliverable 11 (ERP business modules) and GATE-ZAI-09 added. Section 3 re-measured with the v0.3.0 column kept (requirements 93 → 200, implemented 82 → 100, decisions 43 → 82, domains 9 → 14, test files 263 → 761, commits 392 → 1,451); section 3.1 gained a v0.4.0 reality column and row 11; section 5.6 added for programme weeks 1 to 3. Closed on existing evidence: TASK-ZAI-002 (FR-087/088/089/091/093 declared 2026-08-26), TASK-ZAI-003 (FR-066 delivered 2026-08-27), TASK-ZAI-004 (FR-067 delivered 2026-08-27). Moved to review: TASK-ZAI-001 (FEAT-010 on main, production tail open), TASK-ZAI-006 (contract written across ADR-050/063/067/068/072, per-role writes wait on roles). Moved to in-progress early: TASK-ZAI-024 and TASK-ZAI-025 (deliverable 4 substrate, ADR-070/072/073/075). TASK-ZAI-017 re-stated as FlowAccount (FR-125, ADR-053). Added TASK-ZAI-031 to TASK-ZAI-044 with containers: nine deliverable-11 lanes as merged (031 to 040), the identity lifecycle under deliverables 9 and 10 (041), catalog convergence under deliverable 4 (042), production activation (043) and the GATE-ZAI-09 evidence run (044). Phase, sprint and calendar structure unchanged; progress recomputed under the board mapping. Code links re-pointed under `apps/server/` after the ADR-062 monorepo move. |
+| 0.4.1 | 2026-09-13 | **Knowledge base and file system for the seventeen-stage pipeline** added on the owner's instruction, under deliverable 4 (no Change Request needed). SPR-ZAI-02 accounts for what is built: TASK-ZAI-045 file intake at Stage 1 (FR-173/081/109, review — no production claim) and TASK-ZAI-046 Tier 1 Stage 2 to 8 (FR-111 to FR-119, done). The new build work spills into SPR-ZAI-03 because SPR-ZAI-02 ends 20 Sep: TASK-ZAI-047 knowledge base console, TASK-ZAI-048 binary parsing at Stage 2 with Stage 3/7/8/9 re-proof, TASK-ZAI-049 durable storage and recoverability (spec §3.1), TASK-ZAI-050 production activation beyond the ADR-073 isolated profile, TASK-ZAI-051 multi-source concurrency and replay (P2, may move to SPR-ZAI-04 at sprint entry). Sprint 02/03 and Phase 01/02 goals and exit criteria extended; progress recomputed (SPR-ZAI-02 87, PHASE-ZAI-01 90). **Deliverable 2 corrected on the owner's instruction:** GoVibe Mission Control is the Project system of the Development domain in this repository (delivered: FR-040, FR-063/064, FR-068 to FR-070, FR-086 to FR-089, FR-108), not an external product; section 3.1 row 2 rewritten and TASK-ZAI-012 re-stated as the agent mission feed into that system. |
+| 0.4.2 | 2026-09-13 | **SmartGift cost and quote engine** added on the owner's instruction, under deliverable 11 (no Change Request needed — Commerce, Procurement and Inventory are CR-019 lanes). The owner accepted every recommended default of `docs/change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md` (nine decisions). Inserted into the current sprint what is documentation or cost intake, the rest into the backlog of the next two sprints: TASK-ZAI-052 decision record (in-progress, SPR-ZAI-02), TASK-ZAI-053 supplier cost sheets with locked FX and TASK-ZAI-054 goods receipts posting landed cost (SPR-ZAI-02, may move to 03 at sprint exit), TASK-ZAI-055 PricingRuleSet and console, TASK-ZAI-056 the one pure pricing engine with price-boss parity fixtures, TASK-ZAI-057 quotations (SPR-ZAI-03, 057 may move to 04), TASK-ZAI-058 ladder quotation on LINE and TASK-ZAI-059 knowledge structured records (SPR-ZAI-04). Phase 01/02 and sprint 02/03/04 goals and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 87 → 72, PHASE-ZAI-01 90 → 80). Section 3.1 row 11 delta names the engine. |
+| 0.4.3 | 2026-09-13 | **Data pipeline map** added on the owner's instruction, under deliverable 4 (no Change Request needed): a map of where data comes from, who receives it and where it is combined before it is sent, drawn as a node-edge view in a Knowledge (GKS) navigation slot, with every task on the roadmap before work starts. No current document covers it (ARCHITECTURE-DIAGRAMS section 3 is dated 2026-08-15, SYSTEM-DIAGRAM has no surface status, KNOWLEDGE-INGESTION-SURFACES covers one domain). Placement is a zuri-ai knowledge-lane slot rather than a GKS domain because ADR-063 D4 says GKS is never a zuri-ai domain. SPR-ZAI-02 (current): TASK-ZAI-060 decision record (in-progress), TASK-ZAI-061 registry with generated projection and preflight check, TASK-ZAI-062 node-edge view; SPR-ZAI-03: TASK-ZAI-063 live per-edge health for the active Business, after TASK-ZAI-047. Sprint 02/03 and Phase 01 goals and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 72 → 62, PHASE-ZAI-01 80 → 73). Section 3.1 row 4 names the map. |
+| 0.4.4 | 2026-09-13 | **Delivery telemetry on the programme board** added on the owner's instruction, under deliverable 2 (no Change Request needed): each phase card shows its sprint count, task count, size and estimated duration, and once work is done the actual time taken and the tokens really used, measured by a surface rather than estimated; done cards tinted light green and review cards light orange. On the owner's follow-up the same day, every task card also shows [DOC] [CODE] [TEST] [FR] [NFR] [FEAT] [domain] [complexity] [priority] badges (green done, orange review, red needs fix, gray empty) and a task split into subtasks P0 to P3 carries a progress bar. The owner chose both sources for real usage — a meter over local Claude Code and Codex session logs and a report endpoint for agents without local logs — and the plan window plus complexity-based effort for the estimate. No actual usage figure exists before this: `total_token_usage` on done tasks is a copy of the prediction. SPR-ZAI-02 (current): TASK-ZAI-064 decision record amending ADR-048 D3 (in-progress), TASK-ZAI-065 phase card metrics, TASK-ZAI-066 usage meter, TASK-ZAI-067 usage report endpoint with its migration, TASK-ZAI-068 task card evidence badges and subtask progress. Sprint 02 and Phase 01 goals and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 76 → 61, PHASE-ZAI-01 82 → 70). Section 3.1 row 2 names the telemetry. Delivered the same day on feat/delivery-telemetry: TASK-ZAI-064 done (ADR-086; FR-216 to FR-219 and FEAT-034 declared), TASK-ZAI-065 to 068 in review (implemented locally with tests; the FR-218 migration written and not applied); a Delivery Telemetry section with the sizing table, work lanes and the meter's first measured usage block added; progress recomputed (SPR-ZAI-02 61 → 80, PHASE-ZAI-01 70 → 84). |
+| 0.4.5 | 2026-09-14 | **Zuri harness usage plugin** added on the owner's instruction, under deliverable 2 (no Change Request needed): agents on other machines report the tokens they used through a plugin for Claude Code and Codex instead of a shared deployment token. The owner chose a plugin over a connector (the harness, not the model, reads the billed usage) and accepted the recommended identity design — a device is paired once by browser approval with a check code (the FR-144 pattern), holds a credential that can only report usage, and carries a device label; each report is attributed to the approving person and the installation, with the AI account kept as a declared label. SPR-ZAI-02 (current): TASK-ZAI-069 decision record (in-progress), TASK-ZAI-070 device pairing and report-only credential, TASK-ZAI-071 attribution to person, device and lane with resumed-session extension, TASK-ZAI-072 the plugin itself. A LANE-HARNESS-USAGE-PLUGIN work lane is declared before the work starts so the meter measures it. Sprint 02 goal and exit criteria extended; progress recomputed under the board mapping (SPR-ZAI-02 80 → 69, PHASE-ZAI-01 84 → 75). Delivered locally the same day on feat/harness-usage-plugin: TASK-ZAI-069 done (ADR-087; FR-220 to FR-222 and FEAT-035 declared), TASK-ZAI-070 to 072 in review (implemented locally with unit and e2e tests; migration 20260914100000_harness_usage_attribution written and not applied); progress recomputed (SPR-ZAI-02 69 → 82, PHASE-ZAI-01 75 → 85). |
+| 0.4.6 | 2026-09-14 | **Plugin specification and agent usage detail** added on the owner's instruction, under deliverable 2 (no Change Request needed): write the Zuri harness plugin's specification, and capture everything the agent logs can measure — especially token usage input and output and tool calling — with ids bound and the work lane declared before starting, then set statuses to what is true. The log survey found thinking and reasoning tokens, cache writes by lifetime, web search and fetch, tool calls by name with errors and denials, user prompts, compactions, API and hook errors, and models; only names and counts are captured. SPR-ZAI-02 (current): TASK-ZAI-073 plugin specification, TASK-ZAI-074 usage detail capture in the meter, plugin, endpoint and storage, TASK-ZAI-075 usage detail on the board; all planned. LANE-USAGE-DETAIL-AND-SPEC declared before work starts. Sprint 02 goal and exit criteria extended; progress recomputed (SPR-ZAI-02 82 → 73, PHASE-ZAI-01 85 → 78). Delivered locally the same day on feat/usage-detail-and-spec: TASK-ZAI-073, 074 and 075 set to review — implemented with tests and govern green, but not merged and the FR-239 migration 20260914120000_usage_detail not applied; progress recomputed (SPR-ZAI-02 73 → 82, PHASE-ZAI-01 78 → 85). Closed the same day: merged in #393, deployed as release-daca80fb and migration 20260914120000_usage_detail applied on production, so TASK-ZAI-073 to 075 move from review to done (SPR-ZAI-02 82 → 83, PHASE-ZAI-01 85 → 86). The same day the earlier telemetry and plugin tasks were set to what is true: TASK-ZAI-065 to 068 (merged #383, deployed, FR-218 migration applied) and TASK-ZAI-070 to 072 (merged #386, deployed, harness migration applied) move from review to done, with every definition-of-done criterion already checked (SPR-ZAI-02 83 → 85, PHASE-ZAI-01 85 → 87). |
+| 0.4.7 | 2026-09-14 | **LINE OA platform delivery plan** added on the owner's instruction of 2026-09-14: the whole plan behind ADR-089, ADR-090 and ADR-091 (merged in PR #389 as 8cd81196) is written into the roadmap and the Project Manager with tasks and lanes bound **before** any implementation starts, so that everything measurable is captured — especially token usage (input and output) and tool calling — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. **No Change Request is needed**, on the same reading as 0.4.1 to 0.4.6: the credential vault, self-serve onboarding and the complete LINE chat record sit under deliverable 8 (connectors, LINE deepened), and the Context Composer, corpus grounding, reviewed knowledge candidates and memory policy with erasure under deliverable 4 (Second Brain); LINE OA Studio is already a CR-019 lane. **Measurement detail comes from v0.4.6 and is delivered**: TASK-ZAI-074 (usage detail capture) and TASK-ZAI-075 (usage detail on the board) shipped in PR #393 (FR-239, FR-240, FEAT-039) and were closed done by PR #394, so the prerequisite is satisfied; they are not redefined here, and the entry task of each build chain (078, 088) keeps both as dependencies. Twenty-eight tasks, TASK-ZAI-076 to 103. **Phase 0** in SPR-ZAI-02 (current): 076 done (PR #389, CI green) and 077 this plan (in-progress). Backlog: SPR-ZAI-03 Phase 1 vault and LINE port (078 to 081); SPR-ZAI-04 Phase 2 wizard, webhook, derived quiescence and the operator steps — migration apply (085), the owner's channel credential entry (086, never an agent) and webhook cutover (087) — and Phase 3 chat record completeness with its migration apply (088 to 091); SPR-ZAI-05 Phase 3b Context Composer (092, before phases 4 and 6) and Phase 4 grounding with isolated acceptance (093, 094); SPR-ZAI-06 the SmartGift grounding switch after ADR-075 Phase 3 (095), Phase 5 candidates, gap report, Studio descriptions and migration apply (096 to 099), and Phase 6 memory policy, erasure fan-out and activation (100 to 102, **blocked** on MSP TASK-MEMOS-002 and TASK-MEMOS-004); SPR-ZAI-10 Phase 7, the vault generalised to other provider kinds (103), registered without a requirement as TASK-ZAI-007 to 030 were and without a lane until a branch is chosen. Design migration 7 is split so the webhook-state column lands with 083 and `memoryPolicy` with 100. Eight lanes declared (LANE-LINE-OA-PLATFORM-PLAN, LANE-LINE-OA-VAULT, LANE-LINE-OA-ONBOARDING, LANE-CRM-CHAT-RECORD, LANE-AGENT-CONTEXT-COMPOSER, LANE-LINE-GKS-GROUNDING, LANE-KNOWLEDGE-LINE-CANDIDATES, LANE-LINE-MEMORY-POLICY-ERASURE) and a "how to be measured" note added to the Delivery Telemetry section. First drafted as v0.4.6 with its own tool-call lane (TASK-ZAI-073 to 076); on the coordinator's instruction the same day that lane was removed and the rest renumbered, because PR #390 (opened earlier) claims v0.4.6 and TASK-ZAI-073 to 075 for the same measurement goal. Phase, sprint and deliverable goals and exits extended; progress recomputed under the board mapping (SPR-ZAI-02 83 → 83, PHASE-ZAI-01 86 → 85, PHASE-ZAI-05 20 → 17). Section 3.1 rows 4 and 8 name the work. Phase 1 delivery started the same day on feat/integration-secret-store-vault (lane LANE-LINE-OA-VAULT): TASK-ZAI-078, 079 and 080 implemented with tests and opened for review in pull request #398 (not merged; migrations 20260914140000..140400 written, none applied), TASK-ZAI-081 blocked on a person entering a real test channel in a dev deployment; progress recomputed (SPR-ZAI-03 0 → 16 and in-progress, PHASE-ZAI-02 0 → 8 and in-progress). Closed the same day: pull request #398 merged (main 2aef8caa), so TASK-ZAI-078 to 080 move from review to done with every criterion already checked; migrations still not applied and not deployed; TASK-ZAI-081 stays blocked (SPR-ZAI-03 16 → 18, PHASE-ZAI-02 8 → 9). Later the same day, on the owner's instruction and waiving ADR-089 proof 10, the five Phase 1 migrations were applied on production with an inventory, a rolled-back dry run, ledger rows and a verified effect: TASK-ZAI-085 moves from planned to in-progress (the webhook-state column and the redeploy remain), and TASK-ZAI-081's exit criterion is re-worded to the waiver (SPR-ZAI-04 0 → 3, PHASE-ZAI-02 9 → 11). |
+| 0.4.8 | 2026-09-14 | **Programme roadmap member view** added on the owner's instruction, under deliverable 2 (no Change Request needed): open the roadmap for 30 days. The owner chose anyone signed in, and the programme plan with the Domain map only. SPR-ZAI-02 (current): TASK-ZAI-104, planned; ADR-092 accepted and FR-241 declared in the same change; LANE-ROADMAP-MEMBER-VIEW declared before work starts. /control/roadmap stays operator-only. Sprint 02 goal and exit criteria extended; progress recomputed (SPR-ZAI-02 85 → 83, PHASE-ZAI-01 87 → 85). Delivered locally the same day on feat/roadmap-member-view: TASK-ZAI-104 set to review — implemented with unit tests and govern green, the e2e spec left to CI, not merged and not deployed; progress recomputed (SPR-ZAI-02 83 → 85, PHASE-ZAI-01 85 → 87). |
+| 0.4.9 | 2026-09-16 | **Conversation sessions and chat evidence** added on the owner's acceptance of every proposed default in ADR-093 and ADR-094, under deliverable 8 (no Change Request needed). SPR-ZAI-02 (current): TASK-ZAI-105 decision records, in review. SPR-ZAI-03: TASK-ZAI-106 and 107 conversation sessions (FR-243) and TASK-ZAI-108 their production apply. SPR-ZAI-04: TASK-ZAI-109 model residency by business hours (FR-244) and TASK-ZAI-110 staff replies recorded (FR-246), the evidence gap the owner chose to close before the archive. SPR-ZAI-05: TASK-ZAI-111 to 113 the archive writer, OWNER retrieval and the legal hold (FR-245, SEC-034). SPR-ZAI-06: TASK-ZAI-114 the archive on production and TASK-ZAI-115 its monthly offline copy. Five lanes declared before work starts. Sprint goals and exit criteria extended; progress recomputed under the board mapping, which also corrects SPR-ZAI-04 from a stale 3: PHASE-ZAI-01 87, PHASE-ZAI-02 12, PHASE-ZAI-03 2, SPR-ZAI-02 86, SPR-ZAI-03 15, SPR-ZAI-04 8, SPR-ZAI-05 0, SPR-ZAI-06 4. |
+| 0.4.10 | 2026-09-16 | **Observability: error tracking and feature usage** added on the owner's instruction, after asking what the system logs (no Change Request needed): CR-020 surveyed all seven log surfaces and found two gaps; ADR-095 accepted the owner's answer (CR-020 §7) — extend the existing logger for error tracking, and capture feature usage at both route and action level, per person, with a 90-day raw window then an aggregate rollup. TASK-ZAI-116 (declaration) done; TASK-ZAI-117 (error tracking, FR-247) and TASK-ZAI-118 (feature usage, FR-248/FR-249) planned. LANE-OBSERVABILITY-ERROR-AND-USAGE declared before code. Sprint 02 goal and exit criteria extended; progress recomputed (SPR-ZAI-02 86 → 85, PHASE-ZAI-01 88 → 87). |
+| 0.4.11 | 2026-09-17 | TASK-ZAI-047 / FR-254 implemented under its owner-approved Console specification and moved to review with local Server, browser, native pipeline and build evidence. Corpus queries and immutable artifacts reuse existing authorities; no schema or GKS contract change. Release composition preserves all existing tasks and recomputes SPR-ZAI-03 to 34 and PHASE-ZAI-02 to 28 from their statuses. Production deployment and activation remain separate; phase report records full regression outcomes. |
+| 0.4.11 (Storage branch) | 2026-09-17 | Link TASK-ZAI-049 to candidate storage spec 0.1.0b: self-hosted S3/AIStor, retention and coordinated recovery. Task remains planned; no implementation or deployment approval recorded. |
+| 0.4.12 | 2026-09-17 | Owner approved TASK-ZAI-049 spec 0.1.0 and the isolated implementation. Provider deployment, production migration, canary and acceptance remain pending; TASK-ZAI-050 remains separate. |

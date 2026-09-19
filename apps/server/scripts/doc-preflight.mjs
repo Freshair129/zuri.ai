@@ -546,7 +546,18 @@ const VIEWER_EXEMPT = new Set([
   // move was to restructure the test around the guard — and each time that would
   // have documented a workaround and weakened the real signal everywhere else
   // (.brain/rca/2026-08-17-a-guard-that-teaches-a-workaround.md).
-  const membershipRow = /personId|membershipId|domainKeysJson|employeeRef|branchId|tenantId/
+  //
+  // Fourth widening, 2026-09-12, same shape as the first three and with the same
+  // proof. `grantBusinessMembership({ …, role: 'MEMBER', domainKeys: [...],
+  // grantSource: 'ADMIN', scopeType: 'BUSINESS' })` is a Membership mutation
+  // payload (FR-191); the `role:` sat on a line carrying `domainKeys` rather
+  // than `domainKeysJson`, and an `expect(...visibleBusinessIds)` assertion ten
+  // lines away supplied the viewer-field half. None of `domainKeys`,
+  // `grantSource` or `scopeType` has ever appeared on a viewer — `resolveViewer`
+  // emits `visibleDomains` and `domainsByBusinessId` — so suppressing them is
+  // provable, not a fudge. Widening here rather than restructuring the test is
+  // this script's own instruction in the CRITICAL below.
+  const membershipRow = /personId|membershipId|domainKeysJson|domainKeys|grantSource|scopeType|employeeRef|branchId|tenantId/
   // A call to the sanctioned factory is the behaviour this check exists to
   // produce, so its own argument list must never be the evidence against a file.
   // `makeViewer({ visibleBusinessIds: [], ownedBusinessIds: [], role: 'MEMBER' })`
@@ -895,7 +906,16 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
     // ADR-061/FR-150: same active Business-scoped device identity, never a browser viewer.
     p.includes('/api/edge/conversation-jobs/claim/') ||
     p.includes('/api/edge/conversation-jobs/[id]/complete/') ||
-    p.includes('/api/edge/conversation-jobs/[id]/fail/')
+    p.includes('/api/edge/conversation-jobs/[id]/fail/') ||
+    // Approved local/CIN execution: these two handlers resolve the same device
+    // credential, then require its exact live execution lease. Tool services
+    // separately resolve the verified LINE actor before any Project/Work access.
+    p.includes('/api/edge/conversation-jobs/[id]/context/') ||
+    p.includes('/api/edge/conversation-jobs/[id]/tools/') ||
+    // ADR-061/FR-244: the residency poll authenticates the same device credential;
+    // it deliberately resolves no viewer because it must answer identically for
+    // every device regardless of which Business/Tenant it happens to be serving.
+    p.includes('/api/edge/model-residency/')
   const offenders = []
   for (const file of walk(workspacePath(ROOT, 'src', 'app', 'api'), '.js')) {
     if (path.basename(file) !== 'route.js') continue
@@ -904,6 +924,28 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
       // timing-safe bearer (ZURI_LINE_WORKER_TOKEN); no browser viewer exists on a worker tick.
       rel(file) === 'src/app/api/line-oa/worker/route.js' ||
       rel(file) === 'src/app/api/line-oa/rich-menu-worker/route.js' ||
+      // ADR-086 D5 / FR-218 (owner-approved 2026-09-13): agents on other machines report one
+      // session's usage under the deployment bearer ZURI_PROGRAMME_USAGE_TOKEN, checked in constant
+      // time before the body is read; the agent has no browser session by construction. Proven by
+      // tests/unit/programme-usage-reports.test.js.
+      rel(file) === 'src/app/api/platform/programme-usage-reports/route.js' ||
+      // ADR-091 D1, D2 / FR-230 (owner decision 2026-09-14): the nightly retention sweep's
+      // scheduled entry point, called once a day by scripts/server-retention-sweep-worker.mjs under
+      // the deployment bearer ZURI_RETENTION_SWEEP_TOKEN, checked in constant time before any work
+      // happens; the host scheduler has no browser session by construction, same class as the LINE
+      // worker and the programme usage reports endpoint above. Proven by
+      // tests/unit/crm-retention-sweep-route.test.js.
+      rel(file) === 'src/app/api/crm/retention-sweep/route.js' ||
+      // ADR-095 D3 / FR-249, NFR-023: the usage-event rollup's scheduled entry point, called
+      // once a day under the deployment bearer ZURI_USAGE_ROLLUP_TOKEN, checked in constant time
+      // before any work happens — same class as the retention sweep above, same reason. Proven
+      // by tests/unit/usage-events.test.js.
+      rel(file) === 'src/app/api/platform/usage-events/rollup/route.js' ||
+      // ADR-087 D1 / FR-220: harness pairing start is anonymous and bounded (no credential minted),
+      // and poll is authenticated by the initiating device secret, exactly as FR-144's edge pairing
+      // start/poll are; approve keeps its browser viewer. Proven by tests/unit/harness-pairing.test.js.
+      rel(file) === 'src/app/api/platform/harness-pairing/start/route.js' ||
+      rel(file) === 'src/app/api/platform/harness-pairing/poll/route.js' ||
       // FR-144 browser/QR approval: start mints no key; poll requires the
       // initiating Desktop secret and a consumed owner approval with fresh
       // Business authority. approve MUST keep its browser viewer check.
@@ -1513,6 +1555,194 @@ const SCHEMA_MIGRATION_BASELINE = path.join(SPEC_PACK, '.schema-migration-baseli
         `schema-migration drift checked: ${drift.checked.columns} column(s) across ${drift.checked.models} model(s) against ${drift.checked.migrations} migration(s)`,
         'every declared column outside the baseline is created by a migration', [],
         'No action — recorded so this check\'s reach is visible rather than assumed')
+    }
+  }
+}
+
+// ---- Check 20: one writer for the authority table (ratchet) ---------------
+// ADR-077 D8 moved `Membership` into the identity charter and stated that "a
+// preflight ratchet keeps `membership.create|update|delete` inside
+// `src/modules/identity/`". The move happened, the charter changed, the
+// services were rerouted — and the ratchet was never written. A decision record
+// that cites an enforcement which does not exist is the exact defect the ADR's
+// own RCA is about, one level up: there, a read filter stood in for a control
+// nobody had built; here, a sentence did.
+//
+// The rule it enforces is not stylistic. `Membership` is the row `resolveViewer`
+// reads to decide what anyone may see and own, and it had three writers in two
+// lanes — which is why half the live grants in production carry no MEMBERSHIP
+// audit event naming who created them, and why the lifecycle could not be
+// repaired from inside one lane
+// (.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md).
+//
+// Prisma's own call shapes only: `.create`, `.createMany`, `.update`,
+// `.updateMany`, `.upsert`, `.delete`, `.deleteMany` on a `membership`
+// accessor, whether reached through `db`, `prisma` or a transaction client.
+// Reads are untouched — any lane may ask who has access; only identity may
+// change it.
+//
+// @spec ADR-077 D8, ADR-025 D3, BR-033
+const MEMBERSHIP_WRITER_BASELINE = path.join(SPEC_PACK, '.membership-writer-baseline.json')
+{
+  const WRITE = /\bmembership\s*\.\s*(create|createMany|update|updateMany|upsert|delete|deleteMany)\s*\(/
+  const OWNER = `${path.sep}modules${path.sep}identity${path.sep}`
+  const offenders = []
+  for (const file of walk(path.join(ROOT, 'src'), '.js').concat(walk(path.join(ROOT, 'src'), '.jsx'))) {
+    if (file.includes(OWNER)) continue
+    // Comments are stripped first: this file and several services *describe*
+    // the rule, and a guard that fires on its own explanation teaches people to
+    // delete the explanation (.brain/rca/2026-08-17-a-guard-that-teaches-a-workaround.md).
+    const code = read(file).split('\n').map((line) => line.replace(/\/\/.*$/, '').replace(/^\s*\*.*$/, '')).join('\n')
+    if (WRITE.test(code)) offenders.push(rel(file))
+  }
+  offenders.sort()
+
+  const baseline = existsSync(MEMBERSHIP_WRITER_BASELINE)
+    ? JSON.parse(read(MEMBERSHIP_WRITER_BASELINE)).files || []
+    : []
+  const known = new Set(baseline)
+  const introduced = offenders.filter((f) => !known.has(f))
+  if (introduced.length) {
+    add('critical', 'membership-writer', `${introduced.length} file(s) outside identity write Membership`,
+      introduced.join(', '), introduced,
+      'Call grantBusinessMembership or the lifecycle services in src/modules/identity/ — never widen .membership-writer-baseline.json to silence this')
+  }
+  const repaid = baseline.filter((f) => !offenders.includes(f))
+  if (repaid.length) {
+    add('info', 'membership-writer', `${repaid.length} baseline file(s) no longer write Membership`, repaid.join(', '), [rel(MEMBERSHIP_WRITER_BASELINE)],
+      'Remove them from .membership-writer-baseline.json so the ratchet keeps its ground')
+  }
+  const remaining = offenders.length - introduced.length
+  if (remaining) {
+    add('info', 'membership-writer', `${remaining} file(s) outside identity still write Membership (accepted debt)`,
+      `baseline: ${rel(MEMBERSHIP_WRITER_BASELINE)}`, [rel(MEMBERSHIP_WRITER_BASELINE)],
+      'Reroute them through identity; the baseline may only shrink')
+  }
+}
+
+// ---- Check 21: edge-id-ambiguity -----------------------------------------
+//
+// `apps/edge` is scanned by doc-graph.mjs now, and an id written there binds to
+// a root requirement only when it cannot mean anything else — root-declared and
+// absent from Edge's own registry. Edge brought 46 ids from the repository it
+// was imported out of (ADR-062), and the numbers overlap while the statements
+// do not: Edge FR-004 is `send <template> --group <alias>`, Server FR-004 is
+// Workstream CRUD.
+//
+// The skip is correct and it is also invisible, which is the part that needs a
+// check. Without one, an annotation that reads like a claim about a root
+// requirement silently contributes nothing, and nobody learns which ones. This
+// reports the count rather than failing: these ids were minted years and a
+// repository apart, ADR-039 forbids renumbering either side, and the fix for
+// each is a deliberate act — declare the Edge id in the root registry under a
+// new number, or accept it as Edge-scoped forever.
+{
+  const edgeGraph = workspacePath(ROOT, 'apps', 'edge', 'docs', '.doc-graph.json')
+  const edgeSrc = workspacePath(ROOT, 'apps', 'edge', 'src')
+  if (existsSync(edgeGraph) && existsSync(edgeSrc)) {
+    const edgeOwn = new Set(
+      JSON.parse(read(edgeGraph)).nodes.filter((n) => n.type === 'requirement').map((n) => n.id.slice(4)),
+    )
+    const rootDeclared = new Set(
+      [...read(path.join(SPEC_PACK, 'PRD-SDD-v1.0.md')).matchAll(/^\|\s*((?:FR|NFR|BR|SEC|SDD)-\d+)/gm)].map((m) => m[1]),
+    )
+    const ambiguous = new Map()
+    // `walk` takes one extension, so the TypeScript sources Edge is written in
+    // need their own passes rather than an array.
+    const edgeFiles = ['.ts', '.tsx', '.js', '.jsx'].flatMap((ext) => walk(edgeSrc, ext))
+    for (const file of edgeFiles) {
+      for (const m of read(file).matchAll(/@req\s+([A-Z]+-\d+(?:\s*,\s*[A-Z]+-\d+)*)/g)) {
+        for (const id of m[1].split(/\s*,\s*/)) {
+          if (rootDeclared.has(id) && edgeOwn.has(id)) {
+            ambiguous.set(id, (ambiguous.get(id) ?? 0) + 1)
+          }
+        }
+      }
+    }
+    if (ambiguous.size) {
+      const total = [...ambiguous.values()].reduce((sum, n) => sum + n, 0)
+      const worst = [...ambiguous.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8)
+        .map(([id, n]) => `${id}×${n}`).join(', ')
+      add('info', 'edge-id-ambiguity',
+        `${total} @req annotation(s) in apps/edge name an id both registries declare, so they bind to neither`,
+        `${ambiguous.size} distinct id(s): ${worst}`, ['apps/edge/src'],
+        'Renumber in the ROOT registry and re-annotate, or leave Edge-scoped — never let one number carry two statements')
+    }
+  }
+}
+
+// ---- Check 19: a declared state that nothing writes (ratchet) -------------
+// ADR-045 D3 declared `ACTIVE | PENDING | SUSPENDED | REVOKED` for Membership.
+// FR-095 promised that suspension denies the next request. `resolve-viewer.js`
+// and `authorization-context.js` both filtered on it. Every READER was built —
+// and for four months no service assigned any value but the default, so an
+// owner could not remove anyone's access and nothing in the repository said so
+// (.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md).
+//
+// Every other check here asks whether code is accounted for by a document. This
+// one asks the inverse, which is the question that gap needed: whether a value
+// the documents promise is reachable in code at all. A read filter over a
+// column nothing writes passes review, passes tests, and does nothing.
+//
+// Deliberately crude, and that is the point — it greps for the value as a
+// quoted string anywhere under src/. A service that computes a status name
+// rather than naming it literally will be missed, which is a false negative we
+// accept; the alternative is a dataflow analysis nobody maintains. What it
+// catches is the shape that actually occurred: a vocabulary declared in
+// enums.js that no file outside the registry ever mentions.
+//
+// @spec ADR-077 D7
+const STATE_BASELINE = path.join(SPEC_PACK, '.unreachable-state-baseline.json')
+{
+  const enumsFile = path.join(ROOT, 'src/lib/validation/enums.js')
+  if (existsSync(enumsFile)) {
+    const enumsSrc = read(enumsFile)
+    // `export const FOO_STATUSES = ['A', 'B']` — status vocabularies only. A
+    // registry of roles or kinds is a different question: nothing branches on
+    // the absence of one.
+    const vocabularies = [...enumsSrc.matchAll(/export const ([A-Z0-9_]*STATUSES)\s*=\s*\[([^\]]*)\]/g)]
+      .map(([, name, body]) => ({
+        name,
+        values: [...body.matchAll(/'([A-Z_]+)'/g)].map(([, v]) => v),
+      }))
+      .filter((v) => v.values.length)
+
+    const sources = walk(path.join(ROOT, 'src'), '.js')
+      .concat(walk(path.join(ROOT, 'src'), '.jsx'))
+      .filter((f) => !f.includes(path.sep + 'validation' + path.sep))
+    const corpus = sources.map((f) => read(f)).join('\n')
+
+    const unreachable = []
+    for (const vocabulary of vocabularies) {
+      for (const value of vocabulary.values) {
+        // A value is reachable when some file outside the registry names it as
+        // a literal. Assignment versus comparison is not distinguished: a value
+        // only ever compared against is still a value some branch depends on,
+        // and the question here is whether the vocabulary is live at all.
+        if (!new RegExp("['\"`]" + value + "['\"`]").test(corpus)) {
+          unreachable.push(vocabulary.name + '.' + value)
+        }
+      }
+    }
+
+    const baseline = existsSync(STATE_BASELINE) ? JSON.parse(read(STATE_BASELINE)).states || [] : []
+    const known = new Set(baseline)
+    const introduced = unreachable.filter((v) => !known.has(v))
+    if (introduced.length) {
+      add('critical', 'unreachable-state', `${introduced.length} declared state(s) that no code names`,
+        introduced.join(', '), [rel(enumsFile)],
+        'Build the service that produces the value, or remove it from the vocabulary — never widen .unreachable-state-baseline.json to silence this')
+    }
+    const repaid = baseline.filter((v) => !unreachable.includes(v))
+    if (repaid.length) {
+      add('info', 'unreachable-state', `${repaid.length} baseline state(s) are now reachable`, repaid.join(', '), [rel(STATE_BASELINE)],
+        'Remove them from .unreachable-state-baseline.json so the ratchet keeps its ground')
+    }
+    const remaining = unreachable.length - introduced.length
+    if (remaining) {
+      add('info', 'unreachable-state', `${remaining} declared state(s) are unreachable (accepted debt)`,
+        `baseline: ${rel(STATE_BASELINE)}`, [rel(STATE_BASELINE)],
+        'Build their writers as the requirements land; the baseline may only shrink')
     }
   }
 }

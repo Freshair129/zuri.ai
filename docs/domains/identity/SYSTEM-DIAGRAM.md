@@ -65,7 +65,7 @@ flowchart TB
         direction TB
         DB_PERSON[("👤 Person & PersonCredential<br/>PasswordResetToken, PlatformGrant")]
         DB_MEMBERSHIP[("🏢 Membership & RoleBinding<br/>(BusinessId, Role, DomainGrants)")]
-        DB_WORKSPACE[("📁 WorkspaceInvite & Membership<br/>(Collaboration boundary)")]
+        DB_WORKSPACE[("📁 AccessInvite & Membership<br/>(Collaboration boundary)")]
         DB_KEYS[("🔑 ApiAccessKey, SotDataPlaneKey,<br/>EdgeDeviceCredential, PluginSession<br/><i>(SHA-256 Digests only)</i>")]
         DB_EXT[("🔗 ExternalIdentity & ExternalRef<br/><i>(External IDs != Primary Keys)</i>")]
         DB_AUDIT[("📜 Immutable AuditEvent Log")]

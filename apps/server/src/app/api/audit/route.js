@@ -3,21 +3,26 @@
 // request viewer before touching the audit stream.
 // @spec SEC-008, FR-075
 // @tested tests/unit/authorization-seam-routes.test.js
-import { handle, httpError, queryParams } from '../_helpers'
+import { handle, queryParams } from '../_helpers'
 import prisma from '@/lib/db'
 import { listAudit } from '@/modules/project-manager/application/audit'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
-import { isInstallationOperator } from '@/modules/identity/viewer-authority'
+import { assertOperatorAndRecordUse } from '@/modules/identity/operator-use'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request) {
   return handle(async () => {
     const viewer = await resolveRequestViewer(request)
-    if (!isInstallationOperator(viewer)) {
-      throw httpError(403, 'Audit events are an installation-wide read and require operator authority')
-    }
     const q = queryParams(request)
+    // @req FR-197 — reading the audit stream is itself an operator action
+    // (ADR-017 D6, read as covering operator reads — ADR-079); recorded before
+    // the read runs, never after, so a denied attempt writes nothing.
+    await assertOperatorAndRecordUse(viewer, {
+      action: 'AUDIT_READ',
+      deniedMessage: 'Audit events are an installation-wide read and require operator authority',
+      payload: { entityType: q.entityType || null, entityId: q.entityId || null },
+    })
     return listAudit(prisma, {
       entityType: q.entityType || undefined,
       entityId: q.entityId || undefined,

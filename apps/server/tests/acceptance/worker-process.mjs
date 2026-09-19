@@ -8,6 +8,10 @@ const options = JSON.parse(process.env.KI17_WORKER_OPTIONS)
 const nativeRequire = createRequire(path.join(process.env.KI17_GENESIS_ROOT, 'package.json'))
 const { GenesisRag17Worker } = nativeRequire(path.join(process.env.KI17_GENESIS_ROOT, 'genesisrag17-worker/src/worker.mjs'))
 const { createMspStdioCaller } = nativeRequire(path.join(process.env.KI17_GENESIS_ROOT, 'genesisrag17-worker/src/msp-stdio.mjs'))
+// `process.execPath` is correct by construction: harness.startWorkerProcess forks this
+// file on ki17NodeExecutable(), so the MSP this worker opens runs on the same pinned
+// Node the worker itself does — 24.18.x inside the Phase 3 images, the runner's own
+// Node natively.
 const realCall = createMspStdioCaller({ command: process.execPath, args: [path.join(process.env.KI17_MSP_ROOT, 'apps/msp-server/bin/msp-server.mjs')], cwd: process.env.KI17_MSP_ROOT, env: process.env })
 let dropped = false
 const mspCall = async (name, input) => {

@@ -13,7 +13,7 @@ not a version of, and shares nothing with, the legacy zuri project.
 
 - [CLAUDE.md](CLAUDE.md) — the working guide: layout, toolchain, hard rules
 - [AGENTS.md](AGENTS.md) — the full rules for anyone (human or agent) changing this repo
-- [llms.txt](llms.txt) — the index for LLM readers; [llms-full.txt](llms-full.txt) inlines the orientation docs and every charter into one file (`npm run docs:llms`)
+- [llms.txt](llms.txt) — the index for LLM readers. The full corpus (`llms-full.txt`, every orientation doc and charter inlined) is built rather than committed: `npm run docs:llms`, or download the `llms-full` artefact from a `governance` run (ADR-081)
 - [docs/PRODUCT.md](docs/PRODUCT.md) — what the product is
 - [docs/PRD-SDD-v1.0.md](docs/PRD-SDD-v1.0.md) — the requirement registry (FR/NFR/BR/SEC/SDD)
 - [docs/decisions/](docs/decisions/) — ADRs; ADR-024 is the current direction

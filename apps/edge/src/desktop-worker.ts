@@ -5,6 +5,9 @@ import { fileURLToPath } from 'node:url';
 import readline from 'node:readline';
 import { z } from 'zod';
 import type { ConversationAnswer } from './conversation/contract.js';
+import type { ConversationWorkerEvent } from './conversation/worker.js';
+import type { ConversationClient } from './conversation/client.js';
+import type { ExecutionProgress } from './conversation/progress.js';
 import type { WarmResult } from './answer/providers/model-warmer.js';
 
 /*
@@ -21,6 +24,9 @@ const MAX_CONTROL_LINE = 16_384;
 const MAX_EVENT_LINE = 4_096;
 const DEFAULT_POLL_MS = 5_000;
 const DEFAULT_HEARTBEAT_MS = 40_000;
+// @req FR-244 — deliberately looser than the heartbeat: a residency change lags by at
+// most one interval; per-turn reply deadlines are enforced separately by the worker.
+const DEFAULT_RESIDENCY_POLL_MS = 60_000;
 const MAX_STOP_MS = 300_000;
 
 const providerSchema = z.object({
@@ -50,6 +56,8 @@ const initializeSchema = z.object({
   ragUrl: z.string().trim().max(512).optional(),
   pollIntervalMs: z.number().int().min(250).max(30_000).default(DEFAULT_POLL_MS),
   heartbeatIntervalMs: z.number().int().min(1_000).max(120_000).default(DEFAULT_HEARTBEAT_MS),
+  // @req FR-244 — how often this worker asks the residency directive (ADR-094 D6 option A).
+  residencyPollIntervalMs: z.number().int().min(5_000).max(600_000).default(DEFAULT_RESIDENCY_POLL_MS),
   provider: providerSchema.default({}),
 }).strict();
 
@@ -85,9 +93,16 @@ type FailureCode =
 type EdgeStatus = 'healthy' | 'degraded' | 'unavailable';
 
 type WorkerEvent =
+  | ({ type: 'progress'; version: typeof PROTOCOL_VERSION } & ExecutionProgress)
   | { type: 'ready'; version: typeof PROTOCOL_VERSION; workerId: string; transportOwner: 'SERVER' }
-  | { type: 'claim'; version: typeof PROTOCOL_VERSION; outcome: string }
+  | { type: 'claim'; version: typeof PROTOCOL_VERSION; outcome: string;
+      jobId?: string; executionId?: string; deliveryMode?: 'REPLY' | 'DELAYED_PUSH'; remainingBudgetMs?: number }
   | { type: 'heartbeat'; version: typeof PROTOCOL_VERSION; ok: boolean; status?: EdgeStatus; at: string }
+  // @req FR-244 — one line per residency poll. Unrecognised by the native supervisor
+  // today (its event match falls through to None and drops it, verified in
+  // src-tauri/src/supervisor.rs), so this is forward-only telemetry, never a
+  // dependency of the warm/release behaviour itself.
+  | { type: 'residency'; version: typeof PROTOCOL_VERSION; ok: boolean; shouldBeWarm?: boolean; changed?: boolean; at: string }
   | { type: 'stopping'; version: typeof PROTOCOL_VERSION; reason: 'operator' | 'quit' | 'parent' | 'worker' }
   | { type: 'stopped'; version: typeof PROTOCOL_VERSION; graceful: boolean }
   | { type: 'failure'; version: typeof PROTOCOL_VERSION; code: FailureCode };
@@ -313,13 +328,13 @@ interface RuntimeModules {
     complete(job: unknown, text: string): Promise<void>;
     fail(job: unknown, code: 'EXECUTION_FAILED' | 'LOCAL_POLICY_UNAVAILABLE'): Promise<void>;
   };
-  createConversationExecutor: (config: Record<string, unknown>, options?: { ragUrl?: string }) => (job: unknown) => Promise<ConversationAnswer>;
+  createConversationExecutor: (config: Record<string, unknown>, options?: { ragUrl?: string; client?: ConversationClient; onProgress?: (event: ExecutionProgress) => void }) => (job: unknown) => Promise<ConversationAnswer>;
   runConversationLoop: (deps: {
     client: ReturnType<RuntimeModules['createConversationClient']>;
     answer: (job: unknown) => Promise<ConversationAnswer>;
     signal: AbortSignal;
     pollMs?: number;
-    onEvent?: (event: { outcome: string; jobId?: string; source?: 'model' | 'rules'; reason?: string }) => void;
+    onEvent?: (event: ConversationWorkerEvent) => void;
   }) => Promise<void>;
   requireComputeWorker: (env?: NodeJS.ProcessEnv) => void;
   HttpZuriApiClient: new (options: {
@@ -337,10 +352,21 @@ interface RuntimeModules {
   };
   /** Never throws — pins the model or reports why not (model-warmer.ts). */
   warmModel: (options: { nativeBaseUrl: string; model: string; numCtx?: number }) => Promise<WarmResult>;
+  /** Best-effort; never throws (model-warmer.ts). */
+  releaseModel: (options: { nativeBaseUrl: string; model: string }) => Promise<void>;
+  // @req FR-244 — the residency poll and the schedule that drives warm/release from it.
+  createResidencyClient: (options: { baseUrl: string; deviceKey: string }) => { shouldBeWarm(): Promise<boolean> };
+  startModelResidencySchedule: (options: {
+    shouldBeWarm: () => Promise<boolean>;
+    warm: () => void;
+    release: () => void;
+    intervalMs?: number;
+    onEvent?: (event: { ok: boolean; shouldBeWarm?: boolean; changed?: boolean; reason?: string }) => void;
+  }) => () => void;
 }
 
 async function loadRuntimeModules(): Promise<RuntimeModules> {
-  const [config, client, executor, worker, contract, api, heartbeat, rag, warmer] = await Promise.all([
+  const [config, client, executor, worker, contract, api, heartbeat, rag, warmer, residencyClient, residencySchedule] = await Promise.all([
     import('./config/index.js'),
     import('./conversation/client.js'),
     import('./conversation/executor.js'),
@@ -350,6 +376,8 @@ async function loadRuntimeModules(): Promise<RuntimeModules> {
     import('./zuri-api/heartbeat.js'),
     import('./rag/genesis-rag.js'),
     import('./answer/providers/model-warmer.js'),
+    import('./conversation/residency-client.js'),
+    import('./answer/providers/model-residency-schedule.js'),
   ]);
   return {
     loadConfig: config.loadConfig as RuntimeModules['loadConfig'],
@@ -361,6 +389,9 @@ async function loadRuntimeModules(): Promise<RuntimeModules> {
     startHeartbeat: heartbeat.startHeartbeat,
     GenesisLocalRag: rag.GenesisLocalRag,
     warmModel: warmer.warmModel,
+    releaseModel: warmer.releaseModel,
+    createResidencyClient: residencyClient.createResidencyClient,
+    startModelResidencySchedule: residencySchedule.startModelResidencySchedule,
   };
 }
 
@@ -390,6 +421,7 @@ async function runManagedWorker(init: DesktopWorkerInit, input: DesktopWorkerInp
   let fatalWorker = false;
   let stoppedEmitted = false;
   let stopHeartbeat: (() => void) | undefined;
+  let stopResidencySchedule: (() => void) | undefined;
   const controller = new AbortController();
   let inputEnded = input.ended;
   let inputQueue = input.pending.splice(0);
@@ -400,6 +432,7 @@ async function runManagedWorker(init: DesktopWorkerInit, input: DesktopWorkerInp
     stopReason = reason;
     emit({ type: 'stopping', version: PROTOCOL_VERSION, reason });
     stopHeartbeat?.();
+    stopResidencySchedule?.();
     controller.abort();
   };
 
@@ -431,30 +464,44 @@ async function runManagedWorker(init: DesktopWorkerInit, input: DesktopWorkerInp
     modules.requireComputeWorker(process.env);
     const config = modules.loadConfig(process.env);
     const client = modules.createConversationClient({ baseUrl: init.cloudBaseUrl, deviceKey: init.deviceKey });
-    const answer = modules.createConversationExecutor(config, { ragUrl: init.ragUrl || 'http://127.0.0.1:8888' });
+    const answer = modules.createConversationExecutor(config, {
+      ragUrl: init.ragUrl || 'http://127.0.0.1:8888', client: client as ConversationClient,
+      onProgress: event => emit({ type: 'progress', version: PROTOCOL_VERSION, ...event }),
+    });
     /*
      * Model residency has one owner: this worker. `openai-compatible.ts`'s chat body never sends
      * `keep_alive` — Ollama silently ignores it there — so nothing pins the model on the reply
      * path itself. `triggerWarm` is fire-and-forget and never awaited from either call site: it
      * must never block `ready`, the claim loop, or a heartbeat (a cold warm can take ~90s; the
-     * heartbeat interval is 40s). `warmInFlight` is shared between the on-init warm below and the
-     * one `status()` kicks off later so the two never pin the same model twice concurrently.
-     * `numCtx` comes from the loaded config (which already applies the same default the chat path
-     * uses, `ZURI_LLM_NUM_CTX`/8192) rather than the raw init payload, so a warm always loads the
-     * model at the context size the chat path will actually request — Ollama keys a loaded model
-     * by context size, and warming at the wrong one pins a copy nothing uses.
+     * heartbeat interval is 40s). `residencyOpInFlight` is shared between the on-init warm below,
+     * the one `status()` kicks off later and the FR-244 business-hours schedule, so no two of them
+     * ever pin/release the same model concurrently. `numCtx` comes from the loaded config (which
+     * already applies the same default the chat path uses, `ZURI_LLM_NUM_CTX`/8192) rather than
+     * the raw init payload, so a warm always loads the model at the context size the chat path
+     * will actually request — Ollama keys a loaded model by context size, and warming at the wrong
+     * one pins a copy nothing uses.
      */
-    let warmInFlight = false;
+    let residencyOpInFlight = false;
     const triggerWarm = (): void => {
-      if (warmInFlight) return;
+      if (residencyOpInFlight) return;
       if (!init.provider.llmEnabled || !init.provider.llmBaseUrl || !init.provider.llmModel) return;
-      warmInFlight = true;
+      residencyOpInFlight = true;
       const nativeBaseUrl = init.provider.llmBaseUrl.replace(/\/v1\/?$/, '');
       void modules.warmModel({
         nativeBaseUrl,
         model: init.provider.llmModel,
         numCtx: config.llmNumCtx as number | undefined,
-      }).finally(() => { warmInFlight = false; });
+      }).finally(() => { residencyOpInFlight = false; });
+    };
+    // @req FR-244 — the other half of the schedule: release when every account is closed.
+    // Same fire-and-forget shape and the same guard as triggerWarm, for the same reason.
+    const triggerRelease = (): void => {
+      if (residencyOpInFlight) return;
+      if (!init.provider.llmEnabled || !init.provider.llmBaseUrl || !init.provider.llmModel) return;
+      residencyOpInFlight = true;
+      const nativeBaseUrl = init.provider.llmBaseUrl.replace(/\/v1\/?$/, '');
+      void modules.releaseModel({ nativeBaseUrl, model: init.provider.llmModel })
+        .finally(() => { residencyOpInFlight = false; });
     };
     triggerWarm();
     const heartbeatClient = new modules.HttpZuriApiClient({
@@ -524,6 +571,23 @@ async function runManagedWorker(init: DesktopWorkerInit, input: DesktopWorkerInp
         at: new Date().toISOString(),
       }),
     });
+    // @req FR-244 — local model residency by business hours (ADR-094 D6 option A). An
+    // account with `llmEnabled` off has nothing for this worker to warm or release
+    // either way, same as the on-init `triggerWarm` above.
+    if (init.provider.llmEnabled && init.provider.llmBaseUrl && init.provider.llmModel) {
+      const residency = modules.createResidencyClient({ baseUrl: init.cloudBaseUrl, deviceKey: init.deviceKey });
+      stopResidencySchedule = modules.startModelResidencySchedule({
+        shouldBeWarm: () => residency.shouldBeWarm(),
+        warm: triggerWarm, release: triggerRelease,
+        intervalMs: init.residencyPollIntervalMs,
+        onEvent: event => emit({
+          type: 'residency', version: PROTOCOL_VERSION, ok: event.ok,
+          ...(event.shouldBeWarm !== undefined ? { shouldBeWarm: event.shouldBeWarm } : {}),
+          ...(event.changed !== undefined ? { changed: event.changed } : {}),
+          at: new Date().toISOString(),
+        }),
+      });
+    }
 
     const lineHandler = (line: string): void => {
       if (line.length > MAX_CONTROL_LINE) {
@@ -572,7 +636,9 @@ async function runManagedWorker(init: DesktopWorkerInit, input: DesktopWorkerInp
       pollMs: init.pollIntervalMs,
       onEvent: event => {
         if (!['retrying', 'stale_lease'].includes(event.outcome)) firstClaimAccepted = true;
-        emit({ type: 'claim', version: PROTOCOL_VERSION, outcome: event.outcome });
+        emit({ type: 'claim', version: PROTOCOL_VERSION, outcome: event.outcome,
+          jobId: event.jobId, executionId: event.executionId,
+          deliveryMode: event.deliveryMode, remainingBudgetMs: event.remainingBudgetMs });
       },
     }).catch(error => {
       emitFailure(errorCode(error));
@@ -584,6 +650,7 @@ async function runManagedWorker(init: DesktopWorkerInit, input: DesktopWorkerInp
 
     await loopPromise;
     stopHeartbeat?.();
+    stopResidencySchedule?.();
     if (!stopRequested) requestStop('worker');
     if (!inputEnded) input.rl.close();
     if (!stoppedEmitted) {

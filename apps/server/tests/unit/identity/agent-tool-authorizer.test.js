@@ -69,4 +69,38 @@ describe('authorizeAgentToolExecution', () => {
     expect(result.allowed).toBe(false)
     expect(result.reason).toBe('AUTHENTICATION_REQUIRED')
   })
+
+  it('rejects tool execution when viewer channel identity is unverified or pending (FR-097)', async () => {
+    const pendingViewer = {
+      personId: 'person-1',
+      tenantId: 'tenant-1',
+      businessId: 'biz-1',
+      identityVerified: false,
+    }
+    const result = await authorizeAgentToolExecution({
+      toolName: 'read_project_data',
+      toolArgs: {},
+      viewer: pendingViewer,
+      db: mockDb,
+    })
+
+    expect(result.allowed).toBe(false)
+    expect(result.reason).toBe('IDENTITY_PENDING')
+
+    const channelPendingViewer = {
+      personId: 'person-1',
+      tenantId: 'tenant-1',
+      businessId: 'biz-1',
+      channelIdentity: { status: 'PENDING' },
+    }
+    const result2 = await authorizeAgentToolExecution({
+      toolName: 'read_project_data',
+      toolArgs: {},
+      viewer: channelPendingViewer,
+      db: mockDb,
+    })
+
+    expect(result2.allowed).toBe(false)
+    expect(result2.reason).toBe('IDENTITY_PENDING')
+  })
 })

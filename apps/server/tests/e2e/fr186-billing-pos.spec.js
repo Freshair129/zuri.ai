@@ -24,14 +24,15 @@ async function prepareFixture() {
   const suffix = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`
   const fixtureTaxId = `${String(Date.now()).slice(-8)}${String(randomInt(0, 100000)).padStart(5, '0')}`
   const tenant = await prisma.tenant.findUnique({ where: { code: 'TNT-001' } })
-  const portfolio = await prisma.portfolio.findUnique({ where: { id: tenant.portfolioId } })
-  const legalEntity = await prisma.legalEntity.create({ data: { code: `E2E-LE-${suffix}`, legalName: 'E2E Billing Fixture Co., Ltd.', legalAddress: '99 E2E Fixture Road, Bangkok', portfolioId: portfolio.id } })
+  // @req FR-194 — LegalEntity is Tenant-scoped (ADR-078 D1); no Portfolio lookup needed.
+  const legalEntity = await prisma.legalEntity.create({ data: { code: `E2E-LE-${suffix}`, legalName: 'E2E Billing Fixture Co., Ltd.', legalAddress: '99 E2E Fixture Road, Bangkok', tenantId: tenant.id } })
   await prisma.legalEntityIdentifier.create({ data: { legalEntityId: legalEntity.id, country: 'TH', type: 'TH_TAX_ID', value: fixtureTaxId, verifiedAt: new Date('2026-01-02T00:00:00Z') } })
   const business = await prisma.business.create({ data: { code: `E2E-BILL-${suffix}`, name: 'E2E Billing Fixture', tenantId: tenant.id, legalEntityId: legalEntity.id } })
   const secondBusiness = await prisma.business.create({ data: { code: `E2E-BILL-SECOND-${suffix}`, name: 'E2E Secondary Fixture', tenantId: tenant.id } })
   await prisma.membership.create({ data: { personId: owner.id, tenantId: tenant.id, businessId: business.id, role: 'OWNER', status: 'ACTIVE', domainKeysJson: JSON.stringify(['commerce', 'inventory']) } })
   await prisma.membership.create({ data: { personId: owner.id, tenantId: tenant.id, businessId: secondBusiness.id, role: 'OWNER', status: 'ACTIVE', domainKeysJson: JSON.stringify(['commerce', 'inventory']) } })
-  const branch = await prisma.branch.create({ data: { code: `E2E-BR-${suffix}`, name: 'E2E Head Office', tenantId: tenant.id, businessId: business.id, address: '99 E2E Fixture Road, Bangkok', taxBranchCode: '00000' } })
+  const taxRegistrationBranch = await prisma.taxRegistrationBranch.create({ data: { legalEntityId: legalEntity.id, branchCode: '00000', name: 'E2E Head Office', address: '99 E2E Fixture Road, Bangkok' } })
+  const branch = await prisma.branch.create({ data: { code: `E2E-BR-${suffix}`, name: 'E2E Head Office', tenantId: tenant.id, businessId: business.id, address: '99 E2E Fixture Road, Bangkok', taxRegistrationBranchId: taxRegistrationBranch.id } })
   const category = await prisma.inventoryCategory.create({ data: { code: `E2E-CAT-${suffix}`, tenantId: business.tenantId, businessId: business.id, nameTh: 'สินค้าทดสอบ POS', nameEn: 'POS browser item' } })
   const master = await prisma.productMaster.create({ data: { code: `E2E-PM-${suffix}`, tenantId: business.tenantId, businessId: business.id, categoryId: category.id, nameTh: 'สินค้าทดสอบ POS', nameEn: 'POS browser item' } })
   const product = await prisma.product.create({ data: { code: `E2E-SKU-${suffix}`, tenantId: business.tenantId, businessId: business.id, productMasterId: master.id, name: 'สินค้าทดสอบ POS', stockPolicy: 'TRACKED', trackingMode: 'NONE', safetyStock: 0 } })

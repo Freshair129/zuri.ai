@@ -14,10 +14,36 @@
 import { usePathname, useRouter } from 'next/navigation'
 import { useState } from 'react'
 import Link from 'next/link'
-import { Bell, Command, LogOut, Sparkles, UserRound } from 'lucide-react'
+import { Bell, Command, LogOut, Map as MapIcon, Sparkles, UserRound } from 'lucide-react'
 import { useScope } from '@/context/ScopeContext'
 import { BASE_CONTEXT_LEVELS, SCOPE_VIEWS } from '@/config/scope-views'
 import { performSignOut } from '@/modules/identity/sign-out'
+import { isInstallationOperator } from '@/modules/identity/viewer-authority'
+import { useFetch } from '@/modules/project-manager/components/useApi'
+
+// @req FR-105 — a prominent Roadmap control on the BusinessShell topbar (owner
+// request 2026-09-13) so the programme is one click away instead of buried in
+// Settings. Same gate as the Settings card and the route itself:
+// @req FR-075 — visible only to a viewer carrying the installation-operator
+// capability, decided by `isInstallationOperator`, never by isPlatform or a role.
+// Server render sees no viewer (useFetch resolves on the client), so the control
+// is absent from static markup and appears once the operator viewer arrives.
+// @spec ADR-048 D2, SEC-020
+// @tested tests/unit/platform-control-entry-link.test.js
+function RoadmapButton() {
+  const viewer = useFetch('/api/viewer')
+  if (!isInstallationOperator(viewer.data)) return null
+  return (
+    <Link
+      href="/control/roadmap"
+      className="flex h-9 items-center gap-1.5 rounded-xl border border-[var(--brand)] bg-[var(--brand)] px-3 text-xs font-extrabold text-[#1A1710] shadow-[0_0_0_3px_rgba(232,130,12,.25)] transition hover:brightness-110"
+      title="Platform Programme Roadmap (FR-105) — operator only"
+      aria-label="Open the programme roadmap"
+    >
+      <MapIcon size={14} aria-hidden /> Roadmap
+    </Link>
+  )
+}
 
 function ViewToggle({ mode, onChange }) {
   return (
@@ -121,6 +147,7 @@ export default function Topbar({ onOpenPalette }) {
       <div className="min-w-0 flex-1" />
 
       <div className="flex items-center gap-2">
+        <RoadmapButton />
         <button
           type="button"
           className="flex h-9 items-center gap-1.5 rounded-xl border border-white/15 bg-white/10 px-3 text-xs"
