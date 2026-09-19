@@ -26,35 +26,35 @@
     ]
   },
   "summary": {
-    "nodes": 79,
-    "edges": 110,
-    "chains": 22,
+    "nodes": 82,
+    "edges": 116,
+    "chains": 23,
     "byKind": {
-      "SOURCE": 12,
+      "SOURCE": 13,
       "ENTRY": 24,
-      "PROCESS": 19,
+      "PROCESS": 21,
       "STORE": 17,
       "RECIPIENT": 7
     },
     "chainsByStatus": {
       "BLOCKED": 0,
       "DECLARED": 4,
-      "PARTIAL": 0,
+      "PARTIAL": 1,
       "CODE_TESTS": 15,
       "PRODUCTION": 3
     },
     "internalByStatus": {
       "BLOCKED": 1,
       "DECLARED": 1,
-      "PARTIAL": 1,
-      "CODE_TESTS": 37,
+      "PARTIAL": 2,
+      "CODE_TESTS": 38,
       "PRODUCTION": 20
     },
     "internalBySurface": {
       "NONE": 7,
-      "WORKER": 10,
+      "WORKER": 11,
       "MCP": 0,
-      "ENDPOINT": 11,
+      "ENDPOINT": 12,
       "UI": 32
     }
   },
@@ -145,6 +145,22 @@
       "system": "external",
       "label": "GKS (Tier 3)",
       "detail": "stage evidence ของ Stage 9–17",
+      "domain": null,
+      "requirements": [],
+      "features": [],
+      "decisions": [],
+      "surfaces": [],
+      "surfaceLevel": null,
+      "buildStatus": null,
+      "evidence": null,
+      "blocked": null
+    },
+    {
+      "id": "src.msp-memory",
+      "kind": "SOURCE",
+      "system": "external",
+      "label": "MSP MemoryOS (Tier 2)",
+      "detail": "authorized thread recall และ injection lifecycle ของ API-011",
       "domain": null,
       "requirements": [],
       "features": [],
@@ -653,6 +669,10 @@
         {
           "type": "UI",
           "ref": "/files"
+        },
+        {
+          "type": "UI",
+          "ref": "/knowledge/documents"
         }
       ],
       "surfaceLevel": "UI",
@@ -1276,6 +1296,81 @@
       "surfaceLevel": "UI",
       "buildStatus": "PRODUCTION",
       "evidence": ".brain/rca/2026-09-11-line-server-overlay-dropped-on-redeploy.md, 'Verified end to end, 2026-09-12': line-worker returned to IDLE with nothing pending; line-worker ticks 200 IDLE after the 2026-09-13 deploy of release-eb1fcfa8",
+      "blocked": null
+    },
+    {
+      "id": "p.msp-context",
+      "kind": "PROCESS",
+      "system": "zuri-ai",
+      "label": "MemoryOS authorization + ephemeral context",
+      "detail": "Server resolves thread/identity/consent; revalidates recall and erase/relink before each model call",
+      "domain": "agent",
+      "requirements": [
+        {
+          "id": "FR-232",
+          "status": "partial",
+          "title": "Erasure propagation beyond Tier 1"
+        },
+        {
+          "id": "FR-234",
+          "status": "verified",
+          "title": "Context Composer"
+        }
+      ],
+      "features": [
+        "FEAT-037"
+      ],
+      "decisions": [
+        "ADR-091"
+      ],
+      "surfaces": [
+        {
+          "type": "FILE",
+          "ref": "apps/server/src/modules/agent/edge-line-memory-context.js"
+        },
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/edge/conversation-jobs/[id]/context"
+        }
+      ],
+      "surfaceLevel": "ENDPOINT",
+      "buildStatus": "PARTIAL",
+      "evidence": null,
+      "blocked": null
+    },
+    {
+      "id": "p.cin",
+      "kind": "PROCESS",
+      "system": "edge",
+      "label": "CIN — Context Injection Node",
+      "detail": "records > published citations > authorized memory; bounded context and content-free receipt for each local model invocation",
+      "domain": "agent",
+      "requirements": [
+        {
+          "id": "FR-234",
+          "status": "verified",
+          "title": "Context Composer"
+        }
+      ],
+      "features": [
+        "FEAT-037"
+      ],
+      "decisions": [
+        "ADR-091"
+      ],
+      "surfaces": [
+        {
+          "type": "FILE",
+          "ref": "apps/edge/src/answer/context-injection.ts"
+        },
+        {
+          "type": "FILE",
+          "ref": "apps/server/src/modules/agent/context-composer.js"
+        }
+      ],
+      "surfaceLevel": "WORKER",
+      "buildStatus": "CODE_TESTS",
+      "evidence": null,
       "blocked": null
     },
     {
@@ -2678,6 +2773,54 @@
       "label": "งานสนทนาที่ device claim (edgk_)",
       "wired": true,
       "status": "PRODUCTION"
+    },
+    {
+      "id": "e.jobs-to-memory-context",
+      "from": "p.line-jobs",
+      "to": "p.msp-context",
+      "label": "v2 claim: server-owned execution deadline + memory opt-in",
+      "wired": true,
+      "status": "PARTIAL"
+    },
+    {
+      "id": "e.memory-to-context",
+      "from": "src.msp-memory",
+      "to": "p.msp-context",
+      "label": "scope/grant-authorized packet; missing authority fails closed",
+      "wired": true,
+      "status": "PARTIAL"
+    },
+    {
+      "id": "e.memory-context-to-cin",
+      "from": "p.msp-context",
+      "to": "p.cin",
+      "label": "ephemeral same-thread DIRECT context and revalidation",
+      "wired": true,
+      "status": "PARTIAL"
+    },
+    {
+      "id": "e.corpus-to-cin",
+      "from": "s.knowledge-corpus",
+      "to": "p.cin",
+      "label": "pinned published graph/vector citations",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.cin-to-edge",
+      "from": "p.cin",
+      "to": "p.edge-execution",
+      "label": "exact budgeted model input, per-invocation receipt",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.cin-to-trace",
+      "from": "p.cin",
+      "to": "s.agent-trace",
+      "label": "refs/hash/budget only via execution settlement",
+      "wired": true,
+      "status": "CODE_TESTS"
     },
     {
       "id": "e.edge-to-complete",
@@ -4205,6 +4348,53 @@
         "FEAT-025",
         "FR-023",
         "FR-047",
+        "FR-171",
+        "FR-190"
+      ]
+    },
+    {
+      "id": "CH-23",
+      "name": "LINE local v2 — MemoryOS → CIN → model",
+      "summary": "Local integration evidence only; reply latency and live LINE acceptance remain unqualified",
+      "path": [
+        "e.line-to-webhook",
+        "e.webhook-to-jobs",
+        "e.jobs-to-memory-context",
+        "e.memory-context-to-cin",
+        "e.cin-to-edge",
+        "e.edge-to-complete",
+        "e.complete-to-jobs",
+        "e.jobs-to-line"
+      ],
+      "branches": [
+        "e.memory-to-context",
+        "e.corpus-to-cin",
+        "e.cin-to-trace"
+      ],
+      "nodeIds": [
+        "in.edge-conversation",
+        "in.line-webhook",
+        "p.cin",
+        "p.edge-execution",
+        "p.line-jobs",
+        "p.msp-context",
+        "r.line-api",
+        "s.agent-trace",
+        "s.knowledge-corpus",
+        "src.line-users",
+        "src.msp-memory"
+      ],
+      "status": "PARTIAL",
+      "domains": [
+        "agent",
+        "knowledge",
+        "line-oa-studio"
+      ],
+      "features": [
+        "FEAT-013",
+        "FEAT-017",
+        "FEAT-019",
+        "FEAT-037",
         "FR-171",
         "FR-190"
       ]

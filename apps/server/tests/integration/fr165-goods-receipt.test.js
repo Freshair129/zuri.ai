@@ -12,7 +12,7 @@ import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { makeViewer } from '../factories/viewer'
 import { ROLE_GOODS_RECEIVER, ROLE_INVENTORY_MANAGER, ROLE_PROCUREMENT_BUYER } from '@/modules/identity/rbac'
-import { createCategory, createProduct, createProductMaster } from '@/modules/inventory/application/inventory-catalog-service'
+import { createCategory, createProduct, createProductMaster, getProduct } from '@/modules/inventory/application/inventory-catalog-service'
 import { listLots, listSerialUnits, stockSummary } from '@/modules/inventory/application/inventory-stock-service'
 import { createSupplier } from '@/modules/procurement/application/supplier-service'
 import { applyPurchaseOrderAction, createPurchaseOrder, getPurchaseOrder } from '@/modules/procurement/application/purchase-order-service'
@@ -74,12 +74,12 @@ describe('FR-165 GoodsReceipt', () => {
 
     const posted = await postGoodsReceipt(order.id, { lines: [{ purchaseOrderLineId: boxLine.id, qty: 3 }, { purchaseOrderLineId: lineOf(order, 'Printing').id, qty: 2 }] }, { viewer: receiver, now: NOW })
     expect(posted.receipt.code).toBe('GRN-20260906-002')
-    expect(posted.posted).toEqual([{ purchaseOrderLineId: boxLine.id, productId: box.id, code: 'BOX-GRN', quantity: 3, lotId: null, onHandAfter: 3 }])
+    expect(posted.posted).toEqual([{ purchaseOrderLineId: boxLine.id, productId: box.id, code: 'BOX-GRN', quantity: 3, lotId: null, onHandAfter: 3, costSatang: 2000 }])
     expect(posted.order).toMatchObject({ status: 'SENT', receiptState: 'PARTIAL', receiptCount: 2, receivedValue: 220, outstandingValue: 40 })
     expect(posted.order.lines.map((l) => [l.description, l.receivedQty, l.outstandingQty])).toEqual([['Gift box', 3, 2], ['Printing', 2, 0], ['ค่าขนส่ง', 1, 0]])
     expect(await onHand('BOX-GRN')).toBe(3)
     const movements = await prisma.stockMovement.findMany({ where: { reference: `PO:${order.code}/GRN:GRN-20260906-002` } })
-    expect(movements.map((m) => [m.kind, m.quantity, m.reason, m.actorId])).toEqual([['RECEIPT', 3, 'GOODS_RECEIPT', 'per-recv']])
+    expect(movements.map((m) => [m.kind, m.quantity, m.costSatang, m.reason, m.actorId])).toEqual([['RECEIPT', 3, 2000, 'GOODS_RECEIPT', 'per-recv']])
     const audit = await prisma.auditEvent.findFirst({ where: { entityType: 'GOODS_RECEIPT', entityId: posted.receipt.id } })
     expect(audit.action).toBe('GOODS_RECEIPT_POSTED')
     expect(JSON.parse(audit.payloadJson)).toMatchObject({ code: 'GRN-20260906-002', purchaseOrderCode: order.code, lines: 2, completesOrder: false, posted: [{ code: 'BOX-GRN', quantity: 3 }] })
@@ -187,4 +187,42 @@ describe('FR-165 GoodsReceipt', () => {
     await expect(listAllGoodsReceipts(b(), { viewer: member, offset: -1 })).rejects.toThrow()
     await expect(getGoodsReceiptDetail('missing', { viewer: owner })).rejects.toMatchObject({ status: 404 })
   })
+
+  it('TASK-ZAI-054 / FR-175 — goods receipts post landed unit cost with amortised batch costs, and SKU page reflects cost metrics', async () => {
+    const costed = await createProduct({ businessId: b(), code: 'COST-GRN', productMasterId: box.productMasterId, name: 'Costed Mug' }, { viewer: owner })
+
+    // 1. Order 1: 3 items at 20 THB (2000 satang)
+    const order1 = await sentOrder([{ productId: costed.id, qty: 3, unitCost: 20 }])
+    const receipt1 = await postGoodsReceipt(order1.id, {
+      lines: [{ purchaseOrderLineId: order1.lines[0].id, qty: 3 }],
+      selfVerifyAttested: true,
+    }, { viewer: owner, now: new Date('2026-09-06T03:00:00Z') })
+
+    expect(receipt1.posted[0].costSatang).toBe(2000)
+
+    // 2. Order 2: 2 items at 50 THB (5000 satang) with batchCostSatang: 1000 (amortised 500 satang/unit) -> 5500 satang
+    const order2 = await sentOrder([{ productId: costed.id, qty: 2, unitCost: 50 }])
+    const receipt2 = await postGoodsReceipt(order2.id, {
+      lines: [{ purchaseOrderLineId: order2.lines[0].id, qty: 2 }],
+      batchCostSatang: 1000,
+      selfVerifyAttested: true,
+    }, { viewer: owner, now: new Date('2026-09-06T04:00:00Z') })
+
+    expect(receipt2.posted[0].costSatang).toBe(5500)
+    const movement2 = await prisma.stockMovement.findFirst({
+      where: { reference: `PO:${order2.code}/GRN:${receipt2.receipt.code}` },
+    })
+    expect(movement2.costSatang).toBe(5500)
+
+    // 3. Check SKU page costing data via getProduct
+    const productDetail = await getProduct(costed.id, { viewer: owner })
+    expect(productDetail.costing).toBeDefined()
+    expect(productDetail.costing.lastReceiptCostSatang).toBe(5500)
+    // Weighted average: (3 * 2000 + 2 * 5500) / 5 = 17000 / 5 = 3400 satang
+    expect(productDetail.costing.weightedAverageLandedCostSatang).toBe(3400)
+    expect(productDetail.costing.costHistory).toHaveLength(2)
+    expect(productDetail.costing.costHistory[0].costSatang).toBe(5500)
+    expect(productDetail.costing.costHistory[1].costSatang).toBe(2000)
+  })
 })
+

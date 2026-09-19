@@ -8,18 +8,20 @@ import { randomUUID } from 'node:crypto'
 import fs from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
-import { beforeEach, afterEach, describe, expect, it } from 'vitest'
+import { afterAll, beforeEach, afterEach, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { makeViewer } from '../factories/viewer'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { runRetentionSweep } from '@/modules/crm/retention-sweep-service'
 import { RETENTION_DEFAULT_WINDOW_DAYS } from '@/lib/validation/enums'
+import { computeManifestHash } from '@/modules/crm/chat-evidence-archive-service'
 import { retrieveArchivedChatEvidence } from '@/modules/crm/chat-evidence-retrieval-service'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const PAST = RETENTION_DEFAULT_WINDOW_DAYS.MESSAGE_BODY_AND_ATTACHMENTS + 1
 let baseDir, owner, ownerViewer, session
+const createdTenantIds = new Set()
 
 beforeEach(async () => {
   baseDir = await fs.mkdtemp(path.join(os.tmpdir(), 'zuri-cea-retrieve-'))
@@ -31,12 +33,39 @@ afterEach(async () => {
   }
 })
 
+// This file writes real ArchiveManifest/CustomerArchiveKey rows through the
+// retention sweep. Vitest shares one disposable database across files, so
+// remove only this file's tenants after its last assertion. ArchiveManifest
+// has a self-FK and must be deleted from the leaves toward each root.
+afterAll(async () => {
+  const tenantIds = [...createdTenantIds]
+  if (tenantIds.length === 0) return
+  const pending = new Map((await prisma.archiveManifest.findMany({
+    where: { tenantId: { in: tenantIds } },
+    select: { id: true, previousManifestId: true },
+  })).map((row) => [row.id, row]))
+  while (pending.size) {
+    let deleted = false
+    for (const row of pending.values()) {
+      const hasPendingChild = [...pending.values()].some((candidate) => candidate.previousManifestId === row.id)
+      if (hasPendingChild) continue
+      await prisma.archiveManifest.delete({ where: { id: row.id } })
+      pending.delete(row.id)
+      deleted = true
+      break
+    }
+    if (!deleted) throw new Error('Could not clear the Chat Evidence Retrieval manifest chain')
+  }
+  await prisma.customerArchiveKey.deleteMany({ where: { tenantId: { in: tenantIds } } })
+})
+
 /** A fresh Portfolio → Tenant → Business, isolated to one test — same shape crm-chat-evidence-archive.test.js uses. */
 async function freshScope(label) {
   const suffix = randomUUID().slice(0, 8)
   const pf = await createPortfolio({ name: `CEA-retrieve ${label} ${suffix}`, code: `PF-CEAR-${suffix}` })
   const tenant = await createTenant({ portfolioId: pf.id, name: `CEA-retrieve ${label} Tenant`, code: `TNT-CEAR-${suffix}` })
   const business = await createBusiness({ tenantId: tenant.id, name: 'ร้านหลักฐาน', code: `BUS-CEAR-${suffix}` })
+  createdTenantIds.add(tenant.id)
   return { tenant, business }
 }
 
@@ -167,12 +196,13 @@ describe('FR-245 chat evidence retrieval (TASK-ZAI-112)', () => {
 
     // Simulate the second manifest row being detached from the chain — the
     // shape a deleted-and-reinserted row, or a direct DB edit, would take.
-    // The row's OWN fields+hash still reproduce each other (the per-row
-    // self-consistency check alone would accept this), but its claimed
-    // previousManifestHash no longer names the first manifest's real hash.
+    // Keep the mutated row self-consistent so this exercises the chain-root
+    // guard rather than only the per-row hash check. Its claimed predecessor
+    // hash is still non-null even though its predecessor id was detached.
+    const detached = { ...manifestsBefore[1], previousManifestId: null, previousManifestHash: 'f'.repeat(64) }
     await prisma.archiveManifest.update({
       where: { id: manifestsBefore[1].id },
-      data: { previousManifestHash: 'f'.repeat(64), previousManifestId: null },
+      data: { previousManifestHash: detached.previousManifestHash, previousManifestId: detached.previousManifestId, manifestHash: computeManifestHash(detached) },
     })
 
     const { startDate, endDate } = todayRange()
@@ -189,6 +219,7 @@ describe('FR-245 chat evidence retrieval (TASK-ZAI-112)', () => {
     expect(result.manifests).toEqual([])
     expect(result.missingMessageIds.sort()).toEqual([first.messageId, second.messageId].sort())
     expect(result.chainIntegrity).toMatchObject({ valid: false, brokenAtManifestId: manifestsBefore[1].id })
+    expect(result.chainIntegrity.reason).toBe('MANIFEST_CHAIN_ROOT_INVALID')
 
     const audit = await prisma.auditEvent.findUnique({ where: { id: result.auditEventId } })
     expect(audit.action).toBe('ARCHIVE_RETRIEVED')

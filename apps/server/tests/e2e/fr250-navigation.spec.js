@@ -1,5 +1,6 @@
-// @req FR-250 — execution children retain their Project parent, Inventory
-// drilldowns remain usable, and missing Project scope cannot render navigation.
+// @req FR-250, FR-251 — execution children retain their Project parent,
+// Inventory drilldowns remain usable, the Project-only Execution Domains tab
+// stays reachable, and missing Project scope cannot render navigation.
 // @spec ADR-096, SDD-019
 // @tested tests/e2e/fr250-navigation.spec.js
 const { test, expect } = require('@playwright/test')
@@ -59,12 +60,15 @@ test.describe('FR-250 navigation boundaries', () => {
     const id = await openProject(page)
     const toggle = page.getByRole('button', { name: 'Toggle Projects & Work navigation' })
     await toggle.click()
-    await page.getByRole('button', { name: /Delivery Design/ }).press('Enter')
+    const deliveryDesign = page.getByRole('link', { name: 'Delivery Design', exact: true })
+    await deliveryDesign.press('Enter')
+    await expect(page).toHaveURL(new RegExp(`/projects/${id}/domain-view$`))
     await expect(page.getByRole('group', { name: 'Delivery Design planned capabilities' })).toBeVisible()
+    await toggle.click()
     await page.getByRole('navigation', { name: 'Projects & Work modules' }).getByRole('link', { name: 'Work Management', exact: true }).click()
     await expect(page).toHaveURL(new RegExp(`/projects/${id}/structure$`))
     await expect(toggle).toHaveAttribute('aria-expanded', 'false')
-    await expect(page.locator('[data-module-id="module.delivery-design"]')).toHaveAttribute('aria-expanded', 'false')
+    await expect(page.locator('[data-module-id="module.delivery-design"]')).toHaveAttribute('href', `/projects/${id}/domain-view`)
     await expect(page.getByRole('navigation', { name: 'Project work views' })).toBeInViewport()
     const importAction = page.locator('[data-action-id="pm.import"]')
     await expect(importAction).toBeInViewport()

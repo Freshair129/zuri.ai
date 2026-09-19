@@ -9,7 +9,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 import { DOMAINS, DOMAIN_GROUPS, domainForPath } from '@/config/domains'
 import { VIEWER_DOMAINS } from '@/modules/identity/viewer-domains'
-import DataPipelineMapView from '@/modules/knowledge/pipeline-map/DataPipelineMapView'
+import DataPipelineMapView, { matchDomain, SCM_DOMAINS, CRM_DOMAINS } from '@/modules/knowledge/pipeline-map/DataPipelineMapView'
 import KnowledgeDashboard from '@/modules/knowledge/pipeline-map/KnowledgeDashboard'
 import { layoutPipelineMap, GEOMETRY } from '@/modules/knowledge/pipeline-map/pipeline-map-layout'
 import { getDataPipelineMap, resolvePipelineMapDecision } from '@/modules/knowledge/pipeline-map/pipeline-map-read-model'
@@ -24,12 +24,16 @@ describe('FR-214 Knowledge (GKS) slot', () => {
     expect(knowledge).toMatchObject({ label: 'Knowledge (GKS)', basePath: '/knowledge' })
     expect(knowledge.sub.map((item) => [item.label, item.path])).toEqual([
       ['Dashboard', '/knowledge'],
+      // @req FR-254 — the Knowledge Console is a second surface in the same slot.
+      ['Knowledge console', '/knowledge/console'],
+      ['Documents', '/knowledge/documents'],
       ['Data Pipeline Map', '/knowledge/data-pipeline'],
       // @req FR-236 — the LINE FAQ candidate review surface (ADR-090 D6).
       ['LINE FAQ candidates', '/knowledge/candidates'],
     ])
     expect(VIEWER_DOMAINS).toContain('knowledge')
     expect(domainForPath('/knowledge/data-pipeline').key).toBe('knowledge')
+    expect(domainForPath('/knowledge/documents').key).toBe('knowledge')
     expect(DOMAIN_GROUPS.some((group) => group.childKeys.includes('knowledge'))).toBe(false)
     // ADR-063 D4: the external systems never become domains here.
     for (const key of ['gks', 'msp', 'genesisblockdb']) expect(VIEWER_DOMAINS).not.toContain(key)
@@ -102,9 +106,129 @@ describe('FR-213 view', () => {
     expect(html).not.toContain('pipeline-detail-CH-99')
   })
 
-  it('the slot Dashboard links to the map and names the planned console', () => {
+  it('renders ERP Domain Groups in filter dropdown and matches SCM child domains', () => {
+    expect(SCM_DOMAINS).toEqual(new Set(['inventory', 'procurement', 'commerce', 'warehouse']))
+    expect(CRM_DOMAINS).toEqual(new Set(['customer', 'market']))
+    expect(matchDomain('inventory', 'group:scm')).toBe(true)
+    expect(matchDomain('procurement', 'group:scm')).toBe(true)
+    expect(matchDomain('commerce', 'group:scm')).toBe(true)
+    expect(matchDomain('market', 'group:scm')).toBe(false)
+    expect(matchDomain('customer', 'group:crm')).toBe(true)
+    expect(matchDomain('inventory', 'group:crm')).toBe(false)
+    expect(matchDomain('knowledge', 'knowledge')).toBe(true)
+    expect(matchDomain('inventory', 'knowledge')).toBe(false)
+
+    const html = renderToStaticMarkup(createElement(DataPipelineMapView, { map }))
+    expect(html).toContain('label="ERP Domain Groups"')
+    expect(html).toContain('value="group:scm"')
+    expect(html).toContain('value="group:crm"')
+    expect(html).toContain('inventory (SCM)')
+    expect(html).toContain('procurement (SCM)')
+    expect(html).toContain('commerce (SCM)')
+  })
+
+  it('the slot Dashboard links to the map and the knowledge console', () => {
     const html = renderToStaticMarkup(createElement(KnowledgeDashboard, { map }))
     expect(html).toContain('href="/knowledge/data-pipeline"')
-    expect(html).toContain('TASK-ZAI-047')
+    expect(html).toContain('href="/knowledge/console"')
+  })
+})
+
+describe('FR-215 live health overlay', () => {
+  const sampleHealth = {
+    businessId: 'biz-1',
+    summary: { totalTracked: 12, totalFailures: 2, hasFailures: true, backedEdgeCount: 17, healthAvailable: true },
+    edges: {
+      'e.tier1-to-ledger': {
+        table: 'PipelineRun',
+        available: true,
+        total: 5,
+        countsByStatus: { SUCCEEDED: 3, FAILED: 2 },
+        failedCount: 2,
+        hasFailures: true,
+        lastRunAt: '2026-09-14T08:00:00.000Z',
+        monitorUrl: '/execution/data-migration',
+      },
+      'e.webhook-to-jobs': {
+        table: 'LineConversationJob',
+        available: true,
+        total: 7,
+        countsByStatus: { RECORDED: 7 },
+        failedCount: 0,
+        hasFailures: false,
+        lastRunAt: '2026-09-14T08:30:00.000Z',
+        monitorUrl: '/line-oa/live-crm',
+      },
+    },
+  }
+
+  it('renders live health badge on backed edges and no number on unbacked edges', () => {
+    const html = renderToStaticMarkup(
+      createElement(DataPipelineMapView, { map, initialHealth: sampleHealth })
+    )
+
+    // Backed edges have badges
+    expect(html).toContain('data-testid="edge-health-e.tier1-to-ledger"')
+    expect(html).toContain('data-testid="edge-health-e.webhook-to-jobs"')
+
+    // Unbacked edges have NO number (no badge rendered)
+    expect(html).not.toContain('data-testid="edge-health-e.repo-to-projection"')
+    expect(html).not.toContain('data-testid="edge-health-e.market-to-raw"')
+  })
+
+  it('marks edge with data-has-failures="true" and failure badge text when failures occur', () => {
+    const html = renderToStaticMarkup(
+      createElement(DataPipelineMapView, { map, initialHealth: sampleHealth })
+    )
+
+    expect(html).toContain('data-has-failures="true"')
+    expect(html).toContain('2 fail')
+    expect(html).toContain('data-testid="pipeline-health-toggle"')
+    expect(html).toContain('Live Health (12 · ⚠️ 2 fail)')
+  })
+
+  it('renders live health section and monitor link when a backed edge is inspected', () => {
+    // Render with backed edge selected
+    const html = renderToStaticMarkup(
+      createElement(DataPipelineMapView, {
+        map,
+        initialHealth: sampleHealth,
+      })
+    )
+    expect(html).toContain('data-testid="pipeline-health-toggle"')
+  })
+
+  it('static map renders completely when health is null or unavailable (resilience)', () => {
+    const html = renderToStaticMarkup(
+      createElement(DataPipelineMapView, { map, initialHealth: null })
+    )
+    expect(html).toContain('data-testid="data-pipeline-map"')
+    expect(html).toContain('Live Health')
+    for (const node of map.nodes) {
+      expect(html).toContain(`data-testid="pipeline-node-${node.id}"`)
+    }
+  })
+
+  it('renders an unavailable marker without substituting zero for a failed read', () => {
+    const health = {
+      ...sampleHealth,
+      summary: { ...sampleHealth.summary, totalTracked: null, totalFailures: null, hasFailures: null, healthAvailable: false },
+      edges: {
+        ...sampleHealth.edges,
+        'e.tier1-to-ledger': {
+          ...sampleHealth.edges['e.tier1-to-ledger'],
+          available: false,
+          total: null,
+          failedCount: null,
+          lastRunAt: null,
+          hasFailures: null,
+        },
+      },
+    }
+    const html = renderToStaticMarkup(createElement(DataPipelineMapView, { map, initialHealth: health }))
+    expect(html).toContain('data-testid="edge-health-e.tier1-to-ledger"')
+    expect(html).toContain('N/A')
+    expect(html).toContain('Live Health (ยังไม่พร้อมใช้งาน)')
+    expect(html).not.toContain('PipelineRun: null')
   })
 })

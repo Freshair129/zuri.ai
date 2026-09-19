@@ -5,6 +5,9 @@ import { fileURLToPath } from 'node:url';
 import readline from 'node:readline';
 import { z } from 'zod';
 import type { ConversationAnswer } from './conversation/contract.js';
+import type { ConversationWorkerEvent } from './conversation/worker.js';
+import type { ConversationClient } from './conversation/client.js';
+import type { ExecutionProgress } from './conversation/progress.js';
 import type { WarmResult } from './answer/providers/model-warmer.js';
 
 /*
@@ -22,7 +25,7 @@ const MAX_EVENT_LINE = 4_096;
 const DEFAULT_POLL_MS = 5_000;
 const DEFAULT_HEARTBEAT_MS = 40_000;
 // @req FR-244 — deliberately looser than the heartbeat: a residency change lags by at
-// most one interval, and VRAM scheduling has no 30s-reply-token deadline to race.
+// most one interval; per-turn reply deadlines are enforced separately by the worker.
 const DEFAULT_RESIDENCY_POLL_MS = 60_000;
 const MAX_STOP_MS = 300_000;
 
@@ -90,8 +93,10 @@ type FailureCode =
 type EdgeStatus = 'healthy' | 'degraded' | 'unavailable';
 
 type WorkerEvent =
+  | ({ type: 'progress'; version: typeof PROTOCOL_VERSION } & ExecutionProgress)
   | { type: 'ready'; version: typeof PROTOCOL_VERSION; workerId: string; transportOwner: 'SERVER' }
-  | { type: 'claim'; version: typeof PROTOCOL_VERSION; outcome: string }
+  | { type: 'claim'; version: typeof PROTOCOL_VERSION; outcome: string;
+      jobId?: string; executionId?: string; deliveryMode?: 'REPLY' | 'DELAYED_PUSH'; remainingBudgetMs?: number }
   | { type: 'heartbeat'; version: typeof PROTOCOL_VERSION; ok: boolean; status?: EdgeStatus; at: string }
   // @req FR-244 — one line per residency poll. Unrecognised by the native supervisor
   // today (its event match falls through to None and drops it, verified in
@@ -323,13 +328,13 @@ interface RuntimeModules {
     complete(job: unknown, text: string): Promise<void>;
     fail(job: unknown, code: 'EXECUTION_FAILED' | 'LOCAL_POLICY_UNAVAILABLE'): Promise<void>;
   };
-  createConversationExecutor: (config: Record<string, unknown>, options?: { ragUrl?: string }) => (job: unknown) => Promise<ConversationAnswer>;
+  createConversationExecutor: (config: Record<string, unknown>, options?: { ragUrl?: string; client?: ConversationClient; onProgress?: (event: ExecutionProgress) => void }) => (job: unknown) => Promise<ConversationAnswer>;
   runConversationLoop: (deps: {
     client: ReturnType<RuntimeModules['createConversationClient']>;
     answer: (job: unknown) => Promise<ConversationAnswer>;
     signal: AbortSignal;
     pollMs?: number;
-    onEvent?: (event: { outcome: string; jobId?: string; source?: 'model' | 'rules'; reason?: string }) => void;
+    onEvent?: (event: ConversationWorkerEvent) => void;
   }) => Promise<void>;
   requireComputeWorker: (env?: NodeJS.ProcessEnv) => void;
   HttpZuriApiClient: new (options: {
@@ -459,7 +464,10 @@ async function runManagedWorker(init: DesktopWorkerInit, input: DesktopWorkerInp
     modules.requireComputeWorker(process.env);
     const config = modules.loadConfig(process.env);
     const client = modules.createConversationClient({ baseUrl: init.cloudBaseUrl, deviceKey: init.deviceKey });
-    const answer = modules.createConversationExecutor(config, { ragUrl: init.ragUrl || 'http://127.0.0.1:8888' });
+    const answer = modules.createConversationExecutor(config, {
+      ragUrl: init.ragUrl || 'http://127.0.0.1:8888', client: client as ConversationClient,
+      onProgress: event => emit({ type: 'progress', version: PROTOCOL_VERSION, ...event }),
+    });
     /*
      * Model residency has one owner: this worker. `openai-compatible.ts`'s chat body never sends
      * `keep_alive` — Ollama silently ignores it there — so nothing pins the model on the reply
@@ -628,7 +636,9 @@ async function runManagedWorker(init: DesktopWorkerInit, input: DesktopWorkerInp
       pollMs: init.pollIntervalMs,
       onEvent: event => {
         if (!['retrying', 'stale_lease'].includes(event.outcome)) firstClaimAccepted = true;
-        emit({ type: 'claim', version: PROTOCOL_VERSION, outcome: event.outcome });
+        emit({ type: 'claim', version: PROTOCOL_VERSION, outcome: event.outcome,
+          jobId: event.jobId, executionId: event.executionId,
+          deliveryMode: event.deliveryMode, remainingBudgetMs: event.remainingBudgetMs });
       },
     }).catch(error => {
       emitFailure(errorCode(error));

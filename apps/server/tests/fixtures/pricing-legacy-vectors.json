@@ -1,0 +1,422 @@
+{
+  "evidence": "Captured actual legacy Python generate_quote with YAML parsed by Node and passed to its _apply_config (avoids missing PyYAML fallback), and browser pure quote with generated config; identical FX=5 CNY/34 USD asserted. No database/pipeline/network execution.",
+  "sourceFiles": [
+    {
+      "path": "src/cascade_engine/pricing_calculator.py",
+      "sha256": "8f0bc243111054ba3ee82d2980f439d0afd87b4277b76079f76e14609727a6c7"
+    },
+    {
+      "path": "price-boss/pricing.html",
+      "sha256": "8bcb17df5ca8dcc9a2edd14c53f8b5b6813e21a6a25a851214ef1e25ec4b9c75"
+    },
+    {
+      "path": "price-boss/pricing-config.json",
+      "sha256": "8d731b06f8ff7f7493e5814054af61da591af3fd03fb8c4a7f123fc8ace5e8ae"
+    },
+    {
+      "path": "config/pricing_rules_formula.yaml",
+      "sha256": "fe511dccfaae6c02fe48d6f830aa7632824823efa4dbfde68a0cb848ca081538"
+    }
+  ],
+  "roundingPolicyDifference": "Approved 20260913 S(x)=CEIL to satang and shared cost division CEIL replace legacy 4dp float rounding; kind=set floor omission and browser automatic USD inference are intentional changes tested separately.",
+  "cases": [
+    {
+      "name": "volume_truck",
+      "method": "none",
+      "profile": "standard",
+      "cbm": 0.1,
+      "kg": null,
+      "month": 11,
+      "quantityRows": [
+        {
+          "quantity": 10,
+          "pythonPriceSatang": 82000,
+          "pythonLandedThb": "314.0000",
+          "browserPriceSatang": 82000
+        },
+        {
+          "quantity": 20,
+          "pythonPriceSatang": 58000,
+          "pythonLandedThb": "282.0000",
+          "browserPriceSatang": 58000
+        },
+        {
+          "quantity": 50,
+          "pythonPriceSatang": 55000,
+          "pythonLandedThb": "272.4000",
+          "browserPriceSatang": 55000
+        },
+        {
+          "quantity": 100,
+          "pythonPriceSatang": 52000,
+          "pythonLandedThb": "250.0000",
+          "browserPriceSatang": 52000
+        },
+        {
+          "quantity": 300,
+          "pythonPriceSatang": 50000,
+          "pythonLandedThb": "234.0000",
+          "browserPriceSatang": 50000
+        },
+        {
+          "quantity": 500,
+          "pythonPriceSatang": 48000,
+          "pythonLandedThb": "202.0000",
+          "browserPriceSatang": 48000
+        },
+        {
+          "quantity": 1000,
+          "pythonPriceSatang": 47000,
+          "pythonLandedThb": "202.0000",
+          "browserPriceSatang": 47000
+        }
+      ]
+    },
+    {
+      "name": "volume_sea",
+      "method": "none",
+      "profile": "corporate",
+      "cbm": 0.2,
+      "kg": null,
+      "month": 4,
+      "quantityRows": [
+        {
+          "quantity": 100,
+          "pythonPriceSatang": 36000,
+          "pythonLandedThb": "282.0000",
+          "browserPriceSatang": 36000
+        },
+        {
+          "quantity": 300,
+          "pythonPriceSatang": 34000,
+          "pythonLandedThb": "266.0000",
+          "browserPriceSatang": 34000
+        },
+        {
+          "quantity": 500,
+          "pythonPriceSatang": 34000,
+          "pythonLandedThb": "234.0000",
+          "browserPriceSatang": 34000
+        },
+        {
+          "quantity": 1000,
+          "pythonPriceSatang": 33000,
+          "pythonLandedThb": "214.0000",
+          "browserPriceSatang": 33000
+        }
+      ]
+    },
+    {
+      "name": "weight",
+      "method": "flat",
+      "profile": "standard",
+      "cbm": 0.1,
+      "kg": 50,
+      "month": 4,
+      "quantityRows": [
+        {
+          "quantity": 10,
+          "pythonPriceSatang": 84000,
+          "pythonLandedThb": "340.0000",
+          "browserPriceSatang": 84000
+        },
+        {
+          "quantity": 20,
+          "pythonPriceSatang": 58000,
+          "pythonLandedThb": "300.0000",
+          "browserPriceSatang": 58000
+        },
+        {
+          "quantity": 50,
+          "pythonPriceSatang": 55000,
+          "pythonLandedThb": "292.0000",
+          "browserPriceSatang": 55000
+        },
+        {
+          "quantity": 100,
+          "pythonPriceSatang": 52000,
+          "pythonLandedThb": "268.0000",
+          "browserPriceSatang": 52000
+        },
+        {
+          "quantity": 300,
+          "pythonPriceSatang": 50000,
+          "pythonLandedThb": "252.0000",
+          "browserPriceSatang": 50000
+        },
+        {
+          "quantity": 500,
+          "pythonPriceSatang": 48000,
+          "pythonLandedThb": "220.0000",
+          "browserPriceSatang": 48000
+        },
+        {
+          "quantity": 1000,
+          "pythonPriceSatang": 47000,
+          "pythonLandedThb": "220.0000",
+          "browserPriceSatang": 47000
+        }
+      ]
+    },
+    {
+      "name": "hotstamp",
+      "method": "hotstamp",
+      "profile": "standard",
+      "cbm": 0.1,
+      "kg": null,
+      "month": 4,
+      "quantityRows": [
+        {
+          "quantity": 10,
+          "pythonPriceSatang": 86000,
+          "pythonLandedThb": "352.4200",
+          "browserPriceSatang": 86000
+        },
+        {
+          "quantity": 20,
+          "pythonPriceSatang": 58000,
+          "pythonLandedThb": "301.2100",
+          "browserPriceSatang": 58000
+        },
+        {
+          "quantity": 50,
+          "pythonPriceSatang": 55000,
+          "pythonLandedThb": "280.0840",
+          "browserPriceSatang": 55000
+        },
+        {
+          "quantity": 100,
+          "pythonPriceSatang": 52000,
+          "pythonLandedThb": "253.8420",
+          "browserPriceSatang": 52000
+        },
+        {
+          "quantity": 300,
+          "pythonPriceSatang": 50000,
+          "pythonLandedThb": "237.1167",
+          "browserPriceSatang": 50000
+        },
+        {
+          "quantity": 500,
+          "pythonPriceSatang": 48000,
+          "pythonLandedThb": "204.5364",
+          "browserPriceSatang": 48000
+        },
+        {
+          "quantity": 1000,
+          "pythonPriceSatang": 47000,
+          "pythonLandedThb": "203.8530",
+          "browserPriceSatang": 47000
+        }
+      ]
+    },
+    {
+      "name": "hotstamp_text",
+      "method": "hotstamp_text",
+      "profile": "standard",
+      "cbm": 0.1,
+      "kg": null,
+      "month": 4,
+      "quantityRows": [
+        {
+          "quantity": 10,
+          "pythonPriceSatang": 84000,
+          "pythonLandedThb": "330.4560",
+          "browserPriceSatang": 84000
+        },
+        {
+          "quantity": 20,
+          "pythonPriceSatang": 58000,
+          "pythonLandedThb": "290.2280",
+          "browserPriceSatang": 58000
+        },
+        {
+          "quantity": 50,
+          "pythonPriceSatang": 55000,
+          "pythonLandedThb": "275.6912",
+          "browserPriceSatang": 55000
+        },
+        {
+          "quantity": 100,
+          "pythonPriceSatang": 52000,
+          "pythonLandedThb": "251.6456",
+          "browserPriceSatang": 52000
+        },
+        {
+          "quantity": 300,
+          "pythonPriceSatang": 50000,
+          "pythonLandedThb": "234.5485",
+          "browserPriceSatang": 50000
+        },
+        {
+          "quantity": 500,
+          "pythonPriceSatang": 48000,
+          "pythonLandedThb": "202.3291",
+          "browserPriceSatang": 48000
+        },
+        {
+          "quantity": 1000,
+          "pythonPriceSatang": 47000,
+          "pythonLandedThb": "202.1646",
+          "browserPriceSatang": 47000
+        }
+      ]
+    },
+    {
+      "name": "engrave",
+      "method": "engrave",
+      "profile": "standard",
+      "cbm": 0.1,
+      "kg": null,
+      "month": 4,
+      "quantityRows": [
+        {
+          "quantity": 10,
+          "pythonPriceSatang": 82000,
+          "pythonLandedThb": "316.7540",
+          "browserPriceSatang": 82000
+        },
+        {
+          "quantity": 20,
+          "pythonPriceSatang": 58000,
+          "pythonLandedThb": "284.7540",
+          "browserPriceSatang": 58000
+        },
+        {
+          "quantity": 50,
+          "pythonPriceSatang": 55000,
+          "pythonLandedThb": "275.1540",
+          "browserPriceSatang": 55000
+        },
+        {
+          "quantity": 100,
+          "pythonPriceSatang": 52000,
+          "pythonLandedThb": "251.7000",
+          "browserPriceSatang": 52000
+        },
+        {
+          "quantity": 300,
+          "pythonPriceSatang": 50000,
+          "pythonLandedThb": "235.1900",
+          "browserPriceSatang": 50000
+        },
+        {
+          "quantity": 500,
+          "pythonPriceSatang": 48000,
+          "pythonLandedThb": "202.6800",
+          "browserPriceSatang": 48000
+        },
+        {
+          "quantity": 1000,
+          "pythonPriceSatang": 47000,
+          "pythonLandedThb": "202.6800",
+          "browserPriceSatang": 47000
+        }
+      ]
+    },
+    {
+      "name": "silk",
+      "method": "silk",
+      "profile": "standard",
+      "cbm": 0.1,
+      "kg": null,
+      "month": 4,
+      "quantityRows": [
+        {
+          "quantity": 10,
+          "pythonPriceSatang": 86000,
+          "pythonLandedThb": "358.2000",
+          "browserPriceSatang": 86000
+        },
+        {
+          "quantity": 20,
+          "pythonPriceSatang": 58000,
+          "pythonLandedThb": "304.1000",
+          "browserPriceSatang": 58000
+        },
+        {
+          "quantity": 50,
+          "pythonPriceSatang": 55000,
+          "pythonLandedThb": "281.2400",
+          "browserPriceSatang": 55000
+        },
+        {
+          "quantity": 100,
+          "pythonPriceSatang": 52000,
+          "pythonLandedThb": "254.4200",
+          "browserPriceSatang": 52000
+        },
+        {
+          "quantity": 300,
+          "pythonPriceSatang": 50000,
+          "pythonLandedThb": "235.4733",
+          "browserPriceSatang": 50000
+        },
+        {
+          "quantity": 500,
+          "pythonPriceSatang": 48000,
+          "pythonLandedThb": "203.3600",
+          "browserPriceSatang": 48000
+        },
+        {
+          "quantity": 1000,
+          "pythonPriceSatang": 47000,
+          "pythonLandedThb": "203.3600",
+          "browserPriceSatang": 47000
+        }
+      ]
+    },
+    {
+      "name": "uv",
+      "method": "uv",
+      "profile": "standard",
+      "cbm": 0.1,
+      "kg": null,
+      "month": 4,
+      "quantityRows": [
+        {
+          "quantity": 10,
+          "pythonPriceSatang": 82000,
+          "pythonLandedThb": "317.4000",
+          "browserPriceSatang": 82000
+        },
+        {
+          "quantity": 20,
+          "pythonPriceSatang": 58000,
+          "pythonLandedThb": "285.4000",
+          "browserPriceSatang": 58000
+        },
+        {
+          "quantity": 50,
+          "pythonPriceSatang": 55000,
+          "pythonLandedThb": "275.8000",
+          "browserPriceSatang": 55000
+        },
+        {
+          "quantity": 100,
+          "pythonPriceSatang": 52000,
+          "pythonLandedThb": "253.4000",
+          "browserPriceSatang": 52000
+        },
+        {
+          "quantity": 300,
+          "pythonPriceSatang": 50000,
+          "pythonLandedThb": "237.4000",
+          "browserPriceSatang": 50000
+        },
+        {
+          "quantity": 500,
+          "pythonPriceSatang": 48000,
+          "pythonLandedThb": "205.4000",
+          "browserPriceSatang": 48000
+        },
+        {
+          "quantity": 1000,
+          "pythonPriceSatang": 47000,
+          "pythonLandedThb": "205.4000",
+          "browserPriceSatang": 47000
+        }
+      ]
+    }
+  ]
+}

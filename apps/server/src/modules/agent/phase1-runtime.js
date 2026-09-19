@@ -290,6 +290,8 @@ export function createPhase1BusinessAgentPortsFromEnv(
     ports.threadMemory = createMspThreadMemoryPort({
       transport,
       actor: env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
+      agentId: env.ZURI_MSP_THREAD_AGENT_ID ?? env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
+      workspaceId: env.ZURI_MSP_THREAD_WORKSPACE_ID,
       serviceKey: env.ZURI_MSP_THREAD_SERVICE_KEY,
       maxContextBytes: Number(env.ZURI_MSP_CONTEXT_MAX_BYTES ?? 24000),
       idleTimeoutMinutes: Number(env.MSP_THREAD_IDLE_TIMEOUT_MINUTES ?? 30),

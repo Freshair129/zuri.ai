@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { assertPricingCatalogCurrent } from '@/modules/commerce/pricing-publication'
 import { assertProjectWritable, requireViewer } from '@/modules/project-manager/application/project-authorization'
 import { assertProjectReadable } from '@/modules/project-manager/application/project-inventory-read-model'
 import { isApiAccessFor, ownsBusiness, seesBusiness } from '@/modules/identity/viewer-authority'
@@ -6,8 +7,9 @@ import { isApiAccessFor, ownsBusiness, seesBusiness } from '@/modules/identity/v
 // @req FR-173 — knowledge admission, retrieval, citation and withdrawal use
 // the live Business/Project/FileAsset authority instead of request-selected
 // scope or a global role label.
-// @spec ADR-072, SEC-001, SEC-008
-// @tested tests/integration/knowledge-corpus.test.js
+// @req FR-253 — computed catalog reads and publication check live Commerce policy.
+// @spec ADR-072, ADR-098, SEC-001, SEC-008
+// @tested tests/integration/knowledge-corpus.test.js, tests/integration/fr253-pricing-catalog.test.js
 
 const ACTIVE = 'ACTIVE'
 
@@ -301,6 +303,7 @@ export async function assertKnowledgeFileReadable(
   const access = await resolveKnowledgeScope({ viewer, businessId, projectId, action: 'read', db, env })
   const asset = await loadLiveFileAsset(db, fileAssetId)
   await assertAssetRelation(asset, access, { viewer, action: 'read', db, env })
+  await assertPricingCatalogCurrent(asset, { db })
   return { asset, ...access }
 }
 
@@ -314,6 +317,7 @@ export async function assertKnowledgeFileWritable(
   const access = await resolveKnowledgeScope({ viewer, businessId, projectId, action: 'write', db, env })
   const asset = await loadLiveFileAsset(db, fileAssetId)
   await assertAssetRelation(asset, access, { viewer, action: 'write', db, env })
+  await assertPricingCatalogCurrent(asset, { db })
   return { asset, ...access }
 }
 
@@ -332,6 +336,7 @@ export async function assertKnowledgeFileCurrent(
   if (asset.businessId !== business.id || asset.tenantId !== business.tenantId) {
     throw notFound('Knowledge FileAsset not found', 'KNOWLEDGE_FILE_ASSET_NOT_FOUND')
   }
+  await assertPricingCatalogCurrent(asset, { db })
   const requestedProjectId = cleanId(projectId)
   if (requestedProjectId) {
     const project = await loadProject(db, requestedProjectId)

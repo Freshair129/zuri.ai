@@ -8,7 +8,7 @@ import { ROLE_LINE_OA_PUBLISHER } from '@/modules/identity/rbac'
 import { mintEdgeDeviceCredential, resolveEdgeDeviceContext } from '@/modules/identity/edge-device-credential'
 import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
 import {
-  admitLineConversation, claimEdgeConversation, completeEdgeConversation,
+  admitLineConversation, claimEdgeConversation, completeEdgeConversation, failEdgeConversation,
   runLineConversationWorker, LINE_JOB_LEASE_MS, acknowledgeUnknownLineJob,
 } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { applyLineOaAccountAction } from '@/modules/line-oa-studio/application/line-oa-account-service'
@@ -90,7 +90,137 @@ afterEach(async () => {
   await prisma.lineConversationJob.deleteMany({ where: { tenantId: tenant.id } })
 })
 
+describe('negotiated Edge reply deadline', () => {
+  it('does not hand an already-expired v2 claim to Edge after memory assembly', async () => {
+    const oa = await account({ executionMode: 'EDGE' })
+    const admitted = await admit(oa, event('slow-claim-context'), { env: { ...env, ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' } })
+    let elapsed = 0
+    const monotonic = vi.spyOn(performance, 'now').mockImplementation(() => elapsed)
+    try {
+      await expect(claimEdgeConversation({ deviceContext: deviceA, contractVersions: ['2'], now: start,
+        memoryContext: async () => { elapsed = 41000; return null } })).rejects.toMatchObject({ status: 409 })
+      expect(await row(admitted.jobId)).toMatchObject({ status: 'FAILED', errorCode: 'REPLY_DEADLINE_MISSED' })
+      expect(await prisma.agentTraceEvent.count({ where: { turnId: admitted.jobId, kind: 'CONTEXT_COMMITTED' } })).toBe(0)
+    } finally { monotonic.mockRestore() }
+  })
+  it('charges the initial completion contract read against the original deadline without memory', async () => {
+    const oa = await account({ executionMode: 'EDGE' })
+    const admitted = await admit(oa, event('slow-contract-read'))
+    const { job } = await claimEdgeConversation({ deviceContext: deviceA, contractVersions: ['2'], now: start })
+    let elapsed = 0
+    const monotonic = vi.spyOn(performance, 'now').mockImplementation(() => elapsed)
+    const db = new Proxy(prisma, { get(target, key) {
+      if (key !== 'agentTraceEvent') return target[key]
+      return { findFirst: async args => { const result = await target.agentTraceEvent.findFirst(args); elapsed = 21000; return result } }
+    } })
+    try {
+      await completeEdgeConversation(admitted.jobId, { version: job.version, executionId: job.executionId, text: 'too late' },
+        { db, deviceContext: deviceA, now: later(20000), nudge: () => {} })
+      expect(await row(admitted.jobId)).toMatchObject({ status: 'FAILED', answerText: null, errorCode: 'REPLY_DEADLINE_MISSED' })
+    } finally { monotonic.mockRestore() }
+  })
+  it.each(['account-resolution', 'send-transaction'])('never starts Reply if %s crosses the token deadline', async stage => {
+    const oa = await account()
+    const admitted = await admit(oa, event(`slow-${stage}`))
+    let clock = start
+    const db = stage === 'send-transaction' ? failingTransaction('agentTraceEvent', 'create', args => {
+      if (args.data.kind === 'SEND_STARTED') clock = later(46000)
+      return false
+    }, 'unused') : prisma
+    const options = worker({ db, now: () => clock, resolveAccount: async id => {
+      const result = await prisma.lineOaAccount.findUnique({ where: { id } })
+      if (stage === 'account-resolution') clock = later(46000)
+      return result
+    } })
+    await runLineConversationWorker(options)
+    expect(options.replyTransport.send).not.toHaveBeenCalled()
+    expect(options.pushTransport.send).not.toHaveBeenCalled()
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'FAILED', errorCode: 'REPLY_DEADLINE_MISSED', sealedReplyToken: null })
+  })
+  it('sends the persisted deadline less send reserve, accounting for time queued', async () => {
+    const oa = await account({ executionMode: 'EDGE', modelAccess: 'LOCAL_ONLY' })
+    const admitted = await admit(oa, event('budget'))
+    const claimed = await claimEdgeConversation({ deviceContext: deviceA, contractVersions: ['2', '1'], now: later(9000) })
+    expect(claimed.contractVersion).toBe('2')
+    expect(conversationEnvelope.safeParse(claimed).success).toBe(true)
+    expect(claimed.job.deadline).toEqual({
+      issuedAt: later(9000).toISOString(), answerDeadlineAt: later(40000).toISOString(),
+      remainingBudgetMs: 31000, deliveryMode: 'REPLY',
+    })
+    expect(claimed.job.executionId).toBe((await row(admitted.jobId)).executionId)
+    expect(JSON.stringify(claimed)).not.toContain('token-budget')
+  })
+
+  it('rejects mismatched execution identity and discards a late v2 answer without sending', async () => {
+    const oa = await account({ executionMode: 'EDGE', allowDelayedPush: true })
+    const admitted = await admit(oa, event('late-budget'))
+    const claimed = await claimEdgeConversation({ deviceContext: deviceA, contractVersions: ['2'], now: start })
+    const completion = { version: claimed.job.version, executionId: claimed.job.executionId, text: 'late' }
+    await expect(completeEdgeConversation(admitted.jobId, { version: claimed.job.version, text: 'omit identity' },
+      { deviceContext: deviceA, now: start })).rejects.toMatchObject({ status: 409 })
+    await expect(completeEdgeConversation(admitted.jobId, { ...completion,
+      executionId: '00000000-0000-4000-8000-000000000000' }, { deviceContext: deviceA, now: start })).rejects.toMatchObject({ status: 409 })
+    const nudge = vi.fn()
+    expect(await completeEdgeConversation(admitted.jobId, completion, { deviceContext: deviceA, now: later(40001), nudge })).toMatchObject({ status: 'FAILED' })
+    expect(await row(admitted.jobId)).toMatchObject({ errorCode: 'REPLY_DEADLINE_MISSED', answerText: null, sealedReplyToken: null })
+    expect(nudge).not.toHaveBeenCalled()
+  })
+
+  it('nudges delivery only after a timely answer is durably READY', async () => {
+    const oa = await account({ executionMode: 'EDGE' })
+    const admitted = await admit(oa, event('timely-budget'))
+    const { job } = await claimEdgeConversation({ deviceContext: deviceA, contractVersions: ['2'], now: start })
+    const nudge = vi.fn()
+    await completeEdgeConversation(admitted.jobId, { version: job.version, executionId: job.executionId, text: 'verified answer' },
+      { deviceContext: deviceA, now: later(29000), nudge })
+    expect(nudge).toHaveBeenCalledOnce()
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'READY', answerText: 'verified answer' })
+  })
+
+  it('labels work claimed after token expiry as delayed push only when allowed', async () => {
+    const oa = await account({ executionMode: 'EDGE', allowDelayedPush: true })
+    const admitted = await admit(oa, event('delayed-budget'))
+    const { job } = await claimEdgeConversation({ deviceContext: deviceA, contractVersions: ['2'], now: later(60000) })
+    expect(job.deadline.deliveryMode).toBe('DELAYED_PUSH')
+    expect(job.deadline.remainingBudgetMs).toBe(240000)
+    await completeEdgeConversation(admitted.jobId, { version: job.version, executionId: job.executionId, text: 'delayed answer' },
+      { deviceContext: deviceA, now: later(90000), nudge: () => {} })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'READY', sendMethod: 'PUSH' })
+  })
+  it('stores bounded invocation receipts under the claimed execution and rejects raw context', async () => {
+    const oa = await account({ executionMode: 'EDGE' })
+    const admitted = await admit(oa, event('context-receipt'))
+    const { job } = await claimEdgeConversation({ deviceContext: deviceA, contractVersions: ['2'], now: start })
+    const receipt = { receiptId: 'ctxrcpt_20c0eacf-1e65-413a-a6c1-3f6d125cf123',
+      refs: { msp: [], citations: [], records: ['tool:0'] }, hash: 'a'.repeat(64),
+      budget: { max: 32768, used: 5000, trimmed: 0, unit: 'utf8-bytes' }, dropped: [] }
+    const input = { version: job.version, executionId: job.executionId, text: 'verified answer', contextReceipts: [receipt] }
+    await expect(completeEdgeConversation(admitted.jobId, { ...input, contextReceipts: [{ ...receipt, prompt: 'PRIVATE' }] },
+      { deviceContext: deviceA, now: later(20000) })).rejects.toThrow()
+    await completeEdgeConversation(admitted.jobId, input, { deviceContext: deviceA, now: later(20000), nudge: () => {} })
+    const events = await prisma.agentTraceEvent.findMany({ where: { turnId: admitted.jobId, kind: 'CONTEXT_RECEIPT' } })
+    expect(events).toHaveLength(1)
+    expect(events[0].executionId).toBe(job.executionId)
+    expect(JSON.parse(events[0].payloadJson)).toMatchObject({ ...receipt, evidenceSource: 'EDGE_REPORTED' })
+    expect(events[0].payloadJson).not.toContain('PRIVATE')
+  })
+})
+
 describe('server LINE admission', () => {
+  it('persists content-free invocation receipts when model submission becomes unknown', async () => {
+    const oa = await account({ executionMode: 'EDGE' })
+    const admitted = await admit(oa, event('failed-context-receipt'))
+    const { job } = await claimEdgeConversation({ deviceContext: deviceA, contractVersions: ['2'], now: start })
+    const receipt = { receiptId: 'ctxrcpt_20c0eacf-1e65-413a-a6c1-3f6d125cf123',
+      refs: { msp: [], citations: [], records: [] }, hash: 'b'.repeat(64),
+      budget: { max: 32768, used: 500, trimmed: 0, unit: 'utf8-bytes' }, dropped: [] }
+    await failEdgeConversation(admitted.jobId, { version: job.version, executionId: job.executionId,
+      code: 'MSP_INJECTION_RECEIPT_UNKNOWN', contextReceipts: [receipt] }, { deviceContext: deviceA, now: later(20000) })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'UNKNOWN', answerText: null, sealedReplyToken: null })
+    const traces = await prisma.agentTraceEvent.findMany({ where: { turnId: admitted.jobId, kind: 'CONTEXT_RECEIPT' } })
+    expect(traces).toHaveLength(1)
+    expect(JSON.parse(traces[0].payloadJson)).toMatchObject(receipt)
+  })
   it('deduplicates redelivery and changed event IDs without a second inbound or job', async () => {
     const oa = await account()
     const incoming = event('duplicate')

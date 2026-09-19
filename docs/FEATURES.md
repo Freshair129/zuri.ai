@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.56.0b"
+version: "1.60.0b"
 status: active
-last_update: "2026-09-16T14:38:26+07:00,RWANG"
+last_update: "2026-09-17T02:46:11+07:00,RWANG"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -12,11 +12,18 @@ relations:
 
 # Features (FEAT registry)
 
+Version diff 1.59.0b -> 1.60.0b: compose Knowledge Console as FR-254 in FEAT-013, preserving published FR-253 Commerce pricing. Console scope unchanged; release verification pending.
+
+Version diff 1.58.0b → 1.59.0b: declare FR-253 Commerce pricing rules and formula engine, owner approved 2026-09-17; TASK-ZAI-055/056/059. Implementation in progress, no production activation.
+Version diff 1.57.0b → 1.58.0b: register owner-approved FR-252 Project Feature authority as a project-manager feature-of-one under ADR-097. Cross-domain P1–P4 slices share that requirement; no new FEAT bundle or runtime completion.
+
+Version diff 1.56.0b → 1.57.0b: register owner-approved FR-251 as a project-manager feature-of-one for the read-only Project Execution Domains view, now implemented and verified locally; FEAT-033's FR-215 live overlay is implemented locally with four bounded owning-domain reads.
+
 Version diff 1.55.0b → 1.56.0b: register FR-250 as a project-manager feature-of-one for hierarchical Projects & Work navigation. No new FEAT bundle or runtime completion is asserted.
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.56.0b |
+| **Version** | 1.60.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -46,7 +53,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-010 | Production Identity & Access Management — canonical Person/channel identity, persisted sessions, active Membership lifecycle, shared policy enforcement and agent/tool scope isolation | FR-094, FR-095, FR-096, FR-097, FR-098 | building |
 | FEAT-011 | SoT Pipeline Console — plan board, human approval inbox with pull-based decision export, and a node/edge status graph for the business-wide Source-of-Truth pipeline | FR-099, FR-100, FR-101 | building |
 | FEAT-012 | ExecutionPlanBundle — one portable, self-contained programme artifact (strategy + N Projects + cross-Project dependencies) imported through one combined dry-run and one confirmation, above the canonical PlanEnvelope | FR-108 | live |
-| FEAT-013 | Knowledge Ingestion Governance — the governance and isolated execution layer over the seventeen-stage knowledge ingestion pipeline (ADR-073; extension points in docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md): the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run; ADR-072 adds authorized source admission and receipt-backed corpus serving | FR-109, FR-110, FR-111, FR-173 | building |
+| FEAT-013 | Knowledge Ingestion Governance — the governance and isolated execution layer over the seventeen-stage knowledge ingestion pipeline (ADR-073; extension points in docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md): the stage catalog and end-to-end job trace carried on the FR-071 execution ledger, the published-snapshot contract that lets an answer name the corpus it read, and the sensitivity/processing-policy lattice that decides what may be indexed and where each stage may run; ADR-072 adds authorized source admission and receipt-backed corpus serving | FR-109, FR-110, FR-111, FR-173, FR-254 | building |
 | FEAT-014 | CRM Conversation Intelligence — the derived-intelligence layer over the FR-023 LINE ingress: an AI-inferred per-Customer profile, per-conversation analysis records, and a per-Business Daily Sales Brief pushed over LINE; table shapes borrowed from the legacy ERD as prior art and rebound to this product's scope chain (ADR-054) | FR-126, FR-127, FR-128 | building |
 | FEAT-015 | Asset Management Foundation — first-class physical asset domain, evidence-backed multi-surface intake, PR/PO/payment/lot validation, temporal responsibility/location/Project allocation and Finance-review depreciation candidates | FR-133, FR-134, FR-135, FR-136 | building |
 | FEAT-016 | Asset Evidence Intake Execution — private cloud evidence, candidate OCR/Vision with human review, canonical Excel/Google Sheets snapshot import-export and trusted LINE FileAsset handoff up to `READY_FOR_REGISTRATION` | FR-137, FR-138, FR-139, FR-140 | live (configuration-gated) |
@@ -66,7 +73,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-030 | Audit Access Evidence — closing the read-side gap ADR-077's lifecycle assumed was already open: `AuditEvent` gains seven nullable columns (`tenantId`, `businessId`, `reason`, `beforeJson`, `afterJson`, `requestId`, `sessionId`) so scope and the change made are queryable rather than living only inside `payloadJson` for whichever writer happened to include them, and identity gains `listAccessHistory` (a Business/Tenant owner, oneself, or the operator reads the event stream for their own scope, 404-shaped identically for unowned and nonexistent) and `listBusinessAccess` (the current grant roster with provenance) — the access review a reason on every FR-191 transition is only worth writing if someone can read it back (ADR-080, 2026-09-12) | FR-198, FR-199 | implemented |
 | FEAT-031 | SKU governance (anti-SKU-bloat) — the product nature declared once at the master and inherited by every SKU so a service is never a variant of a good, variant identity as the key that makes one physical variant one SKU, barcodes and partner codes as resolvable attributes an intake checks before it creates, pack sizes as unit conversions rather than SKUs, the SKU lifecycle (phase-out, reactivate, merge, the archive guard), replenishment parameters, and the read-only catalogue hygiene report with its merge desk on the Inventory console (ADR-083, `DOM-INVENTORY`) | FR-201, FR-202, FR-203, FR-204, FR-205, FR-206, FR-207 | implemented |
 | FEAT-032 | Catalogue intake that resolves before it creates — one envelope that JSON, a Business-specific Excel workbook and a LINE `#sku` command all convert into; a planner that looks up every item by its barcodes, partner codes and SKU code (following merges) before it plans a create, matches without overwriting, and applies ADR-083's guards across the catalogue and the batch; a persisted preview whose plan hash a commit must match; an all-or-nothing commit through the existing catalogue writers; the Import tab; and LINE previews that only a verified staff sender with Inventory write authority can confirm (ADR-084, `DOM-INVENTORY`) | FR-208, FR-209, FR-210 | implemented |
-| FEAT-033 | Data Pipeline Map — where data enters zuri-ai, where it is combined and who receives it, kept as a validated registry whose surface levels, build statuses and FEATs are derived from the tree and the readiness snapshot, drawn as a node-edge view with chain, domain and status filters in a Knowledge (GKS) navigation slot, with live per-edge health for the active Business declared next (ADR-085, `DOM-KNOWLEDGE`) | FR-212, FR-213, FR-214, FR-215 | building |
+| FEAT-033 | Data Pipeline Map — where data enters zuri-ai, where it is combined and who receives it, kept as a validated registry whose surface levels, build statuses and FEATs are derived from the tree and the readiness snapshot, drawn as a node-edge view with chain, domain and status filters in a Knowledge (GKS) navigation slot, with live per-edge health for the active Business implemented locally through owning-domain read ports (ADR-085, `DOM-KNOWLEDGE`) | FR-212, FR-213, FR-214, FR-215 | building |
 | FEAT-034 | Programme delivery telemetry — phase cards on the operator programme board show counts, size, plan window and effort estimate beside the time and tokens really used, measured from local agent session logs and agent usage reports and never presented as progress, and task cards carry evidence badges and subtask progress (ADR-086, `DOM-PLATFORM-CONTROL`) | FR-216, FR-217, FR-218, FR-219 | live |
 | FEAT-035 | Zuri harness usage plugin — Claude Code and Codex agents on any machine pair once through a signed-in browser, hold a credential that can only report usage, and report each finished session attributed to the approving person, the device and the lane of its branch (ADR-087, `DOM-IDENTITY`, `DOM-PLATFORM-CONTROL`) | FR-220, FR-221, FR-222 | live |
 | FEAT-036 | Connect LINE OA yourself — a Business owner connects a LINE Official Account from the browser: after a TOTP step-up they enter the Channel ID and Channel secret once, the server proves them with LINE, claims the bot for this installation, stores the secret write-only in the Integration vault (Supabase Vault, or an encrypted store on self-host) and mints short-lived tokens itself, sets and tests the webhook through LINE's API and decides on its own when the old transport has gone quiet — with no operator and no host file (ADR-089, `DOM-INTEGRATION`, `DOM-IDENTITY`, `DOM-LINE-OA-STUDIO`) | FR-223, FR-224, FR-225, FR-226, FR-227, FR-228 | building |
@@ -76,6 +83,7 @@ this table (`feat:` nodes, `bundles` edges) and TRACE shows the bundle per FR.
 | FEAT-040 | Conversation sessions and model residency — a long LINE conversation reads as separate sittings: each message and event belongs to a session that closes after 30 quiet minutes (10 to 120 per account), carried on the LINE job and trace and shown as a divider in the inbox, and the local model stays loaded only during each account's business hours, with a fixed reply outside them (ADR-094, `DOM-CRM`, `DOM-LINE-OA-STUDIO`) | FR-243, FR-244 | declared |
 | FEAT-041 | Chat evidence — what a customer and the business said stays provable: staff replies sent from the inbox are part of the record, and message bodies past their retention window move to an encrypted, hash-chained archive on a local disk for 10 years, retrieved only by an owner at AAL2 with a case reference and kept past an erasure only under a recorded legal hold (ADR-093, `DOM-CRM`) | FR-245, FR-246 | declared |
 | FEAT-042 | Observability — error tracking and feature usage: operators read a deduplicated, resolvable error list and a per-person breakdown of which pages and actions are actually used, both extending the existing structured logger rather than a third-party service (ADR-095, `DOM-PLATFORM-CONTROL`) | FR-247, FR-248, FR-249 | building |
+| FEAT-043 | Server-owned self-hosted inference pool | FR-255, FR-256, FR-257, FR-258, FR-259 | approved design — repository declaration pending |
 
 Version diff 1.39.0b → 1.40.0b (2026-09-12): FEAT-030 declared and implemented in the same change — audit events carry queryable scope (FR-198) and identity gains the two read models an access review needs (FR-199), under ADR-080. Closes the gap ADR-077's grant lifecycle assumed was already open.
 
@@ -902,9 +910,29 @@ writing one sentence here, or the governance chain stops.
     "useCase": "ผู้ใช้เปิด Projects & Work แล้วเลือกหมวด Project Management, Work Management หรือ Resource Coordination จาก sidebar และเลือกแท็บภายในหมวดนั้น โดยยังอยู่ในโปรเจกต์เดิม เปิด Inventory, Team และ Work views เดิมได้ครบ ใช้ Import plan จากปุ่มเดียว และเห็น Requirements, Risks, Resources กับ Agent Delivery ว่าส่วนใดยัง Planned โดยเมนูไม่เพิ่มสิทธิ์"
   },
   {
+    "id": "FR-252",
+    "primaryDomain": "project-manager",
+    "useCase": "ผู้ใช้เปิด Features ภายใน Project เพื่อดูผลลัพธ์ที่ต้องส่งมอบ แยกเจ้าของ Domain กับผู้สนับสนุน เชื่อมงานและหลักฐาน requirement โดยเจ้าของ Business จัดการข้อมูลได้ตามสิทธิ์ มีการตรวจเวอร์ชันและบันทึก audit งานที่ใช้ร่วมกันไม่นับซ้ำและไม่เปลี่ยนสูตร progress เดิม"
+  },
+  {
+    "id": "FR-251",
+    "primaryDomain": "project-manager",
+    "useCase": "ผู้ใช้ที่มีสิทธิ์อ่าน Project เปิด Delivery Design แล้วดู Execution Domains ตาม Workstream จริง แยกเจ้าของหลัก ส่วนสนับสนุน และ technical owner นับงานไม่ซ้ำ เห็นงานที่ยังไม่ผูก domain และ ID ที่ยังไม่รู้จัก พร้อมระบุข้อมูล feature และหลักฐานที่ยังไม่มีอย่างชัดเจน"
+  },
+  {
     "id": "FEAT-042",
     "primaryDomain": "platform-control",
     "useCase": "operator เปิดหน้า error ใหม่บน /control/errors แล้วเห็น error ที่เกิดจริงจัดกลุ่มตาม fingerprint พร้อมจำนวนครั้งและเวลาที่เกิดล่าสุด กดปิดเมื่อแก้แล้ว และเปิดอีกหน้าเพื่อดูว่าหน้าไหน/ฟีเจอร์ไหนถูกใช้บ่อยแค่ไหน แยกตามคน"
+  },
+  {
+    "id": "FEAT-043",
+    "primaryDomain": "agent",
+    "useCase": "Business owner or Operator configures self-hosted vLLM inference pool (12GB/16GB GPU nodes) without mandatory Edge device for Zuri Server LINE OA responses, including node registration, credential qualification, capacity routing, and safe cutover"
+  },
+  {
+    "id": "FR-253",
+    "primaryDomain": "commerce",
+    "useCase": "Business OWNER ใส่สูตรและตัวแปรราคา ทดลองเทียบรุ่นเดิม อนุมัติรุ่นใหม่และตรวจที่มาของผลคำนวณ ก่อนส่งราคาขายที่อนุมัติแล้วเข้า Knowledge"
   }
 ]
 ```
@@ -953,3 +981,8 @@ Version diff 1.53.0b → 1.54.0b (2026-09-14): readiness metadata for **FR-241**
 Version diff 1.54.0b → 1.55.0b (2026-09-16): **FEAT-040** (FR-243, FR-244; ADR-094) and **FEAT-041** (FR-245, FR-246; ADR-093) declared with readiness metadata, on the owner's acceptance of both ADRs.
 
 Version diff 1.55.0b → 1.56.0b (2026-09-16): Added **FEAT-042** (FR-247..FR-249, NFR-023) under **ADR-095** — error tracking and per-person feature usage, both extending the existing logger; FR-247 implemented locally, FR-248/FR-249 declared only. Also reconciles the '**Version**' document-control cell, which had drifted behind this table (read 1.47.0b, table already at 1.55.0b).
+
+Version diff 1.56.0b → 1.57.0b (2026-09-16): FEAT-033's FR-215 live overlay is implemented locally with four bounded owning-domain reads and truthful unavailable/null states. The Knowledge Documents surface is narrowed to Text/Markdown admission; no production activation is claimed.
+
+Version diff 1.58.0b → 1.59.0b (2026-09-17): adds FR-253 Commerce pricing rules/engine readiness entry; local implementation only, no production activation.
+

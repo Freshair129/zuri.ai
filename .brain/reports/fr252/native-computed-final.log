@@ -1,0 +1,26 @@
+
+> zuri-ai@0.1.0 test:genesisrag17
+> node scripts/run-genesisrag17-acceptance.mjs tests/acceptance/genesisrag17-smartgift.test.js -t Commerce
+
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+
+ RUN  v2.1.9 C:/Users/pc/.codex/visualizations/2026/09/16/01a0ab85-48d9-7380-91a5-7dd7539f6427/zuri-pricing-engine/apps/server
+
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": SQLite database "run-68400-mu4kc9qp-152808.db" at "file:./.test-dbs/run-68400-mu4kc9qp-152808.db"
+
+SQLite database run-68400-mu4kc9qp-152808.db created at file:./.test-dbs/run-68400-mu4kc9qp-152808.db
+
+Your database is now in sync with your Prisma schema. Done in 7.12s
+
+ ✓ tests/acceptance/genesisrag17-smartgift.test.js (11 tests | 10 skipped) 15203ms
+   ✓ SmartGift structured-record four-process acceptance (no skips) > publishes Commerce ledger-computed product and price through Stage 17 with real receipts and queries 14962ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 10 skipped (11)
+   Start at  03:38:29
+   Duration  24.92s (transform 452ms, setup 8ms, collect 1.34s, tests 15.20s, environment 0ms, prepare 48ms)
+
+JSON report written to C:/Users/pc/.codex/visualizations/2026/09/16/01a0ab85-48d9-7380-91a5-7dd7539f6427/zuri-pricing-engine/apps/server/node_modules/.cache/zuri-test-proof/vitest.json
+
+assert-tests-ran: vitest executed 1 test(s).

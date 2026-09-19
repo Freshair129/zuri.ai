@@ -1,0 +1,75 @@
+The CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.
+
+ RUN  v2.1.9 C:/Users/pc/.codex/visualizations/2026/09/16/01a0ab85-48d9-7380-91a5-7dd7539f6427/zuri-pricing-engine/apps/server
+      Running tests with seed "17"
+
+Prisma schema loaded from prisma\schema.prisma
+Datasource "db": SQLite database "run-58280-mu4kql5k-a0ecd8.db" at "file:./.test-dbs/run-58280-mu4kql5k-a0ecd8.db"
+
+SQLite database run-58280-mu4kql5k-a0ecd8.db created at file:./.test-dbs/run-58280-mu4kql5k-a0ecd8.db
+
+Your database is now in sync with your Prisma schema. Done in 5.01s
+
+ ✓ tests/integration/fr236-stage5-zero-pii-agreement.test.js (34 tests) 12270ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): กระเป๋าผ้าคุณภาพดี ราคา 120 บาท 388ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): คุณสมบัติของแก้วเก็บความเย็น 373ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): สั่งผ่านนายหน้าได้ไหม 362ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): Smart Gift รับสกรีนโลโก้ 362ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): ส่งแบบ Express Delivery ภายใน 3 วัน 354ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): ค่าจัดส่งมาตรฐานคือ 50 บาท ตามนโยบายจัดส่งของร้าน (Product.code: SHIP-STD) 435ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): คุณสามารถชำระเงินผ่าน QR code ได้ทันที 418ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): คุณจะได้รับสินค้าใน 3-5 วันทำการ 414ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): สินค้ามีคุณค่าทางโภชนาการสูง 401ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): บริษัทดำเนินธุรกิจด้วยคุณธรรมและความโปร่งใส 412ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): กระเป๋าลายนางฟ้าเป็นสินค้าขายดี 361ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): เสื้อยืด Cotton 100% ระบายอากาศดี ใส่สบาย 380ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): โปรโมชั่น Buy One Get One ถึงสิ้นเดือนนี้ 374ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): รับประกันสินค้า 1 ปีเต็ม ตามเงื่อนไขบริษัท 369ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): คุณต้องกรอกรหัสส่วนลดก่อนชำระเงิน 373ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): คุณควรเก็บใบเสร็จไว้เป็นหลักฐาน 384ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): คุณอาจได้รับ SMS แจ้งเตือนก่อนจัดส่ง 398ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): คุณลูกค้าต้องการใบกำกับภาษีไหมคะ 398ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): คุณแม่ซื้อเป็นของขวัญได้ไหม 404ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): คุณลูกค้าสามารถสั่งขั้นต่ำ 50 ชิ้นได้ค่ะ 383ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): คุณพ่อคุณแม่สั่งเป็นของขวัญได้ 422ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): กรุณาติดต่อฝ่าย customer service 421ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > agrees (both pass): ขอใบเสนอราคาได้ไหม 453ms
+   ✓ FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, revised 2026-09-14) > an approved candidate containing "ขอใบเสนอราคาได้ไหม" passes Stage 5 (the literal case FR-187 would have denied) 510ms
+ ✓ tests/integration/knowledge-corpus-prisma.test.js (7 tests) 1133ms
+ ✓ tests/integration/fr252-pricing-catalog.test.js (7 tests) 408ms
+ ✓ tests/integration/fr236-knowledge-candidate.test.js (12 tests) 438ms
+ ✓ tests/integration/fr238-line-studio-description-admission.test.js (4 tests) 361ms
+ ✓ tests/integration/smartgift-catalog-admission.test.js (9 tests) 970ms
+   ✓ SmartGift structured-record admission (FR-187) > Stage 5 classify enforcement > carries the structured provider, entity type and content type onto the raw lineage 489ms
+ ❯ tests/unit/knowledge-runtime.test.js (7 tests | 1 failed) 2816ms
+   × knowledge durable queue > atomically attaches its real pipeline run before reply loss and resumes that run after restart 529ms
+     → expected null to deeply equal Any<String>
+   ✓ knowledge durable queue > does not execute a leased job, then resumes after the lease expires 907ms
+   ✓ knowledge durable queue > does not execute a superseded or withdrawn source 519ms
+   ✓ knowledge durable queue > closes confirmed local stage failure instead of retrying a failed attempt forever 854ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/unit/knowledge-runtime.test.js > knowledge durable queue > atomically attaches its real pipeline run before reply loss and resumes that run after restart
+AssertionError: expected null to deeply equal Any<String>
+
+- Expected:
+Any<String>
+
++ Received:
+null
+
+ ❯ tests/unit/knowledge-runtime.test.js:75:33
+     73|     await runtime.runOnce()
+     74|     const lost = await prisma.knowledgeIngestion.findUnique({ where: {…
+     75|     expect(lost.executionRunId).toEqual(expect.any(String))
+       |                                 ^
+     76|     expect(lost.rawArtifactId).toEqual(expect.any(String))
+     77|     expect(lost.status).toBe('RUNNING')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+ Test Files  1 failed | 6 passed (7)
+      Tests  1 failed | 79 passed (80)
+   Start at  03:49:37
+   Duration  30.46s (transform 601ms, setup 34ms, collect 4.86s, tests 18.40s, environment 1ms, prepare 338ms)

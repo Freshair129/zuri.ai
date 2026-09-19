@@ -19,6 +19,7 @@ import {
 // serve only receipt-backed native snapshots and current-authorized citations.
 // @spec ADR-072, ADR-073
 // @tested tests/acceptance/knowledge-admission-native.test.js
+// @req FR-254 — the Console uses actual native publication and all three citation layers.
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 const testDirectory = path.dirname(fileURLToPath(import.meta.url))
@@ -223,7 +224,7 @@ async function exportKnowledgeAdmissionReport() {
     fixtureVersion: fixture.fixtureVersion, fixtureSourceVersion: fixture.sourceVersion, fixtureSha256: fixtureHash,
     nodeVersion: process.version, platform: process.platform, architecture: process.arch,
     modelRevision: [...modelRevisions][0], scope: reportScope(acceptanceScope),
-    scenariosPassed: ['browser-text', 'mcp-text', 'http-correction', 'browser-managed-file', 'binary-file-rejected'],
+    scenariosPassed: ['browser-console-text', 'console-native-run-publication-query-artifacts', 'mcp-text', 'http-correction', 'browser-managed-file', 'binary-file-rejected'],
     manifests: {
       corpus: { id: corpus.id, generation: corpus.generation, version: corpus.version, generations: corpusGenerations.map((row) => corpusManifest(row, `corpus generation ${row.number}`)) },
       native: { pointer: nativePointer(pointer), snapshots },
@@ -347,18 +348,18 @@ async function enterBusiness(page) {
   await playwrightExpect(page).toHaveURL(/overview/)
 }
 
-async function admitFromFilesPage(harness, { businessId, content }) {
+async function admitFromConsole(harness, { content }) {
   const browser = await chromium.launch({ headless: true })
   const context = await browser.newContext({ baseURL: harness.baseURL })
   const page = await context.newPage()
   try {
     await enterBusiness(page)
-    await page.goto('/files')
+    await page.goto('/knowledge/console')
     await page.getByRole('button', { name: /Add text/i }).click()
-    const dialog = page.getByRole('dialog', { name: 'Admit text or Markdown' })
+    const dialog = page.getByTestId('console-admission')
     await playwrightExpect(dialog).toBeVisible()
     await dialog.getByLabel('Source key').fill('ui-doc-a')
-    await dialog.getByLabel('Version').fill('1')
+    await dialog.getByLabel('Source version').fill('1')
     await dialog.getByLabel('Title').fill('UI knowledge document A')
     await dialog.getByLabel('Text or Markdown').fill(content)
     const submitted = page.waitForResponse((response) => response.request().method() === 'POST' && new URL(response.url()).pathname === '/api/knowledge/ingestions')
@@ -368,6 +369,56 @@ async function admitFromFilesPage(harness, { businessId, content }) {
     if (!response.ok()) throw new Error(`Browser admission returned HTTP ${response.status()}: ${JSON.stringify(body)}`)
     await playwrightExpect(dialog).not.toBeVisible()
     return { body, id: admissionId(body) }
+  } finally {
+    await context.close()
+    await browser.close()
+  }
+}
+
+async function verifyConsolePublication(harness, published) {
+  const browser = await chromium.launch({ headless: true })
+  const context = await browser.newContext({ baseURL: harness.baseURL })
+  const page = await context.newPage()
+  try {
+    await enterBusiness(page)
+    await page.goto('/knowledge/console')
+    await page.getByRole('button', { name: 'UI knowledge document A', exact: true }).click()
+    await playwrightExpect(page.getByTestId('console-source-detail')).toContainText('Source version 1')
+    const runResponse = page.waitForResponse((response) => new URL(response.url()).pathname === '/api/knowledge/console/runs/' + published.executionRunId)
+    await page.getByRole('button', { name: 'Open run ' + published.executionRunId, exact: true }).click()
+    const run = await requireOk(await runResponse, 'Console native run')
+    expect(run.run.executionRunId).toBe(published.executionRunId)
+    expect(run.publication).toMatchObject({ verified: true, snapshotId: published.snapshotId, generation: published.snapshotGeneration })
+    expect(run.steps.length).toBeGreaterThanOrEqual(17)
+    await playwrightExpect(page.getByTestId('console-run-detail')).toContainText(published.snapshotId)
+
+    await page.getByRole('button', { name: 'Corpus generations', exact: true }).click()
+    await page.getByRole('button', { name: 'Business corpus', exact: true }).click()
+    await playwrightExpect(page.getByTestId('console-generation-detail')).toContainText(published.snapshotId)
+    await page.getByRole('button', { name: 'Search knowledge', exact: true }).click()
+    await page.getByTestId('console-query').getByLabel('Search corpus').selectOption(published.corpus.id)
+    await page.getByLabel('Knowledge query', { exact: true }).fill('Which company employs Alice?')
+    const queryResponse = page.waitForResponse((response) => response.request().method() === 'POST' && new URL(response.url()).pathname === '/api/knowledge/queries')
+    await page.getByRole('button', { name: 'Search', exact: true }).click()
+    const query = await requireOk(await queryResponse, 'Console native query')
+    expect(query.corpusId).toBe(published.corpus.id)
+    expect(query.corpusGeneration).toBeGreaterThan(0)
+    expect(query.results.length).toBeGreaterThan(0)
+    await page.getByRole('button', { name: 'Open evidence', exact: true }).first().click()
+    for (const label of ['Cited chunk', 'Parsed document', 'Original source']) {
+      await page.getByRole('button', { name: label, exact: true }).click()
+      await playwrightExpect(page.getByTestId('console-artifact-content')).toContainText('Alice works for Acme Ltd.')
+    }
+    const download = await Promise.all([
+      page.waitForEvent('download'),
+      page.getByRole('link', { name: 'Download raw', exact: true }).click(),
+    ])
+    expect(download[0].suggestedFilename()).toBe('knowledge-raw.txt')
+    expect(readFileSync(await download[0].path(), 'utf8')).toContain('Alice works for Acme Ltd.')
+    await page.screenshot({ path: path.resolve(serverRoot, '../../.brain/knowledge-console-native.png'), fullPage: true })
+  } catch (error) {
+    await page.screenshot({ path: path.resolve(serverRoot, '../../.brain/knowledge-console-native-failure.png'), fullPage: true }).catch(() => {})
+    throw error
   } finally {
     await context.close()
     await browser.close()
@@ -450,7 +501,7 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
   }, 300000)
 
   it('admits from browser, MCP and HTTP, survives restart, publishes two independent native snapshots, corrects one, and withdraws one', async () => {
-    browserAdmission = await admitFromFilesPage(harness, { businessId: business.id, content: fixture.text })
+    browserAdmission = await admitFromConsole(harness, { content: fixture.text })
     const browserId = browserAdmission.id
     const browserAdmissionResponse = browserAdmission.body
     expect(browserAdmissionResponse.source?.sourceKey).toBe('ui-doc-a')
@@ -499,6 +550,11 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     const nativeB = await assertNativeRun(publishedB.executionRunId, 'HTTP document B')
     modelRevision = nativeA.receiptRow.modelRevision
     expect(nativeB.receiptRow.modelRevision).toBe(modelRevision)
+    await verifyConsolePublication(harness, publishedA)
+    // The Console phase cold-compiles additional Next dev routes. MCP keeps
+    // its session registry in the route module; begin the following protocol
+    // phase with a fresh explicit handshake after that browser exploration.
+    mcpSessionId = await openMcpSession(api)
 
     const initialQuery = await queryHttp(api, { businessId: business.id, query: 'Which company employs Alice?', topK: 10 })
     const initialMcpQuery = await callMcp(api, mcpSessionId, 'knowledge.query', { businessId: business.id, query: 'Which company employs Alice?', topK: 10 }, 'knowledge-query-initial')
@@ -589,7 +645,7 @@ describe('Knowledge admission over actual Next HTTP/browser and native recovery'
     expect(listBody.items.find((item) => item.id === browserId).status).toBe('PUBLISHED')
     expect(listBody.items.find((item) => item.id === correctionA.id).status).toBe('PUBLISHED')
     expect(listBody.items.find((item) => item.id === documentB.id).status).toBe('WITHDRAWN')
-    rememberPublishedJob({ label: 'browser-text-a-v1', ingress: 'browser-files-text', published: publishedA })
+    rememberPublishedJob({ label: 'browser-text-a-v1', ingress: 'browser-console-text', published: publishedA })
     rememberPublishedJob({ label: 'mcp-text-b-v1', ingress: 'mcp-knowledge.ingestion_create', published: publishedB })
     rememberPublishedJob({ label: 'http-text-a-v2-correction', ingress: 'http-knowledge-ingestions', published: publishedCorrection })
     mainTestSucceeded = true

@@ -10,6 +10,12 @@ import { createLineExecutionTrace } from '@/modules/agent/line-execution-trace'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { prepareMemoryDeliveryPending, reconcileLineMemoryDeliveries } from './line-memory-delivery'
 import { isAccountWithinBusinessHours } from '../domain/line-oa-account'
+import { lineExecutionBudget } from '../domain/line-execution-budget'
+import { isLineProjectWorkCommand, handleLineProjectWorkCommand } from '@/modules/agent/line-project-work-tools'
+import { createEdgeLineMemoryContext } from '@/modules/agent/edge-line-memory-context'
+import { validateEdgeMemoryInvocation } from '@/modules/agent/edge-memory-invocation'
+import { zEdgeContextReceipt } from '@/modules/agent/edge-context-receipt'
+import { createEdgePublishedCorpusContext, assertEdgePublishedCorpusContextCurrent } from '@/modules/knowledge/edge-published-corpus-context'
 
 // @req FR-149, FR-150 — durable admission, optional compute, fenced send and receipt recovery.
 // @req FR-171 — context and execution journal, attempt identity and truthful send observations.
@@ -28,8 +34,9 @@ const JOB_TTL_MS = 30 * 60_000
 const RETRY_WINDOW_MS = 23 * 60 * 60_000
 const WAITING = ['QUEUED', 'CLAIMED', 'READY']
 const runtimeInstanceId = randomUUID()
-const zCompletion = z.object({ version: z.number().int().positive(), text: z.string().trim().min(1).max(5000) }).strict()
-const zFailure = z.object({ version: z.number().int().positive(), code: z.enum(['EXECUTION_FAILED', 'LOCAL_POLICY_UNAVAILABLE']) }).strict()
+const zCompletion = z.object({ version: z.number().int().positive(), text: z.string().trim().min(1).max(5000),
+  executionId: z.string().uuid().optional(), contextReceipts: z.array(zEdgeContextReceipt).max(3).optional() }).strict()
+const zFailure = z.object({ version: z.number().int().positive(), code: z.enum(['EXECUTION_FAILED', 'LOCAL_POLICY_UNAVAILABLE', 'REPLY_DEADLINE_MISSED', 'MSP_INJECTION_RECEIPT_UNKNOWN']), executionId: z.string().uuid().optional(), contextReceipts: z.array(zEdgeContextReceipt).max(3).optional() }).strict()
 const failure = (status, message) => Object.assign(new Error(message), { status })
 const sourceTimeMs = timestamp => Number.isFinite(timestamp) && Number.isFinite(new Date(timestamp).getTime())
   ? new Date(timestamp).getTime() : null
@@ -211,7 +218,10 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
       // @req FR-243 — the session the inbound message was just assigned (ADR-094 D4).
       sessionId: inbound.sessionId ?? null,
       tenantId: current.tenantId, businessId: current.businessId, channelAccountId,
-      transportEpoch: current.transportEpoch, executionMode: current.executionMode,
+      transportEpoch: current.transportEpoch,
+      // Human confirmations and deterministic work commands run at the authority
+      // that owns the records, even when this OA uses Edge for inference.
+      executionMode: isLineProjectWorkCommand(text) ? 'SERVER' : current.executionMode,
       modelAccess: current.modelAccess, allowDelayedPush: current.allowDelayedPush,
       // This is immutable trusted LINE admission provenance. The opt-in flag is
       // a per-job decision captured at the same boundary; later env changes do
@@ -494,47 +504,154 @@ export async function admitCapturedLineEvents({
   return outcome
 }
 
-export async function claimEdgeConversation({ deviceContext, db = prisma, now = new Date() }) {
+export async function claimEdgeConversation({ deviceContext, contractVersions = ['1'], db = prisma, now = new Date(),
+  memoryContext = createEdgeLineMemoryContext(), corpusContext = createEdgePublishedCorpusContext }) {
+  const claimStartedAt = performance.now()
+  const claimTime = () => new Date(now.getTime() + Math.max(0, performance.now() - claimStartedAt))
   if (!deviceContext?.isEdgeDevice) throw failure(401, 'EDGE_CREDENTIAL_REQUIRED')
   // The route re-resolves the active credential on every call; maintenance has no payload output.
   await maintenance(db, now, { tenantId: deviceContext.tenantId, businessId: deviceContext.businessId })
   const job = await claimExecution({ db, executionMode: 'EDGE', claimantId: deviceContext.credentialId, deviceContext, now })
   if (!job) return null
-  return { contractVersion: '1', job: { id: job.id, version: job.version, question: job.inbound.body,
+  const useV2 = contractVersions.includes('2')
+  const deadline = useV2 ? lineExecutionBudget(job, now) : null
+  const checkBudget = async () => {
+    if (!deadline || claimTime().getTime() < Date.parse(deadline.answerDeadlineAt)) return
+    await settleExecution(job.id, { version: job.version, executionId: job.executionId, code: 'REPLY_DEADLINE_MISSED' },
+      { db, claimantId: deviceContext.credentialId, deviceContext, now: claimTime() })
+    throw failure(409, 'REPLY_DEADLINE_MISSED')
+  }
+  await checkBudget()
+  let memoryPacket = null
+  let publishedCorpus = null
+  if (useV2 && ['GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE'].includes(job.account.knowledgeGrounding)) {
+    try {
+      publishedCorpus = await corpusContext({ tenantId: job.tenantId, businessId: job.businessId,
+        expiresAt: new Date(Math.min(Date.parse(deadline.answerDeadlineAt), now.getTime() + 60000)).toISOString() }, { db })
+      if (!publishedCorpus) throw new Error('PUBLISHED_CORPUS_REQUIRED')
+    } catch {
+      await settleExecution(job.id, { version: job.version, executionId: job.executionId, code: 'EXECUTION_FAILED' },
+        { db, claimantId: deviceContext.credentialId, deviceContext, now: claimTime() })
+      throw failure(503, 'PUBLISHED_CORPUS_UNAVAILABLE')
+    }
+  }
+  await checkBudget()
+  if (useV2 && job.memorySyncOptIn) {
+    try {
+      memoryPacket = await memoryContext({ ...job, answerDeadlineAt: deadline.answerDeadlineAt }, {
+        memoryStateReader: id => db.lineConversationJob.findUnique({ where: { id }, include: { account: true } }),
+        budgetMs: Math.max(1, Math.min(3000, Date.parse(deadline.answerDeadlineAt) - claimTime().getTime() - 2000)),
+      })
+    } catch {
+      await settleExecution(job.id, { version: job.version, executionId: job.executionId, code: 'EXECUTION_FAILED' },
+        { db, claimantId: deviceContext.credentialId, deviceContext, now: claimTime() })
+      throw failure(503, 'LINE_MEMORY_CONTEXT_UNAVAILABLE')
+    }
+  }
+  await checkBudget()
+  if (useV2) await atomic(db, async tx => {
+    const current = await tx.lineConversationJob.findFirst({ where: { id: job.id, status: 'CLAIMED',
+      version: job.version, executionId: job.executionId, claimantId: deviceContext.credentialId },
+      include: { account: true } })
+    if (!current || !activeAccount(current.account, current) || !current.leaseExpiresAt
+      || current.leaseExpiresAt <= claimTime() || current.expiresAt <= claimTime()) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
+    await traceEvent(tx, job, 'CONTEXT_COMMITTED', `execution:${job.executionId}:contract`, {
+      contractVersion: '2', executionBudget: deadline,
+      ...(memoryPacket ? { memoryContextHash: memoryPacket.contextHash } : {}),
+      ...(publishedCorpus ? { publishedCorpus: { corpusId: publishedCorpus.corpusId,
+        corpusGeneration: publishedCorpus.corpusGeneration, manifestHash: publishedCorpus.manifestHash } } : {}),
+    }, now)
+  })
+  await checkBudget()
+  return { contractVersion: useV2 ? '2' : '1', job: { id: job.id, version: job.version, question: job.inbound.body,
     conversationKey: `line:${job.accountId}:${job.inbound.conversationId}`, leaseExpiresAt: job.leaseExpiresAt.toISOString(),
+    ...(useV2 ? { executionId: job.executionId, deadline, ...(memoryPacket ? { memoryContext: memoryPacket } : {}),
+      ...(publishedCorpus ? { corpusContext: publishedCorpus } : {}) } : {}),
     policy: { modelAccess: job.modelAccess, role: 'sales', retainHistory: false } } }
 }
 
-async function settleExecution(id, { version, text, code, traceFailureCode, outcome }, { db, claimantId, deviceContext, now }) {
+async function settleExecution(id, { version, text, code, executionId, contextReceipts, traceFailureCode, outcome }, { db, claimantId, deviceContext, now }) {
+  const startedAt = performance.now()
   return db.$transaction(async tx => {
     const scope = deviceContext ? { tenantId: deviceContext.tenantId, businessId: deviceContext.businessId, executionMode: 'EDGE' } : { executionMode: 'SERVER' }
     const job = await tx.lineConversationJob.findFirst({ where: { id, ...scope }, include: { account: true } })
     if (!job) throw failure(404, 'CONVERSATION_JOB_NOT_FOUND')
     if (!activeAccount(job.account, job) || job.status !== 'CLAIMED' || job.version !== version
       || job.claimantId !== claimantId || !job.leaseExpiresAt || job.leaseExpiresAt <= now || job.expiresAt <= now) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
+    if (executionId && executionId !== job.executionId) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
+    const admittedContract = await tx.agentTraceEvent.findFirst({ where: { turnId: job.id, executionId: job.executionId,
+      idempotencyKey: `${job.id}:execution:${job.executionId}:contract`, kind: 'CONTEXT_COMMITTED' } })
+    const contract = admittedContract ? JSON.parse(admittedContract.payloadJson) : null
+    if (contract?.contractVersion === '2' && executionId !== job.executionId) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
+    if (contextReceipts?.length && !executionId) throw failure(400, 'CONTEXT_RECEIPT_EXECUTION_REQUIRED')
+    const deadline = contract?.executionBudget ?? (executionId ? lineExecutionBudget(job, new Date(job.leaseExpiresAt.getTime() - LINE_JOB_LEASE_MS)) : null)
+    if (!code && contract?.publishedCorpus) {
+      try { await assertEdgePublishedCorpusContextCurrent({ tenantId: job.tenantId, businessId: job.businessId,
+        ...contract.publishedCorpus }, { db: tx }) }
+      catch { code = 'EXECUTION_FAILED'; text = undefined }
+    }
+    // Charge authorization/corpus validation time too; an expensive manifest read
+    // must not turn an answer that crossed the cutoff into READY.
+    const checkedAt = now.getTime() + Math.max(0, performance.now() - startedAt)
+    if (job.leaseExpiresAt.getTime() <= checkedAt || job.expiresAt.getTime() <= checkedAt)
+      throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
+    if (!code && deadline && checkedAt >= Date.parse(deadline.answerDeadlineAt)) {
+      code = 'REPLY_DEADLINE_MISSED'
+      text = undefined
+    }
     const finalStatus = outcome === 'UNKNOWN' ? 'UNKNOWN' : code ? 'FAILED' : 'READY'
     const update = await tx.lineConversationJob.updateMany({ where: { id, version, status: 'CLAIMED', claimantId },
       data: { status: finalStatus, answerText: finalStatus === 'UNKNOWN' ? null : text ?? null, errorCode: code ?? null,
-        ...(code ? { sealedReplyToken: null } : {}), availableAt: now, claimantId: null, leaseExpiresAt: null, version: { increment: 1 } } })
+        ...(code ? { sealedReplyToken: null } : {}),
+        ...(!code && deadline?.deliveryMode === 'DELAYED_PUSH' ? { sendMethod: 'PUSH' } : {}),
+        availableAt: now, claimantId: null, leaseExpiresAt: null, version: { increment: 1 } } })
     if (!update.count) throw failure(409, 'CONVERSATION_JOB_LEASE_CONFLICT')
+    for (const [index, receipt] of (contextReceipts ?? []).entries()) {
+      await traceEvent(tx, job, 'CONTEXT_RECEIPT', `context:${executionId}:${index}`,
+        { ...receipt, evidenceSource: 'EDGE_REPORTED' }, now)
+    }
     await traceEvent(tx, job, code ? 'EXECUTION_FAILED' : 'ANSWER_READY', `settled:${version}`, {
       ...(code ? { errorCode: code, traceFailureCode: traceFailureCode ?? null,
         ...(outcome === 'UNKNOWN' ? { outcome: 'UNKNOWN' } : {}) }
         : { text, answerReadyAt: now.toISOString() }),
-      executionEvidence: job.executionMode === 'EDGE' ? 'EXTERNAL_CONTEXT_NOT_REPORTED' : 'SERVER',
+      executionEvidence: job.executionMode === 'EDGE' ? (contextReceipts?.length ? 'EDGE_CONTEXT_REPORTED' : 'EXTERNAL_CONTEXT_NOT_REPORTED') : 'SERVER',
+      ...(deadline ? { executionBudget: deadline, completedAt: now.toISOString() } : {}),
     }, now)
     return { id, status: finalStatus, version: version + 1 }
   })
 }
 
-export async function completeEdgeConversation(id, input, { deviceContext, db = prisma, now = new Date() }) {
+export async function completeEdgeConversation(id, input, { deviceContext, db = prisma, now = new Date(), env = process.env, nudge = nudgeWorker,
+  validateMemory = validateEdgeMemoryInvocation }) {
+  const completionStartedAt = performance.now()
+  const currentTime = () => new Date(now.getTime() + Math.max(0, performance.now() - completionStartedAt))
   if (!deviceContext?.isEdgeDevice) throw failure(401, 'EDGE_CREDENTIAL_REQUIRED')
-  return settleExecution(id, zCompletion.parse(input), { db, claimantId: deviceContext.credentialId, deviceContext, now })
+  const parsed = zCompletion.parse(input)
+  if (parsed.executionId) {
+    const contract = await db.agentTraceEvent.findFirst({ where: {
+      turnId: id, executionId: parsed.executionId, tenantId: deviceContext.tenantId, businessId: deviceContext.businessId,
+      idempotencyKey: `${id}:execution:${parsed.executionId}:contract`, kind: 'CONTEXT_COMMITTED',
+    } })
+    const memoryContextHash = contract ? JSON.parse(contract.payloadJson).memoryContextHash : null
+    if (memoryContextHash) {
+      try { await validateMemory(id, { version: parsed.version, executionId: parsed.executionId, contextHash: memoryContextHash },
+        { db, deviceContext }) }
+      catch {
+        return settleExecution(id, { version: parsed.version, executionId: parsed.executionId, code: 'LOCAL_POLICY_UNAVAILABLE',
+          contextReceipts: parsed.contextReceipts }, { db, claimantId: deviceContext.credentialId, deviceContext, now: currentTime() })
+      }
+    }
+  }
+  const result = await settleExecution(id, parsed, { db, claimantId: deviceContext.credentialId, deviceContext, now: currentTime() })
+  if (result.status === 'READY') { try { nudge(env) } catch { /* durable worker polling remains the floor */ } }
+  return result
 }
 
 export async function failEdgeConversation(id, input, { deviceContext, db = prisma, now = new Date() }) {
   if (!deviceContext?.isEdgeDevice) throw failure(401, 'EDGE_CREDENTIAL_REQUIRED')
-  return settleExecution(id, zFailure.parse(input), { db, claimantId: deviceContext.credentialId, deviceContext, now })
+  const parsed = zFailure.parse(input)
+  return settleExecution(id, { ...parsed, ...(parsed.code === 'MSP_INJECTION_RECEIPT_UNKNOWN' ? { outcome: 'UNKNOWN' } : {}) },
+    { db, claimantId: deviceContext.credentialId, deviceContext, now })
 }
 
 async function reconcileAccepted(db, job) {
@@ -612,7 +729,10 @@ const boundedCount = (value, fallback) => {
  */
 async function executeClaimed({ db, answer, execution, claimantId, now }) {
   try {
-    const response = await answer(execution, {
+    if (isLineProjectWorkCommand(execution.inbound?.body) && lineExecutionBudget(execution, now()).remainingBudgetMs <= 0)
+      throw Object.assign(new Error('REPLY_DEADLINE_MISSED'), { code: 'REPLY_DEADLINE_MISSED' })
+    const response = await handleLineProjectWorkCommand(execution, { db, now })
+      ?? await answer(execution, {
       trace: createLineExecutionTrace({ db, job: execution }),
       ...(execution.memorySyncOptIn ? { memoryStateReader: id => db.lineConversationJob.findUnique({
         where: { id },
@@ -628,7 +748,7 @@ async function executeClaimed({ db, answer, execution, claimantId, now }) {
     try {
       const settled = await settleExecution(execution.id, {
         version: execution.version,
-        code: error.code === 'MSP_INJECTION_RECEIPT_UNKNOWN' ? error.code : 'EXECUTION_FAILED',
+        code: ['MSP_INJECTION_RECEIPT_UNKNOWN', 'REPLY_DEADLINE_MISSED'].includes(error.code) ? error.code : 'EXECUTION_FAILED',
         outcome: error.code === 'MSP_INJECTION_RECEIPT_UNKNOWN' ? 'UNKNOWN' : undefined,
         traceFailureCode: ['EXECUTION_TRACE_PAYLOAD_TOO_LARGE', 'EXECUTION_TRACE_SECRET_FIELD', 'EXECUTION_TRACE_UNAVAILABLE', 'MSP_INJECTION_RECEIPT_UNKNOWN'].includes(error.code) ? error.code : null },
       { db, claimantId, now: now() })
@@ -707,7 +827,7 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
     await db.lineConversationJob.updateMany({ where: { id: job.id, version: job.version }, data: { status: 'CANCELLED', sealedReplyToken: null, version: { increment: 1 } } })
     return { id: job.id, status: 'CANCELLED' }
   }
-  const at = now()
+  let at = now()
   let method = job.sendMethod
   if (!method) method = job.sealedReplyToken && job.replyExpiresAt > at ? 'REPLY' : job.allowDelayedPush ? 'PUSH' : null
   if (!method || (job.firstSendAt && at.getTime() - job.firstSendAt.getTime() >= RETRY_WINDOW_MS)) {
@@ -724,6 +844,15 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
     return { id: job.id, status: job.firstSendAt ? 'UNKNOWN' : 'FAILED' }
   }
   if (account.transportEpoch !== job.transportEpoch) return { id: job.id, status: 'FENCED' }
+  at = now()
+  if (method === 'REPLY' && job.replyExpiresAt <= at) {
+    if (job.allowDelayedPush) method = 'PUSH'
+    else {
+      await db.lineConversationJob.updateMany({ where: { id: job.id, version: job.version, status: 'READY' },
+        data: { status: 'FAILED', errorCode: 'REPLY_DEADLINE_MISSED', sealedReplyToken: null, version: { increment: 1 } } })
+      return { id: job.id, status: 'FAILED' }
+    }
+  }
   // Decrypt before claiming the external send. A missing/invalid token is a
   // local failure; letting it escape here used to leave the READY row untouched
   // forever, starving every account behind it.
@@ -758,6 +887,11 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
   let receivedProviderResponse = true
   try {
     const messages = [{ type: 'text', text: job.answerText }]
+    if (method === 'REPLY' && job.replyExpiresAt <= now()) {
+      // No provider request has started; a delayed vault/transaction cannot spend
+      // a token whose deadline passed while the job was being fenced.
+      throw Object.assign(failure(400, 'REPLY_DEADLINE_MISSED'), { code: 'REPLY_DEADLINE_MISSED' })
+    }
     result = method === 'REPLY'
       ? await replyTransport.send({ account, replyToken, messages })
       : await pushTransport.send({ account, to: job.recipientId, messages, retryKey: job.retryKey })
@@ -836,6 +970,24 @@ export async function listLineConversationJobs(accountId, { viewer, sessionCode,
       sessionId: true, session: { select: { code: true } } } })
   const jobs = rows.map(({ session: jobSession, ...job }) => ({ ...job, sessionCode: jobSession?.code ?? null }))
   return { accountId, session, jobs }
+}
+
+/**
+ * Bounded health read for the owning Business. The health overlay must not
+ * enumerate accounts first: this port reads the job table once and returns
+ * only the operational fields FR-215 needs.
+ */
+export async function listLineConversationJobsForBusiness(businessId, { viewer, limit = 100, db = prisma } = {}) {
+  const id = typeof businessId === 'string' ? businessId.trim() : ''
+  if (!id) throw notFound()
+  assertMayView(viewer, id)
+  const take = Math.min(Math.max(Number(limit) || 100, 1), 100)
+  return db.lineConversationJob.findMany({
+    where: { businessId: id },
+    orderBy: { updatedAt: 'desc' },
+    take,
+    select: { status: true, updatedAt: true },
+  })
 }
 
 /** Payload inspection needs Business ownership in addition to Studio visibility. */

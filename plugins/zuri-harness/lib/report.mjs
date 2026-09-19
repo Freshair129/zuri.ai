@@ -61,13 +61,14 @@ export function buildClaudeSessionReports({
   repositoryUrl,
   allowedRepositories,
   aiAccount,
+  taskCode,
   gapCapMinutes = 15,
 }) {
   if (!isAllowedRepository(repositoryUrl, allowedRepositories)) return []
   const requests = lines.map(parseClaudeLine).filter(Boolean)
   if (!requests.length) return []
   const repository = normaliseRepository(repositoryUrl)
-  return summariseByBranch(requests, { gapCapMinutes, events: claudeEvents(lines) }).map((s) => toReportBody(s, { repository, aiAccount }))
+  return summariseByBranch(requests, { gapCapMinutes, events: claudeEvents(lines) }).map((s) => toReportBody(s, { repository, aiAccount, taskCode }))
 }
 
 /**
@@ -75,13 +76,13 @@ export function buildClaudeSessionReports({
  * The repository comes from `session_meta.git.repository_url`, carried on
  * every parsed request by `parseCodexLines`.
  */
-export function buildCodexSessionReports({ lines, allowedRepositories, aiAccount, gapCapMinutes = 15 }) {
+export function buildCodexSessionReports({ lines, allowedRepositories, aiAccount, taskCode, gapCapMinutes = 15 }) {
   const requests = parseCodexLines(lines)
   if (!requests.length) return []
   const repositoryUrl = requests[0].repositoryUrl || ''
   if (!isAllowedRepository(repositoryUrl, allowedRepositories)) return []
   const repository = normaliseRepository(repositoryUrl)
-  return summariseByBranch(requests, { gapCapMinutes, events: codexActivity(lines) }).map((s) => toReportBody(s, { repository, aiAccount }))
+  return summariseByBranch(requests, { gapCapMinutes, events: codexActivity(lines) }).map((s) => toReportBody(s, { repository, aiAccount, taskCode }))
 }
 
 /**

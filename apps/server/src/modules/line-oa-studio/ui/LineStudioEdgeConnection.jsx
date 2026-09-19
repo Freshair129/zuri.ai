@@ -52,6 +52,8 @@ import { edgePairingDownload } from "@/modules/identity/edge-pairing-download";
 import { resolveBrowserOrigin, resolvePublicBaseUrl } from "@/lib/public-base-url";
 import LineOaConnectWizard from "./LineOaConnectWizard";
 import LineOaCredentialMigrationCard from "./LineOaCredentialMigrationCard";
+import { lineTraceSummary } from "../domain/line-trace-summary";
+import LineOaReadinessJourney from "./LineOaReadinessJourney";
 
 async function api(url, method = "GET", body) {
   const response = await fetch(url, {
@@ -352,7 +354,7 @@ export default function LineStudioEdgeConnection() {
             </div>
 
             {/* Mint a new pairing file — FR-144 POST, raw key returned exactly once */}
-            <form onSubmit={mintPairing} className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
+            <form id="line-edge-pairing" onSubmit={mintPairing} className="pt-2 border-t border-slate-100 dark:border-slate-800 space-y-2">
               <p className="text-[10px] font-bold text-slate-600 dark:text-slate-400">จับคู่ Edge Device ใหม่</p>
               <input
                 value={mintDeviceId}
@@ -480,6 +482,7 @@ export default function LineStudioEdgeConnection() {
                   <AccountCard
                     key={account.id}
                     account={account}
+                    credentials={credentials}
                     onAction={action}
                     onRefresh={refresh}
                     busy={busy}
@@ -491,14 +494,14 @@ export default function LineStudioEdgeConnection() {
 
           {/* FR-225: the Thai self-serve connect wizard replaces the old
               deployment-secret-only form. */}
-          <LineOaConnectWizard businessId={business?.id} onConnected={handleWizardConnected} />
+          <div id="line-oa-connect"><LineOaConnectWizard businessId={business?.id} onConnected={handleWizardConnected} /></div>
         </div>
       </div>
     </div>
   );
 }
 
-function AccountCard({ account, onAction, onRefresh, busy }) {
+function AccountCard({ account, credentials, onAction, onRefresh, busy }) {
   const [mode, setMode] = useState(account.executionMode);
   const [access, setAccess] = useState(account.modelAccess);
   const [push, setPush] = useState(account.allowDelayedPush);
@@ -596,6 +599,8 @@ function AccountCard({ account, onAction, onRefresh, busy }) {
           mount-to-vault migration card only for a DEPLOYMENT_MOUNT-backed
           connection (design §4.9 step 4). */}
       <LineOaCredentialMigrationCard account={account} onMigrated={onRefresh} />
+      <LineOaReadinessJourney key={account.id} account={account} credentials={credentials}
+        onAction={onAction} onLoadJobs={() => loadJobs()} busy={busy} />
 
       <fieldset disabled={busy || account.status === "ARCHIVED"} className="grid gap-3 pt-1">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
@@ -815,6 +820,7 @@ function AccountCard({ account, onAction, onRefresh, busy }) {
                           {traces[job.id].map((event, index) => (
                             <li key={event.id ?? `${job.id}-${index}`}>
                               {new Date(event.occurredAt).toLocaleTimeString()} · {event.kind}
+                              {lineTraceSummary(event) && <span className="block break-all">{lineTraceSummary(event)}</span>}
                             </li>
                           ))}
                         </ol>

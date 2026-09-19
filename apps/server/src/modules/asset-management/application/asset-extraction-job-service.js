@@ -5,6 +5,8 @@ import { assertAssetIntakeWrite } from './asset-authority'
 import { resolveFileAssetContent } from '@/modules/project-manager/application/file-asset-service'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { refreshAssetIntakeStatus } from './asset-intake-service'
+import { seesBusiness } from '@/modules/identity/viewer-authority'
+import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 
 // @req FR-143 — the cloud queues one unit of extraction work, a Zuri Edge Device
 //   claims it under a time-boxed lease, downloads the evidence bytes through the
@@ -115,6 +117,23 @@ export async function getLatestAssetExtractionJob(evidenceId, { db = prisma, bus
     select: JOB_FIELDS,
   })
   return { job: job ?? null }
+}
+
+/**
+ * Bounded health read for the owning Business. This is the asset domain's
+ * read port; callers do not query AssetExtractionJob directly.
+ */
+export async function listAssetExtractionJobsForBusiness(businessId, { viewer, limit = 100, db = prisma } = {}) {
+  const id = typeof businessId === 'string' ? businessId.trim() : ''
+  if (!id || !seesBusiness(viewer, id)) throw jobError('Asset extraction job not found', 404)
+  assertDomainVisible(viewer, id, 'assets')
+  const take = Math.min(Math.max(Number(limit) || 100, 1), 100)
+  return db.assetExtractionJob.findMany({
+    where: { businessId: id },
+    orderBy: { updatedAt: 'desc' },
+    take,
+    select: { status: true, updatedAt: true },
+  })
 }
 
 /**

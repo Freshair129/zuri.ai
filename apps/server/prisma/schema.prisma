@@ -52,6 +52,8 @@ model Tenant {
   customers                  Customer[]
   // @req FR-230 — this Tenant's per-data-class retention shortenings (ADR-091 D2).
   tenantRetentionOverrides   TenantRetentionOverride[]
+  // @req SEC-034 — this Tenant's Customers' chat evidence archive legal holds (ADR-093 D6).
+  customerLegalHolds         CustomerLegalHold[]
   roleBindings               RoleBinding[]
   customerImportBatches      CustomerImportBatch[]
   customerImportReviewCases  CustomerImportReviewCase[]
@@ -104,6 +106,8 @@ model Tenant {
   productIdentifiers         ProductIdentifier[]
   productUnitConversions     ProductUnitConversion[]
   inventoryCatalogIntakes    InventoryCatalogIntake[]
+  pricingRuleSets           PricingRuleSet[]
+  pricingCalculations       PricingCalculation[]
 
   marketingPlans            MarketingPlan[]
   marketingInitiatives      MarketingInitiative[]
@@ -113,6 +117,14 @@ model Tenant {
   accessInvites             AccessInvite[]
   // @req FR-236 — LINE FAQ knowledge candidates (ADR-090 D6).
   knowledgeCandidates       KnowledgeCandidate[]
+  // @req FR-252 — Phase B Feature authority rows retain the same trusted
+  // Tenant parent for every persisted record.
+  governanceSnapshots             GovernanceSnapshot[]
+  projectFeatures                 ProjectFeature[]
+  featureContributions            FeatureContribution[]
+  featureWorkLinks                FeatureWorkLink[]
+  requirementBindings             RequirementBinding[]
+  projectFeatureMutationReceipts  ProjectFeatureMutationReceipt[]
 
   @@index([portfolioId])
 }
@@ -290,6 +302,8 @@ model Business {
   productIdentifiers         ProductIdentifier[]
   productUnitConversions     ProductUnitConversion[]
   inventoryCatalogIntakes    InventoryCatalogIntake[]
+  pricingRuleSets           PricingRuleSet[]
+  pricingCalculations       PricingCalculation[]
 
   marketingPlans            MarketingPlan[]
   marketingInitiatives      MarketingInitiative[]
@@ -299,6 +313,14 @@ model Business {
   accessInvites             AccessInvite[]
   // @req FR-236 — LINE FAQ knowledge candidates (ADR-090 D6).
   knowledgeCandidates       KnowledgeCandidate[]
+  // @req FR-252 — Phase B Feature authority rows retain the same trusted
+  // Business parent for every persisted record.
+  governanceSnapshots             GovernanceSnapshot[]
+  projectFeatures                 ProjectFeature[]
+  featureContributions            FeatureContribution[]
+  featureWorkLinks                FeatureWorkLink[]
+  requirementBindings             RequirementBinding[]
+  projectFeatureMutationReceipts  ProjectFeatureMutationReceipt[]
 
   @@index([tenantId])
 }
@@ -399,6 +421,8 @@ model Person {
   assetResponsibilities         AssetResponsibility[]
   salesTasksAssigned            SalesTask[]                    @relation("SalesTaskAssignee")
   mfaFactors                    MfaFactor[]
+  // @req SEC-034 — legal holds this OWNER recorded on a Customer's chat evidence archive (ADR-093 D6).
+  customerLegalHoldsRecorded    CustomerLegalHold[]             @relation("CustomerLegalHoldRecordedBy")
 }
 
 // @req FR-107 — the server-held store behind FR-075's `isOperator` capability.
@@ -959,6 +983,10 @@ model Project {
   planImportReceipts PlanImportReceipt[]
   teams              ProjectTeam[]
   assetAllocations   AssetProjectAllocation[]
+  // @req FR-252 — ProjectFeature and its mutation ledger are Project-scoped;
+  // the ledger's graph/capture targets use this same parent relation.
+  projectFeatures                 ProjectFeature[]
+  projectFeatureMutationReceipts  ProjectFeatureMutationReceipt[]
 
   marketingHandoffs MarketingHandoff[]
 
@@ -1226,6 +1254,9 @@ model WorkItem {
   container  WorkContainer? @relation(fields: [containerId], references: [id])
   files      ProjectFile[]
   fileAssets FileAsset[]
+  // @req FR-252 — WorkItem is the existing work identity referenced by a
+  // FeatureWorkLink; link writes never mutate Workstream progress.
+  featureWorkLinks FeatureWorkLink[]
 
   @@index([workstreamId])
   @@index([containerId])
@@ -1315,6 +1346,8 @@ model Repository {
 
   business Business?           @relation(fields: [businessId], references: [id])
   projects ProjectRepository[]
+  // @req FR-252 — immutable governance evidence records its source Repository.
+  governanceSnapshots GovernanceSnapshot[]
 
   @@index([provider, fullName])
   @@index([businessId])
@@ -1331,6 +1364,9 @@ model ProjectRepository {
 
   project Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
   repo    Repository @relation(fields: [repoId], references: [id], onDelete: Cascade)
+  // @req FR-252 — snapshots retain the exact ProjectRepository binding used by
+  // the server-local verifier.
+  governanceSnapshots GovernanceSnapshot[]
 
   @@unique([projectId, repoId, role])
   @@index([repoId])
@@ -1827,6 +1863,11 @@ model Customer {
   //   included in the backup snapshot (SNAPSHOT_MODELS, backup-service.js) —
   //   see `CustomerArchiveKey`'s own comment for why exclusion was tried
   //   first and reverted.
+  //
+  // `legalHolds` is different: SEC-034/ADR-093 D6 holds no key and no file
+  // reference, so it is a normal relation that travels with the Customer like
+  // any other CRM child row.
+  legalHolds            CustomerLegalHold[]
 
   @@unique([tenantId, personId])
   @@index([businessId])
@@ -2221,6 +2262,43 @@ model ArchiveManifest {
   @@index([tenantId, createdAt])
 }
 
+// @req SEC-034 — an OWNER-recorded legal hold on a Customer (ADR-093 D6, TASK-ZAI-113):
+//   while an unexpired hold exists, a PDPA erasure still erases every other copy of
+//   that Customer's data but leaves their chat evidence archive key alone, resting on
+//   PDPA's exception for establishing, exercising or defending a legal claim.
+//
+//   A history, not a single mutable row: a Customer can carry more than one hold over
+//   their lifetime (sequential disputes), so there is deliberately no @@unique on
+//   customerId and no update path — a hold is written once and never edited. "Active"
+//   is derived (`now < endDate`), never a stored status column: ADR-093 D6 describes
+//   only an end date, not an OWNER ending a hold early, and nothing here invents that
+//   feature. Business data, not credential material — unlike CustomerArchiveKey and
+//   ArchiveManifest above, this holds no key and no file reference, so it is a normal
+//   member of the backup snapshot (SNAPSHOT_MODELS in backup-service.js) with real
+//   foreign keys, restored with the rest of the Customer's CRM record.
+// @spec ADR-093 D6, SEC-034, BR-001
+// @tested tests/integration/crm-archive-legal-hold.test.js
+model CustomerLegalHold {
+  id       String @id @default(uuid())
+  tenantId String
+  customerId String
+  // @req ADR-093 D6 — "an open dispute, its reason": free text the OWNER
+  //   supplies, the same style as chat-evidence-retrieval-service.js's
+  //   caseReference — whatever the Business's own dispute file calls it,
+  //   never a code this system validates against a registry.
+  reason   String
+  endDate  DateTime
+  recordedByPersonId String
+  createdAt DateTime @default(now())
+
+  tenant     Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  recordedBy Person   @relation("CustomerLegalHoldRecordedBy", fields: [recordedByPersonId], references: [id])
+
+  @@index([tenantId])
+  @@index([customerId, endDate])
+}
+
 // @req FR-127 — each recomputable, advisory analysis run belongs to an internal
 // Conversation. Tenant/business scope is inherited through Conversation;
 // external provider thread ids are never used as identity. analyzedDate is a
@@ -2297,6 +2375,9 @@ model AuditEvent {
   // than a second migration.
   requestId  String?
   sessionId  String?
+  // @req FR-252 — each committed Feature mutation receipt points to exactly
+  // one existing append-only AuditEvent in its transaction.
+  projectFeatureMutationReceipts ProjectFeatureMutationReceipt[]
 
   @@index([entityType, entityId])
   @@index([occurredAt])
@@ -2581,10 +2662,73 @@ model KnowledgeRawArtifact {
 
   rawExternalRecord RawExternalRecord         @relation(fields: [rawExternalRecordId], references: [id])
   parsedArtifacts   KnowledgeParsedArtifact[]
+  storageArtifact   KnowledgeArtifactStorage?
 
   @@unique([portfolioId, tenantId, businessId, workspaceId, agentId, visibility, sourceId, version, contentHash, pipelineVersion])
   @@index([tenantId, documentId, version])
   @@index([tenantId, contentHash])
+}
+
+// @req FR-109, FR-173 — exact raw bytes have an immutable, scoped object-store
+// reference and an auditable lifecycle separate from the lineage payload.
+// @spec TASK-ZAI-049 storage spec, ADR-072
+// @tested tests/unit/knowledge-artifact-storage-schema.test.js
+model KnowledgeArtifactStorage {
+  id              String   @id @default(uuid())
+  rawArtifactId   String   @unique
+  portfolioId     String
+  tenantId        String
+  businessId      String
+  workspaceId     String
+  agentId         String
+  visibility      String
+  bindingId       String
+  bindingRevision Int
+  bucket          String
+  objectKey       String
+  objectVersionId String?
+  sha256          String
+  byteLength      Int
+  contentType     String
+  policyJson      String
+  retentionUntil  DateTime?
+  status          String   @default("PENDING")
+  version         Int      @default(1)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  rawArtifact KnowledgeRawArtifact       @relation(fields: [rawArtifactId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  operations  KnowledgeArtifactOperation[]
+
+  @@index([tenantId, businessId, status])
+  @@index([retentionUntil, status])
+}
+
+model KnowledgeArtifactOperation {
+  id             String   @id @default(uuid())
+  storageId      String
+  portfolioId    String
+  tenantId       String
+  businessId     String
+  workspaceId    String
+  agentId        String
+  visibility     String
+  idempotencyKey String   @unique
+  operation      String
+  status         String
+  attempts       Int      @default(0)
+  actorId        String?
+  reason         String?
+  evidenceHash   String?
+  errorCode      String?
+  version        Int      @default(1)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  storage KnowledgeArtifactStorage @relation(fields: [storageId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([storageId, createdAt])
+  @@index([tenantId, businessId, operation, status])
 }
 
 // @req FR-109 — parsed artifacts retain their immutable link to the raw
@@ -5317,4 +5461,255 @@ model UsageEventRollup {
   updatedAt DateTime @updatedAt
 
   @@unique([date, kind, target])
+}
+
+// @req FR-252 — immutable, server-verified repository evidence for a Phase B
+// Feature requirement binding. The object fields are typed JSON strings at the
+// SQLite/Prisma boundary; the governance verifier owns their schema validation.
+// @spec ADR-097; docs/architecture/project-manager-system/25-PHASE-B-PERSISTENCE-SECURITY-POLICY.md
+// @tested tests/unit/phase-b-feature-migration.test.js
+model GovernanceSnapshot {
+  id                   String   @id @default(uuid())
+  tenantId             String
+  businessId           String
+  createdAt            DateTime @default(now())
+  repositoryId         String
+  projectRepositoryId  String
+  checkoutBindingId    String
+  commitSha            String
+  manifestHash         String
+  capturedAt           DateTime
+  verifiedAt           DateTime
+  verifierId           String
+  verifierVersion      String
+  proofId              String
+  verificationProof    String
+  validationStatus     String
+  sourceManifest       String
+
+  tenant              Tenant           @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business            Business         @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  repository          Repository       @relation(fields: [repositoryId], references: [id], onDelete: Restrict)
+  projectRepository   ProjectRepository @relation(fields: [projectRepositoryId], references: [id], onDelete: Restrict)
+  projectFeatures     ProjectFeature[]
+  requirementBindings RequirementBinding[]
+
+  @@unique([businessId, repositoryId, commitSha, manifestHash], map: "GovernanceSnapshot_business_repository_commit_manifest_key")
+  @@index([businessId, repositoryId, capturedAt], map: "GovernanceSnapshot_business_repository_capturedAt_idx")
+}
+
+// @req FR-252 — Project-local Feature authority, distinct from the FR-070
+// execution-purpose Domain catalog. Scope and canonical evidence are resolved
+// by the service; no Domain or canonical Feature row is inferred here.
+// @spec ADR-097; docs/architecture/project-manager-system/25-PHASE-B-PERSISTENCE-SECURITY-POLICY.md
+// @tested tests/unit/phase-b-feature-migration.test.js
+model ProjectFeature {
+  id                   String    @id @default(uuid())
+  tenantId             String
+  businessId           String
+  projectId            String
+  code                 String
+  title                String
+  problem              String
+  outcome              String
+  primaryDomainId      String
+  canonicalFeatureKey  String?
+  governanceSnapshotId String?
+  lifecycle            String
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  version              Int       @default(1)
+  deletedAt            DateTime?
+  deleteBatchId        String?
+
+  tenant              Tenant                       @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business            Business                     @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  project             Project                      @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  governanceSnapshot  GovernanceSnapshot?          @relation(fields: [governanceSnapshotId], references: [id], onDelete: Restrict)
+  contributions       FeatureContribution[]
+  workLinks           FeatureWorkLink[]
+  requirementBindings RequirementBinding[]
+  mutationReceipts    ProjectFeatureMutationReceipt[]
+
+  @@unique([projectId, code], map: "ProjectFeature_project_code_key")
+  @@index([businessId, projectId, lifecycle], map: "ProjectFeature_business_project_lifecycle_idx")
+}
+
+// @req FR-252 — supporting execution-Domain responsibility for a Feature.
+// Its unconditional key preserves UUIDs for deterministic revive-by-key.
+// @spec ADR-097; docs/architecture/project-manager-system/25-PHASE-B-PERSISTENCE-SECURITY-POLICY.md
+// @tested tests/unit/phase-b-feature-migration.test.js
+model FeatureContribution {
+  id            String    @id @default(uuid())
+  tenantId      String
+  businessId    String
+  featureId     String
+  domainId      String
+  responsibility String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  version       Int       @default(1)
+  deletedAt     DateTime?
+  deleteBatchId String?
+
+  tenant   Tenant        @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business Business      @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  feature  ProjectFeature @relation(fields: [featureId], references: [id], onDelete: Restrict)
+
+  @@unique([featureId, domainId], map: "FeatureContribution_feature_domain_key")
+  @@index([businessId, domainId], map: "FeatureContribution_business_domain_idx")
+}
+
+// @req FR-252 — explicit WorkItem-to-Feature relationship with optional
+// per-WorkItem allocation basis points. Link writes never mutate progress.
+// @spec ADR-097; docs/architecture/project-manager-system/25-PHASE-B-PERSISTENCE-SECURITY-POLICY.md
+// @tested tests/unit/phase-b-feature-migration.test.js
+model FeatureWorkLink {
+  id            String    @id @default(uuid())
+  tenantId      String
+  businessId    String
+  featureId     String
+  workItemId    String
+  allocationBps Int?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  version       Int       @default(1)
+  deletedAt     DateTime?
+  deleteBatchId String?
+
+  tenant    Tenant        @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business  Business      @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  feature   ProjectFeature @relation(fields: [featureId], references: [id], onDelete: Restrict)
+  workItem  WorkItem      @relation(fields: [workItemId], references: [id], onDelete: Restrict)
+
+  @@unique([featureId, workItemId], map: "FeatureWorkLink_feature_work_item_key")
+  @@index([businessId, workItemId], map: "FeatureWorkLink_business_work_item_idx")
+}
+
+// @req FR-252 — immutable requirement/revision binding proved by a valid
+// GovernanceSnapshot. The canonical requirement subject is never client text.
+// @spec ADR-097; docs/architecture/project-manager-system/25-PHASE-B-PERSISTENCE-SECURITY-POLICY.md
+// @tested tests/unit/phase-b-feature-migration.test.js
+model RequirementBinding {
+  id                   String    @id @default(uuid())
+  tenantId             String
+  businessId           String
+  featureId            String
+  governanceSnapshotId String
+  sourceNamespace      String
+  requirementKey       String
+  revisionHash         String
+  acceptanceRef        String
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  version              Int       @default(1)
+  deletedAt            DateTime?
+  deleteBatchId        String?
+
+  tenant              Tenant            @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business            Business          @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  feature             ProjectFeature    @relation(fields: [featureId], references: [id], onDelete: Restrict)
+  governanceSnapshot  GovernanceSnapshot @relation(fields: [governanceSnapshotId], references: [id], onDelete: Restrict)
+
+  @@unique([featureId, governanceSnapshotId, sourceNamespace, requirementKey], map: "RequirementBinding_feature_snapshot_namespace_requirement_key")
+  @@index([businessId, requirementKey], map: "RequirementBinding_business_requirement_idx")
+}
+
+// @req FR-252 — scoped durable idempotency receipt for each Feature mutation
+// and verified snapshot capture. resourceId is intentionally polymorphic;
+// auditEventId remains a real FK and status is immutable COMMITTED.
+// @spec ADR-097; docs/architecture/project-manager-system/25-PHASE-B-PERSISTENCE-SECURITY-POLICY.md
+// @tested tests/unit/phase-b-feature-migration.test.js
+model ProjectFeatureMutationReceipt {
+  id              String    @id @default(uuid())
+  tenantId        String
+  businessId      String
+  projectId       String
+  featureId       String?
+  targetId        String
+  targetType      String
+  httpMethod      String
+  principalId     String
+  operation       String
+  idempotencyKey  String
+  payloadHash     String
+  resourceId      String
+  resourceType    String
+  version         Int?
+  etag            String
+  auditEventId    String
+  status          String    @default("COMMITTED")
+  createdAt       DateTime  @default(now())
+
+  tenant    Tenant          @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business  Business        @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  project   Project         @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  feature   ProjectFeature? @relation(fields: [featureId], references: [id], onDelete: Restrict)
+  auditEvent AuditEvent     @relation(fields: [auditEventId], references: [id], onDelete: Restrict)
+
+  @@unique([tenantId, businessId, principalId, operation, targetId, idempotencyKey], map: "ProjectFeatureMutationReceipt_scope_idempotency_key")
+}
+
+// @req FR-253 — business-scoped draft revisions and immutable approved rule content.
+// @spec ADR-098
+model PricingRuleSet {
+  id                  String    @id @default(uuid())
+  tenantId            String
+  businessId          String
+  name                String
+  status              String    @default("DRAFT")
+  rulesJson           String
+  rulesHash           String
+  sourceRuleSetId     String?
+  createdByPersonId   String?
+  approvedByPersonId  String?
+  approvedAt          DateTime?
+  effectiveFrom       DateTime?
+  expiresAt           DateTime?
+  approvalReason      String?
+  revokedByPersonId   String?
+  revokedAt           DateTime?
+  revocationReason    String?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  version             Int       @default(1)
+
+  tenant       Tenant               @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business     Business             @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  source       PricingRuleSet?      @relation("PricingRuleDerivation", fields: [sourceRuleSetId], references: [id], onDelete: Restrict)
+  derivatives  PricingRuleSet[]     @relation("PricingRuleDerivation")
+  calculations PricingCalculation[]
+
+  @@index([tenantId, businessId])
+  @@index([businessId, effectiveFrom, approvedAt])
+  @@index([sourceRuleSetId])
+}
+
+// @req FR-253 — immutable computed-price lineage; USER_ENTERED is never source verification.
+// @spec ADR-098
+model PricingCalculation {
+  id                String   @id @default(uuid())
+  tenantId          String
+  businessId        String
+  ruleSetId         String
+  ruleVersion       Int
+  rulesHash         String
+  rulesJson         String
+  evaluatorVersion  String
+  inputHash         String
+  inputJson         String
+  resultJson        String
+  inputProvenance   String   @default("USER_ENTERED")
+  requestHash       String
+  idempotencyKey    String
+  createdByPersonId String?
+  createdAt         DateTime @default(now())
+
+  tenant   Tenant         @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business Business       @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  ruleSet  PricingRuleSet @relation(fields: [ruleSetId], references: [id], onDelete: Restrict)
+
+  @@unique([businessId, idempotencyKey])
+  @@index([tenantId, businessId])
+  @@index([ruleSetId])
 }

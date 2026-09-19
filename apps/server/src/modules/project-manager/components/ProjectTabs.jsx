@@ -3,11 +3,13 @@
 // @req FR-250 — Project-local navigation follows the active logical module.
 // Project Management and Resource Coordination expose their live local tabs;
 // Work keeps its existing seven-view row in WorkViewTabs.
+// @req FR-251 — Delivery Design exposes only the read-only Execution Domains
+// Project tab; its five peer capabilities remain visible as planned labels.
 // @req FR-065 — one PM-owned Import plan action is reachable from every
 // authorized live Project module shell and returns to the Project overview.
 // @req FR-077 — Inventory remains a read-only Project Management surface.
 // @spec ADR-096, SDD-019
-// @tested tests/unit/project-work-route.test.js
+// @tested tests/unit/project-work-route.test.js, tests/e2e/project-domain-view.spec.js
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {

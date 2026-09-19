@@ -110,7 +110,7 @@ describe('FR-184 stocktake snapshot recovery', () => {
   })
 
   it('rejects a declared manifest with missing arrays even on an empty target', async () => {
-    const db = new Proxy({}, { get: () => ({ count: vi.fn().mockResolvedValue(0) }) })
+    const db = new Proxy({}, { get: (_target, model) => model === '_activeProvider' ? 'sqlite' : ({ count: vi.fn().mockResolvedValue(0) }) })
     const invalid = {
       schemaVersion: '1.0',
       inventoryStocktakeRecovery: {
@@ -126,7 +126,7 @@ describe('FR-184 stocktake snapshot recovery', () => {
 
   it('reports legacy stocktake recovery as unavailable and refuses to erase current evidence', async () => {
     const db = new Proxy({}, {
-      get: (_target, model) => ({ count: vi.fn().mockResolvedValue(['inventoryLedgerFence', 'inventoryStocktake'].includes(model) ? 1 : 0) }),
+      get: (_target, model) => model === '_activeProvider' ? 'sqlite' : ({ count: vi.fn().mockResolvedValue(['inventoryLedgerFence', 'inventoryStocktake'].includes(model) ? 1 : 0) }),
     })
     const legacy = { schemaVersion: '1.0', tables: { inventoryLedgerFence: [], inventoryStocktake: [] } }
     const result = await previewImport(legacy, { db, viewer: makeOperatorViewer() })

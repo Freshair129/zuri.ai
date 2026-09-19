@@ -378,6 +378,15 @@
     "FR-248",
     "FR-249",
     "FR-250",
+    "FR-251",
+    "FR-252",
+    "FR-253",
+    "FR-254",
+    "FR-255",
+    "FR-256",
+    "FR-257",
+    "FR-258",
+    "FR-259",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -401,6 +410,8 @@
     "NFR-021",
     "NFR-022",
     "NFR-023",
+    "NFR-024",
+    "NFR-025",
     "SDD-001",
     "SDD-002",
     "SDD-003",
@@ -504,6 +515,8 @@
     "SDD-101",
     "SDD-102",
     "SDD-103",
+    "SDD-104",
+    "SDD-105",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -538,6 +551,8 @@
     "SEC-032",
     "SEC-033",
     "SEC-034",
+    "SEC-035",
+    "SEC-036",
     "FEAT-001",
     "FEAT-002",
     "FEAT-003",
@@ -580,6 +595,7 @@
     "FEAT-040",
     "FEAT-041",
     "FEAT-042",
+    "FEAT-043",
     "RSK-001",
     "RSK-002",
     "RSK-003",
@@ -764,6 +780,9 @@
     "ADR-094",
     "ADR-095",
     "ADR-096",
+    "ADR-097",
+    "ADR-098",
+    "ADR-099",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -3295,14 +3314,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "bb6c18b657685cfda4affd8b56c4f72cc66f53d267284ad3d0b30438b726469f",
+      "statement_digest": "c154ded01cc6f7e22e274a7337e886f41fd68ed51273112dcbf523e0e4a940e8",
       "history": [
         {
           "anchor": "optional edge conversation execution",
           "since": "2026-09-06",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-16",
+      "statement_digest_reason": "Owner-approved same-subject execution delta: negotiate v2 server deadline and whole-turn budget while preserving optional Edge compute ownership."
     },
     "FR-151": {
       "family": "FR",
@@ -4681,6 +4702,123 @@
         }
       ]
     },
+    "FR-251": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "bf7723ffdb3574fff29bcddf9ec9526f977b0daf975e57bf03b350e82099e31a",
+      "history": [
+        {
+          "anchor": "project execution domains view",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-252": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "dcdee3e23cef0d3066a9043c82a57fb16ff8f0ef34bc7676fd08f0bf9c0eee66",
+      "history": [
+        {
+          "anchor": "project feature authority",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-253": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "3dd63b243f6e8ed6a4e54c1b0806a5cd5983b13f33edcabcdc6a107f291b407b",
+      "history": [
+        {
+          "anchor": "business scoped versioned pricing rules and formula console",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-254": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "ecface290ccd401a717b2c4593021039c7afedab16ea070514d866998576b0a4",
+      "history": [
+        {
+          "anchor": "knowledge base console",
+          "since": "2026-09-17",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-255": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "50eee1d90d16d229930fa7c9f43e58272740d39b98722631ed24b19aa2d8aaa2",
+      "history": [
+        {
+          "anchor": "inference node registration and trust",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-256": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "cecffd9594bae0c44ae33787659c483452f4faa47ddd2d47e06a8ffeb06f5470",
+      "history": [
+        {
+          "anchor": "server owned self hosted model execution",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-257": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "cc04b2bc1d8acf3691a7236bf37d893db743de86fd6b083bfed588fde7c7a1cc",
+      "history": [
+        {
+          "anchor": "inference capacity routing and health",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-258": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "939ad382165d87707343abc2697d3b0adbb6c635fc4e0d062f5e3906c8f7b165",
+      "history": [
+        {
+          "anchor": "inference pool operations projection",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-259": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "f7bc42e2e0ad85848ff54a1d447b8418cabf138eeed5ae884c801f2bce4458e0",
+      "history": [
+        {
+          "anchor": "self hosted inference policy and cutover",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -4981,6 +5119,32 @@
       ],
       "statement_digest_reviewed_at": "2026-09-16",
       "statement_digest_reason": "Fixed an unescaped markdown table pipe in the statement text (route|actionName -> route or actionName) and switched the status marker from declared to planned before code exists; subject unchanged."
+    },
+    "NFR-024": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "eef4ee7fbf99f3f3f16c2683127c1ef8913f5cd133136cf107418e463a4ec010",
+      "history": [
+        {
+          "anchor": "inference recovery without duplicate business effects",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "NFR-025": {
+      "family": "NFR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "c33f47cbebdafaa0689f1311ec50749adf51262c8cbcfecc6bec5f1f0fc27e8f",
+      "history": [
+        {
+          "anchor": "inference observation freshness and boundedness",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
     },
     "SDD-001": {
       "family": "SDD",
@@ -6345,6 +6509,32 @@
         }
       ]
     },
+    "SDD-104": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "809752c994eb510672f9b4a630e70385408eaa2bca099ecd348c318c503b246c",
+      "history": [
+        {
+          "anchor": "independent replicas behind server orchestration",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-105": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "680ea9a296c9fde40e007e43bd5415a118813c03d8ddac59dbf352cbf22432f9",
+      "history": [
+        {
+          "anchor": "atomic inference reservation and uncertain capacity",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
     "SEC-001": {
       "family": "SEC",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -6799,6 +6989,32 @@
         }
       ]
     },
+    "SEC-035": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "c8ba96080304256d5733e5cecaf8cad98dcca236d987d362cca486c16151d7de",
+      "history": [
+        {
+          "anchor": "inference destination and credential confinement",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SEC-036": {
+      "family": "SEC",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "b77adf2ad1aacb598dd29359c6b0102d72eac0aaa786321e4efb9814325d915e",
+      "history": [
+        {
+          "anchor": "inference processing scope and cache isolation",
+          "since": "2026-09-18",
+          "reason": "declared"
+        }
+      ]
+    },
     "FEAT-001": {
       "family": "FEAT",
       "source": "docs/FEATURES.md",
@@ -7244,14 +7460,16 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "cce5c79d777ecf4d8421a3784633dfd5072b4afd07124bbc4b776778f96e1f2b",
+      "statement_digest": "ef6f20536c138fb1069fe0ef716b5d00cc6d323e19f6e081197a215e919aae96",
       "history": [
         {
           "anchor": "data pipeline map",
           "since": "2026-09-13",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-16",
+      "statement_digest_reason": "Record the local FR-215 owning-domain read-port implementation and keep production activation explicitly separate."
     },
     "FEAT-034": {
       "family": "FEAT",
@@ -7366,6 +7584,19 @@
         {
           "anchor": "observability",
           "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FEAT-043": {
+      "family": "FEAT",
+      "source": "docs/FEATURES.md",
+      "status": "current",
+      "statement_digest": "a2ec34a983c724376110a18ff2266af40cc41d44f9ece9b728059f9e79de63af",
+      "history": [
+        {
+          "anchor": "server owned self hosted inference pool",
+          "since": "2026-09-18",
           "reason": "declared"
         }
       ]
@@ -9784,6 +10015,45 @@
         {
           "anchor": "projects and work uses domain module and local view",
           "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-097": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-097-PROJECT-FEATURE-AUTHORITY-AND-WRITE-CONTRACT.md",
+      "status": "current",
+      "statement_digest": "0e0c2bedc42034c722ec0e6b81b2d1ea8392d87b9416e1ded43a34706a76b3f8",
+      "history": [
+        {
+          "anchor": "project feature authority and scoped write contract",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-098": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-098-COMMERCE-PRICING-RULES-AND-KNOWLEDGE-PUBLICATION.md",
+      "status": "current",
+      "statement_digest": "d053a30c1457f030dc33bbab580a22838c7f33e2d8f456d466cac8032601b5de",
+      "history": [
+        {
+          "anchor": "commerce pricing rules and governed knowledge publication",
+          "since": "2026-09-16",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-099": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-099-SERVER-OWNED-SELF-HOSTED-INFERENCE-POOL.md",
+      "status": "current",
+      "statement_digest": "a2ec34a983c724376110a18ff2266af40cc41d44f9ece9b728059f9e79de63af",
+      "history": [
+        {
+          "anchor": "server owned self hosted inference pool",
+          "since": "2026-09-18",
           "reason": "declared"
         }
       ]

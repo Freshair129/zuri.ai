@@ -12,6 +12,8 @@ import { createConversationExecutor, headlessProviderHome, validateExecutionPoli
 import { buildArgs, saveSession, loadSessionId, type HeadlessOptions } from '../../src/answer/headless.js';
 import { LinePocClient } from '../../src/line-poc/client.js';
 import { createLineWebhookServer } from '../../src/history/webhook-server.js';
+import { bindConversationBudget } from '../../src/conversation/deadline.js';
+import type { GenesisRag17Runtime } from '../../src/rag/genesisrag17/published-rag.js';
 
 const job = (): ConversationJob => ({
   id: '10c0eacf-1e65-413a-a6c1-3f6d125cf123', version: 1, question: 'สินค้าอะไรบ้าง',
@@ -228,6 +230,90 @@ test('a `rules` answer read against a populated catalogue still completes, with 
     assert.equal(result.source, 'rules');
     assert.deepEqual(calls, [['complete', 1, 'ไม่เจอรหัส ZZ99-9 ในแคตตาล็อกค่ะ']]);
   } finally { fs.rmSync(catalogRoot, { recursive: true, force: true }); }
+});
+
+test('a verified published-corpus answer needs no duplicate local catalog', async () => {
+  const { client, calls } = fixture();
+  const answer = createConversationExecutor({ catalogRoot: path.join(os.tmpdir(), 'zuri-empty-catalog-does-not-exist') },
+    { ragUrl: 'http://127.0.0.1:8888', answer: async () => ({ text: 'ราคาอ้างอิง100.25THB ยังไม่ใช่ใบเสนอราคา',
+      source: 'rules', reason: 'PUBLISHED_CATALOG_EVIDENCE', toolCalls: ['quote_price'] }) });
+  const result = await runConversationOnce({ client, answer });
+  assert.equal(result.outcome, 'completed');
+  assert.equal(result.source, 'rules');
+  assert.equal(calls.length, 1);
+  assert.equal((calls[0] as string[])[0], 'complete');
+});
+
+function corpusJob(): ConversationJob {
+  const issuedAt = new Date();
+  const claimed = conversationEnvelope.parse({ contractVersion: '2', job: { ...job(), question: 'TJS23-2 100 ชุด',
+    executionId: '20c0eacf-1e65-413a-a6c1-3f6d125cf123',
+    deadline: { issuedAt: issuedAt.toISOString(), answerDeadlineAt: new Date(issuedAt.getTime() + 40000).toISOString(), remainingBudgetMs: 40000, deliveryMode: 'REPLY' },
+    corpusContext: { schemaVersion: 'edge-published-corpus.v1',
+      scope: { portfolioId: 'p', tenantId: 't', businessId: 'b', workspaceId: '', agentId: '', visibility: 'private' },
+      corpusId: 'approved-corpus', corpusGeneration: 1, manifestHash: 'a'.repeat(64),
+      expiresAt: new Date(issuedAt.getTime() + 60000).toISOString(),
+      entries: [{ sourceId: 's', snapshotId: 'snap', generation: 'g', receiptHash: 'b'.repeat(64), rawArtifactId: 'raw', parsedArtifactId: 'parsed' }] },
+  } }).job;
+  bindConversationBudget(claimed, performance.now());
+  return claimed;
+}
+
+test('corpus-bound outage and model failure cannot return populated legacy catalog prices', async () => {
+  const catalogRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-bound-corpus-'));
+  fs.writeFileSync(path.join(catalogRoot, 'book.json'), JSON.stringify({ label: 'legacy',
+    products: [{ code: 'TJS23-2', name: 'LEGACY SECRET PRODUCT', rmb: 10, upc: 10, dims: [10, 10, 10], kg: 1, e: false }] }));
+  try {
+    for (const scenario of ['published-outage', 'model-offline', 'unverified-model-answer']) {
+      const claimed = corpusJob();
+      let modelCalls = 0, publishedCalls = 0;
+      const corpus = 'corpusContext' in claimed ? claimed.corpusContext! : assert.fail('v2 required');
+      const runtime = { settings: { scope: corpus.scope }, client: { productQuery: async () => {
+        publishedCalls++; throw new Error('synthetic published outage');
+      } } } as unknown as GenesisRag17Runtime;
+      const execute = createConversationExecutor({ catalogRoot, llmEnabled: true, llmBaseUrl: 'http://127.0.0.1:11434/v1', llmModel: 'qwen3.5:9b' }, {
+        genesisRag17: runtime, fetchFn: async () => {
+          modelCalls++;
+          if (scenario === 'model-offline') throw new Error('synthetic model offline');
+          if (scenario === 'published-outage' && modelCalls === 1) return Response.json({ choices: [{ message: { content: null,
+            tool_calls: [{ id: 'price', type: 'function', function: { name: 'quote_price', arguments: '{"sku":"TJS23-2","quantity":100}' } }] } }] });
+          return Response.json({ choices: [{ message: { content: 'ราคาปัจจุบันรวมภาษีและจัดส่ง 987654 บาท' } }] });
+        },
+      });
+      const answer = await execute(claimed);
+      assert.equal(answer.reason, 'PUBLISHED_CATALOG_UNAVAILABLE');
+      assert.equal(answer.source, 'rules');
+      assert.doesNotMatch(answer.text, /LEGACY|TJS23-2|987654|บาท\/ชุด|รวมภาษี|ยอดชำระ/);
+      assert.match(answer.text, /ยังไม่สามารถยืนยันราคา/);
+      assert.equal(publishedCalls, scenario === 'published-outage' ? 1 : 0);
+    }
+  } finally { fs.rmSync(catalogRoot, { recursive: true, force: true }); }
+});
+
+test('corpus-bound jobs reject disabled, headless and uninstrumented model paths before any answer', async () => {
+  for (const config of [{ llmEnabled: false }, { headlessEnabled: true, headlessBin: 'claude' },
+    { llmEnabled: true, llmAllowCloud: true }]) {
+    const claimed = corpusJob(); claimed.policy.modelAccess = 'EXTERNAL_MODEL_ALLOWED';
+    const execute = createConversationExecutor(config, { genesisRag17: null,
+      answer: async () => { assert.fail('unbound answer path must never execute'); },
+      fetchFn: async () => { assert.fail('unbound provider must never execute'); },
+    });
+    await assert.rejects(execute(claimed), error => error instanceof ConversationError && error.code === 'LOCAL_POLICY_UNAVAILABLE');
+  }
+});
+
+test('corpus-bound result gate preserves explicit verified operational evidence and safe refusals', async () => {
+  for (const reason of ['PUBLISHED_CATALOG_EVIDENCE', 'CURRENT_WORK_RECORDS_VERIFIED', 'WORK_PREVIEW_VERIFIED',
+    'CURRENT_WORK_RECORDS_REQUIRED', 'WORK_CONFIRMATION_REQUIRED']) {
+    const claimed = corpusJob();
+    const execute = createConversationExecutor({ llmEnabled: true, llmBaseUrl: 'http://127.0.0.1:11434/v1' }, {
+      genesisRag17: null, answer: async (_question, options) => {
+        assert.equal(options.catalog.products.length, 0);
+        return { text: 'verified evidence or fixed refusal', source: 'model', reason, toolCalls: [] };
+      },
+    });
+    assert.equal((await execute(claimed)).reason, reason);
+  }
 });
 
 test('a `model` answer completes even from an empty catalogue — the model reads the RAG index instead', async () => {

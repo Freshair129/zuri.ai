@@ -7,6 +7,12 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 
 const ACTION_NAME = /^[\w.:@/-]{1,120}$/
 const RAW_RETENTION_DAYS = 90
+const ROLLUP_TRANSACTION_OPTIONS = Object.freeze({
+  isolationLevel: 'Serializable',
+  maxWait: 10_000,
+  timeout: 120_000,
+})
+const MAX_ROLLUP_ATTEMPTS = 3
 
 /**
  * Record one usage event. `kind` decides which of `route`/`actionName` is
@@ -37,36 +43,101 @@ function httpError(status, message) {
 
 const utcMidnight = (date) => new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
 
+function rollupConflict(error) {
+  return ['P2002', 'P2034'].includes(error?.code)
+    || /database is locked|SQLITE_BUSY|SQLITE_LOCKED|could not serialize|serialization failure/i.test(error?.message || '')
+}
+
+function parseCompletedRollup(audit) {
+  let payload
+  try {
+    payload = JSON.parse(audit.payloadJson || '{}')
+  } catch {
+    throw new Error('USAGE_ROLLUP_AUDIT_INVALID')
+  }
+  return {
+    auditEventId: audit.id,
+    rolledUpCount: payload.rolledUpCount || 0,
+    groupCount: payload.groupCount || 0,
+    alreadyRanToday: true,
+  }
+}
+
 /**
  * Move every raw UsageEvent row older than `cutoffDays` into the day-grouped,
- * person-free rollup, then delete the rows that were rolled up. One audit
- * event per call, naming exactly the counts this run produced (same
- * discipline the CRM retention sweep already follows).
+ * person-free rollup, then delete the rows that were rolled up. The read,
+ * aggregate upsert, delete and audit are one serializable transaction so a
+ * concurrent PostgreSQL caller must retry from a fresh snapshot rather than
+ * counting the same raw id twice. `oncePerDay` is enabled by the scheduled
+ * route; direct callers may process more than one run on a UTC day.
  */
-export async function rollupUsageEvents(db, { now = new Date(), cutoffDays = RAW_RETENTION_DAYS } = {}) {
+export async function rollupUsageEvents(db, {
+  now = new Date(),
+  cutoffDays = RAW_RETENTION_DAYS,
+  oncePerDay = false,
+} = {}) {
   const cutoff = new Date(now.getTime() - cutoffDays * 24 * 60 * 60 * 1000)
-  const stale = await db.usageEvent.findMany({ where: { occurredAt: { lt: cutoff } }, select: { id: true, kind: true, route: true, actionName: true, occurredAt: true } })
-  const groups = new Map()
-  for (const row of stale) {
-    const date = utcMidnight(row.occurredAt)
-    const target = row.kind === 'PAGE_VIEW' ? row.route : row.actionName
-    const key = `${date.toISOString()}|${row.kind}|${target}`
-    groups.set(key, { date, kind: row.kind, target, count: (groups.get(key)?.count || 0) + 1 })
-  }
-  for (const group of groups.values()) {
-    const existing = await db.usageEventRollup.findUnique({ where: { date_kind_target: { date: group.date, kind: group.kind, target: group.target } } })
-    if (existing) {
-      await db.usageEventRollup.update({ where: { id: existing.id }, data: { count: existing.count + group.count } })
-    } else {
-      await db.usageEventRollup.create({ data: group })
+  const dayStart = utcMidnight(now)
+  const dayEnd = new Date(dayStart.getTime() + 24 * 60 * 60 * 1000)
+
+  for (let attempt = 0; attempt < MAX_ROLLUP_ATTEMPTS; attempt += 1) {
+    try {
+      return await db.$transaction(async (tx) => {
+        if (oncePerDay) {
+          const already = await tx.auditEvent.findFirst({
+            where: {
+              entityType: 'USAGE_EVENT_ROLLUP',
+              entityId: 'sweep',
+              action: 'USAGE_EVENT_ROLLUP_COMPLETED',
+              occurredAt: { gte: dayStart, lt: dayEnd },
+            },
+            orderBy: { occurredAt: 'desc' },
+            select: { id: true, payloadJson: true },
+          })
+          if (already) return parseCompletedRollup(already)
+        }
+
+        const stale = await tx.usageEvent.findMany({
+          where: { occurredAt: { lt: cutoff } },
+          select: { id: true, kind: true, route: true, actionName: true, occurredAt: true },
+        })
+        const groups = new Map()
+        for (const row of stale) {
+          const date = utcMidnight(row.occurredAt)
+          const target = row.kind === 'PAGE_VIEW' ? row.route : row.actionName
+          const key = `${date.toISOString()}|${row.kind}|${target}`
+          groups.set(key, { date, kind: row.kind, target, count: (groups.get(key)?.count || 0) + 1 })
+        }
+        for (const group of groups.values()) {
+          await tx.usageEventRollup.upsert({
+            where: { date_kind_target: { date: group.date, kind: group.kind, target: group.target } },
+            create: group,
+            update: { count: { increment: group.count } },
+          })
+        }
+        if (stale.length) {
+          const deleted = await tx.usageEvent.deleteMany({ where: { id: { in: stale.map((row) => row.id) } } })
+          if (deleted.count !== stale.length) {
+            const error = new Error('USAGE_ROLLUP_CONCURRENT_DELETE')
+            error.code = 'P2034'
+            throw error
+          }
+        }
+        const audit = await recordAudit(tx, {
+          entityType: 'USAGE_EVENT_ROLLUP', entityId: 'sweep', action: 'USAGE_EVENT_ROLLUP_COMPLETED',
+          payload: { rolledUpCount: stale.length, groupCount: groups.size, cutoff: cutoff.toISOString() },
+        })
+        return { auditEventId: audit.id, rolledUpCount: stale.length, groupCount: groups.size, alreadyRanToday: false }
+      }, ROLLUP_TRANSACTION_OPTIONS)
+    } catch (error) {
+      if (!rollupConflict(error) || attempt === MAX_ROLLUP_ATTEMPTS - 1) throw error
+      // The failed interactive transaction is already unusable. A short,
+      // bounded delay lets the winning serializable transaction commit before
+      // this attempt rereads its state; no sleep can make a failed tx safe.
+      await new Promise((resolve) => setTimeout(resolve, 5 * (attempt + 1)))
     }
   }
-  if (stale.length) await db.usageEvent.deleteMany({ where: { id: { in: stale.map((r) => r.id) } } })
-  const audit = await recordAudit(db, {
-    entityType: 'USAGE_EVENT_ROLLUP', entityId: 'sweep', action: 'USAGE_EVENT_ROLLUP_COMPLETED',
-    payload: { rolledUpCount: stale.length, groupCount: groups.size, cutoff: cutoff.toISOString() },
-  })
-  return { auditEventId: audit.id, rolledUpCount: stale.length, groupCount: groups.size }
+  throw new Error('USAGE_ROLLUP_UNAVAILABLE')
 }
 
 /**

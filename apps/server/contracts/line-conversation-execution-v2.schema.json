@@ -1,0 +1,302 @@
+{
+  "type": "object",
+  "properties": {
+    "contractVersion": {
+      "type": "string",
+      "const": "2"
+    },
+    "job": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "version": {
+          "type": "integer",
+          "exclusiveMinimum": 0
+        },
+        "question": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 10000
+        },
+        "conversationKey": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 300
+        },
+        "leaseExpiresAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "policy": {
+          "type": "object",
+          "properties": {
+            "modelAccess": {
+              "type": "string",
+              "enum": [
+                "LOCAL_ONLY",
+                "EXTERNAL_MODEL_ALLOWED"
+              ]
+            },
+            "role": {
+              "type": "string",
+              "const": "sales"
+            },
+            "retainHistory": {
+              "type": "boolean",
+              "const": false
+            }
+          },
+          "required": [
+            "modelAccess",
+            "role",
+            "retainHistory"
+          ],
+          "additionalProperties": false
+        },
+        "executionId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "deadline": {
+          "type": "object",
+          "properties": {
+            "issuedAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "answerDeadlineAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "remainingBudgetMs": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 240000
+            },
+            "deliveryMode": {
+              "type": "string",
+              "enum": [
+                "REPLY",
+                "DELAYED_PUSH"
+              ]
+            }
+          },
+          "required": [
+            "issuedAt",
+            "answerDeadlineAt",
+            "remainingBudgetMs",
+            "deliveryMode"
+          ],
+          "additionalProperties": false
+        },
+        "memoryContext": {
+          "type": "object",
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "const": "line-memory-context.v1"
+            },
+            "contextHash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "threadId": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 300
+            },
+            "audienceKind": {
+              "type": "string",
+              "const": "DIRECT"
+            },
+            "expiresAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "slices": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 300
+                  },
+                  "threadId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 300
+                  },
+                  "text": {
+                    "type": "string",
+                    "maxLength": 6000
+                  },
+                  "sequence": {
+                    "type": "string",
+                    "maxLength": 100
+                  },
+                  "scope": {
+                    "type": "string",
+                    "maxLength": 100
+                  },
+                  "subjectKey": {
+                    "type": "string",
+                    "maxLength": 300
+                  }
+                },
+                "required": [
+                  "id",
+                  "threadId",
+                  "text"
+                ],
+                "additionalProperties": false
+              },
+              "maxItems": 24
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "contextHash",
+            "threadId",
+            "audienceKind",
+            "expiresAt",
+            "slices"
+          ],
+          "additionalProperties": false
+        },
+        "corpusContext": {
+          "type": "object",
+          "properties": {
+            "schemaVersion": {
+              "type": "string",
+              "const": "edge-published-corpus.v1"
+            },
+            "scope": {
+              "type": "object",
+              "properties": {
+                "portfolioId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 256
+                },
+                "tenantId": {
+                  "$ref": "#/properties/job/properties/corpusContext/properties/scope/properties/portfolioId"
+                },
+                "businessId": {
+                  "$ref": "#/properties/job/properties/corpusContext/properties/scope/properties/portfolioId"
+                },
+                "workspaceId": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "agentId": {
+                  "type": "string",
+                  "maxLength": 256
+                },
+                "visibility": {
+                  "type": "string",
+                  "const": "private"
+                }
+              },
+              "required": [
+                "portfolioId",
+                "tenantId",
+                "businessId",
+                "workspaceId",
+                "agentId",
+                "visibility"
+              ],
+              "additionalProperties": false
+            },
+            "corpusId": {
+              "$ref": "#/properties/job/properties/corpusContext/properties/scope/properties/portfolioId"
+            },
+            "corpusGeneration": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "manifestHash": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "expiresAt": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "entries": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "sourceId": {
+                    "$ref": "#/properties/job/properties/corpusContext/properties/scope/properties/portfolioId"
+                  },
+                  "snapshotId": {
+                    "$ref": "#/properties/job/properties/corpusContext/properties/scope/properties/portfolioId"
+                  },
+                  "generation": {
+                    "$ref": "#/properties/job/properties/corpusContext/properties/scope/properties/portfolioId"
+                  },
+                  "receiptHash": {
+                    "$ref": "#/properties/job/properties/corpusContext/properties/manifestHash"
+                  },
+                  "rawArtifactId": {
+                    "$ref": "#/properties/job/properties/corpusContext/properties/scope/properties/portfolioId"
+                  },
+                  "parsedArtifactId": {
+                    "$ref": "#/properties/job/properties/corpusContext/properties/scope/properties/portfolioId"
+                  }
+                },
+                "required": [
+                  "sourceId",
+                  "snapshotId",
+                  "generation",
+                  "receiptHash",
+                  "rawArtifactId",
+                  "parsedArtifactId"
+                ],
+                "additionalProperties": false
+              },
+              "maxItems": 2048
+            }
+          },
+          "required": [
+            "schemaVersion",
+            "scope",
+            "corpusId",
+            "corpusGeneration",
+            "manifestHash",
+            "expiresAt",
+            "entries"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "question",
+        "conversationKey",
+        "leaseExpiresAt",
+        "policy",
+        "executionId",
+        "deadline"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "contractVersion",
+    "job"
+  ],
+  "additionalProperties": false,
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://zuri.ai/contracts/line-conversation-execution.v2",
+  "title": "Optional Edge conversation execution v2",
+  "description": "FR-150: negotiated server-authoritative reply budget; refinements additionally require remaining budget <= deadline interval, REPLY <=40000ms, scoped memory <=6000 UTF8 bytes, bounded corpus <=1MiB with unique sources. No LINE token or send authority."
+}
