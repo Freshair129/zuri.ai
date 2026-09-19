@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "reportDate": "2026-09-20",
+  "recordedAtUtc": "2026-09-19T22:02:02.1030044Z",
+  "status": "PASS",
+  "runId": "59a0a93d862e442895296872f4b9ca58",
+  "source": {
+    "repository": "Freshair129/zuri.ai",
+    "snapshotCommit": "3b92cd0f9f4e4307859a479b0bae3771ffe2914e",
+    "archive": "C:\\Users\\pc\\.codex\\runtimes\\ki17-runtime\\artifacts\\zuri-ai-3b92cd0f-ki17-overlay.tar",
+    "archiveSha256": "4414369ee99236c36f7892df9d6c2a2155a47a1af916ee92af1a71cf61c00c75",
+    "policy": "fixed verified 3b92 snapshot; future source revision requires a new verified export"
+  },
+  "externalRuntime": {
+    "provenance": "artifact-recovered",
+    "pins": {
+      "msp": "49fe7de7d5603a4a75b279bcd72b16619fdc0046",
+      "gks": "ecf1e4de269e949406a6a5f791f9ff8fe30c9578",
+      "genesisblock": "5e75c4a85e1a42faf6d2afe42633c4f2a4725c92"
+    },
+    "imageId": "sha256:6314674e54b4e2873f85be52aeb4ce69de4dcd9d26524036dfd0a49c19dfd7d0",
+    "repoDigest": "ki17-acceptance@sha256:6314674e54b4e2873f85be52aeb4ce69de4dcd9d26524036dfd0a49c19dfd7d0",
+    "imageArchive": "C:\\Users\\pc\\.codex\\runtimes\\ki17-runtime\\artifacts\\ki17-acceptance-task-zai-050-2964-5e75c4a.tar",
+    "imageArchiveSha256": "f9b2bd2903b11e2d2199dd59b4f6a1269e2df1211516afa2ecafecd5e0dc1cd8",
+    "resolvedJson": "C:\\Users\\pc\\.codex\\runtimes\\ki17-runtime\\artifacts\\receipts\\resolved-59a0a93d862e442895296872f4b9ca58.json",
+    "resolvedJsonSha256": "0d60bae9dc37912b791c43b9ca86629d602eb3dff39dab96688393a916803d58"
+  },
+  "model": {
+    "repository": "intfloat/multilingual-e5-small",
+    "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+    "files": {
+      "onnx/model.onnx": "ca456c06b3a9505ddfd9131408916dd79290368331e7d76bb621f1cba6bc8665",
+      "tokenizer.json": "0b44a9d7b51c3c62626640cda0e2c2f70fdacdc25bbbd68038369d14ebdf4c39",
+      "tokenizer_config.json": "a1d6bc8734a6f635dc158508bef000f8e2e5a759c7d92f984b2c86e5ff53425b",
+      "special_tokens_map.json": "d05497f1da52c5e09554c0cd874037a083e1dc1b9cfd48034d1c717f1afc07a7",
+      "config.json": "69137736cab8b8903a07fe8afaafdda25aac55415a12a55d1bffa9f581abf959"
+    }
+  },
+  "runtime": {
+    "containerPlatform": "Linux 6.18.33.2-microsoft-standard-WSL2 x86_64",
+    "testRunnerNode": "v22.23.2",
+    "ki17Node": "v24.18.0",
+    "python": "Python 3.12.14",
+    "packageLockSha256": "aeccb764fdcd7eb95f21b3ec9150e33e9e1c70c1f52e76139c9b2bdf3772e435"
+  },
+  "acceptance": {
+    "dockerExitCode": 0,
+    "vitest": {
+      "testFilesPassed": 2,
+      "numTotalTests": 40,
+      "numPassedTests": 40,
+      "numFailedTests": 0,
+      "numPendingTests": 0,
+      "numTodoTests": 0,
+      "testResultsLength": 2
+    },
+    "receipt": "C:\\Users\\pc\\.codex\\runtimes\\ki17-runtime\\runs\\ki17-59a0a93d862e442895296872f4b9ca58\\receipt.json",
+    "receiptSha256": "bd4673fe02acf216a9a6ce847ca0659a15a6b787130b3247165fbf52c2d7dc80",
+    "proof": "C:\\Users\\pc\\.codex\\runtimes\\ki17-runtime\\artifacts\\receipts\\vitest-proof-59a0a93d862e442895296872f4b9ca58\\vitest.json",
+    "proofSha256": "17af4bb5410f802f6c9448f56508c70fc290bda2ead96b0735d7e462d041fdfd",
+    "log": "C:\\Users\\pc\\.codex\\runtimes\\ki17-runtime\\artifacts\\receipts\\ki17-acceptance-59a0a93d862e442895296872f4b9ca58.log",
+    "logSha256": "9e264a2dc02b77c9537665ed0af4d516a770ee1eaec13f3bb385bb3ddbbacd3f",
+    "task094Report": "C:\\Users\\pc\\.codex\\runtimes\\ki17-runtime\\runs\\ki17-59a0a93d862e442895296872f4b9ca58\\reports\\task-zai-094-line-grounding.json",
+    "task094ReportSha256": "1e14a3b8d3219bd0cb6a0dfa443b2362d93f1d6cfa8107ff81fd4df50097513a",
+    "task094": {
+      "tickElapsedMs": 504,
+      "groundingHopElapsedMs": [
+        290,
+        300,
+        292,
+        300
+      ],
+      "configuredBudgetMs": 2500,
+      "budgetHolds": true
+    }
+  },
+  "claimsBoundary": {
+    "productionActivation": false,
+    "nativeWindowsAcceptance": false,
+    "credentialsIncluded": false,
+    "genesisblockGitVerified": false,
+    "genesisblockEvidence": "artifact-attested immutable image runtime only"
+  }
+}

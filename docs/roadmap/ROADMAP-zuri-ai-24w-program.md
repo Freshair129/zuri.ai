@@ -548,7 +548,7 @@ locates the week.
 | TASK-ZAI-091 | SPR-ZAI-04 | task | Apply the chat record migrations on production — non-text content, read-model columns, the trigram index and the retention override store, under ADR-057, recorded in the migration notes | P1 | ATHER | done | TASK-ZAI-089; TASK-ZAI-090 | ADR-057; ADR-091 Phase 3 |
 | TASK-ZAI-092 | SPR-ZAI-05 | task | Context Composer — one agent-lane module assembling every LINE model prompt from AuthContext, MSP slices, knowledge evidence and CRM and ERP facts in truth order under one budget, reporting every trim, recording one ContextReceipt per model invocation and calling no model without evidence — FR-234, SDD-100 | P0 | Claude | done | TASK-ZAI-088 | Section 3.1 row 4; ADR-091 D7; FR-171 |
 | TASK-ZAI-093 | SPR-ZAI-05 | task | LINE grounding from the published corpus — an in-process knowledge.query reader over queryKnowledgeCorpus under the runtime knowledge capability, a per-account knowledgeGrounding mode with its migration, a 2 500 ms, top-5, 8 KiB budget, a traced mode-gated fallback and retrievalRefs on EVIDENCE_SELECTED — FR-235, SDD-099 | P0 | Claude | done | TASK-ZAI-092 | Section 3.1 row 4; ADR-090 D1 to D4; SEC-032 |
-| TASK-ZAI-094 | SPR-ZAI-05 | task | Grounding isolated acceptance — a real LINE job answered from a published generation in the four-process harness with citations on the job trace, zero cross-tenant leakage, the deterministic reply with the worker stopped, and MSP spawn cost measured against the budget | P0 | Claude | planned | TASK-ZAI-093 | ADR-090 required proof 2, 5, 6; ADR-090 D3 |
+| TASK-ZAI-094 | SPR-ZAI-05 | task | Grounding isolated acceptance — a real LINE job answered from a published generation in the four-process harness with citations on the job trace, zero cross-tenant leakage, the deterministic reply with the worker stopped, and MSP spawn cost measured against the budget | P0 | Claude | done | TASK-ZAI-093 | ADR-090 required proof 2, 5, 6; ADR-090 D3 |
 | TASK-ZAI-095 | SPR-ZAI-06 | task | SmartGift grounding switch on production — after ADR-075 Phase 3 is deployed, apply the grounding-mode migration, switch one SmartGift DIRECT account to GKS_THEN_BUSINESS_KNOWLEDGE as an owner-triggered operator step, shadow-compare for one campaign window and keep the rollback | P0 | Owen | planned | TASK-ZAI-094; TASK-ZAI-042; TASK-ZAI-050 | ADR-090 D5; ADR-075 Phase 3; ADR-057 |
 | TASK-ZAI-096 | SPR-ZAI-06 | task | LINE FAQ knowledge candidates — locator-only question-and-answer candidates from consent-GRANTED conversations checked by the Zero-PII deny policy, an OWNER or LINE_OA_PUBLISHER review surface with audited decisions, and admission of an approved candidate as a LINE_FAQ_CANDIDATE TEXT source through ADR-072 — FR-236, SEC-032 | P1 | Claude | done | TASK-ZAI-093 | Section 3.1 row 4; ADR-090 D6; ADR-072 D1 |
 | TASK-ZAI-097 | SPR-ZAI-06 | task | Knowledge gap report for LINE — NO_EVIDENCE retrievals aggregated per Business in the Knowledge (GKS) slot as counts, product locators and last-seen times, with the question text left in CRM — FR-237 | P2 | Claude | done | TASK-ZAI-093 | Section 3.1 row 4; ADR-090 D7 |
@@ -4940,8 +4940,8 @@ title: Grounding isolated acceptance — a real LINE job answered from a publish
 requirement_type: NFR
 complexity: C-2
 access_scope: H3
-status: planned
-version: 0.1.0
+status: done
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -4949,19 +4949,19 @@ auditor: ATHER
 symbol_links:
   code: apps/server/tests/acceptance/genesisrag17-e2e.test.js
   doc: docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md
-  test: unavailable
+  test: apps/server/tests/acceptance/genesisrag17-e2e.test.js
 delivers: []
 definition_of_done:
   acceptance_criteria:
     - criterion: Given the four-process isolated harness with a published corpus generation, when a LINE job for an account in GKS_CORPUS mode is answered, then the reply is grounded and GET /api/line-oa/jobs/{id}/trace shows retrievalRefs (ADR-090 proof 2)
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a second Business in the harness and a stopped worker, when jobs are answered, then no cross-tenant evidence appears and the stopped worker yields the deterministic reply rather than an error or a model-only answer (proofs 5 and 6)
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given the measured MSP spawn time inside a four-wide worker tick, when it is recorded, then the evidence states whether the 2 500 ms budget holds, and if spawn dominates the finding is written for the MSP daemon transport decision instead of widening the budget
-      checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 4 gate of ADR-090, run on the KI17 acceptance setup.
+      checked: true
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 4 gate of ADR-090, run on the KI17 acceptance setup. 2026-09-20: final receipt run `59a0a93d862e442895296872f4b9ca58` is PASS on the fixed zuri.ai snapshot `3b92cd0f` and artifact-attested Linux image: `40/40` tests passed across `2` files (`5` Vitest suites), `0` failed/pending/todo, all four TASK-ZAI-094 assertions passed, `tickElapsedMs=504`, grounding hops `[290,300,292,300]` ms, and the `2,500 ms` budget holds. Receipt: `C:\Users\pc\.codex\runtimes\ki17-runtime\runs\ki17-59a0a93d862e442895296872f4b9ca58\receipt.json`; tracked summary: `.brain/reports/2026-09-20-ki17-runtime-recovery.json`; tracked report: `.brain/reports/task-zai-094-line-grounding.json`. This is isolated artifact evidence only: no Git-restored source, native Windows acceptance or production activation is claimed, and TASK-ZAI-095 remains planned.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5

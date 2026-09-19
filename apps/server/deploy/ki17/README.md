@@ -9,11 +9,67 @@ where this file and that one disagree, the design wins.
 > step the owner triggers, and only after every item in the pre-deploy gate (§9)
 > passes.
 >
-> **G-3 has now run** (2026-09-16): the Phase 2 acceptance passed 35/35 inside a
+> **Historical G-3 record** (2026-09-16): the Phase 2 acceptance passed 35/35 inside a
 > throwaway `ki17-acceptance` image built from the pinned commits — Linux, MSP/GKS/
 > worker on Node 24.18.0, the P-2 Linux addon, the pinned venv, crash and replay cases
 > included. The result is recorded in §9.1 of the design. The images built for it were
 > test images: nothing was tagged for deployment and nothing was pushed.
+
+## Recovery after deleted runtime roots
+
+The 2026-09-20 recovery check found the old isolated native directories deleted
+and the KI17 environment values unset. The model cache exists, but the native
+launcher lacked configured source roots. The candidate check covered four
+GenesisBlock directory candidates and the surviving MSP/GKS sibling checkouts.
+Compose context overrides may point elsewhere, and this does not establish a
+production outage.
+
+The primary recovery route is the immutable Linux acceptance image selected for this
+recovery. GitHub currently returns 422 for the pinned GenesisBlock
+commit, so preserve the image digest and the output of:
+
+~~~powershell
+docker run --rm --network none --entrypoint cat sha256:6314674e54b4e2873f85be52aeb4ce69de4dcd9d26524036dfd0a49c19dfd7d0 /opt/ki17/pins/resolved.json
+~~~
+
+The verified recovery receipt is run `59a0a93d862e442895296872f4b9ca58`:
+`PASS`, container exit `0`, Linux x86_64, fixed zuri.ai snapshot `3b92cd0f`,
+KI17 Node `24.18.0`, Python `3.12.14`, and model revision
+`614241f622f53c4eeff9890bdc4f31cfecc418b3`. It records the image, source archive,
+pin and model hashes. This recovery is Linux artifact-attested; it does not claim
+native Windows acceptance or production activation.
+
+The verified recovery helper for this image is:
+
+~~~powershell
+& 'C:\Users\pc\.codex\runtimes\ki17-runtime\run-ki17-acceptance.ps1'
+~~~
+
+It runs with `--network none`, does not invoke `docker compose`, extracts and mounts the
+fixed `3b92cd0f` source and complete test overlay, generates Prisma inside the
+disposable Linux container, and invokes `node scripts/run-genesisrag17-acceptance.mjs`.
+Each run writes a `runs/<runId>/` extraction plus run-scoped receipt, log, proof
+and report directories under the runtime artifact directory.
+
+If the image must be rebuilt from local or attested contexts, run the existing pin
+gate first; it verifies commits and required entrypoints without duplicating it in
+this runbook from the repository root:
+
+~~~powershell
+node .\apps\server\deploy\ki17\verify-ki17-pins.mjs --manifest .\apps\server\deploy\ki17\pins.json --context msp=<msp-context> --context gks=<gks-context> --context genesisblock=<genesisblock-context> --out <pin-receipt.json>
+~~~
+
+The final isolated container acceptance passed `40/40` tests with `0` failed,
+pending or todo, across `2` test files (`5` Vitest suites); the four TASK-ZAI-094
+assertions and the `2,500 ms` spawn budget hold are in the same receipt. The
+grounding report records `tickElapsedMs=504` and
+`groundingHopElapsedMs=[290,300,292,300]`. The runtime receipt is
+`C:\Users\pc\.codex\runtimes\ki17-runtime\runs\ki17-59a0a93d862e442895296872f4b9ca58\receipt.json`,
+and the tracked report is `.brain/reports/task-zai-094-line-grounding.json`.
+The concise dated provenance summary is `.brain/reports/2026-09-20-ki17-runtime-recovery.json`.
+The historical Linux G-3 result remains 35/35 and stays separate from this
+current isolated acceptance. TASK-ZAI-095 remains the separate planned production
+activation.
 
 ## What is in this directory
 
@@ -77,7 +133,7 @@ docker buildx build --target runner-ki17 -t zuri-ai-web-ki17:<tag> \
 # The Tier 4 sidecar: + the GenesisBlock worker, its linux addon and the venv
 docker buildx build --target genesis-worker -t zuri-ai-genesis-worker:<tag> \
   --build-context msp=<...> --build-context gks=<...> \
-  --build-context genesisblock=<GenesisBlock at 7c9261c4> \
+  --build-context genesisblock=<GenesisBlock at 5e75c4a85e1a42faf6d2afe42633c4f2a4725c92> \
   apps/server
 
 # Gate G-3 ONLY — a test image, never deployed and never pushed. The sidecar above
@@ -110,9 +166,10 @@ untouched, so no routine web build can be broken by a missing knowledge context.
 KI17_GENESISBLOCK_LINUX_ADDON_MISSING: .../npm/linux-x64-gnu/index.linux-x64-gnu.node
 ```
 
-That file is prerequisite **P-2**. It landed as GenesisBlock PR #177, and the
-`genesisblock` pin was advanced to the merge commit that carries it (`7c9261c4`,
-worker source unchanged from `907b0ff4`), so the assertion now passes.
+That file is prerequisite **P-2**. It landed as GenesisBlock PR #177. The current
+release tuple in `pins.json` pins `genesisblock` to
+`5e75c4a85e1a42faf6d2afe42633c4f2a4725c92`; `7c9261c4` is retained only as the
+historical P-2 base reference, not as the current build context.
 `--target runner-ki17` and `--target ki17` never needed it.
 
 ### Running the acceptance inside the images (gate G-3)

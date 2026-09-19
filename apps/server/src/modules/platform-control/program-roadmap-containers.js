@@ -4625,7 +4625,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-094",
     "phase": "PHASE-ZAI-03",
     "sprint": "SPR-ZAI-05",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -4634,30 +4634,30 @@ export const PROGRAMME_CONTAINERS = {
     "links": {
       "code": "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
       "doc": "docs/decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md",
-      "test": "unavailable"
+      "test": "apps/server/tests/acceptance/genesisrag17-e2e.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "unavailable"
+      "test": "present"
     },
     "delivers": [],
     "subtasks": [],
     "dod": {
       "acceptance": {
         "text": "Given the four-process isolated harness with a published corpus generation, when a LINE job for an account in GKS_CORPUS mode is answered, then the reply is grounded and GET /api/line-oa/jobs/{id}/trace shows retrievalRefs (ADR-090 proof 2)",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a second Business in the harness and a stopped worker, when jobs are answered, then no cross-tenant evidence appears and the stopped worker yields the deterministic reply rather than an error or a model-only answer (proofs 5 and 6)",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given the measured MSP spawn time inside a four-wide worker tick, when it is recorded, then the evidence states whether the 2 500 ms budget holds, and if spawn dominates the finding is written for the MSP daemon transport decision instead of widening the budget",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 4 gate of ADR-090, run on the KI17 acceptance setup.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Phase 4 gate of ADR-090, run on the KI17 acceptance setup. 2026-09-20: final receipt run `59a0a93d862e442895296872f4b9ca58` is PASS on the fixed zuri.ai snapshot `3b92cd0f` and artifact-attested Linux image: `40/40` tests passed across `2` files (`5` Vitest suites), `0` failed/pending/todo, all four TASK-ZAI-094 assertions passed, `tickElapsedMs=504`, grounding hops `[290,300,292,300]` ms, and the `2,500 ms` budget holds. Receipt: `C:\\Users\\pc\\.codex\\runtimes\\ki17-runtime\\runs\\ki17-59a0a93d862e442895296872f4b9ca58\\receipt.json`; tracked summary: `.brain/reports/2026-09-20-ki17-runtime-recovery.json`; tracked report: `.brain/reports/task-zai-094-line-grounding.json`. This is isolated artifact evidence only: no Git-restored source, native Windows acceptance or production activation is claimed, and TASK-ZAI-095 remains planned.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 26000,
     "totalTokens": 0,
