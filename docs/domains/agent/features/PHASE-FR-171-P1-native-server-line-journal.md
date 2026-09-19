@@ -1,9 +1,9 @@
 ---
 id: ZAI:FR-171-P1
-version: "1.0.1"
+version: "1.0.2"
 status: beta
 created_at: "2026-09-07T23:10:12+07:00,RWANG"
-last_update: "2026-09-07T23:50:41+07:00,RWANG"
+last_update: "2026-09-16T22:49:51+07:00,RWANG"
 title: "Execution Trace & Replay v0.3 — native SERVER LINE journal and playback"
 parent_requirement: FR-171
 phase_id: FR-171-P1
@@ -105,18 +105,24 @@ under their original execution; they cannot settle or send a newer execution.
 
 ## Verification report
 
-Implementation commits: `d88727e7`; integration with main `0a5e07c0` in
-`f08c6b7`. Final documentation/evidence refinement follows in this branch.
+Evidence refresh ran on current `origin/main` base `138db663`; superseded
+branch-only implementation patches were not reintroduced.
 
-- Before the main merge: 4,168 server tests passed, 15 intentionally skipped;
-  production build passed; 112 E2E passed, 4 skipped, no flaky tests.
-- After the final code refinements: 44 targeted tests passed (journal, server
-  trace, job fencing, provider telemetry and route behavior).
-- Post-merge full `npm run verify`: PASS, 4,208 server tests passed / 15 skipped,
-  production build and governance passed, 112 E2E passed / 4 skipped / zero flaky
-  (8.0 minutes including 293-module warmup). Test guards verified nonzero execution.
-- Root monorepo `npm run govern`: PASS, zero critical/warning findings,
-  zero dangling links or duplicate ids; final report regenerated with the graph.
+- FR-171 focused verification: 11 test files, 120 tests passed across the
+  journal, server trace, job fencing, provider telemetry, route and memory
+  provenance contracts.
+- Full `npm test`: PASS, 712 test files passed / 6 skipped and 5,945 tests
+  passed / 32 skipped in 490.90 seconds. The nonzero-test guard passed.
+- Local `npm run build`: PASS, including compile, lint/type validation and
+  static generation of 95 pages.
+- Full `npm run test:e2e`: PASS, 195 passed / 4 skipped / zero flaky retries;
+  the 402-module warmup (121 GET, 281 OPTIONS) also passed. The run completed
+  in 14.4 minutes and the nonzero-test guard verified 195 executed tests.
+- `npm run govern`: completed with exit 0 and zero CRITICAL findings; the
+  generated graph contained 3,338 nodes, 13,873 edges and 5 dangling
+  references, while preflight reported 22 warnings and 24 informational
+  findings. These are repository-level non-critical findings, not release
+  evidence. No production database or deployment was changed.
 
 ## Remaining handoffs and release gates
 
@@ -149,10 +155,14 @@ private memory injection or recipient delivery receipts already work.
 phase report; identities, semantic hashes, provider usage and external limits
 are clarified. PRD `1.167.0b → 1.170.0b` incorporates the merged main revisions
 and FR-171; existing requirement subjects remain pinned.
+`1.0.1 → 1.0.2`: replaces stale pre-merge counts with the current local
+focused, full-suite, build, E2E and governance evidence; external gates are
+unchanged.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.0.2 | 2026-09-16 | beta | Refreshed current local verification evidence; external and release gates unchanged | see final commit | RWANG |
 | 1.0.1 | 2026-09-07 | beta | Native SERVER implementation and local evidence; explicit external and release gates | see branch commits | RWANG |
 | 1.0.0 | 2026-09-07 | accepted | Approved native SERVER checklist and external handoffs | d88727e7 | RWANG |
