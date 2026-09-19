@@ -1,15 +1,15 @@
 ---
 id: ZAI:PLAN-MISSION-CONTROL-DAG-OBSERVABILITY-IMPLEMENTATION
 title: "Mission Control — DAG orchestration observability implementation plan"
-version: "0.2.0b"
-status: candidate
+version: "0.3.0b"
+status: approved
 created_at: "2026-09-19T00:00:00+07:00,Luna Max"
-last_update: "2026-09-19T00:30:00+07:00,Luna Max"
+last_update: "2026-09-19T22:25:00+07:00,RWANG"
 attributes:
   domain: platform-control
   scope: documentation-first implementation plan for operator-only DAG observability
   source_of_truth: false
-  registry_allocation: FEAT-044 and FR-260..FR-264 allocated; runtime code pending separate approval
+  registry_allocation: FEAT-044 and FR-260..FR-264 allocated; read-only implementation merged in PR #468 with hosted evidence; PORL and production observation remain NOT_RUN
 relations:
   - type: relates_to
     target: ZAI:PLAN-MISSION-CONTROL-DAG-OBSERVABILITY
@@ -24,9 +24,11 @@ relations:
 # Mission Control — DAG orchestration observability implementation plan
 
 This is the implementation plan following approval of the design proposal.
-It is still a candidate: it authorizes no runtime/UI code, migration,
-deployment, or production action. Registry allocation is now recorded in the
-documentation gate; governed generated outputs are regenerated separately.
+The bounded read-only runtime/UI slice described here is now merged in PR #468
+and verified by hosted CI. It does not authorize PORL writes, migration,
+deployment, production activation, or live orchestration state. Registry
+allocation and the implementation evidence remain recorded in the governed
+documentation and generated projections.
 
 The design proposal remains the boundary document:
 PLAN-MISSION-CONTROL-DAG-OBSERVABILITY.md. The implementation must preserve
@@ -68,7 +70,7 @@ The implementation reads, without changing:
 - docs/roadmap/ROADMAP.md as the canonical task/status/proof/implementation/
   dependency SOT;
 - generated apps/server/src/modules/platform-control/roadmap-sot.js as the
-  checked-in projection of the roadmap SOT, including 118 nodes, 132 dependency
+  checked-in projection of the roadmap SOT, including 119 nodes, 133 dependency
   edges, 21 waves, and SUBPLAN-ROADMAP-MOBILE;
 - existing programme data/container modules only where the generated board
   already uses them;
@@ -81,12 +83,11 @@ ProgrammeUsageReport data remains measured usage, not orchestration state.
 Pipeline tracking remains the knowledge-ingestion execution ledger, not a
 worker/thread/branch/worktree ledger.
 
-### 2.2 Proposed implementation files
+### 2.2 Landed implementation files
 
-The following is the proposed bounded write set after second approval. File
-names are a plan, not files that exist today:
+The following bounded write set is the implementation landed by PR #468:
 
-| Area | Proposed path | Responsibility |
+| Area | Landed path | Responsibility |
 |---|---|---|
 | Contract | apps/server/src/modules/platform-control/mission-control/mission-control-contract.js | Validate the normalized observation envelope, state vocabulary, source/time requirements, and opaque identifier policy. |
 | Adapter | apps/server/src/modules/platform-control/mission-control/application/programme-orchestration-run-ledger.js | Read PORL records only; return source-bound observations or explicit unknown/not-run reasons. |
@@ -97,9 +98,8 @@ names are a plan, not files that exist today:
 | Unit tests | apps/server/tests/unit/mission-control-contract.test.js, mission-control-read-model.test.js, mission-control-route-contract.test.js | Contract, source precedence, state vocabulary, auth boundary, and gate fixtures. |
 | E2E | apps/server/tests/e2e/fr260-mission-control.spec.js | Operator route, forbidden member, read-only UI, blockers, stale/unknown states, and mobile viewports. |
 
-The route may instead be a tab under /control/roadmap only if the open route
-decision is explicitly resolved. The first implementation must not add both
-surfaces.
+The landed implementation uses `/control/mission-control` under the existing
+operator guard. It does not add a second Mission Control surface.
 
 ## 3. Data flow and PORL contract
 
@@ -257,48 +257,45 @@ approved.
 |---|---|---|
 | Contract | Valid/invalid envelopes, source/time requirements, state vocabulary, opaque identifiers, immutable snapshots | Unit |
 | Adapter | No record, stale record, live observation, snapshot, malformed record, duplicate claim, missing manifest | Unit with explicit fixtures |
-| SOT join | 118 nodes, 132 edges, 21 waves, no missing targets/cycles, no SOT writes | Unit/static |
+| SOT join | 119 nodes, 133 edges, 21 waves, no missing targets/cycles, no SOT writes | Unit/static |
 | Merge gates | Each gate passes/fails/unknown; first-failure trace; same-wave candidate does not imply safe | Unit |
 | Authorization | Operator ready; member/non-operator denied before PORL access; no protected payload on forbidden path | Viewer factory + route contract |
 | Member projection | No PORL/person/device/tool/model/thread fields in serialized /roadmap payload | Unit + e2e |
 | Operator browser | Blockers, live/snapshot/unknown/not-run, evidence sources, conflict trace, read-only controls | E2E |
 | Mobile browser | 390x844 and 430x932, keyboard disclosure, bounded table scroll, no document overflow | E2E |
 | Governance | Registry/ID ledger, graph, preflight, annotations, generated-output freshness | After second approval |
-| Build/release | Tests, build, e2e, then separately hosted-CI and production evidence | Each scope labeled |
+| Build/release | Hosted tests, govern, build, edge-verify and changes passed; desktop/e2e skipped by repository policy; production evidence remains NOT_RUN | Hosted CI / production scopes labeled |
 
 Production readiness is NOT_RUN until an actual approved production observation
 and deployment evidence exist. Local or isolated success cannot be promoted by
 the dashboard.
 
-## 9. Ordered execution after second approval
+## 9. Landed implementation and evidence status
 
-1. Approve IDs and plan. Approve FEAT-044, FR-260..FR-264, the implementation
-   file set, and the unresolved PORL boundary.
-2. Declare identity. Add the feature/FR rows without changing existing
-   subjects, run the sanctioned ID-ledger writer, and review the resulting
-   diff.
-3. Governance reconciliation. Run npm run govern; review graph, preflight,
-   traceability, and generated outputs. Do not hand-edit generated artifacts.
-4. Contract slice. Implement the PORL envelope validator and read-only adapter
-   with fixture-based unit tests. No route or UI yet.
-5. Read-model slice. Join the SOT DAG to normalized observations, blocker
-   projections, and merge gates. Add unit tests for every unknown/conflict
-   state.
-6. Authorization slice. Add the route below the existing guard and prove
-   pre-guard payload suppression with viewer-factory tests.
-7. UI/mobile slice. Add the operator board and responsive/accessibility
-   checks. Do not expose it through member navigation.
-8. Full verification. Run focused tests, build, e2e, governance, and review
-   evidence scopes before any deployment discussion.
+1. **Identity and approval:** FEAT-044 and FR-260..FR-264 were allocated in the
+   governed documentation gate and are implemented by the bounded file set in
+   §2.2.
+2. **Read-only implementation:** the contract, unavailable PORL adapter,
+   SOT/read-model join, blocker and merge-gate projection, operator route,
+   member redaction, responsive board and focused tests landed in PR #468.
+3. **Hosted evidence:** the approved head
+   `53a2439ad722ca32797db381f3e3f46360ffd5d8` passed hosted tests, govern,
+   build, edge-verify and changes. Desktop and e2e jobs were skipped by the
+   repository policy; they are not represented as passes.
+4. **Merge evidence:** PR #468 merged as
+   `0932f31e2e130af95b0a889772005281ffc8d112`.
+5. **Remaining boundary:** PORL has no available observation source. PORL
+   observation, deployment, production activation and production readiness are
+   all `NOT_RUN`; no worker completion, live orchestration state or production
+   claim is inferred.
 
-If the PORL owner requires durable storage, a separate ADR and migration plan
-must be approved before step 4. The first implementation remains adapter-only
-until that decision is closed.
+Any future PORL owner, freshness, durable receipt, scheduler, or production
+activation decision requires its own approved contract and evidence scope.
 
-## 10. Open decisions and risks
+## 10. Open decisions and remaining risks
 
-The second approval must either resolve these or explicitly carry them as
-implementation blockers:
+These remain open and block any future live-orchestration or production slice;
+they do not invalidate the merged read-only projection:
 
 1. PORL owning system, authentication, and whether the first adapter reads a
    remote ledger or signed/read-only receipts.
@@ -317,31 +314,27 @@ redaction, a failed shared-file gate, and a visible source outage.
 
 ## 11. Non-goals
 
-This plan does not authorize a second roadmap SOT, changes to ROADMAP.md or
-roadmap-sot.js, live Codex-process discovery, scheduler or assignment behavior,
-cancellation/retry/merge/deploy/migration/activation, replacement of usage
-telemetry or pipeline tracking, Business/Tenant data changes, raw
-prompts/secrets/customer data, or production activation.
+This plan does not authorize any capability beyond the landed read-only
+projection: a second roadmap SOT, live Codex-process discovery, scheduler or
+assignment behavior, PORL cancellation/retry/merge/deploy/migration/activation,
+replacement of usage telemetry or pipeline tracking, Business/Tenant data
+changes, raw prompts/secrets/customer data, or production activation.
 
-## 12. Version diff and second approval
+## 12. Version diff and evidence closeout
 
-Before: the approved design proposal existed, but the implementation plan and
-registry identities were only proposed.
+Before: this was a candidate implementation plan that described a proposed
+file set and a runtime slice pending separate approval.
 
-After: this candidate plan records allocated FEAT-044 and FR-260..FR-264, defines the
-file-level implementation scope, PORL contract, DAG/merge gates,
-authorization/member boundary, blocker projections, mobile checks, test
-matrix, governance order, risks, and explicit open decisions.
+After: this approved plan records the landed read-only implementation, the
+119-node/133-edge/21-wave SOT join, hosted evidence for PR #468, the exact
+merge commit, and the unchanged PORL/production `NOT_RUN` boundary.
 
-Not changed: runtime/UI code, tests, migrations, ROADMAP.md, roadmap-sot.js,
-or production. Runtime implementation remains gated separately.
-
-Remaining implementation approval required: Please approve the PORL
-open-decision boundary and runtime/UI implementation scope; code may begin
-only after that approval.
+No new PORL or production approval is implied. The remaining open decisions in
+§10 are the gates for any future live observation or activation work.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.2.0b | 2026-09-19 | candidate | FEAT-044 and FR-260..FR-264 allocated; implementation plan remains documentation-only and runtime is gated | 33cb69c7 (base, uncommitted) | Luna Max |
+| 0.3.0b | 2026-09-19 | approved | Reconciled the merged PR #468 implementation and hosted evidence; PORL and production observation remain NOT_RUN | pending | RWANG |
