@@ -114,6 +114,7 @@ no snapshot, receipt or audit. No public request or response carries an
 absolute checkout root. The source verifier and actual runtime Zod schemas
 are documented by Swagger; explicit oneOf refinements retain pair and receipt
 discriminator rules that cannot be inferred from Zod superRefine alone.
+
 ### Local model residency by business hours (FR-244, 2026-09-16)
 
 ADR-094 D6 option A. The compute-owned edge worker polls this to decide whether to keep the local model pinned (`keep_alive: -1`) or release it (`keep_alive: 0`). ADR-061 keeps every LINE identity off this wire, so the answer is one aggregate boolean across every server-enabled `LineOaAccount` — never an account id, a schedule, or which account is currently open.
