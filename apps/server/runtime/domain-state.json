@@ -36,12 +36,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 14,
-    "featureCount": 156,
+    "featureCount": 157,
     "readyFeatureCount": 118,
-    "requirementCount": 259,
+    "requirementCount": 264,
     "verifiedRequirementCount": 241,
-    "progressPercent": 93.8,
-    "gapCount": 41,
+    "progressPercent": 93.6,
+    "gapCount": 47,
     "gaps": [
       {
         "domain": "agent",
@@ -300,6 +300,16 @@
       },
       {
         "domain": "platform-control",
+        "id": "UI-STATUS-001",
+        "severity": "medium",
+        "check": "ui",
+        "summary": "At least one owned UI surface is not marked implemented",
+        "evidence": [
+          "/control/mission-control"
+        ]
+      },
+      {
+        "domain": "platform-control",
         "id": "CONTRACT-001",
         "severity": "medium",
         "check": "runtimeContract",
@@ -333,6 +343,79 @@
         "check": "requirements",
         "summary": "FR-258 is planned",
         "evidence": []
+      },
+      {
+        "domain": "platform-control",
+        "id": "REQ-FR-260",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-260 is partial",
+        "evidence": [
+          "apps/server/src/app/(control)/control/mission-control/page.jsx",
+          "apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js",
+          "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
+          "apps/server/tests/e2e/fr260-mission-control.spec.js",
+          "apps/server/tests/unit/mission-control-read-model.test.js",
+          "apps/server/tests/unit/mission-control-route-contract.test.js"
+        ]
+      },
+      {
+        "domain": "platform-control",
+        "id": "REQ-FR-261",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-261 is partial",
+        "evidence": [
+          "apps/server/src/app/(control)/control/mission-control/page.jsx",
+          "apps/server/src/modules/platform-control/mission-control/application/programme-orchestration-run-ledger.js",
+          "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
+          "apps/server/src/modules/platform-control/mission-control/mission-control-contract.js",
+          "apps/server/tests/e2e/fr260-mission-control.spec.js",
+          "apps/server/tests/unit/mission-control-contract.test.js",
+          "apps/server/tests/unit/mission-control-read-model.test.js",
+          "apps/server/tests/unit/mission-control-route-contract.test.js"
+        ]
+      },
+      {
+        "domain": "platform-control",
+        "id": "REQ-FR-262",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-262 is partial",
+        "evidence": [
+          "apps/server/src/app/(control)/control/mission-control/page.jsx",
+          "apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js",
+          "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
+          "apps/server/tests/e2e/fr260-mission-control.spec.js",
+          "apps/server/tests/unit/mission-control-read-model.test.js",
+          "apps/server/tests/unit/mission-control-route-contract.test.js"
+        ]
+      },
+      {
+        "domain": "platform-control",
+        "id": "REQ-FR-263",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-263 is partial",
+        "evidence": [
+          "apps/server/src/app/(control)/control/mission-control/page.jsx",
+          "apps/server/src/modules/platform-control/programme-member-view.js",
+          "apps/server/tests/e2e/fr260-mission-control.spec.js",
+          "apps/server/tests/unit/mission-control-route-contract.test.js",
+          "apps/server/tests/unit/programme-member-view.test.js"
+        ]
+      },
+      {
+        "domain": "platform-control",
+        "id": "REQ-FR-264",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-264 is partial",
+        "evidence": [
+          "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
+          "apps/server/tests/e2e/fr260-mission-control.spec.js",
+          "apps/server/tests/unit/mission-control-route-contract.test.js"
+        ]
       },
       {
         "domain": "project-manager",
@@ -4470,18 +4553,105 @@
           "status": "planned",
           "codeCount": 0,
           "testCount": 0
+        },
+        {
+          "id": "FR-260",
+          "title": "Mission Control operator projection",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 3,
+          "testCount": 3,
+          "evidence": [
+            "apps/server/src/app/(control)/control/mission-control/page.jsx",
+            "apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js",
+            "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
+            "apps/server/tests/e2e/fr260-mission-control.spec.js",
+            "apps/server/tests/unit/mission-control-read-model.test.js",
+            "apps/server/tests/unit/mission-control-route-contract.test.js"
+          ]
+        },
+        {
+          "id": "FR-261",
+          "title": "Programme Orchestration Run Ledger observation contract",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 4,
+          "testCount": 4,
+          "evidence": [
+            "apps/server/src/app/(control)/control/mission-control/page.jsx",
+            "apps/server/src/modules/platform-control/mission-control/application/programme-orchestration-run-ledger.js",
+            "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
+            "apps/server/src/modules/platform-control/mission-control/mission-control-contract.js",
+            "apps/server/tests/e2e/fr260-mission-control.spec.js",
+            "apps/server/tests/unit/mission-control-contract.test.js",
+            "apps/server/tests/unit/mission-control-read-model.test.js",
+            "apps/server/tests/unit/mission-control-route-contract.test.js"
+          ]
+        },
+        {
+          "id": "FR-262",
+          "title": "DAG scheduling and merge-safety projection",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 3,
+          "testCount": 3,
+          "evidence": [
+            "apps/server/src/app/(control)/control/mission-control/page.jsx",
+            "apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js",
+            "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
+            "apps/server/tests/e2e/fr260-mission-control.spec.js",
+            "apps/server/tests/unit/mission-control-read-model.test.js",
+            "apps/server/tests/unit/mission-control-route-contract.test.js"
+          ]
+        },
+        {
+          "id": "FR-263",
+          "title": "Member roadmap redaction",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 2,
+          "testCount": 3,
+          "evidence": [
+            "apps/server/src/app/(control)/control/mission-control/page.jsx",
+            "apps/server/src/modules/platform-control/programme-member-view.js",
+            "apps/server/tests/e2e/fr260-mission-control.spec.js",
+            "apps/server/tests/unit/mission-control-route-contract.test.js",
+            "apps/server/tests/unit/programme-member-view.test.js"
+          ]
+        },
+        {
+          "id": "FR-264",
+          "title": "Responsive Mission Control evidence view",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 2,
+          "evidence": [
+            "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
+            "apps/server/tests/e2e/fr260-mission-control.spec.js",
+            "apps/server/tests/unit/mission-control-route-contract.test.js"
+          ]
         }
       ],
       "checks": {
         "ui": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/INTERFACE-INVENTORY.md"
           ],
-          "gaps": [],
+          "gaps": [
+            {
+              "id": "UI-STATUS-001",
+              "severity": "medium",
+              "summary": "At least one owned UI surface is not marked implemented",
+              "evidence": [
+                "/control/mission-control"
+              ]
+            }
+          ],
           "details": {
-            "routes": 3,
-            "inventoried": 3,
+            "routes": 4,
+            "inventoried": 4,
             "missing": 0
           }
         },
@@ -4598,6 +4768,15 @@
       ],
       "gaps": [
         {
+          "id": "UI-STATUS-001",
+          "severity": "medium",
+          "check": "ui",
+          "summary": "At least one owned UI surface is not marked implemented",
+          "evidence": [
+            "/control/mission-control"
+          ]
+        },
+        {
           "id": "CONTRACT-001",
           "severity": "medium",
           "check": "runtimeContract",
@@ -4627,12 +4806,80 @@
           "check": "requirements",
           "summary": "FR-258 is planned",
           "evidence": []
+        },
+        {
+          "id": "REQ-FR-260",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-260 is partial",
+          "evidence": [
+            "apps/server/src/app/(control)/control/mission-control/page.jsx",
+            "apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js",
+            "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
+            "apps/server/tests/e2e/fr260-mission-control.spec.js",
+            "apps/server/tests/unit/mission-control-read-model.test.js",
+            "apps/server/tests/unit/mission-control-route-contract.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-261",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-261 is partial",
+          "evidence": [
+            "apps/server/src/app/(control)/control/mission-control/page.jsx",
+            "apps/server/src/modules/platform-control/mission-control/application/programme-orchestration-run-ledger.js",
+            "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
+            "apps/server/src/modules/platform-control/mission-control/mission-control-contract.js",
+            "apps/server/tests/e2e/fr260-mission-control.spec.js",
+            "apps/server/tests/unit/mission-control-contract.test.js",
+            "apps/server/tests/unit/mission-control-read-model.test.js",
+            "apps/server/tests/unit/mission-control-route-contract.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-262",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-262 is partial",
+          "evidence": [
+            "apps/server/src/app/(control)/control/mission-control/page.jsx",
+            "apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js",
+            "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
+            "apps/server/tests/e2e/fr260-mission-control.spec.js",
+            "apps/server/tests/unit/mission-control-read-model.test.js",
+            "apps/server/tests/unit/mission-control-route-contract.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-263",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-263 is partial",
+          "evidence": [
+            "apps/server/src/app/(control)/control/mission-control/page.jsx",
+            "apps/server/src/modules/platform-control/programme-member-view.js",
+            "apps/server/tests/e2e/fr260-mission-control.spec.js",
+            "apps/server/tests/unit/mission-control-route-contract.test.js",
+            "apps/server/tests/unit/programme-member-view.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-264",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-264 is partial",
+          "evidence": [
+            "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
+            "apps/server/tests/e2e/fr260-mission-control.spec.js",
+            "apps/server/tests/unit/mission-control-route-contract.test.js"
+          ]
         }
       ],
       "details": {
-        "routes": 10,
+        "routes": 11,
         "apiRoutes": 7,
-        "pageRoutes": 3,
+        "pageRoutes": 4,
         "ownedModels": 4,
         "featureNotes": 2
       },
@@ -4640,15 +4887,16 @@
         "FEAT-034",
         "FEAT-039",
         "FEAT-042",
+        "FEAT-044",
         "FR-105",
         "FR-142",
         "FR-145",
         "FR-211",
         "FR-241"
       ],
-      "featureCount": 8,
+      "featureCount": 9,
       "readyFeatureCount": 7,
-      "progressPercent": 100
+      "progressPercent": 94.7
     },
     "procurement": {
       "status": "partial",
@@ -11200,6 +11448,90 @@
       "evidence": []
     },
     {
+      "id": "FEAT-044",
+      "title": "Mission Control DAG orchestration observability — an installation-operator-only, read-only projection that joins the canonical roadmap DAG and its 21 waves with provenance-bound Programme Orchestration Run Ledger observations for workers, threads, branches, worktrees, commits, checks and evidence; same-wave work is only candidate-parallel until dependency, owner, lane, shared-file, revision and capability gates pass; missing or stale records stay UNKNOWN/NOT_RUN; /roadmap remains server-redacted and mobile uses the same SOT (ADR-048, ADR-086, ADR-092)",
+      "kind": "bundle",
+      "registryStatus": "building",
+      "requirementIds": [
+        "FR-260",
+        "FR-261",
+        "FR-262",
+        "FR-263",
+        "FR-264"
+      ],
+      "primaryDomain": "platform-control",
+      "contributorDomains": [
+        "platform-control"
+      ],
+      "useCase": "installation operator opens Mission Control and sees the canonical roadmap DAG by wave together with only provenance-bound worker, thread, branch, worktree, commit, check and evidence observations; same-wave work is marked candidate-parallel until merge-safety gates pass, while stale or absent records remain visibly unknown and members never receive operator orchestration detail",
+      "progressPercent": 80,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-044 registry status is building",
+        "FR-260 is partial",
+        "FR-261 is partial",
+        "FR-262 is partial",
+        "FR-263 is partial",
+        "FR-264 is partial"
+      ],
+      "requirements": [
+        {
+          "id": "FR-260",
+          "title": "Mission Control operator projection",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 3,
+          "testCount": 3
+        },
+        {
+          "id": "FR-261",
+          "title": "Programme Orchestration Run Ledger observation contract",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 4,
+          "testCount": 4
+        },
+        {
+          "id": "FR-262",
+          "title": "DAG scheduling and merge-safety projection",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 3,
+          "testCount": 3
+        },
+        {
+          "id": "FR-263",
+          "title": "Member roadmap redaction",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 2,
+          "testCount": 3
+        },
+        {
+          "id": "FR-264",
+          "title": "Responsive Mission Control evidence view",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 1,
+          "testCount": 2
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/(control)/control/mission-control/page.jsx",
+        "apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js",
+        "apps/server/src/modules/platform-control/mission-control/application/programme-orchestration-run-ledger.js",
+        "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
+        "apps/server/src/modules/platform-control/mission-control/mission-control-contract.js",
+        "apps/server/src/modules/platform-control/programme-member-view.js",
+        "apps/server/tests/e2e/fr260-mission-control.spec.js",
+        "apps/server/tests/unit/mission-control-contract.test.js",
+        "apps/server/tests/unit/mission-control-read-model.test.js",
+        "apps/server/tests/unit/mission-control-route-contract.test.js",
+        "apps/server/tests/unit/programme-member-view.test.js"
+      ]
+    },
+    {
       "id": "FR-001",
       "title": "จัดการ scope hierarchy: Portfolio / Tenant / Business / Branch / LegalEntity / Workspace (CRUD + human codes)",
       "kind": "requirement",
@@ -16857,8 +17189,8 @@
       "id": "NFR-008",
       "title": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity…",
       "status": "verified",
-      "codeCount": 14,
-      "testCount": 22,
+      "codeCount": 15,
+      "testCount": 24,
       "domains": [
         "knowledge",
         "platform-control",

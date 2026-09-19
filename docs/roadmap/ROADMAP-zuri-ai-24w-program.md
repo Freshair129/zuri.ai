@@ -573,6 +573,7 @@ locates the week.
 | TASK-ZAI-116 | SPR-ZAI-02 | task | Observability decision record — ADR-095 for error tracking and per-person feature usage, and the FR/NFR declarations it governs | P1 | Claude | done |  | CR-020; ADR-095 |
 | TASK-ZAI-117 | SPR-ZAI-02 | task | Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action | P1 | Claude | done | TASK-ZAI-116 | ADR-095 D1; FR-247 |
 | TASK-ZAI-118 | SPR-ZAI-02 | task | Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup | P2 | Claude | done | TASK-ZAI-116 | ADR-095 D2, D3; FR-248, FR-249 |
+| TASK-ZAI-119 | SPR-ZAI-02 | task | Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations | P1 | RWANG | review | TASK-ZAI-064 | ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264 |
 
 ## Assignments
 
@@ -6166,6 +6167,61 @@ token_telemetry:
   model_name: claude-sonnet-5
   context_length: 200k
   predicted_token_usage: 60000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-119
+
+```yaml
+task_container_id: TC-TASK-ZAI-119
+task_id: TASK-ZAI-119
+parent_phase_id: PHASE-ZAI-01
+parent_sprint_id: SPR-ZAI-02
+title: Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations
+requirement_type: FEAT
+complexity: C-3
+access_scope: H3
+status: review
+version: 0.1.0b
+pic: RWANG
+executor: RWANG
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/app/(control)/control/mission-control/page.jsx
+  doc: docs/plans/PLAN-MISSION-CONTROL-DAG-OBSERVABILITY-IMPLEMENTATION.md
+  test: apps/server/tests/e2e/fr260-mission-control.spec.js
+delivers: [FEAT-044, FR-260, FR-261, FR-262, FR-263, FR-264]
+subtasks:
+  - id: P0
+    title: PORL observation contract and read-only DAG projection
+    status: done
+  - id: P1
+    title: Installation-operator route, blocker/gate evidence and mobile board
+    status: review
+  - id: P2
+    title: External PORL source binding and hosted/production proof
+    status: planned
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given an installation operator, when they open Mission Control, then the canonical DAG, dependency waves, task proof state, named blockers and merge-gate traces render without Business scope or mutation controls
+      checked: true
+  success_criteria:
+    - criterion: Given no configured PORL source, when the operator reads the board, then observations remain UNKNOWN or NOT_RUN and no stale record is treated as live
+      checked: true
+  exit_criteria:
+    - criterion: Given the external PORL owner and freshness contract, when the source is bound and hosted checks run, then provenance, mobile, authorization and read-only boundaries are verified without claiming deployment here
+      checked: false
+changelog: Opened 2026-09-19 after the owner approved the Mission Control implementation scope. Local read-only/operator-only code and focused unit evidence are present; the PORL source remains unavailable and no deployment is claimed.
+created_at: 2026-09-19T00:00:00Z,RWANG,pending
+token_telemetry:
+  model_name: gpt-5
+  context_length: 200k
+  predicted_token_usage: 50000
   total_token_usage: 0
 ui_state:
   dropdown_default: collapsed

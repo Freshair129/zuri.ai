@@ -5978,5 +5978,73 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-116"
     ],
     "evidence": "ADR-095 D2, D3; FR-248, FR-249"
+  },
+  "TASK-ZAI-119": {
+    "container": "TC-TASK-ZAI-119",
+    "phase": "PHASE-ZAI-01",
+    "sprint": "SPR-ZAI-02",
+    "version": "0.1.0b",
+    "priority": "P1",
+    "pic": "RWANG",
+    "executor": "RWANG",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/app/(control)/control/mission-control/page.jsx",
+      "doc": "docs/plans/PLAN-MISSION-CONTROL-DAG-OBSERVABILITY-IMPLEMENTATION.md",
+      "test": "apps/server/tests/e2e/fr260-mission-control.spec.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [
+      "FEAT-044",
+      "FR-260",
+      "FR-261",
+      "FR-262",
+      "FR-263",
+      "FR-264"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "PORL observation contract and read-only DAG projection",
+        "status": "done"
+      },
+      {
+        "id": "P1",
+        "title": "Installation-operator route, blocker/gate evidence and mobile board",
+        "status": "review"
+      },
+      {
+        "id": "P2",
+        "title": "External PORL source binding and hosted/production proof",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given an installation operator, when they open Mission Control, then the canonical DAG, dependency waves, task proof state, named blockers and merge-gate traces render without Business scope or mutation controls",
+        "checked": true
+      },
+      "success": {
+        "text": "Given no configured PORL source, when the operator reads the board, then observations remain UNKNOWN or NOT_RUN and no stale record is treated as live",
+        "checked": true
+      },
+      "exit": {
+        "text": "Given the external PORL owner and freshness contract, when the source is bound and hosted checks run, then provenance, mobile, authorization and read-only boundaries are verified without claiming deployment here",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-19 after the owner approved the Mission Control implementation scope. Local read-only/operator-only code and focused unit evidence are present; the PORL source remains unavailable and no deployment is claimed.",
+    "created": "2026-09-19T00:00:00Z,RWANG,pending",
+    "predictedTokens": 50000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-064"
+    ],
+    "evidence": "ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264"
   }
 }

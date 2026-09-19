@@ -113,8 +113,8 @@ export const ROADMAP_SOT = {
   },
   "dag": {
     "algorithm": "kahn-topological-layers",
-    "nodeCount": 118,
-    "edgeCount": 132,
+    "nodeCount": 119,
+    "edgeCount": 133,
     "waveCount": 21,
     "missingDependencies": [],
     "cycles": [],
@@ -155,7 +155,8 @@ export const ROADMAP_SOT = {
           "TASK-ZAI-068",
           "TASK-ZAI-077",
           "TASK-ZAI-117",
-          "TASK-ZAI-118"
+          "TASK-ZAI-118",
+          "TASK-ZAI-119"
         ]
       },
       {
@@ -1935,6 +1936,17 @@ export const ROADMAP_TASK_LEDGER = [
     "dependsOn": "TASK-ZAI-116",
     "authority": "ROADMAP.md",
     "evidence": "ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md"
+  },
+  {
+    "id": "TASK-ZAI-119",
+    "sprint": "SPR-ZAI-02",
+    "title": "Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations",
+    "status": "review",
+    "proofScope": "LOCAL",
+    "implementationState": "LOCAL",
+    "dependsOn": "TASK-ZAI-064",
+    "authority": "ROADMAP.md",
+    "evidence": "ROADMAP task row; ../plans/PLAN-MISSION-CONTROL-DAG-OBSERVABILITY-IMPLEMENTATION.md"
   }
 ]
 
