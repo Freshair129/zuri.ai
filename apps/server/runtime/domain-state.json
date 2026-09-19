@@ -4349,7 +4349,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-142",
@@ -4437,7 +4437,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 6
+          "testCount": 8
         },
         {
           "id": "FR-247",
@@ -5396,7 +5396,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-106",
@@ -5996,7 +5996,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 6
+          "testCount": 8
         },
         {
           "id": "FR-243",
@@ -14985,7 +14985,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 17
+          "testCount": 18
         }
       ],
       "evidence": [
@@ -15013,6 +15013,7 @@
         "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/program-delivery-metrics.test.js",
         "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
+        "apps/server/tests/unit/program-roadmap-mobile.test.js",
         "apps/server/tests/unit/programme-containers.test.js",
         "apps/server/tests/unit/programme-member-view.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
@@ -16444,7 +16445,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 6
+          "testCount": 8
         }
       ],
       "evidence": [
@@ -16452,10 +16453,12 @@
         "apps/server/src/components/layouts/PlatformControlShell.jsx",
         "apps/server/src/modules/platform-control/components/ProgramRoadmapBoard.jsx",
         "apps/server/src/modules/platform-control/programme-member-view.js",
+        "apps/server/tests/e2e/fr216-programme-delivery-telemetry.spec.js",
         "apps/server/tests/e2e/fr241-roadmap-member-view.spec.js",
         "apps/server/tests/unit/platform-control-domain-map.test.js",
         "apps/server/tests/unit/platform-control-route-contract.test.js",
         "apps/server/tests/unit/program-roadmap-board-telemetry.test.js",
+        "apps/server/tests/unit/program-roadmap-mobile.test.js",
         "apps/server/tests/unit/programme-member-view.test.js",
         "apps/server/tests/unit/sign-out.test.js"
       ]

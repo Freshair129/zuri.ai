@@ -3,10 +3,24 @@
    file with no rule here), and a readiness colour always sits beside its text.
    Accent edges are inset box-shadows so a state change never shifts layout. */
 
+.view {
+  min-width: 0;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+.view > *,
+.view :global(.card),
+.view :global(.grid) > *,
+.view :global(.space-y-4) {
+  min-width: 0;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 10px;
+  min-width: 0;
 }
 
 .tile {
@@ -14,6 +28,7 @@
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
   box-shadow: inset 4px 0 0 var(--border-strong);
+  min-width: 0;
   transition:
     background var(--motion-fast) var(--motion-ease),
     border-color var(--motion-fast) var(--motion-ease);
@@ -44,6 +59,8 @@
   color: inherit;
   font: inherit;
   cursor: pointer;
+  min-height: 48px;
+  overflow-wrap: anywhere;
 }
 .bar {
   display: block;
@@ -89,6 +106,7 @@
   border-radius: var(--radius-md);
   background: var(--bg-surface);
   color: var(--text-secondary);
+  min-width: 0;
 }
 .search input {
   width: 210px;
@@ -106,10 +124,12 @@
   background: var(--bg-surface);
   color: var(--text-primary);
   font-size: 12px;
+  min-height: 44px;
 }
 
 .inventoryHead {
   box-shadow: var(--shadow-raised), inset 5px 0 0 var(--action-primary);
+  min-width: 0;
 }
 .checks {
   display: flex;
@@ -150,6 +170,8 @@
   color: inherit;
   font: inherit;
   cursor: pointer;
+  min-height: 48px;
+  overflow-wrap: anywhere;
 }
 .featureDot {
   width: 10px;
@@ -169,6 +191,7 @@
   padding: 10px 12px 12px 14px;
   border-top: 1px solid var(--border-default);
   background: var(--bg-surface);
+  min-width: 0;
 }
 .k {
   display: block;
@@ -217,7 +240,10 @@
 }
 
 .tableFrame {
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
 }
@@ -259,6 +285,7 @@
 }
 .titleCell {
   min-width: 220px;
+  overflow-wrap: anywhere;
 }
 .featureRefs {
   white-space: nowrap;
@@ -289,4 +316,26 @@
   font-size: 12px;
   color: var(--text-tertiary);
   font-style: italic;
+}
+
+.tileButton:focus-visible,
+.featureHead:focus-visible {
+  outline: 3px solid var(--action-primary);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .search {
+    width: 100%;
+  }
+  .search input {
+    width: 100%;
+    max-width: none;
+  }
+  .select {
+    width: 100%;
+  }
 }
