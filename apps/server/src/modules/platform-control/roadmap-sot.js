@@ -1942,11 +1942,11 @@ export const ROADMAP_TASK_LEDGER = [
     "sprint": "SPR-ZAI-02",
     "title": "Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations",
     "status": "review",
-    "proofScope": "LOCAL",
-    "implementationState": "LOCAL",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-064",
     "authority": "ROADMAP.md",
-    "evidence": "ROADMAP task row; ../plans/PLAN-MISSION-CONTROL-DAG-OBSERVABILITY-IMPLEMENTATION.md"
+    "evidence": "PR #468; approved head 53a2439ad722ca32797db381f3e3f46360ffd5d8; merge commit 0932f31e2e130af95b0a889772005281ffc8d112; hosted tests/govern/build/edge-verify/changes passed; desktop/e2e skipped by repository policy; PORL unavailable; no deployment or production activation claimed; production/PORL observation NOT_RUN"
   }
 ]
 
