@@ -2,8 +2,8 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.13"
-updated: "2026-09-19"
+version: "0.4.14"
+updated: "2026-09-20"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
 programme_start: "2026-08-24"
@@ -36,10 +36,10 @@ related_docs:
 
 Rendered board: `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
 
-Version diff 0.4.10 → 0.4.11 (2026-09-16): TASK-ZAI-063 is reconciled to local/review
-evidence with four bounded owning-domain reads and truthful unavailable states; the Documents
-surface is bounded to Text/Markdown admission. No model, migration, deployment or production
-activation is claimed.
+Version diff 0.4.13 → 0.4.14 (2026-09-20): TASK-ZAI-024 is reconciled to review/local
+evidence for the agent-context retrieval gate: denied private reads return no entries and emit
+an audit before any memory-port call. Hosted CI, merge, production activation and release
+evidence remain open.
 
 ## 1. Purpose
 
@@ -478,7 +478,7 @@ locates the week.
 | TASK-ZAI-021 | SPR-ZAI-07 | task | Accessibility and reduced-motion contract for the 2.5D surface | P1 | Claude | planned | TASK-ZAI-019 | UI-DESIGN-SYSTEM section 3 |
 | TASK-ZAI-022 | SPR-ZAI-08 | task | Live agent activity presence and mission tracking in-scene | P0 | Codex | planned | TASK-ZAI-020 | Proposal scope, Business Layer |
 | TASK-ZAI-023 | SPR-ZAI-08 | task | Surface the L1 to L4 approval queue inside Visual Office | P1 | Codex | planned | TASK-ZAI-011; TASK-ZAI-022 | Section 3.1 rows 1 and 9 |
-| TASK-ZAI-024 | SPR-ZAI-09 | task | Second Brain retrieval by Business, Role and Permission | P0 | Claude | in-progress | TASK-ZAI-008 | Section 3.1 row 4; FR-098, FR-173, ADR-072 |
+| TASK-ZAI-024 | SPR-ZAI-09 | task | Second Brain retrieval by Business, Role and Permission | P0 | Claude | review | TASK-ZAI-008 | Section 3.1 row 4; FR-098, FR-173, ADR-072 |
 | TASK-ZAI-025 | SPR-ZAI-09 | task | Memory lineage, replay and the no-silent-replay guarantee | P1 | Claude | in-progress | TASK-ZAI-024 | Section 3.1 row 4; FR-116, FR-171, ADR-070 |
 | TASK-ZAI-026 | SPR-ZAI-10 | task | Interactive Node View 3D over the governed relation graph | P0 | Codex | planned | TASK-ZAI-024 | Section 3.1 row 3 |
 | TASK-ZAI-027 | SPR-ZAI-10 | task | Structure and edge direct manipulation with handoff contracts | P0 | Codex | planned | TASK-ZAI-026 | FEATURE-MAP FR-082 to FR-085 |
@@ -1649,8 +1649,8 @@ title: Second Brain retrieval by Business, Role and Permission
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: in-progress
-version: 0.2.0
+status: review
+version: 0.3.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -1658,18 +1658,18 @@ auditor: ATHER
 symbol_links:
   code: apps/server/src/modules/agent/context.js
   doc: docs/decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md
-  test: unavailable
+  test: apps/server/tests/unit/agent-context-retrieval.test.js
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a principal without permission for a memory partition, when retrieval runs, then nothing is returned and the refusal is audited
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a permitted retrieval, when the result is assembled, then every item names the Business and partition it came from
       checked: true
   exit_criteria:
     - criterion: Given npm test, when the retrieval suite runs, then policy is evaluated before retrieval, not after
-      checked: false
-changelog: Opened from deliverable four. Read ports exist through FR-024, FR-025 and FR-029; permission-scoped retrieval does not. Re-baselined 2026-08-23 to sit under ADR-042, which pinned the decoupled knowledge and GraphRAG service on D12. Moved to in-progress on the 2026-09-13 re-baseline, three months ahead of its sprint — FR-098 makes every retrieval consume the immutable shared authorization context and audits denial; FR-110 makes knowledge readable only as an identified publication; FR-173 (ADR-072) admits sources and publishes corpora under Business authorization with isolated acceptance passed; FR-189 (ADR-075) answers catalog queries from a published generation. The success criterion is met by the publication contract. The acceptance criterion — retrieval refused and audited *by role* — waits on the role registry (TASK-ZAI-007/008), and the exit criterion on a suite that asserts ordering, which does not exist yet.
+      checked: true
+changelog: Opened from deliverable four. Read ports exist through FR-024, FR-025 and FR-029; permission-scoped retrieval does not. Re-baselined 2026-08-23 to sit under ADR-042, which pinned the decoupled knowledge and GraphRAG service on D12. Moved to in-progress on the 2026-09-13 re-baseline, three months ahead of its sprint — FR-098 makes every retrieval consume the immutable shared authorization context and audits denial; FR-110 makes knowledge readable only as an identified publication; FR-173 (ADR-072) admits sources and publishes corpora under Business authorization with isolated acceptance passed; FR-189 (ADR-075) answers catalog queries from a published generation. The success criterion is met by the publication contract. Local TASK-ZAI-024 evidence now joins the immutable authorization policy to the agent-context private-memory boundary: a denied read is empty, audited without customer content, and never calls the memory port; the explicit MSP read permission is fail-closed. Status is review/local only; hosted CI, merge, production activation and release evidence remain open.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -7449,3 +7449,4 @@ second run over the same logs writes the same block.
 | 0.4.11 | 2026-09-17 | TASK-ZAI-047 / FR-254 implemented under its owner-approved Console specification and moved to review with local Server, browser, native pipeline and build evidence. Corpus queries and immutable artifacts reuse existing authorities; no schema or GKS contract change. Release composition preserves all existing tasks and recomputes SPR-ZAI-03 to 34 and PHASE-ZAI-02 to 28 from their statuses. Production deployment and activation remain separate; phase report records full regression outcomes. |
 | 0.4.11 (Storage branch) | 2026-09-17 | Link TASK-ZAI-049 to candidate storage spec 0.1.0b: self-hosted S3/AIStor, retention and coordinated recovery. Task remains planned; no implementation or deployment approval recorded. |
 | 0.4.12 | 2026-09-17 | Owner approved TASK-ZAI-049 spec 0.1.0 and the isolated implementation. Provider deployment, production migration, canary and acceptance remain pending; TASK-ZAI-050 remains separate. |
+| 0.4.14 | 2026-09-20 | TASK-ZAI-024 retrieval-policy implementation and focused ordering/audit proof recorded as review/local evidence. Production, hosted CI, merge and release activation remain outside this change. |

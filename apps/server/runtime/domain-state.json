@@ -476,7 +476,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-026",
@@ -593,7 +593,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-072",
@@ -641,7 +641,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-097",
@@ -657,7 +657,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-132",
@@ -729,7 +729,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-181",
@@ -1896,7 +1896,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-097",
@@ -1912,7 +1912,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-102",
@@ -3765,7 +3765,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-190",
@@ -7479,7 +7479,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-097",
@@ -7495,7 +7495,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -7583,6 +7583,7 @@
         "apps/server/tests/integration/phase-b-identity-erasure.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
+        "apps/server/tests/unit/agent-context-retrieval.test.js",
         "apps/server/tests/unit/agent-line-catalog-command.test.js",
         "apps/server/tests/unit/auth-service.test.js",
         "apps/server/tests/unit/authorization-context.test.js",
@@ -12633,7 +12634,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -12652,6 +12653,7 @@
         "apps/server/tests/integration/line-worker-memory.test.js",
         "apps/server/tests/integration/msp-vault-memory-port.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
+        "apps/server/tests/unit/agent-context-retrieval.test.js",
         "apps/server/tests/unit/agent-role-registry.test.js",
         "apps/server/tests/unit/role-memory-partition.test.js"
       ]
@@ -14037,7 +14039,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 14
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -14059,6 +14061,7 @@
         "apps/server/tests/integration/line-worker-memory.test.js",
         "apps/server/tests/integration/memory-trace-linkage.test.js",
         "apps/server/tests/integration/msp-vault-memory-port.test.js",
+        "apps/server/tests/unit/agent-context-retrieval.test.js",
         "apps/server/tests/unit/agent-requestable-sensitivity.test.js",
         "apps/server/tests/unit/msp-memory-evidence.test.js",
         "apps/server/tests/unit/msp-stdio-transport.test.js",
@@ -16474,7 +16477,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 25
+          "testCount": 26
         }
       ],
       "evidence": [
@@ -16510,6 +16513,7 @@
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/integration/server-line-trace.test.js",
+        "apps/server/tests/unit/agent-context-retrieval.test.js",
         "apps/server/tests/unit/edge-invocation-trace.test.js",
         "apps/server/tests/unit/grounded-business-answer.test.js",
         "apps/server/tests/unit/line-execution-trace.test.js",

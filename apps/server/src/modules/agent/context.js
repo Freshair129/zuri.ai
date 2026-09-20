@@ -1,22 +1,27 @@
+import prisma from '@/lib/db'
 import { queryKnowledge } from '@/modules/knowledge'
+import { recordAudit } from '@/modules/project-manager/application/audit'
 import { memoryKey, createInMemoryMemory } from './memory-port'
 import { defaultReadOnlyTools } from './tools'
 import { resolveAgentAuthorization } from './auth-context'
+import { ROLE_MEMORY_AUDIT_ENTITY, ROLE_MEMORY_ACTIONS } from './role-memory-partition'
 
-// @req FR-025, FR-057, FR-096, FR-098 — assemble settled identity, policy-filtered memory and knowledge.
+// @req FR-025, FR-057, FR-096, FR-098, TASK-ZAI-024 — assemble settled identity, policy-filtered memory and knowledge.
 // @spec ADR-007 §P6 / ADR-022 / ADR-045 / Gate E — authorization and vault selection happen before
-//   retrieval; the model receives no raw scope authority.
+//   private-memory retrieval; the model receives no raw scope authority. ADR-043 §D2 and
+//   ADR-072 D4 — a denied private partition is empty and audited.
 // @tested tests/integration/agent-context.test.js, tests/integration/agent-multi-principal.test.js
 // @tested tests/integration/agent-msp-thread-memory.test.js
+// @tested tests/unit/agent-context-retrieval.test.js
 
 /**
  * Assemble the read-only context an agent binds to at Gate E, for one LINE subject in
  * one tenant. Routes the subject through the ONE P3 identity seam, keys memory by the
  * resolved principal, pulls GKS knowledge, and exposes only read-only tools.
  *
- * Read-only w.r.t. Zuri: this function issues no writes. (resolveLinePrincipal may
- * mint-or-return the Person via the identity seam — that is the identity contract, not
- * an agent write.)
+ * Read-only w.r.t. domain records: a denied private-memory read appends an immutable
+ * audit event, while resolveLinePrincipal may mint-or-return the Person via the identity
+ * seam — those are identity and security contracts, not agent writes.
  *
  * @param {Object} input
  * @param {string} input.tenantId
@@ -82,7 +87,26 @@ export async function assembleAgentContext({
   const key = memoryKey(tenantId, principal.principalType, principal.personId)
   const scopedKey = authorizedVaults[0]?.scopeKey ?? key
   const memoryPort = memory ?? createInMemoryMemory()
-  const mem = policy.privateMemoryAllowed
+  const privateMemoryReadAllowed = policy.privateMemoryAllowed === true && policy.mspAuthorization?.read === true
+  if (!privateMemoryReadAllowed) {
+    await recordAudit(prisma, {
+      entityType: ROLE_MEMORY_AUDIT_ENTITY,
+      entityId: scopedKey,
+      action: ROLE_MEMORY_ACTIONS.RETRIEVAL_DENIED,
+      actorType: 'AGENT',
+      actorId: authContext.actor?.principalId ?? null,
+      tenantId: authContext.scope.tenantId,
+      businessId: authContext.scope.businessId,
+      reason: policy.privateMemoryAllowed === true ? 'MEMORY_READ_PERMISSION_DENIED' : policy.reason,
+      payload: {
+        partition: 'private',
+        agentId: authContext.request?.agentId ?? null,
+        principalType: authContext.actor?.principalType ?? null,
+        roleIds: authContext.authorization?.roles ?? [],
+      },
+    })
+  }
+  const mem = privateMemoryReadAllowed
     ? typeof memoryPort.recallAuthorized === 'function'
       ? await memoryPort.recallAuthorized(authorization)
       : await memoryPort.recall(scopedKey)
@@ -114,7 +138,7 @@ export async function assembleAgentContext({
     // Resolve the route before reading memory. A denied or pending identity may
     // still be recorded in the thread, but it must never retrieve its private
     // transcript or protected records.
-    const threadContext = policy.privateMemoryAllowed && !deferThreadRecall
+    const threadContext = privateMemoryReadAllowed && !deferThreadRecall
       ? await threadMemory.context({ threadId: thread.threadId, currentExchangeId, authorization, requesterId: identity.principalId })
       : { thread }
     const buildPacket = typeof threadMemory.buildContextPacket === 'function'
@@ -133,7 +157,7 @@ export async function assembleAgentContext({
     identity,
     memory: { key: mem.key ?? scopedKey, legacyKey: key, entries: mem.entries,
       // @req FR-171 — retain source revisions only from the policy-authorized recall.
-      evidence: policy.privateMemoryAllowed ? mem.evidence ?? null : null },
+      evidence: privateMemoryReadAllowed ? mem.evidence ?? null : null },
     knowledge,
     tools: toolList,
     capabilities: { readOnly: true, gate: 'E' },

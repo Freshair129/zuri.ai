@@ -896,12 +896,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-024",
     "sprint": "SPR-ZAI-09",
     "title": "Second Brain retrieval by Business, Role and Permission",
-    "status": "in-progress",
-    "proofScope": "UNKNOWN",
-    "implementationState": "IN_PROGRESS",
+    "status": "review",
+    "proofScope": "LOCAL",
+    "implementationState": "LOCAL",
     "dependsOn": "TASK-ZAI-008",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 4; FR-098, FR-173, ADR-072"
+    "evidence": "local context gate, focused audit/order proof and RCA; hosted CI, merge and production evidence not run; FR-098, FR-173, ADR-072"
   },
   {
     "id": "TASK-ZAI-025",
