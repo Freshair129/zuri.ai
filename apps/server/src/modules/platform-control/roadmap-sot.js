@@ -1237,12 +1237,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-055",
     "sprint": "SPR-ZAI-03",
     "title": "PricingRuleSet — versioned, owner-approved pricing rules ported from pricing_rules_formula.yaml with per-block provenance, and the Pricing Rules console",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "status": "done",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-052",
     "authority": "ROADMAP.md",
-    "evidence": "ROADMAP task row; ../domains/commerce/features/FR-253-pricing-rules-and-engine.md"
+    "evidence": "PR #448 merged at c20641f; hosted govern/tests/build/verify passed; E2E/Desktop skipped; production and owner activation NOT_RUN; ../domains/commerce/features/FR-253-pricing-rules-and-engine.md"
   },
   {
     "id": "TASK-ZAI-056",
