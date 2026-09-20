@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.13, 2026-09-19) so the board can open a task the way the html board
+// (v0.4.14, 2026-09-20) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -1051,7 +1051,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-024",
     "phase": "PHASE-ZAI-05",
     "sprint": "SPR-ZAI-09",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -1060,19 +1060,19 @@ export const PROGRAMME_CONTAINERS = {
     "links": {
       "code": "apps/server/src/modules/agent/context.js",
       "doc": "docs/decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md",
-      "test": "unavailable"
+      "test": "apps/server/tests/unit/agent-context-retrieval.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "unavailable"
+      "test": "present"
     },
     "delivers": [],
     "subtasks": [],
     "dod": {
       "acceptance": {
         "text": "Given a principal without permission for a memory partition, when retrieval runs, then nothing is returned and the refusal is audited",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a permitted retrieval, when the result is assembled, then every item names the Business and partition it came from",
@@ -1080,10 +1080,10 @@ export const PROGRAMME_CONTAINERS = {
       },
       "exit": {
         "text": "Given npm test, when the retrieval suite runs, then policy is evaluated before retrieval, not after",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened from deliverable four. Read ports exist through FR-024, FR-025 and FR-029; permission-scoped retrieval does not. Re-baselined 2026-08-23 to sit under ADR-042, which pinned the decoupled knowledge and GraphRAG service on D12. Moved to in-progress on the 2026-09-13 re-baseline, three months ahead of its sprint — FR-098 makes every retrieval consume the immutable shared authorization context and audits denial; FR-110 makes knowledge readable only as an identified publication; FR-173 (ADR-072) admits sources and publishes corpora under Business authorization with isolated acceptance passed; FR-189 (ADR-075) answers catalog queries from a published generation. The success criterion is met by the publication contract. The acceptance criterion — retrieval refused and audited *by role* — waits on the role registry (TASK-ZAI-007/008), and the exit criterion on a suite that asserts ordering, which does not exist yet.",
+    "changelog": "Opened from deliverable four. Read ports exist through FR-024, FR-025 and FR-029; permission-scoped retrieval does not. Re-baselined 2026-08-23 to sit under ADR-042, which pinned the decoupled knowledge and GraphRAG service on D12. Moved to in-progress on the 2026-09-13 re-baseline, three months ahead of its sprint — FR-098 makes every retrieval consume the immutable shared authorization context and audits denial; FR-110 makes knowledge readable only as an identified publication; FR-173 (ADR-072) admits sources and publishes corpora under Business authorization with isolated acceptance passed; FR-189 (ADR-075) answers catalog queries from a published generation. The success criterion is met by the publication contract. Local TASK-ZAI-024 evidence now joins the immutable authorization policy to the agent-context private-memory boundary: a denied read is empty, audited without customer content, and never calls the memory port; the explicit MSP read permission is fail-closed. Status is review/local only; hosted CI, merge, production activation and release evidence remain open.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 54000,
     "totalTokens": 0,
