@@ -896,12 +896,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-024",
     "sprint": "SPR-ZAI-09",
     "title": "Second Brain retrieval by Business, Role and Permission",
-    "status": "review",
-    "proofScope": "LOCAL",
-    "implementationState": "LOCAL",
+    "status": "done",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-008",
     "authority": "ROADMAP.md",
-    "evidence": "local context gate, focused audit/order proof and RCA; hosted CI, merge and production evidence not run; FR-098, FR-173, ADR-072"
+    "evidence": "PR #481 merged at `823ae325`; hosted verify/govern/tests/build/edge/changes passed; production NOT_RUN; FR-098, FR-173, ADR-072"
   },
   {
     "id": "TASK-ZAI-025",
@@ -1029,11 +1029,11 @@ export const ROADMAP_TASK_LEDGER = [
     "sprint": "SPR-ZAI-01",
     "title": "LINE OA Studio multi-account, rich menu, LIFF and server-owned transport — FEAT-018, FEAT-019, FR-146 to FR-153, FR-190",
     "status": "review",
-    "proofScope": "ISOLATED",
-    "implementationState": "ISOLATED_ACCEPTED",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "—",
     "authority": "ROADMAP.md",
-    "evidence": "PR #341/#359 merged core; isolated FR-190 account-scope fix, regression and RCA; hosted CI and production transport verification remain unclaimed"
+    "evidence": "PR #480 merged at `d8a8e0e`; hosted checks passed; provider canary, real LINE delivery and production remain NOT_RUN"
   },
   {
     "id": "TASK-ZAI-037",
@@ -1073,11 +1073,11 @@ export const ROADMAP_TASK_LEDGER = [
     "sprint": "SPR-ZAI-02",
     "title": "Marketing strategy, campaigns, content, operations and broadcast planning — FEAT-021, FR-157 to FR-160, FR-162, FR-185",
     "status": "review",
-    "proofScope": "LOCAL",
-    "implementationState": "LOCAL",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "—",
     "authority": "ROADMAP.md",
-    "evidence": "CR-019 deliverable 11; CR-018; marketing/PHASE-TASK-ZAI-040-RECONCILIATION-2026-09-20.md"
+    "evidence": "PR #482 merged at `11826890`; hosted checks passed; target, provider, owner, release and production gates remain open"
   },
   {
     "id": "TASK-ZAI-041",
@@ -1216,11 +1216,11 @@ export const ROADMAP_TASK_LEDGER = [
     "sprint": "SPR-ZAI-02",
     "title": "Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory)",
     "status": "done",
-    "proofScope": "LOCAL",
-    "implementationState": "LOCAL",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-052; TASK-ZAI-034",
     "authority": "ROADMAP.md",
-    "evidence": "TASK-ZAI-053 local implementation, focused tests and migrations; production NOT_RUN"
+    "evidence": "PR #483 merged at `68d27022` after the strict Phase-B inventory fix; hosted checks passed; production migration/activation NOT_RUN"
   },
   {
     "id": "TASK-ZAI-054",
