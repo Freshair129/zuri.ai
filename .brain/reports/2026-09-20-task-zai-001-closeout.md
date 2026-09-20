@@ -1,8 +1,8 @@
 # TASK-ZAI-001 closeout evidence and production-tail runbook
 
-Version: 0.1.0b  
+Version: 0.2.0b
 Date: 2026-09-20  
-Status: REVIEW — implementation is merged; production acceptance remains open  
+Status: REVIEW — bounded fail-closed patch is ready on this branch; production acceptance remains open
 Task owner: ATHER  
 Approver: Owen  
 Executor: Codex
@@ -37,10 +37,10 @@ The checked success criterion is repository/test evidence. It is not evidence
 that the production request-session boundary is accepted. The unchecked
 acceptance and exit criteria remain intentionally unchanged.
 
-## Implementation evidence already on main
+## Existing implementation evidence
 
-The approved implementation is not an unstarted coding task. The relevant
-merged pull requests are:
+The approved FEAT-010 implementation is not an unstarted coding task. The
+relevant merged pull requests are:
 
 | PR | Merge commit | Delivered evidence |
 |---|---|---|
@@ -69,6 +69,26 @@ This is merged repository evidence only. It does not prove that the deployed
 production artifact, database schema, runtime role, provider binding and live
 data all match this commit.
 
+## Bounded patch on this branch
+
+The current `origin/main` still contains compatibility no-op branches for a
+missing production Session adapter. The patch in this worktree is limited to
+`TASK-ZAI-001` and:
+
+- raises `SESSION_STORE_UNAVAILABLE` instead of minting or reporting revocation
+  success when the production Session persistence methods are absent;
+- maps a missing production lookup method through the existing
+  `503 SESSION_UNAVAILABLE` request boundary;
+- adds four focused production-mode regression cases across the session port,
+  login, logout and logout-all paths; and
+- records the RCA in
+  `.brain/rca/2026-09-19-task-zai-001-session-store-boundary.md`.
+
+This is a proposed/ready patch, not yet merged. Focused verification on the
+branch passed: `fr046-session-port.test.js` and `iam-session.test.js`, 2 files,
+15 tests. The first sandboxed attempt was blocked by an esbuild path permission
+error; the elevated retry ran the same command successfully.
+
 ## Existing production evidence and open gates
 
 `docs/roadmap/PLAN-FR-094-PRODUCTION-IAM.md` records W7/W8 runtime-role and
@@ -79,7 +99,8 @@ that `main` is deployed or production-accepted.
 
 | Gate | State in this closeout | Required owner evidence |
 |---|---|---|
-| Code and local contract tests | `MERGED` | exact merged commits and repository test results |
+| Existing identity code and local contract tests | `MERGED` | exact merged commits and repository test results |
+| Missing production Session-store fail-closed patch | `PATCH_READY` | branch diff, RCA and 15 focused tests; merge still required |
 | Runtime database role/RLS proof | `RECORDED; REFRESH_REQUIRED` | read-only catalog proof for the deployed artifact and `zuri_web_login` path |
 | Authenticated session canary | `NOT_RUN` | owner-controlled production login, protected read, logout/revocation and next-request denial |
 | Membership/cross-tenant isolation canary | `NOT_RUN` | two-scope denial proof with no payload or audit leakage |
@@ -141,9 +162,9 @@ from `origin/main` at `01a6712b422d73e1892b647953729d8da7f410cb`:
 
 - `node apps/server/scripts/programme-containers.mjs --check` — PASS; 119
   containers, modules in step.
-- `npm run govern` — PASS; exit 0, 0 critical, 22 warnings and 31 info.
-- Focused Vitest IAM/roadmap suite — PASS; 10 files, 56 tests.
-- `npm --prefix apps/server run test:e2e -- tests/e2e/fr046-entry-contract.spec.js --project=e2e --no-deps` — PASS; 1 test, 41.2s. The `--no-deps` flag skips the unrelated warmup dependency for this bounded contract check.
+- `npm run govern` — PASS; exit 0, 0 critical, 21 warnings and 31 info.
+- Focused identity/session/password-reset Vitest suite — PASS; 7 files, 71 tests.
+- `npm --prefix apps/server run test:e2e -- tests/e2e/fr046-entry-contract.spec.js --project=e2e --no-deps` — PASS; 1 test, 17.1s. The `--no-deps` flag skips the unrelated warmup dependency for this bounded contract check.
 - `npm run build` — PASS; Next.js production build compiled, type-checked and
   generated 99 static pages.
 - `git diff --check` — PASS.
@@ -155,10 +176,12 @@ gates into production evidence.
 
 ## Closeout decision
 
-The implementation portion is complete on the merged repository history. This
-PR closes the documentation/evidence preparation portion only. TASK-ZAI-001
-remains open for production proof and owner acceptance; no deployment or
-production readiness claim is made.
+The existing FEAT-010 implementation is present in merged repository history;
+this branch adds the bounded production Session-store fail-closed guard, its
+RCA and regression proof. A PR is required for that patch. TASK-ZAI-001 remains
+open for production proof and owner acceptance; no deployment or production
+readiness claim is made.
 
-Version diff: new `0.1.0b` closeout report; no requirement ids, code contracts,
-DoD flags or production state were changed.
+Version diff: `0.1.0b` → `0.2.0b`; added the bounded fail-closed patch, focused
+regression evidence, RCA link and the production-tail gate table. No
+requirement ids, DoD flags or production state were changed.

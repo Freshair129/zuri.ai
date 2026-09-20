@@ -71,7 +71,7 @@ export function createSessionPort({ readTrustedSession = async () => null, env =
         let persistedExpiresAt = null
         if (session.sessionId) {
           if (typeof db.session?.findUnique !== 'function') {
-            if (env.NODE_ENV === 'production') return { state: 'UNAUTHENTICATED' }
+            if (env.NODE_ENV === 'production') throw new Error('SESSION_STORE_UNAVAILABLE')
           } else {
             const persisted = await db.session.findUnique({ where: { id: session.sessionId } })
             const live = persisted &&
