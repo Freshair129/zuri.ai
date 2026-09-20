@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.15, 2026-09-20) so the board can open a task the way the html board
+// (v0.4.16, 2026-09-21) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -2597,16 +2597,16 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-056",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/src/modules/inventory/domain/inventory-costing.js",
-      "doc": "docs/change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md",
-      "test": "apps/server/tests/unit/inventory-costing.test.js"
+      "code": "apps/server/src/modules/commerce/domain/pricing-engine.js",
+      "doc": "docs/domains/commerce/features/FR-253-pricing-rules-and-engine.md",
+      "test": "apps/server/tests/unit/pricing-engine.test.js"
     },
     "linkState": {
       "code": "present",
@@ -2618,18 +2618,18 @@ export const PROGRAMME_CONTAINERS = {
     "dod": {
       "acceptance": {
         "text": "Given price-boss golden cases (same SKU, quantity, logo and freight inputs), when pricing-engine.js runs under the imported rule set, then every ladder break matches price-boss to the baht before the deliberate integer-satang rounding change, and the differences after it are recorded as a second fixture",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a quantity, when the engine prices it, then the result names the driver (LADDER, FLOOR or MANUAL), carries freightSatang 0 with freightAbsorbedSatang beside it, flags a margin outside the profile band without clamping it, and never emits a float",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test, when the engine, costing and FR-181 tool suites run, then both fixture sets pass, the tool no longer reads the QUOTE_TIERS or TECHNIQUE_RATES constants, and a negative or zero quantity is refused before any arithmetic",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.2). Q1 (factory price breaks replace the global small-order factor, SOF only as a flagged fallback), Q2 (SmartGift's markup ladder is the data shape and the margin band a warning), Q4 (inland China per set), Q5 (20,000 floor with 30,000 shown as target) and Q7 (SmartGift's USD logo rates as defaults) all land here as rule-set data, not code branches.",
+    "changelog": "Reconciled 2026-09-21 (v0.4.16). TASK-ZAI-056 is `review / HOSTED_CI / MERGED` after PR #487 merged at `5b2964c5ebdc9e3a9c07ab76c02d69020e91d97b`; hosted `govern`, `tests`, `build`, `edge-verify` and `verify` passed, while `e2e` and `desktop` were skipped by workflow policy. The pure satang engine, driver labels and FR-181 path are evidenced by the merged source and tests. Price-boss parity remains captured-fixture evidence only in `pricing-legacy-vectors.json` and `pricing-legacy-differences.json`; no live cross-repository run is claimed. Owner approval/activation, deployment, migration, production, MSP and GKS gates remain NOT_RUN/open. Original rule decisions remain: Q1 (factory price breaks replace the global small-order factor, SOF only as a flagged fallback), Q2 (SmartGift's markup ladder is the data shape and the margin band a warning), Q4 (inland China per set), Q5 (20,000 floor with 30,000 shown as target) and Q7 (SmartGift's USD logo rates as defaults) all land here as rule-set data, not code branches.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 64000,
     "totalTokens": 0,
@@ -2637,7 +2637,7 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-054",
       "TASK-ZAI-055"
     ],
-    "evidence": "CR-019 deliverable 11; SmartGift ADR-009 D2 and D3; BR-027; FR-181"
+    "evidence": "PR #487 merged at `5b2964c5ebdc9e3a9c07ab76c02d69020e91d97b`; hosted govern/tests/build/edge-verify/verify passed; e2e/desktop skipped; price-boss parity captured fixtures only; owner approval/activation, deployment, migration, production, MSP and GKS gates NOT_RUN/open"
   },
   "TASK-ZAI-057": {
     "container": "TC-TASK-ZAI-057",

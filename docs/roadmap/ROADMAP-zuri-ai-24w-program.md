@@ -2,8 +2,8 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.15"
-updated: "2026-09-20"
+version: "0.4.16"
+updated: "2026-09-21"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
 programme_start: "2026-08-24"
@@ -35,6 +35,14 @@ related_docs:
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 
 Rendered board: `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
+
+Version diff 0.4.15 → 0.4.16 (2026-09-21): TASK-ZAI-056 is reconciled as
+`review / HOSTED_CI / MERGED` from PR #487, merged at
+`5b2964c5ebdc9e3a9c07ab76c02d69020e91d97b`. Hosted `govern`, `tests`, `build`,
+`edge-verify` and `verify` passed; `e2e` and `desktop` were skipped by workflow
+policy. Price-boss parity remains captured-fixture evidence only; no live
+cross-repository run is claimed. Owner approval/activation, deployment,
+migration, production, MSP and GKS gates remain NOT_RUN/open.
 
 Version diff 0.4.14 → 0.4.15 (2026-09-20): hosted-CI reconciliation records TASK-ZAI-024 and
 TASK-ZAI-053 as done/merged, while TASK-ZAI-036 and TASK-ZAI-040 remain review because their
@@ -520,7 +528,7 @@ locates the week.
 | TASK-ZAI-053 | SPR-ZAI-02 | task | Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory) | P0 | Claude | done | TASK-ZAI-052; TASK-ZAI-034 | PR #483 merged at `68d27022` after the strict Phase-B inventory fix; hosted checks passed; production migration/activation NOT_RUN |
 | TASK-ZAI-054 | SPR-ZAI-02 | task | Goods receipts post the landed unit cost to the stock ledger, and the SKU page gains a cost card | P0 | Claude | done | TASK-ZAI-053; TASK-ZAI-038 | CR-019 deliverable 11; ADR-074 D3; FR-165; FR-175 |
 | TASK-ZAI-055 | SPR-ZAI-03 | task | PricingRuleSet — versioned, owner-approved pricing rules ported from pricing_rules_formula.yaml with per-block provenance, and the Pricing Rules console | P0 | Claude | done | TASK-ZAI-052 | CR-019 deliverable 11; SmartGift pricing_rules_formula.yaml v4; FR-131; SDD-077 |
-| TASK-ZAI-056 | SPR-ZAI-03 | task | One pure pricing engine in integer satang — landed cost, ladder, profit floor and ten-baht round-up — with parity fixtures against price-boss; the FR-181 quote tool reads the rule set | P0 | Claude | planned | TASK-ZAI-054; TASK-ZAI-055 | CR-019 deliverable 11; SmartGift ADR-009 D2 and D3; BR-027; FR-181 |
+| TASK-ZAI-056 | SPR-ZAI-03 | task | One pure pricing engine in integer satang — landed cost, ladder, profit floor and ten-baht round-up — with parity fixtures against price-boss; the FR-181 quote tool reads the rule set | P0 | Claude | review | TASK-ZAI-054; TASK-ZAI-055 | PR #487 merged at `5b2964c5ebdc9e3a9c07ab76c02d69020e91d97b`; hosted govern/tests/build/edge-verify/verify passed; e2e/desktop skipped; price-boss parity captured fixtures only; owner approval/activation, deployment, migration, production, MSP and GKS gates NOT_RUN/open |
 | TASK-ZAI-057 | SPR-ZAI-03 | task | Quotations — Quote and QuoteLine with ladder snapshots, two-hat approval, the QUOTATION document and conversion to a sales order with the FR-180 hold | P0 | Claude | planned | TASK-ZAI-056; TASK-ZAI-039 | CR-019 deliverable 11; price-boss workflow-quotation; FR-166; FR-180; FR-186; FR-196 |
 | TASK-ZAI-058 | SPR-ZAI-04 | task | Ladder quotation on LINE (FR-132) over the shared engine with a deterministic intent matcher | P1 | Claude | planned | TASK-ZAI-057; TASK-ZAI-036 | CR-019 deliverable 11; FR-132; FR-131; BR-011; FR-047 |
 | TASK-ZAI-059 | SPR-ZAI-04 | task | Knowledge structured records — STRUCTURED_RECORDS_V1 JSON format, an Excel template and converter, and MCP format widening before Stage 1 | P1 | Claude | planned | TASK-ZAI-045; TASK-ZAI-042 | Section 3.1 row 4; ADR-075 D2; FR-187; FR-209; BR-009 |
@@ -3083,28 +3091,28 @@ title: One pure pricing engine in integer satang — landed cost, ladder, profit
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/modules/inventory/domain/inventory-costing.js
-  doc: docs/change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md
-  test: apps/server/tests/unit/inventory-costing.test.js
+  code: apps/server/src/modules/commerce/domain/pricing-engine.js
+  doc: docs/domains/commerce/features/FR-253-pricing-rules-and-engine.md
+  test: apps/server/tests/unit/pricing-engine.test.js
 delivers: []
 definition_of_done:
   acceptance_criteria:
     - criterion: Given price-boss golden cases (same SKU, quantity, logo and freight inputs), when pricing-engine.js runs under the imported rule set, then every ladder break matches price-boss to the baht before the deliberate integer-satang rounding change, and the differences after it are recorded as a second fixture
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a quantity, when the engine prices it, then the result names the driver (LADDER, FLOOR or MANUAL), carries freightSatang 0 with freightAbsorbedSatang beside it, flags a margin outside the profile band without clamping it, and never emits a float
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the engine, costing and FR-181 tool suites run, then both fixture sets pass, the tool no longer reads the QUOTE_TIERS or TECHNIQUE_RATES constants, and a negative or zero quantity is refused before any arithmetic
-      checked: false
-changelog: Opened 2026-09-13 (v0.4.2). Q1 (factory price breaks replace the global small-order factor, SOF only as a flagged fallback), Q2 (SmartGift's markup ladder is the data shape and the margin band a warning), Q4 (inland China per set), Q5 (20,000 floor with 30,000 shown as target) and Q7 (SmartGift's USD logo rates as defaults) all land here as rule-set data, not code branches.
+      checked: true
+changelog: Reconciled 2026-09-21 (v0.4.16). TASK-ZAI-056 is `review / HOSTED_CI / MERGED` after PR #487 merged at `5b2964c5ebdc9e3a9c07ab76c02d69020e91d97b`; hosted `govern`, `tests`, `build`, `edge-verify` and `verify` passed, while `e2e` and `desktop` were skipped by workflow policy. The pure satang engine, driver labels and FR-181 path are evidenced by the merged source and tests. Price-boss parity remains captured-fixture evidence only in `pricing-legacy-vectors.json` and `pricing-legacy-differences.json`; no live cross-repository run is claimed. Owner approval/activation, deployment, migration, production, MSP and GKS gates remain NOT_RUN/open. Original rule decisions remain: Q1 (factory price breaks replace the global small-order factor, SOF only as a flagged fallback), Q2 (SmartGift's markup ladder is the data shape and the margin band a warning), Q4 (inland China per set), Q5 (20,000 floor with 30,000 shown as target) and Q7 (SmartGift's USD logo rates as defaults) all land here as rule-set data, not code branches.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-fable-5-1
