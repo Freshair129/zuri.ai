@@ -27,8 +27,8 @@
   },
   "summary": {
     "nodes": 82,
-    "edges": 116,
-    "chains": 23,
+    "edges": 114,
+    "chains": 22,
     "byKind": {
       "SOURCE": 13,
       "ENTRY": 24,
@@ -41,7 +41,7 @@
       "DECLARED": 4,
       "PARTIAL": 1,
       "CODE_TESTS": 15,
-      "PRODUCTION": 3
+      "PRODUCTION": 2
     },
     "internalByStatus": {
       "BLOCKED": 1,
@@ -52,10 +52,10 @@
     },
     "internalBySurface": {
       "NONE": 7,
-      "WORKER": 11,
+      "WORKER": 12,
       "MCP": 0,
-      "ENDPOINT": 12,
-      "UI": 32
+      "ENDPOINT": 10,
+      "UI": 33
     }
   },
   "nodes": [
@@ -417,38 +417,39 @@
       "blocked": null
     },
     {
-      "id": "in.edge-conversation",
+      "id": "in.model-provider-key",
       "kind": "ENTRY",
       "system": "zuri-ai",
-      "label": "Edge conversation jobs (claim · complete)",
+      "label": "Model provider API key (browser, write-only)",
       "detail": "",
-      "domain": "line-oa-studio",
+      "domain": "integration",
       "requirements": [
         {
-          "id": "FR-150",
-          "status": "verified",
-          "title": "Optional Edge conversation execution"
+          "id": "FR-266",
+          "status": "partial",
+          "title": "A Business owner provisions the model provider API key from the browser, write-only, without an operator or a host file"
         }
       ],
       "features": [
-        "FEAT-019"
+        "FEAT-045"
       ],
       "decisions": [
-        "ADR-061"
+        "ADR-100",
+        "ADR-089"
       ],
       "surfaces": [
         {
           "type": "ENDPOINT",
-          "ref": "/api/edge/conversation-jobs/claim"
+          "ref": "/api/integration/model-providers"
         },
         {
-          "type": "ENDPOINT",
-          "ref": "/api/edge/conversation-jobs/[id]/complete"
+          "type": "UI",
+          "ref": "/line-oa"
         }
       ],
-      "surfaceLevel": "ENDPOINT",
+      "surfaceLevel": "UI",
       "buildStatus": "PRODUCTION",
-      "evidence": ".brain/rca/2026-09-11-line-server-overlay-dropped-on-redeploy.md, 'Verified end to end, 2026-09-12': edge worker claim 200 (a job, not an empty 204) and complete 200",
+      "evidence": "none: FR-266 is built on a branch and not deployed. The entry that stood here, in.edge-conversation, is withdrawn by FR-265 / ADR-100 D2 together with its two endpoints; its 2026-09-12 production evidence stays readable in the RCA it cited.",
       "blocked": null
     },
     {
@@ -1326,14 +1327,14 @@
       "surfaces": [
         {
           "type": "FILE",
-          "ref": "apps/server/src/modules/agent/edge-line-memory-context.js"
+          "ref": "apps/server/src/modules/agent/server-line-answer.js"
         },
         {
-          "type": "ENDPOINT",
-          "ref": "/api/edge/conversation-jobs/[id]/context"
+          "type": "FILE",
+          "ref": "apps/server/src/modules/agent/msp-thread-memory-port.js"
         }
       ],
-      "surfaceLevel": "ENDPOINT",
+      "surfaceLevel": "WORKER",
       "buildStatus": "PARTIAL",
       "evidence": null,
       "blocked": null
@@ -1424,15 +1425,10 @@
       "id": "p.edge-execution",
       "kind": "PROCESS",
       "system": "edge",
-      "label": "Edge Device execution",
-      "detail": "รอบสนทนาด้วย local model และ vision extraction บน device",
-      "domain": "line-oa-studio",
+      "label": "Edge Device execution (extraction only)",
+      "detail": "vision extraction บน device; รอบสนทนา LINE ไม่ทำบน device อีกต่อไป (FR-265 / ADR-100 D2)",
+      "domain": "asset-management",
       "requirements": [
-        {
-          "id": "FR-150",
-          "status": "verified",
-          "title": "Optional Edge conversation execution"
-        },
         {
           "id": "FR-143",
           "status": "verified",
@@ -1440,12 +1436,10 @@
         }
       ],
       "features": [
-        "FEAT-017",
-        "FEAT-019"
+        "FEAT-017"
       ],
       "decisions": [
-        "ADR-059",
-        "ADR-061"
+        "ADR-059"
       ],
       "surfaces": [
         {
@@ -2767,20 +2761,20 @@
       "status": "CODE_TESTS"
     },
     {
-      "id": "e.jobs-to-edge",
-      "from": "p.line-jobs",
-      "to": "p.edge-execution",
-      "label": "งานสนทนาที่ device claim (edgk_)",
-      "wired": true,
-      "status": "PRODUCTION"
-    },
-    {
       "id": "e.jobs-to-memory-context",
       "from": "p.line-jobs",
       "to": "p.msp-context",
-      "label": "v2 claim: server-owned execution deadline + memory opt-in",
+      "label": "server-owned execution deadline + memory opt-in",
       "wired": true,
       "status": "PARTIAL"
+    },
+    {
+      "id": "e.model-key-to-turn",
+      "from": "in.model-provider-key",
+      "to": "p.agent-turn",
+      "label": "Business-scoped provider key resolved per answer (SDD-106)",
+      "wired": true,
+      "status": "CODE_TESTS"
     },
     {
       "id": "e.memory-to-context",
@@ -2807,10 +2801,10 @@
       "status": "CODE_TESTS"
     },
     {
-      "id": "e.cin-to-edge",
+      "id": "e.cin-to-agent",
       "from": "p.cin",
-      "to": "p.edge-execution",
-      "label": "exact budgeted model input, per-invocation receipt",
+      "to": "p.agent-turn",
+      "label": "bounded composed context → server model call (FR-234, SDD-100)",
       "wired": true,
       "status": "CODE_TESTS"
     },
@@ -2821,22 +2815,6 @@
       "label": "refs/hash/budget only via execution settlement",
       "wired": true,
       "status": "CODE_TESTS"
-    },
-    {
-      "id": "e.edge-to-complete",
-      "from": "p.edge-execution",
-      "to": "in.edge-conversation",
-      "label": "คำตอบจาก device",
-      "wired": true,
-      "status": "PRODUCTION"
-    },
-    {
-      "id": "e.complete-to-jobs",
-      "from": "in.edge-conversation",
-      "to": "p.line-jobs",
-      "label": "settle job",
-      "wired": true,
-      "status": "PRODUCTION"
     },
     {
       "id": "e.jobs-to-line",
@@ -3633,43 +3611,6 @@
   ],
   "chains": [
     {
-      "id": "CH-01",
-      "name": "LINE turn — ตอบบน Edge Device",
-      "summary": "เส้นทางที่ใช้งานจริงบน production วันนี้",
-      "path": [
-        "e.line-to-webhook",
-        "e.webhook-to-jobs",
-        "e.jobs-to-edge",
-        "e.edge-to-complete",
-        "e.complete-to-jobs",
-        "e.jobs-to-line"
-      ],
-      "branches": [
-        "e.jobs-to-crm"
-      ],
-      "nodeIds": [
-        "in.edge-conversation",
-        "in.line-webhook",
-        "p.edge-execution",
-        "p.line-jobs",
-        "r.line-api",
-        "s.crm",
-        "src.line-users"
-      ],
-      "status": "PRODUCTION",
-      "domains": [
-        "crm",
-        "line-oa-studio"
-      ],
-      "features": [
-        "FEAT-009",
-        "FEAT-017",
-        "FEAT-019",
-        "FR-023",
-        "FR-190"
-      ]
-    },
-    {
       "id": "CH-02",
       "name": "LINE turn — ตอบบน server",
       "summary": "ประกอบบริบทหลายแหล่งก่อนเรียก model",
@@ -3902,14 +3843,12 @@
       "status": "CODE_TESTS",
       "domains": [
         "agent",
-        "asset-management",
-        "line-oa-studio"
+        "asset-management"
       ],
       "features": [
         "FEAT-015",
         "FEAT-016",
-        "FEAT-017",
-        "FEAT-019"
+        "FEAT-017"
       ]
     },
     {
@@ -4354,31 +4293,33 @@
     },
     {
       "id": "CH-23",
-      "name": "LINE local v2 — MemoryOS → CIN → model",
-      "summary": "Local integration evidence only; reply latency and live LINE acceptance remain unqualified",
+      "name": "LINE v2 — MemoryOS → CIN → model (server)",
+      "summary": "FR-265/ADR-100 D2 moved this chain's tail off the device; the MemoryOS and CIN hops are branches of the server turn, and live LINE qualification remains pending",
       "path": [
         "e.line-to-webhook",
         "e.webhook-to-jobs",
         "e.jobs-to-memory-context",
         "e.memory-context-to-cin",
-        "e.cin-to-edge",
-        "e.edge-to-complete",
-        "e.complete-to-jobs",
+        "e.cin-to-agent",
+        "e.agent-to-jobs",
         "e.jobs-to-line"
       ],
       "branches": [
         "e.memory-to-context",
         "e.corpus-to-cin",
-        "e.cin-to-trace"
+        "e.cin-to-trace",
+        "e.model-key-to-turn",
+        "e.agent-to-models"
       ],
       "nodeIds": [
-        "in.edge-conversation",
         "in.line-webhook",
+        "in.model-provider-key",
+        "p.agent-turn",
         "p.cin",
-        "p.edge-execution",
         "p.line-jobs",
         "p.msp-context",
         "r.line-api",
+        "r.model-providers",
         "s.agent-trace",
         "s.knowledge-corpus",
         "src.line-users",
@@ -4387,14 +4328,17 @@
       "status": "PARTIAL",
       "domains": [
         "agent",
+        "integration",
         "knowledge",
         "line-oa-studio"
       ],
       "features": [
+        "FEAT-010",
         "FEAT-013",
-        "FEAT-017",
         "FEAT-019",
+        "FEAT-025",
         "FEAT-037",
+        "FEAT-045",
         "FR-171",
         "FR-190"
       ]

@@ -10,7 +10,7 @@ import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 import LineOaConnectWizard from '@/modules/line-oa-studio/ui/LineOaConnectWizard'
 import LineOaCredentialMigrationCard from '@/modules/line-oa-studio/ui/LineOaCredentialMigrationCard'
-import LineStudioEdgeConnection from '@/modules/line-oa-studio/ui/LineStudioEdgeConnection'
+import LineStudioAccountConsole from '@/modules/line-oa-studio/ui/LineStudioAccountConsole'
 import { ScopeProvider } from '@/context/ScopeContext'
 import { sampleInventory } from '../factories/scope-context'
 
@@ -67,7 +67,7 @@ describe('FR-225 Studio page no longer offers the deployment-secret form', () =>
     const html = renderToStaticMarkup(createElement(
       ScopeProvider,
       { inventory: sampleInventory(), selection: { businessId: 'biz-1' } },
-      createElement(LineStudioEdgeConnection),
+      createElement(LineStudioAccountConsole),
     ))
     expect(html).not.toContain('Deployment secret reference')
     expect(html).not.toContain('deployment-secret:line-main')

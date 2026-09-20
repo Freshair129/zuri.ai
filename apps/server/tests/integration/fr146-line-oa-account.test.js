@@ -193,17 +193,26 @@ describe('FR-146 LineOaAccount', () => {
     const resumed = await applyLineOaAccountAction(connected.id, { action: 'RESUME', version: paused.version }, { viewer: publisher })
     expect(resumed.status).toBe('CONNECTED')
 
-    await expect(applyLineOaAccountAction(connected.id, { action: 'SWITCH_TRANSPORT_MODE', version: resumed.version, transportMode: 'CLOUD' }, { viewer: owner }))
-      .rejects.toMatchObject({ status: 409, message: 'LINE_OA_TRANSPORT_MODE_UNCHANGED' })
-    const switched = await applyLineOaAccountAction(connected.id, { action: 'SWITCH_TRANSPORT_MODE', version: resumed.version, transportMode: 'EDGE' }, { viewer: owner })
-    expect(switched.transportMode).toBe('EDGE')
-    const switchAudit = await prisma.auditEvent.findFirst({ where: { entityId: connected.id, action: 'LINE_OA_ACCOUNT_TRANSPORT_MODE_SWITCHED' } })
-    expect(JSON.parse(switchAudit.payloadJson)).toMatchObject({ from: { transportMode: 'CLOUD' }, to: { transportMode: 'EDGE' }, cancelledTransportJobs: 0 })
+    // @req FR-265 — this switched the account to EDGE transport and back, and read
+    // the switch's audit row. `SWITCH_TRANSPORT_MODE` is withdrawn (ADR-100 D1), so
+    // the action is refused at the schema now; what the case still has to prove is
+    // that a retired action cannot reach the writer at all.
+    await expect(applyLineOaAccountAction(connected.id, { action: 'SWITCH_TRANSPORT_MODE', version: resumed.version, transportMode: 'EDGE' }, { viewer: owner }))
+      .rejects.toThrow()
+    expect((await prisma.lineOaAccount.findUnique({ where: { id: connected.id } })).transportMode).toBe('CLOUD')
+    expect(await prisma.auditEvent.findFirst({ where: { entityId: connected.id, action: 'LINE_OA_ACCOUNT_TRANSPORT_MODE_SWITCHED' } })).toBeNull()
 
-    const archived = await applyLineOaAccountAction(connected.id, { action: 'ARCHIVE', version: switched.version }, { viewer: owner })
+    // The delivery policy is the one thing CONFIGURE_EXECUTION still carries, and
+    // it takes the place of the switch as this trail's versioned middle step.
+    const configured = await applyLineOaAccountAction(connected.id, { action: 'CONFIGURE_EXECUTION', version: resumed.version, allowDelayedPush: true }, { viewer: owner })
+    expect(configured.allowDelayedPush).toBe(true)
+    const configureAudit = await prisma.auditEvent.findFirst({ where: { entityId: connected.id, action: 'LINE_OA_EXECUTION_CONFIGURED' } })
+    expect(JSON.parse(configureAudit.payloadJson)).toMatchObject({ from: { allowDelayedPush: false }, to: { allowDelayedPush: true } })
+
+    const archived = await applyLineOaAccountAction(connected.id, { action: 'ARCHIVE', version: configured.version }, { viewer: owner })
     expect(archived).toMatchObject({ status: 'ARCHIVED', isDefaultForBusiness: false })
     expect(archived.archivedAt).not.toBeNull()
-    for (const action of [{ action: 'RESUME' }, { action: 'SET_DEFAULT' }, { action: 'SWITCH_TRANSPORT_MODE', transportMode: 'CLOUD' }]) {
+    for (const action of [{ action: 'RESUME' }, { action: 'SET_DEFAULT' }, { action: 'CONFIGURE_EXECUTION', allowDelayedPush: false }]) {
       await expect(applyLineOaAccountAction(connected.id, { ...action, version: archived.version }, { viewer: owner })).rejects.toMatchObject({ status: 409 })
     }
     const visible = await listLineOaAccounts({ businessId: business.id, viewer: owner })
@@ -214,7 +223,7 @@ describe('FR-146 LineOaAccount', () => {
     const trail = await prisma.auditEvent.findMany({ where: { entityId: connected.id }, orderBy: { occurredAt: 'asc' } })
     expect(trail.map((row) => row.action)).toEqual([
       'LINE_OA_ACCOUNT_CONNECTED', 'LINE_OA_ACCOUNT_DEFAULT_SET', 'LINE_OA_ACCOUNT_PAUSED', 'LINE_OA_ACCOUNT_RESUMED',
-      'LINE_OA_ACCOUNT_TRANSPORT_MODE_SWITCHED', 'LINE_OA_ACCOUNT_ARCHIVED',
+      'LINE_OA_EXECUTION_CONFIGURED', 'LINE_OA_ACCOUNT_ARCHIVED',
     ])
     expect(trail.every((row) => !/secret|token/i.test(row.payloadJson))).toBe(true)
   })

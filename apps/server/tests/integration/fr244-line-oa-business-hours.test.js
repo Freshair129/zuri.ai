@@ -6,13 +6,13 @@ import { VIEWER_DOMAINS } from '@/modules/identity/viewer-domains'
 import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
 import { admitLineConversation } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { applyLineOaAccountAction } from '@/modules/line-oa-studio/application/line-oa-account-service'
-import { getModelResidencyDirective } from '@/modules/line-oa-studio/application/model-residency-service'
 
 // @req FR-244 — business hours reach production behaviour: a publisher declares
 //   them through a versioned action, an inbound message outside them is answered
-//   with the fixed reply and no execution ever claims the job, and the residency
-//   directive an edge worker polls reflects every server-enabled account.
-// @spec ADR-094 D6 option A; ADR-061; SEC-001
+//   with the fixed reply and no execution ever claims the job.
+// @req FR-265 — the model-residency directive this requirement also shipped is
+//   withdrawn with EDGE execution (ADR-100 D2); declared business hours are not.
+// @spec ADR-094 D6 option A; ADR-061; ADR-100 D2; SEC-001
 // @tested tests/integration/fr244-line-oa-business-hours.test.js
 
 const env = { ZURI_LINE_REPLY_SEAL_KEY: 'e6'.repeat(32) }
@@ -136,29 +136,9 @@ describe('FR-244 out-of-hours admission', () => {
   })
 })
 
-describe('FR-244 model residency directive', () => {
-  // The real database in this suite is shared across every test file in the run
-  // (one SQLite file per run), so asserting on `db: prisma` directly would depend
-  // on whatever other files' fixtures happen to exist. A stub db proves the real
-  // wiring — the actual where-clause and the actual reduction — without that
-  // cross-file coupling; computeShouldBeWarm's own aggregation rules are proven
-  // in tests/unit/model-residency-service.test.js.
-  function stubDb(rows) {
-    return { lineOaAccount: { findMany: async (args) => {
-      expect(args.where).toEqual({ serverEnabled: true, status: { not: 'ARCHIVED' } })
-      expect(args.select).toEqual({ businessHoursOpen: true, businessHoursClose: true })
-      return rows
-    } } }
-  }
-
-  it('reduces the loaded rows through computeShouldBeWarm', async () => {
-    const closedAt = new Date('2026-09-16T13:00:00Z') // 20:00 Bangkok
-    const openAt = new Date('2026-09-16T05:00:00Z') // noon Bangkok
-    const oneDeclaredAccount = [{ businessHoursOpen: '09:00', businessHoursClose: '18:00' }]
-
-    expect((await getModelResidencyDirective({ db: stubDb(oneDeclaredAccount), now: closedAt })).shouldBeWarm).toBe(false)
-    expect((await getModelResidencyDirective({ db: stubDb(oneDeclaredAccount), now: openAt })).shouldBeWarm).toBe(true)
-    expect((await getModelResidencyDirective({ db: stubDb([]), now: openAt })).shouldBeWarm).toBe(false)
-  })
-
-})
+// @req FR-265 — `describe('FR-244 model residency directive')` stood here. The
+// directive told a compute-owned edge worker whether to hold a local model in
+// VRAM; its route and service are withdrawn with EDGE execution (ADR-100 D2), and
+// the aggregation rule it proved has no remaining consumer. FR-244's other half —
+// the declared business hours themselves, and the out-of-hours reply created
+// straight at READY without a model call — is unaffected and is covered above.

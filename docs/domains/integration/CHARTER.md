@@ -1,11 +1,15 @@
 ---
-version: "0.4.2b"
+version: "0.5.0b"
 status: active
-last_update: "2026-09-14T15:00:00+07:00,Claude Opus 5"
+last_update: "2026-09-21T00:00:00+07:00,Claude Opus 5"
 id: ZAI:DOMAIN-INTEGRATION
 relations:
   - type: relates_to
     target: ZAI:ADR-061
+  - type: relates_to
+    target: ZAI:ADR-100
+  - type: relates_to
+    target: ZAI:FR-266
   - type: relates_to
     target: ZAI:PLAN-FEAT-019-PHASES
   - type: relates_to
@@ -19,6 +23,7 @@ owns_routes:
   - src/app/(pm)/platform/sot-pipeline/**
   - src/app/api/platform/integrations/**
   - src/app/api/line-oa/connections/**
+  - src/app/api/integration/model-providers/**
   - src/app/api/platform/sot/**
 owns_models:
   - IntegrationProvider

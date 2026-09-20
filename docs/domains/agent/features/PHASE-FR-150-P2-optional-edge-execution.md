@@ -1,9 +1,9 @@
 ---
 id: ZAI:FR-150-P2
-version: "0.1.6b"
-status: beta
+version: "0.2.0b"
+status: retired
 created_at: "2026-09-06T13:26:50+07:00,RWANG,base 4c0cbe3"
-last_update: "2026-09-08T22:33:22+07:00,RWANG"
+last_update: "2026-09-21T00:00:00+07:00,Claude Opus 5"
 title: "Optional Edge conversation execution"
 parent_requirement: FR-150
 phase_id: FR-150-P2
@@ -26,6 +26,15 @@ relations:
 ---
 
 # FR-150-P2 — Optional Edge conversation execution
+
+> **Retired by [ADR-100](../../../decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md) D2 (2026-09-21), FR-265.**
+> The claim, context, tools, complete and fail routes this phase applied are
+> withdrawn; no LINE conversation job is created with EDGE execution any more. The
+> wire contract files stay in `apps/server/contracts/` because a deployed daemon
+> still speaks that protocol until it is upgraded, and because ADR-061 cites them —
+> they document what was, not what a new caller should build against. FR-150's
+> other phases (server-owned admission, send and recovery) are unaffected. The text
+> below is the record of the retired phase and is not amended.
 
 ## Responsibility
 

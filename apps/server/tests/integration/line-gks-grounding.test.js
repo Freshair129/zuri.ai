@@ -1,10 +1,16 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
+import { createDeterministicBusinessModel } from '@/modules/agent/grounded-business-answer'
 
 // @req FR-235 — LINE answer grounding from the published knowledge corpus,
 // exercised end to end through createServerLineAnswer: mode selection, the
 // corpus reader, the mode-gated fallback, the budget and every trace hop.
-// @spec ADR-090 D1-D5, SEC-032, SDD-099
+// @req FR-265 — these cases reached the business-knowledge reader through the
+// `modelAccess: 'LOCAL_ONLY'` branch. That branch is retired (ADR-100 D3), so they
+// now reach the same reader through the composed runtime, which is what a real turn
+// does, with the deterministic model standing in for the provider. Every grounding
+// assertion — mode selection, hops, fallback, budget, receipts — is unchanged.
+// @spec ADR-090 D1-D5, ADR-100 D3, SEC-032, SDD-099
 // @tested tests/integration/line-gks-grounding.test.js
 
 vi.mock('@/lib/db', () => ({ default: {} }))
@@ -18,9 +24,17 @@ const tenantId = '11111111-1111-4111-8111-111111111111'
 const businessId = '22222222-2222-4222-8222-222222222222'
 const otherBusinessId = '33333333-3333-4333-8333-333333333333'
 
-function job({ knowledgeGrounding, modelAccess = 'LOCAL_ONLY', tenant = tenantId, business = businessId } = {}) {
+/** A composed runtime whose business-knowledge reader is `knowledge`. */
+function runtimeWith(knowledge) {
+  return vi.fn().mockResolvedValue({
+    businessKnowledge: knowledge,
+    resolveModel: vi.fn().mockResolvedValue(createDeterministicBusinessModel()),
+  })
+}
+
+function job({ knowledgeGrounding, tenant = tenantId, business = businessId } = {}) {
   return {
-    tenantId: tenant, businessId: business, modelAccess,
+    tenantId: tenant, businessId: business,
     inbound: { body: 'AB-1 ราคาเท่าไร' },
     account: { tenantId: tenant, businessId: business, ...(knowledgeGrounding !== undefined ? { knowledgeGrounding } : {}) },
   }
@@ -48,7 +62,7 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
     queryKnowledgeCorpusMock.mockClear()
     const knowledge = { query: vi.fn().mockResolvedValue(businessKnowledgeEvidence()) }
     const trace = fakeTrace()
-    const answer = createServerLineAnswer({ knowledge })
+    const answer = createServerLineAnswer({ runtimeFactory: runtimeWith(knowledge) })
     const text = await answer(job(), { trace })
 
     expect(text).toContain('AB-1')
@@ -64,7 +78,7 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
     queryKnowledgeCorpusMock.mockClear()
     const knowledge = { query: vi.fn().mockResolvedValue(businessKnowledgeEvidence()) }
     const trace = fakeTrace()
-    const answer = createServerLineAnswer({ knowledge })
+    const answer = createServerLineAnswer({ runtimeFactory: runtimeWith(knowledge) })
     await answer(job({ knowledgeGrounding: 'BUSINESS_KNOWLEDGE' }), { trace })
     expect(queryKnowledgeCorpusMock).not.toHaveBeenCalled()
     expect(trace.recordEvidence).toHaveBeenCalledTimes(1)
@@ -73,7 +87,7 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
   it('an unrecognised grounding value fails closed to BUSINESS_KNOWLEDGE, never to a corpus read', async () => {
     queryKnowledgeCorpusMock.mockClear()
     const knowledge = { query: vi.fn().mockResolvedValue(businessKnowledgeEvidence()) }
-    const answer = createServerLineAnswer({ knowledge })
+    const answer = createServerLineAnswer({ runtimeFactory: runtimeWith(knowledge) })
     await answer(job({ knowledgeGrounding: 'NOT_A_REAL_MODE' }))
     expect(queryKnowledgeCorpusMock).not.toHaveBeenCalled()
   })
@@ -83,7 +97,7 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
     queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 4, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [corpusHit()] })
     const knowledge = { query: vi.fn() } // must never be read in GKS_CORPUS mode
     const trace = fakeTrace()
-    const answer = createServerLineAnswer({ knowledge })
+    const answer = createServerLineAnswer({ runtimeFactory: runtimeWith(knowledge) })
     const text = await answer(job({ knowledgeGrounding: 'GKS_CORPUS' }), { trace })
 
     expect(knowledge.query).not.toHaveBeenCalled()
@@ -113,7 +127,7 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
     const runtimeFactory = vi.fn().mockResolvedValue({ businessKnowledge: { query: vi.fn() }, resolveModel })
     const trace = fakeTrace()
     const answer = createServerLineAnswer({ runtimeFactory })
-    const text = await answer(job({ knowledgeGrounding: 'GKS_CORPUS', modelAccess: 'EXTERNAL_MODEL_ALLOWED' }), { trace })
+    const text = await answer(job({ knowledgeGrounding: 'GKS_CORPUS'}), { trace })
 
     expect(text).toContain('ยังไม่พบข้อมูลสินค้า')
     expect(generate).not.toHaveBeenCalled()
@@ -128,7 +142,7 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
     queryKnowledgeCorpusMock.mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve({ corpusGeneration: 1, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [corpusHit()] }), 100)))
     const knowledge = { query: vi.fn().mockResolvedValue(businessKnowledgeEvidence()) }
     const trace = fakeTrace()
-    const answer = createServerLineAnswer({ knowledge, env: { ZURI_LINE_KNOWLEDGE_BUDGET_MS: '5' } })
+    const answer = createServerLineAnswer({ runtimeFactory: runtimeWith(knowledge), env: { ZURI_LINE_KNOWLEDGE_BUDGET_MS: '5' } })
     const text = await answer(job({ knowledgeGrounding: 'GKS_THEN_BUSINESS_KNOWLEDGE' }), { trace })
 
     expect(text).toContain('AB-1')
@@ -146,7 +160,7 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
     const runtimeFactory = vi.fn().mockResolvedValue({ businessKnowledge: { query: async () => ({ records: [] }) }, resolveModel })
     const trace = fakeTrace()
     const answer = createServerLineAnswer({ runtimeFactory })
-    const text = await answer(job({ knowledgeGrounding: 'GKS_THEN_BUSINESS_KNOWLEDGE', modelAccess: 'EXTERNAL_MODEL_ALLOWED' }), { trace })
+    const text = await answer(job({ knowledgeGrounding: 'GKS_THEN_BUSINESS_KNOWLEDGE'}), { trace })
 
     expect(text).toContain('ยังไม่พบข้อมูลสินค้า')
     expect(generate).not.toHaveBeenCalled()
@@ -160,7 +174,7 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
       corpusGeneration: 1, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60',
       results: [corpusHit({ text: `evidence for ${requested}` })],
     }))
-    const answer = createServerLineAnswer({ knowledge: { query: vi.fn() } })
+    const answer = createServerLineAnswer({ runtimeFactory: runtimeWith({ query: vi.fn() }) })
     await answer(job({ knowledgeGrounding: 'GKS_CORPUS', business: businessId }))
     await answer(job({ knowledgeGrounding: 'GKS_CORPUS', business: otherBusinessId }))
 
@@ -174,7 +188,7 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
   it('an account scope mismatch is rejected before any corpus or business-knowledge read', async () => {
     queryKnowledgeCorpusMock.mockClear()
     const knowledge = { query: vi.fn() }
-    const answer = createServerLineAnswer({ knowledge })
+    const answer = createServerLineAnswer({ runtimeFactory: runtimeWith(knowledge) })
     const input = job({ knowledgeGrounding: 'GKS_CORPUS' })
     input.account.businessId = otherBusinessId
     await expect(answer(input)).rejects.toThrow('LINE_ANSWER_SCOPE_MISMATCH')
@@ -189,9 +203,9 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
 // ContextReceipt — never two for one model invocation, and never one when no
 // model will be called.
 describe('FR-235 + FR-234 — memory-opt-in turns compose knowledge evidence with MSP under one budget', () => {
-  function memoryJob({ knowledgeGrounding, audienceKind = 'DIRECT', modelAccess = 'LOCAL_ONLY' } = {}) {
+  function memoryJob({ knowledgeGrounding, audienceKind = 'DIRECT' } = {}) {
     return {
-      tenantId, businessId, modelAccess,
+      tenantId, businessId,
       memorySyncOptIn: true, audienceKind, eventId: `event-${audienceKind}`, sourceUserId: `user-${audienceKind}`,
       account: { tenantId, businessId, bindingCode: 'memory-binding', ...(knowledgeGrounding !== undefined ? { knowledgeGrounding } : {}) },
       channelAccountId: 'memory-binding', transportEpoch: 1, executionMode: 'SERVER',
@@ -233,7 +247,7 @@ describe('FR-235 + FR-234 — memory-opt-in turns compose knowledge evidence wit
     queryKnowledgeCorpusMock.mockClear()
     queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 4, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [corpusHit()] })
     const trace = fakeTrace()
-    const answer = createServerLineAnswer({ ...memoryPorts(), knowledge: { query: vi.fn() } })
+    const answer = createServerLineAnswer({ ...memoryPorts(), runtimeFactory: runtimeWith({ query: vi.fn() }) })
     const text = await answer(memoryJob({ knowledgeGrounding: 'GKS_CORPUS' }), { trace })
 
     expect(text).toContain('AB-1')
@@ -249,10 +263,10 @@ describe('FR-235 + FR-234 — memory-opt-in turns compose knowledge evidence wit
     queryKnowledgeCorpusMock.mockClear()
     queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 1, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [] })
     const generate = vi.fn()
-    const answer = createServerLineAnswer({ ...memoryPorts(), knowledge: { query: vi.fn() },
+    const answer = createServerLineAnswer({ ...memoryPorts(),
       runtimeFactory: vi.fn().mockResolvedValue({ businessKnowledge: { query: vi.fn() }, resolveModel: vi.fn().mockResolvedValue({ provider: 'openai', model: 'fixture', generate }) }) })
     const trace = fakeTrace()
-    const text = await answer(memoryJob({ knowledgeGrounding: 'GKS_CORPUS', modelAccess: 'EXTERNAL_MODEL_ALLOWED' }), { trace })
+    const text = await answer(memoryJob({ knowledgeGrounding: 'GKS_CORPUS'}), { trace })
 
     expect(text).toContain('ยังไม่พบข้อมูลสินค้า')
     expect(generate).not.toHaveBeenCalled()
@@ -263,7 +277,7 @@ describe('FR-235 + FR-234 — memory-opt-in turns compose knowledge evidence wit
     queryKnowledgeCorpusMock.mockClear()
     queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 1, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [] })
     const trace = fakeTrace()
-    const answer = createServerLineAnswer({ ...memoryPorts(), knowledge: { query: vi.fn().mockResolvedValue(businessKnowledgeEvidence()) } })
+    const answer = createServerLineAnswer({ ...memoryPorts(), runtimeFactory: runtimeWith({ query: vi.fn().mockResolvedValue(businessKnowledgeEvidence()) }) })
     const text = await answer(memoryJob({ knowledgeGrounding: 'GKS_THEN_BUSINESS_KNOWLEDGE' }), { trace })
 
     expect(text).toContain('AB-1')
@@ -279,7 +293,7 @@ describe('FR-235 + FR-234 — memory-opt-in turns compose knowledge evidence wit
     queryKnowledgeCorpusMock.mockClear()
     queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 4, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [corpusHit()] })
     const trace = fakeTrace()
-    const answer = createServerLineAnswer({ ...memoryPorts({ audienceKind: 'GROUP' }), knowledge: { query: vi.fn() } })
+    const answer = createServerLineAnswer({ ...memoryPorts({ audienceKind: 'GROUP' }), runtimeFactory: runtimeWith({ query: vi.fn() }) })
     const text = await answer(memoryJob({ knowledgeGrounding: 'GKS_CORPUS', audienceKind: 'GROUP' }), { trace })
 
     expect(text).toContain('AB-1')
@@ -294,7 +308,7 @@ describe('FR-235 + FR-234 — memory-opt-in turns compose knowledge evidence wit
   it('BUSINESS_KNOWLEDGE mode composes only MSP, exactly as before FR-235 (byte-identical)', async () => {
     queryKnowledgeCorpusMock.mockClear()
     const trace = fakeTrace()
-    const answer = createServerLineAnswer({ ...memoryPorts(), knowledge: { query: vi.fn().mockResolvedValue(businessKnowledgeEvidence()) } })
+    const answer = createServerLineAnswer({ ...memoryPorts(), runtimeFactory: runtimeWith({ query: vi.fn().mockResolvedValue(businessKnowledgeEvidence()) }) })
     await answer(memoryJob({}), { trace })
     expect(queryKnowledgeCorpusMock).not.toHaveBeenCalled()
     expect(trace.recordContextReceipt).toHaveBeenCalledTimes(1)

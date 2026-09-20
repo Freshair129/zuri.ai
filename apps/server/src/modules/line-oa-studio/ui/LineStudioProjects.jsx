@@ -152,7 +152,8 @@ export default function LineStudioProjects({ onSelectProject }) {
       typeLabel: "บัญชี LINE OA",
       serverEnabled: acc.serverEnabled,
       status: acc.effectiveStatus || acc.status || "UNKNOWN",
-      transport: acc.serverEnabled ? "Zuri Server" : acc.transportMode === "EDGE" ? "Edge worker" : "Server not enabled",
+      // @req FR-265 — EDGE is retired (ADR-100 D1) and reads as a leftover here too.
+      transport: acc.serverEnabled ? "Zuri Server" : acc.transportMode === "EDGE" ? "Edge (retired)" : "Server not enabled",
       updatedAt: acc.updatedAt || acc.createdAt,
       raw: acc
     })),

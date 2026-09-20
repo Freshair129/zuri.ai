@@ -1,4 +1,6 @@
+import prisma from '@/lib/db'
 import { createPostgresBusinessKnowledgeReader } from '@/modules/knowledge'
+import { resolveBusinessModelCredential } from '@/modules/integration/application/model-provider-credential-service'
 import { createModelProviderPort } from './model-provider'
 import { createPostgresLineBindingResolver } from './line-binding-resolver'
 import {
@@ -21,8 +23,11 @@ import { createMspTransportFromEnvironment } from './msp-stdio-transport'
 import { createMspThreadMemoryPort } from './msp-thread-memory-port'
 
 // @req FR-047, FR-048, FR-052, FR-080 — compose Phase 1 ports only from server-owned scope and configuration.
+// @req FR-266 — `resolveModel` reads the Business's own browser-provisioned model
+//   key first and uses the Phase-1 connection only when that Business has none.
 // @spec SDD-025, SDD-026, SDD-044, SEC-009, SEC-010, SEC-016 — disabled by default; partial configuration fails closed.
-// @tested tests/unit/phase1-business-agent-runtime.test.js
+// @spec SDD-106, ADR-100 D5 — resolution order, fallback on absence only, fail closed on a broken credential.
+// @tested tests/unit/phase1-business-agent-runtime.test.js, tests/unit/business-model-credential-resolution.test.js
 
 function assertRuntimeDatabaseUrl(value) {
   parseDedicatedRuntimeDatabaseUrl(value)
@@ -133,7 +138,7 @@ function parseConnectionMetadata(connection) {
 
 export function createPhase1BusinessAgentPortsFromEnv(
   env = process.env,
-  { fetchFn, queryFn, secretQueryFn, integrationDb, connectionResolver, secretManager, mspTransport, bindingRequired = true } = {},
+  { fetchFn, queryFn, secretQueryFn, integrationDb, connectionResolver, modelCredentialResolver, secretManager, mspTransport, bindingRequired = true } = {},
 ) {
   if (bindingRequired && env.ZURI_LINE_BUSINESS_AGENT_ENABLED !== 'true') return null
 
@@ -223,7 +228,31 @@ export function createPhase1BusinessAgentPortsFromEnv(
       businessId: scope.businessId,
       purpose: PHASE1_LINE_LLM_PURPOSE,
     })))
+  // @req FR-266, SDD-106 — the Business's own browser-provisioned key comes first
+  // (ADR-100 D5). `modelCredentialResolver` is the test seam; passing `null`
+  // disables the vault read entirely, which is what the unit tests of the legacy
+  // path do so they keep testing the legacy path.
+  const businessModelCredential = modelCredentialResolver === undefined
+    ? ((scope) => resolveBusinessModelCredential(scope, { db: integrationDb ?? prisma, env }))
+    : modelCredentialResolver
+
   async function resolveModel(scope) {
+    if (typeof businessModelCredential === 'function') {
+      // A throw here is not caught: a Business that has entered a key and whose
+      // key is broken must fail closed, never silently answer through the
+      // operator's Phase-1 key (ADR-100 D5, SDD-106).
+      const vaulted = await businessModelCredential({ tenantId: scope.tenantId, businessId: scope.businessId })
+      if (vaulted) {
+        return createModelProviderPort({
+          runtimeSource,
+          provider: vaulted.provider,
+          model: vaulted.model,
+          credential: vaulted.apiKey,
+          timeoutMs: Number(env.ZURI_MODEL_TIMEOUT_MS ?? 10000),
+          fetchFn,
+        })
+      }
+    }
     let connection
     try {
       connection = await resolveConnection({ tenantId: scope.tenantId, businessId: scope.businessId })

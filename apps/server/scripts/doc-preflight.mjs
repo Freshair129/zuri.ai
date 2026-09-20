@@ -902,20 +902,11 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
   const IS_EDGE_DEVICE_ENDPOINT = (p) =>
     p.includes('/api/edge/extraction-jobs/claim/') ||
     p.includes('/api/edge/extraction-jobs/[id]/complete/') ||
-    p.includes('/api/edge/extraction-jobs/[id]/fail/') ||
-    // ADR-061/FR-150: same active Business-scoped device identity, never a browser viewer.
-    p.includes('/api/edge/conversation-jobs/claim/') ||
-    p.includes('/api/edge/conversation-jobs/[id]/complete/') ||
-    p.includes('/api/edge/conversation-jobs/[id]/fail/') ||
-    // Approved local/CIN execution: these two handlers resolve the same device
-    // credential, then require its exact live execution lease. Tool services
-    // separately resolve the verified LINE actor before any Project/Work access.
-    p.includes('/api/edge/conversation-jobs/[id]/context/') ||
-    p.includes('/api/edge/conversation-jobs/[id]/tools/') ||
-    // ADR-061/FR-244: the residency poll authenticates the same device credential;
-    // it deliberately resolves no viewer because it must answer identically for
-    // every device regardless of which Business/Tenant it happens to be serving.
-    p.includes('/api/edge/model-residency/')
+    // FR-265/ADR-100 D2: the five conversation-job paths and the residency poll
+    // that used to be exempted after this line are withdrawn. Their exemptions go
+    // with them — an allowance for a route that no longer exists is an allowance
+    // waiting to be inherited by whatever is created at that path next.
+    p.includes('/api/edge/extraction-jobs/[id]/fail/')
   const offenders = []
   for (const file of walk(workspacePath(ROOT, 'src', 'app', 'api'), '.js')) {
     if (path.basename(file) !== 'route.js') continue

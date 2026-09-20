@@ -8,6 +8,16 @@ import { admitLineConversation, runLineConversationWorker, readLineConversationT
 import { reconcileLineMemoryDeliveries } from '@/modules/line-oa-studio/application/line-memory-delivery'
 import { redactLineConversationJobs } from '@/modules/line-oa-studio/application/line-job-erasure'
 import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
+import { createDeterministicBusinessModel } from '@/modules/agent/grounded-business-answer'
+
+// @req FR-265 — these cases reached the business-knowledge reader through the
+// retired `modelAccess: 'LOCAL_ONLY'` branch (ADR-100 D3). They now compose a
+// runtime, as a real turn does, with the deterministic model in the provider's
+// place; every memory, receipt and fencing assertion is unchanged.
+const runtimeWith = (query) => vi.fn().mockResolvedValue({
+  businessKnowledge: { query },
+  resolveModel: vi.fn().mockResolvedValue(createDeterministicBusinessModel()),
+})
 import { playbackTrace } from '@/modules/agent/execution-trace'
 import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-identity'
 
@@ -30,7 +40,7 @@ async function account() {
     tenantId: tenant.id, businessId: business.id, integrationConnectionId: connection.id,
     code: `memory-${suffix}`, bindingCode: `binding-${suffix}`, displayName: 'Memory OA',
     serverEnabled: true, transportMode: 'CLOUD', status: 'CONNECTED', executionMode: 'SERVER',
-    modelAccess: 'LOCAL_ONLY', transportEpoch: 1,
+    modelAccess: 'EXTERNAL_MODEL_ALLOWED', transportEpoch: 1,
   } })
 }
 
@@ -268,7 +278,7 @@ describe('LINE memory enrollment and receipt recovery', () => {
 describe('server answer memory composition', () => {
   function answerJob(audienceKind = 'DIRECT') {
     return { tenantId: tenant.id, businessId: business.id, account: { tenantId: tenant.id, businessId: business.id, bindingCode: 'memory-binding' },
-      channelAccountId: 'memory-binding', transportEpoch: 1, executionMode: 'SERVER', modelAccess: 'LOCAL_ONLY',
+      channelAccountId: 'memory-binding', transportEpoch: 1, executionMode: 'SERVER', modelAccess: 'EXTERNAL_MODEL_ALLOWED',
       memorySyncOptIn: true, audienceKind, eventId: `event-${audienceKind}`, sourceUserId: `user-${audienceKind}`,
       inbound: { id: `inbound-${audienceKind}`, body: 'AB-1 ราคาเท่าไร', conversation: { tenantId: tenant.id, businessId: business.id,
         channel: 'LINE', channelAccountId: 'memory-binding', externalThreadId: `thread-${audienceKind}` } } }
@@ -291,8 +301,8 @@ describe('server answer memory composition', () => {
     }))
     const authorizationResolver = policyFor(audienceKind, authorizationOverrides)
     const answer = createServerLineAnswer({ threadMemory, contextAssembler, authorizationResolver,
-      knowledge: { query: vi.fn(async () => ({ records: [{ name: 'แก้ว', product_code: 'AB-1', sell_price: 50,
-        currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: now.toISOString() }] })) } })
+      runtimeFactory: runtimeWith(vi.fn(async () => ({ records: [{ name: 'แก้ว', product_code: 'AB-1', sell_price: 50,
+        currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: now.toISOString() }] }))) })
     return { answer, appendMessage, contextAssembler, authorizationResolver, threadMemory }
   }
 
@@ -575,7 +585,7 @@ describe('server answer memory composition', () => {
     const appendMessage = vi.fn()
     const answer = createServerLineAnswer({
       threadMemory: { appendMessage },
-      knowledge: { query: vi.fn(async () => ({ records: [] })) },
+      runtimeFactory: runtimeWith(vi.fn(async () => ({ records: [] }))),
       contextAssembler: vi.fn(), authorizationResolver: vi.fn(),
     })
     await expect(answer(answerJob())).rejects.toThrow('LINE_ANSWER_UNAVAILABLE')
@@ -602,8 +612,8 @@ describe('server answer memory composition', () => {
         identity: { principalId: 'person-memory-unknown', verified: true }, memory: [] },
     }))
     const answer = vi.fn(createServerLineAnswer({ threadMemory, contextAssembler,
-      knowledge: { query: vi.fn(async () => ({ records: [{ name: 'แก้ว', product_code: 'AB-1', sell_price: 50,
-        currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: now.toISOString() }] })) } }))
+      runtimeFactory: runtimeWith(vi.fn(async () => ({ records: [{ name: 'แก้ว', product_code: 'AB-1', sell_price: 50,
+        currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: now.toISOString() }] }))) }))
     const worker = workerFor(fixture, { answer })
     const first = await runLineConversationWorker(worker)
     expect(first).toMatchObject({ id: fixture.jobId, status: 'UNKNOWN', executed: 1, sent: 0 })

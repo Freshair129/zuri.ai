@@ -52,7 +52,7 @@ test('authoring a rich menu persists it and freezing waits on the image the serv
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
   await expect(page).toHaveURL(/overview/)
   // FR-149's console is a tab of LINE Studio Enterprise now
-  // (LineStudioEdgeConnection). `/line-oa` reads `?tab=` straight into the
+  // (LineStudioAccountConsole). `/line-oa` reads `?tab=` straight into the
   // shell's initial tab, so the URL selects it — and survives the reload below,
   // which a click on a tab control would not.
   await page.goto('/line-oa?tab=edge-connection')

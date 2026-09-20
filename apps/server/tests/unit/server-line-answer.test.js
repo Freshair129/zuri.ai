@@ -1,9 +1,16 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
+import { createDeterministicBusinessModel } from '@/modules/agent/grounded-business-answer'
 import { createPhase1BusinessAgentPortsFromEnv } from '@/modules/agent/phase1-runtime'
 
-// @req FR-149, FR-150 — deterministic local answering and explicit external model permission.
-// @spec ADR-061, SEC-001, SEC-016
+// @req FR-149, FR-150 — server answering from scoped evidence, and the model the
+//   Business's own credential resolves to.
+// @req FR-265 — there is one answer path now (ADR-100 D3). These cases used to
+//   reach the evidence reader through the `LOCAL_ONLY` branch and its canned
+//   answerer; the branch is retired, so they reach the same reader through the
+//   composed runtime — which is what a real turn does — and use the deterministic
+//   model as the test double it always effectively was.
+// @spec ADR-061, ADR-100 D3, SEC-001, SEC-016
 
 vi.mock('@/lib/db', () => ({ default: {} }))
 
@@ -12,45 +19,62 @@ const businessId = '22222222-2222-4222-8222-222222222222'
 const job = () => ({ tenantId, businessId, modelAccess: 'LOCAL_ONLY', inbound: { body: 'AB-1 ราคาเท่าไร' }, account: { tenantId, businessId } })
 const evidence = () => ({ records: [{ name: 'แก้ว', product_code: 'AB-1', sell_price: 50, currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: '2026-09-01T00:00:00Z' }] })
 
+/** A composed runtime whose knowledge reader is `query` and whose model answers deterministically. */
+const runtimeWith = (query, model = createDeterministicBusinessModel()) =>
+  vi.fn().mockResolvedValue({ businessKnowledge: { query }, resolveModel: vi.fn().mockResolvedValue(model) })
+
 describe('server LINE answers from admitted CRM jobs', () => {
-  it('LOCAL_ONLY reads scoped public evidence without resolving or calling an external model', async () => {
-    const knowledge = { query: vi.fn().mockResolvedValue(evidence()) }
-    const runtimeFactory = vi.fn(() => { throw new Error('must never compose') })
+  it('reads scoped public evidence and answers from it', async () => {
+    const query = vi.fn().mockResolvedValue(evidence())
     const fetchFn = vi.fn()
-    const answer = createServerLineAnswer({ knowledge, runtimeFactory, fetchFn })
-    const text = await answer(job())
+    const text = await createServerLineAnswer({ runtimeFactory: runtimeWith(query), fetchFn })(job())
     expect(text).toContain('AB-1')
     expect(text).toContain('50')
-    expect(knowledge.query).toHaveBeenCalledWith({ tenantId, businessId, queryId: 'product_detail', params: { productCode: 'AB-1' }, limit: 1 })
-    expect(runtimeFactory).not.toHaveBeenCalled()
+    expect(query).toHaveBeenCalledWith({ tenantId, businessId, queryId: 'product_detail', params: { productCode: 'AB-1' }, limit: 1 })
+    // The adapter never reaches a provider itself; the resolved model does.
     expect(fetchFn).not.toHaveBeenCalled()
   })
 
-  it('LOCAL_ONLY returns a clarification when there is no evidence', async () => {
-    const text = await createServerLineAnswer({ knowledge: { query: async () => ({ records: [] }) } })(job())
+  it('returns a clarification when there is no evidence', async () => {
+    const text = await createServerLineAnswer({ runtimeFactory: runtimeWith(async () => ({ records: [] })) })(job())
     expect(text).toContain('ยังไม่พบข้อมูลสินค้า')
   })
 
-  it('defaults missing model permission to deterministic LOCAL_ONLY', async () => {
+  it('composes the runtime for a job with no model policy at all', async () => {
+    // @req FR-265 — a missing `modelAccess` used to mean "deterministic, never
+    // compose". It now means nothing, and the one path runs either way.
     const input = job()
     delete input.modelAccess
-    const runtimeFactory = vi.fn()
-    await createServerLineAnswer({ knowledge: { query: async () => evidence() }, runtimeFactory })(input)
-    expect(runtimeFactory).not.toHaveBeenCalled()
+    const runtimeFactory = runtimeWith(async () => evidence())
+    await createServerLineAnswer({ runtimeFactory })(input)
+    expect(runtimeFactory).toHaveBeenCalled()
   })
 
   it('does not read or generate across an account scope mismatch', async () => {
-    const knowledge = { query: vi.fn() }
+    const query = vi.fn()
+    const runtimeFactory = runtimeWith(query)
     const input = job()
     input.account.businessId = 'other-business'
-    await expect(createServerLineAnswer({ knowledge })(input)).rejects.toThrow('LINE_ANSWER_SCOPE_MISMATCH')
-    expect(knowledge.query).not.toHaveBeenCalled()
+    await expect(createServerLineAnswer({ runtimeFactory })(input)).rejects.toThrow('LINE_ANSWER_SCOPE_MISMATCH')
+    expect(query).not.toHaveBeenCalled()
+    expect(runtimeFactory).not.toHaveBeenCalled()
   })
 
-  it('rejects unrecognized model policy instead of routing externally', async () => {
-    const runtimeFactory = vi.fn()
-    await expect(createServerLineAnswer({ runtimeFactory })({ ...job(), modelAccess: 'AUTO' })).rejects.toThrow('LINE_MODEL_ACCESS_INVALID')
-    expect(runtimeFactory).not.toHaveBeenCalled()
+  // @req FR-265 — this proved an unrecognised `modelAccess` was refused rather than
+  // routed externally. The policy is retired (ADR-100 D3): there is one path, and a
+  // job's stale `modelAccess` value no longer decides anything. What replaces the
+  // guarantee is that the value is *ignored*, not obeyed — a job still carrying
+  // LOCAL_ONLY must not silently get the canned answerer back.
+  it('ignores a retired model policy on the job instead of honouring it', async () => {
+    const query = vi.fn().mockResolvedValue(evidence())
+    const generate = vi.fn().mockResolvedValue({ text: 'AB-1 ราคา 50 บาท', provider: 'openai' })
+    const runtimeFactory = vi.fn().mockResolvedValue({
+      businessKnowledge: { query }, resolveModel: vi.fn().mockResolvedValue({ generate }),
+    })
+    const answer = await createServerLineAnswer({ runtimeFactory })({ ...job(), modelAccess: 'LOCAL_ONLY' })
+    expect(runtimeFactory).toHaveBeenCalled()
+    expect(generate).toHaveBeenCalled()
+    expect(answer).toContain('AB-1')
   })
 
   it('external permission uses scoped model resolver and needs no Edge binding', async () => {
@@ -66,14 +90,14 @@ describe('server LINE answers from admitted CRM jobs', () => {
   })
 
   it('redacts query and model resolver errors before durable job storage', async () => {
-    const answer = createServerLineAnswer({ knowledge: { query: async () => { throw new Error('secret-token SELECT private data') } } })
+    const answer = createServerLineAnswer({ runtimeFactory: runtimeWith(async () => { throw new Error('secret-token SELECT private data') }) })
     await expect(answer(job())).rejects.toThrow(/^LINE_ANSWER_UNAVAILABLE$/)
   })
 
   it('bounds text without splitting an emoji surrogate', async () => {
     const records = evidence()
     records.records[0].name = `${'ก'.repeat(4999)}😀`
-    const text = await createServerLineAnswer({ knowledge: { query: async () => records } })(job())
+    const text = await createServerLineAnswer({ runtimeFactory: runtimeWith(async () => records) })(job())
     expect(text.length).toBeLessThanOrEqual(5000)
     expect(text).toBe('ก'.repeat(4999))
   })
