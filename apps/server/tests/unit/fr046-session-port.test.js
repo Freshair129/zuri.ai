@@ -51,6 +51,20 @@ describe('FR-046 trusted request session', () => {
     expect(resolve).not.toHaveBeenCalled()
   })
 
+  it('maps a missing production session store to 503 rather than AUTH_REQUIRED', async () => {
+    const secret = 'test-session-secret-that-is-long-enough-123456'
+    const token = generateSessionToken('person-1', { secret, sessionId: 'session-1' })
+    const resolve = vi.fn()
+    const sessionPort = createSessionPort({
+      db: { session: {} },
+      env: { NODE_ENV: 'production', ZURI_SESSION_SECRET: secret },
+    })
+
+    await expect(resolveRequestViewer(requestWith({ cookie: 'zuri_session=' + token }), { sessionPort, resolve }))
+      .rejects.toMatchObject({ status: 503, message: 'SESSION_UNAVAILABLE' })
+    expect(resolve).not.toHaveBeenCalled()
+  })
+
   it('maps a trusted but expired or revoked principal to AUTH_REQUIRED', async () => {
     const sessionPort = createSessionPort({
       readTrustedSession: async () => ({ principalId: 'revoked-person' }),
