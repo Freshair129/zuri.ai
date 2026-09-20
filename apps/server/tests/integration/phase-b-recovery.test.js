@@ -84,10 +84,11 @@ function fakeAdapter(sourceInventory = inventory) {
 }
 
 describe('Phase B offline recovery runners', () => {
-  it('loads the committed pinned 180-table inventory', () => {
-    expect(inventory.applicationTables).toHaveLength(180)
-    expect(inventory.schemaSha256).toBe('23f8c04baf70ebc90fe71e3be0002c0b3f33a46de735e4f56eb3ec814ed91a58')
-    expect(inventory.targetSchemaSha256).toBe('8e86b994d15cc165d4d26ea28760f9c1c5f4aa93fa038febf9e636666092b362')
+  it('loads the committed pinned 182-table inventory', () => {
+    expect(inventory.applicationTables).toHaveLength(182)
+    expect(inventory.schemaSha256).toBe('e7ec1c06ea166b8199c501b741b637454426d431ed78d0dc7a33f2377ad00696')
+    expect(inventory.targetSchemaSha256).toBe('55a7118038ac472f286c0f559843f024f90281e72b86dd8525e52d752d67054a')
+    expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(expect.arrayContaining(['SupplierCostLine', 'SupplierCostSheet']))
   })
 
   it('rejects a CRLF-mutated schema even with the approved inventory', async () => {
@@ -248,8 +249,8 @@ describe('Phase B offline recovery runners', () => {
       expect(exported).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
       expect(exportAdapter.events).not.toContain('begin')
 
-      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 179-table inventory/)
-      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 179-table inventory/)
+      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 182-table inventory/)
+      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 182-table inventory/)
     }
   })
 
