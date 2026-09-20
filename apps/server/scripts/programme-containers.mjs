@@ -26,6 +26,25 @@ export const CONTAINERS_MODULE = 'apps/server/src/modules/platform-control/progr
 export const TELEMETRY_MODULE = 'apps/server/src/modules/platform-control/program-roadmap-telemetry.js'
 export const ROADMAP_SOT_MODULE = 'apps/server/src/modules/platform-control/roadmap-sot.js'
 
+// ADR-081 outputs are built in CI and deliberately absent from a production
+// image. Their temporary presence after docs:graph must not change the
+// committed link-state projection.
+const GENERATED_DOCUMENTS = new Set([
+  'docs/.doc-graph.json',
+  'docs/.domain-state.json',
+  'docs/.preflight-report.json',
+  'docs/FEATURE-MAP.md',
+  'docs/DOMAIN-MAP.md',
+  'docs/TRACE.md',
+  'docs/DOCUMENT-LINKS.md',
+  'docs/appendices/D-traceability.md',
+])
+
+export function repositoryFileExists(root, link, exists = existsSync) {
+  const normalized = typeof link === 'string' ? link.replaceAll('\\', '/') : ''
+  return Boolean(normalized) && !normalized.includes('..') && !GENERATED_DOCUMENTS.has(normalized) && exists(path.join(root, normalized))
+}
+
 const PLAN_BLOCK = /<!-- programme-delivery-plan:start -->\s*```json\s*([\s\S]*?)\s*```\s*<!-- programme-delivery-plan:end -->/
 const USAGE_BLOCK = /<!-- programme-usage:start -->\s*```json\s*([\s\S]*?)\s*```\s*<!-- programme-usage:end -->/
 const TASK_LEDGER_BLOCK = /<!-- roadmap-task-ledger:start -->\s*([\s\S]*?)\s*<!-- roadmap-task-ledger:end -->/
@@ -476,7 +495,7 @@ export const repositoryRoot = () => path.resolve(path.dirname(fileURLToPath(impo
 export function generateProgrammeModules({ root = repositoryRoot(), check = false } = {}) {
   const markdown = readFileSync(path.join(root, PROGRAMME_DOCUMENT), 'utf8').replace(/\r\n/g, '\n')
   const roadmapMarkdown = readFileSync(path.join(root, ROADMAP_DOCUMENT), 'utf8').replace(/\r\n/g, '\n')
-  const fileExists = (link) => !link.includes('..') && existsSync(path.join(root, link))
+  const fileExists = (link) => repositoryFileExists(root, link)
   const built = buildProgrammeModules({ markdown, roadmapMarkdown, fileExists })
   const targets = [
     ...(built.derivedMarkdown && built.derivedMarkdown !== markdown ? [[PROGRAMME_DOCUMENT, built.derivedMarkdown]] : []),
