@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.15, 2026-09-20) so the board can open a task the way the html board
+// (v0.4.16, 2026-09-21) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -2597,7 +2597,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-056",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -2629,7 +2629,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.2). Q1 (factory price breaks replace the global small-order factor, SOF only as a flagged fallback), Q2 (SmartGift's markup ladder is the data shape and the margin band a warning), Q4 (inland China per set), Q5 (20,000 floor with 30,000 shown as target) and Q7 (SmartGift's USD logo rates as defaults) all land here as rule-set data, not code branches.",
+    "changelog": "Reconciled 2026-09-21 (v0.2.0). PR #487 merged the pure integer-satang pricing engine and FR-181 rule-set integration at `5b2964c5`; hosted Governance changes/govern/tests/build/verify and Edge changes/edge-verify passed, while Governance E2E and Edge Desktop were skipped. Price-boss parity vectors are captured fixtures only, not live cross-repository proof. Production, owner approval/activation, deployment, migrations, MSP and GKS remain NOT_RUN; the DOD criteria above stay unchecked pending their applicable verification gates.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 64000,
     "totalTokens": 0,
@@ -2637,7 +2637,7 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-054",
       "TASK-ZAI-055"
     ],
-    "evidence": "CR-019 deliverable 11; SmartGift ADR-009 D2 and D3; BR-027; FR-181"
+    "evidence": "PR #487 merged at 5b2964c5; hosted Governance changes/govern/tests/build/verify and Edge changes/edge-verify passed; Governance E2E and Edge Desktop skipped; price-boss parity vectors are captured fixtures, not live cross-repository proof; production, owner approval/activation, deployment, migrations, MSP and GKS NOT_RUN"
   },
   "TASK-ZAI-057": {
     "container": "TC-TASK-ZAI-057",
