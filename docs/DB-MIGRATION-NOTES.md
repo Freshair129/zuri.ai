@@ -2,11 +2,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.9 |
+| **Version** | 1.0.10 |
 | **Status** | Approved |
 | **Author** | Claude (build agent) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-09-16 |
+| **Last Updated** | 2026-09-19 |
 
 The MVP schema was designed to move to Postgres without semantic changes.
 
@@ -289,6 +289,36 @@ MSP persists in **its own store** (the `D:\msp` repo, reached over stdio), confi
 *instance* but must use a separate database/schema/role, because MSP and Zuri have
 different lifecycles: an MSP migration failure must never drag CRM/audit/invoice down.
 DuckDB remains a local cache/analytics/eval tier — not the transactional store.
+
+## Applied — knowledge candidate Business gate (TASK-ZAI-099, 2026-09-15)
+
+`20260914150550_knowledge_candidates_business_toggle.sql` was applied to
+production on 2026-09-15 under ADR-057, according to the operator evidence
+captured in ROADMAP revision 2.95.0b. The pre-apply inventory was read-only
+from the web container's own environment; the target migration version and
+`Business.knowledgeCandidatesEnabled` column were absent, the required roles
+were present, and the transaction dry run was rolled back after verification.
+The committed apply recorded ledger version `20260914150550`; the post-apply
+check found four Business rows with `knowledgeCandidatesEnabled = false`.
+
+The additive column was applied before deploying `main` `087f3025`, which was
+built as `zuri-ai-web:release-087f3025` and started with
+`docker compose up -d --remove-orphans`. The recorded checks showed the web
+container healthy, `/api/health` and `/login` returning 200, the LINE worker
+returning 200/IDLE, both compose overlays present, and
+`ZURI_LINE_SERVER_ENABLED=true`. This worker did not access production or
+rerun those checks.
+
+SmartGift activation is a separate owner-gated action. No SmartGift
+activation is claimed here: the flag was false for all four Businesses in the
+recorded post-apply inventory. Enabling it must use
+`business-knowledge-candidates-service.js` (or the audited PATCH route), with
+the SmartGift Business's expected version, `requestedBy`, and reason, and must
+produce the `KNOWLEDGE_CANDIDATES_ENABLED_CHANGED` AuditEvent. The
+`apps/server/scripts/enable-smartgift-knowledge-candidates.mjs` helper is
+dry-run by default; its `--apply` path was not run in this worker because no
+current owner instruction was supplied and production mutation is outside this
+worker's scope.
 
 ## Applied — conversation sessions, LINE job session, and the backfill (TASK-ZAI-108, 2026-09-16)
 
