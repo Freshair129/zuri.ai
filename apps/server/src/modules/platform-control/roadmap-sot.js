@@ -648,7 +648,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "IN_PROGRESS",
     "dependsOn": "—",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 10; FEAT-010"
+    "evidence": "24-week baseline; Section 3.1 row 10; FEAT-010; .brain/reports/2026-09-20-task-zai-001-closeout.md"
   },
   {
     "id": "TASK-ZAI-002",
