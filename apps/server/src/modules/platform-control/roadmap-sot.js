@@ -1248,12 +1248,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-056",
     "sprint": "SPR-ZAI-03",
     "title": "One pure pricing engine in integer satang — landed cost, ladder, profit floor and ten-baht round-up — with parity fixtures against price-boss; the FR-181 quote tool reads the rule set",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "status": "review",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-054; TASK-ZAI-055",
     "authority": "ROADMAP.md",
-    "evidence": "ROADMAP task row; ../domains/commerce/features/FR-253-pricing-rules-and-engine.md"
+    "evidence": "PR #487 merged at 5b2964c5; hosted Governance changes/govern/tests/build/verify and Edge changes/edge-verify passed; Governance E2E and Edge Desktop skipped; price-boss parity vectors are captured fixtures, not live cross-repository proof; production, owner approval/activation, deployment, migrations, MSP and GKS NOT_RUN; ../domains/commerce/features/FR-253-pricing-rules-and-engine.md"
   },
   {
     "id": "TASK-ZAI-057",

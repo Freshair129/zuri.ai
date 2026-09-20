@@ -2,8 +2,8 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.15"
-updated: "2026-09-20"
+version: "0.4.16"
+updated: "2026-09-21"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
 programme_start: "2026-08-24"
@@ -35,6 +35,13 @@ related_docs:
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 
 Rendered board: `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
+
+Version diff 0.4.15 → 0.4.16 (2026-09-21): TASK-ZAI-056 is reconciled as review/hosted-CI
+evidence after PR #487 merged the integer-satang pricing engine and FR-181 rule-set
+integration at `5b2964c5`. Governance changes/govern/tests/build/verify and Edge
+changes/edge-verify passed; Governance E2E and Edge Desktop were skipped. Price-boss
+parity vectors are captured fixtures only; production, owner approval/activation,
+deployment, migrations, MSP and GKS remain NOT_RUN.
 
 Version diff 0.4.14 → 0.4.15 (2026-09-20): hosted-CI reconciliation records TASK-ZAI-024 and
 TASK-ZAI-053 as done/merged, while TASK-ZAI-036 and TASK-ZAI-040 remain review because their
@@ -520,7 +527,7 @@ locates the week.
 | TASK-ZAI-053 | SPR-ZAI-02 | task | Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory) | P0 | Claude | done | TASK-ZAI-052; TASK-ZAI-034 | PR #483 merged at `68d27022` after the strict Phase-B inventory fix; hosted checks passed; production migration/activation NOT_RUN |
 | TASK-ZAI-054 | SPR-ZAI-02 | task | Goods receipts post the landed unit cost to the stock ledger, and the SKU page gains a cost card | P0 | Claude | done | TASK-ZAI-053; TASK-ZAI-038 | CR-019 deliverable 11; ADR-074 D3; FR-165; FR-175 |
 | TASK-ZAI-055 | SPR-ZAI-03 | task | PricingRuleSet — versioned, owner-approved pricing rules ported from pricing_rules_formula.yaml with per-block provenance, and the Pricing Rules console | P0 | Claude | done | TASK-ZAI-052 | CR-019 deliverable 11; SmartGift pricing_rules_formula.yaml v4; FR-131; SDD-077 |
-| TASK-ZAI-056 | SPR-ZAI-03 | task | One pure pricing engine in integer satang — landed cost, ladder, profit floor and ten-baht round-up — with parity fixtures against price-boss; the FR-181 quote tool reads the rule set | P0 | Claude | planned | TASK-ZAI-054; TASK-ZAI-055 | CR-019 deliverable 11; SmartGift ADR-009 D2 and D3; BR-027; FR-181 |
+| TASK-ZAI-056 | SPR-ZAI-03 | task | One pure pricing engine in integer satang — landed cost, ladder, profit floor and ten-baht round-up — with parity fixtures against price-boss; the FR-181 quote tool reads the rule set | P0 | Claude | review | TASK-ZAI-054; TASK-ZAI-055 | PR #487 merged at 5b2964c5; hosted Governance changes/govern/tests/build/verify and Edge changes/edge-verify passed; Governance E2E and Edge Desktop skipped; price-boss parity vectors are captured fixtures, not live cross-repository proof; production, owner approval/activation, deployment, migrations, MSP and GKS NOT_RUN |
 | TASK-ZAI-057 | SPR-ZAI-03 | task | Quotations — Quote and QuoteLine with ladder snapshots, two-hat approval, the QUOTATION document and conversion to a sales order with the FR-180 hold | P0 | Claude | planned | TASK-ZAI-056; TASK-ZAI-039 | CR-019 deliverable 11; price-boss workflow-quotation; FR-166; FR-180; FR-186; FR-196 |
 | TASK-ZAI-058 | SPR-ZAI-04 | task | Ladder quotation on LINE (FR-132) over the shared engine with a deterministic intent matcher | P1 | Claude | planned | TASK-ZAI-057; TASK-ZAI-036 | CR-019 deliverable 11; FR-132; FR-131; BR-011; FR-047 |
 | TASK-ZAI-059 | SPR-ZAI-04 | task | Knowledge structured records — STRUCTURED_RECORDS_V1 JSON format, an Excel template and converter, and MCP format widening before Stage 1 | P1 | Claude | planned | TASK-ZAI-045; TASK-ZAI-042 | Section 3.1 row 4; ADR-075 D2; FR-187; FR-209; BR-009 |
@@ -3083,8 +3090,8 @@ title: One pure pricing engine in integer satang — landed cost, ladder, profit
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -3104,7 +3111,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm test, when the engine, costing and FR-181 tool suites run, then both fixture sets pass, the tool no longer reads the QUOTE_TIERS or TECHNIQUE_RATES constants, and a negative or zero quantity is refused before any arithmetic
       checked: false
-changelog: Opened 2026-09-13 (v0.4.2). Q1 (factory price breaks replace the global small-order factor, SOF only as a flagged fallback), Q2 (SmartGift's markup ladder is the data shape and the margin band a warning), Q4 (inland China per set), Q5 (20,000 floor with 30,000 shown as target) and Q7 (SmartGift's USD logo rates as defaults) all land here as rule-set data, not code branches.
+changelog: Reconciled 2026-09-21 (v0.2.0). PR #487 merged the pure integer-satang pricing engine and FR-181 rule-set integration at `5b2964c5`; hosted Governance changes/govern/tests/build/verify and Edge changes/edge-verify passed, while Governance E2E and Edge Desktop were skipped. Price-boss parity vectors are captured fixtures only, not live cross-repository proof. Production, owner approval/activation, deployment, migrations, MSP and GKS remain NOT_RUN; the DOD criteria above stay unchecked pending their applicable verification gates.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-fable-5-1
@@ -7461,3 +7468,4 @@ second run over the same logs writes the same block.
 | 0.4.12 | 2026-09-17 | Owner approved TASK-ZAI-049 spec 0.1.0 and the isolated implementation. Provider deployment, production migration, canary and acceptance remain pending; TASK-ZAI-050 remains separate. |
 | 0.4.14 | 2026-09-20 | TASK-ZAI-024 retrieval-policy implementation and focused ordering/audit proof recorded as review/local evidence. Production, hosted CI, merge and release activation remain outside this change. |
 | 0.4.15 | 2026-09-20 | Hosted-CI reconciliation for TASK-ZAI-024, TASK-ZAI-036, TASK-ZAI-040 and TASK-ZAI-053: merged implementation evidence recorded; 024/053 are done, 036/040 remain review; production/provider/owner/release gates remain open or NOT_RUN. |
+| 0.4.16 | 2026-09-21 | Hosted-CI reconciliation for TASK-ZAI-056: PR #487 merged the integer-satang pricing engine and FR-181 integration at 5b2964c5; parity is fixture-only and production, owner, deployment, migration, MSP and GKS gates remain NOT_RUN. |
