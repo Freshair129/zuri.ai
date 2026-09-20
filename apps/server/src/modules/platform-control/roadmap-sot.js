@@ -1072,12 +1072,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-040",
     "sprint": "SPR-ZAI-02",
     "title": "Marketing strategy, campaigns, content, operations and broadcast planning — FEAT-021, FR-157 to FR-160, FR-162, FR-185",
-    "status": "in-progress",
-    "proofScope": "UNKNOWN",
-    "implementationState": "IN_PROGRESS",
+    "status": "review",
+    "proofScope": "LOCAL",
+    "implementationState": "LOCAL",
     "dependsOn": "—",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; CR-019 deliverable 11; CR-018"
+    "evidence": "CR-019 deliverable 11; CR-018; marketing/PHASE-TASK-ZAI-040-RECONCILIATION-2026-09-20.md"
   },
   {
     "id": "TASK-ZAI-041",

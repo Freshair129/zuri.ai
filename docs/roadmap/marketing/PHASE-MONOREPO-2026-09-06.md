@@ -73,7 +73,7 @@ Evidence logs are local ignored files under test-results/marketing/monorepo-*.lo
 the Edge test/typecheck results were independently reported by the Luna max agent.
 No release, push, production migration or provider action was performed.
 
-## Next bounded work
+## Historical next bounded work (at report time)
 
 MKT-W1-OPERATIONS remains PLANNED: Intake, Calendar, Approvals and Handoffs plus
 new intake, intake detail and handoff detail (seven approved interfaces, four route
@@ -81,11 +81,20 @@ shapes). Calendar must consume the protected PM roadmap owner port. Handoff deta
 must use validated Marketing-to-PM receipt projection; no duplicate task, stock or
 conversation records. Integration completion does not change those task statuses.
 
+## Reconciliation note — 2026-09-20
+
+Since this historical integration report, MKT-W1-OPERATIONS was implemented and
+locally verified; see PHASE-OPERATIONS-2026-09-07.md. TASK-ZAI-040 now records
+that bounded local slice, plus the approved FR-185 planning/read continuation,
+while keeping target-environment, provider, import, release and production
+gates open.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-09-06 | under review | Record required published-main path and ID reconciliation | See git history | RWANG |
 | 0.1.1b | 2026-09-06 | beta | Record integrated Server/Edge checks, migration and browser fixture RCA corrections; Operations stays planned | See git history | RWANG |
+| 0.1.2b | 2026-09-20 | beta | Reconcile later local Operations and FR-185 planning/read evidence without changing production gates | pending | Luna Max |
 
 Version diff 0.1.0b → 0.1.1b: prerequisite integration verified; tracking 0.6.1b → 0.6.2b adds integration evidence without closing an Operations task.

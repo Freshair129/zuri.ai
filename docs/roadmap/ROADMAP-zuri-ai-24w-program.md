@@ -494,7 +494,7 @@ locates the week.
 | TASK-ZAI-037 | SPR-ZAI-02 | task | SCM and CRM parent navigation, Business capabilities and module tabs — FR-167, FR-169, FR-170, FR-172 | P2 | Claude | done | TASK-ZAI-031 | CR-019 deliverable 11; ADR-069, ADR-071 |
 | TASK-ZAI-038 | SPR-ZAI-02 | task | SmartGift SCM located ledger, landed cost, work orders, ATP and agent tools — FEAT-025, FR-174 to FR-182 | P0 | Claude | done | TASK-ZAI-031; TASK-ZAI-034 | CR-019 deliverable 11; ADR-074 |
 | TASK-ZAI-039 | SPR-ZAI-02 | task | Commerce billing documents, POS checkout and physical stocktake — FR-186, FR-183, FR-184 | P1 | RWANG | review | TASK-ZAI-033; TASK-ZAI-038 | CR-019 deliverable 11; ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910 |
-| TASK-ZAI-040 | SPR-ZAI-02 | task | Marketing strategy, campaigns, content, operations and broadcast planning — FEAT-021, FR-157 to FR-160, FR-162, FR-185 | P1 | RWANG | in-progress | - | CR-019 deliverable 11; CR-018 |
+| TASK-ZAI-040 | SPR-ZAI-02 | task | Marketing strategy, campaigns, content, operations and broadcast planning — FEAT-021, FR-157 to FR-160, FR-162, FR-185 | P1 | RWANG | review | - | CR-019 deliverable 11; CR-018 |
 | TASK-ZAI-041 | SPR-ZAI-02 | task | Identity lifecycle: withdrawable grants, Employment and LegalEntity, invites and segregation of duties, audit access evidence — FEAT-027 to FEAT-030, FR-191 to FR-199 | P0 | Claude | review | TASK-ZAI-001 | Section 3.1 rows 9 and 10; ADR-077 to ADR-080 |
 | TASK-ZAI-042 | SPR-ZAI-02 | task | SmartGift catalog convergence through the seventeen-stage adapter — FEAT-026, FR-187 to FR-189 | P1 | Claude | in-progress | TASK-ZAI-025 | Section 3.1 row 4; ADR-075 |
 | TASK-ZAI-043 | SPR-ZAI-03 | task | Apply every pending deliverable-11 migration on production and record it in the migration notes | P0 | ATHER | planned | TASK-ZAI-038; TASK-ZAI-039; TASK-ZAI-040; TASK-ZAI-041 | GATE-ZAI-09; ADR-057 |
@@ -2360,7 +2360,7 @@ title: Marketing strategy, campaigns, content, operations and broadcast planning
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: in-progress
+status: review
 version: 0.1.0
 pic: RWANG
 executor: RWANG
@@ -2369,7 +2369,7 @@ auditor: ATHER
 symbol_links:
   code: apps/server/src/modules/marketing/application/marketing-plan-service.js
   doc: docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md
-  test: apps/server/tests/integration/marketing
+  test: apps/server/tests/integration/marketing-plan.test.js
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a MarketingPlan draft, when it is revised, then every revision is an immutable canonical version, review is independent of authorship, and the human decision names the exact revision it approves
@@ -2380,7 +2380,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given the Marketing surfaces, when P5 broadcast planning and the remaining CR-018 phases conclude, then provider metrics, audience resolution and dispatch are either delivered or explicitly recorded as out of scope, and the marketing migrations are recorded applied on production
       checked: false
-changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. FR-159 and FR-158 are 🟢 locally verified beta, FR-157, FR-160, FR-162 🟠 in progress, FR-185 🟠 P5 planning/read only (PR #270, #273, #274, the marketing_content and marketing_operations migrations of 2026-09-06/07, broadcast intents 2026-09-11). Stays in-progress: CR-018 phases beyond planning and read integration are not delivered, and the PRD says so.
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. FR-159 and FR-158, FR-157, FR-160 and FR-162 are locally verified bounded slices; FR-185 is locally verified planning/read only (PR #270, #273, #274, the marketing_content and marketing_operations migrations of 2026-09-06/07, broadcast intents 2026-09-11). Remains review: CR-018 phases beyond planning/read integration, target import, provider evidence and production release are not delivered, and the PRD says so.
 created_at: 2026-09-13T00:00:00Z,Claude,retroactive
 token_telemetry:
   model_name: claude-opus-5

@@ -207,7 +207,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "present",
+      "doc": "missing",
       "test": "unavailable"
     },
     "delivers": [
@@ -430,7 +430,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "present",
+      "doc": "missing",
       "test": "unavailable"
     },
     "delivers": [],
@@ -475,7 +475,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "present",
+      "doc": "missing",
       "test": "unavailable"
     },
     "delivers": [],
@@ -610,7 +610,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "present",
+      "doc": "missing",
       "test": "unavailable"
     },
     "delivers": [],
@@ -655,7 +655,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "present",
+      "doc": "missing",
       "test": "missing"
     },
     "delivers": [],
@@ -1199,7 +1199,7 @@ export const PROGRAMME_CONTAINERS = {
     },
     "linkState": {
       "code": "missing",
-      "doc": "present",
+      "doc": "missing",
       "test": "unavailable"
     },
     "delivers": [],
@@ -1839,12 +1839,12 @@ export const PROGRAMME_CONTAINERS = {
     "links": {
       "code": "apps/server/src/modules/marketing/application/marketing-plan-service.js",
       "doc": "docs/change-requests/CR-018-MARKETING-DOMAIN-DESIGN.md",
-      "test": "apps/server/tests/integration/marketing"
+      "test": "apps/server/tests/integration/marketing-plan.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "missing"
+      "test": "present"
     },
     "delivers": [
       "FEAT-021",
@@ -1870,7 +1870,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. FR-159 and FR-158 are 🟢 locally verified beta, FR-157, FR-160, FR-162 🟠 in progress, FR-185 🟠 P5 planning/read only (PR #270, #273, #274, the marketing_content and marketing_operations migrations of 2026-09-06/07, broadcast intents 2026-09-11). Stays in-progress: CR-018 phases beyond planning and read integration are not delivered, and the PRD says so.",
+    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. FR-159 and FR-158, FR-157, FR-160 and FR-162 are locally verified bounded slices; FR-185 is locally verified planning/read only (PR #270, #273, #274, the marketing_content and marketing_operations migrations of 2026-09-06/07, broadcast intents 2026-09-11). Remains review: CR-018 phases beyond planning/read integration, target import, provider evidence and production release are not delivered, and the PRD says so.",
     "created": "2026-09-13T00:00:00Z,Claude,retroactive",
     "predictedTokens": 0,
     "totalTokens": 0,
