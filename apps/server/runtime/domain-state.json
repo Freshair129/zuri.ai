@@ -508,7 +508,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 6
+          "testCount": 7
         },
         {
           "id": "FR-047",
@@ -729,7 +729,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-181",
@@ -3299,7 +3299,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-117",
@@ -3765,7 +3765,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-190",
@@ -12840,7 +12840,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 6
+          "testCount": 7
         }
       ],
       "evidence": [
@@ -12851,6 +12851,7 @@
         "apps/server/tests/integration/agent-runtime.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
         "apps/server/tests/unit/agent-role-registry.test.js",
+        "apps/server/tests/unit/agent-runtime-lineage.test.js",
         "apps/server/tests/unit/role-memory-partition.test.js"
       ]
     },
@@ -15660,11 +15661,12 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 5
         }
       ],
       "evidence": [
         "apps/server/src/modules/knowledge/provenance.js",
+        "apps/server/tests/unit/agent-runtime-lineage.test.js",
         "apps/server/tests/unit/knowledge-dedup.test.js",
         "apps/server/tests/unit/knowledge-provenance.test.js",
         "apps/server/tests/unit/knowledge-stage-runner-trace.test.js",
@@ -16504,7 +16506,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 26
+          "testCount": 27
         }
       ],
       "evidence": [
@@ -16541,6 +16543,7 @@
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/integration/server-line-trace.test.js",
         "apps/server/tests/unit/agent-context-retrieval.test.js",
+        "apps/server/tests/unit/agent-runtime-lineage.test.js",
         "apps/server/tests/unit/edge-invocation-trace.test.js",
         "apps/server/tests/unit/grounded-business-answer.test.js",
         "apps/server/tests/unit/line-execution-trace.test.js",
