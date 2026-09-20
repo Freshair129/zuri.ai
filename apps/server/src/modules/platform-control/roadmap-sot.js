@@ -1946,7 +1946,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-064",
     "authority": "ROADMAP.md",
-    "evidence": "PR #468; approved head 53a2439ad722ca32797db381f3e3f46360ffd5d8; merge commit 0932f31e2e130af95b0a889772005281ffc8d112; hosted tests/govern/build/edge-verify/changes passed; desktop/e2e skipped by repository policy; PORL unavailable; no deployment or production activation claimed; production/PORL observation NOT_RUN"
+    "evidence": "PR #468; approved head 53a2439ad722ca32797db381f3e3f46360ffd5d8; merge commit 0932f31e2e130af95b0a889772005281ffc8d112; hosted tests/govern/build/edge-verify/changes passed; desktop/e2e remained skipped by repository policy; targeted local receipt `.brain/reports/task-zai-119-responsive-receipt.json` records 1/1 passed at 390x844 and 430x932 with retry 0/flaky 0; PORL unavailable; no deployment or production activation claimed; production/PORL observation NOT_RUN"
   }
 ]
 
