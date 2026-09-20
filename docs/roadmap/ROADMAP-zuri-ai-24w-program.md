@@ -2,7 +2,7 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.16"
+version: "0.4.17"
 updated: "2026-09-21"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
@@ -35,6 +35,8 @@ related_docs:
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 
 Rendered board: `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
+
+Version diff 0.4.16 → 0.4.17 (2026-09-21): Targeted source-container reconciliation only. TASK-ZAI-025 now reflects merged implementation/hosted evidence while remaining review; TASK-ZAI-041 records the cited E2E failure and makes no all-CI-pass claim; TASK-ZAI-047 names the frozen production-base branch and keeps runtime activation under TASK-ZAI-050; TASK-ZAI-056 retains fixture-only parity and unchecked criterion-level acceptance; TASK-ZAI-114 remains review with partial production-infrastructure evidence and a NOT_RUN first manifest; TASK-ZAI-119 remains review with PORL as the blocking external gate. No task is promoted to done.
 
 Version diff 0.4.15 → 0.4.16 (2026-09-21): TASK-ZAI-056 is reconciled as review/hosted-CI
 evidence after PR #487 merged the integer-satang pricing engine and FR-181 rule-set
@@ -512,13 +514,13 @@ locates the week.
 | TASK-ZAI-038 | SPR-ZAI-02 | task | SmartGift SCM located ledger, landed cost, work orders, ATP and agent tools — FEAT-025, FR-174 to FR-182 | P0 | Claude | done | TASK-ZAI-031; TASK-ZAI-034 | CR-019 deliverable 11; ADR-074 |
 | TASK-ZAI-039 | SPR-ZAI-02 | task | Commerce billing documents, POS checkout and physical stocktake — FR-186, FR-183, FR-184 | P1 | RWANG | review | TASK-ZAI-033; TASK-ZAI-038 | CR-019 deliverable 11; ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910 |
 | TASK-ZAI-040 | SPR-ZAI-02 | task | Marketing strategy, campaigns, content, operations and broadcast planning — FEAT-021, FR-157 to FR-160, FR-162, FR-185 | P1 | RWANG | review | - | CR-019 deliverable 11; CR-018 |
-| TASK-ZAI-041 | SPR-ZAI-02 | task | Identity lifecycle: withdrawable grants, Employment and LegalEntity, invites and segregation of duties, audit access evidence — FEAT-027 to FEAT-030, FR-191 to FR-199 | P0 | Claude | review | TASK-ZAI-001 | Section 3.1 rows 9 and 10; ADR-077 to ADR-080 |
+| TASK-ZAI-041 | SPR-ZAI-02 | task | Identity lifecycle: withdrawable grants, Employment and LegalEntity, invites and segregation of duties, audit access evidence — FEAT-027 to FEAT-030, FR-191 to FR-199 | P0 | Claude | review | TASK-ZAI-001 | PR #352's displayed E2E conclusion is FAILURE; hosted/other implementation evidence does not establish all-CI pass; production migration and owner approval/activation remain NOT_RUN; Section 3.1 rows 9 and 10; ADR-077 to ADR-080 |
 | TASK-ZAI-042 | SPR-ZAI-02 | task | SmartGift catalog convergence through the seventeen-stage adapter — FEAT-026, FR-187 to FR-189 | P1 | Claude | in-progress | TASK-ZAI-025 | Section 3.1 row 4; ADR-075 |
 | TASK-ZAI-043 | SPR-ZAI-03 | task | Apply every pending deliverable-11 migration on production and record it in the migration notes | P0 | ATHER | planned | TASK-ZAI-038; TASK-ZAI-039; TASK-ZAI-040; TASK-ZAI-041 | GATE-ZAI-09; ADR-057 |
 | TASK-ZAI-044 | SPR-ZAI-06 | task | GATE-ZAI-09 evidence run: ERP modules accepted on production for Business one | P0 | Owen | planned | TASK-ZAI-043 | GATE-ZAI-09 |
 | TASK-ZAI-045 | SPR-ZAI-02 | task | Knowledge file intake: Text/Markdown and FileAsset admission into an immutable raw artifact at Stage 1 — FR-173, FR-081, FR-109 | P0 | RWANG | review | TASK-ZAI-005 | Section 3.1 row 4; ADR-072, ADR-073 |
 | TASK-ZAI-046 | SPR-ZAI-02 | task | Tier 1 stage calculators, composition and quarantine, Stage 2 to 8 — FR-111 to FR-119 | P0 | Claude | done | TASK-ZAI-045 | Section 3.1 row 4; ADR-050 |
-| TASK-ZAI-047 | SPR-ZAI-03 | task | Knowledge base console: source library, ingestion run status, corpus and generation registry, cited query | P0 | Codex | review | TASK-ZAI-045 | Section 3.1 row 4; FR-254, FR-173, FR-071, FR-110 |
+| TASK-ZAI-047 | SPR-ZAI-03 | task | Knowledge base console: source library, ingestion run status, corpus and generation registry, cited query | P0 | Codex | review | TASK-ZAI-045 | frozen production-base branch; isolated implementation/native acceptance; runtime activation under TASK-ZAI-050; not deployed; Section 3.1 row 4; FR-254, FR-173, FR-071, FR-110 |
 | TASK-ZAI-048 | SPR-ZAI-03 | task | Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9 | P1 | Codex | planned | TASK-ZAI-046 | 17-stage flow, "PDF/OCR/HTML/table parser" row; FR-115, FR-138 |
 | TASK-ZAI-049 | SPR-ZAI-03 | task | Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1) | P0 | ATHER | planned | TASK-ZAI-045 | Section 3.1 row 4; FR-045, FR-111, FR-137 |
 | TASK-ZAI-050 | SPR-ZAI-03 | task | Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published | P0 | ATHER | planned | TASK-ZAI-045; TASK-ZAI-049 | ADR-073 amendment; ADR-075 Phase 2 gate |
@@ -527,7 +529,7 @@ locates the week.
 | TASK-ZAI-053 | SPR-ZAI-02 | task | Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory) | P0 | Claude | done | TASK-ZAI-052; TASK-ZAI-034 | PR #483 merged at `68d27022` after the strict Phase-B inventory fix; hosted checks passed; production migration/activation NOT_RUN |
 | TASK-ZAI-054 | SPR-ZAI-02 | task | Goods receipts post the landed unit cost to the stock ledger, and the SKU page gains a cost card | P0 | Claude | done | TASK-ZAI-053; TASK-ZAI-038 | CR-019 deliverable 11; ADR-074 D3; FR-165; FR-175 |
 | TASK-ZAI-055 | SPR-ZAI-03 | task | PricingRuleSet — versioned, owner-approved pricing rules ported from pricing_rules_formula.yaml with per-block provenance, and the Pricing Rules console | P0 | Claude | done | TASK-ZAI-052 | CR-019 deliverable 11; SmartGift pricing_rules_formula.yaml v4; FR-131; SDD-077 |
-| TASK-ZAI-056 | SPR-ZAI-03 | task | One pure pricing engine in integer satang — landed cost, ladder, profit floor and ten-baht round-up — with parity fixtures against price-boss; the FR-181 quote tool reads the rule set | P0 | Claude | review | TASK-ZAI-054; TASK-ZAI-055 | PR #487 merged at 5b2964c5; hosted Governance changes/govern/tests/build/verify and Edge changes/edge-verify passed; Governance E2E and Edge Desktop skipped; price-boss parity vectors are captured fixtures, not live cross-repository proof; production, owner approval/activation, deployment, migrations, MSP and GKS NOT_RUN |
+| TASK-ZAI-056 | SPR-ZAI-03 | task | One pure pricing engine in integer satang — landed cost, ladder, profit floor and ten-baht round-up — with parity fixtures against price-boss; the FR-181 quote tool reads the rule set | P0 | Claude | review | TASK-ZAI-054; TASK-ZAI-055 | PR #487 merged at 5b2964c5; hosted Governance changes/govern/tests/build/verify and Edge changes/edge-verify passed; Governance E2E and Edge Desktop skipped; price-boss parity vectors are captured fixtures, not live cross-repository proof; DOD acceptance/success/exit criteria remain unchecked; production, owner approval/activation, deployment, migrations, MSP and GKS NOT_RUN |
 | TASK-ZAI-057 | SPR-ZAI-03 | task | Quotations — Quote and QuoteLine with ladder snapshots, two-hat approval, the QUOTATION document and conversion to a sales order with the FR-180 hold | P0 | Claude | planned | TASK-ZAI-056; TASK-ZAI-039 | CR-019 deliverable 11; price-boss workflow-quotation; FR-166; FR-180; FR-186; FR-196 |
 | TASK-ZAI-058 | SPR-ZAI-04 | task | Ladder quotation on LINE (FR-132) over the shared engine with a deterministic intent matcher | P1 | Claude | planned | TASK-ZAI-057; TASK-ZAI-036 | CR-019 deliverable 11; FR-132; FR-131; BR-011; FR-047 |
 | TASK-ZAI-059 | SPR-ZAI-04 | task | Knowledge structured records — STRUCTURED_RECORDS_V1 JSON format, an Excel template and converter, and MCP format widening before Stage 1 | P1 | Claude | planned | TASK-ZAI-045; TASK-ZAI-042 | Section 3.1 row 4; ADR-075 D2; FR-187; FR-209; BR-009 |
@@ -584,13 +586,13 @@ locates the week.
 | TASK-ZAI-110 | SPR-ZAI-04 | task | Staff replies recorded, FR-246 — a member with CRM write access replies from the inbox, the server pushes it through the account's LINE transport and records an OUTBOUND message with reply source STAFF in the conversation's session | P0 | Claude | done | TASK-ZAI-106 | Section 3.1 row 8; ADR-093 evidence gap; FR-093 |
 | TASK-ZAI-111 | SPR-ZAI-05 | task | Chat evidence archive writer, FR-245 — archive manifest model and migration, per-Customer AES-256-GCM segments under ZURI_ARCHIVE_KEK, write-flush-verify before tombstone inside the retention sweep, failing closed | P1 | Claude | done | TASK-ZAI-108; TASK-ZAI-110 | Section 3.1 row 8; ADR-093 D1 to D4; SDD-103; SEC-034 |
 | TASK-ZAI-112 | SPR-ZAI-05 | task | Chat evidence retrieval, FR-245 — an OWNER at AAL2 retrieves one Customer's archived messages for a date range by session with a case reference, as an export carrying file and manifest hashes, audited | P1 | Claude | done | TASK-ZAI-111 | Section 3.1 row 8; ADR-093 D7; SEC-034; FR-224 |
-| TASK-ZAI-113 | SPR-ZAI-05 | task | Archive key destruction and the legal hold, SEC-034 — expiry and PDPA erasure destroy a Customer's archive data key unless an OWNER-recorded legal hold with a reason and end date is active, shown on the erasure status | P1 | Claude | review | TASK-ZAI-112 | PR #451 head `8180bef2` merged as `cfd5521e`; implementation commit `badc11ee` is an ancestor on current main; hosted Governance #1261, Edge #594 and Docker #288 passed; archive legal-hold/key-destruction migration(s) written but not applied to production; production archive mount/KEK and live expiry/erasure/legal-hold behavior unproven; owner/legal receipt and deployment/rollback evidence remain NOT_RUN |
-| TASK-ZAI-114 | SPR-ZAI-06 | task | Chat evidence archive on production — the cold-archive compose overlay on F:, ZURI_ARCHIVE_KEK with its offline backup, the migrations applied under ADR-057, the sweep token and 03:00 scheduled task, and the first recorded manifest | P1 | ATHER | review | TASK-ZAI-113 | ADR-057; ADR-093 phase 4; TASK-ZAI-091 |
+| TASK-ZAI-113 | SPR-ZAI-05 | task | Archive key destruction and the legal hold, SEC-034 — expiry and PDPA erasure destroy a Customer's archive data key unless an OWNER-recorded legal hold with a reason and end date is active, shown on the erasure status | P1 | Claude | review | TASK-ZAI-112 | PR #451 head `8180bef2` merged as `cfd5521e`; implementation commit `badc11ee` is an ancestor on current main; hosted Governance #1261, Edge #594 and Docker #288 passed; archive legal-hold/key-destruction migration(s) written but not applied to production; production archive mount/KEK and live expiry/erasure/legal-hold behavior unproven; owner/legal receipt and deployment/rollback evidence remain NOT_RUN; the 2026-09-20 #497 hosted reconciliation conflicts in scope with the 2026-09-17 TASK-ZAI-114 infrastructure receipt and remains unresolved pending dated receipt reconciliation |
+| TASK-ZAI-114 | SPR-ZAI-06 | task | Chat evidence archive on production — the cold-archive compose overlay on F:, ZURI_ARCHIVE_KEK with its offline backup, the migrations applied under ADR-057, the sweep token and 03:00 scheduled task, and the first recorded manifest | P1 | ATHER | review | TASK-ZAI-113 | the 2026-09-17 receipt records only partial production overlay/mount, KEK-format, migration and scheduler evidence with 0 eligible records; first manifest NOT_RUN and final owner/production acceptance remain open; this dated scope conflicts with TASK-ZAI-113's 2026-09-20 #497 hosted reconciliation, which leaves archive migration/mount/KEK/live behavior unproven, pending receipt reconciliation; ADR-057; ADR-093 phase 4; TASK-ZAI-091 |
 | TASK-ZAI-115 | SPR-ZAI-06 | task | Monthly offline copy of the chat evidence archive — new archive files copied to an offline external drive and verified against the manifest hashes, with the first verified copy recorded | P2 | Owen | planned | TASK-ZAI-114 | ADR-093 D8; FR-245 |
 | TASK-ZAI-116 | SPR-ZAI-02 | task | Observability decision record — ADR-095 for error tracking and per-person feature usage, and the FR/NFR declarations it governs | P1 | Claude | done |  | CR-020; ADR-095 |
 | TASK-ZAI-117 | SPR-ZAI-02 | task | Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action | P1 | Claude | done | TASK-ZAI-116 | ADR-095 D1; FR-247 |
 | TASK-ZAI-118 | SPR-ZAI-02 | task | Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup | P2 | Claude | done | TASK-ZAI-116 | ADR-095 D2, D3; FR-248, FR-249 |
-| TASK-ZAI-119 | SPR-ZAI-02 | task | Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations | P1 | RWANG | review | TASK-ZAI-064 | ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264 |
+| TASK-ZAI-119 | SPR-ZAI-02 | task | Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations | P1 | RWANG | review | TASK-ZAI-064 | PORL unavailable and remains the blocking external gate; no deployment or production activation claimed; ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264 |
 
 ## Assignments
 
@@ -1710,8 +1712,8 @@ title: Memory lineage, replay and the no-silent-replay guarantee
 requirement_type: NFR
 complexity: C-3
 access_scope: H3
-status: in-progress
-version: 0.2.0
+status: review
+version: 0.3.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -1719,7 +1721,7 @@ auditor: ATHER
 symbol_links:
   code: apps/server/src/modules/agent/runtime.js
   doc: docs/decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md
-  test: unavailable
+  test: apps/server/tests/unit/agent-runtime-lineage.test.js
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a recorded turn, when it is replayed, then the exact source versions used originally are used again or the replay is refused
@@ -1730,7 +1732,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm test, when the lineage suite runs, then a replay against changed content fails closed
       checked: false
-changelog: Opened to make the Second Brain auditable rather than merely persistent. Reproducibility of context and reproducibility of output are recorded as separate claims. Moved to in-progress on the 2026-09-13 re-baseline — FR-116 gives every derived knowledge object the ten provenance fields and a lineage chain back to its source; FR-117 records duplicate and version relationships; FR-171 (ADR-070, execution trace and replay v0.3) journals the native SERVER LINE path into an append-only AgentTraceEvent with MSP memory provenance preserved. The PRD marks FR-171 🟡: MSP erasure API, live Postgres and a deployed canary are still open, and none of the three criteria has its fail-closed replay test yet, so all stay unticked.
+changelog: Reconciled 2026-09-21 after PR #494 implementation head `a2bd5f90` merged at `06d61da5`. Hosted Governance run #1381 govern/tests/build/verify/changes passed with E2E skipped; Edge run #711 edge-verify/changes passed with Desktop skipped; local focused lineage evidence is linked above. The task remains `review`: production, owner activation, MSP, GKS, migrations, deployment and credentials remain NOT_RUN, and the broader acceptance boundary is not promoted to done.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -2422,7 +2424,7 @@ requirement_type: FR
 complexity: C-3
 access_scope: H3
 status: review
-version: 0.1.0
+version: 0.2.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -2441,7 +2443,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given the production migration ledger, when 20260912120000 to 20260912160000 are applied and recorded, then FR-191, FR-192 and FR-195 to FR-199 leave the "implemented locally" state
       checked: false
-changelog: Opened 2026-09-13 on the re-baseline; it belongs to deliverables 9 (audit) and 10 (security checklist), not to deliverable 11, and is listed with the CR-019 wave because it merged in the same week. PR #348 (ADR-077), #351 (ADR-078), #352 (ADR-079) and #350 (ADR-080) all merged 2026-09-12 with integration tests; the owner ran ADR-077 and ADR-078 in parallel by instruction. In review because the five migrations are written and, at the time of writing, not recorded applied — TASK-ZAI-043 closes that.
+changelog: Reconciled 2026-09-21: PR #352's displayed E2E conclusion is FAILURE; hosted/other implementation evidence does not establish all-CI pass. PR #348 (ADR-077), #351 (ADR-078), #352 (ADR-079) and #350 (ADR-080) merged with integration evidence; the five migrations remain written but not recorded as applied, so the task remains review and TASK-ZAI-043 remains the production migration gate.
 created_at: 2026-09-13T00:00:00Z,Claude,retroactive
 token_telemetry:
   model_name: claude-opus-5
@@ -2693,7 +2695,7 @@ requirement_type: FR
 complexity: C-3
 access_scope: H3
 status: review
-version: 0.3.0
+version: 0.4.0
 pic: Codex
 executor: Codex
 approver: Owen
@@ -2713,7 +2715,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm run test:e2e, when the knowledge console spec runs, then admit → run → publish → query → citation is exercised through the browser and the page carries a declared FR under DOM-KNOWLEDGE
       checked: true
-changelog: Opened 2026-09-13 (v0.4.1) to provide the missing Console over FR-173 sources, the FR-071 ledger and FR-110 generations. Owner approved the concrete specification on 2026-09-17; FR-254 declared before implementation. Moved to review 2026-09-17 with isolated browser fixtures (6 scenarios plus warmup), full Server tests (5287 passed, 15 skipped), local build and actual native browser acceptance (2 tests, 4 runs with 17 stages each) passing. Native command is npm run test:knowledge-admission; ordinary e2e fixtures alone do not prove publication. Exact scope, commands, full regression results and immutable receipts are recorded in .brain/reports/2026-09-17-task-zai-047-knowledge-console.md. Not deployed; TASK-ZAI-050 production activation remains separate.
+changelog: Reconciled 2026-09-21: the Console release was reviewed from a frozen production-base branch, not from the moving production head. Isolated browser fixtures, Server tests, local build and native admission-to-citation acceptance passed; the implementation remains isolated and is not deployed. Runtime activation is explicitly owned by TASK-ZAI-050 and is outside this task. Exact scope and receipts remain in .brain/reports/2026-09-17-task-zai-047-knowledge-console.md and .brain/reports/2026-09-17-knowledge-console-release.md.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -5957,8 +5959,8 @@ title: Chat evidence archive on production — the cold-archive compose overlay 
 requirement_type: NFR
 complexity: C-2
 access_scope: H4
-status: planned
-version: 0.1.0
+status: review
+version: 0.2.0
 pic: ATHER
 executor: ATHER
 approver: Owen
@@ -5978,7 +5980,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given docs/DB-MIGRATION-NOTES.md, when the apply is recorded, then it names its date and session and the redeploy keeps both the ADR-061 and the cold-archive overlays
       checked: false
-changelog: Opened 2026-09-16 (v0.4.9) on the owner's acceptance of every proposed default in ADR-093 and ADR-094 ("ใช้ค่าที่เสนอทั้งหมด ทั้ง ADR-093 และ ADR-094"). Bound to its lane before work starts so its sessions are measured.
+changelog: Reconciled 2026-09-21 from the 2026-09-17 production-infrastructure receipt: the cold-archive overlay and `/archive` mount, KEK format/version check, migration receipts, retention token and scheduled sweep readiness are evidenced; the live inventory has 0 eligible records, so the first manifest remains NOT_RUN. This is partial production evidence only: final owner/production acceptance and the first real manifest remain open. The dated scope conflicts with TASK-ZAI-113's 2026-09-20 #497 hosted reconciliation, which leaves archive migration/mount/KEK/live behavior unproven; the conflict remains unresolved pending receipt reconciliation.
 created_at: 2026-09-16T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
