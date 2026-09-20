@@ -6038,7 +6038,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-19 after the owner approved the Mission Control implementation scope. Local read-only/operator-only code and focused unit evidence are present; the PORL source remains unavailable and no deployment is claimed.",
+    "changelog": "Opened 2026-09-19 after the owner approved the Mission Control implementation scope. Local read-only/operator-only code and focused unit evidence are present. Sanitized targeted Playwright receipt `.brain/reports/task-zai-119-responsive-receipt.json` records 1/1 passed at 390x844 and 430x932 with retry 0/flaky 0; raw reports were removed. The PORL source remains unavailable and no deployment is claimed.",
     "created": "2026-09-19T00:00:00Z,RWANG,pending",
     "predictedTokens": 50000,
     "totalTokens": 0,
