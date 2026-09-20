@@ -14,7 +14,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-001",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-01",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "priority": "P0",
     "pic": "ATHER",
     "executor": "Codex",
@@ -1662,7 +1662,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. Accounts (FR-146/147), rich menu (FR-151/152), LIFF (FR-153), server-owned transport with optional Edge (FR-148 to FR-150) and transport reachability (FR-190) are merged. Transport health chip rendered in LineStudioSettings.jsx with unit tests passing. Moved to review awaiting production deployment verification tail.",
+    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. Accounts (FR-146/147), rich menu (FR-151/152), LIFF (FR-153), server-owned transport with optional Edge (FR-148 to FR-150) and transport reachability (FR-190) are merged through PR #341/#359. The isolated FR-190 audit found that the worker sweep omitted integrationConnectionId from its explicit account projection; the bounded fix, two-account regression and RCA are recorded in .brain/rca/2026-09-19-fr190-sweep-account-scope.md. Focused source evidence is isolated and the exit criterion stays unchecked: hosted CI for this patch, deployment, provider canary and real LINE delivery verification are separate gates; no credential was used.",
     "created": "2026-09-13T00:00:00Z,Claude,retroactive",
     "predictedTokens": 0,
     "totalTokens": 0,

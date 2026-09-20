@@ -1029,11 +1029,11 @@ export const ROADMAP_TASK_LEDGER = [
     "sprint": "SPR-ZAI-01",
     "title": "LINE OA Studio multi-account, rich menu, LIFF and server-owned transport — FEAT-018, FEAT-019, FR-146 to FR-153, FR-190",
     "status": "review",
-    "proofScope": "UNKNOWN",
-    "implementationState": "IN_PROGRESS",
+    "proofScope": "ISOLATED",
+    "implementationState": "ISOLATED_ACCEPTED",
     "dependsOn": "—",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; CR-019 deliverable 11; ADR-060, ADR-061"
+    "evidence": "PR #341/#359 merged core; isolated FR-190 account-scope fix, regression and RCA; hosted CI and production transport verification remain unclaimed"
   },
   {
     "id": "TASK-ZAI-037",
