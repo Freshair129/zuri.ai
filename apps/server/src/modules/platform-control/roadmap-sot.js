@@ -1876,11 +1876,11 @@ export const ROADMAP_TASK_LEDGER = [
     "sprint": "SPR-ZAI-05",
     "title": "Archive key destruction and the legal hold, SEC-034 — expiry and PDPA erasure destroy a Customer's archive data key unless an OWNER-recorded legal hold with a reason and end date is active, shown on the erasure status",
     "status": "review",
-    "proofScope": "LOCAL",
-    "implementationState": "LOCAL",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-112",
     "authority": "ROADMAP.md",
-    "evidence": "ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md"
+    "evidence": "PR #451 head `8180bef2` merged as `cfd5521e`; implementation commit `badc11ee` is an ancestor on current main; hosted Governance #1261, Edge #594 and Docker #288 passed; archive legal-hold/key-destruction migration(s) written but not applied to production; production archive mount/KEK and live expiry/erasure/legal-hold behavior unproven; owner/legal receipt and deployment/rollback evidence remain NOT_RUN; ../roadmap/ROADMAP-zuri-ai-24w-program.md"
   },
   {
     "id": "TASK-ZAI-114",
