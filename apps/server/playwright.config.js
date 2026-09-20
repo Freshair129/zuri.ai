@@ -9,6 +9,7 @@ const { E2E_PASSWORD, E2E_SESSION_SECRET } = require('./tests/e2e/e2e-auth')
 const { E2E_PLUGIN_CLIENT_ID, E2E_PLUGIN_CLIENT_NAME, e2ePluginRedirectUri } = require('./tests/e2e/e2e-plugin')
 
 const target = e2eTarget()
+const useProductionServer = process.env.E2E_SERVER_MODE === 'production'
 
 // Prefer the Playwright-managed chromium for this version; if its download is
 // unavailable (offline machine), fall back to any locally installed
@@ -135,12 +136,20 @@ module.exports = defineConfig({
   // worker, or a production build instead of dev — re-measure before raising
   // this. The number to beat is 154s.
   workers: 1,
-  projects: [
-    { name: 'warmup', testMatch: /warmup\.setup\.js/ },
-    // Every spec waits for the warm-up, so no test is the one that pays for a
-    // cold compile. `webServer.url` only ever warmed /overview.
-    { name: 'e2e', dependencies: ['warmup'], testMatch: /.*\.spec\.js/ },
-  ],
+  // CI sets E2E_SERVER_MODE=production after building the app. A production
+  // server has no on-demand route compilation, so running the 442-request dev
+  // warm-up there only adds another failure surface. CI starts that server
+  // outside Playwright because Playwright's Windows webServer force-kill can
+  // wait indefinitely after a real request; local runs keep the dev server and
+  // its derived warm-up by default.
+  projects: useProductionServer
+    ? [{ name: 'e2e', testMatch: /.*\.spec\.js/ }]
+    : [
+        { name: 'warmup', testMatch: /warmup\.setup\.js/ },
+        // Every spec waits for the warm-up, so no test is the one that pays for a
+        // cold compile. `webServer.url` only ever warmed /overview.
+        { name: 'e2e', dependencies: ['warmup'], testMatch: /.*\.spec\.js/ },
+      ],
   use: {
     baseURL: target.baseURL,
     headless: true,
@@ -155,14 +164,24 @@ module.exports = defineConfig({
     launchOptions: executablePath ? { executablePath } : {},
   },
   webServer: {
-    command: `npm run dev -- -p ${target.port}`,
+    command: useProductionServer
+      ? `node node_modules/next/dist/bin/next start -p ${target.port}`
+      : `npm run dev -- -p ${target.port}`,
     url: `${target.baseURL}/overview`,
-    // Still false: this run owns its server and its database, and reusing a
-    // server someone else started would mean testing against their data.
-    reuseExistingServer: false,
+    // Production CI starts the built server in its own step and stops it with
+    // taskkill after the test. Reusing it avoids Playwright's Windows
+    // webServer force-kill hanging after a real request. Local dev runs still
+    // own their server and database, so they never reuse an existing process.
+    reuseExistingServer: useProductionServer,
     timeout: 120000,
     env: {
       ...process.env,
+      // The production build is the subject under test; the runtime still
+      // needs the isolated SQLite database prepared by globalSetup locally or
+      // by the CI step for an external server, so keep the application in its
+      // explicit test mode rather than weakening the production Postgres
+      // fail-closed guard.
+      ...(useProductionServer ? { NODE_ENV: 'test' } : {}),
       // Same `target` object global setup reads, so the server and the seeded
       // database are the same database by construction rather than by two
       // literals that happen to match.

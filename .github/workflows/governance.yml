@@ -397,6 +397,68 @@ jobs:
           echo "Determining impacted e2e targets from changed files..."
           printf '%s\n' "$changed" | node scripts/ci-select-e2e.mjs $select_args >> "$GITHUB_OUTPUT"
 
+      # The e2e server is production-built so route compilation cannot consume
+      # a spec's test budget. The dev-only warm-up remains the local default;
+      # CI does not need it once `next start` has a complete build. The build
+      # is skipped when the selector has no impacted specs.
+      - name: Production build for e2e server
+        if: steps.select-e2e.outputs.skip != 'true'
+        run: npm run build
+
+      - name: Prepare production e2e database
+        if: steps.select-e2e.outputs.skip != 'true'
+        env:
+          E2E_PORT: '3100'
+          ZURI_E2E_AUTH_PASSWORD: e2e-ci-owner-password
+          ZURI_E2E_SESSION_SECRET: e2e-ci-session-secret-0123456789abcdef
+          NODE_ENV: test
+          DATABASE_URL: file:./e2e-3100.db
+          ZURI_SESSION_SECRET: e2e-ci-session-secret-0123456789abcdef
+          ZURI_SEED_OWNER_PASSWORD: e2e-ci-owner-password
+        run: node -e "require('./tests/e2e/global-setup.js')()"
+
+      # Playwright's Windows webServer teardown can wait indefinitely when it
+      # force-kills a Next process after a real request. Start the built server
+      # outside Playwright so the test runner reuses it and this job owns the
+      # explicit process cleanup instead.
+      - name: Start production e2e server
+        if: steps.select-e2e.outputs.skip != 'true'
+        shell: pwsh
+        env:
+          E2E_PORT: '3100'
+          E2E_EXTERNAL_SERVER: 'true'
+          ZURI_E2E_AUTH_PASSWORD: e2e-ci-owner-password
+          ZURI_E2E_SESSION_SECRET: e2e-ci-session-secret-0123456789abcdef
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $port = [int]$env:E2E_PORT
+          $env:NODE_ENV = 'test'
+          $env:DATABASE_URL = "file:./e2e-$port.db"
+          $env:PUBLIC_BASE_URL = "http://localhost:$port"
+          $env:ZURI_SESSION_SECRET = $env:ZURI_E2E_SESSION_SECRET
+          $env:ZURI_SEED_OWNER_PASSWORD = $env:ZURI_E2E_AUTH_PASSWORD
+          $env:ZURI_PLUGIN_CLIENT_ID = 'zuri-plugin-e2e'
+          $env:ZURI_PLUGIN_CLIENT_NAME = 'Zuri E2E Harness'
+          $env:ZURI_PLUGIN_REDIRECT_URIS = "http://localhost:$port/plugin/e2e-callback"
+          $server = Start-Process -FilePath 'node' -ArgumentList @('node_modules/next/dist/bin/next', 'start', '-p', "$port") -WorkingDirectory (Get-Location).Path -WindowStyle Hidden -PassThru
+          "E2E_SERVER_PID=$($server.Id)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
+          $deadline = (Get-Date).AddSeconds(120)
+          while ($true) {
+            if ($server.HasExited) {
+              throw "Production e2e server exited before readiness (code $($server.ExitCode))."
+            }
+            try {
+              $response = Invoke-WebRequest -Uri "http://localhost:$port/overview" -UseBasicParsing -TimeoutSec 5
+              if ($response.StatusCode -ge 200 -and $response.StatusCode -lt 500) { break }
+            } catch { }
+            if ((Get-Date) -gt $deadline) {
+              taskkill /PID $server.Id /T /F 2>$null
+              throw "Timed out waiting for production e2e server on port $port."
+            }
+            Start-Sleep -Milliseconds 250
+          }
+          Write-Output "Production e2e server ready on port $port (pid $($server.Id))."
+
       - name: Run targeted end-to-end tests
         if: steps.select-e2e.outputs.skip != 'true'
         shell: bash
@@ -410,10 +472,31 @@ jobs:
             npm run test:e2e -- ${{ steps.select-e2e.outputs.specs }}
           fi
         env:
+          E2E_SERVER_MODE: production
+          E2E_PORT: '3100'
+          E2E_EXTERNAL_SERVER: 'true'
+          ZURI_E2E_AUTH_PASSWORD: e2e-ci-owner-password
+          ZURI_E2E_SESSION_SECRET: e2e-ci-session-secret-0123456789abcdef
+          NODE_ENV: test
+          DATABASE_URL: file:./e2e-3100.db
+          PUBLIC_BASE_URL: http://localhost:3100
+          ZURI_SESSION_SECRET: e2e-ci-session-secret-0123456789abcdef
+          ZURI_SEED_OWNER_PASSWORD: e2e-ci-owner-password
           # Every expect/pw:api step's duration, so the `expect` budget in
           # playwright.config.js can be set from a measurement rather than
           # from the last failure. See tests/e2e/step-timings-reporter.js.
           E2E_STEP_TIMINGS: node_modules/.cache/zuri-test-proof/e2e-step-timings.json
+
+      - name: Stop production e2e server
+        if: always() && steps.select-e2e.outputs.skip != 'true'
+        shell: pwsh
+        run: |
+          if ($env:E2E_SERVER_PID) {
+            $server = Get-Process -Id ([int]$env:E2E_SERVER_PID) -ErrorAction SilentlyContinue
+            if ($server) {
+              taskkill /PID $server.Id /T /F
+            }
+          }
 
       - name: e2e skipped (no impacted UI/domain targets)
         if: steps.select-e2e.outputs.skip == 'true'
