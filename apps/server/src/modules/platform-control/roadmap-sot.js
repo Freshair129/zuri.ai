@@ -1088,7 +1088,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "IN_PROGRESS",
     "dependsOn": "TASK-ZAI-001",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 rows 9 and 10; ADR-077 to ADR-080"
+    "evidence": "cited E2E failure; no all-CI-pass claim; production migration and owner approval/activation remain NOT_RUN; 24-week baseline; Section 3.1 rows 9 and 10; ADR-077 to ADR-080"
   },
   {
     "id": "TASK-ZAI-042",
@@ -1154,7 +1154,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "ISOLATED_ACCEPTED",
     "dependsOn": "TASK-ZAI-045",
     "authority": "ROADMAP.md",
-    "evidence": "ROADMAP task row; ../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md"
+    "evidence": "frozen production-base branch; isolated implementation/native acceptance; runtime activation under TASK-ZAI-050; not deployed; ../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md"
   },
   {
     "id": "TASK-ZAI-048",
@@ -1253,7 +1253,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-054; TASK-ZAI-055",
     "authority": "ROADMAP.md",
-    "evidence": "PR #487 merged at 5b2964c5; hosted Governance changes/govern/tests/build/verify and Edge changes/edge-verify passed; Governance E2E and Edge Desktop skipped; price-boss parity vectors are captured fixtures, not live cross-repository proof; production, owner approval/activation, deployment, migrations, MSP and GKS NOT_RUN; ../domains/commerce/features/FR-253-pricing-rules-and-engine.md"
+    "evidence": "PR #487 merged at 5b2964c5; hosted Governance changes/govern/tests/build/verify and Edge changes/edge-verify passed; Governance E2E and Edge Desktop skipped; price-boss parity vectors are captured fixtures, not live cross-repository proof; DOD acceptance/success/exit criteria remain unchecked; production, owner approval/activation, deployment, migrations, MSP and GKS NOT_RUN; ../domains/commerce/features/FR-253-pricing-rules-and-engine.md"
   },
   {
     "id": "TASK-ZAI-057",
