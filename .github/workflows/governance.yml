@@ -12,11 +12,12 @@ on:
   push:
     branches: [main]
   # 02:00 Asia/Bangkok. A full e2e run on `main`, on a clock rather than on a
-  # commit.
+  # commit. Use workflow_dispatch for an on-demand run after a merge or before
+  # a release; pushes to `main` do not start this slow suite automatically.
   #
   # What this does NOT exist for: "specs the selector never picks would never
-  # run". They do — a push to `main` sets `forceAll` and runs every spec, so
-  # each merge already exercises the whole suite.
+  # run". Scheduled and manual runs pass `--all`, so every spec is exercised
+  # by the full suite even though ordinary merges do not pay its warm-up cost.
   #
   # It exists for the failures that arrive with no commit at all: a Playwright
   # browser build refreshed under a restored cache, a `windows-latest` runner
@@ -30,6 +31,7 @@ on:
   # the tree does not.
   schedule:
     - cron: '0 19 * * *'
+  workflow_dispatch:
 
 jobs:
   # Which parts of the tree changed. The e2e suite takes 7-8 minutes and cannot
@@ -328,18 +330,17 @@ jobs:
     # tests/e2e/warmup.setup.js), so even a run of three specs cannot finish
     # much under twenty minutes. The cost is the environment, not the specs.
     #
-    # So the suite moves to where a slow honest answer is still useful: every
-    # push to `main`, which already forces the full run, plus the nightly
-    # schedule above. A break is therefore caught just after the merge that
-    # caused it rather than just before — accepted deliberately, because the
-    # alternative on offer was not "caught earlier" but "cancelled".
+    # So the suite moves to where a slow honest answer is still useful: the
+    # nightly schedule above and an explicit workflow_dispatch. It no longer
+    # runs on every push to `main`, so merge latency is shorter; post-merge
+    # detection is deliberately delayed until the nightly or manual run.
     #
-    # Consequence worth stating: with PRs excluded, both remaining triggers
-    # force the full suite, so the selective mapping in
+    # Consequence worth stating: with PRs and main pushes excluded, both
+    # remaining triggers force the full suite, so the selective mapping in
     # `scripts/ci-select-e2e.mjs` no longer narrows anything in CI. It stays
     # because `npm run test:e2e:changed` — the local loop this was really
     # costing — is now its main consumer.
-    if: github.event_name != 'pull_request' && needs.changes.outputs.code == 'true'
+    if: (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') && needs.changes.outputs.code == 'true'
     # windows-latest, not ubuntu: `src/modules/project-manager/local-files/`
     # hardcodes `path.win32` in three files, deliberately — mounted-root
     # containment has to reason about drive letters, UNC paths and
@@ -387,13 +388,12 @@ jobs:
           else
             changed=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || true)
           fi
-          # `--all` on a schedule, stated rather than inferred. The selector
-          # also forces everything when GITHUB_REF is refs/heads/main, which a
-          # scheduled run happens to satisfy — but that coupling is invisible
-          # here, and a future change to the default branch's ref handling
-          # should not quietly turn the nightly run into a targeted one.
+          # `--all` on scheduled and manual runs, stated rather than inferred.
+          # The selector must not decide full-vs-targeted coverage from the
+          # branch ref: manual runs may be launched from another ref, and a
+          # future ref-handling change must not narrow this full run quietly.
           select_args=''
-          if [ "${{ github.event_name }}" = "schedule" ]; then select_args='--all'; fi
+          if [ "${{ github.event_name }}" = "schedule" ] || [ "${{ github.event_name }}" = "workflow_dispatch" ]; then select_args='--all'; fi
           echo "Determining impacted e2e targets from changed files..."
           printf '%s\n' "$changed" | node scripts/ci-select-e2e.mjs $select_args >> "$GITHUB_OUTPUT"
 
