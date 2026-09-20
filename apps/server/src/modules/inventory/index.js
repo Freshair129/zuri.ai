@@ -17,7 +17,7 @@
 //   through, and the LINE command's parser and reply formatters, which the
 //   agent's `#sku` adapter binds to and to nothing deeper. Named rather than
 //   `export *`, so no helper name in them can shadow one exported above.
-// @spec ADR-025 (one module, one charter: docs/domains/inventory/CHARTER.md); ADR-074; ADR-083; ADR-084
+// @spec ADR-025 (one module, one charter: docs/domains/inventory/CHARTER.md); ADR-074; ADR-083; ADR-084; ZAI:PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913
 // @tested tests/unit/inventory-domain.test.js
 export * from './domain/inventory'
 export * from './domain/inventory-costing'
@@ -75,6 +75,7 @@ export {
   listFamilies,
   listProductMasters,
   listProducts,
+  setProductCartonAttributes,
   flowAccountSkuOf,
   productByFlowAccountSku,
   setFlowAccountSku,

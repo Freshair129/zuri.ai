@@ -405,6 +405,10 @@ export const SNAPSHOT_MODELS = [
   // parents first, so these restore here and delete in the reverse. Contact
   // and cost data, no secret: exported whole.
   'supplier', 'purchaseOrder', 'purchaseOrderLine', 'goodsReceipt', 'goodsReceiptLine',
+  // @spec ZAI:PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; TASK-ZAI-053 —
+  // a supplier cost-sheet version references Supplier and Business; its
+  // confirmed lines reference Product and the sheet, so both follow parents.
+  'supplierCostSheet', 'supplierCostLine',
   // Its account and inbound Message must both exist before restoring the ledger.
   'lineConversationJob',
   'agentTraceEvent',

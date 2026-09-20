@@ -511,7 +511,7 @@ locates the week.
 | TASK-ZAI-050 | SPR-ZAI-03 | task | Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published | P0 | ATHER | planned | TASK-ZAI-045; TASK-ZAI-049 | ADR-073 amendment; ADR-075 Phase 2 gate |
 | TASK-ZAI-051 | SPR-ZAI-03 | task | Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary | P2 | Claude | planned | TASK-ZAI-050 | 17-stage flow, "connector/แหล่งเอกสาร" row; FR-081 |
 | TASK-ZAI-052 | SPR-ZAI-02 | task | Cost and quote engine decision record — proposal, ADR, FR and FEAT declarations with the owner's nine decisions | P0 | Claude | done | TASK-ZAI-038 | CR-019 deliverable 11; ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; SmartGift ADR-009 |
-| TASK-ZAI-053 | SPR-ZAI-02 | task | Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory) | P0 | Claude | planned | TASK-ZAI-052; TASK-ZAI-034 | CR-019 deliverable 11; SmartGift ADR-005 and ADR-009 D4; ADR-084 |
+| TASK-ZAI-053 | SPR-ZAI-02 | task | Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory) | P0 | Claude | done | TASK-ZAI-052; TASK-ZAI-034 | CR-019 deliverable 11; SmartGift ADR-005 and ADR-009 D4; ADR-084 |
 | TASK-ZAI-054 | SPR-ZAI-02 | task | Goods receipts post the landed unit cost to the stock ledger, and the SKU page gains a cost card | P0 | Claude | done | TASK-ZAI-053; TASK-ZAI-038 | CR-019 deliverable 11; ADR-074 D3; FR-165; FR-175 |
 | TASK-ZAI-055 | SPR-ZAI-03 | task | PricingRuleSet — versioned, owner-approved pricing rules ported from pricing_rules_formula.yaml with per-block provenance, and the Pricing Rules console | P0 | Claude | planned | TASK-ZAI-052 | CR-019 deliverable 11; SmartGift pricing_rules_formula.yaml v4; FR-131; SDD-077 |
 | TASK-ZAI-056 | SPR-ZAI-03 | task | One pure pricing engine in integer satang — landed cost, ladder, profit floor and ten-baht round-up — with parity fixtures against price-boss; the FR-181 quote tool reads the rule set | P0 | Claude | planned | TASK-ZAI-054; TASK-ZAI-055 | CR-019 deliverable 11; SmartGift ADR-009 D2 and D3; BR-027; FR-181 |
@@ -2952,20 +2952,20 @@ executor: Claude
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/modules/procurement/application/purchase-order-service.js
+  code: apps/server/src/modules/procurement/application/supplier-cost-sheet-service.js
   doc: docs/domains/procurement/CHARTER.md
-  test: unavailable
+  test: apps/server/tests/integration/task-zai-053-supplier-cost-sheet.test.js
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a factory cost workbook or JSON export, when it is previewed and committed, then one SupplierCostSheet version records supplier, currency, the locked FX rate, the source file hash and one line per SKU price break, and no line is written until its product mapping is confirmed by a person
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given a confirmed sheet line, when the SKU is opened, then the product page shows the sheet's price breaks in baht at the locked rate and the carton attributes (units per carton, CBM, kg) the sheet supplied, and SKU Hygiene reports CARTON_DATA_MISSING for a counted SKU without them
-      checked: false
+      checked: true
   exit_criteria:
     - criterion: Given npm test, when the cost sheet suites run, then preview and commit are idempotent on the file hash, an unconfirmed mapping refuses the write, and both migrations (SQLite and supabase/migrations) exist with schema-migration drift green
-      checked: false
-changelog: Opened 2026-09-13 (v0.4.2). Lifts SmartGift's 08_factory_costs lane and ADR-005's confirm-before-write rule into a Procurement record, so a cost has a version and a locked rate (SmartGift ADR-009 D4 — 34.00 THB per USD, never spot). Placed in the current sprint on the owner's instruction; may move to SPR-ZAI-03 at sprint exit without a plan revision if the sprint ends first.
+      checked: true
+changelog: Closed 2026-09-20 (v0.4.14). Local TASK-ZAI-053 acceptance passed for the JSON and bounded Excel preview path, locked FX and person-confirmed mappings, idempotent source-hash replay, Inventory carton writes, price-break projection and CARTON_DATA_MISSING hygiene. Both migrations are written and production NOT_RUN; later quote/rules work remains in TASK-ZAI-055 onward.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-fable-5-1

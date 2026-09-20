@@ -5,7 +5,8 @@
 // @spec ADR-066; ADR-025 (one module, one charter: docs/domains/procurement/CHARTER.md)
 // @tested tests/unit/procurement-domain.test.js
 export * from './domain/procurement'
-export { assertMayView, mayPostReceipts, mayView, mayWritePurchaseOrders } from './application/procurement-authority'
+export { assertMayView, assertMayWriteSupplierCostSheets, mayPostReceipts, mayView, mayWritePurchaseOrders, mayWriteSupplierCostSheets } from './application/procurement-authority'
 export { applySupplierAction, createSupplier, getSupplier, listSuppliers } from './application/supplier-service'
 export { applyPurchaseOrderAction, createPurchaseOrder, getPurchaseOrder, listPurchaseOrders } from './application/purchase-order-service'
 export { listGoodsReceipts, postGoodsReceipt, listAllGoodsReceipts, getGoodsReceiptDetail } from './application/goods-receipt-service'
+export { commitSupplierCostSheet, getSupplierCostSheet, listSupplierCostSheets, previewSupplierCostSheet } from './application/supplier-cost-sheet-service'

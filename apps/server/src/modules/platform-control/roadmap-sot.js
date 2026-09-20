@@ -1215,12 +1215,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-053",
     "sprint": "SPR-ZAI-02",
     "title": "Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory)",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "status": "done",
+    "proofScope": "LOCAL",
+    "implementationState": "LOCAL",
     "dependsOn": "TASK-ZAI-052; TASK-ZAI-034",
     "authority": "ROADMAP.md",
-    "evidence": "ROADMAP task row; ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md"
+    "evidence": "TASK-ZAI-053 local implementation, focused tests and migrations; production NOT_RUN"
   },
   {
     "id": "TASK-ZAI-054",

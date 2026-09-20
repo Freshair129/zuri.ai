@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.88.0b → 1.89.0b (2026-09-20): add the six TASK-ZAI-053 supplier cost-sheet paths to the Procurement contract; current inventory is 328 route-handler paths. The migration is written locally and production application remains an ADR-057 operator gate.
+
 Version diff 1.87.0b → 1.88.0b: add FR-254 Knowledge Console routes to the composed FR-252/TaskUsageLedger baseline; target 315 paths and 419 operations. Final composed verification and production delivery remain pending.
 
 Version diff 1.86.0b → 1.87.0b: retain the composed FR-252 Feature operations and add the deployment-authenticated TaskUsageLedger read projection. Composition target is 309 paths and 412 operations; TaskUsageLedger is a pure projection with no database model or migration. Final composed verification and production delivery remain pending.
@@ -10,9 +12,9 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.88.0b |
+| **Version** | 1.89.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-09-18 |
+| **Last Updated** | 2026-09-20 |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -31,7 +33,7 @@ Error shape คือ
 `{ error, issues? }` — 400 validation/domain, 401 auth, 404 not found,
 503 session unavailable และ 500 unexpected failure
 
-<!-- api-spec-counts: route_handlers=322 -->
+<!-- api-spec-counts: route_handlers=328 -->
 
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
@@ -758,6 +760,23 @@ the receipt lines.
 | PATCH | `/api/procurement/purchase-orders/[id]` | implemented (FR-164): `{ action, version, fields?, reason? }` — `UPDATE` (`lines` and `supplierId` only while DRAFT; `expectedAt`, `notes`, `orderedAt` while open), `SEND`, `CLOSE` (`reason`), `CANCEL` (`reason`; refused once a receipt exists). Compare-and-swap on `(id, version)`; one audit row per action. No DELETE | `404`; `409 PURCHASE_ORDER_VERSION_CONFLICT \| PURCHASE_ORDER_STATUS_INVALID \| PURCHASE_ORDER_LINES_LOCKED \| PURCHASE_ORDER_SUPPLIER_LOCKED \| PURCHASE_ORDER_HAS_RECEIPTS \| SUPPLIER_ARCHIVED \| PRODUCT_ARCHIVED`; `422 SUPPLIER_NOT_FOUND \| PRODUCT_NOT_FOUND`; `400` |
 | GET | `/api/procurement/purchase-orders/[id]/receipts` | implemented (FR-165): `{ purchaseOrderId, purchaseOrderCode, receipts[] }` — each with `code` (`GRN-YYYYMMDD-NNN`), `supplierReference`, `receivedAt`, `lines[]` (`purchaseOrderLineId`, `qty`, `lotCode`, `expiresAt`, `serialNos[]`) | `404` |
 | POST | `/api/procurement/purchase-orders/[id]/receipts` | implemented (FR-165): `{ lines: [{ purchaseOrderLineId, qty, lotCode?, expiresAt?, serialNos? }], supplierReference?, notes?, receivedAt? }` posts a receipt against a SENT order; counted lines land in the Inventory ledger (reference `PO:<code>/GRN:<code>`); the receipt that completes every line makes the order RECEIVED. Answers `{ receipt, order, posted[] }`. Audited `GOODS_RECEIPT_POSTED` (and `PURCHASE_ORDER_RECEIVED`). No PATCH, no DELETE | `404`; `403 PROCUREMENT_RECEIPT_REQUIRES_INVENTORY_AUTHORITY`; `409 PURCHASE_ORDER_NOT_RECEIVABLE \| PROCUREMENT_RECEIPT_EXCEEDS_ORDERED` (with `details: [{ purchaseOrderLineId, description, ordered, received, outstanding, requested }]`) `\| PRODUCT_ARCHIVED \| INVENTORY_*`; `422 PROCUREMENT_RECEIPT_LINE_NOT_FOUND \| PROCUREMENT_RECEIPT_LINE_NOT_COUNTED \| INVENTORY_LOT_REQUIRED \| INVENTORY_SERIAL_COUNT_MISMATCH`; `400` (an order line once per receipt) |
+
+### Supplier cost-sheet intake (TASK-ZAI-053; proposal cost/quote engine)
+
+The Procurement source snapshot is Business-scoped and idempotent on the file
+hash. Preview stores the normalized source and mapping suggestions only. Commit
+requires the stored preview hash and a person-confirmed mapping for every source
+SKU; it writes the confirmed price breaks and delegates Product carton facts to
+Inventory. The migration is additive and locally authored, not production-applied.
+
+| Method | Path | Success | Failure |
+|---|---|---|---|
+| GET | `/api/procurement/cost-sheets?businessId=&supplierId=&status=&limit=` | Business-scoped source-sheet summaries, newest first | `404 Business not found`; `400` validation |
+| POST | `/api/procurement/cost-sheets/preview` | `{ businessId, supplierId, currency, fxRateLocked, sourceRef?, sourceSha256?, lines[] }` → persisted DRAFT preview with locked-rate suggestions; same source hash replays | `404`; `409 PROCUREMENT_COST_SHEET_SOURCE_HASH_REUSED`; `422` supplier or line validation |
+| POST | `/api/procurement/cost-sheets/xlsx` | bounded `.xlsx` upload converted to the same preview contract with a byte SHA-256 | `404`; `400` workbook/header/row validation; `413` upload too large |
+| POST | `/api/procurement/cost-sheets/commit` | `{ businessId, sheetId or sourceSha256, previewHash, mappings[] }` → confirmed sheet, price-break lines and atomic Product carton updates | `404`; `409` stale/superseded/version conflict; `422 PROCUREMENT_COST_SHEET_MAPPING_UNCONFIRMED or PRODUCT_NOT_FOUND or PROCUREMENT_COST_SHEET_CARTON_CONFLICT` |
+| GET | `/api/procurement/cost-sheets/template` | Procurement-owned empty `.xlsx` template with the canonical CostSheet header | `404`; `400` validation |
+| GET | `/api/procurement/cost-sheets/[id]` | one Business-scoped source sheet with locked FX, preview and confirmed lines | `404` |
 
 ## Project Execution Domains — FR-251 approved contract
 

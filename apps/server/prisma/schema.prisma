@@ -94,6 +94,7 @@ model Tenant {
   suppliers                  Supplier[]
   purchaseOrders             PurchaseOrder[]
   goodsReceipts              GoodsReceipt[]
+  supplierCostSheets         SupplierCostSheet[]
   warehouseLocations         WarehouseLocation[]
   customizationWorkOrders    CustomizationWorkOrder[]
   kittingWorkOrders          KittingWorkOrder[]
@@ -290,6 +291,7 @@ model Business {
   suppliers                  Supplier[]
   purchaseOrders             PurchaseOrder[]
   goodsReceipts              GoodsReceipt[]
+  supplierCostSheets         SupplierCostSheet[]
   warehouseLocations         WarehouseLocation[]
   customizationWorkOrders    CustomizationWorkOrder[]
   kittingWorkOrders          KittingWorkOrder[]
@@ -4410,6 +4412,14 @@ model Product {
   reorderQty            Int?
   leadTimeDays          Int?
 
+  // @spec ZAI:PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; TASK-ZAI-053 —
+  //   physical carton facts are nullable until a confirmed factory source
+  //   supplies them; Inventory hygiene reports incomplete counted SKUs.
+  unitsPerCarton      Int?
+  cartonCbm           Float?
+  cartonKg            Float?
+  freightGoodsType    String?
+
   tenant                    Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business                  Business                 @relation(fields: [businessId], references: [id], onDelete: Cascade)
   productMaster             ProductMaster            @relation(fields: [productMasterId], references: [id])
@@ -4427,6 +4437,7 @@ model Product {
   reservations              StockReservation[]
   identifiers               ProductIdentifier[]
   unitConversions           ProductUnitConversion[]
+  supplierCostLines         SupplierCostLine[]
 
   @@unique([tenantId, code])
   @@unique([tenantId, flowAccountSku])
@@ -5235,6 +5246,7 @@ model Supplier {
   tenant         Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business       Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
   purchaseOrders PurchaseOrder[]
+  costSheets     SupplierCostSheet[]
 
   @@unique([tenantId, code])
   @@index([businessId, status])
@@ -5326,6 +5338,67 @@ model GoodsReceiptLine {
 
   @@index([receiptId])
   @@index([purchaseOrderLineId])
+}
+
+// @spec ZAI:PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; TASK-ZAI-053 —
+//   one immutable source version holds the locked FX and the normalized preview
+//   until a person confirms every SKU mapping. Lines are created only at commit.
+model SupplierCostSheet {
+  id                    String    @id @default(uuid())
+  code                  String
+  tenantId              String
+  businessId            String
+  supplierId            String
+  currency              String
+  fxRateLocked          Float
+  sourceRef             String?
+  sourceSha256          String
+  previewHash           String
+  previewJson           String
+  status                String    @default("DRAFT")
+  lineCount             Int       @default(0)
+  createdByPersonId     String?
+  confirmedByPersonId   String?
+  confirmedAt           DateTime?
+  supersededAt          DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  version               Int       @default(1)
+
+  tenant   Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  supplier Supplier            @relation(fields: [supplierId], references: [id], onDelete: Restrict)
+  lines    SupplierCostLine[]
+
+  @@unique([tenantId, code])
+  @@unique([businessId, sourceSha256])
+  @@index([businessId, status, createdAt])
+  @@index([supplierId, status])
+}
+
+model SupplierCostLine {
+  id                         String   @id @default(uuid())
+  sheetId                    String
+  productId                  String
+  sourceSku                  String
+  minQty                     Int
+  unitCostForeign            Float
+  unitsPerCarton             Int?
+  cartonCbm                  Float?
+  cartonKg                   Float?
+  freightGoodsType           String?
+  leadTimeDays               Int?
+  mappingConfidence          String
+  mappingConfirmedByPersonId String?
+  mappingConfirmedAt         DateTime?
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+
+  sheet   SupplierCostSheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+  product Product           @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@unique([sheetId, sourceSku, minQty])
+  @@index([productId, minQty])
 }
 
 // @req FR-218 — one agent session's usage for one programme task, reported by an
