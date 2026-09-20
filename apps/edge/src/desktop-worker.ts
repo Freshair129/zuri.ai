@@ -149,6 +149,46 @@ export async function isModelResident(
   }
 }
 
+// @req FR-244 - a released model must not be re-warmed by the heartbeat's
+// cold-model probe, and a close/open transition must not be lost while the
+// previous keep_alive request is still running.
+export function createModelResidencyController(actions: {
+  warm: () => Promise<unknown> | void;
+  release: () => Promise<unknown> | void;
+}): {
+  request(shouldBeWarm: boolean): void;
+  retryWarmIfDesired(): void;
+} {
+  let desired: boolean | null = null;
+  let inFlight: boolean | null = null;
+  let queued: boolean | null = null;
+
+  const request = (shouldBeWarm: boolean): void => {
+    desired = shouldBeWarm;
+    if (inFlight !== null) {
+      queued = shouldBeWarm;
+      return;
+    }
+    inFlight = shouldBeWarm;
+    void Promise.resolve()
+      .then(() => shouldBeWarm ? actions.warm() : actions.release())
+      .catch(() => undefined)
+      .finally(() => {
+        const next = queued;
+        inFlight = null;
+        queued = null;
+        if (next !== null && next !== shouldBeWarm) request(next);
+      });
+  };
+
+  return {
+    request,
+    retryWarmIfDesired: () => {
+      if (desired === true) request(true);
+    },
+  };
+}
+
 function isAbsolutePath(value: string): boolean {
   return path.isAbsolute(value) && !value.includes('\0');
 }
@@ -470,40 +510,36 @@ async function runManagedWorker(init: DesktopWorkerInit, input: DesktopWorkerInp
     });
     /*
      * Model residency has one owner: this worker. `openai-compatible.ts`'s chat body never sends
-     * `keep_alive` — Ollama silently ignores it there — so nothing pins the model on the reply
-     * path itself. `triggerWarm` is fire-and-forget and never awaited from either call site: it
-     * must never block `ready`, the claim loop, or a heartbeat (a cold warm can take ~90s; the
-     * heartbeat interval is 40s). `residencyOpInFlight` is shared between the on-init warm below,
-     * the one `status()` kicks off later and the FR-244 business-hours schedule, so no two of them
-     * ever pin/release the same model concurrently. `numCtx` comes from the loaded config (which
-     * already applies the same default the chat path uses, `ZURI_LLM_NUM_CTX`/8192) rather than
-     * the raw init payload, so a warm always loads the model at the context size the chat path
-     * will actually request — Ollama keys a loaded model by context size, and warming at the wrong
-     * one pins a copy nothing uses.
+     * `keep_alive` - Ollama silently ignores it there - so nothing pins the model on the reply
+     * path itself. Actions are fire-and-forget and never awaited from a call site: they must never
+     * block `ready`, the claim loop, or a heartbeat (a cold warm can take ~90s; the heartbeat
+     * interval is 40s). The controller is directive-gated: before the first successful
+     * business-hours poll it does nothing, and after a false directive the heartbeat's cold-model
+     * probe may only retry a warm if the latest directive is true. A newer directive is queued
+     * behind an in-flight keep_alive request so a close cannot be lost behind a slow warm.
+     * `numCtx` comes from the loaded config (which already applies the same default the chat path
+     * uses, `ZURI_LLM_NUM_CTX`/8192) rather than the raw init payload, so a warm always loads the
+     * model at the context size the chat path will actually request.
      */
-    let residencyOpInFlight = false;
-    const triggerWarm = (): void => {
-      if (residencyOpInFlight) return;
-      if (!init.provider.llmEnabled || !init.provider.llmBaseUrl || !init.provider.llmModel) return;
-      residencyOpInFlight = true;
-      const nativeBaseUrl = init.provider.llmBaseUrl.replace(/\/v1\/?$/, '');
-      void modules.warmModel({
+    const localModelConfigured = Boolean(init.provider.llmEnabled && init.provider.llmBaseUrl && init.provider.llmModel);
+    const nativeBaseUrl = init.provider.llmBaseUrl?.replace(/\/v1\/?$/, '') || '';
+    const residency = createModelResidencyController({
+      warm: () => modules.warmModel({
         nativeBaseUrl,
-        model: init.provider.llmModel,
+        model: init.provider.llmModel || '',
         numCtx: config.llmNumCtx as number | undefined,
-      }).finally(() => { residencyOpInFlight = false; });
+      }),
+      release: () => modules.releaseModel({ nativeBaseUrl, model: init.provider.llmModel || '' }),
+    });
+    const requestWarm = (): void => {
+      if (localModelConfigured) residency.request(true);
     };
-    // @req FR-244 — the other half of the schedule: release when every account is closed.
-    // Same fire-and-forget shape and the same guard as triggerWarm, for the same reason.
-    const triggerRelease = (): void => {
-      if (residencyOpInFlight) return;
-      if (!init.provider.llmEnabled || !init.provider.llmBaseUrl || !init.provider.llmModel) return;
-      residencyOpInFlight = true;
-      const nativeBaseUrl = init.provider.llmBaseUrl.replace(/\/v1\/?$/, '');
-      void modules.releaseModel({ nativeBaseUrl, model: init.provider.llmModel })
-        .finally(() => { residencyOpInFlight = false; });
+    const requestRelease = (): void => {
+      if (localModelConfigured) residency.request(false);
     };
-    triggerWarm();
+    const retryWarm = (): void => {
+      if (localModelConfigured) residency.retryWarmIfDesired();
+    };
     const heartbeatClient = new modules.HttpZuriApiClient({
       baseUrl: init.cloudBaseUrl,
       cloudBaseUrl: init.cloudBaseUrl,
@@ -552,7 +588,7 @@ async function runManagedWorker(init: DesktopWorkerInit, input: DesktopWorkerInp
           // token, so this is the truthful thing to report; it self-clears once warming finishes.
           const resident = await isModelResident(modelHost, selected);
           if (!resident) {
-            triggerWarm();
+            retryWarm();
             return 'degraded';
           }
         } catch {
@@ -571,14 +607,14 @@ async function runManagedWorker(init: DesktopWorkerInit, input: DesktopWorkerInp
         at: new Date().toISOString(),
       }),
     });
-    // @req FR-244 — local model residency by business hours (ADR-094 D6 option A). An
-    // account with `llmEnabled` off has nothing for this worker to warm or release
-    // either way, same as the on-init `triggerWarm` above.
+    // @req FR-244 — local model residency by business hours (ADR-094 D6 option A).
+    // The first successful directive owns the initial warm/release decision; no
+    // startup warm is allowed before the server answers.
     if (init.provider.llmEnabled && init.provider.llmBaseUrl && init.provider.llmModel) {
       const residency = modules.createResidencyClient({ baseUrl: init.cloudBaseUrl, deviceKey: init.deviceKey });
       stopResidencySchedule = modules.startModelResidencySchedule({
         shouldBeWarm: () => residency.shouldBeWarm(),
-        warm: triggerWarm, release: triggerRelease,
+        warm: requestWarm, release: requestRelease,
         intervalMs: init.residencyPollIntervalMs,
         onEvent: event => emit({
           type: 'residency', version: PROTOCOL_VERSION, ok: event.ok,
