@@ -5464,7 +5464,7 @@ export const PROGRAMME_CONTAINERS = {
     "dependsOn": [
       "TASK-ZAI-105"
     ],
-    "evidence": "Section 3.1 row 8; ADR-094 D6 option A"
+    "evidence": "PR #427 implementation merged at `09fc5978`; PR #476 fix merged at `95edda4c`; hosted Governance #1197/#1327 and Edge #531/#657 passed with E2E skipped; migration `20260916130000_line_oa_business_hours.sql`, matching Server+Edge deployment, release after last account closes, out-of-hours no-model reply receipt, no-declared-hours behavior, first reply after 09:00 ICT and immutable production receipt remain open; production/owner activation NOT_RUN"
   },
   "TASK-ZAI-110": {
     "container": "TC-TASK-ZAI-110",

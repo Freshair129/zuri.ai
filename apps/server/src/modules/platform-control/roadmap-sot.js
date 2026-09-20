@@ -1832,11 +1832,11 @@ export const ROADMAP_TASK_LEDGER = [
     "sprint": "SPR-ZAI-04",
     "title": "Local model residency by business hours, FR-244 — per-account business hours and out-of-hours reply, the edge worker loading the model during any served account's hours and unloading it after the last closes, and no model call outside hours",
     "status": "review",
-    "proofScope": "UNKNOWN",
-    "implementationState": "IN_PROGRESS",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-105",
     "authority": "ROADMAP.md",
-    "evidence": "ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md"
+    "evidence": "PR #427 implementation merged at `09fc5978`; PR #476 fix merged at `95edda4c`; hosted Governance #1197/#1327 and Edge #531/#657 passed with E2E skipped; migration `20260916130000_line_oa_business_hours.sql`, matching Server+Edge deployment, release after last account closes, out-of-hours no-model reply receipt, no-declared-hours behavior, first reply after 09:00 ICT and immutable production receipt remain open; production/owner activation NOT_RUN"
   },
   {
     "id": "TASK-ZAI-110",
