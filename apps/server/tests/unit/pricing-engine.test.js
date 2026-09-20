@@ -5,6 +5,7 @@ import { stringify } from 'yaml'
 import { calculatePrice, calculatePricingCustomization, defaultPricingRules, importPricingRulesYaml, validatePricingRules, validatePricingFormula, pricingHash, Decimal } from '../../src/modules/commerce/domain/pricing-engine'
 import { SOURCE_RULES, SOURCE_SHA256 } from '../../src/modules/commerce/domain/pricing-source'
 import legacy from '../fixtures/pricing-legacy-vectors.json'
+import legacyDifferences from '../fixtures/pricing-legacy-differences.json'
 
 const factory = (extra = {}) => ({ costBasis: 'factory', quantity: 100, kind: 'set', profile: 'standard', factoryUnitCost: { amount: '32', currency: 'CNY' }, carton: { units: 20, cbm: '0.1', kg: null }, shipping: { warehouse: 'guangzhou_shenzhen', mode: 'auto', month: 4, goodsType: 'general', tier: 'GOLD', domesticMode: 'none' }, logo: { method: 'none', positions: 1, colors: 1 }, extraUnitCostThb: '0', orderCostThb: '0', sourceRefs: [{ sourceId: 'test-cost', sha256: 'a'.repeat(64) }], ...extra })
 const landed = (extra = {}) => ({ costBasis: 'landed', quantity: 100, kind: 'set', profile: 'corporate', landedUnitCostThb: '100', orderCostThb: '0', sourceRefs: [], ...extra })
@@ -54,7 +55,7 @@ describe('bounded typed formula language', () => {
     const result = calculatePrice(r, landed())
     expect(result.unitPriceSatang).toBe(30000)
     expect(result.grossProfitSatang).toBe(2000000)
-    expect(result.priceDriver).toBe('floor')
+    expect(result.priceDriver).toBe('FLOOR')
   })
   it.each(['process.exit()', 'fetch(1)', 'anchorPrice[0]', 'anchorPrice.constructor', 'new Function(1)', 'anchorPrice; 1', '`${anchorPrice}`', 'unknownPrice * 2', 'landedCost + quantity', 'landedCost + fxUsd', 'Math.max(landedCost, anchorPrice)', 'min(landedCost)', 'anchorPrice ** 2'])('rejects %s', (s) => failure(() => validatePricingFormula(step(s))))
   it('rejects cycles, duplicate/reserved variables, oversized expressions and division by zero', () => {
@@ -179,6 +180,20 @@ describe('actual legacy oracle parity and declared corrections', () => {
     const result = calculatePrice(r, landed({ kind: 'single', quantity: 1000 }))
     expect(result.unitPriceSatang).toBe(43000)
     // Legacy ceil(round(value/10,6))*10 would give 420, discarding a real fraction.
+  })
+
+  it.each(legacyDifferences.cases)('$name records the approved difference from price-boss', (c) => {
+    if (c.inputThb) {
+      expect(Decimal.from(c.inputThb).satang()).toBe(c.approvedSatang)
+      expect(c.legacySatang).not.toBe(c.approvedSatang)
+      return
+    }
+
+    const rules = defaultPricingRules()
+    rules.formulas[0].expression = c.formula
+    const result = calculatePrice(rules, landed({ kind: c.kind, quantity: c.quantity, landedUnitCostThb: c.landedCostThb }))
+    expect(result.unitPriceSatang).toBe(c.approvedPriceSatang)
+    expect(c.legacyPriceSatang).not.toBe(c.approvedPriceSatang)
   })
 })
 

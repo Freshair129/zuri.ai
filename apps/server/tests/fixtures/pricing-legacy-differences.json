@@ -1,0 +1,22 @@
+{
+  "evidence": "Approved TASK-ZAI-056 differences from price-boss are pinned separately from parity vectors: integer-satang ceiling and exact ten-baht ceiling replace legacy float tolerance. No database, production, credential or cross-repository runtime action is implied.",
+  "cases": [
+    {
+      "name": "fractional_satang_ceils",
+      "legacySatang": 12,
+      "approvedSatang": 13,
+      "inputThb": "0.125",
+      "reason": "Approved S(x)=ceil(x*100) prevents a fractional satang from being rounded down."
+    },
+    {
+      "name": "fractional_ten_baht_step_is_not_hidden",
+      "quantity": 1000,
+      "kind": "single",
+      "landedCostThb": "100",
+      "formula": "landedCost * 4.200000000001",
+      "legacyPriceSatang": 42000,
+      "approvedPriceSatang": 43000,
+      "reason": "The approved exact decimal value is above 420 THB, so ten-baht round-up reaches 430 THB."
+    }
+  ]
+}

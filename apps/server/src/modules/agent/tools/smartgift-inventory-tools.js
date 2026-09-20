@@ -46,22 +46,13 @@ import { createWriteToolRegistry, STAFF_WRITE_ROLES } from '../write-tools'
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
 
-/**
- * Default customization cost per technique, in satang: a one-off setup (a
- * laser jig, a screen, a foil die) and a per-piece run cost. Defaults, again —
- * a real job quotes from the workshop's own rates, and the quote says which
- * numbers it assumed.
- */
-const TECHNIQUE_RATES = {
+/** Work-order defaults only; the quote path reads customization rates from the active Commerce rule set. */
+const WORK_ORDER_DEFAULT_COSTS = Object.freeze({
   LASER_ENGRAVING: { setupSatang: 80000, runSatang: 1200 },
   SILK_SCREEN: { setupSatang: 120000, runSatang: 900 },
   UV_DIGITAL_PRINT: { setupSatang: 60000, runSatang: 1800 },
   HOT_STAMP_FOIL: { setupSatang: 150000, runSatang: 1500 },
   EMBOSSING: { setupSatang: 150000, runSatang: 1400 },
-}
-/** Built from the enum, not beside it: a sixth technique gets a rate or an explicit zero, never silence. */
-export const CUSTOMIZATION_DEFAULT_COSTS = Object.freeze({
-  ...Object.fromEntries(CUSTOMIZATION_TECHNIQUES.map((technique) => [technique, TECHNIQUE_RATES[technique] ?? { setupSatang: 0, runSatang: 0 }])),
   NONE: { setupSatang: 0, runSatang: 0 },
 })
 
@@ -359,7 +350,7 @@ async function locationIdByCode(db, businessId, code) {
 export async function dispatchCustomizationWorkOrder(input, { viewer, businessId, db = prisma, now = new Date() } = {}) {
   const data = zDispatchCustomization.parse(input)
   const raw = await resolveSku(db, businessId, data.rawComponentSku)
-  const defaults = CUSTOMIZATION_DEFAULT_COSTS[data.technique] ?? CUSTOMIZATION_DEFAULT_COSTS.NONE
+  const defaults = WORK_ORDER_DEFAULT_COSTS[data.technique] ?? WORK_ORDER_DEFAULT_COSTS.NONE
   const order = await openCustomizationWorkOrder({
     businessId,
     rawProductId: raw.id,
