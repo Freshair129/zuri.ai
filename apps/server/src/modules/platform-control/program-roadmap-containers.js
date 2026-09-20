@@ -1135,7 +1135,7 @@ export const PROGRAMME_CONTAINERS = {
     "dependsOn": [
       "TASK-ZAI-024"
     ],
-    "evidence": "Section 3.1 row 4; FR-116, FR-171, ADR-070"
+    "evidence": "PR #494 implementation head `a2bd5f90` merged at `06d61da5`; hosted Governance run #1381 govern/tests/build/verify/changes passed with E2E skipped; Edge run #711 edge-verify/changes passed with desktop skipped; local focused 52 tests, govern and build passed; production, owner activation, MSP, GKS, migrations, deployment and credentials remain NOT_RUN; broader task criteria remain open"
   },
   "TASK-ZAI-026": {
     "container": "TC-TASK-ZAI-026",
