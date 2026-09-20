@@ -5715,7 +5715,7 @@ export const PROGRAMME_CONTAINERS = {
     "dependsOn": [
       "TASK-ZAI-112"
     ],
-    "evidence": "Section 3.1 row 8; ADR-093 D5, D6; SEC-031; SEC-034"
+    "evidence": "PR #451 head `8180bef2` merged as `cfd5521e`; implementation commit `badc11ee` is an ancestor on current main; hosted Governance #1261, Edge #594 and Docker #288 passed; archive legal-hold/key-destruction migration(s) written but not applied to production; production archive mount/KEK and live expiry/erasure/legal-hold behavior unproven; owner/legal receipt and deployment/rollback evidence remain NOT_RUN"
   },
   "TASK-ZAI-114": {
     "container": "TC-TASK-ZAI-114",
