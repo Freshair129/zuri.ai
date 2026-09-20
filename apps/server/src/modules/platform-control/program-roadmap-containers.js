@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.14, 2026-09-20) so the board can open a task the way the html board
+// (v0.4.15, 2026-09-20) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -1051,7 +1051,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-024",
     "phase": "PHASE-ZAI-05",
     "sprint": "SPR-ZAI-09",
-    "version": "0.3.0",
+    "version": "1.0.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -1083,14 +1083,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Opened from deliverable four. Read ports exist through FR-024, FR-025 and FR-029; permission-scoped retrieval does not. Re-baselined 2026-08-23 to sit under ADR-042, which pinned the decoupled knowledge and GraphRAG service on D12. Moved to in-progress on the 2026-09-13 re-baseline, three months ahead of its sprint — FR-098 makes every retrieval consume the immutable shared authorization context and audits denial; FR-110 makes knowledge readable only as an identified publication; FR-173 (ADR-072) admits sources and publishes corpora under Business authorization with isolated acceptance passed; FR-189 (ADR-075) answers catalog queries from a published generation. The success criterion is met by the publication contract. Local TASK-ZAI-024 evidence now joins the immutable authorization policy to the agent-context private-memory boundary: a denied read is empty, audited without customer content, and never calls the memory port; the explicit MSP read permission is fail-closed. Status is review/local only; hosted CI, merge, production activation and release evidence remain open.",
+    "changelog": "Opened from deliverable four. Read ports exist through FR-024, FR-025 and FR-029; permission-scoped retrieval does not. Re-baselined 2026-08-23 to sit under ADR-042, which pinned the decoupled knowledge and GraphRAG service on D12. Moved to in-progress on the 2026-09-13 re-baseline, three months ahead of its sprint — FR-098 makes every retrieval consume the immutable shared authorization context and audits denial; FR-110 makes knowledge readable only as an identified publication; FR-173 (ADR-072) admits sources and publishes corpora under Business authorization with isolated acceptance passed; FR-189 (ADR-075) answers catalog queries from a published generation. The success criterion is met by the publication contract. TASK-ZAI-024 is merged in PR #481 at `823ae325`; hosted verify/govern/tests/build/edge/changes passed. Production activation and release evidence remain NOT_RUN.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 54000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-008"
     ],
-    "evidence": "Section 3.1 row 4; FR-098, FR-173, ADR-072"
+    "evidence": "PR #481 merged at `823ae325`; hosted verify/govern/tests/build/edge/changes passed; production NOT_RUN"
   },
   "TASK-ZAI-025": {
     "container": "TC-TASK-ZAI-025",
@@ -1662,7 +1662,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. Accounts (FR-146/147), rich menu (FR-151/152), LIFF (FR-153), server-owned transport with optional Edge (FR-148 to FR-150) and transport reachability (FR-190) are merged through PR #341/#359. The isolated FR-190 audit found that the worker sweep omitted integrationConnectionId from its explicit account projection; the bounded fix, two-account regression and RCA are recorded in .brain/rca/2026-09-19-fr190-sweep-account-scope.md. Focused source evidence is isolated and the exit criterion stays unchecked: hosted CI for this patch, deployment, provider canary and real LINE delivery verification are separate gates; no credential was used.",
+    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. Accounts (FR-146/147), rich menu (FR-151/152), LIFF (FR-153), server-owned transport with optional Edge (FR-148 to FR-150) and transport reachability (FR-190) are merged through PR #341/#359. The isolated FR-190 audit found that the worker sweep omitted integrationConnectionId from its explicit account projection; the bounded fix, two-account regression and RCA are recorded in .brain/rca/2026-09-19-fr190-sweep-account-scope.md. PR #480 merged that fix at `d8a8e0e` with hosted checks passing; the exit criterion stays unchecked because provider canary, real LINE delivery and production verification remain NOT_RUN.",
     "created": "2026-09-13T00:00:00Z,Claude,retroactive",
     "predictedTokens": 0,
     "totalTokens": 0,
@@ -1870,7 +1870,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. FR-159 and FR-158, FR-157, FR-160 and FR-162 are locally verified bounded slices; FR-185 is locally verified planning/read only (PR #270, #273, #274, the marketing_content and marketing_operations migrations of 2026-09-06/07, broadcast intents 2026-09-11). Remains review: CR-018 phases beyond planning/read integration, target import, provider evidence and production release are not delivered, and the PRD says so.",
+    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. FR-159 and FR-158, FR-157, FR-160 and FR-162 are locally verified bounded slices; FR-185 is locally verified planning/read only (PR #270, #273, #274, the marketing_content and marketing_operations migrations of 2026-09-06/07, broadcast intents 2026-09-11). PR #482 merged the reconciliation at `11826890` with hosted checks passing. Remains review: target import, provider, owner, release and production gates are not delivered, and the PRD says so.",
     "created": "2026-09-13T00:00:00Z,Claude,retroactive",
     "predictedTokens": 0,
     "totalTokens": 0,
@@ -2492,7 +2492,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       }
     },
-    "changelog": "Closed 2026-09-20 (v0.4.14). Local TASK-ZAI-053 acceptance passed for the JSON and bounded Excel preview path, locked FX and person-confirmed mappings, idempotent source-hash replay, Inventory carton writes, price-break projection and CARTON_DATA_MISSING hygiene. Both migrations are written and production NOT_RUN; later quote/rules work remains in TASK-ZAI-055 onward.",
+    "changelog": "Closed 2026-09-20 (v0.4.15). TASK-ZAI-053 is merged in PR #483 at `68d27022` after the strict Phase-B inventory fix; hosted checks passed. The JSON and bounded Excel preview path, locked FX and person-confirmed mappings, idempotent source-hash replay, Inventory carton writes, price-break projection and CARTON_DATA_MISSING hygiene remain evidenced. Both migrations are written; production migration and activation are NOT_RUN; later quote/rules work remains in TASK-ZAI-055 onward.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 56000,
     "totalTokens": 0,
@@ -2500,7 +2500,7 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-052",
       "TASK-ZAI-034"
     ],
-    "evidence": "CR-019 deliverable 11; SmartGift ADR-005 and ADR-009 D4; ADR-084"
+    "evidence": "PR #483 merged at `68d27022` after the strict Phase-B inventory fix; hosted checks passed; production migration/activation NOT_RUN"
   },
   "TASK-ZAI-054": {
     "container": "TC-TASK-ZAI-054",
