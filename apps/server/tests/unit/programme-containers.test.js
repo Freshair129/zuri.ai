@@ -13,6 +13,7 @@ import {
   parseContainerBlock,
   replaceUsageBlock,
   parseUsageBlock,
+  repositoryFileExists,
   validateDeliveryPlan,
 } from '../../scripts/programme-containers.mjs'
 import { PROGRAMME_CONTAINERS } from '@/modules/platform-control/program-roadmap-containers'
@@ -129,6 +130,13 @@ describe('FR-217 lane rules', () => {
 })
 
 describe('FR-105 / FR-219 committed modules', () => {
+  it('keeps ADR-081 generated views out of link-state even after CI builds them', () => {
+    const exists = () => true
+    expect(repositoryFileExists('C:/repo', 'docs/FEATURE-MAP.md', exists)).toBe(false)
+    expect(repositoryFileExists('C:/repo', 'docs/DOMAIN-MAP.md', exists)).toBe(false)
+    expect(repositoryFileExists('C:/repo', 'docs/roadmap/ROADMAP.md', exists)).toBe(true)
+  })
+
   it('are exactly what the generator writes from the programme document', () => {
     const { drift, containers } = generateProgrammeModules({ check: true })
     expect(drift).toEqual([])
