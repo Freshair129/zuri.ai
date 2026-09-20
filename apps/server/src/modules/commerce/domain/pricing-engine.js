@@ -8,6 +8,7 @@ import { validatePricingRules, pricingHash, plainJson, exact, decimal, integer, 
 export { defaultPricingRules, importPricingRulesYaml, validatePricingRules, pricingHash } from './pricing-rules'
 export { PRICING_VARIABLES, validatePricingFormula, Decimal } from './pricing-formula'
 export const EVALUATOR_VERSION = 'pricing.v1'
+export const PRICE_DRIVERS = Object.freeze({ LADDER: 'LADDER', FLOOR: 'FLOOR', MANUAL: 'MANUAL' })
 export const decimalToSatang = (value) => Decimal.from(value).satang()
 const D = Decimal.from
 const moneyUp = (value) => D(value).ceilStep('0.01')
@@ -168,7 +169,7 @@ export function calculatePrice(rulesInput, input) {
   if (sourceWarnings.length) warnings.push(warn('SOURCE_EVIDENCE_LIMITED', `Rule-source evidence needs review: ${sourceWarnings.join(', ')}.`))
   return {
     evaluatorVersion: EVALUATOR_VERSION, ruleVersion: rules.version, ruleHash: pricingHash(rules), inputHash: pricingHash(i), quantity: i.quantity, currency: 'THB',
-    unitPriceSatang: final.satang(), totalPriceSatang: total.satang(), unitLandedCostSatang: actual.landed.satang(), grossProfitSatang: gross.satang(), priceDriver: floorPrice.cmp(candidate) > 0 ? 'floor' : 'formula',
+    unitPriceSatang: final.satang(), totalPriceSatang: total.satang(), unitLandedCostSatang: actual.landed.satang(), grossProfitSatang: gross.satang(), priceDriver: floorPrice.cmp(candidate) > 0 ? PRICE_DRIVERS.FLOOR : PRICE_DRIVERS.LADDER,
     breakdown: { costBasis: i.costBasis, unitLandedCostThbExact: actual.landed.text(4), factoryUnitSatang: actual.factory.satang(), freightUnitSatang: actual.freight.satang(), logoUnitSatang: actual.logo.satang(), inlandUnitSatang: actual.inland.satang(), domesticUnitSatang: actual.domestic.satang(), extraUnitSatang: actual.extra.satang(), orderCostSatang: D(i.orderCostThb).satang(), profitFloorSatang: floor.satang(), candidateUnitSatang: candidate.satang(), grossMarginPercent: marginPercent.text(2), smallOrderFactor: actual.sof.text(4), appliedMarkup: markup.text(4), shipping: actual.shipping, leadTimeWorkingDays: lead },
     warnings, provenance: { rules: rules.provenance, sourceRefs: i.sourceRefs },
   }
