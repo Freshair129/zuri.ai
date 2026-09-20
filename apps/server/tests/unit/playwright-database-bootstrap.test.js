@@ -30,8 +30,10 @@ describe('Playwright database bootstrap', () => {
     expect(setup).not.toMatch(/DATABASE_URL:\s*'file:/)
 
     expect(config).toContain("globalSetup: './tests/e2e/global-setup.js'")
-    // A run owns its server; reusing someone else's means testing their data.
-    expect(config).toContain('reuseExistingServer: false')
+    // Local runs own their server; CI starts the production server explicitly
+    // so Playwright cannot hang while force-killing it on Windows.
+    expect(config).toContain('reuseExistingServer: useProductionServer')
+    expect(setup).toContain("process.env.E2E_EXTERNAL_SERVER === 'true'")
   })
 
   it('isolates the e2e database from the dev and unit-test ones', () => {

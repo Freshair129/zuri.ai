@@ -44,6 +44,27 @@ describe('the e2e warm-up covers the domain registry', () => {
   })
 })
 
+describe('the CI e2e server mode', () => {
+  it('builds and selects the production server without the dev warm-up', () => {
+    const config = readFileSync('playwright.config.js', 'utf8')
+    const workflow = readFileSync('../../.github/workflows/governance.yml', 'utf8')
+
+    expect(config).toContain("process.env.E2E_SERVER_MODE === 'production'")
+    expect(config).toContain('node node_modules/next/dist/bin/next start -p ${target.port}')
+    expect(config).toContain("...(useProductionServer ? { NODE_ENV: 'test' } : {})")
+    expect(config).toContain('projects: useProductionServer')
+    expect(config).toContain('reuseExistingServer: useProductionServer')
+    expect(workflow).toContain('Production build for e2e server')
+    expect(workflow).toContain('run: npm run build')
+    expect(workflow).toContain('Prepare production e2e database')
+    expect(workflow).toContain('Start production e2e server')
+    expect(workflow).toContain('Stop production e2e server')
+    expect(workflow).toContain("E2E_PORT: '3100'")
+    expect(workflow).toContain("E2E_EXTERNAL_SERVER: 'true'")
+    expect(workflow).toContain('E2E_SERVER_MODE: production')
+  })
+})
+
 describe('the warm-up derives every module under src/app', () => {
   const fixture = mkdtempSync(path.join(tmpdir(), 'warmup-routes-'))
   afterAll(() => rmSync(fixture, { recursive: true, force: true }))
