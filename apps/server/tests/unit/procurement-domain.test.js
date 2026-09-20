@@ -20,6 +20,8 @@ import {
   purchaseOrderTotals,
   receiptReference,
   receiptState,
+  supplierCostBaht,
+  supplierCostSatang,
   toSatang,
   zCreatePurchaseOrder,
   zCreateSupplier,
@@ -35,6 +37,11 @@ describe('FR-164 supplier and purchase-order contracts', () => {
     expect(toSatang(0.1 + 0.2)).toBe(30)
     expect(fromSatang(1999)).toBe(19.99)
     expect(() => toSatang(Number.NaN)).toThrow()
+  })
+
+  it('TASK-ZAI-053 ceils locked foreign cost and FX to integer satang', () => {
+    expect(supplierCostSatang(1.005, 1)).toBe(101)
+    expect(supplierCostBaht(1.005, 1)).toBe(1.01)
   })
 
   it('a supplier needs a well-formed code and a name; contact and terms are plain attributes', () => {

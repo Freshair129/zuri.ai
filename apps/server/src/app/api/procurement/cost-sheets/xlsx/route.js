@@ -4,6 +4,8 @@ import { assertMayWriteSupplierCostSheets } from '@/modules/procurement/applicat
 import { previewSupplierCostSheet } from '@/modules/procurement/application/supplier-cost-sheet-service'
 import { readSupplierCostWorkbook } from '@/modules/procurement/import/supplier-cost-workbook'
 
+// @req FR-164, FR-154 — TASK-ZAI-053 admits a bounded workbook through the
+//   same Procurement preview contract and never creates confirmed Product data.
 // @spec ZAI:PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; TASK-ZAI-053 —
 //   authority is checked before reading a bounded .xlsx upload; the reader
 //   returns a byte hash and the same preview pipeline as JSON.

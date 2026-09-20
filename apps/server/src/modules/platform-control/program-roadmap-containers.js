@@ -2467,32 +2467,32 @@ export const PROGRAMME_CONTAINERS = {
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/src/modules/procurement/application/purchase-order-service.js",
+      "code": "apps/server/src/modules/procurement/application/supplier-cost-sheet-service.js",
       "doc": "docs/domains/procurement/CHARTER.md",
-      "test": "unavailable"
+      "test": "apps/server/tests/integration/task-zai-053-supplier-cost-sheet.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "unavailable"
+      "test": "present"
     },
     "delivers": [],
     "subtasks": [],
     "dod": {
       "acceptance": {
         "text": "Given a factory cost workbook or JSON export, when it is previewed and committed, then one SupplierCostSheet version records supplier, currency, the locked FX rate, the source file hash and one line per SKU price break, and no line is written until its product mapping is confirmed by a person",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given a confirmed sheet line, when the SKU is opened, then the product page shows the sheet's price breaks in baht at the locked rate and the carton attributes (units per carton, CBM, kg) the sheet supplied, and SKU Hygiene reports CARTON_DATA_MISSING for a counted SKU without them",
-        "checked": false
+        "checked": true
       },
       "exit": {
         "text": "Given npm test, when the cost sheet suites run, then preview and commit are idempotent on the file hash, an unconfirmed mapping refuses the write, and both migrations (SQLite and supabase/migrations) exist with schema-migration drift green",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.2). Lifts SmartGift's 08_factory_costs lane and ADR-005's confirm-before-write rule into a Procurement record, so a cost has a version and a locked rate (SmartGift ADR-009 D4 — 34.00 THB per USD, never spot). Placed in the current sprint on the owner's instruction; may move to SPR-ZAI-03 at sprint exit without a plan revision if the sprint ends first.",
+    "changelog": "Closed 2026-09-20 (v0.4.14). Local TASK-ZAI-053 acceptance passed for the JSON and bounded Excel preview path, locked FX and person-confirmed mappings, idempotent source-hash replay, Inventory carton writes, price-break projection and CARTON_DATA_MISSING hygiene. Both migrations are written and production NOT_RUN; later quote/rules work remains in TASK-ZAI-055 onward.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 56000,
     "totalTokens": 0,

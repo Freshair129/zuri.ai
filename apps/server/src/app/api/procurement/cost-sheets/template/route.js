@@ -2,6 +2,8 @@ import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { assertMayWriteSupplierCostSheets } from '@/modules/procurement/application/procurement-authority'
 import { buildSupplierCostTemplateWorkbook } from '@/modules/procurement/import/supplier-cost-workbook'
 
+// @req FR-164, FR-154 — TASK-ZAI-053 supplies the Procurement-owned workbook
+//   contract while preserving Inventory's ownership of Product attributes.
 // @spec ZAI:PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; TASK-ZAI-053 —
 //   the downloadable workbook carries the exact CostSheet header contract and
 //   never contains product or supplier data.

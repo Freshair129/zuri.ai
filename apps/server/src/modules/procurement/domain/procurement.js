@@ -182,11 +182,34 @@ export const zSupplierCostSheetCommit = z.object({
   if (value.sheetId && value.sourceSha256) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['sourceSha256'], message: 'name either sheetId or sourceSha256, not both' })
 })
 
-/** Locked foreign cost × locked FX, rounded once to integer satang. */
+function decimalFraction(value) {
+  const text = String(value).trim().toLowerCase()
+  const match = /^([+]?)(\d+)(?:\.(\d+))?(?:e([+-]?\d+))?$/.exec(text)
+  if (!match) throw new Error('cost and FX rate must be finite and non-negative')
+  const fraction = match[3] || ''
+  const exponent = Number(match[4] || 0)
+  const digits = BigInt(`${match[2]}${fraction}`)
+  const scale = fraction.length - exponent
+  return scale > 0
+    ? { numerator: digits, denominator: 10n ** BigInt(scale) }
+    : { numerator: digits * (10n ** BigInt(-scale)), denominator: 1n }
+}
+
+/** Locked foreign cost × locked FX, ceiled once to integer satang. */
 export function supplierCostSatang(unitCostForeign, fxRateLocked) {
-  const amount = Number(unitCostForeign) * Number(fxRateLocked)
-  if (!Number.isFinite(amount) || amount < 0) throw new Error('cost and FX rate must be finite and non-negative')
-  return Math.round(amount * 100)
+  const cost = Number(unitCostForeign)
+  const fx = Number(fxRateLocked)
+  if (!Number.isFinite(cost) || !Number.isFinite(fx) || cost < 0 || fx < 0) {
+    throw new Error('cost and FX rate must be finite and non-negative')
+  }
+  const costFraction = decimalFraction(cost)
+  const fxFraction = decimalFraction(fx)
+  const numerator = costFraction.numerator * fxFraction.numerator * 100n
+  const denominator = costFraction.denominator * fxFraction.denominator
+  const satang = (numerator + denominator - 1n) / denominator
+  const result = Number(satang)
+  if (!Number.isSafeInteger(result)) throw new Error('cost and FX rate exceed safe integer satang')
+  return result
 }
 
 export function supplierCostBaht(unitCostForeign, fxRateLocked) {

@@ -2,6 +2,8 @@ import { handle } from '@/app/api/_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { commitSupplierCostSheet } from '@/modules/procurement'
 
+// @req FR-164, FR-154 — TASK-ZAI-053 commits only person-confirmed mappings
+//   and delegates Product carton writes to Inventory's authority ladder.
 // @spec ZAI:PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; TASK-ZAI-053 —
 //   commit requires the preview hash and explicit confirmed mappings; the
 //   service writes the sheet lines and Product carton facts atomically.

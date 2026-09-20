@@ -11,6 +11,8 @@ import {
 } from '../domain/procurement'
 import { loadBusiness, notFound } from './procurement-authority'
 
+// @req FR-164, FR-154 — TASK-ZAI-053 is the Procurement intake boundary and
+//   calls Inventory only through its explicit Product carton writer.
 // @spec ZAI:PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; TASK-ZAI-053 —
 //   preview stores the normalized source and suggestions only; commit requires
 //   an explicit person-confirmed product mapping before it creates any line.

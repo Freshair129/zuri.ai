@@ -829,7 +829,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 322,
+            "openApiPaths": 328,
             "missingFromOpenApi": 0
           }
         },
@@ -1128,7 +1128,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 322,
+            "openApiPaths": 328,
             "missingFromOpenApi": 0
           }
         },
@@ -1341,7 +1341,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 322,
+            "openApiPaths": 328,
             "missingFromOpenApi": 0
           }
         },
@@ -2016,7 +2016,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 34
+          "testCount": 36
         },
         {
           "id": "FR-161",
@@ -2040,7 +2040,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 35
+          "testCount": 37
         },
         {
           "id": "FR-166",
@@ -2179,7 +2179,7 @@
           "details": {
             "routes": 34,
             "inventoried": 33,
-            "openApiPaths": 322,
+            "openApiPaths": 328,
             "missingFromOpenApi": 0
           }
         },
@@ -2699,7 +2699,7 @@
           "details": {
             "routes": 10,
             "inventoried": 10,
-            "openApiPaths": 322,
+            "openApiPaths": 328,
             "missingFromOpenApi": 0
           }
         },
@@ -2860,7 +2860,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 34
+          "testCount": 36
         },
         {
           "id": "FR-155",
@@ -3071,7 +3071,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 322,
+            "openApiPaths": 328,
             "missingFromOpenApi": 0
           }
         },
@@ -3926,7 +3926,7 @@
           "details": {
             "routes": 20,
             "inventoried": 20,
-            "openApiPaths": 322,
+            "openApiPaths": 328,
             "missingFromOpenApi": 0
           }
         },
@@ -4133,7 +4133,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 322,
+            "openApiPaths": 328,
             "missingFromOpenApi": 0
           }
         },
@@ -4300,7 +4300,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 322,
+            "openApiPaths": 328,
             "missingFromOpenApi": 0
           }
         },
@@ -4665,7 +4665,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 322,
+            "openApiPaths": 328,
             "missingFromOpenApi": 0
           }
         },
@@ -4902,12 +4902,20 @@
       "status": "partial",
       "requirements": [
         {
+          "id": "FR-154",
+          "title": "Inventory catalogue identity (คลังสินค้า)",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 7,
+          "testCount": 36
+        },
+        {
           "id": "FR-164",
           "title": "Suppliers and purchase orders (procurement)",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 11,
-          "testCount": 35
+          "codeCount": 18,
+          "testCount": 37
         },
         {
           "id": "FR-165",
@@ -4963,9 +4971,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 7,
-            "inventoried": 7,
-            "openApiPaths": 322,
+            "routes": 13,
+            "inventoried": 13,
+            "openApiPaths": 328,
             "missingFromOpenApi": 0
           }
         },
@@ -5001,8 +5009,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 5,
-            "present": 5
+            "models": 7,
+            "present": 7
           }
         },
         "authorization": {
@@ -5012,9 +5020,9 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 5,
-            "guardedMutations": 5,
-            "reads": 7,
+            "mutations": 8,
+            "guardedMutations": 8,
+            "reads": 10,
             "unguardedReads": 0
           }
         },
@@ -5045,10 +5053,10 @@
       ],
       "gaps": [],
       "details": {
-        "routes": 10,
-        "apiRoutes": 7,
+        "routes": 16,
+        "apiRoutes": 13,
         "pageRoutes": 3,
-        "ownedModels": 5,
+        "ownedModels": 7,
         "featureNotes": 2
       },
       "featureIds": [
@@ -5836,7 +5844,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 34
+          "testCount": 36
         },
         {
           "id": "FR-155",
@@ -5908,7 +5916,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 35
+          "testCount": 37
         },
         {
           "id": "FR-165",
@@ -6376,7 +6384,7 @@
           "details": {
             "routes": 160,
             "inventoried": 160,
-            "openApiPaths": 322,
+            "openApiPaths": 328,
             "missingFromOpenApi": 0
           }
         },
@@ -8736,6 +8744,7 @@
       "contributorDomains": [
         "identity",
         "inventory",
+        "procurement",
         "project-manager"
       ],
       "useCase": "ธุรกิจตั้งหมวดหมู่ สินค้าหลัก และ SKU ของตนเอง เลือกว่า SKU ไหนนับสต๊อก (ตามจำนวน / Lot / Serial) หรือไม่นับ (บริการ สั่งผลิต) รับเข้า จ่ายออก ปรับยอดลง ledger แล้วเห็นยอดคงเหลือและ SKU ที่ต่ำกว่า safety stock จากหน้า /inventory โดยตัวเลขคำนวณจาก ledger ทุกครั้ง",
@@ -8751,8 +8760,8 @@
           "title": "Inventory catalogue identity (คลังสินค้า)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 16,
-          "testCount": 34
+          "codeCount": 23,
+          "testCount": 36
         },
         {
           "id": "FR-155",
@@ -8787,6 +8796,12 @@
         "apps/server/src/app/api/inventory/serial-units/route.js",
         "apps/server/src/app/api/inventory/stock-movements/route.js",
         "apps/server/src/app/api/inventory/stock/route.js",
+        "apps/server/src/app/api/procurement/cost-sheets/[id]/route.js",
+        "apps/server/src/app/api/procurement/cost-sheets/commit/route.js",
+        "apps/server/src/app/api/procurement/cost-sheets/preview/route.js",
+        "apps/server/src/app/api/procurement/cost-sheets/route.js",
+        "apps/server/src/app/api/procurement/cost-sheets/template/route.js",
+        "apps/server/src/app/api/procurement/cost-sheets/xlsx/route.js",
         "apps/server/src/config/domains.js",
         "apps/server/src/modules/identity/rbac.js",
         "apps/server/src/modules/inventory/application/inventory-authority.js",
@@ -8795,6 +8810,7 @@
         "apps/server/src/modules/inventory/application/inventory-stock-service.js",
         "apps/server/src/modules/inventory/domain/inventory.js",
         "apps/server/src/modules/inventory/index.js",
+        "apps/server/src/modules/procurement/application/supplier-cost-sheet-service.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
@@ -8819,6 +8835,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/integration/task-zai-053-supplier-cost-sheet.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
@@ -8836,7 +8853,8 @@
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/programme-containers.test.js",
         "apps/server/tests/unit/scm-console-routes.test.js",
-        "apps/server/tests/unit/scm-group-navigation.test.js"
+        "apps/server/tests/unit/scm-group-navigation.test.js",
+        "apps/server/tests/unit/supplier-cost-sheet-routes.test.js"
       ]
     },
     {
@@ -9259,8 +9277,8 @@
           "title": "Suppliers and purchase orders (procurement)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 16,
-          "testCount": 35
+          "codeCount": 23,
+          "testCount": 37
         },
         {
           "id": "FR-165",
@@ -9275,6 +9293,12 @@
         "apps/server/src/app/(pm)/procurement/page.jsx",
         "apps/server/src/app/(pm)/procurement/purchase-orders/page.jsx",
         "apps/server/src/app/(pm)/procurement/receipts/page.jsx",
+        "apps/server/src/app/api/procurement/cost-sheets/[id]/route.js",
+        "apps/server/src/app/api/procurement/cost-sheets/commit/route.js",
+        "apps/server/src/app/api/procurement/cost-sheets/preview/route.js",
+        "apps/server/src/app/api/procurement/cost-sheets/route.js",
+        "apps/server/src/app/api/procurement/cost-sheets/template/route.js",
+        "apps/server/src/app/api/procurement/cost-sheets/xlsx/route.js",
         "apps/server/src/app/api/procurement/purchase-orders/[id]/receipts/route.js",
         "apps/server/src/app/api/procurement/purchase-orders/[id]/route.js",
         "apps/server/src/app/api/procurement/purchase-orders/route.js",
@@ -9288,6 +9312,7 @@
         "apps/server/src/modules/procurement/application/goods-receipt-service.js",
         "apps/server/src/modules/procurement/application/procurement-authority.js",
         "apps/server/src/modules/procurement/application/purchase-order-service.js",
+        "apps/server/src/modules/procurement/application/supplier-cost-sheet-service.js",
         "apps/server/src/modules/procurement/application/supplier-service.js",
         "apps/server/src/modules/procurement/domain/procurement.js",
         "apps/server/src/modules/procurement/index.js",
@@ -9308,6 +9333,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/integration/task-zai-053-supplier-cost-sheet.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
@@ -9328,7 +9354,8 @@
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/procurement-domain.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
-        "apps/server/tests/unit/scm-group-navigation.test.js"
+        "apps/server/tests/unit/scm-group-navigation.test.js",
+        "apps/server/tests/unit/supplier-cost-sheet-routes.test.js"
       ]
     },
     {

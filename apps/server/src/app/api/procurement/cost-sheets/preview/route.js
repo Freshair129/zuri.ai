@@ -2,6 +2,8 @@ import { handle } from '@/app/api/_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { previewSupplierCostSheet } from '@/modules/procurement'
 
+// @req FR-164, FR-154 — TASK-ZAI-053 previews a Business-scoped source sheet
+//   without creating confirmed cost lines or bypassing Inventory ownership.
 // @spec ZAI:PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; TASK-ZAI-053 —
 //   JSON source preview persists the normalized source and mapping suggestions,
 //   never SupplierCostLine rows.
