@@ -3,8 +3,8 @@
   "id": "ZAI:KI17-DEPLOYMENT-PINS",
   "cycle": "ADR-075 Phase 3 — GenesisRAG17 edge deployment (SmartGift structured-record profile)",
   "design": "docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md",
-  "recordedAt": "2026-09-18",
-  "note": "TASK-ZAI-050 release tuple: zuri importer transaction fix at a9039dcc, GenesisBlock 5e75c4a, MSP 49fe7de7, GKS ecf1e4de. This tuple includes the transaction-aware pipeline-event writer, the explicit 30s evidence-page timeout, and the no-nested-transaction acceptance guard; require a fresh web-image build, 36-case G-3 acceptance, and production smoke.",
+  "recordedAt": "2026-09-20",
+  "note": "TASK-ZAI-050 local production-like tuple: zuri a9039dcc, GenesisBlock 5156f412 (PR #178 stale-lock recovery + PR #179 benchmark fixture compatibility), MSP 68e6169d (v0.2.8), GKS ecf1e4de. G-3 passed 36/36 and post-cutover health/smoke passed on 2026-09-20.",
   "runtime": {
     "node": "24.18.0",
     "nodePlatform": "linux-x64",
@@ -26,7 +26,7 @@
     },
     "msp": {
       "repository": "Freshair129/Memory-and-Soul-Passport",
-      "commit": "49fe7de7d5603a4a75b279bcd72b16619fdc0046",
+      "commit": "68e6169dbb371dac2f0debf0bf731b553f7dc26d",
       "buildContext": "msp",
       "verifiedInBuild": true,
       "installRoot": "/opt/ki17/msp",
@@ -50,7 +50,7 @@
     },
     "genesisblock": {
       "repository": "Freshair129/GenesisBlock",
-      "commit": "5e75c4a85e1a42faf6d2afe42633c4f2a4725c92",
+      "commit": "5156f412da73905a23d74775a82cc14d1f6d04d0",
       "buildContext": "genesisblock",
       "verifiedInBuild": true,
       "installRoot": "/opt/ki17/genesisblock",
@@ -60,7 +60,7 @@
         "index.js",
         "npm/linux-x64-gnu/index.linux-x64-gnu.node"
       ],
-      "note": "TASK-ZAI-050 release base 7c9261c4 with ontology-v2 support, per-record benchmark scoping, and GKS-owned Stage 17 denials retained as held; Linux addon included."
+      "note": "PR #178 stale-lock recovery plus PR #179 deployed benchmark fixture compatibility; Linux addon included."
     }
   }
 }

@@ -127,14 +127,14 @@ than attested. Prefer it.
 ```bash
 # The web image: runner + /opt/ki17/{node,msp,gks} + the P-5 smoke script
 docker buildx build --target runner-ki17 -t zuri-ai-web-ki17:<tag> \
-  --build-context msp=<Memory-and-Soul-Passport at 49fe7de7> \
+  --build-context msp=<Memory-and-Soul-Passport at 68e6169d> \
   --build-context gks=<Genesis-Knowledge-System at ecf1e4de> \
   apps/server
 
 # The Tier 4 sidecar: + the GenesisBlock worker, its linux addon and the venv
 docker buildx build --target genesis-worker -t zuri-ai-genesis-worker:<tag> \
   --build-context msp=<...> --build-context gks=<...> \
-  --build-context genesisblock=<GenesisBlock at 5e75c4a85e1a42faf6d2afe42633c4f2a4725c92> \
+  --build-context genesisblock=<GenesisBlock at 5156f412da73905a23d74775a82cc14d1f6d04d0> \
   apps/server
 
 # Gate G-3 ONLY — a test image, never deployed and never pushed. The sidecar above
@@ -169,8 +169,9 @@ KI17_GENESISBLOCK_LINUX_ADDON_MISSING: .../npm/linux-x64-gnu/index.linux-x64-gnu
 
 That file is prerequisite **P-2**. It landed as GenesisBlock PR #177. The current
 release tuple in `pins.json` pins `genesisblock` to
-`5e75c4a85e1a42faf6d2afe42633c4f2a4725c92`; `7c9261c4` is retained only as the
-historical P-2 base reference, not as the current build context.
+`5156f412da73905a23d74775a82cc14d1f6d04d0` (the tuple the running images were
+verified against: MSP `68e6169d`, GKS `ecf1e4de`); `5e75c4a8` and `7c9261c4` are
+retained only as historical references, not as the current build context.
 `--target runner-ki17` and `--target ki17` do not use its files, but the
 `ki17-pins` stage they build on verifies every context it is given, so a build of
 either still needs a `genesisblock` context at the pinned commit.
