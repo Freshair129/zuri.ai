@@ -12,7 +12,7 @@ import { createBusiness, createPortfolio, createTenant } from '../factories/scop
 import { makeViewer } from '../factories/viewer'
 import { LINE_API } from '@/platform/integrations/providers/line/line-channel-admin-port'
 import { connectLineChannelWithSecret } from '@/modules/integration/application/line-channel-connection-service'
-import { connectLineOaAccount, applyLineOaAccountAction } from '@/modules/line-oa-studio/application/line-oa-account-service'
+import { connectLineOaAccount, getLineOaAccount, applyLineOaAccountAction } from '@/modules/line-oa-studio/application/line-oa-account-service'
 import { describeLineOaWebhookHealth } from '@/modules/line-oa-studio/domain/line-oa-webhook-copy'
 import { findLeaks, generateLineChannelBundle, secretNeedles } from '../helpers/credential-vault-fixtures'
 
@@ -204,5 +204,27 @@ describe('FR-227 REGISTER_WEBHOOK', () => {
     const audit = await prisma.auditEvent.findFirst({ where: { entityType: 'LINE_OA_ACCOUNT', entityId: account.id, action: 'LINE_OA_ACCOUNT_WEBHOOK_REGISTERED' }, orderBy: { occurredAt: 'desc' } })
     expect(audit).toBeTruthy()
     expect(findLeaks({ audit, updated }, [...new Set(bundles.flatMap(secretNeedles))])).toEqual([])
+  })
+
+  it('fails closed when restored webhook state contains an unknown secret-like field', async () => {
+    const account = await draftAccount('TaintedState')
+    const channelSecret = 'channel-secret-must-not-cross-health-boundary'
+    await prisma.lineOaAccount.update({
+      where: { id: account.id },
+      data: {
+        webhookStateJson: JSON.stringify({
+          endpoint: `https://zuri-fr227.ngrok.io/api/line-oa/accounts/${account.id}/webhook`,
+          active: true,
+          lastTestAt: '2026-09-14T12:00:00.000Z',
+          lastTestReason: 'LINE_OK',
+          lastTestStatusCode: 200,
+          channelSecret,
+        }),
+      },
+    })
+
+    const loaded = await getLineOaAccount(account.id, { viewer: owner })
+    expect(loaded.health.webhook).toBeNull()
+    expect(JSON.stringify(loaded)).not.toContain(channelSecret)
   })
 })
