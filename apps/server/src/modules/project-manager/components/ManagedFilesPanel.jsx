@@ -338,7 +338,7 @@ function ManagedFilesPanelBody({ businessId, projectId = null, businessTools = f
       </>}
     </div>
     {message && <pre className="card mb-4 overflow-auto text-[10px]">{message}</pre>}
-    <KnowledgeQuery key={`${businessId}:${projectId || ''}`} businessId={businessId} projectId={projectId} onMessage={setMessage} />
+    <KnowledgeQuery key={`query:${businessId}:${projectId || ''}`} businessId={businessId} projectId={projectId} onMessage={setMessage} />
     {!assets.length ? <EmptyState title="No managed files" hint="Add a Business or Project file. Local content requires a configured device mount." /> : <FileManagerViews
       view={view}
       onViewChange={setView}
@@ -357,9 +357,9 @@ function ManagedFilesPanelBody({ businessId, projectId = null, businessTools = f
       </Card>}
     />}
     {knowledge.error && <ErrorState title="Could not load knowledge admissions" detail={knowledge.error} retry={reloadKnowledge} />}
-    {!knowledge.loading && !knowledge.error && <KnowledgeJobs key={`${businessId}:${projectId || ''}`} data={knowledge.data} onReload={reloadKnowledge} onMessage={setMessage} />}
+    {!knowledge.loading && !knowledge.error && <KnowledgeJobs key={`jobs:${businessId}:${projectId || ''}`} data={knowledge.data} onReload={reloadKnowledge} onMessage={setMessage} />}
     {adding && <AddManagedFile businessId={businessId} projectId={projectId} mounts={activeMounts} onSaved={files.reload} onClose={() => setAdding(false)} />}
-    {textAdding && <TextKnowledgeModal key={`${businessId}:${projectId || ''}`} businessId={businessId} projectId={projectId} onSaved={reloadKnowledge} onClose={() => setTextAdding(false)} />}
+    {textAdding && <TextKnowledgeModal key={`text:${businessId}:${projectId || ''}`} businessId={businessId} projectId={projectId} onSaved={reloadKnowledge} onClose={() => setTextAdding(false)} />}
   </>
 }
 
