@@ -3065,7 +3065,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
+          "testCount": 24
         },
         {
           "id": "FR-188",
@@ -3877,7 +3877,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 22
+          "testCount": 24
         },
         {
           "id": "FR-188",
@@ -6665,7 +6665,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 22
+          "testCount": 24
         },
         {
           "id": "FR-191",
@@ -10333,7 +10333,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 22
+          "testCount": 24
         },
         {
           "id": "FR-188",
@@ -10383,11 +10383,13 @@
         "apps/server/tests/integration/genesisrag17-parser-2.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
         "apps/server/tests/integration/knowledge-corpus.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/smartgift-catalog-admission.test.js",
         "apps/server/tests/unit/genesisrag17-parser-2.test.js",
         "apps/server/tests/unit/genesisrag17-source.test.js",
         "apps/server/tests/unit/ki17-acceptance-harness.test.js",
         "apps/server/tests/unit/ki17-build-stage.test.js",
+        "apps/server/tests/unit/ki17-real-corpus.test.js",
         "apps/server/tests/unit/knowledge-admission-mcp.test.js",
         "apps/server/tests/unit/knowledge-admission-routes.test.js",
         "apps/server/tests/unit/knowledge-admission-service.test.js",

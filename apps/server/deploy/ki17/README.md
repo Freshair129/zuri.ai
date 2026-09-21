@@ -78,6 +78,7 @@ activation.
 | `pins.json` | The four commits this cycle targets, the Node/Python/model versions and the worker port |
 | `verify-ki17-pins.mjs` | The pin gate. Runs inside the build; refuses a context whose HEAD is not the pinned commit |
 | `build-smartgift-benchmark.mjs` | P-6. Derives the one benchmark fixture a long-running worker can boot with, from the SmartGift acceptance corpus. Read its header before changing it |
+| `build-smartgift-real-corpus.mjs` | Derives a benchmark corpus (the input of `build-smartgift-benchmark.mjs`) from **real** SmartGift catalog files instead of the Phase 2 test corpus. Every gold text comes from the production path (`splitSmartGiftCatalogRecords` → `renderStructuredCatalogDocument`), so a real upload can pass the retrieval dimension; queries are natural phrasings, never the chunk text itself. Regenerate it whenever the catalog changes, or Stage 16 refuses the changed records with `BENCHMARK_NO_APPLICABLE_QUERIES` |
 
 The `ki17-acceptance` build target (gate G-3) is described under
 [Running the acceptance inside the images](#running-the-acceptance-inside-the-images-gate-g-3).
