@@ -43,7 +43,8 @@ describe('Playwright database bootstrap', () => {
     const setup = read('tests/e2e/global-setup.js')
     expect(setup).not.toMatch(/dev\.db|test\.db/)
     // Deleting before the push is what makes the seed idempotent from a clean slate.
-    expect(setup).toContain('npx prisma db push --skip-generate')
+    expect(setup).toContain('npx prisma db push')
+    expect(setup).not.toContain('--skip-generate')
     expect(setup).toContain('node prisma/seed.js')
   })
 

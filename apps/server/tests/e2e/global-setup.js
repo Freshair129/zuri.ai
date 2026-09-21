@@ -37,6 +37,10 @@ module.exports = function globalSetup() {
     ZURI_SEED_OWNER_PASSWORD: E2E_PASSWORD,
     RUST_LOG: /(?:trace|debug|info)/.test(inheritedRustLog) ? process.env.RUST_LOG : 'info',
   }
-  execSync('npx prisma db push --skip-generate', { cwd: repositoryRoot, env, stdio: 'inherit' })
+  // Generate the client for this checkout. A relative SQLite datasource is
+  // resolved from the schema directory baked into the generated client, so
+  // skipping generation can make a shared node_modules client open a sibling
+  // worktree's empty database.
+  execSync('npx prisma db push', { cwd: repositoryRoot, env, stdio: 'inherit' })
   execSync('node prisma/seed.js', { cwd: repositoryRoot, env, stdio: 'inherit' })
 }
