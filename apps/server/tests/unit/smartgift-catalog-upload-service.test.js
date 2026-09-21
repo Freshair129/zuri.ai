@@ -41,7 +41,10 @@ function memoryStorage() {
 }
 
 function fakeDb(existing = null) {
-  return { fileAsset: { findFirst: vi.fn(async () => existing) } }
+  return {
+    fileAsset: { findFirst: vi.fn(async () => existing) },
+    business: { findUnique: vi.fn(async ({ where }) => (where.id === 'biz-1' ? { tenantId: 'tenant-1' } : null)) },
+  }
 }
 
 const viewer = { principal: { id: 'user-1' } }
@@ -64,7 +67,8 @@ describe('uploadSmartGiftCatalogFile', () => {
     expect(assertKnowledgeBusinessWritable).toHaveBeenCalledWith(viewer, 'biz-1', expect.anything())
     expect(storage.put).toHaveBeenCalledTimes(1)
     const put = storage.put.mock.calls[0][0]
-    expect(put.key).toMatch(new RegExp(`^smartgift-catalog/biz-1/${sha}/[0-9a-f-]+\\.json$`))
+    // The store's application credential may write only under knowledge/raw/<tenant>/<business>/.
+    expect(put.key).toMatch(new RegExp(`^knowledge/raw/tenant-1/biz-1/catalog-files/${sha}/[0-9a-f-]+\\.json$`))
     expect(Buffer.compare(put.content, fixture)).toBe(0)
     expect(createManagedBlobFileAsset.mock.calls[0][0]).toMatchObject({
       businessId: 'biz-1', name: 'products.json', mime: 'application/json', size: fixture.length, sha256: sha, blobRef: `s3://knowledge/${put.key}?versionId=v1`,
@@ -114,6 +118,12 @@ describe('uploadSmartGiftCatalogFile', () => {
     await expect(uploadSmartGiftCatalogFile({ businessId: 'biz-1', name: 'products.json', contentBase64: base64 }, { db: fakeDb(), viewer, objectStoragePort: storage, admit: vi.fn() })).rejects.toThrow('db down')
     expect(storage.remove).toHaveBeenCalledTimes(1)
     expect(storage.objects.size).toBe(0)
+  })
+
+  it('refuses an unsafe key segment rather than build a path from it', async () => {
+    const { catalogObjectKey } = await import('@/modules/knowledge/smartgift-catalog-upload-service')
+    expect(() => catalogObjectKey({ tenantId: '../x', businessId: 'biz-1', sha256: sha })).toThrow()
+    expect(catalogObjectKey({ tenantId: 'tenant-1', businessId: 'biz-1', sha256: sha })).toMatch(/^knowledge\/raw\/tenant-1\/biz-1\/catalog-files\//)
   })
 
   it('refuses when the private knowledge store is not enabled', async () => {

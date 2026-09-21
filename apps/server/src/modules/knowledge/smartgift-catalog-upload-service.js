@@ -10,6 +10,12 @@
 // MANAGED_BLOB (only Asset evidence and pricing-catalog write those). This is
 // the upload path for catalog JSON, and it writes to the private MinIO store,
 // never a hosted bucket.
+//
+// Key layout: the application credential on that store may write only under
+// `knowledge/raw/<tenant>/<business>/` (the Stage 1 raw-artifact prefix), so a
+// catalog upload, which is raw source material, lives at
+// `knowledge/raw/<tenant>/<business>/catalog-files/<sha256>/<uuid>.json`. Raw
+// artifact keys use a `kra_` id in that position, so the two never collide.
 import { createHash, randomUUID } from 'node:crypto'
 import { z } from 'zod'
 import prisma from '@/lib/db'
@@ -36,6 +42,15 @@ function failure(status, code, message) {
   error.status = status
   error.code = code
   return error
+}
+
+const KEY_SEGMENT = /^[A-Za-z0-9_-]+$/
+
+export function catalogObjectKey({ tenantId, businessId, sha256 }) {
+  for (const segment of [tenantId, businessId]) {
+    if (!KEY_SEGMENT.test(String(segment || ''))) throw failure(400, 'KNOWLEDGE_STORAGE_KEY_INVALID', 'Catalog object key segment is invalid')
+  }
+  return `knowledge/raw/${tenantId}/${businessId}/catalog-files/${sha256}/${randomUUID()}.json`
 }
 
 export async function uploadSmartGiftCatalogFile(input, {
@@ -69,8 +84,10 @@ export async function uploadSmartGiftCatalogFile(input, {
   })
   const reused = Boolean(asset)
   if (!asset) {
+    const business = await db.business.findUnique({ where: { id: value.businessId }, select: { tenantId: true } })
+    if (!business?.tenantId) throw failure(404, 'KNOWLEDGE_BUSINESS_NOT_FOUND', 'Business not found')
     const stored = await storage.put({
-      key: `smartgift-catalog/${value.businessId}/${sha256}/${randomUUID()}.json`,
+      key: catalogObjectKey({ tenantId: business.tenantId, businessId: value.businessId, sha256 }),
       content,
       mime: SMARTGIFT_CATALOG_CONTENT_TYPE,
     })
