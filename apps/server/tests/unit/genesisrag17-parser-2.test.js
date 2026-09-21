@@ -288,6 +288,17 @@ describe('genesisrag17-parser-2 negative and idempotency cases', () => {
     ])
   })
 
+  it('renders a bundle unboxing narrative as one descriptive line, and omits it when absent', () => {
+    const narrative = 'Pastel tones and a skin-touch finish, packed in a premium lift-off box'
+    const withNarrative = parse2(JSON.stringify([{ ...bundles[1], unboxingExperience: narrative }]))
+    const descriptive = withNarrative.chunks.find((chunk) => chunk.headingPath[1] === 'descriptive')
+    expect(descriptive.text.split('\n')).toContain(`unboxingExperience: ${narrative}`)
+
+    const without = parse2(JSON.stringify([bundles[1]]))
+    const plain = without.chunks.find((chunk) => chunk.headingPath[1] === 'descriptive')
+    expect(plain.text).not.toContain('unboxingExperience')
+  })
+
   it('types a priced package subject as PACKAGE', () => {
     const entry = { ...pricelist[0], externalId: 'PKG-XMAS@qty10', productExternalId: 'PKG-XMAS-2026-SIGNATURE-CLEVEL', qty: 10, srpUnitPriceThb: 930 }
     const [{ chunks, mentions }] = parseAll([entry])
