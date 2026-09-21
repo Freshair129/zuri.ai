@@ -202,4 +202,55 @@ export function createConfiguredKnowledgeObjectStoragePort(env = process.env, op
   })
 }
 
+// A MANAGED_BLOB FileAsset on the private knowledge store (MinIO) is referenced
+// as `s3://<bucket>/<key>?versionId=<id>`. Pinning the version keeps the ref
+// byte-stable: the bucket is versioned and writes are if-none-match, so a ref
+// always resolves to the exact bytes it was created with.
+const MANAGED_BLOB_REF = /^s3:\/\/([^/?]+)\/([^?]+)\?versionId=([^&]+)$/
+
+export function knowledgeManagedBlobRef({ bucket, key, versionId }) {
+  return `s3://${bucket}/${key}?versionId=${encodeURIComponent(versionId)}`
+}
+
+export function parseKnowledgeManagedBlobRef(ref) {
+  const match = MANAGED_BLOB_REF.exec(String(ref || ''))
+  if (!match) throw storageError('Managed blob reference is invalid', 400, 'KNOWLEDGE_STORAGE_REF_INVALID')
+  return { bucket: match[1], key: match[2], versionId: decodeURIComponent(match[3]) }
+}
+
+export function isKnowledgeManagedBlobRef(ref, env = process.env) {
+  const bucket = env.ZURI_KNOWLEDGE_STORAGE_BUCKET
+  return typeof bucket === 'string' && bucket.trim() !== '' && typeof ref === 'string' && ref.startsWith(`s3://${bucket}/`)
+}
+
+/**
+ * The `put/get/remove({ ref })` port FileAsset managed blobs use, backed by the
+ * configured private knowledge store. Null when that store is not enabled, so a
+ * caller can refuse instead of silently falling back to a hosted bucket.
+ */
+export function createConfiguredKnowledgeManagedBlobPort(env = process.env, options = {}) {
+  const port = createConfiguredKnowledgeObjectStoragePort(env, options)
+  if (!port) return null
+  const bucket = env.ZURI_KNOWLEDGE_STORAGE_BUCKET
+  const own = (ref) => {
+    const parsed = parseKnowledgeManagedBlobRef(ref)
+    if (parsed.bucket !== bucket) throw storageError('Managed blob reference names another bucket', 400, 'KNOWLEDGE_STORAGE_REF_INVALID')
+    return parsed
+  }
+  return Object.freeze({
+    async put({ key, content, mime = 'application/octet-stream' }) {
+      const stored = await port.putImmutable({ key, content, contentType: mime })
+      return { ref: knowledgeManagedBlobRef({ bucket, key, versionId: stored.versionId }), sha256: stored.sha256, byteLength: stored.byteLength }
+    },
+    async get({ ref }) {
+      const { key, versionId } = own(ref)
+      return (await port.readExact({ key, versionId })).bytes
+    },
+    async remove({ ref }) {
+      const { key, versionId } = own(ref)
+      await port.eraseExactVersions({ key, versionIds: [versionId] })
+    },
+  })
+}
+
 export { sha256 as sha256Bytes }

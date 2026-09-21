@@ -105,3 +105,20 @@ describe('SmartGift catalog admission from an existing file', () => {
     expect(KNOWLEDGE_ADMISSION_STRUCTURED_FORMATS).toContain(SMARTGIFT_CATALOG_FORMAT)
   })
 })
+
+describe('SmartGift catalog upload from the intake', () => {
+  it('posts the file name and bytes only, and reports the admission counts', async () => {
+    const { catalogUploadBody, catalogAdmissionMessage } = await import('@/modules/knowledge/ui/KnowledgeDocumentsView')
+    expect(catalogUploadBody({ businessId: 'biz-test-01', fileName: 'BundleOffer.genesisrag17.json', contentBase64: 'W10=' }))
+      .toEqual({ businessId: 'biz-test-01', projectId: null, name: 'BundleOffer.genesisrag17.json', contentBase64: 'W10=' })
+    expect(catalogAdmissionMessage({ recordCount: 6, admittedCount: 6, unchangedCount: 0, deniedCount: 0 }))
+      .toBe('SmartGift catalog: เข้าคิว 6/6 record · ไม่เปลี่ยน 0 · ถูกปฏิเสธ 0')
+  })
+
+  it('offers the catalog upload as its own intake mode', () => {
+    const source = readFileSync('src/modules/knowledge/ui/KnowledgeDocumentsView.jsx', 'utf8')
+    expect(source).toContain('data-testid="mode-catalog"')
+    expect(source).toContain("'/api/knowledge/catalog-files'")
+    expect(source).toContain('accept=".json,application/json"')
+  })
+})

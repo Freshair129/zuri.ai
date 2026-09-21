@@ -2,6 +2,8 @@
 // @spec SDD-081, NFR-022, SEC-024, ADR-056
 // @tested tests/unit/asset-evidence-storage-contract.test.js
 
+import { createConfiguredKnowledgeManagedBlobPort, isKnowledgeManagedBlobRef } from './s3-object-storage'
+
 const DEFAULT_TIMEOUT_MS = 20_000
 
 function storageError(message, status = 503) {
@@ -114,11 +116,21 @@ export function createConfiguredKnowledgeCatalogObjectStoragePort(env = process.
  * still cannot supply an endpoint, bucket or credential.
  */
 export function createConfiguredManagedBlobObjectStoragePort(env = process.env, options = {}) {
+  const { knowledgeStorage = {}, ...supabaseOptions } = options
   let assetPort
   let catalogPort
-  const asset = () => (assetPort ||= createConfiguredAssetObjectStoragePort(env, options))
-  const catalog = () => (catalogPort ||= createConfiguredKnowledgeCatalogObjectStoragePort(env, options))
+  let knowledgePort
+  const asset = () => (assetPort ||= createConfiguredAssetObjectStoragePort(env, supabaseOptions))
+  const catalog = () => (catalogPort ||= createConfiguredKnowledgeCatalogObjectStoragePort(env, supabaseOptions))
+  // Catalog files uploaded to the private knowledge store (MinIO) carry an
+  // `s3://<knowledge bucket>/` ref; they never reach a hosted bucket.
+  const knowledge = () => {
+    knowledgePort ||= createConfiguredKnowledgeManagedBlobPort(env, knowledgeStorage)
+    if (!knowledgePort) throw storageError('Private knowledge storage is not enabled')
+    return knowledgePort
+  }
   const portFor = (ref) => {
+    if (isKnowledgeManagedBlobRef(ref, env)) return knowledge()
     const bucket = env.ZURI_KNOWLEDGE_CATALOG_BUCKET
     if (typeof bucket === 'string' && bucket.trim() && typeof ref === 'string' && ref.startsWith(`supabase://${bucket}/`)) return catalog()
     return asset()
