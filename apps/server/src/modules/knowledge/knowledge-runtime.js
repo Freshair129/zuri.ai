@@ -33,6 +33,24 @@ export function structuredSourceDescriptor(sourceMetaJson) {
   }
 }
 
+function admittedSourceMetadata(sourceMetaJson) {
+  try {
+    const meta = JSON.parse(sourceMetaJson || '{}')
+    return meta && typeof meta === 'object' && !Array.isArray(meta) ? meta : {}
+  } catch {
+    return {}
+  }
+}
+
+function admittedSourceContentType(sourceMetaJson, structured) {
+  if (typeof structured?.contentType === 'string' && structured.contentType.trim()) {
+    return structured.contentType.trim().toLowerCase()
+  }
+  const metadata = admittedSourceMetadata(sourceMetaJson)
+  const mime = typeof metadata.mime === 'string' ? metadata.mime.split(';', 1)[0].trim().toLowerCase() : ''
+  return mime || 'text/plain'
+}
+
 /** No credentials escape this resolver. Public callers must authorize the target first. */
 export async function resolveKnowledgeRuntimeBinding({ businessId, projectId }, { db = prisma, env = process.env } = {}) {
   if (env.ZURI_KNOWLEDGE_ENABLED !== '1') throw unavailable()
@@ -104,7 +122,8 @@ export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env
       executionOptions = { db, viewer, env, transport, now, scope: binding.scope }
       if (!job.executionRunId) {
         const structured = structuredSourceDescriptor(job.sourceMetaJson)
-        const result = await ingest({ scope: binding.scope, policy: binding.policy, source: { sourceId: source.id, documentId: source.id, version: job.sourceVersion, content: job.content, connectionId, provider: structured?.provider || 'KNOWLEDGE_ADMISSION', entityType: structured?.entityType || 'KNOWLEDGE_DOCUMENT', contentType: structured?.contentType || 'text/plain', sourceType: source.kind === 'FILE' ? 'FILE' : 'MANUAL', sourceUri: `knowledge-source:${source.id}`, externalId: `${source.id}:${job.sourceVersion}` } }, { db, viewer, env, transport, now,
+        const contentType = admittedSourceContentType(job.sourceMetaJson, structured)
+        const result = await ingest({ scope: binding.scope, policy: binding.policy, source: { sourceId: source.id, documentId: source.id, version: job.sourceVersion, content: job.content, connectionId, provider: structured?.provider || 'KNOWLEDGE_ADMISSION', entityType: structured?.entityType || 'KNOWLEDGE_DOCUMENT', contentType, sourceType: source.kind === 'FILE' ? 'FILE' : 'MANUAL', sourceUri: `knowledge-source:${source.id}`, externalId: `${source.id}:${job.sourceVersion}` } }, { db, viewer, env, transport, now,
           onRunCreated: async ({ db: tx, run: createdRun, rawArtifactId, parsedArtifactId }) => {
             const linked = await createKnowledgeRepository(tx).updateIngestion(job.id, { executionRunId: createdRun.executionRunId, rawArtifactId, parsedArtifactId }, { claimToken: token })
             if (!linked) throw Object.assign(new Error('Knowledge admission lease was lost'), { status: 409 })
