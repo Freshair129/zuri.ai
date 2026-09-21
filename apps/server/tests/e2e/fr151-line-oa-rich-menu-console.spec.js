@@ -55,7 +55,7 @@ test('authoring a rich menu persists it and freezing waits on the image the serv
   // (LineStudioAccountConsole). `/line-oa` reads `?tab=` straight into the
   // shell's initial tab, so the URL selects it — and survives the reload below,
   // which a click on a tab control would not.
-  await page.goto('/line-oa?tab=edge-connection')
+  await page.goto('/line-oa?tab=connections')
   await expect(page.getByRole('heading', { name: tag })).toBeVisible()
 
   await page.goto('/line-oa/rich-menus')

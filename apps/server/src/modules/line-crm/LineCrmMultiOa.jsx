@@ -101,7 +101,7 @@ export default function LineCrmMultiOa() {
                   <div><span className="text-slate-500">Connection</span><p className="font-semibold">{account.health?.connection?.status || 'UNKNOWN'}</p></div>
                   <div><span className="text-slate-500">Webhook</span><p className="font-mono text-[11px]">/api/line-oa/accounts/{account.id}/webhook</p></div>
                 </div>
-                <a href="/line-oa/edge-connection" className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 hover:underline dark:text-emerald-400"><ShieldCheck className="h-3.5 w-3.5" /> จัดการใน LINE OA Studio</a>
+                <a href="/line-oa/connections" className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 hover:underline dark:text-emerald-400"><ShieldCheck className="h-3.5 w-3.5" /> จัดการใน LINE OA Studio</a>
               </div>
             )
           })}
