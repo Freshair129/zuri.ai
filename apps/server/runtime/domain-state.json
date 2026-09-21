@@ -2640,7 +2640,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-252",
@@ -3121,7 +3121,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-225",
@@ -4373,7 +4373,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-225",
@@ -6913,7 +6913,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-226",
@@ -11447,7 +11447,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-225",
@@ -11527,6 +11527,7 @@
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/channel-account-claim.test.js",
         "apps/server/tests/integration/credential-rate-limit.test.js",
+        "apps/server/tests/integration/credential-step-up-switch.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/credential-vault.postgres.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",

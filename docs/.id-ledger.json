@@ -4367,14 +4367,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "b785b585c72e2e1caff15bb5bb396fe3f4cbf558a48e81f3a3b16e3214f7ed9c",
+      "statement_digest": "5cfbfb479cc3ace2ece6f6b21fb71469720360142a0719fe4fc1558bc26504be",
       "history": [
         {
           "anchor": "credential write step up gate",
           "since": "2026-09-13",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-09-21",
+      "statement_digest_reason": "Add the operator switch ZURI_CREDENTIAL_STEP_UP=off that suspends only the step-up (ADR-100 D8, owner instruction 2026-09-21); login, rate limits and audit unchanged; subject unchanged"
     },
     "FR-225": {
       "family": "FR",
