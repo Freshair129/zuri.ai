@@ -1146,7 +1146,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 325,
+            "openApiPaths": 326,
             "missingFromOpenApi": 0
           }
         },
@@ -1501,7 +1501,7 @@
           "details": {
             "routes": 4,
             "inventoried": 4,
-            "openApiPaths": 325,
+            "openApiPaths": 326,
             "missingFromOpenApi": 0
           }
         },
@@ -1714,7 +1714,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 325,
+            "openApiPaths": 326,
             "missingFromOpenApi": 0
           }
         },
@@ -2651,7 +2651,7 @@
           "details": {
             "routes": 34,
             "inventoried": 33,
-            "openApiPaths": 325,
+            "openApiPaths": 326,
             "missingFromOpenApi": 0
           }
         },
@@ -3065,7 +3065,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 22
         },
         {
           "id": "FR-188",
@@ -3201,7 +3201,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 325,
+            "openApiPaths": 326,
             "missingFromOpenApi": 0
           }
         },
@@ -3601,7 +3601,7 @@
           "details": {
             "routes": 41,
             "inventoried": 41,
-            "openApiPaths": 325,
+            "openApiPaths": 326,
             "missingFromOpenApi": 0
           }
         },
@@ -3876,8 +3876,8 @@
           "title": "A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2,…",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 20
+          "codeCount": 5,
+          "testCount": 22
         },
         {
           "id": "FR-188",
@@ -4488,7 +4488,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 325,
+            "openApiPaths": 326,
             "missingFromOpenApi": 0
           }
         },
@@ -4754,7 +4754,7 @@
           "details": {
             "routes": 2,
             "inventoried": 2,
-            "openApiPaths": 325,
+            "openApiPaths": 326,
             "missingFromOpenApi": 0
           }
         },
@@ -4921,7 +4921,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 325,
+            "openApiPaths": 326,
             "missingFromOpenApi": 0
           }
         },
@@ -5286,7 +5286,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 325,
+            "openApiPaths": 326,
             "missingFromOpenApi": 0
           }
         },
@@ -5594,7 +5594,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 325,
+            "openApiPaths": 326,
             "missingFromOpenApi": 0
           }
         },
@@ -6664,8 +6664,8 @@
           "title": "A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2,…",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 20
+          "codeCount": 3,
+          "testCount": 22
         },
         {
           "id": "FR-191",
@@ -7059,9 +7059,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 159,
-            "inventoried": 159,
-            "openApiPaths": 325,
+            "routes": 160,
+            "inventoried": 160,
+            "openApiPaths": 326,
             "missingFromOpenApi": 0
           }
         },
@@ -7127,8 +7127,8 @@
             }
           ],
           "details": {
-            "mutations": 120,
-            "guardedMutations": 117,
+            "mutations": 121,
+            "guardedMutations": 118,
             "reads": 80,
             "unguardedReads": 9
           }
@@ -7306,8 +7306,8 @@
         }
       ],
       "details": {
-        "routes": 206,
-        "apiRoutes": 159,
+        "routes": 207,
+        "apiRoutes": 160,
         "pageRoutes": 47,
         "ownedModels": 37,
         "featureNotes": 39
@@ -10332,8 +10332,8 @@
           "title": "A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2,…",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 20
+          "codeCount": 9,
+          "testCount": 22
         },
         {
           "id": "FR-188",
@@ -10363,6 +10363,7 @@
         "apps/edge/src/rag/genesisrag17/types.ts",
         "apps/edge/tests/unit/genesisrag17-edge.test.ts",
         "apps/edge/tests/unit/genesisrag17-products.test.ts",
+        "apps/server/src/app/api/knowledge/catalog-files/route.js",
         "apps/server/src/app/api/knowledge/ingestions/route.js",
         "apps/server/src/modules/knowledge/genesisrag17-source.js",
         "apps/server/src/modules/knowledge/genesisrag17-structured-record.js",
@@ -10370,6 +10371,7 @@
         "apps/server/src/modules/knowledge/knowledge-corpus-service.js",
         "apps/server/src/modules/knowledge/knowledge-runtime.js",
         "apps/server/src/modules/knowledge/smartgift-catalog-adapter.js",
+        "apps/server/src/modules/knowledge/smartgift-catalog-upload-service.js",
         "apps/server/src/modules/knowledge/structured-record-policy.js",
         "apps/server/src/modules/project-manager/mcp/transport.js",
         "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
@@ -10389,13 +10391,15 @@
         "apps/server/tests/unit/knowledge-admission-mcp.test.js",
         "apps/server/tests/unit/knowledge-admission-routes.test.js",
         "apps/server/tests/unit/knowledge-admission-service.test.js",
+        "apps/server/tests/unit/knowledge-admission-transaction.test.js",
         "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
         "apps/server/tests/unit/knowledge-catalog-storage-contract.test.js",
         "apps/server/tests/unit/knowledge-runtime.test.js",
         "apps/server/tests/unit/knowledge-zero-pii-policy.test.js",
         "apps/server/tests/unit/pipeline-mcp-transport.test.js",
         "apps/server/tests/unit/project-manager-mcp.test.js",
-        "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
+        "apps/server/tests/unit/smartgift-catalog-adapter.test.js",
+        "apps/server/tests/unit/smartgift-catalog-upload-service.test.js"
       ]
     },
     {
