@@ -258,6 +258,7 @@ const PROGRAMME_TASK_DEFINITIONS = [
   ['TASK-ZAI-118', 'SPR-ZAI-02', 'Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup', 'FR', 'C-3', 'H3', 'review'],
   ['TASK-ZAI-119', 'SPR-ZAI-02', 'Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations', 'FEAT', 'C-3', 'H3', 'review'],
   ['TASK-ZAI-120', 'SPR-ZAI-10', 'LINE OA on API keys only — FEAT-045 and FR-265/FR-266 retire EDGE conversation execution and the LOCAL_ONLY canned answerer, add browser-provisioned MODEL_PROVIDER_KEY resolution through SecretStorePort, and keep the Phase-1 resolver as an absence-only fallback', 'FEAT', 'C-3', 'H3', 'review'],
+  ['TASK-ZAI-121', 'SPR-ZAI-10', "LINE OA on the operator's Private Runtime Platform — FR-267 adds provider prp (operator-configured endpoint, granted-model validation, reasoning stripped, no external fallback); first step of ADR-099", 'FEAT', 'C-3', 'H3', 'in-progress'],
 ]
 
 // Task completion is always read from the canonical ROADMAP.md ledger.

@@ -124,6 +124,60 @@ describe('model provider admin port', () => {
     expect(fetchFn).not.toHaveBeenCalled()
   })
 
+  describe('the operator’s Private Runtime Platform (FR-267)', () => {
+    const BASE = 'https://gpu.example.test'
+    const listing = (ids, status = 200) => () => ({
+      status, ok: status < 300,
+      text: async () => JSON.stringify({ object: 'list', data: ids.map((id) => ({ id, object: 'model' })) }),
+    })
+    const prp = (model = 'typhoon2.5-qwen3-4b', baseUrl = BASE) => ({ provider: 'prp', apiKey: KEY, model, baseUrl })
+
+    it('checks the key against PRP’s granted-model list at the configured address, refusing redirects', async () => {
+      const { port: subject, calls } = port(listing(['typhoon2.5-qwen3-4b']))
+      await expect(subject.validateKey(prp())).resolves.toEqual({ provider: 'prp', validationCode: 'MODEL_KEY_VALIDATED:PRP' })
+      expect(calls[0].url).toBe(`${BASE}/v1/models`)
+      expect(calls[0].init.headers.authorization).toBe(`Bearer ${KEY}`)
+      // The configured origin is the only place this key may go (ADR-099 D10).
+      expect(calls[0].init.redirect).toBe('error')
+    })
+
+    it('names an alias the key is not granted as the model, not the key', async () => {
+      const { port: subject } = port(listing(['some-other-alias']))
+      await expect(subject.validateKey(prp())).rejects.toMatchObject({ code: 'MODEL_NOT_FOUND', status: 422 })
+    })
+
+    it('refuses the key on 401 and 403', async () => {
+      for (const status of [401, 403]) {
+        const { port: subject } = port(() => code(status))
+        await expect(subject.validateKey(prp())).rejects.toMatchObject({ code: 'MODEL_KEY_REJECTED', status: 422 })
+      }
+    })
+
+    it('treats "no eligible node", an outage and a reply that is not a model list as unavailability', async () => {
+      // PRP answers 503 NO_ELIGIBLE_NODE when no GPU can serve; that is not a verdict on the key.
+      for (const respond of [
+        () => code(503),
+        () => ({ status: 200, ok: true, text: async () => 'not json' }),
+        () => ({ status: 200, ok: true, text: async () => JSON.stringify({ unexpected: true }) }),
+        () => ({ status: 200, ok: true, text: async () => 'x'.repeat(300 * 1024) }),
+      ]) {
+        const { port: subject } = port(respond)
+        await expect(subject.validateKey(prp())).rejects.toMatchObject({ code: 'MODEL_PROVIDER_UNAVAILABLE', status: 503 })
+      }
+    })
+
+    it('refuses before calling anything when no runtime address is configured', async () => {
+      const { port: subject, fetchFn } = port(listing(['typhoon2.5-qwen3-4b']))
+      // Built directly: `prp()` defaults `baseUrl`, so passing `undefined` to it would
+      // quietly substitute the configured address and test nothing.
+      for (const baseUrl of [undefined, null, '']) {
+        await expect(subject.validateKey({ provider: 'prp', apiKey: KEY, model: 'typhoon2.5-qwen3-4b', baseUrl }))
+          .rejects.toMatchObject({ code: 'PRIVATE_RUNTIME_NOT_CONFIGURED', status: 503 })
+      }
+      expect(fetchFn).not.toHaveBeenCalled()
+    })
+  })
+
   it('refuses a missing or malformed model id before calling anything', async () => {
     // It builds a URL from the value, so it does not trust a caller to have checked.
     const { port: subject, fetchFn } = port(ok)

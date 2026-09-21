@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.19, 2026-09-21) so the board can open a task the way the html board
+// (v0.4.20, 2026-09-21) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -6111,5 +6111,64 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-103"
     ],
     "evidence": "PR #500 head `d227ac239994b30050ecfa7149fb6228d870beaa` merged as `cfb62da3d904b7344572ed038667c1a733cec06d`; hosted Actions runs `35545108878`/`35545108894` passed applicable checks with E2E/Desktop skipped; full hosted npm test 777 files / 6,536 tests passed, 32 skipped, 0 failed; migration `20260921090000_line_oa_retire_edge_execution.sql` written and not applied; owner-instructed migration, deployment, owner-entered production key/AAL2 and real LINE/provider validation, rollback and production receipt remain NOT_RUN"
+  },
+  "TASK-ZAI-121": {
+    "container": "TC-TASK-ZAI-121",
+    "phase": "PHASE-ZAI-05",
+    "sprint": "SPR-ZAI-10",
+    "version": "0.1.0b",
+    "priority": "P1",
+    "pic": "Claude",
+    "executor": "Claude",
+    "approver": "Owen",
+    "auditor": "ATHER",
+    "links": {
+      "code": "apps/server/src/platform/integrations/providers/model/private-runtime-config.js",
+      "doc": "docs/decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md",
+      "test": "apps/server/tests/unit/private-runtime-model-port.test.js"
+    },
+    "linkState": {
+      "code": "present",
+      "doc": "present",
+      "test": "present"
+    },
+    "delivers": [
+      "FEAT-045",
+      "FR-267"
+    ],
+    "subtasks": [
+      {
+        "id": "P0",
+        "title": "Add provider prp with an operator-configured address, PRP granted-model validation and reasoning removal",
+        "status": "done"
+      },
+      {
+        "id": "P1",
+        "title": "Owner-instructed merge, deployment with ZURI_PRIVATE_RUNTIME_BASE_URL set, owner-entered PRP key and a real LINE answer receipt",
+        "status": "planned"
+      }
+    ],
+    "dod": {
+      "acceptance": {
+        "text": "Given the server has ZURI_PRIVATE_RUNTIME_BASE_URL configured, when a Business owner at AAL2 enters a PRP client key and a granted alias, then the key is proved against PRP's granted-model list and stored write-only, and the answer path calls PRP at that address",
+        "checked": true
+      },
+      "success": {
+        "text": "Given a PRP answer containing a reasoning block, when it is returned, then no <think> content reaches the customer, and an answer that is only unfinished reasoning fails closed",
+        "checked": true
+      },
+      "exit": {
+        "text": "Given the owner-instructed deployment, when a real LINE message is answered through the operator's private runtime, then a production receipt shows the answer and no request to an external provider",
+        "checked": false
+      }
+    },
+    "changelog": "Opened 2026-09-21 after the owner pointed out the Private Runtime Platform (F:\\Private-Runtime-Platform, live as F:\\prp-mvp). ADR-100 D7 records that ADR-100 had not read ADR-099 and corrects course. Built and verified locally on branch feat/line-oa-private-runtime-provider; not merged, not deployed. The two-node pool, capacity leases, observations and data classification remain ADR-099's later steps.",
+    "created": "2026-09-21T00:00:00Z,Claude,pending",
+    "predictedTokens": 50000,
+    "totalTokens": 0,
+    "dependsOn": [
+      "TASK-ZAI-120"
+    ],
+    "evidence": "branch feat/line-oa-private-runtime-provider; govern, build and full npm test run locally; not merged, not deployed"
   }
 }

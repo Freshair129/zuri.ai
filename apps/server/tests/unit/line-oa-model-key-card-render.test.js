@@ -93,6 +93,30 @@ describe('LINE OA model key card', () => {
     expect(html).toContain('value="gpt-4.1-mini"')
   })
 
+  it('offers the operator’s private runtime by name, and says the messages stay on our hardware', () => {
+    // @req FR-267 — listed first where configured, so it is the default choice.
+    const html = render({
+      modelCredential: null,
+      providers: ['prp', 'anthropic', 'openai'],
+      suggestedModels: { ...catalogue.suggestedModels, prp: 'typhoon2.5-qwen3-4b' },
+    })
+    expect(html).toContain('Private Runtime (GPU ของเราเอง)')
+    expect(html).toMatch(/<option value="prp" selected=""/)
+    expect(html).toContain('ไม่ส่งออกไปผู้ให้บริการภายนอก')
+    expect(html).toContain('value="typhoon2.5-qwen3-4b"')
+  })
+
+  it('warns that an external provider receives the messages when a private runtime was available', () => {
+    const html = render({
+      modelCredential: { connectionId: 'c', provider: 'openai', model: 'gpt-4o-mini', status: 'ACTIVE',
+        lastValidatedAt: '2026-09-21T00:00:00.000Z', lastValidationCode: 'MODEL_KEY_VALIDATED:OPENAI', version: 1 },
+      providers: ['prp', 'openai'],
+      suggestedModels: catalogue.suggestedModels,
+    })
+    expect(html).toContain('ผู้ให้บริการนี้อยู่ภายนอก')
+    expect(html).toContain('เลือก Private Runtime')
+  })
+
   it('shows a plain status line, not a half-built form, before the status has loaded', () => {
     for (const status of [null, undefined]) {
       const html = render(status)

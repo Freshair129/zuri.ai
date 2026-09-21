@@ -43,7 +43,8 @@ describe('Platform Programme Roadmap route contract', () => {
     // v0.4.9 (2026-09-16): 104 → 115 tasks for conversation sessions and chat evidence (TASK-ZAI-105 to 115).
     // v0.4.13 (2026-09-19): 118 → 119 tasks for Mission Control observability (TASK-ZAI-119).
     // v0.4.18 (2026-09-21): 119 → 120 tasks for LINE OA API-key-only server execution (TASK-ZAI-120).
-    expect(PROGRAMME_TASKS).toHaveLength(120)
+    // v0.4.20 (2026-09-21): 120 → 121 tasks for LINE OA on the operator's Private Runtime Platform (TASK-ZAI-121).
+    expect(PROGRAMME_TASKS).toHaveLength(121)
     expect(PROGRAMME_GATES).toHaveLength(9)
     expect(PROGRAMME_DELIVERABLES).toHaveLength(11)
   })

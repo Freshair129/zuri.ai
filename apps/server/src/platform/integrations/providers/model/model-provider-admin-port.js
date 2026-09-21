@@ -1,4 +1,4 @@
-import { MODEL_PROVIDER_CODES, MODEL_ID_PATTERN } from '@/lib/validation/enums'
+import { MODEL_PROVIDER_CODES, MODEL_ID_PATTERN, PRIVATE_RUNTIME_PROVIDER } from '@/lib/validation/enums'
 
 // @req FR-266 — the Integration lane's model-provider admin port: prove an API key
 //   *and the model id it will be used with* against the provider before anything is
@@ -33,6 +33,8 @@ import { MODEL_PROVIDER_CODES, MODEL_ID_PATTERN } from '@/lib/validation/enums'
 //   MODEL_PROVIDER_UNAVAILABLE  provider 5xx, 429, timeout or network failure; nothing
 //                           is stored, and the caller may retry
 //   MODEL_PROVIDER_UNSUPPORTED  a provider code with no probe here
+//   PRIVATE_RUNTIME_NOT_CONFIGURED  `prp` chosen on a server with no private runtime
+//                           address configured (FR-267) — an operator's fix, not the owner's
 
 export const MODEL_PROVIDER_API = Object.freeze({
   anthropic: 'https://api.anthropic.com/v1/models/',
@@ -70,6 +72,34 @@ function authHeaders(provider, apiKey) {
   return { authorization: `Bearer ${apiKey}` }
 }
 
+// A granted-model list is small — a handful of aliases. Anything larger is not the
+// answer this probe asked for, and it is not read into memory to find out.
+const PRP_MODEL_LIST_MAX_BYTES = 256 * 1024
+
+/**
+ * @req FR-267 — the model ids in a PRP `GET /v1/models` reply (its `ModelList`:
+ * `{ object: 'list', data: [{ id, object: 'model' }] }`), or null when the reply is
+ * not that shape. Only the ids are read, and only to test membership; the list is
+ * never returned, logged or stored.
+ */
+async function grantedModelIds(response) {
+  let text
+  try {
+    text = await response.text()
+  } catch {
+    return null
+  }
+  if (typeof text !== 'string' || text.length > PRP_MODEL_LIST_MAX_BYTES) return null
+  let json
+  try {
+    json = JSON.parse(text)
+  } catch {
+    return null
+  }
+  if (!json || !Array.isArray(json.data)) return null
+  return new Set(json.data.map((entry) => entry?.id).filter((id) => typeof id === 'string'))
+}
+
 export function createModelProviderAdminPort({ fetchFn = globalThis.fetch, timeoutMs = 10_000 } = {}) {
   if (typeof fetchFn !== 'function' || !Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 60_000) {
     throw modelProviderFailure('MODEL_PROVIDER_ADMIN_PORT_CONFIGURATION_INVALID', 503)
@@ -81,12 +111,13 @@ export function createModelProviderAdminPort({ fetchFn = globalThis.fetch, timeo
    * payload at all — the caller needs the verdict, and a model record is one more
    * thing that could carry an organisation name into a response.
    */
-  async function validateKey({ provider, apiKey, model }) {
+  async function validateKey({ provider, apiKey, model, baseUrl }) {
     if (!MODEL_PROVIDER_CODES.includes(provider)) throw modelProviderFailure('MODEL_PROVIDER_UNSUPPORTED', 400)
-    if (!MODEL_PROVIDER_API[provider]) throw modelProviderFailure('MODEL_PROVIDER_UNSUPPORTED', 400)
     // Checked here as well as at the service boundary: this port builds a URL from
     // the value, so it does not trust a caller to have validated it first.
     if (typeof model !== 'string' || !MODEL_ID_PATTERN.test(model)) throw modelProviderFailure('MODEL_ID_INVALID', 400)
+    if (provider === PRIVATE_RUNTIME_PROVIDER) return validatePrivateRuntime({ apiKey, model, baseUrl })
+    if (!MODEL_PROVIDER_API[provider]) throw modelProviderFailure('MODEL_PROVIDER_UNSUPPORTED', 400)
 
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), timeoutMs)
@@ -112,6 +143,46 @@ export function createModelProviderAdminPort({ fetchFn = globalThis.fetch, timeo
     // rejected key would tell an owner to replace a key that works.
     if (!response.ok) throw modelProviderFailure('MODEL_PROVIDER_UNAVAILABLE', 503)
     return { provider, validationCode: `MODEL_KEY_VALIDATED:${provider.toUpperCase()}` }
+  }
+
+  /**
+   * @req FR-267 — prove a PRP client key and the alias it will be used with.
+   *
+   * PRP's client contract has `GET /v1/models` — "list granted model aliases" — and no
+   * per-model read, so the check is the list: 401/403 is the key, and an alias missing
+   * from what *this key* is granted is the model. That is a stronger answer than
+   * "the model exists": a key not granted the alias could not use it either.
+   *
+   * This is the one probe that reads a success body, and only because the answer is
+   * in it. It is the operator's own runtime, not a third party, and only the ids are
+   * read, bounded, to test membership. Redirects are refused: the configured origin is
+   * the only place this key may be sent (ADR-099 D10).
+   */
+  async function validatePrivateRuntime({ apiKey, model, baseUrl }) {
+    // No configured runtime is a refusal, never a guess at an address.
+    if (typeof baseUrl !== 'string' || !baseUrl) throw modelProviderFailure('PRIVATE_RUNTIME_NOT_CONFIGURED', 503)
+
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), timeoutMs)
+    let response
+    try {
+      response = await fetchFn(`${baseUrl}/v1/models`, {
+        method: 'GET', headers: authHeaders(PRIVATE_RUNTIME_PROVIDER, apiKey), signal: controller.signal, redirect: 'error',
+      })
+    } catch {
+      throw modelProviderFailure('MODEL_PROVIDER_UNAVAILABLE', 503)
+    } finally {
+      clearTimeout(timer)
+    }
+
+    if (response.status === 401 || response.status === 403) throw modelProviderFailure('MODEL_KEY_REJECTED', 422)
+    // PRP answers 503 NO_ELIGIBLE_NODE when no GPU can serve; that is unavailability
+    // and says nothing about the key, so nothing is stored and the owner may retry.
+    if (!response.ok) throw modelProviderFailure('MODEL_PROVIDER_UNAVAILABLE', 503)
+    const granted = await grantedModelIds(response)
+    if (!granted) throw modelProviderFailure('MODEL_PROVIDER_UNAVAILABLE', 503)
+    if (!granted.has(model)) throw modelProviderFailure('MODEL_NOT_FOUND', 422)
+    return { provider: PRIVATE_RUNTIME_PROVIDER, validationCode: `MODEL_KEY_VALIDATED:${PRIVATE_RUNTIME_PROVIDER.toUpperCase()}` }
   }
 
   return { validateKey }

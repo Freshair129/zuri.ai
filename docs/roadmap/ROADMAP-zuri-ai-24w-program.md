@@ -2,7 +2,7 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.19"
+version: "0.4.20"
 updated: "2026-09-21"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
@@ -35,6 +35,8 @@ related_docs:
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 
 Rendered board: `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
+
+Version diff 0.4.19 → 0.4.20 (2026-09-21): Add the TASK-ZAI-121 backlog row and Task Container — FR-267, LINE OA answering on the operator's own Private Runtime Platform, first step of ADR-099. Built and verified locally; not merged, not deployed.
 
 Version diff 0.4.18 → 0.4.19 (2026-09-21): Reconcile merged evidence after PR #501's scheduled/manual E2E policy. TASK-ZAI-036 records PR #507's thrown-upload rich-menu fix and 8/8 focused proof; TASK-ZAI-039 moves to `review / HOSTED_CI / MERGED` for PR #508's Prisma E2E bootstrap fix with 21/21 harness, 8/8 commerce/stocktake unit, 29/29 integration and 4/4 focused browser proof; TASK-ZAI-040 records PR #503's six-test broadcast contract; TASK-ZAI-041 moves to `review / HOSTED_CI / MERGED` for PR #506's bounded tenant-wide-grant roster fix. The applicable hosted Governance and Edge runs passed for all four PRs, with E2E/Desktop skipped by policy. Provider, real LINE, migration, owner, release, production, MSP and PORL gates remain open wherever the task requires them; no task is promoted to done.
 Version diff 0.4.17 → 0.4.18 (2026-09-21): Add the TASK-ZAI-120 backlog row and Task Container after PR #500 merged. Hosted Actions runs `35545108878` and `35545108894` passed the applicable checks, with E2E/Desktop skipped; full hosted npm test passed 777 files / 6,536 tests with 32 skips. The migration remains written and not applied; owner-instructed migration, deployment, production key/AAL2 and real LINE/provider validation, rollback and production receipt remain open. The task remains review.
@@ -596,6 +598,7 @@ locates the week.
 | TASK-ZAI-118 | SPR-ZAI-02 | task | Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup | P2 | Claude | done | TASK-ZAI-116 | ADR-095 D2, D3; FR-248, FR-249 |
 | TASK-ZAI-119 | SPR-ZAI-02 | task | Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations | P1 | RWANG | review | TASK-ZAI-064 | PORL unavailable and remains the blocking external gate; no deployment or production activation claimed; ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264 |
 | TASK-ZAI-120 | SPR-ZAI-10 | task | LINE OA on API keys only — FEAT-045 and FR-265/FR-266 retire EDGE conversation execution and the LOCAL_ONLY canned answerer, add browser-provisioned MODEL_PROVIDER_KEY resolution through SecretStorePort, and keep the Phase-1 resolver as an absence-only fallback | P1 | Claude | review | TASK-ZAI-103 | PR #500 head `d227ac239994b30050ecfa7149fb6228d870beaa` merged as `cfb62da3d904b7344572ed038667c1a733cec06d`; hosted Actions runs `35545108878`/`35545108894` passed applicable checks with E2E/Desktop skipped; full hosted npm test 777 files / 6,536 tests passed, 32 skipped, 0 failed; migration `20260921090000_line_oa_retire_edge_execution.sql` written and not applied; owner-instructed migration, deployment, owner-entered production key/AAL2 and real LINE/provider validation, rollback and production receipt remain NOT_RUN |
+| TASK-ZAI-121 | SPR-ZAI-10 | task | LINE OA on the operator's Private Runtime Platform — FR-267 adds provider `prp` (operator-configured endpoint, granted-model validation, reasoning stripped, no external fallback); first step of ADR-099 | P1 | Claude | in-progress | TASK-ZAI-120 | branch feat/line-oa-private-runtime-provider; govern, build and full npm test run locally; not merged, not deployed |
 
 ## Assignments
 
@@ -6294,6 +6297,58 @@ definition_of_done:
     - criterion: Given the owner-instructed ADR-057 operator step, when migration 20260921090000 is applied and the release is deployed, then a real Business key and LINE/provider receipt plus rollback evidence are recorded without an agent handling credentials
       checked: false
 changelog: Opened 2026-09-21 under ADR-100 and the owner's instruction to retire LINE OA EDGE execution. PR #500 head `d227ac239994b30050ecfa7149fb6228d870beaa` merged as `cfb62da3d904b7344572ed038667c1a733cec06d`. Hosted Actions run `35545108878` passed changes/govern/tests/build/verify with e2e skipped; run `35545108894` passed Edge changes/edge-verify with desktop skipped. The hosted full-test receipt is 777 files / 6,536 tests passed, 32 skipped, 0 failed. Migration `20260921090000_line_oa_retire_edge_execution.sql` is written and not applied. Owner-instructed migration, deployment, owner-entered production key/AAL2 and real LINE/provider validation, rollback and production receipt remain open; Phase-1 resolver retirement remains TASK-ZAI-103. No deployment or credential use is claimed.
+created_at: 2026-09-21T00:00:00Z,Claude,pending
+token_telemetry:
+  model_name: claude-opus-5
+  context_length: 200k
+  predicted_token_usage: 50000
+  total_token_usage: 0
+ui_state:
+  dropdown_default: collapsed
+  expanded: false
+  disabled_reason: ""
+```
+
+### TC-TASK-ZAI-121
+
+```yaml
+task_container_id: TC-TASK-ZAI-121
+task_id: TASK-ZAI-121
+parent_phase_id: PHASE-ZAI-05
+parent_sprint_id: SPR-ZAI-10
+title: LINE OA on the operator's Private Runtime Platform — FR-267 adds provider prp (operator-configured endpoint, granted-model validation, reasoning stripped, no external fallback); first step of ADR-099
+requirement_type: FEAT
+complexity: C-3
+access_scope: H3
+status: in-progress
+version: 0.1.0b
+pic: Claude
+executor: Claude
+approver: Owen
+auditor: ATHER
+symbol_links:
+  code: apps/server/src/platform/integrations/providers/model/private-runtime-config.js
+  doc: docs/decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md
+  test: apps/server/tests/unit/private-runtime-model-port.test.js
+delivers: [FEAT-045, FR-267]
+subtasks:
+  - id: P0
+    title: Add provider prp with an operator-configured address, PRP granted-model validation and reasoning removal
+    status: done
+  - id: P1
+    title: Owner-instructed merge, deployment with ZURI_PRIVATE_RUNTIME_BASE_URL set, owner-entered PRP key and a real LINE answer receipt
+    status: planned
+definition_of_done:
+  acceptance_criteria:
+    - criterion: Given the server has ZURI_PRIVATE_RUNTIME_BASE_URL configured, when a Business owner at AAL2 enters a PRP client key and a granted alias, then the key is proved against PRP's granted-model list and stored write-only, and the answer path calls PRP at that address
+      checked: true
+  success_criteria:
+    - criterion: Given a PRP answer containing a reasoning block, when it is returned, then no <think> content reaches the customer, and an answer that is only unfinished reasoning fails closed
+      checked: true
+  exit_criteria:
+    - criterion: Given the owner-instructed deployment, when a real LINE message is answered through the operator's private runtime, then a production receipt shows the answer and no request to an external provider
+      checked: false
+changelog: Opened 2026-09-21 after the owner pointed out the Private Runtime Platform (F:\Private-Runtime-Platform, live as F:\prp-mvp). ADR-100 D7 records that ADR-100 had not read ADR-099 and corrects course. Built and verified locally on branch feat/line-oa-private-runtime-provider; not merged, not deployed. The two-node pool, capacity leases, observations and data classification remain ADR-099's later steps.
 created_at: 2026-09-21T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5

@@ -311,12 +311,23 @@ export const INTEGRATION_CREDENTIAL_CREATED_VIA = ['BROWSER_MFA', 'OPERATOR_CLI'
 // `model-provider.js` already refuses it outside a local runtime source — a form
 // that offered it would be offering a field the adapter forbids.
 export const MODEL_PROVIDER_PURPOSE = 'MODEL_PROVIDER'
-export const MODEL_PROVIDER_CODES = ['anthropic', 'openai', 'gemini', 'groq']
+// `prp` is the operator's own Private Runtime Platform (ADR-100 D7, the first step
+// of ADR-099). Cited in prose, not by requirement id: this is the app-wide enum
+// source, and an id here would make every test that imports it — plan schemas,
+// procurement, everything — count as evidence for the private runtime. Unlike the
+// four public providers it has no fixed
+// address: its base URL is operator configuration on the server, so the code is
+// only *offered* where that configuration exists (`readModelProviderStatus`) and
+// is refused, not guessed, where it does not.
+export const PRIVATE_RUNTIME_PROVIDER = 'prp'
+export const MODEL_PROVIDER_CODES = ['anthropic', 'openai', 'gemini', 'groq', PRIVATE_RUNTIME_PROVIDER]
 // The model id is entered by the owner, not defaulted by the server. A server-side
 // default would be a guess that silently decides what the Business pays per token
 // and how good its answers are, and it would rot the moment a provider renames a
 // model. These are the suggestions the form pre-fills — visible, editable, and
-// wrong in an obvious way rather than a hidden one.
+// wrong in an obvious way rather than a hidden one. `prp` has no entry here: its
+// model aliases belong to the operator's deployment, so its suggestion comes from
+// the server's own configuration at read time, never from this constant.
 export const MODEL_PROVIDER_SUGGESTED_MODELS = Object.freeze({
   anthropic: 'claude-sonnet-5',
   openai: 'gpt-4o-mini',

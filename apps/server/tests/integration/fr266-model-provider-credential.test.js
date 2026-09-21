@@ -4,6 +4,9 @@
 //   any response, rotation and provider change reuse the one connection, and
 //   revocation leaves the next answer with nothing to resolve.
 // @req FR-265 — the readiness journey's fifth step reads this credential's evidence.
+// @req FR-267 — `prp`, the operator's Private Runtime Platform, on the same route:
+//   offered and accepted only where the server configures its address, proved
+//   against PRP's granted-alias list, and resolved with that address for the worker.
 // @spec ADR-100 D4, D5; ADR-089 D2, D4, D5; SEC-030; SEC-033; SDD-101; SDD-106
 // @tested tests/integration/fr266-model-provider-credential.test.js
 import { randomBytes, randomUUID } from 'node:crypto'
@@ -24,7 +27,10 @@ const { POST: VALIDATE } = await import('@/app/api/integration/model-providers/[
 const { resolveBusinessModelCredential } = await import('@/modules/integration/application/model-provider-credential-service')
 const { lineOaReadinessJourney } = await import('@/modules/line-oa-studio/domain/line-oa-readiness-journey')
 
-const ENV_KEYS = ['ZURI_SECRET_STORE', 'ZURI_SECRET_KEK', 'ZURI_SECRET_KEK_VERSION']
+const ENV_KEYS = ['ZURI_SECRET_STORE', 'ZURI_SECRET_KEK', 'ZURI_SECRET_KEK_VERSION', 'ZURI_PRIVATE_RUNTIME_BASE_URL', 'ZURI_PRIVATE_RUNTIME_MODEL']
+// The operator's private runtime, as the stub serves it (PRP's client contract).
+const PRP_BASE = 'https://gpu.example.test'
+const PRP_GRANTED = new Set(['typhoon2.5-qwen3-4b'])
 const savedEnv = {}
 const responses = []
 let business, person, viewer, sessionToken
@@ -45,6 +51,11 @@ async function fakeFetch(url, init) {
   fetchCalls.push({ url, headers: init?.headers ?? {} })
   const reply = (status) => ({ status, ok: status < 300, json: async () => ({}) })
   if (providerStatus) return reply(providerStatus)
+  if (url === `${PRP_BASE}/v1/models`) {
+    const bearer = String(init?.headers?.authorization ?? '').replace(/^Bearer /, '')
+    if (!goodKeys.has(bearer)) return reply(401)
+    return { status: 200, ok: true, text: async () => JSON.stringify({ object: 'list', data: [...PRP_GRANTED].map((id) => ({ id, object: 'model' })) }) }
+  }
   const provider = Object.keys(MODEL_PROVIDER_API).find((code) => url.startsWith(MODEL_PROVIDER_API[code]))
   if (!provider) return reply(404)
   const presented = init?.headers?.['x-api-key']
@@ -275,5 +286,66 @@ describe('model provider credential (FR-266)', () => {
     expect(audits.length).toBeGreaterThan(0)
     const haystacks = [...responses.map(r => JSON.stringify(r)), ...audits.map(a => a.payloadJson)]
     expect(findLeaks(haystacks, secretNeedles({ apiKey }))).toEqual([])
+  })
+
+  describe('the operator\'s Private Runtime Platform as a provider (FR-267)', () => {
+    const stored = () => prisma.integrationCredential.count({ where: { connection: { businessId: business.id } } })
+
+    beforeEach(() => {
+      // The outer beforeEach resets the viewer, fetch log, rate limits, rows and session.
+      delete process.env.ZURI_PRIVATE_RUNTIME_BASE_URL
+      delete process.env.ZURI_PRIVATE_RUNTIME_MODEL
+    })
+
+    it('is not offered on a server with no private runtime configured', async () => {
+      expect((await status()).json.providers).not.toContain('prp')
+    })
+
+    it('is offered first, with the operator\'s suggested alias, where it is configured', async () => {
+      process.env.ZURI_PRIVATE_RUNTIME_BASE_URL = PRP_BASE
+      process.env.ZURI_PRIVATE_RUNTIME_MODEL = 'typhoon2.5-qwen3-4b'
+      const catalogue = (await status()).json
+      expect(catalogue.providers[0]).toBe('prp')
+      expect(catalogue.suggestedModels.prp).toBe('typhoon2.5-qwen3-4b')
+    })
+
+    it('refuses `prp` before calling anything when the server has no runtime configured', async () => {
+      const refused = await provision({ businessId: business.id, provider: 'prp', model: 'typhoon2.5-qwen3-4b', apiKey: key() })
+      expect({ status: refused.status, error: refused.json.error }).toEqual({ status: 503, error: 'PRIVATE_RUNTIME_NOT_CONFIGURED' })
+      expect(fetchCalls).toHaveLength(0)
+      expect(await stored()).toBe(0)
+    })
+
+    it('stores a PRP key proved against its granted aliases, and resolves it with the operator\'s address', async () => {
+      process.env.ZURI_PRIVATE_RUNTIME_BASE_URL = `${PRP_BASE}/`
+      const apiKey = key()
+      const saved = await provision({ businessId: business.id, provider: 'prp', model: 'typhoon2.5-qwen3-4b', apiKey })
+      expect(saved.status).toBe(200)
+      // The address came from the server, normalised, and the key went nowhere else.
+      expect(fetchCalls.map((call) => call.url)).toEqual([`${PRP_BASE}/v1/models`])
+      expect((await status()).json.modelCredential).toMatchObject({ provider: 'prp', model: 'typhoon2.5-qwen3-4b', lastValidationCode: 'MODEL_KEY_VALIDATED:PRP' })
+
+      const resolved = await resolveBusinessModelCredential({ tenantId: business.tenantId, businessId: business.id })
+      expect(resolved).toMatchObject({ provider: 'prp', model: 'typhoon2.5-qwen3-4b', baseUrl: PRP_BASE })
+      expect(resolved.apiKey).toBe(apiKey)
+      expect(JSON.stringify(resolved)).not.toContain(apiKey)
+    })
+
+    it('stores nothing for an alias the PRP key is not granted', async () => {
+      process.env.ZURI_PRIVATE_RUNTIME_BASE_URL = PRP_BASE
+      const refused = await provision({ businessId: business.id, provider: 'prp', model: 'some-other-alias', apiKey: key() })
+      expect({ status: refused.status, error: refused.json.error }).toEqual({ status: 422, error: 'MODEL_NOT_FOUND' })
+      expect(await stored()).toBe(0)
+    })
+
+    it('fails closed for a Business on `prp` once the server loses its runtime address', async () => {
+      // It chose to keep messages on the operator's hardware; when that is impossible
+      // the answer is none, not another provider and not the Phase-1 fallback.
+      process.env.ZURI_PRIVATE_RUNTIME_BASE_URL = PRP_BASE
+      await provision({ businessId: business.id, provider: 'prp', model: 'typhoon2.5-qwen3-4b', apiKey: key() })
+      delete process.env.ZURI_PRIVATE_RUNTIME_BASE_URL
+      await expect(resolveBusinessModelCredential({ tenantId: business.tenantId, businessId: business.id }))
+        .rejects.toThrow('MODEL_CREDENTIAL_NOT_RESOLVABLE')
+    })
   })
 })

@@ -113,8 +113,8 @@ export const ROADMAP_SOT = {
   },
   "dag": {
     "algorithm": "kahn-topological-layers",
-    "nodeCount": 120,
-    "edgeCount": 134,
+    "nodeCount": 121,
+    "edgeCount": 135,
     "waveCount": 21,
     "missingDependencies": [],
     "cycles": [],
@@ -330,7 +330,8 @@ export const ROADMAP_SOT = {
       {
         "wave": 19,
         "taskIds": [
-          "TASK-ZAI-113"
+          "TASK-ZAI-113",
+          "TASK-ZAI-121"
         ]
       },
       {
@@ -1959,6 +1960,17 @@ export const ROADMAP_TASK_LEDGER = [
     "dependsOn": "TASK-ZAI-103",
     "authority": "ROADMAP.md",
     "evidence": "PR #500 head `d227ac239994b30050ecfa7149fb6228d870beaa` merged as `cfb62da3d904b7344572ed038667c1a733cec06d`; hosted Actions run `35545108878` passed changes/govern/tests/build/verify with e2e skipped and run `35545108894` passed Edge changes/edge-verify with desktop skipped; full hosted npm test 777 files / 6,536 tests passed, 32 skipped, 0 failed; migration `20260921090000_line_oa_retire_edge_execution.sql` written and not applied; owner-instructed migration apply, deployment, owner-entered production key/AAL2 and real LINE/provider validation, rollback and production receipt remain NOT_RUN; Phase-1 resolver retirement remains TASK-ZAI-103"
+  },
+  {
+    "id": "TASK-ZAI-121",
+    "sprint": "SPR-ZAI-10",
+    "title": "LINE OA on the operator's Private Runtime Platform — FR-267 adds provider `prp` (operator-configured endpoint, granted-model validation, reasoning stripped, no external fallback); first step of ADR-099",
+    "status": "in-progress",
+    "proofScope": "LOCAL",
+    "implementationState": "LOCAL",
+    "dependsOn": "TASK-ZAI-120",
+    "authority": "ROADMAP.md",
+    "evidence": "branch feat/line-oa-private-runtime-provider; govern, build and full npm test run locally; not merged, not deployed"
   }
 ]
 
