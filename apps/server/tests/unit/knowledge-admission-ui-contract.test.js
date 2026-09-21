@@ -40,4 +40,14 @@ describe('knowledge controls in the existing Files surfaces', () => {
     expect(panel).toContain('return <ManagedFilesPanelBody')
     expect(panel).toContain('key={scopeKey}')
   })
+  it('lists admissions as a table paged 10 at a time, below the files', () => {
+    expect(panel).toContain('const KNOWLEDGE_PAGE_SIZE = 10')
+    expect(panel).toContain('data-testid="knowledge-admissions-table"')
+    expect(panel).toContain('data-testid="knowledge-admissions-pager"')
+    // The table pages through what the API returns, up to its own maximum.
+    expect(panel).toContain('&limit=${KNOWLEDGE_LIST_LIMIT}')
+    const body = panel.slice(panel.indexOf('function ManagedFilesPanelBody'))
+    expect(body.indexOf('<KnowledgeJobs')).toBeGreaterThan(body.indexOf('<FileManagerViews'))
+    expect(body.indexOf('<KnowledgeJobs')).toBeGreaterThan(body.indexOf('<KnowledgeQuery'))
+  })
 })
