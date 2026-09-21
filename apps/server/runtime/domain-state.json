@@ -3099,7 +3099,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-236",
@@ -4313,7 +4313,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-228",
@@ -11338,7 +11338,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-228",
@@ -11440,7 +11440,8 @@
         "apps/server/tests/unit/platform/line-channel-admin-port.test.js",
         "apps/server/tests/unit/platform/server-line-transport.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
-        "apps/server/tests/unit/public-base-url.test.js"
+        "apps/server/tests/unit/public-base-url.test.js",
+        "apps/server/tests/unit/webhook-state-migration-contract.test.js"
       ]
     },
     {

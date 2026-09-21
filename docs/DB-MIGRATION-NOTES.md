@@ -2,11 +2,11 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.10 |
+| **Version** | 1.1.0 |
 | **Status** | Approved |
 | **Author** | Claude (build agent) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-09-19 |
+| **Last Updated** | 2026-09-21 |
 
 The MVP schema was designed to move to Postgres without semantic changes.
 
@@ -358,6 +358,27 @@ overlay: `com.docker.compose.project.config_files` names both `docker-compose.ym
 and `docker-compose.line-server.yml`, `ZURI_LINE_SERVER_ENABLED=true`, `/api/health`
 and `/login` both 200, and `zuri-ai-line-worker-1` logs a clean
 `{"event":"line.worker.tick","status":200,"outcome":"IDLE"}`.
+
+## Applied — LINE OA webhook-state column (TASK-ZAI-085, 2026-09-14)
+
+The operator evidence already recorded in `TC-TASK-ZAI-085` says
+`20260914150300_line_oa_webhook_state.sql` was applied on 2026-09-14 under
+ADR-057, after a read-only inventory and a rolled-back dry run. The recorded
+post-apply effect was the nullable `LineOaAccount.webhookStateJson` column, and
+the migration receipt was checked from a fresh connection. This audit did not
+access production or rerun those checks.
+
+The same evidence records a redeploy from merged main as
+`zuri-ai-web:release-538c1958`. The ADR-061 overlay remained present
+(`docker-compose.yml` and `docker-compose.line-server.yml`),
+`ZURI_LINE_SERVER_ENABLED=true`, both web and line-worker logs were clean, and
+`/api/health` returned `db: ok`.
+
+This receipt covers the webhook-state migration and redeploy only. The
+task's separate success criterion about the runtime Vault view privilege
+boundary remains open: the recorded runtime used `postgres`/`service_role`,
+while the intended `zuri_web_login` boundary was not proven. No credential,
+Vault grant, or provider activation is changed by this note.
 
 ## Cautions
 
