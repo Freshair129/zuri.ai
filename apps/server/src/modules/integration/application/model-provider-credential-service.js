@@ -55,7 +55,12 @@ const zProvision = z.object({
   businessId: z.string().trim().min(1).max(200),
   provider: zModelProviderCode,
   model: z.string().trim().regex(MODEL_ID_PATTERN),
-  apiKey: z.string().regex(MODEL_PROVIDER_API_KEY_PATTERN),
+  // Trimmed before the pattern check. A key copied from a provider's page very
+  // often carries a trailing newline or space, and the pattern admits neither, so
+  // an untrimmed field refused a correct key with a message that blamed its format.
+  // No provider issues a key with leading or trailing whitespace, so trimming can
+  // only ever repair a paste, never change a real key.
+  apiKey: z.string().trim().regex(MODEL_PROVIDER_API_KEY_PATTERN),
 }).strict()
 
 const zRevoke = z.object({
@@ -133,6 +138,12 @@ export async function readModelProviderStatus(businessId, { viewer, db = prisma 
       status: connection.credential.status,
       secretStore: connection.credential.secretStore,
       lastValidatedAt: connection.credential.lastValidatedAt,
+      // The outcome of that last check, not just its time. A re-validation that
+      // the provider refused still stamps `lastValidatedAt`, so a reader that saw
+      // only the time would show a key that just failed as ready. This is an
+      // outcome code (`MODEL_KEY_VALIDATED:OPENAI`, `MODEL_KEY_REJECTED`,
+      // `MODEL_NOT_FOUND`), never key material.
+      lastValidationCode: connection.credential.lastValidationCode ?? null,
       version: connection.credential.version,
     },
     ...catalogue,
@@ -208,7 +219,7 @@ export async function provisionModelProviderCredential(input, { viewer, db = pri
 
   let validation
   try {
-    validation = await admin.validateKey({ provider: data.provider, apiKey: data.apiKey })
+    validation = await admin.validateKey({ provider: data.provider, apiKey: data.apiKey, model: data.model })
   } catch (error) {
     if (error?.code === 'MODEL_KEY_REJECTED' && typeof ports.onValidationRejected === 'function') {
       await ports.onValidationRejected({ viewer, businessId: business.id })
@@ -353,15 +364,21 @@ export async function validateModelProviderCredential(connectionId, input, { vie
   }
 
   try {
-    const validation = await admin.validateKey({ provider: connection.provider?.code, apiKey })
+    // Re-validation proves the stored model too, which is what makes this button
+    // worth pressing later: a provider that retires the model a Business chose
+    // leaves the key perfectly valid and every answer failing, and this is the
+    // one place an owner can find that out before a customer does.
+    const validation = await admin.validateKey({ provider: connection.provider?.code, apiKey, model: readConnectionModel(connection) })
     await record(validation.validationCode)
   } catch (error) {
-    // A rejection is recorded: "the stored key no longer works" is exactly the
-    // evidence the readiness journey needs, and losing it would leave the step
-    // reading COMPLETE from an older success.
-    if (error?.code === 'MODEL_KEY_REJECTED') {
-      await record('MODEL_KEY_REJECTED')
-      throw refusal(422, 'MODEL_KEY_REJECTED')
+    // A refusal is recorded: "the stored key (or model) no longer works" is exactly
+    // the evidence the readiness journey needs, and losing it would leave the step
+    // reading COMPLETE from an older success. Unavailability is not recorded — it
+    // says nothing about the key, and overwriting a good outcome with it would
+    // demote a working key on a provider's bad minute.
+    if (error?.code === 'MODEL_KEY_REJECTED' || error?.code === 'MODEL_NOT_FOUND') {
+      await record(error.code)
+      throw refusal(422, error.code)
     }
     throw asRefusal(error, 'MODEL_PROVIDER_UNAVAILABLE')
   }

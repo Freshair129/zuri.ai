@@ -10,9 +10,24 @@
 // @tested tests/unit/line-oa-readiness-journey.test.js
 
 /**
+ * Whether a Business's model credential can answer a customer right now: ACTIVE,
+ * checked, and — the part the first version missed — checked *successfully*.
+ *
+ * A re-validation the provider refuses still stamps `lastValidatedAt`, so a rule
+ * reading only the time showed a key that had just failed as ready, with the
+ * reassuring "ตรวจสอบกับผู้ให้บริการแล้ว" beside it. The outcome code is what
+ * separates them. One function, used by both the journey and the key card, so
+ * the two surfaces cannot disagree about the same credential.
+ */
+export function isModelCredentialReady(modelCredential) {
+  return Boolean(modelCredential?.status === 'ACTIVE' && modelCredential?.lastValidatedAt
+    && String(modelCredential?.lastValidationCode ?? '').startsWith('MODEL_KEY_VALIDATED'))
+}
+
+/**
  * `modelCredential` is the Business's MODEL_PROVIDER credential as the account
- * reader exposes it — `{ provider, status, lastValidatedAt }` — or null when the
- * Business has none. It never carries material (SEC-030).
+ * reader exposes it — `{ provider, status, lastValidatedAt, lastValidationCode }` —
+ * or null when the Business has none. It never carries material (SEC-030).
  */
 export function lineOaReadinessJourney({ account, modelCredential = null } = {}) {
   const connection = account?.health?.connection
@@ -25,7 +40,7 @@ export function lineOaReadinessJourney({ account, modelCredential = null } = {})
   // Validated, not merely present: a key that was entered and then revoked, or one
   // whose last validation failed, cannot answer a customer, and a step that showed
   // COMPLETE for it would be reporting storage rather than readiness.
-  const modelKeyReady = Boolean(modelCredential?.status === 'ACTIVE' && modelCredential?.lastValidatedAt)
+  const modelKeyReady = isModelCredentialReady(modelCredential)
   const gksSelected = ['GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE'].includes(account?.knowledgeGrounding)
   const live = account?.serverEnabled === true && account?.transportMode === 'CLOUD' && account?.status === 'CONNECTED'
   const steps = [
@@ -40,7 +55,14 @@ export function lineOaReadinessJourney({ account, modelCredential = null } = {})
     { id: 'model-key', title: 'ใส่ API key ของโมเดล', status: modelKeyReady ? 'COMPLETE' : 'ACTION_REQUIRED',
       detail: modelKeyReady
         ? `ใช้ผู้ให้บริการ ${modelCredential.provider} · ตรวจสอบกับผู้ให้บริการแล้วเมื่อ ${modelCredential.lastValidatedAt} · คีย์จะไม่แสดงกลับมาในหน้านี้`
-        : 'ทุกคำตอบของ OA นี้เรียกโมเดลด้วย API key ของธุรกิจเอง ใส่คีย์แบบเขียนอย่างเดียวผ่านฟอร์มที่ยืนยันตัวตนสองขั้น ระบบจะตรวจกับผู้ให้บริการก่อนบันทึก และค่าใช้จ่ายการเรียกโมเดลเป็นของธุรกิจ' },
+        // A key that exists but failed its last check gets told *why*, not the
+        // first-time instructions: the owner has already entered a key, and the
+        // generic text would read as if the save had silently not happened.
+        : modelCredential?.lastValidationCode === 'MODEL_NOT_FOUND'
+          ? `คีย์ใช้ได้ แต่ ${modelCredential.provider} ไม่มีโมเดล ${modelCredential.model ?? ''} ให้คีย์นี้ใช้ — อาจสะกดผิดหรือผู้ให้บริการเลิกให้บริการแล้ว เปลี่ยนชื่อโมเดลแล้วบันทึกใหม่`
+          : modelCredential?.lastValidationCode === 'MODEL_KEY_REJECTED'
+            ? `${modelCredential.provider} ปฏิเสธคีย์ที่บันทึกไว้ในการตรวจครั้งล่าสุด — อาจถูกเพิกถอนหรือหมดอายุ ใส่คีย์ใหม่`
+            : 'ทุกคำตอบของ OA นี้เรียกโมเดลด้วย API key ของธุรกิจเอง ใส่คีย์แบบเขียนอย่างเดียวผ่านฟอร์มที่ยืนยันตัวตนสองขั้น ระบบจะตรวจกับผู้ให้บริการก่อนบันทึก และค่าใช้จ่ายการเรียกโมเดลเป็นของธุรกิจ' },
     { id: 'knowledge', title: 'เลือกความรู้และเครื่องมือ', status: gksSelected ? 'CONFIGURED' : 'ACTION_REQUIRED',
       detail: `${gksSelected ? 'เลือกคลัง GKS แล้ว' : 'เลือกคลัง GKS ที่เผยแพร่แล้ว'} · ต้องตรวจ published corpus, Graph/Vector, MSP MemoryOS และ CIN จาก trace จริง · การแก้ไขงานต้องให้ผู้ใช้ยืนยัน` },
     { id: 'test', title: 'ทดสอบจาก LINE จริง', status: 'NOT_RUN',

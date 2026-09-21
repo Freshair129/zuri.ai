@@ -402,6 +402,7 @@ interface RuntimeModules {
     release: () => void;
     intervalMs?: number;
     onEvent?: (event: { ok: boolean; shouldBeWarm?: boolean; changed?: boolean; reason?: string }) => void;
+    isTerminalError?: (error: unknown) => boolean;
   }) => () => void;
 }
 
@@ -440,6 +441,13 @@ function errorCode(error: unknown): FailureCode {
   if (status === 401 || status === 403) return 'AUTH_FAILED';
   if (status === 404) return 'CONTRACT_INCOMPATIBLE';
   return 'WORKER_FAILED';
+}
+
+// @req FR-244 — ADR-100 withdrew the LINE residency endpoint. A 404 is therefore
+// terminal for this optional schedule; network and 5xx failures remain retryable.
+function isWithdrawnResidencyRouteError(error: unknown): boolean {
+  return error !== null && typeof error === 'object'
+    && Number((error as { status?: unknown }).status) === 404;
 }
 
 const MAX_PENDING_COMMANDS = 64;
@@ -616,6 +624,7 @@ async function runManagedWorker(init: DesktopWorkerInit, input: DesktopWorkerInp
         shouldBeWarm: () => residency.shouldBeWarm(),
         warm: requestWarm, release: requestRelease,
         intervalMs: init.residencyPollIntervalMs,
+        isTerminalError: isWithdrawnResidencyRouteError,
         onEvent: event => emit({
           type: 'residency', version: PROTOCOL_VERSION, ok: event.ok,
           ...(event.shouldBeWarm !== undefined ? { shouldBeWarm: event.shouldBeWarm } : {}),

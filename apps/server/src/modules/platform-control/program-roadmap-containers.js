@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.18, 2026-09-21) so the board can open a task the way the html board
+// (v0.4.19, 2026-09-21) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -1618,7 +1618,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-036",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-01",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -1662,12 +1662,12 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. Accounts (FR-146/147), rich menu (FR-151/152), LIFF (FR-153), server-owned transport with optional Edge (FR-148 to FR-150) and transport reachability (FR-190) are merged through PR #341/#359. The isolated FR-190 audit found that the worker sweep omitted integrationConnectionId from its explicit account projection; the bounded fix, two-account regression and RCA are recorded in .brain/rca/2026-09-19-fr190-sweep-account-scope.md. PR #480 merged that fix at `d8a8e0e` with hosted checks passing; the exit criterion stays unchecked because provider canary, real LINE delivery and production verification remain NOT_RUN.",
+    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. Accounts (FR-146/147), rich menu (FR-151/152), LIFF (FR-153), server-owned transport with optional Edge (FR-148 to FR-150) and transport reachability (FR-190) are merged through PR #341/#359. The isolated FR-190 audit found that the worker sweep omitted integrationConnectionId from its explicit account projection; the bounded fix, two-account regression and RCA are recorded in .brain/rca/2026-09-19-fr190-sweep-account-scope.md. PR #480 merged that fix at `d8a8e0e` with hosted checks passing. PR #507 then preserved the mutable `UPLOAD` stage when rich-menu upload throws; its focused regression passed 8/8 and hosted Governance/Edge runs `35549452929`/`35549452972` passed with E2E/Desktop skipped. The exit criterion stays unchecked because provider canary, real LINE delivery and production verification remain NOT_RUN.",
     "created": "2026-09-13T00:00:00Z,Claude,retroactive",
     "predictedTokens": 0,
     "totalTokens": 0,
     "dependsOn": [],
-    "evidence": "CR-019 deliverable 11; ADR-060, ADR-061"
+    "evidence": "PR #507 head `b1151774fd0721ea3c1057f6ec7c29611a1e4220` merged as `3f408ba9ffea415f1add48c1b5c1efd7d6f40187`; focused thrown-upload regression 8/8 and hosted Governance/Edge runs `35549452929`/`35549452972` passed with E2E/Desktop skipped; provider canary, real LINE delivery and production remain NOT_RUN; CR-019 deliverable 11; ADR-060, ADR-061"
   },
   "TASK-ZAI-037": {
     "container": "TC-TASK-ZAI-037",
@@ -1780,7 +1780,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-039",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "priority": "P1",
     "pic": "RWANG",
     "executor": "RWANG",
@@ -1816,7 +1816,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. Owner-approved and locally verified 2026-09-11 (PRD 🔵; ROADMAP.md 2.52.0b records FR-184's isolated browser, concurrency and recovery proof). In review, not done, because the two migrations are written and not applied — the exit criterion is TASK-ZAI-043's job for this lane.",
+    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. Owner-approved and locally verified 2026-09-11 (PRD 🔵; ROADMAP.md 2.52.0b records FR-184's isolated browser, concurrency and recovery proof). PR #508 merged the current-worktree Prisma generation fix at `259867faf4a3f41e91f3428c2bff3cfdda3d006d`; its harness 21/21, commerce/stocktake unit 8/8, integration 29/29 and focused browser 4/4 receipts passed, and hosted Governance/Edge runs `35549785192`/`35549785191` passed with E2E/Desktop skipped. In review, not done, because the two migrations are written and not applied — the exit criterion is TASK-ZAI-043's job for this lane.",
     "created": "2026-09-13T00:00:00Z,Claude,retroactive",
     "predictedTokens": 0,
     "totalTokens": 0,
@@ -1824,13 +1824,13 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-033",
       "TASK-ZAI-038"
     ],
-    "evidence": "CR-019 deliverable 11; ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910"
+    "evidence": "PR #508 head `0d3a3c6b7d726c36fa7c821c0cb7bbb5194dfc06` merged as `259867faf4a3f41e91f3428c2bff3cfdda3d006d`; Prisma E2E harness 21/21, commerce/stocktake unit 8/8, integration 29/29 and focused browser 4/4 passed; hosted Governance/Edge runs `35549785192`/`35549785191` passed with E2E/Desktop skipped; migrations `20260911010000`/`20260911020000`, owner approval and production activation remain NOT_RUN; CR-019 deliverable 11; ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910"
   },
   "TASK-ZAI-040": {
     "container": "TC-TASK-ZAI-040",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "priority": "P1",
     "pic": "RWANG",
     "executor": "RWANG",
@@ -1870,18 +1870,18 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. FR-159 and FR-158, FR-157, FR-160 and FR-162 are locally verified bounded slices; FR-185 is locally verified planning/read only (PR #270, #273, #274, the marketing_content and marketing_operations migrations of 2026-09-06/07, broadcast intents 2026-09-11). PR #482 merged the reconciliation at `11826890` with hosted checks passing. Remains review: target import, provider, owner, release and production gates are not delivered, and the PRD says so.",
+    "changelog": "Opened retroactively 2026-09-13 under CR-019 deliverable 11. FR-159 and FR-158, FR-157, FR-160 and FR-162 are locally verified bounded slices; FR-185 is locally verified planning/read only (PR #270, #273, #274, the marketing_content and marketing_operations migrations of 2026-09-06/07, broadcast intents 2026-09-11). PR #482 merged the reconciliation at `11826890` with hosted checks passing. PR #503 added the six-test broadcast-planning client contract and merged at `5cfb3443625b4e833662945c34742c167a7bf2bd`; hosted Governance/Edge runs `35548539602`/`35548539585` passed with E2E/Desktop skipped. Remains review: target import, provider, owner, release and production gates are not delivered, and the PRD says so.",
     "created": "2026-09-13T00:00:00Z,Claude,retroactive",
     "predictedTokens": 0,
     "totalTokens": 0,
     "dependsOn": [],
-    "evidence": "CR-019 deliverable 11; CR-018"
+    "evidence": "PR #503 head `0d3d9568b148e2f0910b090fd00572a50cfcbbfb` merged as `5cfb3443625b4e833662945c34742c167a7bf2bd`; six broadcast-planning contract tests and hosted Governance/Edge runs `35548539602`/`35548539585` passed with E2E/Desktop skipped; target import, provider, owner, release and production gates remain open; CR-019 deliverable 11; CR-018"
   },
   "TASK-ZAI-041": {
     "container": "TC-TASK-ZAI-041",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -1927,14 +1927,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Reconciled 2026-09-21: PR #352's displayed E2E conclusion is FAILURE; hosted/other implementation evidence does not establish all-CI pass. PR #348 (ADR-077), #351 (ADR-078), #352 (ADR-079) and #350 (ADR-080) merged with integration evidence; the five migrations remain written but not recorded as applied, so the task remains review and TASK-ZAI-043 remains the production migration gate.",
+    "changelog": "Reconciled 2026-09-21: PR #352's displayed E2E conclusion is FAILURE; hosted/other implementation evidence does not establish all-CI pass. PR #348 (ADR-077), #351 (ADR-078), #352 (ADR-079) and #350 (ADR-080) merged with integration evidence. PR #506 added the bounded tenant-wide-grant roster fix and merged at `5fd32fb78fb04e32d7edc5ed4dd7f888fd258eeb`; focused identity evidence passed 26/26, the full server receipt passed 777 files / 6,537 tests with 32 skipped, and hosted Governance/Edge runs `35549400774`/`35549400779` passed with E2E/Desktop skipped. The five migrations remain written but not recorded as applied, so the task remains review and TASK-ZAI-043 remains the production migration gate.",
     "created": "2026-09-13T00:00:00Z,Claude,retroactive",
     "predictedTokens": 0,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-001"
     ],
-    "evidence": "PR #352's displayed E2E conclusion is FAILURE; hosted/other implementation evidence does not establish all-CI pass; production migration and owner approval/activation remain NOT_RUN; Section 3.1 rows 9 and 10; ADR-077 to ADR-080"
+    "evidence": "PR #506 head `5c5f57849cd2fb0fe4fa377f4118883e8d389a85` merged as `5fd32fb78fb04e32d7edc5ed4dd7f888fd258eeb`; bounded tenant-wide-grant roster fix, focused identity evidence 26/26 and full server receipt 777 files / 6,537 tests passed / 32 skipped; hosted Governance/Edge runs `35549400774`/`35549400779` passed with E2E/Desktop skipped; PR #352's historical E2E failure remains separate; migrations, owner approval and production activation remain NOT_RUN; Section 3.1 rows 9 and 10; ADR-077 to ADR-080"
   },
   "TASK-ZAI-042": {
     "container": "TC-TASK-ZAI-042",

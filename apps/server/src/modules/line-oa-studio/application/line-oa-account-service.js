@@ -97,12 +97,33 @@ function failure(status, message, extra = {}) {
   return error
 }
 
-/** The account's own JSON-parsed `webhookStateJson`, or `null` on any doubt (FR-227). */
+/**
+ * The account's own webhook health, or `null` on any doubt (FR-227, SEC-030).
+ * The column is TEXT rather than a database JSON type, so this is the read-side
+ * security boundary: a restore or repair must not turn arbitrary persisted keys
+ * into health-response fields.
+ */
 function parseWebhookState(json) {
   if (typeof json !== 'string' || !json) return null
   try {
     const parsed = JSON.parse(json)
-    return parsed && typeof parsed === 'object' ? parsed : null
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null
+
+    const allowed = ['endpoint', 'active', 'lastTestAt', 'lastTestReason', 'lastTestStatusCode']
+    if (Object.keys(parsed).some(key => !allowed.includes(key))) return null
+    if (typeof parsed.endpoint !== 'string' || !parsed.endpoint) return null
+    if (typeof parsed.active !== 'boolean') return null
+    if (typeof parsed.lastTestAt !== 'string' || !parsed.lastTestAt) return null
+    if (typeof parsed.lastTestReason !== 'string' || !parsed.lastTestReason) return null
+    if (parsed.lastTestStatusCode !== null && !Number.isInteger(parsed.lastTestStatusCode)) return null
+
+    return {
+      endpoint: parsed.endpoint,
+      active: parsed.active,
+      lastTestAt: parsed.lastTestAt,
+      lastTestReason: parsed.lastTestReason,
+      lastTestStatusCode: parsed.lastTestStatusCode,
+    }
   } catch {
     return null
   }

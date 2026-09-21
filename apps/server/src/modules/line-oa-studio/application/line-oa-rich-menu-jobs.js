@@ -263,9 +263,9 @@ export async function runLineRichMenuWorker({
     return null
   }
 
+  let stage = job.stage
   try {
     if (job.kind === 'PUBLISH') {
-      let stage = job.stage
       let externalRichMenuId = job.externalRichMenuId
       if (stage === 'CREATE') {
         // Resolved again at execution: an app archived between queue and run
@@ -344,7 +344,6 @@ export async function runLineRichMenuWorker({
   } catch (error) {
     // A thrown transport error is a request never confirmed either way. The
     // create stage may have made a menu; everything else is safe to retry.
-    const stage = job.stage
     const verdict = stage === 'CREATE' ? 'UNKNOWN' : 'QUEUED'
     return finish(verdict, { stage, patch: { errorCode: error?.code === 'LINE_SEND_INPUT_INVALID' ? 'LINE_SEND_INPUT_INVALID' : 'LINE_REQUEST_UNCONFIRMED' } })
   }

@@ -737,7 +737,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-007",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Proposal scope, AI Control"
+    "evidence": "Audit wave 2026-09-21: no approved Agent Factory contract; proposal/design-gated; owner must declare the canonical local contract; no implementation or test evidence claimed; 24-week baseline; Proposal scope, AI Control"
   },
   {
     "id": "TASK-ZAI-010",
@@ -748,7 +748,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-007",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 9"
+    "evidence": "Audit wave 2026-09-21: only FR-026 Gate F exists; owner-approved L1-L4 semantics and persistence contract are missing; no implementation or test evidence claimed; 24-week baseline; Section 3.1 row 9"
   },
   {
     "id": "TASK-ZAI-011",
@@ -825,7 +825,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-005",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 8; ADR-053"
+    "evidence": "Audit wave 2026-09-21: FR-125/ADR-053 implementation is unauthorized; provider verification, owner sign-off and FlowAccount Sandbox credentials are required; no implementation or test evidence claimed; 24-week baseline; Section 3.1 row 8; ADR-053"
   },
   {
     "id": "TASK-ZAI-018",
@@ -924,7 +924,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-024",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 3"
+    "evidence": "Audit wave 2026-09-21: FR-082..085/ADR-035 remains design-only; no approved node/traversal/redaction contract; no implementation or test evidence claimed; 24-week baseline; Section 3.1 row 3"
   },
   {
     "id": "TASK-ZAI-027",
@@ -1034,7 +1034,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "MERGED",
     "dependsOn": "—",
     "authority": "ROADMAP.md",
-    "evidence": "PR #480 merged at `d8a8e0e`; hosted checks passed; provider canary, real LINE delivery and production remain NOT_RUN"
+    "evidence": "PR #480 merged at `d8a8e0e`; PR #507 head `b1151774fd0721ea3c1057f6ec7c29611a1e4220` merged as `3f408ba9ffea415f1add48c1b5c1efd7d6f40187`; thrown-upload rich-menu regression 8/8 passed; hosted runs `35549452929`/`35549452972` passed applicable checks with E2E/Desktop skipped; provider canary, real LINE delivery and production remain NOT_RUN"
   },
   {
     "id": "TASK-ZAI-037",
@@ -1063,11 +1063,11 @@ export const ROADMAP_TASK_LEDGER = [
     "sprint": "SPR-ZAI-02",
     "title": "Commerce billing documents, POS checkout and physical stocktake — FR-186, FR-183, FR-184",
     "status": "review",
-    "proofScope": "UNKNOWN",
-    "implementationState": "IN_PROGRESS",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-033; TASK-ZAI-038",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; CR-019 deliverable 11; ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910"
+    "evidence": "PR #508 head `0d3a3c6b7d726c36fa7c821c0cb7bbb5194dfc06` merged as `259867faf4a3f41e91f3428c2bff3cfdda3d006d`; Prisma E2E harness 21/21, commerce/stocktake unit 8/8, integration 29/29 and focused browser 4/4 passed; hosted runs `35549785192`/`35549785191` passed applicable checks with E2E/Desktop skipped; migrations `20260911010000`/`20260911020000`, owner approval and production activation remain NOT_RUN; 24-week baseline; CR-019 deliverable 11; ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910"
   },
   {
     "id": "TASK-ZAI-040",
@@ -1078,18 +1078,18 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "MERGED",
     "dependsOn": "—",
     "authority": "ROADMAP.md",
-    "evidence": "PR #482 merged at `11826890`; hosted checks passed; target, provider, owner, release and production gates remain open"
+    "evidence": "PR #482 merged at `11826890`; PR #503 head `0d3d9568b148e2f0910b090fd00572a50cfcbbfb` merged as `5cfb3443625b4e833662945c34742c167a7bf2bd`; six broadcast-planning contract tests passed; hosted runs `35548539602`/`35548539585` passed applicable checks with E2E/Desktop skipped; target, provider, owner, release and production gates remain open; 24-week baseline; CR-019 deliverable 11; CR-018"
   },
   {
     "id": "TASK-ZAI-041",
     "sprint": "SPR-ZAI-02",
     "title": "Identity lifecycle: withdrawable grants, Employment and LegalEntity, invites and segregation of duties, audit access evidence — FEAT-027 to FEAT-030, FR-191 to FR-199",
     "status": "review",
-    "proofScope": "UNKNOWN",
-    "implementationState": "IN_PROGRESS",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-001",
     "authority": "ROADMAP.md",
-    "evidence": "cited E2E failure; no all-CI-pass claim; production migration and owner approval/activation remain NOT_RUN; 24-week baseline; Section 3.1 rows 9 and 10; ADR-077 to ADR-080"
+    "evidence": "PR #506 head `5c5f57849cd2fb0fe4fa377f4118883e8d389a85` merged as `5fd32fb78fb04e32d7edc5ed4dd7f888fd258eeb`; bounded tenant-wide-grant roster fix, focused identity evidence 26/26 and full server receipt 777 files / 6,537 tests passed / 32 skipped; hosted runs `35549400774`/`35549400779` passed applicable checks with E2E/Desktop skipped; PR #352's historical E2E failure remains separate; migrations, owner approval and production activation remain NOT_RUN; 24-week baseline; Section 3.1 rows 9 and 10; ADR-077 to ADR-080"
   },
   {
     "id": "TASK-ZAI-042",
@@ -1129,11 +1129,11 @@ export const ROADMAP_TASK_LEDGER = [
     "sprint": "SPR-ZAI-02",
     "title": "Knowledge file intake: Text/Markdown and FileAsset admission into an immutable raw artifact at Stage 1 — FR-173, FR-081, FR-109",
     "status": "review",
-    "proofScope": "UNKNOWN",
-    "implementationState": "IN_PROGRESS",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-005",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 4; ADR-072, ADR-073"
+    "evidence": "PR #511 head `0fa8fa5050d060fbd8d32bd5d521f907abad24f2` merged as `291db06f05d2eba52336de378ca40ba971d28cc4`; focused admission/runtime 15/15 passed; hosted Governance/Edge runs `35552902035`/`35552902044` passed applicable checks with E2E/Desktop skipped; FileAsset MIME now reaches the Stage 1 request; native KI17, FR-071 production ledger and production activation remain NOT_RUN; 24-week baseline; Section 3.1 row 4; ADR-072, ADR-073"
   },
   {
     "id": "TASK-ZAI-046",
@@ -1166,18 +1166,18 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-046",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; 17-stage flow, \"PDF/OCR/HTML/table parser\" row; FR-115, FR-138"
+    "evidence": "Audit wave 2026-09-21: ADR-072 currently allows text/Markdown only; a binary/OCR parser needs raw mapping and the downstream Stage 7-9 offset/provenance contract; no parser/provider approval or implementation/test evidence claimed; 24-week baseline; 17-stage flow, \"PDF/OCR/HTML/table parser\" row; FR-115, FR-138"
   },
   {
     "id": "TASK-ZAI-049",
     "sprint": "SPR-ZAI-03",
     "title": "Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1)",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "status": "review",
+    "proofScope": "LOCAL",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-045",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 4; FR-045, FR-111, FR-137"
+    "evidence": "PR #461 merge `e70385fe735644c8b3449f254c9618f0292ab45c`; tracked knowledge artifact storage service, S3 object-storage port, SQLite/Postgres schema and migrations, storage target/deploy contracts and focused unit/schema/S3-port/ingestion-recovery tests; audit found no new change. Provider/volume/license/key setup, migration apply, canary, separate-host backup, measured RPO/RTO, restore, MSP/GKS/Tier-4 lineage and TASK-ZAI-050 activation remain NOT_RUN; no production claim"
   },
   {
     "id": "TASK-ZAI-050",
@@ -1265,7 +1265,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-056; TASK-ZAI-039",
     "authority": "ROADMAP.md",
-    "evidence": "ROADMAP task row; ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md"
+    "evidence": "Audit wave 2026-09-21: approved proposal schedules this task but explicitly declares no standing requirement/decision record; Task Container and DoD are planned/unavailable/unchecked; TASK-ZAI-056/039 gates remain open; no implementation or test evidence claimed; ROADMAP task row; ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md"
   },
   {
     "id": "TASK-ZAI-058",
@@ -1287,7 +1287,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-045; TASK-ZAI-042",
     "authority": "ROADMAP.md",
-    "evidence": "ROADMAP task row; ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md"
+    "evidence": "Audit wave 2026-09-21: approved proposal schedules this task but generic STRUCTURED_RECORDS_V1 schema, entity registry, Excel mapping and MCP request contract are missing; ADR-075/FR-187 authorize only SMARTGIFT_CATALOG_V1; no implementation or test evidence claimed; ROADMAP task row; ../change-requests/ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913.md"
   },
   {
     "id": "TASK-ZAI-060",
@@ -1568,12 +1568,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-085",
     "sprint": "SPR-ZAI-04",
     "title": "Apply the credential vault and onboarding migrations on production — design migrations 1 to 4 and 8 and the webhook-state column, under ADR-057 with an inventory, a rolled-back dry run and a verified effect, recorded in the migration notes",
-    "status": "in-progress",
-    "proofScope": "UNKNOWN",
-    "implementationState": "IN_PROGRESS",
+    "status": "review",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-084",
     "authority": "ROADMAP.md",
-    "evidence": "ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md"
+    "evidence": "Existing migration/redeploy record remains in TC-TASK-ZAI-085; PR #510 head `4e0d762b6be777d0fa101f566a8a4b12fc9a6b5a` merged as `8cba5433ed07de8bbfc4eacf560f813fc4f6ede6`; fail-closed webhook-state consumer regression 42 passed across FR-227/FR-228/schema/migration-drift suites; hosted Governance/Edge runs `35551869394`/`35551869433` passed applicable checks with E2E/Desktop skipped; Vault default-ACL/privilege success gate remains open; no new migration, credential, provider or production action claimed; ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md"
   },
   {
     "id": "TASK-ZAI-086",
@@ -1837,7 +1837,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-105",
     "authority": "ROADMAP.md",
-    "evidence": "PR #427 implementation merged at `09fc5978`; PR #476 fix merged at `95edda4c`; hosted Governance #1197/#1327 and Edge #531/#657 passed with E2E skipped; migration `20260916130000_line_oa_business_hours.sql`, matching Server+Edge deployment, release after last account closes, out-of-hours no-model reply receipt, no-declared-hours behavior, first reply after 09:00 ICT and immutable production receipt remain open; production/owner activation NOT_RUN"
+    "evidence": "PR #427 implementation merged at `09fc5978`; PR #476 fix merged at `95edda4c`; PR #514 head `f49f06c1d3dcaba2389705a6b62b502186ead886` merged as `ff07d011a4ef96744b1a5a0cf87e42050cfa9631`; focused Edge residency/client 11 passed; hosted Governance/Edge runs `35552382409`/`35552382401` passed and the Edge desktop job passed; the 404 withdrawn-route fix preserves network/5xx retry behavior but does not prove migration `20260916130000_line_oa_business_hours.sql`, first reply after 09:00 ICT, immutable production receipt, owner activation, MSP or PORL; production remains NOT_RUN"
   },
   {
     "id": "TASK-ZAI-110",

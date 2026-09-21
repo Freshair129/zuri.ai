@@ -34,10 +34,14 @@ describe('LINE OA model key card', () => {
   })
 
   it('reports a validated key as ready, with provider and model but no key material', () => {
+    // `lastValidationCode` is part of the fixture now because it is part of what
+    // the server sends. The first version of this test omitted it and passed only
+    // because "ready" ignored the outcome — the defect below.
     const html = render({
       modelCredential: {
         connectionId: 'conn-1', provider: 'anthropic', model: 'claude-sonnet-5',
-        status: 'ACTIVE', secretStore: 'ENVELOPE', lastValidatedAt: '2026-09-21T00:00:00.000Z', version: 2,
+        status: 'ACTIVE', secretStore: 'ENVELOPE', lastValidatedAt: '2026-09-21T00:00:00.000Z',
+        lastValidationCode: 'MODEL_KEY_VALIDATED:ANTHROPIC', version: 2,
       },
       ...catalogue,
     })
@@ -45,6 +49,58 @@ describe('LINE OA model key card', () => {
     expect(html).toContain('claude-sonnet-5')
     expect(html).toContain('เปลี่ยนคีย์')
     expect(html).toContain('เพิกถอนคีย์')
+  })
+
+  it('does not call a key ready when its last check failed, and says why', () => {
+    // A refused re-validation still stamps `lastValidatedAt`. Reading only the time
+    // showed a key that had just failed as "พร้อมใช้งาน".
+    for (const [code, reason] of [['MODEL_NOT_FOUND', 'ไม่มีโมเดลนี้'], ['MODEL_KEY_REJECTED', 'ปฏิเสธคีย์นี้']]) {
+      const html = render({
+        modelCredential: {
+          connectionId: 'conn-1', provider: 'openai', model: 'gpt-4o-mini', status: 'ACTIVE',
+          lastValidatedAt: '2026-09-21T00:00:00.000Z', lastValidationCode: code, version: 2,
+        },
+        ...catalogue,
+      })
+      expect(html).not.toContain('พร้อมใช้งาน')
+      expect(html).toContain('ต้องตรวจสอบใหม่')
+      expect(html).toContain('การตรวจครั้งล่าสุดไม่ผ่าน')
+      expect(html).toContain(reason)
+    }
+  })
+
+  it('fills the suggested model, and an emptied field reads as empty', () => {
+    // Static rendering cannot replay "status arrives after the first render", so
+    // the value half of this test would pass against the old card too. The guard
+    // for that defect is the not-yet-loaded test below, which the old card fails
+    // (it rendered the form with no status). This test pins the value the form is
+    // initialised with, and — the part it does guard — the "เช่น …" placeholder.
+    const html = render({ modelCredential: null, ...catalogue })
+    expect(html).toMatch(/id="model-id-biz-1"[^>]*value="claude-sonnet-5"|value="claude-sonnet-5"[^>]*id="model-id-biz-1"/)
+    // And an emptied field reads as empty: the placeholder is "เช่น …", not a bare value.
+    expect(html).toContain('placeholder="เช่น claude-sonnet-5"')
+  })
+
+  it('restores the saved provider and model, not the first in the list', () => {
+    const html = render({
+      modelCredential: {
+        connectionId: 'conn-1', provider: 'openai', model: 'gpt-4.1-mini', status: 'ACTIVE',
+        lastValidatedAt: '2026-09-21T00:00:00.000Z', lastValidationCode: 'MODEL_KEY_VALIDATED:OPENAI', version: 1,
+      },
+      ...catalogue,
+    })
+    expect(html).toMatch(/<option value="openai" selected=""/)
+    expect(html).toContain('value="gpt-4.1-mini"')
+  })
+
+  it('shows a plain status line, not a half-built form, before the status has loaded', () => {
+    for (const status of [null, undefined]) {
+      const html = render(status)
+      expect(html).toContain('กำลังอ่านสถานะคีย์')
+      // No provider list with no options, and no save button that can never enable.
+      expect(html).not.toContain('<select')
+      expect(html).not.toContain('บันทึกคีย์')
+    }
   })
 
   it('does not call a stored, never-validated key ready', () => {
@@ -56,9 +112,16 @@ describe('LINE OA model key card', () => {
     expect(html).not.toContain('พร้อมใช้งาน')
   })
 
-  it('renders the key input as a password field that no browser will restore', () => {
+  it('renders the key input as a password field no browser will fill with a saved login', () => {
+    // This used to assert `autoComplete="off"` under the same title — which is the
+    // value Chrome ignores on password fields. The title was the intent; the
+    // assertion pinned the bug. `new-password` is the value browsers honour.
     const html = render({ modelCredential: null, ...catalogue })
-    expect(html).toMatch(/type="password"[^>]*autoComplete="off"|autoComplete="off"[^>]*type="password"/i)
+    const keyInput = html.match(/<input[^>]*id="model-key-biz-1"[^>]*>/)?.[0] ?? ''
+    expect(keyInput).toContain('type="password"')
+    expect(keyInput).toMatch(/autoComplete="new-password"/i)
+    expect(keyInput).not.toMatch(/autoComplete="off"/i)
+    expect(keyInput).toContain('data-1p-ignore="true"')
   })
 
   it('never suggests a model the server would have to guess for the owner', () => {

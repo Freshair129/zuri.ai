@@ -2,7 +2,7 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.18"
+version: "0.4.19"
 updated: "2026-09-21"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
@@ -36,6 +36,7 @@ related_docs:
 
 Rendered board: `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
 
+Version diff 0.4.18 → 0.4.19 (2026-09-21): Reconcile merged evidence after PR #501's scheduled/manual E2E policy. TASK-ZAI-036 records PR #507's thrown-upload rich-menu fix and 8/8 focused proof; TASK-ZAI-039 moves to `review / HOSTED_CI / MERGED` for PR #508's Prisma E2E bootstrap fix with 21/21 harness, 8/8 commerce/stocktake unit, 29/29 integration and 4/4 focused browser proof; TASK-ZAI-040 records PR #503's six-test broadcast contract; TASK-ZAI-041 moves to `review / HOSTED_CI / MERGED` for PR #506's bounded tenant-wide-grant roster fix. The applicable hosted Governance and Edge runs passed for all four PRs, with E2E/Desktop skipped by policy. Provider, real LINE, migration, owner, release, production, MSP and PORL gates remain open wherever the task requires them; no task is promoted to done.
 Version diff 0.4.17 → 0.4.18 (2026-09-21): Add the TASK-ZAI-120 backlog row and Task Container after PR #500 merged. Hosted Actions runs `35545108878` and `35545108894` passed the applicable checks, with E2E/Desktop skipped; full hosted npm test passed 777 files / 6,536 tests with 32 skips. The migration remains written and not applied; owner-instructed migration, deployment, production key/AAL2 and real LINE/provider validation, rollback and production receipt remain open. The task remains review.
 Version diff 0.4.16 → 0.4.17 (2026-09-21): Targeted source-container reconciliation only. TASK-ZAI-025 now reflects merged implementation/hosted evidence while remaining review; TASK-ZAI-041 records the cited E2E failure and makes no all-CI-pass claim; TASK-ZAI-047 names the frozen production-base branch and keeps runtime activation under TASK-ZAI-050; TASK-ZAI-056 retains fixture-only parity and unchecked criterion-level acceptance; TASK-ZAI-114 remains review with partial production-infrastructure evidence and a NOT_RUN first manifest; TASK-ZAI-119 remains review with PORL as the blocking external gate. No task is promoted to done.
 
@@ -510,12 +511,12 @@ locates the week.
 | TASK-ZAI-033 | SPR-ZAI-01 | task | Commerce orders and payments — FEAT-023, FR-166, FR-163 | P0 | Claude | done | TASK-ZAI-031 | CR-019 deliverable 11; ADR-065 |
 | TASK-ZAI-034 | SPR-ZAI-01 | task | Procurement suppliers, purchase orders and goods receipts — FEAT-024, FR-164, FR-165 | P0 | Claude | done | TASK-ZAI-031 | CR-019 deliverable 11; ADR-066 |
 | TASK-ZAI-035 | SPR-ZAI-01 | task | Asset Management foundation, evidence intake and edge extraction — FEAT-015 to FEAT-017, FR-133 to FR-144 | P1 | Codex | done | - | CR-019 deliverable 11; ADR-055, ADR-056, ADR-059 |
-| TASK-ZAI-036 | SPR-ZAI-01 | task | LINE OA Studio multi-account, rich menu, LIFF and server-owned transport — FEAT-018, FEAT-019, FR-146 to FR-153, FR-190 | P0 | Claude | review | - | CR-019 deliverable 11; ADR-060, ADR-061 |
+| TASK-ZAI-036 | SPR-ZAI-01 | task | LINE OA Studio multi-account, rich menu, LIFF and server-owned transport — FEAT-018, FEAT-019, FR-146 to FR-153, FR-190 | P0 | Claude | review | - | PR #507 head `b1151774fd0721ea3c1057f6ec7c29611a1e4220` merged as `3f408ba9ffea415f1add48c1b5c1efd7d6f40187`; focused thrown-upload regression 8/8 and hosted Governance/Edge runs `35549452929`/`35549452972` passed with E2E/Desktop skipped; provider canary, real LINE delivery and production remain NOT_RUN; CR-019 deliverable 11; ADR-060, ADR-061 |
 | TASK-ZAI-037 | SPR-ZAI-02 | task | SCM and CRM parent navigation, Business capabilities and module tabs — FR-167, FR-169, FR-170, FR-172 | P2 | Claude | done | TASK-ZAI-031 | CR-019 deliverable 11; ADR-069, ADR-071 |
 | TASK-ZAI-038 | SPR-ZAI-02 | task | SmartGift SCM located ledger, landed cost, work orders, ATP and agent tools — FEAT-025, FR-174 to FR-182 | P0 | Claude | done | TASK-ZAI-031; TASK-ZAI-034 | CR-019 deliverable 11; ADR-074 |
-| TASK-ZAI-039 | SPR-ZAI-02 | task | Commerce billing documents, POS checkout and physical stocktake — FR-186, FR-183, FR-184 | P1 | RWANG | review | TASK-ZAI-033; TASK-ZAI-038 | CR-019 deliverable 11; ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910 |
-| TASK-ZAI-040 | SPR-ZAI-02 | task | Marketing strategy, campaigns, content, operations and broadcast planning — FEAT-021, FR-157 to FR-160, FR-162, FR-185 | P1 | RWANG | review | - | CR-019 deliverable 11; CR-018 |
-| TASK-ZAI-041 | SPR-ZAI-02 | task | Identity lifecycle: withdrawable grants, Employment and LegalEntity, invites and segregation of duties, audit access evidence — FEAT-027 to FEAT-030, FR-191 to FR-199 | P0 | Claude | review | TASK-ZAI-001 | PR #352's displayed E2E conclusion is FAILURE; hosted/other implementation evidence does not establish all-CI pass; production migration and owner approval/activation remain NOT_RUN; Section 3.1 rows 9 and 10; ADR-077 to ADR-080 |
+| TASK-ZAI-039 | SPR-ZAI-02 | task | Commerce billing documents, POS checkout and physical stocktake — FR-186, FR-183, FR-184 | P1 | RWANG | review | TASK-ZAI-033; TASK-ZAI-038 | PR #508 head `0d3a3c6b7d726c36fa7c821c0cb7bbb5194dfc06` merged as `259867faf4a3f41e91f3428c2bff3cfdda3d006d`; Prisma E2E harness 21/21, commerce/stocktake unit 8/8, integration 29/29 and focused browser 4/4 passed; hosted Governance/Edge runs `35549785192`/`35549785191` passed with E2E/Desktop skipped; migrations `20260911010000`/`20260911020000`, owner approval and production activation remain NOT_RUN; CR-019 deliverable 11; ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910 |
+| TASK-ZAI-040 | SPR-ZAI-02 | task | Marketing strategy, campaigns, content, operations and broadcast planning — FEAT-021, FR-157 to FR-160, FR-162, FR-185 | P1 | RWANG | review | - | PR #503 head `0d3d9568b148e2f0910b090fd00572a50cfcbbfb` merged as `5cfb3443625b4e833662945c34742c167a7bf2bd`; six broadcast-planning contract tests and hosted Governance/Edge runs `35548539602`/`35548539585` passed with E2E/Desktop skipped; target import, provider, owner, release and production gates remain open; CR-019 deliverable 11; CR-018 |
+| TASK-ZAI-041 | SPR-ZAI-02 | task | Identity lifecycle: withdrawable grants, Employment and LegalEntity, invites and segregation of duties, audit access evidence — FEAT-027 to FEAT-030, FR-191 to FR-199 | P0 | Claude | review | TASK-ZAI-001 | PR #506 head `5c5f57849cd2fb0fe4fa377f4118883e8d389a85` merged as `5fd32fb78fb04e32d7edc5ed4dd7f888fd258eeb`; bounded tenant-wide-grant roster fix, focused identity evidence 26/26 and full server receipt 777 files / 6,537 tests passed / 32 skipped; hosted Governance/Edge runs `35549400774`/`35549400779` passed with E2E/Desktop skipped; PR #352's historical E2E failure remains separate; migrations, owner approval and production activation remain NOT_RUN; Section 3.1 rows 9 and 10; ADR-077 to ADR-080 |
 | TASK-ZAI-042 | SPR-ZAI-02 | task | SmartGift catalog convergence through the seventeen-stage adapter — FEAT-026, FR-187 to FR-189 | P1 | Claude | in-progress | TASK-ZAI-025 | Section 3.1 row 4; ADR-075 |
 | TASK-ZAI-043 | SPR-ZAI-03 | task | Apply every pending deliverable-11 migration on production and record it in the migration notes | P0 | ATHER | planned | TASK-ZAI-038; TASK-ZAI-039; TASK-ZAI-040; TASK-ZAI-041 | GATE-ZAI-09; ADR-057 |
 | TASK-ZAI-044 | SPR-ZAI-06 | task | GATE-ZAI-09 evidence run: ERP modules accepted on production for Business one | P0 | Owen | planned | TASK-ZAI-043 | GATE-ZAI-09 |
@@ -523,7 +524,7 @@ locates the week.
 | TASK-ZAI-046 | SPR-ZAI-02 | task | Tier 1 stage calculators, composition and quarantine, Stage 2 to 8 — FR-111 to FR-119 | P0 | Claude | done | TASK-ZAI-045 | Section 3.1 row 4; ADR-050 |
 | TASK-ZAI-047 | SPR-ZAI-03 | task | Knowledge base console: source library, ingestion run status, corpus and generation registry, cited query | P0 | Codex | review | TASK-ZAI-045 | frozen production-base branch; isolated implementation/native acceptance; runtime activation under TASK-ZAI-050; not deployed; Section 3.1 row 4; FR-254, FR-173, FR-071, FR-110 |
 | TASK-ZAI-048 | SPR-ZAI-03 | task | Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9 | P1 | Codex | planned | TASK-ZAI-046 | 17-stage flow, "PDF/OCR/HTML/table parser" row; FR-115, FR-138 |
-| TASK-ZAI-049 | SPR-ZAI-03 | task | Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1) | P0 | ATHER | planned | TASK-ZAI-045 | Section 3.1 row 4; FR-045, FR-111, FR-137 |
+| TASK-ZAI-049 | SPR-ZAI-03 | task | Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1) | P0 | ATHER | review | TASK-ZAI-045 | Section 3.1 row 4; FR-045, FR-111, FR-137 |
 | TASK-ZAI-050 | SPR-ZAI-03 | task | Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published | P0 | ATHER | planned | TASK-ZAI-045; TASK-ZAI-049 | ADR-073 amendment; ADR-075 Phase 2 gate |
 | TASK-ZAI-051 | SPR-ZAI-03 | task | Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary | P2 | Claude | planned | TASK-ZAI-050 | 17-stage flow, "connector/แหล่งเอกสาร" row; FR-081 |
 | TASK-ZAI-052 | SPR-ZAI-02 | task | Cost and quote engine decision record — proposal, ADR, FR and FEAT declarations with the owner's nine decisions | P0 | Claude | done | TASK-ZAI-038 | CR-019 deliverable 11; ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; SmartGift ADR-009 |
@@ -559,7 +560,7 @@ locates the week.
 | TASK-ZAI-082 | SPR-ZAI-04 | task | Self-serve LINE OA connection wizard — Thai step-up, Channel ID and secret entry with an optional override token, live proof with LINE, claim, vault write, connection, a masked credential card and a DRAFT account, and a mount-backed account moved into the vault on re-entry — FR-225 | P0 | Claude | done | TASK-ZAI-081 | Section 3.1 row 8; ADR-089 D2, D3, D7 |
 | TASK-ZAI-083 | SPR-ZAI-04 | task | Automatic LINE webhook registration and health — a publisher action sets, reads back and tests the account webhook through LINE, stores webhook health in LineOaAccount.webhookStateJson with its migration, and falls back to a Thai manual card — FR-227 | P0 | Claude | done | TASK-ZAI-082 | Section 3.1 row 8; ADR-089 D7 |
 | TASK-ZAI-084 | SPR-ZAI-04 | task | Derived legacy-transport quiescence and restore re-entry — ENABLE_SERVER derives quiescence for a vault-backed account from the endpoint LINE reports and 120 seconds without legacy evidence, validates through the dispatching secret manager, and a restored snapshot forces credential re-entry — FR-228 | P0 | Claude | done | TASK-ZAI-083 | Section 3.1 row 8; ADR-089 D5, D8; ADR-061 D3, D7 |
-| TASK-ZAI-085 | SPR-ZAI-04 | task | Apply the credential vault and onboarding migrations on production — design migrations 1 to 4 and 8 and the webhook-state column, under ADR-057 with an inventory, a rolled-back dry run and a verified effect, recorded in the migration notes | P0 | ATHER | in-progress | TASK-ZAI-084 | ADR-057; ADR-089 Phase 2 gate |
+| TASK-ZAI-085 | SPR-ZAI-04 | task | Apply the credential vault and onboarding migrations on production — design migrations 1 to 4 and 8 and the webhook-state column, under ADR-057 with an inventory, a rolled-back dry run and a verified effect, recorded in the migration notes | P0 | ATHER | review | TASK-ZAI-084 | ADR-057; ADR-089 Phase 2 gate |
 | TASK-ZAI-086 | SPR-ZAI-04 | task | Channel credential entry for the first production account — the Business owner, at AAL2, enters the Channel ID and secret in the production wizard to move one mount-backed LINE OA account into the vault; no agent ever types a credential | P0 | Owen | planned | TASK-ZAI-085 | ADR-089 D2, D4; SEC-030 |
 | TASK-ZAI-087 | SPR-ZAI-04 | task | Webhook cutover for the first production account — register and test the webhook through LINE, observe derived quiescence, enable server transport and record ADR-061 provider-webhook-replaced evidence with a written rollback | P0 | Owen | planned | TASK-ZAI-086 | ADR-089 D7, D8; ADR-061 D3 |
 | TASK-ZAI-088 | SPR-ZAI-04 | task | Non-text LINE content in the CRM record — sticker, location and media messages become Message rows with a content kind and placeholder body, media gets a MessageAttachment without bytes, follow, join, membership, postback and unsend become ConversationEvent rows, and an unsend tombstones its message — FR-229 | P0 | Claude | done | TASK-ZAI-077; TASK-ZAI-074; TASK-ZAI-075 | Section 3.1 row 8; ADR-091 D5 |
@@ -2206,7 +2207,7 @@ requirement_type: FR
 complexity: C-3
 access_scope: H3
 status: review
-version: 0.2.0
+version: 0.2.1
 pic: Claude
 executor: Claude
 approver: Owen
@@ -2225,7 +2226,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given the deployed web container, when ZURI_LINE_SERVER_ENABLED is read and a real LINE delivery is sent, then the native route answers 200 and the console badge shows OK within the owner's thresholds
       checked: false
-changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Accounts (FR-146/147), rich menu (FR-151/152), LIFF (FR-153), server-owned transport with optional Edge (FR-148 to FR-150) and transport reachability (FR-190) are merged through PR #341/#359. The isolated FR-190 audit found that the worker sweep omitted integrationConnectionId from its explicit account projection; the bounded fix, two-account regression and RCA are recorded in .brain/rca/2026-09-19-fr190-sweep-account-scope.md. PR #480 merged that fix at `d8a8e0e` with hosted checks passing; the exit criterion stays unchecked because provider canary, real LINE delivery and production verification remain NOT_RUN.
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Accounts (FR-146/147), rich menu (FR-151/152), LIFF (FR-153), server-owned transport with optional Edge (FR-148 to FR-150) and transport reachability (FR-190) are merged through PR #341/#359. The isolated FR-190 audit found that the worker sweep omitted integrationConnectionId from its explicit account projection; the bounded fix, two-account regression and RCA are recorded in .brain/rca/2026-09-19-fr190-sweep-account-scope.md. PR #480 merged that fix at `d8a8e0e` with hosted checks passing. PR #507 then preserved the mutable `UPLOAD` stage when rich-menu upload throws; its focused regression passed 8/8 and hosted Governance/Edge runs `35549452929`/`35549452972` passed with E2E/Desktop skipped. The exit criterion stays unchecked because provider canary, real LINE delivery and production verification remain NOT_RUN.
 created_at: 2026-09-13T00:00:00Z,Claude,retroactive
 token_telemetry:
   model_name: claude-opus-5
@@ -2338,7 +2339,7 @@ requirement_type: FR
 complexity: C-3
 access_scope: H3
 status: review
-version: 0.1.0
+version: 0.1.1
 pic: RWANG
 executor: RWANG
 approver: Owen
@@ -2357,7 +2358,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given the production migration ledger, when 20260911010000 and 20260911020000 are applied and recorded, then the FR-186, FR-183 and FR-184 rows leave the "not applied" state
       checked: false
-changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Owner-approved and locally verified 2026-09-11 (PRD 🔵; ROADMAP.md 2.52.0b records FR-184's isolated browser, concurrency and recovery proof). In review, not done, because the two migrations are written and not applied — the exit criterion is TASK-ZAI-043's job for this lane.
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. Owner-approved and locally verified 2026-09-11 (PRD 🔵; ROADMAP.md 2.52.0b records FR-184's isolated browser, concurrency and recovery proof). PR #508 merged the current-worktree Prisma generation fix at `259867faf4a3f41e91f3428c2bff3cfdda3d006d`; its harness 21/21, commerce/stocktake unit 8/8, integration 29/29 and focused browser 4/4 receipts passed, and hosted Governance/Edge runs `35549785192`/`35549785191` passed with E2E/Desktop skipped. In review, not done, because the two migrations are written and not applied — the exit criterion is TASK-ZAI-043's job for this lane.
 created_at: 2026-09-13T00:00:00Z,Claude,retroactive
 token_telemetry:
   model_name: claude-opus-5
@@ -2382,7 +2383,7 @@ requirement_type: FR
 complexity: C-3
 access_scope: H3
 status: review
-version: 0.1.0
+version: 0.1.1
 pic: RWANG
 executor: RWANG
 approver: Owen
@@ -2401,7 +2402,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given the Marketing surfaces, when P5 broadcast planning and the remaining CR-018 phases conclude, then provider metrics, audience resolution and dispatch are either delivered or explicitly recorded as out of scope, and the marketing migrations are recorded applied on production
       checked: false
-changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. FR-159 and FR-158, FR-157, FR-160 and FR-162 are locally verified bounded slices; FR-185 is locally verified planning/read only (PR #270, #273, #274, the marketing_content and marketing_operations migrations of 2026-09-06/07, broadcast intents 2026-09-11). PR #482 merged the reconciliation at `11826890` with hosted checks passing. Remains review: target import, provider, owner, release and production gates are not delivered, and the PRD says so.
+changelog: Opened retroactively 2026-09-13 under CR-019 deliverable 11. FR-159 and FR-158, FR-157, FR-160 and FR-162 are locally verified bounded slices; FR-185 is locally verified planning/read only (PR #270, #273, #274, the marketing_content and marketing_operations migrations of 2026-09-06/07, broadcast intents 2026-09-11). PR #482 merged the reconciliation at `11826890` with hosted checks passing. PR #503 added the six-test broadcast-planning client contract and merged at `5cfb3443625b4e833662945c34742c167a7bf2bd`; hosted Governance/Edge runs `35548539602`/`35548539585` passed with E2E/Desktop skipped. Remains review: target import, provider, owner, release and production gates are not delivered, and the PRD says so.
 created_at: 2026-09-13T00:00:00Z,Claude,retroactive
 token_telemetry:
   model_name: claude-opus-5
@@ -2426,7 +2427,7 @@ requirement_type: FR
 complexity: C-3
 access_scope: H3
 status: review
-version: 0.2.0
+version: 0.2.1
 pic: Claude
 executor: Claude
 approver: Owen
@@ -2445,7 +2446,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given the production migration ledger, when 20260912120000 to 20260912160000 are applied and recorded, then FR-191, FR-192 and FR-195 to FR-199 leave the "implemented locally" state
       checked: false
-changelog: Reconciled 2026-09-21: PR #352's displayed E2E conclusion is FAILURE; hosted/other implementation evidence does not establish all-CI pass. PR #348 (ADR-077), #351 (ADR-078), #352 (ADR-079) and #350 (ADR-080) merged with integration evidence; the five migrations remain written but not recorded as applied, so the task remains review and TASK-ZAI-043 remains the production migration gate.
+changelog: Reconciled 2026-09-21: PR #352's displayed E2E conclusion is FAILURE; hosted/other implementation evidence does not establish all-CI pass. PR #348 (ADR-077), #351 (ADR-078), #352 (ADR-079) and #350 (ADR-080) merged with integration evidence. PR #506 added the bounded tenant-wide-grant roster fix and merged at `5fd32fb78fb04e32d7edc5ed4dd7f888fd258eeb`; focused identity evidence passed 26/26, the full server receipt passed 777 files / 6,537 tests with 32 skipped, and hosted Governance/Edge runs `35549400774`/`35549400779` passed with E2E/Desktop skipped. The five migrations remain written but not recorded as applied, so the task remains review and TASK-ZAI-043 remains the production migration gate.
 created_at: 2026-09-13T00:00:00Z,Claude,retroactive
 token_telemetry:
   model_name: claude-opus-5
@@ -7528,3 +7529,4 @@ second run over the same logs writes the same block.
 | 0.4.14 | 2026-09-20 | TASK-ZAI-024 retrieval-policy implementation and focused ordering/audit proof recorded as review/local evidence. Production, hosted CI, merge and release activation remain outside this change. |
 | 0.4.15 | 2026-09-20 | Hosted-CI reconciliation for TASK-ZAI-024, TASK-ZAI-036, TASK-ZAI-040 and TASK-ZAI-053: merged implementation evidence recorded; 024/053 are done, 036/040 remain review; production/provider/owner/release gates remain open or NOT_RUN. |
 | 0.4.16 | 2026-09-21 | Hosted-CI reconciliation for TASK-ZAI-056: PR #487 merged the integer-satang pricing engine and FR-181 integration at 5b2964c5; parity is fixture-only and production, owner, deployment, migration, MSP and GKS gates remain NOT_RUN. |
+| 0.4.19 | 2026-09-21 | Reconciled PR #501's scheduled/manual E2E policy and merged evidence for TASK-ZAI-036 (#507), TASK-ZAI-039 (#508), TASK-ZAI-040 (#503) and TASK-ZAI-041 (#506). Hosted Governance/Edge checks passed with E2E/Desktop skipped; all four tasks remain review where provider, migration, owner, release, production, MSP or PORL gates are open. |
