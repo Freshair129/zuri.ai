@@ -52,6 +52,10 @@ function makeDb(over = {}) {
       findMany: vi.fn().mockResolvedValue([]),
       ...over.membership,
     },
+    business: {
+      findUnique: vi.fn().mockResolvedValue({ id: 'business-a', tenantId: 'tenant-1' }),
+      ...over.business,
+    },
     roleBinding: { findMany: vi.fn().mockResolvedValue([]), ...over.roleBinding },
     // A person scope resolves invite ids the same relational way it resolves
     // Membership and RoleBinding ids — an ACCESS_INVITE row's entityId is the
@@ -197,6 +201,27 @@ describe('listBusinessAccess', () => {
     expect(revoked.revokeReason).toBe('left the company')
     expect(revoked.revokedBy).toMatchObject({ displayName: 'Owner A' })
     expect(result.grants.find((g) => g.id === 'm-1').domainKeys).toEqual(['projects'])
+  })
+
+  it('includes tenant-wide grants in the Business roster', async () => {
+    const tenantGrant = {
+      id: 'm-tenant', personId: 'p-tenant', role: 'OWNER', status: 'ACTIVE', scopeType: 'TENANT',
+      domainKeysJson: '["projects"]', grantedByPersonId: 'owner-a', grantReason: 'group owner',
+      grantSource: 'ADMIN', expiresAt: null, suspendedAt: null, revokedAt: null,
+      revokedByPersonId: null, revokeReason: null, createdAt: new Date(),
+      person: { id: 'p-tenant', code: 'PSN-TENANT', displayName: 'Tenant Owner' },
+      grantedBy: { id: 'owner-a', code: 'PSN-OWNER-A', displayName: 'Owner A' }, revokedBy: null,
+      businessId: null, tenantId: 'tenant-1',
+    }
+    const db = makeDb({ membership: { findMany: vi.fn().mockResolvedValue([tenantGrant]) } })
+
+    const result = await listBusinessAccess({ businessId: 'business-a' }, { db, resolve: businessOwner })
+
+    expect(result.grants).toHaveLength(1)
+    expect(result.grants[0]).toMatchObject({ id: 'm-tenant', scopeType: 'TENANT', businessId: null })
+    expect(db.membership.findMany).toHaveBeenCalledWith(expect.objectContaining({
+      where: { OR: [{ businessId: 'business-a' }, { tenantId: 'tenant-1', businessId: null }] },
+    }))
   })
 
   it('lets a tenant-wide owner read a Business they own through the Tenant', async () => {
