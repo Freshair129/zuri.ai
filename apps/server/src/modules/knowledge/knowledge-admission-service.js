@@ -463,8 +463,21 @@ function resultForAdmission(ingestion, { corpus, source, unchanged = false } = {
   }
 }
 
-function isUniqueError(error) {
-  return error?.code === 'P2002' || /unique|already exists|duplicate/i.test(error?.message || '')
+// A Prisma error carries its own code, and its message echoes the failing
+// query's data (a catalog record can contain the word "unique"). Only P2002 is
+// a unique violation; the message fallback is for drivers without a code.
+export function isUniqueError(error) {
+  if (typeof error?.code === 'string' && /^P\d{4}$/.test(error.code)) return error.code === 'P2002'
+  return /unique|already exists|duplicate/i.test(error?.message || '')
+}
+
+// One structured projection is admitted in one transaction (all records or
+// none), about six round trips per record. Prisma's 5s default expired at 16
+// records against a remote database (~50ms per query), so the budget grows
+// with the record count, bounded.
+export function structuredAdmissionTransactionOptions(recordCount) {
+  const records = Math.max(1, Number(recordCount) || 1)
+  return { maxWait: 10_000, timeout: Math.min(120_000, 10_000 + records * 1_500) }
 }
 
 /** Find or create the one corpus this Business/Project scope admits into. */
@@ -688,7 +701,7 @@ async function admitStructuredRecords({
       }))
     }
     return { corpus, admitted }
-  })
+  }, structuredAdmissionTransactionOptions(split.records.length))
 
   return {
     format: value.source.format,
