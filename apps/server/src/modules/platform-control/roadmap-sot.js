@@ -113,8 +113,8 @@ export const ROADMAP_SOT = {
   },
   "dag": {
     "algorithm": "kahn-topological-layers",
-    "nodeCount": 119,
-    "edgeCount": 133,
+    "nodeCount": 120,
+    "edgeCount": 134,
     "waveCount": 21,
     "missingDependencies": [],
     "cycles": [],
@@ -323,7 +323,8 @@ export const ROADMAP_SOT = {
         "wave": 18,
         "taskIds": [
           "TASK-ZAI-087",
-          "TASK-ZAI-112"
+          "TASK-ZAI-112",
+          "TASK-ZAI-120"
         ]
       },
       {
@@ -1947,6 +1948,17 @@ export const ROADMAP_TASK_LEDGER = [
     "dependsOn": "TASK-ZAI-064",
     "authority": "ROADMAP.md",
     "evidence": "PR #468; approved head 53a2439ad722ca32797db381f3e3f46360ffd5d8; merge commit 0932f31e2e130af95b0a889772005281ffc8d112; hosted tests/govern/build/edge-verify/changes passed; desktop/e2e remained skipped by repository policy; targeted local receipt `.brain/reports/task-zai-119-responsive-receipt.json` records 1/1 passed at 390x844 and 430x932 with retry 0/flaky 0; PORL unavailable; no deployment or production activation claimed; production/PORL observation NOT_RUN"
+  },
+  {
+    "id": "TASK-ZAI-120",
+    "sprint": "SPR-ZAI-10",
+    "title": "LINE OA on API keys only — FEAT-045 and FR-265/FR-266 retire EDGE conversation execution and the LOCAL_ONLY canned answerer, add browser-provisioned MODEL_PROVIDER_KEY resolution through SecretStorePort, and keep the Phase-1 resolver as an absence-only fallback",
+    "status": "review",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
+    "dependsOn": "TASK-ZAI-103",
+    "authority": "ROADMAP.md",
+    "evidence": "PR #500 head `d227ac239994b30050ecfa7149fb6228d870beaa` merged as `cfb62da3d904b7344572ed038667c1a733cec06d`; hosted Actions run `35545108878` passed changes/govern/tests/build/verify with e2e skipped and run `35545108894` passed Edge changes/edge-verify with desktop skipped; full hosted npm test 777 files / 6,536 tests passed, 32 skipped, 0 failed; migration `20260921090000_line_oa_retire_edge_execution.sql` written and not applied; owner-instructed migration apply, deployment, owner-entered production key/AAL2 and real LINE/provider validation, rollback and production receipt remain NOT_RUN; Phase-1 resolver retirement remains TASK-ZAI-103"
   }
 ]
 
